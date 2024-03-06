@@ -33,11 +33,15 @@ spring:
       use-sql-comments: true
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  main:
+    allow-bean-definition-overriding: true
+
 server:
   servlet:
-    context-path: '@project.contextPath@'
+    context-path: '/@project.contextPath@'
 project:
   jwt:
     signKey: WzROun12eUiDvko3UrJ74gNeJz2TWEWPMTh6DxyE8HWXIf4hETUrkM4IUGqqHq66PuVS
     expirationMinutes: 1440
+
 
