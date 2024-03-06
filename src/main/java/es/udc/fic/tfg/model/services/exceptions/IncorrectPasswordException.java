@@ -1,2 +1,7 @@
-package es.udc.fic.tfg.model.services.exceptions;public class IncorrectPasswordException {
-}
+package es.udc.fic.tfg.model.services.exceptions;
+
+/**
+ * The Class IncorrectPasswordException.
+ */
+@SuppressWarnings("serial")
+public class IncorrectPasswordException  extends Exception {}

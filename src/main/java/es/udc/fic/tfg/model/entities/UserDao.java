@@ -1,8 +1,9 @@
 package es.udc.fic.tfg.model.entities;
 
+import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.management.InstanceNotFoundException;
+
 import java.util.Optional;
 
 public interface UserDao extends JpaRepository<User, Long> {

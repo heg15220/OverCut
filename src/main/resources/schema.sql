@@ -7,7 +7,7 @@ CREATE TABLE Users (
     email VARCHAR(60) NOT NULL,
     isJournalist BOOLEAN DEFAULT FALSE,
     image BLOB
-)
+);
 
 INSERT INTO Users(userName, firstName, lastName, password, email, isJournalist, image)
     VALUES('F1Fan', 'Race', 'Week', 'formula1', 'f1fan@gmail.com', false, NULL);
