@@ -48,6 +48,10 @@ public class UserServiceImpl implements UserService{
             throw new DuplicateInstanceException("project.entities.user", user.getUserName());
         }
 
+        if(userDao.existsByEmail(user.getEmail())){
+            throw new DuplicateInstanceException("project.entities.user", user.getEmail());
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userDao.save(user);

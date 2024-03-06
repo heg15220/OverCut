@@ -29,6 +29,7 @@ public class SecurityConfig {
         return new JwtFilter();
     }
 
+
     /**
      * Configure.
      *
@@ -46,6 +47,9 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/*")).permitAll()
                         .requestMatchers(antMatcher("/static/**")).permitAll()
                         .requestMatchers(antMatcher("/assets/**")).permitAll()
+                        .requestMatchers(antMatcher("/api/users/signUp")).permitAll()
+                        .requestMatchers(antMatcher("/api/users/login")).permitAll()
+                        .requestMatchers(antMatcher("/api/users/loginFromServiceToken")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -33,6 +33,7 @@ public class User {
 
 
     /** To know if the user is a journalist or not. */
+    @Column(name = "journalist")
     private boolean isJournalist;
 
 

@@ -16,6 +16,8 @@ public interface UserDao extends JpaRepository<User, Long> {
      */
     boolean existsByUserName(String userName);
 
+    boolean existsByEmail(String email);
+
     /**
      * Find by user name.
      *

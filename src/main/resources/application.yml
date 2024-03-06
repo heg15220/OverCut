@@ -38,7 +38,7 @@ spring:
 
 server:
   servlet:
-    context-path: '/@project.contextPath@'
+    context-path: '@project.contextPath@'
 project:
   jwt:
     signKey: WzROun12eUiDvko3UrJ74gNeJz2TWEWPMTh6DxyE8HWXIf4hETUrkM4IUGqqHq66PuVS
