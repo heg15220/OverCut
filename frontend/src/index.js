@@ -8,7 +8,7 @@ import { IntlProvider } from 'react-intl';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
-import './index.css'
+import './index.css';
 
 import {store, persistor} from './store';
 import backend from './backend';
