@@ -23,6 +23,7 @@ const user = (state = initialState.user, action) => {
         default:
             return state;
     }
+
 }
 
 const reducer = combineReducers({

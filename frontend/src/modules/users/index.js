@@ -5,10 +5,10 @@ import * as selectors from './selectors';
 
 export { default as SignUp } from './components/SignUp';
 export { default as Login } from './components/Login';
-export { default as Logout } from './components/LogOut';
 export { default as ChangePassword } from './components/ChangePassword';
+export { default as UpdateProfile } from './components/UpdateProfile';
 export { default as UserDetails } from './components/UserDetails';
 
-let modUserExport = { actions, actionTypes, reducer, selectors };
+const modUserExport = { actions, actionTypes, reducer, selectors };
 
 export default modUserExport;

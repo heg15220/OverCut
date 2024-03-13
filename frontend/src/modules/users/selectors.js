@@ -6,5 +6,5 @@ export const getUser = state =>
 export const isLoggedIn = state =>
     getUser(state) !== null
 
-export const getEmail = state =>
-    isLoggedIn(state) ? getUser(state).email : null;
+export const getUserName = state =>
+    isLoggedIn(state) ? getUser(state).userName : null;

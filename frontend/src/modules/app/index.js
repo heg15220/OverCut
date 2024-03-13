@@ -3,5 +3,5 @@ import reducer from './reducer'
 import * as selectors from './selectors';
 import App from './components/App';
 
-let modAppExport = { App, actions, reducer, selectors };
+const modAppExport = { App, actions, reducer, selectors };
 export default modAppExport;

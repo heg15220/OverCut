@@ -50,9 +50,9 @@ const UserDetails = () => {
 
                 </div>
 
-                {user.image && <div class="vr ms-4"></div>}
+                {user.image && <div className="vr ms-4"></div>}
                 <div className="ms-4">
-                    {user.image && <img src={"data:image/jpg;base64," + user.image} class="rounded-circle m-2" width="250px" height="250px" alt="Avatar" />}
+                    {user.image && <img src={"data:image/jpg;base64," + user.image} className="rounded-circle m-2" width="250px" height="250px" alt="Avatar" />}
 
                 </div>
             </div>

@@ -76,7 +76,7 @@ const SignUp = () => {
     }
 
     return (
-        <div class="">
+        <div className="">
             <div>
                 <Errors errors={backendErrors} onClose={() => setBackendErrors(null)} />
 

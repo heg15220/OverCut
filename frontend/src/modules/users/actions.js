@@ -20,8 +20,8 @@ const loginCompleted = authenticatedUser => ({
     authenticatedUser
 });
 
-export const login = (email, password, onSuccess, onErrors, reauthenticationCallback) => dispatch =>
-    backend.userService.login(email, password,
+export const login = (userName, password, onSuccess, onErrors, reauthenticationCallback) => dispatch =>
+    backend.userService.login(userName, password,
         authenticatedUser => {
             dispatch(loginCompleted(authenticatedUser));
             onSuccess();
@@ -42,6 +42,14 @@ export const updateProfileCompleted = user => ({
     type: actionTypes.UPDATE_PROFILE_COMPLETED,
     user
 });
+
+export const updateProfile = (user, onSuccess, onErrors) => dispatch =>
+    backend.userService.updateProfile(user,
+        user => {
+            dispatch(updateProfileCompleted(user));
+            onSuccess();
+        },
+        onErrors);
 
 const addUserImageCompleted = (user) => ({
     type: actionTypes.ADD_IMAGE_COMPLETED,
