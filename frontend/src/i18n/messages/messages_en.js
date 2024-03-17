@@ -18,6 +18,9 @@ const en = {
     "project.users.ChangePassword.title": "Change password",
     "project.users.UpdateProfile.title": "Update profile",
     "project.users.UpdateProfileImage.title": "Add Image",
+    "project.user.userImage.title": "Add your user image",
+    "project.global.fields.title": "Title",
+    "project.global.fields.url": "URL",
 
 }
 export default en;
