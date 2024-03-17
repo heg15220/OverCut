@@ -64,7 +64,5 @@ export const addUserImage = (user, file, onSuccess, onErrors) =>
             },
             onErrors);
     }
-
-
 export const changePassword = (id, oldPassword, newPassword, onSuccess, onErrors) => dispatch =>
     backend.userService.changePassword(id, oldPassword, newPassword, onSuccess, onErrors);

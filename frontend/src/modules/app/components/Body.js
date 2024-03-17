@@ -5,7 +5,7 @@ import './App.css'
 
 
 
-import users, { Login, SignUp,UpdateProfile, ChangePassword, UserDetails } from '../../users';;
+import users, { Login, SignUp,UpdateProfile, ChangePassword, UserDetails } from '../../users';
 
 
 
@@ -19,6 +19,7 @@ const Body = () => {
                 <Route path="/">
                     <Route path="/users/signUp" element={<SignUp />} />
                     <Route path="/users/login" element={<Login />} />
+                    <Route path="/users/logout" element={<Logout />} />
                     {loggedIn && <Route path="/user/user-details/:id" element={<UserDetails />} />}
                     {loggedIn && <Route path="/users/update-profile" element={<UpdateProfile />} />}
                     {loggedIn && <Route path="/users/change-password" element={<ChangePassword/>}/>}
