@@ -19,6 +19,11 @@ public class LoginParamsDto {
         super();
     }
 
+    public LoginParamsDto(String mail, String password) {
+        this.email = mail;
+        this.password = password;
+    }
+
     /**
      * Gets the user email.
      *

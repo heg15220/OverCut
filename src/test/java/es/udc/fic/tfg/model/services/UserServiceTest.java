@@ -9,6 +9,7 @@ import es.udc.fic.tfg.model.services.exceptions.IncorrectLoginException;
 import es.udc.fic.tfg.model.services.exceptions.IncorrectPasswordException;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -285,6 +286,30 @@ class UserServiceTest {
             userService.addImage(user.getId(), null);
         });
     }
+
+    @Test
+    void testUpdateProfileSuccess() throws InstanceNotFoundException {
+        // Preparar
+        Long id = 1L;
+        String firstName = "NuevoNombre";
+        String lastName = "NuevoApellido";
+        String email = "nuevo@email.com";
+        User user = new User();
+        user.setId(id);
+        user.setFirstName("AntiguoNombre");
+        user.setLastName("AntiguoApellido");
+        user.setEmail("antiguo@email.com");
+
+        userDao.save(user);
+        permisionChecker.checkUser(id);
+
+        User updatedUser = userService.updateProfile(id, firstName, lastName, email);
+
+        assertEquals(firstName, updatedUser.getFirstName());
+        assertEquals(lastName, updatedUser.getLastName());
+        assertEquals(email, updatedUser.getEmail());
+    }
+
 }
 
 

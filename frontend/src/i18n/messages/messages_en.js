@@ -21,6 +21,10 @@ const en = {
     "project.user.userImage.title": "Add your user image",
     "project.global.fields.title": "Title",
     "project.global.fields.url": "URL",
+    'project.global.fields.userName': 'UserName',
+    'project.users.Profile.title': 'Title',
+    'project.users.CreatePost.title': 'Create Post',
+    'project.users.MyPosts.title': 'MyPosts'
 
 }
 export default en;
