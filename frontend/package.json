@@ -58,5 +58,6 @@
     "presets": [
       "@babel/preset-react"
     ]
-  }
+  },
+  "proxy": "http://localhost:8080"
 }

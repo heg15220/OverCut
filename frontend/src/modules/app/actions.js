@@ -10,7 +10,9 @@ export const loaded = () => ({
 
 export const error = error => ({
     type: actionTypes.ERROR,
-    error
+    error: {
+        message: error.messsage,
+    }
 });
 
 

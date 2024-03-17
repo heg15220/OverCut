@@ -1,33 +1,39 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { HotModuleReplacementPlugin } = require('webpack');
 
 module.exports = (env, argv) => {
     const isProduction = argv.mode === 'production';
 
     return {
-        entry: './src/index.js', // Punto de entrada de tu aplicación
+        entry: './src/index.js',
         output: {
-            path: path.resolve(__dirname, 'dist'), // Directorio de salida
-            filename: 'bundle.js', // Nombre del archivo de salida
+            path: path.resolve(__dirname, 'dist'),
+            filename: 'bundle.js',
         },
         resolve: {
-            extensions: ['.js', '.jsx'], // Extensiones de archivo que Webpack resolverá
+            extensions: ['.js', '.jsx'],
         },
         module: {
             rules: [
                 {
-                    test: /\.(js|jsx)$/, // Expresión regular para archivos JS y JSX
-                    exclude: /node_modules/, // Excluye la carpeta node_modules
+                    test: /\.(js|jsx)$/,
+                    exclude: /node_modules/,
                     use: {
-                        loader: 'babel-loader', // Usa babel-loader para transpilar JSX
+                        loader: 'babel-loader',
                         options: {
-                            presets: ['@babel/preset-react'], // Preset para transpilar JSX
+                            presets: ['@babel/preset-react'],
                         },
                     },
                 },
                 {
-                    test: /\.css$/, // Expresión regular para archivos CSS
-                    use: ['style-loader', 'css-loader'], // Usa style-loader y css-loader para manejar archivos CSS
+                    test: /\.css$/,
+                    use: [
+                        isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+                        'css-loader',
+                        'postcss-loader',
+                    ],
                 },
                 {
                     test: /\.svg$/,
@@ -37,14 +43,19 @@ module.exports = (env, argv) => {
         },
         plugins: [
             new HtmlWebpackPlugin({
-                template: './public/index.html', // Plantilla HTML
+                template: './public/index.html',
             }),
-        ],
+            isProduction && new MiniCssExtractPlugin({
+                filename: '[name].[contenthash].css',
+            }),
+            !isProduction && new HotModuleReplacementPlugin(),
+        ].filter(Boolean),
         devServer: {
-            contentBase: path.join(__dirname, 'dist'), // Directorio base del servidor de desarrollo
-            compress: true, // Habilita la compresión
-            port: 3000, // Puerto del servidor de desarrollo
+            contentBase: path.join(__dirname, 'dist'),
+            compress: true,
+            port: 8080,
+            hot: !isProduction,
         },
-        mode: isProduction ? 'production' : 'development', // Modo de Webpack basado en el argumento de línea de comandos
+        mode: isProduction ? 'production' : 'development',
     };
 };
