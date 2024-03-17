@@ -2,6 +2,7 @@ package es.udc.fic.tfg.model.entities;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 
 import java.util.Optional;
@@ -15,6 +16,8 @@ public interface UserDao extends JpaRepository<User, Long> {
      * @return true, if successful
      */
     boolean existsByUserName(String userName);
+
+
 
     boolean existsByEmail(String email);
 
@@ -32,6 +35,8 @@ public interface UserDao extends JpaRepository<User, Long> {
      * @param email the email
      * @return the optional
      */
+
+    @Query("SELECT u FROM User u WHERE u.email = ?1")
     Optional<User> findByEmail(String email);
 
     /**

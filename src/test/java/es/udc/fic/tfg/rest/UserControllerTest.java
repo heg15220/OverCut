@@ -166,8 +166,4 @@ class UserControllerTest {
                 .content(mapper.writeValueAsBytes(loginParams))).andExpect(status().is(404));
 
     }
-
-
-
-
 }

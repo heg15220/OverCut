@@ -199,4 +199,29 @@ public class UserController {
         return jwtGenerator.generate(jwtInfo);
 
     }
+
+
+    /**
+     * Update profile.
+     *
+     * @param userId  the user id
+     * @param id      the id
+     * @param userDto the user dto
+     * @return the user dto
+     * @throws InstanceNotFoundException the instance not found exception
+     * @throws PermissionException       the permission exception
+     */
+    @PutMapping("/{id}")
+    public UserDto updateProfile(@RequestAttribute Long userId, @PathVariable("id") Long id,
+                                 @Validated({ UserDto.UpdateValidations.class }) @RequestBody UserDto userDto)
+            throws InstanceNotFoundException, PermissionException {
+
+        if (!id.equals(userId)) {
+            throw new PermissionException();
+        }
+
+        return toUserDto(
+                userService.updateProfile(id, userDto.getFirstName(), userDto.getLastName(), userDto.getEmail()));
+
+    }
 }

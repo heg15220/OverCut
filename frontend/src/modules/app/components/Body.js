@@ -5,7 +5,7 @@ import './App.css'
 
 
 
-import users, { Login, SignUp,UpdateProfile, ChangePassword, UserDetails } from '../../users';
+import users, {Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout} from '../../users';
 
 
 
