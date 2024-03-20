@@ -16,7 +16,7 @@ CREATE TABLE Post(
     title VARCHAR(60) NOT NULL,
     subtitle VARCHAR(60) NOT NULL,
     image varbinary(max),
-    new VARCHAR(60) NOT NULL,
+    article VARCHAR(60) NOT NULL,
     creationDate DATETIME,
     userId BIGINT NOT NULL,
 
