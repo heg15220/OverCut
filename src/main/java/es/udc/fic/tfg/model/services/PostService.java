@@ -1,12 +1,14 @@
 package es.udc.fic.tfg.model.services;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
+import es.udc.fic.tfg.model.entities.Category;
 import es.udc.fic.tfg.model.entities.Post;
 import es.udc.fic.tfg.model.services.exceptions.PermissionException;
 import es.udc.fic.tfg.model.services.exceptions.PostException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * The Interface PostService.
@@ -31,7 +33,7 @@ public interface PostService {
      * @param size       the size
      * @return the list of posts
      */
-    Block<Post> getPosts(String title, Long categoryId, int page, int size, Short criteria, boolean order);
+  //  Block<Post> getPosts(String title, Long categoryId, int page, int size, Short criteria, boolean order);
 
     /**
      * Visualize all the user posts.
@@ -51,24 +53,26 @@ public interface PostService {
      * @param subtitle         the subtitle, short description of the article
      * @param userId           the user id
      * @param article          the article, the content news
+     * @param categoryId        the category id
      * @return the post
      * @throws InstanceNotFoundException the instance not found exception
      * @throws PostException             the post exception
      */
-    Post createPost(String title, String subtitle, String article, Long userId) throws InstanceNotFoundException, PostException;
+    Post createPost(String title, String subtitle, String article, Long userId, Long categoryId) throws InstanceNotFoundException, PostException;
 
     /**
      * Modify post.
-     *
+     * @param postId           the post id
      * @param title            the title
      * @param subtitle         the subtitle, short description of the article
      * @param userId           the user id
      * @param article          the article, the content news
+     * @param categoryId       the category id
      * @return the post
      * @throws InstanceNotFoundException the instance not found exception
      * @throws PostException             the post exception
      */
-    public void modifyPost(String title, String subtitle, String article, Long userId)
+    public void modifyPost(Long postId,String title, String subtitle, String article, Long userId, Long categoryId)
             throws InstanceNotFoundException, PermissionException, PostException;
 
     /**
@@ -81,6 +85,22 @@ public interface PostService {
      * @throws IOException               the IO exception
      */
     Post addImage(Long postId, MultipartFile image) throws InstanceNotFoundException, IOException;
+
+    /**
+     * Get all categories.
+     *
+     * @return the list with all categories.
+     */
+    List<Category> getAllCategories();
+
+    /**
+     * Get post details.
+     *
+     * @param postId the post id
+     * @return the post
+     * @throws InstanceNotFoundException the instance not found exception
+     */
+    PostDetails getPostDetails(Long userId, Long postId) throws InstanceNotFoundException;
 
 
 }

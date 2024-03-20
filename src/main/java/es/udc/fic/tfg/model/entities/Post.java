@@ -28,12 +28,15 @@ public class Post {
     private User user;
 
 
+    /** The category. */
+    private Category category;
+
+
     /**
      * Constructor with no parameters for post
      */
     public Post() {
     }
-
 
     /**
      * Constructor with all parameters for Post <br/>
@@ -45,14 +48,18 @@ public class Post {
      * @param article      the article of the post
      * @param image         the image of the post
      * @param creationDate  the date of creation
+     * @param user          the journalist who creates the post
+     * @param category      the category of the post
      */
-    public Post(String title, String subtitle, byte[] image, String article, LocalDateTime creationDate, User user) {
+    public Post(String title, String subtitle, byte[] image, String article,
+                LocalDateTime creationDate, User user, Category category) {
         this.title = title;
         this.subtitle = subtitle;
         this.image = image;
         this.article = article;
         this.creationDate = creationDate;
         this.user = user;
+        this.category = category;
     }
 
     /**
@@ -180,5 +187,15 @@ public class Post {
      */
     public void setUser(User user) {
         this.user = user;
+    }
+
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoryId")
+    public Category getCategory() {
+        return category;
+    }
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }
