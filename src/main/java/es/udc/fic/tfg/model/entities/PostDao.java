@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;
 
-public interface PostDao extends CrudRepository<Post, Long> {
+public interface PostDao extends CrudRepository<Post, Long>, CustomizedPostDao {
 
     /**
      * Exists by post id.

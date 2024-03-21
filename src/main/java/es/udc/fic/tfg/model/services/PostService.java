@@ -33,7 +33,7 @@ public interface PostService {
      * @param size       the size
      * @return the list of posts
      */
-  //  Block<Post> getPosts(String title, Long categoryId, int page, int size, Short criteria, boolean order);
+   Block<Post> getPosts(String title, Long categoryId, int page, int size, Short criteria, boolean order);
 
     /**
      * Visualize all the user posts.
@@ -101,6 +101,8 @@ public interface PostService {
      * @throws InstanceNotFoundException the instance not found exception
      */
     PostDetails getPostDetails(Long userId, Long postId) throws InstanceNotFoundException;
+
+
 
 
 }

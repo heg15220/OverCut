@@ -212,6 +212,15 @@ public class PostServiceImpl implements PostService{
         return new PostDetails(postOptional.get());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Block<Post> getPosts(String title, Long categoryId, int page, int size, Short criteria, boolean order) {
+        Slice<Post> post = postDao.findFilterPost(title, categoryId, criteria, order, page, size);
+
+        return new Block<>(post.getContent(), post.hasNext());
+    }
+
+
 
 
 
