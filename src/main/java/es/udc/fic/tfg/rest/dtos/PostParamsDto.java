@@ -9,7 +9,9 @@ public class PostParamsDto {
     private String title;
 
     /** The description. */
-    private String description;
+    private String subtitle;
+
+    private String article;
 
     /** The category. */
     private Long category;
@@ -26,14 +28,6 @@ public class PostParamsDto {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Long getCategory() {
@@ -58,5 +52,21 @@ public class PostParamsDto {
 
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public String getArticle() {
+        return article;
+    }
+
+    public void setArticle(String article) {
+        this.article = article;
     }
 }
