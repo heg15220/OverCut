@@ -29,9 +29,13 @@ CREATE TABLE Post(
     article LONGTEXT NOT NULL,
     creationDate DATETIME,
     userId BIGINT NOT NULL,
+    categoryId BIGINT NOT NULL,
 
-    CONSTRAINT UserIdFK FOREIGN KEY (userId) REFERENCES Users (id)
+    CONSTRAINT UserIdFK FOREIGN KEY (userId) REFERENCES Users (id),
+    CONSTRAINT CategoryIdFK FOREIGN KEY (categoryId) REFERENCES Category (id)
 );
 
 INSERT INTO Users(userName, firstName, lastName, password, email, journalist, image)
     VALUES('F1Fan', 'Race', 'Week', 'formula1', 'f1fan@gmail.com', false, NULL);
+
+INSERT INTO Category(name,historic,quiz) VALUES ('Actualidad',false,false);

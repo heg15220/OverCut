@@ -2,6 +2,8 @@ package es.udc.fic.tfg.model.entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 /**
  * The Class Category.
  */
@@ -17,6 +19,8 @@ public class Category {
 
     @Column(name = "quiz")
     private boolean isQuiz;
+
+    private List<Post> posts;
 
 
     public Category(){
@@ -64,5 +68,12 @@ public class Category {
         isQuiz = quiz;
     }
 
+    @OneToMany(mappedBy = "category")
+    public List<Post> getPosts() {
+        return posts;
+    }
 
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
 }

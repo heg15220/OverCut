@@ -99,13 +99,13 @@ public class PostServiceImpl implements PostService{
     public Post createPost(String title, String subtitle, String article,Long userId, Long categoryId)
             throws InstanceNotFoundException, PostException {
         User user = permissionChecker.checkUser(userId);
-        Optional<Category> categoryOptional = categoryDao.findById(categoryId);
-        if (!categoryOptional.isPresent()) {
+        Category category = categoryDao.findCategoryById(categoryId);
+        if (category == null) {
             throw new InstanceNotFoundException("project.entities.category", categoryId);
         }
 
         if(!user.isJournalist()) throw new PostException("project.entities.posts.user");
-        Category category = categoryOptional.get();
+
 
         LocalDateTime creationDate = LocalDateTime.now();
 

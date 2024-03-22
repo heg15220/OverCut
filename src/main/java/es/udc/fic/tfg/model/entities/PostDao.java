@@ -3,7 +3,9 @@ package es.udc.fic.tfg.model.entities;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 
@@ -31,7 +33,8 @@ public interface PostDao extends CrudRepository<Post, Long>, CustomizedPostDao {
      * @return the post
      * @throws InstanceNotFoundException
      */
-    Post findPostById(Long id) throws InstanceNotFoundException;
+    @Query("SELECT p FROM Post p WHERE p.id = :id")
+    Post findPostById(@Param("id") Long id) throws InstanceNotFoundException;
 
     /**
      * Find all posts.

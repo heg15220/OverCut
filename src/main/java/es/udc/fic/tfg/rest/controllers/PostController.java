@@ -75,7 +75,7 @@ public class PostController {
     public Long createPost(@RequestAttribute Long userId, @Validated @RequestBody PostParamsDto params)
             throws InstanceNotFoundException, PostException {
 
-        return postService.createPost(params.getTitle(), params.getSubtitle(), params.getArticle(),userId, params.getCategory())
+        return postService.createPost(params.getTitle(), params.getSubtitle(), params.getArticle(),userId, params.getCategoryId())
                 .getId();
     }
 
@@ -118,7 +118,7 @@ public class PostController {
             throws InstanceNotFoundException, PermissionException, PostException {
 
         postService.modifyPost(postId, params.getTitle(), params.getSubtitle(), params.getArticle(),
-                userId,params.getCategory());
+                userId,params.getCategoryId());
     }
 
     /**

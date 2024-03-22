@@ -14,7 +14,7 @@ public class PostParamsDto {
     private String article;
 
     /** The category. */
-    private Long category;
+    private Long categoryId;
 
     /** The image. */
     @Lob
@@ -30,12 +30,12 @@ public class PostParamsDto {
         this.title = title;
     }
 
-    public Long getCategory() {
-        return category;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(Long category) {
-        this.category = category;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public byte[] getImage() {
