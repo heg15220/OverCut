@@ -36,6 +36,6 @@ CREATE TABLE Post(
 );
 
 INSERT INTO Users(userName, firstName, lastName, password, email, journalist, image)
-    VALUES('F1Fan', 'Race', 'Week', 'formula1', 'f1fan@gmail.com', false, NULL);
+    VALUES('F1Fan', 'Race', 'Week', 'formula1', 'f1fan@gmail.com', true, NULL);
 
 INSERT INTO Category(name,historic,quiz) VALUES ('Actualidad',false,false);
