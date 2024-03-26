@@ -8,6 +8,7 @@ import es.udc.fic.tfg.model.services.exceptions.PostException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -102,6 +103,7 @@ public interface PostService {
      */
     PostDetails getPostDetails(Long userId, Long postId) throws InstanceNotFoundException;
 
+    boolean newPosts(LocalDateTime referenceDate);
 
 
 

@@ -220,7 +220,10 @@ public class PostServiceImpl implements PostService{
         return new Block<>(post.getContent(), post.hasNext());
     }
 
-
+    @Override
+    public boolean newPosts(LocalDateTime referenceDate) {
+        return postDao.existsByCreationDateAfter(referenceDate);
+    }
 
 
 

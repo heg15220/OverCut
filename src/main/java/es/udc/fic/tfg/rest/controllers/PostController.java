@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static es.udc.fic.tfg.rest.dtos.CategoryConversor.toCategoryDtos;
@@ -163,6 +164,11 @@ public class PostController {
     }
 
 
+
+    @GetMapping("/new")
+    public boolean newPost(@Validated @RequestParam(required = true) LocalDateTime date) {
+        return postService.newPosts(date);
+    }
 
 
 }
