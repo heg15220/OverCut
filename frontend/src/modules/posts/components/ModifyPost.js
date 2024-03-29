@@ -17,7 +17,7 @@ const ModifyPost = () => {
     const [title, setTitle] = useState(post.title);
     const [subtitle, setSubtitle] = useState(post.subtitle);
     const[article, setArticle] = useState(post.article);
-    const [category, setCategory] = useState(post.categoryId);
+    const [categoryId, setCategory] = useState(post.categoryId);
 
 
     const [backendErrors, setBackendErrors] = useState(null);
@@ -39,7 +39,7 @@ const ModifyPost = () => {
                     title: title.trim(),
                     subtitle: subtitle.trim(),
                     article: article.trim(),
-                    category: category
+                    categoryId: categoryId
                 },
                 () => {
                     setSuccess('Se ha modificado el post correctamente');
@@ -150,11 +150,11 @@ const ModifyPost = () => {
                                                 className="form-select mt-2"
                                                 aria-label="Select category"
                                                 onChange={handleCategoryChange}
-                                                value={category}
+                                                value={categoryId}
                                             >
                                                 {
-                                                    categories.map(category =>
-                                                        <option key={category.categoryId} value={category.categoryId}>{category.name}</option>)
+                                                    categories.map(categoryId =>
+                                                        <option key={categoryId.categoryId} value={categoryId.categoryId}>{categoryId.name}</option>)
                                                 }
                                             </select>
                                         ) : null}

@@ -13,7 +13,7 @@ const CreatePost = () => {
     const [title, setTitle] = useState('');
     const [subtitle, setSubtitle] = useState('');
     const [article, setArticle] = useState('');
-    const [category, setCategory] = useState(1);
+    const [categoryId, setCategory] = useState(1);
     const [backendErrors, setBackendErrors] = useState(null);
     const [success, setSuccess] = useState(null);
     let form;
@@ -25,10 +25,10 @@ const CreatePost = () => {
 
             dispatch(actions.createPost(
                 {
-                    title: title.trim(),
-                    subtitle: subtitle.trim(),
                     article: article.trim(),
-                    category: category
+                    categoryId: categoryId,
+                    subtitle: subtitle.trim(),
+                    title: title.trim()
                 },
                 post => {
                     setSuccess('Se ha creado el post correctamente');
@@ -115,8 +115,8 @@ const CreatePost = () => {
                                     <select className="form-select mt-2 col-md-12" aria-label="Default select example"
                                             onChange={handleCategoryChange}>
                                         {
-                                            categories.map(category =>
-                                                <option key={category.categoryId} value={category.categoryId}>{category.name}</option>)
+                                            categories.map(categoryId =>
+                                                <option key={categoryId.categoryId} value={categoryId.categoryId}>{categoryId.name}</option>)
                                         }
                                     </select>
                                 ) : null}
