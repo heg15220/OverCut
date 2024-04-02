@@ -6,6 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { Errors } from '../../common';
 import * as actions from '../actions';
 
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+
 const SignUp = () => {
 
     const dispatch = useDispatch();
@@ -18,6 +22,7 @@ const SignUp = () => {
     const [email, setEmail] = useState('');
     const [backendErrors, setBackendErrors] = useState(null);
     const [passwordsDoNotMatch, setPasswordsDoNotMatch] = useState(false);
+    const [isJournalist, setIsJournalist] = useState(false);
     let form;
     let confirmPasswordInput;
 
@@ -33,7 +38,8 @@ const SignUp = () => {
                     password: password,
                     firstName: firstName.trim(),
                     lastName: lastName.trim(),
-                    email: email.trim()
+                    email: email.trim(),
+                    isJournalist: isJournalist
                 },
                 () => navigate('/'),
                 errors => setBackendErrors(errors),
@@ -170,6 +176,14 @@ const SignUp = () => {
                                     </div>
                                 </div>
                             </div>
+
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={<Checkbox checked={isJournalist} onChange={(e) => setIsJournalist(e.target.checked)} />}
+                                    label="Soy periodista"
+                                />
+                            </FormGroup>
+
                             <div className="p-2">
                                 <div className="col-md-2 mx-auto">
                                     <button type="submit" className="btn btn-primary" style={{ backgroundColor: '#9900FF', borderColor: '#9900FF' }}>
