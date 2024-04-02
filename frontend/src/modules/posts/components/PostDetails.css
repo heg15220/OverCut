@@ -1,0 +1,28 @@
+/* Estilos generales para el componente */
+.post-details {
+    font-size: 1em; /* Aumenta el tamaño de la fuente */
+    letter-spacing: 0.15em; /* Ajusta el espaciado entre letras */
+    line-height: 2; /* Ajusta el espaciado entre líneas */
+}
+
+
+
+/* Estilos específicos para el apartado de article */
+.post-details .article {
+    font-size: 1.5em; /* Ajusta el tamaño de la fuente para el article */
+    margin-bottom: 20px; /* Añade espacio debajo del article */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Asegura que el contenedor ocupe al menos la altura de la ventana */
+    overflow: clip; /* Permite el desbordamiento con barra de desplazamiento */
+    overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+}
+
+.article-container {
+    overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+    max-height: calc(100vh - 200px); /* Ajusta según sea necesario, considerando el espacio ocupado por el header y el footer */
+}
+

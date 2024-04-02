@@ -15,6 +15,7 @@ const Header = () => {
 
     return (
         <header>
+            <div className="header">
             <nav className="navbar navbar-dark bg-dark ml-auto">
                 <a className="navbar-brand d-inline-block align-top" href="/">
                     <img className="App-logo mx-3" src={image} alt="App Logo" height="65" width="65"></img>
@@ -79,6 +80,7 @@ const Header = () => {
                     }
                 </ul >
             </nav >
+            </div>
         </header >
     );
 };

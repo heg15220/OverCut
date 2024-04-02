@@ -4,8 +4,8 @@ import { FormattedMessage } from 'react-intl';
 
 const Footer = () => {
     return (
+        <div className="footer">
         <footer className="text-center text-white bg-secondary p-1">
-            <div className="container">
                 <section className="mt-2">
                     <div className="row text-center d-flex justify-content-center pt-3">
                         <div className="col-md-2">
@@ -34,8 +34,8 @@ const Footer = () => {
                         </div>
                     </div>
                 </section>
-            </div>
         </footer>
+        </div>
     );
 };
 

@@ -22,7 +22,7 @@ const SignUp = () => {
     const [email, setEmail] = useState('');
     const [backendErrors, setBackendErrors] = useState(null);
     const [passwordsDoNotMatch, setPasswordsDoNotMatch] = useState(false);
-    const [isJournalist, setIsJournalist] = useState(false);
+    const [journalist, setJournalist] = useState(false);
     let form;
     let confirmPasswordInput;
 
@@ -39,7 +39,7 @@ const SignUp = () => {
                     firstName: firstName.trim(),
                     lastName: lastName.trim(),
                     email: email.trim(),
-                    isJournalist: isJournalist
+                    journalist: journalist
                 },
                 () => navigate('/'),
                 errors => setBackendErrors(errors),
@@ -179,7 +179,7 @@ const SignUp = () => {
 
                             <FormGroup>
                                 <FormControlLabel
-                                    control={<Checkbox checked={isJournalist} onChange={(e) => setIsJournalist(e.target.checked)} />}
+                                    control={<Checkbox checked={journalist} onChange={(e) => setJournalist(e.target.checked)} />}
                                     label="Soy periodista"
                                 />
                             </FormGroup>

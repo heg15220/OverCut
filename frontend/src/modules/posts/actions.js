@@ -141,3 +141,10 @@ const getNewPostsCompleted = (result) => ({
     type: actionTypes.GET_NEW_POSTS_COMPLETED,
     result
 });
+
+export const updatePostArticle = (postId, post, onSuccess, onErrors) => dispatch =>
+    backend.postService.modifyPost(postId, post, post => {
+            dispatch(modifyPostCompleted(post));
+            onSuccess();
+        },
+        onErrors);

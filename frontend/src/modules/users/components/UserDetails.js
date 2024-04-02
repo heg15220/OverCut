@@ -48,6 +48,12 @@ const UserDetails = () => {
                         </label>
                     </div>
 
+                    <div className="form-group row">
+                        <label htmlFor="journalist" className="col-md- col-form-label">
+                            <FormattedMessage id='project.global.fields.journalist' /> : {user.journalist}
+                        </label>
+                    </div>
+
                 </div>
 
                 {user.image && <div className="vr ms-4"></div>}

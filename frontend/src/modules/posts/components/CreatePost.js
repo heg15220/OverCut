@@ -101,12 +101,23 @@ const CreatePost = () => {
                                     <FormattedMessage id="project.global.fields.article" />
                                 </label>
                                 <div className="col-md-12">
-                                    <input type="article" id="article" className="form-control"
-                                           value={article}
-                                           onChange={e => setArticle(e.target.value)}
-                                           required />
+                                  <textarea id="article" className="form-control"
+                                    value={article}
+                                      onChange={e => setArticle(e.target.value)}
+                                      required
+                                      style={{
+                                          overflowY: 'scroll', // Habilita la barra de desplazamiento vertical
+                                          resize: 'vertical', // Permite solo el redimensionamiento vertical
+                                          width: '100%', // Asegura que el textarea ocupe
+                                          height: '200px', // Define una altura fija para el textarea
+                                          scrollbarWidth: 'thin', // Estilo de la barra de desplazamiento en Firefox
+                                          scrollbarColor: 'darkgrey lightgrey' // Estilo de la barra de desplazamiento en Firefox
+                                      }}
+                                  />
                                 </div>
                             </div>
+
+
                             <div className="form-group">
                                 <label htmlFor="description" className="col-md- col-form-label">
                                     <FormattedMessage id="project.global.fields.category" />

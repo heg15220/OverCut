@@ -62,7 +62,7 @@ const PostDetails = () => {
     }
 
     return (
-        <div className="text-center ">
+        <div className="container">
             <div>
                 <div>
                     <Errors errors={backendErrors} onClose={() => setBackendErrors(null)} />
@@ -94,6 +94,13 @@ const PostDetails = () => {
 
                                     </p>
 
+                                    <div className="article-container">
+                                    <p className="card-text" id="shortDescription">
+                                        <FormattedMessage id='project.global.fields.article' />{': '}
+                                        {post.article}
+
+                                    </p>
+                                    </div>
                                     {post.url && <p className="card-text" id="shortDescription">
                                         <FormattedMessage id='project.global.fields.url' />{': '}
                                         <a href={post.url} style={{ color: '#9900FF', textDecoration: 'underline' }}> {post.url} </a>

@@ -11,6 +11,7 @@ import {AddImage, CreatePost, ModifyPost, PostDetails, UserPostList} from "../..
 
 
 
+
 const Body = () => {
 
     const loggedIn = useSelector(users.selectors.isLoggedIn);
@@ -31,6 +32,7 @@ const Body = () => {
                     {loggedIn && <Route path="/post/my" element={<UserPostList/>}/>}
                     {loggedIn && <Route path="/posts/:id" element={<ModifyPost/>}/>}
                     {loggedIn && <Route path="/posts/:id/add-image" element={<AddImage/>}/>}
+
                 </Route>
             </Routes>
         </div>
