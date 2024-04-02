@@ -2,6 +2,8 @@ package es.udc.fic.tfg.model.entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 /**
  * The Class User.
  */
@@ -36,6 +38,7 @@ public class User {
     @Column(name = "journalist")
     private boolean isJournalist;
 
+    private List<Post> posts;
 
     /**
      * Constructor with no parameters
@@ -205,5 +208,14 @@ public class User {
 
     public void setJournalist(boolean journalist) {
         isJournalist = journalist;
+    }
+
+    @OneToMany(mappedBy = "user")
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
     }
 }

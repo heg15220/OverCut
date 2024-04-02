@@ -28,6 +28,19 @@ module.exports = (env, argv) => {
                     },
                 },
                 {
+                    test: /\.(png|jpe?g|gif)$/i,
+                    use: [
+                        {
+                            loader: 'file-loader',
+                            options: {
+                                name: '[path][name].[ext]',
+                                outputPath: 'images/',
+                                publicPath: 'images/',
+                            },
+                        },
+                    ],
+                },
+                {
                     test: /\.css$/,
                     use: [
                         isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
