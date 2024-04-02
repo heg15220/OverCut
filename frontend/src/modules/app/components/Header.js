@@ -28,6 +28,10 @@ const Header = () => {
                     {isLogged &&
                         <li className="nav-item dropstart">
 
+                            <Link className="dropdown-item" to="/users/update-profile">
+                                <FormattedMessage id="project.users.UpdateProfile.title" />
+                            </Link>
+
                             <a id="loginName" className="dropdown-toggle nav-link" href="/"
                                data-bs-toggle="dropdown" style={{ color: '#9900FF' }}>
                                 <span className="fa-solid fa-user"></span>&nbsp;
@@ -35,9 +39,6 @@ const Header = () => {
                             </a>
                             <div className="dropdown-menu">
                                 <UserDetailsLink id={user.id} name={userName} />
-                                <Link className="dropdown-item" to="/users/update-profile">
-                                    <FormattedMessage id="project.users.UpdateProfile.title" />
-                                </Link>
                                 <Link className="dropdown-item" to="/users/change-password">
                                     <FormattedMessage id="project.users.ChangePassword.title" />
                                 </Link>

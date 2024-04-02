@@ -1,0 +1,64 @@
+.overcut {
+    position: absolute;
+    top: 41px;
+    left: 96px;
+    font-size: 48px;
+    letter-spacing: -0.01em;
+    line-height: 100%;
+    font-family: var(--font-racing-sans-one);
+    text-align: left;
+}
+.newstand,
+.shop {
+    position: absolute;
+    top: 45.5px;
+    line-height: 130%;
+}
+.shop {
+    right: 657px;
+    color: var(--color-black);
+}
+.newstand {
+    right: 532px;
+}
+.whoWeAre {
+    top: 45.5px;
+    right: 394px;
+}
+.login,
+.myProfile,
+.whoWeAre {
+    position: absolute;
+    line-height: 130%;
+}
+.myProfile {
+    top: 45.5px;
+    right: 270px;
+}
+.login {
+    top: calc(50% - 10.5px);
+    left: calc(50% - 21px);
+    font-weight: 600;
+}
+.cartButton {
+    position: absolute;
+    top: 32px;
+    right: 96px;
+    background-color: var(--color-whitesmoke);
+    width: 126px;
+    height: 48px;
+    overflow: hidden;
+    color: var(--color-black);
+}
+.header {
+    width: 1440px;
+    background-color: var(--color-black);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    max-width: 100%;
+    height: 112px;
+    overflow: hidden;
+    text-align: center;
+    font-size: var(--font-size-base);
+    color: var(--color-whitesmoke);
+    font-family: var(--font-inter);
+}
