@@ -2,8 +2,10 @@ package es.udc.fic.tfg.rest.controllers;
 
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
+import es.udc.fic.tfg.model.entities.Comment;
 import es.udc.fic.tfg.model.entities.Post;
 import es.udc.fic.tfg.model.services.Block;
+import es.udc.fic.tfg.model.services.CommentService;
 import es.udc.fic.tfg.model.services.PostService;
 import es.udc.fic.tfg.model.services.exceptions.PermissionException;
 import es.udc.fic.tfg.model.services.exceptions.PostException;
@@ -30,6 +32,11 @@ public class PostController {
     /** The post service. */
     @Autowired
     private PostService postService;
+
+    @Autowired
+
+    private CommentService commentService;
+
 
     /**
      * Visualize all the user posts.
@@ -170,5 +177,77 @@ public class PostController {
         return postService.newPosts(date);
     }
 
+    /**
+     * Add a comment to a post
+     *
+     * @param userId the user id
+     * @param postId the post id
+     * @param params the parameters for creating the post
+     * @return the id of the new comment
+     * @throws InstanceNotFoundException the instance not found exception
+     */
+    @PostMapping("{id}/comment")
+    public Long addComment(@RequestAttribute Long userId, @PathVariable("id") Long postId,
+                           @Validated @RequestBody CommentParamsDto params) throws InstanceNotFoundException {
+        return commentService.addComment(postId, userId, params.getContent()).getId();
+    }
+
+    /**
+     * Modify a comment
+     *
+     * @param commentId the user comment id
+     * @param params    the parameters for modifying the post
+     * @throws InstanceNotFoundException the instance not found exception
+     */
+    @PutMapping("/comment/{id}")
+    public void modifyComment(@PathVariable("id") Long commentId, @Validated @RequestBody CommentParamsDto params)
+            throws InstanceNotFoundException {
+        commentService.modifyComment(commentId, params.getContent());
+    }
+
+    /**
+     * Delete a comment
+     *
+     * @param commentId the comment id
+     * @throws InstanceNotFoundException the instance not found exception
+     */
+    @DeleteMapping("/comment/{id}")
+    public void deleteComment(@PathVariable("id") Long commentId) throws InstanceNotFoundException {
+
+        commentService.deleteComment(commentId);
+    }
+
+    /**
+     * Adds an answer to comment
+     *
+     * @param userId          the id of user
+     * @param parentCommentId the id of the parent comment
+     * @param params          the parameters for modifying the post
+     * @return the list with all the user posts
+     * @throws InstanceNotFoundException the instance not found exception
+     */
+    @PostMapping("/comment/{id}/answer")
+    public Long addAnswer(@RequestAttribute Long userId, @PathVariable("id") Long parentCommentId,
+                          @Validated @RequestBody CommentParamsDto params) throws InstanceNotFoundException {
+        return commentService.addAnswer(parentCommentId, userId, params.getContent()).getId();
+
+    }
+
+    /**
+     * Get comments on a post.
+     * @param page    the page
+     * @return the list with the comments
+     * @throws InstanceNotFoundException the instance not found exception
+     */
+    @GetMapping("/{id}/comments")
+    public BlockDto<CommentDto> getComments(@PathVariable("id") Long postId,
+                                            @RequestParam(defaultValue = "0") int page)
+            throws InstanceNotFoundException {
+
+        Block<Comment> foundComment = commentService.getComments(postId, page, 35);
+
+        return new BlockDto<>(CommentConversor.toCommentDtos(foundComment.getItems()),
+                foundComment.getExistMoreItems());
+    }
 
 }
