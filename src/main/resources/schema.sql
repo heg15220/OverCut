@@ -53,4 +53,12 @@ CREATE TABLE Comment(
 INSERT INTO Users(userName, firstName, lastName, password, email, journalist, image)
     VALUES('F1Fan', 'Race', 'Week', 'formula1', 'f1fan@gmail.com', true, NULL);
 
+
 INSERT INTO Category(name,historic,quiz) VALUES ('Actualidad',false,false);
+
+INSERT INTO Post (title, subtitle, article, creationDate, userId, categoryId)
+VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example article content.', NOW(), 1, 1);
+
+
+INSERT INTO Comment (content, userId, postId, parent_comment)
+VALUES ('This is a comment.', 1, 1, NULL);

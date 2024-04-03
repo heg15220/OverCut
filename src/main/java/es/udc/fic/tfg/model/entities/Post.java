@@ -3,6 +3,7 @@ package es.udc.fic.tfg.model.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * The Class Post.
@@ -30,6 +31,10 @@ public class Post {
 
     /** The category. */
     private Category category;
+
+    /** The list of comments. */
+    private List<Comment> comments;
+
 
 
     /**
@@ -197,5 +202,23 @@ public class Post {
     }
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    /**
+     * Gets the comments.
+     *
+     * @return the comments.
+     */
+    @OneToMany(mappedBy = "post")
+    public List<Comment> getComments() {
+        return comments;
+    }
+    /**
+     * Sets the comments.
+     *
+     * @param comments the new comment list.
+     */
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

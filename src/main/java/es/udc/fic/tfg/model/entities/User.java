@@ -40,6 +40,9 @@ public class User {
 
     private List<Post> posts;
 
+    /** The list of comments to posts */
+    private List<Comment> comments;
+
     /**
      * Constructor with no parameters
      */
@@ -68,6 +71,7 @@ public class User {
         this.image = image;
         this.isJournalist = isJournalist;
     }
+
 
     /**
      * Gets the id.
@@ -217,5 +221,20 @@ public class User {
 
     public void setPosts(List<Post> posts) {
         this.posts = posts;
+    }
+
+    /**
+     * Gets the comments.
+     *
+     * @return the comments.
+     */
+
+    @OneToMany(mappedBy = "user")
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }
