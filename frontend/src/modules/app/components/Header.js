@@ -19,7 +19,7 @@ const Header = () => {
             <nav className="navbar navbar-dark bg-dark ml-auto">
                 <a className="navbar-brand d-inline-block align-top" href="/">
                     <img className="App-logo mx-3" src={image} alt="App Logo" height="65" width="65"></img>
-                    <Link className="text-light h4 " style={{ textDecoration: 'none' }} to="/overcut/">
+                    <Link className="text-light h4 " style={{ textDecoration: 'none' }} to="/#/overcut/">
                         OverCut
                     </Link>
                 </a>
@@ -57,6 +57,7 @@ const Header = () => {
 
                         </li>
                     }
+
                     {isLogged &&
                         <li className="nav-item dropstart">
                             {user.image && <img src={"data:image/jpg;base64," + user.image} className="rounded-circle" width="42px" height="42px" alt="Avatar" />}

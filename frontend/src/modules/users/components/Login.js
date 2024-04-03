@@ -122,7 +122,7 @@ const Login = () => {
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link to="/users/login#/users/signUp" variant="body2" className="btn btn-link">
+                                <Link to="/#/users/signUp" variant="body2" className="btn btn-link">
                                     {"Don't have an account? Sign Up"}
                                 </Link>
                             </Grid>

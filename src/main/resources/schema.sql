@@ -23,8 +23,8 @@ CREATE TABLE Category (
 
 CREATE TABLE Post(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(60) NOT NULL,
-    subtitle VARCHAR(60) NOT NULL,
+    title LONGTEXT NOT NULL,
+    subtitle LONGTEXT NOT NULL,
     image varbinary(max),
     article LONGTEXT NOT NULL,
     creationDate DATETIME,
