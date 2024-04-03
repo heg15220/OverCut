@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS Comment;
 DROP TABLE IF EXISTS Post;
 DROP TABLE IF EXISTS Category;
 DROP TABLE IF EXISTS Users;
@@ -34,6 +35,20 @@ CREATE TABLE Post(
     CONSTRAINT UserIdFK FOREIGN KEY (userId) REFERENCES Users (id),
     CONSTRAINT CategoryIdFK FOREIGN KEY (categoryId) REFERENCES Category (id)
 );
+
+CREATE TABLE Comment(
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    content VARCHAR(255) NOT NULL,
+    userId BIGINT NOT NULL,
+    parent_comment BIGINT,
+    postId BIGINT NOT NULL,
+
+    CONSTRAINT UserIdCommentFK FOREIGN KEY (userId) REFERENCES Users (id) ON DELETE CASCADE,
+    CONSTRAINT ParentCommentFK FOREIGN KEY (parent_comment) REFERENCES Comment (id) ON DELETE CASCADE,
+    CONSTRAINT  PostIdCommentFK FOREIGN KEY (postId) REFERENCES Post (id) ON DELETE CASCADE
+);
+
+
 
 INSERT INTO Users(userName, firstName, lastName, password, email, journalist, image)
     VALUES('F1Fan', 'Race', 'Week', 'formula1', 'f1fan@gmail.com', true, NULL);
