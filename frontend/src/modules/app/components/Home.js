@@ -43,7 +43,7 @@ const Home = () => {
         <div className="d-flex align-self-stretch align-items-start flex-column justify-content-between">
             <div className="p-4 align-self-center">
                 {newPost ?
-                    <button className="btn btn-warning" onClick={() => handleRefresh()}>
+                    <button className="btn btn-warning" onClick={() => handleRefresh()} >
                         New posts avaliable!
                     </button> : null
                 }

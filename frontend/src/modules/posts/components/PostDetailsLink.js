@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const PostDetailsLink = ({ id, name }) => {
     return (
-        <Link to={`/post/post-details/${id}`} style={{ color: '#9900FF', textDecoration: 'underline' }}>
+        <Link to={`/post/post-details/${id}`} style={{ color: '#00000F'}}>
             {name}
         </Link>
     );

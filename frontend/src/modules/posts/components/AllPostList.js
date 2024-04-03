@@ -20,7 +20,7 @@ const AllPostList = () => {
 
     const handleSubmit = event => {
         event.preventDefault();
-        if (formRef.current.checkValidity()) {
+        if (formRef.current?.checkValidity()) {
             dispatch(actions.getPosts(
                 {
                     title: title.trim(),
@@ -33,7 +33,7 @@ const AllPostList = () => {
                 () => { },
             ));
         } else {
-            formRef.current.classList.add('was-validated');
+            formRef.current?.classList.add('was-validated');
         }
     }
 
@@ -133,7 +133,7 @@ const AllPostList = () => {
                             color="primary"
                             type="submit"
                             onClick={handleSubmit}
-                            sx={{ backgroundColor: '#9900FF', borderColor: '#9900FF' }}
+                            sx={{ backgroundColor: '#00000F', borderColor: '#FFFFF0' }}
                             fullWidth
                         >
                             <FormattedMessage id="project.global.buttons.filter" />

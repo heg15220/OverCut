@@ -56,13 +56,6 @@ const UserDetails = () => {
 
                 </div>
             </div>
-            <div className='text-center'>
-                <button type="submit p-2" className="btn btn-primary my-2" id="modify post" style={{ backgroundColor: '#9900FF', borderColor: '#9900FF' }}>
-                    <Link className="dropdown-item" to="/users/update-profile">
-                        <FormattedMessage id="project.users.UpdateProfile.title" />
-                    </Link>
-                </button>
-            </div>
         </div>
     );
 };

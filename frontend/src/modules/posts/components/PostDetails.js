@@ -48,7 +48,16 @@ const PostDetails = () => {
     }
 
     const srcImage = post.image ? "data:image/jpg;base64," + post.image : image;
-    const userImageSrc = user.image ? "data:image/jpg;base64," + user.image : image;
+
+    let userImageSrc = image; // Imagen predeterminada
+    if (user && user.id === post.userId) {
+        userImageSrc = user.image ? "data:image/jpg;base64," + user.image : image;
+    }
+
+    let userName = 'Usuario desconocido'; // Nombre predeterminado
+    if (user && user.id === post.userId) {
+        userName = user.userName ? user.userName : 'Usuario desconocido';
+    }
 
     return (
         <Container sx={{ marginTop: 0 }}> {/* Reduce el margen superior del Container */}
@@ -125,10 +134,11 @@ const PostDetails = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
                             <img src={userImageSrc} alt="User Avatar" style={{ maxHeight: '50px', maxWidth: '50px', borderRadius: '50%' }} />
                             <Box sx={{ marginLeft: 2 }}>
-                                <Typography variant="subtitle1">{user.userName}</Typography>
+                                <Typography variant="subtitle1">{userName}</Typography>
                                 <Typography variant="body2" color="text.secondary">{new Date(post.creationDate).toLocaleDateString()}</Typography>
                             </Box>
                         </Box>
+
                         <Typography variant="body1" sx={{
                             whiteSpace: 'pre-wrap',
                             marginBottom: 2,
@@ -136,8 +146,6 @@ const PostDetails = () => {
                         }}>
                             {post.article}
                         </Typography>
-
-
 
                         {post.url && (
                             <Typography variant="body2" color="text.secondary">

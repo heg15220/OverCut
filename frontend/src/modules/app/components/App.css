@@ -37,6 +37,15 @@
   border-top: 2px solid transparent; /* Ajusta según sea necesario */
 }
 
+.dropdown-menu {
+  background-color: #000000; /* Fondo del menú desplegable */
+}
+
+.dropdown-item {
+  color: #ffffff; /* Color del texto de los elementos del menú desplegable */
+}
+
+
 
 .App {
   width: 100%;
