@@ -11,6 +11,10 @@ export { default as UserPostList } from './components/UserPostList';
 export { default as PostDetails } from './components/PostDetails';
 export { default as ModifyPost } from './components/ModifyPost';
 export { default as AddImage } from './components/AddImage';
+export { default as CommentList } from './components/CommentList';
+export { default as CommentListItem } from './components/CommentListItem';
+
+
 
 const exportedObj = { actions, actionTypes, reducer, selectors };
 

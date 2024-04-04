@@ -87,3 +87,45 @@ export const newPosts = (timestamp, onSuccess) => {
         onSuccess
     );
 };
+
+export const getComments = ({ postId, page }, onSuccess, onErrors) => {
+    appFetch(
+        `/posts/${postId}/comments?page=${page}`,
+        fetchConfig("GET"),
+        onSuccess,
+        onErrors
+    );
+};
+
+export const createComment = (postId, comment, onSuccess) => {
+    appFetch(
+        `/posts/${postId}/comment`,
+        fetchConfig("POST", comment),
+        onSuccess,
+    );
+};
+
+export const createAnswer = (id, comment, onSuccess) => {
+    appFetch(
+        `/posts/comment/${id}/answer`,
+        fetchConfig("POST", comment),
+        onSuccess,
+    );
+};
+
+export const deleteComment = (comment, onSuccess, onErrors) => {
+    appFetch(
+        `/posts/comment/${comment}`,
+        fetchConfig("DELETE", comment),
+        onSuccess,
+        onErrors
+    );
+};
+
+export const modifyComment = (id, comment, onSuccess) => {
+    appFetch(
+        `/posts/comment/${id}`,
+        fetchConfig("PUT", comment),
+        onSuccess,
+    );
+};

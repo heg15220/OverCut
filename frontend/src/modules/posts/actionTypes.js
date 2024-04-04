@@ -12,3 +12,9 @@ export const FILTER_POST_COMPLETED = "project/post/filterPostCompleted";
 export const GET_NEW_POSTS_COMPLETED= "project/post/getNewPostsCompleted";
 
 
+export const DELETE_COMMENT_COMPLETED = "project/post/deleteCommentCompleted";
+export const CREATE_COMMENT_COMPLETED = "project/post/createCommentCompleted";
+export const GET_COMMENTS_COMPLETED = "project/post/getCommentsCompleted";
+export const CREATE_ANSWER_COMPLETED = "project/post/createAnswerCompleted";
+
+

@@ -8,6 +8,9 @@ import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert
 import image from './Resources/default_image.jpg';
 import { FormattedMessage } from 'react-intl';
 import WebFont from 'webfontloader';
+import CommentList from './CommentList';
+import TextField from "@mui/material/TextField";
+
 
 
 const PostDetails = () => {
@@ -164,9 +167,22 @@ const PostDetails = () => {
                                 </form>
                             </Box>
                         )}
-
                     </CardContent>
                 </Card>
+                <TextField
+                    id="commentInput"
+                    label="New comment"
+                    variant="outlined"
+                    fullWidth // Asegura que el campo de entrada ocupe
+                    // O puedes especificar un ancho directamente
+                    sx={{ width: '100%' }}
+                />
+                <div className="vr ms-auto">
+                    <CommentList postId={post.id} postUserId={post.userId} />
+                </div>
+
+
+
             </Box>
         </Container>
     );

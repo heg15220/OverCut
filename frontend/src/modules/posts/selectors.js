@@ -12,8 +12,12 @@ export const getUserPosts = state =>
 export const getPost = state =>
     getModuleState(state).post;
 
+export const getComments = state =>
+    getModuleState(state).comments;
+
 export const getPostFiltered = state =>
-    getModuleState(state).posts;
+    getModuleState(state).posts; // Corregido
+
 export const getNewPosts= state =>
     getModuleState(state).newPosts;
 

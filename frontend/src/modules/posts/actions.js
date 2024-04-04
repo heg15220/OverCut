@@ -148,3 +148,32 @@ export const updatePostArticle = (postId, post, onSuccess, onErrors) => dispatch
             onSuccess();
         },
         onErrors);
+
+export const getComments = criteria => dispatch =>
+    backend.postService.getComments(criteria,
+        result => dispatch(getCommentsCompleted({ criteria, result })));
+
+const getCommentsCompleted = (comments) => ({
+    type: actionTypes.GET_COMMENTS_COMPLETED,
+    comments
+});
+
+export const createComment = (postId, comment, onSuccess) => dispatch =>
+    backend.postService.createComment(postId, comment, comment => {
+        onSuccess(comment);
+    });
+
+export const createAnswer = (id, comment, onSuccess) => dispatch =>
+    backend.postService.createAnswer(id, comment, () => {
+        onSuccess();
+    });
+
+export const deleteComment = (comment, onSuccess) => dispatch =>
+    backend.postService.deleteComment(comment, () => {
+        onSuccess();
+    });
+
+export const modifyComment = (id, comment, onSuccess) => dispatch =>
+    backend.postService.modifyComment(id, comment, () => {
+        onSuccess();
+    });

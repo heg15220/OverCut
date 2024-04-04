@@ -6,7 +6,10 @@ const initialState = {
     post: null,
     posts: null,
     userPosts: null,
-    categories: null
+    categories: null,
+    comments: null,
+    newPosts: null, // Añade esta línea
+    lastGetPost: Date.now()
 };
 
 const post = (state = initialState.post, action) => {
@@ -75,11 +78,21 @@ const lastGetPost = (state = initialState.lastGetPost, action) => {
     }
 }
 
+const comments = (state = initialState.comments, action) => {
+    switch (action.type) {
+        case actionTypes.GET_COMMENTS_COMPLETED:
+            return action.comments;
+        default:
+            return state;
+    }
+}
 
 const reducer = combineReducers({
     post,
     posts,
     userPosts,
     categories,
+    comments,
+    lastGetPost,
 });
 export default reducer;
