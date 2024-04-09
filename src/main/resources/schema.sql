@@ -38,7 +38,7 @@ CREATE TABLE Post(
 
 CREATE TABLE Comment(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    content VARCHAR(255) NOT NULL,
+    content LONGTEXT NOT NULL,
     userId BIGINT NOT NULL,
     parent_comment BIGINT,
     postId BIGINT NOT NULL,
