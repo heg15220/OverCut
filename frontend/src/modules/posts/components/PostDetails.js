@@ -169,16 +169,8 @@ const PostDetails = () => {
                         )}
                     </CardContent>
                 </Card>
-                <TextField
-                    id="commentInput"
-                    label="New comment"
-                    variant="outlined"
-                    fullWidth // Asegura que el campo de entrada ocupe
-                    // O puedes especificar un ancho directamente
-                    sx={{ width: '100%' }}
-                />
-                <div className="vr ms-auto">
-                    <CommentList postId={post.id} postUserId={post.userId} />
+                <div className="d-flex flex-column align-items-start ms-auto">
+                    <CommentList postId={post.id} />
                 </div>
 
 

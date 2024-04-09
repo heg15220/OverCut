@@ -50,6 +50,9 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/users/signUp")).permitAll()
                         .requestMatchers(antMatcher("/api/users/login")).permitAll()
                         .requestMatchers(antMatcher("/api/users/loginFromServiceToken")).permitAll()
+                        .requestMatchers(antMatcher("/api/posts/*")).permitAll()
+                        .requestMatchers(antMatcher("/api/posts/postDetails/*")).permitAll()
+                        .requestMatchers(antMatcher("/api/posts/*/comments")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);

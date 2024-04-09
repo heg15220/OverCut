@@ -60,5 +60,5 @@ INSERT INTO Post (title, subtitle, article, creationDate, userId, categoryId)
 VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example article content.', NOW(), 1, 1);
 
 
-INSERT INTO Comment (content, userId, postId, parent_comment)
-VALUES ('This is a comment.', 1, 1, NULL);
+INSERT INTO Comment (content, userId,parent_comment, postId)
+VALUES ('This is a comment.', 1, NULL, 1);
