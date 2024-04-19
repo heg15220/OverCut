@@ -1,6 +1,5 @@
 package es.udc.fic.tfg.model.entities;
 
-import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -39,12 +38,7 @@ public interface UserDao extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.email = ?1")
     Optional<User> findByEmail(String email);
 
-    /**
-     * Find by user id.
-     *
-     * @param id the user id
-     * @return the user
-     * @throws InstanceNotFoundException
-     */
-    User findUserById(Long id) throws InstanceNotFoundException;
+
+    @Query("SELECT u FROM User u WHERE u.id = ?1")
+    User findUserById(Long id);
 }

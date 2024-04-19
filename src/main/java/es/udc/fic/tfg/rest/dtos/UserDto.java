@@ -45,6 +45,7 @@ public class UserDto {
     /** The role. */
     private boolean isJournalist;
 
+    private int points;
     /**
      * Instantiates a new user dto.
      */
@@ -63,7 +64,7 @@ public class UserDto {
      * @param isJournalist   the role
      */
     public UserDto(Long id, String userName, String firstName, String lastName,
-                   String email, byte[] image, boolean isJournalist) {
+                   String email, byte[] image, boolean isJournalist, int points) {
         super();
         this.id = id;
         this.userName = userName;
@@ -72,6 +73,7 @@ public class UserDto {
         this.email = email;
         this.image = image;
         this.isJournalist = isJournalist;
+        this.points = points;
     }
 
     /**
@@ -231,5 +233,11 @@ public class UserDto {
         this.image = image;
     }
 
+    public int getPoints() {
+        return points;
+    }
 
+    public void setPoints(int points) {
+        this.points = points;
+    }
 }

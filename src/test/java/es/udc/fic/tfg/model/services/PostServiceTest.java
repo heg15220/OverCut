@@ -76,7 +76,7 @@ class PostServiceTest {
      */
     private User createUser() {
         return new User("sampleUserName", "samplePassword", "sampleFirstName", "sampleLastName", "sample@mail.ex",
-                "sampleImage".getBytes(), true);
+                "sampleImage".getBytes(), true,0);
     }
 
     /**

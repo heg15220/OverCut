@@ -18,16 +18,24 @@ public class Quiz {
     private LocalDateTime date;
 
     @Column(name= "knowledge_level")
-    private String knowledgeLevel;
+    private int knowledgeLevel;
 
+    private Assessment assessment;
     private List<Question> questions;
 
+    private List <UserAnswer> userAnswers;
 
     public Quiz() {
     }
-    public Quiz(LocalDateTime date, String knowledgeLevel) {
+    public Quiz(LocalDateTime date, int knowledgeLevel) {
         this.date = date;
         this.knowledgeLevel = knowledgeLevel;
+    }
+
+    public Quiz(LocalDateTime date, int knowledgeLevel,Assessment assessment) {
+        this.date = date;
+        this.knowledgeLevel = knowledgeLevel;
+        this.assessment = assessment;
     }
 
     /**
@@ -74,11 +82,11 @@ public class Quiz {
      *
      * @return the knowledge level
      */
-    public String getKnowledgeLevel() {
+    public int getKnowledgeLevel() {
         return knowledgeLevel;
     }
 
-    public void setKnowledgeLevel(String knowledgeLevel) {
+    public void setKnowledgeLevel(int knowledgeLevel) {
         this.knowledgeLevel = knowledgeLevel;
     }
 
@@ -93,5 +101,25 @@ public class Quiz {
 
     public void setMaxLength(int maxLength) {
         this.maxLength = maxLength;
+    }
+
+    @OneToMany(mappedBy = "quiz")
+    public List<UserAnswer> getUserAnswers() {
+        return userAnswers;
+    }
+
+    public void setUserAnswers(List<UserAnswer> userAnswers) {
+        this.userAnswers = userAnswers;
+    }
+
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "assessmentId")
+    public Assessment getAssessment() {
+        return assessment;
+    }
+
+    public void setAssessment(Assessment assessment) {
+        this.assessment = assessment;
     }
 }

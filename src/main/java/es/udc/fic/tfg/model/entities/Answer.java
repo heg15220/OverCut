@@ -2,6 +2,8 @@ package es.udc.fic.tfg.model.entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 /**
  * The Class Answer.
  */
@@ -11,6 +13,7 @@ public class Answer {
     private String name;
     private boolean correct;
     private Question question;
+    private List<UserAnswer> userAnswer;
 
     public Answer(){
 
@@ -77,5 +80,14 @@ public class Answer {
 
     public void setQuestion(Question question) {
         this.question = question;
+    }
+
+    @OneToMany(mappedBy = "answer")
+    public List<UserAnswer> getUserAnswer() {
+        return userAnswer;
+    }
+
+    public void setUserAnswer(List<UserAnswer> userAnswer) {
+        this.userAnswer = userAnswer;
     }
 }

@@ -2,6 +2,8 @@ package es.udc.fic.tfg.model.services;
 
 import es.udc.fic.tfg.model.common.exceptions.DuplicateInstanceException;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
+import es.udc.fic.tfg.model.entities.Assessment;
+import es.udc.fic.tfg.model.entities.AssessmentDao;
 import es.udc.fic.tfg.model.entities.User;
 import es.udc.fic.tfg.model.entities.UserDao;
 import es.udc.fic.tfg.model.services.exceptions.IncorrectLoginException;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,6 +35,9 @@ public class UserServiceImpl implements UserService{
     /** The user dao. */
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private AssessmentDao assessmentDao;
 
 
     /**
@@ -161,6 +167,25 @@ public class UserServiceImpl implements UserService{
 
         return user;
 
+    }
+
+    @Override
+    public int getAmountOfPointsInAllQuiz(Long userId) throws InstanceNotFoundException {
+        // Verificar si el usuario existe
+        Optional<User> userOptional = userDao.findById(userId);
+        if (!userOptional.isPresent()) {
+            throw new InstanceNotFoundException("project,entities,user", userId);
+        }
+
+        // Obtener las valoraciones del usuario
+        List<Assessment> userAssessments = assessmentDao.findUserAssessmentsByUserId(userId);
+
+        // Calcular la suma total de puntos
+        int totalPoints = userAssessments.stream()
+                .mapToInt(Assessment::getPoints)
+                .sum();
+
+        return totalPoints;
     }
 
 }

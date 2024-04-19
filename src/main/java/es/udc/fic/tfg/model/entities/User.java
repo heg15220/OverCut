@@ -38,10 +38,16 @@ public class User {
     @Column(name = "journalist")
     private boolean isJournalist;
 
+    private int points;
+
     private List<Post> posts;
 
     /** The list of comments to posts */
     private List<Comment> comments;
+
+    private List<UserAnswer> userAnswers;
+
+    private List<Assessment> assessments;
 
     /**
      * Constructor with no parameters
@@ -62,7 +68,7 @@ public class User {
      * @param isJournalist  the user journalist
      */
     public User(String userName, String password, String firstName, String lastName, String email, byte[] image,
-                boolean isJournalist) {
+                boolean isJournalist, int points) {
         this.userName = userName;
         this.password = password;
         this.firstName = firstName;
@@ -70,6 +76,7 @@ public class User {
         this.email = email;
         this.image = image;
         this.isJournalist = isJournalist;
+        this.points = points;
     }
 
 
@@ -214,6 +221,14 @@ public class User {
         isJournalist = journalist;
     }
 
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
     @OneToMany(mappedBy = "user")
     public List<Post> getPosts() {
         return posts;
@@ -236,5 +251,23 @@ public class User {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    @OneToMany(mappedBy = "user")
+    public List<UserAnswer> getUserAnswers() {
+        return userAnswers;
+    }
+
+    public void setUserAnswers(List<UserAnswer> userAnswers) {
+        this.userAnswers = userAnswers;
+    }
+
+    @OneToMany(mappedBy = "user")
+    public List<Assessment> getAssessments() {
+        return assessments;
+    }
+
+    public void setAssessments(List<Assessment> assessments) {
+        this.assessments = assessments;
     }
 }

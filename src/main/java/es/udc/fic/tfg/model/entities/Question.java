@@ -18,16 +18,20 @@ public class Question {
     @Lob
     private byte[] imagePath;
 
+    private int knowledgequestionlevel;
     private Quiz quiz;
 
     private List<Answer> answers;
 
+    private List<UserAnswer> userAnswers;
+
     public Question() {
     }
 
-    public Question(String name, byte[] imagePath, Quiz quiz) {
+    public Question(String name, byte[] imagePath, int knowledgequestionlevel, Quiz quiz) {
         this.name = name;
         this.imagePath = imagePath;
+        this.knowledgequestionlevel = knowledgequestionlevel;
         this.quiz = quiz;
     }
 
@@ -72,6 +76,14 @@ public class Question {
         this.imagePath = imagePath;
     }
 
+    public int getKnowledgequestionlevel() {
+        return knowledgequestionlevel;
+    }
+
+    public void setKnowledgequestionlevel(int knowledgequestionlevel) {
+        this.knowledgequestionlevel = knowledgequestionlevel;
+    }
+
     /**
      * Gets the quiz.
      *
@@ -94,5 +106,14 @@ public class Question {
 
     public void setAnswers(List<Answer> answers) {
         this.answers = answers;
+    }
+
+    @OneToMany(mappedBy = "question")
+    public List<UserAnswer> getUserAnswers() {
+        return userAnswers;
+    }
+
+    public void setUserAnswers(List<UserAnswer> userAnswers) {
+        this.userAnswers = userAnswers;
     }
 }

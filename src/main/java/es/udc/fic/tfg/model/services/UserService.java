@@ -74,5 +74,7 @@ public interface UserService {
      */
     User updateProfile(Long id, String firstName, String lastName, String email) throws InstanceNotFoundException;
 
+    int getAmountOfPointsInAllQuiz(Long userId) throws InstanceNotFoundException;
+
 
 }

@@ -44,7 +44,7 @@ class UserServiceTest {
      */
     private User createUser() {
         return new User("josealonso", "pwd", "Jose", "Alonso", "jose.alonso@udc.es",
-                null,false);
+                null,false, 0);
     }
 
     @Test

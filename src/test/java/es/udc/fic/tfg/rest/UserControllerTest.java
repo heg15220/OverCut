@@ -63,7 +63,7 @@ class UserControllerTest {
     @Test
     void test_SignUp() throws Exception {
         UserDto user = UserConversor.toUserDto(
-                new User("name", "password", "firstName", "lastName", "user@mail.gg", "uwu".getBytes(), false));
+                new User("name", "password", "firstName", "lastName", "user@mail.gg", "uwu".getBytes(), false,0));
         user.setPassword("password");
 
         ObjectMapper mapper = new ObjectMapper();
@@ -126,7 +126,7 @@ class UserControllerTest {
     @Test
     void test_SignUpWithNullUserName() throws Exception {
         UserDto user = UserConversor.toUserDto(
-                new User(null, "password", "firstName", "lastName", "user@mail.gg", "uwu".getBytes(), false));
+                new User(null, "password", "firstName", "lastName", "user@mail.gg", "uwu".getBytes(), false,0));
         user.setPassword("password");
 
         ObjectMapper mapper = new ObjectMapper();
@@ -180,7 +180,7 @@ class UserControllerTest {
     @Test
     void test_updateProfile() throws Exception {
         // Preparar
-        UserDto userDto = new UserDto(2L, "password", "FirstName", "LastName", "tfg@gmail.com", new byte[0], false);
+        UserDto userDto = new UserDto(2L, "password", "FirstName", "LastName", "tfg@gmail.com", new byte[0], false,0);
         User user = UserConversor.toUser(userDto);
         userService.signUp(user); // Asegúrate de que este método esté mockeado para devolver un usuario válido
 
@@ -203,7 +203,7 @@ class UserControllerTest {
             String token = responseDto.getServiceToken();
 
             // Continuar con el resto de la prueba usando el token
-            UserDto params = new UserDto(3L, "FirstName", "UserName", "LastName", "probando1@gmail.com", new byte[0], false);
+            UserDto params = new UserDto(3L, "FirstName", "UserName", "LastName", "probando1@gmail.com", new byte[0], false,0);
 
             ObjectMapper mapper = new ObjectMapper();
 
