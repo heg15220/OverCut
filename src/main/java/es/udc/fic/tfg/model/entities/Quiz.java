@@ -1,7 +1,6 @@
 package es.udc.fic.tfg.model.entities;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,37 +11,31 @@ import java.util.List;
 public class Quiz {
     private Long id;
 
-    @Column(name = "max_length")
     private int maxLength = 10;
 
     private LocalDateTime date;
 
-    @Column(name= "knowledge_level")
     private int knowledgeLevel;
 
     private Assessment assessment;
-    private List<Question> questions;
 
-    private List <UserAnswer> userAnswers;
+    private List<Question> questions;
+    private List<UserAnswer> userAnswers;
 
     public Quiz() {
     }
+
     public Quiz(LocalDateTime date, int knowledgeLevel) {
         this.date = date;
         this.knowledgeLevel = knowledgeLevel;
     }
 
-    public Quiz(LocalDateTime date, int knowledgeLevel,Assessment assessment) {
+    public Quiz(LocalDateTime date, int knowledgeLevel, Assessment assessment) {
         this.date = date;
         this.knowledgeLevel = knowledgeLevel;
         this.assessment = assessment;
     }
 
-    /**
-     * Gets the id.
-     *
-     * @return the id
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
@@ -53,21 +46,14 @@ public class Quiz {
         this.id = id;
     }
 
-    /**
-     * Gets the max_length.
-     *
-     * @return the max_length
-     */
-
     public int getMaxLength() {
         return maxLength;
     }
 
-    /**
-     * Gets the quiz date.
-     *
-     * @return the date
-     */
+    public void setMaxLength(int maxLength) {
+        this.maxLength = maxLength;
+    }
+
     public LocalDateTime getDate() {
         return date;
     }
@@ -76,12 +62,6 @@ public class Quiz {
         this.date = date;
     }
 
-
-    /**
-     * Gets the knowledge level of the user.
-     *
-     * @return the knowledge level
-     */
     public int getKnowledgeLevel() {
         return knowledgeLevel;
     }
@@ -99,10 +79,6 @@ public class Quiz {
         this.questions = questions;
     }
 
-    public void setMaxLength(int maxLength) {
-        this.maxLength = maxLength;
-    }
-
     @OneToMany(mappedBy = "quiz")
     public List<UserAnswer> getUserAnswers() {
         return userAnswers;
@@ -112,8 +88,7 @@ public class Quiz {
         this.userAnswers = userAnswers;
     }
 
-
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(optional = false,fetch = FetchType.LAZY)
     @JoinColumn(name = "assessmentId")
     public Assessment getAssessment() {
         return assessment;

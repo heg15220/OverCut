@@ -14,7 +14,7 @@ public class Question {
     private String name;
 
     /** The image. */
-    @Column(name = "image_path")
+
     @Lob
     private byte[] imagePath;
 

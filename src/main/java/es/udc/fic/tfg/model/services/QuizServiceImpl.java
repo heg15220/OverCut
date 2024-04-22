@@ -5,6 +5,7 @@ import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Autowired
     private AssessmentDao assessmentDao;
+
 
     /**
      * The permission checker.
@@ -104,12 +106,17 @@ public class QuizServiceImpl implements QuizService {
 
 
     @Override
-    public Quiz createQuiz(Long userId) throws InstanceNotFoundException {
+    public Quiz createQuiz(Long userId) throws InstanceNotFoundException, QuizException {
         Optional<User> userOptional = userDao.findById(userId);
 
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
         }
+        User user = userDao.findUserById(userId);
+        if(!user.isJournalist()){
+            throw new QuizException("User not journalist");
+        }
+
 
         List<Question> questions = getRandomQuestions();
 
@@ -119,6 +126,8 @@ public class QuizServiceImpl implements QuizService {
 
         Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
         quiz.setQuestions(questions);
+
+        quizDao.save(quiz);
 
         return quiz;
     }
@@ -184,19 +193,21 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<UserAnswer> getUserAnswersForQuiz(Long userId, Long quizId) throws QuizException {
+    @Transactional(readOnly = true)
+    public Block<UserAnswer> getUserAnswersForQuiz(Long userId, Long quizId, int page, int size) throws QuizException {
         // Buscar las respuestas del usuario para el quiz especificado
-        List<UserAnswer> userAnswers = userAnswerDao.findByUserIdAndQuizId(userId, quizId);
+        Slice<UserAnswer> userAnswers = userAnswerDao.filterByUserIdAndQuizId(userId,quizId, page,size);
 
         if (userAnswers.isEmpty()) {
             throw new QuizException("No answers found for user with id: " + userId + " and quiz with id: " + quizId);
         }
 
-        return userAnswers;
+        return new Block<>(userAnswers.getContent(), userAnswers.hasNext());
     }
 
     @Override
-    public List<Assessment> getUserAssessments(Long userId) throws InstanceNotFoundException {
+    @Transactional(readOnly = true)
+    public Block<Assessment> getUserAssessments(Long userId, int page, int size) throws InstanceNotFoundException {
         // Verificar si el usuario existe
         Optional<User> userOptional = userDao.findById(userId);
         if (!userOptional.isPresent()) {
@@ -204,13 +215,13 @@ public class QuizServiceImpl implements QuizService {
         }
 
         // Obtener las valoraciones del usuario
-        List<Assessment> userAssessments = assessmentDao.findUserAssessmentsByUserId(userId);
+        Slice<Assessment> assessmentSlice = assessmentDao.filterUserAssessmentsByUserId(userId, page,size); // Ajusta los parámetros de paginación según sea necesario
 
-        if (userAssessments.isEmpty()) {
+        if (assessmentSlice.getContent().isEmpty()) {
             throw new InstanceNotFoundException("No assessments found for user", userId);
         }
 
-        return userAssessments;
+        return new Block<>(assessmentSlice.getContent(), assessmentSlice.hasNext());
     }
 
     @Override
@@ -233,6 +244,8 @@ public class QuizServiceImpl implements QuizService {
 
         Assessment assessment = new Assessment(points,user,quiz);
         assessmentDao.save(assessment);
+
+        quizDao.save(quiz);
 
         return assessment;
     }

@@ -6,7 +6,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface AssessmentDao extends CrudRepository<Assessment, Long> {
+public interface AssessmentDao extends CrudRepository<Assessment, Long>, CustomizedAssessmentDao {
     @Query(value = "SELECT * FROM assessment WHERE user_id = ?1 AND quiz_id = ?2", nativeQuery = true)
     Assessment findByUserIdAndQuizId(@Param("userId") Long userId, @Param("quizId") Long quizId);
 

@@ -52,7 +52,7 @@ public class Assessment {
         this.user = user;
     }
 
-    @OneToOne(mappedBy = "assessment")
+    @OneToOne(mappedBy = "assessment",optional = false,fetch = FetchType.LAZY)
     public Quiz getQuiz() {
         return quiz;
     }
