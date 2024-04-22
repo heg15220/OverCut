@@ -19,4 +19,6 @@ public interface QuizService {
 
     List<Assessment> getUserAssessments(Long userId) throws InstanceNotFoundException;
 
+    Assessment createAssessment(Long quizId, Long userId) throws InstanceNotFoundException, QuizException;
+
 }

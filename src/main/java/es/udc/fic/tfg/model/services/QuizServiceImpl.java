@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional
-public class QuizServiceImpl implements QuizService{
+public class QuizServiceImpl implements QuizService {
 
 
     @Autowired
@@ -40,7 +40,9 @@ public class QuizServiceImpl implements QuizService{
     @Autowired
     private AssessmentDao assessmentDao;
 
-    /** The permission checker. */
+    /**
+     * The permission checker.
+     */
     @Autowired
     private PermissionChecker permissionChecker;
 
@@ -51,7 +53,6 @@ public class QuizServiceImpl implements QuizService{
                 .limit(10)
                 .collect(Collectors.toList());
     }
-
 
 
     private int getUserKnowledgeLevel(List<Question> questions) {
@@ -73,17 +74,32 @@ public class QuizServiceImpl implements QuizService{
         return mostFrequentLevel;
     }
 
-    private void updateAssessmentPoints(Long userId, Long quizId, int pointsToAdd) {
+    private int getQuizPoints(Long quizId, Long userId){
+        List <UserAnswer> userAnswers = userAnswerDao.findByUserIdAndQuizId(userId,quizId);
+        int points = 0;
+        for(UserAnswer userAnswer: userAnswers){
+            if(userAnswer.getAnswer().isCorrect()) points ++;
+        }
+
+        return points;
+    }
+
+    private void updateAssessmentPoints(Long userId, Long quizId, int pointsToAdd) throws QuizException {
         // Buscar el registro de Assessment para el usuario y el quiz
         Assessment assessment = assessmentDao.findByUserIdAndQuizId(userId, quizId);
 
-        if(assessment == null) new QuizException("No se encontró el registro de Assessment para el usuario y el quiz");
+        User user = userDao.findUserById(userId);
+
+        if (assessment == null) new QuizException("No se encontró el registro de Assessment para el usuario y el quiz");
+
 
         // Incrementar los puntos
         assessment.setPoints(assessment.getPoints() + pointsToAdd);
 
+        user.setPoints(assessment.getPoints() + pointsToAdd);
         // Guardar el registro actualizado
         assessmentDao.save(assessment);
+        userDao.save(user);
     }
 
 
@@ -92,7 +108,7 @@ public class QuizServiceImpl implements QuizService{
         Optional<User> userOptional = userDao.findById(userId);
 
         if (!userOptional.isPresent()) {
-            throw new InstanceNotFoundException("No user", userId);
+            throw new InstanceNotFoundException("User not found here", userId);
         }
 
         List<Question> questions = getRandomQuestions();
@@ -101,7 +117,7 @@ public class QuizServiceImpl implements QuizService{
 
         LocalDateTime date = LocalDateTime.now();
 
-        Quiz quiz = new Quiz(date,knowledgeLevelQuestions);
+        Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
         quiz.setQuestions(questions);
 
         return quiz;
@@ -118,7 +134,7 @@ public class QuizServiceImpl implements QuizService{
         // Verificar si el quiz existe
         Optional<Quiz> quizOptional = quizDao.findById(quizId);
         if (!quizOptional.isPresent()) {
-            throw new QuizException("No existe el quiz");
+            throw new QuizException("El quiz no existe");
         }
 
         // Verificar si la pregunta existe
@@ -197,6 +213,30 @@ public class QuizServiceImpl implements QuizService{
         return userAssessments;
     }
 
+    @Override
+    public Assessment createAssessment(Long quizId, Long userId) throws InstanceNotFoundException, QuizException {
+        // Verificar si el usuario existe
+        Optional<User> userOptional = userDao.findById(userId);
+        if (!userOptional.isPresent()) {
+            throw new InstanceNotFoundException("No user", userId);
+        }
+        // Verificar si el quiz existe
+        Optional<Quiz> quizOptional = quizDao.findById(quizId);
+        if (!quizOptional.isPresent()) {
+            throw new QuizException("No existe el quiz");
+        }
 
+        User user = userDao.findUserById(userId);
+        Quiz quiz = quizDao.findQuizById(quizId);
+
+        int points = getQuizPoints(quizId,userId);
+
+        Assessment assessment = new Assessment(points,user,quiz);
+        assessmentDao.save(assessment);
+
+        return assessment;
+    }
 
 }
+
+
