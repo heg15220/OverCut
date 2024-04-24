@@ -4,16 +4,16 @@ package es.udc.fic.tfg.model.services;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.security.SecureRandom;
+import java.util.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * The Class QuizServiceImpl.
@@ -48,13 +48,26 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private PermissionChecker permissionChecker;
 
+
+
     private List<Question> getRandomQuestions() {
-        List<Question> allRandomQuestions = quizDao.findRandomQuestions();
-        // Limitamos el resultado a las primeras 10 preguntas
-        return allRandomQuestions.stream()
-                .limit(10)
-                .collect(Collectors.toList());
+        List<Question> allQuestionsWithAnswers = questionDao.findAllQuestions();
+        // Crear una copia de la lista para no modificar la lista original
+        List<Question> copy = new ArrayList<>(allQuestionsWithAnswers);
+
+        // Utilizar SecureRandom para seleccionar índices aleatorios
+        SecureRandom rand = new SecureRandom();
+        List<Question> randomQuestions = new ArrayList<>();
+
+        // Seleccionar 10 preguntas aleatorias
+        for (int i = 0; i < Math.min(10, copy.size()); i++) {
+            int randomIndex = rand.nextInt(copy.size());
+            randomQuestions.add(copy.remove(randomIndex));
+        }
+
+        return randomQuestions;
     }
+
 
 
     private int getUserKnowledgeLevel(List<Question> questions) {
@@ -105,6 +118,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
 
+
     @Override
     public Quiz createQuiz(Long userId) throws InstanceNotFoundException, QuizException {
         Optional<User> userOptional = userDao.findById(userId);
@@ -112,11 +126,10 @@ public class QuizServiceImpl implements QuizService {
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
         }
-        User user = userDao.findUserById(userId);
+        User user = userOptional.get(); // Use the user from the Optional
         if(!user.isJournalist()){
             throw new QuizException("User not journalist");
         }
-
 
         List<Question> questions = getRandomQuestions();
 
@@ -131,6 +144,7 @@ public class QuizServiceImpl implements QuizService {
 
         return quiz;
     }
+
 
     @Override
     public void chooseAnswer(Long quizId, Long questionId, Long userId, Long answerId) throws QuizException, InstanceNotFoundException {
@@ -169,27 +183,11 @@ public class QuizServiceImpl implements QuizService {
             updateAssessmentPoints(userId, quizId, 1); // Asumiendo que 1 punto se otorga por respuesta correcta
         }
     }
-
     @Override
-    public Map<Question, List<Answer>> getQuizQuestionsAndAnswers(Long quizId) throws QuizException {
-        // Verificar si el quiz existe
-        Optional<Quiz> quizOptional = quizDao.findById(quizId);
-        if (!quizOptional.isPresent()) {
-            throw new QuizException("No existe el quiz");
-        }
-        // Obtener las preguntas asociadas al quiz
-        List<Question> questions = questionDao.findByQuizId(quizId);
-
-        // Crear un mapa para almacenar las preguntas y sus respuestas
-        Map<Question, List<Answer>> questionAnswerMap = new HashMap<>();
-
-        // Recorrer las preguntas y obtener las respuestas asociadas a cada una
-        for (Question question : questions) {
-            List<Answer> answers = answerDao.findByQuestionId(question.getId());
-            questionAnswerMap.put(question, answers);
-        }
-
-        return questionAnswerMap;
+    @Transactional(readOnly = true)
+    public Block<Question> findQuestionsByQuizId(Long quizId, int page, int size) throws InstanceNotFoundException{
+        Slice<Question> questions = questionDao.findQuestionsByQuizId(quizId,PageRequest.of(page,size));
+        return new Block<>(questions.getContent(), questions.hasNext());
     }
 
     @Override

@@ -97,7 +97,11 @@ public class Question {
 
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
+        if (quiz != null) {
+            quiz.getQuestions().add(this);
+        }
     }
+
 
     @OneToMany(mappedBy = "question")
     public List<Answer> getAnswers() {
@@ -108,7 +112,7 @@ public class Question {
         this.answers = answers;
     }
 
-    @OneToMany(mappedBy = "question")
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     public List<UserAnswer> getUserAnswers() {
         return userAnswers;
     }

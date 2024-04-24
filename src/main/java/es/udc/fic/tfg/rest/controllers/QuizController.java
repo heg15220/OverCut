@@ -7,9 +7,11 @@ import es.udc.fic.tfg.model.services.QuizService;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import es.udc.fic.tfg.rest.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,14 +38,15 @@ public class QuizController {
         quizService.chooseAnswer(quizId, params.getQuestionId(), params.getUserId(), params.getAnswerId());
     }
 
-    @GetMapping("/information")
-    public MapDto<QuestionDto, List<AnswerDto>> getQuizQuestionsAndAnswers(@RequestAttribute Long quizId) throws QuizException {
-        // Obtener el mapa de preguntas y respuestas del servicio
-        Map<Question, List<Answer>> questionAnswerMap = quizService.getQuizQuestionsAndAnswers(quizId);
-
-        // Convertir el mapa de objetos de dominio a DTOs
-        return MapDtoConversor.convertToDtoMap(questionAnswerMap);
+    @GetMapping("/{quizId}/questions")
+    public BlockDto<QuestionDto> getQuizQuestions(@PathVariable Long quizId,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) throws InstanceNotFoundException{
+        Block<Question> foundQuestions = quizService.findQuestionsByQuizId(quizId, page, size);
+        return new BlockDto<>(QuestionConversor.toQuestionDtos(foundQuestions.getItems()),foundQuestions.getExistMoreItems());
     }
+
+
 
 
     @GetMapping("/user/results")

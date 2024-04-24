@@ -1,6 +1,10 @@
 package es.udc.fic.tfg.rest.dtos;
 
 import es.udc.fic.tfg.model.entities.Question;
+import es.udc.fic.tfg.model.entities.Quiz;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class QuestionConversor {
     private QuestionConversor() {
@@ -23,6 +27,10 @@ public class QuestionConversor {
 
         // Crear y devolver el objeto QuestionDto
         return new QuestionDto(id, name, imagePath, knowledgequestionlevel, quizId);
+    }
+
+    public static final List<QuestionDto> toQuestionDtos(List<Question> questions) {
+        return questions.stream().map(QuestionConversor::convertToQuestionDto).collect(Collectors.toList());
     }
 
 }
