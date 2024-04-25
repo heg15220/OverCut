@@ -4,7 +4,6 @@ package es.udc.fic.tfg.model.services;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -14,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.util.*;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * The Class QuizServiceImpl.
@@ -51,9 +52,12 @@ public class QuizServiceImpl implements QuizService {
 
 
     private List<Question> getRandomQuestions() {
-        List<Question> allQuestionsWithAnswers = questionDao.findAllQuestions();
+        Iterable<Question> allQuestionsWithAnswers = questionDao.findAll();
+
+        List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(),false)
+                .collect(Collectors.toList());
         // Crear una copia de la lista para no modificar la lista original
-        List<Question> copy = new ArrayList<>(allQuestionsWithAnswers);
+        List<Question> copy = new ArrayList<>(listQuestions);
 
         // Utilizar SecureRandom para seleccionar índices aleatorios
         SecureRandom rand = new SecureRandom();
@@ -120,15 +124,11 @@ public class QuizServiceImpl implements QuizService {
 
 
     @Override
-    public Quiz createQuiz(Long userId) throws InstanceNotFoundException, QuizException {
+    public Quiz createQuiz(Long userId) throws InstanceNotFoundException{
         Optional<User> userOptional = userDao.findById(userId);
 
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
-        }
-        User user = userOptional.get(); // Use the user from the Optional
-        if(!user.isJournalist()){
-            throw new QuizException("User not journalist");
         }
 
         List<Question> questions = getRandomQuestions();

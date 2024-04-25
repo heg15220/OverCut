@@ -3,15 +3,10 @@ package es.udc.fic.tfg.model.services;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-
-import java.util.List;
-import java.util.Map;
 
 public interface QuizService {
 
-    Quiz createQuiz(Long userId) throws InstanceNotFoundException, QuizException;
+    Quiz createQuiz(Long userId) throws InstanceNotFoundException;
 
     void chooseAnswer(Long quizId, Long questionId, Long userId, Long answerId) throws QuizException, InstanceNotFoundException;
 

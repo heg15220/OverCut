@@ -7,16 +7,8 @@ import es.udc.fic.tfg.model.services.QuizService;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import es.udc.fic.tfg.rest.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static es.udc.fic.tfg.rest.dtos.PostConversor.toPostDtos;
-
 /**
  * The class PostController
  */
@@ -28,7 +20,7 @@ public class QuizController {
 
 
     @PostMapping("/create")
-    public Long createQuiz(@RequestAttribute Long userId) throws InstanceNotFoundException, QuizException{
+    public Long createQuiz(@RequestAttribute Long userId) throws InstanceNotFoundException{
         return (quizService.createQuiz(userId)).getId();
     }
 
