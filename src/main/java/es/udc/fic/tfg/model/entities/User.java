@@ -49,6 +49,8 @@ public class User {
 
     private List<Assessment> assessments;
 
+    private List<Award> awards;
+
     /**
      * Constructor with no parameters
      */
@@ -270,4 +272,14 @@ public class User {
     public void setAssessments(List<Assessment> assessments) {
         this.assessments = assessments;
     }
+
+    @OneToMany(mappedBy = "user")
+    public List<Award> getAwards() {
+        return awards;
+    }
+
+    public void setAwards(List<Award> awards) {
+        this.awards = awards;
+    }
+
 }

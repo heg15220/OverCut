@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS Award;
 DROP TABLE IF EXISTS UserAnswer;
 DROP TABLE IF EXISTS Answer;
 DROP TABLE IF EXISTS Question;
@@ -8,6 +9,7 @@ DROP TABLE IF EXISTS Post;
 DROP TABLE IF EXISTS Category;
 DROP TABLE IF EXISTS Users;
 
+-- Crear las tablas con las restricciones de clave foránea adecuadas
 CREATE TABLE Users (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     userName VARCHAR(60) NOT NULL,
@@ -20,13 +22,16 @@ CREATE TABLE Users (
     points BIGINT
 );
 
-CREATE TABLE Category (
-   id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-   name VARCHAR(60) NOT NULL,
-   historic BOOLEAN DEFAULT FALSE,
-   quiz BOOLEAN DEFAULT FALSE,
 
-   CONSTRAINT NameIsUniqueKey UNIQUE (name)
+
+
+CREATE TABLE Category (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(60) NOT NULL,
+    historic BOOLEAN DEFAULT FALSE,
+    quiz BOOLEAN DEFAULT FALSE,
+
+    CONSTRAINT NameIsUniqueKey UNIQUE (name)
 );
 
 CREATE TABLE Post(
@@ -105,6 +110,14 @@ CREATE TABLE UserAnswer (
     CONSTRAINT QuizIdFK FOREIGN KEY (quizId) REFERENCES Quiz (id)
 );
 
+CREATE TABLE Award(
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    award varchar(60) NOT NULL,
+    requieredPoints BIGINT NOT NULL,
+    userId BIGINT,
+    CONSTRAINT AwardUserIdFK FOREIGN KEY (userId) REFERENCES Users (id)
+);
+
 
 
 
@@ -121,6 +134,11 @@ VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example artic
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
 
+INSERT INTO Award(award,requieredPoints,userId)
+VALUES ('PS5', 180,null);
+
+INSERT INTO Award(award,requieredPoints,userId)
+VALUES ('Thrustmaster T150', 120, null);
 
 INSERT INTO Question (name, imagePath,knowledgequestionlevel)
 VALUES ('¿Cuál es el nombre de esta escuderia?','/static/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);

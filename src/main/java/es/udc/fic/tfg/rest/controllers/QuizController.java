@@ -59,4 +59,16 @@ public class QuizController {
             throws InstanceNotFoundException, QuizException{
         return (quizService.createAssessment(quizId,userId)).getId();
     }
+
+    @GetMapping("/awards/award")
+    public Long chooseAward(@RequestAttribute Long awardId, @RequestAttribute Long userId) throws QuizException, InstanceNotFoundException{
+        return quizService.chooseAward(awardId,userId).getId();
+    }
+
+    @GetMapping("/awards")
+    public BlockDto<AwardDto> getAvailableAwards(@RequestAttribute Long userId, @RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "10") int size) throws InstanceNotFoundException{
+        Block<Award> awards = quizService.getAvailableAwards(userId,page,2);
+        return new BlockDto<>(AwardConversor.toAwardDtos(awards.getItems()),awards.getExistMoreItems());
+    }
 }

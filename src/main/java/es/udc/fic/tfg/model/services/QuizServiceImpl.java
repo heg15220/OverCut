@@ -42,6 +42,9 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private AssessmentDao assessmentDao;
 
+    @Autowired
+    private AwardDao awardDao;
+
 
     /**
      * The permission checker.
@@ -248,6 +251,49 @@ public class QuizServiceImpl implements QuizService {
         return assessment;
     }
 
+    @Override
+    public Award chooseAward(Long awardId, Long userId) throws QuizException, InstanceNotFoundException{
+
+        // Verificar si el usuario existe
+        Optional<User> userOptional = userDao.findById(userId);
+        if (!userOptional.isPresent()) {
+            throw new InstanceNotFoundException("No user", userId);
+        }
+        User user = userDao.findUserById(userId);
+
+        Award award = awardDao.findAwardById(awardId);
+        if(user.getPoints() < award.getRequiredPoints()){
+            throw new QuizException("Not enough points");
+        }
+
+        int points = user.getPoints() - award.getRequiredPoints();
+
+        user.setPoints(points);
+
+        award.setUser(user);
+
+        userDao.save(user);
+
+        awardDao.save(award);
+
+        return award;
+
+    }
+
+    @Override
+    public Block<Award> getAvailableAwards(Long userId, int page, int size) throws InstanceNotFoundException{
+        // Verificar si el usuario existe
+        Optional<User> userOptional = userDao.findById(userId);
+        if (!userOptional.isPresent()) {
+            throw new InstanceNotFoundException("No user", userId);
+        }
+        User user = userDao.findUserById(userId);
+
+
+        Slice<Award> awards = awardDao.findAwardsAvailableForUser(userId,user.getPoints(),PageRequest.of(page,size));
+
+        return new Block<>(awards.getContent(), awards.hasNext());
+    }
 }
 
 
