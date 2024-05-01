@@ -53,6 +53,12 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/posts/*")).permitAll()
                         .requestMatchers(antMatcher("/api/posts/postDetails/*")).permitAll()
                         .requestMatchers(antMatcher("/api/posts/*/comments")).permitAll()
+                        .requestMatchers(antMatcher("/api/historic/{id}/circuits")).permitAll()
+                        .requestMatchers(antMatcher("/api/historic/circuit/{id}/podiums")).permitAll()
+                        .requestMatchers(antMatcher("/api/historic/circuits/circuit/{id}")).permitAll()
+                        .requestMatchers(antMatcher("/api/historic/circuit/podiums/podium/{id}")).permitAll()
+
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
