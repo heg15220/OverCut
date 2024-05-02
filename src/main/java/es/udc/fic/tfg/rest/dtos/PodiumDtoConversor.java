@@ -13,7 +13,7 @@ public class PodiumDtoConversor {
 
 
     public static final PodiumDto toPodiumDto(Podium podium) {
-        return new PodiumDto(podium.getId(), podium.getWinner(), podium.getTeamWinner(), podium.getSecondPlace(),
+        return new PodiumDto(podium.getId(), podium.getWinner(), podium.getDate(), podium.getTeamWinner(), podium.getSecondPlace(),
                 podium.getThirdPlace(), podium.getImage(), podium.getCircuit().getId());
     }
 

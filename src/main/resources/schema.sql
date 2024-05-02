@@ -62,6 +62,7 @@ CREATE TABLE Circuit(
 
 CREATE TABLE Podium(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    date LONGTEXT NOT NULL,
     winner LONGTEXT NOT NULL,
     teamWinner LONGTEXT NOT NULL,
     secondPlace LONGTEXT,
@@ -92,32 +93,32 @@ VALUES ('This is a comment.', 1, NULL, 1);
 INSERT INTO Circuit(distance, numberLaps, teamSuccess, image, categoryId)
 VALUES(5412,57,'Ferrari', '/static/images/Bahrain_Circuit.jpg',2);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Max Verstappen', 'RedBull','Perez','Sainz',null,1);
+INSERT INTO Podium(winner,date, teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Max Verstappen', '2024','RedBull','Perez','Sainz',null,1);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Max Verstappen', 'RedBull','Perez','Alonso',null,1);
+INSERT INTO Podium(winner,date, teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Max Verstappen', '2023','RedBull','Perez','Alonso',null,1);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Charles Leclerc', 'Ferrari','Sainz','Hamilton',null,1);
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Charles Leclerc', '2022','Ferrari','Sainz','Hamilton',null,1);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Lewis Hamilton', 'Verstappen','Bottas','Mercedes',null,1);
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Lewis Hamilton', '2021','Verstappen','Bottas','Mercedes',null,1);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Lewis Hamilton', 'Verstappen','Albon','Mercedes',null,1);
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Lewis Hamilton','2020','Verstappen','Albon','Mercedes',null,1);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Lewis Hamilton', 'Bottas','Leclerc','Mercedes',null,1);
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Lewis Hamilton', '2019','Bottas','Leclerc','Mercedes',null,1);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Sebastian Vettel', 'Bottas','Hamilton','Ferrari',null,1);
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Sebastian Vettel', '2018','Bottas','Hamilton','Ferrari',null,1);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Sebastian Vettel', 'Hamilton','Bottas','Ferrari',null,1);
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Sebastian Vettel', '2017','Hamilton','Bottas','Ferrari',null,1);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Nico Rosberg', 'Raikkonen','Hamilton','Mercedes',null,1);
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Nico Rosberg', '2016','Raikkonen','Hamilton','Mercedes',null,1);
 
-INSERT INTO Podium(winner, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Lewis  Hamilton', 'Raikkonen','Rosberg','Mercedes', null, 1);
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Lewis  Hamilton', '2015','Raikkonen','Rosberg','Mercedes', null, 1);

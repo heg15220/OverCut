@@ -49,7 +49,7 @@ class HistoricServiceTest {
 
 
     private Podium createPodium() {
-        return new Podium("Alonso","AstonMartin","Verstappen","Hamilton",null,createCircuit());
+        return new Podium("Alonso","2025","AstonMartin","Verstappen","Hamilton",null,createCircuit());
     }
     @Test
     void testGetCircuitsCategoryDoesNotExist() {

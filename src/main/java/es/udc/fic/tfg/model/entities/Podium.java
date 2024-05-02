@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 public class Podium {
     private Long id;
     private String winner;
+    private String date;
     private String teamWinner;
     private String secondPlace;
     private String thirdPlace;
@@ -16,8 +17,11 @@ public class Podium {
     public Podium(){
 
     }
-    public Podium(String winner, String teamWinner, String secondPlace, String thirdPlace, byte[] image, Circuit circuit) {
+
+    public Podium(String winner, String date, String teamWinner,
+                  String secondPlace, String thirdPlace, byte[] image, Circuit circuit) {
         this.winner = winner;
+        this.date = date;
         this.teamWinner = teamWinner;
         this.secondPlace = secondPlace;
         this.thirdPlace = thirdPlace;
@@ -41,6 +45,14 @@ public class Podium {
 
     public void setWinner(String winner) {
         this.winner = winner;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public String getTeamWinner() {
