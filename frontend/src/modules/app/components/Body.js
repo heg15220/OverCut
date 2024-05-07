@@ -1,13 +1,14 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import './App.css'
 
-
-
-import users, {Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout} from '../../users';
+import users, { Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout } from '../../users';
 import Home from "./Home";
-import {AddImage, CreatePost, ModifyPost, PostDetails, UserPostList} from "../../posts";
+import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
+import { Circuits, CircuitDetailsModal } from '../../historic';
+import {CircuitList} from "../../historic"; // Asegúrate de que esta ruta sea correcta
+
 
 
 
@@ -32,6 +33,10 @@ const Body = () => {
                     {loggedIn && <Route path="/post/my" element={<UserPostList/>}/>}
                     {loggedIn && <Route path="/posts/:id" element={<ModifyPost/>}/>}
                     {loggedIn && <Route path="/posts/:id/add-image" element={<AddImage/>}/>}
+                    <Route path="/circuits" element={<Circuits />} />
+                    <Route path="/historic/circuits/circuit/:id}" element={<CircuitDetailsModal />} />
+                    <Route path="/circuits/category/:id" element={<CircuitList />} />
+
 
                 </Route>
             </Routes>

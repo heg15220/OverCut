@@ -1,4 +1,11 @@
-export const getCircuitDetails = state => state.circuitDetails;
-export const getPodiumDetails = state => state.podiumDetails;
-export const getCircuitsByCategory = state => state.circuitsByCategory;
-export const getPodiumsByCircuit = state => state.podiumsByCircuit;
+
+const getModuleState = state => state.circuits;
+
+export const getCircuits = state => getModuleState(state);
+
+export const getPodium = state => getModuleState(state).podium;
+
+export const getCircuit = state => getModuleState(state).circuit;
+
+export const getPodiums = state => getModuleState(state).podiums;
+

@@ -2,19 +2,20 @@
 import { fetchConfig, appFetch } from "./appFetch";
 
 // Función para obtener detalles de un circuito
-export const getCircuitDetails = (circuitId, onSuccess, onErrors) => {
+export const getCircuitDetails = (id, onSuccess) => {
     appFetch(
-        `/circuits/circuit/${circuitId}`,
+        `/historic/circuits/circuit/${id}`,
         fetchConfig("GET"),
-        onSuccess,
-        onErrors
+        onSuccess
     );
 };
 
+
+
 // Función para obtener detalles de un podio
-export const getPodiumDetails = (podiumId, onSuccess, onErrors) => {
+export const getPodiumDetails = (id, onSuccess, onErrors) => {
     appFetch(
-        `/circuit/podiums/podium/${podiumId}`,
+        `/historic/circuit/podiums/podium/${id}`,
         fetchConfig("GET"),
         onSuccess,
         onErrors
@@ -22,20 +23,15 @@ export const getPodiumDetails = (podiumId, onSuccess, onErrors) => {
 };
 
 // Función para obtener circuitos por categoría
-export const getCircuitsByCategory = (categoryId, page, onSuccess, onErrors) => {
-    let url = `/${categoryId}/circuits?page=${page}`;
-
-    appFetch(
-        url,
-        fetchConfig("GET"),
-        onSuccess,
-        onErrors
-    );
+export const getCircuits = (id, page, onSuccess) => {
+    appFetch(`/historic/${id}/circuits?page=${page}`, fetchConfig("GET"), onSuccess);
 };
 
+
+
 // Función para obtener podios por circuito
-export const getPodiumsByCircuit = (circuitId, page, onSuccess, onErrors) => {
-    let url = `/circuit/${circuitId}/podiums?page=${page}`;
+export const getPodiumsByCircuit = (id, page, onSuccess, onErrors) => {
+    let url = `/historic/circuit/${id}/podiums?page=${page}`;
 
     appFetch(
         url,
