@@ -1,7 +1,7 @@
 
 const getModuleState = state => state.circuits;
 
-export const getCircuits = state => getModuleState(state);
+export const getCircuits = state => getModuleState(state).circuits;
 
 export const getPodium = state => getModuleState(state).podium;
 

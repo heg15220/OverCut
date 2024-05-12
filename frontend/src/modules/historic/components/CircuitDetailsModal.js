@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Box, Typography, Button } from '@mui/material';
+import {Modal, Box, Typography, Button, Paper, Grid} from '@mui/material';
 import {useDispatch, useSelector} from 'react-redux';
 import * as actions from "../actions";
 import * as CategoryActions from "../../posts/actions";
-
-const CircuitDetailsModal = ({ circuitId, onClose }) => {
+import * as selectors from "../selectors";
+const CircuitDetailsModal = ({circuit}) => {
     const [open, setOpen] = useState(false);
     const [circuitDetails, setCircuitDetails] = useSelector(circuitDetails);
     const dispatch = useDispatch();
@@ -13,16 +13,15 @@ const CircuitDetailsModal = ({ circuitId, onClose }) => {
     useEffect(() => {
         dispatch(actions.fetchCircuitDetails(
             {
-                id:circuitId
+                id:circuit.id
             },
             () => { },
             () => { },
         ));
         dispatch(CategoryActions.getAllCategories(() => { }))
-    }, [dispatch, circuitId]);
+    }, [dispatch, circuit]);
     const handleClose = () => {
         setOpen(false);
-        onClose();
     };
 
     return (
@@ -36,18 +35,15 @@ const CircuitDetailsModal = ({ circuitId, onClose }) => {
                 <Typography id="circuit-details-title" variant="h6" component="h2">
                     Detalles del Circuito
                 </Typography>
-                <Typography id="circuit-details-description" sx={{ mt: 2 }}>
-                    {/* Aquí se mostrarán los detalles del circuito */}
-                    {circuitDetails && (
-                        <>
-                            <p><strong>Imagen:</strong>{circuitDetails.image}</p>
-                            <p><strong>Nombre:</strong> {circuitDetails.name}</p>
-                            <p><strong>Distancia:</strong> {circuitDetails.distance} km</p>
-                            <p><strong>Laps:</strong> {circuitDetails.numberLaps}</p>
-                            {/* Agrega más detalles según sea necesario */}
-                        </>
-                    )}
-                </Typography>
+                <Grid item xs={12} sm={6} md={4} key={circuit.id}>
+                    <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 300 }}>
+                        <Typography variant="h6">{circuit.name}</Typography>
+                        <Typography variant="body1">Imagen: {circuit.image}</Typography>
+                        <Typography variant="body1">Nombre: {circuit.name}</Typography>
+                        <Typography variant="body1">Fecha de Creación: {circuit.dateCreated}</Typography>
+                        {/* Aquí puedes agregar más detalles del circuito */}
+                    </Paper>
+                </Grid>
                 <Button onClick={handleClose}>Cerrar</Button>
             </Box>
         </Modal>
