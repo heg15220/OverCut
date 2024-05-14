@@ -1,18 +1,17 @@
 import CircuitDetailsModal from "./CircuitDetailsModal"; // Asume que este componente existe y muestra los detalles de un circuito
 import { FormattedMessage } from 'react-intl';
+import {CircuitListItem} from "../index";
 
 const Circuits = ({ circuits }) => {
     return (
         <div>
-            {circuits? (
+            {circuits && circuits.length > 0? (
                 <div>
-                    <div>
-                        {circuits.result.items.map(circuit =>
-                            <CircuitDetailsModal key={circuit.id} circuit={circuit} />
-                        )}
-                    </div>
+                    {circuits.map(circuit =>
+                        <CircuitListItem key={circuit.circuitId} circuit={circuit} />
+                    )}
                 </div>
-            ) : <FormattedMessage id="project.no_circuits" />}
+            ) : <FormattedMessage id="project.no_posts" />}
         </div>
     );
 }

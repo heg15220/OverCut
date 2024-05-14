@@ -11,63 +11,36 @@ import CircuitList from "./CircuitList";
 const AllCircuits = () => {
     const dispatch = useDispatch();
     const circuits = useSelector(selectors.getCircuits);
-    const [title, setTitle] = useState("");
-    const [categoryId, setCategoryId] = useState(2);
-    const [criteria, setCriteria] = useState(null);
-    const [order, setOrder] = useState(false);
+    const [page, setPage] = useState(0);
     const formRef = useRef(null);
 
-    const handleSubmit = event => {
-        event.preventDefault();
-        if (formRef.current?.checkValidity()) {
-            dispatch(actions.getCircuits(
-                {
-                    categoryId
-                },
-                0,
-                () => { },
-            ));
-        } else {
-            formRef.current?.classList.add('was-validated');
-        }
-    }
-
     useEffect(() => {
-        dispatch(actions.getCircuits(
-            {
-               categoryId
-            },
-            0,
-            () => { },
-        ));
-    }, [dispatch, categoryId]);
+        dispatch(actions.getCircuits(2, page, () => {
+            // Aquí puedes actualizar el estado local con los nuevos circuitos
+            // Por ejemplo, si tienes un estado local para almacenar los circuitos, hazlo aquí
+        }));
+    }, [dispatch, page]);
+
+
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+    };
 
     return (
         <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1200 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Grid container spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 2 }}>
-                    <Grid item xs={12} sm={6} md={4}>
-                        <TextField
-                            label="Title"
-                            variant="outlined"
-                            value={title}
-                            onChange={e => setTitle(e.target.value)}
-                            fullWidth
-                        />
-                    </Grid>
-                </Grid>
                 <Box sx={{ width: '100%', p: 5 }}>
                     <CircuitList circuits={circuits} />
-                    {circuits && (
-                        <Pager
-                            back={{
-                          }}
-                            next={{
-                            }}
-                        />
-                    )}
+                    {circuits && (<Pager
+                        back={{
+                            enabled: page > 0,
+                            onClick: () => handlePageChange(page - 1)
+                        }}
+                        next={{
+                            enabled: true,
+                            onClick: () => handlePageChange(page + 1)
+                        }}
+                    />)}
                 </Box>
-            </Box>
         </Paper>
     );
 }
