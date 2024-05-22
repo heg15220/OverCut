@@ -7,10 +7,12 @@ import { FormattedMessage } from 'react-intl';
 import {TextField, Select, MenuItem, Button, Box, FormControl, InputLabel, Paper} from '@mui/material';
 import Grid from "@mui/material/Grid";
 import CircuitList from "./CircuitList";
+import {Circuits} from "../index";
 
 const AllCircuits = () => {
     const dispatch = useDispatch();
     const circuits = useSelector(selectors.getCircuits);
+    console.log(circuits);
     const [page, setPage] = useState(0);
     const formRef = useRef(null);
 
@@ -19,7 +21,7 @@ const AllCircuits = () => {
             // Aquí puedes actualizar el estado local con los nuevos circuitos
             // Por ejemplo, si tienes un estado local para almacenar los circuitos, hazlo aquí
         }));
-    }, [dispatch, page]);
+    }, [dispatch, page, circuits]);
 
 
     const handlePageChange = (newPage) => {
@@ -29,7 +31,7 @@ const AllCircuits = () => {
     return (
         <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1200 }}>
                 <Box sx={{ width: '100%', p: 5 }}>
-                    <CircuitList circuits={circuits} />
+                    <Circuits circuits={circuits} />
                     {circuits && (<Pager
                         back={{
                             enabled: page > 0,

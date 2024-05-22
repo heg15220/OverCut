@@ -5,9 +5,9 @@ import {CircuitListItem} from "../index";
 const Circuits = ({ circuits }) => {
     return (
         <div>
-            {circuits && circuits.length > 0? (
+            {circuits && circuits.items.length > 0? (
                 <div>
-                    {circuits.map(circuit =>
+                    {circuits.items.map(circuit =>
                         <CircuitListItem key={circuit.circuitId} circuit={circuit} />
                     )}
                 </div>
