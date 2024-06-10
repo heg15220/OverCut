@@ -24,7 +24,7 @@ const CircuitDetails = () => {
     useEffect(() => {
         const circuitId = Number(id);
         if (!Number.isNaN(circuitId)) {
-            dispatch(actions.fetchCircuitDetails(id));
+            dispatch(actions.fetchCircuitDetails(id, () => {}));
         }
     }, [id, user, dispatch]);
 
@@ -60,7 +60,7 @@ const CircuitDetails = () => {
                     </Alert>
                 )}
                 <Card>
-                    <CardContent>
+                    <CardMedia>
                         <Typography variant="h5" component="div" sx={{
                             fontSize: '2rem', // Ajusta el tamaño de la fuente
                             fontWeight: 'bold', // Hace el texto en negrita
@@ -90,7 +90,7 @@ const CircuitDetails = () => {
 
                         <CardMedia
                             component="img"
-                            image={srcImage}
+                            image={circuit.image}
                             alt="Circuit Image"
                             sx={{
                                 maxHeight: '500px', // Ajusta el tamaño máximo de la imagen
@@ -99,6 +99,7 @@ const CircuitDetails = () => {
                                 marginTop: 2, // Añade un margen en la parte superior para separar la imagen del subtítulo
                             }}
                         />
+                    </CardMedia>
 
                         <Typography variant="body1" sx={{
                             whiteSpace: 'pre-wrap',
@@ -107,7 +108,6 @@ const CircuitDetails = () => {
                         }}>
                             {circuit.teamSuccess}
                         </Typography>
-                    </CardContent>
                 </Card>
             </Box>
         </Container>

@@ -8,7 +8,7 @@ const Circuits = ({ circuits }) => {
             {circuits && circuits.items.length > 0? (
                 <div>
                     {circuits.items.map(circuit =>
-                        <CircuitListItem key={circuit.circuitId} circuit={circuit} />
+                        <CircuitListItem key={circuit.id} circuit={circuit} />
                     )}
                 </div>
             ) : <FormattedMessage id="project.no_posts" />}

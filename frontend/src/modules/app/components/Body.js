@@ -37,7 +37,7 @@ const Body = () => {
                     <Route path="/circuits/category/:id" element={<CircuitList />} />
                     <Route path="/circuit/circuit-details/:id" element={<CircuitDetails />} />
                     <Route path="/circuits/category/2`" element={<AllCircuits />} />
-
+                    <Route path='/circuit/circuit-details/:id' element={<CircuitDetails />} />
                 </Route>
             </Routes>
         </div>
