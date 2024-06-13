@@ -1,12 +1,13 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import CircuitDetailsLink from "./CircuitDetailsLink";
+import {PodiumDetailsLink} from "../index";
 
-const CircuitListItem = ({ circuit }) => {
+const PodiumListItem = ({ podium }) => {
     // Asumiendo que post.image contiene la imagen del post en formato base64
 
-    const srcImage = circuit.image?
-        `data:image/jpeg;base64,"/resources/static/images/Bahrain_Circuit.jpg"` :
+    const srcImage = podium.image?
+        `data:image/jpeg;base64,${podium.image}` :
         null;
     return (
         <div className="card my-2" style={{ position: 'relative', paddingRight: '120px' }}>
@@ -16,12 +17,12 @@ const CircuitListItem = ({ circuit }) => {
             )}
             <div className="card-body">
                 <div className="d-flex justify-content-between">
-                    <div>{circuit.distance}</div>
+                    <div>{podium.date}</div>
                 </div>
-                <CircuitDetailsLink id={circuit.id} name={circuit.distance} />
+                <PodiumDetailsLink id={podium.id} name={podium.date} />
             </div>
         </div>
     )
 }
 
-export default CircuitListItem;
+export default PodiumListItem;

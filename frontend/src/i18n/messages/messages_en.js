@@ -25,7 +25,8 @@ const en = {
     'project.users.Profile.title': 'Title',
     'project.users.CreatePost.title': 'Create Post',
     'project.users.MyPosts.title': 'MyPosts',
-    'project.app.Header.historic': 'Historic'
+    'project.app.Header.historic': 'Historic',
+    'project.modules.historic.podiums': 'Podiums'
 
 }
 export default en;

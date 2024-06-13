@@ -17,7 +17,7 @@ const podiumDetailsCompleted = (podium)=> ({
 });
 
 const podiumsByCircuitCompleted = (podiums)=> ({
-    type: actionTypes.GET_CIRCUIT_DETAILS_COMPLETED,
+    type: actionTypes.GET_PODIUMS_BY_CIRCUIT_COMPLETED,
     podiums
 });
 

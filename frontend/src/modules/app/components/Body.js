@@ -6,7 +6,15 @@ import './App.css'
 import users, { Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout } from '../../users';
 import Home from "./Home";
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
-import { Circuits, CircuitDetailsModal,CircuitDetails, CircuitList, AllCircuits } from '../../historic';
+import {
+    Circuits,
+    CircuitDetailsModal,
+    CircuitDetails,
+    CircuitList,
+    AllCircuits,
+    PodiumDetails,
+    PodiumList
+} from '../../historic';
 
 
 
@@ -38,6 +46,11 @@ const Body = () => {
                     <Route path="/circuit/circuit-details/:id" element={<CircuitDetails />} />
                     <Route path="/circuits/category/2`" element={<AllCircuits />} />
                     <Route path='/circuit/circuit-details/:id' element={<CircuitDetails />} />
+                    <Route path='/circuit/circuit-details/podium/podium-details/:id' element={<PodiumDetails />} />
+                    <Route path='/circuit/podiums' element={<PodiumList />} />
+
+
+
                 </Route>
             </Routes>
         </div>

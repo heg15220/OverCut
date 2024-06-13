@@ -8,14 +8,12 @@ import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert
 import { FormattedMessage } from 'react-intl';
 import WebFont from 'webfontloader';
 import TextField from "@mui/material/TextField";
-import PodiumList from "./PodiumList";
 
 
 
-const CircuitDetails = () => {
+const PodiumDetails = () => {
     const { id } = useParams();
-    const circuit = useSelector(selectors.getCircuit);
-    const user = useSelector(userSelectors.getUser);
+    const podium = useSelector(selectors.getPodium);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [backendErrors, setBackendErrors] = useState(null);
@@ -23,11 +21,11 @@ const CircuitDetails = () => {
     const formRef = useRef(null);
 
     useEffect(() => {
-        const circuitId = Number(id);
-        if (!Number.isNaN(circuitId)) {
-            dispatch(actions.fetchCircuitDetails(id, () => {}));
+        const podiumId = Number(id);
+        if (!Number.isNaN(podiumId)) {
+            dispatch(actions.getPodiumDetails(id, () => {}));
         }
-    }, [id, user, dispatch]);
+    }, [id,dispatch]);
 
     useEffect(() => {
         WebFont.load({
@@ -38,11 +36,11 @@ const CircuitDetails = () => {
     }, []);
 
 
-    if (!circuit) {
+    if (!podium) {
         return null;
     }
 
-    const srcImage = circuit.image ? "data:image/jpg;base64," + circuit.image : null
+    const srcImage = podium.image ? "data:image/jpg;base64," + podium.image : null
 
 
     return (
@@ -70,7 +68,7 @@ const CircuitDetails = () => {
                             marginTop: '1rem', // Añade un margen superior
                             marginBottom: '1rem', // Añade un margen inferior
                         }}>
-                            {circuit.distance}
+                            {podium.date}
                         </Typography>
 
                         <Typography variant="body2" color="text.secondary" sx={{
@@ -85,13 +83,58 @@ const CircuitDetails = () => {
                             display: 'inline-block', // Hace que el componente se ajuste al contenido
                             marginX: 'auto', // Centra horizontalmente el componente
                         }}>
-                            {circuit.numberLaps}
+                            {podium.winner}
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary" sx={{
+                            fontSize: '1.2rem', // Ajusta el tamaño de la fuente
+                            fontStyle: 'italic', // Aplica estilo cursiva
+                            fontWeight: 'bold', // Aplica negrita
+                            color: '#333333', // Color de texto blanco
+                            padding: '5px', // Espaciado interno
+                            borderRadius: '5px', // Bordes redondeados
+                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
+                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
+                            display: 'inline-block', // Hace que el componente se ajuste al contenido
+                            marginX: 'auto', // Centra horizontalmente el componente
+                        }}>
+                            {podium.teamWinner}
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary" sx={{
+                            fontSize: '1.2rem', // Ajusta el tamaño de la fuente
+                            fontStyle: 'italic', // Aplica estilo cursiva
+                            fontWeight: 'bold', // Aplica negrita
+                            color: '#333333', // Color de texto blanco
+                            padding: '5px', // Espaciado interno
+                            borderRadius: '5px', // Bordes redondeados
+                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
+                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
+                            display: 'inline-block', // Hace que el componente se ajuste al contenido
+                            marginX: 'auto', // Centra horizontalmente el componente
+                        }}>
+                            {podium.secondPlace}
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary" sx={{
+                            fontSize: '1.2rem', // Ajusta el tamaño de la fuente
+                            fontStyle: 'italic', // Aplica estilo cursiva
+                            fontWeight: 'bold', // Aplica negrita
+                            color: '#333333', // Color de texto blanco
+                            padding: '5px', // Espaciado interno
+                            borderRadius: '5px', // Bordes redondeados
+                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
+                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
+                            display: 'inline-block', // Hace que el componente se ajuste al contenido
+                            marginX: 'auto', // Centra horizontalmente el componente
+                        }}>
+                            {podium.thirdPlace}
                         </Typography>
 
 
                         <CardMedia
                             component="img"
-                            image={circuit.image}
+                            image={podium.image}
                             alt="Circuit Image"
                             sx={{
                                 maxHeight: '500px', // Ajusta el tamaño máximo de la imagen
@@ -100,31 +143,11 @@ const CircuitDetails = () => {
                                 marginTop: 2, // Añade un margen en la parte superior para separar la imagen del subtítulo
                             }}
                         />
-
-                        <Typography variant="body1" sx={{
-                            whiteSpace: 'pre-wrap',
-                            marginBottom: 2,
-                            fontFamily: 'Poppins', // Aplica la fuente Poppins
-                        }}>
-                            {circuit.teamSuccess}
-                        </Typography>
-                    <li className="nav-item">
-                        <Link
-                            className="nav-link"
-                            to={`/circuit/podiums`}
-                            style={{ color: 'black', textDecoration: 'underline' }}
-                        >
-                            <FormattedMessage id="project.modules.historic.podiums" />
-                        </Link>
-                    </li>
-
                     </CardMedia>
                 </Card>
-
             </Box>
         </Container>
-
     );
 };
 
-export default CircuitDetails;
+export default PodiumDetails;
