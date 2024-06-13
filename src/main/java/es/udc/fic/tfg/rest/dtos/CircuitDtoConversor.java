@@ -13,7 +13,7 @@ public class CircuitDtoConversor {
 
 
     public static final CircuitDto toCircuitDto(Circuit circuit) {
-        return new CircuitDto(circuit.getId(), circuit.getDistance(), circuit.getNumberLaps(), circuit.getTeamSuccess(),
+        return new CircuitDto(circuit.getId(), circuit.getName(),circuit.getDistance(), circuit.getNumberLaps(), circuit.getTeamSuccess(),
                 circuit.getImage(), circuit.getCategory().getId());
     }
 

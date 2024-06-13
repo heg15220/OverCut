@@ -15,10 +15,7 @@ const CircuitListItem = ({ circuit }) => {
                 <img src={srcImage} alt="Circuit Image" style={{ maxHeight: '100px', maxWidth: '100px', objectFit: 'cover', position: 'absolute', top: '10px', right: '10px'}} />
             )}
             <div className="card-body">
-                <div className="d-flex justify-content-between">
-                    <div>{circuit.distance}</div>
-                </div>
-                <CircuitDetailsLink id={circuit.id} name={circuit.distance} />
+                <CircuitDetailsLink id={circuit.id} name={circuit.name} />
             </div>
         </div>
     )

@@ -16,9 +16,6 @@ const PodiumListItem = ({ podium }) => {
                 <img src={srcImage} alt="Circuit Image" style={{ maxHeight: '100px', maxWidth: '100px', objectFit: 'cover', position: 'absolute', top: '10px', right: '10px'}} />
             )}
             <div className="card-body">
-                <div className="d-flex justify-content-between">
-                    <div>{podium.date}</div>
-                </div>
                 <PodiumDetailsLink id={podium.id} name={podium.date} />
             </div>
         </div>

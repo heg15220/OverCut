@@ -5,6 +5,7 @@ import jakarta.persistence.Lob;
 
 public class CircuitDto {
     private Long id;
+    private String name;
 
     private Long distance;
 
@@ -17,8 +18,9 @@ public class CircuitDto {
 
     private Long categoryId;
 
-    public CircuitDto(Long id, Long distance, Long numberLaps, String teamSuccess, byte[] image, Long categoryId) {
+    public CircuitDto(Long id, String name,Long distance, Long numberLaps, String teamSuccess, byte[] image, Long categoryId) {
         this.id = id;
+        this.name = name;
         this.distance = distance;
         this.numberLaps = numberLaps;
         this.teamSuccess = teamSuccess;
@@ -32,6 +34,14 @@ public class CircuitDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Long getDistance() {

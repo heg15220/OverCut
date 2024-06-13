@@ -3,14 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import * as actions from '../actions';
 import * as selectors from '../selectors';
 import * as userSelectors from '../../users/selectors';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert, AlertTitle } from '@mui/material';
+import {Link, useNavigate, useParams} from 'react-router-dom';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Box, Container, Alert, AlertTitle } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import WebFont from 'webfontloader';
 import TextField from "@mui/material/TextField";
 import PodiumList from "./PodiumList";
-
-
 
 const CircuitDetails = () => {
     const { id } = useParams();
@@ -37,17 +35,15 @@ const CircuitDetails = () => {
         });
     }, []);
 
-
     if (!circuit) {
         return null;
     }
 
-    const srcImage = circuit.image ? "data:image/jpg;base64," + circuit.image : null
-
+    const srcImage = circuit.image? "data:image/jpg;base64," + circuit.image : null;
 
     return (
-        <Container sx={{ marginTop: 0 }}> {/* Reduce el margen superior del Container */}
-            <Box my={0}> {/* Reduce el margen superior del Box */}
+        <Container sx={{ marginTop: 0 }}>
+            <Box my={0}>
                 {backendErrors && (
                     <Alert severity="error" onClose={() => setBackendErrors(null)}>
                         <AlertTitle>Error</AlertTitle>
@@ -60,71 +56,52 @@ const CircuitDetails = () => {
                         {success}
                     </Alert>
                 )}
-                <Card>
-                    <CardMedia>
-                        <Typography variant="h5" component="div" sx={{
-                            fontSize: '2rem', // Ajusta el tamaño de la fuente
-                            fontWeight: 'bold', // Hace el texto en negrita
-                            textTransform: 'uppercase', // Convierte el texto a mayúsculas
-                            color: 'text.primary', // Asume que quieres el color primario del tema, ajusta según sea necesario
-                            marginTop: '1rem', // Añade un margen superior
-                            marginBottom: '1rem', // Añade un margen inferior
-                        }}>
-                            {circuit.distance}
-                        </Typography>
-
-                        <Typography variant="body2" color="text.secondary" sx={{
-                            fontSize: '1.2rem', // Ajusta el tamaño de la fuente
-                            fontStyle: 'italic', // Aplica estilo cursiva
-                            fontWeight: 'bold', // Aplica negrita
-                            color: '#333333', // Color de texto blanco
-                            padding: '5px', // Espaciado interno
-                            borderRadius: '5px', // Bordes redondeados
-                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
-                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
-                            display: 'inline-block', // Hace que el componente se ajuste al contenido
-                            marginX: 'auto', // Centra horizontalmente el componente
-                        }}>
-                            {circuit.numberLaps}
-                        </Typography>
-
-
-                        <CardMedia
-                            component="img"
-                            image={circuit.image}
-                            alt="Circuit Image"
-                            sx={{
-                                maxHeight: '500px', // Ajusta el tamaño máximo de la imagen
-                                maxWidth: '80%', // Asegura que la imagen no exceda el ancho del contenedor
-                                objectFit: 'cover', // Ajusta cómo se redimensiona la imagen
-                                marginTop: 2, // Añade un margen en la parte superior para separar la imagen del subtítulo
-                            }}
-                        />
-
-                        <Typography variant="body1" sx={{
-                            whiteSpace: 'pre-wrap',
-                            marginBottom: 2,
-                            fontFamily: 'Poppins', // Aplica la fuente Poppins
-                        }}>
-                            {circuit.teamSuccess}
-                        </Typography>
-                    <li className="nav-item">
-                        <Link
-                            className="nav-link"
-                            to={`/circuit/podiums`}
-                            style={{ color: 'black', textDecoration: 'underline' }}
-                        >
-                            <FormattedMessage id="project.modules.historic.podiums" />
-                        </Link>
-                    </li>
-
-                    </CardMedia>
-                </Card>
-
+                <TableContainer>
+                    <Table aria-label="simple table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell><strong>Circuito:</strong></TableCell>
+                                <TableCell>{circuit.name}</TableCell>
+                        </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell><strong>Distancia:</strong></TableCell>
+                                <TableCell>{circuit.distance}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell><strong>Laps:</strong></TableCell>
+                                <TableCell>{circuit.numberLaps}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell><strong>Imagen:</strong></TableCell>
+                                <TableCell>
+                                    <img src={srcImage} alt="Circuit Image" style={{ width: '100%' }} />
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell><strong>Equipo más exitoso:</strong></TableCell>
+                                <TableCell>{circuit.teamSuccess}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell><strong>
+                                    <Link
+                                        className="nav-link"
+                                        to={`/circuit/podiums`}
+                                        style={{ color: 'black', textDecoration: 'underline' }}
+                                    >
+                                        <FormattedMessage id="project.modules.historic.podiums" />
+                                    </Link>
+                                </strong>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </Box>
         </Container>
-
     );
 };
+
 
 export default CircuitDetails;

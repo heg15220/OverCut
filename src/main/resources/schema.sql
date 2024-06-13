@@ -52,6 +52,7 @@ CREATE TABLE Comment(
 
 CREATE TABLE Circuit(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(120),
     distance BIGINT NOT NULL,
     numberLaps BIGINT NOT NULL,
     teamSuccess VARCHAR(120) NOT NULL,
@@ -90,8 +91,8 @@ VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example artic
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
 
-INSERT INTO Circuit(distance, numberLaps, teamSuccess, image, categoryId)
-VALUES(5412,57,'Ferrari', '/static/images/Bahrain_Circuit.jpg',2);
+INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
+VALUES('Bahrein',5412,57,'Ferrari', '/static/images/Bahrain_Circuit.jpg',2);
 
 INSERT INTO Podium(winner,date, teamWinner, secondPlace, thirdPlace, image,circuitId)
 VALUES('Max Verstappen', '2024','RedBull','Perez','Sainz',null,1);

@@ -4,11 +4,26 @@ import * as actions from '../actions';
 import * as selectors from '../selectors';
 import * as userSelectors from '../../users/selectors';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert, AlertTitle } from '@mui/material';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableRow,
+    Paper,
+    Typography,
+    Button,
+    Box,
+    Container,
+    Alert,
+    AlertTitle,
+    Card, // Agrega esta línea
+    CardContent, // Agrega esta línea
+    CardMedia
+} from '@mui/material'; // No olvides incluir Card y CardContent aquí
 import { FormattedMessage } from 'react-intl';
 import WebFont from 'webfontloader';
 import TextField from "@mui/material/TextField";
-
 
 
 const PodiumDetails = () => {
@@ -35,17 +50,15 @@ const PodiumDetails = () => {
         });
     }, []);
 
-
     if (!podium) {
         return null;
     }
 
-    const srcImage = podium.image ? "data:image/jpg;base64," + podium.image : null
-
+    const srcImage = podium.image? "data:image/jpg;base64," + podium.image : null;
 
     return (
-        <Container sx={{ marginTop: 0 }}> {/* Reduce el margen superior del Container */}
-            <Box my={0}> {/* Reduce el margen superior del Box */}
+        <Container sx={{ marginTop: 0 }}>
+            <Box my={0}>
                 {backendErrors && (
                     <Alert severity="error" onClose={() => setBackendErrors(null)}>
                         <AlertTitle>Error</AlertTitle>
@@ -59,91 +72,49 @@ const PodiumDetails = () => {
                     </Alert>
                 )}
                 <Card>
-                    <CardMedia>
-                        <Typography variant="h5" component="div" sx={{
-                            fontSize: '2rem', // Ajusta el tamaño de la fuente
-                            fontWeight: 'bold', // Hace el texto en negrita
-                            textTransform: 'uppercase', // Convierte el texto a mayúsculas
-                            color: 'text.primary', // Asume que quieres el color primario del tema, ajusta según sea necesario
-                            marginTop: '1rem', // Añade un margen superior
-                            marginBottom: '1rem', // Añade un margen inferior
-                        }}>
-                            {podium.date}
-                        </Typography>
-
-                        <Typography variant="body2" color="text.secondary" sx={{
-                            fontSize: '1.2rem', // Ajusta el tamaño de la fuente
-                            fontStyle: 'italic', // Aplica estilo cursiva
-                            fontWeight: 'bold', // Aplica negrita
-                            color: '#333333', // Color de texto blanco
-                            padding: '5px', // Espaciado interno
-                            borderRadius: '5px', // Bordes redondeados
-                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
-                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
-                            display: 'inline-block', // Hace que el componente se ajuste al contenido
-                            marginX: 'auto', // Centra horizontalmente el componente
-                        }}>
-                            {podium.winner}
-                        </Typography>
-
-                        <Typography variant="body2" color="text.secondary" sx={{
-                            fontSize: '1.2rem', // Ajusta el tamaño de la fuente
-                            fontStyle: 'italic', // Aplica estilo cursiva
-                            fontWeight: 'bold', // Aplica negrita
-                            color: '#333333', // Color de texto blanco
-                            padding: '5px', // Espaciado interno
-                            borderRadius: '5px', // Bordes redondeados
-                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
-                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
-                            display: 'inline-block', // Hace que el componente se ajuste al contenido
-                            marginX: 'auto', // Centra horizontalmente el componente
-                        }}>
-                            {podium.teamWinner}
-                        </Typography>
-
-                        <Typography variant="body2" color="text.secondary" sx={{
-                            fontSize: '1.2rem', // Ajusta el tamaño de la fuente
-                            fontStyle: 'italic', // Aplica estilo cursiva
-                            fontWeight: 'bold', // Aplica negrita
-                            color: '#333333', // Color de texto blanco
-                            padding: '5px', // Espaciado interno
-                            borderRadius: '5px', // Bordes redondeados
-                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
-                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
-                            display: 'inline-block', // Hace que el componente se ajuste al contenido
-                            marginX: 'auto', // Centra horizontalmente el componente
-                        }}>
-                            {podium.secondPlace}
-                        </Typography>
-
-                        <Typography variant="body2" color="text.secondary" sx={{
-                            fontSize: '1.2rem', // Ajusta el tamaño de la fuente
-                            fontStyle: 'italic', // Aplica estilo cursiva
-                            fontWeight: 'bold', // Aplica negrita
-                            color: '#333333', // Color de texto blanco
-                            padding: '5px', // Espaciado interno
-                            borderRadius: '5px', // Bordes redondeados
-                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
-                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
-                            display: 'inline-block', // Hace que el componente se ajuste al contenido
-                            marginX: 'auto', // Centra horizontalmente el componente
-                        }}>
-                            {podium.thirdPlace}
-                        </Typography>
-
-
-                        <CardMedia
-                            component="img"
-                            image={podium.image}
-                            alt="Circuit Image"
-                            sx={{
-                                maxHeight: '500px', // Ajusta el tamaño máximo de la imagen
-                                maxWidth: '80%', // Asegura que la imagen no exceda el ancho del contenedor
-                                objectFit: 'cover', // Ajusta cómo se redimensiona la imagen
-                                marginTop: 2, // Añade un margen en la parte superior para separar la imagen del subtítulo
-                            }}
-                        />
-                    </CardMedia>
+                    <CardContent>
+                        <TableContainer component={Paper}>
+                            <Table aria-label="simple table">
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell><strong>Fecha del Evento</strong></TableCell>
+                                        <TableCell>{podium.date}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell><strong>Ganador</strong></TableCell>
+                                        <TableCell>{podium.winner}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell><strong>Equipo Ganador</strong></TableCell>
+                                        <TableCell>{podium.teamWinner}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell><strong>Segundo Lugar</strong></TableCell>
+                                        <TableCell>{podium.secondPlace}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell><strong>Tercer Lugar</strong></TableCell>
+                                        <TableCell>{podium.thirdPlace}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                    {srcImage && (
+                                        <CardMedia
+                                            component="img"
+                                            image={srcImage}
+                                            alt="Podium Image"
+                                            sx={{
+                                                maxHeight: '500px',
+                                                maxWidth: '80%',
+                                                objectFit: 'cover',
+                                                marginTop: 2,
+                                            }}
+                                        />
+                                    )}
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </CardContent>
                 </Card>
             </Box>
         </Container>

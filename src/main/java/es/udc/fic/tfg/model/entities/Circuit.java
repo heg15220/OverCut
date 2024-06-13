@@ -7,6 +7,7 @@ import java.util.List;
 @Entity
 public class Circuit {
     private Long id;
+    private String name;
 
     private Long distance;
 
@@ -34,6 +35,15 @@ public class Circuit {
         this.category = category;
     }
 
+    public Circuit(String name,Long distance, Long numberLaps, String teamSuccess, byte[] image, Category category) {
+        this.name = name;
+        this.distance = distance;
+        this.numberLaps = numberLaps;
+        this.teamSuccess = teamSuccess;
+        this.image = image;
+        this.category = category;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
@@ -42,6 +52,14 @@ public class Circuit {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Long getDistance() {
