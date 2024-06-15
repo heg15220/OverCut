@@ -75,8 +75,10 @@ CREATE TABLE UserNotification (
     notificationId BIGINT NOT NULL,
     userId BIGINT NOT NULL,
     read BOOLEAN DEFAULT FALSE,
+    eventId BIGINT NOT NULL,
     FOREIGN KEY (notificationId) REFERENCES Notification(id),
-    FOREIGN KEY (userId) REFERENCES Users(id)
+    FOREIGN KEY (userId) REFERENCES Users(id),
+    FOREIGN KEY (eventId) REFERENCES Event(id)
 );
 
 

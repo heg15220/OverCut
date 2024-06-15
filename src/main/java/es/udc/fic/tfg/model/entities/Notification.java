@@ -7,8 +7,6 @@ import java.util.List;
 
 @Entity
 public class Notification {
-
-
     private Long id;
 
 

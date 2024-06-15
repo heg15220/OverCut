@@ -16,6 +16,8 @@ public class UserNotification {
 
     private Boolean read;
 
+    private Event event;
+
     public UserNotification(Notification notification, User user, Boolean read) {
         this.notification = notification;
         this.user = user;
@@ -62,5 +64,15 @@ public class UserNotification {
 
     public void setRead(Boolean read) {
         this.read = read;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "eventId")
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
     }
 }

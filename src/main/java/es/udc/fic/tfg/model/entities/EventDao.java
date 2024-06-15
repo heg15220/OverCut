@@ -16,4 +16,13 @@ public interface EventDao extends CrudRepository<Event, Long> {
 
     @Query("SELECT e FROM Event e WHERE e.date > :nextWeek")
     List<Event> findAllByDateAfter(@Param("nextWeek") LocalDate nextWeek);
+
+    @Query("SELECT unn FROM UserNotification unn WHERE unn.event = :event")
+    List<UserNotification> findByEvent(@Param("event") Event event);
+    @Query("SELECT e FROM Event e WHERE e.id = :id")
+    Event findEventById(@Param("id") Long id);
+    @Query("SELECT e FROM Event e")
+    List<Event> findAllEvents();
+
+
 }

@@ -1,13 +1,8 @@
-package es.udc.fic.tfg.model.entities;
-
-import jakarta.persistence.*;
+package es.udc.fic.tfg.rest.dtos;
 
 import java.util.Date;
-import java.util.List;
 
-@Entity
-public class Event {
-
+public class EventDto {
     private Long id;
 
 
@@ -21,12 +16,9 @@ public class Event {
 
     private String imageUrl;
 
-    private List<Notification> notifications;
 
-    private List<UserNotification> userNotifications;
-
-
-    public Event(String name, String description, Date date, String location, String imageUrl) {
+    public EventDto(Long id, String name, String description, Date date, String location, String imageUrl) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.date = date;
@@ -34,12 +26,6 @@ public class Event {
         this.imageUrl = imageUrl;
     }
 
-    public Event() {
-
-    }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
@@ -86,23 +72,5 @@ public class Event {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    @OneToMany(mappedBy = "event")
-    public List<Notification> getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(List<Notification> notifications) {
-        this.notifications = notifications;
-    }
-
-    @OneToMany(mappedBy = "event")
-    public List<UserNotification> getUserNotifications() {
-        return userNotifications;
-    }
-
-    public void setUserNotifications(List<UserNotification> userNotifications) {
-        this.userNotifications = userNotifications;
     }
 }

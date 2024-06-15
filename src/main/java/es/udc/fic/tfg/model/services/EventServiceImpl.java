@@ -1,5 +1,6 @@
 package es.udc.fic.tfg.model.services;
 
+import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,8 +16,7 @@ import java.util.List;
 public class EventServiceImpl implements EventService{
 
     @Autowired
-    private UserDao userDao;
-
+    private NotificationDao notificationDao;
     @Autowired
     private EventDao eventDao;
 
@@ -27,9 +27,14 @@ public class EventServiceImpl implements EventService{
         LocalDate today = LocalDate.now();
         return eventDao.findByDateGreaterThan(today);
     }
+
+    @Override
+    public List<Event> getAllEvents(){
+        return eventDao.findAllEvents();
+    }
     @Override
     @Scheduled(cron = "0 0 12 * *?") // Ejemplo de programación cron para ejecutar diariamente a medianoche
-    public void scheduleNotifications() {
+    public void scheduleNotifications() throws InstanceNotFoundException {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, 7); // Marcar eventos para la próxima semana
         LocalDate nextWeek = calendar.getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -42,7 +47,20 @@ public class EventServiceImpl implements EventService{
             notification.setMessage("Evento próximo: " + event.getName());
             notification.setCreatedAt(LocalDateTime.now());
             notification.setEvent(event);
-            notificationService.saveNotification(notification);
+            notificationDao.save(notification);
+
+            // Enviar notificación a usuarios interesados en el evento
+            for (Event event2 : futureEvents) {
+                List<UserNotification> userNotifications = eventDao.findByEvent(event2);
+                for (UserNotification userNotification : userNotifications) {
+                    try {
+                        notificationService.sendNotificationToUser(userNotification.getUser().getId(), notification.getId());
+                    } catch (InstanceNotFoundException e) {
+                        System.err.println("Error enviando notificación a usuario: " + e.getMessage());
+                    }
+                }
+            }
+
         }
     }
 }

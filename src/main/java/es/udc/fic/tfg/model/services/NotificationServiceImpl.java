@@ -2,8 +2,12 @@ package es.udc.fic.tfg.model.services;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class NotificationServiceImpl implements NotificationService{
@@ -15,20 +19,37 @@ public class NotificationServiceImpl implements NotificationService{
     private UserNotificationDao userNotificationDao;
 
     @Autowired
+    private EventDao eventDao;
+
+    @Autowired
     private UserDao userDao;
     @Override
-    public void saveNotification(Notification notification) {
+    public Long saveNotification(String message, LocalDateTime createdAt, Long eventId) {
+        Event event = eventDao.findEventById(eventId);
+        Notification notification = new Notification(message,createdAt,event);
         notificationDao.save(notification);
+        return notification.getId();
     }
 
     @Override
     public void markAsRead(Long notificationId, Long userId) throws InstanceNotFoundException {
         if(userDao.findUserById(userId) == null) throw new InstanceNotFoundException("User not found", userId);
         User user = userDao.findUserById(userId);
+        Notification notification = notificationDao.findNotificationById(notificationId);
         UserNotification userNotification = new UserNotification();
-        userNotification.setNotification(new Notification());
+        userNotification.setNotification(notification);
         userNotification.setUser(user);
         userNotification.setRead(true);
+        userNotification.setEvent(notification.getEvent());
         userNotificationDao.save(userNotification);
+    }
+
+    @Override
+    public Notification sendNotificationToUser(Long userId, Long notificationId) throws InstanceNotFoundException {
+        if(userDao.findUserById(userId) == null) throw new InstanceNotFoundException("User not found", userId);
+        if(notificationDao.findNotificationById(notificationId) == null) throw new InstanceNotFoundException("Notification" +
+                " not found", notificationId);
+        Notification notification = notificationDao.findNotificationById(notificationId);
+        return notification;
     }
 }
