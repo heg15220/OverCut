@@ -1,4 +1,7 @@
 DROP TABLE IF EXISTS Comment;
+DROP TABLE IF EXISTS UserNotification;
+DROP TABLE IF EXISTS Notification;
+DROP TABLE IF EXISTS Event;
 DROP TABLE IF EXISTS Post;
 DROP TABLE IF EXISTS Category;
 DROP TABLE IF EXISTS Users;
@@ -46,6 +49,34 @@ CREATE TABLE Comment(
     CONSTRAINT UserIdCommentFK FOREIGN KEY (userId) REFERENCES Users (id) ON DELETE CASCADE,
     CONSTRAINT ParentCommentFK FOREIGN KEY (parent_comment) REFERENCES Comment (id) ON DELETE CASCADE,
     CONSTRAINT  PostIdCommentFK FOREIGN KEY (postId) REFERENCES Post (id) ON DELETE CASCADE
+);
+
+CREATE TABLE Event (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    date DATE NOT NULL,
+    location VARCHAR(255),
+    image_url VARCHAR(1024),
+    CONSTRAINT UniqueEventName UNIQUE (name)
+);
+
+
+CREATE TABLE Notification (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    eventId BIGINT,
+    FOREIGN KEY (eventId) REFERENCES Event(id)
+);
+
+CREATE TABLE UserNotification (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    notificationId BIGINT NOT NULL,
+    userId BIGINT NOT NULL,
+    read BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (notificationId) REFERENCES Notification(id),
+    FOREIGN KEY (userId) REFERENCES Users(id)
 );
 
 

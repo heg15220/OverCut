@@ -43,6 +43,8 @@ public class User {
     /** The list of comments to posts */
     private List<Comment> comments;
 
+    private List<UserNotification> userNotifications;
+
     /**
      * Constructor with no parameters
      */
@@ -236,5 +238,14 @@ public class User {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    @OneToMany(mappedBy = "user")
+    public List<UserNotification> getUserNotifications() {
+        return userNotifications;
+    }
+
+    public void setUserNotifications(List<UserNotification> userNotifications) {
+        this.userNotifications = userNotifications;
     }
 }
