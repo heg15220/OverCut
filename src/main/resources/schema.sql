@@ -57,7 +57,7 @@ CREATE TABLE Event (
     description TEXT,
     date DATE NOT NULL,
     location VARCHAR(255),
-    image_url VARCHAR(1024),
+    imageUrl VARCHAR(1024),
     CONSTRAINT UniqueEventName UNIQUE (name)
 );
 
@@ -65,7 +65,7 @@ CREATE TABLE Event (
 CREATE TABLE Notification (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     message TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     eventId BIGINT,
     FOREIGN KEY (eventId) REFERENCES Event(id)
 );
@@ -95,3 +95,5 @@ VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example artic
 
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
+
+INSERT INTO Event (name,description,date,location,imageUrl) VALUES ('Bahrein GP', 'First round of the F1 season','2025-03-05','Bahrein',null);
