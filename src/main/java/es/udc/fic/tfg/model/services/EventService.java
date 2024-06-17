@@ -9,4 +9,5 @@ public interface EventService {
     void scheduleNotifications() throws InstanceNotFoundException;
 
     List<Event> getAllEvents();
+    Event getEventDetails(Long eventId);
 }

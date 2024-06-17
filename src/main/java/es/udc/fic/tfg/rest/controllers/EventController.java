@@ -1,10 +1,7 @@
 package es.udc.fic.tfg.rest.controllers;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
-import es.udc.fic.tfg.model.entities.Notification;
-import es.udc.fic.tfg.model.entities.Post;
-import es.udc.fic.tfg.model.entities.User;
-import es.udc.fic.tfg.model.entities.UserNotification;
+import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.Block;
 import es.udc.fic.tfg.model.services.EventService;
 import es.udc.fic.tfg.model.services.NotificationService;
@@ -52,5 +49,10 @@ public class EventController {
 
         return new BlockDto<>(UserNotificationConversor.toUserNotificationDtos(userNotificationBlock.getItems())
                 ,userNotificationBlock.getExistMoreItems());
+    }
+
+    @GetMapping("/{eventId}")
+    public EventDto getEventDetails(@PathVariable Long eventId){
+        return EventConversor.toEventDto(eventService.getEventDetails(eventId));
     }
 }

@@ -63,4 +63,9 @@ public class EventServiceImpl implements EventService{
 
         }
     }
+
+    @Override
+    public Event getEventDetails(Long eventId){
+        return eventDao.findEventById(eventId);
+    }
 }

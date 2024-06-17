@@ -4,6 +4,9 @@ import NetworkError from "./NetworkError";
 
 import * as postService from "./postService";
 
-const backExport = { init, NetworkError, userService, postService}
+import * as eventService from "./eventService";
+
+const backExport = { init, NetworkError, userService, postService,
+    eventService}
 
 export default backExport;
