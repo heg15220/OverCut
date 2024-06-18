@@ -3,17 +3,26 @@ import React from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import ButtonAddEvent from "./ButtonAddEvent";
 
 const localizer = momentLocalizer(moment);
 
 const WeekView = ({ children,...props }) => {
+    const CustomToolbar = (props) => {
+        return (
+            <>
+                {props.children}
+                <ButtonAddEvent onClick={() => window.location.href='/events/event/create'} />
+            </>
+        );
+    };
     return (
         <Calendar
             localizer={localizer}
             {...props}
             view="week"
             components={{
-                toolbar: props.components.toolbar,
+                toolbar: CustomToolbar,
                 monthHeader: props.components.monthHeader,
                 dayHeader: props.components.dayHeader,
                 eventPropGetter: props.components.eventPropGetter,

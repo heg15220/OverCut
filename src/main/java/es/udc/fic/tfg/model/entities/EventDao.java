@@ -9,7 +9,7 @@ import es.udc.fic.tfg.model.entities.Event;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface EventDao extends CrudRepository<Event, Long> {
+public interface EventDao extends CrudRepository<Event, Long> , CustomizedEventDao{
     @Query("SELECT e FROM Event e WHERE e.date > :date")
     List<Event> findByDateGreaterThan(@Param("date") LocalDate date);
 
@@ -23,6 +23,8 @@ public interface EventDao extends CrudRepository<Event, Long> {
     Event findEventById(@Param("id") Long id);
     @Query("SELECT e FROM Event e")
     List<Event> findAllEvents();
+
+
 
 
 }

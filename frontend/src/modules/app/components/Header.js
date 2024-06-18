@@ -24,6 +24,12 @@ const Header = () => {
                     </a>
                     <ul className="nav pull-xs-right">
                         <li className="nav-item">
+                            <Link className="nav-link" to={`/events/event-list`} style={{ color: 'white' }}>
+                                <FormattedMessage id="project.events.events" />
+                            </Link>
+                        </li>
+
+                        <li className="nav-item">
                             <Link className="nav-link" to={`/calendar`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.calendar" />
                             </Link>

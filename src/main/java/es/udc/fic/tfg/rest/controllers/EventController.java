@@ -30,9 +30,10 @@ public class EventController {
                 params.getImageUrl()).getId();
     }
 
-    @GetMapping("/")
-    public List<EventDto> getAllEvents(){
-        return EventConversor.toEventDtos(eventService.getAllEvents());
+    @GetMapping("/events")
+    public BlockDto<EventDto> getEvents(@RequestParam(defaultValue = "0") int page) {
+        Block<Event> foundEvents = eventService.getEvents(page, 2);
+        return new BlockDto<>(EventConversor.toEventDtos(foundEvents.getItems()), foundEvents.getExistMoreItems());
     }
     @PostMapping("/notifications/create")
     public Long saveNotification(@RequestBody NotificationParams params) {

@@ -72,6 +72,17 @@ const EventDetails = () => {
                                 <TableCell>{event.location}</TableCell>
                             </TableRow>
                             <TableRow>
+                                <TableCell><strong>Fecha:</strong></TableCell>
+                                <TableCell>
+                                    {new Date(event.date).toLocaleDateString('default', {
+                                        day: 'numeric',
+                                        month: 'short',
+                                        year: 'numeric'
+                                    })}
+                                </TableCell>
+                            </TableRow>
+
+                            <TableRow>
                                 <TableCell><strong>Imagen:</strong></TableCell>
                                 <TableCell>
                                     <img src={srcImage} alt="Circuit Image" style={{ width: '100%' }} />

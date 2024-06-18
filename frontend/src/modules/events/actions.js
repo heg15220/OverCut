@@ -45,13 +45,11 @@ export const createEvent = (event, onSuccess, onErrors) => dispatch =>
     },
         onErrors);
 
-export const getAllEvents = (onSuccess, onErrors) => dispatch =>
-    backend.eventService.getAllEvents(events => {
+export const getEvents = (page, onSuccess) => dispatch =>
+    backend.eventService.getEvents(page, events => {
         dispatch(getAllEventsCompleted(events));
         onSuccess(events);
-    },
-        onErrors);
-
+    });
 
 export const saveNotification = (notification, onSuccess, onErrors) => dispatch =>
     backend.eventService.saveNotification(notification, notification => {

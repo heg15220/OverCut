@@ -25,7 +25,9 @@ const en = {
     'project.users.Profile.title': 'Title',
     'project.users.CreatePost.title': 'Create Post',
     'project.users.MyPosts.title': 'MyPosts',
-    'project.app.Header.calendar': 'Calendar'
+    'project.app.Header.calendar': 'Calendar',
+    'project.events.events': 'Events',
+
 
 }
 export default en;

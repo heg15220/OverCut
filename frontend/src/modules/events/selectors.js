@@ -1,7 +1,8 @@
 
 
-export const getAllEvents = (state) => state.events;
+const getModuleState = state => state.events;
+export const getEvents = (state) => getModuleState(state).events;
 
-export const getAllNotifications = (state) => state.notifications;
+export const getAllNotifications = (state) => getModuleState(state).notifications;
 
-export const getEventDetails = (state) => state.events.event;
+export const getEventDetails = (state) => getModuleState(state).event;

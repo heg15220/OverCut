@@ -1,48 +1,18 @@
-// MyCalendar.js
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
-import { useDispatch, useSelector } from 'react-redux';
-import { getAllEvents, getAllNotifications } from '../selectors';
-import { saveNotification } from '../actions';
-
-import * as selectors from '../selectors';
-import { Field, Form, Formik } from "formik";
-import Events from "../components/Events";
 import './MyCalendar.css';
-import WeekView from './WeekView'; // Importa la vista personalizada
-
+import CreateEventForm from './CreateEventForm';
 const localizer = momentLocalizer(moment);
 
 const MyCalendar = () => {
-    const dispatch = useDispatch();
-    const events = useSelector(selectors.getAllEvents);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
 
-    useEffect(() => {
-        const fetchEvents = async () => {
-            await getAllEvents(() => {}, (error) => {
-                if (error) {
-                    console.error('Error al cargar eventos:', error);
-                }
-            });
-        };
-        fetchEvents();
-    }, []);
 
     const handleDateSelect = (date) => {
-        console.log('Fecha seleccionada:', date);
-    };
-
-    const handleSubmit = async (values) => {
-        try {
-            await saveNotification(values.notification, () => {}, (error) => {
-                if (!error) {
-                    dispatch(saveNotification(values.notification));
-                }
-            });
-        } catch (error) {
-            console.error('Error al enviar la notificación:', error);
-        }
+        setSelectedDate(date);
+        setShowModal(true);
     };
 
     return (
@@ -52,23 +22,14 @@ const MyCalendar = () => {
                 <Calendar
                     localizer={localizer}
                     defaultDate={new Date()}
-                    defaultView="week" // Cambia a la vista de semana personalizada
+                    defaultView="week"
                     selectable
                     onSelectEvent={() => {}}
                     onSelectSlot={handleDateSelect}
                 >
-                    <Events events={events} />
                 </Calendar>
             </div>
-            <h1>Crear Notificación</h1>
-            <Formik initialValues={{ notification: '' }} onSubmit={handleSubmit}>
-                {({ isSubmitting }) => (
-                    <Form>
-                        <Field type="text" name="notification" placeholder="Escribe tu notificación aquí..." />
-                        <button type="submit" disabled={isSubmitting}>Enviar</button>
-                    </Form>
-                )}
-            </Formik>
+            {showModal && <CreateEventForm showModal={showModal} setShowModal={setShowModal} selectedDate={selectedDate}/>}
         </div>
     );
 };

@@ -3,8 +3,10 @@ package es.udc.fic.tfg.model.services;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,8 +32,12 @@ public class EventServiceImpl implements EventService{
     }
 
     @Override
-    public List<Event> getAllEvents(){
-        return eventDao.findAllEvents();
+    @Transactional(readOnly = true)
+    public Block<Event> getEvents(int page, int size) {
+
+        Slice<Event> events=eventDao.findAllEventsOrderedByInsertion(page, size);
+
+        return new Block<>(events.getContent(), events.hasNext());
     }
     @Override
     @Scheduled(cron = "0 0 12 * *?") // Ejemplo de programación cron para ejecutar diariamente a medianoche

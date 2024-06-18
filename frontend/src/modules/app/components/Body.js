@@ -10,6 +10,8 @@ import Home from "./Home";
 import {AddImage, CreatePost, ModifyPost, PostDetails, UserPostList} from "../../posts";
 import {MyCalendar} from "../../events";
 import EventDetails from "../../events/components/EventDetails";
+import CreateEventForm from "../../events/components/CreateEventForm";
+import EventsList from "../../events/components/EventsList";
 
 
 
@@ -34,8 +36,11 @@ const Body = () => {
                     {loggedIn && <Route path="/post/my" element={<UserPostList/>}/>}
                     {loggedIn && <Route path="/posts/:id" element={<ModifyPost/>}/>}
                     {loggedIn && <Route path="/posts/:id/add-image" element={<AddImage/>}/>}
+                    {loggedIn && <Route path="/events/event/create" element={<CreateEventForm/>}/>}
+                    {loggedIn && <Route path="/events/event-list" element={<EventsList/>}/>}
                     <Route path="/calendar" element={<MyCalendar />} />
                     <Route path="/event/event-details/:id" element={<EventDetails />} />
+
                 </Route>
             </Routes>
         </div>

@@ -9,7 +9,7 @@ import java.util.List;
 public interface EventService {
     void scheduleNotifications() throws InstanceNotFoundException;
 
-    List<Event> getAllEvents();
+    Block<Event> getEvents(int page, int size);
     Event createEvent(String name, String description, Date date, String location, String imageUrl);
     Event getEventDetails(Long eventId);
 }
