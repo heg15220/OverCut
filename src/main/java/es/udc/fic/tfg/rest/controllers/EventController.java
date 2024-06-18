@@ -5,6 +5,7 @@ import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.Block;
 import es.udc.fic.tfg.model.services.EventService;
 import es.udc.fic.tfg.model.services.NotificationService;
+import es.udc.fic.tfg.model.services.exceptions.PostException;
 import es.udc.fic.tfg.rest.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +23,12 @@ public class EventController {
 
     @Autowired
     private NotificationService notificationService;
+
+    @PostMapping("/create")
+    public Long createEvent(@Validated @RequestBody EventParamsDto params){
+        return eventService.createEvent(params.getName(),params.getDescription(),params.getDate(),params.getLocation(),
+                params.getImageUrl()).getId();
+    }
 
     @GetMapping("/")
     public List<EventDto> getAllEvents(){

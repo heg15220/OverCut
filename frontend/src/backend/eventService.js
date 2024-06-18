@@ -6,6 +6,15 @@ export const getAllEvents = (onSuccess, onErrors) => {
     appFetch("/api/events/", fetchConfig("GET"), onSuccess, onErrors);
 };
 
+export const createEvent= (event,onSuccess, onErrors) => {
+    appFetch(
+        "/api/events/create",
+        fetchConfig("POST",event),
+        onSuccess,
+        onErrors
+    );
+};
+
 export const saveNotification = (notification, onSuccess, onErrors) => {
     appFetch("/api/events/notifications/create", fetchConfig("POST", notification), onSuccess, onErrors);
 };

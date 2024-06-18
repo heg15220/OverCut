@@ -15,6 +15,8 @@ const event = (state = initialState.event, action) => {
             return action.event;
         case actionTypes.GET_EVENT_DETAILS_COMPLETED:
             return action.event;
+        case actionTypes.CREATE_EVENT_COMPLETED:
+            return action.event;
         default:
             return state;
     }

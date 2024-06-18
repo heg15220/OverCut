@@ -1,4 +1,4 @@
-export const CREATE_POST_COMPLETED = "project/post/createPostCompleted";
+export const CREATE_EVENT_COMPLETED = "project/events/createEventCompleted";
 
 export const GET_ALL_EVENTS_COMPLETED = "project/events/getAllEventsCompleted";
 export const SAVE_NOTIFICATION_COMPLETED = "project/events/saveNotificationCompleted";

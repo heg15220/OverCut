@@ -96,4 +96,4 @@ VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example artic
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
 
-INSERT INTO Event (name,description,date,location,imageUrl) VALUES ('Bahrein GP', 'First round of the F1 season','2025-03-05','Bahrein',null);
+INSERT INTO Event (name,description,date,location,imageUrl) VALUES ('Bahrein GP', 'First round of the F1 season','2024-07-05','Bahrein',null);

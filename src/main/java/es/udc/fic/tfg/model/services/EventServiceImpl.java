@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -68,4 +69,12 @@ public class EventServiceImpl implements EventService{
     public Event getEventDetails(Long eventId){
         return eventDao.findEventById(eventId);
     }
+
+    @Override
+    public Event createEvent(String name, String description, Date date, String location, String imageUrl){
+        Event event = new Event(name,description,date,location,imageUrl);
+        eventDao.save(event);
+        return event;
+    }
+
 }

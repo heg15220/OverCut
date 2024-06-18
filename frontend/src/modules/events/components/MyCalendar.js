@@ -1,3 +1,4 @@
+// MyCalendar.js
 import React, { useEffect, useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
@@ -8,7 +9,8 @@ import { saveNotification } from '../actions';
 import * as selectors from '../selectors';
 import { Field, Form, Formik } from "formik";
 import Events from "../components/Events";
-import './MyCalendar.css'; // Importa el archivo CSS aquí
+import './MyCalendar.css';
+import WeekView from './WeekView'; // Importa la vista personalizada
 
 const localizer = momentLocalizer(moment);
 
@@ -44,13 +46,13 @@ const MyCalendar = () => {
     };
 
     return (
-        <div style={{ width: '100%', overflowX: 'auto' }}>
+        <div style={{ width: '80%', margin: '0 auto', overflowX: 'auto' }}>
             <h1>Calendario</h1>
             <div style={{ width: '100%', height: '500px', border: '1px solid #ccc' }}>
                 <Calendar
                     localizer={localizer}
                     defaultDate={new Date()}
-                    defaultView="month"
+                    defaultView="week" // Cambia a la vista de semana personalizada
                     selectable
                     onSelectEvent={() => {}}
                     onSelectSlot={handleDateSelect}

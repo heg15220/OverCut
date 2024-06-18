@@ -3,6 +3,10 @@ import {appFetch, fetchConfig} from "../../backend/appFetch";
 import * as actionTypes from "../events/actionTypes";
 import {modifyPostCompleted} from "../posts/actions";
 
+const createEventCompleted = (event) => ({
+    type: actionTypes.CREATE_EVENT_COMPLETED,
+    event
+});
 const getEventDetailsCompleted = (event) => ({
     type: actionTypes.GET_EVENT_DETAILS_COMPLETED,
     event
@@ -33,6 +37,13 @@ const getNotificationForUserCompleted = (notifications) => ({
     notifications
 });
 
+
+export const createEvent = (event, onSuccess, onErrors) => dispatch =>
+    backend.eventService.createEvent(event, event => {
+        dispatch(createEventCompleted(event));
+        onSuccess(event);
+    },
+        onErrors);
 
 export const getAllEvents = (onSuccess, onErrors) => dispatch =>
     backend.eventService.getAllEvents(events => {
