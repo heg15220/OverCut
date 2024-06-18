@@ -27,6 +27,7 @@ const en = {
     'project.users.MyPosts.title': 'MyPosts',
     'project.app.Header.calendar': 'Calendar',
     'project.events.events': 'Events',
+    'project.events.events.create': 'Create Event',
 
 
 }

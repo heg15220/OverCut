@@ -10,7 +10,7 @@ const Events = ({ events }) => {
                         <EventListItem key={event.id} event={event} />
                     )}
                 </div>
-            ) : <FormattedMessage id="project.no_posts" />}
+            ) : <FormattedMessage id="project.no_events" />}
         </div>
     );
 }

@@ -16,6 +16,11 @@ const EventListItem = ({ event }) => {
             )}
             <div className="card-body">
                 <EventDetailsLink id={event.id} name={event.name} />
+                <div>{new Date(event.date).toLocaleDateString('default', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                })}</div>
             </div>
         </div>
     )

@@ -5,6 +5,8 @@ import { Pager } from '../../common';
 import * as actions from "../actions";
 import * as selectors from '../selectors';
 import {Events} from "../index";
+import {Link} from "react-router-dom";
+import {FormattedMessage} from "react-intl";
 
 const EventsList = () => {
     const dispatch = useDispatch();
@@ -26,6 +28,11 @@ const EventsList = () => {
     return (
         <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1200 }}>
             <Typography variant="h4" align="center">Eventos</Typography>
+            <li className="nav-item">
+                <Link className="nav-link" to={`/events/create`} style={{ color: 'black' }}>
+                    <FormattedMessage id="project.events.events.create" />
+                </Link>
+            </li>
             <Grid container spacing={2} justifyContent="center" alignItems="center">
                 <Grid item xs={12}> {/* Contenedor para los circuitos y la paginación */}
                     <Events events={events} />

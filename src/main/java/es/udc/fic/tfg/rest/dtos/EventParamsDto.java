@@ -1,13 +1,12 @@
 package es.udc.fic.tfg.rest.dtos;
 
-import java.util.Date;
 
 public class EventParamsDto {
     private String name;
 
     private String description;
 
-    private Date date;
+    private String date;
 
     private String location;
 
@@ -29,11 +28,11 @@ public class EventParamsDto {
         this.description = description;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 

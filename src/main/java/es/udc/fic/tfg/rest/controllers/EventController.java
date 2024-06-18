@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -24,9 +28,16 @@ public class EventController {
     @Autowired
     private NotificationService notificationService;
 
+    public static Date convertStringToDate(String dateString) throws IllegalArgumentException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // Ajustado al formato correcto
+        LocalDate localDate = LocalDate.parse(dateString, formatter);
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
     @PostMapping("/create")
     public Long createEvent(@Validated @RequestBody EventParamsDto params){
-        return eventService.createEvent(params.getName(),params.getDescription(),params.getDate(),params.getLocation(),
+        String date = params.getDate();
+        Date date2 = convertStringToDate(date);
+        return eventService.createEvent(params.getName(),params.getDescription(),date2,params.getLocation(),
                 params.getImageUrl()).getId();
     }
 
