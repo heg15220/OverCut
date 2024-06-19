@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import users from '../../users';
 import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
+import Notifications from "./Notifications";
+
 
 import image from './Resources/logo.svg';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
@@ -22,7 +24,11 @@ const Header = () => {
                             OverCut
                         </Link>
                     </a>
+
                     <ul className="nav pull-xs-right">
+                        {isLogged &&
+                            <Notifications />
+                        }
                         <li className="nav-item">
                             <Link className="nav-link" to={`/events/event-list`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.events.events" />
