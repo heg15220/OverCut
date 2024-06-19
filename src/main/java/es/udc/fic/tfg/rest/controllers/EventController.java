@@ -12,10 +12,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/events")
@@ -33,6 +37,28 @@ public class EventController {
         LocalDate localDate = LocalDate.parse(dateString, formatter);
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
+
+    public static LocalDateTime stringToLocalDateTime(String dateString) {
+        // Intenta parsear con el formato ISO 8601 por defecto
+        try {
+            return LocalDateTime.parse(dateString);
+        } catch (DateTimeParseException e) {
+            // Si falla, intenta con un formato personalizado
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            return LocalDateTime.parse(dateString, formatter);
+        }
+    }
+
+    public static OffsetDateTime stringToOffsetDateTime(String dateString) {
+        // Define el formato de la cadena de texto con información de zona horaria
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+        return OffsetDateTime.parse(dateString, formatter);
+    }
+    public static LocalDateTime offsetDateTimeToLocalDateTime(OffsetDateTime offsetDateTime) {
+        return offsetDateTime.toLocalDateTime();
+    }
+
+
     @PostMapping("/create")
     public Long createEvent(@Validated @RequestBody EventParamsDto params){
         String date = params.getDate();
@@ -48,8 +74,11 @@ public class EventController {
     }
     @PostMapping("/notifications/create")
     public Long saveNotification(@RequestBody NotificationParams params) {
-        return notificationService.saveNotification(params.getMessage(),params.getCreatedAt(),params.getEventId());
+        OffsetDateTime createdAt = stringToOffsetDateTime(params.getCreatedAt());
+        LocalDateTime date = offsetDateTimeToLocalDateTime(createdAt);
+        return notificationService.saveNotification(params.getMessage(), date, params.getEventId());
     }
+
 
     @PutMapping("/{notificationId}/read/{userId}")
     public void markAsRead(@PathVariable Long notificationId, @PathVariable Long userId) throws InstanceNotFoundException {

@@ -6,7 +6,8 @@ public class NotificationParams {
     private String message;
 
 
-    private LocalDateTime createdAt;
+
+    private String createdAt;
 
 
     private Long eventId;
@@ -19,11 +20,11 @@ public class NotificationParams {
         this.message = message;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 

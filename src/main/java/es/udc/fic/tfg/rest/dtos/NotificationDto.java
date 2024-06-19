@@ -1,5 +1,6 @@
 package es.udc.fic.tfg.rest.dtos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import es.udc.fic.tfg.model.entities.Event;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ public class NotificationDto {
     private String message;
 
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "UTC")
     private LocalDateTime createdAt;
 
 

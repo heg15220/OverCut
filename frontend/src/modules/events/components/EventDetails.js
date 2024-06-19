@@ -7,6 +7,9 @@ import {Link, useNavigate, useParams} from 'react-router-dom';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Box, Container, Alert, AlertTitle } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import WebFont from 'webfontloader';
+import { saveNotification } from '../../events/actions';
+import {Events} from "../index";
+import Notifications from "../../app/components/Notifications"; // Asegúrate de que esta ruta sea correcta
 
 const EventDetails = () => {
     const { id } = useParams();
@@ -17,6 +20,7 @@ const EventDetails = () => {
     const [backendErrors, setBackendErrors] = useState(null);
     const [success, setSuccess] = useState(null);
     const formRef = useRef(null);
+
 
     useEffect(() => {
         const eventId = Number(id);
@@ -33,6 +37,24 @@ const EventDetails = () => {
         });
     }, []);
 
+
+    const handleCreateNotificationClick = () => {
+        const message = event.name; // Puedes modificar esto según sea necesario
+        const notificationData = {
+            message: message,
+            eventId: id,
+            createdAt: event.date
+        };
+
+        dispatch(actions.saveNotification(notificationData, () => {
+            // Navega a la página principal después de crear la notificación exitosamente
+            navigate('/');
+        }, (error) => {
+            console.error('Error creating notification:', error);
+            // Maneja errores aquí si es necesario
+        }));
+    };
+
     if (!event) {
         return null;
     }
@@ -41,6 +63,7 @@ const EventDetails = () => {
 
     return (
         <Container sx={{ marginTop: 0 }}>
+
             <Box my={0}>
                 {backendErrors && (
                     <Alert severity="error" onClose={() => setBackendErrors(null)}>
@@ -88,6 +111,10 @@ const EventDetails = () => {
                                     <img src={srcImage} alt="Circuit Image" style={{ width: '100%' }} />
                                 </TableCell>
                             </TableRow>
+                            <div>
+                                {/* Otros elementos del detalle del evento */}
+                                <button onClick={handleCreateNotificationClick}>Crear Notificación</button>
+                            </div>
                         </TableBody>
                     </Table>
                 </TableContainer>
