@@ -3,6 +3,7 @@ package es.udc.fic.tfg.model.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -13,13 +14,13 @@ public class Notification {
     private String message;
 
 
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
 
     private Event event;
     private List<UserNotification> userNotificationList;
 
-    public Notification(String message, LocalDateTime createdAt, Event event) {
+    public Notification(String message, Date createdAt, Event event) {
         this.message = message;
         this.createdAt = createdAt;
         this.event = event;
@@ -47,11 +48,11 @@ public class Notification {
         this.message = message;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 

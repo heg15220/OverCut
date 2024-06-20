@@ -18,10 +18,11 @@ public class UserNotification {
 
     private Event event;
 
-    public UserNotification(Notification notification, User user, Boolean read) {
+    public UserNotification(Notification notification, User user, Boolean read, Event event) {
         this.notification = notification;
         this.user = user;
         this.read = read;
+        this.event = event;
     }
 
     public UserNotification() {

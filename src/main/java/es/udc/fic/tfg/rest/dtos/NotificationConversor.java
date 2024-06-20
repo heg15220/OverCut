@@ -13,9 +13,6 @@ public class NotificationConversor {
     private NotificationConversor() {
     }
 
-    public static LocalDateTime convertToLocalDateTimeViaInstant(Date dateToConvert) {
-        return LocalDateTime.ofInstant(dateToConvert.toInstant(), ZoneId.systemDefault());
-    }
     public static final NotificationDto toNotificationDto(Notification notification) {
         String message;
         if (notification.getEvent().getName().length() > 25) {
@@ -25,9 +22,8 @@ public class NotificationConversor {
             }
 
         Date createdat = notification.getEvent().getDate();
-        LocalDateTime createdAt = convertToLocalDateTimeViaInstant(createdat);
 
-            return new NotificationDto(notification.getId(), message,createdAt,notification.getEvent().getId());
+            return new NotificationDto(notification.getId(), message,createdat,notification.getEvent().getId());
     }
 
     public static final List<NotificationDto> toNotificationDtos(List<Notification> notifications) {

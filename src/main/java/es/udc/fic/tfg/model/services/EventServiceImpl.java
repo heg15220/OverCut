@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -52,7 +53,7 @@ public class EventServiceImpl implements EventService{
         for (Event event : futureEvents) {
             Notification notification = new Notification();
             notification.setMessage("Evento próximo: " + event.getName());
-            notification.setCreatedAt(LocalDateTime.now());
+            notification.setCreatedAt(Date.from(Instant.now()));
             notification.setEvent(event);
             notificationDao.save(notification);
 

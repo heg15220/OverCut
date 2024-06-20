@@ -18,12 +18,15 @@ public class UserNotificationDto {
 
     private Long eventId;
 
-    public UserNotificationDto(Long id, Long notificationId, Long userId, Boolean read, Long eventId) {
+    private String message;
+
+    public UserNotificationDto(Long id, Long notificationId, Long userId, Boolean read, Long eventId, String message) {
         this.id = id;
         this.notificationId = notificationId;
         this.userId = userId;
         this.read = read;
         this.eventId = eventId;
+        this.message = message;
     }
 
     public Long getId() {
@@ -64,5 +67,13 @@ public class UserNotificationDto {
 
     public void setEventId(Long eventId) {
         this.eventId = eventId;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

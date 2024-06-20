@@ -13,7 +13,8 @@ public class UserNotificationConversor {
 
     public static final UserNotificationDto toUserNotificationDto(UserNotification notification) {
         return new UserNotificationDto(notification.getId(),notification.getNotification().getId(),
-                notification.getUser().getId(),notification.getRead(),notification.getEvent().getId());
+                notification.getUser().getId(),notification.getRead(),notification.getEvent().getId(),
+                notification.getNotification().getMessage());
     }
 
     public static final List<UserNotificationDto> toUserNotificationDtos(List<UserNotification> notifications) {

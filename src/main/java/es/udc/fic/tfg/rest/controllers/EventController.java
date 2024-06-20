@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
@@ -50,12 +47,24 @@ public class EventController {
     }
 
     public static OffsetDateTime stringToOffsetDateTime(String dateString) {
-        // Define el formato de la cadena de texto con información de zona horaria
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-        return OffsetDateTime.parse(dateString, formatter);
+        // Adjusted to parse dates in the format "dd MMM yyyy"
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("d MMM uuuu", Locale.getDefault());
+        LocalDate localDate = LocalDate.parse(dateString, inputFormatter);
+        return localDate.atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
     }
+
     public static LocalDateTime offsetDateTimeToLocalDateTime(OffsetDateTime offsetDateTime) {
         return offsetDateTime.toLocalDateTime();
+    }
+
+    public static Date offsetDateTimeToDate(OffsetDateTime offsetDateTime) {
+        // Convierte OffsetDateTime a Instant manteniendo el ZoneOffset original
+        Instant instant = offsetDateTime.toInstant();
+
+        // Crea un objeto Date a partir del Instant
+        Date date = Date.from(instant);
+
+        return date;
     }
 
 
@@ -73,10 +82,10 @@ public class EventController {
         return new BlockDto<>(EventConversor.toEventDtos(foundEvents.getItems()), foundEvents.getExistMoreItems());
     }
     @PostMapping("/notifications/create")
-    public Long saveNotification(@RequestBody NotificationParams params) {
+    public Long saveNotification(@RequestBody NotificationParams params) throws InstanceNotFoundException {
         OffsetDateTime createdAt = stringToOffsetDateTime(params.getCreatedAt());
-        LocalDateTime date = offsetDateTimeToLocalDateTime(createdAt);
-        return notificationService.saveNotification(params.getMessage(), date, params.getEventId());
+        Date date = offsetDateTimeToDate(createdAt);
+        return notificationService.saveNotification(params.getUserId(),params.getMessage(), date, params.getEventId()).getId();
     }
 
 

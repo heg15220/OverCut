@@ -41,9 +41,14 @@ const EventDetails = () => {
     const handleCreateNotificationClick = () => {
         const message = event.name; // Puedes modificar esto según sea necesario
         const notificationData = {
+            userId: user.id,
             message: message,
             eventId: id,
-            createdAt: event.date
+            createdAt: new Date(event.date).toLocaleDateString('default', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            })
         };
 
         dispatch(actions.saveNotification(notificationData, () => {

@@ -28,7 +28,7 @@ export const sendNotificationToUser = (userId, eventId, onSuccess, onErrors) => 
     appFetch(`/events/send/${userId}/notification/${eventId}`, fetchConfig("GET"), onSuccess, onErrors);
 };
 
-export const getNotificationsForUser = ({userId, page}, onSuccess, onErrors) => {
+export const getNotificationsForUser = (userId ,page, onSuccess, onErrors) => {
     appFetch(`/events/${userId}/notifications?page=${page}`, fetchConfig("GET"), onSuccess, onErrors);
 };
 

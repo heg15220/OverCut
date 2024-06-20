@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import es.udc.fic.tfg.model.entities.Event;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public class NotificationDto {
     private Long id;
@@ -13,12 +14,12 @@ public class NotificationDto {
 
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "UTC")
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
 
     private Long eventId;
 
-    public NotificationDto(Long id, String message, LocalDateTime createdAt, Long eventId) {
+    public NotificationDto(Long id, String message, Date createdAt, Long eventId) {
         this.id = id;
         this.message = message;
         this.createdAt = createdAt;
@@ -41,11 +42,11 @@ public class NotificationDto {
         this.message = message;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 

@@ -6,10 +6,11 @@ import es.udc.fic.tfg.model.entities.Notification;
 import es.udc.fic.tfg.model.entities.UserNotification;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public interface NotificationService {
-    Long saveNotification(String message, LocalDateTime createdAt,Long eventId);
+    Notification saveNotification(Long userId, String message, Date createdAt, Long eventId) throws InstanceNotFoundException;
     void markAsRead(Long notificationId, Long userId) throws InstanceNotFoundException;
     Notification sendNotificationToUser(Long userId, Long notificationId) throws InstanceNotFoundException;
     Block<UserNotification> getNotificationsForUser(Long userId, int page, int size) throws InstanceNotFoundException;

@@ -65,7 +65,7 @@ CREATE TABLE Event (
 CREATE TABLE Notification (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     message TEXT NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt DATE NOT NULL,
     eventId BIGINT,
     FOREIGN KEY (eventId) REFERENCES Event(id)
 );

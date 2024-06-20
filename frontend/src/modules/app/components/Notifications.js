@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
@@ -10,24 +10,30 @@ const Notifications = () => {
     const dispatch = useDispatch();
     const user = useSelector(selectors.getUser);
     const notifications = useSelector(notificationSelector.getAllNotifications);
+    const event = useSelector(notificationSelector.getEventDetails);
 
     return (
         <li className="nav-item dropdown">
             <button className="dropdown-toggle nav-link" style={{ color: '#9900FF' }} type="button" data-bs-toggle="dropdown"
                     onClick={() => {
-                        dispatch(actions.getNotificationsForUser({userId: user.id, page: 0}))
+                        dispatch(actions.getNotificationsForUser(user.id, 0,() => {}, () => {}))
                     }}>
                 <FormattedMessage id="project.common.notifications.button" />
             </button>
 
             <div className="dropdown-menu">
-                {notifications && notifications.length > 0? (
-                    notifications.map(notification => (
+                {notifications && notifications.length !== 0? (
+                    notifications.items.map(notification => (
                         <div key={notification.id}>
                             <div className="d-flex">
                                 <Link className="dropdown-item" to={`/event/event-details/${notification.eventId}`}>
                                     <div>
                                         <div className="ms-2">{notification.message}</div>
+                                        <div className="ms-2">{new Date(event.date).toLocaleDateString('default', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}</div>
                                     </div>
                                 </Link>
                                 <button className="btn" onClick={() => {

@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface UserNotificationDao extends CrudRepository<UserNotification, Long> {
-    @Query("SELECT unn FROM UserNotification unn WHERE unn.user = :user")
-    Slice<UserNotification> findByUser(@Param("user") User user, Pageable pageable);
+    @Query("SELECT unn FROM UserNotification unn WHERE unn.user.id = :userId") // Ajusta la consulta para usar el ID del usuario
+    Slice<UserNotification> findByUserId(@Param("userId") Long userId, Pageable pageable); // Cambia el nombre del método y el tipo del parámetro
 }

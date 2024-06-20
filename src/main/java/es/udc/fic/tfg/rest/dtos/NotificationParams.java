@@ -3,6 +3,8 @@ package es.udc.fic.tfg.rest.dtos;
 import java.time.LocalDateTime;
 
 public class NotificationParams {
+
+    private Long userId;
     private String message;
 
 
@@ -11,6 +13,14 @@ public class NotificationParams {
 
 
     private Long eventId;
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public String getMessage() {
         return message;

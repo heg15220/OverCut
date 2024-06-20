@@ -9,7 +9,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,12 +31,25 @@ public class NotificationServiceImpl implements NotificationService{
 
     @Autowired
     private UserDao userDao;
+
+    public static Date localDateTimeToDate(LocalDateTime localDateTime) {
+        // Convierte LocalDateTime a Instant en UTC
+        Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+        // Crea un objeto Date a partir del Instant
+        Date date = Date.from(instant);
+
+        return date;
+    }
     @Override
-    public Long saveNotification(String message, LocalDateTime createdAt, Long eventId) {
+    public Notification saveNotification(Long userId,String message, Date createdAt, Long eventId) throws InstanceNotFoundException {
         Event event = eventDao.findEventById(eventId);
+        User user = userDao.findUserById(userId);
         Notification notification = new Notification(message,createdAt,event);
         notificationDao.save(notification);
-        return notification.getId();
+        UserNotification userNotification= new UserNotification(notification,user,false,event);
+        userNotificationDao.save(userNotification);
+        return notification;
     }
 
     @Override
@@ -65,7 +81,7 @@ public class NotificationServiceImpl implements NotificationService{
             throw new InstanceNotFoundException("User not found", userId);
         }
 
-        Slice<UserNotification> userNotifications = userNotificationDao.findByUser(user, PageRequest.of(page,size));
+        Slice<UserNotification> userNotifications = userNotificationDao.findByUserId(userId, PageRequest.of(page,size));
         return new Block<>(userNotifications.getContent(),userNotifications.hasNext());
     }
 }
