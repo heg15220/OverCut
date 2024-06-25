@@ -102,7 +102,7 @@ public class EventController {
     @GetMapping("/{userId}/notifications")
     public BlockDto<UserNotificationDto> getNotificationsForUser(@PathVariable Long userId,@RequestParam(defaultValue = "0") int page)
             throws InstanceNotFoundException{
-        Block<UserNotification> userNotificationBlock = notificationService.getNotificationsForUser(userId,page,2);
+        Block<UserNotification> userNotificationBlock = notificationService.getNotificationsForUser(userId,page,25);
 
         return new BlockDto<>(UserNotificationConversor.toUserNotificationDtos(userNotificationBlock.getItems())
                 ,userNotificationBlock.getExistMoreItems());
