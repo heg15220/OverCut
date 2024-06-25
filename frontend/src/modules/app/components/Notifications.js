@@ -29,7 +29,7 @@ const Notifications = () => {
                                 <Link className="dropdown-item" to={`/event/event-details/${notification.eventId}`}>
                                     <div>
                                         <div className="ms-2">{notification.message}</div>
-                                        <div className="ms-2">{new Date(event.date).toLocaleDateString('default', {
+                                        <div className="ms-2">{new Date(notification.date).toLocaleDateString('default', {
                                             day: 'numeric',
                                             month: 'short',
                                             year: 'numeric'

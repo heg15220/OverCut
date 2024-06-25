@@ -4,6 +4,8 @@ import es.udc.fic.tfg.model.entities.Event;
 import es.udc.fic.tfg.model.entities.Notification;
 import es.udc.fic.tfg.model.entities.User;
 
+import java.util.Date;
+
 public class UserNotificationDto {
     private Long id;
 
@@ -18,14 +20,16 @@ public class UserNotificationDto {
 
     private Long eventId;
 
+    private Date date;
     private String message;
 
-    public UserNotificationDto(Long id, Long notificationId, Long userId, Boolean read, Long eventId, String message) {
+    public UserNotificationDto(Long id, Long notificationId, Long userId, Boolean read, Long eventId, Date date, String message) {
         this.id = id;
         this.notificationId = notificationId;
         this.userId = userId;
         this.read = read;
         this.eventId = eventId;
+        this.date = date;
         this.message = message;
     }
 
@@ -63,6 +67,14 @@ public class UserNotificationDto {
 
     public Long getEventId() {
         return eventId;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public void setEventId(Long eventId) {

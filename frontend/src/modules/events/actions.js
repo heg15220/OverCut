@@ -76,7 +76,8 @@ export const sendNotificationToUser = (userId, eventId, onSuccess, onErrors) => 
 
 export const getNotificationsForUser = (userId,page, onSuccess, onErrors) => dispatch =>
     backend.eventService.getNotificationsForUser(userId,page,
-        notifications =>{ dispatch(getNotificationForUserCompleted(notifications));
+        notifications =>{
+        dispatch(getNotificationForUserCompleted(notifications));
                 onSuccess();
     },
         onErrors);
