@@ -6,6 +6,7 @@ import es.udc.fic.tfg.model.services.Block;
 import es.udc.fic.tfg.model.services.QuizService;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import es.udc.fic.tfg.rest.dtos.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,15 @@ public class QuizController {
         return new BlockDto<>(QuestionConversor.toQuestionDtos(foundQuestions.getItems()),foundQuestions.getExistMoreItems());
     }
 
+    @GetMapping("/question/{questionId}")
+    public QuestionWithAnswersDto getQuestionDetails(@PathVariable Long questionId) throws InstanceNotFoundException{
+        Question question = quizService.getQuestionDetails(questionId);
+        QuestionDto questionDto = QuestionConversor.convertToQuestionDto(question);
+        QuestionWithAnswersDto questionWithAnswersDto = new QuestionWithAnswersDto();
+        questionWithAnswersDto.setQuestion(questionDto);
+        questionWithAnswersDto.setAnswers(AnswerConversor.toAnswerDtos(question.getAnswers()));
+        return questionWithAnswersDto;
+    }
 
 
 

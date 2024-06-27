@@ -204,6 +204,13 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     @Transactional(readOnly = true)
+    public Question getQuestionDetails(Long questionId) throws InstanceNotFoundException{
+        if(questionDao.findQuestionById(questionId) == null) throw new InstanceNotFoundException("Question not found",questionId);
+        Question question = questionDao.findQuestionById(questionId);
+        return question;
+    }
+    @Override
+    @Transactional(readOnly = true)
     public Block<UserAnswer> getUserAnswersForQuiz(Long userId, Long quizId, int page, int size) throws QuizException {
         // Buscar las respuestas del usuario para el quiz especificado
         Slice<UserAnswer> userAnswers = userAnswerDao.filterByUserIdAndQuizId(userId,quizId, page,size);
