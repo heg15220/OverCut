@@ -23,10 +23,9 @@ public class QuestionConversor {
         String name = question.getName();
         byte[] imagePath = question.getImagePath();
         int knowledgequestionlevel = question.getKnowledgequestionlevel();
-        Long quizId = question.getQuiz().getId(); // Asumiendo que quiz no es null
 
         // Crear y devolver el objeto QuestionDto
-        return new QuestionDto(id, name, imagePath, knowledgequestionlevel, quizId);
+        return new QuestionDto(id, name, imagePath, knowledgequestionlevel);
     }
 
     public static final List<QuestionDto> toQuestionDtos(List<Question> questions) {

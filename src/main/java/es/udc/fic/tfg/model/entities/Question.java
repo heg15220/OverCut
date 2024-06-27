@@ -19,8 +19,9 @@ public class Question {
     private byte[] imagePath;
 
     private int knowledgequestionlevel;
-    private Quiz quiz;
 
+
+    private List<QuizQuestions> quizQuestions;
     private List<Answer> answers;
 
     private List<UserAnswer> userAnswers;
@@ -28,11 +29,10 @@ public class Question {
     public Question() {
     }
 
-    public Question(String name, byte[] imagePath, int knowledgequestionlevel, Quiz quiz) {
+    public Question(String name, byte[] imagePath, int knowledgequestionlevel) {
         this.name = name;
         this.imagePath = imagePath;
         this.knowledgequestionlevel = knowledgequestionlevel;
-        this.quiz = quiz;
     }
 
     /**
@@ -84,23 +84,21 @@ public class Question {
         this.knowledgequestionlevel = knowledgequestionlevel;
     }
 
+    @OneToMany(mappedBy = "question")
+    public List<QuizQuestions> getQuizQuestions() {
+        return quizQuestions;
+    }
+
+    public void setQuizQuestions(List<QuizQuestions> quizQuestions) {
+        this.quizQuestions = quizQuestions;
+    }
+
     /**
      * Gets the quiz.
      *
      * @return the quiz
      */
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "quizId")
-    public Quiz getQuiz() {
-        return quiz;
-    }
 
-    public void setQuiz(Quiz quiz) {
-        this.quiz = quiz;
-        if (quiz != null) {
-            quiz.getQuestions().add(this);
-        }
-    }
 
 
     @OneToMany(mappedBy = "question")

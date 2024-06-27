@@ -32,9 +32,8 @@ public class QuizController {
 
     @GetMapping("/{quizId}/questions")
     public BlockDto<QuestionDto> getQuizQuestions(@PathVariable Long quizId,
-                                            @RequestParam(defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "10") int size) throws InstanceNotFoundException{
-        Block<Question> foundQuestions = quizService.findQuestionsByQuizId(quizId, page, size);
+                                            @RequestParam(defaultValue = "0") int page) throws InstanceNotFoundException{
+        Block<Question> foundQuestions = quizService.findQuestionsByQuizId(quizId, page, 2);
         return new BlockDto<>(QuestionConversor.toQuestionDtos(foundQuestions.getItems()),foundQuestions.getExistMoreItems());
     }
 

@@ -2,6 +2,7 @@ package es.udc.fic.tfg.model.entities;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,8 +20,10 @@ public class Quiz {
 
     private Assessment assessment;
 
-    private List<Question> questions;
+    private List<QuizQuestions> quizQuestions = new ArrayList<>(); // Inicializa la lista aquí
+
     private List<UserAnswer> userAnswers;
+
 
     public Quiz() {
     }
@@ -71,13 +74,16 @@ public class Quiz {
     }
 
     @OneToMany(mappedBy = "quiz")
-    public List<Question> getQuestions() {
-        return questions;
+    public List<QuizQuestions> getQuizQuestions() {
+        return quizQuestions;
     }
 
-    public void setQuestions(List<Question> questions) {
-        this.questions = questions;
+    public void setQuizQuestions(List<QuizQuestions> quizQuestions) {
+        this.quizQuestions = quizQuestions;
     }
+
+
+
 
     @OneToMany(mappedBy = "quiz")
     public List<UserAnswer> getUserAnswers() {

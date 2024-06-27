@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS Award;
 DROP TABLE IF EXISTS UserAnswer;
 DROP TABLE IF EXISTS Answer;
+DROP TABLE IF EXISTS QuizQuestions;
 DROP TABLE IF EXISTS Question;
 DROP TABLE IF EXISTS Quiz;
 DROP TABLE IF EXISTS Assessment;
@@ -8,6 +9,8 @@ DROP TABLE IF EXISTS Comment;
 DROP TABLE IF EXISTS Post;
 DROP TABLE IF EXISTS Category;
 DROP TABLE IF EXISTS Users;
+
+
 
 -- Crear las tablas con las restricciones de clave foránea adecuadas
 CREATE TABLE Users (
@@ -77,15 +80,20 @@ CREATE TABLE Quiz(
     CONSTRAINT AssessmentFK FOREIGN KEY (assessmentId) REFERENCES Assessment (id) ON DELETE CASCADE
 );
 
-
 CREATE TABLE Question(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name LONGTEXT NOT NULL,
     imagePath VARCHAR(1024),
-    knowledgequestionlevel BIGINT NOT NULL,
-    quizId BIGINT,
+    knowledgequestionlevel BIGINT NOT NULL
+);
 
-    CONSTRAINT QuizFK FOREIGN KEY (quizId) REFERENCES Quiz (id) ON DELETE CASCADE
+CREATE TABLE QuizQuestions(
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    quizId BIGINT,
+    questionId BIGINT,
+    CONSTRAINT QuizQuestionFK FOREIGN KEY (quizId) REFERENCES Quiz (id) ON DELETE CASCADE,
+    CONSTRAINT QuestionForQuizFK FOREIGN KEY (questionId) REFERENCES Question (id) ON DELETE CASCADE
+
 );
 
 CREATE TABLE Answer(

@@ -11,14 +11,12 @@ public class QuestionDto {
     private byte[] imagePath;
 
     private int knowledgequestionlevel;
-    private Long quizId;
 
-    public QuestionDto(Long id, String name, byte[] imagePath, int knowledgequestionlevel, Long quizId) {
+    public QuestionDto(Long id, String name, byte[] imagePath, int knowledgequestionlevel) {
         this.id = id;
         this.name = name;
         this.imagePath = imagePath;
         this.knowledgequestionlevel = knowledgequestionlevel;
-        this.quizId = quizId;
     }
 
     public Long getId() {
@@ -51,13 +49,5 @@ public class QuestionDto {
 
     public void setKnowledgequestionlevel(int knowledgequestionlevel) {
         this.knowledgequestionlevel = knowledgequestionlevel;
-    }
-
-    public Long getQuizId() {
-        return quizId;
-    }
-
-    public void setQuizId(Long quizId) {
-        this.quizId = quizId;
     }
 }

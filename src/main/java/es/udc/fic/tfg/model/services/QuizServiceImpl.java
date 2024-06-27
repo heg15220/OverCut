@@ -37,6 +37,9 @@ public class QuizServiceImpl implements QuizService {
     private QuestionDao questionDao;
 
     @Autowired
+    private QuizQuestionDao quizQuestionDao;
+
+    @Autowired
     private AnswerDao answerDao;
 
     @Autowired
@@ -124,8 +127,6 @@ public class QuizServiceImpl implements QuizService {
         userDao.save(user);
     }
 
-
-
     @Override
     public Quiz createQuiz(Long userId) throws InstanceNotFoundException{
         Optional<User> userOptional = userDao.findById(userId);
@@ -141,12 +142,20 @@ public class QuizServiceImpl implements QuizService {
         LocalDateTime date = LocalDateTime.now();
 
         Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
-        quiz.setQuestions(questions);
 
         quizDao.save(quiz);
 
+        // Asociar las preguntas al cuestionario
+        for (Question question : questions) {
+            QuizQuestions quizQuestion = new QuizQuestions();
+            quizQuestion.setQuiz(quiz);
+            quizQuestion.setQuestion(question);
+            quizQuestionDao.save(quizQuestion);
+        }
+
         return quiz;
     }
+
 
 
     @Override
@@ -188,8 +197,8 @@ public class QuizServiceImpl implements QuizService {
     }
     @Override
     @Transactional(readOnly = true)
-    public Block<Question> findQuestionsByQuizId(Long quizId, int page, int size) throws InstanceNotFoundException{
-        Slice<Question> questions = questionDao.findQuestionsByQuizId(quizId,PageRequest.of(page,size));
+    public Block<Question> findQuestionsByQuizId(Long quizId, int page,int size) throws InstanceNotFoundException{
+        Slice<Question> questions =quizQuestionDao.findQuestionsByQuizId(quizId,PageRequest.of(page,size));
         return new Block<>(questions.getContent(), questions.hasNext());
     }
 

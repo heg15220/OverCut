@@ -13,16 +13,11 @@ public interface QuestionDao extends CrudRepository<Question, Long> {
     @Query("SELECT q FROM Question q WHERE q.id = ?1")
     Question findQuestionById(Long id);
 
-    @Query("SELECT q FROM Question q WHERE q.quiz.id = ?1")
-    List<Question> findByQuizId(Long quizId);
-
     @Query(value = "SELECT * FROM Question ORDER BY RAND() LIMIT 10", nativeQuery = true)
     List<Question> findRandomQuestions();
 
     @Query("SELECT q FROM Question q")
     List<Question> findAllQuestions();
-    @Query("SELECT q FROM Question q WHERE q.quiz.id = ?1")
-    Slice<Question> findQuestionsByQuizId(Long quizId, Pageable pageable);
 
 
 }
