@@ -223,6 +223,7 @@ public class QuizServiceImpl implements QuizService {
         if (answerOptional.get().isCorrect()) {
             quiz.setPoints(quiz.getPoints() + points);
         }
+        quizDao.save(quiz);
         List<QuizQuestions> quizQuestions = quiz.getQuizQuestions();
 
         QuizQuestions lastQuizQuestion = quizQuestions.get(quizQuestions.size() - 1);
