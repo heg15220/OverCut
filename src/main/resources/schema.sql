@@ -67,7 +67,6 @@ CREATE TABLE Assessment(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     points BIGINT,
     userId BIGINT,
-
     CONSTRAINT UserIdAssessmentFK FOREIGN KEY (userId) REFERENCES Users (id) ON DELETE CASCADE
 );
 
@@ -77,6 +76,8 @@ CREATE TABLE Quiz(
     date DATETIME NOT NULL,
     knowledgeLevel BIGINT NOT NULL,
     assessmentId BIGINT,
+    points BIGINT,
+
     CONSTRAINT AssessmentFK FOREIGN KEY (assessmentId) REFERENCES Assessment (id) ON DELETE CASCADE
 );
 

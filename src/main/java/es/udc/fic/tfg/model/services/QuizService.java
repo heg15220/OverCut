@@ -19,7 +19,6 @@ public interface QuizService {
 
     Block<Assessment> getUserAssessments(Long userId, int page, int size) throws InstanceNotFoundException;
 
-    Assessment createAssessment(Long quizId, Long userId) throws InstanceNotFoundException, QuizException;
 
     Award chooseAward(Long awardId, Long userId) throws QuizException, InstanceNotFoundException;
 

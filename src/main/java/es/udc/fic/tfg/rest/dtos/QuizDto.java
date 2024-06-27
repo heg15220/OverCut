@@ -14,12 +14,15 @@ public class QuizDto {
 
     private Long assessmentId;
 
-    public QuizDto(Long id, int maxLength, LocalDateTime date, int knowledgeLevel, Long assessmentId) {
+    private int points;
+
+    public QuizDto(Long id, int maxLength, LocalDateTime date, int knowledgeLevel, Long assessmentId, int points) {
         this.id = id;
         this.maxLength = maxLength;
         this.date = date;
         this.knowledgeLevel = knowledgeLevel;
         this.assessmentId = assessmentId;
+        this.points = points;
     }
 
     public Long getId() {
@@ -60,5 +63,13 @@ public class QuizDto {
 
     public void setAssessmentId(Long assessmentId) {
         this.assessmentId = assessmentId;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 }

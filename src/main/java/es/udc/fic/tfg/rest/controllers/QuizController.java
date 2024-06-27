@@ -58,15 +58,9 @@ public class QuizController {
     }
 
     @GetMapping("/user/assessments")
-    public BlockDto<AssessmentDto> getUserAssessments(Long userId, int page, int size) throws InstanceNotFoundException{
+    public BlockDto<AssessmentDto> getUserAssessments(@RequestAttribute Long userId, @RequestParam(defaultValue = "0")int page) throws InstanceNotFoundException{
         Block<Assessment> assessments = quizService.getUserAssessments(userId,page,2);
         return new BlockDto<>(AssessmentConversor.toAssessmentDtos(assessments.getItems()), assessments.getExistMoreItems());
-    }
-
-    @PostMapping("/assessment/create")
-    public Long createAssessment(@RequestAttribute Long quizId, @RequestAttribute Long userId)
-            throws InstanceNotFoundException, QuizException{
-        return (quizService.createAssessment(quizId,userId)).getId();
     }
 
     @GetMapping("/awards/award")

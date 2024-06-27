@@ -19,6 +19,7 @@ public class Quiz {
     private int knowledgeLevel;
 
     private Assessment assessment;
+    private int points;
 
     private List<QuizQuestions> quizQuestions = new ArrayList<>(); // Inicializa la lista aquí
 
@@ -37,6 +38,13 @@ public class Quiz {
         this.date = date;
         this.knowledgeLevel = knowledgeLevel;
         this.assessment = assessment;
+    }
+
+    public Quiz(int maxLength, LocalDateTime date, int knowledgeLevel,int points) {
+        this.maxLength = maxLength;
+        this.date = date;
+        this.knowledgeLevel = knowledgeLevel;
+        this.points = points;
     }
 
     @Id
@@ -71,6 +79,14 @@ public class Quiz {
 
     public void setKnowledgeLevel(int knowledgeLevel) {
         this.knowledgeLevel = knowledgeLevel;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 
     @OneToMany(mappedBy = "quiz")

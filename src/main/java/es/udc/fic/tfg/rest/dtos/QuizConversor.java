@@ -25,7 +25,7 @@ public class QuizConversor {
 
     public static final QuizDto toQuizDto(Quiz quiz) {
         return new QuizDto(quiz.getId(),quiz.getMaxLength(),quiz.getDate(),
-                quiz.getKnowledgeLevel(), quiz.getAssessment().getId());
+                quiz.getKnowledgeLevel(), quiz.getAssessment().getId(), quiz.getPoints());
 
     }
 

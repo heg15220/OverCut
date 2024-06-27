@@ -111,11 +111,11 @@ public class QuizServiceImpl implements QuizService {
 
     private void updateAssessmentPoints(Long userId, Long quizId, int pointsToAdd) throws QuizException {
         // Buscar el registro de Assessment para el usuario y el quiz
-        Assessment assessment = assessmentDao.findByUserIdAndQuizId(userId, quizId);
+        Assessment assessment = assessmentDao.findByQuizIdAndUserId(quizId,userId);
 
         User user = userDao.findUserById(userId);
 
-        if (assessment == null) new QuizException("No se encontró el registro de Assessment para el usuario y el quiz");
+        if (assessment == null) throw new QuizException("No se encontró el registro de Assessment para el usuario y el quiz");
 
 
         // Incrementar los puntos
@@ -157,6 +157,32 @@ public class QuizServiceImpl implements QuizService {
     }
 
 
+    private Assessment createAssessment(Long quizId, Long userId) throws InstanceNotFoundException, QuizException {
+        // Verificar si el usuario existe
+        Optional<User> userOptional = userDao.findById(userId);
+        if (!userOptional.isPresent()) {
+            throw new InstanceNotFoundException("No user", userId);
+        }
+        // Verificar si el quiz existe
+        Optional<Quiz> quizOptional = quizDao.findById(quizId);
+        if (!quizOptional.isPresent()) {
+            throw new QuizException("No existe el quiz");
+        }
+
+        User user = userDao.findUserById(userId);
+        Quiz quiz = quizDao.findQuizById(quizId);
+
+        int points = getQuizPoints(quizId,userId);
+
+        Assessment assessment = new Assessment(points,user,quiz);
+        assessmentDao.save(assessment);
+
+        quizDao.save(quiz);
+
+        return assessment;
+    }
+
+
 
     @Override
     public void chooseAnswer(Long quizId, Long questionId, Long userId, Long answerId) throws QuizException, InstanceNotFoundException {
@@ -184,15 +210,26 @@ public class QuizServiceImpl implements QuizService {
             throw new QuizException("No existe la respuesta");
         }
 
+
         // Crear y guardar la respuesta del usuario
         UserAnswer userAnswer = new UserAnswer(userOptional.get(), questionOptional.get(), answerOptional.get(),
                 quizOptional.get(), LocalDateTime.now());
 
         userAnswerDao.save(userAnswer);
 
+        Quiz quiz = quizDao.findQuizById(quizId);
+        int points= 1;
         // Verificar si la respuesta es correcta y actualizar los puntos en la tabla Assessment
         if (answerOptional.get().isCorrect()) {
-            updateAssessmentPoints(userId, quizId, 1); // Asumiendo que 1 punto se otorga por respuesta correcta
+            quiz.setPoints(quiz.getPoints() + points);
+        }
+        List<QuizQuestions> quizQuestions = quiz.getQuizQuestions();
+
+        QuizQuestions lastQuizQuestion = quizQuestions.get(quizQuestions.size() - 1);
+        Question question = lastQuizQuestion.getQuestion();
+        if(question.getId() == questionId){
+            createAssessment(quizId,userId);
+            updateAssessmentPoints(userId,quizId,quiz.getPoints());
         }
     }
     @Override
@@ -241,31 +278,6 @@ public class QuizServiceImpl implements QuizService {
         return new Block<>(assessmentSlice.getContent(), assessmentSlice.hasNext());
     }
 
-    @Override
-    public Assessment createAssessment(Long quizId, Long userId) throws InstanceNotFoundException, QuizException {
-        // Verificar si el usuario existe
-        Optional<User> userOptional = userDao.findById(userId);
-        if (!userOptional.isPresent()) {
-            throw new InstanceNotFoundException("No user", userId);
-        }
-        // Verificar si el quiz existe
-        Optional<Quiz> quizOptional = quizDao.findById(quizId);
-        if (!quizOptional.isPresent()) {
-            throw new QuizException("No existe el quiz");
-        }
-
-        User user = userDao.findUserById(userId);
-        Quiz quiz = quizDao.findQuizById(quizId);
-
-        int points = getQuizPoints(quizId,userId);
-
-        Assessment assessment = new Assessment(points,user,quiz);
-        assessmentDao.save(assessment);
-
-        quizDao.save(quiz);
-
-        return assessment;
-    }
 
     @Override
     public Award chooseAward(Long awardId, Long userId) throws QuizException, InstanceNotFoundException{
