@@ -50,8 +50,8 @@ public class QuizController {
 
 
 
-    @GetMapping("/user/results")
-    public BlockDto<UserAnswerDto> getUserAnswersForQuiz(@RequestAttribute Long userId, @RequestAttribute Long quizId,
+    @GetMapping("/{quizId}/user/results")
+    public BlockDto<UserAnswerDto> getUserAnswersForQuiz(@PathVariable Long quizId, @RequestAttribute Long userId,
                                                          @RequestParam(defaultValue = "0") int page)throws QuizException{
         Block<UserAnswer> userAnswers = quizService.getUserAnswersForQuiz(userId,quizId,page,2);
         return new BlockDto<>(UserAnswerConversor.toUserAnswerDtos(userAnswers.getItems()),userAnswers.getExistMoreItems());
@@ -63,8 +63,8 @@ public class QuizController {
         return new BlockDto<>(AssessmentConversor.toAssessmentDtos(assessments.getItems()), assessments.getExistMoreItems());
     }
 
-    @GetMapping("/awards/award")
-    public Long chooseAward(@RequestAttribute Long awardId, @RequestAttribute Long userId) throws QuizException, InstanceNotFoundException{
+    @GetMapping("/awards/award/{awardId}")
+    public Long chooseAward(@PathVariable Long awardId, @RequestAttribute Long userId) throws QuizException, InstanceNotFoundException{
         return quizService.chooseAward(awardId,userId).getId();
     }
 

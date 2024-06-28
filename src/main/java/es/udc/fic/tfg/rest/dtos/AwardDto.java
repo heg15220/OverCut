@@ -4,15 +4,15 @@ public class AwardDto {
 
     private Long id;
 
-    private String prize;
+    private String award;
 
     private int requiredPoints;
 
     private Long userId;
 
-    public AwardDto(Long id, String prize, int requiredPoints, Long userId) {
+    public AwardDto(Long id, String award, int requiredPoints, Long userId) {
         this.id = id;
-        this.prize = prize;
+        this.award = award;
         this.requiredPoints = requiredPoints;
         this.userId = userId;
     }
@@ -25,12 +25,12 @@ public class AwardDto {
         this.id = id;
     }
 
-    public String getPrize() {
-        return prize;
+    public String getAward() {
+        return award;
     }
 
-    public void setPrize(String prize) {
-        this.prize = prize;
+    public void setAward(String award) {
+        this.award = award;
     }
 
     public int getRequiredPoints() {

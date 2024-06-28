@@ -122,7 +122,7 @@ CREATE TABLE UserAnswer (
 CREATE TABLE Award(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     award varchar(60) NOT NULL,
-    requieredPoints BIGINT NOT NULL,
+    requiredPoints BIGINT NOT NULL,
     userId BIGINT,
     CONSTRAINT AwardUserIdFK FOREIGN KEY (userId) REFERENCES Users (id)
 );
@@ -143,11 +143,11 @@ VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example artic
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
 
-INSERT INTO Award(award,requieredPoints,userId)
-VALUES ('PS5', 180,null);
+INSERT INTO Award(award,requiredPoints,userId)
+VALUES ('PS5', 5,null);
 
-INSERT INTO Award(award,requieredPoints,userId)
-VALUES ('Thrustmaster T150', 120, null);
+INSERT INTO Award(award,requiredPoints,userId)
+VALUES ('Thrustmaster T150', 8, null);
 
 INSERT INTO Question (name, imagePath,knowledgequestionlevel)
 VALUES ('¿Cuál es el nombre de esta escuderia?','/static/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);

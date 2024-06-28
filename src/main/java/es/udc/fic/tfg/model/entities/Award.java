@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 public class Award {
     private Long id;
 
-    private String prize;
+    private String award;
 
     private int requiredPoints;
 
@@ -16,8 +16,8 @@ public class Award {
 
     }
 
-    public Award(String prize, int requiredPoints, User user) {
-        this.prize = prize;
+    public Award(String award, int requiredPoints, User user) {
+        this.award = award;
         this.requiredPoints = requiredPoints;
         this.user = user;
     }
@@ -32,12 +32,12 @@ public class Award {
         this.id = id;
     }
 
-    public String getPrize() {
-        return prize;
+    public String getAward() {
+        return award;
     }
 
-    public void setPrize(String prize) {
-        this.prize = prize;
+    public void setAward(String award) {
+        this.award = award;
     }
 
     public int getRequiredPoints() {
