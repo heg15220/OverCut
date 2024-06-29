@@ -10,6 +10,9 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 /**
  * The class PostController
  */
@@ -73,5 +76,15 @@ public class QuizController {
                                                  @RequestParam(defaultValue = "10") int size) throws InstanceNotFoundException{
         Block<Award> awards = quizService.getAvailableAwards(userId,page,2);
         return new BlockDto<>(AwardConversor.toAwardDtos(awards.getItems()),awards.getExistMoreItems());
+    }
+
+    @GetMapping("/{questionId}/answers")
+    public List<AnswerDto> getAnswersByQuestion(@PathVariable Long questionId) throws InstanceNotFoundException{
+        return AnswerConversor.toAnswerDtos(quizService.getAnswersByQuestion(questionId));
+    }
+
+    @GetMapping("/{quizId}")
+    public QuizDto findQuizById(@PathVariable Long quizId){
+        return QuizConversor.toQuizDto(quizService.findQuizById(quizId));
     }
 }

@@ -24,4 +24,7 @@ public interface QuizService {
 
     Block<Award> getAvailableAwards(Long userId, int page, int size) throws InstanceNotFoundException;
 
+    List<Answer> getAnswersByQuestion(Long questionId) throws InstanceNotFoundException;
+    Quiz findQuizById(Long quizId);
+
 }

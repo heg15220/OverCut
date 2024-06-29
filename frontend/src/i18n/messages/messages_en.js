@@ -24,7 +24,8 @@ const en = {
     'project.global.fields.userName': 'UserName',
     'project.users.Profile.title': 'Title',
     'project.users.CreatePost.title': 'Create Post',
-    'project.users.MyPosts.title': 'MyPosts'
+    'project.users.MyPosts.title': 'MyPosts',
+    'project.app.Header.quiz': 'Quiz'
 
 }
 export default en;

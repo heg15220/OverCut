@@ -8,6 +8,7 @@ import './App.css'
 import users, {Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout} from '../../users';
 import Home from "./Home";
 import {AddImage, CreatePost, ModifyPost, PostDetails, UserPostList} from "../../posts";
+import {Quiz} from "../../quiz";
 
 
 
@@ -32,6 +33,7 @@ const Body = () => {
                     {loggedIn && <Route path="/post/my" element={<UserPostList/>}/>}
                     {loggedIn && <Route path="/posts/:id" element={<ModifyPost/>}/>}
                     {loggedIn && <Route path="/posts/:id/add-image" element={<AddImage/>}/>}
+                    {loggedIn && <Route path="/category/2" element={<Quiz />} />}
 
                 </Route>
             </Routes>

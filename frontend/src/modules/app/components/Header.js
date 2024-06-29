@@ -23,7 +23,11 @@ const Header = () => {
                         </Link>
                     </a>
                     <ul className="nav pull-xs-right">
-
+                        <li className="nav-item">
+                            <Link className="nav-link" to={`/category/2`} style={{ color: 'white' }}>
+                                <FormattedMessage id="project.app.Header.quiz" />
+                            </Link>
+                        </li>
                         {isLogged &&
                             <li className="nav-item dropstart">
 

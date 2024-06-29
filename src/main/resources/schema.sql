@@ -136,6 +136,7 @@ INSERT INTO Users(userName, firstName, lastName, password, email, journalist, im
 
 INSERT INTO Category(name,historic,quiz) VALUES ('Actualidad',false,false);
 
+INSERT INTO Category(name,historic,quiz) VALUES ('Quiz', false, true);
 INSERT INTO Post (title, subtitle, article, creationDate, userId, categoryId)
 VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example article content.', NOW(), 1, 1);
 

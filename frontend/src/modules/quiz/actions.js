@@ -34,6 +34,16 @@ const getUserAssessmentsCompleted = (userAssessments) => ({
     type: actionTypes.GET_USER_ASSESSMENTS_COMPLETED,
     userAssessments
 });
+
+const getAnswersForQuestionCompleted = (answers) => ({
+    type: actionTypes.GET_ANSWERS_FOR_QUESTION_COMPLETED,
+    answers
+});
+
+const findQuizByIdCompleted = (quiz) => ({
+    type: actionTypes.FIND_QUIZ_BY_ID_COMPLETED,
+    quiz
+})
 export const createQuiz = (userId, onSuccess, onErrors) => dispatch =>
     backend.quizService.createQuiz(userId, quiz => {
             dispatch(createQuizCompleted(quiz));
@@ -77,3 +87,15 @@ export const getUserAssessments = (userAssessments,onSuccess, onErrors) => dispa
         },
         onErrors);
 
+export const getAnswersForQuestion = (questionId,onSuccess, onErrors) => dispatch =>
+    backend.quizService.getAnswersForQuiz(questionId, answers => {
+            dispatch(getAnswersForQuestionCompleted(answers));
+            onSuccess(answers);
+        },
+        onErrors);
+export const findQuizById = (quizId, onSuccess,onErrors) => dispatch =>
+    backend.quizService.findQuizById(quizId, quiz => {
+        dispatch(findQuizByIdCompleted(quiz));
+        onSuccess(quiz);
+    },
+        onErrors);

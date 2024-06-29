@@ -9,13 +9,17 @@ const initialState = {
     question: null,
     userAnswers: null,
     userAssessments: null,
+    answers: null,
 };
 
 const quiz = (state = initialState.quiz, action) => {
-    if (action.type === actionTypes.CREATE_QUIZ_COMPLETED) {
-        return action.quiz;
-    } else {
-        return state;
+    switch (action.type) {
+        case actionTypes.CREATE_QUIZ_COMPLETED:
+            return action.quiz;
+        case actionTypes.FIND_QUIZ_BY_ID_COMPLETED:
+            return action.quiz;
+        default:
+            return state;
     }
 }
 
@@ -59,6 +63,14 @@ const userAssessments = (state = initialState.userAssessments, action) => {
     }
 }
 
+const answers = (state = initialState.answers, action) => {
+    if (action.type === actionTypes.GET_ANSWERS_FOR_QUESTION_COMPLETED) {
+        return action.answers;
+    } else {
+        return state;
+    }
+}
+
 const reducer = combineReducers({
     quiz,
     answer,
@@ -66,5 +78,6 @@ const reducer = combineReducers({
     question,
     userAnswers,
     userAssessments,
+    answers,
 });
 export default reducer;

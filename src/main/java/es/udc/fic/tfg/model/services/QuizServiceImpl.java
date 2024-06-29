@@ -323,6 +323,18 @@ public class QuizServiceImpl implements QuizService {
 
         return new Block<>(awards.getContent(), awards.hasNext());
     }
+
+    @Override
+    public List<Answer> getAnswersByQuestion(Long questionId) throws InstanceNotFoundException{
+        if(questionDao.findQuestionById(questionId) == null) throw new InstanceNotFoundException("Question not found",questionId);
+
+        return answerDao.findByQuestionId(questionId);
+    }
+
+    @Override
+    public Quiz findQuizById(Long quizId){
+        return quizDao.findQuizById(quizId);
+    }
 }
 
 

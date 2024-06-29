@@ -6,7 +6,7 @@ import {
 // Crear un nuevo cuestionario
 export const createQuiz = (userId, onSuccess, onErrors) => {
     appFetch(
-        "/api/quiz/create",
+        "/quiz/create",
         fetchConfig("POST", { userId }),
         onSuccess,
         onErrors
@@ -17,7 +17,7 @@ export const createQuiz = (userId, onSuccess, onErrors) => {
 // Seleccionar una respuesta para una pregunta específica en un cuestionario
 export const chooseAnswer = (quizId, answerParams, onSuccess, onErrors) => {
     appFetch(
-        `/api/quiz/${quizId}/answer`,
+        `/quiz/${quizId}/answer`,
         fetchConfig("POST", answerParams),
         onSuccess,
         onErrors
@@ -27,7 +27,7 @@ export const chooseAnswer = (quizId, answerParams, onSuccess, onErrors) => {
 // Obtener preguntas de un cuestionario específico
 export const getQuizQuestions = ({ quizId, page },onSuccess, onErrors) => {
     appFetch(
-        `/api/quiz/${quizId}/questions?page=${page}`,
+        `/quiz/${quizId}/questions?page=${page}`,
         fetchConfig("GET"),
         onSuccess,
         onErrors
@@ -37,7 +37,7 @@ export const getQuizQuestions = ({ quizId, page },onSuccess, onErrors) => {
 // Obtener detalles de una pregunta específica
 export const getQuestionDetails = (questionId, onSuccess, onErrors) => {
     appFetch(
-        `/api/quiz/question/${questionId}`,
+        `/quiz/question/${questionId}`,
         fetchConfig("GET"),
         onSuccess,
         onErrors
@@ -47,7 +47,7 @@ export const getQuestionDetails = (questionId, onSuccess, onErrors) => {
 // Obtener resultados de respuestas de un usuario para un cuestionario específico
 export const getUserAnswersForQuiz = ({quizId, userId, page}, onSuccess, onErrors) => {
     appFetch(
-        `/api/quiz/${quizId}/user/results?page=${page}`,
+        `/quiz/${quizId}/user/results?page=${page}`,
         fetchConfig("GET", { userId }),
         onSuccess,
         onErrors
@@ -57,10 +57,23 @@ export const getUserAnswersForQuiz = ({quizId, userId, page}, onSuccess, onError
 // Obtener evaluaciones de un usuario
 export const getUserAssessments = ({ userId, page }, onSuccess,onErrors) => {
     appFetch(
-        `/api/quiz/user/assessments?page=${page}`,
+        `/quiz/user/assessments?page=${page}`,
         fetchConfig("GET", { userId }),
         onSuccess,
         onErrors
     );
 };
+
+export const getAnswersForQuiz = (questionId,onSuccess, onErrors) => {
+    appFetch(
+        `/quiz/${questionId}/answers`,
+        fetchConfig("GET"),
+        onSuccess,
+        onErrors
+    );
+};
+export const findQuizById = (quizId, onSuccess, onErrors) => {
+    appFetch(`/quiz/${quizId}`, fetchConfig("GET"), onSuccess, onErrors);
+};
+
 
