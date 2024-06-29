@@ -14,8 +14,6 @@ const initialState = {
 
 const quiz = (state = initialState.quiz, action) => {
     switch (action.type) {
-        case actionTypes.CREATE_QUIZ_COMPLETED:
-            return action.quiz;
         case actionTypes.FIND_QUIZ_BY_ID_COMPLETED:
             return action.quiz;
         default:

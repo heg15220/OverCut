@@ -24,6 +24,9 @@ public class QuizConversor {
      */
 
     public static final QuizDto toQuizDto(Quiz quiz) {
+        if(quiz.getAssessment() == null){
+            return new QuizDto(quiz.getId(), quiz.getMaxLength(),quiz.getDate(),quiz.getKnowledgeLevel(),null,quiz.getPoints());
+        }
         return new QuizDto(quiz.getId(),quiz.getMaxLength(),quiz.getDate(),
                 quiz.getKnowledgeLevel(), quiz.getAssessment().getId(), quiz.getPoints());
 

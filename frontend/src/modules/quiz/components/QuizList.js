@@ -5,17 +5,18 @@ import * as actions from '../actions';
 import QuizQuestions from "./QuizQuestions";
 import Grid from "@mui/material/Grid";
 import {Pager} from "../../common";
+import { useNavigate, useParams, Link } from 'react-router-dom';
 
 
-const QuizList = ({user}) => {
+const QuizList = () => {
+    const { id } = useParams();
     const dispatch = useDispatch();
     const [page, setPage] = useState(0);
     const questions = useSelector(selectors.getQuizQuestions);
 
     useEffect(() => {
-        dispatch(actions.getQuizQuestions({ quizId: 1, page: 0 }, () => {}, () => {})); // Ejemplo, ajusta según sea necesario
-    }, [dispatch]);
-
+        dispatch(actions.getQuizQuestions(id, () => {}, () => {}));
+    },[dispatch, id]);
     const handlePageChange = (newPage) => {
         setPage(newPage);
     };
