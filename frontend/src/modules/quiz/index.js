@@ -5,6 +5,8 @@ import * as selectors from './selectors';
 
 export { default as Quiz } from './components/Quiz';
 
+export { default as QuizList } from './components/QuizList';
+
 const exportedObj = { actions, actionTypes, reducer, selectors };
 
 export default exportedObj;

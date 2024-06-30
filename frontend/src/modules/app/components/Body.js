@@ -9,6 +9,7 @@ import users, {Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout
 import Home from "./Home";
 import {AddImage, CreatePost, ModifyPost, PostDetails, UserPostList} from "../../posts";
 import {Quiz} from "../../quiz";
+import QuizList from "../../quiz/components/QuizList";
 
 
 
@@ -34,7 +35,7 @@ const Body = () => {
                     {loggedIn && <Route path="/posts/:id" element={<ModifyPost/>}/>}
                     {loggedIn && <Route path="/posts/:id/add-image" element={<AddImage/>}/>}
                     {loggedIn && <Route path="/category/2" element={<Quiz />} />}
-
+                    {loggedIn && <Route path="/quiz/quiz-list/:id" element={<QuizList />} />}
                 </Route>
             </Routes>
         </div>

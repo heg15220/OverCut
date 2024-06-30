@@ -7,7 +7,7 @@ import {
 export const createQuiz = (userId, onSuccess, onErrors) => {
     appFetch(
         "/quiz/create",
-        fetchConfig("POST", { userId }),
+        fetchConfig("POST",  userId ),
         onSuccess,
         onErrors
     );
@@ -48,7 +48,7 @@ export const getQuestionDetails = (questionId, onSuccess, onErrors) => {
 export const getUserAnswersForQuiz = ({quizId, userId, page}, onSuccess, onErrors) => {
     appFetch(
         `/quiz/${quizId}/user/results?page=${page}`,
-        fetchConfig("GET", { userId }),
+        fetchConfig("GET", userId),
         onSuccess,
         onErrors
     );
@@ -58,7 +58,7 @@ export const getUserAnswersForQuiz = ({quizId, userId, page}, onSuccess, onError
 export const getUserAssessments = ({ userId, page }, onSuccess,onErrors) => {
     appFetch(
         `/quiz/user/assessments?page=${page}`,
-        fetchConfig("GET", { userId }),
+        fetchConfig("GET", userId ),
         onSuccess,
         onErrors
     );
