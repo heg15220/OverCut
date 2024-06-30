@@ -6,3 +6,4 @@ export const getUserAssessments = (state) => getModuleState(state).userAssessmen
 export const getQuestionDetails = (state) => getModuleState(state).question;
 export const findQuiz = (state) => getModuleState(state).quiz;
 export const getAnswers = (state) => getModuleState(state).answers;
+export const getAnswer = (state) => getModuleState(state).answer;

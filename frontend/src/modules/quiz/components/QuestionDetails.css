@@ -1,0 +1,7 @@
+.custom-button {
+    /* Estilos base */
+}
+
+.custom-button.correct-answer {
+    background-color: green!important; /* O cualquier otro estilo que desees aplicar */
+}

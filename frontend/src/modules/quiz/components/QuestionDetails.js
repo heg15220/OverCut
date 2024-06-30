@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as actions from '../actions';
 import * as selectors from '../selectors';
 import * as userSelectors from '../../users/selectors';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert, AlertTitle } from '@mui/material';
 import WebFont from 'webfontloader';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CancelIcon from '@mui/icons-material/Cancel';
+import { Grid } from '@mui/material';
 
 
 
@@ -19,12 +22,14 @@ const QuestionDetails = () => {
     const [success, setSuccess] = useState(null);
     const formRef = useRef(null);
     const answers = useSelector(selectors.getAnswers);
+    const quiz = useSelector(selectors.findQuiz);
+    const [responseState, setResponseState] = useState({});
 
     useEffect(() => {
         const questionId = Number(id);
         if (!Number.isNaN(questionId)) {
             dispatch(actions.getQuestionDetails(questionId, () => {}, () => {}));
-            dispatch(actions.getAnswersForQuestion(questionId, ()=>{}, () => {})); // Despacha la acción para obtener las respuestas
+            dispatch(actions.getAnswersForQuestion(questionId, ()=>{}, () => {}));
         }
     }, [id, dispatch]);
 
@@ -32,13 +37,36 @@ const QuestionDetails = () => {
         return null;
     }
 
-    const srcImage = question.imagePath ? "data:image/jpg;base64," + question.imagePath : null;
+    const srcImage = question.imagePath? "data:image/jpg;base64," + question.imagePath : null;
 
+    const handleSelectAnswer = (answer) => {
+        const questionId = Number(id);
+        const quizId = Number(quiz);
+        dispatch(actions.chooseAnswer(quizId,{
+            questionId: questionId,
+            userId: user.id,
+            answerId: answer.id
+        }, () => {}, () => {}, () => {}));
 
+        // Marcar la respuesta como seleccionada temporalmente
+        setResponseState(prevState => ({
+            ...prevState,
+            [answer.id]: { isSelected: true, isCorrect: answer.correct }
+        }));
+
+        // Cambiar el color del botón a verde y luego volver a su color original
+        setTimeout(() => {
+            setResponseState(prevState => ({
+                ...prevState,
+                [answer.id]: { isSelected: false }
+            }));
+            navigate(`/quiz/quiz-list/${quiz}`);
+        }, 2000); // Espera 2 segundos antes de navegar
+    };
 
     return (
-        <Container sx={{ marginTop: 0 }}> {/* Reduce el margen superior del Container */}
-            <Box my={0}> {/* Reduce el margen superior del Box */}
+        <Container sx={{ marginTop: 0 }}>
+            <Box my={0}>
                 {backendErrors && (
                     <Alert severity="error" onClose={() => setBackendErrors(null)}>
                         <AlertTitle>Error</AlertTitle>
@@ -54,12 +82,12 @@ const QuestionDetails = () => {
                 <Card>
                     <CardContent>
                         <Typography variant="h5" component="div" sx={{
-                            fontSize: '2rem', // Ajusta el tamaño de la fuente
-                            fontWeight: 'bold', // Hace el texto en negrita
-                            textTransform: 'uppercase', // Convierte el texto a mayúsculas
-                            color: 'text.primary', // Asume que quieres el color primario del tema, ajusta según sea necesario
-                            marginTop: '1rem', // Añade un margen superior
-                            marginBottom: '1rem', // Añade un margen inferior
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            color: 'text.primary',
+                            marginTop: '1rem',
+                            marginBottom: '1rem',
                         }}>
                             {question.question.name}
                         </Typography>
@@ -68,30 +96,45 @@ const QuestionDetails = () => {
                             image={srcImage}
                             alt="Question Image"
                             sx={{
-                                maxHeight: '500px', // Ajusta el tamaño máximo de la imagen
-                                maxWidth: '80%', // Asegura que la imagen no exceda el ancho del contenedor
-                                objectFit: 'cover', // Ajusta cómo se redimensiona la imagen
-                                marginTop: 2, // Añade un margen en la parte superior para separar la imagen del subtítulo
+                                maxHeight: '500px',
+                                maxWidth: '80%',
+                                objectFit: 'cover',
+                                marginTop: 2,
                             }}
                         />
                     </CardContent>
                 </Card>
-
                 {answers && answers.length > 0? (
-                    <Box mt={2}>
+                    <Grid container direction="column" spacing={2}> {/* Añade un contenedor Grid */}
                         <h3>Respuestas</h3>
-                        <ul>
-                            {answers.map(answer => (
-                                <li key={answer.id}>
-                                    <span>{answer.name}</span>
-                                    {answer.correct && <span>(Correcta)</span>}
-                                </li>
-                            ))}
-                        </ul>
-                    </Box>
+                        {answers.map((answer) => (
+                            <Grid item xs={12}> {/* Cada respuesta ocupa toda la anchura disponible */}
+                                <Button
+                                    key={answer.id}
+                                    variant="contained"
+                                    className={`custom-button ${responseState[answer.id]?.isSelected === true && answer.correct? "correct-answer" : ""}`}
+                                    onClick={() => handleSelectAnswer(answer)}
+                                >
+                                    <>
+                                        {answer.name}
+                                        {responseState[answer.id]?.isSelected === true && (
+                                            <>
+                                                {answer.correct? (
+                                                    <CheckCircleOutlineIcon style={{ marginLeft: '8px', marginRight: '8px' }} />
+                                                ) : (
+                                                    <CancelIcon style={{ marginLeft: '8px', marginRight: '8px' }} />
+                                                )}
+                                            </>
+                                        )}
+                                    </>
+                                </Button>
+                            </Grid>
+                        ))}
+                    </Grid>
                 ) : (
                     <p>No hay respuestas disponibles.</p>
                 )}
+
             </Box>
         </Container>
     );
