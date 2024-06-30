@@ -7,4 +7,4 @@ export const GET_USER_ASSESSMENTS_COMPLETED = "project/quiz/getUserAssessmentsCo
 export const CHOOSE_AWARD_COMPLETED =  "project/quiz/chooseAnswerCompleted";
 export const GET_AVAILABLE_AWARDS_COMPLETED = "project/quiz/getAvailableAwardsCompleted";
 export const GET_ANSWERS_FOR_QUESTION_COMPLETED = "project/quiz/getAnswersForQuestionCompleted";
-export const FIND_QUIZ_BY_ID_COMPLETED = "project/quiz/getAnswersForQuestionCompleted";
+export const FIND_QUIZ_BY_ID_COMPLETED = "project/quiz/findQuizByIdCompleted";

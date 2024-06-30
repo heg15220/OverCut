@@ -10,6 +10,7 @@ import Home from "./Home";
 import {AddImage, CreatePost, ModifyPost, PostDetails, UserPostList} from "../../posts";
 import {Quiz} from "../../quiz";
 import QuizList from "../../quiz/components/QuizList";
+import QuestionDetails from "../../quiz/components/QuestionDetails";
 
 
 
@@ -36,6 +37,7 @@ const Body = () => {
                     {loggedIn && <Route path="/posts/:id/add-image" element={<AddImage/>}/>}
                     {loggedIn && <Route path="/category/2" element={<Quiz />} />}
                     {loggedIn && <Route path="/quiz/quiz-list/:id" element={<QuizList />} />}
+                    {loggedIn && <Route path="/question/question-details/:id" element={<QuestionDetails />} />}
                 </Route>
             </Routes>
         </div>

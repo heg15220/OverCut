@@ -9,8 +9,9 @@ import WebFont from 'webfontloader';
 
 
 
-const QuestionDetails = ({question}) => {
-    const { id } = question.id;
+const QuestionDetails = () => {
+    const { id } = useParams();
+    const question = useSelector(selectors.getQuestionDetails);
     const user = useSelector(userSelectors.getUser);
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -19,23 +20,13 @@ const QuestionDetails = ({question}) => {
     const formRef = useRef(null);
     const answers = useSelector(selectors.getAnswers);
 
-
     useEffect(() => {
         const questionId = Number(id);
         if (!Number.isNaN(questionId)) {
-            dispatch(actions.getQuestionDetails(questionId));
-            dispatch(actions.getAnswersForQuestion(questionId)); // Despacha la acción para obtener las respuestas
+            dispatch(actions.getQuestionDetails(questionId, () => {}, () => {}));
+            dispatch(actions.getAnswersForQuestion(questionId, ()=>{}, () => {})); // Despacha la acción para obtener las respuestas
         }
     }, [id, dispatch]);
-
-
-    useEffect(() => {
-        WebFont.load({
-            google: {
-                families: ['Poppins:300,400,500,600,700']
-            }
-        });
-    }, []);
 
     if (!question) {
         return null;
@@ -70,7 +61,7 @@ const QuestionDetails = ({question}) => {
                             marginTop: '1rem', // Añade un margen superior
                             marginBottom: '1rem', // Añade un margen inferior
                         }}>
-                            {question.name}
+                            {question.question.name}
                         </Typography>
                         <CardMedia
                             component="img"
