@@ -1,27 +1,23 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as actions from '../actions';
 import * as selectors from '../selectors';
 import * as userSelectors from '../../users/selectors';
-import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert, AlertTitle } from '@mui/material';
-import WebFont from 'webfontloader';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { Grid } from '@mui/material';
 
-
-
 const QuestionDetails = ({ question, onAnswerSubmit }) => {
     const user = useSelector(userSelectors.getUser);
-    const navigate = useNavigate();
     const dispatch = useDispatch();
     const [backendErrors, setBackendErrors] = useState(null);
     const [success, setSuccess] = useState(null);
-    const formRef = useRef(null);
     const answers = useSelector(selectors.getAnswers);
     const quiz = useSelector(selectors.findQuiz);
     const [responseState, setResponseState] = useState({});
+    const [totalScore, setTotalScore] = useState(0);
+    const requiredScore = 5; // Corrección aquí
 
     useEffect(() => {
         const questionId = Number(question.id);
@@ -40,7 +36,7 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
     const handleSelectAnswer = (answer) => {
         const questionId = Number(question.id);
         const quizId = Number(quiz);
-        dispatch(actions.chooseAnswer(quizId,{
+        dispatch(actions.chooseAnswer(quizId, {
             questionId: questionId,
             userId: user.id,
             answerId: answer.id
@@ -52,6 +48,11 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
             [answer.id]: { isSelected: true, isCorrect: answer.correct }
         }));
 
+        // Dentro de handleSelectAnswer:
+        if (answer.correct) {
+            setTotalScore(totalScore + 1);
+        }
+
         // Cambiar el color del botón a verde y luego volver a su color original
         setTimeout(() => {
             setResponseState(prevState => ({
@@ -61,7 +62,6 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
             onAnswerSubmit(); // Llama a onAnswerSubmit para avanzar a la siguiente pregunta
         }, 2000); // Espera 2 segundos antes de llamar a onAnswerSubmit
     };
-
 
     return (
         <Container sx={{ marginTop: 0 }}>
@@ -133,6 +133,17 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                     <p>No hay respuestas disponibles.</p>
                 )}
 
+                {totalScore? (
+                    <Alert severity="success">
+                        <AlertTitle>¡Excelente trabajo!</AlertTitle>
+                        Has obtenido {totalScore} puntos.
+                    </Alert>
+                ) : (
+                    <Alert severity="success">
+                        <AlertTitle>Tu puntaje:</AlertTitle>
+                        Has obtenido {totalScore} puntos.
+                    </Alert>
+                )}
             </Box>
         </Container>
     );
