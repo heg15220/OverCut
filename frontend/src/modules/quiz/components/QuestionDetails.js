@@ -12,9 +12,7 @@ import { Grid } from '@mui/material';
 
 
 
-const QuestionDetails = () => {
-    const { id } = useParams();
-    const question = useSelector(selectors.getQuestionDetails);
+const QuestionDetails = ({ question, onAnswerSubmit }) => {
     const user = useSelector(userSelectors.getUser);
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -26,12 +24,12 @@ const QuestionDetails = () => {
     const [responseState, setResponseState] = useState({});
 
     useEffect(() => {
-        const questionId = Number(id);
+        const questionId = Number(question.id);
         if (!Number.isNaN(questionId)) {
             dispatch(actions.getQuestionDetails(questionId, () => {}, () => {}));
             dispatch(actions.getAnswersForQuestion(questionId, ()=>{}, () => {}));
         }
-    }, [id, dispatch]);
+    }, [question, dispatch]);
 
     if (!question) {
         return null;
@@ -40,7 +38,7 @@ const QuestionDetails = () => {
     const srcImage = question.imagePath? "data:image/jpg;base64," + question.imagePath : null;
 
     const handleSelectAnswer = (answer) => {
-        const questionId = Number(id);
+        const questionId = Number(question.id);
         const quizId = Number(quiz);
         dispatch(actions.chooseAnswer(quizId,{
             questionId: questionId,
@@ -60,9 +58,10 @@ const QuestionDetails = () => {
                 ...prevState,
                 [answer.id]: { isSelected: false }
             }));
-            navigate(`/quiz/quiz-list/${quiz}`);
-        }, 2000); // Espera 2 segundos antes de navegar
+            onAnswerSubmit(); // Llama a onAnswerSubmit para avanzar a la siguiente pregunta
+        }, 2000); // Espera 2 segundos antes de llamar a onAnswerSubmit
     };
+
 
     return (
         <Container sx={{ marginTop: 0 }}>
@@ -89,7 +88,7 @@ const QuestionDetails = () => {
                             marginTop: '1rem',
                             marginBottom: '1rem',
                         }}>
-                            {question.question.name}
+                            {question.name}
                         </Typography>
                         <CardMedia
                             component="img"
@@ -106,7 +105,6 @@ const QuestionDetails = () => {
                 </Card>
                 {answers && answers.length > 0? (
                     <Grid container direction="column" spacing={2}> {/* Añade un contenedor Grid */}
-                        <h3>Respuestas</h3>
                         {answers.map((answer) => (
                             <Grid item xs={12}> {/* Cada respuesta ocupa toda la anchura disponible */}
                                 <Button

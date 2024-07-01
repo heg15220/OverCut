@@ -38,7 +38,7 @@ public class QuizController {
     public BlockDto<QuestionDto> getQuizQuestions(@PathVariable String quizId,
                                             @RequestParam(defaultValue = "0") int page) throws InstanceNotFoundException{
         Long quiz = Long.parseLong(quizId);
-        Block<Question> foundQuestions = quizService.findQuestionsByQuizId(quiz, page, 2);
+        Block<Question> foundQuestions = quizService.findQuestionsByQuizId(quiz, page, 10);
         return new BlockDto<>(QuestionConversor.toQuestionDtos(foundQuestions.getItems()),foundQuestions.getExistMoreItems());
     }
 

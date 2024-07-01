@@ -1,29 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import * as selectors from '../selectors';
-import * as actions from '../actions';
+import {Grid} from "@mui/material";
+import {useDispatch, useSelector} from "react-redux";
+import {useParams} from "react-router-dom";
+import {useEffect, useState} from "react";
+import * as selectors from "../selectors";
+import * as actions from "../actions";
+import {Pager} from "../../common";
 import QuizQuestions from "./QuizQuestions";
-import Grid from "@mui/material/Grid";
-import { Pager } from "../../common";
-import {useNavigate, useParams} from 'react-router-dom';
 
 const QuizList = () => {
     const {id} = useParams();
     const dispatch = useDispatch();
-    const [page, setPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
     const questions = useSelector(selectors.getQuizQuestions);
     const quiz = useSelector(selectors.findQuiz);
+
     useEffect(() => {
         if(quiz) {
-            dispatch(actions.getQuizQuestions({quizId: quiz, page: page}, () => {
+            dispatch(actions.getQuizQuestions({quizId: quiz, page: currentPage}, () => {
             }, () => {
             }));
         }
-
-    }, [dispatch, quiz,page]);
+    }, [dispatch, quiz, currentPage]);
 
     const handlePageChange = (newPage) => {
-        setPage(newPage);
+        setCurrentPage(newPage);
     };
 
     return (
@@ -34,12 +34,12 @@ const QuizList = () => {
                     {questions && (
                         <Pager
                             back={{
-                                enabled: page > 0,
-                                onClick: () => handlePageChange(page - 1),
+                                enabled: currentPage > 0,
+                                onClick: () => handlePageChange(currentPage - 1),
                             }}
                             next={{
-                                enabled: true,
-                                onClick: () => handlePageChange(page + 1),
+                                enabled: currentPage < questions.totalPages - 1,
+                                onClick: () => handlePageChange(currentPage + 1),
                             }}
                         />
                     )}
@@ -48,5 +48,4 @@ const QuizList = () => {
         </Grid>
     );
 };
-
 export default QuizList;
