@@ -3,7 +3,8 @@ import {useState} from "react";
 
 const QuizQuestions = ({ questions }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const currentQuestion = questions.items[currentQuestionIndex];
+    // Check if questions and questions.items exist before accessing them
+    const currentQuestion = questions?.items ? questions.items[currentQuestionIndex] : null;
 
     const handleNextQuestion = () => {
         setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
