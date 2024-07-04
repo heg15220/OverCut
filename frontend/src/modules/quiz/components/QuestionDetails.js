@@ -7,10 +7,13 @@ import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { Grid } from '@mui/material';
+import {useNavigate} from "react-router-dom";
 
 const QuestionDetails = ({ question, onAnswerSubmit }) => {
     const user = useSelector(userSelectors.getUser);
     const dispatch = useDispatch();
+
+    const navigate = useNavigate();
     const [backendErrors, setBackendErrors] = useState(null);
     const [success, setSuccess] = useState(null);
     const answers = useSelector(selectors.getAnswers);
@@ -130,7 +133,7 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                         ))}
                     </Grid>
                 ) : (
-                    <p>No hay respuestas disponibles.</p>
+                    navigate('/')
                 )}
 
                 {totalScore? (

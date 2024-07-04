@@ -6,11 +6,20 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface AwardDao extends CrudRepository<Award, Long> {
     @Query("SELECT a FROM Award a WHERE a.id = :id")
     Award findAwardById(@Param("id") Long id);
 
-    @Query("SELECT a FROM Award a WHERE a.user.id = :userId AND :userPoints >= a.requiredPoints")
-    Slice<Award> findAwardsAvailableForUser(@Param("userId") Long userId, @Param("userPoints") int userPoints, Pageable pageable);
+    @Query("SELECT a FROM Award a WHERE a.user.id = :userId AND :totalPoints >= a.requiredPoints")
+    Slice<Award> findAwardsAvailableForUser(@Param("userId") Long userId, @Param("totalPoints") int totalPoints, Pageable pageable);
 
+    @Query("SELECT a FROM Award a WHERE a.user.id = :userId")
+    Slice<Award> findAllAwardsForUser(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT a from Award a")
+    List<Award> findAllAwards();
+    @Query("SELECT a FROM Award a JOIN FETCH a.user u WHERE a.user.id = u.id AND u.points >= a.requiredPoints")
+    Slice<Award> findAwardsAvailableForUserByPoints(@Param("userId") Long userId, Pageable pageable);
 }

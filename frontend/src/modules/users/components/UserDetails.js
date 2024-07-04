@@ -49,6 +49,12 @@ const UserDetails = () => {
                     </div>
 
                     <div className="form-group row">
+                        <label htmlFor="description" className="col-md- col-form-label">
+                            <FormattedMessage id='project.global.fields.points' /> : {user.points}
+                        </label>
+                    </div>
+
+                    <div className="form-group row">
                         <label htmlFor="journalist" className="col-md- col-form-label">
                             <FormattedMessage id='project.global.fields.journalist' /> : {user.journalist}
                         </label>

@@ -84,3 +84,12 @@ export const changePassword = (
         onSuccess,
         onErrors
     );
+
+export const getUserPoints = (userId, onSuccess, onErrors) => {
+    appFetch(
+        `/users/${userId}/points`,
+        fetchConfig("GET"),
+        onSuccess,
+        onErrors
+    );
+};

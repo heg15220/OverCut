@@ -144,11 +144,11 @@ VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example artic
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
 
-INSERT INTO Award(award,requiredPoints,userId)
-VALUES ('PS5', 5,null);
+INSERT INTO Award(award,requiredPoints)
+VALUES ('PS5', 5);
 
-INSERT INTO Award(award,requiredPoints,userId)
-VALUES ('Thrustmaster T150', 8, null);
+INSERT INTO Award(award,requiredPoints)
+VALUES ('Thrustmaster T150', 8);
 
 INSERT INTO Question (name, imagePath,knowledgequestionlevel)
 VALUES ('¿Cuál es el nombre de esta escuderia?','/static/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);

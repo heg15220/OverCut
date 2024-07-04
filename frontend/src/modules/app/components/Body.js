@@ -11,6 +11,8 @@ import {AddImage, CreatePost, ModifyPost, PostDetails, UserPostList} from "../..
 import {Quiz} from "../../quiz";
 import QuizList from "../../quiz/components/QuizList";
 import QuestionDetails from "../../quiz/components/QuestionDetails";
+import Awards from "../../quiz/components/Awards";
+import AwardsList from "../../quiz/components/AwardsList";
 
 
 
@@ -38,6 +40,8 @@ const Body = () => {
                     {loggedIn && <Route path="/category/2" element={<Quiz />} />}
                     {loggedIn && <Route path="/quiz/quiz-list/:id" element={<QuizList />} />}
                     {loggedIn && <Route path="/question/question-details/:id" element={<QuestionDetails />} />}
+                    {loggedIn && <Route path="/user/awards-user" element={<AwardsList />} />}
+                    {loggedIn && <Route path="/award/award-details/:id" element={<Awards />} />}
                 </Route>
             </Routes>
         </div>

@@ -72,9 +72,8 @@ public class QuizController {
         return quizService.chooseAward(awardId,userId).getId();
     }
 
-    @GetMapping("/awards")
-    public BlockDto<AwardDto> getAvailableAwards(@RequestAttribute Long userId, @RequestParam(defaultValue = "0") int page,
-                                                 @RequestParam(defaultValue = "10") int size) throws InstanceNotFoundException{
+    @GetMapping("/{userId}/awards")
+    public BlockDto<AwardDto> getAvailableAwards(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page) throws InstanceNotFoundException{
         Block<Award> awards = quizService.getAvailableAwards(userId,page,2);
         return new BlockDto<>(AwardConversor.toAwardDtos(awards.getItems()),awards.getExistMoreItems());
     }
@@ -88,4 +87,9 @@ public class QuizController {
     public QuizDto findQuizById(@PathVariable Long quizId){
         return QuizConversor.toQuizDto(quizService.findQuizById(quizId));
     }
+    @GetMapping("/award/{awardId}")
+    public AwardDto getAward(@PathVariable Long awardId) {
+        return AwardConversor.convertToAwardDto(quizService.getAward(awardId));
+    }
+
 }

@@ -10,6 +10,8 @@ const initialState = {
     userAnswers: null,
     userAssessments: null,
     answers: null,
+    awards:null,
+    award:null,
 };
 
 const quiz = (state = initialState.quiz, action) => {
@@ -71,6 +73,23 @@ const answers = (state = initialState.answers, action) => {
         return state;
     }
 }
+const awards = (state = initialState.awards, action) => {
+    if (action.type === actionTypes.GET_AVAILABLE_AWARDS_COMPLETED) {
+        return action.awards;
+    } else {
+        return state;
+    }
+}
+const award = (state = initialState.award, action) => {
+    if (action.type === actionTypes.GET_AWARD_COMPLETED) {
+        return action.award;
+    } else {
+        return state;
+    }
+}
+
+
+
 
 const reducer = combineReducers({
     quiz,
@@ -80,5 +99,7 @@ const reducer = combineReducers({
     userAnswers,
     userAssessments,
     answers,
+    awards,
+    award,
 });
 export default reducer;

@@ -28,6 +28,12 @@ const Header = () => {
                                 <FormattedMessage id="project.app.Header.quiz" />
                             </Link>
                         </li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link" to={`/user/awards-user`} style={{ color: 'white' }}>
+                                <FormattedMessage id="project.app.Header.Awards" />
+                            </Link>
+                        </li>
                         {isLogged &&
                             <li className="nav-item dropstart">
 

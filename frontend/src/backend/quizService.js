@@ -76,4 +76,21 @@ export const findQuizById = (quizId, onSuccess, onErrors) => {
     appFetch(`/quiz/${quizId}`, fetchConfig("GET"), onSuccess, onErrors);
 };
 
+export const getAvailableAwards = ({userId,page},onSuccess, onErrors) => {
+    appFetch(
+        `/quiz/${userId}/awards?page=${page}`,
+        fetchConfig("GET"),
+        onSuccess,
+        onErrors
+    );
+}
+
+export const getAward = (awardId,onSuccess, onErrors) => {
+    appFetch(
+        `/quiz/award/${awardId}`,
+        fetchConfig("GET"),
+        onSuccess,
+        onErrors
+    );
+};
 

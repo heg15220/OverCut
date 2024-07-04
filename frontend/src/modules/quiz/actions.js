@@ -44,6 +44,16 @@ const findQuizByIdCompleted = (quiz) => ({
     type: actionTypes.FIND_QUIZ_BY_ID_COMPLETED,
     quiz
 })
+
+const getAvailableAwardsCompleted = (awards) => ({
+    type: actionTypes.GET_AVAILABLE_AWARDS_COMPLETED,
+    awards
+});
+
+const getAwardCompleted = (award) => ({
+    type:actionTypes.GET_AWARD_COMPLETED,
+    award
+});
 export const createQuiz = (userId, onSuccess, onErrors) => dispatch =>
     backend.quizService.createQuiz(userId, quiz => {
             dispatch(createQuizCompleted(quiz));
@@ -98,4 +108,18 @@ export const findQuizById = (quizId, onSuccess,onErrors) => dispatch =>
         dispatch(findQuizByIdCompleted(quiz));
         onSuccess(quiz);
     },
+        onErrors);
+
+export const getAvailableAwards = (awards, onSuccess,onErrors) => dispatch =>
+    backend.quizService.getAvailableAwards(awards, awards => {
+            dispatch(getAvailableAwardsCompleted(awards));
+            onSuccess(awards);
+        },
+        onErrors);
+
+export const getAward = (award, onSuccess,onErrors) => dispatch =>
+    backend.quizService.getAward(award, award => {
+            dispatch(getAwardCompleted(award));
+            onSuccess(award);
+        },
         onErrors);

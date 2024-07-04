@@ -41,4 +41,8 @@ public interface UserDao extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.id = ?1")
     User findUserById(Long id);
+
+    // Nuevo método para encontrar los puntos de un usuario por ID
+    @Query("SELECT u.points FROM User u WHERE u.id =?1")
+    int findUserPointsById(Long id);
 }

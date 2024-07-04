@@ -210,6 +210,7 @@ public class QuizServiceImpl implements QuizService {
             throw new QuizException("No existe la respuesta");
         }
 
+        User user = userDao.findUserById(userId);
 
         // Crear y guardar la respuesta del usuario
         UserAnswer userAnswer = new UserAnswer(userOptional.get(), questionOptional.get(), answerOptional.get(),
@@ -222,16 +223,10 @@ public class QuizServiceImpl implements QuizService {
         // Verificar si la respuesta es correcta y actualizar los puntos en la tabla Assessment
         if (answerOptional.get().isCorrect()) {
             quiz.setPoints(quiz.getPoints() + points);
+            user.setPoints(user.getPoints() + points);
         }
         quizDao.save(quiz);
-        List<QuizQuestions> quizQuestions = quiz.getQuizQuestions();
-
-        QuizQuestions lastQuizQuestion = quizQuestions.get(quizQuestions.size() - 1);
-        Question question = lastQuizQuestion.getQuestion();
-        if(question.getId() == questionId){
-            createAssessment(quizId,userId);
-            updateAssessmentPoints(userId,quizId,quiz.getPoints());
-        }
+        userDao.save(user);
     }
     @Override
     @Transactional(readOnly = true)
@@ -316,12 +311,20 @@ public class QuizServiceImpl implements QuizService {
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("No user", userId);
         }
+
         User user = userDao.findUserById(userId);
+        int points = getUserPoints(userId);
 
+        List<Award> awards = awardDao.findAllAwards();
 
-        Slice<Award> awards = awardDao.findAwardsAvailableForUser(userId,user.getPoints(),PageRequest.of(page,size));
+        for(Award award : awards){
+            if(award.getRequiredPoints() <= points) award.setUser(user);
+            awardDao.save(award);
+        }
 
-        return new Block<>(awards.getContent(), awards.hasNext());
+        Slice<Award> awards2 = awardDao.findAwardsAvailableForUserByPoints(userId,PageRequest.of(page,size));
+
+        return new Block<>(awards2.getContent(), awards2.hasNext());
     }
 
     @Override
@@ -334,6 +337,16 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz findQuizById(Long quizId){
         return quizDao.findQuizById(quizId);
+    }
+
+    @Override
+    public int getUserPoints(Long userId){
+        return userDao.findUserPointsById(userId);
+    }
+
+    @Override
+    public Award getAward(Long awardId){
+        return awardDao.findAwardById(awardId);
     }
 }
 

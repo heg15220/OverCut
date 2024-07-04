@@ -3,6 +3,7 @@ package es.udc.fic.tfg.rest.controllers;
 import es.udc.fic.tfg.model.common.exceptions.DuplicateInstanceException;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.User;
+import es.udc.fic.tfg.model.services.QuizService;
 import es.udc.fic.tfg.model.services.UserService;
 import es.udc.fic.tfg.model.services.exceptions.IncorrectLoginException;
 import es.udc.fic.tfg.model.services.exceptions.IncorrectPasswordException;
@@ -49,6 +50,9 @@ public class UserController {
     /** The user service. */
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private QuizService quizService;
 
     /**
      * Handle incorrect login exception.
@@ -223,5 +227,10 @@ public class UserController {
         return toUserDto(
                 userService.updateProfile(id, userDto.getFirstName(), userDto.getLastName(), userDto.getEmail()));
 
+    }
+
+    @GetMapping("/{userId}/points")
+    public int getUserPoints(@PathVariable("userId") Long userId){
+        return quizService.getUserPoints(userId);
     }
 }

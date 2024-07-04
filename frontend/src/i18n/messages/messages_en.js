@@ -25,7 +25,9 @@ const en = {
     'project.users.Profile.title': 'Title',
     'project.users.CreatePost.title': 'Create Post',
     'project.users.MyPosts.title': 'MyPosts',
-    'project.app.Header.quiz': 'Quiz'
+    'project.app.Header.quiz': 'Quiz',
+    'project.global.fields.points': 'Points',
+    'project.app.Header.Awards': 'Awards',
 
 }
 export default en;
