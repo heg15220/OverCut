@@ -23,7 +23,21 @@ const Awards = () => {
         if (!Number.isNaN(awardId)) {
             dispatch(actions.getAward(awardId, () => {}, () => {}));
         }
-    }, [award, dispatch]);
+    }, [id, dispatch]);
+
+    const handleChooseAward = (award) => {
+        const awardId = Number(award.id);
+        const userId = Number(user.id); // Asumiendo que 'user' es el estado actual del usuario
+        dispatch(actions.chooseAward({
+            awardId: awardId,
+            userId: userId
+        }, () => {
+            navigate('/');
+        }, () => {
+            setBackendErrors('Hubo un error al seleccionar el premio.');
+        }));
+    };
+
 
     if (!award) {
         return null;
@@ -66,8 +80,16 @@ const Awards = () => {
                             marginTop: '1rem',
                             marginBottom: '1rem',
                         }}>
+                            Puntos requereidos:
                             {award.requiredPoints}
                         </Typography>
+                        <Button
+                            key={award.id}
+                            variant="contained"
+                            onClick={() => handleChooseAward(award)}
+                        >
+                            Escoger Premio
+                        </Button>
                     </CardContent>
                 </Card>
             </Box>

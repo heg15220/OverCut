@@ -1,6 +1,7 @@
 import backend from "../../backend";
 import {appFetch, fetchConfig} from "../../backend/appFetch";
 import * as actionTypes from "../quiz/actionTypes";
+import awards from "./components/Awards";
 
 
 const createQuizCompleted = (quiz) => ({
@@ -54,6 +55,17 @@ const getAwardCompleted = (award) => ({
     type:actionTypes.GET_AWARD_COMPLETED,
     award
 });
+
+const chooseAwardCompleted = (awardId) => ({
+    type:actionTypes.CHOOSE_AWARD_COMPLETED,
+    awardId
+});
+
+const getAwardsSelectedByUserCompleted = (awards) => ({
+    type:actionTypes.GET_AWARDS_SELECTED_BY_USER_COMPLETED,
+    awards
+});
+
 export const createQuiz = (userId, onSuccess, onErrors) => dispatch =>
     backend.quizService.createQuiz(userId, quiz => {
             dispatch(createQuizCompleted(quiz));
@@ -122,4 +134,18 @@ export const getAward = (award, onSuccess,onErrors) => dispatch =>
             dispatch(getAwardCompleted(award));
             onSuccess(award);
         },
+        onErrors);
+
+export const chooseAward = (award, onSuccess,onErrors) => dispatch =>
+    backend.quizService.chooseAward(award, awardId => {
+            dispatch(chooseAwardCompleted(awardId));
+            onSuccess(awardId);
+        },
+        onErrors);
+
+export const getAwardsSelectedByUser = (userAwards, onSuccess, onErrors) => dispatch =>
+    backend.quizService.getAwardsSelectedByUser(userAwards,awards => {
+        dispatch(getAwardsSelectedByUserCompleted(awards));
+        onSuccess(awards);
+    },
         onErrors);

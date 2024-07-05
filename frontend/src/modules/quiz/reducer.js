@@ -12,6 +12,7 @@ const initialState = {
     answers: null,
     awards:null,
     award:null,
+    awardId: null,
 };
 
 const quiz = (state = initialState.quiz, action) => {
@@ -77,7 +78,11 @@ const awards = (state = initialState.awards, action) => {
     if (action.type === actionTypes.GET_AVAILABLE_AWARDS_COMPLETED) {
         return action.awards;
     } else {
-        return state;
+        if(action.type === actionTypes.GET_AWARDS_SELECTED_BY_USER_COMPLETED){
+            return action.awards;
+        }else{
+            return state;
+        }
     }
 }
 const award = (state = initialState.award, action) => {
@@ -88,6 +93,14 @@ const award = (state = initialState.award, action) => {
     }
 }
 
+const awardId = (state = initialState.awardId, action) => {
+    switch (action.type) {
+        case actionTypes.CHOOSE_AWARD_COMPLETED:
+            return action.awardId;
+        default:
+            return state;
+    }
+}
 
 
 
@@ -101,5 +114,6 @@ const reducer = combineReducers({
     answers,
     awards,
     award,
+    awardId,
 });
 export default reducer;

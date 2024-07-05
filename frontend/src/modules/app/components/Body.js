@@ -13,6 +13,7 @@ import QuizList from "../../quiz/components/QuizList";
 import QuestionDetails from "../../quiz/components/QuestionDetails";
 import Awards from "../../quiz/components/Awards";
 import AwardsList from "../../quiz/components/AwardsList";
+import AwardsUserList from "../../quiz/components/AwardsUserList";
 
 
 
@@ -42,6 +43,7 @@ const Body = () => {
                     {loggedIn && <Route path="/question/question-details/:id" element={<QuestionDetails />} />}
                     {loggedIn && <Route path="/user/awards-user" element={<AwardsList />} />}
                     {loggedIn && <Route path="/award/award-details/:id" element={<Awards />} />}
+                    {loggedIn && <Route path="/user/awards" element={<AwardsUserList />} />}
                 </Route>
             </Routes>
         </div>

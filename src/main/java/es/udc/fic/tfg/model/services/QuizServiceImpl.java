@@ -48,6 +48,9 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private AwardDao awardDao;
 
+    @Autowired
+    private UserAwardDao userAwardDao;
+
 
     /**
      * The permission checker.
@@ -276,33 +279,34 @@ public class QuizServiceImpl implements QuizService {
 
 
     @Override
-    public Award chooseAward(Long awardId, Long userId) throws QuizException, InstanceNotFoundException{
+    public Award chooseAward(Long awardId, Long userId) throws QuizException, InstanceNotFoundException {
+        // Verifica si el usuario y el premio existen
+        User user = userDao.findById(userId).orElseThrow(() -> new InstanceNotFoundException("No user", userId));
+        Award award = awardDao.findById(awardId).orElseThrow(() -> new QuizException("Award not found"));
 
-        // Verificar si el usuario existe
-        Optional<User> userOptional = userDao.findById(userId);
-        if (!userOptional.isPresent()) {
-            throw new InstanceNotFoundException("No user", userId);
-        }
-        User user = userDao.findUserById(userId);
-
-        Award award = awardDao.findAwardById(awardId);
-        if(user.getPoints() < award.getRequiredPoints()){
+        // Verifica si el usuario tiene suficientes puntos
+        if (user.getPoints() < award.getRequiredPoints()) {
             throw new QuizException("Not enough points");
         }
 
-        int points = user.getPoints() - award.getRequiredPoints();
+        // Actualiza los puntos del usuario
+        user.setPoints(user.getPoints() - award.getRequiredPoints());
 
-        user.setPoints(points);
-
+        // Guarda la recompensa en la tabla Award
         award.setUser(user);
-
-        userDao.save(user);
-
         awardDao.save(award);
 
-        return award;
+        // Crea una nueva instancia de UserAward para registrar la elección
+        UserAward userAward = new UserAward();
+        userAward.setUser(user);
+        userAward.setAward(award);
 
+        // Guarda la relación en la tabla UserAward
+        userAwardDao.save(userAward);
+
+        return award;
     }
+
 
     @Override
     public Block<Award> getAvailableAwards(Long userId, int page, int size) throws InstanceNotFoundException{
@@ -347,6 +351,12 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Award getAward(Long awardId){
         return awardDao.findAwardById(awardId);
+    }
+
+    @Override
+    public Block<Award> getAwardsSelectedByUser(Long userId, int page, int size){
+        Slice<Award> awards = awardDao.findByUserId(userId, PageRequest.of(page,size));
+        return new Block<>(awards.getContent(),awards.hasNext());
     }
 }
 

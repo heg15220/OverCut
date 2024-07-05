@@ -28,6 +28,7 @@ const en = {
     'project.app.Header.quiz': 'Quiz',
     'project.global.fields.points': 'Points',
     'project.app.Header.Awards': 'Awards',
+    'project.users.MyAwards.title': 'MyAwards',
 
 }
 export default en;

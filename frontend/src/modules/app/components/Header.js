@@ -56,6 +56,9 @@ const Header = () => {
                                     <Link className="dropdown-item" to="/post/my" id="myPosts" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
                                         <FormattedMessage id="project.users.MyPosts.title" />
                                     </Link>
+                                    <Link className="dropdown-item" to="/user/awards" id="myAwards" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
+                                        <FormattedMessage id="project.users.MyAwards.title" />
+                                    </Link>
                                     <div className="dropdown-divider"></div>
                                     <Link className="dropdown-item" to="/users/logout" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
                                         <FormattedMessage id="project.app.Header.logout" />

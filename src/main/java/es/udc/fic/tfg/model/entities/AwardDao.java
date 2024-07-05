@@ -22,4 +22,10 @@ public interface AwardDao extends CrudRepository<Award, Long> {
     List<Award> findAllAwards();
     @Query("SELECT a FROM Award a JOIN FETCH a.user u WHERE a.user.id = u.id AND u.points >= a.requiredPoints")
     Slice<Award> findAwardsAvailableForUserByPoints(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT a FROM Award a WHERE a.user.id = :userId")
+    Slice<Award> getAwardsSelectedByUser(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT DISTINCT a FROM Award a JOIN UserAward ua ON a.id = ua.award.id WHERE ua.user.id = :userId")
+    Slice<Award> findByUserId(@Param("userId") Long userId, Pageable pageable);
 }

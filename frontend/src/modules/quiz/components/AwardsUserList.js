@@ -7,7 +7,7 @@ import * as actions from "../actions";
 import {Pager} from "../../common";
 import AwardItems from "./AwardItems";
 
-const AwardsList = () => {
+const AwardsUserList = () => {
     const dispatch = useDispatch();
     const [currentPage, setCurrentPage] = useState(0);
     const awards = useSelector(selectors.getAvailableAwards);
@@ -15,7 +15,7 @@ const AwardsList = () => {
 
     useEffect(() => {
         if(user) {
-            dispatch(actions.getAvailableAwards({userId: user.id, page: currentPage}, () => {
+            dispatch(actions.getAwardsSelectedByUser({userId: user.id, page: currentPage}, () => {
             }, () => {
             }));
         }
@@ -47,4 +47,4 @@ const AwardsList = () => {
         </Grid>
     );
 };
-export default AwardsList;
+export default AwardsUserList;

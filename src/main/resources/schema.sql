@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS UserAward;
 DROP TABLE IF EXISTS Award;
 DROP TABLE IF EXISTS UserAnswer;
 DROP TABLE IF EXISTS Answer;
@@ -126,6 +127,17 @@ CREATE TABLE Award(
     userId BIGINT,
     CONSTRAINT AwardUserIdFK FOREIGN KEY (userId) REFERENCES Users (id)
 );
+
+
+CREATE TABLE UserAward(
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    userId BIGINT,
+    awardId BIGINT NOT NULL,
+
+    CONSTRAINT AwardUserFK FOREIGN KEY (userId) REFERENCES Users (id),
+    CONSTRAINT AwardUserAwardIdFK FOREIGN KEY (awardId) REFERENCES Award (id)
+);
+
 
 
 

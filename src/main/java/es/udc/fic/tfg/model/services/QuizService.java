@@ -31,4 +31,6 @@ public interface QuizService {
 
     Award getAward(Long awardId);
 
+    Block<Award> getAwardsSelectedByUser(Long userId, int page, int size);
+
 }

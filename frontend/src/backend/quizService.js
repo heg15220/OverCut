@@ -94,3 +94,23 @@ export const getAward = (awardId,onSuccess, onErrors) => {
     );
 };
 
+export const chooseAward = ({awardId,userId},onSuccess, onErrors) => {
+    appFetch(
+        `/quiz/awards/award/${awardId}?userId=${userId}`,
+        fetchConfig("GET"),
+        onSuccess,
+        onErrors
+    );
+};
+
+export const getAwardsSelectedByUser = ({ userId, page }, onSuccess,onErrors) => {
+    appFetch(
+        `/quiz/user/${userId}/userAwards?page=${page}`,
+        fetchConfig("GET"),
+        onSuccess,
+        onErrors
+    );
+};
+
+
+

@@ -92,4 +92,9 @@ public class QuizController {
         return AwardConversor.convertToAwardDto(quizService.getAward(awardId));
     }
 
+    @GetMapping("/user/{userId}/userAwards")
+    public BlockDto<AwardDto> getAwardsSelectedByUser(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page){
+        Block<Award> awards = quizService.getAwardsSelectedByUser(userId, page,2);
+        return new BlockDto<>(AwardConversor.toAwardDtos(awards.getItems()),awards.getExistMoreItems());
+    }
 }
