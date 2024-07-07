@@ -56,12 +56,8 @@ public class NotificationServiceImpl implements NotificationService{
     public void markAsRead(Long notificationId, Long userId) throws InstanceNotFoundException {
         if(userDao.findUserById(userId) == null) throw new InstanceNotFoundException("User not found", userId);
         User user = userDao.findUserById(userId);
-        Notification notification = notificationDao.findNotificationById(notificationId);
-        UserNotification userNotification = new UserNotification();
-        userNotification.setNotification(notification);
-        userNotification.setUser(user);
+        UserNotification userNotification = userNotificationDao.findByIdAndUserId(userId,notificationId);
         userNotification.setRead(true);
-        userNotification.setEvent(notification.getEvent());
         userNotificationDao.save(userNotification);
     }
 
@@ -81,7 +77,7 @@ public class NotificationServiceImpl implements NotificationService{
             throw new InstanceNotFoundException("User not found", userId);
         }
 
-        Slice<UserNotification> userNotifications = userNotificationDao.findByUserId(userId, PageRequest.of(page,size));
+        Slice<UserNotification> userNotifications = userNotificationDao.findUnreadByUserId(userId, PageRequest.of(page,size));
         return new Block<>(userNotifications.getContent(),userNotifications.hasNext());
     }
 }

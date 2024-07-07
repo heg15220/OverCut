@@ -37,7 +37,7 @@ const Notifications = () => {
                                     </div>
                                 </Link>
                                 <button className="btn" onClick={() => {
-                                    dispatch(actions.markAsRead(notification.id, user.id))
+                                    dispatch(actions.markAsRead(notification.id, user.id, () => {}, () => {}))
                                 }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" color="red" height="16" fill="currentColor" className="bi bi-eye-fill" viewBox="0 0 16 16">
                                         <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
