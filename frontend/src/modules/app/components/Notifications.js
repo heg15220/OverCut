@@ -14,7 +14,7 @@ const Notifications = () => {
 
     return (
         <li className="nav-item dropdown">
-            <button className="dropdown-toggle nav-link" style={{ color: '#9900FF' }} type="button" data-bs-toggle="dropdown"
+            <button className="dropdown-toggle nav-link" style={{ color: '#FFFFFF' }} type="button" data-bs-toggle="dropdown"
                     onClick={() => {
                         dispatch(actions.getNotificationsForUser(user.id, 0,() => {}, () => {}))
                     }}>

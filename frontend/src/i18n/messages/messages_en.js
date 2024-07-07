@@ -28,6 +28,7 @@ const en = {
     'project.app.Header.calendar': 'Calendar',
     'project.events.events': 'Events',
     'project.events.events.create': 'Create Event',
+    'project.common.notifications.button': 'Notifications',
 
 
 }
