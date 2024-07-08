@@ -177,3 +177,7 @@ export const modifyComment = (id, comment, onSuccess) => dispatch =>
     backend.postService.modifyComment(id, comment, () => {
         onSuccess();
     });
+
+export const filterPostsByCategory = (categoryId) => (dispatch) => {
+    dispatch(getPosts({ categoryId }));
+};

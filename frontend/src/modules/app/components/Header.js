@@ -1,16 +1,26 @@
 import React from "react";
 import { Link } from 'react-router-dom';
 import users from '../../users';
-import { useSelector } from 'react-redux';
+import * as PostSelector from '../../posts/selectors';
+import {useDispatch, useSelector} from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 
 import image from './Resources/logo.svg';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
+import {filterPostsByCategory} from "../../posts/actions";
 
 const Header = () => {
+    const dispatch = useDispatch();
     const isLogged = useSelector(users.selectors.isLoggedIn);
     const userName = useSelector(users.selectors.getUserName);
     const user = useSelector(users.selectors.getUser);
+    const categories = useSelector(PostSelector.findAllCategories);
+    // Dentro de tu componente Header
+    const handleCategoryChange = (selectedCategoryId) => {
+        dispatch(filterPostsByCategory(selectedCategoryId));
+    };
+
+
 
     return (
         <header>
@@ -23,6 +33,18 @@ const Header = () => {
                         </Link>
                     </a>
                     <ul className="nav pull-xs-right">
+                        {categories && categories.length > 0 ? (
+                            <select onChange={(e) => handleCategoryChange(e.target.value)}>
+                                <option value="">Todas las categorías</option>
+                                {categories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <p>No hay categorías disponibles.</p>
+                        )}
 
                         {isLogged &&
                             <li className="nav-item dropstart">
