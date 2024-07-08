@@ -85,7 +85,7 @@ CREATE TABLE Quiz(
 CREATE TABLE Question(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name LONGTEXT NOT NULL,
-    imagePath VARCHAR(1024),
+    imagePath VARCHAR(2048),
     knowledgequestionlevel BIGINT NOT NULL
 );
 
@@ -163,7 +163,7 @@ INSERT INTO Award(award,requiredPoints)
 VALUES ('Thrustmaster T150', 8);
 
 INSERT INTO Question (name, imagePath,knowledgequestionlevel)
-VALUES ('¿Cuál es el nombre de esta escuderia?','/static/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);
+VALUES ('¿Cuál es el nombre de esta escuderia?','src/main/resources/static/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Mercedes AMG Petronas', false, 1);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Toyota', false, 1);

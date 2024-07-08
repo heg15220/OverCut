@@ -8,6 +8,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { Grid } from '@mui/material';
 import {useNavigate, useParams} from "react-router-dom";
+import {FormattedMessage} from "react-intl";
 
 const Awards = () => {
     const {id} = useParams();
@@ -71,7 +72,6 @@ const Awards = () => {
                             {award.award}
                         </Typography>
 
-
                         <Typography variant="h5" component="div" sx={{
                             fontSize: '2rem',
                             fontWeight: 'bold',
@@ -80,15 +80,16 @@ const Awards = () => {
                             marginTop: '1rem',
                             marginBottom: '1rem',
                         }}>
-                            Puntos requereidos:
+                            <FormattedMessage id="project.entities.AwardDetails.Points"></FormattedMessage>
                             {award.requiredPoints}
                         </Typography>
+
                         <Button
                             key={award.id}
                             variant="contained"
                             onClick={() => handleChooseAward(award)}
                         >
-                            Escoger Premio
+                            <FormattedMessage id="project.entities.AwardDetails.Button"> </FormattedMessage>
                         </Button>
                     </CardContent>
                 </Card>

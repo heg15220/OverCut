@@ -29,6 +29,8 @@ const en = {
     'project.global.fields.points': 'Points',
     'project.app.Header.Awards': 'Awards',
     'project.users.MyAwards.title': 'MyAwards',
+    'project.entities.AwardDetails.Points': 'Requiered Points: ',
+    'project.entities.AwardDetails.Button': 'Choose Award',
 
 }
 export default en;

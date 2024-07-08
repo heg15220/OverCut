@@ -7,12 +7,11 @@ import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { Grid } from '@mui/material';
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const QuestionDetails = ({ question, onAnswerSubmit }) => {
     const user = useSelector(userSelectors.getUser);
     const dispatch = useDispatch();
-
     const navigate = useNavigate();
     const [backendErrors, setBackendErrors] = useState(null);
     const [success, setSuccess] = useState(null);
@@ -20,7 +19,7 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
     const quiz = useSelector(selectors.findQuiz);
     const [responseState, setResponseState] = useState({});
     const [totalScore, setTotalScore] = useState(0);
-    const requiredScore = 5; // Corrección aquí
+    const [showCorrectAnswer, setShowCorrectAnswer] = useState(false); // Nuevo estado para mostrar la respuesta correcta
 
     useEffect(() => {
         const questionId = Number(question.id);
@@ -34,7 +33,7 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
         return null;
     }
 
-    const srcImage = question.imagePath? "data:image/jpg;base64," + question.imagePath : null;
+    const srcImage = question.imagePath ? question.imagePath : null;
 
     const handleSelectAnswer = (answer) => {
         const questionId = Number(question.id);
@@ -51,6 +50,11 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
             [answer.id]: { isSelected: true, isCorrect: answer.correct }
         }));
 
+        // Si la respuesta es incorrecta, muestra la respuesta correcta
+        if (!answer.correct) {
+            setShowCorrectAnswer(true);
+        }
+
         // Dentro de handleSelectAnswer:
         if (answer.correct) {
             setTotalScore(totalScore + 1);
@@ -63,6 +67,7 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                 [answer.id]: { isSelected: false }
             }));
             onAnswerSubmit(); // Llama a onAnswerSubmit para avanzar a la siguiente pregunta
+            setShowCorrectAnswer(false); // Oculta la respuesta correcta después de un tiempo
         }, 2000); // Espera 2 segundos antes de llamar a onAnswerSubmit
     };
 
@@ -128,6 +133,11 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                                             </>
                                         )}
                                     </>
+                                    {showCorrectAnswer && !answer.correct && (
+                                        <Typography variant="body2" color="textSecondary">
+                                            La respuesta correcta es: {answers.find(a => a.correct)?.name}
+                                        </Typography>
+                                    )}
                                 </Button>
                             </Grid>
                         ))}

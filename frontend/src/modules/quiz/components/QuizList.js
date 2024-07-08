@@ -31,18 +31,6 @@ const QuizList = () => {
             <Grid item xs={12}>
                 <QuizQuestions questions={questions} />
                 <Grid container direction="column" alignItems="center" justifyContent="center" sx={{ mt: 2 }}>
-                    {questions && (
-                        <Pager
-                            back={{
-                                enabled: currentPage > 0,
-                                onClick: () => handlePageChange(currentPage - 1),
-                            }}
-                            next={{
-                                enabled: currentPage < questions.totalPages - 1,
-                                onClick: () => handlePageChange(currentPage + 1),
-                            }}
-                        />
-                    )}
                 </Grid>
             </Grid>
         </Grid>
