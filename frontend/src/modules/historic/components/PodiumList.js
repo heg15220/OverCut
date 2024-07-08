@@ -27,7 +27,7 @@ const PodiumList = () => {
 
     return (
         <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1200 }}>
-            <Typography variant="h4" align="center">Podios por Circuito</Typography>
+            <Typography variant="h4" align="center"><FormattedMessage id="project.entities.Podiums"></FormattedMessage></Typography>
             <Grid container spacing={2} justifyContent="center" alignItems="center">
                 <Grid item xs={12}> {/* Contenedor para los podios y la paginación */}
                     <Podiums podiums={podiums} />

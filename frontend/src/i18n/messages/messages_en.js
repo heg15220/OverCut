@@ -26,7 +26,13 @@ const en = {
     'project.users.CreatePost.title': 'Create Post',
     'project.users.MyPosts.title': 'MyPosts',
     'project.app.Header.historic': 'Historic',
-    'project.modules.historic.podiums': 'Podiums'
-
+    'project.modules.historic.podiums': 'Podiums',
+    'project.entities.PodiumDetails.date':'Event Date',
+    'project.entities.PodiumDetails.winner': 'Winner',
+    'project.entities.PodiumDetails.TeamWinner':'Team Winner',
+    'project.entities.PodiumDetails.second': 'Second Place',
+    'project.entities.PodiumDetails.third':'Third Place',
+    'project.entities.Circuits': 'F1 Circuits',
+    'project.entities.Podiums': 'Podiums',
 }
 export default en;

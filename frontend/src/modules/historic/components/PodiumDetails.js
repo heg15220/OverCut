@@ -77,23 +77,23 @@ const PodiumDetails = () => {
                             <Table aria-label="simple table">
                                 <TableBody>
                                     <TableRow>
-                                        <TableCell><strong>Fecha del Evento</strong></TableCell>
+                                        <TableCell><strong><FormattedMessage id="project.entities.PodiumDetails.date"></FormattedMessage></strong></TableCell>
                                         <TableCell>{podium.date}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell><strong>Ganador</strong></TableCell>
+                                        <TableCell><strong><FormattedMessage id="project.entities.PodiumDetails.winner"></FormattedMessage></strong></TableCell>
                                         <TableCell>{podium.winner}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell><strong>Equipo Ganador</strong></TableCell>
+                                        <TableCell><strong><FormattedMessage id="project.entities.PodiumDetails.TeamWinner"></FormattedMessage></strong></TableCell>
                                         <TableCell>{podium.teamWinner}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell><strong>Segundo Lugar</strong></TableCell>
+                                        <TableCell><strong><FormattedMessage id="project.entities.PodiumDetails.second"></FormattedMessage></strong></TableCell>
                                         <TableCell>{podium.secondPlace}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell><strong>Tercer Lugar</strong></TableCell>
+                                        <TableCell><strong><FormattedMessage id="project.entities.PodiumDetails.third"></FormattedMessage></strong></TableCell>
                                         <TableCell>{podium.thirdPlace}</TableCell>
                                     </TableRow>
                                     <TableRow>
