@@ -27,7 +27,7 @@ const EventsList = () => {
 
     return (
         <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1200 }}>
-            <Typography variant="h4" align="center">Eventos</Typography>
+            <Typography variant="h4" align="center"><FormattedMessage id = "project.entities.Events"/></Typography>
             <li className="nav-item">
                 <Link className="nav-link" to={`/events/create`} style={{ color: 'black' }}>
                     <FormattedMessage id="project.events.events.create" />

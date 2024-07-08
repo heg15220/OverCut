@@ -86,21 +86,21 @@ const EventDetails = () => {
                     <Table aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                <TableCell><strong>Evento:</strong></TableCell>
+                                <TableCell> <strong><FormattedMessage id = "project.entities.EventDetails.name"/></strong></TableCell>
                                 <TableCell>{event.name}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             <TableRow>
-                                <TableCell><strong>Descripcion:</strong></TableCell>
+                                <TableCell><strong><FormattedMessage id = "project.entities.EventDetails.description"/></strong></TableCell>
                                 <TableCell>{event.description}</TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell><strong>Localizacion:</strong></TableCell>
+                                <TableCell><strong><FormattedMessage id = "project.entities.EventDetails.location"/></strong></TableCell>
                                 <TableCell>{event.location}</TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell><strong>Fecha:</strong></TableCell>
+                                <TableCell><strong><FormattedMessage id = "project.entities.EventDetails.date"/></strong></TableCell>
                                 <TableCell>
                                     {new Date(event.date).toLocaleDateString('default', {
                                         day: 'numeric',
@@ -111,14 +111,15 @@ const EventDetails = () => {
                             </TableRow>
 
                             <TableRow>
-                                <TableCell><strong>Imagen:</strong></TableCell>
+                                <TableCell><strong><FormattedMessage id = "project.entities.EventDetails.image"/></strong></TableCell>
                                 <TableCell>
                                     <img src={srcImage} alt="Circuit Image" style={{ width: '100%' }} />
                                 </TableCell>
                             </TableRow>
                             <div>
                                 {/* Otros elementos del detalle del evento */}
-                                <button onClick={handleCreateNotificationClick}>Crear Notificación</button>
+                                <button onClick={handleCreateNotificationClick}>
+                                    <FormattedMessage id = "project.entities.EventDetails.button"/></button>
                             </div>
                         </TableBody>
                     </Table>
