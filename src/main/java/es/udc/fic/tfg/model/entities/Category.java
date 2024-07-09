@@ -22,6 +22,7 @@ public class Category {
 
     private List<Post> posts;
 
+    private List<Circuit> circuits;
 
     public Category(){
 
@@ -75,5 +76,14 @@ public class Category {
 
     public void setPosts(List<Post> posts) {
         this.posts = posts;
+    }
+
+    @OneToMany(mappedBy = "category")
+    public List<Circuit> getCircuits() {
+        return circuits;
+    }
+
+    public void setCircuits(List<Circuit> circuits) {
+        this.circuits = circuits;
     }
 }

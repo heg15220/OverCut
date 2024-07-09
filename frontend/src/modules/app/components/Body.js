@@ -1,19 +1,28 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import './App.css'
 
-
-
-import users, {Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout} from '../../users';
+import users, { Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout } from '../../users';
 import Home from "./Home";
-import {AddImage, CreatePost, ModifyPost, PostDetails, UserPostList} from "../../posts";
 import {Quiz} from "../../quiz";
 import QuizList from "../../quiz/components/QuizList";
 import QuestionDetails from "../../quiz/components/QuestionDetails";
 import Awards from "../../quiz/components/Awards";
 import AwardsList from "../../quiz/components/AwardsList";
 import AwardsUserList from "../../quiz/components/AwardsUserList";
+
+import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
+import {
+    Circuits,
+    CircuitDetailsModal,
+    CircuitDetails,
+    CircuitList,
+    AllCircuits,
+    PodiumDetails,
+    PodiumList
+} from '../../historic';
+
 
 
 
@@ -44,6 +53,14 @@ const Body = () => {
                     {loggedIn && <Route path="/user/awards-user" element={<AwardsList />} />}
                     {loggedIn && <Route path="/award/award-details/:id" element={<Awards />} />}
                     {loggedIn && <Route path="/user/awards" element={<AwardsUserList />} />}
+                    <Route path="/circuits" element={<Circuits />} />
+                    <Route path="/historic/circuits/circuit/:id}" element={<CircuitDetailsModal />} />
+                    <Route path="/circuits/category/:id" element={<CircuitList />} />
+                    <Route path="/circuit/circuit-details/:id" element={<CircuitDetails />} />
+                    <Route path="/circuits/category/3`" element={<AllCircuits />} />
+                    <Route path='/circuit/circuit-details/:id' element={<CircuitDetails />} />
+                    <Route path='/circuit/circuit-details/podium/podium-details/:id' element={<PodiumDetails />} />
+                    <Route path='/circuit/podiums' element={<PodiumList />} />
                 </Route>
             </Routes>
         </div>

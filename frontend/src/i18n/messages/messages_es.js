@@ -7,6 +7,14 @@ const es = {
     'project.users.MyAwards.title': 'Mis Recompensas',
     'project.entities.AwardDetails.Points': 'Puntos requeridos: ',
     'project.entities.AwardDetails.Button': 'Canjear Premio',
-
+    'project.app.Header.historic': 'Historico',
+    'project.modules.historic.podiums': 'Podios',
+    'project.entities.PodiumDetails.date':'Fecha',
+    'project.entities.PodiumDetails.winner': 'Ganador',
+    'project.entities.PodiumDetails.TeamWinner':'Equipo ganador',
+    'project.entities.PodiumDetails.second': 'Segundo Puesto',
+    'project.entities.PodiumDetails.third':'Tercer Puesto',
+    'project.entities.Circuits': 'Circuitos F1',
+    'project.entities.Podiums': 'Podios',
 }
 export default es;

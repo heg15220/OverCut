@@ -31,6 +31,15 @@ const en = {
     'project.users.MyAwards.title': 'MyAwards',
     'project.entities.AwardDetails.Points': 'Requiered Points: ',
     'project.entities.AwardDetails.Button': 'Choose Award',
+    'project.app.Header.historic': 'Historic',
+    'project.modules.historic.podiums': 'Podiums',
+    'project.entities.PodiumDetails.date':'Event Date',
+    'project.entities.PodiumDetails.winner': 'Winner',
+    'project.entities.PodiumDetails.TeamWinner':'Team Winner',
+    'project.entities.PodiumDetails.second': 'Second Place',
+    'project.entities.PodiumDetails.third':'Third Place',
+    'project.entities.Circuits': 'F1 Circuits',
+    'project.entities.Podiums': 'Podiums',
 
 }
 export default en;

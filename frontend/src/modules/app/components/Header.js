@@ -27,6 +27,9 @@ const Header = () => {
                             <Link className="nav-link" to={`/category/2`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.quiz" />
                             </Link>
+                            <Link className="nav-link" to={`/circuits/category/3`} style={{ color: 'white' }}>
+                                <FormattedMessage id="project.app.Header.historic" />
+                            </Link>
                         </li>
 
                         <li className="nav-item">
@@ -93,7 +96,7 @@ const Header = () => {
                     </ul >
                 </nav >
             </div>
-        </header >
+        </header>
     );
 };
 

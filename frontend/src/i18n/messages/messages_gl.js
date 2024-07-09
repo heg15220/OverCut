@@ -7,5 +7,14 @@ const gl = {
     'project.users.MyAwards.title': 'As miñas Recompensas',
     'project.entities.AwardDetails.Points': 'Puntos requeridos: ',
     'project.entities.AwardDetails.Button': 'Escoller Premio',
+    'project.app.Header.historic': 'Historico',
+    'project.modules.historic.podiums': 'Podios',
+    'project.entities.PodiumDetails.date':'Data',
+    'project.entities.PodiumDetails.winner': 'Gañador',
+    'project.entities.PodiumDetails.TeamWinner':'Equipo gañador',
+    'project.entities.PodiumDetails.second': 'Segundo Posto',
+    'project.entities.PodiumDetails.third':'Tercer Posto',
+    'project.entities.Circuits': 'Circuitos F1',
+    'project.entities.Podiums': 'Podios',
 }
 export default gl;
