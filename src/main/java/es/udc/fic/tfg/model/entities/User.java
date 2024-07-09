@@ -44,12 +44,14 @@ public class User {
 
     /** The list of comments to posts */
     private List<Comment> comments;
-
     private List<UserAnswer> userAnswers;
 
     private List<Assessment> assessments;
 
     private List<Award> awards;
+
+    private List<UserNotification> userNotifications;
+
 
     /**
      * Constructor with no parameters
@@ -282,4 +284,12 @@ public class User {
         this.awards = awards;
     }
 
+    @OneToMany(mappedBy = "user")
+    public List<UserNotification> getUserNotifications() {
+        return userNotifications;
+    }
+
+    public void setUserNotifications(List<UserNotification> userNotifications) {
+        this.userNotifications = userNotifications;
+    }
 }

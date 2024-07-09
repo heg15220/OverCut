@@ -8,8 +8,11 @@ import * as postService from "./postService";
 import * as quizService from "./quizService"
 
 import * as historicService from "./historicService";
+import * as eventService from "./eventService";
 
-const backExport = { init, NetworkError, userService, postService,quizService, historicService}
+
+const backExport = { init, NetworkError, userService,
+    postService,quizService, historicService,eventService}
 
 
 export default backExport;

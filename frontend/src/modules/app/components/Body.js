@@ -23,6 +23,10 @@ import {
     PodiumList
 } from '../../historic';
 
+import {MyCalendar} from "../../events";
+import EventDetails from "../../events/components/EventDetails";
+import CreateEventForm from "../../events/components/CreateEventForm";
+import EventsList from "../../events/components/EventsList";
 
 
 
@@ -61,6 +65,10 @@ const Body = () => {
                     <Route path='/circuit/circuit-details/:id' element={<CircuitDetails />} />
                     <Route path='/circuit/circuit-details/podium/podium-details/:id' element={<PodiumDetails />} />
                     <Route path='/circuit/podiums' element={<PodiumList />} />
+                    {loggedIn && <Route path="/events/create" element={<CreateEventForm/>}/>}
+                    {loggedIn && <Route path="/events/event-list" element={<EventsList/>}/>}
+                    <Route path="/calendar" element={<MyCalendar />} />
+                    <Route path="/event/event-details/:id" element={<EventDetails />} />
                 </Route>
             </Routes>
         </div>

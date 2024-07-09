@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import users from '../../users';
 import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
+import Notifications from "./Notifications";
+
 
 import image from './Resources/logo.svg';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
@@ -22,13 +24,30 @@ const Header = () => {
                             OverCut
                         </Link>
                     </a>
+
                     <ul className="nav pull-xs-right">
                         <li className="nav-item">
                             <Link className="nav-link" to={`/category/2`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.quiz" />
                             </Link>
-                            <Link className="nav-link" to={`/circuits/category/3`} style={{ color: 'white' }}>
+                        </li>
+                        <li className="nav-item">
+                        <Link className="nav-link" to={`/circuits/category/3`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.historic" />
+                            </Link>
+                        </li>
+                        {isLogged &&
+                            <Notifications />
+                        }
+                        <li className="nav-item">
+                            <Link className="nav-link" to={`/events/event-list`} style={{ color: 'white' }}>
+                                <FormattedMessage id="project.events.events" />
+                            </Link>
+                        </li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link" to={`/calendar`} style={{ color: 'white' }}>
+                                <FormattedMessage id="project.app.Header.calendar" />
                             </Link>
                         </li>
 
@@ -91,8 +110,11 @@ const Header = () => {
                                 <Link className="nav-link" to="/users/signUp" id="singUp" style={{ color: 'white' }}>
                                     <font color="#FFFFF0"><FormattedMessage id="project.users.SignUp.title" /></font>
                                 </Link >
-                            </li >
+                            </li>
+
                         }
+
+
                     </ul >
                 </nav >
             </div>

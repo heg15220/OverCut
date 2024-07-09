@@ -10,6 +10,7 @@ const persistConfig = {
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+// Aplica redux-thunk como middleware
 const store = configureStore({
     reducer: persistedReducer,
 });

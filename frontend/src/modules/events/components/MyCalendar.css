@@ -1,0 +1,11 @@
+/* Ajusta la dirección de flexión a row */
+.rbc-calendar.rbc-week-row >.rbc-time-cell {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Asegura que los días del mes se muestren horizontalmente */
+.rbc-calendar.rbc-month-row >.rbc-date-cell {
+    display: flex;
+    flex-direction: row;
+}

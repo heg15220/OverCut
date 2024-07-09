@@ -57,8 +57,9 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/historic/circuit/{id}/podiums")).permitAll()
                         .requestMatchers(antMatcher("/api/historic/circuits/circuit/{id}")).permitAll()
                         .requestMatchers(antMatcher("/api/historic/circuit/podiums/podium/{id}")).permitAll()
-
-
+                        .requestMatchers(antMatcher("/api/events/*")).permitAll()
+                        .requestMatchers(antMatcher("/api/events/*/notifications")).permitAll()
+                        .requestMatchers(antMatcher("/api/events/event/*")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -7,6 +7,9 @@ DROP TABLE IF EXISTS Question;
 DROP TABLE IF EXISTS Quiz;
 DROP TABLE IF EXISTS Assessment;
 DROP TABLE IF EXISTS Comment;
+DROP TABLE IF EXISTS UserNotification;
+DROP TABLE IF EXISTS Notification;
+DROP TABLE IF EXISTS Event;
 DROP TABLE IF EXISTS Post;
 DROP TABLE IF EXISTS Podium;
 DROP TABLE IF EXISTS Circuit;
@@ -163,6 +166,36 @@ CREATE TABLE UserAward(
     CONSTRAINT AwardUserAwardIdFK FOREIGN KEY (awardId) REFERENCES Award (id)
 );
 
+
+CREATE TABLE Event (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    date DATE NOT NULL,
+    location VARCHAR(255),
+    imageUrl VARCHAR(1024),
+    CONSTRAINT UniqueEventName UNIQUE (name)
+);
+
+
+CREATE TABLE Notification (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    message TEXT NOT NULL,
+    createdAt DATE NOT NULL,
+    eventId BIGINT,
+    FOREIGN KEY (eventId) REFERENCES Event(id)
+);
+
+CREATE TABLE UserNotification (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    notificationId BIGINT NOT NULL,
+    userId BIGINT NOT NULL,
+    read BOOLEAN DEFAULT FALSE,
+    eventId BIGINT NOT NULL,
+    FOREIGN KEY (notificationId) REFERENCES Notification(id),
+    FOREIGN KEY (userId) REFERENCES Users(id),
+    FOREIGN KEY (eventId) REFERENCES Event(id)
+);
 
 
 
@@ -467,3 +500,6 @@ VALUES('Nico Rosberg', '2016','Mercedes','Max Verstappen','Lewis Hamilton', null
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
 VALUES('Lewis Hamilton', '2015','Mercedes','Nico Rosberg','Sebastian Vettel', null, 3);
+
+INSERT INTO Event (name,description,date,location,imageUrl) VALUES ('Bahrein GP', 'First round of the F1 season','2024-07-05','Bahrein',null);
+
