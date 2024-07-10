@@ -139,7 +139,7 @@ CREATE TABLE Circuit(
     distance BIGINT NOT NULL,
     numberLaps BIGINT NOT NULL,
     teamSuccess VARCHAR(120) NOT NULL,
-    image varbinary(max),
+    image VARCHAR(255),
     categoryId BIGINT NOT NULL,
     CONSTRAINT CategoryIdCircuitMapFK FOREIGN KEY (categoryId) REFERENCES Category (id) ON DELETE CASCADE
 );
@@ -398,18 +398,19 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('1998', false, 20);
 
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
-VALUES('Bahrein',5412,57,'Ferrari', '/static/images/Bahrain_Circuit.jpg',2);
+VALUES('Bahrein',5412,57,'Ferrari', 'Bahrain_Circuit.jpg',2);
 
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
-VALUES('Saudi Arabia',6200,50,'Red Bull', '/static/images/jeddah.jpg',2);
+VALUES('Saudi Arabia',6200,50,'Red Bull', 'jeddah.jpg',2);
 
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
-VALUES('Australia',5300,58,'Ferrari', '/static/images/Australia_Circuit.jpg',2);
+VALUES('Australia',5300,58,'Ferrari', 'Australia_Circuit.jpg',2);
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
-VALUES('Japan',5807,53,'Red Bull','/static/images/Suzuka.jpg',2);
+VALUES('Japan',5807,53,'Red Bull','Suzuka.jpg',2);
+
 
 INSERT INTO Podium(winner,date, teamWinner, secondPlace, thirdPlace, image,circuitId)
 VALUES('Max Verstappen', '2024','RedBull','Perez','Sainz',null,1);

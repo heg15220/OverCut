@@ -15,8 +15,8 @@ public class Circuit {
 
     private String teamSuccess;
 
-    @Lob
-    private byte[] image;
+
+    private String image;
 
     private Category category;
 
@@ -27,7 +27,7 @@ public class Circuit {
 
     }
 
-    public Circuit(Long distance, Long numberLaps, String teamSuccess, byte[] image, Category category) {
+    public Circuit(Long distance, Long numberLaps, String teamSuccess, String image, Category category) {
         this.distance = distance;
         this.numberLaps = numberLaps;
         this.teamSuccess = teamSuccess;
@@ -35,7 +35,7 @@ public class Circuit {
         this.category = category;
     }
 
-    public Circuit(String name,Long distance, Long numberLaps, String teamSuccess, byte[] image, Category category) {
+    public Circuit(String name,Long distance, Long numberLaps, String teamSuccess, String image, Category category) {
         this.name = name;
         this.distance = distance;
         this.numberLaps = numberLaps;
@@ -86,11 +86,11 @@ public class Circuit {
         this.teamSuccess = teamSuccess;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 

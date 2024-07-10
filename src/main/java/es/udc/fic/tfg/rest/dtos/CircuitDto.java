@@ -13,12 +13,12 @@ public class CircuitDto {
 
     private String teamSuccess;
 
-    @Lob
-    private byte[] image;
+
+    private String image;
 
     private Long categoryId;
 
-    public CircuitDto(Long id, String name,Long distance, Long numberLaps, String teamSuccess, byte[] image, Long categoryId) {
+    public CircuitDto(Long id, String name,Long distance, Long numberLaps, String teamSuccess, String image, Long categoryId) {
         this.id = id;
         this.name = name;
         this.distance = distance;
@@ -68,11 +68,11 @@ public class CircuitDto {
         this.teamSuccess = teamSuccess;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 

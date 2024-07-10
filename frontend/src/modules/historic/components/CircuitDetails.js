@@ -16,6 +16,7 @@ const CircuitDetails = () => {
     const user = useSelector(userSelectors.getUser);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const circuitImages = require.context('../../../assests/images', true);
     const [backendErrors, setBackendErrors] = useState(null);
     const [success, setSuccess] = useState(null);
     const formRef = useRef(null);
@@ -39,7 +40,7 @@ const CircuitDetails = () => {
         return null;
     }
 
-    const srcImage = circuit.image? "data:image/jpg;base64," + circuit.image : null;
+    const imagePath = `/static/${circuit.image}`;
 
     return (
         <Container sx={{ marginTop: 0 }}>
@@ -76,7 +77,11 @@ const CircuitDetails = () => {
                             <TableRow>
                                 <TableCell><strong>Imagen:</strong></TableCell>
                                 <TableCell>
-                                    <img src={srcImage} alt="Circuit Image" style={{ width: '100%' }} />
+                                    <img
+                                        src={circuitImages(`./${circuit.image}`)}
+                                        alt= "Circuit Image"
+                                        style={{ width: '100%' }}
+                                    />
                                 </TableCell>
                             </TableRow>
                             <TableRow>
