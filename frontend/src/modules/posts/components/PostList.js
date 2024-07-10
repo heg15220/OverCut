@@ -4,7 +4,7 @@ import PostListItem from './PostListItem'; // Asume que PostListItem es el compo
 
 const PostsList = ({posts}) => {
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', justifyItems: 'start' }}>
             {posts.result.items.map((post, index) => (
                 <PostListItem key={index} post={post} />
             ))}

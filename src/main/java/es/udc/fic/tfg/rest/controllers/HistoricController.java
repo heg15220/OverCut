@@ -23,7 +23,7 @@ public class HistoricController {
     @GetMapping("/{id}/circuits")
     public BlockDto<CircuitDto> getCircuits(@PathVariable("id") Long categoryId, @RequestParam(defaultValue = "0") int page)
             throws InstanceNotFoundException{
-        Block<Circuit> foundCircuits = historicService.getCircuits(categoryId,page,2);
+        Block<Circuit> foundCircuits = historicService.getCircuits(categoryId,page,30);
         return new BlockDto<>(CircuitDtoConversor.toCircuitDtos(foundCircuits.getItems()), foundCircuits.getExistMoreItems());
     }
 
@@ -31,7 +31,7 @@ public class HistoricController {
     public  BlockDto<PodiumDto> getPodiumsByCircuit(@PathVariable("id") Long circuitId,
                                               @RequestParam(defaultValue = "0") int page)
             throws InstanceNotFoundException{
-        Block<Podium> foundPodiums = historicService.getPodiumsByCircuit(circuitId,page,2);
+        Block<Podium> foundPodiums = historicService.getPodiumsByCircuit(circuitId,page,20);
         return new BlockDto<>(PodiumDtoConversor.toPodiumDtos(foundPodiums.getItems()), foundPodiums.getExistMoreItems());
     }
 

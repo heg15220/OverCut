@@ -7,7 +7,7 @@ const Podiums = ({ podiums }) => {
     return (
         <div>
             {podiums && podiums.items.length > 0? (
-                <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', justifyItems: 'start', border: 'none'  }}>
                     {podiums.items.map(podium =>
                         <PodiumListItem key={podium.id} podium={podium} />
                     )}

@@ -33,16 +33,6 @@ const PodiumList = () => {
                 <Grid item xs={12}> {/* Contenedor para los podios y la paginación */}
                     <Podiums podiums={podiums} />
                     <Grid container direction="column" alignItems="center" justifyContent="center" sx={{ mt: 2 }}> {/* Contenedor para la paginación */}
-                        {podiums && (<Pager
-                            back={{
-                                enabled: page > 0,
-                                onClick: () => handlePageChange(page - 1)
-                            }}
-                            next={{
-                                enabled: true,
-                                onClick: () => handlePageChange(page + 1)
-                            }}
-                        />)}
                     </Grid>
                 </Grid>
             </Grid>

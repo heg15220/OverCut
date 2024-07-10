@@ -67,7 +67,7 @@ const PostListItem = ({ post }) => {
             >
                 {post.title}
             </Typography>
-            {/* Subtítulo con el nuevo estilo */}
+
             <Typography variant="body2" color="text.secondary" sx={{
                 fontSize: '1.2rem',
                 fontStyle: 'italic',
