@@ -53,7 +53,7 @@ const AllPostList = () => {
     }, [dispatch, categoryId, title, criteria, order]);
 
     return (
-        <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1200 }}>
+        <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1800 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <Grid container spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 2 }}>
                     <Grid item xs={12} sm={6} md={4}>
@@ -142,18 +142,6 @@ const AllPostList = () => {
                 </Grid>
                 <Box sx={{ width: '100%', p: 5 }}>
                     <PostList posts={posts} />
-                    {posts && (
-                        <Pager
-                            back={{
-                                enabled: posts.criteria.page >= 1,
-                                onClick: () => dispatch(actions.previousGetPosts(posts.criteria))
-                            }}
-                            next={{
-                                enabled: posts.result.existMoreItems,
-                                onClick: () => dispatch(actions.nextGetPosts(posts.criteria))
-                            }}
-                        />
-                    )}
                 </Box>
             </Box>
         </Paper>

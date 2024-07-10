@@ -105,7 +105,7 @@ public class PostController {
                                       @Validated @RequestParam(required = false) Short criteria,
                                       @Validated @RequestParam(required = false, defaultValue = "false") Boolean order) throws InstanceNotFoundException {
 
-        Block<Post> foundPost = postService.getPosts(title, categoryId, page,2, criteria, order);
+        Block<Post> foundPost = postService.getPosts(title, categoryId, page,400, criteria, order);
 
         return new BlockDto<>(PostConversor.toPostDtos(foundPost.getItems()), foundPost.getExistMoreItems());
     }

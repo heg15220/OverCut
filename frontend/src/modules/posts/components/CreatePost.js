@@ -58,7 +58,7 @@ const CreatePost = () => {
 
     return (
         <ThemeProvider theme={defaultTheme}>
-            <Container component="main" maxWidth="xs">
+            <Container component="main" maxWidth="false">
                 <CssBaseline />
                 <Box
                     sx={{
@@ -69,8 +69,7 @@ const CreatePost = () => {
                         width: '100%',
                     }}
                 >
-
-                <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
@@ -139,6 +138,7 @@ const CreatePost = () => {
                     </Box>
                 </Box>
             </Container>
+
         </ThemeProvider>
     );
 }
