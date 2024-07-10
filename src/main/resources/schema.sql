@@ -151,7 +151,7 @@ CREATE TABLE Podium(
     teamWinner LONGTEXT NOT NULL,
     secondPlace LONGTEXT,
     thirdPlace LONGTEXT,
-    image varbinary(max),
+    image VARCHAR(255),
     circuitId BIGINT NOT NULL,
     CONSTRAINT CircuitIdPodiumFK FOREIGN KEY (circuitId) REFERENCES Circuit (id) ON DELETE CASCADE
 );
@@ -413,46 +413,46 @@ VALUES('Japan',5807,53,'Red Bull','Suzuka.jpg',2);
 
 
 INSERT INTO Podium(winner,date, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Max Verstappen', '2024','RedBull','Perez','Sainz',null,1);
+VALUES('Max Verstappen', '2024','RedBull','Perez','Sainz','17093981925136.jpg',1);
 
 INSERT INTO Podium(winner,date, teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Max Verstappen', '2023','RedBull','Perez','Alonso',null,1);
+VALUES('Max Verstappen', '2023','RedBull','Perez','Alonso','images.jpg',1);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Charles Leclerc', '2022','Ferrari','Sainz','Hamilton',null,1);
+VALUES('Charles Leclerc', '2022','Ferrari','Sainz','Hamilton','OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg',1);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Lewis Hamilton', '2021','Mercedes','Verstappen','Bottas',null,1);
+VALUES('Lewis Hamilton', '2021','Mercedes','Verstappen','Bottas','16172011568663.jpg',1);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Lewis Hamilton','2020','Mercedes','Verstappen','Albon',null,1);
+VALUES('Lewis Hamilton','2020','Mercedes','Verstappen','Albon','lewis-hamilton-2151739.jpg',1);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Lewis Hamilton', '2019','Mercedes','Bottas','Leclerc',null,1);
+VALUES('Lewis Hamilton', '2019','Mercedes','Bottas','Leclerc','hamilton-bahrein-2019.jpg',1);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Sebastian Vettel', '2018','Ferrari','Bottas','Hamilton',null,1);
+VALUES('Sebastian Vettel', '2018','Ferrari','Bottas','Hamilton','victoria-vettel-gp-bahrein.jpg',1);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Sebastian Vettel', '2017','Ferrari','Hamilton','Bottas',null,1);
+VALUES('Sebastian Vettel', '2017','Ferrari','Hamilton','Bottas','14923709613710.jpg',1);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Nico Rosberg', '2016','Mercedes','Raikkonen','Hamilton',null,1);
+VALUES('Nico Rosberg', '2016','Mercedes','Raikkonen','Hamilton','images2.jpg',1);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Lewis  Hamilton', '2015','Mercedes','Raikkonen','Rosberg', null, 1);
+VALUES('Lewis  Hamilton', '2015','Mercedes','Raikkonen','Rosberg','5fa278007fde0.jpg' , 1);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Max Verstappen', '2024','RedBull','Sergio Perez','Charles Leclerc', null, 2);
+VALUES('Max Verstappen', '2024','RedBull','Sergio Perez','Charles Leclerc', 'img2.rtve.jpg', 2);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Max Verstappen', '2023','RedBull','Sergio Perez','Fernando Alonso', null, 2);
+VALUES('Sergio Perez', '2023','RedBull','Max Verstappen','Fernando Alonso', 'GettyImages-1474638493.jpg', 2);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Max Verstappen', '2022','RedBull','Charles Leclerc','Carlos Sainz', null, 2);
+VALUES('Max Verstappen', '2022','RedBull','Charles Leclerc','Carlos Sainz', 'unnamed.jpg', 2);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
-VALUES('Lewis Hamilton', '2021','Mercedes','Max Verstappen','Valtteri Bottas', null, 2);
+VALUES('Lewis Hamilton', '2021','Mercedes','Max Verstappen','Valtteri Bottas', '16387363862558.jpg', 2);
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
 VALUES('Carlos Sainz', '2024','Ferrari','Charles Leclerc','Lando Norris', null, 3);

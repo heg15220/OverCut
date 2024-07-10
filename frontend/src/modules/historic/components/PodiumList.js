@@ -16,7 +16,8 @@ const PodiumList = () => {
     const formRef = useRef(null);
 
     useEffect(() => {
-        dispatch(actions.getPodiumsByCircuit(1, page, () => {
+        const circuitId = Number(id);
+        dispatch(actions.getPodiumsByCircuit(circuitId, page, () => {
             // Actualiza el estado local con los nuevos podios
         }));
     }, [dispatch, page]);

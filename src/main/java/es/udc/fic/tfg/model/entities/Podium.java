@@ -10,8 +10,7 @@ public class Podium {
     private String teamWinner;
     private String secondPlace;
     private String thirdPlace;
-    @Lob
-    private byte[] image;
+    private String image;
     private Circuit circuit;
 
     public Podium(){
@@ -19,7 +18,7 @@ public class Podium {
     }
 
     public Podium(String winner, String date, String teamWinner,
-                  String secondPlace, String thirdPlace, byte[] image, Circuit circuit) {
+                  String secondPlace, String thirdPlace, String image, Circuit circuit) {
         this.winner = winner;
         this.date = date;
         this.teamWinner = teamWinner;
@@ -79,11 +78,11 @@ public class Podium {
         this.thirdPlace = thirdPlace;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 

@@ -92,7 +92,7 @@ const CircuitDetails = () => {
                                 <TableCell><strong>
                                     <Link
                                         className="nav-link"
-                                        to={`/circuit/podiums`}
+                                        to={`/circuit/${circuit.id}/podiums`}
                                         style={{ color: 'black', textDecoration: 'underline' }}
                                     >
                                         <FormattedMessage id="project.modules.historic.podiums" />

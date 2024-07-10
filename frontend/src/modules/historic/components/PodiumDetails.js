@@ -25,6 +25,8 @@ import { FormattedMessage } from 'react-intl';
 import WebFont from 'webfontloader';
 import TextField from "@mui/material/TextField";
 
+import {sourceImages} from '../../../helpers/sourceImages';
+
 
 const PodiumDetails = () => {
     const { id } = useParams();
@@ -53,8 +55,6 @@ const PodiumDetails = () => {
     if (!podium) {
         return null;
     }
-
-    const srcImage = podium.image? "data:image/jpg;base64," + podium.image : null;
 
     return (
         <Container sx={{ marginTop: 0 }}>
@@ -97,19 +97,15 @@ const PodiumDetails = () => {
                                         <TableCell>{podium.thirdPlace}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                    {srcImage && (
-                                        <CardMedia
-                                            component="img"
-                                            image={srcImage}
-                                            alt="Podium Image"
-                                            sx={{
-                                                maxHeight: '500px',
-                                                maxWidth: '80%',
-                                                objectFit: 'cover',
-                                                marginTop: 2,
-                                            }}
-                                        />
-                                    )}
+                                        {podium && podium.image ? (
+                                            <img
+                                                src={sourceImages(`./${podium.image}`)}
+                                                alt="Podium Image"
+                                                style={{ width: '70%' }}
+                                            />
+                                        ) : (
+                                            <div> No image</div>
+                                        )}
                                     </TableRow>
                                 </TableBody>
                             </Table>

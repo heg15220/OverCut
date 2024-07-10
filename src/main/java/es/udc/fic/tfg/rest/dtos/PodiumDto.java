@@ -10,12 +10,12 @@ public class PodiumDto {
     private String teamWinner;
     private String secondPlace;
     private String thirdPlace;
-    @Lob
-    private byte[] image;
+
+    private String image;
     private Long circuitId;
 
     public PodiumDto(Long id, String winner, String date, String teamWinner,
-                     String secondPlace, String thirdPlace, byte[] image, Long circuitId) {
+                     String secondPlace, String thirdPlace, String image, Long circuitId) {
         this.id = id;
         this.winner = winner;
         this.date = date;
@@ -74,11 +74,11 @@ public class PodiumDto {
         this.thirdPlace = thirdPlace;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 

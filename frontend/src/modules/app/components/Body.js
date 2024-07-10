@@ -64,7 +64,7 @@ const Body = () => {
                     <Route path="/circuits/category/3`" element={<AllCircuits />} />
                     <Route path='/circuit/circuit-details/:id' element={<CircuitDetails />} />
                     <Route path='/circuit/circuit-details/podium/podium-details/:id' element={<PodiumDetails />} />
-                    <Route path='/circuit/podiums' element={<PodiumList />} />
+                    <Route path='/circuit/:id/podiums' element={<PodiumList />} />
                     {loggedIn && <Route path="/events/create" element={<CreateEventForm/>}/>}
                     {loggedIn && <Route path="/events/event-list" element={<EventsList/>}/>}
                     <Route path="/calendar" element={<MyCalendar />} />
