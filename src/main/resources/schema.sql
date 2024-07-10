@@ -90,7 +90,7 @@ CREATE TABLE Quiz(
 CREATE TABLE Question(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name LONGTEXT NOT NULL,
-    imagePath VARCHAR(2048),
+    imagePath VARCHAR(255),
     knowledgequestionlevel BIGINT NOT NULL
 );
 
@@ -225,7 +225,7 @@ INSERT INTO Award(award,requiredPoints)
 VALUES ('Thrustmaster T150', 8);
 
 INSERT INTO Question (name, imagePath,knowledgequestionlevel)
-VALUES ('¿Cuál es el nombre de esta escuderia?','src/main/resources/static/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);
+VALUES ('¿Cuál es el nombre de esta escuderia?','bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Mercedes AMG Petronas', false, 1);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Toyota', false, 1);
@@ -235,7 +235,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Williams', false, 1);
 
 
 INSERT INTO Question (name, imagePath,knowledgequestionlevel)
-VALUES ('¿En que equipo no ha corrido Nico Hülkenberg?','/static/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg',2);
+VALUES ('¿En que equipo no ha corrido Nico Hülkenberg?','oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg',2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Toro Rosso', true, 2);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Sauber', false, 2);
@@ -261,7 +261,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Isack Hadjar', false, 4)
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Que circuito es este?','static/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg',1);
+VALUES ('¿Que circuito es este?','images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg',1);
 
 INSERT INTO Answer (name, correct, questionId) VALUES  ('Monza', false, 5);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Imola', true, 5);
@@ -270,7 +270,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Hungaroring', false, 5);
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Qué 2 pilotos corrieron con este coche?','static/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg', 3);
+VALUES ('¿Qué 2 pilotos corrieron con este coche?','images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg', 3);
 
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Robert Kubica', true, 6);
@@ -357,7 +357,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Bateria', false, 15);
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('Ferrari es el equipo mas grande de la historia de la F1. Pero, ¿cuando fue la ultima vez que ganaron el mundial?','static/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg', 2);
+VALUES ('Ferrari es el equipo mas grande de la historia de la F1. Pero, ¿cuando fue la ultima vez que ganaron el mundial?','carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg', 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('2010', false, 16);
 INSERT INTO Answer (name, correct, questionId) VALUES ('2006', false, 16);

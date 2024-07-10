@@ -9,6 +9,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { Grid } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 
+import {sourceImages} from '../../../helpers/sourceImages';
+
 const QuestionDetails = ({ question, onAnswerSubmit }) => {
     const user = useSelector(userSelectors.getUser);
     const dispatch = useDispatch();
@@ -33,7 +35,7 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
         return null;
     }
 
-    const srcImage = question.imagePath ? question.imagePath : null;
+    const imagePath = `/static/${question.imagePath}`;
 
     const handleSelectAnswer = (answer) => {
         const questionId = Number(question.id);
@@ -98,17 +100,16 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                         }}>
                             {question.name}
                         </Typography>
-                        <CardMedia
-                            component="img"
-                            image={srcImage}
-                            alt="Question Image"
-                            sx={{
-                                maxHeight: '500px',
-                                maxWidth: '80%',
-                                objectFit: 'cover',
-                                marginTop: 2,
-                            }}
+                        {question && question.imagePath ? (
+                        <img
+                            src={sourceImages(`./${question.imagePath}`)}
+                            alt="Circuit Image"
+                            style={{ width: '70%' }}
                         />
+                    ) : (
+                        <div></div>
+                    )}
+
                     </CardContent>
                 </Card>
                 {answers && answers.length > 0? (

@@ -8,11 +8,11 @@ public class QuestionDto {
     private Long id;
     private String name;
 
-    private byte[] imagePath;
+    private String imagePath;
 
     private int knowledgequestionlevel;
 
-    public QuestionDto(Long id, String name, byte[] imagePath, int knowledgequestionlevel) {
+    public QuestionDto(Long id, String name, String imagePath, int knowledgequestionlevel) {
         this.id = id;
         this.name = name;
         this.imagePath = imagePath;
@@ -35,11 +35,11 @@ public class QuestionDto {
         this.name = name;
     }
 
-    public byte[] getImagePath() {
+    public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(byte[] imagePath) {
+    public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
 

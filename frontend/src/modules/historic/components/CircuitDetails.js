@@ -9,6 +9,7 @@ import { FormattedMessage } from 'react-intl';
 import WebFont from 'webfontloader';
 import TextField from "@mui/material/TextField";
 import PodiumList from "./PodiumList";
+import {sourceImages} from '../../../helpers/sourceImages';
 
 const CircuitDetails = () => {
     const { id } = useParams();
@@ -16,7 +17,6 @@ const CircuitDetails = () => {
     const user = useSelector(userSelectors.getUser);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const circuitImages = require.context('../../../assests/images', true);
     const [backendErrors, setBackendErrors] = useState(null);
     const [success, setSuccess] = useState(null);
     const formRef = useRef(null);
@@ -78,7 +78,7 @@ const CircuitDetails = () => {
                                 <TableCell><strong>Imagen:</strong></TableCell>
                                 <TableCell>
                                     <img
-                                        src={circuitImages(`./${circuit.image}`)}
+                                        src={sourceImages(`./${circuit.image}`)}
                                         alt= "Circuit Image"
                                         style={{ width: '100%' }}
                                     />

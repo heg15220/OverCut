@@ -15,8 +15,7 @@ public class Question {
 
     /** The image. */
 
-    @Lob
-    private byte[] imagePath;
+    private String imagePath;
 
     private int knowledgequestionlevel;
 
@@ -29,7 +28,7 @@ public class Question {
     public Question() {
     }
 
-    public Question(String name, byte[] imagePath, int knowledgequestionlevel) {
+    public Question(String name, String imagePath, int knowledgequestionlevel) {
         this.name = name;
         this.imagePath = imagePath;
         this.knowledgequestionlevel = knowledgequestionlevel;
@@ -63,18 +62,20 @@ public class Question {
         this.name = name;
     }
 
+
     /**
      * Gets the question image.
      *
      * @return the image
      */
-    public byte[] getImagePath() {
+    public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(byte[] imagePath) {
+    public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
+
 
     public int getKnowledgequestionlevel() {
         return knowledgequestionlevel;

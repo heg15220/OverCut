@@ -21,7 +21,7 @@ public class QuestionConversor {
         // Extraer los datos necesarios del objeto Question
         Long id = question.getId();
         String name = question.getName();
-        byte[] imagePath = question.getImagePath();
+        String imagePath = question.getImagePath();
         int knowledgequestionlevel = question.getKnowledgequestionlevel();
 
         // Crear y devolver el objeto QuestionDto
