@@ -39,10 +39,13 @@ const PodiumDetails = () => {
 
     useEffect(() => {
         const podiumId = Number(id);
-        if (!Number.isNaN(podiumId)) {
-            dispatch(actions.getPodiumDetails(id, () => {}));
+        if(podium) {
+            if (!Number.isNaN(podiumId)) {
+                dispatch(actions.getPodiumDetails(id, () => {
+                }));
+            }
         }
-    }, [id,dispatch]);
+    }, [id,podium,dispatch]);
 
     useEffect(() => {
         WebFont.load({
