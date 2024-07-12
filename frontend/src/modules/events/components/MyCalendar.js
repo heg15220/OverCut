@@ -29,7 +29,7 @@ const MyCalendar = () => {
     }, [events]);
 
     return (
-        <MyCustomCalendar events={items}> </MyCustomCalendar>
+        events
     );
 };
 

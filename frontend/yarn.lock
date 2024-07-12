@@ -1541,6 +1541,25 @@
     "intl-messageformat" "10.5.11"
     "tslib" "^2.4.0"
 
+"@fullcalendar/core@~6.1.14":
+  "integrity" "sha512-hIPRBevm0aMc2aHy1hRIJgXmI1QTvQM1neQa9oxtuqUmF1+ApYC3oAdwcQMTuI7lHHw3pKJDyJFkKLPPnL6HXA=="
+  "resolved" "https://registry.npmjs.org/@fullcalendar/core/-/core-6.1.14.tgz"
+  "version" "6.1.14"
+  dependencies:
+    "preact" "~10.12.1"
+
+"@fullcalendar/daygrid@~6.1.14":
+  "integrity" "sha512-DSyjiA1dEM8k3bOCrZpZOmAOZu71KGtH02ze+4QKuhxkmn/zQghmmLRdfzpOrcyJg6xGKkoB4pBcO+2lXar8XQ=="
+  "resolved" "https://registry.npmjs.org/@fullcalendar/daygrid/-/daygrid-6.1.14.tgz"
+  "version" "6.1.14"
+
+"@fullcalendar/timegrid@^6.1.14":
+  "integrity" "sha512-ZByc3BVAtxWSVfyaNedROLlg/Tb2NQ43+MZZAfBSrVwVm2xyfQ+Bsx3pJyCXsRsUh2TFFTO07q7nMWe0jet3KQ=="
+  "resolved" "https://registry.npmjs.org/@fullcalendar/timegrid/-/timegrid-6.1.14.tgz"
+  "version" "6.1.14"
+  dependencies:
+    "@fullcalendar/daygrid" "~6.1.14"
+
 "@humanwhocodes/config-array@^0.11.14":
   "integrity" "sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg=="
   "resolved" "https://registry.npmjs.org/@humanwhocodes/config-array/-/config-array-0.11.14.tgz"
@@ -8613,6 +8632,11 @@
   dependencies:
     "picocolors" "^0.2.1"
     "source-map" "^0.6.1"
+
+"preact@~10.12.1":
+  "integrity" "sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg=="
+  "resolved" "https://registry.npmjs.org/preact/-/preact-10.12.1.tgz"
+  "version" "10.12.1"
 
 "prelude-ls@^1.2.1":
   "integrity" "sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g=="

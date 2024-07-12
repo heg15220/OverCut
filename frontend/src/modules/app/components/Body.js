@@ -27,6 +27,7 @@ import {MyCalendar} from "../../events";
 import EventDetails from "../../events/components/EventDetails";
 import CreateEventForm from "../../events/components/CreateEventForm";
 import EventsList from "../../events/components/EventsList";
+import MyCustomCalendar from "../../events/components/MyCustomCalendar";
 
 
 
@@ -67,7 +68,7 @@ const Body = () => {
                     <Route path='/circuit/:id/podiums' element={<PodiumList />} />
                     {loggedIn && <Route path="/events/create" element={<CreateEventForm/>}/>}
                     {loggedIn && <Route path="/events/event-list" element={<EventsList/>}/>}
-                    <Route path="/calendar" element={<MyCalendar />} />
+                    <Route path="/calendar" element={<MyCustomCalendar />} />
                     <Route path="/event/event-details/:id" element={<EventDetails />} />
                 </Route>
             </Routes>

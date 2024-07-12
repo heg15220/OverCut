@@ -551,5 +551,5 @@ VALUES('Nico Rosberg', '2016','Mercedes','Max Verstappen','Lewis Hamilton', null
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
 VALUES('Lewis Hamilton', '2015','Mercedes','Nico Rosberg','Sebastian Vettel', null, 3);
 
-INSERT INTO Event (name,description,date,location,imageUrl) VALUES ('Bahrein GP', 'First round of the F1 season','2024-07-05','Bahrein',null);
-
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Bahrein GP', 'First round of the F1 season', '2024-07-05', 'Bahrein', null);
