@@ -552,4 +552,7 @@ INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circu
 VALUES('Lewis Hamilton', '2015','Mercedes','Nico Rosberg','Sebastian Vettel', null, 3);
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Bahrein GP', 'First round of the F1 season', '2024-07-05', 'Bahrein', null);
+VALUES ('Bahrein GP', 'First round of the F1 season', '2024-07-05', 'Bahrein', 'formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Hungarian GP', '12th round of the F1 season', '2024-07-21', 'Hungary', 'FYrYQ9SXoAAR-v6-732x1024.jpg');

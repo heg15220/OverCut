@@ -11,6 +11,7 @@ import { saveNotification } from '../../events/actions';
 import {Events} from "../index";
 import Notifications from "../../app/components/Notifications"; // Asegúrate de que esta ruta sea correcta
 
+import {sourceImages} from "../../../helpers/sourceImages"; // Asegúrate de que la ruta de importación sea correcta
 const EventDetails = () => {
     const { id } = useParams();
     const event = useSelector(selectors.getEventDetails);
@@ -20,7 +21,7 @@ const EventDetails = () => {
     const [backendErrors, setBackendErrors] = useState(null);
     const [success, setSuccess] = useState(null);
     const formRef = useRef(null);
-
+    const [imageRef, setImageRef] = useState(null);
 
     useEffect(() => {
         const eventId = Number(id);
@@ -110,12 +111,6 @@ const EventDetails = () => {
                                 </TableCell>
                             </TableRow>
 
-                            <TableRow>
-                                <TableCell><strong><FormattedMessage id = "project.entities.EventDetails.image"/></strong></TableCell>
-                                <TableCell>
-                                    <img src={srcImage} alt="Circuit Image" style={{ width: '100%' }} />
-                                </TableCell>
-                            </TableRow>
                             <div>
                                 {/* Otros elementos del detalle del evento */}
                                 <button onClick={handleCreateNotificationClick}>

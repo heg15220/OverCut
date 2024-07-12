@@ -1,0 +1,18 @@
+/* EventDetailsButton.css */
+.button-style {
+    margin: 8px; /* Espacio alrededor del botón */
+    background-color: #1976d2; /* Color de fondo principal */
+    color: white; /* Color del texto */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor al pasar el mouse */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Espacio entre elementos internos */
+    padding: 8px; /* Espaciado interno */
+    text-transform: uppercase; /* Texto en mayúsculas */
+}
+.hover {
+     background-color: #1565c0; /* Color de fondo al pasar el mouse */
+ }
+

@@ -9,6 +9,7 @@
     "@mui/icons-material": "^5.15.14",
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.14",
+    "@mui/system": "^5.16.1",
     "@popperjs/core": "^2.11.8",
     "@reduxjs/toolkit": "^2.2.1",
     "@testing-library/jest-dom": "^5.14.1",
