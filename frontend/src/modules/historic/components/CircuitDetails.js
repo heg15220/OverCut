@@ -10,7 +10,6 @@ import WebFont from 'webfontloader';
 import TextField from "@mui/material/TextField";
 import PodiumList from "./PodiumList";
 import {sourceImages} from '../../../helpers/sourceImages';
-import TeamWinnersRadarChart from "./TeamWinnersPieChart";
 
 const CircuitDetails = () => {
     const { id } = useParams();

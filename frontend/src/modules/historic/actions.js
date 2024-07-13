@@ -26,7 +26,10 @@ const victoriesByTeamCompleted = (victoriesByTeam)=> ({
     victoriesByTeam
 });
 
-
+const victoriesPerCircuitTeamCompleted = (victoriesCircuitsTeams)=> ({
+    type: actionTypes.GET_VICTORIES_PER_CIRCUIT_AND_TEAM_COMPLETED,
+    victoriesCircuitsTeams
+});
 // Función para obtener detalles de un circuito
 export const fetchCircuitDetails  = (id, onSuccess) => dispatch =>
     backend.historicService.getCircuitDetails(id,circuit => {
@@ -64,4 +67,10 @@ export const getTeamVictoriesCount = (onSuccess) => dispatch =>
     backend.historicService.getTeamsVictoriesCount(victoriesByTeam => {
         dispatch(victoriesByTeamCompleted(victoriesByTeam));
         onSuccess(victoriesByTeam);
+    });
+
+export const getVictoriesPerCircuitAndTeam = (onSuccess) => dispatch =>
+    backend.historicService.getVictoriesPerCircuitAndTeam(victoriesCircuitsTeams => {
+        dispatch(victoriesPerCircuitTeamCompleted(victoriesCircuitsTeams));
+        onSuccess(victoriesCircuitsTeams);
     });

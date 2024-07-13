@@ -7,8 +7,7 @@ import * as actions from "../actions";
 import * as selectors from '../selectors';
 import { FormattedMessage } from 'react-intl';
 import Podiums from "./Podiums";
-// En PodiumList.js
-import TeamWinnersPieChart from './TeamWinnersPieChart'; // Asegúrate de ajustar la ruta según corresponda
+
 
 const PodiumList = () => {
     const dispatch = useDispatch();

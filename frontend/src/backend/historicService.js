@@ -45,3 +45,6 @@ export const getTeamsVictoriesCount = (onSuccess) => {
     appFetch(`/historic/teams/victories/count`, fetchConfig("GET"), onSuccess);
 };
 
+export const getVictoriesPerCircuitAndTeam = (onSuccess) => {
+    appFetch(`/historic/circuits/victories/count`, fetchConfig("GET"), onSuccess);
+};

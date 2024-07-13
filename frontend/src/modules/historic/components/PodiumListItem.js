@@ -6,7 +6,6 @@ import { sourceImages } from '../../../helpers/sourceImages';
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import TeamWinnersPieChart from "./TeamWinnersPieChart";
 
 
 
@@ -34,9 +33,6 @@ const PodiumListItem = ({ podium, data }) => {
 
     return (
         <div className="card my-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '75%', height: '26vh', position: 'relative', paddingRight: '20px' }}>
-
-            <TeamWinnersPieChart data={teamWinnersData} />
-
             {/* Muestra la imagen del circuito si existe */}
             <Box
                 sx={{
