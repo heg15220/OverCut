@@ -1,23 +1,42 @@
 import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import CircuitDetailsLink from "./CircuitDetailsLink";
-import { PodiumDetailsLink } from "../index";
 
 import { sourceImages } from '../../../helpers/sourceImages';
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import TeamWinnersPieChart from "./TeamWinnersPieChart";
 
-const PodiumListItem = ({ podium }) => {
+
+
+const PodiumListItem = ({ podium, data }) => {
     const navigate = useNavigate();
     const [imageRef, setImageRef] = useState(null);
 
+    const calculateTeamWinnersData = (podiumsArray) => {
+        const winnersData = {}; // Cambié 'data' a 'winnersData'
+
+        podiumsArray.forEach(podiumItem => {
+            if (!winnersData[podiumItem.teamWinner]) {
+                winnersData[podiumItem.teamWinner] = 0;
+            }
+            winnersData[podiumItem.teamWinner]++;
+        });
+
+        return Object.entries(winnersData).map(([key, value]) => ({ name: key, value }));
+    };
+
+    const teamWinnersData = calculateTeamWinnersData([podium]); // Ahora usamos 'winnersData'
     const handleImageOrTitleClick = () => {
         navigate(`/circuit/circuit-details/podium/podium-details/${podium.id}`);
     };
 
     return (
         <div className="card my-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '75%', height: '26vh', position: 'relative', paddingRight: '20px' }}>
+
+            <TeamWinnersPieChart data={teamWinnersData} />
+
             {/* Muestra la imagen del circuito si existe */}
             <Box
                 sx={{

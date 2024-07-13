@@ -9,3 +9,5 @@ export const getCircuit = state => getModuleState(state).circuit;
 
 export const getPodiums = state => getModuleState(state).podiums;
 
+export const getVictoriesByTeam = state => getModuleState(state).victoriesByTeam;
+

@@ -66,5 +66,6 @@ const en = {
     'project.users.CreateEvent.title': 'Create Event',
     'project.About_Us': 'About Us',
     'project.Contact': 'Contact',
+    'project.modules.historic.stats': 'Stats',
 }
 export default en;

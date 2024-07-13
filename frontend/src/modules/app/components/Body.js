@@ -28,6 +28,7 @@ import EventDetails from "../../events/components/EventDetails";
 import CreateEventForm from "../../events/components/CreateEventForm";
 import EventsList from "../../events/components/EventsList";
 import MyCustomCalendar from "../../events/components/MyCustomCalendar";
+import TeamsPage from "../../historic/components/TeamsPage";
 
 
 
@@ -70,6 +71,7 @@ const Body = () => {
                     {loggedIn && <Route path="/events/event-list" element={<EventsList/>}/>}
                     <Route path="/calendar" element={<MyCustomCalendar />} />
                     <Route path="/event/event-details/:id" element={<EventDetails />} />
+                    <Route path="/historic/stats" element={<TeamsPage />} />
                 </Route>
             </Routes>
         </div>

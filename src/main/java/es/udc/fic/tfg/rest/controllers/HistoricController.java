@@ -10,6 +10,10 @@ import es.udc.fic.tfg.rest.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/historic")
 public class HistoricController {
@@ -48,5 +52,16 @@ public class HistoricController {
 
         return PodiumDtoConversor.toPodiumDto(podium);
     }
+
+    @GetMapping("/teams/victories/count")
+    public BlockDto<Map.Entry<String, Integer>> getTeamVictoriesCount() {
+        List<Map<String, Integer>> victoriesByTeam = historicService.getTeamVictoriesCount();
+        List<Map.Entry<String, Integer>> entries = victoriesByTeam.stream()
+                .flatMap(map -> map.entrySet().stream())
+                .collect(Collectors.toList());
+
+        return new BlockDto<>(entries, entries.size() > 0);
+    }
+
 
 }

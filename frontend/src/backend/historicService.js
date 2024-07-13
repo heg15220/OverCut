@@ -40,3 +40,8 @@ export const getPodiumsByCircuit = (id, page, onSuccess, onErrors) => {
         onErrors
     );
 };
+
+export const getTeamsVictoriesCount = (onSuccess) => {
+    appFetch(`/historic/teams/victories/count`, fetchConfig("GET"), onSuccess);
+};
+

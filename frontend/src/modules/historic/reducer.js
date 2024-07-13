@@ -6,7 +6,8 @@ const initialState = {
     circuit: null,
     podium: null,
     circuits: null,
-    podiums: null
+    podiums: null,
+    victoriesByTeam: null ,// Añadido
 };
 
 // Manejo de detalles de circuitos y podios
@@ -48,11 +49,22 @@ const podiums = (state = initialState.podiums, action) => {
     }
 }
 
+const victoriesByTeam = (state = initialState.victoriesByTeam, action) => {
+    switch (action.type) {
+        case actionTypes.GET_TEAM_VICTORIES_COUNT_COMPLETED:
+            return action.victoriesByTeam;
+        default:
+            return state;
+    }
+};
+
+
 const reducer = combineReducers({
     circuit,
     podium,
     circuits,
     podiums,
+    victoriesByTeam,
 });
 
 

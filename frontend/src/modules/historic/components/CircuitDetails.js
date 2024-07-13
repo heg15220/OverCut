@@ -10,6 +10,7 @@ import WebFont from 'webfontloader';
 import TextField from "@mui/material/TextField";
 import PodiumList from "./PodiumList";
 import {sourceImages} from '../../../helpers/sourceImages';
+import TeamWinnersRadarChart from "./TeamWinnersPieChart";
 
 const CircuitDetails = () => {
     const { id } = useParams();
@@ -99,10 +100,22 @@ const CircuitDetails = () => {
                                     </Link>
                                 </strong>
                                 </TableCell>
+                                <TableCell><strong>
+                                    <Link
+                                        className="nav-link"
+                                        to={`/historic/stats`}
+                                        style={{ color: 'black', textDecoration: 'underline' }}
+                                    >
+                                        <FormattedMessage id="project.modules.historic.stats" />
+                                    </Link>
+                                </strong>
+                                </TableCell>
+
                             </TableRow>
                         </TableBody>
                     </Table>
                 </TableContainer>
+
             </Box>
         </Container>
     );

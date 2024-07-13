@@ -7,6 +7,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -71,4 +74,20 @@ public class HistoricServiceImpl implements HistoricService{
 
         return podiumDao.findPodiumById(podiumId);
     }
+
+    // En HistoricServiceImpl.java
+    @Override
+    @Transactional(readOnly = true)
+    public List<Map<String, Integer>> getTeamVictoriesCount() {
+        List<String> distinctTeamWinners = podiumDao.getDistinctTeamWinners();
+        Map<String, Integer> victoriesByTeam = new HashMap<>();
+
+        for (String teamWinner : distinctTeamWinners) {
+            int victoryCount = podiumDao.countVictoriesByTeam(teamWinner);
+            victoriesByTeam.put(teamWinner, victoryCount);
+        }
+
+        return List.of(victoriesByTeam);
+    }
+
 }
