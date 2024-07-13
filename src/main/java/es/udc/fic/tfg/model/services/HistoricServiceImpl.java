@@ -7,10 +7,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -89,5 +87,38 @@ public class HistoricServiceImpl implements HistoricService{
 
         return List.of(victoriesByTeam);
     }
+
+    // En HistoricServiceImpl.java
+    @Override
+    @Transactional(readOnly = true)
+    public List<Circuit> getAllCircuits() {
+        return (List<Circuit>) circuitDao.findAll();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Block<VictoryStats> getVictoriesPerCircuitAndTeam() {
+        List<Object[]> results = circuitDao.getVictoriesPerCircuitAndTeam();
+
+        List<VictoryStats> victoriesData = new ArrayList<>();
+        for (Object[] result : results) {
+            long circuitId = (Long) result[0];
+            String circuitName = (String) result[1];
+            String teamWinner = (String) result[2];
+            long victories = (long) result[3];
+
+            VictoryStats stats = new VictoryStats(circuitId, circuitName,teamWinner, victories);
+            victoriesData.add(stats);
+        }
+
+
+        // Construye el objeto Block con la lista de VictoryStats
+        return new Block<>(victoriesData, !victoriesData.isEmpty());
+
+    }
+
+
+
 
 }

@@ -15,6 +15,17 @@ public interface PodiumDao extends CrudRepository<Podium, Long>, CustomizedPodiu
 
     @Query("SELECT COUNT(p) FROM Podium p WHERE p.teamWinner = :teamWinner")
     int countVictoriesByTeam(@Param("teamWinner") String teamWinner);
+    @Query("SELECT p.circuit.id FROM Podium p GROUP BY p.circuit.id")
+    List<Long> getDistinctCircuitIds();
+
+    // En PodiumDao.java
+    @Query("SELECT p FROM Podium p WHERE p.circuit.id = :circuitId")
+    List<Podium> findByCircuitId(@Param("circuitId") Long circuitId);
+
+    // En PodiumDao.java
+    @Query("SELECT p FROM Podium p")
+    List<Podium> findAllPodiums();
+
 
 
 }

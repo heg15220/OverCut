@@ -61,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/events/*/notifications")).permitAll()
                         .requestMatchers(antMatcher("/api/events/event/*")).permitAll()
                         .requestMatchers(antMatcher("/api/historic/teams/victories/count")).permitAll()
+                        .requestMatchers(antMatcher("/api/historic/circuits/victories/count")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);

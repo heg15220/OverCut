@@ -3,6 +3,7 @@ package es.udc.fic.tfg.rest.controllers;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.Circuit;
 import es.udc.fic.tfg.model.entities.Podium;
+import es.udc.fic.tfg.model.entities.VictoryStats;
 import es.udc.fic.tfg.model.services.Block;
 import es.udc.fic.tfg.model.services.HistoricService;
 import es.udc.fic.tfg.model.services.PostService;
@@ -62,6 +63,13 @@ public class HistoricController {
 
         return new BlockDto<>(entries, entries.size() > 0);
     }
+
+    @GetMapping("/circuits/victories/count")
+    public BlockDto<VictoryStatsDto> getVictoriesPerCircuitAndTeam() {
+        Block<VictoryStats> victoriesByTeam = historicService.getVictoriesPerCircuitAndTeam();
+        return new BlockDto<>(VictoryStatsConversor.toVictoryStatsDtos(victoriesByTeam.getItems()), victoriesByTeam.getExistMoreItems());
+    }
+
 
 
 }
