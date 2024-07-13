@@ -1,64 +1,48 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react'; // Solo necesitas useEffect si no usas useState
 import { useDispatch, useSelector } from 'react-redux';
-import { Bar } from 'react-chartjs-2';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
-import { Chart, registerables} from 'chart.js';
-
-Chart.register(...registerables);
 const TeamVictoriesBarChart = () => {
     const dispatch = useDispatch();
     const circuitVictories = useSelector(selectors.getVictoriesByTeam);
     const isLoading = useSelector(state => state.isLoading);
-    const [chartInstance, setChartInstance] = useState(null);
-    const [chartData, setChartData] = useState({});
 
     useEffect(() => {
         dispatch(actions.getTeamVictoriesCount(() => {}));
     }, [dispatch]);
 
-    useEffect(() => {
-        if (circuitVictories) {
-            const data = {
-                labels: Object.keys(circuitVictories),
-                datasets: [
-                    {
-                        label: 'Victorias por Circuito',
-                        data: Object.values(circuitVictories),
-                        backgroundColor: 'rgba(75,192,192,0.6)',
-                        borderColor: 'rgba(75,192,192,1)',
-                        borderWidth: 1
-                    }
-                ]
-            };
-            setChartData(data);
-        }
-    }, [circuitVictories]);
-
-    const options = {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    };
-
-    if (isLoading || !Object.keys(circuitVictories).length) {
+    if (isLoading || !circuitVictories.existMoreItems) {
         return <div>Loading...</div>;
     }
 
-    const handleRenderChart = (instance) => {
-        setChartInstance(instance);
-    };
+    // Transforma los datos para la gráfica
+    const transformedData = circuitVictories.items.reduce((acc, curr) => {
+        Object.entries(curr).forEach(([team, victories]) => {
+            acc.push({ name: team, victories });
+        });
+        return acc;
+    }, []);
 
-    // Comprueba que chartData no sea un objeto vacío antes de renderizar la gráfica
     return (
-        <div>
-            {Object.keys(chartData).length > 0 && (
-                <Bar data={chartData} options={options} onElementsCreate={handleRenderChart} />
-            )}
-        </div>
+        <BarChart
+            width={500}
+            height={300}
+            data={transformedData}
+            margin={{
+                top: 20, right: 30, left: 20, bottom: 5,
+            }}
+        >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="victories" fill="#8884d8">
+                <Cell fill="#8884d8" />
+            </Bar>
+        </BarChart>
     );
 };
 
