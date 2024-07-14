@@ -10,15 +10,17 @@ public class Award {
 
     private int requiredPoints;
 
+    private String image;
     private User user;
 
     public Award(){
 
     }
 
-    public Award(String award, int requiredPoints, User user) {
+    public Award(String award, int requiredPoints, String image,User user) {
         this.award = award;
         this.requiredPoints = requiredPoints;
+        this.image = image;
         this.user = user;
     }
 
@@ -46,6 +48,14 @@ public class Award {
 
     public void setRequiredPoints(int requiredPoints) {
         this.requiredPoints = requiredPoints;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

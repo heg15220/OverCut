@@ -8,12 +8,15 @@ public class AwardDto {
 
     private int requiredPoints;
 
+    private String image;
+
     private Long userId;
 
-    public AwardDto(Long id, String award, int requiredPoints, Long userId) {
+    public AwardDto(Long id, String award, int requiredPoints, String image,Long userId) {
         this.id = id;
         this.award = award;
         this.requiredPoints = requiredPoints;
+        this.image= image;
         this.userId = userId;
     }
 
@@ -39,6 +42,14 @@ public class AwardDto {
 
     public void setRequiredPoints(int requiredPoints) {
         this.requiredPoints = requiredPoints;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public Long getUserId() {

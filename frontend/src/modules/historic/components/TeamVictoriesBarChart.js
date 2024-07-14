@@ -75,11 +75,6 @@ const CustomizedTooltip = ({ active, payload, label }) => {
     return null;
 };
 
-const getFillColorByIndex = (index) => {
-    // Define aquí los colores que quieras usar, asegurándote de tener suficientes colores para cada elemento en tu lista de datos
-    const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F', '#FF6384', '#36A2EB', '#4BC0C0', '#9966CC', '#E7E9ED']; // Ejemplo con 10 colores
-    return colors[index % colors.length];
-};
 
 const TeamVictoriesBarChart = () => {
     const dispatch = useDispatch();

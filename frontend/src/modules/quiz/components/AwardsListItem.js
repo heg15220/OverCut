@@ -1,12 +1,62 @@
-import React from 'react';
+import React, {useState} from 'react';
 import AwardDetailsLink from "./AwardDetailsLink";
+import {Box, Typography} from "@mui/material";
+import {useNavigate} from "react-router-dom";
+import {sourceImages} from "../../../helpers/sourceImages";
 
 const AwardsListItem = ({ award }) => {
+    const navigate = useNavigate();
+    const [imageRef, setImageRef] = useState(null);
+
+    const handleImageOrTitleClick = () => {
+        navigate(`/award/award-details/${award.id}`);
+    };
+
     return (
-        <div className="card my-2" style={{ position: 'relative', paddingRight: '120px' }}>
-            <div className="card-body">
-                <AwardDetailsLink id={award.id} name={award.award} />
-            </div>
+        <div className="card my-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '60vh', position: 'relative', paddingRight: '20px' }}>
+            {/* Muestra la imagen del circuito si existe */}
+            <Box
+                sx={{
+                    width: '100%',
+                    height: '80vh',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    '&:hover': {
+                        '& img': {
+                            transform: 'scale(1.05)',
+                            boxShadow: '0 0 8px rgba(0,0,0,0.2)',
+                            transition: 'transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out',
+                        }
+                    }
+                }}
+            >
+                <img
+                    ref={setImageRef}
+                    className="image-hover-target"
+                    src={sourceImages(`./${award.image}`)}
+                    alt="Award Image"
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+
+                    onClick={handleImageOrTitleClick}
+                    sx={{
+                        transition: 'transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out',
+                    }}
+                />
+            </Box>
+            <Typography variant="h5" component="div" sx={{
+                fontSize: '2rem',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                color: 'text.primary',
+                marginTop: '0.5rem', // Ajusta el margen superior para separar el nombre de la categoría del título
+                marginBottom: '1rem',
+                cursor: 'pointer',
+                textDecoration: 'none',
+            }}
+                        onClick={handleImageOrTitleClick}
+            >
+                {award.award}
+            </Typography>
         </div>
     )
 }

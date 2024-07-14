@@ -8,7 +8,6 @@ import * as selectors from '../selectors';
 import { FormattedMessage } from 'react-intl';
 import Podiums from "./Podiums";
 
-
 const PodiumList = () => {
     const dispatch = useDispatch();
     const { id } = useParams();

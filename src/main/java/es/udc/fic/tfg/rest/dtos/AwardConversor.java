@@ -19,7 +19,7 @@ public class AwardConversor {
      */
     public static AwardDto convertToAwardDto(Award award) {
 
-        return new AwardDto(award.getId(), award.getAward(),award.getRequiredPoints(),award.getUser().getId());
+        return new AwardDto(award.getId(), award.getAward(),award.getRequiredPoints(), award.getImage(), award.getUser().getId());
     }
 
     public static final List<AwardDto> toAwardDtos(List<Award> awards) {

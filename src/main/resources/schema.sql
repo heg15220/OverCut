@@ -129,6 +129,7 @@ CREATE TABLE Award(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     award varchar(60) NOT NULL,
     requiredPoints BIGINT NOT NULL,
+    image VARCHAR(255),
     userId BIGINT,
     CONSTRAINT AwardUserIdFK FOREIGN KEY (userId) REFERENCES Users (id)
 );
@@ -268,11 +269,11 @@ INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
 
 
-INSERT INTO Award(award,requiredPoints)
-VALUES ('PS5', 5);
+INSERT INTO Award(award,requiredPoints, image)
+VALUES ('PS5', 5, 'ps5-product-thumbnail-01-en-14sep21.jpg');
 
-INSERT INTO Award(award,requiredPoints)
-VALUES ('Thrustmaster T150', 8);
+INSERT INTO Award(award,requiredPoints, image)
+VALUES ('Thrustmaster T150', 8, 'UTH_T150-racing-wheel-PS4-PC-1-7.jpg');
 
 INSERT INTO Question (name, imagePath,knowledgequestionlevel)
 VALUES ('¿Cuál es el nombre de esta escuderia?','bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);

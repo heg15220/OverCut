@@ -15,11 +15,9 @@ const QuizList = () => {
     const quiz = useSelector(selectors.findQuiz);
 
     useEffect(() => {
-        if(quiz) {
             dispatch(actions.getQuizQuestions({quizId: quiz, page: currentPage}, () => {
             }, () => {
-            }));
-        }
+            }))
     }, [dispatch, quiz, currentPage]);
 
     const handlePageChange = (newPage) => {

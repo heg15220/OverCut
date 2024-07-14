@@ -9,15 +9,17 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { Grid } from '@mui/material';
 import {useNavigate, useParams} from "react-router-dom";
 import {FormattedMessage} from "react-intl";
+import {sourceImages} from "../../../helpers/sourceImages";
 
 const Awards = () => {
     const {id} = useParams();
     const user = useSelector(userSelectors.getUser);
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const [backendErrors, setBackendErrors] = useState(null);
     const award = useSelector(selectors.getAward);
     const [success, setSuccess] = useState(null);
+    const navigate = useNavigate();
+    const [imageRef, setImageRef] = useState(null);
 
     useEffect(() => {
         const awardId = Number(id);
@@ -60,6 +62,25 @@ const Awards = () => {
                     </Alert>
                 )}
                 <Card>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: '80vh',
+                            overflow: 'hidden',
+                            position: 'relative',
+                        }}
+                    >
+                        <img
+                            ref={setImageRef}
+                            className="image-hover-target"
+                            src={sourceImages(`./${award.image}`)}
+                            alt="Award Image"
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                            sx={{
+                                transition: 'transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out',
+                            }}
+                        />
+                    </Box>
                     <CardContent>
                         <Typography variant="h5" component="div" sx={{
                             fontSize: '2rem',
