@@ -40,21 +40,23 @@ const Home = () => {
 
 
     return (
-        <div className="d-flex align-self-stretch align-items-start flex-column justify-content-between">
-            <div className="p-4 align-self-center">
+        <div className="d-flex align-self-stretch align-items-start flex-column justify-content-between" style={{ minHeight: '2vh', width: '100%', border: 'none' }}>
+            <div className="p-4 align-self-center" style={{ border: 'none' }}>
                 {newPost ?
-                    <button className="btn btn-warning" onClick={() => handleRefresh()} >
-                        New posts avaliable!
+                    <button className="btn btn-warning" onClick={() => handleRefresh()}>
+                        New posts available!
                     </button> : null
                 }
             </div>
-            <div className="p-4 container">
+            <div className="p-4" style={{ width: '100%', height: '100%', border: 'none' }}>
                 <AllPostList />
             </div>
-            <div className="p-4">
+            <div className="p-4" style={{ border: 'none' }}>
             </div>
         </div>
     );
+
+
 };
 
 export default Home;

@@ -27,5 +27,9 @@ public interface PodiumDao extends CrudRepository<Podium, Long>, CustomizedPodiu
     List<Podium> findAllPodiums();
 
 
+    @Query("SELECT p FROM Podium p WHERE LOWER(p.circuit.name) LIKE LOWER(:circuitName)")
+    List<Podium> findByCircuitNameIgnoreCase(@Param("circuitName") String circuitName);
+
+
 
 }

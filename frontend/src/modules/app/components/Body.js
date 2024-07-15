@@ -29,6 +29,7 @@ import CreateEventForm from "../../events/components/CreateEventForm";
 import EventsList from "../../events/components/EventsList";
 import MyCustomCalendar from "../../events/components/MyCustomCalendar";
 import TeamsPage from "../../historic/components/TeamsPage";
+import TeamsVictoriesCircuitBarChart from "../../historic/components/TeamsVictoriesCircuitBarChart";
 
 
 
@@ -72,6 +73,7 @@ const Body = () => {
                     <Route path="/calendar" element={<MyCustomCalendar />} />
                     <Route path="/event/event-details/:id" element={<EventDetails />} />
                     <Route path="/historic/stats" element={<TeamsPage />} />
+                    <Route path="/circuit/:id/stats" element={<TeamsVictoriesCircuitBarChart />} />
                 </Route>
             </Routes>
         </div>

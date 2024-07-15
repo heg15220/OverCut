@@ -212,6 +212,8 @@ INSERT INTO Category(name,historic,quiz) VALUES ('Quiz', false, true);
 
 INSERT INTO Category(name,historic,quiz) VALUES ('Historia', true, false);
 
+INSERT INTO Category(name,historic,quiz) VALUES ('Anecdotas',false,false);
+
 INSERT INTO Post (title, subtitle, article, creationDate, userId, categoryId)
 VALUES ('Why Ferrari doesn’t fear its downgrade will derail F1 season ',
     'Ferrari''s recurrence of high-speed bouncing has been triggered by a new floor. The challenge now is finding answers as to why it has not worked. ',

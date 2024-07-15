@@ -38,22 +38,18 @@ const AllPostList = () => {
     }
 
     useEffect(() => {
-        dispatch(actions.getPosts(
-            {
-                title: title.trim(),
-                categoryId: categoryId,
-                page: 0,
-                criteria: criteria,
-                order: order,
-            },
-            () => { },
-            () => { },
-        ));
+        dispatch(actions.getPosts({
+            title: title.trim(),
+            categoryId: categoryId,
+            page: 0,
+            criteria: criteria,
+            order: order ? "desc" : "asc", // Asumiendo que "desc" es para orden descendente y "asc" para ascendente
+        }));
         dispatch(actions.getAllCategories(() => { }))
     }, [dispatch, categoryId, title, criteria, order]);
 
     return (
-        <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1800 }}>
+        <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 2500 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <Grid container spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 2 }}>
                     <Grid item xs={12} sm={6} md={4}>
@@ -83,27 +79,6 @@ const AllPostList = () => {
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                         <FormControl variant="outlined" fullWidth>
-                            <InputLabel id="criteria-label">Criteria</InputLabel>
-                            <Select
-                                labelId="criteria-label"
-                                value={criteria}
-                                onChange={e => {
-                                    if (e.target.value === "all") {
-                                        setCriteria(null)
-                                    }
-                                    if (e.target.value === "creationDate") {
-                                        setCriteria(0)
-                                    }
-                                }}
-                                label="Criteria"
-                            >
-                                <MenuItem value="all"><FormattedMessage id="project.global.dropdown.sortCriteriaAll" /></MenuItem>
-                                <MenuItem value="creationDate"><FormattedMessage id="project.global.dropdown.sortCriteriaCreationDate" /></MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
-                        <FormControl variant="outlined" fullWidth>
                             <InputLabel id="order-label">Order</InputLabel>
                             <Select
                                 labelId="order-label"
@@ -126,18 +101,6 @@ const AllPostList = () => {
                                 <MenuItem value="orderDES"><FormattedMessage id="project.global.dropdown.sortOrderDES" /></MenuItem>
                             </Select>
                         </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                            onClick={handleSubmit}
-                            sx={{ backgroundColor: '#00000F', borderColor: '#FFFFF0' }}
-                            fullWidth
-                        >
-                            <FormattedMessage id="project.global.buttons.filter" />
-                        </Button>
                     </Grid>
                 </Grid>
                 <Box sx={{ width: '100%', p: 5 }}>

@@ -90,9 +90,10 @@ const TeamVictoriesBarChart = () => {
         dispatch(actions.getVictoriesPerCircuitAndTeam(() => {}));
     }, [dispatch]);
 
-    if (isLoading || !circuitVictories.existMoreItems || !victoriesPerCircuitAndTeam) {
+    if (isLoading || !circuitVictories?.existMoreItems || !victoriesPerCircuitAndTeam) {
         return <div>Loading...</div>;
     }
+
 
     // Transforma los datos para la gráfica de barras
     const barChartData = circuitVictories.items.reduce((acc, curr) => {

@@ -62,8 +62,10 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/events/event/*")).permitAll()
                         .requestMatchers(antMatcher("/api/historic/teams/victories/count")).permitAll()
                         .requestMatchers(antMatcher("/api/historic/circuits/victories/count")).permitAll()
+                        .requestMatchers(antMatcher("/api/historic/circuits/{name}/teams/victories")).permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
         // @formatter:on
 

@@ -118,7 +118,34 @@ public class HistoricServiceImpl implements HistoricService{
 
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Block<TeamVictoryStats> getTeamVictoriesByCircuitName(String circuitName) throws InstanceNotFoundException {
+        // Buscar todos los podios para el circuito especificado
+        List<Podium> podiums = podiumDao.findByCircuitNameIgnoreCase(circuitName);
 
+        if (podiums.isEmpty()) {
+            throw new InstanceNotFoundException("No hay datos disponibles para el circuito: " , circuitName);
+        }
+
+        // Agrupar por equipo y contar las victorias
+        Map<String, Integer> victoriesByTeam = new HashMap<>();
+        for (Podium podium : podiums) {
+            victoriesByTeam.put(podium.getTeamWinner(), victoriesByTeam.getOrDefault(podium.getTeamWinner(), 0) + 1);
+        }
+
+        // Convertir el mapa a una lista de TeamVictoryStats
+        List<TeamVictoryStats> teamVictoryStatsList = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : victoriesByTeam.entrySet()) {
+            teamVictoryStatsList.add(new TeamVictoryStats(entry.getKey(), entry.getValue()));
+        }
+
+        // Ordenar la lista por número de victorias
+        teamVictoryStatsList.sort((stats1, stats2) -> Integer.compare(stats2.getVictories(), stats1.getVictories()));
+
+        // Devolver el bloque con la lista de estadísticas de victorias
+        return new Block<>(teamVictoryStatsList, false); // false porque siempre estamos solicitando todos los elementos disponibles
+    }
 
 
 }

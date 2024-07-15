@@ -7,9 +7,14 @@ import {Link, useNavigate, useParams} from 'react-router-dom';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Box, Container, Alert, AlertTitle } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import WebFont from 'webfontloader';
+import "../../app/components/App.css";
 import TextField from "@mui/material/TextField";
 import PodiumList from "./PodiumList";
+
+
 import {sourceImages} from '../../../helpers/sourceImages';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faChartPie} from "@fortawesome/free-solid-svg-icons";
 
 const CircuitDetails = () => {
     const { id } = useParams();
@@ -100,13 +105,8 @@ const CircuitDetails = () => {
                                 </strong>
                                 </TableCell>
                                 <TableCell><strong>
-                                    <Link
-                                        className="nav-link"
-                                        to={`/historic/stats`}
-                                        style={{ color: 'black', textDecoration: 'underline' }}
-                                    >
-                                        <FormattedMessage id="project.modules.historic.stats" />
-                                    </Link>
+
+
                                 </strong>
                                 </TableCell>
 

@@ -21,11 +21,18 @@
 
 .Body {
   position: relative;
-  border-top: 180px solid transparent; /* Altura del encabezado + un poco extra */
-  margin: -60px 0 0; /* Compensa el borde superior */
+  border-top: 95px solid transparent; /* Altura del encabezado + un poco extra */
+  margin: 0; /* Eliminamos el margen superior negativo */
   -webkit-background-clip: padding-box;
   -moz-background-clip: padding;
   background-clip: padding-box;
+  width:100%;
+}
+
+/* Nuevo estilo para el contenedor principal */
+.contenedorPrincipal {
+  min-height: calc(100vh - 180px); /* Calcula el alto total disponible menos el borde superior */
+  width: 100%;
 }
 
 .Body:before {
@@ -131,3 +138,26 @@
   /* Ajusta el ancho del formulario aquí si es necesario */
   width: 100%; /* O cualquier otro valor que necesites */
 }
+
+.stats-link {
+  color: black;
+  text-decoration: underline;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+}
+
+.stats-link span {
+  margin-left: 5px;
+}
+
+.stats-link:hover {
+  color: #007bff;
+}
+
+.stat-btn i {
+  font-size: 1.5em; /* Ajusta el tamaño según sea necesario */
+  margin-right: 5px; /* Espacio entre el ícono y el texto */
+}
+

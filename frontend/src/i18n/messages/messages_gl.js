@@ -65,5 +65,10 @@ const gl = {
     'project.users.CreateEvent.title': 'Crear Evento',
     'project.About_Us': 'About Us',
     'project.Contact': 'Contact',
+    'project.modules.historic.stats': 'Estatísticas',
+    'project.global.fields.subtitle': 'Subtitulo',
+    'project.global.fields.article': 'Artículo',
+    'project.global.fields.category': 'Categoría',
+    'project.posts.CreatePost.title': 'Crear publicación',
 }
 export default gl;

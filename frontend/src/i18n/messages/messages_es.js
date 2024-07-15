@@ -66,6 +66,13 @@ const es = {
     'project.users.CreateEvent.title': 'Crear Evento',
     'project.About_Us': 'About Us',
     'project.Contact': 'Contact',
+    'project.modules.historic.stats': 'Estadísticas',
+    'project.global.fields.subtitle': 'Subtitulo',
+    'project.global.fields.article': 'Artículo',
+    'project.global.fields.category': 'Categoría',
+    'project.posts.CreatePost.title': 'Crear publicación',
+    'project.user.postImage.title': 'Titulo Imagen',
+    'project.global.post.addImageCreatePost': 'Añadir Imagen',
 
 
 }

@@ -9,6 +9,7 @@ const initialState = {
     podiums: null,
     victoriesByTeam: null ,
     victoriesCircuitsTeams: null,
+    teamVictoriesCircuit: null,
 };
 
 // Manejo de detalles de circuitos y podios
@@ -68,6 +69,14 @@ const victoriesCircuitsTeams = (state = initialState.victoriesCircuitsTeams, act
     }
 };
 
+const teamVictoriesCircuit = (state = initialState.teamVictoriesCircuit, action) => {
+    switch (action.type) {
+        case actionTypes.GET_TEAMS_VICTORIES_BY_CIRCUIT_COMPLETED:
+            return action.teamVictoriesCircuit;
+        default:
+            return state;
+    }
+};
 
 
 const reducer = combineReducers({
@@ -77,6 +86,7 @@ const reducer = combineReducers({
     podiums,
     victoriesByTeam,
     victoriesCircuitsTeams,
+    teamVictoriesCircuit,
 });
 
 

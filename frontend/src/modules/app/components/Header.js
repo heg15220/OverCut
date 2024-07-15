@@ -8,6 +8,8 @@ import Notifications from "./Notifications";
 
 import image from './Resources/logo.svg';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faChartPie} from "@fortawesome/free-solid-svg-icons";
 
 const Header = () => {
     const isLogged = useSelector(users.selectors.isLoggedIn);
@@ -36,6 +38,29 @@ const Header = () => {
                                 <FormattedMessage id="project.app.Header.historic" />
                             </Link>
                         </li>
+
+                        <Link to="/historic/stats" style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <button
+                                className="stat-btn"
+                                style={{
+                                    color: 'black',
+                                    background: '#f0f0f0',
+                                    borderRadius: '5px',
+                                    padding: '10px 15px',
+                                    fontSize: '1rem',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    border: 'none',
+                                    outline: 'none',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '10px'
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faChartPie} /> {/* Ícono de estadísticas */}
+                                <span><FormattedMessage id="project.modules.historic.stats" /></span>
+                            </button>
+                        </Link>
                         {isLogged &&
                             <Notifications />
                         }

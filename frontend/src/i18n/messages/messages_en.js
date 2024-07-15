@@ -67,5 +67,13 @@ const en = {
     'project.About_Us': 'About Us',
     'project.Contact': 'Contact',
     'project.modules.historic.stats': 'Stats',
+    'project.global.fields.subtitle': 'Subtitle',
+    'project.global.fields.article': 'Article',
+    'project.global.fields.category': 'Category',
+    'project.posts.CreatePost.title': 'Create Post',
+    'project.user.addImage': 'Add Image',
+    'project.user.postImage.title': 'Image title',
+    'project.global.post.addImageCreatePost': 'Add Image',
+
 }
 export default en;

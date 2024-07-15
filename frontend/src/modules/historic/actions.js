@@ -1,5 +1,6 @@
 import backend from '../../backend';
 import * as actionTypes from "../historic/actionTypes";
+import {getTeamVictoriesByCircuitName} from "../../backend/historicService";
 
 const circuitDetailsCompleted = (circuit)=> ({
     type: actionTypes.GET_CIRCUIT_DETAILS_COMPLETED,
@@ -30,6 +31,13 @@ const victoriesPerCircuitTeamCompleted = (victoriesCircuitsTeams)=> ({
     type: actionTypes.GET_VICTORIES_PER_CIRCUIT_AND_TEAM_COMPLETED,
     victoriesCircuitsTeams
 });
+const teamsVictoriesByCircuitCompleted = (teamVictoriesCircuit)=> ({
+    type: actionTypes.GET_TEAMS_VICTORIES_BY_CIRCUIT_COMPLETED,
+    teamVictoriesCircuit
+});
+
+
+
 // Función para obtener detalles de un circuito
 export const fetchCircuitDetails  = (id, onSuccess) => dispatch =>
     backend.historicService.getCircuitDetails(id,circuit => {
@@ -74,3 +82,11 @@ export const getVictoriesPerCircuitAndTeam = (onSuccess) => dispatch =>
         dispatch(victoriesPerCircuitTeamCompleted(victoriesCircuitsTeams));
         onSuccess(victoriesCircuitsTeams);
     });
+
+
+export const getTeamsVictoriesByCircuitName = (circuitName,onSuccess) => dispatch =>
+    backend.historicService.getVictoriesPerCircuitAndTeam(circuitName,teamVictoriesCircuit => {
+        dispatch(teamsVictoriesByCircuitCompleted(teamVictoriesCircuit));
+        onSuccess(teamVictoriesCircuit);
+    });
+

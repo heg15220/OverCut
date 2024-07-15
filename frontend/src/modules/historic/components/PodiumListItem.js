@@ -8,8 +8,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 
-
-const PodiumListItem = ({ podium, data }) => {
+const PodiumListItem = ({ podium }) => {
     const navigate = useNavigate();
     const [imageRef, setImageRef] = useState(null);
 
@@ -24,7 +23,7 @@ const PodiumListItem = ({ podium, data }) => {
             <Box
                 sx={{
                     width: '100%',
-                    height: '85vh', // Aumenta el espacio que ocupa la imagen
+                    height: '80vh',
                     overflow: 'hidden',
                     position: 'relative',
                     '&:hover': {
@@ -42,26 +41,12 @@ const PodiumListItem = ({ podium, data }) => {
                     src={sourceImages(`./${podium.image}`)}
                     alt="Post Image"
                     style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+
                     onClick={handleImageOrTitleClick}
                     sx={{
                         transition: 'transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out',
                     }}
                 />
-                <Typography variant="body2" component="div" sx={{
-                    fontSize: '1.2rem',
-                    fontStyle: 'italic',
-                    fontWeight: 'bold',
-                    color: '#333333',
-                    padding: '5px',
-                    borderRadius: '5px',
-                    maxWidth: 'auto',
-                    display: 'inline-block',
-                    marginX: 'auto',
-                }}
-                            onClick={handleImageOrTitleClick}
-                >
-                    {podium.date}
-                </Typography>
             </Box>
             {/* Muestra el título debajo de la imagen */}
             <Typography variant="body2" component="div" sx={{

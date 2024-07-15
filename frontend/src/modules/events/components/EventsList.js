@@ -7,6 +7,7 @@ import * as selectors from '../selectors';
 import {Events} from "../index";
 import {Link} from "react-router-dom";
 import {FormattedMessage} from "react-intl";
+import "../../app/components/App.css";
 
 const EventsList = () => {
     const dispatch = useDispatch();
@@ -28,11 +29,12 @@ const EventsList = () => {
     return (
         <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1200 }}>
             <Typography variant="h4" align="center"><FormattedMessage id = "project.entities.Events"/></Typography>
-            <li className="nav-item">
-                <Link className="nav-link" to={`/events/create`} style={{ color: 'black' }}>
-                    <FormattedMessage id="project.events.events.create" />
+                <Link to="/events/create">
+                    <button className="btn-custom" style={{ color: 'white', background: 'black', borderRadius: '5px', padding: '10px 20px', fontSize: '1rem', fontWeight: 'bold' }}>
+                        <FormattedMessage id="project.events.events.create" />
+                    </button>
                 </Link>
-            </li>
+
             <Grid container spacing={2} justifyContent="center" alignItems="center">
                 <Grid item xs={12}> {/* Contenedor para los circuitos y la paginación */}
                     <Events events={events} />
