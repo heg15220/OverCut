@@ -52,3 +52,7 @@ export const getVictoriesPerCircuitAndTeam = (onSuccess) => {
 export const getTeamVictoriesByCircuitName = (id, onSuccess) => {
     appFetch(`/historic/circuits/${id}/teams/victories`, fetchConfig("GET"), onSuccess);
 };
+
+export const getDriversVictoriesByCircuitName = (id, onSuccess) => {
+    appFetch(`/historic/circuits/${id}/drivers/victories`, fetchConfig("GET"), onSuccess);
+};

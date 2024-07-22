@@ -13,3 +13,4 @@ export const getVictoriesByTeam = state => getModuleState(state).victoriesByTeam
 
 export const getVictoriesPerCircuitAndTeam = state => getModuleState(state).victoriesCircuitsTeams;
 export const getTeamsVictoriesByCircuit = state => getModuleState(state).teamVictoriesCircuit;
+export const getDriversVictoriesByCircuit = state => getModuleState(state).driversVictoriesCircuit;

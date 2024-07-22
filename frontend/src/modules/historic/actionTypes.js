@@ -5,3 +5,4 @@ export const GET_PODIUMS_BY_CIRCUIT_COMPLETED = "project/historic/getPodiumsByCi
 export const GET_TEAM_VICTORIES_COUNT_COMPLETED = "project/historic/getTeamVictoriesCountCompleted";
 export const GET_VICTORIES_PER_CIRCUIT_AND_TEAM_COMPLETED = "project/historic/getVictoriesPerCircuitAndTeamCompleted";
 export const GET_TEAMS_VICTORIES_BY_CIRCUIT_COMPLETED = "project/historic/getTeamsVictoriesByCircuitCompleted";
+export const GET_DRIVERS_VICTORIES_BY_CIRCUIT_COMPLETED = "project/historic/getDriversVictoriesByCircuitCompleted";

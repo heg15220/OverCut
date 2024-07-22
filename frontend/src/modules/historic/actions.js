@@ -37,6 +37,12 @@ const teamsVictoriesByCircuitCompleted = (teamVictoriesCircuit)=> ({
 });
 
 
+const driversVictoriesByCircuitCompleted = (driversVictoriesCircuit)=> ({
+    type: actionTypes.GET_DRIVERS_VICTORIES_BY_CIRCUIT_COMPLETED,
+    driversVictoriesCircuit
+});
+
+
 
 // Función para obtener detalles de un circuito
 export const fetchCircuitDetails  = (id, onSuccess) => dispatch =>
@@ -87,4 +93,10 @@ export const getTeamsVictoriesByCircuitName  = (id, onSuccess) => dispatch =>
     backend.historicService.getTeamVictoriesByCircuitName(id,teamVictoriesCircuit => {
         dispatch(teamsVictoriesByCircuitCompleted(teamVictoriesCircuit));
         onSuccess(teamVictoriesCircuit)
+    },);
+
+export const getDriversVictoriesByCircuitName  = (id, onSuccess) => dispatch =>
+    backend.historicService.getDriversVictoriesByCircuitName(id,driversVictoriesCircuit => {
+        dispatch(driversVictoriesByCircuitCompleted(driversVictoriesCircuit));
+        onSuccess(driversVictoriesCircuit)
     },);

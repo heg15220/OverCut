@@ -17,6 +17,7 @@ const TeamsVictoriesCircuitBarChart = () => {
     const dispatch = useDispatch();
     const { id } = useParams();
     const teamsVictoriesCircuit = useSelector(selectors.getTeamsVictoriesByCircuit);
+    const driversVictoriesCircuit = useSelector(selectors.getDriversVictoriesByCircuit);
     const isLoading = useSelector(state => state.isLoading);
 
     useEffect(() => {
@@ -30,6 +31,17 @@ const TeamsVictoriesCircuitBarChart = () => {
     }, [dispatch, id]);
 
 
+
+    useEffect(() => {
+        const circuitId = Number(id);
+        if (!Number.isNaN(circuitId) && circuitId !== "undefined") {
+            dispatch(actions.getDriversVictoriesByCircuitName(circuitId, () => {}));
+        } else {
+            console.error("ID inválido o no definido");
+            // Maneja el caso en que el ID sea inválido o no definido
+        }
+    }, [dispatch, id]);
+
     const colors = [
         '#FF0000', '#800000', '#FFFF00', '#808000', '#008000', '#004000',
         '#0000FF', '#000080', '#00FFFF', '#008080', '#000088', '#FF00FF', '#800080',
@@ -37,7 +49,7 @@ const TeamsVictoriesCircuitBarChart = () => {
     ];
 
     // Verifica si los datos están cargando o si no hay datos disponibles
-    if (isLoading || !teamsVictoriesCircuit || !teamsVictoriesCircuit.items.length) {
+    if (isLoading || !teamsVictoriesCircuit || !teamsVictoriesCircuit.items.length || !driversVictoriesCircuit || !driversVictoriesCircuit.items.length) {
         return <div>Loading...</div>; // Muestra un indicador de carga o retorna temprano
     }
 
@@ -56,6 +68,24 @@ const TeamsVictoriesCircuitBarChart = () => {
                 <Legend />
                 <Bar dataKey="victories" fill="#8884d8">
                     {teamsVictoriesCircuit.items.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                    ))}
+                </Bar>
+            </BarChart>
+
+            <BarChart
+                width={1000}
+                height={300}
+                data={driversVictoriesCircuit.items}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="pilotName" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="victories" fill="#8884d8">
+                    {driversVictoriesCircuit.items.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                     ))}
                 </Bar>
