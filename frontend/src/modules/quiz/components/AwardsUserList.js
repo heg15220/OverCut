@@ -6,6 +6,7 @@ import * as selectors from "../selectors";
 import * as actions from "../actions";
 import {Pager} from "../../common";
 import AwardItems from "./AwardItems";
+import AwardsUserItems from "./AwardsUserItems";
 
 const AwardsUserList = () => {
     const dispatch = useDispatch();
@@ -28,21 +29,7 @@ const AwardsUserList = () => {
     return (
         <Grid container spacing={2} justifyContent="center" alignItems="center">
             <Grid item xs={12}>
-                <AwardItems awards={awards} />
-                <Grid container direction="column" alignItems="center" justifyContent="center" sx={{ mt: 2 }}>
-                    {awards && (
-                        <Pager
-                            back={{
-                                enabled: currentPage > 0,
-                                onClick: () => handlePageChange(currentPage - 1),
-                            }}
-                            next={{
-                                enabled: currentPage < awards.totalPages - 1,
-                                onClick: () => handlePageChange(currentPage + 1),
-                            }}
-                        />
-                    )}
-                </Grid>
+                <AwardsUserItems awards={awards} />
             </Grid>
         </Grid>
     );

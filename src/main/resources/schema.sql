@@ -277,6 +277,11 @@ VALUES ('PS5', 5, 'ps5-product-thumbnail-01-en-14sep21.jpg');
 INSERT INTO Award(award,requiredPoints, image)
 VALUES ('Thrustmaster T150', 8, 'UTH_T150-racing-wheel-PS4-PC-1-7.jpg');
 
+
+INSERT INTO Award(award,requiredPoints, image)
+VALUES ('PC Gaming', 12, '819cOVjBRRL.jpg');
+
+
 INSERT INTO Question (name, imagePath,knowledgequestionlevel)
 VALUES ('¿Cuál es el nombre de esta escuderia?','bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);
 

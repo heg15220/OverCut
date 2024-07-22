@@ -326,7 +326,7 @@ public class QuizServiceImpl implements QuizService {
             awardDao.save(award);
         }
 
-        Slice<Award> awards2 = awardDao.findAwardsAvailableForUserByPoints(userId,PageRequest.of(page,size));
+        Slice<Award> awards2 = awardDao.findAllAwardsSlice(PageRequest.of(page,size));
 
         return new Block<>(awards2.getContent(), awards2.hasNext());
     }

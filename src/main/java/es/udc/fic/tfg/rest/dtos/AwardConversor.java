@@ -19,6 +19,10 @@ public class AwardConversor {
      */
     public static AwardDto convertToAwardDto(Award award) {
 
+        if(award.getUser() == null) {
+            return new AwardDto(award.getId(), award.getAward(),award.getRequiredPoints(), award.getImage(), null);
+        }
+
         return new AwardDto(award.getId(), award.getAward(),award.getRequiredPoints(), award.getImage(), award.getUser().getId());
     }
 

@@ -12,7 +12,7 @@ public class AwardDto {
 
     private Long userId;
 
-    public AwardDto(Long id, String award, int requiredPoints, String image,Long userId) {
+    public AwardDto(Long id, String award, int requiredPoints, String image, Long userId) {
         this.id = id;
         this.award = award;
         this.requiredPoints = requiredPoints;
