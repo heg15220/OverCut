@@ -70,5 +70,12 @@ const gl = {
     'project.global.fields.article': 'Artículo',
     'project.global.fields.category': 'Categoría',
     'project.posts.CreatePost.title': 'Crear publicación',
+    'project.entities.User.Points': 'Puntos usuario: ',
+    'project.entities.Quiz.Answers': 'A resposta correcta é: ',
+    'project.entities.stats.circuit': 'Datos do Circuito das ultimas 10 temporadas',
+    'project.entities.stats.teams.wins': 'Total de victorias de equipos nas ultimas 10 temporadas',
+    'project.entities.stats.drivers.podiums': 'Pilotos con mais podios en F1',
+    'project.entities.stats.drivers.wins': 'Pilotos con mais victorias en F1',
+    'project.entities.stats.drivers.championships': 'Pilotos con mais campeonatos de F1',
 }
 export default gl;

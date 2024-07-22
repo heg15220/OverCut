@@ -10,6 +10,7 @@ import { Grid } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 
 import {sourceImages} from '../../../helpers/sourceImages';
+import {FormattedMessage} from "react-intl";
 
 const QuestionDetails = ({ question, onAnswerSubmit }) => {
     const user = useSelector(userSelectors.getUser);
@@ -136,7 +137,8 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                                     </>
                                     {showCorrectAnswer && !answer.correct && (
                                         <Typography variant="body2" color="textSecondary">
-                                            La respuesta correcta es: {answers.find(a => a.correct)?.name}
+                                            <FormattedMessage id="project.entities.Quiz.Answers"></FormattedMessage>
+                                        {answers.find(a => a.correct)?.name}
                                         </Typography>
                                     )}
                                 </Button>

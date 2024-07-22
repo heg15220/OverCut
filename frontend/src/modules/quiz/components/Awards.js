@@ -105,6 +105,20 @@ const Awards = () => {
                             {award.requiredPoints}
                         </Typography>
 
+                        <Typography variant="h5" component="div" sx={{
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            color: 'text.primary',
+                            marginTop: '1rem',
+                            marginBottom: '1rem',
+                        }}>
+                            <FormattedMessage id="project.entities.User.Points"></FormattedMessage>
+                            {user.points}
+                        </Typography>
+
+
+                        {user.points >= award.requiredPoints? (
                         <Button
                             key={award.id}
                             variant="contained"
@@ -112,6 +126,7 @@ const Awards = () => {
                         >
                             <FormattedMessage id="project.entities.AwardDetails.Button"> </FormattedMessage>
                         </Button>
+                        ) : null}
                     </CardContent>
                 </Card>
             </Box>

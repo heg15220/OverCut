@@ -16,13 +16,15 @@ import {
 } from 'recharts';
 import * as actions from "../actions";
 import * as selectors from "../selectors";
+import {FormattedMessage} from "react-intl";
+import {Typography} from "@mui/material";
 
 
 const rankingData = [
-    { name: 'Lewis Hamilton', score: 199 },
+    { name: 'Lewis Hamilton', score: 200 },
     { name: 'Michael Schumacher', score: 155 },
     { name: 'Sebastian Vettel', score: 122 },
-    { name: 'Max Verstappen', score: 107 },
+    { name: 'Max Verstappen', score: 108 },
     { name: 'Alain Prost', score: 106 },
     { name: 'Fernando Alonso', score: 106 },
     { name: 'Kimi Raikkonen', score: 103 },
@@ -135,9 +137,24 @@ const TeamVictoriesBarChart = () => {
 
     return (
         <>
+            <Typography variant="body2" color="text.secondary" sx={{
+                fontSize: '1.2rem', // Ajusta el tamaño de la fuente
+                fontStyle: 'italic', // Aplica estilo cursiva
+                fontWeight: 'bold', // Aplica negrita
+                color: '#333333', // Color de texto blanco
+                padding: '5px', // Espaciado interno
+                borderRadius: '5px', // Bordes redondeados
+                marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
+                maxWidth: 'auto', // Permite que el ancho se adapte al contenido
+                display: 'inline-block', // Hace que el componente se ajuste al contenido
+                marginX: 'auto', // Centra horizontalmente el componente
+            }}>
+                <FormattedMessage id="project.entities.stats.teams.wins"></FormattedMessage>
+            </Typography>
+
             {/* Tu gráfica de barras existente */}
             <BarChart
-                width={500}
+                width={900}
                 height={300}
                 data={barChartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
@@ -176,6 +193,21 @@ const TeamVictoriesBarChart = () => {
                 <Tooltip />
                 <Legend />
             </PieChart>
+            <Typography variant="body2" color="text.secondary" sx={{
+                fontSize: '1.2rem', // Ajusta el tamaño de la fuente
+                fontStyle: 'italic', // Aplica estilo cursiva
+                fontWeight: 'bold', // Aplica negrita
+                color: '#333333', // Color de texto blanco
+                padding: '5px', // Espaciado interno
+                borderRadius: '5px', // Bordes redondeados
+                marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
+                maxWidth: 'auto', // Permite que el ancho se adapte al contenido
+                display: 'inline-block', // Hace que el componente se ajuste al contenido
+                marginX: 'auto', // Centra horizontalmente el componente
+            }}>
+
+            <FormattedMessage id="project.entities.stats.drivers.podiums"></FormattedMessage>
+            </Typography>
             <BarChart
                 width={1500}
                 height={300}
@@ -197,7 +229,21 @@ const TeamVictoriesBarChart = () => {
                     ))}
                 </Bar>
             </BarChart>
+            <Typography variant="body2" color="text.secondary" sx={{
+                fontSize: '1.2rem', // Ajusta el tamaño de la fuente
+                fontStyle: 'italic', // Aplica estilo cursiva
+                fontWeight: 'bold', // Aplica negrita
+                color: '#333333', // Color de texto blanco
+                padding: '5px', // Espaciado interno
+                borderRadius: '5px', // Bordes redondeados
+                marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
+                maxWidth: 'auto', // Permite que el ancho se adapte al contenido
+                display: 'inline-block', // Hace que el componente se ajuste al contenido
+                marginX: 'auto', // Centra horizontalmente el componente
+            }}>
 
+            <FormattedMessage id="project.entities.stats.drivers.wins"></FormattedMessage>
+            </Typography>
             <BarChart
                 width={1500}
                 height={300}
@@ -220,9 +266,23 @@ const TeamVictoriesBarChart = () => {
                 </Bar>
             </BarChart>
 
-            <BarChart width={1200} height={300} data={data}>
+            <Typography variant="body2" color="text.secondary" sx={{
+                fontSize: '1.2rem', // Ajusta el tamaño de la fuente
+                fontStyle: 'italic', // Aplica estilo cursiva
+                fontWeight: 'bold', // Aplica negrita
+                color: '#333333', // Color de texto blanco
+                padding: '5px', // Espaciado interno
+                borderRadius: '5px', // Bordes redondeados
+                marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
+                maxWidth: 'auto', // Permite que el ancho se adapte al contenido
+                display: 'inline-block', // Hace que el componente se ajuste al contenido
+                marginX: 'auto', // Centra horizontalmente el componente
+            }}>
+            <FormattedMessage id="project.entities.stats.drivers.championships"></FormattedMessage>
+            </Typography>
+            <BarChart width={1200} height={400} data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" height={60} />
+                <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" height={100} />
                 <YAxis />
                 <Tooltip />
                 <Legend />

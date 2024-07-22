@@ -12,6 +12,8 @@ import {
     YAxis
 } from "recharts";
 import { useParams } from "react-router-dom";
+import {FormattedMessage} from "react-intl";
+import {Typography} from "@mui/material";
 
 const TeamsVictoriesCircuitBarChart = () => {
     const dispatch = useDispatch();
@@ -55,6 +57,21 @@ const TeamsVictoriesCircuitBarChart = () => {
 
     return (
         <>
+            <Typography variant="body2" color="text.secondary" sx={{
+                fontSize: '1.2rem', // Ajusta el tamaño de la fuente
+                fontStyle: 'italic', // Aplica estilo cursiva
+                fontWeight: 'bold', // Aplica negrita
+                color: '#333333', // Color de texto blanco
+                padding: '5px', // Espaciado interno
+                borderRadius: '5px', // Bordes redondeados
+                marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
+                maxWidth: 'auto', // Permite que el ancho se adapte al contenido
+                display: 'inline-block', // Hace que el componente se ajuste al contenido
+                marginX: 'auto', // Centra horizontalmente el componente
+            }}>
+
+            <FormattedMessage id="project.entities.stats.circuit"></FormattedMessage>
+            </Typography>
             <BarChart
                 width={500}
                 height={300}

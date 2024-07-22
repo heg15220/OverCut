@@ -7,8 +7,9 @@ import * as actions from '../../events/actions';
 import { useDispatch, useSelector } from "react-redux";
 import EventDetails from "./EventDetails";
 import EventCalendarDetails from "./EventCalendarDetails";
-import {styled} from "@mui/system";
-import {Box} from "@mui/material"; // Asegúrate de que la ruta de importación sea correcta
+import { styled } from "@mui/system";
+import { Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const CalendarContainer = styled(Box)`
   width: 100%;
@@ -20,6 +21,7 @@ const CalendarContainer = styled(Box)`
 const MyCustomCalendar = () => {
     const dispatch = useDispatch();
     const events = useSelector(selectors.getEvents);
+    const navigate = useNavigate();
 
     useEffect(() => {
         dispatch(actions.getEvents(0, () => {}));
@@ -40,6 +42,7 @@ const MyCustomCalendar = () => {
                 plugins={[dayGridPlugin]}
                 initialView="dayGridMonth"
                 events={calendarEvents}
+                selectable={false} // Desactiva la selección de eventos
                 eventContent={({ event }) => (
                     <EventCalendarDetails details={event} />
                 )}
