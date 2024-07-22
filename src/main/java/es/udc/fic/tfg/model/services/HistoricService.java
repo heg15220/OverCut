@@ -1,10 +1,7 @@
 package es.udc.fic.tfg.model.services;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
-import es.udc.fic.tfg.model.entities.Circuit;
-import es.udc.fic.tfg.model.entities.Podium;
-import es.udc.fic.tfg.model.entities.TeamVictoryStats;
-import es.udc.fic.tfg.model.entities.VictoryStats;
+import es.udc.fic.tfg.model.entities.*;
 
 import java.util.AbstractMap;
 import java.util.List;
@@ -24,4 +21,6 @@ public interface HistoricService {
 
     Block<VictoryStats> getVictoriesPerCircuitAndTeam();
     Block<TeamVictoryStats> getTeamVictoriesByCircuitName(String circuitName) throws InstanceNotFoundException;
+    Block<PilotVictoryStats> getPilotVictoriesByCircuitName(String circuitName) throws InstanceNotFoundException;
+
 }

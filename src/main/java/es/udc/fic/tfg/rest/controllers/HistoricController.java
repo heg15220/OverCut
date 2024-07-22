@@ -80,4 +80,13 @@ public class HistoricController {
         return new BlockDto<>(TeamVictoryStatsConversor.toTeamsVictoryStatsDtos(teamVictoryStats.getItems()), teamVictoryStats.getExistMoreItems());
     }
 
+    @GetMapping("/circuits/{id}/drivers/victories")
+    public BlockDto<PilotVIctoryStatsDto> getDriversVictoriesByCircuitName(@PathVariable("id") Long circuitId) throws InstanceNotFoundException {
+        Circuit circuit = circuitDao.findCircuitById(circuitId);
+        String circuitName = circuit.getName();
+        Block<PilotVictoryStats> teamVictoryStats = historicService.getPilotVictoriesByCircuitName(circuitName);
+
+        return new BlockDto<>(PilotVictoryStatsConversor.toDriversVictoryStatsDtos(teamVictoryStats.getItems()), teamVictoryStats.getExistMoreItems());
+    }
+
 }

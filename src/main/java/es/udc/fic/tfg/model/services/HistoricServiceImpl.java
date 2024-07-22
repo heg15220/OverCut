@@ -147,5 +147,26 @@ public class HistoricServiceImpl implements HistoricService{
         return new Block<>(teamVictoryStatsList, false); // false porque siempre estamos solicitando todos los elementos disponibles
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Block<PilotVictoryStats> getPilotVictoriesByCircuitName(String circuitName) throws InstanceNotFoundException {
+        List<Object[]> results = podiumDao.findPilotVictoriesByCircuitName(circuitName);
+        if (results.isEmpty()) {
+            throw new InstanceNotFoundException("No hay datos disponibles para el circuito: " ,circuitName);
+        }
+
+        Optional<Circuit> circuit= circuitDao.findByName(circuitName);
+        Long circuitId = circuit.get().getId();
+        List<PilotVictoryStats> pilotVictoryStatsList = new ArrayList<>();
+        for (Object[] result : results) {
+            String pilotName = (String) result[0];
+            Long victories = (Long) result[1];
+            pilotVictoryStatsList.add(new PilotVictoryStats(circuitId,pilotName, victories));
+        }
+
+        // Crear un Block con la lista de estadísticas de victorias
+        return new Block<>(pilotVictoryStatsList, !pilotVictoryStatsList.isEmpty());
+    }
+
 
 }

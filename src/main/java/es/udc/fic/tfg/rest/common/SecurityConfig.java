@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/historic/teams/victories/count")).permitAll()
                         .requestMatchers(antMatcher("/api/historic/circuits/victories/count")).permitAll()
                         .requestMatchers(antMatcher("/api/historic/circuits/{name}/teams/victories")).permitAll()
+                        .requestMatchers(antMatcher("/api/historic/circuits/{id}/drivers/victories")).permitAll() // Agrega esta línea
                         .anyRequest().authenticated()
                 )
 

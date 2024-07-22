@@ -31,5 +31,9 @@ public interface PodiumDao extends CrudRepository<Podium, Long>, CustomizedPodiu
     List<Podium> findByCircuitNameIgnoreCase(@Param("circuitName") String circuitName);
 
 
+    @Query("SELECT p FROM Podium p WHERE p.winner = :pilotName AND LOWER(p.circuit.name) LIKE LOWER(CONCAT('%', :circuitName, '%'))")
+    List<Podium> findByPilotNameAndCircuitNameIgnoreCase(@Param("pilotName") String pilotName, @Param("circuitName") String circuitName);
 
+    @Query("SELECT p.winner AS pilotName, COUNT(p) AS victories FROM Podium p WHERE LOWER(p.circuit.name) LIKE LOWER(CONCAT('%', :circuitName, '%')) GROUP BY p.winner")
+    List<Object[]> findPilotVictoriesByCircuitName(String circuitName);
 }
