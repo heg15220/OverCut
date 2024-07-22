@@ -1,10 +1,7 @@
 package es.udc.fic.tfg.rest.controllers;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
-import es.udc.fic.tfg.model.entities.Circuit;
-import es.udc.fic.tfg.model.entities.Podium;
-import es.udc.fic.tfg.model.entities.TeamVictoryStats;
-import es.udc.fic.tfg.model.entities.VictoryStats;
+import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.Block;
 import es.udc.fic.tfg.model.services.HistoricService;
 import es.udc.fic.tfg.model.services.PostService;
@@ -25,6 +22,9 @@ public class HistoricController {
 
     @Autowired
     private HistoricService historicService;
+
+    @Autowired
+    private CircuitDao circuitDao;
 
     @GetMapping("/{id}/circuits")
     public BlockDto<CircuitDto> getCircuits(@PathVariable("id") Long categoryId, @RequestParam(defaultValue = "0") int page)
@@ -71,8 +71,10 @@ public class HistoricController {
         return new BlockDto<>(VictoryStatsConversor.toVictoryStatsDtos(victoriesByTeam.getItems()), victoriesByTeam.getExistMoreItems());
     }
 
-    @GetMapping("/circuits/{circuitName}/teams/victories")
-    public BlockDto<TeamVictoryStatsDto> getTeamVictoriesByCircuitName(@PathVariable("circuitName") String circuitName) throws InstanceNotFoundException {
+    @GetMapping("/circuits/{id}/teams/victories")
+    public BlockDto<TeamVictoryStatsDto> getTeamVictoriesByCircuitName(@PathVariable("id") Long circuitId) throws InstanceNotFoundException {
+        Circuit circuit = circuitDao.findCircuitById(circuitId);
+        String circuitName = circuit.getName();
         Block<TeamVictoryStats> teamVictoryStats = historicService.getTeamVictoriesByCircuitName(circuitName);
 
         return new BlockDto<>(TeamVictoryStatsConversor.toTeamsVictoryStatsDtos(teamVictoryStats.getItems()), teamVictoryStats.getExistMoreItems());

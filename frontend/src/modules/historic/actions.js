@@ -83,10 +83,8 @@ export const getVictoriesPerCircuitAndTeam = (onSuccess) => dispatch =>
         onSuccess(victoriesCircuitsTeams);
     });
 
-
-export const getTeamsVictoriesByCircuitName = (circuitName,onSuccess) => dispatch =>
-    backend.historicService.getVictoriesPerCircuitAndTeam(circuitName,teamVictoriesCircuit => {
+export const getTeamsVictoriesByCircuitName  = (id, onSuccess) => dispatch =>
+    backend.historicService.getTeamVictoriesByCircuitName(id,teamVictoriesCircuit => {
         dispatch(teamsVictoriesByCircuitCompleted(teamVictoriesCircuit));
-        onSuccess(teamVictoriesCircuit);
-    });
-
+        onSuccess(teamVictoriesCircuit)
+    },);
