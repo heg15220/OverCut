@@ -93,24 +93,6 @@ const CircuitDetails = () => {
                                 <TableCell><strong>Equipo más exitoso:</strong></TableCell>
                                 <TableCell>{circuit.teamSuccess}</TableCell>
                             </TableRow>
-                            <TableRow>
-                                <TableCell><strong>
-                                    <Link
-                                        className="nav-link"
-                                        to={`/circuit/${circuit.id}/podiums`}
-                                        style={{ color: 'black', textDecoration: 'underline' }}
-                                    >
-                                        <FormattedMessage id="project.modules.historic.podiums" />
-                                    </Link>
-                                </strong>
-                                </TableCell>
-                                <TableCell><strong>
-
-
-                                </strong>
-                                </TableCell>
-
-                            </TableRow>
                         </TableBody>
                     </Table>
                 </TableContainer>

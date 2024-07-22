@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { sourceImages } from '../../../helpers/sourceImages';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartPie } from "@fortawesome/free-solid-svg-icons";
+import { faMedal } from '@fortawesome/free-solid-svg-icons';
 
 const CircuitListItem = ({ circuit }) => {
     const navigate = useNavigate();
@@ -66,9 +67,10 @@ const CircuitListItem = ({ circuit }) => {
                 }}
                 onClick={handleButtonPodiumClick}
             >
-                <FontAwesomeIcon icon={faChartPie} /> {/* Ícono de estadísticas */}
+                <FontAwesomeIcon icon={faMedal} /> {/* Ícono de podio */}
                 <span><FormattedMessage id="project.modules.historic.podiums" /></span>
             </button>
+
 
             {/* Muestra la imagen del circuito si existe */}
             <Box

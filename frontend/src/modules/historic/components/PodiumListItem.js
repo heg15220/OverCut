@@ -38,15 +38,15 @@ const PodiumListItem = ({ podium }) => {
                 <img
                     ref={setImageRef}
                     className="image-hover-target"
-                    src={sourceImages(`./${podium.image}`)}
-                    alt="Post Image"
+                    src={podium.image ? sourceImages(`./${podium.image}`) : '/path/to/default/image.png'} // Usa una imagen predeterminada si `podium.image` es undefined
+                    alt="Podium Image"
                     style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-
                     onClick={handleImageOrTitleClick}
                     sx={{
                         transition: 'transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out',
                     }}
                 />
+
             </Box>
             {/* Muestra el título debajo de la imagen */}
             <Typography variant="body2" component="div" sx={{
