@@ -82,5 +82,7 @@ const en = {
     'project.entities.stats.drivers.wins': 'Drivers with more wins in F1',
     'project.entities.stats.drivers.championships': 'Drivers with more championships in F1',
     'project.entities.EventDetails.button.delete': 'Delete Event',
+    'project.entities.SignUp.Journalist': 'I´m journalist',
+    'project.no_awards': 'No awards available',
 }
 export default en;

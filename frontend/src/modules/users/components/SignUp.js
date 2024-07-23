@@ -161,7 +161,7 @@ const SignUp = () => {
                             <Grid item xs={12}>
                                 <FormControlLabel
                                     control={<Checkbox checked={journalist} onChange={(e) => setJournalist(e.target.checked)} />}
-                                    label="Soy periodista"
+                                    label=<FormattedMessage id="project.entities.SignUp.Journalist" />
                                 />
                             </Grid>
                         </Grid>
@@ -173,13 +173,6 @@ const SignUp = () => {
                         >
                             <FormattedMessage id="project.global.buttons.save" />
                         </Button>
-                        <Grid container justifyContent="flex-end">
-                            <Grid item>
-                                <Link href="/users/login#/users/login" variant="body2">
-                                    <FormattedMessage id="project.app.Header.login" />
-                                </Link>
-                            </Grid>
-                        </Grid>
                     </Box>
                 </Box>
             </Container>

@@ -78,5 +78,7 @@ const gl = {
     'project.entities.stats.drivers.wins': 'Pilotos con mais victorias en F1',
     'project.entities.stats.drivers.championships': 'Pilotos con mais campeonatos de F1',
     'project.entities.EventDetails.button.delete': 'Borrar Evento',
+    'project.entities.SignUp.Journalist': 'Son periodista',
+    'project.no_awards': 'Non hai recompensas disponibles',
 }
 export default gl;

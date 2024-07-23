@@ -78,7 +78,7 @@ public class EventController {
 
     @GetMapping("/events")
     public BlockDto<EventDto> getEvents(@RequestParam(defaultValue = "0") int page) {
-        Block<Event> foundEvents = eventService.getEvents(page, 2);
+        Block<Event> foundEvents = eventService.getEvents(page, 30);
         return new BlockDto<>(EventConversor.toEventDtos(foundEvents.getItems()), foundEvents.getExistMoreItems());
     }
     @PostMapping("/notifications/create")
