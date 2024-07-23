@@ -80,6 +80,7 @@ const es = {
     'project.entities.stats.drivers.podiums': 'Pilotos con mas podios en F1',
     'project.entities.stats.drivers.wins': 'Pilotos con mas victorias en F1',
     'project.entities.stats.drivers.championships': 'Pilotos con mas campeonatos de F1',
+    'project.entities.EventDetails.button.delete': 'Borrar Evento',
 
 }
 export default es;

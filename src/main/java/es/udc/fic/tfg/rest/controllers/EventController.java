@@ -112,4 +112,9 @@ public class EventController {
     public EventDto getEventDetails(@PathVariable Long eventId){
         return EventConversor.toEventDto(eventService.getEventDetails(eventId));
     }
+
+    @GetMapping("/{id}/delete")
+    public void deleteEvent(@PathVariable("id") Long eventId){
+        eventService.deleteEvent(eventId);
+    }
 }

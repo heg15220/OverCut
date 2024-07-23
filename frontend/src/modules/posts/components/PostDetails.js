@@ -17,6 +17,7 @@ const PostDetails = () => {
     const { id } = useParams();
     const post = useSelector(selectors.getPost);
     const user = useSelector(userSelectors.getUser);
+    const postUser = useSelector(selectors.getUserPost);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [backendErrors, setBackendErrors] = useState(null);
@@ -27,6 +28,7 @@ const PostDetails = () => {
         const postId = Number(id);
         if (!Number.isNaN(postId)) {
             dispatch(actions.findPostById(postId));
+            dispatch(actions.getUserPost(postId, () => {}));
         }
     }, [id, user, dispatch]);
 
@@ -53,13 +55,13 @@ const PostDetails = () => {
     const srcImage = post.image ? "data:image/jpg;base64," + post.image : image;
 
     let userImageSrc = image; // Imagen predeterminada
-    if (user && user.id === post.userId) {
-        userImageSrc = user.image ? "data:image/jpg;base64," + user.image : image;
+    if (postUser && postUser.id === post.userId) {
+        userImageSrc = postUser.image ? "data:image/jpg;base64," + postUser.image : image;
     }
 
     let userName = 'Usuario desconocido'; // Nombre predeterminado
-    if (user && user.id === post.userId) {
-        userName = user.userName ? user.userName : 'Usuario desconocido';
+    if (postUser && postUser.id === post.userId) {
+        userName = postUser.userName ? postUser.userName : 'Usuario desconocido';
     }
 
     return (

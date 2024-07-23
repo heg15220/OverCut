@@ -12,4 +12,5 @@ public interface EventService {
     Block<Event> getEvents(int page, int size);
     Event createEvent(String name, String description, Date date, String location, String imageUrl);
     Event getEventDetails(Long eventId);
+    void deleteEvent(Long eventId);
 }

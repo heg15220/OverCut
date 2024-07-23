@@ -77,7 +77,7 @@ public class NotificationServiceImpl implements NotificationService{
             throw new InstanceNotFoundException("User not found", userId);
         }
 
-        Slice<UserNotification> userNotifications = userNotificationDao.findUnreadByUserId(userId, PageRequest.of(page,size));
+        Slice<UserNotification> userNotifications = userNotificationDao.findUnreadByUserIdAndDate(userId, PageRequest.of(page,size));
         return new Block<>(userNotifications.getContent(),userNotifications.hasNext());
     }
 }

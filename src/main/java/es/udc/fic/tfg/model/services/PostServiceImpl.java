@@ -225,6 +225,13 @@ public class PostServiceImpl implements PostService{
         return postDao.existsByCreationDateAfter(referenceDate);
     }
 
+    @Override
+    public User getUserPost(Long postId) throws InstanceNotFoundException {
+        Post post = postDao.findPostById(postId);
+        User user = post.getUser();
+        return user;
+
+    }
 
 
 }

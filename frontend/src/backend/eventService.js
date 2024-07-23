@@ -35,3 +35,7 @@ export const getNotificationsForUser = (userId ,page, onSuccess, onErrors) => {
 export const getEventDetails = (eventId, onSuccess, onErrors) => {
     appFetch(`/events/${eventId}`, fetchConfig("GET"), onSuccess, onErrors);
 };
+
+export const deleteEvent = (id, onSuccess) => {
+    appFetch(`/events/${id}/delete`, fetchConfig("DELETE"), onSuccess);
+};

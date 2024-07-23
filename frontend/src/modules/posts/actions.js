@@ -142,6 +142,11 @@ const getNewPostsCompleted = (result) => ({
     result
 });
 
+const getUserPostCompleted = (postUser) => ({
+    type: actionTypes.GET_USER_POST_COMPLETED,
+    postUser
+});
+
 export const updatePostArticle = (postId, post, onSuccess, onErrors) => dispatch =>
     backend.postService.modifyPost(postId, post, post => {
             dispatch(modifyPostCompleted(post));
@@ -177,3 +182,10 @@ export const modifyComment = (id, comment, onSuccess) => dispatch =>
     backend.postService.modifyComment(id, comment, () => {
         onSuccess();
     });
+
+
+export const getUserPost = (id, onSuccess) => dispatch =>
+    backend.postService.getUserPost(id,postUser => {
+            dispatch(getUserPostCompleted(postUser));
+            onSuccess(postUser);
+        });

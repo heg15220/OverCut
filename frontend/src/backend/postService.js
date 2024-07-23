@@ -129,3 +129,11 @@ export const modifyComment = (id, comment, onSuccess) => {
         onSuccess,
     );
 };
+
+export const getUserPost = (id, onSuccess) => {
+    appFetch(
+        `/posts/${id}/user`,
+        fetchConfig("GET"),
+        onSuccess,
+    );
+};

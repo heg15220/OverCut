@@ -43,7 +43,7 @@ const AllPostList = () => {
             categoryId: categoryId,
             page: 0,
             criteria: criteria,
-            order: order ? "desc" : "asc", // Asumiendo que "desc" es para orden descendente y "asc" para ascendente
+            order:order,
         }));
         dispatch(actions.getAllCategories(() => { }))
     }, [dispatch, categoryId, title, criteria, order]);

@@ -565,3 +565,6 @@ VALUES ('Bahrein GP', 'First round of the F1 season', '2024-07-05', 'Bahrein', '
 
 INSERT INTO Event (name, description, date, location, imageUrl)
 VALUES ('Hungarian GP', '12th round of the F1 season', '2024-07-21', 'Hungary', 'FYrYQ9SXoAAR-v6-732x1024.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Belgian GP', '13th round of the F1 season', '2024-07-29', 'Belgium', 'FYrYQ9SXoAAR-v6-732x1024.jpg');

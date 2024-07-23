@@ -37,6 +37,11 @@ const getNotificationForUserCompleted = (notifications) => ({
     notifications
 });
 
+const deleteEventCompleted = (event) => ({
+    type: actionTypes.DELETE_EVENT_COMPLETED,
+    event
+});
+
 
 export const createEvent = (event, onSuccess, onErrors) => dispatch =>
     backend.eventService.createEvent(event, event => {
@@ -88,3 +93,9 @@ export const getEventDetails  = (eventId, onSuccess, onErrors) => dispatch =>
         onSuccess();
     },
         onErrors);
+
+export const deleteEvent = (id, onSuccess) => dispatch =>
+    backend.eventService.deleteEvent(id, event => {
+            dispatch(deleteEventCompleted(event));
+            onSuccess();
+        });

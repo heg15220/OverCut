@@ -81,5 +81,6 @@ const en = {
     'project.entities.stats.drivers.podiums': 'Drivers with more podiums in F1',
     'project.entities.stats.drivers.wins': 'Drivers with more wins in F1',
     'project.entities.stats.drivers.championships': 'Drivers with more championships in F1',
+    'project.entities.EventDetails.button.delete': 'Delete Event',
 }
 export default en;

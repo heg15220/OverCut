@@ -77,5 +77,6 @@ const gl = {
     'project.entities.stats.drivers.podiums': 'Pilotos con mais podios en F1',
     'project.entities.stats.drivers.wins': 'Pilotos con mais victorias en F1',
     'project.entities.stats.drivers.championships': 'Pilotos con mais campeonatos de F1',
+    'project.entities.EventDetails.button.delete': 'Borrar Evento',
 }
 export default gl;

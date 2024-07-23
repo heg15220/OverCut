@@ -3,6 +3,7 @@ package es.udc.fic.tfg.model.services;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.Category;
 import es.udc.fic.tfg.model.entities.Post;
+import es.udc.fic.tfg.model.entities.User;
 import es.udc.fic.tfg.model.services.exceptions.PermissionException;
 import es.udc.fic.tfg.model.services.exceptions.PostException;
 import org.springframework.web.multipart.MultipartFile;
@@ -106,5 +107,6 @@ public interface PostService {
     boolean newPosts(LocalDateTime referenceDate);
 
 
+    User getUserPost(Long postId) throws InstanceNotFoundException;
 
 }

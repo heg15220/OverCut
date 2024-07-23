@@ -16,5 +16,4 @@ export const DELETE_COMMENT_COMPLETED = "project/post/deleteCommentCompleted";
 export const CREATE_COMMENT_COMPLETED = "project/post/createCommentCompleted";
 export const GET_COMMENTS_COMPLETED = "project/post/getCommentsCompleted";
 export const CREATE_ANSWER_COMPLETED = "project/post/createAnswerCompleted";
-
-
+export const GET_USER_POST_COMPLETED = "project/post/getUserPostCompleted";
