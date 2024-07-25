@@ -282,54 +282,48 @@ INSERT INTO Award(award,requiredPoints, image)
 VALUES ('PC Gaming', 12, '819cOVjBRRL.jpg');
 
 
-INSERT INTO Question (name, imagePath,knowledgequestionlevel)
-VALUES ('¿Cuál es el nombre de esta escuderia?','bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the name of this team?', 'bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg', 1);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Mercedes AMG Petronas', false, 1);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Toyota', false, 1);
 INSERT INTO Answer (name, correct, questionId) VALUES ('BMW Sauber', true, 1);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Williams', false, 1);
 
-
-
-INSERT INTO Question (name, imagePath,knowledgequestionlevel)
-VALUES ('¿En que equipo no ha corrido Nico Hülkenberg?','oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg',2);
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which team did Nico Hülkenberg never race for?', 'oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg', 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Toro Rosso', true, 2);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Sauber', false, 2);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Force India', false, 2);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Williams', false, 2);
 
-INSERT INTO Question (name, imagePath,knowledgequestionlevel)
-VALUES ('¿Quién no ha corrido nunca para Ferrari?',null, 2);
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Who never raced for Ferrari?', null, 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Felipe Massa', false, 3);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Kimi Raikkonen', false, 3);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Rubens Barrichello', false, 3);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Sergio Perez', true, 3);
 
-
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Qué piloto NO ha pertenecido nunca ha la familia Red Bull? (Red Bull, Toro Rosso/Alpha Tauri, Red Bull Academy)',null,2);
+VALUES ('Which driver has NEVER been part of the Red Bull family? (Red Bull, Toro Rosso/Alpha Tauri, Red Bull Academy)', null, 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Sebastian Vettel', false, 4);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Daniel Kvyat', false, 4);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Robert Kubica', true, 4);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Isack Hadjar', false, 4);
 
-
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Que circuito es este?','images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg',1);
+VALUES ('Which circuit is this?', 'images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg', 1);
 
-INSERT INTO Answer (name, correct, questionId) VALUES  ('Monza', false, 5);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Monza', false, 5);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Imola', true, 5);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Istanbul Park', false, 5);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Hungaroring', false, 5);
 
-
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Qué 2 pilotos corrieron con este coche?','images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg', 3);
-
+VALUES ('Which 2 drivers raced with this car?', 'images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg', 3);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Robert Kubica', true, 6);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Romain Grosjean', false, 6);
@@ -338,16 +332,15 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Vitaly Petrov', true, 6)
 INSERT INTO Answer (name, correct, questionId) VALUES ('Kimi Raikkonen', false, 6);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Quien es el hombre de hielo?',null, 2);
+VALUES ('Who is the Ice Man?', null, 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Alonso', false, 7);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Raikkonen', true, 7);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Niki Lauda', false, 7);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Vettel', false, 7);
 
-
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿En qué escudería no ha estado Fernando Alonso?',null, 1);
+VALUES ('Which team has Fernando Alonso never been part of?', null, 1);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Mclaren', false, 8);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Minardi', false, 8);
@@ -355,7 +348,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Renault', false, 8);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Toro Rosso', true, 8);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Cuándo se creó la F1?',null, 1);
+VALUES ('When was F1 created?', null, 1);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('1980', false, 9);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1950', true, 9);
@@ -363,7 +356,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('1948', false, 9);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1943', false, 9);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Quien es el Team Principal del equipo Mercedes?',null, 1);
+VALUES ('Who is the Team Principal of Mercedes?', null, 1);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Zak Brown', false, 10);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Toto Wolff', true, 10);
@@ -371,7 +364,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Christian Horner', false
 INSERT INTO Answer (name, correct, questionId) VALUES ('Andrea Stella', false, 10);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Quien ganó el mundial del año 2023?',null, 1);
+VALUES ('Who won the world championship in 2023?', null, 1);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Max Verstappen', true, 11);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Lewis Hamilton', false, 11);
@@ -379,8 +372,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Fernando Alonso', false,
 INSERT INTO Answer (name, correct, questionId) VALUES ('Sergio Perez', false, 11);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('En el año 2023, Max Verstappen superó el record de victorias' ||
-        'consecutivas que tenía anteriormente Sebastian Vettel. ¿Cual fue esa cifra?',null, 2);
+VALUES ('In 2023, Max Verstappen surpassed Sebastian Vettel\s record for consecutive victories. What was that figure?', null, 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('9', false, 12);
 INSERT INTO Answer (name, correct, questionId) VALUES ('10', true, 12);
@@ -388,7 +380,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('8', false, 12);
 INSERT INTO Answer (name, correct, questionId) VALUES ('11', false, 12);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Quien es el piloto con mas carreras disputadas en la historia de la F1?',null, 2);
+VALUES ('Who is the driver with the most races in F1 history?', null, 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Kimi Raikkonen', false, 13);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Michael Schumacher', false, 13);
@@ -396,26 +388,23 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Fernando Alonso', true, 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Rubens Barrichello', false, 13);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Para que se usa el DRS?',null, 1);
+VALUES ('What is DRS used for?', null, 1);
 
-INSERT INTO Answer (name, correct, questionId) VALUES ('Para tener más aerodinamica', false, 14);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Para reducir el drag', true, 14);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Para dar más potencia', false, 14);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Para ayudar en la frenada', false, 14);
+INSERT INTO Answer (name, correct, questionId) VALUES ('To have more aerodynamics', false, 14);
+INSERT INTO Answer (name, correct, questionId) VALUES ('To reduce drag', true, 14);
+INSERT INTO Answer (name, correct, questionId) VALUES ('To give more power', false, 14);
+INSERT INTO Answer (name, correct, questionId) VALUES ('To assist in braking', false, 14);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('Actualmente, los F1 actuales utlizan motores V6 Turbo híbridos desde el año 2014. ¿Que elemento de los motores ' ||
-        'actuales se va a eliminar para el reglamento del año 2026?',null, 3);
-
+VALUES ('Currently, F1 cars have been using V6 Turbo hybrid engines since 2014. Which element of current engines will be removed for the 2026 regulation?', null, 3);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('ICE', false, 15);
 INSERT INTO Answer (name, correct, questionId) VALUES ('MGU-H', true, 15);
 INSERT INTO Answer (name, correct, questionId) VALUES ('MGU-K', false, 15);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Bateria', false, 15);
-
+INSERT INTO Answer (name, correct, questionId) VALUES ('Battery', false, 15);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('Ferrari es el equipo mas grande de la historia de la F1. Pero, ¿cuando fue la ultima vez que ganaron el mundial?','carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg', 2);
+VALUES ('Ferrari is the biggest team in F1 history. But, when was the last time they won the world championship?', 'carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg', 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('2010', false, 16);
 INSERT INTO Answer (name, correct, questionId) VALUES ('2006', false, 16);
@@ -423,7 +412,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('2007', false, 16);
 INSERT INTO Answer (name, correct, questionId) VALUES ('2008', true, 16);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿Quien es el piloto más joven en ganar el mundial de F1?',null, 2);
+VALUES ('Who is the youngest driver to win the F1 world championship?', null, 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Fernando Alonso', false, 17);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Lewis Hamilton', false, 17);
@@ -431,7 +420,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Sebastian Vettel', true,
 INSERT INTO Answer (name, correct, questionId) VALUES ('Max Verstappen', false, 17);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿En qué año ganó Williams su última carrera hasta la fecha?',null, 3);
+VALUES ('In which year did Williams win their last race to date?', null, 3);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('2012', true, 18);
 INSERT INTO Answer (name, correct, questionId) VALUES ('2015', false, 18);
@@ -439,7 +428,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('2004', false, 18);
 INSERT INTO Answer (name, correct, questionId) VALUES ('2003', false, 18);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('De los equipos que hay actualmente en la parrilla, ¿cual es el que lleva menos tiempo?',null, 2);
+VALUES ('Of the teams currently on the grid, which has been around the shortest time?', null, 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Racing Bulls', false, 19);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Sauber', false, 19);
@@ -447,7 +436,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Alpine', false, 19);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Haas', true, 19);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('¿En qué año ganó Michael Schumacher su primera victoria en F1?',null, 2);
+VALUES ('In which year did Michael Schumacher win his first F1 victory?', null, 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('1994', false, 20);
 INSERT INTO Answer (name, correct, questionId) VALUES ('2000', false, 20);
