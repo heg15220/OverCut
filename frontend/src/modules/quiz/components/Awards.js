@@ -23,7 +23,7 @@ const Awards = () => {
 
     useEffect(() => {
         const awardId = Number(id);
-        if (!Number.isNaN(awardId) && awardId !== "undefined") {
+        if (!Number.isNaN(awardId)) {
             dispatch(actions.getAward(awardId, () => {}, () => {}));
         }
     }, [id, dispatch]);
@@ -116,9 +116,6 @@ const Awards = () => {
                             <FormattedMessage id="project.entities.User.Points"></FormattedMessage>
                             {user.points}
                         </Typography>
-
-
-                        {user.points >= award.requiredPoints? (
                         <Button
                             key={award.id}
                             variant="contained"
@@ -126,7 +123,7 @@ const Awards = () => {
                         >
                             <FormattedMessage id="project.entities.AwardDetails.Button"> </FormattedMessage>
                         </Button>
-                        ) : null}
+
                     </CardContent>
                 </Card>
             </Box>

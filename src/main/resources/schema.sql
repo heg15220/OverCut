@@ -323,12 +323,12 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Istanbul Park', false, 5
 INSERT INTO Answer (name, correct, questionId) VALUES ('Hungaroring', false, 5);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('Which 2 drivers raced with this car?', 'images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg', 3);
+VALUES ('Which driver raced with this car?', 'images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg', 3);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Robert Kubica', true, 6);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Romain Grosjean', false, 6);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Nico Hulkenberg', false, 6);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Vitaly Petrov', true, 6);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Kamui Kobayashi', true, 6);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Kimi Raikkonen', false, 6);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
@@ -374,8 +374,8 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Sergio Perez', false, 11
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('In 2023, Max Verstappen surpassed Sebastian Vettel\s record for consecutive victories. What was that figure?', null, 2);
 
-INSERT INTO Answer (name, correct, questionId) VALUES ('9', false, 12);
-INSERT INTO Answer (name, correct, questionId) VALUES ('10', true, 12);
+INSERT INTO Answer (name, correct, questionId) VALUES ('9', true, 12);
+INSERT INTO Answer (name, correct, questionId) VALUES ('10', false, 12);
 INSERT INTO Answer (name, correct, questionId) VALUES ('8', false, 12);
 INSERT INTO Answer (name, correct, questionId) VALUES ('11', false, 12);
 
@@ -443,6 +443,63 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('2000', false, 20);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1992', true, 20);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1998', false, 20);
 
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is Alonso\s last win to date in F1?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId) VALUES ('Spain 2013', true, 21);
+INSERT INTO Answer (name, correct, questionId) VALUES ('China 2013', false, 21);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Hungary 2014', false, 21);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Germany 2012', false, 21);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In 2026, with the new regulations we will going to have a new engine. Which new engine is coming to F1?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId) VALUES ('General Motors', false, 22);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Toyota', false, 22);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Audi', true, 22);
+INSERT INTO Answer (name, correct, questionId) VALUES ('BMW', false, 22);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which circuit is this?', 'racefansdotnet-start-istanbul.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId) VALUES ('Istambul Park', true, 23);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Red Bull Ring', false, 23);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Nurburgring', false, 23);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Zaandvort', false, 23);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Mclaren did a 1-2 in the Hungarian GP in 2024. When was the last time Mclaren achieved that?', '4007762-81292888-2560-1440.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId) VALUES ('Brazil 2012', false, 24);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Italy 2021', true, 24);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Miami 2024', false, 24);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Canada 2010', false, 24);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In which country did the 2020 season start?', '15938651546549.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId) VALUES ('Australia', false, 25);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Imola', false, 25);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Great Britain', false, 25);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Austria', true, 25);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many days does a Gran Prix last ', '15938651546549.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId) VALUES ('1', false, 26);
+INSERT INTO Answer (name, correct, questionId) VALUES ('2', false, 26);
+INSERT INTO Answer (name, correct, questionId) VALUES ('3', true, 26);
+INSERT INTO Answer (name, correct, questionId) VALUES ('4', false, 26);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which is the team with the most starts in F1? ', '58.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId) VALUES ('Mclaren', false, 27);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Williams', false, 27);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Ferrari', true, 27);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Mercedes', false, 27);
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
 VALUES('Bahrein',5412,57,'Ferrari', 'Bahrain_Circuit.jpg',2);
@@ -548,6 +605,29 @@ VALUES('Nico Rosberg', '2016','Mercedes','Max Verstappen','Lewis Hamilton', null
 
 INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
 VALUES('Lewis Hamilton', '2015','Mercedes','Nico Rosberg','Sebastian Vettel', null, 3);
+
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Max Verstappen', '2024','Red Bull','Sergio Perez','Carlos Sainz', '796930333_236274274_1706x640.jpg', 4);
+
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Max Verstappen', '2023','Red Bull','Lando Norris','Oscar Piastri', 'images4.jpg', 4);
+
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Max Verstappen', '2022','Red Bull','Sergio Perez','Charles Leclerc', 'max-verstappen-red-bull-racing.jpg', 4);
+
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Valtteri Bottas', '2019','Mercedes','Sebastian Vettel','Lewis Hamilton', 'images5.jpg', 4);
+
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Lewis Hamilton', '2018','Mercedes','Valtteri Bottas','Max Verstappen', 'hamilton_suzuka2018-1.jpg', 4);
+
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Lewis Hamilton', '2017','Mercedes','Max Verstappen','Daniel Ricciardo', 'f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg', 4);
+
+INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circuitId)
+VALUES('Nico Rosberg', '2016','Mercedes','Max Verstappen','Lewis Hamilton', 'formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg', 4);
+
+
 
 INSERT INTO Event (name, description, date, location, imageUrl)
 VALUES ('Bahrein GP', 'First round of the F1 season', '2024-07-05', 'Bahrein', 'formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg');
