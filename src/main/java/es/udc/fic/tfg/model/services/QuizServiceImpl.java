@@ -303,6 +303,7 @@ public class QuizServiceImpl implements QuizService {
 
         // Guarda la relación en la tabla UserAward
         userAwardDao.save(userAward);
+        userDao.save(user);
 
         return award;
     }
@@ -326,7 +327,9 @@ public class QuizServiceImpl implements QuizService {
             awardDao.save(award);
         }
 
+
         Slice<Award> awards2 = awardDao.findAllAwardsSlice(PageRequest.of(page,size));
+
 
         return new Block<>(awards2.getContent(), awards2.hasNext());
     }

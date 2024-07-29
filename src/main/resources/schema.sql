@@ -504,46 +504,46 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Mercedes', false, 27);
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('What was the first Formula 1 Grand Prix won by Lewis Hamilton?', null, 1);
 
-INSERT INTO Answer (name, correct, questionId) VALUES ('Canadian GP 2008', true, 28);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Canadian GP 2007', true, 28);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Italian GP 2010', false, 28);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Spanish GP 2007', false, 28);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Spanish GP 2008', false, 28);
 INSERT INTO Answer (name, correct, questionId) VALUES ('German GP 2009', false, 28);
 
 -- Pregunta 29
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Who holds the record for the most Formula 1 race wins?', null, 2);
 
-INSERT INTO Answer (name, correct, questionId) VALUES ('Juan Pablo Montoya', false, 29);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Lewis Hamilton', true, 29);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Ayrton Senna', false, 29);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Michael Schumacher', true, 29);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Jacques Villeneuve', false, 29);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Michael Schumacher', false, 29);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Sebastian Vettel', false, 29);
 
 -- Pregunta 30
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Which team has the most Formula 1 race wins in history?', null, 1);
 
-INSERT INTO Answer (name, correct, questionId) VALUES ('Ferrari', false, 30);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Ferrari', true, 30);
 INSERT INTO Answer (name, correct, questionId) VALUES ('McLaren', false, 30);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Mercedes', true, 30);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Mercedes', false, 30);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Williams', false, 30);
 
 -- Pregunta 31
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('What is the longest track in Formula 1 history?', null, 2);
 
-INSERT INTO Answer (name, correct, questionId) VALUES ('Spa-Francorchamps Circuit', false, 31);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Autódromo Hermanos Rodríguez', false, 31);
+INSERT INTO Answer (name, correct, questionId) VALUES ('SpaFrancorchamps Circuit', false, 31);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Autodromo Hermanos Rodríguez', false, 31);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Circuit Gilles Villeneuve', false, 31);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Nürburgring', true, 31);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Nurburgring', true, 31);
 
 -- Pregunta 34
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Which race track is by far the longest regularly used for Formula 1 Grand Prix races?', null, 2);
 
-INSERT INTO Answer (name, correct, questionId) VALUES ('Circuit de Spa-Francorchamps', false, 32);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Circuit de Spa-Francorchamps', true, 32);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Autódromo José Carlos Pace', false, 32);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Circuit Gilles Villeneuve', false, 32);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Nürburgring', true, 32);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Nurburgring', false, 32);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Which racing team in Formula 1 are associated with bright red cars?', null, 1);
@@ -567,9 +567,9 @@ INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Which year did Michael Schumacher win his first ever drivers championship in Formula One?', null, 1);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('1990', false, 35);
-INSERT INTO Answer (name, correct, questionId) VALUES ('1991', false, 35);
+INSERT INTO Answer (name, correct, questionId) VALUES ('1994', true, 35);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1992', false, 35);
-INSERT INTO Answer (name, correct, questionId) VALUES ('1993', true, 35);
+INSERT INTO Answer (name, correct, questionId) VALUES ('1993', false, 35);
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
 VALUES('Bahrein',5412,57,'Ferrari', 'Bahrain_Circuit.jpg',2);

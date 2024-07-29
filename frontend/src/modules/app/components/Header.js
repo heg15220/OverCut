@@ -28,11 +28,13 @@ const Header = () => {
                     </a>
 
                     <ul className="nav pull-xs-right">
+                        {isLogged &&
                         <li className="nav-item">
                             <Link className="nav-link" to={`/category/2`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.quiz" />
                             </Link>
                         </li>
+                        }
                         <li className="nav-item">
                         <Link className="nav-link" to={`/circuits/category/3`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.historic" />
@@ -64,11 +66,13 @@ const Header = () => {
                         {isLogged &&
                             <Notifications />
                         }
+                        {isLogged &&
                         <li className="nav-item">
                             <Link className="nav-link" to={`/events/event-list`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.events.events" />
                             </Link>
                         </li>
+                        }
 
                         <li className="nav-item">
                             <Link className="nav-link" to={`/calendar`} style={{ color: 'white' }}>
@@ -76,11 +80,13 @@ const Header = () => {
                             </Link>
                         </li>
 
+                        {isLogged &&
                         <li className="nav-item">
                             <Link className="nav-link" to={`/user/awards-user`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.Awards" />
                             </Link>
                         </li>
+                        }
                         {isLogged &&
                             <li className="nav-item dropstart">
 

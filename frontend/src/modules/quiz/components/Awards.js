@@ -20,10 +20,11 @@ const Awards = () => {
     const [success, setSuccess] = useState(null);
     const navigate = useNavigate();
     const [imageRef, setImageRef] = useState(null);
+    const[requierdPoints, setRequieredPoints] = useState(null);
 
     useEffect(() => {
         const awardId = Number(id);
-        if (!Number.isNaN(awardId)) {
+        if (!Number.isNaN(awardId) && awardId !== "undefined") {
             dispatch(actions.getAward(awardId, () => {}, () => {}));
         }
     }, [id, dispatch]);
