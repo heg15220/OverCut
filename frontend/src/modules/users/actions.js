@@ -6,9 +6,9 @@ const signUpCompleted = authenticatedUser => ({
     authenticatedUser
 });
 
-const getUserPointsCompleted = (user) => ({
+const getUserPointsCompleted = (points) => ({
     type:actionTypes.GET_USER_POINTS_COMPLETED,
-    user
+    points
 });
 
 export const signUp = (user, onSuccess, onErrors, reauthenticationCallback) => dispatch =>
@@ -73,8 +73,8 @@ export const changePassword = (id, oldPassword, newPassword, onSuccess, onErrors
     backend.userService.changePassword(id, oldPassword, newPassword, onSuccess, onErrors);
 
 export const getUserPoints = (userId, onSuccess, onErrors) => dispatch =>
-    backend.userService.getUserPoints(userId, (user) => {
-        dispatch(getUserPointsCompleted(user));
-        onSuccess(user);
+    backend.userService.getUserPoints(userId, (points) => {
+        dispatch(getUserPointsCompleted(points));
+        onSuccess(points);
     },
         onErrors);

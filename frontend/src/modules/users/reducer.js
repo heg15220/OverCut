@@ -3,7 +3,8 @@ import { combineReducers } from 'redux';
 import * as actionTypes from './actionTypes';
 
 const initialState = {
-    user: null
+    user: null,
+    points: null,
 };
 
 const user = (state = initialState.user, action) => {
@@ -28,8 +29,19 @@ const user = (state = initialState.user, action) => {
 
 }
 
+const points = (state = initialState.points, action) => {
+    switch (action.type) {
+        case actionTypes.GET_USER_POINTS_COMPLETED:
+            return action.points;
+        default:
+            return state;
+    }
+
+}
+
 const reducer = combineReducers({
-    user
+    user,
+    points
 });
 
 export default reducer;

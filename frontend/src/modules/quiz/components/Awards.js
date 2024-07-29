@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as actions from '../actions';
+import * as userActions from '../../users/actions';
 import * as selectors from '../selectors';
 import * as userSelectors from '../../users/selectors';
 import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert, AlertTitle } from '@mui/material';
@@ -20,7 +21,6 @@ const Awards = () => {
     const [success, setSuccess] = useState(null);
     const navigate = useNavigate();
     const [imageRef, setImageRef] = useState(null);
-    const[requierdPoints, setRequieredPoints] = useState(null);
 
     useEffect(() => {
         const awardId = Number(id);
@@ -46,6 +46,7 @@ const Awards = () => {
     if (!award) {
         return null;
     }
+
 
     return (
         <Container sx={{ marginTop: 0 }}>
@@ -106,17 +107,6 @@ const Awards = () => {
                             {award.requiredPoints}
                         </Typography>
 
-                        <Typography variant="h5" component="div" sx={{
-                            fontSize: '2rem',
-                            fontWeight: 'bold',
-                            textTransform: 'uppercase',
-                            color: 'text.primary',
-                            marginTop: '1rem',
-                            marginBottom: '1rem',
-                        }}>
-                            <FormattedMessage id="project.entities.User.Points"></FormattedMessage>
-                            {user.points}
-                        </Typography>
                         <Button
                             key={award.id}
                             variant="contained"

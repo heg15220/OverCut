@@ -289,12 +289,13 @@ public class QuizServiceImpl implements QuizService {
             throw new QuizException("Not enough points");
         }
 
-        // Actualiza los puntos del usuario
-        user.setPoints(user.getPoints() - award.getRequiredPoints());
+        int points = user.getPoints() - award.getRequiredPoints();
 
+        user.setPoints(points);
         // Guarda la recompensa en la tabla Award
         award.setUser(user);
         awardDao.save(award);
+        userDao.save(user);
 
         // Crea una nueva instancia de UserAward para registrar la elección
         UserAward userAward = new UserAward();

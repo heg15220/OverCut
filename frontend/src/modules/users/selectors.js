@@ -11,3 +11,4 @@ export const getUserName = state =>
 // En ../../users/selectors.js
 export const getUserById = (state, userId) => state.users[userId];
 
+export const getUserPoints = state => getModuleState(state).points;
