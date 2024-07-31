@@ -29,20 +29,6 @@ const AwardsList = () => {
         <Grid container spacing={2} justifyContent="center" alignItems="center">
             <Grid item xs={12}>
                 <AwardItems awards={awards} />
-                <Grid container direction="column" alignItems="center" justifyContent="center" sx={{ mt: 2 }}>
-                    {awards && (
-                        <Pager
-                            back={{
-                                enabled: currentPage > 0,
-                                onClick: () => handlePageChange(currentPage - 1),
-                            }}
-                            next={{
-                                enabled: currentPage < awards.totalPages - 1,
-                                onClick: () => handlePageChange(currentPage + 1),
-                            }}
-                        />
-                    )}
-                </Grid>
             </Grid>
         </Grid>
     );
