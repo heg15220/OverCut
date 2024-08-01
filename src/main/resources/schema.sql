@@ -691,6 +691,1026 @@ VALUES
     ('All Formula 1 cars use tires of the same brand and specification.', false, 42);
 
 
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Who holds the record for the most pole positions in a single season?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', false, 43);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sebastian Vettel', true, 43);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Michael Schumacher', false, 43);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Max Verstappen', false, 43);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which team has won the Constructors World Championship the most times?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mclaren', false, 44);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Ferrari', true, 44);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mercedes', false, 44);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Red Bull', false, 44);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('The Spanish Grand Prix is currently hold in Montmelo. Who was the first driver to win there?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fernando Alonso', false, 45);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Michael Schumacher', false, 45);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Ayrton Senna', false, 45);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nigel Mansell', true, 45);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In what year did the current points system for F1 racing get introduced?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1989', false, 46);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1995', false, 46);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2003', false, 46);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2010', true, 46);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many races make up the official F1 calendar?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('16', false, 47);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('20', false, 47);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('24', true, 47);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('26', false, 47);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which country hosts the Circuit of Spa-Francorchamps?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('France', false, 48);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Germany', false, 48);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Belgium', true, 48);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy', false, 48);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which F1 circuit sees the highest average speeds during a race?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Monza', true, 49);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Spa-Francorchamps', false, 49);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Silverstone', false, 49);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Suzuka', false, 49);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In 1998 F1 stopped using slick tyres. When were slick tires introduced to F1 racing back again?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2008', false, 50);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2013', false, 50);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2009', true, 50);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2016', false, 50);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which city hosted the first night race ever held in Formula One?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Singapore', true, 51);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Abu Dhabi', false, 51);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Shanghai', false, 51);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sakir', false, 51);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What was the first Formula 1 Grand Prix held in Asia?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Malaysian Grand Prix (1999)', false, 52);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Singapore Grand Prix (2008)', false, 52);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Chinese Grand Prix (2004)', false, 52);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Japanese Grand Prix (1976)', true, 52);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many times has the Scuderia Ferrari team won the Italian Grand Prix?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('14 times', false, 53);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('21 times', false, 53);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('19 times', true, 53);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('15 times', false, 53);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many times has the Williams team won the Canadian Grand Prix?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('5 times', false, 54);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('7 times', true, 53);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('3 times', false, 53);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('11 times', false, 53);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What year were air brake systems introduced in F1?', null, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2014', false, 54);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2005', false, 54);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2009', false, 54);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2011', true, 54);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many times has the Renault team won the French Grand Prix?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('5 times', true, 55);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('3 times', false, 55);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('8 times', false, 55);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('12 times', false, 55);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What was the first year in which the brake caliper system was used?', null, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1983', false, 56);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1976', true, 56);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1990', false, 56);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1968', false, 56);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What was the first Formula 1 Grand Prix in which the use of lead-free fuels was allowed?', null, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('South Africa 1992', true, 57);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 1987', false, 57);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Australia 1999', false, 57);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Australia 2002', false, 57);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What was the first Formula 1 Grand Prix in which the use of KERS (Kinetic Energy Recovery System) was allowed?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Bahrein 2010', false, 58);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Silverstone 2011', false, 58);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Australia 2012', false, 58);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Australia 2009', true, 58);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What was the main purpose behind the regulatory changes proposed by the "Weickershof Protocol" for F1 between 1995 and 1999?', null, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To improve safety during races', false, 59);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To limit team budgets', true, 59);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To introduce new technical regulations', false, 59);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To promote sustainability in the sport', false, 59);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What was the result of the technical transition in F1 in 1998?', null, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('An increase in competitiveness among teams', true, 60);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Less safety cars', false, 60);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The introduction of new materials in the chassis of cars', false, 60);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The elimination of certain advanced technologies', false, 60);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What was the main objective behind the introduction of the brake-by-wire system in F1?', null, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To reduce the weight of the cars', false, 61);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To improve energy efficiency', false, 61);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To increase braking capacity under high temperature conditions', false, 61);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To facilitate quick tire replacement', false, 61);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver has the highest average points per race over the last decade in Formula 1?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', false, 62);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sebastian Vettel', false, 62);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Max Verstappen', true, 62);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fernando Alonso', false, 62);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What percentage of races have been won by Mercedes since their entry into Formula 1 in 2010?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Less than 20%', false, 63);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Between 20% and 40%', false, 63);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Between 40% and 60%', true, 63);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('More than 60%', false, 63);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which team has the record for the most consecutive wins in a single season?', null, 1);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mclaren', false, 64);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Ferrari', false, 64);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mercedes', false, 64);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Red Bull', true, 64);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver has the biggest amount of podiums achieved for their teams, compared to all his team-mates?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', false, 65);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fernando Alonso', true, 65);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Max Verstappen', false, 65);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Michael Schumacher', false, 65);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many teams participate in Formula 1?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('10 teams', true, 66);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('7 teams', false, 66);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('8 teams', false, 66);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('11 teams', false, 66);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the average maximum speed of F1 cars?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Over 320 km/h', true, 67);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Between 250 and 300 km/h', false, 67);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Less than 250 km/h', false, 67);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Exactly 350 km/h', false, 67);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many points are awarded to the winner of a Formula 1 race?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('15 points', false, 68);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('25 points', true, 68);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('20 points', false, 68);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('10 points', false, 68);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which organization regulates Formula 1?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('FIM', false, 69);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('FINA', false, 69);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('FIBA', false, 69);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('FIA', true, 69);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In Formula 1, what is the primary goal of a pit stop strategy during a race?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To minimize the time spent in the pits', true, 70);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To maximize the number of stops', false, 70);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To maintain the current position in the race', false, 70);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To gain positions relative to competitors', false, 70);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the significance of choosing the right tire compound during a pit stop strategy?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('It affects the car\s handling', false, 71);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('It determines the number of stops needed', false, 71);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('It influences the car\s speed', false, 71);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('All of the above', true, 71);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What factors influence the decision to adopt a one-stop, two-stop, or three-stop strategy in Formula 1?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Tire degradation rates', false, 72);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Track conditions', false, 72);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Car setup', false, 72);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('All of the above', true, 72);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In a two-stop strategy, why might a team choose to start on the medium tire compound instead of the soft?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Medium tires offer better grip in the beginning of the race', false, 73);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Starting on medium tires allows for a more flexible first stint', false, 73);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Starting on medium tires allows for a more flexible strategy', true, 73);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Medium tires are cheaper', false, 73);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('All of the above', false, 73);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the advantage of using a three-stop strategy in Formula 1?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('It allows for fresher tires at the end of the race', true, 74);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('It provides more opportunities for overtaking', false, 74);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('It minimizes the risk of tire failure', false, 74);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('It ensures a consistent pace throughout the race', false, 74);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Consider a Formula 1 race where the weather forecast predicts heavy rain towards the latter stages of the race.' ||
+        'In the given scenario, what would be the optimal pit stop strategy for maximizing the chances of winning' ||
+        ' the Formula 1 race, considering the dynamic weather conditions, tyre selection, car performance, safety' ||
+        ' risks, and competitor strategies?', null, 3);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Stick to the initial plan of starting on intermediate tyres and hope for the best, minimizing pit' ||
+     ' stops to save time', false, 75);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Switch to extreme wet tyres as soon as light rain starts, prioritizing performance in wet condition' ||
+     's despite the risk of early tyre degradation', false, 75);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Delay the switch to extreme wet tyres until the very end of the race, hoping to maintain speed in the dry con' ||
+     'ditions and then capitalize on the performance boost in the heavy rain', true, 75);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Continuously monitor track conditions and adjust tyre strategy accordingly, focusing on' ||
+     ' maintaining a balance between speed and tyre life to stay ahead of competitors', false, 75);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In a Formula 1 race, drivers find themselves in a unique situation where the race is ' ||
+        'being held in extremely hot conditions, causing the asphalt to heat up significantly. ' ||
+        'This leads to increased tire degradation and reduced grip. Given this scenario, how would you strategize' ||
+        ' pit stops for the drivers considering all started on softs?', null, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Stick rigidly to the hard compound tyres throughout the entire race, ' ||
+     'relying on the durability of these tyres to maintain a steady pace', false, 76);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Make an early switch to medium compound tyres to benefit from ' ||
+     'improved grip and performance, despite the potential for faster tire degradation.', true, 76);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Delay the switch to medium compound tyres until the very end of the race, ' ||
+     'attempting to preserve the hard compound tires for as long as possible to avoid unnecessary pit stops', false, 76);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Trying to use the hard tyres as much time as possible to have more consistent lap times during the race ', false, 76);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Overtake Under Yellow Flags During a race, there is an accident on the track, and yellow flags are deployed. ' ||
+        'A driver attempts to make a pass while the yellow flags are out. How is the sporting regulations applied in ' ||
+        'this situation?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Passing is allowed as long as it does not put the driver being passed at risk', true, 77);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Passing under yellow flags is prohibited to avoid additional risks', false, 77);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Passing is allowed but the passing driver must yield position in the next corner', false, 77);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Passing is allowed without restrictions', false, 77);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Collision While Racing Two drivers collide during a race but manage to continue racing. ' ||
+        'What action should the stewards take regarding this incident?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('No action, as both drivers continued racing', false, 78);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Warn both drivers about future incidents', false, 78);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Investigate for potential penalties due to dangerous driving', true, 78);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Disqualify both drivers from the race', false, 78);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Driver Forced Off Track forces another off the track during a close battle. ' ||
+        'What is the appropriate response from the stewards?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('No action, as it was part of the racing', false, 79);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Investigate the driver who forced the other off track and reprimand the driver forced off track ', false, 79);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Investigate for potential penalties due to forcing another driver off track in both cases', true, 79);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Disqualify the driver who forced the other off track', false, 79);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Defensive Driving During Braking A driver defends against an attack by moving during braking, ' ||
+        'which leads to contact with another driver. What is the correct course of action by the stewards?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Disqualify the driver who moved under braking', false, 80);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Put a several penalty to the driver who moved under breaking', true, 80);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Put just a reprimand for that action', false, 80);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Just a racing incident', false, 80);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which was Ayrton Senna\s first car in F1?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mclaren', false, 81);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lotus', false, 81);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Toleman', true, 81);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Arrows', false, 81);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which was Michael Schumacher\s first car in F1?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Ferrari', false, 82);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jordan', true, 82);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Benetton', false, 82);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mercedes', false, 82);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which is Fernando Alonso\s first win in F1?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('France 2004', false, 83);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Spain 2003', false, 83);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Malasia 2005', false, 83);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 2003', true, 83);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which was Ayrton Senna\s first win in F1?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Donnington 1993', false, 84);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Portugal 1985', true, 84);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Monaco 1984', false, 84);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 1988', false, 84);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver holds the record for more races having podiums but not winning in F1?', null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lando Norris', false, 85);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Romain Grosjean', false, 85);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nick Heidfeld', true, 85);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sergio Perez', false, 85);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the primary difference between the deployment of the Safety Car and the Red Flag during Formula 1 races?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The Safety Car is used when there are adverse weather conditions, ' ||
+     'while the Red Flag indicates a temporary halt in the race due to track hazards', false, 86);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The Red Flag means the race has been completely stopped, whereas' ||
+     ' the Safety Car slows down the cars but allows the race to continue', true, 86);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The Safety Car is activated for significant accidents on the track, ' ||
+     'while the Red Flag is shown at the end of the race to signal the official conclusion', false, 86);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Both serve to indicate the same type of situation; only the colors change', false, 86);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver has the biggest amount of pole positions in F1 history?', null, 1);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Ayrton Senna', false, 87);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Michael Schumacher', false, 87);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Max Verstappen', false, 87);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', true, 87);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver has the biggest amount of podiums in F1 history?', null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Alain Prost', false, 88);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Michael Schumacher', false, 88);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Max Verstappen', false, 88);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', true, 88);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver was the first one to win the f1 world championship?', null, 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Giuseppe Farina', true, 89);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Juan Manuel Fangio', false, 89);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jim Clark', false, 89);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Alberto Ascari', false, 89);
+
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which drivers holds the record for winning a championship with the biggest age?', null, 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Alberto Ascari', false, 90);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Giuseppe Farina', false, 90);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Juan Manuel Fangio', true, 90);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Niki Lauda', false, 90);
+
+
+
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
 VALUES('Bahrein',5412,57,'Ferrari', 'Bahrain_Circuit.jpg',2);
