@@ -328,7 +328,7 @@ VALUES ('Which driver raced with this car?', 'images-80a199ac-fb13-44c3-9811-020
 INSERT INTO Answer (name, correct, questionId) VALUES ('Robert Kubica', true, 6);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Romain Grosjean', false, 6);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Nico Hulkenberg', false, 6);
-INSERT INTO Answer (name, correct, questionId) VALUES ('Kamui Kobayashi', true, 6);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Kamui Kobayashi', false, 6);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Kimi Raikkonen', false, 6);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
@@ -436,7 +436,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Alpine', false, 19);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Haas', true, 19);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('In which year did Michael Schumacher win his first F1 victory?', null, 2);
+VALUES ('In which year did Michael Schumacher get his first F1 victory?', null, 2);
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('1994', false, 20);
 INSERT INTO Answer (name, correct, questionId) VALUES ('2000', false, 20);
@@ -570,6 +570,127 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('1990', false, 35);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1994', true, 35);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1992', false, 35);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1993', false, 35);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How do wind effects influence a F1 car\s performance?', 'images17.jpg', 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Wind effects can alter the balance of the car, especially in fast corners.', true, 36);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Wind can cause lateral slides if not handled correctly.', false, 36);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Wind affects engine efficiency.', false, 36);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Wind influences the direction of the car during overtaking maneuvers.', false, 36);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the key difference between Q1, Q2, and Q3 classification systems in F1?', 'pierre-gasly-alphatauri-at02-i.jpg', 1);
+
+-- Respuestas para la pregunta anterior
+INSERT INTO Answer (name, correct, questionId)
+VALUES ('Q1 determines who advances to the next round of qualification.', true, 37);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Q2 decides the final positions in the starting grid.', false, 37);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Q3 sets the initial order of the race.', false, 37);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Q1 and Q2 define the drivers who participate in the race.', false, 37);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Why is overtaking so difficult in F1?', '15289134275279.jpg', 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Due to the dirty air ejected by the car being chased.', true, 38);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Thanks to the team strategy to stay ahead.', false, 38);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Thanks to the FIA regulation that penalizes overtaking.', false, 38);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Because there are few clear opportunities to overtake on most tracks.', false, 38);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What was the first country outside Europe to host a Formula 1 race?', NULL, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil', false, 39);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('South Africa', false, 39);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Australia', true, 39);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('United States', false, 39);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Who won the Spanish Grand Prix in 1966, marking the first victory for a British constructor since the introduction of free engine regulations?', NULL, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jim Clark', true, 40);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jackie Stewart', false, 40);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('John Surtees', false, 40);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Graham Hill', false, 40);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which constructor has won the Formula 1 Constructors World Championship in the minimum number of seasons since its debut?', '360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg', 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mclaren', false, 41);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Red Bull Racing', true, 41);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mercedes', false, 41);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Scuderia Ferrari', false, 41);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which of these statements about tires in F1 is true?', 'Cuatro-neumaticos-Pirelli-de-carreras.jpg', 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hard tires always offer more durability than soft tires.', false, 42);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Soft tires always offer more grip than hard tires.', false, 42);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('There is a specific type of tire called "intermediates" designed for mixed wet and dry conditions.', true, 42);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('All Formula 1 cars use tires of the same brand and specification.', false, 42);
+
+
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
 VALUES('Bahrein',5412,57,'Ferrari', 'Bahrain_Circuit.jpg',2);
@@ -743,7 +864,7 @@ INSERT INTO Podium(winner, date,teamWinner, secondPlace, thirdPlace, image,circu
 VALUES('Nico Rosberg', '2016','Mercedes','Max Verstappen','Lewis Hamilton', 'formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg', 4);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
-VALUES('Max Verstappen', '2024', 'Red Bull', 'Lando Norris', 'Sergio Perez', 'lewis_hamilton_2019_china.jpg', 5);
+VALUES('Max Verstappen', '2024', 'Red Bull', 'Lando Norris', 'Sergio Perez', '6624d1c194742.jpeg', 5);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
 VALUES('Lewis Hamilton', '2019', 'Mercedes', 'Valtteri Bottas', 'Sebastian Vettel', 'lewis_hamilton_2019_china.jpg', 5);
