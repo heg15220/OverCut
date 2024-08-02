@@ -1849,12 +1849,12 @@ VALUES ('Name track and year for this moment',
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Korea 2011', true, 97);
+    ('Korea 2011', false, 97);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('China 2012', false, 97);
+    ('China 2012', true, 97);
 
 
 INSERT INTO Answer (name, correct, questionId)
@@ -2014,7 +2014,7 @@ VALUES
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('During a Formula 1 race, a major accident occurs that results in significant debris scattered across the track,' ||
-        ' posing a substantial risk to the drivers.The driver who had the accidente is okay. The race director needs to decide on the appropriate action. ' ||
+        ' posing a substantial risk to the drivers.The driver who had the accident is okay. The race director needs to decide on the appropriate action. ' ||
         'Which of the following options accurately reflects the correct procedure according to the FIA Sporting Regulations?',
         'asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg', 2);
 INSERT INTO Answer (name, correct, questionId)
@@ -2144,7 +2144,7 @@ VALUES
     ('Sebastian Vettel 2013', false, 109);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('How many has Fernado Alonso raced the Australian GP?',
+VALUES ('How many times has Fernando Alonso raced the Australian GP?',
         'fernando-alonso-aston-martin-a-3.jpg', 3);
 
 INSERT INTO Answer (name, correct, questionId)
@@ -2172,22 +2172,22 @@ VALUES ('Name the driver',
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Pedro de la Rosa', false, 110);
+    ('Pedro de la Rosa', false, 111);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Eddie Irvine', false, 110);
+    ('Eddie Irvine', false, 111);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Mark Webber', false, 110);
+    ('Mark Webber', false, 111);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Fernando Alonso', true, 110);
+    ('Fernando Alonso', true, 111);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Name the driver',
@@ -2195,22 +2195,22 @@ VALUES ('Name the driver',
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Felipe Massa', false, 111);
+    ('Felipe Massa', false, 112);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Michael Schumacher', false, 111);
+    ('Michael Schumacher', false, 112);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Kimi Raikkonen', false, 111);
+    ('Kimi Raikkonen', false, 112);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('No F1 driver', true, 111);
+    ('No F1 driver', true, 112);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('F1 left USA in 2007. When was the first United States Grand Prix held after its reintroduction to the Formula 1 calendar?',
@@ -2218,44 +2218,44 @@ VALUES ('F1 left USA in 2007. When was the first United States Grand Prix held a
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('2010', false, 112);
+    ('2010', false, 113);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('2009', false, 112);
+    ('2009', false, 113);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('2013', false, 112);
+    ('2013', false, 113);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('2012', true, 112);
+    ('2012', true, 113);
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('How many drivers compete in each Grand Prix of a Formula One season?',
         null, 1);
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('20', true, 113);
+    ('20', true, 114);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('24', false, 113);
+    ('24', false, 114);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('18', false, 113);
+    ('18', false, 114);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('22', false, 113);
+    ('22', false, 114);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('How many Grand Prix Starts did Jackie Stewart have during his professional career?',
@@ -2263,22 +2263,22 @@ VALUES ('How many Grand Prix Starts did Jackie Stewart have during his professio
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('100', true, 114);
+    ('100', true, 115);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('150', false, 114);
+    ('150', false, 115);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('125', false, 114);
+    ('125', false, 115);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('110', false, 114);
+    ('110', false, 115);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('How many Grand Prix Starts did world champion Michael Schumacher have during his career before 2007?',
@@ -2286,22 +2286,22 @@ VALUES ('How many Grand Prix Starts did world champion Michael Schumacher have d
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('250', false, 115);
+    ('250', false, 116);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('260', false, 115);
+    ('260', false, 116);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('270', false, 115);
+    ('270', false, 116);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('280', true, 115);
+    ('280', true, 116);
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
@@ -2310,22 +2310,22 @@ VALUES ('How many Grand Prix Starts did world champion Michael Schumacher have d
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('250', false, 115);
+    ('250', false, 117);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('260', false, 115);
+    ('260', false, 117);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('270', false, 115);
+    ('270', false, 117);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('280', true, 115);
+    ('280', true, 117);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Name year and track for this moment?',
@@ -2333,22 +2333,22 @@ VALUES ('Name year and track for this moment?',
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Valencia 2010', true, 116);
+    ('Valencia 2010', true, 118);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Singapur 2012', false, 116);
+    ('Singapur 2012', false, 118);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Korea 2011', false, 116);
+    ('Korea 2011', false, 118);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Canada 2009', false, 116);
+    ('Canada 2009', false, 118);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Name the team',
@@ -2356,22 +2356,22 @@ VALUES ('Name the team',
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Jordan', false, 117);
+    ('Jordan', false, 119);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Bar honda', false, 117);
+    ('Bar honda', false, 119);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Arrows', true, 117);
+    ('Arrows', true, 119);
 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Toleman', false, 117);
+    ('Toleman', false, 119);
 
 
 
