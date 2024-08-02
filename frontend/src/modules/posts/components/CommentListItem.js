@@ -33,12 +33,12 @@ const CommentListItem = ({ key, comment, level }) => {
                 <div className="d-flex">
                     &nbsp;&nbsp;&nbsp;
                     {comment.userImage && <img src={"data:image/jpg;base64," + comment.userImage} class="rounded-circle my-2" width="35px" height="35px" alt="Avatar" />}
-                    <text className="card-body" style={{ marginBottom: 14, fontFamily: 'Poppins' }} style={{ color: '#00000F' }}>{comment.userName}</text>
+                    <text className="card-body" style={{ marginBottom: 14, fontFamily: 'Poppins', color: '#00000F' }} >{comment.userName}</text>
                 </div>
 
-                <text className="card-body" style={{ marginBottom: 14, fontFamily: 'Poppins' }}>{comment.content}</text>
+                <text className="card-body" style={{ marginBottom: 20, fontFamily: 'Poppins' }}>{comment.content}</text>
                 {user &&
-                    <div className="d-flex" style={{ position: 'absolute', right: '0', bottom: '0' }}>
+                    <div className="d-flex" style={{ position: 'relative', right: '100', bottom: '0', paddingBottom: '10px' }}> {/* Añadido paddingBottom */}
                         <AddAnswer comment={comment} />
                         <Spacer size="10px" />
                         {user.id === comment.authorId && <ModifyComment comment={comment} />}
@@ -49,6 +49,7 @@ const CommentListItem = ({ key, comment, level }) => {
                             </svg>
                         </button>}
                     </div>}
+
 
             </div>
             {comments &&
