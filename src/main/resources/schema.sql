@@ -1723,6 +1723,657 @@ VALUES
     ('Niki Lauda', false, 91);
 
 
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the car', 'Rubens_Barrichello_2006_USA.jpg', 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Honda', true, 92);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Super Aguri', false, 92);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Williams', false, 92);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jordan', false, 92);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Since Ferrari won their last championship to date, which driver has taken the biggest amount of wins for the scuderia?',
+        '1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg', 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sebastian Vettel', true, 93);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Charles Leclerc', false, 93);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fernando Alonso', false, 93);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Kimi Raikkonen', false, 93);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'hamilton_vettel_glock_brasil_2008_soy_motor.jpg', 1);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fuji 2007', false, 94);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 2008', true, 94);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Korea 2010', false, 94);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 2009', false, 94);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        '709607-21389434-2560-1440.jpg', 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Abu dhabi 2007', false, 95);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('China 2008', false, 95);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Bahrein 2008', true, 95);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Abu Dhabi 2009', false, 95);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'image23.jpg', 1);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Japan 1989', true, 96);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Spain 1991', false, 96);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 1988', false, 96);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Australia 1990', false, 96);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'cui-png2.jpg', 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Korea 2011', true, 97);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('China 2012', false, 97);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Japan 2013', false, 97);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Korea 2010', false, 97);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        '15644308053724.jpg', 1);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nurburgring 2020', false, 98);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 2018', false, 98);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Great Britian 2018', false, 98);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Germany 2019', true, 98);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        '_103266921_hamilton_vettel_getty1.jpg', 1);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Suzuka 2018', false, 99);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2018', true, 99);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Austria 2019', false, 99);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('France 2019', false, 99);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the track',
+        'sddefault.jpg', 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nurburgring', false, 100);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Magny Cours', false, 100);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Monza', false, 100);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hockenheim', true, 100);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In which year F1 started to put color on tyres to distinguish the different compounds?',
+        'ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg', 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2009', false, 101);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2005', false, 101);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2011', false, 101);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2007', true, 101);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the track',
+        'lewishamiltongpchina2008.jpg', 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Suzuka', false, 102);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Shanghai', true, 102);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Korea', false, 102);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('India', false, 102);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the track and year for this moment',
+        '1366_2000.jpg', 2);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('China 2013', false, 103);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Korea 2011', false, 103);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('India 2013', true, 103);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 2012', false, 103);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('During a Formula 1 race, a major accident occurs that results in significant debris scattered across the track,' ||
+        ' posing a substantial risk to the drivers.The driver who had the accidente is okay. The race director needs to decide on the appropriate action. ' ||
+        'Which of the following options accurately reflects the correct procedure according to the FIA Sporting Regulations?',
+        'asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg', 2);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Deploy the Safety Car to slow down the field and allow marshals to clear the debris', true, 104);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Immediately halt the race by displaying the red flag due to the severity of the accident', false, 104);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Continue the race under caution without deploying the Safety Car', false, 104);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Allow the drivers to decide whether to slow down or not', false, 104);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Heavy rain continues to fall during a Formula 1 race, making the track unsafe for racing. The race director ' ||
+        'must determine the correct course of action. Which of the following options aligns with the FIA Sporting Regulations?',
+        'images24.jpg', 2);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Deploy the Safety Car to slow down the field and wait for the rain to subside', false, 105);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Immediately halt the race by displaying the red flag due to the unsafe track conditions', true, 105);
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Continue the race under caution without deploying the Safety Car or the red flag', false, 105);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Allow the drivers to decide whether to continue racing or not', false, 105);
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which country hosted the first Formula 1 Grand Prix in history?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('France', false, 106);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy', false, 106);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('United Kingdom', true, 106);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Germany', false, 106);
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What circuit has hosted the most Grand Prix in the history of Formula 1?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Monza', false, 107);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Silverstone', true, 107);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Spa-Francorchamps', false, 107);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Suzuka', false, 107);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many times has the Spanish Grand Prix been the host of the inaugural race of a new Formula 1 championship?',
+        'formula-1-european-gp-1997-jac-2.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1', true, 108);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2', false, 108);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('3', false, 108);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Never', false, 108);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the highest number of points obtained by a driver in a single season?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Michael Schumacher 2002', false, 109);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Max Verstappen 2023', true, 109);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton 2019', false, 109);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sebastian Vettel 2013', false, 109);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many has Fernado Alonso raced the Australian GP?',
+        'fernando-alonso-aston-martin-a-3.jpg', 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('19 times', true, 110);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('21 times', false, 110);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('20 times', false, 110);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('17 times', false, 110);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        'fernando-alonso-jaguar-r3-1.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Pedro de la Rosa', false, 110);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Eddie Irvine', false, 110);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mark Webber', false, 110);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fernando Alonso', true, 110);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        'Valentino-Rossi-piloto-F1-Ferrari-14.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Felipe Massa', false, 111);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Michael Schumacher', false, 111);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Kimi Raikkonen', false, 111);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('No F1 driver', true, 111);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('F1 left USA in 2007. When was the first United States Grand Prix held after its reintroduction to the Formula 1 calendar?',
+        'USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2010', false, 112);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2009', false, 112);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2013', false, 112);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2012', true, 112);
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many drivers compete in each Grand Prix of a Formula One season?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('20', true, 113);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('24', false, 113);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('18', false, 113);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('22', false, 113);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many Grand Prix Starts did Jackie Stewart have during his professional career?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('100', true, 114);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('150', false, 114);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('125', false, 114);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('110', false, 114);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many Grand Prix Starts did world champion Michael Schumacher have during his career before 2007?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('250', false, 115);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('260', false, 115);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('270', false, 115);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('280', true, 115);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many Grand Prix Starts did world champion Michael Schumacher have during his career before 2007?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('250', false, 115);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('260', false, 115);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('270', false, 115);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('280', true, 115);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name year and track for this moment?',
+        'BeaF-8xIcAAYBbM.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Valencia 2010', true, 116);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Singapur 2012', false, 116);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Korea 2011', false, 116);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Canada 2009', false, 116);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the team',
+        '9.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jordan', false, 117);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Bar honda', false, 117);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Arrows', true, 117);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Toleman', false, 117);
+
+
 
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
