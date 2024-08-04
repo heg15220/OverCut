@@ -6,7 +6,7 @@ import { FormattedMessage } from 'react-intl';
 import Notifications from "./Notifications";
 
 
-import image from './Resources/logo.svg';
+import image from './Resources/stock-vector-formula-racing-car-silhouette-isolated-logo-2340770493.jpg';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faChartPie} from "@fortawesome/free-solid-svg-icons";
@@ -21,10 +21,12 @@ const Header = () => {
             <div className="header">
                 <nav className="navbar navbar-dark bg-dark ml-auto">
                     <a className="navbar-brand d-inline-block align-top" href="/">
-                        <img className="App-logo mx-3" src={image} alt="App Logo" height="65" width="65"></img>
-                        <Link className="text-light h4 " style={{ textDecoration: 'none' }} to="/#/overcut/">
+                        <img className="App-logo mx-3" src={image} alt="App Logo" height="65" width="130"></img>
+                        <Link className="text-light h4 overcut-text overcut-text-animation" style={{ textDecoration: 'none' }} to="/#/overcut/">
                             OverCut
                         </Link>
+
+
                     </a>
 
                     <ul className="nav pull-xs-right">

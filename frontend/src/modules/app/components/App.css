@@ -59,7 +59,7 @@
 }
 
 .App-logo {
-  animation: App-logo-spin infinite 20s linear;
+  animation:none;
 }
 
 @keyframes App-logo-spin {
@@ -161,3 +161,12 @@
   margin-right: 5px; /* Espacio entre el ícono y el texto */
 }
 
+.overcut-text-animation {
+  font-style: italic; /* Aplica cursiva */
+  animation: speedEffect 2s infinite; /* Aplica animación de velocidad */
+}
+
+@keyframes speedEffect {
+  0%, 100% { transform: scale(1); } /* Comienza y termina sin cambio */
+  50% { transform: scale(1.05); } /* En medio de la animación, aumenta la escala */
+}
