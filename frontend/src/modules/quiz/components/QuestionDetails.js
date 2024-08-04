@@ -22,6 +22,7 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
     const quiz = useSelector(selectors.findQuiz);
     const [responseState, setResponseState] = useState({});
     const [totalScore, setTotalScore] = useState(0);
+    const[score, setScore] = useState(0);
     const [showCorrectAnswer, setShowCorrectAnswer] = useState(false); // Nuevo estado para mostrar la respuesta correcta
 
     useEffect(() => {
@@ -31,6 +32,7 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
             dispatch(actions.getAnswersForQuestion(questionId, ()=>{}, () => {}));
         }
     }, [question, dispatch]);
+
 
     if (!question) {
         return null;
@@ -53,15 +55,20 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
             [answer.id]: { isSelected: true, isCorrect: answer.correct }
         }));
 
+
+        setTotalScore(totalScore + question.knowledgequestionlevel);
+
         // Si la respuesta es incorrecta, muestra la respuesta correcta
         if (!answer.correct) {
             setShowCorrectAnswer(true);
+
         }
 
         // Dentro de handleSelectAnswer:
         if (answer.correct) {
-            setTotalScore(totalScore + 1);
+            setScore(score + question.knowledgequestionlevel);
         }
+
 
         // Cambiar el color del botón a verde y luego volver a su color original
         setTimeout(() => {
@@ -149,15 +156,15 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                     navigate('/')
                 )}
 
-                {totalScore? (
+                {score>=totalScore? (
                     <Alert severity="success">
-                        <AlertTitle>¡Excelente trabajo!</AlertTitle>
-                        Has obtenido {totalScore} puntos.
+                        <AlertTitle></AlertTitle>
+                        Has obtenido {score}/{totalScore} puntos.
                     </Alert>
                 ) : (
-                    <Alert severity="success">
+                    <Alert>
                         <AlertTitle>Tu puntaje:</AlertTitle>
-                        Has obtenido {totalScore} puntos.
+                        Has obtenido {score} / {totalScore} puntos.
                     </Alert>
                 )}
             </Box>

@@ -5,3 +5,21 @@
 .custom-button.correct-answer {
     background-color: green!important; /* O cualquier otro estilo que desees aplicar */
 }
+
+.fadeOut {
+    animation: fadeOut 2s forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+/* Estilo para respuestas incorrectas */
+.custom-button.incorrect-answer {
+    background-color: red !important; /* Color de fondo rojo para respuestas incorrectas */
+    color: white; /* Texto blanco sobre fondo rojo */
+}

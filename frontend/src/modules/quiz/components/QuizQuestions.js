@@ -1,7 +1,7 @@
 import {QuestionDetails} from "../index";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-
+import './QuestionDetails.css';
 const QuizQuestions = ({ questions }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     // Check if questions and questions.items exist before accessing them

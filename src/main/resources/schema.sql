@@ -214,61 +214,6 @@ INSERT INTO Category(name,historic,quiz) VALUES ('Historia', true, false);
 
 INSERT INTO Category(name,historic,quiz) VALUES ('Anecdotas',false,false);
 
-INSERT INTO Post (title, subtitle, article, creationDate, userId, categoryId)
-VALUES ('Why Ferrari doesn’t fear its downgrade will derail F1 season ',
-    'Ferrari''s recurrence of high-speed bouncing has been triggered by a new floor. The challenge now is finding answers as to why it has not worked. ',
-        'The story of Formula 1’s development war in 2024 has been very much about whether car updates fall into the ‘upgrade’ or ‘downgrade’ category.
-
-For some teams, like McLaren, Mercedes and Haas, each new iteration appears to be delivering the steps hoped to help push them forward.
-
-For others – like Aston Martin, RB and Ferrari – new parts have led to some unintended consequences and left them not only facing competitive challenges but an urgency to get to the bottom of what has gone wrong.
-
-In Ferrari’s case, its issue appears to revolve around a new floor that arrived as part of a Spanish Grand Prix upgrade.
-
-While the new parts delivered more downforce, especially in the low-speed corners, one consequence was it helped trigger the return of bouncing in fast turns – something which has hampered the squad in recent races.
-
-At last weekend’s British Grand Prix, Ferrari conducted a floor comparison across both cars to work out which solution was best – and in the end opted to roll back its floor to the Imola spec.
-Top Videos
-
-While that move proved best for the short term in giving Carlos Sainz and Charles Leclerc the best hope for the Silverstone weekend, moving forward the team clearly needs a more permanent solution.
-Carlos Sainz, Ferrari SF-24
-
-Carlos Sainz, Ferrari SF-24
-
-Photo by: Erik Junius
-
-But, more critical than that, is in getting an understanding of why what has been delivered to the track is not what was expected – because until it has that answer then it cannot hope to make any more progress.
-
-As Mercedes technical director James Allison talked about earlier in the year, if an ‘upgrade’ proves to be a ‘downgrade’ then the consequences can be huge.
-
-“That makes life hard because the moment you stop trusting your tools, you have to backtrack and you lose loads of time,” said Allison. “Time is your biggest friend, losing it your worst enemy.”
-
-It is a situation not lost on Ferrari team principal Fred Vasseur, but there is no sense that he fears the Maranello squad cannot turn things around to get back in the fight at the front.
-
-That confidence is based on the fact that, 12 months ago, Ferrari appeared to be going through an exact same scenario, where updates were not delivering all that had been hoped for and the team needed some understanding of what had gone wrong.
-Charles Leclerc, Ferrari SF-23,Carlos Sainz, Ferrari SF-23
-
-Charles Leclerc, Ferrari SF-23,Carlos Sainz, Ferrari SF-23
-
-Photo by: Erik Junius
-
-The breakthrough came at the Dutch Grand Prix when Ferrari elected to sacrifice its weekend preparations in favour of what was effectively a single-day test to focus entirely on car experiments.
-
-It is why he thinks the call to split floors across the cars at Silverstone, even if it meant a potential hit to hopes for the British GP, was the right thing to do to kick start its understanding of what was going on.
-
-"I think we had exactly the same situation last year, almost at the same stage of the season - Silverstone, Budapest and Spa,” he said.
-
-“We stopped it at Zandvoort, had a good scan of the situation and had a good recovery because the weeks after, we were there.
-
-“What is tough in this situation is you don''t have tests, proper tests, to fix it or to at least understand it. It is very difficult as a team to compromise or sacrifice Friday sessions when you know you are losing time during the weekend and say ok, lets forget about FP1, FP2 and focus on the mid-term.
-
-“Trust me, this decision as a team is difficult because you start the weekend - and it was even worse at Silverstone with the weather - and it means you put yourself in a tough situation.
-
-“But this we knew before, but it was even worse that Saturday morning was with wet tyres, but it is like it is. We assumed the decision before the weekend, and I think it was the right call to do it.', NOW(), 1, 1);
-
-
-INSERT INTO Comment (content, userId,parent_comment, postId)
-VALUES ('This is a comment.', 1, NULL, 1);
 
 
 INSERT INTO Award(award,requiredPoints, image)

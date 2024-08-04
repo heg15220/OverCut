@@ -129,6 +129,8 @@ const TeamVictoriesBarChart = () => {
         return acc;
     }, {});
 
+
+
     // Genera un array de objetos para el gráfico circular
     const pieData = Object.keys(pieChartData).map(key => ({
         name: key,
@@ -180,13 +182,13 @@ const TeamVictoriesBarChart = () => {
                     cy="50%"
                     labelLine={false}
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(2)}%`}
-                    outerRadius={80}
+                    outerRadius={170}
                     fill="#8884d8"
                 >
                     <Sector
                         startAngle={90}
                         endAngle={(360 / pieData.length) + 90}
-                        innerRadius={60}
+                        innerRadius={80}
                         fill="#82ca9d"
                     />
                 </Pie>

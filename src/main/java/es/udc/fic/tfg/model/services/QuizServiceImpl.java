@@ -221,13 +221,17 @@ public class QuizServiceImpl implements QuizService {
 
         userAnswerDao.save(userAnswer);
 
+        Question question = questionDao.findQuestionById(questionId);
+        int points = question.getKnowledgequestionlevel();
         Quiz quiz = quizDao.findQuizById(quizId);
-        int points= 1;
         // Verificar si la respuesta es correcta y actualizar los puntos en la tabla Assessment
         if (answerOptional.get().isCorrect()) {
             quiz.setPoints(quiz.getPoints() + points);
             user.setPoints(user.getPoints() + points);
+            quizDao.save(quiz);
+            userDao.save(user);
         }
+
         quizDao.save(quiz);
         userDao.save(user);
     }
