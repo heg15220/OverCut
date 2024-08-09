@@ -159,12 +159,14 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                 {score>=totalScore? (
                     <Alert severity="success">
                         <AlertTitle></AlertTitle>
-                        Has obtenido {score}/{totalScore} puntos.
+                        <FormattedMessage id="project.entities.Quiz.getPoints"></FormattedMessage>
+                        {score}/{totalScore} <FormattedMessage id="project.points"></FormattedMessage>.
                     </Alert>
                 ) : (
                     <Alert>
-                        <AlertTitle>Tu puntaje:</AlertTitle>
-                        Has obtenido {score} / {totalScore} puntos.
+                        <AlertTitle><FormattedMessage id="project.YourPoints"></FormattedMessage></AlertTitle>
+                        <FormattedMessage id="project.entities.Quiz.getPoints"></FormattedMessage>
+                        {score}/{totalScore} <FormattedMessage id="project.points"></FormattedMessage>.
                     </Alert>
                 )}
             </Box>

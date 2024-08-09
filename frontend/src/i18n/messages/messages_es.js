@@ -92,6 +92,9 @@ const es = {
     'project.entities.Post.Modify': 'Modificar Post',
     'project.entities.Post.Delete': 'Eliminar Post',
     'project.entities.Posts.MyPosts': 'Mis Posts',
+    'project.entities.Quiz.getPoints': 'Has obtenido',
+    'project.points': 'puntos',
+    'project.YourPoints': 'Tu puntaje',
 
 }
 export default es;

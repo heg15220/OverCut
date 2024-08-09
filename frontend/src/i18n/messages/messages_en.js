@@ -93,5 +93,8 @@ const en = {
     'project.entities.Post.Modify': 'Modify Post',
     'project.entities.Post.Delete': 'Delete Post',
     'project.entities.Posts.MyPosts': 'MyPosts',
+    'project.entities.Quiz.getPoints': 'You got',
+    'project.points': 'points',
+    'project.YourPoints': 'Your points',
 }
 export default en;

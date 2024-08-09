@@ -206,13 +206,13 @@ INSERT INTO Users(userName, firstName, lastName, password, email, journalist, im
     VALUES('F1Fan', 'Race', 'Week', 'formula1', 'f1fan@gmail.com', true, NULL, 0);
 
 
-INSERT INTO Category(name,historic,quiz) VALUES ('Actualidad',false,false);
+INSERT INTO Category(name,historic,quiz) VALUES ('News',false,false);
 
 INSERT INTO Category(name,historic,quiz) VALUES ('Quiz', false, true);
 
-INSERT INTO Category(name,historic,quiz) VALUES ('Historia', true, false);
+INSERT INTO Category(name,historic,quiz) VALUES ('Historic', true, false);
 
-INSERT INTO Category(name,historic,quiz) VALUES ('Anecdotas',false,false);
+INSERT INTO Category(name,historic,quiz) VALUES ('Anecdotes',false,false);
 
 
 
