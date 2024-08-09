@@ -120,12 +120,6 @@ const EventDetails = () => {
                                 <button onClick={handleCreateNotificationClick}>
                                     <FormattedMessage id = "project.entities.EventDetails.button"/></button>
                             </div>
-
-                            <div>
-                                {/* Otros elementos del detalle del evento */}
-                                <button onClick={handleDeleteEventClick}>
-                                    <FormattedMessage id = "project.entities.EventDetails.button.delete"/></button>
-                            </div>
                         </TableBody>
                     </Table>
                 </TableContainer>

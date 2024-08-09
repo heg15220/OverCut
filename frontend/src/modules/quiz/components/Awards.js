@@ -15,6 +15,7 @@ import {sourceImages} from "../../../helpers/sourceImages";
 const Awards = () => {
     const {id} = useParams();
     const user = useSelector(userSelectors.getUser);
+    const points = useSelector(userSelectors.getUserPoints);
     const dispatch = useDispatch();
     const [backendErrors, setBackendErrors] = useState(null);
     const award = useSelector(selectors.getAward);
@@ -29,6 +30,12 @@ const Awards = () => {
         }
     }, [id, dispatch]);
 
+    useEffect(() => {
+        const userId = Number(user.id);
+        if (!Number.isNaN(userId) && userId !== "undefined") {
+            dispatch(userActions.getUserPoints(userId, () => {}, () => {}));
+        }
+    }, [user, dispatch]);
     const handleChooseAward = (award) => {
         const awardId = Number(award.id);
         const userId = Number(user.id); // Asumiendo que 'user' es el estado actual del usuario
@@ -116,15 +123,25 @@ const Awards = () => {
                             marginBottom: '1rem',
                         }}>
                             <FormattedMessage id="project.entities.User.Points"></FormattedMessage>
-                            {user.points}
+                            {points}
                         </Typography>
-                        <Button
-                            key={award.id}
-                            variant="contained"
-                            onClick={() => handleChooseAward(award)}
-                        >
-                            <FormattedMessage id="project.entities.AwardDetails.Button"> </FormattedMessage>
-                        </Button>
+                        {points >= award.requiredPoints? (<Button
+                                key={award.id}
+                                variant="contained"
+                                onClick={() => handleChooseAward(award)}
+                            >
+                                <FormattedMessage id="project.entities.AwardDetails.Button"> </FormattedMessage>
+                            </Button>
+                        ): <Typography variant="h5" component="div" sx={{
+                            fontSize: '1.5rem',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            color: 'text.primary',
+                            fontStyle: 'italic',
+                            marginTop: '1rem',
+                            marginBottom: '1rem',
+                        }}>
+                            <FormattedMessage id="project.entities.Awards.User.Points"></FormattedMessage></Typography>}
 
                     </CardContent>
                 </Card>

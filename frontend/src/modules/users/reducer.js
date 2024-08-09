@@ -21,8 +21,6 @@ const user = (state = initialState.user, action) => {
             return action.user;
         case actionTypes.ADD_IMAGE_COMPLETED:
             return action.user;
-        case actionTypes.GET_USER_POINTS_COMPLETED:
-            return action.user;
         default:
             return state;
     }

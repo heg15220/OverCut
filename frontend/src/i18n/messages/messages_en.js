@@ -84,5 +84,13 @@ const en = {
     'project.entities.EventDetails.button.delete': 'Delete Event',
     'project.entities.SignUp.Journalist': 'I´m journalist',
     'project.no_awards': 'No awards available',
+    'project.entities.Awards.User.Points': 'Not enough points',
+    'project.global.post.modifyPost': 'Modify Post',
+    'project.global.fields.modifytitle': 'Title',
+    'project.global.fields.modifysubtitle': 'Subtitle',
+    'project.global.fields.modifyarticle': 'Article',
+    'project.global.fields.modifycategory': 'Category',
+    'project.entities.Post.Modify': 'Modify Post',
+    'project.entities.Post.Delete': 'Delete Post',
 }
 export default en;

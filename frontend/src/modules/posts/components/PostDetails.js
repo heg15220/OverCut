@@ -160,11 +160,11 @@ const PostDetails = () => {
                         {user && user.id === post.userId && (
                             <Box display="flex" justifyContent="space-between" alignItems="center">
                                 <Button variant="contained" color="primary" component={Link} to={`/posts/${post.id}`}>
-                                    Modify Post
+                                    <FormattedMessage id="project.entities.Post.Modify"></FormattedMessage>
                                 </Button>
                                 <form ref={formRef} onSubmit={handleSubmitDelete}>
                                     <Button variant="contained" color="secondary" type="submit">
-                                        Delete Post
+                                        <FormattedMessage id="project.entities.Post.Delete"></FormattedMessage>
                                     </Button>
                                 </form>
                             </Box>
