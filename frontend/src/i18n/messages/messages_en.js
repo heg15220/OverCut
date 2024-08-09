@@ -92,5 +92,6 @@ const en = {
     'project.global.fields.modifycategory': 'Category',
     'project.entities.Post.Modify': 'Modify Post',
     'project.entities.Post.Delete': 'Delete Post',
+    'project.entities.Posts.MyPosts': 'MyPosts',
 }
 export default en;

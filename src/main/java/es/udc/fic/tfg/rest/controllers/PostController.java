@@ -51,7 +51,7 @@ public class PostController {
     public BlockDto<PostDto> visualizeAllUserPosts(@RequestAttribute Long userId,
                                                    @RequestParam(defaultValue = "0") int page) throws InstanceNotFoundException {
 
-        Block<Post> postBlock = postService.visualizeAllUserPosts(userId, page, 2);
+        Block<Post> postBlock = postService.visualizeAllUserPosts(userId, page, 40);
 
         return new BlockDto<>(toPostDtos(postBlock.getItems()), postBlock.getExistMoreItems());
     }

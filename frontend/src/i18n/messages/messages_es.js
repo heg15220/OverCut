@@ -91,6 +91,7 @@ const es = {
     'project.global.fields.modifycategory': 'Categoria',
     'project.entities.Post.Modify': 'Modificar Post',
     'project.entities.Post.Delete': 'Eliminar Post',
+    'project.entities.Posts.MyPosts': 'Mis Posts',
 
 }
 export default es;

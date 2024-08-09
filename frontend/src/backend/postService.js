@@ -29,9 +29,9 @@ export const getAllCategories = (onSuccess) => {
     );
 };
 
-export const getUserPosts = ({ page }, onSuccess) => {
+export const getUserPosts = ({userId,page }, onSuccess) => {
     appFetch(
-        `/posts/user?page=${page}`,
+        `/posts/user?userId=${userId}&page=${page}`,
         fetchConfig("GET"),
         onSuccess
     );

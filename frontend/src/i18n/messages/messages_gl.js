@@ -88,5 +88,6 @@ const gl = {
     'project.global.fields.modifycategory': 'Categoria',
     'project.entities.Post.Modify': 'Modificar Post',
     'project.entities.Post.Delete': 'Borrar Post',
+    'project.entities.Posts.MyPosts': 'Os meus Posts',
 }
 export default gl;

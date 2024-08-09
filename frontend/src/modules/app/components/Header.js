@@ -105,12 +105,17 @@ const Header = () => {
                                     <Link className="dropdown-item" to="/users/change-password" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
                                         <FormattedMessage id="project.users.ChangePassword.title" />
                                     </Link>
+                                    {user.journalist &&
                                     <Link className="dropdown-item" to="/post/createPost" id="createPost" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
                                         <FormattedMessage id="project.users.CreatePost.title" />
                                     </Link>
+                                    }
+
+                                    {user.journalist &&
                                     <Link className="dropdown-item" to="/post/my" id="myPosts" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
                                         <FormattedMessage id="project.users.MyPosts.title" />
                                     </Link>
+                                    }
                                     <Link className="dropdown-item" to="/user/awards" id="myAwards" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
                                         <FormattedMessage id="project.users.MyAwards.title" />
                                     </Link>
