@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface AwardDao extends CrudRepository<Award, Long> {
     @Query("SELECT a FROM Award a WHERE a.id = :id")
@@ -31,4 +32,6 @@ public interface AwardDao extends CrudRepository<Award, Long> {
 
     @Query("SELECT DISTINCT a FROM Award a JOIN UserAward ua ON a.id = ua.award.id WHERE ua.user.id = :userId")
     Slice<Award> findByUserId(@Param("userId") Long userId, Pageable pageable);
+
+
 }

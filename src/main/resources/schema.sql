@@ -1017,7 +1017,7 @@ VALUES
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('To increase braking capacity under high temperature conditions', false, 62);
+    ('To increase braking capacity under high temperature conditions', true, 62);
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES

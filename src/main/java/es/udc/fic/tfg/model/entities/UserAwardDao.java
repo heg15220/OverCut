@@ -5,6 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface UserAwardDao extends JpaRepository<UserAward, Long> {
+import java.util.Set;
 
+public interface UserAwardDao extends JpaRepository<UserAward, Long> {
+    @Query("SELECT u FROM UserAward u WHERE u.id = :id")
+    UserAnswerDao findUserAwardById(@Param("id") Long id);
+
+    @Query("SELECT ua.award.id FROM UserAward ua WHERE ua.user.id = :userId")
+    Set<Long> findClaimedAwardIds(@Param("userId") Long userId);
 }

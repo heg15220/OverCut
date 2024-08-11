@@ -316,27 +316,17 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Block<Award> getAvailableAwards(Long userId, int page, int size) throws InstanceNotFoundException{
-        // Verificar si el usuario existe
-        Optional<User> userOptional = userDao.findById(userId);
-        if (!userOptional.isPresent()) {
-            throw new InstanceNotFoundException("No user", userId);
-        }
+        Set<Long> claimedAwardIds = userAwardDao.findClaimedAwardIds(userId);
+        Slice<Award> allAwardsSlice = awardDao.findAllAwardsSlice(PageRequest.of(page,size));
 
-        User user = userDao.findUserById(userId);
-        int points = getUserPoints(userId);
+        // Filtrar las recompensas disponibles excluyendo las ya canjeadas
+        List<Award> unclaimedAwards = allAwardsSlice.getContent().stream()
+                .filter(award -> !claimedAwardIds.contains(award.getId()))
+                .collect(Collectors.toList());
 
-        List<Award> awards = awardDao.findAllAwards();
-
-        for(Award award : awards){
-            if(award.getRequiredPoints() <= points) award.setUser(user);
-            awardDao.save(award);
-        }
-
-
-        Slice<Award> awards2 = awardDao.findAllAwardsSlice(PageRequest.of(page,size));
-
-
-        return new Block<>(awards2.getContent(), awards2.hasNext());
+        // Construir el objeto Block
+        boolean hasNext = allAwardsSlice.hasNext();
+        return new Block<>(unclaimedAwards, hasNext);
     }
 
     @Override
