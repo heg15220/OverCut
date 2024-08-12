@@ -215,6 +215,12 @@ INSERT INTO Category(name,historic,quiz) VALUES ('Historic', true, false);
 INSERT INTO Category(name,historic,quiz) VALUES ('Anecdotes',false,false);
 
 
+INSERT INTO Post (title, subtitle, article, creationDate, userId, categoryId)
+VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example article content.', NOW(), 1, 1);
+
+
+INSERT INTO Comment (content, userId,parent_comment, postId)
+VALUES ('This is a comment.', 1, NULL, 1);
 
 INSERT INTO Award(award,requiredPoints, image)
 VALUES ('PS5', 5, 'ps5-product-thumbnail-01-en-14sep21.jpg');
@@ -502,7 +508,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Ferrari', true, 33);
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Which successful F1 team owner built his cars in the woodshed of the family''s timber business?', null, 2);
 
-INSERT INTO Answer (name, correct, questionId) VALUES ('Enzo Ferrari', true, 34);
+INSERT INTO Answer (name, correct, questionId) VALUES ('Ken Tyrrell', true, 34);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Bernie Ecclestone', false, 34);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Flavio Briatore', false, 34);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Ron Dennis', false, 34);
@@ -2318,7 +2324,389 @@ INSERT INTO Answer (name, correct, questionId)
 VALUES
     ('Toleman', false, 119);
 
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('If the circuit is in wet conditions for the whole race and the drivers start with intermediate tyres, they need to do a pit stop? ',
+        '14885385788381.jpg', 2);
 
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Yes, as the rules say that every car must do one pit stop during a race at least', false, 120);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Yes, as non stopping can be very dangerous', false, 120);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('They can not pit if they want', true, 120);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('They need to put the wet tyres in the next stint', false, 120);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'article-2351820-1A95E98F000005DC-265_634x286.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Silverstone 2012', false, 121);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Silverstone 2013', true, 121);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Austin 2012', false, 121);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Canada 2010', false, 121);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'COKcBbWVAAAi53b.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Monza 2015', true, 122);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Austria 2014', false, 122);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Austria 2015', false, 122);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Suzuka 2015', false, 122);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        '2da5e299e491fc1eae59abe0ff97ee1f.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Spain 2007', false, 123);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Britain 2008', false, 123);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Canada 2008', true, 123);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Malaysia 2007', false, 123);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the team',
+        '15185392040281.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sauber', false, 124);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('BAR', true, 124);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Williams', false, 124);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Minardi', false, 124);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the team',
+        '219.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Arrows', false, 125);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Stewart', false, 125);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Prost GP', false, 125);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Williams', true, 125);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('When was the last time Mclaren won the championship to date?',
+        'f1-mclarens-india-inline.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2007', false, 126);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2008', false, 126);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1999', false, 126);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1998', true, 126);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('When was the last time Mclaren won the championship to date?',
+        'f1-mclarens-india-inline.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2007', false, 127);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2008', false, 127);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1999', false, 127);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1998', true, 127);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many teams competed in the inaugural Formula 1 World Championship season in 1950?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('14', true, 128);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('12', false, 128);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('11', false, 128);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('13', false, 128);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which car manufacturer has produced engines for the most constructors championships in Formula 1?',
+        null, 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Ford', false, 129);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mercedes', false, 129);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Ferrari', true, 129);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Renault', false, 129);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver holds the record for the most wins at the Monaco Grand Prix?',
+        'gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Ayrton Senna', true, 130);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Michael Schumacher', false, 130);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', false, 130);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Alain Prost', false, 130);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver who did NOT win a grand prix in the 2012 season',
+        null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Pastor Maldonado', false, 131);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Kimi Raikkonen', false, 131);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nico Rosberg', false, 131);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Romain Grosjean', true, 131);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver won the last Malaysian GP in F1?',
+        'SalidaGPMalasia2009.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sebastian Vettel', false, 132);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', false, 132);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nico Rosberg', false, 132);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Max Verstappen', true, 132);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver won the last Malaysian GP in F1?',
+        'SalidaGPMalasia2009.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sebastian Vettel', false, 133);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', false, 133);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nico Rosberg', false, 133);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Max Verstappen', true, 133);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver won the last Malaysian GP in F1?',
+        'SalidaGPMalasia2009.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sebastian Vettel', false, 134);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', false, 134);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nico Rosberg', false, 134);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Max Verstappen', true, 134);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the maximum power output allowed for a Formula 1 engine?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('900', false, 135);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1000', false, 135);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1100', true, 135);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1200', false, 135);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many gears does a modern Formula 1 car have?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('5', false, 136);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('6', false, 136);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('7', false, 136);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('8', true, 136);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many liters of fuel must a Formula 1 car carry for a race distance of 305 kilometers?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('150', true, 137);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('100', false, 137);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('200', false, 137);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('250', false, 137);
 
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
@@ -2935,4 +3323,3 @@ VALUES ('Qatar GP', '23th round of the F1 season', '2024-12-01', 'Qatar','the-of
 
 INSERT INTO Event (name, description, date, location, imageUrl)
 VALUES ('Abu Dhabi GP', '24th round of the F1 season', '2024-12-08', 'Abu Dhabi','abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg');
-
