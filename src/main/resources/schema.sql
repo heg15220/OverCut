@@ -2563,7 +2563,7 @@ VALUES
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Name the driver who did NOT win a grand prix in the 2012 season',
-        null, 2);
+        'f0777c49a212574fd31ea18b515392a9.jpg', 2);
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
@@ -2707,6 +2707,223 @@ VALUES
 INSERT INTO Answer (name, correct, questionId)
 VALUES
     ('250', false, 137);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the team',
+        'caterham-f1.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jordan', false, 138);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sauber', false, 138);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Caterham', true, 138);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Benetton', false, 138);
+
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the team',
+        'f1-spyker-2007.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Midland', false, 139);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Force India', false, 139);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Spyker', true, 139);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Arrows', false, 139);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        'Pedro_de_la_Rosa_2005_Britain.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nick Heidfeld', false, 140);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Pedro de la Rosa', true, 140);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Juan Pablo Montoya', false, 140);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Kimi Raikkonen', false, 140);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which drink is sprayed by winning drivers at the end of a Formula One race?',
+        'podio_japon_2017_soy_motor.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Champagne', true, 141);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Water', false, 141);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Milk', false, 141);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Other drink', false, 141);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the significance of the yellow and red striped flag in Formula 1?',
+        '1_foDYHEmOHMtHrSZgpP5q3A.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Caution required', true, 142);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Pit lane closed', false, 142);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Danger ahead', false, 142);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('End of the race', false, 142);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the meaning of this flag?',
+        '15929284269004.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Caution required', false, 143);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Pit lane closed', false, 143);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Danger ahead', false, 143);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('End of the race', true, 143);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the meaning of this flag?',
+        'comisarios-bandera-amarilla-2021-soymotor.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Caution required', false, 144);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Pit lane closed', false, 144);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Danger ahead', true, 144);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('End of the race', false, 144);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What does performing an "undercut" mean in a Formula 1 race?',
+        'Undercut-F1.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Changing tires earlier than the other car to try to pass him', true, 145);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Waiting until the very last lap to change tires', false, 145);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Performing a pit stop after the leader to capitalize on their lead', false, 145);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Not changing tires at all during the race', false, 145);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What does performing an "overcut" mean in a Formula 1 race?',
+        'screenshot-2018-04-03-13-56-50.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Changing tyres after the other car to try to do the overtake', true, 146);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Waiting until the very last lap to change tyres', false, 146);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Performing a pit stop before the leader to capitalize on their lead', false, 146);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Not changing tires at all during the race', false, 146);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the primary function of the Virtual Safety Car (VSC) in Formula 1?',
+        'virtual-safety-car-3432279.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To bring all cars to a complete stop', false, 147);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To reduce the speed of all cars equally to allow for safe recovery of incidents or debris', true, 147);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To enforce a mandatory pit stop for all drivers', false, 147);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To introduce a temporary caution period without slowing down the cars', false, 147);
+
+
 
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
