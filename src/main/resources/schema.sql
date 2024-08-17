@@ -2923,7 +2923,722 @@ INSERT INTO Answer (name, correct, questionId)
 VALUES
     ('To introduce a temporary caution period without slowing down the cars', false, 147);
 
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which is Sebastian Vettel\s first win in F1?',
+        null, 1);
 
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('China 2009', false, 148);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2008', true, 148);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('China 2007', false, 148);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Great Britian 2009', false, 148);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which is Max Verstappen\s first win in F1?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Malaysia 2017', false, 149);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Spain 2016', true, 149);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mexico 2017', false, 149);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 2016', false, 149);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which is Max Verstappen\s first win in F1?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Malaysia 2017', false, 149);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Spain 2016', true, 149);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mexico 2017', false, 149);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 2016', false, 149);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name year and track for this moment',
+        '_45650053_07lewisgravel512.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 2007', false, 150);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Malaysia 2008', false, 150);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('China 2007', true, 150);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('China 2008', false, 150);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name year and track for this moment',
+        'FYqwDVvXkAMHGtB.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 2015', false, 151);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 2014', true, 151);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Spain 2014', false, 151);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Germany 2014', false, 151);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Ferrari achieved a 1-2 finish at the 2024 Australian GP. When was the last time they did that?',
+        'carlos-sainz-ferrari-sf-24-2.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Bahrein 2022', true, 152);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Australia 2022', false, 152);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Singapore 2019', false, 152);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 2017', false, 152);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Who is the only driver that holds the record for being on the podium in every race of a single season?',
+        null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', false, 153);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Michael Schumacher', true, 153);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sebastian Vettel', false, 153);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Ayrton Senna', false, 153);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nurburgring 2006', false, 154);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Great Britian 2005', false, 154);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('France 2006', false, 154);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 2006', true, 154);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'racefansdotnet-20180903-103054-68.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2019', false, 155);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2018', true, 155);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Austria 2018', false, 155);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 2019', false, 155);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        '5f983feff4709d5867dcc940.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2012', false, 156);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2010', false, 156);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2013', false, 156);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2011', true, 156);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'coulthard-mschumacher-francuska-2000-1024x674.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Germany 1999', false, 157);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Austria 2001', false, 157);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('France 2000', true, 157);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 1998', false, 157);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2003', false, 158);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Germany 2004', false, 158);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('France 2003', false, 158);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Belgium 2004', true, 158);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'images25.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Japan 2005', true, 159);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Japan 2006', false, 159);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2004', false, 159);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Belgium 2005', false, 159);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'image26.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2020', false, 160);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2019', false, 160);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Italy 2021', true, 160);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Austria 2021', false, 160);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Who holds the record for winning a Grand Prix with the most amount of pit stops?',
+        null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fernando Alonso', false, 161);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Alain Prost', false, 161);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Lewis Hamilton', false, 161);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jenson Button', true, 161);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Verstappen overtook Hamilton for the 2021 championship on the last lap. ' ||
+        'But can you remember in which corner of the Abu Dhabi track was the overtake done?',
+        '7vsxuxdpdc5a1.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('7', false, 162);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('9', false, 162);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('5', true, 162);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('12', false, 162);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In 2010, Mclaren put on their car the F-Duct. What was it used for?',
+        '1200px-hamilton_canadian_gp_2010_with_f-duct.jpg', 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To generate additional downforce under braking', false, 163);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To manage the cars balance during high-speed corners', false, 163);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To manage the tyres in a better way', false, 163);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To reduce drag on the straigths', true, 163);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Brawn GP used in 2009 a double diffuser on their car. What was it used for?',
+        'Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg', 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('For increasing the car\s top speed', false, 164);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('For generating more downforce at the rear of the car', false, 164);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('For increasing aerodynamic level of the car without increasing drag', true, 164);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To improve the car\s hydraulic system', false, 164);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Renault used a sistem called mass damper in their 2006 F1 car. What was it used for?',
+        'Screenshot-2021-11-02-at-16.57.04.jpg', 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To absorb energy from the suspension during high-frequency vibrations', true, 165);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To adjust the car\s ride height dynamically', false, 165);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To alter the car\s aerodynamic profile during the race', false, 165);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('To store energy generated by the car\s motion', false, 165);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What does understeer refer to in the context of Formula 1 car dynamics?',
+        'GS7PpavXoAEFq3Z.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The car turns more sharply than intended', false, 166);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The car turns less sharply than intended', true, 166);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The car drifts sideways through corners', false, 166);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The car slides forward upon braking', false, 166);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which factor primarily contributes to understeer in a Formula 1 car?',
+        null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Low front wing angle', false, 167);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Too hard front suspension', true, 167);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Incorrect camber settings', false, 167);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('All of the above', false, 167);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What does oversteer refer to in the context of Formula 1 car dynamics?',
+        'images27.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The car turns more sharply than intended', true, 168);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The car turns less sharply than intended', false, 168);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The car drifts sideways through corners', false, 168);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The car slides forward upon braking', false, 168);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which factor primarily contributes to oversteer in a Formula 1 car?',
+        null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Excessive front wing angle', false, 169);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Too soft front suspension', true, 169);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Incorrect camber settings', false, 169);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('All of the above', false, 169);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name track and year for this moment',
+        'F_01_672-458_resize.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 2013', false, 170);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 2012', true, 170);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Brazil 2011', false, 170);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('None of them', false, 170);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        'images28.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Johnny Herbert', false, 171);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Martin Brandle', false, 171);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jos Verstappen', true, 171);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jean Alesi', false, 171);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        '5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Esteban Gutierrez', false, 172);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Charles Leclerc', true, 172);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Pietro Fittipaldi', false, 172);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Romain Grosjean', false, 172);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        'h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mika Hakkinen', false, 173);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mika Salo', false, 173);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('David Coulthard', false, 173);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Kimi Raikkonen', true, 173);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        'renault-f1-team-renault-r24-villeneuve-7647.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jacques Villeneuve', true, 174);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jarno Trulli', false, 174);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Giancarlo Fisichella', false, 174);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Heikki Kovalainen', false, 174);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many drivers get points at the end of a race?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('9', false, 175);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('10', true, 175);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('11', false, 175);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('8', false, 175);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Who is the team principal of Red Bull Racing?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Toto Wolff', false, 176);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Zak Brown', false, 176);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mike Krack', false, 176);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Christian Horner', true, 176);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Who is the team principal of Ferrari?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Toto Wolff', false, 177);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Zak Brown', false, 177);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Frederic Vasseur', true, 177);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Christian Horner', false, 177);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('In which team has Sergio Perez never been at?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mclaren', false, 178);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Red Bull', false, 178);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sauber', false, 178);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Williams', true, 178);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('When did Hamilton take his first win for Mercedes?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Malaysia 2014', false, 179);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('China 2014', false, 179);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Great Britian 2013', false, 179);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungary 2013', true, 179);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many championships does a F1 season have?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1', false, 180);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2', true, 180);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('4', false, 180);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('5', false, 180);
 
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
