@@ -1359,7 +1359,7 @@ VALUES ('Overtake Under Yellow Flags During a race, there is an accident on the 
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Passing is allowed as long as it does not put the driver being passed at risk', true, 78);
+    ('Passing is allowed as long as the other car goes very slow and it does not put the driver being passed at risk', true, 78);
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
@@ -3334,7 +3334,7 @@ VALUES
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Too hard front suspension', true, 167);
+    ('Too hard front suspension', false, 167);
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
@@ -3343,7 +3343,7 @@ VALUES
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('All of the above', false, 167);
+    ('All of the above', true, 167);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('What does oversteer refer to in the context of Formula 1 car dynamics?',
