@@ -2965,26 +2965,6 @@ INSERT INTO Answer (name, correct, questionId)
 VALUES
     ('Brazil 2016', false, 149);
 
-INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('Which is Max Verstappen\s first win in F1?',
-        null, 1);
-
-INSERT INTO Answer (name, correct, questionId)
-VALUES
-    ('Malaysia 2017', false, 149);
-
-INSERT INTO Answer (name, correct, questionId)
-VALUES
-    ('Spain 2016', true, 149);
-
-INSERT INTO Answer (name, correct, questionId)
-VALUES
-    ('Mexico 2017', false, 149);
-
-
-INSERT INTO Answer (name, correct, questionId)
-VALUES
-    ('Brazil 2016', false, 149);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Name year and track for this moment',
@@ -3218,7 +3198,7 @@ VALUES
     ('Austria 2021', false, 160);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('Who holds the record for winning a Grand Prix with the most amount of pit stops?',
+VALUES ('Who holds the record for winning a Grand Prix with the biggest amount of pit stops?',
         null, 2);
 
 INSERT INTO Answer (name, correct, questionId)
@@ -3396,7 +3376,7 @@ VALUES
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('Too soft front suspension', true, 169);
+    ('Too soft front suspension', false, 169);
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
@@ -3405,7 +3385,7 @@ VALUES
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('All of the above', false, 169);
+    ('All of the above', true, 169);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Name track and year for this moment',
@@ -3473,7 +3453,6 @@ VALUES
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('Name the driver',
         'h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg', 2);
-
 INSERT INTO Answer (name, correct, questionId)
 VALUES
     ('Mika Hakkinen', false, 173);
@@ -3989,27 +3968,6 @@ INSERT INTO Answer (name, correct, questionId)
 VALUES
     ('Mika Hakkinen', false, 197);
 
-
-
-INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('Name the driver',
-        'a637c951f5abb3d146fc1931d48735df.jpg', 1);
-
-INSERT INTO Answer (name, correct, questionId)
-VALUES
-    ('Damon Hill', false, 197);
-
-INSERT INTO Answer (name, correct, questionId)
-VALUES
-    ('Jacques Villeneuve', false, 197);
-
-INSERT INTO Answer (name, correct, questionId)
-VALUES
-    ('David Coulthard', true, 197);
-
-INSERT INTO Answer (name, correct, questionId)
-VALUES
-    ('Mika Hakkinen', false, 197);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
 VALUES ('How many points does a driver get for the fastest lap of a race?',
