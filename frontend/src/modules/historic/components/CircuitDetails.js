@@ -66,21 +66,23 @@ const CircuitDetails = () => {
                     <Table aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                <TableCell><strong>Circuito:</strong></TableCell>
+                                <TableCell><strong>
+                                    <FormattedMessage id="project.Circuit.Details.Name"></FormattedMessage>
+                                </strong></TableCell>
                                 <TableCell>{circuit.name}</TableCell>
                         </TableRow>
                         </TableHead>
                         <TableBody>
                             <TableRow>
-                                <TableCell><strong>Distancia:</strong></TableCell>
+                                <TableCell><strong><FormattedMessage id="project.Circuit.Details.Distance"></FormattedMessage></strong></TableCell>
                                 <TableCell>{circuit.distance}</TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell><strong>Laps:</strong></TableCell>
+                                <TableCell><strong><FormattedMessage id="project.Circuit.Details.Laps"></FormattedMessage></strong></TableCell>
                                 <TableCell>{circuit.numberLaps}</TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell><strong>Imagen:</strong></TableCell>
+                                <TableCell><strong><FormattedMessage id="project.Circuit.Details.Image"></FormattedMessage></strong></TableCell>
                                 <TableCell>
                                     <img
                                         src={sourceImages(`./${circuit.image}`)}
@@ -90,7 +92,7 @@ const CircuitDetails = () => {
                                 </TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell><strong>Equipo más exitoso:</strong></TableCell>
+                                <TableCell><strong><FormattedMessage id="project.Circuit.Details.Team"></FormattedMessage></strong></TableCell>
                                 <TableCell>{circuit.teamSuccess}</TableCell>
                             </TableRow>
                         </TableBody>

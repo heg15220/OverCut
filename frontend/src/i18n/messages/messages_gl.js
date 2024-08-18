@@ -92,5 +92,10 @@ const gl = {
     'project.entities.Quiz.getPoints': 'Obtuviches ',
     'project.points': 'puntos',
     'project.YourPoints': 'Os teus puntos',
+    'project.Circuit.Details.Name': 'Circuito: ',
+    'project.Circuit.Details.Distance': 'Distancia: ',
+    'project.Circuit.Details.Laps': 'Voltas: ',
+    'project.Circuit.Details.Image': 'Imaxe: ',
+    'project.Circuit.Details.Team': 'Equipo máis exitoso: ',
 }
 export default gl;

@@ -95,6 +95,11 @@ const es = {
     'project.entities.Quiz.getPoints': 'Has obtenido ',
     'project.points': 'puntos',
     'project.YourPoints': 'Tu puntaje',
+    'project.Circuit.Details.Name': 'Circuito: ',
+    'project.Circuit.Details.Distance': 'Distancia: ',
+    'project.Circuit.Details.Laps': 'Vueltas: ',
+    'project.Circuit.Details.Image': 'Imagen: ',
+    'project.Circuit.Details.Team': 'Equipo más exitoso: ',
 
 }
 export default es;
