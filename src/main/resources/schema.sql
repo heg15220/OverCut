@@ -3640,6 +3640,440 @@ INSERT INTO Answer (name, correct, questionId)
 VALUES
     ('5', false, 180);
 
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many points does a Sprint winner get?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('7', false, 181);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('9', false, 181);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('8', true, 181);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('6', false, 181);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Before a race it is always said that the parc ferme is closed. What does it mean?',
+        null, 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The car that breaks it gets a fine', false, 182);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('A period during the race weekend where a car that breaks the rule gets penalized with a drive-through penalty', false, 182);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('A period during the race weekend where a car that breaks the rule gets restarted from the back of the grid', false, 182);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('A period during the race weekend when teams are restricted in modifying their cars,
+     ensuring fairness and consistency', true, 182);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is the Parc Fermé in Formula 1 and why is it used?',
+        'the-cars-in-parc-ferme-after-t.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('A rule that requires all cars to maintain the same speed throughout the race', false, 183);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('A regulation that limits the number of pit stops a team can make during a race', false, 183);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('A regulation that allows teams to practice starts at the end of the pit lane', false, 183);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('A regulation that allows an space in the pit lane for the FIA in order to check if every car complies with the regulations', true, 183);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What happens during the Q1 session?',
+        'c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg', 3);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The 15 fastest cars go through to the next session', false, 184);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('The last 5 cars get out of the next session', false, 184);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('All of the above', false, 184);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('None of the above', true, 184);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What is a grand chelem?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('When a driver gets win and pole position in the same race', false, 185);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('When a driver gets win and fastest lap in the same race', false, 185);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('When a driver gets win, fastest lap, pole positions and leads every single lap in the same race', true, 185);
+
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('When a driver gets win, fastest lap and leads every single lap in the same race', false, 185);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which driver holds the record for the biggest amount of races until he got his first F1 win?',
+        '65c504f09bce1cad3dcbba833d8ee852.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Carlos Sainz', false, 186);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jenson Button', false, 186);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Sergio Perez', true, 186);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Damon Hill', false, 186);
+
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which is the longest race ever held in F1?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Singapore GP 2012', false, 187);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Singapore GP 2010', false, 187);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Dallas GP 1984', false, 187);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Canada 2011', true, 187);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many laps does the Monaco GP have?',
+        '15274979049260.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('71', false, 188);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('80', false, 188);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('78', true, 188);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('72', false, 188);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('At the 2024 Monaco GP we had 0 overtakes during the race. When was the other time that this happened?',
+        'XPB_1282060_HiRes.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Valencia 2009', true, 189);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Dallas 1984', false, 189);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Monaco 2021', false, 189);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Las Vegas 1982', false, 189);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Which race is the shortest one in F1 history?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Australia 1991', false, 190);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Belgium 2021', true, 190);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('South Africa 1979', false, 190);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('France 1972', false, 190);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the track',
+        '00000224_018-753x494.jpg', 2);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Buenos Aires', false, 191);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungaroring', false, 191);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Magny Cours', true, 191);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fuji', false, 191);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the track',
+        'Captura de pantalla 2024-08-18 123450.png', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hockenheim', false, 192);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungaroring', false, 192);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Interlagos', false, 192);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Silverstone', true, 192);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the track',
+        'british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hockenheim', false, 193);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Hungaroring', false, 193);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Interlagos', true, 193);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Silverstone', false, 193);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the track',
+        'salida-gp-espana-jerez-1997.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jarama', false, 194);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jerez', true, 194);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Kyalami', false, 194);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Buenos Aires', false, 194);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many qualifying sessions does F1 have?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1', false, 195);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2', false, 195);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('3', true, 195);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('4', false, 195);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        '1997hidarr03.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Damon Hill', true, 196);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Nigel Mansell', false, 196);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('David Coulthard', false, 196);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mika Hakkinen', false, 196);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        'a637c951f5abb3d146fc1931d48735df.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Damon Hill', false, 197);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jacques Villeneuve', false, 197);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('David Coulthard', true, 197);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mika Hakkinen', false, 197);
+
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('Name the driver',
+        'a637c951f5abb3d146fc1931d48735df.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Damon Hill', false, 197);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Jacques Villeneuve', false, 197);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('David Coulthard', true, 197);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Mika Hakkinen', false, 197);
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many points does a driver get for the fastest lap of a race?',
+        null, 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('1', true, 198);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('0', false, 198);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2', false, 198);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('5', false, 198);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('How many different compounds are in F1?',
+        'images29.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('3', false, 199);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('2', false, 199);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('5', true, 199);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('4', false, 199);
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel)
+VALUES ('What does the pole position give?',
+        'F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg', 1);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fastest time', false, 200);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('First place for the start of the race', false, 200);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('Fastest time and first place for the start of the race', true, 200);
+
+INSERT INTO Answer (name, correct, questionId)
+VALUES
+    ('None of the above', false, 200);
+
+
 
 INSERT INTO Circuit(name,distance, numberLaps, teamSuccess, image, categoryId)
 VALUES('Bahrein',5412,57,'Ferrari', 'Bahrain_Circuit.jpg',2);
