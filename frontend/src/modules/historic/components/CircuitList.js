@@ -35,18 +35,6 @@ const CircuitList = () => {
             <Grid container spacing={2} justifyContent="center" alignItems="center">
                 <Grid item xs={12}> {/* Contenedor para los circuitos y la paginación */}
                     <Circuits circuits={circuits} />
-                    <Grid container direction="column" alignItems="center" justifyContent="center" sx={{ mt: 2 }}> {/* Contenedor para la paginación */}
-                        {circuits && (<Pager
-                            back={{
-                                enabled: page > 0,
-                                onClick: () => handlePageChange(page - 1)
-                            }}
-                            next={{
-                                enabled: true,
-                                onClick: () => handlePageChange(page + 1)
-                            }}
-                        />)}
-                    </Grid>
                 </Grid>
             </Grid>
         </Paper>

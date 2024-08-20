@@ -4459,7 +4459,7 @@ INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, cir
 VALUES('Max Verstappen', '2022', 'Red Bull','Charles Leclerc','George Russell', '631dee4441565.jpeg', 16);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
-VALUES('Daniel Ricciardo', '2021', 'Mclaren','Lando Norris','Valtteri Bottas', 'CRÓNICA-GP-DE-ITALIA-F1-2021.jpg', 16);
+VALUES('Daniel Ricciardo', '2021', 'Mclaren','Lando Norris','Valtteri Bottas', 'CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg', 16);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
 VALUES('Pierre Gasly', '2020', 'AlphaTauri','Carlos Sainz','Lance Stroll', 'gasly-monza-sabado-2020-soymotor.jpg', 16);
@@ -4492,7 +4492,7 @@ INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, cir
 VALUES('Lewis Hamilton', '2018', 'Mercedes','Kimi Raikkonen','Sergio Perez', '15250354089549.jpg', 17);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
-VALUES('Daniel Ricciardo', '2017', 'Red Bull','Valtteri Bottas','Lance Stroll', 'daniel-ricciardo-red-bull-racing-azerbaiyán-f1-gran-premio-ganador.jpg', 17);
+VALUES('Daniel Ricciardo', '2017', 'Red Bull','Valtteri Bottas','Lance Stroll', 'daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg', 17);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
 VALUES('Carlos Sainz', '2023', 'Ferrari','Lando Norris','Lewis Hamilton', '3785978-77009488-2560-1440.jpg', 18);
@@ -4516,7 +4516,7 @@ INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, cir
 VALUES('Max Verstappen', '2023', 'Red Bull','Lando Norris','Carlos Sainz', '653452d633f8e.r_d.3831-2554-586.jpeg', 19);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
-VALUES('Max Verstappen', '2022', 'Red Bull','Lewis Hamilton','Charles Leclerc', 'images13.jpg', 19);
+VALUES('Max Verstappen', '2022', 'Red Bull','Lewis Hamilton','Charles Leclerc', 'ricciardo2017.jpg', 19);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
 VALUES('Max Verstappen', '2021', 'Red Bull','Lewis Hamilton','Sergio Perez', '3242112-66359508-2560-1440.jpg', 19);
@@ -4588,7 +4588,7 @@ INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, cir
 VALUES('Max Verstappen', '2023', 'Red Bull','Charles Leclerc','George Russell', 'f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg', 24);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
-VALUES('Max Verstappen', '2022', 'Red Bull','Charles Leclerc','Sergio Perez', 'images.15jpg', 24);
+VALUES('Max Verstappen', '2022', 'Red Bull','Charles Leclerc','Sergio Perez', 'pole-verstappen-abu-dhabi-2876011.jpg', 24);
 
 INSERT INTO Podium(winner, date, teamWinner, secondPlace, thirdPlace, image, circuitId)
 VALUES('Max Verstappen', '2021', 'Red Bull','Lewis Hamilton','Carlos Sainz', 'max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg', 24);

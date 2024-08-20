@@ -39,12 +39,10 @@ const PodiumDetails = () => {
 
     useEffect(() => {
         const podiumId = Number(id);
-        if(podium) {
             if (!Number.isNaN(podiumId)) {
                 dispatch(actions.getPodiumDetails(id, () => {
                 }));
             }
-        }
     }, [id,podium,dispatch]);
 
     useEffect(() => {
@@ -104,7 +102,7 @@ const PodiumDetails = () => {
                                             <img
                                                 src={sourceImages(`./${podium.image}`)}
                                                 alt="Podium Image"
-                                                style={{ width: '70%' }}
+                                                style={{ width: '50%' }}
                                             />
                                         ) : (
                                             <div> No image</div>

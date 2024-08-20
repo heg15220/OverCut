@@ -59,8 +59,10 @@
 }
 
 .App-logo {
-  animation:none;
+  font-style: italic; /* Hace que el texto dentro de .App-logo sea cursiva */
+  transition: transform 0.5s ease-in-out, font-style 0.5s ease-in-out; /* Agrega transición para el cambio de estilo */
 }
+
 
 @keyframes App-logo-spin {
   from {
@@ -170,3 +172,16 @@
   0%, 100% { transform: scale(1); } /* Comienza y termina sin cambio */
   50% { transform: scale(1.05); } /* En medio de la animación, aumenta la escala */
 }
+.App-logo:hover {
+  transform: scale(1.2);
+  filter: brightness(80%);
+}
+.nav-link {
+  transition: background-color 0.3s ease, color 0.3s ease; /* Añade una transición suave para el cambio de color y fondo */
+}
+.nav-link:hover {
+  background-color: #add8e6; /* Un tono de azul claro */
+  color: black; /* Texto negro */
+}
+
+

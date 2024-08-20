@@ -87,7 +87,7 @@ const CircuitDetails = () => {
                                     <img
                                         src={sourceImages(`./${circuit.image}`)}
                                         alt= "Circuit Image"
-                                        style={{ width: '100%' }}
+                                        style={{ width: '60%' }}
                                     />
                                 </TableCell>
                             </TableRow>

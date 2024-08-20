@@ -99,11 +99,11 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                 <Card>
                     <CardContent>
                         <Typography variant="h5" component="div" sx={{
-                            fontSize: '2rem',
+                            fontSize: '1.5rem',
                             fontWeight: 'bold',
                             textTransform: 'uppercase',
                             color: 'text.primary',
-                            marginTop: '1rem',
+                            marginTop: '0.2rem',
                             marginBottom: '1rem',
                         }}>
                             {question.name}
@@ -112,7 +112,7 @@ const QuestionDetails = ({ question, onAnswerSubmit }) => {
                         <img
                             src={sourceImages(`./${question.imagePath}`)}
                             alt="Circuit Image"
-                            style={{ width: '70%' }}
+                            style={{width: '45%', height: '60%', objectFit: 'cover'  }}
                         />
                     ) : (
                         <div></div>

@@ -4,9 +4,9 @@ import users from '../../users';
 import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import Notifications from "./Notifications";
+import './App.css';
 
-
-import image from './Resources/stock-vector-formula-racing-car-silhouette-isolated-logo-2340770493.jpg';
+import image from './Resources/dibujo-para-colorear-coche-de-carreras-de-formula-1-dl27177.jpg';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faChartPie} from "@fortawesome/free-solid-svg-icons";
@@ -21,7 +21,8 @@ const Header = () => {
             <div className="header">
                 <nav className="navbar navbar-dark bg-dark ml-auto">
                     <a className="navbar-brand d-inline-block align-top" href="/">
-                        <img className="App-logo mx-3" src={image} alt="App Logo" height="65" width="130"></img>
+                        <img className="App-logo mx-3" src={image} alt="App Logo" height="70" width="130"></img>
+
                         <Link className="text-light h4 overcut-text overcut-text-animation" style={{ textDecoration: 'none' }} to="/#/overcut/">
                             OverCut
                         </Link>
@@ -42,29 +43,11 @@ const Header = () => {
                                 <FormattedMessage id="project.app.Header.historic" />
                             </Link>
                         </li>
-
-                        <Link to="/historic/stats" style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <button
-                                className="stat-btn"
-                                style={{
-                                    color: 'black',
-                                    background: '#f0f0f0',
-                                    borderRadius: '5px',
-                                    padding: '10px 15px',
-                                    fontSize: '1rem',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                    border: 'none',
-                                    outline: 'none',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '10px'
-                                }}
-                            >
-                                <FontAwesomeIcon icon={faChartPie} /> {/* Ícono de estadísticas */}
-                                <span><FormattedMessage id="project.modules.historic.stats" /></span>
-                            </button>
+                        <li className="nav-item">
+                        <Link className="nav-link" to="/historic/stats" style={{ color: 'white' }}>
+                            <FormattedMessage id="project.modules.historic.stats" />
                         </Link>
+                        </li>
                         {isLogged &&
                             <Notifications />
                         }

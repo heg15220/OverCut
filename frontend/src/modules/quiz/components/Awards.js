@@ -74,7 +74,7 @@ const Awards = () => {
                     <Box
                         sx={{
                             width: '100%',
-                            height: '80vh',
+                            height: '40vh',
                             overflow: 'hidden',
                             position: 'relative',
                         }}
@@ -84,7 +84,7 @@ const Awards = () => {
                             className="image-hover-target"
                             src={sourceImages(`./${award.image}`)}
                             alt="Award Image"
-                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                            style={{ width: '60%', height: '100%', objectFit: 'contain' }}
                             sx={{
                                 transition: 'transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out',
                             }}

@@ -51,7 +51,10 @@ const MyCustomCalendar = () => {
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 }}
+                width='100%'
+                height='75%'
             />
+
         </CalendarContainer>
     );
 };
