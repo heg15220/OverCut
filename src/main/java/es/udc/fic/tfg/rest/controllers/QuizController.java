@@ -97,4 +97,12 @@ public class QuizController {
         Block<Award> awards = quizService.getAwardsSelectedByUser(userId, page,2);
         return new BlockDto<>(AwardConversor.toAwardDtos(awards.getItems()),awards.getExistMoreItems());
     }
+    @GetMapping("/{quizId}/user/{userId}/points")
+    public int getQuizPoints(@PathVariable Long quizId, @PathVariable Long userId){
+        return quizService.getQuizPoints(quizId,userId);
+    }
+    @GetMapping("/{quizId}/points")
+    public int getAvailableQuizPoints(@PathVariable Long quizId){
+        return quizService.getAvailableQuizPoints(quizId);
+    }
 }

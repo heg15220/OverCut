@@ -102,16 +102,30 @@ public class QuizServiceImpl implements QuizService {
         return mostFrequentLevel;
     }
 
-    private int getQuizPoints(Long quizId, Long userId){
+    @Override
+    public int getQuizPoints(Long quizId, Long userId){
         List <UserAnswer> userAnswers = userAnswerDao.findByUserIdAndQuizId(userId,quizId);
         int points = 0;
         for(UserAnswer userAnswer: userAnswers){
-            if(userAnswer.getAnswer().isCorrect()) points ++;
+            if(userAnswer.getAnswer().isCorrect()) {
+                points = points + userAnswer.getQuestion().getKnowledgequestionlevel();
+            }
         }
 
         return points;
     }
 
+    @Override
+    public int getAvailableQuizPoints(Long quizId){
+        Quiz quiz = quizDao.findQuizById(quizId);
+
+        int points = 0;
+        List <Question> questions =quizQuestionDao.findAllQuestionsByQuizId(quizId);
+        for(Question question: questions){
+            points = points + question.getKnowledgequestionlevel();
+        }
+        return points;
+    }
     private void updateAssessmentPoints(Long userId, Long quizId, int pointsToAdd) throws QuizException {
         // Buscar el registro de Assessment para el usuario y el quiz
         Assessment assessment = assessmentDao.findByQuizIdAndUserId(quizId,userId);

@@ -9,3 +9,5 @@ export const getAnswers = (state) => getModuleState(state).answers;
 export const getAnswer = (state) => getModuleState(state).answer;
 export const getAvailableAwards = (state) => getModuleState(state).awards;
 export const getAward = (state) => getModuleState(state).award;
+export const getQuizPoints = (state) => getModuleState(state).quizPoints;
+export const getAvailableQuizPoints = (state) => getModuleState(state).availableQuizPoints;

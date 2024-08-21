@@ -66,6 +66,15 @@ const getAwardsSelectedByUserCompleted = (awards) => ({
     awards
 });
 
+const getQuizPointsCompleted = (quizPoints) => ({
+    type:actionTypes.GET_QUIZ_POINTS_COMPLETED,
+    quizPoints
+});
+
+const getAvailableQuizPointsCompleted = (availableQuizPoints) => ({
+    type:actionTypes.GET_AVAILABLE_QUIZ_POINTS_COMPLETED,
+    availableQuizPoints
+});
 export const createQuiz = (userId, onSuccess, onErrors) => dispatch =>
     backend.quizService.createQuiz(userId, quiz => {
             dispatch(createQuizCompleted(quiz));
@@ -149,3 +158,15 @@ export const getAwardsSelectedByUser = (userAwards, onSuccess, onErrors) => disp
         onSuccess(awards);
     },
         onErrors);
+
+export const getQuizPoints = (quizPoints, onSuccess) => dispatch =>
+    backend.quizService.getQuizPoints(quizPoints, quizPoints => {
+        dispatch(getQuizPointsCompleted(quizPoints));
+        onSuccess(quizPoints);
+    });
+
+export const getAvailableQuizPoints = (quizId, onSuccess) => dispatch =>
+    backend.quizService.getAvailableQuizPoints(quizId, availableQuizPoints => {
+        dispatch(getAvailableQuizPointsCompleted(availableQuizPoints));
+        onSuccess(availableQuizPoints);
+    });

@@ -13,6 +13,8 @@ const initialState = {
     awards:null,
     award:null,
     awardId: null,
+    quizPoints: null,
+    availableQuizPoints: null,
 };
 
 const quiz = (state = initialState.quiz, action) => {
@@ -102,6 +104,21 @@ const awardId = (state = initialState.awardId, action) => {
     }
 }
 
+const quizPoints = (state = initialState.quizPoints, action) => {
+    if (action.type === actionTypes.GET_QUIZ_POINTS_COMPLETED) {
+        return action.quizPoints;
+    } else {
+        return state;
+    }
+}
+
+const availableQuizPoints = (state = initialState.availableQuizPoints, action) => {
+    if (action.type === actionTypes.GET_AVAILABLE_QUIZ_POINTS_COMPLETED) {
+        return action.availableQuizPoints;
+    } else {
+        return state;
+    }
+}
 
 
 const reducer = combineReducers({
@@ -115,5 +132,7 @@ const reducer = combineReducers({
     awards,
     award,
     awardId,
+    quizPoints,
+    availableQuizPoints,
 });
 export default reducer;

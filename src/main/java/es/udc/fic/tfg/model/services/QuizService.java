@@ -32,5 +32,7 @@ public interface QuizService {
     Award getAward(Long awardId);
 
     Block<Award> getAwardsSelectedByUser(Long userId, int page, int size);
+    int getQuizPoints(Long quizId, Long userId);
 
+    int getAvailableQuizPoints(Long quizId);
 }

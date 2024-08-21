@@ -112,5 +112,19 @@ export const getAwardsSelectedByUser = ({ userId, page }, onSuccess,onErrors) =>
     );
 };
 
+export const getQuizPoints = ({ quizId, userId }, onSuccess) => {
+    appFetch(
+        `/quiz/${quizId}/user/${userId}/points`,
+        fetchConfig("GET"),
+        onSuccess
+    );
+};
 
+export const getAvailableQuizPoints = (quizId, onSuccess) => {
+    appFetch(
+        `/quiz/${quizId}/points`,
+        fetchConfig("GET"),
+        onSuccess
+    );
+};
 
