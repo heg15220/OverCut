@@ -100,6 +100,14 @@ const es = {
     'project.Circuit.Details.Laps': 'Vueltas: ',
     'project.Circuit.Details.Image': 'Imagen: ',
     'project.Circuit.Details.Team': 'Equipo más exitoso: ',
+    'project.entities.Quiz.Result.Points': 'Puntuación disponible: ',
+    'project.entities.Quiz.Result.QuizPoints': 'Puntos conseguidos: ',
+    'project.entities.Quiz.Result.Questions': 'Total preguntas: ',
+    'project.entities.Quiz.Result.ButtonHome': 'Volver al inicio',
+    'project.entities.Quiz.Result.Excellent': 'Excelente! Conseguiste más de la mitad de los puntos disponibles',
+    'project.entities.Quiz.Result.Retry': 'Inténtalo mejor la próxima vez',
+    'project.entities.Quiz.Result': 'Resultados',
+
 
 }
 export default es;

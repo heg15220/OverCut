@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Button } from '@mui/material';
+import { Container, Typography, Box, Button, Grid } from '@mui/material';
 import * as selectors from '../selectors';
 import * as actions from '../actions';
 import * as userSelectors from '../../users/selectors';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import {FormattedMessage} from "react-intl";
 
 const ResultsPage = () => {
     const dispatch = useDispatch();
@@ -37,80 +38,87 @@ const ResultsPage = () => {
         }
     }, [quizPoints, availableQuizPoints]);
 
-    return (
-        <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
-            <Typography variant="h4" gutterBottom>
-                Resultados
-            </Typography>
-            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                <Typography variant="h5" component="div" sx={{
-                    fontSize: '2rem',
-                    fontWeight: '500',
-                    fontStyle: 'italic',
-                    textTransform: 'none',
-                    color: 'text.primary',
-                    marginRight: '0.5rem', // Espacio entre el texto y la puntuación
-                }}>
-                    Puntuación disponible:</Typography>
-                <Typography variant="h5" component="div" sx={{
-                    fontSize: '2rem',
-                    fontWeight: '500',
-                    fontStyle: 'italic',
-                    textTransform: 'none',
-                    color: 'text.primary',
-                }}>{availableQuizPoints}</Typography>
-            </Box>
-            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                <Typography variant="h5" component="div" sx={{
-                    fontSize: '2rem',
-                    fontWeight: '500',
-                    fontStyle: 'italic',
-                    textTransform: 'none',
-                    color: 'text.primary',
-                    marginRight: '0.5rem', // Espacio entre el texto y la puntuación
-                }}>
-                    Puntuación obtenida:</Typography>
-                <Typography variant="h5" component="div" sx={{
-                    fontSize: '2rem',
-                    fontWeight: '500',
-                    fontStyle: 'italic',
-                    textTransform: 'none',
-                    color: quizPoints >= availableQuizPoints ? 'green' : 'text.primary', // Cambia el color a verde si la condición es verdadera
-                }}>{quizPoints}</Typography>
-            </Box>
-            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                <Typography variant="h5" component="div" sx={{
-                    fontSize: '2rem',
-                    fontWeight: '500',
-                    fontStyle: 'italic',
-                    textTransform: 'none',
-                    color: 'text.primary',
-                    marginRight: '0.5rem', // Espacio entre el texto y la puntuación
-                }}>
-                    Total de Preguntas:</Typography>
-                <Typography variant="h5" component="div" sx={{
-                    fontSize: '2rem',
-                    fontWeight: '500',
-                    fontStyle: 'italic',
-                    textTransform: 'none',
-                    color: 'text.primary',
-                }}>10</Typography>
-            </Box>
-            <Button variant="contained" color="primary" onClick={() => navigate('/')}>
-                Volver al inicio
-            </Button>
+    function getColorBasedOnCondition(quizPoints, availableQuizPoints) {
+        return quizPoints >= availableQuizPoints ? 'green' : 'inherit';
+    }
 
-            {/* Aplicar animación basada en el estado de animationState */}
-            {animationState === 'success' && (
-                <Box sx={{ mt: 4, textAlign: 'center' }}>
-                    <Typography variant="h6">¡Excelente! Has superado la mitad.</Typography>
+    return (
+        <Container maxWidth="sm" sx={{ mt: 8, mb: 4, height: '40vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <Grid container direction="column" alignItems="center">
+                <Typography variant="h4" gutterBottom>
+                    <FormattedMessage id="project.entities.Quiz.Result"></FormattedMessage>
+                </Typography>
+                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="h5" component="div" sx={{
+                        fontSize: '2rem',
+                        fontWeight: '500',
+                        fontStyle: 'italic',
+                        textTransform: 'none',
+                        color: 'text.primary',
+                        marginRight: '0.5rem',
+                    }}>
+                        <FormattedMessage id="project.entities.Quiz.Result.Points"></FormattedMessage></Typography>
+                    <Typography variant="h5" component="div" sx={{
+                        fontSize: '2rem',
+                        fontWeight: '500',
+                        fontStyle: 'italic',
+                        textTransform: 'none',
+                        color: 'text.primary',
+                    }}>{availableQuizPoints}</Typography>
                 </Box>
-            )}
-            {animationState === 'failure' && (
-                <Box sx={{ mt: 4, textAlign: 'center' }}>
-                    <Typography variant="h6">Intenta mejor la próxima vez.</Typography>
+                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="h5" component="div" sx={{
+                        fontSize: '2rem',
+                        fontWeight: '500',
+                        fontStyle: 'italic',
+                        textTransform: 'none',
+                        color: 'text.primary',
+                        marginRight: '0.5rem',
+                    }}>
+                        <FormattedMessage id="project.entities.Quiz.Result.QuizPoints"></FormattedMessage></Typography>
+
+                    <Typography variant="h5" component="div" sx={{
+                        fontSize: '2rem',
+                        fontWeight: '500',
+                        fontStyle: 'italic',
+                        textTransform: 'none',
+                        color: 'text.primary',
+                    }}>{quizPoints}</Typography>
                 </Box>
-            )}
+                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="h5" component="div" sx={{
+                        fontSize: '2rem',
+                        fontWeight: '500',
+                        fontStyle: 'italic',
+                        textTransform: 'none',
+                        color: 'text.primary',
+                        marginRight: '0.5rem',
+                    }}>
+                        <FormattedMessage id="project.entities.Quiz.Result.Questions"></FormattedMessage></Typography>
+                    <Typography variant="h5" component="div" sx={{
+                        fontSize: '2rem',
+                        fontWeight: '500',
+                        fontStyle: 'italic',
+                        textTransform: 'none',
+                        color: 'text.primary',
+                    }}>10</Typography>
+                </Box>
+                <Button variant="contained" color="primary" onClick={() => navigate('/')}>
+                    <FormattedMessage id="project.entities.Quiz.Result.ButtonHome"></FormattedMessage>
+                </Button>
+
+                {/* Aplicar animación basada en el estado de animationState */}
+                {animationState === 'success' && (
+                    <Box sx={{ mt: 4, textAlign: 'center' }}>
+                        <Typography variant="h6" sx={{ color: 'green' }}> <FormattedMessage id="project.entities.Quiz.Result.Excellent"></FormattedMessage></Typography>
+                    </Box>
+                )}
+                {animationState === 'failure' && (
+                    <Box sx={{ mt: 4, textAlign: 'center' }}>
+                        <Typography variant="h6" sx={{ color: 'red' }}><FormattedMessage id="project.entities.Quiz.Result.Retry"></FormattedMessage></Typography>
+                    </Box>
+                )}
+            </Grid>
         </Container>
     );
 };

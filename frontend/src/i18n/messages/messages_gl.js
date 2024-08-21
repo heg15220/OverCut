@@ -97,5 +97,13 @@ const gl = {
     'project.Circuit.Details.Laps': 'Voltas: ',
     'project.Circuit.Details.Image': 'Imaxe: ',
     'project.Circuit.Details.Team': 'Equipo máis exitoso: ',
+    'project.entities.Quiz.Result.Points': 'Puntuación dispoñíbel: ',
+    'project.entities.Quiz.Result.QuizPoints': 'Puntos conseguidos: ',
+    'project.entities.Quiz.Result.Questions': 'Total preguntas: ',
+    'project.entities.Quiz.Result.ButtonHome': 'Volver ao inicio',
+    'project.entities.Quiz.Result.Excellent': 'Excelente! Conseguiches máis da metade de puntos',
+    'project.entities.Quiz.Result.Retry': 'Inténtao mellor a próxima vez',
+    'project.entities.Quiz.Result': 'Resultados',
+
 }
 export default gl;

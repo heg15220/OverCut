@@ -101,5 +101,12 @@ const en = {
     'project.Circuit.Details.Laps': 'Laps: ',
     'project.Circuit.Details.Image': 'Image: ',
     'project.Circuit.Details.Team': 'Most successful team: ',
+    'project.entities.Quiz.Result.Points': 'Points available: ',
+    'project.entities.Quiz.Result.QuizPoints': 'Points achieved: ',
+    'project.entities.Quiz.Result.Questions': 'Total questions: ',
+    'project.entities.Quiz.Result.ButtonHome': 'Return to the beginning',
+    'project.entities.Quiz.Result.Excellent': 'Excellent! You got more than half the points',
+    'project.entities.Quiz.Result.Retry': 'Try to do it better next time',
+    'project.entities.Quiz.Result': 'Results',
 }
 export default en;
