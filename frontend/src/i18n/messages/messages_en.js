@@ -76,7 +76,7 @@ const en = {
     'project.global.post.addImageCreatePost': 'Add Image',
     'project.entities.User.Points': 'User Points: ',
     'project.entities.Quiz.Answers': 'The correct answer is: ',
-    'project.entities.stats.circuit': 'Circuit stats for the last 10 years',
+    'project.entities.stats.circuit': 'stats for the last 10 years',
     'project.entities.stats.teams.wins': 'Total teams wins in the last 10 seasons',
     'project.entities.stats.drivers.podiums': 'Drivers with more podiums in F1',
     'project.entities.stats.drivers.wins': 'Drivers with more wins in F1',

@@ -75,7 +75,7 @@ const es = {
     'project.global.post.addImageCreatePost': 'Añadir Imagen',
     'project.entities.User.Points': 'Puntos usuario: ',
     'project.entities.Quiz.Answers': 'La respuesta correcta es: ',
-    'project.entities.stats.circuit': 'Datos del Circuito de los ultimas 10 temporadas',
+    'project.entities.stats.circuit': 'Datos de las ultimas 10 temporadas',
     'project.entities.stats.teams.wins': 'Total de victorias de equipos en las ultimas 10 temporadas',
     'project.entities.stats.drivers.podiums': 'Pilotos con mas podios en F1',
     'project.entities.stats.drivers.wins': 'Pilotos con mas victorias en F1',

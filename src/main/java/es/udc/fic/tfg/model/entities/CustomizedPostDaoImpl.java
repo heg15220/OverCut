@@ -65,9 +65,8 @@ public class CustomizedPostDaoImpl implements CustomizedPostDao {
             query.append("p.category.id = :categoryId");
         }
 
-        if (criteria != null && criteria == 0) {
-            query.append(order ? " ORDER BY p.creationDate ASC" : " ORDER BY p.creationDate DESC");
-        }
+        // Modificación principal: ordenamiento por defecto en ASC
+        query.append(order ? " ORDER BY p.creationDate ASC" : " ORDER BY p.creationDate DESC");
 
         return query.toString();
     }

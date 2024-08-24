@@ -21,11 +21,13 @@ const TeamsVictoriesCircuitBarChart = () => {
     const teamsVictoriesCircuit = useSelector(selectors.getTeamsVictoriesByCircuit);
     const driversVictoriesCircuit = useSelector(selectors.getDriversVictoriesByCircuit);
     const isLoading = useSelector(state => state.isLoading);
+    const circuit = useSelector(selectors.getCircuit);
 
     useEffect(() => {
         const circuitId = Number(id);
         if (!Number.isNaN(circuitId) && circuitId !== "undefined") {
             dispatch(actions.getTeamsVictoriesByCircuitName(circuitId, () => {}));
+            dispatch(actions.fetchCircuitDetails(circuitId, () => {}));
         } else {
             console.error("ID inválido o no definido");
             // Maneja el caso en que el ID sea inválido o no definido
@@ -45,10 +47,17 @@ const TeamsVictoriesCircuitBarChart = () => {
     }, [dispatch, id]);
 
     const colors = [
-        '#FF0000', '#800000', '#FFFF00', '#808000', '#008000', '#004000',
-        '#0000FF', '#000080', '#00FFFF', '#008080', '#000088', '#FF00FF', '#800080',
-        '#FFFFCC', '#808080', '#00BFFF', '#008080', '#FFD700', '#ADFF2F'
+        '#FFC080', // Marrón claro
+        '#786C3B', // Marrón oscuro
+        '#ADD8E6', // Azul claro
+        '#4169E1', // Azul oscuro
+        '#FFFF00', // Amarillo claro
+        '#FFD700',  // Amarillo oscuro
+        '#FFA07A',  // Rojo claro
+        '#8B0A1E'   // Rojo oscuro
     ];
+
+
 
     // Verifica si los datos están cargando o si no hay datos disponibles
     if (isLoading || !teamsVictoriesCircuit || !teamsVictoriesCircuit.items.length || !driversVictoriesCircuit || !driversVictoriesCircuit.items.length) {
@@ -70,7 +79,7 @@ const TeamsVictoriesCircuitBarChart = () => {
                 marginX: 'auto', // Centra horizontalmente el componente
             }}>
 
-            <FormattedMessage id="project.entities.stats.circuit"></FormattedMessage>
+                {circuit.name} <FormattedMessage id="project.entities.stats.circuit"></FormattedMessage>
             </Typography>
             <BarChart
                 width={500}

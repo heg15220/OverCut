@@ -3,9 +3,7 @@ import { useEffect } from "react";
 import * as actions from "../../posts/actions";
 import { useDispatch, useSelector } from "react-redux";
 import { getNewPosts, getLastGetPost } from "../../posts/selectors";
-
-
-
+import * as selectors from "../../quiz/selectors";
 const Home = () => {
     const dispatch = useDispatch()
     const newPost = useSelector(getNewPosts)

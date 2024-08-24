@@ -72,7 +72,7 @@ const gl = {
     'project.posts.CreatePost.title': 'Crear publicación',
     'project.entities.User.Points': 'Puntos usuario: ',
     'project.entities.Quiz.Answers': 'A resposta correcta é: ',
-    'project.entities.stats.circuit': 'Datos do Circuito das ultimas 10 temporadas',
+    'project.entities.stats.circuit': 'Datos das ultimas 10 temporadas',
     'project.entities.stats.teams.wins': 'Total de victorias de equipos nas ultimas 10 temporadas',
     'project.entities.stats.drivers.podiums': 'Pilotos con mais podios en F1',
     'project.entities.stats.drivers.wins': 'Pilotos con mais victorias en F1',

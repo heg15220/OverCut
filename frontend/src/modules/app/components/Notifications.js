@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import * as actions from '../../events/actions'
 import * as notificationSelector from '../../events/selectors'
 import * as selectors from '../../users/selectors';
-
+import { Bell } from 'react-bootstrap-icons';
 const Notifications = () => {
     const dispatch = useDispatch();
     const user = useSelector(selectors.getUser);
@@ -16,9 +16,20 @@ const Notifications = () => {
         <li className="nav-item dropdown">
             <button className="dropdown-toggle nav-link" style={{ color: '#FFFFFF' }} type="button" data-bs-toggle="dropdown"
                     onClick={() => {
-                        dispatch(actions.getNotificationsForUser(user.id, 0,() => {}, () => {}))
+                        dispatch(actions.getNotificationsForUser(user.id, 0, () => {}, () => {}));
                     }}>
                 <FormattedMessage id="project.common.notifications.button" />
+                {notifications.items.length > 0 ? (
+                    <>
+                        <Bell className="ms-2" size={16} color="#FFFFFF" />
+                        <span className="badge bg-danger ms-1">{notifications.items.length}</span>
+                    </>
+                ) : (
+                    <>
+                        <Bell className="ms-2" size={16} color="#FFFFFF" />
+                        <span className="badge bg-secondary ms-1">0</span>
+                    </>
+                )}
             </button>
 
             <div className="dropdown-menu">

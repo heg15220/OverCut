@@ -5,11 +5,21 @@ import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import Notifications from "./Notifications";
 import './App.css';
-
+import {
+    Archive,
+    Book,
+    BookHalf,
+    Calendar,
+    CalendarCheck,
+    File,
+    GraphUp,
+    Lightbulb,
+    Trophy
+} from 'react-bootstrap-icons';
+import { Puzzle } from 'react-bootstrap-icons';
 import image from './Resources/dibujo-para-colorear-coche-de-carreras-de-formula-1-dl27177.jpg';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faChartPie} from "@fortawesome/free-solid-svg-icons";
 
 const Header = () => {
     const isLogged = useSelector(users.selectors.isLoggedIn);
@@ -35,17 +45,20 @@ const Header = () => {
                         <li className="nav-item">
                             <Link className="nav-link" to={`/category/2`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.quiz" />
+                                <Lightbulb className="ms-1" size={16} color="#FFFFFF" />
                             </Link>
                         </li>
                         }
                         <li className="nav-item">
                         <Link className="nav-link" to={`/circuits/category/3`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.historic" />
+                            <Archive className="ms-1" size={16} color="#FFFFFF" />
                             </Link>
                         </li>
                         <li className="nav-item">
                         <Link className="nav-link" to="/historic/stats" style={{ color: 'white' }}>
                             <FormattedMessage id="project.modules.historic.stats" />
+                            <GraphUp className="ms-1" size={16} color="#FFFFFF" />
                         </Link>
                         </li>
                         {isLogged &&
@@ -55,20 +68,25 @@ const Header = () => {
                         <li className="nav-item">
                             <Link className="nav-link" to={`/events/event-list`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.events.events" />
+                                <CalendarCheck className="ms-1" size={16} color="#FFFFFF" />
                             </Link>
                         </li>
                         }
 
-                        <li className="nav-item">
-                            <Link className="nav-link" to={`/calendar`} style={{ color: 'white' }}>
-                                <FormattedMessage id="project.app.Header.calendar" />
-                            </Link>
-                        </li>
+                        {isLogged &&
+                            <li className="nav-item">
+                                <Link className="nav-link" to={`/calendar`} style={{ color: 'white' }}>
+                                    <FormattedMessage id="project.app.Header.calendar" />
+                                    <Calendar className="ms-1" size={16} color="#FFFFFF" />
+                                </Link>
+                            </li>
+                        }
 
                         {isLogged &&
                         <li className="nav-item">
                             <Link className="nav-link" to={`/user/awards-user`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.Awards" />
+                                <Trophy className="ms-1" size={16} color="#FFFFFF" />
                             </Link>
                         </li>
                         }

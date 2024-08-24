@@ -110,6 +110,16 @@ const TeamVictoriesBarChart = () => {
         '#FFFFCC', '#808080', '#00BFFF', '#008080', '#FFD700', '#ADFF2F'
     ];
 
+    const colors2 = [
+        '#FFC080', // Marrón claro
+        '#786C3B', // Marrón oscuro
+        '#ADD8E6', // Azul claro
+        '#4169E1', // Azul oscuro
+        '#FFFF00', // Amarillo claro
+        '#FFD700',  // Amarillo oscuro
+        '#FFA07A',  // Rojo claro
+        '#8B0A1E'   // Rojo oscuro
+    ];
 
 
     // Transforma los datos para la gráfica circular
@@ -227,7 +237,7 @@ const TeamVictoriesBarChart = () => {
                 <Legend />
                 <Bar dataKey="score" fill="#8884d8">
                     {rankingData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        <Cell key={`cell-${index}`} fill={colors2[index % colors2.length]} />
                     ))}
                 </Bar>
             </BarChart>
@@ -263,7 +273,7 @@ const TeamVictoriesBarChart = () => {
                 <Legend />
                 <Bar dataKey="score" fill="#8884d8">
                     {rankingData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        <Cell key={`cell-${index}`} fill={colors2[index % colors2.length]} />
                     ))}
                 </Bar>
             </BarChart>
@@ -290,7 +300,7 @@ const TeamVictoriesBarChart = () => {
                 <Legend />
                 <Bar dataKey="championships">
                     {data.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        <Cell key={`cell-${index}`} fill={colors2[index % colors2.length]} />
                     ))}
                 </Bar>
             </BarChart>
