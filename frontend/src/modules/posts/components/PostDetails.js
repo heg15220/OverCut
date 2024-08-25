@@ -128,7 +128,7 @@ const PostDetails = () => {
                             alt="Post Image"
                             sx={{
                                 maxHeight: '500px', // Ajusta el tamaño máximo de la imagen
-                                maxWidth: '80%', // Asegura que la imagen no exceda el ancho del contenedor
+                                maxWidth: '60%', // Asegura que la imagen no exceda el ancho del contenedor
                                 objectFit: 'cover', // Ajusta cómo se redimensiona la imagen
                                 marginTop: 2, // Añade un margen en la parte superior para separar la imagen del subtítulo
                             }}

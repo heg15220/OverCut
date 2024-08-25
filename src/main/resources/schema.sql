@@ -213,14 +213,13 @@ INSERT INTO Category(name,historic,quiz) VALUES ('Quiz', false, true);
 INSERT INTO Category(name,historic,quiz) VALUES ('Historic', true, false);
 
 INSERT INTO Category(name,historic,quiz) VALUES ('Anecdotes',false,false);
-
-
 INSERT INTO Post (title, subtitle, article, creationDate, userId, categoryId)
 VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example article content.', NOW(), 1, 1);
 
 
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
+
 
 INSERT INTO Award(award,requiredPoints, image)
 VALUES ('PS5', 5, 'ps5-product-thumbnail-01-en-14sep21.jpg');

@@ -28,7 +28,7 @@ const CircuitList = () => {
     };
 
     return (
-        <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 1200 }}>
+        <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 2700, height: '60%' }}>
             <Typography variant="h4" align="center" style={{ fontStyle: 'italic' }}>
                 <FormattedMessage id="project.entities.Circuits" />
             </Typography>
