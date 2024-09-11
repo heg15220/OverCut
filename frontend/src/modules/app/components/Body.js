@@ -30,6 +30,7 @@ import EventsList from "../../events/components/EventsList";
 import MyCustomCalendar from "../../events/components/MyCustomCalendar";
 import TeamsPage from "../../historic/components/TeamsPage";
 import TeamsVictoriesCircuitBarChart from "../../historic/components/TeamsVictoriesCircuitBarChart";
+import UserAwardConfirmed from "../../quiz/components/UserAwardConfirmed";
 
 
 
@@ -74,6 +75,8 @@ const Body = () => {
                     <Route path="/event/event-details/:id" element={<EventDetails />} />
                     <Route path="/historic/stats" element={<TeamsPage />} />
                     <Route path="/circuit/:id/stats" element={<TeamsVictoriesCircuitBarChart />} />
+                    {loggedIn && <Route path="/:id/user-award-confirmed" element={<UserAwardConfirmed />} />}
+
                 </Route>
             </Routes>
         </div>

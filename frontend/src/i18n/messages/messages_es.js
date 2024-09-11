@@ -107,6 +107,8 @@ const es = {
     'project.entities.Quiz.Result.Excellent': 'Excelente! Conseguiste más de la mitad de los puntos disponibles',
     'project.entities.Quiz.Result.Retry': 'Inténtalo mejor la próxima vez',
     'project.entities.Quiz.Result': 'Resultados',
+    'project.entities.Award.Result.Achieved': '¡Enhorabuena! ¡Has canjeado la recompensa!',
+    'project.entities.Award.Result.ButtonHome': 'Ir a mi lista de recompensas canjeadas',
 
 
 }

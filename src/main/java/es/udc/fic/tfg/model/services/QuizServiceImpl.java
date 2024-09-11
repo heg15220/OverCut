@@ -370,6 +370,11 @@ public class QuizServiceImpl implements QuizService {
         Slice<Award> awards = awardDao.findByUserId(userId, PageRequest.of(page,size));
         return new Block<>(awards.getContent(),awards.hasNext());
     }
+
+    @Override
+    public UserAward getUserAward(Long userAwardId){
+        return userAwardDao.findUserAwardById(userAwardId);
+    }
 }
 
 

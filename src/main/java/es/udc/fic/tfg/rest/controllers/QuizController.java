@@ -72,6 +72,7 @@ public class QuizController {
         return quizService.chooseAward(awardId,userId).getId();
     }
 
+
     @GetMapping("/{userId}/awards")
     public BlockDto<AwardDto> getAvailableAwards(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page) throws InstanceNotFoundException{
         Block<Award> awards = quizService.getAvailableAwards(userId,page,28);

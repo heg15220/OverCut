@@ -127,4 +127,3 @@ export const getAvailableQuizPoints = (quizId, onSuccess) => {
         onSuccess
     );
 };
-

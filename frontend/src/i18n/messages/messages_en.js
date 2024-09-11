@@ -108,5 +108,7 @@ const en = {
     'project.entities.Quiz.Result.Excellent': 'Excellent! You got more than half the points',
     'project.entities.Quiz.Result.Retry': 'Try to do it better next time',
     'project.entities.Quiz.Result': 'Results',
+    'project.entities.Award.Result.Achieved': 'Well done! You achieved the award!',
+    'project.entities.Award.Result.ButtonHome': 'Go to my awards list',
 }
 export default en;

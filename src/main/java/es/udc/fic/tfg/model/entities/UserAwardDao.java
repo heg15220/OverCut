@@ -9,7 +9,7 @@ import java.util.Set;
 
 public interface UserAwardDao extends JpaRepository<UserAward, Long> {
     @Query("SELECT u FROM UserAward u WHERE u.id = :id")
-    UserAnswerDao findUserAwardById(@Param("id") Long id);
+    UserAward findUserAwardById(@Param("id") Long id);
 
     @Query("SELECT ua.award.id FROM UserAward ua WHERE ua.user.id = :userId")
     Set<Long> findClaimedAwardIds(@Param("userId") Long userId);

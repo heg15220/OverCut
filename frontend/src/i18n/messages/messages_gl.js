@@ -104,6 +104,8 @@ const gl = {
     'project.entities.Quiz.Result.Excellent': 'Excelente! Conseguiches máis da metade de puntos',
     'project.entities.Quiz.Result.Retry': 'Inténtao mellor a próxima vez',
     'project.entities.Quiz.Result': 'Resultados',
+    'project.entities.Award.Result.Achieved': 'Parabéns! Conseguiches a recompensa!',
+    'project.entities.Award.Result.ButtonHome': 'Ir á miña lista de recompensas',
 
 }
 export default gl;

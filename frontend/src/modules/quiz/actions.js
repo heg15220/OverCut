@@ -75,6 +75,7 @@ const getAvailableQuizPointsCompleted = (availableQuizPoints) => ({
     type:actionTypes.GET_AVAILABLE_QUIZ_POINTS_COMPLETED,
     availableQuizPoints
 });
+
 export const createQuiz = (userId, onSuccess, onErrors) => dispatch =>
     backend.quizService.createQuiz(userId, quiz => {
             dispatch(createQuizCompleted(quiz));

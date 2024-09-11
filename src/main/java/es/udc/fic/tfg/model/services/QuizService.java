@@ -26,7 +26,7 @@ public interface QuizService {
 
     List<Answer> getAnswersByQuestion(Long questionId) throws InstanceNotFoundException;
     Quiz findQuizById(Long quizId);
-
+    UserAward getUserAward(Long userAwardId);
     int getUserPoints(Long userId);
 
     Award getAward(Long awardId);

@@ -36,14 +36,17 @@ const Awards = () => {
             dispatch(userActions.getUserPoints(userId, () => {}, () => {}));
         }
     }, [user, dispatch]);
+    // Awards.js
+
     const handleChooseAward = (award) => {
         const awardId = Number(award.id);
-        const userId = Number(user.id); // Asumiendo que 'user' es el estado actual del usuario
+        const userId = Number(user.id);
         dispatch(actions.chooseAward({
             awardId: awardId,
             userId: userId
         }, () => {
-            navigate('/');
+            // Navegar a UserAwardConfirmed después de elegir el premio con éxito
+            navigate(`/${awardId}/user-award-confirmed`);
         }, () => {
             setBackendErrors('Hubo un error al seleccionar el premio.');
         }));

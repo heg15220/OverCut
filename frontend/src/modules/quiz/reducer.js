@@ -15,6 +15,7 @@ const initialState = {
     awardId: null,
     quizPoints: null,
     availableQuizPoints: null,
+    userAward: null,
 };
 
 const quiz = (state = initialState.quiz, action) => {
