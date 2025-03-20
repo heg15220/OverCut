@@ -3,6 +3,7 @@ package es.udc.fic.tfg.model.services;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
+import es.udc.fic.tfg.model.services.exceptions.LLMClient;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +52,8 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private UserAwardDao userAwardDao;
 
+    @Autowired
+    private LLMClient llmClient;
 
     /**
      * The permission checker.
@@ -73,9 +76,13 @@ public class QuizServiceImpl implements QuizService {
         List<Question> randomQuestions = new ArrayList<>();
 
         // Seleccionar 10 preguntas aleatorias
-        for (int i = 0; i < Math.min(10, copy.size()); i++) {
+        for (int i = 0; i < Math.min(5, copy.size()); i++) {
             int randomIndex = rand.nextInt(copy.size());
             randomQuestions.add(copy.remove(randomIndex));
+        }
+
+        for (int i = 0; i < Math.min(5, copy.size()); i++) {
+            randomQuestions.add(llmClient.generateQuestion());
         }
 
         return randomQuestions;

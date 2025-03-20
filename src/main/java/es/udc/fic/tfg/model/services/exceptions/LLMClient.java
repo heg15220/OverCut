@@ -1,5 +1,7 @@
 package es.udc.fic.tfg.model.services.exceptions;
 
+import es.udc.fic.tfg.model.entities.Answer;
+import es.udc.fic.tfg.model.entities.Question;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.json.JSONObject;
@@ -25,49 +27,88 @@ public class LLMClient {
 
     private String createComplexQuestion(String selectedData) {
         if (selectedData.contains("Posición")) {
-            return "¿En qué posición terminó " + selectedData.split(" - ")[0] + " en la carrera correspondiente?";
+            String[] parts = selectedData.split(" - ");
+            String name = parts[0];
+            String position = parts[2].split(": ")[1];
+            String points = parts[3].split(": ")[1];
+            return "¿Cuántos puntos ha acumulado " + name + " para alcanzar la posición " + position + " en la clasificación general?";
         } else if (selectedData.contains("Ubicación")) {
-            return "¿Dónde se encuentra el circuito de " + selectedData.split(" - ")[0] + "?";
-        } else if (selectedData.contains("Verstappen") || selectedData.contains("Hamilton")) {
-            return "¿Cuántas carreras ganó " + selectedData + " en la temporada actual?";
+            String[] parts = selectedData.split(" - ");
+            String circuit = parts[0];
+            return "¿En qué país se encuentra el circuito de " + circuit + "?";
+        } else if (selectedData.contains("Carrera")) {
+            String[] parts = selectedData.split(" - ");
+            String driver = parts[0];
+            String race = parts[2].split(": ")[1];
+            String position = parts[4].split(": ")[1];
+            String constructor = parts[5].split(": ")[1];
+            return "¿Con qué constructor " + driver + " logró la posición " + position + " en la carrera " + race + "?";
+        } else if (selectedData.contains("Clasificación")) {
+            String[] parts = selectedData.split(" - ");
+            String driver = parts[0];
+            String race = parts[2].split(": ")[1];
+            String position = parts[3].split(": ")[1];
+            return "¿En qué posición clasificó " + driver + " para la carrera " + race + "?";
+        } else if (selectedData.contains("Campeonato")) {
+            return "¿Quién ganó el campeonato mundial de Fórmula 1 en " + selectedData.split(" - ")[1] + "?";
+        } else if (selectedData.contains("Comparación")) {
+            return "¿Qué piloto tiene más victorias en " + selectedData.split(" - ")[1] + "?";
         }
         return "¿Qué sabes sobre " + selectedData + "?";
     }
 
-    public String generateQuestion(String prompt) {
+    public Question generateQuestion() {
         List<String> dataPoints = fetchDataFromErgastAPI();
-        if (dataPoints.isEmpty()) return "No se encontraron datos relevantes.";
+        if (dataPoints.isEmpty()) return null;
 
         String selectedData = dataPoints.get(random.nextInt(dataPoints.size()));
 
         String questionText = createComplexQuestion(selectedData);
 
-        List<String> answers = generateAnswers(selectedData, dataPoints);
-        if (answers.isEmpty()) return "No se pudieron generar respuestas válidas.";
+        Question question = new Question(questionText,null,2);
 
-        StringBuilder generatedQuestion = new StringBuilder("Pregunta generada: " + questionText + "\n");
+        List<String> answers = generateAnswers(selectedData, dataPoints,question);
+
+        List<Answer> answerList = new ArrayList<>();
+        if (answers.isEmpty()) return null;
+
+        Question generatedQuestion = new Question(questionText,null,2);
         char option = 'a';
 
         int correctIndex = random.nextInt(4);
         String correctAnswer = answers.remove(0);
         answers.add(correctIndex, correctAnswer);
 
-        for (String answer : answers) {
-            generatedQuestion.append(option++).append(") ").append(answer).append("\n");
+        Answer trueAnswer = new Answer(correctAnswer,true,generatedQuestion);
+        answerList.add(trueAnswer);
+        for(String answer: answers){
+            Answer answer1 = new Answer(answer,false,generatedQuestion);
+            answerList.add(answer1);
         }
 
-        generatedQuestion.append("Respuesta correcta: ").append((char) ('a' + correctIndex)).append(")");
+        generatedQuestion.setAnswers(answerList);
 
-        return generatedQuestion.toString();
+        return generatedQuestion;
     }
 
-    private List<String> generateAnswers(String selectedData, List<String> dataPoints) {
+    private List<String> generateAnswers(String selectedData, List<String> dataPoints, Question question) {
         List<String> answers = new ArrayList<>();
+        if (selectedData.contains("Posición")) {
+            answers.add(selectedData.split(" - ")[3].split(": ")[1] + " puntos.");
+        } else if (selectedData.contains("Ubicación")) {
+            answers.add(selectedData.split(" - ")[1].split(": ")[1]);
+        } else if (selectedData.contains("Carrera")) {
+            answers.add(selectedData.split(" - ")[5].split(": ")[1]);
+        } else if (selectedData.contains("Clasificación")) {
+            answers.add(selectedData.split(" - ")[3].split(": ")[1]);
+        } else if (selectedData.contains("Campeonato")) {
+            answers.add("Respuesta correcta: " + selectedData.split(" - ")[0]);
+        } else if (selectedData.contains("Comparación")) {
+            answers.add("Respuesta correcta: " + selectedData.split(" - ")[0]);
+        } else {
+            answers.add("Respuesta correcta relacionada con " + selectedData);
+        }
 
-        // Generar respuesta correcta basada en los datos recibidos
-        answers.add("Respuesta correcta relacionada con " + selectedData);
-
-        // Generar respuestas incorrectas pero plausibles
         for (int i = 1; i <= 3; i++) {
             String wrongAnswer = dataPoints.get(random.nextInt(dataPoints.size()));
             if (!wrongAnswer.equals(selectedData)) {
