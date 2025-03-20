@@ -3,7 +3,6 @@ package es.udc.fic.tfg.model.services;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
-import es.udc.fic.tfg.model.services.exceptions.LLMClient;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.security.SecureRandomSpi;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -65,24 +65,22 @@ public class QuizServiceImpl implements QuizService {
 
     private List<Question> getRandomQuestions() {
         Iterable<Question> allQuestionsWithAnswers = questionDao.findAll();
-
-        List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(),false)
+        List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(), false)
                 .collect(Collectors.toList());
-        // Crear una copia de la lista para no modificar la lista original
+
         List<Question> copy = new ArrayList<>(listQuestions);
-
-        // Utilizar SecureRandom para seleccionar índices aleatorios
-        SecureRandom rand = new SecureRandom();
         List<Question> randomQuestions = new ArrayList<>();
-
-        // Seleccionar 10 preguntas aleatorias
+        SecureRandom rand = new SecureRandom();
         for (int i = 0; i < Math.min(5, copy.size()); i++) {
             int randomIndex = rand.nextInt(copy.size());
             randomQuestions.add(copy.remove(randomIndex));
         }
 
-        for (int i = 0; i < Math.min(5, copy.size()); i++) {
-            randomQuestions.add(llmClient.generateQuestion());
+        for (int i = 0; i < Math.min(4, copy.size()); i++) {
+            Question generatedQuestion = llmClient.generateQuestion();
+            if (generatedQuestion != null) {
+                randomQuestions.add(generatedQuestion);
+            }
         }
 
         return randomQuestions;

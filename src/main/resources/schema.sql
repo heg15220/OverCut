@@ -214,6 +214,13 @@ INSERT INTO Category(name,historic,quiz) VALUES ('Historic', true, false);
 
 INSERT INTO Category(name,historic,quiz) VALUES ('Anecdotes',false,false);
 
+INSERT INTO Post (title, subtitle, article, creationDate, userId, categoryId)
+VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example article content.', NOW(), 1, 1);
+
+
+INSERT INTO Comment (content, userId,parent_comment, postId)
+VALUES ('This is a comment.', 1, NULL, 1);
+
 
 
 INSERT INTO Award(award,requiredPoints, image)
@@ -4604,40 +4611,72 @@ VALUES('Lewis Hamilton', '2016', 'Mercedes','Nico Rosberg','Sebastian Vettel', '
 
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Bahrein GP', 'First round of the F1 season', '2024-07-05', 'Bahrein', 'formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg');
+VALUES ('Chinese GP', '2nd round of the F1 season', '2025-03-23', 'Shanghai', 'GmPSckjbsAApnT1.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Hungarian GP', '13th round of the F1 season', '2024-07-21', 'Hungary', 'FYrYQ9SXoAAR-v6-732x1024.jpg');
+VALUES ('Japanese GP', '3rd round of the F1 season', '2025-04-06', 'Suzuka', 'fposter,small,wall_texture,square_product,600x600.u3.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Belgian GP', '15th round of the F1 season', '2024-07-28', 'Belgium', '517c567d8d6e9f561c4eb73313a8d280.jpg');
+VALUES ('Bahrein GP', '4th round of the F1 season', '2025-04-13', 'Sakhir', 'formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg');
+
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Dutch GP', '16th round of the F1 season', '2024-08-25', 'Netherlands', 'f768x1-8742_8869_154.jpg');
+VALUES ('Saudi Arabian GP', '5th round of the F1 season', '2025-04-20', 'Jeddah', '1+Alpine+Saudi+Arabian+GP+1.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Italian GP', '17th round of the F1 season', '2024-09-01', 'Italy', '6744ae08e6a450e031b21a17e78fc0fa.jpg');
+VALUES ('Miami GP', '6th round of the F1 season', '2025-05-04', 'Miami', 'formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Azerbaijan GP', '17th round of the F1 season', '2024-09-15', 'Azerbaijan', 'ahav61hj4goa1.jpg');
+VALUES ('Imola GP', '7th round of the F1 season', '2025-05-18', 'Imola', 'poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Singapore GP', '18th round of the F1 season', '2024-09-22', 'Singapore', 'singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg');
+VALUES ('Monaco GP', '8th round of the F1 season', '2025-05-25', 'Monaco', 'images30.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('USA GP', '19th round of the F1 season', '2024-10-20', 'Texas', 'flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg');
+VALUES ('Spanish GP', '9th round of the F1 season', '2025-06-01', 'Barcelona', 'E0sxVjJWQAI783K.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Mexican GP', '20th round of the F1 season', '2024-10-27','Mexico City' ,'0_vae50gfk.jpg');
+VALUES ('Canadian GP', '10th round of the F1 season', '2025-06-15', 'Montreal', 'images31.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Brazilian GP', '21th round of the F1 season', '2024-11-03', 'Brazil','3db56091204561.5e2b4deb5987d.png');
+VALUES ('Austrian GP', '11th round of the F1 season', '2025-06-29', 'Styria', 'images32.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Las Vegas GP', '22th round of the F1 season', '2024-11-23', 'Las Vegas','il_570xN.5522041097_7lyw.jpg');
+VALUES ('British GP', '12th round of the F1 season', '2025-07-06', 'Silverstone', '3wkkh475qaad1.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Qatar GP', '23th round of the F1 season', '2024-12-01', 'Qatar','the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg');
+VALUES ('Belgian GP', '13th round of the F1 season', '2025-07-27', 'Belgium', '517c567d8d6e9f561c4eb73313a8d280.jpg');
 
 INSERT INTO Event (name, description, date, location, imageUrl)
-VALUES ('Abu Dhabi GP', '24th round of the F1 season', '2024-12-08', 'Abu Dhabi','abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg');
+VALUES ('Hungarian GP', '14th round of the F1 season', '2025-08-03', 'Hungary', 'FYrYQ9SXoAAR-v6-732x1024.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Dutch GP', '15th round of the F1 season', '2025-08-31', 'Netherlands', 'f768x1-8742_8869_154.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Italian GP', '16th round of the F1 season', '2025-09-07', 'Italy', '6744ae08e6a450e031b21a17e78fc0fa.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Azerbaijan GP', '17th round of the F1 season', '2025-09-21', 'Azerbaijan', 'ahav61hj4goa1.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Singapore GP', '18th round of the F1 season', '2025-10-05', 'Singapore', 'singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('USA GP', '19th round of the F1 season', '2025-10-19', 'Texas', 'flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Mexican GP', '20th round of the F1 season', '2025-10-26','Mexico City' ,'0_vae50gfk.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Brazilian GP', '21th round of the F1 season', '2025-11-09', 'Brazil','3db56091204561.5e2b4deb5987d.png');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Las Vegas GP', '22th round of the F1 season', '2025-11-22', 'Las Vegas','il_570xN.5522041097_7lyw.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Qatar GP', '23th round of the F1 season', '2025-11-30', 'Qatar','the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg');
+
+INSERT INTO Event (name, description, date, location, imageUrl)
+VALUES ('Abu Dhabi GP', '24th round of the F1 season', '2024-12-07', 'Abu Dhabi','abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg');
+

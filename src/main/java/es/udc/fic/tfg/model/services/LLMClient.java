@@ -1,7 +1,7 @@
-package es.udc.fic.tfg.model.services.exceptions;
+package es.udc.fic.tfg.model.services;
 
-import es.udc.fic.tfg.model.entities.Answer;
-import es.udc.fic.tfg.model.entities.Question;
+import es.udc.fic.tfg.model.entities.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.json.JSONObject;
@@ -9,10 +9,18 @@ import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 @Component
 public class LLMClient {
+
+    @Autowired
+    private QuestionDao questionDao;
+
+    @Autowired
+    private AnswerDao answerDao;
+
 
     private final Random random = new Random();
     private final RestTemplate restTemplate = new RestTemplate();
@@ -62,33 +70,36 @@ public class LLMClient {
         if (dataPoints.isEmpty()) return null;
 
         String selectedData = dataPoints.get(random.nextInt(dataPoints.size()));
-
         String questionText = createComplexQuestion(selectedData);
 
-        Question question = new Question(questionText,null,2);
+        Question question = new Question(questionText, null, 2);
+        questionDao.save(question); // Persistir primero la pregunta
 
-        List<String> answers = generateAnswers(selectedData, dataPoints,question);
-
-        List<Answer> answerList = new ArrayList<>();
+        List<String> answers = generateAnswers(selectedData, dataPoints, question);
         if (answers.isEmpty()) return null;
 
-        Question generatedQuestion = new Question(questionText,null,2);
-        char option = 'a';
-
+        List<Answer> answerList = new ArrayList<>();
         int correctIndex = random.nextInt(4);
         String correctAnswer = answers.remove(0);
         answers.add(correctIndex, correctAnswer);
 
-        Answer trueAnswer = new Answer(correctAnswer,true,generatedQuestion);
+        Answer trueAnswer = new Answer(correctAnswer, true, question);
         answerList.add(trueAnswer);
-        for(String answer: answers){
-            Answer answer1 = new Answer(answer,false,generatedQuestion);
-            answerList.add(answer1);
+        for (String answer : answers) {
+            if (!Objects.equals(answer, trueAnswer.getName())) {
+                Answer answer1 = new Answer(answer, false, question);
+                answerList.add(answer1);
+            }
         }
 
-        generatedQuestion.setAnswers(answerList);
+        for (Answer answer : answerList) {
+            answerDao.save(answer);
+        }
 
-        return generatedQuestion;
+        question.setAnswers(answerList);
+        questionDao.save(question);
+
+        return question;
     }
 
     private List<String> generateAnswers(String selectedData, List<String> dataPoints, Question question) {

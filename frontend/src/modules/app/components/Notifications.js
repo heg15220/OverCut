@@ -10,27 +10,35 @@ const Notifications = () => {
     const dispatch = useDispatch();
     const user = useSelector(selectors.getUser);
     const notifications = useSelector(notificationSelector.getAllNotifications);
-    const event = useSelector(notificationSelector.getEventDetails);
+
+  // Use optional chaining with default values
+    const items = notifications?.items ?? [];
+    const count = items.length;
+
 
     return (
         <li className="nav-item dropdown">
-            <button className="dropdown-toggle nav-link" style={{ color: '#FFFFFF' }} type="button" data-bs-toggle="dropdown"
-                    onClick={() => {
-                        dispatch(actions.getNotificationsForUser(user.id, 0, () => {}, () => {}));
-                    }}>
-                <FormattedMessage id="project.common.notifications.button" />
-                {notifications.items.length > 0 ? (
-                    <>
-                        <Bell className="ms-2" size={16} color="#FFFFFF" />
-                        <span className="badge bg-danger ms-1">{notifications.items.length}</span>
-                    </>
-                ) : (
-                    <>
-                        <Bell className="ms-2" size={16} color="#FFFFFF" />
-                        <span className="badge bg-secondary ms-1">0</span>
-                    </>
-                )}
-            </button>
+           <button
+                          className="dropdown-toggle nav-link"
+                          style={{ color: '#FFFFFF' }}
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          onClick={() => {
+                              dispatch(actions.getNotificationsForUser(user.id, 0, () => {}, () => {}));
+                          }}>
+                          <FormattedMessage id="project.common.notifications.button" />
+                          {count > 0 ? (
+                              <>
+                                  <Bell className="ms-2" size={16} color="#FFFFFF" />
+                                  <span className="badge bg-danger ms-1">{count}</span>
+                              </>
+                          ) : (
+                              <>
+                                  <Bell className="ms-2" size={16} color="#FFFFFF" />
+                                  <span className="badge bg-secondary ms-1">0</span>
+                              </>
+                          )}
+                      </button>
 
             <div className="dropdown-menu">
                 {notifications && notifications.length !== 0? (
