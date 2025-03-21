@@ -19,5 +19,8 @@ public interface QuestionDao extends CrudRepository<Question, Long> {
     @Query("SELECT q FROM Question q")
     List<Question> findAllQuestions();
 
+    @Query("SELECT CASE WHEN COUNT(q) > 0 THEN true ELSE false END FROM Question q WHERE q.name = ?1")
+    boolean existsQuestionByName(String name);
 
+    boolean existsByName(String name);
 }

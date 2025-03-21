@@ -3,6 +3,7 @@ package es.udc.fic.tfg.model.services;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
+import es.udc.fic.tfg.model.services.exceptions.QuestionGeneratorException;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -53,7 +54,7 @@ public class QuizServiceImpl implements QuizService {
     private UserAwardDao userAwardDao;
 
     @Autowired
-    private LLMClient llmClient;
+    private QuestionGenerationService questionGenerationService;
 
     /**
      * The permission checker.
@@ -63,7 +64,7 @@ public class QuizServiceImpl implements QuizService {
 
 
 
-    private List<Question> getRandomQuestions() {
+    private List<Question> getRandomQuestions() throws QuestionGeneratorException {
         Iterable<Question> allQuestionsWithAnswers = questionDao.findAll();
         List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(), false)
                 .collect(Collectors.toList());
@@ -76,12 +77,12 @@ public class QuizServiceImpl implements QuizService {
             randomQuestions.add(copy.remove(randomIndex));
         }
 
-        for (int i = 0; i < Math.min(4, copy.size()); i++) {
-            Question generatedQuestion = llmClient.generateQuestion();
-            if (generatedQuestion != null) {
-                randomQuestions.add(generatedQuestion);
-            }
+        for (int i = 0; i < Math.min(5, copy.size()); i++) {
+            int difficulty = rand.nextInt(1,3);
+            int randomIndex = rand.nextInt(copy.size());
+            randomQuestions.add(questionGenerationService.generateQuestion(difficulty,"openf1"));
         }
+
 
         return randomQuestions;
     }
@@ -150,7 +151,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz createQuiz(Long userId) throws InstanceNotFoundException{
+    public Quiz createQuiz(Long userId) throws InstanceNotFoundException, QuestionGeneratorException {
         Optional<User> userOptional = userDao.findById(userId);
 
         if (!userOptional.isPresent()) {

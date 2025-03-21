@@ -4,6 +4,7 @@ import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.Block;
 import es.udc.fic.tfg.model.services.QuizService;
+import es.udc.fic.tfg.model.services.exceptions.QuestionGeneratorException;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import es.udc.fic.tfg.rest.dtos.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -24,7 +25,7 @@ public class QuizController {
 
 
     @PostMapping("/create")
-    public Long createQuiz(@RequestAttribute Long userId) throws InstanceNotFoundException{
+    public Long createQuiz(@RequestAttribute Long userId) throws InstanceNotFoundException, QuestionGeneratorException {
         return (quizService.createQuiz(userId)).getId();
     }
 

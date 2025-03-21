@@ -18,6 +18,22 @@ spring:
     remove-abandoned-timeout: 60
     log-abandoned: true
     validation-query: SELECT 1
+
+  spring:
+    ai:
+      spring:
+        ai:
+          ollama:
+            enabled: true
+            mistral:
+              model: mistral-small-latest
+              temperature: 0.6
+      mistralai:
+        api-key: T7R8rE9gSMV0rdDoH0iez5UrTFz6TzwA
+        chat:
+          options:
+            model: mistral-small-latest
+            temperature: 0.6
   devtools:
     restart:
       trigger-file: reload

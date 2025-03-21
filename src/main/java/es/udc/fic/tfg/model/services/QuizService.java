@@ -2,13 +2,14 @@ package es.udc.fic.tfg.model.services;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
+import es.udc.fic.tfg.model.services.exceptions.QuestionGeneratorException;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 
 import java.util.List;
 
 public interface QuizService {
 
-    Quiz createQuiz(Long userId) throws InstanceNotFoundException;
+    Quiz createQuiz(Long userId) throws InstanceNotFoundException, QuestionGeneratorException;
 
     void chooseAnswer(Long quizId, Long questionId, Long userId, Long answerId) throws QuizException, InstanceNotFoundException;
 
