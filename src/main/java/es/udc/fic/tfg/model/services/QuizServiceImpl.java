@@ -54,7 +54,7 @@ public class QuizServiceImpl implements QuizService {
     private UserAwardDao userAwardDao;
 
     @Autowired
-    private QuestionGenerationService questionGenerationService;
+    private QuestionGenerator questionGenerator;
 
     /**
      * The permission checker.
@@ -77,12 +77,12 @@ public class QuizServiceImpl implements QuizService {
             randomQuestions.add(copy.remove(randomIndex));
         }
 
-        for (int i = 0; i < Math.min(5, copy.size()); i++) {
-            int difficulty = rand.nextInt(1,3);
-            int randomIndex = rand.nextInt(copy.size());
-            randomQuestions.add(questionGenerationService.generateQuestion(difficulty,"openf1"));
+        // Generar preguntas nuevas
+        for (int i = 0; i < 5; i++) {
+            int difficulty = new SecureRandom().nextInt(1, 4);
+            Question question = questionGenerator.generateQuestion(difficulty, "f1");
+            randomQuestions.add(question);
         }
-
 
         return randomQuestions;
     }
