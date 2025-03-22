@@ -63,7 +63,7 @@ project:
 
 llm:
   api:
-    key: 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
-  model: gpt-4
+    key: ${OPENAI_API_KEY}
+    model: gpt-4
   openai:
     url: https://api.openai.com/v1
