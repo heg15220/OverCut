@@ -61,6 +61,7 @@ project:
     signKey: WzROun12eUiDvko3UrJz2TWEWPMTh6DxyE8HWXIf4hETUrkM4IUGqqHq66PuVS1234567890
     expirationMinutes: 1440
 
+
 llm:
   api:
     key: ${OPENAI_API_KEY}
