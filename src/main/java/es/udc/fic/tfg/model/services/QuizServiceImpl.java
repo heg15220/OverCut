@@ -3,7 +3,6 @@ package es.udc.fic.tfg.model.services;
 
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
-import es.udc.fic.tfg.model.services.exceptions.QuestionGeneratorException;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -11,8 +10,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.security.SecureRandom;
-import java.security.SecureRandomSpi;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -54,10 +53,7 @@ public class QuizServiceImpl implements QuizService {
     private UserAwardDao userAwardDao;
 
     @Autowired
-    private LLMClient llmClient;
-
-    @Autowired
-    private QuestionGenerator questionGenerator;
+    private WikipediaQuestionGenerator wikipediaQuestionGenerator;
     /**
      * The permission checker.
      */
@@ -65,9 +61,44 @@ public class QuizServiceImpl implements QuizService {
     private PermissionChecker permissionChecker;
 
 
+    private static final String[] TOPICS = {
+            "pilotos de Fórmula 1", "equipos de Fórmula 1", "carreras de Fórmula 1",
+            "temporadas de Fórmula 1", "reglamento de Fórmula 1"
+    };
 
-    private List<Question> generateQuestionsWithLLM() throws QuestionGeneratorException {
-        return questionGenerator.generateQuestions(5);
+    private Question parseGeneratedQuestion(String generatedText) {
+        if (!generatedText.contains("Pregunta:") || !generatedText.contains("Opciones:")) {
+            return null;
+        }
+
+        String[] parts = generatedText.split("Pregunta:|Opciones:");
+        if (parts.length < 2) {
+            return null;
+        }
+
+        String questionText = parts[1].trim();
+        String[] options = parts[2].trim().split("\n");
+
+        if (options.length < 4) {
+            return null;
+        }
+
+        Question question = new Question();
+        question.setName(questionText);
+
+        questionDao.save(question);
+        List<Answer> answers = new ArrayList<>();
+        for (String option : options) {
+            Answer answer = new Answer();
+            answer.setName(option.trim().replace("(Correcta)", "").trim());
+            answer.setCorrect(option.contains("(Correcta)"));
+            answerDao.save(answer);
+            answers.add(answer);
+        }
+
+        question.setAnswers(answers);
+        questionDao.save(question);
+        return question;
     }
 
     private List<Question> getRandomQuestions() {
@@ -75,29 +106,27 @@ public class QuizServiceImpl implements QuizService {
 
         List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(),false)
                 .collect(Collectors.toList());
+        // Crear una copia de la lista para no modificar la lista original
         List<Question> copy = new ArrayList<>(listQuestions);
 
+        // Utilizar SecureRandom para seleccionar índices aleatorios
         SecureRandom rand = new SecureRandom();
         List<Question> randomQuestions = new ArrayList<>();
 
+        // Seleccionar 10 preguntas aleatorias
         for (int i = 0; i < Math.min(5, copy.size()); i++) {
             int randomIndex = rand.nextInt(copy.size());
             randomQuestions.add(copy.remove(randomIndex));
         }
-
+        while (randomQuestions.size()>=5 && randomQuestions.size() < 10 ) {
+            String topic = TOPICS[rand.nextInt(TOPICS.length)];
+            String generatedQuestion = wikipediaQuestionGenerator.generateQuestion(topic);
+            Question question = parseGeneratedQuestion(generatedQuestion);
+            if (question != null || !questionDao.existsByName(question.getName())) {
+                randomQuestions.add(question);
+            }
+        }
         return randomQuestions;
-    }
-
-    private List<Question> getCombinedQuestions() throws QuestionGeneratorException {
-        List<Question> generatedQuestions = generateQuestionsWithLLM();
-        List<Question> randomQuestions = getRandomQuestions();
-
-        List<Question> allQuestions = new ArrayList<>();
-        allQuestions.addAll(generatedQuestions);
-        allQuestions.addAll(randomQuestions);
-
-        Collections.shuffle(allQuestions);
-        return allQuestions.subList(0, Math.min(10, allQuestions.size()));
     }
 
 
@@ -164,14 +193,14 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz createQuiz(Long userId) throws InstanceNotFoundException, QuestionGeneratorException {
+    public Quiz createQuiz(Long userId) throws InstanceNotFoundException{
         Optional<User> userOptional = userDao.findById(userId);
 
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
         }
 
-        List<Question> questions = getCombinedQuestions();
+        List<Question> questions = getRandomQuestions();
 
         int knowledgeLevelQuestions = getUserKnowledgeLevel(questions);
 
@@ -395,5 +424,3 @@ public class QuizServiceImpl implements QuizService {
         return userAwardDao.findUserAwardById(userAwardId);
     }
 }
-
-

@@ -19,21 +19,20 @@ spring:
     log-abandoned: true
     validation-query: SELECT 1
 
-  spring:
-    ai:
-      spring:
-        ai:
-          ollama:
-            enabled: true
-            mistral:
-              model: mistral-small-latest
-              temperature: 0.6
-      mistralai:
-        api-key: T7R8rE9gSMV0rdDoH0iez5UrTFz6TzwA
-        chat:
-          options:
-            model: mistral-small-latest
-            temperature: 0.6
+
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}  # Asegúrate de usar la variable de entorno correctamente
+      model: gpt-4
+      base-url: https://api.openai.com/v1/completions
+      temperature: 0.7  # Ajusta la temperatura según lo que necesites
+    mistralai:
+      api-key: T7R8rE9gSMV0rdDoH0iez5UrTFz6TzwA
+      chat:
+        options:
+          model: mistral-small-latest
+          temperature: 0.6
   devtools:
     restart:
       trigger-file: reload
@@ -62,12 +61,6 @@ project:
     expirationMinutes: 1440
 
 
-llm:
-  api:
-    key: ${OPENAI_API_KEY}
-    model: gpt-4
-  openai:
-    url: https://api.openai.com/v1
 
 ergast:
   api:
