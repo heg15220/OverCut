@@ -54,8 +54,10 @@ public class QuizServiceImpl implements QuizService {
     private UserAwardDao userAwardDao;
 
     @Autowired
-    private QuestionGenerator questionGenerator;
+    private LLMClient llmClient;
 
+    @Autowired
+    private QuestionGenerator questionGenerator;
     /**
      * The permission checker.
      */
@@ -64,27 +66,38 @@ public class QuizServiceImpl implements QuizService {
 
 
 
-    private List<Question> getRandomQuestions() throws QuestionGeneratorException {
-        Iterable<Question> allQuestionsWithAnswers = questionDao.findAll();
-        List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(), false)
-                .collect(Collectors.toList());
+    private List<Question> generateQuestionsWithLLM() throws QuestionGeneratorException {
+        return questionGenerator.generateQuestions(5);
+    }
 
+    private List<Question> getRandomQuestions() {
+        Iterable<Question> allQuestionsWithAnswers = questionDao.findAll();
+
+        List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(),false)
+                .collect(Collectors.toList());
         List<Question> copy = new ArrayList<>(listQuestions);
-        List<Question> randomQuestions = new ArrayList<>();
+
         SecureRandom rand = new SecureRandom();
+        List<Question> randomQuestions = new ArrayList<>();
+
         for (int i = 0; i < Math.min(5, copy.size()); i++) {
             int randomIndex = rand.nextInt(copy.size());
             randomQuestions.add(copy.remove(randomIndex));
         }
 
-        // Generar preguntas nuevas
-        for (int i = 0; i < 5; i++) {
-            int difficulty = new SecureRandom().nextInt(1, 4);
-            Question question = questionGenerator.generateQuestion(difficulty, "f1");
-            randomQuestions.add(question);
-        }
-
         return randomQuestions;
+    }
+
+    private List<Question> getCombinedQuestions() throws QuestionGeneratorException {
+        List<Question> generatedQuestions = generateQuestionsWithLLM();
+        List<Question> randomQuestions = getRandomQuestions();
+
+        List<Question> allQuestions = new ArrayList<>();
+        allQuestions.addAll(generatedQuestions);
+        allQuestions.addAll(randomQuestions);
+
+        Collections.shuffle(allQuestions);
+        return allQuestions.subList(0, Math.min(10, allQuestions.size()));
     }
 
 
@@ -158,7 +171,7 @@ public class QuizServiceImpl implements QuizService {
             throw new InstanceNotFoundException("User not found here", userId);
         }
 
-        List<Question> questions = getRandomQuestions();
+        List<Question> questions = getCombinedQuestions();
 
         int knowledgeLevelQuestions = getUserKnowledgeLevel(questions);
 
