@@ -24,15 +24,27 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}  # Asegúrate de usar la variable de entorno correctamente
-      model: gpt-4
+      model: gpt-4o-mini
       base-url: https://api.openai.com/v1/completions
       temperature: 0.7  # Ajusta la temperatura según lo que necesites
     mistralai:
       api-key: T7R8rE9gSMV0rdDoH0iez5UrTFz6TzwA
       chat:
+        base-url: https://api.mistralai.com/v1
+        completions-path: /chat/completions
         options:
           model: mistral-small-latest
           temperature: 0.6
+
+    huggingface:
+      chat:
+        model: "t5-base"
+        api-key: ${HUGGING_FACE_API_KEY}
+        enabled: true
+        temperature: 0.7
+        max-tokens: 512
+
+
   devtools:
     restart:
       trigger-file: reload

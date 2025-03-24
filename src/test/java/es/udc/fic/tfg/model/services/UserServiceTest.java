@@ -8,7 +8,6 @@ import es.udc.fic.tfg.model.entities.UserDao;
 import es.udc.fic.tfg.model.services.exceptions.IncorrectLoginException;
 import es.udc.fic.tfg.model.services.exceptions.IncorrectPasswordException;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * The Class UserServiceTest.
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional

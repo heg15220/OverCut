@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.3</version>
+        <version>3.2.0</version>
     </parent>
 
     <properties>
@@ -23,53 +23,42 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
 
-        <!-- Actualiza las versiones de las propiedades -->
-        <jjwt.version>0.11.5</jjwt.version> <!-- Mantener la misma versión, es compatible -->
-        <hibernate.validator.version>8.0.1.Final</hibernate.validator.version> <!-- Mantener la misma versión -->
-        <jackson.version>2.15.0</jackson.version> <!-- Nueva versión para Spring Boot 3.2.0 -->
-        <okhttp.version>4.11.0</okhttp.version> <!-- Nueva versión para Spring Boot 3.2.0 -->
-        <spring-ai.version>1.0.0-M6</spring-ai.version> <!-- Mantener la -->
+        <!--  Dependencies versions  -->
+        <jjwt.version>0.11.5</jjwt.version>
+        <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
+        <spring-ai.version>1.0.0-M6</spring-ai.version>
+
         <!--  Plugins versions  -->
         <plugin.jkube.version>1.3.0</plugin.jkube.version>
         <plugin.jacoco.version>0.8.10</plugin.jacoco.version>
         <plugin.frontend.version>1.6</plugin.frontend.version>
         <plugin.m2e.version>1.0.0</plugin.m2e.version>
         <plugin.sql.version>1.5</plugin.sql.version>
+
+        <!-- Nuevas propiedades para Spring Boot 3.2.0 -->
+        <spring-boot-maven-plugin.version>3.2.0</spring-boot-maven-plugin.version>
+        <frontend-maven-plugin.version>1.12.0</frontend-maven-plugin.version>
     </properties>
 
     <repositories>
         <repository>
-            <id>central</id>
-            <name>Maven Central</name>
-            <url>https://repo.maven.apache.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>spring-milestone</id>
-            <name>Spring Milestone Repository</name>
-            <url>https://repo.spring.io/milestone</url>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
-    <!-- ********************************************** -->
-    <!-- ****************** PROFILES ****************** -->
-    <!-- ********************************************** -->
+    <!-- PROFILES -->
     <profiles>
-        <!-- ============================================== -->
-        <!-- ============= DATABASE PROFILES ============== -->
-        <!-- ============================================== -->
         <profile>
-            <!-- H2 database profile -->
-            <!-- Prepares the project to make use of an H2 in-memory database -->
             <id>h2</id>
             <activation>
-                <!-- Active by default so it can be installed by CI -->
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <!--  Data source properties -->
                 <dataSource.url>jdbc:h2:mem:OverCut</dataSource.url>
                 <testDataSource.url>jdbc:h2:mem:OverCutTest</testDataSource.url>
                 <dataSource.user>sa</dataSource.user>
@@ -77,31 +66,17 @@
             </properties>
             <dependencies>
                 <dependency>
-                    <!-- H2 database -->
                     <groupId>com.h2database</groupId>
                     <artifactId>h2</artifactId>
+                    <version>2.2.224</version> <!-- Versión compatible con Spring Boot 3.2.0 -->
                 </dependency>
             </dependencies>
         </profile>
     </profiles>
 
-    <!-- ********************************************** -->
-    <!-- **************** DEPENDENCIES **************** -->
-    <!-- ********************************************** -->
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.2.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
+    <!-- DEPENDENCIES -->
     <dependencies>
+        <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -117,13 +92,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -132,6 +106,7 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- JWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -150,101 +125,57 @@
             <version>${jjwt.version}</version>
         </dependency>
 
-
+        <!-- Base de datos -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <version>2.2.224</version>
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-
+        <!-- Validación -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.validator.version}</version>
         </dependency>
 
+        <!-- Spring AI -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.13.0</version>
-        </dependency>
-
-        <!-- Jackson Databind -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.13.0</version>
-        </dependency>
-        <!-- Java 8 Time API Module -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20220320</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.10.0</version>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-mistral-ai-spring-boot-starter</artifactId>
+            <version>${spring-ai.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
-            <version>1.0.0-M6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
-            <version>5.3.1</version>
+            <artifactId>spring-ai-mistral-ai</artifactId>
+            <version>${spring-ai.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>2.0</version>
-        </dependency>
+        <!-- Jackson -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.14.1</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.14.1</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>2.14.1</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>2.14.1</version>
+    </dependency>
     </dependencies>
-
-
-    <!-- ********************************************** -->
-    <!-- ******************* BUILD ******************** -->
-    <!-- ********************************************** -->
     <build>
-        <!-- ============================================== -->
-        <!-- =============== TEST RESOURCES =============== -->
-        <!-- ============================================== -->
         <testResources>
             <testResource>
                 <directory>src/test/resources</directory>
@@ -252,42 +183,21 @@
             </testResource>
         </testResources>
 
-
-
-        <!-- ============================================== -->
-        <!-- =================== PLUGINS ================== -->
-        <!-- ============================================== -->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot-maven-plugin.version}</version>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>2.13.0</version>
-                <configuration>
-                    <rules>
-                        <rule>
-                            <groupId>org.springframework.boot</groupId>
-                            <id>spring-boot-dependencies</id>
-                            <versionRange>[3.1.0,)</versionRange>
-                        </rule>
-                    </rules>
-                </configuration>
-            </plugin>
-            <!-- Kubernetes deployment config -->
             <plugin>
                 <groupId>org.eclipse.jkube</groupId>
                 <artifactId>kubernetes-maven-plugin</artifactId>
                 <version>${plugin.jkube.version}</version>
-
                 <configuration>
                     <resources>
                         <controllerName>${project.artifactId}</controllerName>
                     </resources>
-
                     <enricher>
                         <config>
                             <jkube-service>
@@ -298,7 +208,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Jacoco setup -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -309,7 +218,6 @@
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
-                    <!-- attached to Maven test phase -->
                     <execution>
                         <id>report</id>
                         <phase>test</phase>
@@ -320,14 +228,13 @@
                 </executions>
             </plugin>
 
-            <!-- Frontend setup -->
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.11.3</version> <!-- Asegúrate de usar la última versión disponible -->
+                <version>${plugin.frontend.version}</version>
                 <configuration>
-                    <nodeVersion>v14.15.4</nodeVersion> <!-- Especifica la versión de Node que deseas usar -->
-                    <npmVersion>6.14.11</npmVersion> <!-- Especifica la versión de NPM que deseas usar -->
+                    <nodeVersion>v14.15.4</nodeVersion>
+                    <npmVersion>6.14.11</npmVersion>
                     <workingDirectory>frontend</workingDirectory>
                     <installDirectory>target</installDirectory>
                 </configuration>
@@ -353,7 +260,6 @@
                 </executions>
             </plugin>
 
-
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
@@ -364,8 +270,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>
-                                ${project.build.directory}/classes/public</outputDirectory>
+                            <outputDirectory>${project.build.directory}/classes/public</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${project.basedir}/frontend/build</directory>
@@ -378,5 +283,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

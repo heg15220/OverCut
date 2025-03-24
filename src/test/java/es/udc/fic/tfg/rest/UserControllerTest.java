@@ -12,7 +12,6 @@ import es.udc.fic.tfg.rest.dtos.LoginParamsDto;
 import es.udc.fic.tfg.rest.dtos.UserConversor;
 import es.udc.fic.tfg.rest.dtos.UserDto;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -38,7 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * The Class UserControllerTest.
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

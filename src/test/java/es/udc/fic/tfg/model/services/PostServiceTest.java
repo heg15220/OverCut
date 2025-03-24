@@ -6,7 +6,6 @@ import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.exceptions.PermissionException;
 import es.udc.fic.tfg.model.services.exceptions.PostException;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * The Class PostServiceTest.
  */
 @SpringBootTest
-@RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 @Transactional
 class PostServiceTest {
