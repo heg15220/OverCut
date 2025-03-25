@@ -3,11 +3,11 @@ import {
     appFetch,
 } from "./appFetch";
 
-// Crear un nuevo cuestionario
-export const createQuiz = (userId, onSuccess, onErrors) => {
+export const createQuiz = ({userId, language}, onSuccess, onErrors) => {
+    const query = language ? `?lang=${language}` : "";
     appFetch(
-        "/quiz/create",
-        fetchConfig("POST",  userId ),
+        `/quiz/create${query}`,
+        fetchConfig("POST", userId),
         onSuccess,
         onErrors
     );

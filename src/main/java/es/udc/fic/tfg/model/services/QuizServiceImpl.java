@@ -167,7 +167,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz createQuiz(Long userId, boolean saveLLMQuestions) throws InstanceNotFoundException {
+    public Quiz createQuiz(Long userId, String language) throws InstanceNotFoundException {
         Optional<User> userOptional = userDao.findById(userId);
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
@@ -176,15 +176,15 @@ public class QuizServiceImpl implements QuizService {
         // 1. Preguntas almacenadas
         List<Question> storedQuestions = getRandomQuestions();
 
-        // 2. Generadas por LLM
-        List<QuestionAI> aiQuestions = questionLLMService.generateQuestionsAI();
+        // 2. Generadas por LLM (pasando el idioma)
+        List<QuestionAI> aiQuestions = questionLLMService.generateQuestionsAI(language);
 
         // 3. Convertir AI → Entity
         List<Question> generatedQuestions = aiQuestions.stream()
                 .map(this::convertAIToQuestionEntity)
                 .collect(Collectors.toList());
 
-        // 🔐 4. Guardar en BBDD sí o sí (para evitar errores de persistencia)
+        // 4. Guardar en BBDD sí o sí (para evitar errores de persistencia)
         for (Question q : generatedQuestions) {
             questionDao.save(q);
             for (Answer a : q.getAnswers()) {
@@ -214,6 +214,7 @@ public class QuizServiceImpl implements QuizService {
 
         return quiz;
     }
+
 
 
 

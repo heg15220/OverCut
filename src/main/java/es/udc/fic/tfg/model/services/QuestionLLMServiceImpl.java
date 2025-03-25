@@ -15,14 +15,20 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
     @Override
     public List<QuestionAI> generateQuestionsAI() {
+        return generateQuestionsAI("es"); // por defecto español
+    }
+
+    @Override
+    public List<QuestionAI> generateQuestionsAI(String language) {
         List<QuestionAI> questions = new ArrayList<>();
 
         try {
             ProcessBuilder pb = new ProcessBuilder("python", "src/main/resources/scripts/generate_questions.py");
+            pb.environment().put("LANG", language); // Soporte multilingüe
+
             pb.redirectErrorStream(true);
             Process process = pb.start();
 
-            // Leer la salida JSON
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             StringBuilder jsonOutput = new StringBuilder();
             String line;
@@ -41,7 +47,6 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            // puedes lanzar excepción personalizada si quieres
         }
 
         return questions;
