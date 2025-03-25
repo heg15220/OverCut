@@ -30,7 +30,7 @@ conn.close()
 preguntas = []
 
 for year, gp, nombre, apellido in resultados:
-    pregunta_texto = f"¿Quién ganó el Gran Premio de {gp} en {year}?"
+    pregunta_texto = f"¿Quién ganó el {gp} en {year}?"
     respuesta_correcta = f"{nombre} {apellido}"
 
     # Respuestas incorrectas

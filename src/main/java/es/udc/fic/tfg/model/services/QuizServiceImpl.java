@@ -167,17 +167,16 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz createQuiz(Long userId,  boolean saveLLMQuestions) throws InstanceNotFoundException{
+    public Quiz createQuiz(Long userId, boolean saveLLMQuestions) throws InstanceNotFoundException {
         Optional<User> userOptional = userDao.findById(userId);
-
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
         }
 
+        // 1. Preguntas almacenadas
         List<Question> storedQuestions = getRandomQuestions();
 
-        int knowledgeLevelQuestions = getUserKnowledgeLevel(storedQuestions);
-
+        // 2. Generadas por LLM
         List<QuestionAI> aiQuestions = questionLLMService.generateQuestionsAI();
 
         // 3. Convertir AI → Entity
@@ -185,14 +184,13 @@ public class QuizServiceImpl implements QuizService {
                 .map(this::convertAIToQuestionEntity)
                 .collect(Collectors.toList());
 
-        // 4. Guardar las generadas si quieres persistencia (opcional)
-        if (saveLLMQuestions) {
-            generatedQuestions.forEach(questionDao::save);
-            generatedQuestions.forEach(q -> q.getAnswers().forEach(answerDao::save));
+        // 🔐 4. Guardar en BBDD sí o sí (para evitar errores de persistencia)
+        for (Question q : generatedQuestions) {
+            questionDao.save(q);
+            for (Answer a : q.getAnswers()) {
+                answerDao.save(a);
+            }
         }
-
-
-
 
         // 5. Mezclar ambas listas
         List<Question> all = new ArrayList<>();
@@ -200,15 +198,13 @@ public class QuizServiceImpl implements QuizService {
         all.addAll(generatedQuestions);
         Collections.shuffle(all);
 
-        knowledgeLevelQuestions= getUserKnowledgeLevel(all);
-
+        int knowledgeLevelQuestions = getUserKnowledgeLevel(all);
         LocalDateTime date = LocalDateTime.now();
 
         Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
-
         quizDao.save(quiz);
 
-        // 6. Asociar al quiz
+        // 6. Asociar preguntas al quiz
         all.stream().limit(10).forEach(q -> {
             QuizQuestions qq = new QuizQuestions();
             qq.setQuiz(quiz);
@@ -218,6 +214,7 @@ public class QuizServiceImpl implements QuizService {
 
         return quiz;
     }
+
 
 
     private Assessment createAssessment(Long quizId, Long userId) throws InstanceNotFoundException, QuizException {
