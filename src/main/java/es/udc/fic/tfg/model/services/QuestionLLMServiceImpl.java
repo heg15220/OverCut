@@ -5,10 +5,10 @@ import es.udc.fic.tfg.rest.dtos.QuestionAI;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.OutputStreamWriter;
+import java.util.*;
 
 @Service
 public class QuestionLLMServiceImpl implements QuestionLLMService {
@@ -46,5 +46,46 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
         return questions;
     }
+
+    @Override
+    public String validateQuestion(String question, List<String> answers) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("python", "src/main/resources/scripts/validate_question.py");
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            // Enviar datos al script
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            ObjectMapper mapper = new ObjectMapper();
+            writer.write(mapper.writeValueAsString(Map.of(
+                    "question", question,
+                    "answers", answers
+            )));
+            writer.flush();
+            writer.close();
+
+            // Leer resultado
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder jsonOutput = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonOutput.append(line);
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                Map<?, ?> response = mapper.readValue(jsonOutput.toString(), Map.class);
+                return (String) response.get("correctAnswer");
+            } else {
+                throw new RuntimeException("Error al ejecutar el validador, código: " + exitCode);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+    }
+
+
 
 }

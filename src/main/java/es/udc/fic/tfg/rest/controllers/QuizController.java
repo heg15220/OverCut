@@ -25,7 +25,7 @@ public class QuizController {
 
     @PostMapping("/create")
     public Long createQuiz(@RequestAttribute Long userId) throws InstanceNotFoundException{
-        return (quizService.createQuiz(userId)).getId();
+        return (quizService.createQuiz(userId, false)).getId();
     }
 
     @PostMapping("/{id}/answer")

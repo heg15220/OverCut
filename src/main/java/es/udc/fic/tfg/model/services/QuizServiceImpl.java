@@ -4,6 +4,7 @@ package es.udc.fic.tfg.model.services;
 import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
+import es.udc.fic.tfg.rest.dtos.QuestionAI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -51,6 +52,8 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private UserAwardDao userAwardDao;
 
+    @Autowired
+    private QuestionLLMService questionLLMService;
 
     /**
      * The permission checker.
@@ -126,6 +129,25 @@ public class QuizServiceImpl implements QuizService {
         }
         return points;
     }
+    private Question convertAIToQuestionEntity(QuestionAI ai) {
+        Question q = new Question();
+        q.setName(ai.getQuestion());
+        q.setKnowledgequestionlevel(1); // o dinámico
+        q.setImagePath(null);
+
+        List<Answer> answers = new ArrayList<>();
+        for (String a : ai.getAnswers()) {
+            Answer ans = new Answer();
+            ans.setName(a);
+            ans.setCorrect(a.equals(ai.getCorrectAnswer()));
+            ans.setQuestion(q); // relación bidireccional
+            answers.add(ans);
+        }
+
+        q.setAnswers(answers);
+        return q;
+    }
+
     private void updateAssessmentPoints(Long userId, Long quizId, int pointsToAdd) throws QuizException {
         // Buscar el registro de Assessment para el usuario y el quiz
         Assessment assessment = assessmentDao.findByQuizIdAndUserId(quizId,userId);
@@ -145,16 +167,40 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz createQuiz(Long userId) throws InstanceNotFoundException{
+    public Quiz createQuiz(Long userId,  boolean saveLLMQuestions) throws InstanceNotFoundException{
         Optional<User> userOptional = userDao.findById(userId);
 
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
         }
 
-        List<Question> questions = getRandomQuestions();
+        List<Question> storedQuestions = getRandomQuestions();
 
-        int knowledgeLevelQuestions = getUserKnowledgeLevel(questions);
+        int knowledgeLevelQuestions = getUserKnowledgeLevel(storedQuestions);
+
+        List<QuestionAI> aiQuestions = questionLLMService.generateQuestionsAI();
+
+        // 3. Convertir AI → Entity
+        List<Question> generatedQuestions = aiQuestions.stream()
+                .map(this::convertAIToQuestionEntity)
+                .collect(Collectors.toList());
+
+        // 4. Guardar las generadas si quieres persistencia (opcional)
+        if (saveLLMQuestions) {
+            generatedQuestions.forEach(questionDao::save);
+            generatedQuestions.forEach(q -> q.getAnswers().forEach(answerDao::save));
+        }
+
+
+
+
+        // 5. Mezclar ambas listas
+        List<Question> all = new ArrayList<>();
+        all.addAll(storedQuestions);
+        all.addAll(generatedQuestions);
+        Collections.shuffle(all);
+
+        knowledgeLevelQuestions= getUserKnowledgeLevel(all);
 
         LocalDateTime date = LocalDateTime.now();
 
@@ -162,13 +208,13 @@ public class QuizServiceImpl implements QuizService {
 
         quizDao.save(quiz);
 
-        // Asociar las preguntas al cuestionario
-        for (Question question : questions) {
-            QuizQuestions quizQuestion = new QuizQuestions();
-            quizQuestion.setQuiz(quiz);
-            quizQuestion.setQuestion(question);
-            quizQuestionDao.save(quizQuestion);
-        }
+        // 6. Asociar al quiz
+        all.stream().limit(10).forEach(q -> {
+            QuizQuestions qq = new QuizQuestions();
+            qq.setQuiz(quiz);
+            qq.setQuestion(q);
+            quizQuestionDao.save(qq);
+        });
 
         return quiz;
     }
