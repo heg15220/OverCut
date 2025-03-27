@@ -2101,7 +2101,7 @@ VALUES ('How many times has Fernando Alonso raced the Australian GP?',
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('19 times', true, 110);
+    ('19 times', false, 110);
 
 
 INSERT INTO Answer (name, correct, questionId)
@@ -2111,7 +2111,7 @@ VALUES
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('20 times', false, 110);
+    ('20 times', true, 110);
 
 
 INSERT INTO Answer (name, correct, questionId)

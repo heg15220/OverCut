@@ -853,6 +853,161 @@ def pregunta_piloto_mas_puntos_sin_ganar_temporada_wrapper():
     return pregunta_piloto_mas_puntos_sin_ganar_temporada(temporada)
 
 
+# **Preguntas sobre escudería en concreto**
+
+def pregunta_piloto_mas_victorias_escuderia(escuderia_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname, COUNT(*) as wins
+        FROM results r
+        JOIN drivers d ON r.driverId = d.driverId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        WHERE r.position = 1 AND c.name = %s
+        GROUP BY d.driverId
+        ORDER BY wins DESC
+        LIMIT 1
+    """, (escuderia_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    nombre, apellido, _ = row
+    piloto = f"{nombre} {apellido}"
+    pregunta = f"¿Qué piloto logró más victorias para la escudería {escuderia_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_temporada_mas_puntos_escuderia(escuderia_objetivo):
+    cursor.execute("""
+        SELECT ra.year, SUM(r.points) as total
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        WHERE c.name = %s
+        GROUP BY ra.year
+        ORDER BY total DESC
+        LIMIT 1
+    """, (escuderia_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    anio, _ = row
+    pregunta = f"¿En qué temporada consiguió más puntos la escudería {escuderia_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(anio), [str(y) for y in range(1950, 2024)])
+    opciones.append(str(anio))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(anio),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_poles_totales_escuderia(escuderia_objetivo):
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM qualifying q
+        JOIN constructors c ON q.constructorId = c.constructorId
+        WHERE q.position = 1 AND c.name = %s
+    """, (escuderia_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    total_poles = row[0]
+    pregunta = f"¿Cuántas pole positions logró la escudería {escuderia_objetivo} en su historia?"
+    opciones = get_respuestas_incorrectas(str(total_poles), [str(i) for i in range(0, 250)])
+    opciones.append(str(total_poles))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(total_poles),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_circuito_mas_victorias_escuderia(escuderia_objetivo):
+    cursor.execute("""
+        SELECT c.name, COUNT(*) as wins
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN constructors co ON r.constructorId = co.constructorId
+        WHERE r.position = 1 AND co.name = %s
+        GROUP BY c.circuitId
+        ORDER BY wins DESC
+        LIMIT 1
+    """, (escuderia_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    pregunta = f"¿En qué circuito logró más victorias la escudería {escuderia_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,)) or []])
+    opciones = incorrectas + [circuito]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_campeonatos_constructores_escuderia(escuderia_objetivo):
+    cursor.execute("""
+        SELECT COUNT(DISTINCT ra.year)
+        FROM constructorStandings cs
+        JOIN races ra ON cs.raceId = ra.raceId
+        JOIN constructors c ON cs.constructorId = c.constructorId
+        WHERE cs.position = 1 AND c.name = %s
+    """, (escuderia_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    total = row[0]
+    pregunta = f"¿Cuántas veces ganó el campeonato de constructores la escudería {escuderia_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 20)])
+    opciones.append(str(total))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def obtener_escuderia_aleatoria():
+    cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+    escuderia = cursor.fetchone()
+    return escuderia[0] if escuderia else None
+
+escuderia = obtener_escuderia_aleatoria()
+
+# Funciones Wrapped
+def pregunta_piloto_mas_victorias_escuderia_wrapper():
+    return pregunta_piloto_mas_victorias_escuderia(escuderia) if escuderia else None
+
+def pregunta_temporada_mas_puntos_escuderia_wrapper():
+    return pregunta_temporada_mas_puntos_escuderia(escuderia) if escuderia else None
+
+def pregunta_poles_totales_escuderia_wrapper():
+    return pregunta_poles_totales_escuderia(escuderia) if escuderia else None
+
+def pregunta_circuito_mas_victorias_escuderia_wrapper():
+    return pregunta_circuito_mas_victorias_escuderia(escuderia) if escuderia else None
+
+def pregunta_campeonatos_constructores_escuderia_wrapper():
+    return pregunta_campeonatos_constructores_escuderia(escuderia) if escuderia else None
+
+
 generadores = [
     generar_pregunta_piloto_primera_victoria_reciente,
     generar_pregunta_ganador_gp,
@@ -868,6 +1023,7 @@ generadores = [
     generar_pregunta_circuito_mas_carreras,
     generar_pregunta_campeon_pilotos,
     generar_pregunta_campeon_constructores,
+
     # **Duelos Legendarios**
     pregunta_rival_de_senna_en_mclaren,
     pregunta_piloto_perdio_titulo_en_ultima_curva_2008,
@@ -885,7 +1041,17 @@ generadores = [
     pregunta_circuito_mas_vueltas_temporada_wrapper,
     pregunta_escuderia_mas_abandonos_temporada_wrapper,
     pregunta_cuantos_pilotos_ganaron_temporada_wrapper,
-    pregunta_piloto_mas_puntos_sin_ganar_temporada_wrapper
+    pregunta_piloto_mas_puntos_sin_ganar_temporada_wrapper,
+
+    # **Preguntas sobre escudería en concreto**
+    pregunta_piloto_mas_victorias_escuderia_wrapper,
+    pregunta_temporada_mas_puntos_escuderia_wrapper,
+    pregunta_poles_totales_escuderia_wrapper,
+    pregunta_circuito_mas_victorias_escuderia_wrapper,
+    pregunta_campeonatos_constructores_escuderia_wrapper
+
+
+
 ]
 
 
