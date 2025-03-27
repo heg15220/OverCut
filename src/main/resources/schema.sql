@@ -2456,7 +2456,7 @@ VALUES
     ('Williams', true, 125);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
-VALUES ('When was the last time Mclaren won the championship to date?',
+VALUES ('Before 2024, when was the last time Mclaren won the championship?',
         'f1-mclarens-india-inline.jpg', 2);
 
 INSERT INTO Answer (name, correct, questionId)
@@ -3976,11 +3976,11 @@ VALUES ('How many points does a driver get for the fastest lap of a race?',
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('1', true, 198);
+    ('1', false, 198);
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('0', false, 198);
+    ('0', true, 198);
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
@@ -4005,11 +4005,11 @@ VALUES
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('5', true, 199);
+    ('5', false, 199);
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
-    ('4', false, 199);
+    ('6', true, 199);
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)

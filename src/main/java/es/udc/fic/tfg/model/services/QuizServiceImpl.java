@@ -63,24 +63,18 @@ public class QuizServiceImpl implements QuizService {
 
 
 
-    private List<Question> getRandomQuestions() {
+    private List<Question> getRandomQuestions(int amount) {
         Iterable<Question> allQuestionsWithAnswers = questionDao.findAll();
-
-        List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(),false)
+        List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(), false)
                 .collect(Collectors.toList());
-        // Crear una copia de la lista para no modificar la lista original
         List<Question> copy = new ArrayList<>(listQuestions);
-
-        // Utilizar SecureRandom para seleccionar índices aleatorios
         SecureRandom rand = new SecureRandom();
         List<Question> randomQuestions = new ArrayList<>();
 
-        // Seleccionar 10 preguntas aleatorias
-        for (int i = 0; i < Math.min(5, copy.size()); i++) {
+        for (int i = 0; i < Math.min(amount, copy.size()); i++) {
             int randomIndex = rand.nextInt(copy.size());
             randomQuestions.add(copy.remove(randomIndex));
         }
-
         return randomQuestions;
     }
 
@@ -173,42 +167,26 @@ public class QuizServiceImpl implements QuizService {
             throw new InstanceNotFoundException("User not found here", userId);
         }
 
-        // 1. Preguntas almacenadas
-        List<Question> storedQuestions = getRandomQuestions();
+        List<Question> storedQuestions = getRandomQuestions(5);
         Set<String> storedNames = storedQuestions.stream()
                 .map(Question::getName)
                 .collect(Collectors.toSet());
 
-        // 2. Generadas por LLM (pasando el idioma)
-        List<QuestionAI> aiQuestions;
+        List<QuestionAI> aiQuestions = questionLLMService.generateQuestionsAI();
+        List<QuestionAI> filteredAI = aiQuestions.stream()
+                .filter(ai -> !storedNames.contains(ai.getQuestion()) && !questionDao.existsByName(ai.getQuestion()))
+                .collect(Collectors.toList());
 
-        List<Question> generatedQuestions;
+        List<Question> generatedQuestions = filteredAI.stream()
+                .map(this::convertAIToQuestionEntity)
+                .collect(Collectors.toList());
 
-        int maxRetries = 5;
-        int attempts = 0;
-        boolean hasDuplicates;
-
-        do {
-            aiQuestions = questionLLMService.generateQuestionsAI();
-            generatedQuestions = aiQuestions.stream()
-                    .map(this::convertAIToQuestionEntity)
-                    .collect(Collectors.toList());
-
-            Set<String> generatedNames = generatedQuestions.stream()
-                    .map(Question::getName)
-                    .collect(Collectors.toSet());
-
-            // Verifica duplicados con las almacenadas
-            hasDuplicates = generatedNames.stream().anyMatch(storedNames::contains);
-            attempts++;
-
-        } while (hasDuplicates && attempts < maxRetries);
-
-        if (hasDuplicates) {
-            throw new RuntimeException("No se pudieron generar preguntas únicas tras varios intentos");
+        int needed = 10 - storedQuestions.size() - generatedQuestions.size();
+        if (needed > 0) {
+            List<Question> extraStored = getRandomQuestions(needed);
+            storedQuestions.addAll(extraStored);
         }
 
-        // 3. Guardar las generadas
         for (Question q : generatedQuestions) {
             questionDao.save(q);
             for (Answer a : q.getAnswers()) {
@@ -216,7 +194,6 @@ public class QuizServiceImpl implements QuizService {
             }
         }
 
-        // 4. Mezclar y seleccionar
         List<Question> all = new ArrayList<>();
         all.addAll(storedQuestions);
         all.addAll(generatedQuestions);
@@ -228,7 +205,6 @@ public class QuizServiceImpl implements QuizService {
         Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
         quizDao.save(quiz);
 
-        // 5. Asociar preguntas al quiz
         all.stream().limit(10).forEach(q -> {
             QuizQuestions qq = new QuizQuestions();
             qq.setQuiz(quiz);
