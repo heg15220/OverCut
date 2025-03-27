@@ -82,7 +82,7 @@ def generar_pregunta_piloto_primera_victoria_reciente():
     year, gp, nombre, apellido = cursor.fetchone()
     correcta = f"{nombre} {apellido}"
     pregunta = f"¿Qué piloto logró su primera victoria en el GP de {gp} en {year}?"
-    contemporaneos = obtener_pilotos_entre_anios(anio - 2, anio + 2, correcta)
+    contemporaneos = obtener_pilotos_entre_anios(year - 2, year + 2, correcta)
     opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
     random.shuffle(opciones)
     return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 2}
@@ -427,6 +427,431 @@ def generar_pregunta_piloto_mas_victorias_en_circuito():
     random.shuffle(opciones)
     return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 3}
 
+# Bloques de funciones implementadas
+
+# **Duelos Legendarios**
+def pregunta_rival_de_senna_en_mclaren():
+    piloto = "Alain Prost"
+    pregunta = "¿Quién fue el gran rival de Ayrton Senna durante su etapa en McLaren?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_piloto_perdio_titulo_en_ultima_curva_2008():
+    cursor.execute("""
+        SELECT d.forename, d.surname
+        FROM driverStandings ds
+        JOIN races ra ON ds.raceId = ra.raceId
+        JOIN drivers d ON ds.driverId = d.driverId
+        WHERE ra.year = 2008 AND ra.round = (
+            SELECT MAX(round) FROM races WHERE year = 2008
+        ) AND ds.position = 2
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto = f"{row[0]} {row[1]}"
+    pregunta = "¿Qué piloto perdió el campeonato del mundo en la última curva del último GP de 2008?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_rival_schumacher_2000():
+    cursor.execute("""
+        SELECT d.forename, d.surname
+        FROM driverStandings ds
+        JOIN races ra ON ds.raceId = ra.raceId
+        JOIN drivers d ON ds.driverId = d.driverId
+        WHERE ra.year = 2000 AND ds.position = 2
+        ORDER BY ra.round DESC
+        LIMIT 1
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto = f"{row[0]} {row[1]}"
+    pregunta = "¿Quién fue el principal rival de Michael Schumacher durante su primer título con Ferrari en 2000?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_ano_choque_hamilton_rosberg_espana():
+    cursor.execute("""
+        SELECT ra.year
+        FROM races ra
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE c.name LIKE '%Barcelona%' OR c.name LIKE '%Catalunya%'
+        ORDER BY ra.year
+    """)
+    years = [row[0] for row in cursor.fetchall()]
+    year = 2016 if 2016 in years else max(years)
+    pregunta = "¿En qué temporada ocurrió el choque entre Hamilton y Rosberg en el GP de España?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(2010, 2021)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_duelo_vettel_canada_2019():
+    cursor.execute("""
+        SELECT d.forename, d.surname
+        FROM races ra
+        JOIN results r ON ra.raceId = r.raceId
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE ra.year = 2019 AND ra.name LIKE '%Canada%' AND r.position = 1
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto = f"{row[0]} {row[1]}"
+    pregunta = "¿Quién ganó el polémico duelo con Sebastian Vettel en Canadá 2019 debido a una penalización?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+# **Temporadas Históricas**
+def pregunta_piloto_campeon_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname
+        FROM driverStandings ds
+        JOIN races ra ON ds.raceId = ra.raceId
+        JOIN drivers d ON ds.driverId = d.driverId
+        WHERE ra.year = %s AND ds.position = 1
+        ORDER BY ra.round DESC
+        LIMIT 1
+    """, (temporada_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    nombre, apellido = row
+    piloto = f"{nombre} {apellido}"
+    pregunta = f"¿Qué piloto ganó el campeonato de pilotos en la temporada {temporada_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_constructor_campeon_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT c.name
+        FROM constructorStandings cs
+        JOIN races ra ON cs.raceId = ra.raceId
+        JOIN constructors c ON cs.constructorId = c.constructorId
+        WHERE ra.year = %s AND cs.position = 1
+        ORDER BY ra.round DESC
+        LIMIT 1
+    """, (temporada_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    constructor = row[0]
+    pregunta = f"¿Qué escudería ganó el campeonato de constructores en la temporada {temporada_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(constructor, constructores_cache)
+    opciones = incorrectas + [constructor]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_gp_mas_abandonos_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT ra.name, COUNT(*) as abandonos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN status s ON r.statusId = s.statusId
+        WHERE ra.year = %s AND (
+            s.status LIKE '%accident%' OR
+            s.status LIKE '%engine%' OR
+            s.status LIKE '%gearbox%' OR
+            s.status LIKE '%suspension%'
+        )
+        GROUP BY r.raceId
+        ORDER BY abandonos DESC
+        LIMIT 1
+    """, (temporada_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    gp = row[0]
+    pregunta = f"¿Cuál fue la carrera con más abandonos en la temporada {temporada_objetivo}?"
+    cursor.execute("SELECT DISTINCT name FROM races WHERE year = %s AND name != %s", (temporada_objetivo, gp))
+    incorrectas = get_respuestas_incorrectas(gp, [r[0] for r in cursor.fetchall()])
+    opciones = incorrectas + [gp]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": gp,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_victorias_campeon_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT d.driverId, d.forename, d.surname
+        FROM driverStandings ds
+        JOIN races ra ON ds.raceId = ra.raceId
+        JOIN drivers d ON ds.driverId = d.driverId
+        WHERE ra.year = %s AND ds.position = 1
+        ORDER BY ra.round DESC
+        LIMIT 1
+    """, (temporada_objetivo,))
+    piloto = cursor.fetchone()
+    if not piloto:
+        return None
+    driver_id, nombre, apellido = piloto
+    cursor.execute("""
+        SELECT COUNT(*) FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE ra.year = %s AND r.driverId = %s AND r.position = 1
+    """, (temporada_objetivo, driver_id))
+    victorias = cursor.fetchone()[0]
+    piloto_nombre = f"{nombre} {apellido}"
+    pregunta = f"¿Cuántas victorias logró {piloto_nombre} durante la temporada {temporada_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(victorias), [str(i) for i in range(0, 15)])
+    opciones.append(str(victorias))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(victorias),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_ultimo_gp_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT c.name
+        FROM races ra
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE ra.year = %s
+        ORDER BY ra.round DESC
+        LIMIT 1
+    """, (temporada_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    pregunta = f"¿En qué circuito se disputó la última carrera de la temporada {temporada_objetivo}?"
+    cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,))
+    incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.fetchall()])
+    opciones = incorrectas + [circuito]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_piloto_mas_poles_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname, COUNT(*) as poles
+        FROM qualifying q
+        JOIN races ra ON q.raceId = ra.raceId
+        JOIN drivers d ON q.driverId = d.driverId
+        WHERE q.position = 1 AND ra.year = %s
+        GROUP BY q.driverId
+        ORDER BY poles DESC
+        LIMIT 1
+    """, (temporada_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    nombre, apellido, _ = row
+    piloto = f"{nombre} {apellido}"
+    pregunta = f"¿Qué piloto consiguió más pole positions en la temporada {temporada_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_circuito_mas_vueltas_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT c.name, SUM(r.laps) as total_vueltas
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE ra.year = %s
+        GROUP BY ra.circuitId
+        ORDER BY total_vueltas DESC
+        LIMIT 1
+    """, (temporada_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    pregunta = f"¿Qué circuito tuvo el mayor número de vueltas disputadas durante la temporada {temporada_objetivo}?"
+    cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,))
+    incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.fetchall()])
+    opciones = incorrectas + [circuito]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_escuderia_mas_abandonos_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT cs.name, COUNT(*) as abandonos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN status s ON r.statusId = s.statusId
+        JOIN constructors cs ON r.constructorId = cs.constructorId
+        WHERE ra.year = %s AND (
+            s.status LIKE '%accident%' OR
+            s.status LIKE '%engine%' OR
+            s.status LIKE '%gearbox%' OR
+            s.status LIKE '%electrical%'
+        )
+        GROUP BY cs.constructorId
+        ORDER BY abandonos DESC
+        LIMIT 1
+    """, (temporada_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    constructor = row[0]
+    pregunta = f"¿Qué escudería tuvo más abandonos en la temporada {temporada_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(constructor, constructores_cache)
+    opciones = incorrectas + [constructor]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_cuantos_pilotos_ganaron_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT COUNT(DISTINCT r.driverId)
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE ra.year = %s AND r.position = 1
+    """, (temporada_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    total = row[0]
+    pregunta = f"¿Cuántos pilotos distintos ganaron al menos una carrera durante la temporada {temporada_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 15)])
+    opciones.append(str(total))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_piloto_mas_puntos_sin_ganar_temporada(temporada_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname, SUM(r.points) as puntos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE ra.year = %s AND r.driverId NOT IN (
+            SELECT driverId
+            FROM results r2
+            JOIN races ra2 ON r2.raceId = ra2.raceId
+            WHERE ra2.year = %s AND r2.position = 1
+        )
+        GROUP BY r.driverId
+        ORDER BY puntos DESC
+        LIMIT 1
+    """, (temporada_objetivo, temporada_objetivo))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    nombre, apellido, _ = row
+    piloto = f"{nombre} {apellido}"
+    pregunta = f"¿Qué piloto sumó más puntos sin ganar ninguna carrera en la temporada {temporada_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+temporada = random.randint(1950, 2023)
+# Wrappers para las preguntas de Temporadas Históricas
+def pregunta_piloto_campeon_temporada_wrapper():
+    return pregunta_piloto_campeon_temporada(temporada)
+
+def pregunta_constructor_campeon_temporada_wrapper():
+    return pregunta_constructor_campeon_temporada(temporada)
+
+def pregunta_gp_mas_abandonos_temporada_wrapper():
+    return pregunta_gp_mas_abandonos_temporada(temporada)
+
+def pregunta_victorias_campeon_temporada_wrapper():
+    return pregunta_victorias_campeon_temporada(temporada)
+
+def pregunta_ultimo_gp_temporada_wrapper():
+    return pregunta_ultimo_gp_temporada(temporada)
+
+def pregunta_piloto_mas_poles_temporada_wrapper():
+    return pregunta_piloto_mas_poles_temporada(temporada)
+
+def pregunta_circuito_mas_vueltas_temporada_wrapper():
+    return pregunta_circuito_mas_vueltas_temporada(temporada)
+
+def pregunta_escuderia_mas_abandonos_temporada_wrapper():
+    return pregunta_escuderia_mas_abandonos_temporada(temporada)
+
+def pregunta_cuantos_pilotos_ganaron_temporada_wrapper():
+    return pregunta_cuantos_pilotos_ganaron_temporada(temporada)
+
+def pregunta_piloto_mas_puntos_sin_ganar_temporada_wrapper():
+    return pregunta_piloto_mas_puntos_sin_ganar_temporada(temporada)
+
 
 generadores = [
     generar_pregunta_piloto_primera_victoria_reciente,
@@ -442,17 +867,40 @@ generadores = [
     generar_pregunta_constructor_mas_victorias_en_pais,
     generar_pregunta_circuito_mas_carreras,
     generar_pregunta_campeon_pilotos,
-    generar_pregunta_campeon_constructores
+    generar_pregunta_campeon_constructores,
+    # **Duelos Legendarios**
+    pregunta_rival_de_senna_en_mclaren,
+    pregunta_piloto_perdio_titulo_en_ultima_curva_2008,
+    pregunta_rival_schumacher_2000,
+    pregunta_ano_choque_hamilton_rosberg_espana,
+    pregunta_duelo_vettel_canada_2019,
+
+    # Temporadas Históricas (Wrappers)
+    pregunta_piloto_campeon_temporada_wrapper,
+    pregunta_constructor_campeon_temporada_wrapper,
+    pregunta_gp_mas_abandonos_temporada_wrapper,
+    pregunta_victorias_campeon_temporada_wrapper,
+    pregunta_ultimo_gp_temporada_wrapper,
+    pregunta_piloto_mas_poles_temporada_wrapper,
+    pregunta_circuito_mas_vueltas_temporada_wrapper,
+    pregunta_escuderia_mas_abandonos_temporada_wrapper,
+    pregunta_cuantos_pilotos_ganaron_temporada_wrapper,
+    pregunta_piloto_mas_puntos_sin_ganar_temporada_wrapper
 ]
 
 
 NUM_PREGUNTAS = 5
-while len(preguntas) < NUM_PREGUNTAS:
+intentos_totales = 0
+while len(preguntas) < NUM_PREGUNTAS and intentos_totales < 50:
+    intentos_totales += 1
     generador = random.choice(generadores)
     try:
-        preguntas.append(generador())
-    except Exception:
+        resultado = generador()
+        if resultado is not None:  # Añade esta validación
+            preguntas.append(resultado)
+    except Exception as e:
         continue
+
 
 conn.close()
 print(json.dumps(preguntas, ensure_ascii=False))
