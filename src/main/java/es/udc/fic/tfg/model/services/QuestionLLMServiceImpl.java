@@ -13,18 +13,13 @@ import java.util.*;
 @Service
 public class QuestionLLMServiceImpl implements QuestionLLMService {
 
-    @Override
-    public List<QuestionAI> generateQuestionsAI() {
-        return generateQuestionsAI("es"); // por defecto español
-    }
 
     @Override
-    public List<QuestionAI> generateQuestionsAI(String language) {
+    public List<QuestionAI> generateQuestionsAI() {
         List<QuestionAI> questions = new ArrayList<>();
 
         try {
             ProcessBuilder pb = new ProcessBuilder("python", "src/main/resources/scripts/generate_questions.py");
-            pb.environment().put("LANG", language); // Soporte multilingüe
 
             pb.redirectErrorStream(true);
             Process process = pb.start();

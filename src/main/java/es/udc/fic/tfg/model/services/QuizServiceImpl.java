@@ -76,7 +76,7 @@ public class QuizServiceImpl implements QuizService {
         List<Question> randomQuestions = new ArrayList<>();
 
         // Seleccionar 10 preguntas aleatorias
-        for (int i = 0; i < Math.min(10, copy.size()); i++) {
+        for (int i = 0; i < Math.min(5, copy.size()); i++) {
             int randomIndex = rand.nextInt(copy.size());
             randomQuestions.add(copy.remove(randomIndex));
         }
@@ -167,7 +167,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz createQuiz(Long userId, String language) throws InstanceNotFoundException {
+    public Quiz createQuiz(Long userId) throws InstanceNotFoundException {
         Optional<User> userOptional = userDao.findById(userId);
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
@@ -175,16 +175,40 @@ public class QuizServiceImpl implements QuizService {
 
         // 1. Preguntas almacenadas
         List<Question> storedQuestions = getRandomQuestions();
+        Set<String> storedNames = storedQuestions.stream()
+                .map(Question::getName)
+                .collect(Collectors.toSet());
 
         // 2. Generadas por LLM (pasando el idioma)
-        List<QuestionAI> aiQuestions = questionLLMService.generateQuestionsAI(language);
+        List<QuestionAI> aiQuestions;
 
-        // 3. Convertir AI → Entity
-        List<Question> generatedQuestions = aiQuestions.stream()
-                .map(this::convertAIToQuestionEntity)
-                .collect(Collectors.toList());
+        List<Question> generatedQuestions;
 
-        // 4. Guardar en BBDD sí o sí (para evitar errores de persistencia)
+        int maxRetries = 5;
+        int attempts = 0;
+        boolean hasDuplicates;
+
+        do {
+            aiQuestions = questionLLMService.generateQuestionsAI();
+            generatedQuestions = aiQuestions.stream()
+                    .map(this::convertAIToQuestionEntity)
+                    .collect(Collectors.toList());
+
+            Set<String> generatedNames = generatedQuestions.stream()
+                    .map(Question::getName)
+                    .collect(Collectors.toSet());
+
+            // Verifica duplicados con las almacenadas
+            hasDuplicates = generatedNames.stream().anyMatch(storedNames::contains);
+            attempts++;
+
+        } while (hasDuplicates && attempts < maxRetries);
+
+        if (hasDuplicates) {
+            throw new RuntimeException("No se pudieron generar preguntas únicas tras varios intentos");
+        }
+
+        // 3. Guardar las generadas
         for (Question q : generatedQuestions) {
             questionDao.save(q);
             for (Answer a : q.getAnswers()) {
@@ -192,7 +216,7 @@ public class QuizServiceImpl implements QuizService {
             }
         }
 
-        // 5. Mezclar ambas listas
+        // 4. Mezclar y seleccionar
         List<Question> all = new ArrayList<>();
         all.addAll(storedQuestions);
         all.addAll(generatedQuestions);
@@ -204,7 +228,7 @@ public class QuizServiceImpl implements QuizService {
         Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
         quizDao.save(quiz);
 
-        // 6. Asociar preguntas al quiz
+        // 5. Asociar preguntas al quiz
         all.stream().limit(10).forEach(q -> {
             QuizQuestions qq = new QuizQuestions();
             qq.setQuiz(quiz);

@@ -3,16 +3,15 @@ import {
     appFetch,
 } from "./appFetch";
 
-export const createQuiz = ({userId, language}, onSuccess, onErrors) => {
-    const query = language ? `?lang=${language}` : "";
+// Crear un nuevo cuestionario
+export const createQuiz = (userId, onSuccess, onErrors) => {
     appFetch(
-        `/quiz/create${query}`,
-        fetchConfig("POST", userId),
+        "/quiz/create",
+        fetchConfig("POST",  userId ),
         onSuccess,
         onErrors
     );
 };
-
 
 // Seleccionar una respuesta para una pregunta específica en un cuestionario
 export const chooseAnswer = (quizId, answerParams, onSuccess, onErrors) => {

@@ -10,15 +10,12 @@ const Quiz = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector(UserSelector.getUser);
-    const language = navigator.language.startsWith("es") ? "es" : "en";
 
     useEffect(() => {
         if (user.id) {
-            dispatch(actions.createQuiz({userId: user.id, language}, (quiz) =>
-                navigate(`/quiz/quiz-list/${quiz}`), () => {}));
+            dispatch(actions.createQuiz(user.id, (quiz) =>  navigate(`/quiz/quiz-list/${quiz}`), () => {}));
         }
     }, [dispatch, user]);
 };
-
 
 export default Quiz;
