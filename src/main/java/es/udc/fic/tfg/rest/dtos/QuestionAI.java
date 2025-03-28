@@ -8,6 +8,7 @@ public class QuestionAI {
     private List<String> answers;
     private String correctAnswer;
     private int knowledgeLevel; // <-- AÑADIR ESTE CAMPO
+    private String category;
 
     public QuestionAI() {}
 
@@ -16,6 +17,14 @@ public class QuestionAI {
         this.answers = answers;
         this.correctAnswer = correctAnswer;
         this.knowledgeLevel = knowledgeLevel;
+    }
+
+    public QuestionAI(String question, List<String> answers, String correctAnswer, int knowledgeLevel, String category) {
+        this.question = question;
+        this.answers = answers;
+        this.correctAnswer = correctAnswer;
+        this.knowledgeLevel = knowledgeLevel;
+        this.category = category;
     }
 
     public String getQuestion() { return question; }
@@ -29,4 +38,12 @@ public class QuestionAI {
 
     public int getKnowledgeLevel() { return knowledgeLevel; }
     public void setKnowledgeLevel(int knowledgeLevel) { this.knowledgeLevel = knowledgeLevel; }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 }

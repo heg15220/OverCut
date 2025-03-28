@@ -46,6 +46,49 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
         return questions;
     }
+    @Override
+    public List<QuestionAI> generateRegulationQuestions(String category, Integer level) {
+        List<QuestionAI> questions = new ArrayList<>();
+        try {
+            List<String> command = new ArrayList<>();
+            command.add("python");
+            command.add("src/main/resources/scripts/regulation_questions.py");
+
+            // Añadir argumentos si están presentes
+            if (category != null && !category.isEmpty()) {
+                command.add("--category=" + category);
+            }
+            if (level != null) {
+                command.add("--level=" + level);
+            }
+
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder jsonOutput = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonOutput.append(line);
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                ObjectMapper mapper = new ObjectMapper();
+                QuestionAI[] preguntas = mapper.readValue(jsonOutput.toString(), QuestionAI[].class);
+                questions = Arrays.asList(preguntas);
+            } else {
+                throw new RuntimeException("Error ejecutando el script: código " + exitCode);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return questions;
+    }
+
 
     @Override
     public String validateQuestion(String question, List<String> answers) {
