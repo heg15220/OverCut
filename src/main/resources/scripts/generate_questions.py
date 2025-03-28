@@ -29,6 +29,7 @@ def get_respuestas_incorrectas(correcta, pool, n=3):
     opciones = [x for x in pool if x != correcta]
     return random.sample(opciones, n)
 
+#Estadísticas genéricas parte 1
 def obtener_pilotos_entre_anios(anio_inicio, anio_fin, excluido=None):
     query = """
         SELECT DISTINCT CONCAT(d.forename, ' ', d.surname)
@@ -984,6 +985,61 @@ def pregunta_campeonatos_constructores_escuderia(escuderia_objetivo):
             "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
         }
 
+def pregunta_piloto_mas_abandonos_escuderia(escuderia_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname, COUNT(*) as abandonos
+        FROM results r
+        JOIN drivers d ON r.driverId = d.driverId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        JOIN status s ON r.statusId = s.statusId
+        WHERE c.name = %s AND (
+            s.status LIKE '%accident%' OR
+            s.status LIKE '%engine%' OR
+            s.status LIKE '%gearbox%' OR
+            s.status LIKE '%electrical%'
+        )
+        GROUP BY d.driverId
+        ORDER BY abandonos DESC
+        LIMIT 1
+    """, (escuderia_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto = f"{row[0]} {row[1]}"
+    pregunta = f"¿Qué piloto abandonó más veces con la escudería {escuderia_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_peor_temporada_puntos_escuderia(escuderia_objetivo):
+    cursor.execute("""
+        SELECT ra.year, SUM(r.points) as total_puntos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        WHERE c.name = %s
+        GROUP BY ra.year
+        ORDER BY total_puntos ASC
+        LIMIT 1
+    """, (escuderia_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿Cuál fue la peor temporada en puntos para la escudería {escuderia_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {"question": pregunta, "options": opciones, "answer": str(year)}
+
+
+
 def obtener_escuderia_aleatoria():
     cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
     escuderia = cursor.fetchone()
@@ -1007,8 +1063,1438 @@ def pregunta_circuito_mas_victorias_escuderia_wrapper():
 def pregunta_campeonatos_constructores_escuderia_wrapper():
     return pregunta_campeonatos_constructores_escuderia(escuderia) if escuderia else None
 
+def pregunta_piloto_mas_abandonos_escuderia_wrapped():
+    return pregunta_piloto_mas_abandonos_escuderia(escuderia) if escuderia else None
+
+def pregunta_peor_temporada_puntos_escuderia_wrapped():
+    return pregunta_peor_temporada_puntos_escuderia(escuderia) if escuderia else None
+
+
+def obtener_circuito_aleatorio():
+    cursor.execute("""
+        SELECT name
+        FROM circuits
+        ORDER BY RAND()
+        LIMIT 1
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    return circuito
+
+pista = obtener_circuito_aleatorio()
+
+
+
+# Preguntas sobre un circuito
+def pregunta_constructor_mas_abandonos_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT cs.name, COUNT(*) as abandonos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN constructors cs ON r.constructorId = cs.constructorId
+        JOIN status s ON r.statusId = s.statusId
+        WHERE c.name = %s
+        AND (
+            s.status LIKE '%accident%' OR
+            s.status LIKE '%engine%' OR
+            s.status LIKE '%gearbox%' OR
+            s.status LIKE '%electrical%'
+        )
+        GROUP BY r.constructorId
+        ORDER BY abandonos DESC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    constructor = row[0]
+    pregunta = f"¿Qué escudería tuvo más abandonos en el circuito de {circuito_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(constructor, constructores_cache)
+    opciones = incorrectas + [constructor]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_piloto_mas_poles_sin_ganar_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname, COUNT(*) as poles
+        FROM qualifying q
+        JOIN races ra ON q.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN drivers d ON q.driverId = d.driverId
+        WHERE q.position = 1 AND c.name = %s
+        AND q.driverId NOT IN (
+            SELECT r.driverId
+            FROM results r
+            JOIN races ra2 ON r.raceId = ra2.raceId
+            JOIN circuits c2 ON ra2.circuitId = c2.circuitId
+            WHERE r.position = 1 AND c2.name = %s
+        )
+        GROUP BY q.driverId
+        ORDER BY poles DESC
+        LIMIT 1
+    """, (circuito_objetivo, circuito_objetivo))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    nombre, apellido, _ = row
+    piloto = f"{nombre} {apellido}"
+    pregunta = f"¿Qué piloto logró más poles sin ganar nunca en el circuito de {circuito_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_anio_mas_cambios_lider(circuito_objetivo):
+    cursor.execute("""
+        SELECT ra.year, COUNT(DISTINCT l.driverId) as cambios
+        FROM lapTimes l
+        JOIN races ra ON l.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE l.position = 1 AND c.name = %s
+        GROUP BY ra.year
+        ORDER BY cambios DESC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿En qué año hubo más cambios de líder en el circuito de {circuito_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_anio_mas_abandonos_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT ra.year, COUNT(*) as abandonos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN status s ON r.statusId = s.statusId
+        WHERE c.name = %s AND (
+            s.status LIKE '%accident%' OR
+            s.status LIKE '%engine%' OR
+            s.status LIKE '%gearbox%' OR
+            s.status LIKE '%suspension%' OR
+            s.status LIKE '%electrical%'
+        )
+        GROUP BY ra.year
+        ORDER BY abandonos DESC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿Qué año tuvo más abandonos en el circuito de {circuito_objetivo}, indicando una carrera especialmente caótica?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_piloto_pole_y_vuelta_rapida_misma_edicion(circuito_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname
+        FROM qualifying q
+        JOIN lapTimes l ON q.raceId = l.raceId AND q.driverId = l.driverId
+        JOIN races ra ON q.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN drivers d ON q.driverId = d.driverId
+        WHERE q.position = 1 AND l.rank = 1 AND c.name = %s
+        GROUP BY q.driverId
+        ORDER BY COUNT(*) DESC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    nombre, apellido = row
+    piloto = f"{nombre} {apellido}"
+    pregunta = f"¿Qué piloto logró la pole y la vuelta rápida en una misma edición en el circuito de {circuito_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_constructor_mas_abandonos_circuito_wrapped():
+    return pregunta_constructor_mas_abandonos_circuito(pista) if pista else None
+
+
+def pregunta_piloto_mas_poles_sin_ganar_circuito_wrapped():
+    return pregunta_piloto_mas_poles_sin_ganar_circuito(pista) if pista else None
+
+def pregunta_anio_mas_cambios_lider_wrapped():
+    return pregunta_anio_mas_cambios_lider(pista) if pista else None
+
+
+def pregunta_anio_mas_abandonos_circuito_wrapped():
+    return pregunta_anio_mas_abandonos_circuito(pista) if pista else None
+
+
+def pregunta_piloto_pole_y_vuelta_rapida_misma_edicion_wrapped():
+    return pregunta_piloto_pole_y_vuelta_rapida_misma_edicion(pista) if pista else None
+
+
+def pregunta_anio_velocidad_promedio_mas_alta(circuito_objetivo):
+    cursor.execute("""
+        SELECT ra.year, AVG(r.milliseconds / r.laps) as avg_lap_time
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE c.name = %s AND r.laps > 0 AND r.milliseconds IS NOT NULL
+        GROUP BY ra.year
+        ORDER BY avg_lap_time ASC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿En qué año se alcanzó la mayor velocidad promedio en el circuito de {circuito_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_pais_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT country FROM circuits WHERE name = %s
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    pais = row[0]
+    pregunta = f"¿En qué país se encuentra el circuito de {circuito_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(pais, paises_cache)
+    opciones = incorrectas + [pais]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": pais,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_anio_cancelado_del_calendario(circuito_objetivo):
+    cursor.execute("""
+        SELECT ra.year
+        FROM races ra
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE c.name = %s
+        GROUP BY ra.year
+        ORDER BY ra.year
+    """, (circuito_objetivo,))
+    years = [r[0] for r in cursor.fetchall()]
+    if not years:
+        return None
+    gaps = []
+    for i in range(1, len(years)):
+        if years[i] != years[i-1] + 1:
+            gaps.append(years[i-1] + 1)
+    if not gaps:
+        return None
+    cancelado = gaps[0]
+    pregunta = f"¿En qué año no se celebró el Gran Premio en {circuito_objetivo} aunque formaba parte del calendario en años cercanos?"
+    opciones = get_respuestas_incorrectas(str(cancelado), [str(y) for y in range(1950, 2024)])
+    opciones.append(str(cancelado))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(cancelado),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_piloto_fue_campeon_en_ese_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname, COUNT(*) as veces
+        FROM driverStandings ds
+        JOIN races ra ON ds.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN drivers d ON ds.driverId = d.driverId
+        WHERE ds.position = 1 AND c.name = %s
+        GROUP BY ds.driverId
+        ORDER BY veces DESC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    nombre, apellido, _ = row
+    piloto = f"{nombre} {apellido}"
+    pregunta = f"¿Qué piloto se proclamó campeón del mundo en el circuito de {circuito_objetivo} más de una vez?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_gp_con_mas_campeones_en_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT ra.year, COUNT(DISTINCT d.driverId) as campeones
+        FROM races ra
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN results r ON ra.raceId = r.raceId
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE c.name = %s AND d.driverId IN (
+            SELECT driverId FROM driverStandings WHERE position = 1
+        )
+        GROUP BY ra.year
+        ORDER BY campeones DESC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿En qué edición del GP de {circuito_objetivo} compitieron más campeones del mundo al mismo tiempo?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_anio_velocidad_promedio_mas_alta_wrapped():
+    return pregunta_anio_velocidad_promedio_mas_alta(pista) if pista else None
+
+
+def pregunta_pais_circuito_wrapped():
+    return pregunta_pais_circuito(pista) if pista else None
+
+def pregunta_anio_cancelado_del_calendario_wrapped():
+    return pregunta_anio_cancelado_del_calendario(pista) if pista else None
+
+
+def pregunta_piloto_fue_campeon_en_ese_circuito_wrapped():
+    return pregunta_piloto_fue_campeon_en_ese_circuito(pista) if pista else None
+
+
+def pregunta_gp_con_mas_campeones_en_circuito_wrapped():
+    return pregunta_gp_con_mas_campeones_en_circuito(pista) if pista else None
+
+def pregunta_piloto_mas_victorias_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname, COUNT(*) as victorias
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE c.name = %s AND r.position = 1
+        GROUP BY r.driverId
+        ORDER BY victorias DESC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto = f"{row[0]} {row[1]}"
+    pregunta = f"¿Qué piloto ha ganado más veces en el circuito de {circuito_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_constructor_mas_poles_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT cs.name, COUNT(*) as poles
+        FROM qualifying q
+        JOIN races ra ON q.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN constructors cs ON q.constructorId = cs.constructorId
+        WHERE c.name = %s AND q.position = 1
+        GROUP BY q.constructorId
+        ORDER BY poles DESC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    constructor = row[0]
+    pregunta = f"¿Qué constructor logró más poles en el circuito de {circuito_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(constructor, constructores_cache)
+    opciones = incorrectas + [constructor]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_ano_mas_abandonos_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT ra.year, COUNT(*) as abandonos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN status s ON r.statusId = s.statusId
+        WHERE c.name = %s AND (
+            s.status LIKE '%accident%' OR
+            s.status LIKE '%engine%' OR
+            s.status LIKE '%gearbox%' OR
+            s.status LIKE '%electrical%'
+        )
+        GROUP BY ra.year
+        ORDER BY abandonos DESC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿En qué año hubo más abandonos en el circuito de {circuito_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_numero_gp_en_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT COUNT(*) as cantidad
+        FROM races ra
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE c.name = %s
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    cantidad = row[0]
+    pregunta = f"¿Cuántas veces se celebró un Gran Premio en el circuito de {circuito_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(cantidad), [str(i) for i in range(0, 100)])
+    opciones.append(str(cantidad))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(cantidad),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_anio_vuelta_rapida_circuito(circuito_objetivo):
+    cursor.execute("""
+        SELECT ra.year, MIN(lapTime) as vuelta_rapida
+        FROM lapTimes l
+        JOIN races ra ON l.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE c.name = %s
+        GROUP BY ra.year
+        ORDER BY vuelta_rapida ASC
+        LIMIT 1
+    """, (circuito_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿En qué año se logró la vuelta rápida más rápida en el circuito de {circuito_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_piloto_mas_victorias_circuito_wrapped():
+    return pregunta_piloto_mas_victorias_circuito(pista) if pista else None
+
+
+def pregunta_constructor_mas_poles_circuito_wrapped():
+    return pregunta_constructor_mas_poles_circuito(pista) if pista else None
+
+def pregunta_ano_mas_abandonos_circuito_wrapped():
+    return pregunta_ano_mas_abandonos_circuito(pista) if pista else None
+
+
+def pregunta_numero_gp_en_circuito_wrapped():
+    return pregunta_numero_gp_en_circuito(pista) if pista else None
+
+
+def pregunta_anio_vuelta_rapida_circuito_wrapped():
+    return pregunta_anio_vuelta_rapida_circuito(pista) if pista else None
+
+
+# Preguntas sobre PILOTO en concreto
+
+def pregunta_circuito_mas_abandonos_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT c.name, COUNT(*) as abandonos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN status s ON r.statusId = s.statusId
+        WHERE r.driverId = %s AND (
+            s.status LIKE '%accident%' OR
+            s.status LIKE '%engine%' OR
+            s.status LIKE '%gearbox%' OR
+            s.status LIKE '%electrical%'
+        )
+        GROUP BY c.name
+        ORDER BY abandonos DESC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    pregunta = f"¿En qué circuito abandonó más veces el piloto {piloto_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,)) or []])
+    opciones = incorrectas + [circuito]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_puntos_consecutivos_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT COUNT(*) as rachas
+        FROM (
+            SELECT ra.year, COUNT(*) as carreras
+            FROM results r
+            JOIN races ra ON r.raceId = ra.raceId
+            WHERE r.driverId = %s AND r.points > 0
+            GROUP BY ra.year, ra.round
+            HAVING carreras >= 5
+        ) as rachas
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    rachas = row[0]
+    pregunta = f"¿Cuántas veces logró puntos consecutivos en al menos 5 carreras el piloto {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(rachas), [str(i) for i in range(0, 10)])
+    opciones.append(str(rachas))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(rachas),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_promedio_posicion_clasificacion(piloto_objetivo):
+    cursor.execute("""
+        SELECT AVG(q.position) as promedio
+        FROM qualifying q
+        JOIN races ra ON q.raceId = ra.raceId
+        WHERE q.driverId = %s
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    promedio = row[0]
+    pregunta = f"¿Cuál fue el promedio de posición de clasificación de {piloto_objetivo} en toda su carrera?"
+    opciones = get_respuestas_incorrectas(str(promedio), [str(i) for i in range(1, 11)])
+    opciones.append(str(promedio))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(promedio),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_temporada_mas_paradas_boxes(piloto_objetivo):
+    cursor.execute("""
+        SELECT ra.year, COUNT(*) as paradas
+        FROM pitStops p
+        JOIN races ra ON p.raceId = ra.raceId
+        WHERE p.driverId = %s
+        GROUP BY ra.year
+        ORDER BY paradas DESC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿En qué temporada {piloto_objetivo} tuvo más paradas en boxes?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_porcentaje_carreras_finalizadas(piloto_objetivo):
+    cursor.execute("""
+        SELECT
+            (COUNT(*) FILTER (WHERE r.position != 0) * 100.0 / COUNT(*)) as porcentaje
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE r.driverId = %s
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    porcentaje = row[0]
+    pregunta = f"¿Cuál fue el porcentaje de carreras finalizadas por {piloto_objetivo} respecto a las disputadas?"
+    opciones = get_respuestas_incorrectas(str(porcentaje), [str(i) for i in range(0, 101)])
+    opciones.append(str(porcentaje))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(porcentaje),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_circuito_no_victoria_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT c.name
+        FROM circuits c
+        WHERE c.name NOT IN (
+            SELECT ra.name
+            FROM results r
+            JOIN races ra ON r.raceId = ra.raceId
+            WHERE r.driverId = %s AND r.position = 1
+        )
+        ORDER BY RAND()
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    pregunta = f"¿En qué circuito {piloto_objetivo} no ha logrado nunca una victoria?"
+    incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,)) or []])
+    opciones = incorrectas + [circuito]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_pilotos_distintos_compitio(piloto_objetivo):
+    cursor.execute("""
+        SELECT COUNT(DISTINCT r.driverId)
+        FROM results r
+        WHERE r.driverId = %s
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    total = row[0]
+    pregunta = f"¿Con cuántos pilotos distintos ha competido {piloto_objetivo} en su historia?"
+    opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 100)])
+    opciones.append(str(total))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_racha_sin_ganar(piloto_objetivo):
+    cursor.execute("""
+        SELECT ra.year, COUNT(*) as victorias
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE r.driverId = %s AND r.position = 1
+        GROUP BY ra.year
+        ORDER BY ra.year
+    """, (piloto_objetivo,))
+    rows = cursor.fetchall()
+    if not rows:
+        return None
+    racha = max_racha = 0
+    for _, victorias in rows:
+        if victorias == 0:
+            racha += 1
+            max_racha = max(max_racha, racha)
+        else:
+            racha = 0
+    pregunta = f"¿Cuál fue la racha más larga de temporadas sin ganar {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(max_racha), [str(i) for i in range(0, 20)])
+    opciones.append(str(max_racha))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(max_racha),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_peor_posicion_clasificacion_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT MIN(q.position)
+        FROM qualifying q
+        JOIN results r ON q.raceId = r.raceId AND q.driverId = r.driverId
+        WHERE q.driverId = %s AND r.points > 0
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    posicion = row[0]
+    pregunta = f"¿Cuál fue la peor posición de clasificación desde la que logró puntuar {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(posicion), [str(i) for i in range(1, 25)])
+    opciones.append(str(posicion))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(posicion),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_remontadas_puesto_15_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT COUNT(*) as remontadas
+        FROM results r
+        WHERE r.driverId = %s AND r.positionOrder <= 3 AND r.position >= 15
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    remontadas = row[0]
+    pregunta = f"¿Cuántas veces remontó del puesto 15 o peor al podio {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(remontadas), [str(i) for i in range(0, 20)])
+    opciones.append(str(remontadas))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(remontadas),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_carreras_lideradas_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT COUNT(DISTINCT r.raceId)
+        FROM results r
+        JOIN lapTimes l ON r.raceId = l.raceId AND r.driverId = l.driverId
+        WHERE r.driverId = %s AND l.position = 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    lideradas = row[0]
+    pregunta = f"¿En cuántas carreras lideró al menos una vuelta {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(lideradas), [str(i) for i in range(0, 20)])
+    opciones.append(str(lideradas))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(lideradas),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_supero_mas_clasificacion(piloto_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname, COUNT(*) as veces
+        FROM qualifying q
+        JOIN drivers d ON q.driverId = d.driverId
+        JOIN results r ON q.raceId = r.raceId AND q.driverId = r.driverId
+        WHERE r.driverId != %s AND q.position < r.position
+        GROUP BY q.driverId
+        ORDER BY veces DESC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto = f"{row[0]} {row[1]}"
+    pregunta = f"¿A qué piloto superó más veces en clasificación directa {piloto_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_mejor_vuelta_rapida(piloto_objetivo):
+    cursor.execute("""
+        SELECT MIN(lapTime) as mejor_vuelta
+        FROM lapTimes l
+        JOIN results r ON l.raceId = r.raceId
+        WHERE r.driverId = %s
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    mejor_vuelta = row[0]
+    pregunta = f"¿Cuál fue su mejor vuelta rápida (tiempo) en toda su carrera {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(mejor_vuelta), [str(i) for i in range(100, 200)])
+    opciones.append(str(mejor_vuelta))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(mejor_vuelta),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_piloto_anio_mas_puntos(piloto_objetivo):
+    cursor.execute("""
+        SELECT ra.year, SUM(r.points) as total_puntos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE r.driverId = %s
+        GROUP BY ra.year
+        ORDER BY total_puntos DESC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿En qué año logró más puntos {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_escuderias_distintas_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT COUNT(DISTINCT r.constructorId)
+        FROM results r
+        WHERE r.driverId = %s
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    total = row[0]
+    pregunta = f"¿Con cuántas escuderías distintas ha competido {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 20)])
+    opciones.append(str(total))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_gp_mas_participaciones_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT c.name, COUNT(*) as participaciones
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE r.driverId = %s
+        GROUP BY c.name
+        ORDER BY participaciones DESC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    pregunta = f"¿En qué Gran Premio participó más veces {piloto_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,)) or []])
+    opciones = incorrectas + [circuito]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_abandonos_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT COUNT(*) as abandonos
+        FROM results r
+        JOIN status s ON r.statusId = s.statusId
+        WHERE r.driverId = %s AND (
+            s.status LIKE '%accident%' OR
+            s.status LIKE '%engine%' OR
+            s.status LIKE '%gearbox%' OR
+            s.status LIKE '%electrical%'
+        )
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    abandonos = row[0]
+    pregunta = f"¿Cuántas veces abandonó {piloto_objetivo} en su carrera?"
+    opciones = get_respuestas_incorrectas(str(abandonos), [str(i) for i in range(0, 100)])
+    opciones.append(str(abandonos))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(abandonos),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_ultimo_gp_victoria_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT c.name
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE r.driverId = %s AND r.position = 1
+        ORDER BY ra.year DESC, ra.round DESC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    pregunta = f"¿En qué circuito logró su última victoria {piloto_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,)) or []])
+    opciones = incorrectas + [circuito]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_companero_podio_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT d.forename, d.surname
+        FROM results r
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE r.constructorId = (
+            SELECT constructorId FROM results WHERE driverId = %s LIMIT 1
+        ) AND r.driverId != %s AND r.position <= 3
+        GROUP BY r.driverId
+        ORDER BY COUNT(*) DESC
+        LIMIT 1
+    """, (piloto_objetivo, piloto_objetivo))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    compañero = f"{row[0]} {row[1]}"
+    pregunta = f"¿Qué compañero de equipo compartió más podios con {piloto_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(compañero, pilotos_cache)
+    opciones = incorrectas + [compañero]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": compañero,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_ano_debut_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT MIN(ra.year)
+        FROM races ra
+        JOIN results r ON ra.raceId = r.raceId
+        WHERE r.driverId = %s
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    debut = row[0]
+    pregunta = f"¿En qué año debutó {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(debut), [str(y) for y in range(1950, 2024)])
+    opciones.append(str(debut))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(debut),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_primera_victoria_escuderia_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT c.name
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        WHERE r.driverId = %s AND r.position = 1
+        ORDER BY ra.year ASC, ra.round ASC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    escuderia = row[0]
+    pregunta = f"¿Con qué escudería logró su primera victoria {piloto_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(escuderia, constructores_cache)
+    opciones = incorrectas + [escuderia]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": escuderia,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_poles_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT COUNT(*) as poles
+        FROM qualifying q
+        WHERE q.driverId = %s AND q.position = 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    poles = row[0]
+    pregunta = f"¿Cuántas poles consiguió {piloto_objetivo} en su carrera?"
+    opciones = get_respuestas_incorrectas(str(poles), [str(i) for i in range(0, 100)])
+    opciones.append(str(poles))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(poles),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_circuito_mas_podios_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT c.name, COUNT(*) as podios
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE r.driverId = %s AND r.position <= 3
+        GROUP BY c.name
+        ORDER BY podios DESC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    pregunta = f"¿En qué circuito {piloto_objetivo} subió más veces al podio?"
+    incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,)) or []])
+    opciones = incorrectas + [circuito]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_pais_mas_victorias_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT c.country, COUNT(*) as victorias
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        WHERE r.driverId = %s AND r.position = 1
+        GROUP BY c.country
+        ORDER BY victorias DESC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    pais = row[0]
+    pregunta = f"¿Qué país vio más victorias de {piloto_objetivo}?"
+    incorrectas = get_respuestas_incorrectas(pais, [r[0] for r in cursor.execute("SELECT country FROM circuits WHERE country != %s", (pais,)) or []])
+    opciones = incorrectas + [pais]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": pais,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def obtener_victorias_piloto(piloto_objetivo):
+    # Extraemos el primer nombre y apellido
+    forename, surname = nombre_completo_piloto.split(' ', 1)
+
+    # Realizamos la consulta para obtener el total de victorias del piloto
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM results r
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE d.forename = %s AND d.surname = %s AND r.position = 1
+    """, (forename, surname))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    victorias = row[0]
+    pregunta = f"¿Cuántas victorias consiguió {piloto_objetivo} en su carrera?"
+    opciones = get_respuestas_incorrectas(str(victorias), [str(i) for i in range(0, 100)])
+    opciones.append(str(victorias))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(victorias),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+
+def pregunta_peor_temporada_puntos_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT ra.year, SUM(r.points) as total_puntos
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE r.driverId = %s
+        GROUP BY ra.year
+        HAVING total_puntos > 0
+        ORDER BY total_puntos ASC
+        LIMIT 1
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    year = row[0]
+    pregunta = f"¿Cuál fue la peor temporada en puntos para {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
+    opciones.append(str(year))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_temporadas_sin_puntos_piloto(piloto_objetivo):
+    cursor.execute("""
+        SELECT COUNT(DISTINCT ra.year)
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE r.driverId = %s AND r.points = 0
+    """, (piloto_objetivo,))
+    row = cursor.fetchone()
+    if not row:
+        return None
+    total = row[0]
+    pregunta = f"¿Cuántas veces finalizó una temporada sin sumar ningún punto {piloto_objetivo}?"
+    opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 20)])
+    opciones.append(str(total))
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def obtener_piloto_aleatorio():
+    cursor.execute("""
+        SELECT forename, surname
+        FROM drivers
+        ORDER BY RAND()
+        LIMIT 1
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    nombre_completo = f"{row[0]} {row[1]}"
+    return nombre_completo
+
+piloto_aleatorio = obtener_piloto_aleatorio()
+
+def pregunta_circuito_mas_abandonos_piloto_wrapped():
+    return pregunta_circuito_mas_abandonos_piloto(piloto_aleatorio) if pista else None
+
+
+def pregunta_puntos_consecutivos_piloto_wrapped():
+    return pregunta_puntos_consecutivos_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_promedio_posicion_clasificacion_wrapped():
+    return pregunta_promedio_posicion_clasificacion(piloto_aleatorio) if pista else None
+
+def pregunta_temporada_mas_paradas_boxes_wrapped():
+    return pregunta_temporada_mas_paradas_boxes(piloto_aleatorio) if pista else None
+
+def pregunta_porcentaje_carreras_finalizadas_wrapped():
+    return pregunta_porcentaje_carreras_finalizadas(piloto_aleatorio) if pista else None
+
+def pregunta_circuito_no_victoria_piloto_wrapped():
+    return pregunta_circuito_no_victoria_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_pilotos_distintos_compitio_wrapped():
+    return pregunta_pilotos_distintos_compitio(piloto_aleatorio) if pista else None
+
+def pregunta_racha_sin_ganar_wrapped():
+    return pregunta_racha_sin_ganar(piloto_aleatorio) if pista else None
+
+def pregunta_peor_posicion_clasificacion_piloto_wrapped():
+    return pregunta_peor_posicion_clasificacion_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_peor_posicion_clasificacion_piloto_wrapped():
+    return pregunta_peor_posicion_clasificacion_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_remontadas_puesto_15_piloto_wrapped():
+    return pregunta_remontadas_puesto_15_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_carreras_lideradas_piloto_wrapped():
+    return pregunta_carreras_lideradas_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_supero_mas_clasificacion_wrapped():
+    return pregunta_supero_mas_clasificacion(piloto_aleatorio) if pista else None
+
+def pregunta_mejor_vuelta_rapida_wrapped():
+    return pregunta_mejor_vuelta_rapida(piloto_aleatorio) if pista else None
+
+
+
+
+
+def pregunta_piloto_anio_mas_puntos_wrapped():
+    return pregunta_piloto_anio_mas_puntos(piloto_aleatorio) if pista else None
+
+def pregunta_escuderias_distintas_piloto_wrapped():
+    return pregunta_escuderias_distintas_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_gp_mas_participaciones_piloto_wrapped():
+    return pregunta_gp_mas_participaciones_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_abandonos_piloto_wrapped():
+    return pregunta_abandonos_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_ultimo_gp_victoria_piloto_wrapped():
+    return pregunta_ultimo_gp_victoria_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_companero_podio_piloto_wrapped():
+    return pregunta_companero_podio_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_ano_debut_piloto_wrapped():
+    return pregunta_ano_debut_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_primera_victoria_escuderia_piloto_wrapped():
+    return pregunta_primera_victoria_escuderia_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_poles_piloto_wrapped():
+    return pregunta_poles_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_circuito_mas_podios_piloto_wrapped():
+    return pregunta_circuito_mas_podios_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_poles_piloto_wrapped():
+    return pregunta_poles_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_circuito_mas_podios_piloto_wrapped():
+    return pregunta_circuito_mas_podios_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_pais_mas_victorias_piloto_wrapped():
+    return pregunta_pais_mas_victorias_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_obtener_victorias_piloto_wrapped():
+    return obtener_victorias_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_peor_temporada_puntos_piloto_wrapped():
+    return pregunta_peor_temporada_puntos_piloto(piloto_aleatorio) if pista else None
+
+def pregunta_temporadas_sin_puntos_piloto_wrapped():
+    return pregunta_temporadas_sin_puntos_piloto(piloto_aleatorio) if pista else None
+
+
+# Estadísticas genéricas parte 2
+def pregunta_piloto_gano_en_mas_paises():
+    cursor.execute("""
+        SELECT d.forename, d.surname, COUNT(DISTINCT c.country) as paises
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE r.position = 1
+        GROUP BY r.driverId
+        ORDER BY paises DESC
+        LIMIT 1
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto = f"{row[0]} {row[1]}"
+    pregunta = f"¿Qué piloto ganó en más países diferentes?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_circuito_campeones_distintos():
+    cursor.execute("""
+        SELECT c.name, COUNT(DISTINCT d.driverId) as campeones
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE r.position = 1 AND d.driverId IN (
+            SELECT driverId FROM driverStandings WHERE position = 1
+        )
+        GROUP BY c.name
+        ORDER BY campeones DESC
+        LIMIT 1
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito = row[0]
+    pregunta = f"¿Qué circuito ha visto ganar a más campeones del mundo diferentes?"
+    incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,)) or []])
+    opciones = incorrectas + [circuito]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+
+def pregunta_piloto_sin_pole_subio_podio():
+    cursor.execute("""
+        SELECT d.forename, d.surname
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN drivers d ON r.driverId = d.driverId
+        LEFT JOIN qualifying q ON r.raceId = q.raceId AND r.driverId = q.driverId
+        WHERE r.position <= 3 AND q.position != 1
+        GROUP BY d.driverId
+        ORDER BY COUNT(r.position) DESC
+        LIMIT 1
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto = f"{row[0]} {row[1]}"
+    pregunta = f"¿Qué piloto subió más veces al podio sin hacer pole esa temporada?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_pais_mas_constructores():
+    cursor.execute("""
+        SELECT c.country, COUNT(DISTINCT c.name) as constructores
+        FROM constructors c
+        GROUP BY c.country
+        ORDER BY constructores DESC
+        LIMIT 1
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    pais = row[0]
+    pregunta = f"¿Qué país ha tenido más constructores participando en la historia de la F1?"
+    incorrectas = get_respuestas_incorrectas(pais, [r[0] for r in cursor.execute("SELECT country FROM constructors WHERE country != %s", (pais,)) or []])
+    opciones = incorrectas + [pais]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": pais,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+        }
+
+def pregunta_piloto_mas_vueltas_rapidas_sin_puntos():
+    cursor.execute("""
+        SELECT d.forename, d.surname, COUNT(*) as vueltas_rapidas
+        FROM lapTimes l
+        JOIN results r ON l.raceId = r.raceId AND l.driverId = r.driverId
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE r.points = 0 AND l.rank = 1
+        GROUP BY d.driverId
+        ORDER BY vueltas_rapidas DESC
+        LIMIT 1
+    """)
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto = f"{row[0]} {row[1]}"
+    pregunta = f"¿Qué piloto logró más vueltas rápidas en GPs donde no puntuó?"
+    incorrectas = get_respuestas_incorrectas(piloto, pilotos_cache)
+    opciones = incorrectas + [piloto]
+    random.shuffle(opciones)
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+        }
 
 generadores = [
+    # **Estadísticas genéricas parte 1**
     generar_pregunta_piloto_primera_victoria_reciente,
     generar_pregunta_ganador_gp,
     generar_pregunta_escuderia_ganadora,
@@ -1048,9 +2534,60 @@ generadores = [
     pregunta_temporada_mas_puntos_escuderia_wrapper,
     pregunta_poles_totales_escuderia_wrapper,
     pregunta_circuito_mas_victorias_escuderia_wrapper,
-    pregunta_campeonatos_constructores_escuderia_wrapper
+    pregunta_campeonatos_constructores_escuderia_wrapper,
 
+    # **Preguntas sobre un circuito en concreto
+    pregunta_constructor_mas_abandonos_circuito_wrapped,
+    pregunta_piloto_mas_poles_sin_ganar_circuito_wrapped,
+    pregunta_anio_mas_cambios_lider_wrapped,
+    pregunta_anio_mas_abandonos_circuito_wrapped,
+    pregunta_piloto_pole_y_vuelta_rapida_misma_edicion_wrapped,
+    pregunta_anio_velocidad_promedio_mas_alta_wrapped,
+    pregunta_pais_circuito_wrapped,
+    pregunta_anio_cancelado_del_calendario_wrapped,
+    pregunta_piloto_fue_campeon_en_ese_circuito_wrapped,
+    pregunta_gp_con_mas_campeones_en_circuito_wrapped,
+    pregunta_piloto_mas_victorias_circuito_wrapped,
+    pregunta_constructor_mas_poles_circuito_wrapped,
+    pregunta_ano_mas_abandonos_circuito_wrapped,
+    pregunta_numero_gp_en_circuito_wrapped,
+    pregunta_anio_vuelta_rapida_circuito_wrapped,
+    pregunta_piloto_mas_abandonos_escuderia_wrapped,
+    pregunta_peor_temporada_puntos_escuderia_wrapped,
 
+    # **Preguntas sobre un PILOTO en concreto
+    pregunta_circuito_mas_abandonos_piloto_wrapped,
+    pregunta_puntos_consecutivos_piloto_wrapped,
+    pregunta_promedio_posicion_clasificacion_wrapped,
+    pregunta_temporada_mas_paradas_boxes_wrapped,
+    pregunta_porcentaje_carreras_finalizadas_wrapped,
+    pregunta_circuito_no_victoria_piloto_wrapped,
+    pregunta_pilotos_distintos_compitio_wrapped,
+    pregunta_racha_sin_ganar_wrapped,
+    pregunta_peor_posicion_clasificacion_piloto_wrapped,
+    pregunta_remontadas_puesto_15_piloto_wrapped,
+    pregunta_carreras_lideradas_piloto_wrapped,
+    pregunta_supero_mas_clasificacion_wrapped,
+    pregunta_mejor_vuelta_rapida_wrapped,
+    pregunta_piloto_anio_mas_puntos_wrapped,
+    pregunta_escuderias_distintas_piloto_wrapped,
+    pregunta_gp_mas_participaciones_piloto_wrapped,
+    pregunta_abandonos_piloto_wrapped,
+    pregunta_ultimo_gp_victoria_piloto_wrapped,
+    pregunta_companero_podio_piloto_wrapped,
+    pregunta_ano_debut_piloto_wrapped,
+    pregunta_primera_victoria_escuderia_piloto_wrapped,
+    pregunta_poles_piloto_wrapped,
+    pregunta_circuito_mas_podios_piloto_wrapped,
+    pregunta_pais_mas_victorias_piloto_wrapped,
+    pregunta_obtener_victorias_piloto_wrapped,
+
+    # **Estadísticas genéricas parte 2**
+    pregunta_piloto_gano_en_mas_paises,
+    pregunta_circuito_campeones_distintos,
+    pregunta_piloto_sin_pole_subio_podio,
+    pregunta_pais_mas_constructores,
+    pregunta_piloto_mas_vueltas_rapidas_sin_puntos
 
 ]
 
