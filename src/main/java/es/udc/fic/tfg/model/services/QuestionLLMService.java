@@ -7,7 +7,7 @@ import java.util.List;
 public interface QuestionLLMService {
     List<QuestionAI> generateQuestionsAI();
 
-    List<QuestionAI> generateRegulationQuestions(String category, Integer level);
+    List<QuestionAI> generateRegulationQuestions(String category);
     String validateQuestion(String question, List<String> answers);
 
 }

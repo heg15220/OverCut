@@ -8,7 +8,15 @@ import java.util.List;
 
 public interface QuizService {
 
+    QuizType chooseQuizType();
+
+    QuizCategory chooseQuizCategory(QuizType quizType);
+
     Quiz createQuiz(Long userId) throws InstanceNotFoundException;
+
+    QuizType getQuizQuestionsType(Long quizId);
+
+    QuizCategory getQuizQuestionsCategory(Long quizId);
 
     void chooseAnswer(Long quizId, Long questionId, Long userId, Long answerId) throws QuizException, InstanceNotFoundException;
 

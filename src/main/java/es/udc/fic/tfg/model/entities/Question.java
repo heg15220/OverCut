@@ -20,6 +20,8 @@ public class Question {
     private int knowledgequestionlevel;
 
 
+    private QuizCategory quizCategory;
+
     private List<QuizQuestions> quizQuestions;
     private List<Answer> answers;
 
@@ -83,6 +85,16 @@ public class Question {
 
     public void setKnowledgequestionlevel(int knowledgequestionlevel) {
         this.knowledgequestionlevel = knowledgequestionlevel;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "quizCategoryId", nullable = false)
+    public QuizCategory getQuizCategory() {
+        return quizCategory;
+    }
+
+    public void setQuizCategory(QuizCategory quizCategory) {
+        this.quizCategory = quizCategory;
     }
 
     @OneToMany(mappedBy = "question")

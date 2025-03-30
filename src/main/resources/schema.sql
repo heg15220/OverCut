@@ -13,6 +13,10 @@ DROP TABLE IF EXISTS Event;
 DROP TABLE IF EXISTS Post;
 DROP TABLE IF EXISTS Podium;
 DROP TABLE IF EXISTS Circuit;
+DROP TABLE IF EXISTS QuizCategoryTranslation;
+DROP TABLE IF EXISTS QuizCategory;
+DROP TABLE IF EXISTS QuizTypeTranslation;
+DROP TABLE IF EXISTS QuizType;
 DROP TABLE IF EXISTS Category;
 DROP TABLE IF EXISTS Users;
 
@@ -32,6 +36,44 @@ CREATE TABLE Users (
 );
 
 
+CREATE TABLE QuizType (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    code ENUM('Stats', 'Regulations', 'Pictures') NOT NULL UNIQUE,
+    imagePath VARCHAR(255)
+);
+
+CREATE TABLE QuizTypeTranslation (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    quizTypeId BIGINT NOT NULL,
+    language VARCHAR(5) NOT NULL, -- e.g. 'es', 'en', 'fr'
+    name VARCHAR(100) NOT NULL,
+
+    CONSTRAINT QuizTypeFK FOREIGN KEY (quizTypeId) REFERENCES QuizType(id) ON DELETE CASCADE,
+    CONSTRAINT UniqueQuizTypeLang UNIQUE (quizTypeId, language)
+);
+
+CREATE TABLE QuizCategory (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    code ENUM(
+        'Scores', 'Penalty', 'Driver', 'Team', 'LegendarySeason',
+        'Duels', 'Circuit', 'GenericStats', 'Procedures', 'ParcFerme',
+        'Safety', 'Tyres', 'SafetyCar', 'Qualifying', 'Sprint',
+        'RedFlag', 'Drivers', 'Technical', 'PracticalCase', 'DescriptiveImages'
+    ) NOT NULL,
+    quizTypeId BIGINT NOT NULL,
+    CONSTRAINT QuizCategoryFK FOREIGN KEY (quizTypeId) REFERENCES QuizType(id) ON DELETE CASCADE,
+    CONSTRAINT UniqueQuizTypeCategory UNIQUE (quizTypeId, code)
+);
+
+CREATE TABLE QuizCategoryTranslation (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    quizCategoryId BIGINT NOT NULL,
+    language VARCHAR(5) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+
+    CONSTRAINT QuizCategoryTranslationFK FOREIGN KEY (quizCategoryId) REFERENCES QuizCategory(id) ON DELETE CASCADE,
+    CONSTRAINT UniqueQuizCategoryLang UNIQUE (quizCategoryId, language)
+);
 
 
 CREATE TABLE Category (
@@ -93,6 +135,13 @@ CREATE TABLE Question(
     imagePath VARCHAR(255),
     knowledgequestionlevel BIGINT NOT NULL
 );
+ALTER TABLE Question ADD COLUMN quizCategoryId BIGINT;
+
+ALTER TABLE Question ADD CONSTRAINT QuestionQuizCategoryFK
+    FOREIGN KEY (quizCategoryId) REFERENCES QuizCategory(id);
+
+
+
 
 CREATE TABLE QuizQuestions(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -221,6 +270,95 @@ VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example artic
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
 
+INSERT INTO QuizType (code,imagePath) VALUES
+('Stats', 'f1-2013-11-bel-parrilla-trasera.jpg'),
+('Regulations', 'fia.jpg'),
+('Pictures', 'coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg');
+
+-- Traducciones al español (es)
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES
+(1, 'es', 'Estadísticas'),
+(2, 'es', 'Reglamento'),
+(3, 'es', 'Imágenes');
+
+-- Traducciones al inglés (en)
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES
+(1, 'en', 'Statistics'),
+(2, 'en', 'Regulations'),
+(3, 'en', 'Pictures');
+
+
+-- Asociadas a QuizType 'Stats'
+INSERT INTO QuizCategory (code, quizTypeId) VALUES
+('Scores', 2),
+('Penalty', 2),
+('Driver', 1),
+('Team', 1),
+('LegendarySeason', 1),
+('Duels', 1),
+('Circuit', 1),
+('GenericStats', 1),
+('Procedures', 2),
+('ParcFerme', 2),
+('Safety', 2),
+('Tyres', 2),
+('SafetyCar', 2),
+('Qualifying', 2),
+('Sprint', 2),
+('RedFlag', 2),
+('Drivers', 2),
+('Technical', 2),
+('PracticalCase', 2),
+('DescriptiveImages', 3);
+
+-- Español (es)
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES
+(1, 'es', 'Puntuaciones'),
+(2, 'es', 'Sanciones'),
+(3, 'es', 'Pilotos'),
+(4, 'es', 'Escuderías'),
+(5, 'es', 'Temporadas Legendarias'),
+(6, 'es', 'Duelos'),
+(7, 'es', 'Circuito'),
+(8, 'es', 'Estadisticas Genericas'),
+(9, 'es', 'Procedimientos'),
+(10, 'es', 'Parque Cerrado'),
+(11, 'es', 'Seguridad'),
+(12, 'es', 'Neumaticos'),
+(13, 'es', 'Coche de seguridad'),
+(14, 'es', 'Clasificacion'),
+(15, 'es', 'Sprint'),
+(16, 'es', 'Bandera Roja'),
+(17, 'es', 'Pilotos'),
+(18, 'es', 'Tecnica'),
+(19, 'es', 'Casos practicos'),
+(20, 'es', 'Imagenes Descriptivas');
+
+-- Inglés (en)
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES
+(1, 'en', 'Scores'),
+(2, 'en', 'Penalty'),
+(3, 'en', 'Drivers'),
+(4, 'en', 'Teams'),
+(5, 'en', 'Legendary Seasons'),
+(6, 'en', 'Duels'),
+(7, 'en', 'Circuit'),
+(8, 'en', 'Generic Stats'),
+(9, 'en', 'Procedures'),
+(10, 'en', 'Parc Ferme'),
+(11, 'en', 'Safety'),
+(12, 'en', 'Tyres'),
+(13, 'en', 'Safety Car'),
+(14, 'en', 'Qualifying'),
+(15, 'en', 'Sprint'),
+(16, 'en', 'Red Flag'),
+(17, 'en', 'Drivers'),
+(18, 'en', 'Technical'),
+(19, 'en', 'Practical case'),
+(20, 'en', 'Descriptive Images');
+
+
+
 
 
 INSERT INTO Award(award,requiredPoints, image)
@@ -232,6 +370,11 @@ VALUES ('Thrustmaster T150', 8, 'UTH_T150-racing-wheel-PS4-PC-1-7.jpg');
 
 INSERT INTO Award(award,requiredPoints, image)
 VALUES ('PC Gaming', 12, '819cOVjBRRL.jpg');
+
+
+
+
+
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel)
@@ -4031,6 +4174,118 @@ VALUES
 INSERT INTO Answer (name, correct, questionId)
 VALUES
     ('None of the above', false, 200);
+
+
+UPDATE Question SET quizCategoryId = 8 WHERE id IN (
+  3, 4, 9, 11, 12, 13, 16, 17, 18, 19, 20, 21, 31, 32, 34, 38, 43, 44, 46, 47, 48, 49, 52, 53, 54, 56, 63, 64, 65, 66, 67, 68, 69
+);
+
+UPDATE Question SET quizCategoryId = 20 WHERE id IN (
+  1, 2, 5, 6, 23, 24, 25, 26, 27, 28, 33, 45, 51
+);
+
+UPDATE Question SET quizCategoryId = 19 WHERE id IN (
+  36, 38, 55, 57, 58, 59, 60, 61, 62
+);
+
+UPDATE Question SET quizCategoryId = 18 WHERE id IN (
+  15, 55, 57, 58, 59, 61, 62
+);
+
+UPDATE Question SET quizCategoryId = 12 WHERE id IN (
+  42, 50
+);
+
+UPDATE Question SET quizCategoryId = 9 WHERE id IN (
+  70
+);
+
+UPDATE Question SET quizCategoryId = 11 WHERE id IN (
+  14, 60
+);
+
+UPDATE Question SET quizCategoryId = 14 WHERE id IN (
+  37
+);
+
+
+UPDATE Question SET quizCategoryId = 8 WHERE id IN (82, 83, 84, 85, 86, 88, 89, 90, 91, 93, 106, 107, 108, 109, 110, 113, 114, 115, 116, 117, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 141, 148, 149);
+
+UPDATE Question SET quizCategoryId = 20 WHERE id IN (92, 94, 95, 96, 97, 98, 99, 100, 102, 103, 111, 112, 118, 119, 121, 122, 123, 124, 125, 138, 139, 140, 150);
+
+UPDATE Question SET quizCategoryId = 19 WHERE id IN (71, 72, 73, 74, 75, 76, 77);
+
+UPDATE Question SET quizCategoryId = 12 WHERE id IN (101, 120);
+
+UPDATE Question SET quizCategoryId = 11 WHERE id IN (104, 105, 147);
+
+UPDATE Question SET quizCategoryId = 9 WHERE id IN (70, 142, 143, 144);
+
+UPDATE Question SET quizCategoryId = 2 WHERE id IN (78, 79, 80, 81);
+
+
+-- Circuit
+UPDATE Question SET quizCategoryId = 20 WHERE id IN (
+  151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 170, 191, 192, 193, 194
+);
+
+-- GenericStats
+UPDATE Question SET quizCategoryId = 8 WHERE id IN (
+  152, 153, 161, 162, 185, 186, 187, 188, 189, 190
+);
+
+-- Driver
+UPDATE Question SET quizCategoryId = 3 WHERE id IN (
+  171, 172, 173, 174, 196, 197
+);
+
+-- Technical
+UPDATE Question SET quizCategoryId = 10 WHERE id IN (
+  182, 183
+);
+
+-- Qualifying
+UPDATE Question SET quizCategoryId = 14 WHERE id IN (
+  184, 195, 200
+);
+
+-- Scores
+UPDATE Question SET quizCategoryId = 1 WHERE id IN (
+  175, 181, 198
+);
+
+-- Team
+UPDATE Question SET quizCategoryId = 4 WHERE id IN (
+  176, 177, 178
+);
+
+-- LegendarySeason
+UPDATE Question SET quizCategoryId = 5 WHERE id IN (
+  179
+);
+
+-- Sprint
+UPDATE Question SET quizCategoryId = 13 WHERE id IN (
+  181
+);
+
+-- Tyres
+UPDATE Question SET quizCategoryId = 12 WHERE id IN (
+  199
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

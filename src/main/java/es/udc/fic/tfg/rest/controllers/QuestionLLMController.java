@@ -49,14 +49,12 @@ public class QuestionLLMController {
      *  - 3 → Difícil
      *
      * @param category (opcional) Categoría de la pregunta.
-     * @param level (opcional) Nivel de dificultad.
      * @return Lista de preguntas filtradas en formato JSON.
      */
 
     @GetMapping("/quiz/reglamento")
-    public ResponseEntity<List<QuestionAI>> generateRegulationQuiz(@RequestParam(required = false) String category,
-                                                                   @RequestParam(required = false) Integer level) {
-        List<QuestionAI> preguntas = questionLLMService.generateRegulationQuestions(category,level);
+    public ResponseEntity<List<QuestionAI>> generateRegulationQuiz(@RequestParam(required = false) String category) {
+        List<QuestionAI> preguntas = questionLLMService.generateRegulationQuestions(category);
         return ResponseEntity.ok(preguntas);
     }
 

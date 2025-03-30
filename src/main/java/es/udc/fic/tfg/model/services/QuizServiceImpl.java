@@ -53,6 +53,12 @@ public class QuizServiceImpl implements QuizService {
     private UserAwardDao userAwardDao;
 
     @Autowired
+    private QuizCategoryDao quizCategoryDao;
+
+    @Autowired
+    private QuizTypeDao quizTypeDao;
+
+    @Autowired
     private QuestionLLMService questionLLMService;
 
     /**
@@ -63,20 +69,58 @@ public class QuizServiceImpl implements QuizService {
 
 
 
-    private List<Question> getRandomQuestions(int amount) {
-        Iterable<Question> allQuestionsWithAnswers = questionDao.findAll();
-        List<Question> listQuestions = StreamSupport.stream(allQuestionsWithAnswers.spliterator(), false)
-                .collect(Collectors.toList());
-        List<Question> copy = new ArrayList<>(listQuestions);
-        SecureRandom rand = new SecureRandom();
-        List<Question> randomQuestions = new ArrayList<>();
+    private List<Question> getRandomQuestionsByTypeAndCategory(QuizType quizType, QuizCategory quizCategory) {
+        // Obtener preguntas existentes en BD por categoría
+        List<Question> dbQuestions = questionDao.findByQuizCategory(quizCategory);
+        Collections.shuffle(dbQuestions); // Aleatorizar
 
-        for (int i = 0; i < Math.min(amount, copy.size()); i++) {
-            int randomIndex = rand.nextInt(copy.size());
-            randomQuestions.add(copy.remove(randomIndex));
+        // Generar preguntas por IA
+        List<QuestionAI> aiQuestions;
+        if (quizType.getCode().equals(QuizTypeCode.Regulations)) {
+            // Si es tipo Reglamento, generar con script regulations
+            aiQuestions = questionLLMService.generateRegulationQuestions(quizCategory.getCode().name());
+        } else {
+            // Para otros tipos, usar generador estándar
+            aiQuestions = questionLLMService.generateQuestionsAI();
         }
-        return randomQuestions;
+
+        // Filtrar las generadas por categoría
+        List<QuestionAI> aiFiltered = aiQuestions.stream()
+                .filter(q -> q.getCategory().equals(quizCategory.getCode()))
+                .collect(Collectors.toList());
+
+        // Convertir a entidades
+        List<Question> aiConverted = aiFiltered.stream()
+                .map(this::convertAIToQuestionEntity)
+                .collect(Collectors.toList());
+
+        // Comprobar duplicados por nombre
+        Set<String> namesUsed = dbQuestions.stream()
+                .map(Question::getName)
+                .collect(Collectors.toSet());
+
+        aiConverted = aiConverted.stream()
+                .filter(q -> !namesUsed.contains(q.getName()) && !questionDao.existsByName(q.getName()))
+                .collect(Collectors.toList());
+
+        // Selección aleatoria y mezcla final
+        List<Question> result = new ArrayList<>();
+        SecureRandom random = new SecureRandom();
+
+        while (result.size() < 10 && (!dbQuestions.isEmpty() || !aiConverted.isEmpty())) {
+            if (!dbQuestions.isEmpty() && (aiConverted.isEmpty() || random.nextBoolean())) {
+                result.add(dbQuestions.remove(random.nextInt(dbQuestions.size())));
+            } else if (!aiConverted.isEmpty()) {
+                Question aiQ = aiConverted.remove(random.nextInt(aiConverted.size()));
+                questionDao.save(aiQ);
+                aiQ.getAnswers().forEach(answerDao::save);
+                result.add(aiQ);
+            }
+        }
+
+        return result;
     }
+
 
 
 
@@ -123,18 +167,26 @@ public class QuizServiceImpl implements QuizService {
         }
         return points;
     }
+
     private Question convertAIToQuestionEntity(QuestionAI ai) {
         Question q = new Question();
         q.setName(ai.getQuestion());
-        q.setKnowledgequestionlevel(1); // o dinámico
+        q.setKnowledgequestionlevel(ai.getKnowledgeLevel());
         q.setImagePath(null);
+
+        // Obtener la categoría por código enum
+        Optional<QuizCategory> category = quizCategoryDao.findByCode(ai.getCategory());
+        if (category.isEmpty()) {
+            throw new RuntimeException("No se encontró la categoría: " + ai.getCategory());
+        }
+        q.setQuizCategory(category.get());
 
         List<Answer> answers = new ArrayList<>();
         for (String a : ai.getAnswers()) {
             Answer ans = new Answer();
             ans.setName(a);
             ans.setCorrect(a.equals(ai.getCorrectAnswer()));
-            ans.setQuestion(q); // relación bidireccional
+            ans.setQuestion(q);
             answers.add(ans);
         }
 
@@ -161,51 +213,54 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public QuizType chooseQuizType() {
+        List<QuizType> quizTypes = quizTypeDao.findAll();
+
+        if (quizTypes.isEmpty()) {
+            throw new RuntimeException("No quiz types available in the system.");
+        }
+
+        SecureRandom random = new SecureRandom();
+        int randomIndex = random.nextInt(quizTypes.size());
+
+        return quizTypes.get(randomIndex);
+    }
+
+
+    @Override
+    public QuizCategory chooseQuizCategory(QuizType quizType) {
+        List<QuizCategory> categories = quizCategoryDao.findByQuizType(quizType);
+
+        if (categories.isEmpty()) {
+            throw new RuntimeException("No quiz categories available for QuizType: " + quizType.getCode());
+        }
+
+        SecureRandom random = new SecureRandom();
+        int randomIndex = random.nextInt(categories.size());
+
+        return categories.get(randomIndex);
+    }
+
+
+    @Override
     public Quiz createQuiz(Long userId) throws InstanceNotFoundException {
         Optional<User> userOptional = userDao.findById(userId);
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
         }
 
-        List<Question> storedQuestions = getRandomQuestions(5);
-        Set<String> storedNames = storedQuestions.stream()
-                .map(Question::getName)
-                .collect(Collectors.toSet());
+        QuizType quizType = chooseQuizType();
+        QuizCategory quizCategory = chooseQuizCategory(quizType);
+        List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType,quizCategory);
 
-        List<QuestionAI> aiQuestions = questionLLMService.generateQuestionsAI();
-        List<QuestionAI> filteredAI = aiQuestions.stream()
-                .filter(ai -> !storedNames.contains(ai.getQuestion()) && !questionDao.existsByName(ai.getQuestion()))
-                .collect(Collectors.toList());
 
-        List<Question> generatedQuestions = filteredAI.stream()
-                .map(this::convertAIToQuestionEntity)
-                .collect(Collectors.toList());
-
-        int needed = 10 - storedQuestions.size() - generatedQuestions.size();
-        if (needed > 0) {
-            List<Question> extraStored = getRandomQuestions(needed);
-            storedQuestions.addAll(extraStored);
-        }
-
-        for (Question q : generatedQuestions) {
-            questionDao.save(q);
-            for (Answer a : q.getAnswers()) {
-                answerDao.save(a);
-            }
-        }
-
-        List<Question> all = new ArrayList<>();
-        all.addAll(storedQuestions);
-        all.addAll(generatedQuestions);
-        Collections.shuffle(all);
-
-        int knowledgeLevelQuestions = getUserKnowledgeLevel(all);
+        int knowledgeLevelQuestions = getUserKnowledgeLevel(storedQuestions);
         LocalDateTime date = LocalDateTime.now();
 
         Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
         quizDao.save(quiz);
 
-        all.stream().limit(10).forEach(q -> {
+        storedQuestions.stream().limit(10).forEach(q -> {
             QuizQuestions qq = new QuizQuestions();
             qq.setQuiz(quiz);
             qq.setQuestion(q);
@@ -217,6 +272,24 @@ public class QuizServiceImpl implements QuizService {
 
 
 
+    @Override
+    public QuizType getQuizQuestionsType(Long quizId) {
+        // Obtener las preguntas del quiz
+        List<Question> questions = quizQuestionDao.findAllQuestionsByQuizId(quizId);
+        QuizCategory quizCategory = questions.get(0).getQuizCategory();
+
+        QuizType quizType = quizCategory.getQuizType();
+
+        return quizType;
+    }
+    @Override
+    public QuizCategory getQuizQuestionsCategory(Long quizId) {
+        // Obtener las preguntas del quiz
+        List<Question> questions = quizQuestionDao.findAllQuestionsByQuizId(quizId);
+        QuizCategory quizCategory = questions.get(0).getQuizCategory();
+
+        return quizCategory;
+    }
 
     private Assessment createAssessment(Long quizId, Long userId) throws InstanceNotFoundException, QuizException {
         // Verificar si el usuario existe

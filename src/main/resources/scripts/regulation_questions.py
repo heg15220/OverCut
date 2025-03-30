@@ -597,7 +597,7 @@ def pregunta_final_vuelta_formacion():
         "answers": ["Detenerse en su posición de parrilla", "Entrar a boxes", "Activar el DRS", "Cambiar neumáticos"],
         "correctAnswer": "Detenerse en su posición de parrilla",
         "knowledgeLevel": 2,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 def pregunta_no_arranca_parrilla():
@@ -606,7 +606,7 @@ def pregunta_no_arranca_parrilla():
         "answers": ["Debe salir desde el pit lane", "Queda descalificado", "Debe abandonar la carrera", "Sale al final del grupo"],
         "correctAnswer": "Debe salir desde el pit lane",
         "knowledgeLevel": 2,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 def pregunta_segunda_vuelta_formacion():
@@ -615,7 +615,7 @@ def pregunta_segunda_vuelta_formacion():
         "answers": ["Si un coche se queda parado en parrilla", "Cuando hay lluvia", "Si un piloto tiene un fallo mecánico previo", "Por orden del director de carrera sin razón"],
         "correctAnswer": "Si un coche se queda parado en parrilla",
         "knowledgeLevel": 3,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 def pregunta_coche_detiene_parrilla():
@@ -624,7 +624,7 @@ def pregunta_coche_detiene_parrilla():
         "answers": ["Puede empujarse a boxes y salir desde el pit lane", "Debe abandonar la carrera", "No puede ser tocado por los mecánicos", "Recibe una sanción automática"],
         "correctAnswer": "Puede empujarse a boxes y salir desde el pit lane",
         "knowledgeLevel": 3,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 def pregunta_salida_abortada():
@@ -633,7 +633,7 @@ def pregunta_salida_abortada():
         "answers": ["Se inicia una vuelta de formación adicional", "Los coches deben detenerse en pista", "Se muestra bandera negra a todos", "Todos deben regresar a boxes"],
         "correctAnswer": "Se inicia una vuelta de formación adicional",
         "knowledgeLevel": 3,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 def pregunta_inicio_carrera():
@@ -642,7 +642,7 @@ def pregunta_inicio_carrera():
         "answers": ["Cuando se apagan las luces del semáforo", "Cuando se inicia la vuelta de formación", "Cuando el primer coche cruza la línea de salida", "Cuando se muestra la bandera verde"],
         "correctAnswer": "Cuando se apagan las luces del semáforo",
         "knowledgeLevel": 2,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 def pregunta_salida_pitlane_parrilla():
@@ -651,7 +651,7 @@ def pregunta_salida_pitlane_parrilla():
         "answers": ["Cuando se muestra la luz verde al final del pit lane", "Cuando el equipo lo indique", "Cuando termina la bandera roja", "Siempre que haya pista libre"],
         "correctAnswer": "Cuando se muestra la luz verde al final del pit lane",
         "knowledgeLevel": 2,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 def pregunta_cierre_pitlane():
@@ -660,7 +660,7 @@ def pregunta_cierre_pitlane():
         "answers": ["20 minutos", "10 minutos", "5 minutos", "15 minutos"],
         "correctAnswer": "10 minutos",
         "knowledgeLevel": 3,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 def pregunta_boxes_vuelta_formacion():
@@ -669,7 +669,7 @@ def pregunta_boxes_vuelta_formacion():
         "answers": ["Debe iniciar la carrera desde el pit lane", "Debe regresar a su posición en la parrilla", "Recibe una sanción de tiempo", "Pierde su vuelta de formación"],
         "correctAnswer": "Debe iniciar la carrera desde el pit lane",
         "knowledgeLevel": 2,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 def pregunta_luces_salida():
@@ -678,7 +678,7 @@ def pregunta_luces_salida():
         "answers": ["Encendido progresivo de luces rojas y su apagado", "Bandera verde ondeando", "Semáforo verde intermitente", "Luz azul en la línea de salida"],
         "correctAnswer": "Encendido progresivo de luces rojas y su apagado",
         "knowledgeLevel": 2,
-        "category": "Procedimientos"
+        "category": "Procedimiento"
     }
 
 # Categoría: Parque Cerrado
