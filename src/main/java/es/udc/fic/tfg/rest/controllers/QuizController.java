@@ -35,16 +35,19 @@ public class QuizController {
 
 
 
-    @GetMapping("/{id}/quizType")
-    public QuizType getQuizQuestionsType(@PathVariable("id") Long quizId){
-        return (quizService.getQuizQuestionsType(quizId));
+    @GetMapping("/{quizId}/quizType")
+    public QuizTypeDto getQuizQuestionsType(@PathVariable Long quizId){
+        QuizType type = quizService.getQuizQuestionsType(quizId);
+        QuizTypeDto typeDto = QuizTypeConversor.convertToQuizTypeDto(type);
+        return typeDto;
     }
 
-    @GetMapping("/{id}/quizCategory")
-    public QuizCategory getQuizQuestionsCategory(@PathVariable("id") Long quizId){
-        return (quizService.getQuizQuestionsCategory(quizId));
+    @GetMapping("/{quizId}/quizCategory")
+    public QuizCategoryDto getQuizQuestionsCategory(@PathVariable Long quizId) {
+        QuizCategory category = quizService.getQuizQuestionsCategory(quizId);
+        QuizCategoryDto categoryDto = QuizCategoryConversor.convertToQuizCategoryDto(category);
+        return categoryDto;
     }
-
     @PostMapping("/{id}/answer")
     public void chooseAnswer(@PathVariable("id") Long quizId, @Validated @RequestBody AnswerParamsDto params) throws QuizException,
             InstanceNotFoundException{

@@ -6,9 +6,11 @@ import { motion } from 'framer-motion';
 const ResultsPage = () => {
     const navigate = useNavigate();
     const [score, setScore] = useState(0);
+    const [rawPoints, setRawPoints] = useState(0);
 
     useEffect(() => {
         let finalScore = Math.floor(Math.random() * 11); // Simulamos el resultado total (0-10)
+        setRawPoints(finalScore * 3); // Cada respuesta correcta vale 3 puntos
         let current = 0;
         const interval = setInterval(() => {
             current++;
@@ -40,6 +42,16 @@ const ResultsPage = () => {
                     style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}
                 >
                     🏁 Puntos: {score}/10
+                </motion.div>
+
+                <motion.div
+                    className="score-popup positive"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.6, duration: 0.6 }}
+                    style={{ fontSize: '1.5rem', marginBottom: '2rem' }}
+                >
+                    Total conseguido: {rawPoints} puntos
                 </motion.div>
 
                 <motion.button

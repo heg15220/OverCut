@@ -11,7 +11,6 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import './quizStyles.css';
 
-
 const QuestionDetails = ({ question, onAnswerSubmit, quizType }) => {
     const user = useSelector(userSelectors.getUser);
     const dispatch = useDispatch();
@@ -55,8 +54,12 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType }) => {
     };
 
     return (
-        <Box className="question-box" sx={{ color: 'white', textAlign: 'center' }}>
-            <Typography variant="h4" className="question-title">
+        <Box className="question-box" sx={{ color: 'white', textAlign: 'center', px: { xs: 2, sm: 4, md: 6 } }}>
+            <Typography
+                variant="h4"
+                className="question-title"
+                sx={{ whiteSpace: 'pre-line', wordBreak: 'break-word', maxWidth: '100%', fontSize: { xs: '1.3rem', sm: '1.6rem', md: '2rem' } }}
+            >
                 {question.name}
             </Typography>
             {question.imagePath && (

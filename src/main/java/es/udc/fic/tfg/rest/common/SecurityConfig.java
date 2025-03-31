@@ -64,6 +64,8 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/historic/circuits/victories/count")).permitAll()
                         .requestMatchers(antMatcher("/api/historic/circuits/{name}/teams/victories")).permitAll()
                         .requestMatchers(antMatcher("/api/historic/circuits/{id}/drivers/victories")).permitAll() // Agrega esta línea
+                        .requestMatchers(antMatcher("/api/quiz/{quizId}/quizType")).permitAll() // Agrega esta línea
+                        .requestMatchers(antMatcher("/api/quiz/{quizId}/quizCategory")).permitAll() // Agrega esta línea
                         .anyRequest().authenticated()
                 )
 
