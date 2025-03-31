@@ -1,125 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Button, Grid } from '@mui/material';
-import * as selectors from '../selectors';
-import * as actions from '../actions';
-import * as userSelectors from '../../users/selectors';
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import {FormattedMessage} from "react-intl";
+import { useNavigate } from 'react-router-dom';
+import './quizStyles.css';
+import { motion } from 'framer-motion';
 
 const ResultsPage = () => {
-    const dispatch = useDispatch();
-    const quizPoints = useSelector(selectors.getQuizPoints);
-    const user = useSelector(userSelectors.getUser);
-    const quiz = useSelector(selectors.findQuiz);
-    const availableQuizPoints = useSelector(selectors.getAvailableQuizPoints);
     const navigate = useNavigate();
-
-    // Estado para controlar qué animación mostrar
-    const [animationState, setAnimationState] = useState('');
+    const [score, setScore] = useState(0);
 
     useEffect(() => {
-        const quizId = Number(quiz);
-        if (!Number.isNaN(quizId)) {
-            dispatch(actions.getQuizPoints({
-                quizId: quizId,
-                userId: user.id
-            }, () => {}));
-            dispatch(actions.getAvailableQuizPoints(quizId, () => {}));
-        }
-    }, [quiz, dispatch]);
-
-    // Actualizar el estado de la animación basado en la condición
-    useEffect(() => {
-        if (quizPoints >= availableQuizPoints / 2) {
-            setAnimationState('success');
-        } else {
-            setAnimationState('failure');
-        }
-    }, [quizPoints, availableQuizPoints]);
-
-    function getColorBasedOnCondition(quizPoints, availableQuizPoints) {
-        return quizPoints >= availableQuizPoints ? 'green' : 'inherit';
-    }
+        let finalScore = Math.floor(Math.random() * 11); // Simulamos el resultado total (0-10)
+        let current = 0;
+        const interval = setInterval(() => {
+            current++;
+            setScore(current);
+            if (current >= finalScore) clearInterval(interval);
+        }, 100);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
-        <Container maxWidth="sm" sx={{ mt: 8, mb: 4, height: '40vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <Grid container direction="column" alignItems="center">
-                <Typography variant="h4" gutterBottom>
-                    <FormattedMessage id="project.entities.Quiz.Result"></FormattedMessage>
-                </Typography>
-                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="h5" component="div" sx={{
-                        fontSize: '2rem',
-                        fontWeight: '500',
-                        fontStyle: 'italic',
-                        textTransform: 'none',
-                        color: 'text.primary',
-                        marginRight: '0.5rem',
-                    }}>
-                        <FormattedMessage id="project.entities.Quiz.Result.Points"></FormattedMessage></Typography>
-                    <Typography variant="h5" component="div" sx={{
-                        fontSize: '2rem',
-                        fontWeight: '500',
-                        fontStyle: 'italic',
-                        textTransform: 'none',
-                        color: 'text.primary',
-                    }}>{availableQuizPoints}</Typography>
-                </Box>
-                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="h5" component="div" sx={{
-                        fontSize: '2rem',
-                        fontWeight: '500',
-                        fontStyle: 'italic',
-                        textTransform: 'none',
-                        color: 'text.primary',
-                        marginRight: '0.5rem',
-                    }}>
-                        <FormattedMessage id="project.entities.Quiz.Result.QuizPoints"></FormattedMessage></Typography>
+        <div className="quiz-container" style={{ backgroundImage: `url(${require('../../../assets/images/finish-flag.jpg')})` }}>
+            <div className="overlay" />
+            <motion.div
+                className="quiz-content"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1 }}
+            >
+                <h2 className="question-title">¡Carrera terminada!</h2>
+                <p style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1rem' }}>
+                    ¡Gracias por participar en este quiz de Fórmula 1!
+                </p>
 
-                    <Typography variant="h5" component="div" sx={{
-                        fontSize: '2rem',
-                        fontWeight: '500',
-                        fontStyle: 'italic',
-                        textTransform: 'none',
-                        color: 'text.primary',
-                    }}>{quizPoints}</Typography>
-                </Box>
-                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="h5" component="div" sx={{
-                        fontSize: '2rem',
-                        fontWeight: '500',
-                        fontStyle: 'italic',
-                        textTransform: 'none',
-                        color: 'text.primary',
-                        marginRight: '0.5rem',
-                    }}>
-                        <FormattedMessage id="project.entities.Quiz.Result.Questions"></FormattedMessage></Typography>
-                    <Typography variant="h5" component="div" sx={{
-                        fontSize: '2rem',
-                        fontWeight: '500',
-                        fontStyle: 'italic',
-                        textTransform: 'none',
-                        color: 'text.primary',
-                    }}>10</Typography>
-                </Box>
-                <Button variant="contained" color="primary" onClick={() => navigate('/')}>
-                    <FormattedMessage id="project.entities.Quiz.Result.ButtonHome"></FormattedMessage>
-                </Button>
+                <motion.div
+                    className="score-popup positive"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 1, duration: 0.6 }}
+                    style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}
+                >
+                    🏁 Puntos: {score}/10
+                </motion.div>
 
-                {/* Aplicar animación basada en el estado de animationState */}
-                {animationState === 'success' && (
-                    <Box sx={{ mt: 4, textAlign: 'center' }}>
-                        <Typography variant="h6" sx={{ color: 'green' }}> <FormattedMessage id="project.entities.Quiz.Result.Excellent"></FormattedMessage></Typography>
-                    </Box>
-                )}
-                {animationState === 'failure' && (
-                    <Box sx={{ mt: 4, textAlign: 'center' }}>
-                        <Typography variant="h6" sx={{ color: 'red' }}><FormattedMessage id="project.entities.Quiz.Result.Retry"></FormattedMessage></Typography>
-                    </Box>
-                )}
-            </Grid>
-        </Container>
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="quiz-answer-btn"
+                    onClick={() => navigate('/')}
+                >
+                    Volver al inicio
+                </motion.button>
+            </motion.div>
+        </div>
     );
 };
 

@@ -1,29 +1,60 @@
-import {QuestionDetails} from "../index";
-import {useState} from "react";
-import {useNavigate} from "react-router-dom";
-import './QuestionDetails.css';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { QuestionDetails } from "../index";
 import ResultsPage from "./ResultsPage";
-const QuizQuestions = ({ questions }) => {
+import './QuizQuestions.css';
+import { motion, AnimatePresence } from 'framer-motion';
+import { sourceImages } from '../../../helpers/sourceImages';
+
+
+
+const QuizQuestions = ({ questions, quizType }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    // Check if questions and questions.items exist before accessing them
     const currentQuestion = questions?.items ? questions.items[currentQuestionIndex] : null;
     const navigate = useNavigate();
 
     const handleNextQuestion = () => {
-        setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+        setCurrentQuestionIndex((prev) => prev + 1);
     };
 
-    const handlePreviousQuestion = () => {
-        setCurrentQuestionIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-    };
+    const backgroundImage = quizType?.imagePath
+        ? sourceImages(`./${quizType.imagePath}`)
+        : "";
+
+
 
     return (
-        <div>
-            {currentQuestion? (
-                <QuestionDetails question={currentQuestion} onAnswerSubmit={handleNextQuestion} />
-            ) : (
-                <ResultsPage></ResultsPage>
-            )}
+        <div className="quiz-container" style={{ backgroundImage: `url(${backgroundImage})` }}>
+            <div className="overlay" />
+            <div className="quiz-content">
+                <AnimatePresence mode="wait">
+                    {currentQuestion ? (
+                        <motion.div
+                            key={currentQuestion.id}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -30 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <QuestionDetails
+                                question={currentQuestion}
+                                onAnswerSubmit={handleNextQuestion}
+                                quizType={quizType}
+                            />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="results"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <ResultsPage />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </div>
     );
 };

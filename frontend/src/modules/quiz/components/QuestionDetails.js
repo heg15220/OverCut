@@ -1,176 +1,105 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import * as actions from '../actions';
 import * as selectors from '../selectors';
 import * as userSelectors from '../../users/selectors';
-import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert, AlertTitle } from '@mui/material';
+import { sourceImages } from '../../../helpers/sourceImages';
+import { Card, CardContent, Typography, Button, Grid, Box } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { Grid } from '@mui/material';
-import { useNavigate } from "react-router-dom";
+import './quizStyles.css';
 
-import {sourceImages} from '../../../helpers/sourceImages';
-import {FormattedMessage} from "react-intl";
 
-const QuestionDetails = ({ question, onAnswerSubmit }) => {
+const QuestionDetails = ({ question, onAnswerSubmit, quizType }) => {
     const user = useSelector(userSelectors.getUser);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [backendErrors, setBackendErrors] = useState(null);
-    const [success, setSuccess] = useState(null);
     const answers = useSelector(selectors.getAnswers);
     const quiz = useSelector(selectors.findQuiz);
     const [responseState, setResponseState] = useState({});
-    const [totalScore, setTotalScore] = useState(0);
-    const[score, setScore] = useState(0);
-    const [showCorrectAnswer, setShowCorrectAnswer] = useState(false); // Nuevo estado para mostrar la respuesta correcta
+    const [scoreEffect, setScoreEffect] = useState(null);
 
     useEffect(() => {
         const questionId = Number(question.id);
         if (!Number.isNaN(questionId)) {
             dispatch(actions.getQuestionDetails(questionId, () => {}, () => {}));
-            dispatch(actions.getAnswersForQuestion(questionId, ()=>{}, () => {}));
+            dispatch(actions.getAnswersForQuestion(questionId, () => {}, () => {}));
         }
     }, [question, dispatch]);
 
-
-    if (!question) {
-        return null;
-    }
-
-    const imagePath = `/static/${question.imagePath}`;
+    if (!question) return null;
 
     const handleSelectAnswer = (answer) => {
         const questionId = Number(question.id);
         const quizId = Number(quiz);
+        const knowledge = question.knowledgequestionlevel;
+
         dispatch(actions.chooseAnswer(quizId, {
-            questionId: questionId,
+            questionId,
             userId: user.id,
             answerId: answer.id
-        }, () => {}, () => {}, () => {}));
+        }, () => {}, () => {}));
 
-        // Marcar la respuesta como seleccionada temporalmente
-        setResponseState(prevState => ({
-            ...prevState,
-            [answer.id]: { isSelected: true, isCorrect: answer.correct }
-        }));
+        const isCorrect = answer.correct;
+        setResponseState(prev => ({ ...prev, [answer.id]: { isSelected: true, isCorrect } }));
 
+        setScoreEffect(isCorrect ? `+${knowledge}` : '-0');
 
-        setTotalScore(totalScore + question.knowledgequestionlevel);
-
-        // Si la respuesta es incorrecta, muestra la respuesta correcta
-        if (!answer.correct) {
-            setShowCorrectAnswer(true);
-
-        }
-
-        // Dentro de handleSelectAnswer:
-        if (answer.correct) {
-            setScore(score + question.knowledgequestionlevel);
-        }
-
-
-        // Cambiar el color del botón a verde y luego volver a su color original
         setTimeout(() => {
-            setResponseState(prevState => ({
-                ...prevState,
-                [answer.id]: { isSelected: false }
-            }));
-            onAnswerSubmit(); // Llama a onAnswerSubmit para avanzar a la siguiente pregunta
-            setShowCorrectAnswer(false); // Oculta la respuesta correcta después de un tiempo
-        }, 2000); // Espera 2 segundos antes de llamar a onAnswerSubmit
+            setScoreEffect(null);
+            setResponseState({});
+            onAnswerSubmit();
+        }, 2000);
     };
 
     return (
-        <Container sx={{ marginTop: 0 }}>
-            <Box my={0}>
-                {backendErrors && (
-                    <Alert severity="error" onClose={() => setBackendErrors(null)}>
-                        <AlertTitle>Error</AlertTitle>
-                        {backendErrors}
-                    </Alert>
-                )}
-                {success && (
-                    <Alert severity="success" onClose={() => setSuccess(null)}>
-                        <AlertTitle>Success</AlertTitle>
-                        {success}
-                    </Alert>
-                )}
-                <Card>
-                    <CardContent>
-                        <Typography variant="h5" component="div" sx={{
-                            fontSize: '1.5rem',
-                            fontWeight: 'bold',
-                            textTransform: 'uppercase',
-                            color: 'text.primary',
-                            marginTop: '0.2rem',
-                            marginBottom: '1rem',
-                        }}>
-                            {question.name}
-                        </Typography>
-                        {question && question.imagePath ? (
-                        <img
-                            src={sourceImages(`./${question.imagePath}`)}
-                            alt="Circuit Image"
-                            style={{width: '45%', height: '60%', objectFit: 'cover'  }}
-                        />
-                    ) : (
-                        <div></div>
-                    )}
+        <Box className="question-box" sx={{ color: 'white', textAlign: 'center' }}>
+            <Typography variant="h4" className="question-title">
+                {question.name}
+            </Typography>
+            {question.imagePath && (
+                <img
+                    src={sourceImages(`./${question.imagePath}`)}
+                    alt="Question visual"
+                    className="question-image"
+                />
+            )}
 
-                    </CardContent>
-                </Card>
-                {answers && answers.length > 0? (
-                    <Grid container direction="column" spacing={2}> {/* Añade un contenedor Grid */}
-                        {answers.map((answer) => (
-                            <Grid item xs={12}> {/* Cada respuesta ocupa toda la anchura disponible */}
-                                <Button
-                                    key={answer.id}
-                                    variant="contained"
-                                    className={`custom-button ${responseState[answer.id]?.isSelected === true && answer.correct? "correct-answer" : ""}`}
-                                    onClick={() => handleSelectAnswer(answer)}
-                                >
-                                    <>
-                                        {answer.name}
-                                        {responseState[answer.id]?.isSelected === true && (
-                                            <>
-                                                {answer.correct? (
-                                                    <CheckCircleOutlineIcon style={{ marginLeft: '8px', marginRight: '8px' }} />
-                                                ) : (
-                                                    <CancelIcon style={{ marginLeft: '8px', marginRight: '8px' }} />
-                                                )}
-                                            </>
-                                        )}
-                                    </>
-                                    {showCorrectAnswer && !answer.correct && (
-                                        <Typography variant="body2" color="textSecondary">
-                                            <FormattedMessage id="project.entities.Quiz.Answers"></FormattedMessage>
-                                        {answers.find(a => a.correct)?.name}
-                                        </Typography>
-                                    )}
-                                </Button>
-                            </Grid>
-                        ))}
+            <Grid container spacing={2} justifyContent="center" mt={3}>
+                {answers && answers.map((answer) => (
+                    <Grid item xs={12} md={6} key={answer.id}>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            onClick={() => handleSelectAnswer(answer)}
+                            className={`quiz-answer-btn ${responseState[answer.id]?.isCorrect === true ? 'correct' : ''}`}
+                        >
+                            {answer.name}
+                            {responseState[answer.id]?.isSelected && (
+                                answer.correct ? <CheckCircleOutlineIcon sx={{ ml: 1 }} /> : <CancelIcon sx={{ ml: 1 }} />
+                            )}
+                        </Button>
                     </Grid>
-                ) : (
-                    navigate('/')
-                )}
+                ))}
+            </Grid>
 
-                {score>=totalScore? (
-                    <Alert severity="success">
-                        <AlertTitle></AlertTitle>
-                        <FormattedMessage id="project.entities.Quiz.getPoints"></FormattedMessage>
-                        {score}/{totalScore} <FormattedMessage id="project.points"></FormattedMessage>.
-                    </Alert>
-                ) : (
-                    <Alert>
-                        <AlertTitle><FormattedMessage id="project.YourPoints"></FormattedMessage></AlertTitle>
-                        <FormattedMessage id="project.entities.Quiz.getPoints"></FormattedMessage>
-                        {score}/{totalScore} <FormattedMessage id="project.points"></FormattedMessage>.
-                    </Alert>
+            <AnimatePresence>
+                {scoreEffect && (
+                    <motion.div
+                        key={scoreEffect}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.8 }}
+                        className={`score-popup ${scoreEffect.startsWith('+') ? 'positive' : 'negative'}`}
+                    >
+                        {scoreEffect}
+                    </motion.div>
                 )}
-            </Box>
-        </Container>
+            </AnimatePresence>
+        </Box>
     );
 };
 
