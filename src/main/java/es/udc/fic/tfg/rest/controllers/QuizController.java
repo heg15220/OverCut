@@ -8,6 +8,7 @@ import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import es.udc.fic.tfg.rest.dtos.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,9 @@ public class QuizController {
     @Autowired
     private QuizService quizService;
 
+    @Autowired
+    private UserDao userDao;
+
 
     @PostMapping("/create")
     public Long createQuiz(@RequestAttribute Long userId) throws InstanceNotFoundException{
@@ -29,6 +33,17 @@ public class QuizController {
     }
 
 
+
+
+    @GetMapping("/{id}/quizType")
+    public QuizType getQuizQuestionsType(@PathVariable("id") Long quizId){
+        return (quizService.getQuizQuestionsType(quizId));
+    }
+
+    @GetMapping("/{id}/quizCategory")
+    public QuizCategory getQuizQuestionsCategory(@PathVariable("id") Long quizId){
+        return (quizService.getQuizQuestionsCategory(quizId));
+    }
 
     @PostMapping("/{id}/answer")
     public void chooseAnswer(@PathVariable("id") Long quizId, @Validated @RequestBody AnswerParamsDto params) throws QuizException,

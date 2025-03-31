@@ -4,6 +4,8 @@
 import mysql.connector
 import random
 import json
+import argparse  # <- AÑADE ESTO AQUÍ
+
 
 config = {
     'host': 'localhost',
@@ -86,8 +88,13 @@ def generar_pregunta_piloto_primera_victoria_reciente():
     contemporaneos = obtener_pilotos_entre_anios(year - 2, year + 2, correcta)
     opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 2}
-
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
+        }
 
 def generar_pregunta_piloto_mas_podios_totales():
     # Obtener pilotos con número total de podios
@@ -113,7 +120,13 @@ def generar_pregunta_piloto_mas_podios_totales():
             pregunta = "¿Qué piloto tiene más podios en su carrera?"
             opciones = [row[0] for row in seleccion]
             random.shuffle(opciones)
-            return {"question": pregunta, "answers": opciones, "correctAnswer": c_nombre, "knowledgeLevel": 2}
+            return {
+                    "question": pregunta,
+                    "answers": opciones,               # <- "answers" en lugar de "options"
+                    "correctAnswer": c_nombre,           # <- "correctAnswer" en lugar de "answer"
+                    "knowledgeLevel": 2,            # nivel conocimiento arbitrario (ejemplo: 2)
+                    "category": "GenericStats"
+                }
         intentos += 1
 
     raise Exception("No se pudo generar una pregunta válida de podios sin empates.")
@@ -143,7 +156,13 @@ def generar_pregunta_campeon_pilotos():
     contemporaneos = obtener_pilotos_entre_anios(anio - 2, anio + 2, correcta)
     opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 1}
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
+        }
 
 
 def generar_pregunta_campeon_constructores():
@@ -170,7 +189,13 @@ def generar_pregunta_campeon_constructores():
     cursor.execute("SELECT name FROM constructors WHERE name != %s ORDER BY RAND() LIMIT 3", (constructora,))
     opciones = [row[0] for row in cursor.fetchall()] + [constructora]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": constructora, "knowledgeLevel": 1}
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": constructora,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
+        }
 
 
 
@@ -190,7 +215,13 @@ def generar_pregunta_ganador_gp():
     contemporaneos = obtener_pilotos_entre_anios(year - 2, year + 2, correcta)
     opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 1}
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
+        }
 
 def generar_pregunta_segundo_gp():
     cursor.execute("""
@@ -208,7 +239,13 @@ def generar_pregunta_segundo_gp():
     contemporaneos = obtener_pilotos_entre_anios(year, year, correcta)
     opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 2}
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
+        }
 
 def generar_pregunta_tercero_gp():
     cursor.execute("""
@@ -226,7 +263,13 @@ def generar_pregunta_tercero_gp():
     contemporaneos = obtener_pilotos_entre_anios(year, year, correcta)
     opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 2}
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 2,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
+        }
 
 
 def generar_pregunta_escuderia_ganadora():
@@ -244,7 +287,13 @@ def generar_pregunta_escuderia_ganadora():
     cursor.execute("SELECT name FROM constructors WHERE name != %s ORDER BY RAND() LIMIT 3", (team,))
     opciones = [row[0] for row in cursor.fetchall()] + [team]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": team, "knowledgeLevel": 1}
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": team,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
+        }
 
 def generar_pregunta_constructor_mas_titulos():
     cursor.execute("""
@@ -266,8 +315,10 @@ def generar_pregunta_constructor_mas_titulos():
         "question": pregunta,
         "answers": opciones,
         "correctAnswer": constructor,
-        "knowledgeLevel": 3
+        "knowledgeLevel": 3,
+        "category": "GenericStats"
     }
+
 
 def generar_pregunta_piloto_mas_poles_en_circuito():
     intentos = 0
@@ -308,7 +359,8 @@ def generar_pregunta_piloto_mas_poles_en_circuito():
                 pregunta = f"¿Qué piloto ha conseguido más poles en el circuito {circuito}?"
                 opciones = [row[0] for row in seleccion]
                 random.shuffle(opciones)
-                return {"question": pregunta, "answers": opciones, "correctAnswer": correcta_nombre, "knowledgeLevel": 3}
+                return {"question": pregunta, "answers": opciones, "correctAnswer": correcta_nombre,
+                "knowledgeLevel": 3, "category": "GenericStats"}
 
         intentos += 1
     raise Exception("No se pudo generar una pregunta válida de poles sin empates.")
@@ -340,7 +392,7 @@ def generar_pregunta_constructor_mas_victorias_en_circuito():
     contemporaneos = obtener_constructores_entre_anios(anio_inicio, anio_fin, constructora)
     opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [constructora]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": constructora, "knowledgeLevel": 2}
+    return {"question": pregunta, "answers": opciones, "correctAnswer": constructora, "knowledgeLevel": 2, "category": "GenericStats"}
 
 
 def generar_pregunta_constructor_mas_victorias_en_pais():
@@ -368,7 +420,7 @@ def generar_pregunta_constructor_mas_victorias_en_pais():
     contemporaneos = obtener_constructores_entre_anios(anio_inicio, anio_fin, constructora)
     opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [constructora]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": constructora, "knowledgeLevel": 3}
+    return {"question": pregunta, "answers": opciones, "correctAnswer": constructora, "knowledgeLevel": 3, "category": "GenericStats"}
 
 def generar_pregunta_circuito_mas_carreras():
     # Obtener circuitos con al menos 10 carreras
@@ -393,7 +445,8 @@ def generar_pregunta_circuito_mas_carreras():
             pregunta = "¿Qué circuito ha sido usado más veces en la historia de la F1?"
             opciones = [row[0] for row in seleccion]
             random.shuffle(opciones)
-            return {"question": pregunta, "answers": opciones, "correctAnswer": nombre_circuito, "knowledgeLevel": 2}
+            return {"question": pregunta, "answers": opciones, "correctAnswer": nombre_circuito,
+             "knowledgeLevel": 2, "category": "GenericStats"}
         intentos += 1
 
     raise Exception("No se pudo generar una pregunta válida de circuitos sin empates.")
@@ -426,7 +479,7 @@ def generar_pregunta_piloto_mas_victorias_en_circuito():
     contemporaneos = obtener_pilotos_entre_anios(anio_inicio, anio_fin, correcta)
     opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
     random.shuffle(opciones)
-    return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 3}
+    return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 3, "category": "GenericStats"}
 
 # Bloques de funciones implementadas
 
@@ -441,7 +494,8 @@ def pregunta_rival_de_senna_en_mclaren():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Duels"
         }
 
 def pregunta_piloto_perdio_titulo_en_ultima_curva_2008():
@@ -466,7 +520,8 @@ def pregunta_piloto_perdio_titulo_en_ultima_curva_2008():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Duels"
         }
 
 def pregunta_rival_schumacher_2000():
@@ -491,7 +546,8 @@ def pregunta_rival_schumacher_2000():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Duels"
         }
 
 def pregunta_ano_choque_hamilton_rosberg_espana():
@@ -512,7 +568,8 @@ def pregunta_ano_choque_hamilton_rosberg_espana():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Duels"
         }
 
 def pregunta_duelo_vettel_canada_2019():
@@ -535,9 +592,13 @@ def pregunta_duelo_vettel_canada_2019():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Duels"
         }
 
+#------------------------------------------------------------------------------------------------------
+
+temporada_objetivo = random.randint(1950, 2023)
 # **Temporadas Históricas**
 def pregunta_piloto_campeon_temporada(temporada_objetivo):
     cursor.execute("""
@@ -562,7 +623,8 @@ def pregunta_piloto_campeon_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
 def pregunta_constructor_campeon_temporada(temporada_objetivo):
@@ -587,7 +649,8 @@ def pregunta_constructor_campeon_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
 
@@ -620,7 +683,8 @@ def pregunta_gp_mas_abandonos_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": gp,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
 def pregunta_victorias_campeon_temporada(temporada_objetivo):
@@ -652,7 +716,8 @@ def pregunta_victorias_campeon_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(victorias),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
 def pregunta_ultimo_gp_temporada(temporada_objetivo):
@@ -677,7 +742,8 @@ def pregunta_ultimo_gp_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
 
@@ -705,7 +771,8 @@ def pregunta_piloto_mas_poles_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
 def pregunta_circuito_mas_vueltas_temporada(temporada_objetivo):
@@ -732,7 +799,8 @@ def pregunta_circuito_mas_vueltas_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
 def pregunta_escuderia_mas_abandonos_temporada(temporada_objetivo):
@@ -764,7 +832,8 @@ def pregunta_escuderia_mas_abandonos_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
 def pregunta_cuantos_pilotos_ganaron_temporada(temporada_objetivo):
@@ -786,7 +855,8 @@ def pregunta_cuantos_pilotos_ganaron_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
 def pregunta_piloto_mas_puntos_sin_ganar_temporada(temporada_objetivo):
@@ -818,45 +888,52 @@ def pregunta_piloto_mas_puntos_sin_ganar_temporada(temporada_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "LegendarySeason"
         }
 
-temporada = random.randint(1950, 2023)
+
 # Wrappers para las preguntas de Temporadas Históricas
 def pregunta_piloto_campeon_temporada_wrapper():
-    return pregunta_piloto_campeon_temporada(temporada)
+    return pregunta_piloto_campeon_temporada(temporada_objetivo)
 
 def pregunta_constructor_campeon_temporada_wrapper():
-    return pregunta_constructor_campeon_temporada(temporada)
+    return pregunta_constructor_campeon_temporada(temporada_objetivo)
 
 def pregunta_gp_mas_abandonos_temporada_wrapper():
-    return pregunta_gp_mas_abandonos_temporada(temporada)
+    return pregunta_gp_mas_abandonos_temporada(temporada_objetivo)
 
 def pregunta_victorias_campeon_temporada_wrapper():
-    return pregunta_victorias_campeon_temporada(temporada)
+    return pregunta_victorias_campeon_temporada(temporada_objetivo)
 
 def pregunta_ultimo_gp_temporada_wrapper():
-    return pregunta_ultimo_gp_temporada(temporada)
+    return pregunta_ultimo_gp_temporada(temporada_objetivo)
 
 def pregunta_piloto_mas_poles_temporada_wrapper():
-    return pregunta_piloto_mas_poles_temporada(temporada)
+    return pregunta_piloto_mas_poles_temporada(temporada_objetivo)
 
 def pregunta_circuito_mas_vueltas_temporada_wrapper():
-    return pregunta_circuito_mas_vueltas_temporada(temporada)
+    return pregunta_circuito_mas_vueltas_temporada(temporada_objetivo)
 
 def pregunta_escuderia_mas_abandonos_temporada_wrapper():
-    return pregunta_escuderia_mas_abandonos_temporada(temporada)
+    return pregunta_escuderia_mas_abandonos_temporada(temporada_objetivo)
 
 def pregunta_cuantos_pilotos_ganaron_temporada_wrapper():
-    return pregunta_cuantos_pilotos_ganaron_temporada(temporada)
+    return pregunta_cuantos_pilotos_ganaron_temporada(temporada_objetivo)
 
 def pregunta_piloto_mas_puntos_sin_ganar_temporada_wrapper():
-    return pregunta_piloto_mas_puntos_sin_ganar_temporada(temporada)
+    return pregunta_piloto_mas_puntos_sin_ganar_temporada(temporada_objetivo)
 
 #------------------------------------------------------------------------------------------------------------------
 # **Preguntas sobre escudería en concreto**
 
-def pregunta_piloto_mas_victorias_escuderia(escuderia_objetivo):
+def pregunta_piloto_mas_victorias_escuderia():
+    cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    escuderia_objetivo = row[0]
+
     cursor.execute("""
         SELECT d.forename, d.surname, COUNT(*) as wins
         FROM results r
@@ -880,11 +957,18 @@ def pregunta_piloto_mas_victorias_escuderia(escuderia_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Team"
         }
 
 
-def pregunta_temporada_mas_puntos_escuderia(escuderia_objetivo):
+def pregunta_temporada_mas_puntos_escuderia():
+    cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    escuderia_objetivo = row[0]
+
     cursor.execute("""
         SELECT ra.year, SUM(r.points) as total
         FROM results r
@@ -907,11 +991,18 @@ def pregunta_temporada_mas_puntos_escuderia(escuderia_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(anio),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Team"
         }
 
 
-def pregunta_poles_totales_escuderia(escuderia_objetivo):
+def pregunta_poles_totales_escuderia():
+    cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    escuderia_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(*)
         FROM qualifying q
@@ -930,11 +1021,18 @@ def pregunta_poles_totales_escuderia(escuderia_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(total_poles),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Team"
         }
 
 
-def pregunta_circuito_mas_victorias_escuderia(escuderia_objetivo):
+def pregunta_circuito_mas_victorias_escuderia():
+    cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    escuderia_objetivo = row[0]
+
     cursor.execute("""
         SELECT c.name, COUNT(*) as wins
         FROM results r
@@ -958,11 +1056,18 @@ def pregunta_circuito_mas_victorias_escuderia(escuderia_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Team"
         }
 
 
-def pregunta_campeonatos_constructores_escuderia(escuderia_objetivo):
+def pregunta_campeonatos_constructores_escuderia():
+    cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    escuderia_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(DISTINCT ra.year)
         FROM constructorStandings cs
@@ -982,10 +1087,17 @@ def pregunta_campeonatos_constructores_escuderia(escuderia_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Team"
         }
 
-def pregunta_piloto_mas_abandonos_escuderia(escuderia_objetivo):
+def pregunta_piloto_mas_abandonos_escuderia():
+    cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    escuderia_objetivo = row[0]
+
     cursor.execute("""
         SELECT d.forename, d.surname, COUNT(*) as abandonos
         FROM results r
@@ -1014,10 +1126,17 @@ def pregunta_piloto_mas_abandonos_escuderia(escuderia_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Team"
         }
 
-def pregunta_peor_temporada_puntos_escuderia(escuderia_objetivo):
+def pregunta_peor_temporada_puntos_escuderia():
+    cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    escuderia_objetivo = row[0]
+
     cursor.execute("""
         SELECT ra.year, SUM(r.points) as total_puntos
         FROM results r
@@ -1036,7 +1155,7 @@ def pregunta_peor_temporada_puntos_escuderia(escuderia_objetivo):
     opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
     opciones.append(str(year))
     random.shuffle(opciones)
-    return {"question": pregunta, "options": opciones, "answer": str(year)}
+    return {"question": pregunta, "options": opciones, "answer": str(year), "knowledgeLevel": 2, "category": "Team"}
 
 
 
@@ -1049,25 +1168,25 @@ escuderia = obtener_escuderia_aleatoria()
 
 # Funciones Wrapped
 def pregunta_piloto_mas_victorias_escuderia_wrapper():
-    return pregunta_piloto_mas_victorias_escuderia(escuderia) if escuderia else None
+    return pregunta_piloto_mas_victorias_escuderia()
 
 def pregunta_temporada_mas_puntos_escuderia_wrapper():
-    return pregunta_temporada_mas_puntos_escuderia(escuderia) if escuderia else None
+    return pregunta_temporada_mas_puntos_escuderia()
 
 def pregunta_poles_totales_escuderia_wrapper():
-    return pregunta_poles_totales_escuderia(escuderia) if escuderia else None
+    return pregunta_poles_totales_escuderia()
 
 def pregunta_circuito_mas_victorias_escuderia_wrapper():
-    return pregunta_circuito_mas_victorias_escuderia(escuderia) if escuderia else None
+    return pregunta_circuito_mas_victorias_escuderia()
 
 def pregunta_campeonatos_constructores_escuderia_wrapper():
-    return pregunta_campeonatos_constructores_escuderia(escuderia) if escuderia else None
+    return pregunta_campeonatos_constructores_escuderia()
 
 def pregunta_piloto_mas_abandonos_escuderia_wrapped():
-    return pregunta_piloto_mas_abandonos_escuderia(escuderia) if escuderia else None
+    return pregunta_piloto_mas_abandonos_escuderia()
 
 def pregunta_peor_temporada_puntos_escuderia_wrapped():
-    return pregunta_peor_temporada_puntos_escuderia(escuderia) if escuderia else None
+    return pregunta_peor_temporada_puntos_escuderia()
 
 
 def obtener_circuito_aleatorio():
@@ -1088,7 +1207,12 @@ pista = obtener_circuito_aleatorio()
 
 #------------------------------------------------------------------------------------------------------------------
 # Preguntas sobre un circuito
-def pregunta_constructor_mas_abandonos_circuito(circuito_objetivo):
+def pregunta_constructor_mas_abandonos_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT cs.name, COUNT(*) as abandonos
         FROM results r
@@ -1119,10 +1243,16 @@ def pregunta_constructor_mas_abandonos_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
-def pregunta_piloto_mas_poles_sin_ganar_circuito(circuito_objetivo):
+def pregunta_piloto_mas_poles_sin_ganar_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT d.forename, d.surname, COUNT(*) as poles
         FROM qualifying q
@@ -1154,11 +1284,17 @@ def pregunta_piloto_mas_poles_sin_ganar_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 
-def pregunta_anio_mas_cambios_lider(circuito_objetivo):
+def pregunta_anio_mas_cambios_lider():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT ra.year, COUNT(DISTINCT l.driverId) as cambios
         FROM lapTimes l
@@ -1181,11 +1317,17 @@ def pregunta_anio_mas_cambios_lider(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 
-def pregunta_anio_mas_abandonos_circuito(circuito_objetivo):
+def pregunta_anio_mas_abandonos_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT ra.year, COUNT(*) as abandonos
         FROM results r
@@ -1215,11 +1357,17 @@ def pregunta_anio_mas_abandonos_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 
-def pregunta_piloto_pole_y_vuelta_rapida_misma_edicion(circuito_objetivo):
+def pregunta_piloto_pole_y_vuelta_rapida_misma_edicion():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT d.forename, d.surname
         FROM qualifying q
@@ -1245,29 +1393,35 @@ def pregunta_piloto_pole_y_vuelta_rapida_misma_edicion(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 def pregunta_constructor_mas_abandonos_circuito_wrapped():
-    return pregunta_constructor_mas_abandonos_circuito(pista) if pista else None
+    return pregunta_constructor_mas_abandonos_circuito()
 
 
 def pregunta_piloto_mas_poles_sin_ganar_circuito_wrapped():
-    return pregunta_piloto_mas_poles_sin_ganar_circuito(pista) if pista else None
+    return pregunta_piloto_mas_poles_sin_ganar_circuito()
 
 def pregunta_anio_mas_cambios_lider_wrapped():
-    return pregunta_anio_mas_cambios_lider(pista) if pista else None
+    return pregunta_anio_mas_cambios_lider()
 
 
 def pregunta_anio_mas_abandonos_circuito_wrapped():
-    return pregunta_anio_mas_abandonos_circuito(pista) if pista else None
+    return pregunta_anio_mas_abandonos_circuito()
 
 
 def pregunta_piloto_pole_y_vuelta_rapida_misma_edicion_wrapped():
-    return pregunta_piloto_pole_y_vuelta_rapida_misma_edicion(pista) if pista else None
+    return pregunta_piloto_pole_y_vuelta_rapida_misma_edicion()
 
 
-def pregunta_anio_velocidad_promedio_mas_alta(circuito_objetivo):
+def pregunta_anio_velocidad_promedio_mas_alta():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT ra.year, AVG(r.milliseconds / r.laps) as avg_lap_time
         FROM results r
@@ -1290,11 +1444,17 @@ def pregunta_anio_velocidad_promedio_mas_alta(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 
-def pregunta_pais_circuito(circuito_objetivo):
+def pregunta_pais_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT country FROM circuits WHERE name = %s
     """, (circuito_objetivo,))
@@ -1310,11 +1470,17 @@ def pregunta_pais_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": pais,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 
-def pregunta_anio_cancelado_del_calendario(circuito_objetivo):
+def pregunta_anio_cancelado_del_calendario():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT ra.year
         FROM races ra
@@ -1341,11 +1507,17 @@ def pregunta_anio_cancelado_del_calendario(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(cancelado),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 
-def pregunta_piloto_fue_campeon_en_ese_circuito(circuito_objetivo):
+def pregunta_piloto_fue_campeon_en_ese_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT d.forename, d.surname, COUNT(*) as veces
         FROM driverStandings ds
@@ -1370,11 +1542,17 @@ def pregunta_piloto_fue_campeon_en_ese_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 
-def pregunta_gp_con_mas_campeones_en_circuito(circuito_objetivo):
+def pregunta_gp_con_mas_campeones_en_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT ra.year, COUNT(DISTINCT d.driverId) as campeones
         FROM races ra
@@ -1400,28 +1578,34 @@ def pregunta_gp_con_mas_campeones_en_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 def pregunta_anio_velocidad_promedio_mas_alta_wrapped():
-    return pregunta_anio_velocidad_promedio_mas_alta(pista) if pista else None
+    return pregunta_anio_velocidad_promedio_mas_alta()
 
 
 def pregunta_pais_circuito_wrapped():
-    return pregunta_pais_circuito(pista) if pista else None
+    return pregunta_pais_circuito()
 
 def pregunta_anio_cancelado_del_calendario_wrapped():
-    return pregunta_anio_cancelado_del_calendario(pista) if pista else None
+    return pregunta_anio_cancelado_del_calendario()
 
 
 def pregunta_piloto_fue_campeon_en_ese_circuito_wrapped():
-    return pregunta_piloto_fue_campeon_en_ese_circuito(pista) if pista else None
+    return pregunta_piloto_fue_campeon_en_ese_circuito()
 
 
 def pregunta_gp_con_mas_campeones_en_circuito_wrapped():
-    return pregunta_gp_con_mas_campeones_en_circuito(pista) if pista else None
+    return pregunta_gp_con_mas_campeones_en_circuito()
 
-def pregunta_piloto_mas_victorias_circuito(circuito_objetivo):
+def pregunta_piloto_mas_victorias_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
     cursor.execute("""
         SELECT d.forename, d.surname, COUNT(*) as victorias
         FROM results r
@@ -1445,11 +1629,18 @@ def pregunta_piloto_mas_victorias_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 
-def pregunta_constructor_mas_poles_circuito(circuito_objetivo):
+def pregunta_constructor_mas_poles_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
+
     cursor.execute("""
         SELECT cs.name, COUNT(*) as poles
         FROM qualifying q
@@ -1473,10 +1664,17 @@ def pregunta_constructor_mas_poles_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
-def pregunta_ano_mas_abandonos_circuito(circuito_objetivo):
+def pregunta_ano_mas_abandonos_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
+
     cursor.execute("""
         SELECT ra.year, COUNT(*) as abandonos
         FROM results r
@@ -1505,11 +1703,18 @@ def pregunta_ano_mas_abandonos_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 
-def pregunta_numero_gp_en_circuito(circuito_objetivo):
+def pregunta_numero_gp_en_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(*) as cantidad
         FROM races ra
@@ -1528,10 +1733,17 @@ def pregunta_numero_gp_en_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(cantidad),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
-def pregunta_anio_vuelta_rapida_circuito(circuito_objetivo):
+def pregunta_anio_vuelta_rapida_circuito():
+    cursor.execute("SELECT name FROM circuits ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    circuito_objetivo = row[0]
+
     cursor.execute("""
         SELECT ra.year, MIN(lapTime) as vuelta_rapida
         FROM lapTimes l
@@ -1554,31 +1766,38 @@ def pregunta_anio_vuelta_rapida_circuito(circuito_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Circuit"
         }
 
 def pregunta_piloto_mas_victorias_circuito_wrapped():
-    return pregunta_piloto_mas_victorias_circuito(pista) if pista else None
+    return pregunta_piloto_mas_victorias_circuito()
 
 
 def pregunta_constructor_mas_poles_circuito_wrapped():
-    return pregunta_constructor_mas_poles_circuito(pista) if pista else None
+    return pregunta_constructor_mas_poles_circuito()
 
 def pregunta_ano_mas_abandonos_circuito_wrapped():
-    return pregunta_ano_mas_abandonos_circuito(pista) if pista else None
+    return pregunta_ano_mas_abandonos_circuito()
 
 
 def pregunta_numero_gp_en_circuito_wrapped():
-    return pregunta_numero_gp_en_circuito(pista) if pista else None
+    return pregunta_numero_gp_en_circuito()
 
 
 def pregunta_anio_vuelta_rapida_circuito_wrapped():
-    return pregunta_anio_vuelta_rapida_circuito(pista) if pista else None
+    return pregunta_anio_vuelta_rapida_circuito()
 
 #---------------------------------------------------------------------------------------------------------------
 # Preguntas sobre PILOTO en concreto
 
 def pregunta_circuito_mas_abandonos_piloto(piloto_objetivo):
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT c.name, COUNT(*) as abandonos
         FROM results r
@@ -1607,11 +1826,18 @@ def pregunta_circuito_mas_abandonos_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
 
-def pregunta_puntos_consecutivos_piloto(piloto_objetivo):
+def pregunta_puntos_consecutivos_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(*) as rachas
         FROM (
@@ -1635,10 +1861,17 @@ def pregunta_puntos_consecutivos_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(rachas),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_promedio_posicion_clasificacion(piloto_objetivo):
+def pregunta_promedio_posicion_clasificacion():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT AVG(q.position) as promedio
         FROM qualifying q
@@ -1657,10 +1890,17 @@ def pregunta_promedio_posicion_clasificacion(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(promedio),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_temporada_mas_paradas_boxes(piloto_objetivo):
+def pregunta_temporada_mas_paradas_boxes():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT ra.year, COUNT(*) as paradas
         FROM pitStops p
@@ -1682,10 +1922,17 @@ def pregunta_temporada_mas_paradas_boxes(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_porcentaje_carreras_finalizadas(piloto_objetivo):
+def pregunta_porcentaje_carreras_finalizadas():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT
             (COUNT(*) FILTER (WHERE r.position != 0) * 100.0 / COUNT(*)) as porcentaje
@@ -1705,10 +1952,17 @@ def pregunta_porcentaje_carreras_finalizadas(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(porcentaje),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_circuito_no_victoria_piloto(piloto_objetivo):
+def pregunta_circuito_no_victoria_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT c.name
         FROM circuits c
@@ -1733,10 +1987,17 @@ def pregunta_circuito_no_victoria_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_pilotos_distintos_compitio(piloto_objetivo):
+def pregunta_pilotos_distintos_compitio():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(DISTINCT r.driverId)
         FROM results r
@@ -1754,10 +2015,17 @@ def pregunta_pilotos_distintos_compitio(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_racha_sin_ganar(piloto_objetivo):
+def pregunta_racha_sin_ganar():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT ra.year, COUNT(*) as victorias
         FROM results r
@@ -1784,10 +2052,17 @@ def pregunta_racha_sin_ganar(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(max_racha),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_peor_posicion_clasificacion_piloto(piloto_objetivo):
+def pregunta_peor_posicion_clasificacion_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT MIN(q.position)
         FROM qualifying q
@@ -1806,10 +2081,17 @@ def pregunta_peor_posicion_clasificacion_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(posicion),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_remontadas_puesto_15_piloto(piloto_objetivo):
+def pregunta_remontadas_puesto_15_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(*) as remontadas
         FROM results r
@@ -1827,10 +2109,17 @@ def pregunta_remontadas_puesto_15_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(remontadas),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_carreras_lideradas_piloto(piloto_objetivo):
+def pregunta_carreras_lideradas_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(DISTINCT r.raceId)
         FROM results r
@@ -1849,10 +2138,17 @@ def pregunta_carreras_lideradas_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(lideradas),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_supero_mas_clasificacion(piloto_objetivo):
+def pregunta_supero_mas_clasificacion():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT d.forename, d.surname, COUNT(*) as veces
         FROM qualifying q
@@ -1875,10 +2171,17 @@ def pregunta_supero_mas_clasificacion(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_mejor_vuelta_rapida(piloto_objetivo):
+def pregunta_mejor_vuelta_rapida():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT MIN(lapTime) as mejor_vuelta
         FROM lapTimes l
@@ -1897,10 +2200,17 @@ def pregunta_mejor_vuelta_rapida(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(mejor_vuelta),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_piloto_anio_mas_puntos(piloto_objetivo):
+def pregunta_piloto_anio_mas_puntos():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT ra.year, SUM(r.points) as total_puntos
         FROM results r
@@ -1922,10 +2232,17 @@ def pregunta_piloto_anio_mas_puntos(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_escuderias_distintas_piloto(piloto_objetivo):
+def pregunta_escuderias_distintas_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(DISTINCT r.constructorId)
         FROM results r
@@ -1943,10 +2260,17 @@ def pregunta_escuderias_distintas_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_gp_mas_participaciones_piloto(piloto_objetivo):
+def pregunta_gp_mas_participaciones_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT c.name, COUNT(*) as participaciones
         FROM results r
@@ -1969,10 +2293,17 @@ def pregunta_gp_mas_participaciones_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_abandonos_piloto(piloto_objetivo):
+def pregunta_abandonos_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(*) as abandonos
         FROM results r
@@ -1996,10 +2327,17 @@ def pregunta_abandonos_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(abandonos),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_ultimo_gp_victoria_piloto(piloto_objetivo):
+def pregunta_ultimo_gp_victoria_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT c.name
         FROM results r
@@ -2021,10 +2359,17 @@ def pregunta_ultimo_gp_victoria_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_companero_podio_piloto(piloto_objetivo):
+def pregunta_companero_podio_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT d.forename, d.surname
         FROM results r
@@ -2048,10 +2393,17 @@ def pregunta_companero_podio_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": compañero,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_ano_debut_piloto(piloto_objetivo):
+def pregunta_ano_debut_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT MIN(ra.year)
         FROM races ra
@@ -2070,10 +2422,17 @@ def pregunta_ano_debut_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(debut),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_primera_victoria_escuderia_piloto(piloto_objetivo):
+def pregunta_primera_victoria_escuderia_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT c.name
         FROM results r
@@ -2095,10 +2454,17 @@ def pregunta_primera_victoria_escuderia_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": escuderia,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_poles_piloto(piloto_objetivo):
+def pregunta_poles_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(*) as poles
         FROM qualifying q
@@ -2116,10 +2482,17 @@ def pregunta_poles_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(poles),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_circuito_mas_podios_piloto(piloto_objetivo):
+def pregunta_circuito_mas_podios_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT c.name, COUNT(*) as podios
         FROM results r
@@ -2142,10 +2515,17 @@ def pregunta_circuito_mas_podios_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_pais_mas_victorias_piloto(piloto_objetivo):
+def pregunta_pais_mas_victorias_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT c.country, COUNT(*) as victorias
         FROM results r
@@ -2168,10 +2548,17 @@ def pregunta_pais_mas_victorias_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": pais,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 2                # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def obtener_victorias_piloto(piloto_objetivo):
+def obtener_victorias_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     # Extraemos el primer nombre y apellido
     forename, surname = nombre_completo_piloto.split(' ', 1)
 
@@ -2194,12 +2581,19 @@ def obtener_victorias_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(victorias),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
 
 
-def pregunta_peor_temporada_puntos_piloto(piloto_objetivo):
+def pregunta_peor_temporada_puntos_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT ra.year, SUM(r.points) as total_puntos
         FROM results r
@@ -2222,10 +2616,17 @@ def pregunta_peor_temporada_puntos_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
-def pregunta_temporadas_sin_puntos_piloto(piloto_objetivo):
+def pregunta_temporadas_sin_puntos_piloto():
+    cursor.execute("SELECT driverId FROM drivers ORDER BY RAND() LIMIT 1")
+    row = cursor.fetchone()
+    if not row:
+        return None
+    piloto_objetivo = row[0]
+
     cursor.execute("""
         SELECT COUNT(DISTINCT ra.year)
         FROM results r
@@ -2244,7 +2645,8 @@ def pregunta_temporadas_sin_puntos_piloto(piloto_objetivo):
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "Driver"
         }
 
 
@@ -2264,99 +2666,99 @@ def obtener_piloto_aleatorio():
 piloto_aleatorio = obtener_piloto_aleatorio()
 
 def pregunta_circuito_mas_abandonos_piloto_wrapped():
-    return pregunta_circuito_mas_abandonos_piloto(piloto_aleatorio) if pista else None
+    return pregunta_circuito_mas_abandonos_piloto()
 
 
 def pregunta_puntos_consecutivos_piloto_wrapped():
-    return pregunta_puntos_consecutivos_piloto(piloto_aleatorio) if pista else None
+    return pregunta_puntos_consecutivos_piloto()
 
 def pregunta_promedio_posicion_clasificacion_wrapped():
-    return pregunta_promedio_posicion_clasificacion(piloto_aleatorio) if pista else None
+    return pregunta_promedio_posicion_clasificacion()
 
 def pregunta_temporada_mas_paradas_boxes_wrapped():
-    return pregunta_temporada_mas_paradas_boxes(piloto_aleatorio) if pista else None
+    return pregunta_temporada_mas_paradas_boxes()
 
 def pregunta_porcentaje_carreras_finalizadas_wrapped():
-    return pregunta_porcentaje_carreras_finalizadas(piloto_aleatorio) if pista else None
+    return pregunta_porcentaje_carreras_finalizadas()
 
 def pregunta_circuito_no_victoria_piloto_wrapped():
-    return pregunta_circuito_no_victoria_piloto(piloto_aleatorio) if pista else None
+    return pregunta_circuito_no_victoria_piloto()
 
 def pregunta_pilotos_distintos_compitio_wrapped():
-    return pregunta_pilotos_distintos_compitio(piloto_aleatorio) if pista else None
+    return pregunta_pilotos_distintos_compitio()
 
 def pregunta_racha_sin_ganar_wrapped():
-    return pregunta_racha_sin_ganar(piloto_aleatorio) if pista else None
+    return pregunta_racha_sin_ganar()
 
 def pregunta_peor_posicion_clasificacion_piloto_wrapped():
-    return pregunta_peor_posicion_clasificacion_piloto(piloto_aleatorio) if pista else None
+    return pregunta_peor_posicion_clasificacion_piloto()
 
 def pregunta_peor_posicion_clasificacion_piloto_wrapped():
-    return pregunta_peor_posicion_clasificacion_piloto(piloto_aleatorio) if pista else None
+    return pregunta_peor_posicion_clasificacion_piloto()
 
 def pregunta_remontadas_puesto_15_piloto_wrapped():
-    return pregunta_remontadas_puesto_15_piloto(piloto_aleatorio) if pista else None
+    return pregunta_remontadas_puesto_15_piloto()
 
 def pregunta_carreras_lideradas_piloto_wrapped():
-    return pregunta_carreras_lideradas_piloto(piloto_aleatorio) if pista else None
+    return pregunta_carreras_lideradas_piloto()
 
 def pregunta_supero_mas_clasificacion_wrapped():
-    return pregunta_supero_mas_clasificacion(piloto_aleatorio) if pista else None
+    return pregunta_supero_mas_clasificacion()
 
 def pregunta_mejor_vuelta_rapida_wrapped():
-    return pregunta_mejor_vuelta_rapida(piloto_aleatorio) if pista else None
+    return pregunta_mejor_vuelta_rapida()
 
 
 
 
 
 def pregunta_piloto_anio_mas_puntos_wrapped():
-    return pregunta_piloto_anio_mas_puntos(piloto_aleatorio) if pista else None
+    return pregunta_piloto_anio_mas_puntos()
 
 def pregunta_escuderias_distintas_piloto_wrapped():
-    return pregunta_escuderias_distintas_piloto(piloto_aleatorio) if pista else None
+    return pregunta_escuderias_distintas_piloto()
 
 def pregunta_gp_mas_participaciones_piloto_wrapped():
-    return pregunta_gp_mas_participaciones_piloto(piloto_aleatorio) if pista else None
+    return pregunta_gp_mas_participaciones_piloto()
 
 def pregunta_abandonos_piloto_wrapped():
-    return pregunta_abandonos_piloto(piloto_aleatorio) if pista else None
+    return pregunta_abandonos_piloto()
 
 def pregunta_ultimo_gp_victoria_piloto_wrapped():
-    return pregunta_ultimo_gp_victoria_piloto(piloto_aleatorio) if pista else None
+    return pregunta_ultimo_gp_victoria_piloto()
 
 def pregunta_companero_podio_piloto_wrapped():
-    return pregunta_companero_podio_piloto(piloto_aleatorio) if pista else None
+    return pregunta_companero_podio_piloto()
 
 def pregunta_ano_debut_piloto_wrapped():
-    return pregunta_ano_debut_piloto(piloto_aleatorio) if pista else None
+    return pregunta_ano_debut_piloto()
 
 def pregunta_primera_victoria_escuderia_piloto_wrapped():
-    return pregunta_primera_victoria_escuderia_piloto(piloto_aleatorio) if pista else None
+    return pregunta_primera_victoria_escuderia_piloto()
 
 def pregunta_poles_piloto_wrapped():
-    return pregunta_poles_piloto(piloto_aleatorio) if pista else None
+    return pregunta_poles_piloto()
 
 def pregunta_circuito_mas_podios_piloto_wrapped():
-    return pregunta_circuito_mas_podios_piloto(piloto_aleatorio) if pista else None
+    return pregunta_circuito_mas_podios_piloto()
 
 def pregunta_poles_piloto_wrapped():
-    return pregunta_poles_piloto(piloto_aleatorio) if pista else None
+    return pregunta_poles_piloto()
 
 def pregunta_circuito_mas_podios_piloto_wrapped():
-    return pregunta_circuito_mas_podios_piloto(piloto_aleatorio) if pista else None
+    return pregunta_circuito_mas_podios_piloto()
 
 def pregunta_pais_mas_victorias_piloto_wrapped():
-    return pregunta_pais_mas_victorias_piloto(piloto_aleatorio) if pista else None
+    return pregunta_pais_mas_victorias_piloto()
 
 def pregunta_obtener_victorias_piloto_wrapped():
-    return obtener_victorias_piloto(piloto_aleatorio) if pista else None
+    return obtener_victorias_piloto()
 
 def pregunta_peor_temporada_puntos_piloto_wrapped():
-    return pregunta_peor_temporada_puntos_piloto(piloto_aleatorio) if pista else None
+    return pregunta_peor_temporada_puntos_piloto()
 
 def pregunta_temporadas_sin_puntos_piloto_wrapped():
-    return pregunta_temporadas_sin_puntos_piloto(piloto_aleatorio) if pista else None
+    return pregunta_temporadas_sin_puntos_piloto()
 
 #-------------------------------------------------------------------------------------------------------------------
 # Estadísticas genéricas parte 2
@@ -2384,7 +2786,8 @@ def pregunta_piloto_gano_en_mas_paises():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_circuito_campeones_distintos():
@@ -2413,7 +2816,8 @@ def pregunta_circuito_campeones_distintos():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 
@@ -2441,7 +2845,8 @@ def pregunta_piloto_sin_pole_subio_podio():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_pais_mas_constructores():
@@ -2464,7 +2869,8 @@ def pregunta_pais_mas_constructores():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": pais,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_mas_vueltas_rapidas_sin_puntos():
@@ -2490,7 +2896,8 @@ def pregunta_piloto_mas_vueltas_rapidas_sin_puntos():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 #------------------------------------------------------------------------------------------------------------
 # Preguntas estadísticas genéricas parte 2
@@ -2517,7 +2924,8 @@ def pregunta_piloto_perdio_campeonato_por_un_punto():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 
@@ -2541,7 +2949,8 @@ def pregunta_escuderia_descalificada_aleron_ilegal():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": escuderia,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_victoria_ultimo_cambio_neumaticos():
@@ -2565,7 +2974,8 @@ def pregunta_piloto_victoria_ultimo_cambio_neumaticos():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_debut_victoria():
@@ -2588,7 +2998,8 @@ def pregunta_piloto_debut_victoria():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_primer_circuito_urbano():
@@ -2599,7 +3010,8 @@ def pregunta_primer_circuito_urbano():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": "Monaco",           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_escuderia_debut_victoria():
@@ -2621,7 +3033,8 @@ def pregunta_escuderia_debut_victoria():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": escuderia,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_sin_podio_largo():
@@ -2646,7 +3059,8 @@ def pregunta_piloto_sin_podio_largo():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_primer_gp_fuera_europa():
@@ -2670,7 +3084,8 @@ def pregunta_primer_gp_fuera_europa():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": pais,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_circuito_mas_largo():
@@ -2691,7 +3106,8 @@ def pregunta_circuito_mas_largo():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_pais_mas_gran_premios():
@@ -2715,7 +3131,8 @@ def pregunta_pais_mas_gran_premios():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": pais,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_combustible_ilegal():
@@ -2737,7 +3154,8 @@ def pregunta_piloto_combustible_ilegal():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_gp_suspendido_por_lluvia():
@@ -2759,7 +3177,8 @@ def pregunta_gp_suspendido_por_lluvia():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_ciudad_carrera_nocturna():
@@ -2780,7 +3199,8 @@ def pregunta_ciudad_carrera_nocturna():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": ciudad,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_mas_participaciones_escuderia():
@@ -2806,7 +3226,8 @@ def pregunta_piloto_mas_participaciones_escuderia():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": f"{piloto} ({escuderia})",           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_gp_mas_antiguo():
@@ -2829,7 +3250,8 @@ def pregunta_gp_mas_antiguo():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_primera_victoria_joven():
@@ -2855,7 +3277,8 @@ def pregunta_piloto_primera_victoria_joven():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 def pregunta_escuderia_mas_dobletes():
     cursor.execute("""
@@ -2879,7 +3302,8 @@ def pregunta_escuderia_mas_dobletes():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": escuderia,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_mas_temporadas_consecutivas():
@@ -2905,7 +3329,8 @@ def pregunta_piloto_mas_temporadas_consecutivas():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 
@@ -2932,7 +3357,8 @@ def pregunta_piloto_mas_victorias_temporada():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_compartio_podio_mas_veces():
@@ -2957,7 +3383,8 @@ def pregunta_piloto_compartio_podio_mas_veces():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_piloto_mas_carreras_sin_victoria():
@@ -2982,7 +3409,8 @@ def pregunta_piloto_mas_carreras_sin_victoria():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 def pregunta_constructor_mas_podios_temporada():
@@ -3007,11 +3435,18 @@ def pregunta_constructor_mas_podios_temporada():
             "question": pregunta,
             "answers": opciones,               # <- "answers" en lugar de "options"
             "correctAnswer": escuderia,           # <- "correctAnswer" en lugar de "answer"
-            "knowledgeLevel": 1            # nivel conocimiento arbitrario (ejemplo: 2)
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "GenericStats"
         }
 
 
-
+    return {
+            "question": pregunta,
+            "answers": opciones,               # <- "answers" en lugar de "options"
+            "correctAnswer": escuderia,           # <- "correctAnswer" en lugar de "answer"
+            "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
+            "category": "SafetyCar"
+        }
 
 
 generadores = [
@@ -3134,19 +3569,69 @@ generadores = [
     pregunta_constructor_mas_podios_temporada
 ]
 
+if __name__ == "__main__":
 
-NUM_PREGUNTAS = 5
-intentos_totales = 0
-while len(preguntas) < NUM_PREGUNTAS and intentos_totales < 50:
-    intentos_totales += 1
-    generador = random.choice(generadores)
-    try:
-        resultado = generador()
-        if resultado is not None:  # Añade esta validación
-            preguntas.append(resultado)
-    except Exception as e:
-        continue
+    NUM_PREGUNTAS = 10
+    MAX_INTENTOS = 50
 
 
-conn.close()
-print(json.dumps(preguntas, ensure_ascii=False))
+
+    intentos_totales = 0
+    while len(preguntas) < NUM_PREGUNTAS and intentos_totales < 50:
+        intentos_totales += 1
+        generador = random.choice(generadores)
+        try:
+            resultado = generador()
+            if resultado is not None:  # Añade esta validación
+                preguntas.append(resultado)
+        except Exception as e:
+            continue
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--category", type=str, help="Filtrar por categoría (opcional)", default=None)
+        args = parser.parse_args()
+
+        categoria_objetivo = args.category.strip() if args.category else None
+
+        # Importar o definir la lista de generadores
+        from generate_questions import generadores  # o asegúrate que esté arriba
+
+        # 🔍 Filtrar los generadores por categoría
+        generadores_filtrados = []
+        for gen in generadores:
+            try:
+                muestra = gen()
+                if muestra is None:
+                    continue
+                if categoria_objetivo and muestra.get("category") != categoria_objetivo:
+                    continue
+                generadores_filtrados.append(gen)
+            except Exception:
+                continue
+
+        if categoria_objetivo and not generadores_filtrados:
+            print(f"[ERROR] No hay funciones disponibles para la categoría: {categoria_objetivo}", file=sys.stderr)
+            sys.exit(1)
+
+        # 🎯 Ahora usar solo generadores de la categoría deseada (o todos si no hay filtro)
+        generadores_uso = generadores_filtrados if categoria_objetivo else generadores
+
+        intentos = 0
+        while len(preguntas) < NUM_PREGUNTAS and intentos < MAX_INTENTOS:
+            intentos += 1
+            generador = random.choice(generadores_uso)
+            try:
+                resultado = generador()
+                if resultado is None:
+                    continue
+                if resultado not in preguntas:
+                    preguntas.append(resultado)
+            except Exception:
+                continue
+
+        if not preguntas:
+            print(f"[ERROR] No se encontraron preguntas para la categoría: {categoria_objetivo}", file=sys.stderr)
+            sys.exit(1)
+
+    conn.close()
+    print(json.dumps(preguntas, ensure_ascii=False))

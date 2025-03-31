@@ -6,7 +6,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "QuizCategory", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"quizType_id", "code"})
+        @UniqueConstraint(columnNames = {"quizTypeId", "code"})
 })
 public class QuizCategory {
 
@@ -41,7 +41,7 @@ public class QuizCategory {
     }
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "quizType_id")
+    @JoinColumn(name = "quizTypeId")
     public QuizType getQuizType() {
         return quizType;
     }

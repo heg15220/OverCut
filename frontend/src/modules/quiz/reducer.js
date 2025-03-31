@@ -16,6 +16,8 @@ const initialState = {
     quizPoints: null,
     availableQuizPoints: null,
     userAward: null,
+    quizType: null,
+    quizCategory: null,
 };
 
 const quiz = (state = initialState.quiz, action) => {
@@ -121,6 +123,22 @@ const availableQuizPoints = (state = initialState.availableQuizPoints, action) =
     }
 }
 
+const quizType = (state = initialState.quizType, action) => {
+    if (action.type === actionTypes.GET_QUIZ_QUESTIONS_TYPE_COMPLETED) {
+        return action.quizType;
+    } else {
+        return state;
+    }
+}
+
+const quizCategory = (state = initialState.quizCategory, action) => {
+    if (action.type === actionTypes.GET_QUIZ_QUESTIONS_CATEGORY_COMPLETED) {
+        return action.quizCategory;
+    } else {
+        return state;
+    }
+}
+
 
 const reducer = combineReducers({
     quiz,
@@ -135,5 +153,7 @@ const reducer = combineReducers({
     awardId,
     quizPoints,
     availableQuizPoints,
+    quizType,
+    quizCategory,
 });
 export default reducer;

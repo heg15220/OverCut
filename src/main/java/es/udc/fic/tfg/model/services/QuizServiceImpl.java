@@ -61,6 +61,7 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private QuestionLLMService questionLLMService;
 
+
     /**
      * The permission checker.
      */
@@ -72,19 +73,22 @@ public class QuizServiceImpl implements QuizService {
     private List<Question> getRandomQuestionsByTypeAndCategory(QuizType quizType, QuizCategory quizCategory) {
         // Obtener preguntas existentes en BD por categoría
         List<Question> dbQuestions = questionDao.findByQuizCategory(quizCategory);
-        Collections.shuffle(dbQuestions); // Aleatorizar
 
-        // Generar preguntas por IA
-        List<QuestionAI> aiQuestions;
+        // Generar preguntas por IA según el tipo de quiz
+        List<QuestionAI> aiQuestions = new ArrayList<>();
         if (quizType.getCode().equals(QuizTypeCode.Regulations)) {
-            // Si es tipo Reglamento, generar con script regulations
             aiQuestions = questionLLMService.generateRegulationQuestions(quizCategory.getCode().name());
-        } else {
-            // Para otros tipos, usar generador estándar
-            aiQuestions = questionLLMService.generateQuestionsAI();
+        } else if(quizType.getCode().equals(QuizTypeCode.Stats)) {
+            aiQuestions = questionLLMService.generateQuestionsAI(quizCategory.getCode().name());
         }
 
-        // Filtrar las generadas por categoría
+        if (dbQuestions.isEmpty() && (aiQuestions == null || aiQuestions.isEmpty())) {
+            throw new RuntimeException("No hay preguntas disponibles para la categoría " + quizCategory.getCode());
+        }
+
+        Collections.shuffle(dbQuestions); // Aleatorizar
+
+        // Filtrar por categoría en IA
         List<QuestionAI> aiFiltered = aiQuestions.stream()
                 .filter(q -> q.getCategory().equals(quizCategory.getCode()))
                 .collect(Collectors.toList());
@@ -260,12 +264,12 @@ public class QuizServiceImpl implements QuizService {
         Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
         quizDao.save(quiz);
 
-        storedQuestions.stream().limit(10).forEach(q -> {
-            QuizQuestions qq = new QuizQuestions();
-            qq.setQuiz(quiz);
-            qq.setQuestion(q);
-            quizQuestionDao.save(qq);
-        });
+        for(Question question: storedQuestions){
+            QuizQuestions quizQuestion = new QuizQuestions();
+            quizQuestion.setQuiz(quiz);
+            quizQuestion.setQuestion(question);
+            quizQuestionDao.save(quizQuestion);
+        }
 
         return quiz;
     }

@@ -11,7 +11,7 @@ def pregunta_puntos_sprint():
         "answers": ["8", "10", "6", "5"],
         "correctAnswer": "8",
         "knowledgeLevel": 1,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 def pregunta_penalizacion_componentes():
@@ -25,7 +25,7 @@ def pregunta_penalizacion_componentes():
         ],
         "correctAnswer": "Pérdida de posiciones en la parrilla",
         "knowledgeLevel": 2,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_bandera_roja():
@@ -39,7 +39,7 @@ def pregunta_bandera_roja():
         ],
         "correctAnswer": "Deben dirigirse al pit lane y detenerse en el orden de carrera",
         "knowledgeLevel": 3,
-        "category": "Procedimientos"
+        "category": "Procedures"
     }
 
 def pregunta_modificaciones_parque_cerrado():
@@ -53,7 +53,7 @@ def pregunta_modificaciones_parque_cerrado():
         ],
         "correctAnswer": "Solo reparaciones autorizadas por los comisarios",
         "knowledgeLevel": 2,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_vuelta_formacion():
@@ -67,7 +67,7 @@ def pregunta_vuelta_formacion():
         ],
         "correctAnswer": "Iniciar la carrera desde el pit lane",
         "knowledgeLevel": 2,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_velocidad_pitlane():
@@ -81,7 +81,7 @@ def pregunta_velocidad_pitlane():
         ],
         "correctAnswer": "Multa económica o penalización en tiempo",
         "knowledgeLevel": 2,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_neumaticos_disponibles():
@@ -95,7 +95,7 @@ def pregunta_neumaticos_disponibles():
         ],
         "correctAnswer": "13 juegos",
         "knowledgeLevel": 3,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_safety_car():
@@ -109,7 +109,7 @@ def pregunta_safety_car():
         ],
         "correctAnswer": "Solo cuando el Safety Car ha apagado sus luces y se dirige al pit lane",
         "knowledgeLevel": 3,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_sesiones_clasificacion():
@@ -118,7 +118,7 @@ def pregunta_sesiones_clasificacion():
         "answers": ["3", "2", "4", "1"],
         "correctAnswer": "3",
         "knowledgeLevel": 1,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_orden_salida_sprint():
@@ -146,7 +146,7 @@ def pregunta_bandera_roja_suspension():
         ],
         "correctAnswer": "Condiciones peligrosas o imposibilidad de continuar la sesión de forma segura",
         "knowledgeLevel": 3,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_cambio_piloto():
@@ -160,7 +160,7 @@ def pregunta_cambio_piloto():
         ],
         "correctAnswer": "Antes del inicio de la clasificación, con aprobación de los comisarios",
         "knowledgeLevel": 2,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_verificacion_tecnica():
@@ -174,7 +174,7 @@ def pregunta_verificacion_tecnica():
         ],
         "correctAnswer": "Puede ser descalificado de la sesión",
         "knowledgeLevel": 3,
-        "category": "Técnico"
+        "category": "Technical"
     }
 
 
@@ -189,7 +189,7 @@ def caso_bandera_roja_pista_bloqueada():
         ],
         "correctAnswer": "Reducir la velocidad y dirigirse al pit lane en el orden de carrera",
         "knowledgeLevel": 3,
-        "category": "Caso práctico"
+        "category": "PracticalCase"
     }
 
 def caso_exceso_velocidad_pitlane():
@@ -203,7 +203,7 @@ def caso_exceso_velocidad_pitlane():
         ],
         "correctAnswer": "Recibir una sanción económica o de tiempo",
         "knowledgeLevel": 2,
-        "category": "Caso práctico"
+        "category": "PracticalCase"
     }
 
 def caso_neumatico_incorrecto_clasificacion():
@@ -217,7 +217,7 @@ def caso_neumatico_incorrecto_clasificacion():
         ],
         "correctAnswer": "No, solo pueden usarse los compuestos asignados por la FIA",
         "knowledgeLevel": 3,
-        "category": "Caso práctico"
+        "category": "PracticalCase"
     }
 
 def caso_orden_reinicio_bandera_roja():
@@ -231,7 +231,7 @@ def caso_orden_reinicio_bandera_roja():
         ],
         "correctAnswer": "Según la última línea de cronometraje válida antes de la bandera roja",
         "knowledgeLevel": 2,
-        "category": "Caso práctico"
+        "category": "PracticalCase"
     }
 
 def caso_adelantar_tras_safety_car():
@@ -245,7 +245,7 @@ def caso_adelantar_tras_safety_car():
         ],
         "correctAnswer": "Después de cruzar la línea de salida/meta",
         "knowledgeLevel": 2,
-        "category": "Caso práctico"
+        "category": "PracticalCase"
     }
 
 def pregunta_puntuacion_diez_puntos():
@@ -254,7 +254,7 @@ def pregunta_puntuacion_diez_puntos():
         "answers": ["1", "2", "0", "3"],
         "correctAnswer": "1",
         "knowledgeLevel": 1,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 def pregunta_licencia_12_puntos():
@@ -268,7 +268,7 @@ def pregunta_licencia_12_puntos():
         ],
         "correctAnswer": "Es suspendido automáticamente por una carrera",
         "knowledgeLevel": 3,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_activacion_drs():
@@ -282,7 +282,7 @@ def pregunta_activacion_drs():
         ],
         "correctAnswer": "Tras las dos primeras vueltas si hay menos de un segundo con el coche de delante",
         "knowledgeLevel": 2,
-        "category": "Procedimientos"
+        "category": "Procedures"
     }
 
 def pregunta_fin_parque_cerrado():
@@ -296,7 +296,7 @@ def pregunta_fin_parque_cerrado():
         ],
         "correctAnswer": "Cuando los coches entran a boxes después del evento",
         "knowledgeLevel": 2,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_bandera_amarilla_doble():
@@ -310,7 +310,7 @@ def pregunta_bandera_amarilla_doble():
         ],
         "correctAnswer": "Reducir velocidad significativamente y estar preparado para detenerse",
         "knowledgeLevel": 1,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_neumaticos_compuestos():
@@ -324,7 +324,7 @@ def pregunta_neumaticos_compuestos():
         ],
         "correctAnswer": "Puede ser descalificado o sancionado",
         "knowledgeLevel": 2,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_vsc_significado():
@@ -338,7 +338,7 @@ def pregunta_vsc_significado():
         ],
         "correctAnswer": "Los pilotos deben mantener un delta de tiempo y no pueden adelantar",
         "knowledgeLevel": 2,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_regla_107_por_ciento():
@@ -352,7 +352,7 @@ def pregunta_regla_107_por_ciento():
         ],
         "correctAnswer": "Puede no ser autorizado a participar en la carrera",
         "knowledgeLevel": 3,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_dia_sprint_shootout():
@@ -375,7 +375,7 @@ def pregunta_modificaciones_bandera_roja():
         ],
         "correctAnswer": "Se pueden realizar reparaciones bajo supervisión",
         "knowledgeLevel": 2,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_reemplazo_piloto():
@@ -389,7 +389,7 @@ def pregunta_reemplazo_piloto():
         ],
         "correctAnswer": "Solicitar autorización para sustituirlo",
         "knowledgeLevel": 2,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_revision_postcarrera():
@@ -403,7 +403,7 @@ def pregunta_revision_postcarrera():
         ],
         "correctAnswer": "Conformidad del coche con el reglamento técnico",
         "knowledgeLevel": 3,
-        "category": "Técnico"
+        "category": "Technical"
     }
 
 def caso_reincorporacion_peligrosa():
@@ -417,7 +417,7 @@ def caso_reincorporacion_peligrosa():
         ],
         "correctAnswer": "Penalización de tiempo o pérdida de posiciones",
         "knowledgeLevel": 2,
-        "category": "Caso práctico"
+        "category": "PracticalCase"
     }
 
 # Categoría: Puntuaciones
@@ -427,7 +427,7 @@ def pregunta_puntuacion_segundo_clasificado():
         "answers": ["18", "15", "20", "25"],
         "correctAnswer": "18",
         "knowledgeLevel": 1,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 def pregunta_puntuacion_quinto_clasificado():
@@ -436,7 +436,7 @@ def pregunta_puntuacion_quinto_clasificado():
         "answers": ["10", "12", "8", "6"],
         "correctAnswer": "10",
         "knowledgeLevel": 1,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 def pregunta_puntos_reducidos_condiciones():
@@ -450,7 +450,7 @@ def pregunta_puntos_reducidos_condiciones():
         ],
         "correctAnswer": "Cuando la carrera se interrumpe antes del 75% sin reiniciarse",
         "knowledgeLevel": 2,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 def pregunta_puntos_mitad_carrera():
@@ -459,7 +459,7 @@ def pregunta_puntos_mitad_carrera():
         "answers": ["50% de los puntos normales", "25% de los puntos normales", "No se otorgan puntos", "Puntos completos"],
         "correctAnswer": "50% de los puntos normales",
         "knowledgeLevel": 2,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 
@@ -469,7 +469,7 @@ def pregunta_puntos_victoria_sprint():
         "answers": ["8", "6", "10", "5"],
         "correctAnswer": "8",
         "knowledgeLevel": 2,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 def pregunta_equipo_1y2():
@@ -478,7 +478,7 @@ def pregunta_equipo_1y2():
         "answers": ["43", "45", "40", "38"],
         "correctAnswer": "43",
         "knowledgeLevel": 3,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 def pregunta_puntos_octavo_sprint():
@@ -487,7 +487,7 @@ def pregunta_puntos_octavo_sprint():
         "answers": ["1", "0", "2", "3"],
         "correctAnswer": "1",
         "knowledgeLevel": 2,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 def pregunta_puntos_bandera_roja():
@@ -496,7 +496,7 @@ def pregunta_puntos_bandera_roja():
         "answers": ["No se otorgan puntos", "Sí, puntos completos", "Se otorgan puntos reducidos", "Solo medio punto al primero"],
         "correctAnswer": "No se otorgan puntos",
         "knowledgeLevel": 2,
-        "category": "Puntuación"
+        "category": "Scores"
     }
 
 # Categoría: Sanciones
@@ -507,7 +507,7 @@ def pregunta_sancion_pit_lane():
         "answers": ["Multa económica o penalización en carrera", "Bandera negra", "Reprimenda", "Descalificación inmediata"],
         "correctAnswer": "Multa económica o penalización en carrera",
         "knowledgeLevel": 2,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_penalizacion_5_segundos():
@@ -516,7 +516,7 @@ def pregunta_penalizacion_5_segundos():
         "answers": ["El piloto debe parar en boxes y esperar 5 segundos sin trabajar en el coche", "El piloto recibe 5 segundos extra en su tiempo final", "El piloto debe ceder posición", "No puede adelantar en 5 vueltas"],
         "correctAnswer": "El piloto recibe 5 segundos extra en su tiempo final",
         "knowledgeLevel": 2,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_penalizacion_10_segundos():
@@ -525,7 +525,7 @@ def pregunta_penalizacion_10_segundos():
         "answers": ["Por infracciones graves en pista", "Por exceder límites de pista tres veces", "Por adelantamiento en bandera amarilla", "Por saltarse la salida"],
         "correctAnswer": "Por infracciones graves en pista",
         "knowledgeLevel": 3,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_parque_cerrado_infraccion():
@@ -534,7 +534,7 @@ def pregunta_parque_cerrado_infraccion():
         "answers": ["Puede ser descalificado de la sesión", "Recibe una multa", "Pierde 5 posiciones", "No puede competir en la carrera"],
         "correctAnswer": "Puede ser descalificado de la sesión",
         "knowledgeLevel": 3,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_drive_through():
@@ -543,7 +543,7 @@ def pregunta_drive_through():
         "answers": ["Cuando el piloto comete una infracción en carrera", "Por exceso de velocidad en clasificación", "Cuando se cambia motor sin permiso", "Por no presentarse al pesaje"],
         "correctAnswer": "Cuando el piloto comete una infracción en carrera",
         "knowledgeLevel": 2,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_stop_and_go():
@@ -552,7 +552,7 @@ def pregunta_stop_and_go():
         "answers": ["El piloto debe detenerse 10 segundos sin que el equipo trabaje en el coche", "El piloto debe detenerse 10 segundos con cambio de neumáticos obligatorio", "El piloto pierde 10 segundos en clasificación", "El piloto debe ceder una posición"],
         "correctAnswer": "El piloto debe detenerse 10 segundos sin que el equipo trabaje en el coche",
         "knowledgeLevel": 3,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_peso_minimo():
@@ -561,7 +561,7 @@ def pregunta_peso_minimo():
         "answers": ["Puede ser descalificado de la carrera", "Recibe una reprimenda", "Pierde 5 posiciones en la parrilla siguiente", "Debe pagar una multa"],
         "correctAnswer": "Puede ser descalificado de la carrera",
         "knowledgeLevel": 3,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_aleron_ilegal():
@@ -570,7 +570,7 @@ def pregunta_aleron_ilegal():
         "answers": ["Puede ser motivo de descalificación", "Se pierde una sesión de clasificación", "Solo se aplica una multa", "El coche no puede salir del parque cerrado"],
         "correctAnswer": "Puede ser motivo de descalificación",
         "knowledgeLevel": 3,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_bandera_azul():
@@ -579,7 +579,7 @@ def pregunta_bandera_azul():
         "answers": ["Puede recibir una sanción por bloquear a otro coche", "Pierde automáticamente una vuelta", "Se le ordena abandonar la carrera", "Debe dejar de usar DRS"],
         "correctAnswer": "Puede recibir una sanción por bloquear a otro coche",
         "knowledgeLevel": 2,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 
 def pregunta_repostaje_irregular():
@@ -588,7 +588,7 @@ def pregunta_repostaje_irregular():
         "answers": ["Descalificación inmediata", "Solo una advertencia", "Penalización de tiempo", "Pérdida de puntos del campeonato"],
         "correctAnswer": "Descalificación inmediata",
         "knowledgeLevel": 2,
-        "category": "Sanciones"
+        "category": "Penalty"
     }
 # Categoría: Procedimientos
 def pregunta_final_vuelta_formacion():
@@ -597,7 +597,7 @@ def pregunta_final_vuelta_formacion():
         "answers": ["Detenerse en su posición de parrilla", "Entrar a boxes", "Activar el DRS", "Cambiar neumáticos"],
         "correctAnswer": "Detenerse en su posición de parrilla",
         "knowledgeLevel": 2,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_no_arranca_parrilla():
@@ -606,7 +606,7 @@ def pregunta_no_arranca_parrilla():
         "answers": ["Debe salir desde el pit lane", "Queda descalificado", "Debe abandonar la carrera", "Sale al final del grupo"],
         "correctAnswer": "Debe salir desde el pit lane",
         "knowledgeLevel": 2,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_segunda_vuelta_formacion():
@@ -615,7 +615,7 @@ def pregunta_segunda_vuelta_formacion():
         "answers": ["Si un coche se queda parado en parrilla", "Cuando hay lluvia", "Si un piloto tiene un fallo mecánico previo", "Por orden del director de carrera sin razón"],
         "correctAnswer": "Si un coche se queda parado en parrilla",
         "knowledgeLevel": 3,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_coche_detiene_parrilla():
@@ -624,7 +624,7 @@ def pregunta_coche_detiene_parrilla():
         "answers": ["Puede empujarse a boxes y salir desde el pit lane", "Debe abandonar la carrera", "No puede ser tocado por los mecánicos", "Recibe una sanción automática"],
         "correctAnswer": "Puede empujarse a boxes y salir desde el pit lane",
         "knowledgeLevel": 3,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_salida_abortada():
@@ -633,7 +633,7 @@ def pregunta_salida_abortada():
         "answers": ["Se inicia una vuelta de formación adicional", "Los coches deben detenerse en pista", "Se muestra bandera negra a todos", "Todos deben regresar a boxes"],
         "correctAnswer": "Se inicia una vuelta de formación adicional",
         "knowledgeLevel": 3,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_inicio_carrera():
@@ -642,7 +642,7 @@ def pregunta_inicio_carrera():
         "answers": ["Cuando se apagan las luces del semáforo", "Cuando se inicia la vuelta de formación", "Cuando el primer coche cruza la línea de salida", "Cuando se muestra la bandera verde"],
         "correctAnswer": "Cuando se apagan las luces del semáforo",
         "knowledgeLevel": 2,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_salida_pitlane_parrilla():
@@ -651,7 +651,7 @@ def pregunta_salida_pitlane_parrilla():
         "answers": ["Cuando se muestra la luz verde al final del pit lane", "Cuando el equipo lo indique", "Cuando termina la bandera roja", "Siempre que haya pista libre"],
         "correctAnswer": "Cuando se muestra la luz verde al final del pit lane",
         "knowledgeLevel": 2,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_cierre_pitlane():
@@ -660,7 +660,7 @@ def pregunta_cierre_pitlane():
         "answers": ["20 minutos", "10 minutos", "5 minutos", "15 minutos"],
         "correctAnswer": "10 minutos",
         "knowledgeLevel": 3,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_boxes_vuelta_formacion():
@@ -669,7 +669,7 @@ def pregunta_boxes_vuelta_formacion():
         "answers": ["Debe iniciar la carrera desde el pit lane", "Debe regresar a su posición en la parrilla", "Recibe una sanción de tiempo", "Pierde su vuelta de formación"],
         "correctAnswer": "Debe iniciar la carrera desde el pit lane",
         "knowledgeLevel": 2,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 def pregunta_luces_salida():
@@ -678,7 +678,7 @@ def pregunta_luces_salida():
         "answers": ["Encendido progresivo de luces rojas y su apagado", "Bandera verde ondeando", "Semáforo verde intermitente", "Luz azul en la línea de salida"],
         "correctAnswer": "Encendido progresivo de luces rojas y su apagado",
         "knowledgeLevel": 2,
-        "category": "Procedimiento"
+        "category": "Procedures"
     }
 
 # Categoría: Parque Cerrado
@@ -688,7 +688,7 @@ def pregunta_inicio_parque_cerrado():
         "answers": ["Al final de la sesión de clasificación", "Antes del inicio de la Q1", "Después del briefing de pilotos", "Cuando los coches llegan al circuito"],
         "correctAnswer": "Al final de la sesión de clasificación",
         "knowledgeLevel": 2,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_final_parque_cerrado():
@@ -697,7 +697,7 @@ def pregunta_final_parque_cerrado():
         "answers": ["Cuando comienza la carrera", "Al terminar el procedimiento de salida", "Cuando se apagan las luces del semáforo", "Después del pesaje obligatorio"],
         "correctAnswer": "Cuando comienza la carrera",
         "knowledgeLevel": 2,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_autorizacion_modificaciones():
@@ -706,7 +706,7 @@ def pregunta_autorizacion_modificaciones():
         "answers": ["Autorización del delegado técnico", "Permiso del jefe de equipo", "Aviso al piloto", "Informe a los comisarios"],
         "correctAnswer": "Autorización del delegado técnico",
         "knowledgeLevel": 3,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_motivo_sancion_pc():
@@ -715,7 +715,7 @@ def pregunta_motivo_sancion_pc():
         "answers": ["El coche sale desde el pit lane", "Recibe una multa", "Pierde 5 posiciones en parrilla", "Debe repetir clasificación"],
         "correctAnswer": "El coche sale desde el pit lane",
         "knowledgeLevel": 3,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_tipo_modificaciones_permitidas():
@@ -724,7 +724,7 @@ def pregunta_tipo_modificaciones_permitidas():
         "answers": ["Ninguna modificación", "Cambio de neumáticos por razones de seguridad", "Cambio de combustible", "Cambio de piloto"],
         "correctAnswer": "Ninguna modificación",
         "knowledgeLevel": 2,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_sustitucion_componentes_pc():
@@ -733,7 +733,7 @@ def pregunta_sustitucion_componentes_pc():
         "answers": ["El coche puede ser descalificado o salir desde el pit lane", "Debe reiniciar la clasificación", "Pierde puntos del campeonato", "Recibe una advertencia"],
         "correctAnswer": "El coche puede ser descalificado o salir desde el pit lane",
         "knowledgeLevel": 3,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_reparaciones_durante_pc():
@@ -742,7 +742,7 @@ def pregunta_reparaciones_durante_pc():
         "answers": ["Con autorización de la FIA", "Durante el pesaje", "En todo momento", "Solo en condiciones de lluvia"],
         "correctAnswer": "Con autorización de la FIA",
         "knowledgeLevel": 2,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_objetivo_parque_cerrado():
@@ -751,7 +751,7 @@ def pregunta_objetivo_parque_cerrado():
         "answers": ["Evitar cambios en el coche después de clasificación", "Permitir revisión técnica rápida", "Reducir costes de operación", "Evitar conflictos entre equipos"],
         "correctAnswer": "Evitar cambios en el coche después de clasificación",
         "knowledgeLevel": 1,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_parque_cerrado_despues_sprint():
@@ -760,7 +760,7 @@ def pregunta_parque_cerrado_despues_sprint():
         "answers": ["Sí, hasta la parrilla de la carrera principal", "No, solo tras clasificación", "Solo si llueve", "Sí, pero solo en la Q3"],
         "correctAnswer": "Sí, hasta la parrilla de la carrera principal",
         "knowledgeLevel": 2,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 
 def pregunta_comunicacion_violacion_pc():
@@ -769,7 +769,7 @@ def pregunta_comunicacion_violacion_pc():
         "answers": ["El delegado técnico a los comisarios", "El jefe de equipo al director de carrera", "El piloto a la FIA", "El mecánico principal al director de seguridad"],
         "correctAnswer": "El delegado técnico a los comisarios",
         "knowledgeLevel": 3,
-        "category": "Parque Cerrado"
+        "category": "ParcFerme"
     }
 # Categoría: Seguridad
 def pregunta_doble_bandera_amarilla():
@@ -778,7 +778,7 @@ def pregunta_doble_bandera_amarilla():
         "answers": ["Precaución extrema, posible coche o comisario en pista", "Adelantar permitido con precaución", "Zona resbaladiza, pero sin detenerse", "Safety Car en pista"],
         "correctAnswer": "Precaución extrema, posible coche o comisario en pista",
         "knowledgeLevel": 1,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_bandera_roja_seguridad():
@@ -787,7 +787,7 @@ def pregunta_bandera_roja_seguridad():
         "answers": ["La carrera se detiene inmediatamente", "Solo se reduce la velocidad", "Se permite repostar", "Cambio de neumáticos obligatorio"],
         "correctAnswer": "La carrera se detiene inmediatamente",
         "knowledgeLevel": 1,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_bandera_amarilla_simple():
@@ -796,7 +796,7 @@ def pregunta_bandera_amarilla_simple():
         "answers": ["Peligro en pista, no adelantar", "Coche de seguridad en pista", "Pista libre", "Condiciones húmedas"],
         "correctAnswer": "Peligro en pista, no adelantar",
         "knowledgeLevel": 1,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_bandera_azul_significado():
@@ -805,7 +805,7 @@ def pregunta_bandera_azul_significado():
         "answers": ["Un coche más rápido se aproxima, dejar pasar", "Zona de boxes abierta", "Lluvia en el sector siguiente", "Salida del pit lane habilitada"],
         "correctAnswer": "Un coche más rápido se aproxima, dejar pasar",
         "knowledgeLevel": 1,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_bandera_blanca():
@@ -814,7 +814,7 @@ def pregunta_bandera_blanca():
         "answers": ["Vehículo lento en pista adelante", "Inicio de última vuelta", "Parada obligatoria", "Coche averiado fuera de pista"],
         "correctAnswer": "Vehículo lento en pista adelante",
         "knowledgeLevel": 1,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_bandera_negra():
@@ -823,7 +823,7 @@ def pregunta_bandera_negra():
         "answers": ["El piloto indicado debe retirarse de la carrera", "Debe entrar a boxes a reparar", "Penalización de tiempo", "Cambio de neumáticos obligatorio"],
         "correctAnswer": "El piloto indicado debe retirarse de la carrera",
         "knowledgeLevel": 2,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_luces_pit_lane():
@@ -832,7 +832,7 @@ def pregunta_luces_pit_lane():
         "answers": ["Prohibido salir del pit lane", "Autorizado el ingreso a boxes", "Activación de bandera azul", "Zona peligrosa"],
         "correctAnswer": "Prohibido salir del pit lane",
         "knowledgeLevel": 2,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_bandera_a_cuadros():
@@ -841,7 +841,7 @@ def pregunta_bandera_a_cuadros():
         "answers": ["Fin de la carrera o sesión", "Inicio de carrera", "Zona de adelantamiento", "Neutralización de la prueba"],
         "correctAnswer": "Fin de la carrera o sesión",
         "knowledgeLevel": 1,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_bandera_negra_naranja():
@@ -850,7 +850,7 @@ def pregunta_bandera_negra_naranja():
         "answers": ["El coche tiene un problema mecánico y debe entrar a boxes", "Condiciones peligrosas en pista", "Parada por condiciones meteorológicas", "Penalización pendiente"],
         "correctAnswer": "El coche tiene un problema mecánico y debe entrar a boxes",
         "knowledgeLevel": 2,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 def pregunta_bandera_verde():
@@ -859,7 +859,7 @@ def pregunta_bandera_verde():
         "answers": ["Pista libre de peligros", "Fin de carrera", "Zona de boxes abierta", "Adelantamiento prohibido"],
         "correctAnswer": "Pista libre de peligros",
         "knowledgeLevel": 1,
-        "category": "Seguridad"
+        "category": "Safety"
     }
 
 # Categoría: Neumáticos
@@ -869,7 +869,7 @@ def pregunta_uso_dos_compuestos():
         "answers": ["Puede ser descalificado o sancionado", "Debe abandonar la carrera", "Recibe una advertencia", "Pierde posiciones en clasificación"],
         "correctAnswer": "Puede ser descalificado o sancionado",
         "knowledgeLevel": 2,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_tipo_compuestos_drs():
@@ -878,7 +878,7 @@ def pregunta_tipo_compuestos_drs():
         "answers": ["Tres", "Dos", "Cinco", "Cuatro"],
         "correctAnswer": "Tres",
         "knowledgeLevel": 1,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_neumaticos_clasificacion():
@@ -887,7 +887,7 @@ def pregunta_neumaticos_clasificacion():
         "answers": ["Duro en Q1 y Medio en Q2", "Blando en ambas", "Cualquiera disponible", "Intermedio en Q1 y Blando en Q2"],
         "correctAnswer": "Duro en Q1 y Medio en Q2",
         "knowledgeLevel": 2,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_compuestos_lluvia():
@@ -896,7 +896,7 @@ def pregunta_compuestos_lluvia():
         "answers": ["Full Wet (azul)", "Intermedios (verde)", "Blandos (rojo)", "Medios (amarillo)"],
         "correctAnswer": "Full Wet (azul)",
         "knowledgeLevel": 1,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_uso_intermedios():
@@ -905,7 +905,7 @@ def pregunta_uso_intermedios():
         "answers": ["Pista húmeda pero sin acumulación de agua", "Asfalto seco", "Temperatura alta", "Pista completamente inundada"],
         "correctAnswer": "Pista húmeda pero sin acumulación de agua",
         "knowledgeLevel": 1,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_restriccion_uso_neumaticos():
@@ -914,7 +914,7 @@ def pregunta_restriccion_uso_neumaticos():
         "answers": ["Sí, regulado por la FIA", "No, cada equipo decide", "Solo en clasificación", "Solo para sprint"],
         "correctAnswer": "Sí, regulado por la FIA",
         "knowledgeLevel": 2,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_asignacion_neumaticos():
@@ -923,7 +923,7 @@ def pregunta_asignacion_neumaticos():
         "answers": ["Especificada por Pirelli y la FIA", "Cada equipo elige libremente", "Según sorteo previo", "Depende del clima"],
         "correctAnswer": "Especificada por Pirelli y la FIA",
         "knowledgeLevel": 2,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_pit_stop_neumaticos():
@@ -932,7 +932,7 @@ def pregunta_pit_stop_neumaticos():
         "answers": ["Cuando el compuesto actual no es válido o por estrategia", "Cada 10 vueltas", "Solo si hay bandera amarilla", "Después de la vuelta 10"],
         "correctAnswer": "Cuando el compuesto actual no es válido o por estrategia",
         "knowledgeLevel": 2,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_neumaticos_sprint():
@@ -941,7 +941,7 @@ def pregunta_neumaticos_sprint():
         "answers": ["No, no es obligatorio", "Sí, siempre", "Solo si llueve", "Solo si dura más de 20 vueltas"],
         "correctAnswer": "No, no es obligatorio",
         "knowledgeLevel": 1,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 def pregunta_marca_colores_neumaticos():
@@ -950,18 +950,10 @@ def pregunta_marca_colores_neumaticos():
         "answers": ["Rojo", "Amarillo", "Blanco", "Verde"],
         "correctAnswer": "Rojo",
         "knowledgeLevel": 1,
-        "category": "Neumáticos"
+        "category": "Tyres"
     }
 
 # Categoría: Safety Car
-def pregunta_vsc_significado():
-    return {
-        "question": "¿Qué es el procedimiento de 'Safety Car Virtual' (VSC)?",
-        "answers": ["Un periodo de reducción de velocidad sin presencia física del coche de seguridad", "Una vuelta adicional de formación", "Un modo de adelantamiento libre", "Una señal de bandera negra"],
-        "correctAnswer": "Un periodo de reducción de velocidad sin presencia física del coche de seguridad",
-        "knowledgeLevel": 2,
-        "category": "Safety Car"
-    }
 
 def pregunta_salida_safety_car():
     return {
@@ -969,7 +961,7 @@ def pregunta_salida_safety_car():
         "answers": ["Cuando hay un peligro que requiere neutralizar la carrera", "Cuando termina la clasificación", "Cada vez que llueve", "Cuando un piloto cambia de neumáticos"],
         "correctAnswer": "Cuando hay un peligro que requiere neutralizar la carrera",
         "knowledgeLevel": 1,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_regreso_boxes_safety_car():
@@ -978,7 +970,7 @@ def pregunta_regreso_boxes_safety_car():
         "answers": ["Luce el mensaje ‘SC in this lap’", "Se encienden las luces azules", "Los coches lo adelantan", "El director de carrera usa bandera verde"],
         "correctAnswer": "Luce el mensaje ‘SC in this lap’",
         "knowledgeLevel": 1,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_condiciones_vsc():
@@ -987,7 +979,7 @@ def pregunta_condiciones_vsc():
         "answers": ["Velocidad reducida sin adelantamientos", "Cambio obligatorio de neumáticos", "Bandera azul activa", "Posibilidad de recuperar vueltas"],
         "correctAnswer": "Velocidad reducida sin adelantamientos",
         "knowledgeLevel": 2,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_adelantamientos_safety_car():
@@ -996,7 +988,7 @@ def pregunta_adelantamientos_safety_car():
         "answers": ["Solo cuando se indica específicamente", "Siempre que se mantenga distancia", "Durante todo el periodo", "Solo entre compañeros de equipo"],
         "correctAnswer": "Solo cuando se indica específicamente",
         "knowledgeLevel": 2,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_salida_safety_car_linea():
@@ -1005,7 +997,7 @@ def pregunta_salida_safety_car_linea():
         "answers": ["Línea de Safety Car 1", "Línea de boxes", "Línea de meta", "Línea de clasificación"],
         "correctAnswer": "Línea de Safety Car 1",
         "knowledgeLevel": 2,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_tiempos_vsc():
@@ -1014,7 +1006,7 @@ def pregunta_tiempos_vsc():
         "answers": ["Mediante sectores de referencia por la FIA", "Con sensores en los neumáticos", "Por GPS en el volante", "Por aviso de los comisarios"],
         "correctAnswer": "Mediante sectores de referencia por la FIA",
         "knowledgeLevel": 3,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_vuelta_lanzada():
@@ -1023,7 +1015,7 @@ def pregunta_vuelta_lanzada():
         "answers": ["Vuelta lanzada con ritmo libre desde la última curva", "Relanzamiento desde pit lane", "Salida detenida", "No hay relanzamiento, se retira y continúa la carrera"],
         "correctAnswer": "Vuelta lanzada con ritmo libre desde la última curva",
         "knowledgeLevel": 2,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_coche_doblado_safety_car():
@@ -1032,7 +1024,7 @@ def pregunta_coche_doblado_safety_car():
         "answers": ["Adelantar para recuperar vuelta si se autoriza", "Permanecer en posición siempre", "Detenerse en boxes", "Salir del trazado y reincorporarse"],
         "correctAnswer": "Adelantar para recuperar vuelta si se autoriza",
         "knowledgeLevel": 3,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 
 def pregunta_bandera_verde_post_sc():
@@ -1041,7 +1033,7 @@ def pregunta_bandera_verde_post_sc():
         "answers": ["Bandera verde", "Bandera azul", "Bandera blanca", "Bandera amarilla"],
         "correctAnswer": "Bandera verde",
         "knowledgeLevel": 1,
-        "category": "Safety Car"
+        "category": "SafetyCar"
     }
 # Categoría: Clasificación
 
@@ -1051,7 +1043,7 @@ def pregunta_formato_clasificacion():
         "answers": ["Tres (Q1, Q2 y Q3)", "Dos (Q1 y Q2)", "Una única tanda de 60 minutos", "Cinco rondas eliminatorias"],
         "correctAnswer": "Tres (Q1, Q2 y Q3)",
         "knowledgeLevel": 1,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_duracion_q3():
@@ -1060,7 +1052,7 @@ def pregunta_duracion_q3():
         "answers": ["12 minutos", "15 minutos", "10 minutos", "20 minutos"],
         "correctAnswer": "12 minutos",
         "knowledgeLevel": 1,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_orden_salida_clasificacion():
@@ -1069,7 +1061,7 @@ def pregunta_orden_salida_clasificacion():
         "answers": ["Libre durante la sesión", "Según resultados de prácticas", "Por sorteo", "Por orden de llegada al pit lane"],
         "correctAnswer": "Libre durante la sesión",
         "knowledgeLevel": 2,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_tiempos_q1_eliminacion():
@@ -1078,7 +1070,7 @@ def pregunta_tiempos_q1_eliminacion():
         "answers": ["5", "3", "6", "4"],
         "correctAnswer": "5",
         "knowledgeLevel": 1,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_prohibiciones_clasificacion():
@@ -1087,7 +1079,7 @@ def pregunta_prohibiciones_clasificacion():
         "answers": ["Obstaculizar a otro piloto", "Usar DRS", "Cambiar de compuesto", "Pasar por boxes"],
         "correctAnswer": "Obstaculizar a otro piloto",
         "knowledgeLevel": 2,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_autorizacion_participacion_fuera_107():
@@ -1096,7 +1088,7 @@ def pregunta_autorizacion_participacion_fuera_107():
         "answers": ["Los comisarios", "El director de equipo", "El director de carrera", "El delegado técnico"],
         "correctAnswer": "Los comisarios",
         "knowledgeLevel": 3,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_influencia_sanciones_clasificacion():
@@ -1105,7 +1097,7 @@ def pregunta_influencia_sanciones_clasificacion():
         "answers": ["Sí, afectan la posición de salida", "No, la clasificación es definitiva", "Solo si es por neumáticos", "Depende del circuito"],
         "correctAnswer": "Sí, afectan la posición de salida",
         "knowledgeLevel": 2,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_mas_de_un_tiempo():
@@ -1114,7 +1106,7 @@ def pregunta_mas_de_un_tiempo():
         "answers": ["Sí, puede hacer varias vueltas rápidas", "No, solo una vuelta rápida por sesión", "Solo si no ha usado DRS", "Depende del compuesto usado"],
         "correctAnswer": "Sí, puede hacer varias vueltas rápidas",
         "knowledgeLevel": 1,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 def pregunta_uso_neumaticos_q3():
@@ -1123,7 +1115,7 @@ def pregunta_uso_neumaticos_q3():
         "answers": ["Los más blandos disponibles", "Intermedios por normativa", "Duro obligatorio", "Cualquiera, según decisión del piloto"],
         "correctAnswer": "Los más blandos disponibles",
         "knowledgeLevel": 1,
-        "category": "Clasificación"
+        "category": "Qualifying"
     }
 
 
@@ -1216,7 +1208,7 @@ def pregunta_modificaciones_bandera_roja():
         "answers": ["Reparaciones y cambios autorizados por la FIA", "Nada, el coche debe permanecer intacto", "Solo cambio de neumáticos", "Repostar combustible"],
         "correctAnswer": "Reparaciones y cambios autorizados por la FIA",
         "knowledgeLevel": 2,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_fin_bandera_roja():
@@ -1225,7 +1217,7 @@ def pregunta_fin_bandera_roja():
         "answers": ["Con salida detenida o lanzada, según decisión del director de carrera", "Siempre con salida desde boxes", "Se reinicia con bandera verde en pista", "Por orden inverso al anterior"],
         "correctAnswer": "Con salida detenida o lanzada, según decisión del director de carrera",
         "knowledgeLevel": 2,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_duracion_maxima_suspension():
@@ -1234,7 +1226,7 @@ def pregunta_duracion_maxima_suspension():
         "answers": ["3 horas de duración total del evento", "1 hora desde interrupción", "30 minutos exactos", "Sin límite"],
         "correctAnswer": "3 horas de duración total del evento",
         "knowledgeLevel": 3,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_motivo_bandera_roja():
@@ -1243,7 +1235,7 @@ def pregunta_motivo_bandera_roja():
         "answers": ["Condiciones peligrosas o accidente grave", "Adelantamientos múltiples", "Fin de sesión", "Bandera azul ignorada"],
         "correctAnswer": "Condiciones peligrosas o accidente grave",
         "knowledgeLevel": 1,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_posiciones_bandera_roja():
@@ -1252,7 +1244,7 @@ def pregunta_posiciones_bandera_roja():
         "answers": ["Con el orden al final de la última vuelta completa válida", "Con el orden de la clasificación", "Según tiempo de reacción", "Por decisión de los comisarios"],
         "correctAnswer": "Con el orden al final de la última vuelta completa válida",
         "knowledgeLevel": 2,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_pitlane_durante_roja():
@@ -1261,7 +1253,7 @@ def pregunta_pitlane_durante_roja():
         "answers": ["Sí, pero bajo condiciones específicas", "No bajo ninguna circunstancia", "Solo para repostar", "Sí, siempre que sea urgente"],
         "correctAnswer": "Sí, pero bajo condiciones específicas",
         "knowledgeLevel": 2,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_pilotos_vehiculos_roja():
@@ -1270,7 +1262,7 @@ def pregunta_pilotos_vehiculos_roja():
         "answers": ["Conducir lentamente hasta el pit lane", "Detenerse en pista", "Seguir compitiendo con precaución", "Esperar instrucciones de comisarios en la pista"],
         "correctAnswer": "Conducir lentamente hasta el pit lane",
         "knowledgeLevel": 1,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_comunicacion_bandera_roja():
@@ -1279,7 +1271,7 @@ def pregunta_comunicacion_bandera_roja():
         "answers": ["Mediante paneles luminosos y mensaje oficial en cronometraje", "Por señal acústica en boxes", "Por radio entre comisarios", "Por luces intermitentes azules"],
         "correctAnswer": "Mediante paneles luminosos y mensaje oficial en cronometraje",
         "knowledgeLevel": 2,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_obligaciones_durante_roja():
@@ -1288,7 +1280,7 @@ def pregunta_obligaciones_durante_roja():
         "answers": ["Trabajar en el coche sin autorización", "Salir del garaje", "Comunicarse con el piloto", "Entrar a boxes"],
         "correctAnswer": "Trabajar en el coche sin autorización",
         "knowledgeLevel": 3,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 def pregunta_modificacion_setup_roja():
@@ -1297,7 +1289,7 @@ def pregunta_modificacion_setup_roja():
         "answers": ["Solo con autorización de la FIA", "Sí, libremente", "No, nunca", "Solo si hay lluvia"],
         "correctAnswer": "Solo con autorización de la FIA",
         "knowledgeLevel": 3,
-        "category": "Bandera Roja"
+        "category": "RedFlag"
     }
 
 # Categoría: Pilotos
@@ -1307,7 +1299,7 @@ def pregunta_reemplazo_piloto():
         "answers": ["Solicitar aprobación de los comisarios para un reemplazo", "Nada, solo se corre con un coche", "Reclamar puntos automáticamente", "Cambiar de piloto sin avisar"],
         "correctAnswer": "Solicitar aprobación de los comisarios para un reemplazo",
         "knowledgeLevel": 2,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_minimo_edad_piloto():
@@ -1316,7 +1308,7 @@ def pregunta_minimo_edad_piloto():
         "answers": ["18 años", "16 años", "21 años", "No hay límite"],
         "correctAnswer": "18 años",
         "knowledgeLevel": 1,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_superlicencia():
@@ -1325,7 +1317,7 @@ def pregunta_superlicencia():
         "answers": ["Superlicencia otorgada por la FIA", "Carnet de conducir internacional", "Licencia nacional", "Certificado de equipo"],
         "correctAnswer": "Superlicencia otorgada por la FIA",
         "knowledgeLevel": 1,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_puntos_superlicencia():
@@ -1334,7 +1326,7 @@ def pregunta_puntos_superlicencia():
         "answers": ["Es suspendido por una carrera", "Pierde 10 posiciones en parrilla", "Debe pagar una multa", "Es excluido de la temporada"],
         "correctAnswer": "Es suspendido por una carrera",
         "knowledgeLevel": 3,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_cambio_numero():
@@ -1343,7 +1335,7 @@ def pregunta_cambio_numero():
         "answers": ["No, debe mantenerlo todo el año", "Sí, si cambia de equipo", "Solo una vez", "Solo con aprobación de los comisarios"],
         "correctAnswer": "No, debe mantenerlo todo el año",
         "knowledgeLevel": 2,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_duracion_contrato():
@@ -1352,7 +1344,7 @@ def pregunta_duracion_contrato():
         "answers": ["Es una cuestión entre equipo y piloto", "La FIA", "El promotor del campeonato", "El director de carrera"],
         "correctAnswer": "Es una cuestión entre equipo y piloto",
         "knowledgeLevel": 2,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_uso_mismo_coche():
@@ -1361,7 +1353,7 @@ def pregunta_uso_mismo_coche():
         "answers": ["No, salvo autorización expresa de los comisarios", "Sí, siempre que esté libre", "Solo si el otro piloto abandona", "Sí, en la última sesión"],
         "correctAnswer": "No, salvo autorización expresa de los comisarios",
         "knowledgeLevel": 3,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_test_jovenes():
@@ -1370,7 +1362,7 @@ def pregunta_test_jovenes():
         "answers": ["Una sesión oficial para pilotos con poca experiencia en F1", "Un test libre para cualquier piloto", "Un simulacro de carrera en lluvia", "Una prueba de seguridad"],
         "correctAnswer": "Una sesión oficial para pilotos con poca experiencia en F1",
         "knowledgeLevel": 2,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_sustitucion_urgente():
@@ -1379,7 +1371,7 @@ def pregunta_sustitucion_urgente():
         "answers": ["El equipo puede proponer un piloto con autorización de la FIA", "Debe competir un solo coche", "Se anula la inscripción", "El evento se suspende"],
         "correctAnswer": "El equipo puede proponer un piloto con autorización de la FIA",
         "knowledgeLevel": 2,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 def pregunta_debut_f1():
@@ -1388,26 +1380,35 @@ def pregunta_debut_f1():
         "answers": ["Tener superlicencia y experiencia previa en categorías menores", "Participar en tres sesiones de práctica", "Haber ganado un campeonato regional", "Contar con aprobación de equipo rival"],
         "correctAnswer": "Tener superlicencia y experiencia previa en categorías menores",
         "knowledgeLevel": 2,
-        "category": "Pilotos"
+        "category": "Drivers"
     }
 
 
 
 def generar_preguntas_reglamento():
     generadores = [
-        pregunta_puntos_decimo,
-        pregunta_sancion_licencia,
+        pregunta_puntuacion_diez_puntos,
+        pregunta_licencia_12_puntos,
+        pregunta_superlicencia,
+        pregunta_puntos_superlicencia,
+        pregunta_cambio_numero,
+        pregunta_duracion_contrato,
+        pregunta_uso_mismo_coche,
+        pregunta_test_jovenes,
+        pregunta_sustitucion_urgente,
+        pregunta_debut_f1,
         pregunta_activacion_drs,
         pregunta_fin_parque_cerrado,
         pregunta_doble_bandera_amarilla,
-        pregunta_neumaticos_dos_compuestos,
-        pregunta_que_es_vsc,
+        pregunta_neumaticos_compuestos,
+        pregunta_vsc_significado,
+        pregunta_condiciones_vsc,
+        pregunta_tiempos_vsc,
         pregunta_regla_107_por_ciento,
-        pregunta_sprint_shootout,
+        pregunta_dia_sprint_shootout,
         pregunta_bandera_roja,
-        pregunta_piloto_no_disponible,
-        pregunta_revision_tecnica,
-        pregunta_caso_peligroso,
+        pregunta_verificacion_tecnica,
+        caso_reincorporacion_peligrosa,
         pregunta_puntos_sprint,
         pregunta_penalizacion_componentes,
         pregunta_bandera_roja,
@@ -1419,11 +1420,10 @@ def generar_preguntas_reglamento():
         pregunta_sesiones_clasificacion,
         pregunta_orden_salida_sprint,
         pregunta_bandera_roja_suspension,
-        pregunta_cambio_piloto,
-        pregunta_verificacion_tecnica
+        pregunta_cambio_piloto
     ]
     preguntas = []
-    while len(preguntas) < 5:
+    while len(preguntas) < 10:
         gen = random.choice(generadores)
         q = gen()
         if q not in preguntas:
@@ -1432,21 +1432,30 @@ def generar_preguntas_reglamento():
 
 
 
-def generar_preguntas_filtradas(categoria=None, nivel=None):
+def generar_preguntas_filtradas(categoria):
     generadores = [
-        pregunta_puntos_decimo,
-        pregunta_sancion_licencia,
+        pregunta_puntuacion_diez_puntos,
+        pregunta_licencia_12_puntos,
+        pregunta_superlicencia,
+        pregunta_puntos_superlicencia,
+        pregunta_cambio_numero,
+        pregunta_duracion_contrato,
+        pregunta_uso_mismo_coche,
+        pregunta_test_jovenes,
+        pregunta_sustitucion_urgente,
+        pregunta_debut_f1,
         pregunta_activacion_drs,
         pregunta_fin_parque_cerrado,
         pregunta_doble_bandera_amarilla,
-        pregunta_neumaticos_dos_compuestos,
-        pregunta_que_es_vsc,
+        pregunta_neumaticos_compuestos,
+        pregunta_vsc_significado,
+        pregunta_condiciones_vsc,
+        pregunta_tiempos_vsc,
         pregunta_regla_107_por_ciento,
-        pregunta_sprint_shootout,
+        pregunta_dia_sprint_shootout,
         pregunta_bandera_roja,
-        pregunta_piloto_no_disponible,
-        pregunta_revision_tecnica,
-        pregunta_caso_peligroso,
+        pregunta_verificacion_tecnica,
+        caso_reincorporacion_peligrosa,
         pregunta_puntos_sprint,
         pregunta_penalizacion_componentes,
         pregunta_bandera_roja,
@@ -1459,7 +1468,6 @@ def generar_preguntas_filtradas(categoria=None, nivel=None):
         pregunta_orden_salida_sprint,
         pregunta_bandera_roja_suspension,
         pregunta_cambio_piloto,
-        pregunta_verificacion_tecnica,
         caso_bandera_roja_pista_bloqueada,
         caso_exceso_velocidad_pitlane,
         caso_neumatico_incorrecto_clasificacion,
@@ -1492,8 +1500,6 @@ def generar_preguntas_filtradas(categoria=None, nivel=None):
         p = gen()
         if categoria and p["category"].lower() != categoria.lower():
             continue
-        if nivel and p["knowledgeLevel"] != nivel:
-            continue
         preguntas.append(p)
     return preguntas
 
@@ -1502,12 +1508,16 @@ def generar_preguntas_filtradas(categoria=None, nivel=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--category", type=str, help="Filtrar por categoría (opcional)", default=None)
-    parser.add_argument("--level", type=int, help="Filtrar por nivel de conocimiento (opcional)", default=None)
     args = parser.parse_args()
 
-    if args.category or args.level:
-        preguntas = generar_preguntas_filtradas(categoria=args.category, nivel=args.level)
-    else:
-        preguntas = generar_preguntas_reglamento()
+    categoria_normalizada = args.category.lower() if args.category else None
+    preguntas = generar_preguntas_filtradas(categoria=categoria_normalizada) \
+        if categoria_normalizada else generar_preguntas_reglamento()
+
+    if not preguntas:
+        print(f"[ERROR] No se encontraron preguntas para la categoría: {args.category}", file=sys.stderr)
+        sys.exit(1)
 
     print(json.dumps(preguntas, ensure_ascii=False))
+
+

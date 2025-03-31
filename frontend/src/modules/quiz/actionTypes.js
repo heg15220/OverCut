@@ -12,3 +12,5 @@ export const CHOOSE_AWARD_COMPLETED = "project/quiz/chooseAwardCompleted";
 export const GET_AWARDS_SELECTED_BY_USER_COMPLETED = "project/quiz/getAwardsSelectedByUserCompleted";
 export const GET_QUIZ_POINTS_COMPLETED = "project/quiz/getQuizPointsCompleted";
 export const GET_AVAILABLE_QUIZ_POINTS_COMPLETED = "project/quiz/getAvailableQuizPointsCompleted";
+export const GET_QUIZ_QUESTIONS_TYPE_COMPLETED = "project/quiz/getQuizQuestionsTypeCompleted";
+export const GET_QUIZ_QUESTIONS_CATEGORY_COMPLETED = "project/quiz/getQuizQuestionsCategoryCompleted";

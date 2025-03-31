@@ -18,8 +18,8 @@ public class QuestionLLMController {
     private QuestionLLMService questionLLMService;
 
     @GetMapping("/questions")
-    public ResponseEntity<List<QuestionAI>> generateQuestions() {
-        List<QuestionAI> questions = questionLLMService.generateQuestionsAI();
+    public ResponseEntity<List<QuestionAI>> generateQuestions(@RequestParam(required = false) String category) {
+        List<QuestionAI> questions = questionLLMService.generateQuestionsAI(category);
         return ResponseEntity.ok(questions);
     }
 

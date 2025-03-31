@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "QuizTypeTranslation", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"quizType_id", "language"})
+        @UniqueConstraint(columnNames = {"quizTypeId", "language"})
 })
 public class QuizTypeTranslation {
 
@@ -30,7 +30,7 @@ public class QuizTypeTranslation {
     }
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "quizType_id", nullable = false)
+    @JoinColumn(name = "quizTypeId", nullable = false)
     public QuizType getQuizType() {
         return quizType;
     }

@@ -9,6 +9,17 @@ const createQuizCompleted = (quiz) => ({
     quiz
 });
 
+const getQuizQuestionsTypeCompleted = (quizType) => ({
+    type: actionTypes.GET_QUIZ_QUESTIONS_TYPE_COMPLETED,
+    quizType
+});
+
+const getQuizQuestionsCategoryCompleted = (quizCategory) => ({
+    type: actionTypes.GET_QUIZ_QUESTIONS_CATEGORY_COMPLETED,
+    quizCategory
+});
+
+
 
 const chooseAnswerCompleted = (answer) => ({
     type: actionTypes.CHOOSE_ANSWER_COMPLETED,
@@ -82,6 +93,21 @@ export const createQuiz = (userId, onSuccess, onErrors) => dispatch =>
             onSuccess(quiz);
         },
         onErrors);
+
+
+export const getQuizQuestionsType = (quizId, onSuccess, onErrors) => dispatch =>
+    backend.quizService.getQuizQuestionsType(quizId, quizType => {
+        dispatch(getQuizQuestionsTypeCompleted(quizType));
+        onSuccess(quizType);
+    },
+    onErrors);
+
+export const getQuizQuestionsCategory = (quizId, onSuccess, onErrors) => dispatch =>
+    backend.quizService.getQuizQuestionsCategory(quizId, quizCategory => {
+        dispatch(getQuizQuestionsCategoryCompleted(quizCategory));
+        onSuccess(quizCategory);
+    },
+    onErrors);
 
 
 export const chooseAnswer = (quizId,answer, onSuccess, onErrors) => dispatch =>

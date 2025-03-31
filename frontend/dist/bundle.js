@@ -4339,6 +4339,17 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./src/modules/quiz/components/Quiz.css":
+/*!******************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./src/modules/quiz/components/Quiz.css ***!
+  \******************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/noSourceMaps.js */ \"./node_modules/css-loader/dist/runtime/noSourceMaps.js\");\n/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ \"./node_modules/css-loader/dist/runtime/api.js\");\n/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);\n// Imports\n\n\nvar ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));\n// Module\n___CSS_LOADER_EXPORT___.push([module.id, `.quiz-screen {\r\n    width: 100vw;\r\n    height: 100vh;\r\n    background-size: cover;\r\n    background-position: center;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n    flex-direction: column;\r\n    transition: background-image 1s ease-in-out;\r\n    color: white;\r\n    text-align: center;\r\n}\r\n\r\n.quiz-content {\r\n    background-color: rgba(0, 0, 0, 0.5);\r\n    padding: 40px;\r\n    border-radius: 20px;\r\n    backdrop-filter: blur(5px);\r\n}\r\n\r\n.quiz-title {\r\n    font-size: 2.5em;\r\n    margin-bottom: 20px;\r\n}\r\n\r\n.quiz-subtitle {\r\n    font-size: 2em;\r\n    margin-bottom: 30px;\r\n}\r\n\r\n.quiz-button {\r\n    font-size: 1.2em;\r\n    padding: 15px 40px;\r\n    border: none;\r\n    border-radius: 30px;\r\n    background-color: #e10600;\r\n    color: white;\r\n    cursor: pointer;\r\n    transition: background-color 0.3s;\r\n}\r\n\r\n.quiz-button:hover {\r\n    background-color: #c40000;\r\n}\r\n\r\n.loader {\r\n    border: 6px solid #f3f3f3;\r\n    border-top: 6px solid #e10600;\r\n    border-radius: 50%;\r\n    width: 60px;\r\n    height: 60px;\r\n    animation: spin 1s linear infinite;\r\n    margin: 20px auto;\r\n}\r\n\r\n.loading-text {\r\n    margin-top: 20px;\r\n    font-size: 1.2em;\r\n}\r\n\r\n.fade-in {\r\n    animation: fadeIn 1.5s ease-in-out;\r\n}\r\n\r\n@keyframes spin {\r\n    0% { transform: rotate(0deg); }\r\n    100% { transform: rotate(360deg); }\r\n}\r\n\r\n@keyframes fadeIn {\r\n    from { opacity: 0; transform: translateY(30px); }\r\n    to { opacity: 1; transform: translateY(0); }\r\n}\r\n`, \"\"]);\n// Exports\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);\n\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/components/Quiz.css?./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js");
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/runtime/api.js":
 /*!*****************************************************!*\
   !*** ./node_modules/css-loader/dist/runtime/api.js ***!
@@ -11251,3841 +11262,3852 @@ eval("var __WEBPACK_AMD_DEFINE_RESULT__;/* Web Font Loader v1.6.28 - (c) Adobe S
 
 /***/ }),
 
-/***/ "./src/assests/images sync recursive ^\\.\\/.*$":
-/*!*******************************************!*\
-  !*** ./src/assests/images/ sync ^\.\/.*$ ***!
-  \*******************************************/
+/***/ "./src/assets/images sync recursive ^\\.\\/.*$":
+/*!******************************************!*\
+  !*** ./src/assets/images/ sync ^\.\/.*$ ***!
+  \******************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-eval("var map = {\n\t\"./00000224_018-753x494.jpg\": \"./src/assests/images/00000224_018-753x494.jpg\",\n\t\"./001_small.jpg\": \"./src/assests/images/001_small.jpg\",\n\t\"./005_small.jpg\": \"./src/assests/images/005_small.jpg\",\n\t\"./006_small.jpg\": \"./src/assests/images/006_small.jpg\",\n\t\"./01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg\": \"./src/assests/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg\",\n\t\"./0_vB6AeMdbQEBWJpgX.jpg\": \"./src/assests/images/0_vB6AeMdbQEBWJpgX.jpg\",\n\t\"./0_vae50gfk.jpg\": \"./src/assests/images/0_vae50gfk.jpg\",\n\t\"./1+Alpine+Saudi+Arabian+GP+1.jpg\": \"./src/assests/images/1+Alpine+Saudi+Arabian+GP+1.jpg\",\n\t\"./1-bottas-1-f1-abu-dhabi-2017.jpg\": \"./src/assests/images/1-bottas-1-f1-abu-dhabi-2017.jpg\",\n\t\"./1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg\": \"./src/assests/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg\",\n\t\"./1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg\": \"./src/assests/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg\",\n\t\"./1200px-hamilton_canadian_gp_2010_with_f-duct.jpg\": \"./src/assests/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg\",\n\t\"./1366_2000.jpeg\": \"./src/assests/images/1366_2000.jpeg\",\n\t\"./1366_2000.jpg\": \"./src/assests/images/1366_2000.jpg\",\n\t\"./14633209454616.jpg\": \"./src/assests/images/14633209454616.jpg\",\n\t\"./14675636874942_990x0.jpg\": \"./src/assests/images/14675636874942_990x0.jpg\",\n\t\"./14681648212906_990x0.jpg\": \"./src/assests/images/14681648212906_990x0.jpg\",\n\t\"./14885385788381.jpg\": \"./src/assests/images/14885385788381.jpg\",\n\t\"./14923709613710.jpg\": \"./src/assests/images/14923709613710.jpg\",\n\t\"./15014222489730.jpg\": \"./src/assests/images/15014222489730.jpg\",\n\t\"./15041688972205.jpg\": \"./src/assests/images/15041688972205.jpg\",\n\t\"./15185392040281.jpg\": \"./src/assests/images/15185392040281.jpg\",\n\t\"./15219625763704.jpg\": \"./src/assests/images/15219625763704.jpg\",\n\t\"./15250354089549.jpg\": \"./src/assests/images/15250354089549.jpg\",\n\t\"./15262228901480.jpg\": \"./src/assests/images/15262228901480.jpg\",\n\t\"./15274979049260.jpg\": \"./src/assests/images/15274979049260.jpg\",\n\t\"./15289134275279.jpg\": \"./src/assests/images/15289134275279.jpg\",\n\t\"./15352940634208.jpg\": \"./src/assests/images/15352940634208.jpg\",\n\t\"./15419540602472.jpg\": \"./src/assests/images/15419540602472.jpg\",\n\t\"./15588754308513.jpg\": \"./src/assests/images/15588754308513.jpg\",\n\t\"./15631081847013.jpg\": \"./src/assests/images/15631081847013.jpg\",\n\t\"./15644308053724.jpg\": \"./src/assests/images/15644308053724.jpg\",\n\t\"./15673364402578.jpg\": \"./src/assests/images/15673364402578.jpg\",\n\t\"./15739239356031.jpg\": \"./src/assests/images/15739239356031.jpg\",\n\t\"./15929284269004.jpg\": \"./src/assests/images/15929284269004.jpg\",\n\t\"./15938651546549.jpg\": \"./src/assests/images/15938651546549.jpg\",\n\t\"./16172011568663.jpg\": \"./src/assests/images/16172011568663.jpg\",\n\t\"./16187597716549.jpg\": \"./src/assests/images/16187597716549.jpg\",\n\t\"./16217812688788.png\": \"./src/assests/images/16217812688788.png\",\n\t\"./16387363862558.jpg\": \"./src/assests/images/16387363862558.jpg\",\n\t\"./16474210250936.jpg\": \"./src/assests/images/16474210250936.jpg\",\n\t\"./16616979678448.jpg\": \"./src/assests/images/16616979678448.jpg\",\n\t\"./16907270397230.jpg\": \"./src/assests/images/16907270397230.jpg\",\n\t\"./17093981925136.jpg\": \"./src/assests/images/17093981925136.jpg\",\n\t\"./1997hidarr03.jpg\": \"./src/assests/images/1997hidarr03.jpg\",\n\t\"./1_foDYHEmOHMtHrSZgpP5q3A.jpg\": \"./src/assests/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg\",\n\t\"./2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg\": \"./src/assests/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg\",\n\t\"./219.jpg\": \"./src/assests/images/219.jpg\",\n\t\"./2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg\": \"./src/assests/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg\",\n\t\"./2da5e299e491fc1eae59abe0ff97ee1f.jpg\": \"./src/assests/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg\",\n\t\"./32176-n3.jpg\": \"./src/assests/images/32176-n3.jpg\",\n\t\"./3242112-66359508-2560-1440.jpg\": \"./src/assests/images/3242112-66359508-2560-1440.jpg\",\n\t\"./34913-n3.jpg\": \"./src/assests/images/34913-n3.jpg\",\n\t\"./360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg\": \"./src/assests/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg\",\n\t\"./3785978-77009488-2560-1440.jpg\": \"./src/assests/images/3785978-77009488-2560-1440.jpg\",\n\t\"./38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg\": \"./src/assests/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg\",\n\t\"./3SGEZYWNVBNIJH2BK722SZUODE.jpg\": \"./src/assests/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg\",\n\t\"./3db56091204561.5e2b4deb5987d.png\": \"./src/assests/images/3db56091204561.5e2b4deb5987d.png\",\n\t\"./3wkkh475qaad1.jpg\": \"./src/assests/images/3wkkh475qaad1.jpg\",\n\t\"./4007762-81292888-2560-1440.jpg\": \"./src/assests/images/4007762-81292888-2560-1440.jpg\",\n\t\"./450_1000.jpg\": \"./src/assests/images/450_1000.jpg\",\n\t\"./472XS5KCRRP4LNSSI5RL7FSDLQ.jpg\": \"./src/assests/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg\",\n\t\"./517c567d8d6e9f561c4eb73313a8d280.jpg\": \"./src/assests/images/517c567d8d6e9f561c4eb73313a8d280.jpg\",\n\t\"./5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg\": \"./src/assests/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg\",\n\t\"./58.jpg\": \"./src/assests/images/58.jpg\",\n\t\"./5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg\": \"./src/assests/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg\",\n\t\"./5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg\": \"./src/assests/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg\",\n\t\"./5f983feff4709d5867dcc940.jpg\": \"./src/assests/images/5f983feff4709d5867dcc940.jpg\",\n\t\"./5fa278007fde0.jpg\": \"./src/assests/images/5fa278007fde0.jpg\",\n\t\"./5fa2d1d4120ce.jpeg\": \"./src/assests/images/5fa2d1d4120ce.jpeg\",\n\t\"./60e728fca1f4e.jpeg\": \"./src/assests/images/60e728fca1f4e.jpeg\",\n\t\"./60e74b03277a9.jpeg\": \"./src/assests/images/60e74b03277a9.jpeg\",\n\t\"./60e7539c0742c.jpeg\": \"./src/assests/images/60e7539c0742c.jpeg\",\n\t\"./60e762a36aac6.jpeg\": \"./src/assests/images/60e762a36aac6.jpeg\",\n\t\"./60e7c34f2c9e5.jpeg\": \"./src/assests/images/60e7c34f2c9e5.jpeg\",\n\t\"./6134d694ae4aa.r_d.963-634-6250.jpeg\": \"./src/assests/images/6134d694ae4aa.r_d.963-634-6250.jpeg\",\n\t\"./61883968f22bb.r_d.1767-1015-0.jpeg\": \"./src/assests/images/61883968f22bb.r_d.1767-1015-0.jpeg\",\n\t\"./61915711c5e7a.r_d.2479-2514-878.jpeg\": \"./src/assests/images/61915711c5e7a.r_d.2479-2514-878.jpeg\",\n\t\"./625135306ceeb.r_d.1724-1149-3479.jpeg\": \"./src/assests/images/625135306ceeb.r_d.1724-1149-3479.jpeg\",\n\t\"./62939be656a96.jpeg\": \"./src/assests/images/62939be656a96.jpeg\",\n\t\"./62af7d33eeaa0.r_d.2438-1665-921.jpeg\": \"./src/assests/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg\",\n\t\"./62c1d08761fb9.jpeg\": \"./src/assests/images/62c1d08761fb9.jpeg\",\n\t\"./631dee4441565.jpeg\": \"./src/assests/images/631dee4441565.jpeg\",\n\t\"./6371467b63d71.r_d.3862-3443-1727.jpeg\": \"./src/assests/images/6371467b63d71.r_d.3862-3443-1727.jpeg\",\n\t\"./644e62898c269.r_d.2685-1059-4000.jpeg\": \"./src/assests/images/644e62898c269.r_d.2685-1059-4000.jpeg\",\n\t\"./64736b8706cd0.r_d.966-1712-3866.jpeg\": \"./src/assests/images/64736b8706cd0.r_d.966-1712-3866.jpeg\",\n\t\"./647ca0b69f16b.jpeg\": \"./src/assests/images/647ca0b69f16b.jpeg\",\n\t\"./64a18ce92e026.jpeg\": \"./src/assests/images/64a18ce92e026.jpeg\",\n\t\"./64aad147d8e9a.r_d.1859-2256-0.jpeg\": \"./src/assests/images/64aad147d8e9a.r_d.1859-2256-0.jpeg\",\n\t\"./64f49c3e81e86.r_d.3066-2034-3043.jpeg\": \"./src/assests/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg\",\n\t\"./65204d929ab84.jpeg\": \"./src/assests/images/65204d929ab84.jpeg\",\n\t\"./653452d633f8e.r_d.3831-2554-586.jpeg\": \"./src/assests/images/653452d633f8e.r_d.3831-2554-586.jpeg\",\n\t\"./653ed76848b50.r_d.4059-3018-823.jpeg\": \"./src/assests/images/653ed76848b50.r_d.4059-3018-823.jpeg\",\n\t\"./6547e6216ba11.r_d.2680-2785-629.jpeg\": \"./src/assests/images/6547e6216ba11.r_d.2680-2785-629.jpeg\",\n\t\"./65c504f09bce1cad3dcbba833d8ee852.jpg\": \"./src/assests/images/65c504f09bce1cad3dcbba833d8ee852.jpg\",\n\t\"./6624d1c194742.jpeg\": \"./src/assests/images/6624d1c194742.jpeg\",\n\t\"./6744ae08e6a450e031b21a17e78fc0fa.jpg\": \"./src/assests/images/6744ae08e6a450e031b21a17e78fc0fa.jpg\",\n\t\"./69.jpg\": \"./src/assests/images/69.jpg\",\n\t\"./6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg\": \"./src/assests/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg\",\n\t\"./709607-21389434-2560-1440.jpg\": \"./src/assests/images/709607-21389434-2560-1440.jpg\",\n\t\"./796930333_236274274_1706x640.jpg\": \"./src/assests/images/796930333_236274274_1706x640.jpg\",\n\t\"./7vsxuxdpdc5a1.jpg\": \"./src/assests/images/7vsxuxdpdc5a1.jpg\",\n\t\"./819cOVjBRRL.jpg\": \"./src/assests/images/819cOVjBRRL.jpg\",\n\t\"./9.jpg\": \"./src/assests/images/9.jpg\",\n\t\"./Abu_Dhabi_Circuit.jpg\": \"./src/assests/images/Abu_Dhabi_Circuit.jpg\",\n\t\"./Australia_Circuit.jpg\": \"./src/assests/images/Australia_Circuit.jpg\",\n\t\"./Austria_Circuit.jpg\": \"./src/assests/images/Austria_Circuit.jpg\",\n\t\"./Bahrain_Circuit.jpg\": \"./src/assests/images/Bahrain_Circuit.jpg\",\n\t\"./Baku_Circuit.jpg\": \"./src/assests/images/Baku_Circuit.jpg\",\n\t\"./BeaF-8xIcAAYBbM.jpg\": \"./src/assests/images/BeaF-8xIcAAYBbM.jpg\",\n\t\"./Belgium_Circuit.jpg\": \"./src/assests/images/Belgium_Circuit.jpg\",\n\t\"./Brasil.jpg\": \"./src/assests/images/Brasil.jpg\",\n\t\"./Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg\": \"./src/assests/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg\",\n\t\"./C3M2TCWVCRIETMLZT6IIZEZUMY.jpg\": \"./src/assests/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg\",\n\t\"./COKcBbWVAAAi53b.jpg\": \"./src/assests/images/COKcBbWVAAAi53b.jpg\",\n\t\"./CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg\": \"./src/assests/images/CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg\",\n\t\"./Canada_Circuit.jpg\": \"./src/assests/images/Canada_Circuit.jpg\",\n\t\"./Captura de pantalla 2024-08-18 123450.png\": \"./src/assests/images/Captura de pantalla 2024-08-18 123450.png\",\n\t\"./China_Circuit.jpg\": \"./src/assests/images/China_Circuit.jpg\",\n\t\"./Cuatro-neumaticos-Pirelli-de-carreras.jpg\": \"./src/assests/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg\",\n\t\"./DMRQ67NFY5RATQY4MIMXDDGGP4.jpg\": \"./src/assests/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg\",\n\t\"./E0sxVjJWQAI783K.jpg\": \"./src/assests/images/E0sxVjJWQAI783K.jpg\",\n\t\"./EmtITbGXEAA40XD.jpg\": \"./src/assests/images/EmtITbGXEAA40XD.jpg\",\n\t\"./F1-AUSTRALIA_93806.jpg\": \"./src/assests/images/F1-AUSTRALIA_93806.jpg\",\n\t\"./F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg\": \"./src/assests/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg\",\n\t\"./FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg\": \"./src/assests/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg\",\n\t\"./FTVT32DOQYG6QN4CW3O2F3E4SI.jpg\": \"./src/assests/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg\",\n\t\"./FYqwDVvXkAMHGtB.jpg\": \"./src/assests/images/FYqwDVvXkAMHGtB.jpg\",\n\t\"./FYrYQ9SXoAAR-v6-732x1024.jpg\": \"./src/assests/images/FYrYQ9SXoAAR-v6-732x1024.jpg\",\n\t\"./F_01_672-458_resize.jpg\": \"./src/assests/images/F_01_672-458_resize.jpg\",\n\t\"./GS7PpavXoAEFq3Z.jpg\": \"./src/assests/images/GS7PpavXoAEFq3Z.jpg\",\n\t\"./GettyImages-1474638493.jpg\": \"./src/assests/images/GettyImages-1474638493.jpg\",\n\t\"./GettyImages-1628172829.jpg\": \"./src/assests/images/GettyImages-1628172829.jpg\",\n\t\"./GettyImages-2161010295.jpg\": \"./src/assests/images/GettyImages-2161010295.jpg\",\n\t\"./GmPSckjbsAApnT1.jpg\": \"./src/assests/images/GmPSckjbsAApnT1.jpg\",\n\t\"./Great_Britain_Circuit.jpg\": \"./src/assests/images/Great_Britain_Circuit.jpg\",\n\t\"./Hungary_Circuit.jpg\": \"./src/assests/images/Hungary_Circuit.jpg\",\n\t\"./Imola.jpg\": \"./src/assests/images/Imola.jpg\",\n\t\"./Italy_Circuit.jpg\": \"./src/assests/images/Italy_Circuit.jpg\",\n\t\"./Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png\": \"./src/assests/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png\",\n\t\"./LJYUJXPNYFLO5LCK3POR3HZTBY.jpg\": \"./src/assests/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg\",\n\t\"./MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg\": \"./src/assests/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg\",\n\t\"./Mexico_Circuit.jpg\": \"./src/assests/images/Mexico_Circuit.jpg\",\n\t\"./Miami.jpg\": \"./src/assests/images/Miami.jpg\",\n\t\"./ModeloDatosAplicación.png\": \"./src/assests/images/ModeloDatosAplicación.png\",\n\t\"./Monoco_Circuit.jpg\": \"./src/assests/images/Monoco_Circuit.jpg\",\n\t\"./NAZ_02017646930e4c1994e9106f0433428b.jpg\": \"./src/assests/images/NAZ_02017646930e4c1994e9106f0433428b.jpg\",\n\t\"./NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg\": \"./src/assests/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg\",\n\t\"./NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg\": \"./src/assests/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg\",\n\t\"./NAZ_e655bfc3b5d54a7e8166699123156887.jpg\": \"./src/assests/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg\",\n\t\"./Netherlands_Circuit.jpg\": \"./src/assests/images/Netherlands_Circuit.jpg\",\n\t\"./OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg\": \"./src/assests/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg\",\n\t\"./PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg\": \"./src/assests/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg\",\n\t\"./Pedro_de_la_Rosa_2005_Britain.jpg\": \"./src/assests/images/Pedro_de_la_Rosa_2005_Britain.jpg\",\n\t\"./Qatar.jpg\": \"./src/assests/images/Qatar.jpg\",\n\t\"./Rubens_Barrichello_2006_USA.jpg\": \"./src/assests/images/Rubens_Barrichello_2006_USA.jpg\",\n\t\"./Sainz-Ferrari-Australia-55-2024-carrera-1.jpg\": \"./src/assests/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg\",\n\t\"./SalidaGPMalasia2009.jpg\": \"./src/assests/images/SalidaGPMalasia2009.jpg\",\n\t\"./Schumacher_Mercedes_Jerez_(cropped).jpg\": \"./src/assests/images/Schumacher_Mercedes_Jerez_(cropped).jpg\",\n\t\"./Screenshot-2021-11-02-at-16.57.04.jpg\": \"./src/assests/images/Screenshot-2021-11-02-at-16.57.04.jpg\",\n\t\"./Singapore_Circuit.jpg\": \"./src/assests/images/Singapore_Circuit.jpg\",\n\t\"./Spain_Circuit.jpg\": \"./src/assests/images/Spain_Circuit.jpg\",\n\t\"./Suzuka.jpg\": \"./src/assests/images/Suzuka.jpg\",\n\t\"./USA_Circuit.jpg\": \"./src/assests/images/USA_Circuit.jpg\",\n\t\"./USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg\": \"./src/assests/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg\",\n\t\"./UTH_T150-racing-wheel-PS4-PC-1-7.jpg\": \"./src/assests/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg\",\n\t\"./Undercut-F1.jpg\": \"./src/assests/images/Undercut-F1.jpg\",\n\t\"./Valentino-Rossi-piloto-F1-Ferrari-14.jpg\": \"./src/assests/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg\",\n\t\"./Vegas.jpg\": \"./src/assests/images/Vegas.jpg\",\n\t\"./WMMAJSFNRNNNLB263KN6C725KQ.jpg\": \"./src/assests/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg\",\n\t\"./X2ANIYID3BOXNFKVUZ6N7COUX4.jpg\": \"./src/assests/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg\",\n\t\"./XPB_1282060_HiRes.jpg\": \"./src/assests/images/XPB_1282060_HiRes.jpg\",\n\t\"./YCMLNJ6XANIX7LA37KV2EIAGO4.jpg\": \"./src/assests/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg\",\n\t\"./ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg\": \"./src/assests/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg\",\n\t\"./_103266921_hamilton_vettel_getty1.jpg\": \"./src/assests/images/_103266921_hamilton_vettel_getty1.jpg\",\n\t\"./_45650053_07lewisgravel512.jpg\": \"./src/assests/images/_45650053_07lewisgravel512.jpg\",\n\t\"./a-marshal-holds-a-yellow-flag-1.jpg\": \"./src/assests/images/a-marshal-holds-a-yellow-flag-1.jpg\",\n\t\"./a637c951f5abb3d146fc1931d48735df.jpg\": \"./src/assests/images/a637c951f5abb3d146fc1931d48735df.jpg\",\n\t\"./abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg\": \"./src/assests/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg\",\n\t\"./ahav61hj4goa1.jpg\": \"./src/assests/images/ahav61hj4goa1.jpg\",\n\t\"./analisis-gp-brasil-f1-2023-soymotor.jpg\": \"./src/assests/images/analisis-gp-brasil-f1-2023-soymotor.jpg\",\n\t\"./article-1377757-0BAA374500000578-340_634x432.jpg\": \"./src/assests/images/article-1377757-0BAA374500000578-340_634x432.jpg\",\n\t\"./article-2351820-1A95E98F000005DC-265_634x286.jpg\": \"./src/assests/images/article-2351820-1A95E98F000005DC-265_634x286.jpg\",\n\t\"./asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg\": \"./src/assests/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg\",\n\t\"./ava4n-6dmcg.png\": \"./src/assests/images/ava4n-6dmcg.png\",\n\t\"./belgica-hamilton-vettel-2017-f1-soymotor.jpg\": \"./src/assests/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg\",\n\t\"./bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg\": \"./src/assests/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg\",\n\t\"./bottas-pole-eeuu.jpg\": \"./src/assests/images/bottas-pole-eeuu.jpg\",\n\t\"./brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg\": \"./src/assests/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg\",\n\t\"./british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg\": \"./src/assests/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg\",\n\t\"./c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg\": \"./src/assests/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg\",\n\t\"./captura-4643897367.jpg\": \"./src/assests/images/captura-4643897367.jpg\",\n\t\"./carlos-sainz-ferrari-sf-24-2.jpg\": \"./src/assests/images/carlos-sainz-ferrari-sf-24-2.jpg\",\n\t\"./carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg\": \"./src/assests/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg\",\n\t\"./caterham-f1.jpg\": \"./src/assests/images/caterham-f1.jpg\",\n\t\"./coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg\": \"./src/assests/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg\",\n\t\"./codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg\": \"./src/assests/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg\",\n\t\"./codigo.jpg\": \"./src/assests/images/codigo.jpg\",\n\t\"./comisarios-bandera-amarilla-2021-soymotor.jpg\": \"./src/assests/images/comisarios-bandera-amarilla-2021-soymotor.jpg\",\n\t\"./coulthard-mschumacher-francuska-2000-1024x674.jpg\": \"./src/assests/images/coulthard-mschumacher-francuska-2000-1024x674.jpg\",\n\t\"./cui-png2.jpg\": \"./src/assests/images/cui-png2.jpg\",\n\t\"./daniel-ricciardo-gp-monaco-2018.jpg\": \"./src/assests/images/daniel-ricciardo-gp-monaco-2018.jpg\",\n\t\"./daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg\": \"./src/assests/images/daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg\",\n\t\"./daniel_ricciardo_2017_china.jpg\": \"./src/assests/images/daniel_ricciardo_2017_china.jpg\",\n\t\"./desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg\": \"./src/assests/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg\",\n\t\"./doblete-mercedes-baku.jpg\": \"./src/assests/images/doblete-mercedes-baku.jpg\",\n\t\"./ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg\": \"./src/assests/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg\",\n\t\"./el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg\": \"./src/assests/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg\",\n\t\"./el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg\": \"./src/assests/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg\",\n\t\"./f0777c49a212574fd31ea18b515392a9.jpg\": \"./src/assests/images/f0777c49a212574fd31ea18b515392a9.jpg\",\n\t\"./f1-2013-11-bel-parrilla-trasera.jpg\": \"./src/assests/images/f1-2013-11-bel-parrilla-trasera.jpg\",\n\t\"./f1-2015-monaco-rosberg-mercedes-victoria.jpg\": \"./src/assests/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg\",\n\t\"./f1-2016-monaco-mercedes-hamilton-victoria.jpg\": \"./src/assests/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg\",\n\t\"./f1-australia-salida1_hd_32675.jpg\": \"./src/assests/images/f1-australia-salida1_hd_32675.jpg\",\n\t\"./f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg\": \"./src/assests/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg\",\n\t\"./f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg\": \"./src/assests/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg\",\n\t\"./f1-gp-australia-2016-rosberg-gana-primera_1.jpg\": \"./src/assests/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg\",\n\t\"./f1-gp-canada-domenica-935.jpg\": \"./src/assests/images/f1-gp-canada-domenica-935.jpg\",\n\t\"./f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg\": \"./src/assests/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg\",\n\t\"./f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg\": \"./src/assests/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg\",\n\t\"./f1-mclarens-india-inline.jpg\": \"./src/assests/images/f1-mclarens-india-inline.jpg\",\n\t\"./f1-spyker-2007.jpg\": \"./src/assests/images/f1-spyker-2007.jpg\",\n\t\"./f1_416x234.jpg\": \"./src/assests/images/f1_416x234.jpg\",\n\t\"./f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg\": \"./src/assests/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg\",\n\t\"./f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg\": \"./src/assests/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg\",\n\t\"./f768x1-8742_8869_154.jpg\": \"./src/assests/images/f768x1-8742_8869_154.jpg\",\n\t\"./ferari.jpg\": \"./src/assests/images/ferari.jpg\",\n\t\"./fernando-alonso-aston-martin-a-3.jpg\": \"./src/assests/images/fernando-alonso-aston-martin-a-3.jpg\",\n\t\"./fernando-alonso-jaguar-r3-1.jpg\": \"./src/assests/images/fernando-alonso-jaguar-r3-1.jpg\",\n\t\"./ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg\": \"./src/assests/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg\",\n\t\"./fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg\": \"./src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg\",\n\t\"./fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg\": \"./src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg\",\n\t\"./fia.jpg\": \"./src/assests/images/fia.jpg\",\n\t\"./flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg\": \"./src/assests/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg\",\n\t\"./formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg\": \"./src/assests/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg\",\n\t\"./formula-1-european-gp-1997-jac-2.jpg\": \"./src/assests/images/formula-1-european-gp-1997-jac-2.jpg\",\n\t\"./formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg\": \"./src/assests/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg\",\n\t\"./formula-1-hungarian-gp-2021-es-2.jpg\": \"./src/assests/images/formula-1-hungarian-gp-2021-es-2.jpg\",\n\t\"./formula-1-italian-gp-2018-race-2.jpg\": \"./src/assests/images/formula-1-italian-gp-2018-race-2.jpg\",\n\t\"./formula-1-mexico-city-gp-2022--2.jpg\": \"./src/assests/images/formula-1-mexico-city-gp-2022--2.jpg\",\n\t\"./formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg\": \"./src/assests/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg\",\n\t\"./formula-1-united-states-gp-201-2.jpg\": \"./src/assests/images/formula-1-united-states-gp-201-2.jpg\",\n\t\"./fotos-gp-espana-f1-202287138-1653075223_6.jpg\": \"./src/assests/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg\",\n\t\"./fposter,small,wall_texture,square_product,600x600.u3.jpg\": \"./src/assests/images/fposter,small,wall_texture,square_product,600x600.u3.jpg\",\n\t\"./gasly-monza-sabado-2020-soymotor.jpg\": \"./src/assests/images/gasly-monza-sabado-2020-soymotor.jpg\",\n\t\"./gettyimages-499135626-612x612.jpg\": \"./src/assests/images/gettyimages-499135626-612x612.jpg\",\n\t\"./gp-australia-1998-hakkinen-coulthard-soymotor.jpg\": \"./src/assests/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg\",\n\t\"./gp-can-3-123924-1024x576.jpg\": \"./src/assests/images/gp-can-3-123924-1024x576.jpg\",\n\t\"./gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg\": \"./src/assests/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg\",\n\t\"./gp-hungria-f1-2018.jpg\": \"./src/assests/images/gp-hungria-f1-2018.jpg\",\n\t\"./gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg\": \"./src/assests/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg\",\n\t\"./gran-premio-de-mexico-f1-01-viernes-1572107970.jpg\": \"./src/assests/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg\",\n\t\"./h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg\": \"./src/assests/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg\",\n\t\"./hamilton-bahrein-2019.jpg\": \"./src/assests/images/hamilton-bahrein-2019.jpg\",\n\t\"./hamilton-canada-clasificacion-f1-soymotor.jpg\": \"./src/assests/images/hamilton-canada-clasificacion-f1-soymotor.jpg\",\n\t\"./hamilton_suzuka2018-1.jpg\": \"./src/assests/images/hamilton_suzuka2018-1.jpg\",\n\t\"./hamilton_vettel_glock_brasil_2008_soy_motor.jpg\": \"./src/assests/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg\",\n\t\"./il_570xN.5522041097_7lyw.jpg\": \"./src/assests/images/il_570xN.5522041097_7lyw.jpg\",\n\t\"./image23.jpg\": \"./src/assests/images/image23.jpg\",\n\t\"./image26.jpg\": \"./src/assests/images/image26.jpg\",\n\t\"./images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg\": \"./src/assests/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg\",\n\t\"./images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg\": \"./src/assests/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg\",\n\t\"./images.15jpg.jpg\": \"./src/assests/images/images.15jpg.jpg\",\n\t\"./images.jpg\": \"./src/assests/images/images.jpg\",\n\t\"./images10.jpg\": \"./src/assests/images/images10.jpg\",\n\t\"./images11.jpg\": \"./src/assests/images/images11.jpg\",\n\t\"./images12.jpg\": \"./src/assests/images/images12.jpg\",\n\t\"./images14.jpg\": \"./src/assests/images/images14.jpg\",\n\t\"./images15.jpg\": \"./src/assests/images/images15.jpg\",\n\t\"./images16.jpg\": \"./src/assests/images/images16.jpg\",\n\t\"./images17.jpg\": \"./src/assests/images/images17.jpg\",\n\t\"./images2.jpg\": \"./src/assests/images/images2.jpg\",\n\t\"./images22.jpg\": \"./src/assests/images/images22.jpg\",\n\t\"./images24.jpg\": \"./src/assests/images/images24.jpg\",\n\t\"./images25.jpg\": \"./src/assests/images/images25.jpg\",\n\t\"./images27.jpg\": \"./src/assests/images/images27.jpg\",\n\t\"./images28.jpg\": \"./src/assests/images/images28.jpg\",\n\t\"./images29.jpg\": \"./src/assests/images/images29.jpg\",\n\t\"./images30.jpg\": \"./src/assests/images/images30.jpg\",\n\t\"./images31.jpg\": \"./src/assests/images/images31.jpg\",\n\t\"./images32.jpg\": \"./src/assests/images/images32.jpg\",\n\t\"./images4.jpg\": \"./src/assests/images/images4.jpg\",\n\t\"./images5.jpg\": \"./src/assests/images/images5.jpg\",\n\t\"./images6.jpg\": \"./src/assests/images/images6.jpg\",\n\t\"./images7.jpg\": \"./src/assests/images/images7.jpg\",\n\t\"./images8.jpg\": \"./src/assests/images/images8.jpg\",\n\t\"./images9.jpg\": \"./src/assests/images/images9.jpg\",\n\t\"./img2.rtve.jpg\": \"./src/assests/images/img2.rtve.jpg\",\n\t\"./img24.rtve.jpg\": \"./src/assests/images/img24.rtve.jpg\",\n\t\"./img4.rtve.jpg\": \"./src/assests/images/img4.rtve.jpg\",\n\t\"./jeddah.jpg\": \"./src/assests/images/jeddah.jpg\",\n\t\"./lando-norris-llevo-gp-miami.jpg\": \"./src/assests/images/lando-norris-llevo-gp-miami.jpg\",\n\t\"./leclerc-monaco-2024-winner.jpg\": \"./src/assests/images/leclerc-monaco-2024-winner.jpg\",\n\t\"./leclerc_thumb_425.jpg\": \"./src/assests/images/leclerc_thumb_425.jpg\",\n\t\"./lewis-hamilton-2151739.jpg\": \"./src/assests/images/lewis-hamilton-2151739.jpg\",\n\t\"./lewis-hamilton-gana-austin.jpg\": \"./src/assests/images/lewis-hamilton-gana-austin.jpg\",\n\t\"./lewis-hamilton-mercedes-w12-1s.jpg\": \"./src/assests/images/lewis-hamilton-mercedes-w12-1s.jpg\",\n\t\"./lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg\": \"./src/assests/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg\",\n\t\"./lewis_hamilton_2015_china.jpg\": \"./src/assests/images/lewis_hamilton_2015_china.jpg\",\n\t\"./lewis_hamilton_2019_china.jpg\": \"./src/assests/images/lewis_hamilton_2019_china.jpg\",\n\t\"./lewishamiltongpchina2008.jpg\": \"./src/assests/images/lewishamiltongpchina2008.jpg\",\n\t\"./max-verstappen-gran-premio-austria-2019.jpg\": \"./src/assests/images/max-verstappen-gran-premio-austria-2019.jpg\",\n\t\"./max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg\": \"./src/assests/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg\",\n\t\"./max-verstappen-red-bull-racing.jpg\": \"./src/assests/images/max-verstappen-red-bull-racing.jpg\",\n\t\"./max_verstappen-red_bull-carrera-gp-austria-2018.jpg\": \"./src/assests/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg\",\n\t\"./mercedes-ferrari-italia-laf1.jpg\": \"./src/assests/images/mercedes-ferrari-italia-laf1.jpg\",\n\t\"./michael-schumacher-ferrari-f30.jpg\": \"./src/assests/images/michael-schumacher-ferrari-f30.jpg\",\n\t\"./minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg\": \"./src/assests/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg\",\n\t\"./nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png\": \"./src/assests/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png\",\n\t\"./nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png\": \"./src/assests/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png\",\n\t\"./nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png\": \"./src/assests/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png\",\n\t\"./nico_rosberg_2016_china.jpg\": \"./src/assests/images/nico_rosberg_2016_china.jpg\",\n\t\"./nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg\": \"./src/assests/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg\",\n\t\"./oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg\": \"./src/assests/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg\",\n\t\"./pierre-gasly-alphatauri-at02-i.jpg\": \"./src/assests/images/pierre-gasly-alphatauri-at02-i.jpg\",\n\t\"./png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg\": \"./src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg\",\n\t\"./png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png\": \"./src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png\",\n\t\"./podio_japon_2017_soy_motor.jpg\": \"./src/assests/images/podio_japon_2017_soy_motor.jpg\",\n\t\"./pole-verstappen-abu-dhabi-2876011.jpg\": \"./src/assests/images/pole-verstappen-abu-dhabi-2876011.jpg\",\n\t\"./poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg\": \"./src/assests/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg\",\n\t\"./ps5-product-thumbnail-01-en-14sep21.jpg\": \"./src/assests/images/ps5-product-thumbnail-01-en-14sep21.jpg\",\n\t\"./racefansdotnet-20180903-103054-68.jpg\": \"./src/assests/images/racefansdotnet-20180903-103054-68.jpg\",\n\t\"./racefansdotnet-start-istanbul.jpg\": \"./src/assests/images/racefansdotnet-start-istanbul.jpg\",\n\t\"./renault-f1-team-renault-r24-villeneuve-7647.jpg\": \"./src/assests/images/renault-f1-team-renault-r24-villeneuve-7647.jpg\",\n\t\"./ricciardo2017.jpg\": \"./src/assests/images/ricciardo2017.jpg\",\n\t\"./salida-alemania.jpg\": \"./src/assests/images/salida-alemania.jpg\",\n\t\"./salida-gp-espana-2019.jpg\": \"./src/assests/images/salida-gp-espana-2019.jpg\",\n\t\"./salida-gp-espana-jerez-1997.jpg\": \"./src/assests/images/salida-gp-espana-jerez-1997.jpg\",\n\t\"./screenshot-2018-04-03-13-56-50.jpg\": \"./src/assests/images/screenshot-2018-04-03-13-56-50.jpg\",\n\t\"./sddefault.jpg\": \"./src/assests/images/sddefault.jpg\",\n\t\"./sebastian-vettel-clasificacion-canada.jpg\": \"./src/assests/images/sebastian-vettel-clasificacion-canada.jpg\",\n\t\"./sebastian_vettel_2018_china.jpg\": \"./src/assests/images/sebastian_vettel_2018_china.jpg\",\n\t\"./sergio-perez-red-bull-racing-r.jpg\": \"./src/assests/images/sergio-perez-red-bull-racing-r.jpg\",\n\t\"./singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg\": \"./src/assests/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg\",\n\t\"./sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png\": \"./src/assests/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png\",\n\t\"./starting-grid-1.jpg\": \"./src/assests/images/starting-grid-1.jpg\",\n\t\"./the-cars-in-parc-ferme-after-t.jpg\": \"./src/assests/images/the-cars-in-parc-ferme-after-t.jpg\",\n\t\"./the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg\": \"./src/assests/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg\",\n\t\"./unnamed.jpg\": \"./src/assests/images/unnamed.jpg\",\n\t\"./upmac1f.jpg\": \"./src/assests/images/upmac1f.jpg\",\n\t\"./valtteri-bottas-hace-pole-austria.jpg\": \"./src/assests/images/valtteri-bottas-hace-pole-austria.jpg\",\n\t\"./verstappen-arrasa-imola-2683245.jpg\": \"./src/assests/images/verstappen-arrasa-imola-2683245.jpg\",\n\t\"./verstappen-norris-635x358.jpg\": \"./src/assests/images/verstappen-norris-635x358.jpg\",\n\t\"./verstappen-red-bull-2017.jpg\": \"./src/assests/images/verstappen-red-bull-2017.jpg\",\n\t\"./victoria-lewis-hamilton-gp-singapur.jpg\": \"./src/assests/images/victoria-lewis-hamilton-gp-singapur.jpg\",\n\t\"./victoria-vettel-gp-bahrein.jpg\": \"./src/assests/images/victoria-vettel-gp-bahrein.jpg\",\n\t\"./virtual-safety-car-3432279.jpg\": \"./src/assests/images/virtual-safety-car-3432279.jpg\",\n\t\"./virutas-f1-guia-foteros-grada-201846328_4.jpg\": \"./src/assests/images/virutas-f1-guia-foteros-grada-201846328_4.jpg\"\n};\n\n\nfunction webpackContext(req) {\n\tvar id = webpackContextResolve(req);\n\treturn __webpack_require__(id);\n}\nfunction webpackContextResolve(req) {\n\tif(!__webpack_require__.o(map, req)) {\n\t\tvar e = new Error(\"Cannot find module '\" + req + \"'\");\n\t\te.code = 'MODULE_NOT_FOUND';\n\t\tthrow e;\n\t}\n\treturn map[req];\n}\nwebpackContext.keys = function webpackContextKeys() {\n\treturn Object.keys(map);\n};\nwebpackContext.resolve = webpackContextResolve;\nmodule.exports = webpackContext;\nwebpackContext.id = \"./src/assests/images sync recursive ^\\\\.\\\\/.*$\";\n\n//# sourceURL=webpack://frontend/./src/assests/images/_sync_^\\.\\/.*$?");
+eval("var map = {\n\t\"./00000224_018-753x494.jpg\": \"./src/assets/images/00000224_018-753x494.jpg\",\n\t\"./001_small.jpg\": \"./src/assets/images/001_small.jpg\",\n\t\"./005_small.jpg\": \"./src/assets/images/005_small.jpg\",\n\t\"./006_small.jpg\": \"./src/assets/images/006_small.jpg\",\n\t\"./01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg\": \"./src/assets/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg\",\n\t\"./0_vB6AeMdbQEBWJpgX.jpg\": \"./src/assets/images/0_vB6AeMdbQEBWJpgX.jpg\",\n\t\"./0_vae50gfk.jpg\": \"./src/assets/images/0_vae50gfk.jpg\",\n\t\"./1+Alpine+Saudi+Arabian+GP+1.jpg\": \"./src/assets/images/1+Alpine+Saudi+Arabian+GP+1.jpg\",\n\t\"./1-bottas-1-f1-abu-dhabi-2017.jpg\": \"./src/assets/images/1-bottas-1-f1-abu-dhabi-2017.jpg\",\n\t\"./1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg\": \"./src/assets/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg\",\n\t\"./1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg\": \"./src/assets/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg\",\n\t\"./1200px-hamilton_canadian_gp_2010_with_f-duct.jpg\": \"./src/assets/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg\",\n\t\"./1366_2000.jpeg\": \"./src/assets/images/1366_2000.jpeg\",\n\t\"./1366_2000.jpg\": \"./src/assets/images/1366_2000.jpg\",\n\t\"./14633209454616.jpg\": \"./src/assets/images/14633209454616.jpg\",\n\t\"./14675636874942_990x0.jpg\": \"./src/assets/images/14675636874942_990x0.jpg\",\n\t\"./14681648212906_990x0.jpg\": \"./src/assets/images/14681648212906_990x0.jpg\",\n\t\"./14885385788381.jpg\": \"./src/assets/images/14885385788381.jpg\",\n\t\"./14923709613710.jpg\": \"./src/assets/images/14923709613710.jpg\",\n\t\"./15014222489730.jpg\": \"./src/assets/images/15014222489730.jpg\",\n\t\"./15041688972205.jpg\": \"./src/assets/images/15041688972205.jpg\",\n\t\"./15185392040281.jpg\": \"./src/assets/images/15185392040281.jpg\",\n\t\"./15219625763704.jpg\": \"./src/assets/images/15219625763704.jpg\",\n\t\"./15250354089549.jpg\": \"./src/assets/images/15250354089549.jpg\",\n\t\"./15262228901480.jpg\": \"./src/assets/images/15262228901480.jpg\",\n\t\"./15274979049260.jpg\": \"./src/assets/images/15274979049260.jpg\",\n\t\"./15289134275279.jpg\": \"./src/assets/images/15289134275279.jpg\",\n\t\"./15352940634208.jpg\": \"./src/assets/images/15352940634208.jpg\",\n\t\"./15419540602472.jpg\": \"./src/assets/images/15419540602472.jpg\",\n\t\"./15588754308513.jpg\": \"./src/assets/images/15588754308513.jpg\",\n\t\"./15631081847013.jpg\": \"./src/assets/images/15631081847013.jpg\",\n\t\"./15644308053724.jpg\": \"./src/assets/images/15644308053724.jpg\",\n\t\"./15673364402578.jpg\": \"./src/assets/images/15673364402578.jpg\",\n\t\"./15739239356031.jpg\": \"./src/assets/images/15739239356031.jpg\",\n\t\"./15929284269004.jpg\": \"./src/assets/images/15929284269004.jpg\",\n\t\"./15938651546549.jpg\": \"./src/assets/images/15938651546549.jpg\",\n\t\"./16172011568663.jpg\": \"./src/assets/images/16172011568663.jpg\",\n\t\"./16187597716549.jpg\": \"./src/assets/images/16187597716549.jpg\",\n\t\"./16217812688788.png\": \"./src/assets/images/16217812688788.png\",\n\t\"./16387363862558.jpg\": \"./src/assets/images/16387363862558.jpg\",\n\t\"./16474210250936.jpg\": \"./src/assets/images/16474210250936.jpg\",\n\t\"./16616979678448.jpg\": \"./src/assets/images/16616979678448.jpg\",\n\t\"./16907270397230.jpg\": \"./src/assets/images/16907270397230.jpg\",\n\t\"./17093981925136.jpg\": \"./src/assets/images/17093981925136.jpg\",\n\t\"./1997hidarr03.jpg\": \"./src/assets/images/1997hidarr03.jpg\",\n\t\"./1_foDYHEmOHMtHrSZgpP5q3A.jpg\": \"./src/assets/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg\",\n\t\"./2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg\": \"./src/assets/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg\",\n\t\"./219.jpg\": \"./src/assets/images/219.jpg\",\n\t\"./2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg\": \"./src/assets/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg\",\n\t\"./2da5e299e491fc1eae59abe0ff97ee1f.jpg\": \"./src/assets/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg\",\n\t\"./32176-n3.jpg\": \"./src/assets/images/32176-n3.jpg\",\n\t\"./3242112-66359508-2560-1440.jpg\": \"./src/assets/images/3242112-66359508-2560-1440.jpg\",\n\t\"./34913-n3.jpg\": \"./src/assets/images/34913-n3.jpg\",\n\t\"./360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg\": \"./src/assets/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg\",\n\t\"./3785978-77009488-2560-1440.jpg\": \"./src/assets/images/3785978-77009488-2560-1440.jpg\",\n\t\"./38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg\": \"./src/assets/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg\",\n\t\"./3SGEZYWNVBNIJH2BK722SZUODE.jpg\": \"./src/assets/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg\",\n\t\"./3db56091204561.5e2b4deb5987d.png\": \"./src/assets/images/3db56091204561.5e2b4deb5987d.png\",\n\t\"./3wkkh475qaad1.jpg\": \"./src/assets/images/3wkkh475qaad1.jpg\",\n\t\"./4007762-81292888-2560-1440.jpg\": \"./src/assets/images/4007762-81292888-2560-1440.jpg\",\n\t\"./450_1000.jpg\": \"./src/assets/images/450_1000.jpg\",\n\t\"./472XS5KCRRP4LNSSI5RL7FSDLQ.jpg\": \"./src/assets/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg\",\n\t\"./517c567d8d6e9f561c4eb73313a8d280.jpg\": \"./src/assets/images/517c567d8d6e9f561c4eb73313a8d280.jpg\",\n\t\"./5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg\": \"./src/assets/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg\",\n\t\"./58.jpg\": \"./src/assets/images/58.jpg\",\n\t\"./5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg\": \"./src/assets/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg\",\n\t\"./5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg\": \"./src/assets/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg\",\n\t\"./5f983feff4709d5867dcc940.jpg\": \"./src/assets/images/5f983feff4709d5867dcc940.jpg\",\n\t\"./5fa278007fde0.jpg\": \"./src/assets/images/5fa278007fde0.jpg\",\n\t\"./5fa2d1d4120ce.jpeg\": \"./src/assets/images/5fa2d1d4120ce.jpeg\",\n\t\"./60e728fca1f4e.jpeg\": \"./src/assets/images/60e728fca1f4e.jpeg\",\n\t\"./60e74b03277a9.jpeg\": \"./src/assets/images/60e74b03277a9.jpeg\",\n\t\"./60e7539c0742c.jpeg\": \"./src/assets/images/60e7539c0742c.jpeg\",\n\t\"./60e762a36aac6.jpeg\": \"./src/assets/images/60e762a36aac6.jpeg\",\n\t\"./60e7c34f2c9e5.jpeg\": \"./src/assets/images/60e7c34f2c9e5.jpeg\",\n\t\"./6134d694ae4aa.r_d.963-634-6250.jpeg\": \"./src/assets/images/6134d694ae4aa.r_d.963-634-6250.jpeg\",\n\t\"./61883968f22bb.r_d.1767-1015-0.jpeg\": \"./src/assets/images/61883968f22bb.r_d.1767-1015-0.jpeg\",\n\t\"./61915711c5e7a.r_d.2479-2514-878.jpeg\": \"./src/assets/images/61915711c5e7a.r_d.2479-2514-878.jpeg\",\n\t\"./625135306ceeb.r_d.1724-1149-3479.jpeg\": \"./src/assets/images/625135306ceeb.r_d.1724-1149-3479.jpeg\",\n\t\"./62939be656a96.jpeg\": \"./src/assets/images/62939be656a96.jpeg\",\n\t\"./62af7d33eeaa0.r_d.2438-1665-921.jpeg\": \"./src/assets/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg\",\n\t\"./62c1d08761fb9.jpeg\": \"./src/assets/images/62c1d08761fb9.jpeg\",\n\t\"./631dee4441565.jpeg\": \"./src/assets/images/631dee4441565.jpeg\",\n\t\"./6371467b63d71.r_d.3862-3443-1727.jpeg\": \"./src/assets/images/6371467b63d71.r_d.3862-3443-1727.jpeg\",\n\t\"./644e62898c269.r_d.2685-1059-4000.jpeg\": \"./src/assets/images/644e62898c269.r_d.2685-1059-4000.jpeg\",\n\t\"./64736b8706cd0.r_d.966-1712-3866.jpeg\": \"./src/assets/images/64736b8706cd0.r_d.966-1712-3866.jpeg\",\n\t\"./647ca0b69f16b.jpeg\": \"./src/assets/images/647ca0b69f16b.jpeg\",\n\t\"./64a18ce92e026.jpeg\": \"./src/assets/images/64a18ce92e026.jpeg\",\n\t\"./64aad147d8e9a.r_d.1859-2256-0.jpeg\": \"./src/assets/images/64aad147d8e9a.r_d.1859-2256-0.jpeg\",\n\t\"./64f49c3e81e86.r_d.3066-2034-3043.jpeg\": \"./src/assets/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg\",\n\t\"./65204d929ab84.jpeg\": \"./src/assets/images/65204d929ab84.jpeg\",\n\t\"./653452d633f8e.r_d.3831-2554-586.jpeg\": \"./src/assets/images/653452d633f8e.r_d.3831-2554-586.jpeg\",\n\t\"./653ed76848b50.r_d.4059-3018-823.jpeg\": \"./src/assets/images/653ed76848b50.r_d.4059-3018-823.jpeg\",\n\t\"./6547e6216ba11.r_d.2680-2785-629.jpeg\": \"./src/assets/images/6547e6216ba11.r_d.2680-2785-629.jpeg\",\n\t\"./65c504f09bce1cad3dcbba833d8ee852.jpg\": \"./src/assets/images/65c504f09bce1cad3dcbba833d8ee852.jpg\",\n\t\"./6624d1c194742.jpeg\": \"./src/assets/images/6624d1c194742.jpeg\",\n\t\"./6744ae08e6a450e031b21a17e78fc0fa.jpg\": \"./src/assets/images/6744ae08e6a450e031b21a17e78fc0fa.jpg\",\n\t\"./69.jpg\": \"./src/assets/images/69.jpg\",\n\t\"./6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg\": \"./src/assets/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg\",\n\t\"./709607-21389434-2560-1440.jpg\": \"./src/assets/images/709607-21389434-2560-1440.jpg\",\n\t\"./796930333_236274274_1706x640.jpg\": \"./src/assets/images/796930333_236274274_1706x640.jpg\",\n\t\"./7vsxuxdpdc5a1.jpg\": \"./src/assets/images/7vsxuxdpdc5a1.jpg\",\n\t\"./819cOVjBRRL.jpg\": \"./src/assets/images/819cOVjBRRL.jpg\",\n\t\"./9-sunday-melbourne-2023.jpg\": \"./src/assets/images/9-sunday-melbourne-2023.jpg\",\n\t\"./9.jpg\": \"./src/assets/images/9.jpg\",\n\t\"./Abu_Dhabi_Circuit.jpg\": \"./src/assets/images/Abu_Dhabi_Circuit.jpg\",\n\t\"./Australia_Circuit.jpg\": \"./src/assets/images/Australia_Circuit.jpg\",\n\t\"./Austria_Circuit.jpg\": \"./src/assets/images/Austria_Circuit.jpg\",\n\t\"./Bahrain_Circuit.jpg\": \"./src/assets/images/Bahrain_Circuit.jpg\",\n\t\"./Baku_Circuit.jpg\": \"./src/assets/images/Baku_Circuit.jpg\",\n\t\"./BeaF-8xIcAAYBbM.jpg\": \"./src/assets/images/BeaF-8xIcAAYBbM.jpg\",\n\t\"./Belgium_Circuit.jpg\": \"./src/assets/images/Belgium_Circuit.jpg\",\n\t\"./Brasil.jpg\": \"./src/assets/images/Brasil.jpg\",\n\t\"./Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg\": \"./src/assets/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg\",\n\t\"./C3M2TCWVCRIETMLZT6IIZEZUMY.jpg\": \"./src/assets/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg\",\n\t\"./COKcBbWVAAAi53b.jpg\": \"./src/assets/images/COKcBbWVAAAi53b.jpg\",\n\t\"./CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg\": \"./src/assets/images/CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg\",\n\t\"./Canada_Circuit.jpg\": \"./src/assets/images/Canada_Circuit.jpg\",\n\t\"./Captura de pantalla 2024-08-18 123450.png\": \"./src/assets/images/Captura de pantalla 2024-08-18 123450.png\",\n\t\"./China_Circuit.jpg\": \"./src/assets/images/China_Circuit.jpg\",\n\t\"./Cuatro-neumaticos-Pirelli-de-carreras.jpg\": \"./src/assets/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg\",\n\t\"./DMRQ67NFY5RATQY4MIMXDDGGP4.jpg\": \"./src/assets/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg\",\n\t\"./E0sxVjJWQAI783K.jpg\": \"./src/assets/images/E0sxVjJWQAI783K.jpg\",\n\t\"./EmtITbGXEAA40XD.jpg\": \"./src/assets/images/EmtITbGXEAA40XD.jpg\",\n\t\"./F1-AUSTRALIA_93806.jpg\": \"./src/assets/images/F1-AUSTRALIA_93806.jpg\",\n\t\"./F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg\": \"./src/assets/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg\",\n\t\"./FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg\": \"./src/assets/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg\",\n\t\"./FTVT32DOQYG6QN4CW3O2F3E4SI.jpg\": \"./src/assets/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg\",\n\t\"./FYqwDVvXkAMHGtB.jpg\": \"./src/assets/images/FYqwDVvXkAMHGtB.jpg\",\n\t\"./FYrYQ9SXoAAR-v6-732x1024.jpg\": \"./src/assets/images/FYrYQ9SXoAAR-v6-732x1024.jpg\",\n\t\"./F_01_672-458_resize.jpg\": \"./src/assets/images/F_01_672-458_resize.jpg\",\n\t\"./GS7PpavXoAEFq3Z.jpg\": \"./src/assets/images/GS7PpavXoAEFq3Z.jpg\",\n\t\"./GettyImages-1474638493.jpg\": \"./src/assets/images/GettyImages-1474638493.jpg\",\n\t\"./GettyImages-1628172829.jpg\": \"./src/assets/images/GettyImages-1628172829.jpg\",\n\t\"./GettyImages-2161010295.jpg\": \"./src/assets/images/GettyImages-2161010295.jpg\",\n\t\"./GmPSckjbsAApnT1.jpg\": \"./src/assets/images/GmPSckjbsAApnT1.jpg\",\n\t\"./Great_Britain_Circuit.jpg\": \"./src/assets/images/Great_Britain_Circuit.jpg\",\n\t\"./Hungary_Circuit.jpg\": \"./src/assets/images/Hungary_Circuit.jpg\",\n\t\"./Imola.jpg\": \"./src/assets/images/Imola.jpg\",\n\t\"./Italy_Circuit.jpg\": \"./src/assets/images/Italy_Circuit.jpg\",\n\t\"./Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png\": \"./src/assets/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png\",\n\t\"./LJYUJXPNYFLO5LCK3POR3HZTBY.jpg\": \"./src/assets/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg\",\n\t\"./MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg\": \"./src/assets/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg\",\n\t\"./Mexico_Circuit.jpg\": \"./src/assets/images/Mexico_Circuit.jpg\",\n\t\"./Miami.jpg\": \"./src/assets/images/Miami.jpg\",\n\t\"./ModeloDatosAplicación.png\": \"./src/assets/images/ModeloDatosAplicación.png\",\n\t\"./Monoco_Circuit.jpg\": \"./src/assets/images/Monoco_Circuit.jpg\",\n\t\"./NAZ_02017646930e4c1994e9106f0433428b.jpg\": \"./src/assets/images/NAZ_02017646930e4c1994e9106f0433428b.jpg\",\n\t\"./NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg\": \"./src/assets/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg\",\n\t\"./NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg\": \"./src/assets/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg\",\n\t\"./NAZ_e655bfc3b5d54a7e8166699123156887.jpg\": \"./src/assets/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg\",\n\t\"./Netherlands_Circuit.jpg\": \"./src/assets/images/Netherlands_Circuit.jpg\",\n\t\"./OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg\": \"./src/assets/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg\",\n\t\"./PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg\": \"./src/assets/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg\",\n\t\"./Pedro_de_la_Rosa_2005_Britain.jpg\": \"./src/assets/images/Pedro_de_la_Rosa_2005_Britain.jpg\",\n\t\"./Qatar.jpg\": \"./src/assets/images/Qatar.jpg\",\n\t\"./Rubens_Barrichello_2006_USA.jpg\": \"./src/assets/images/Rubens_Barrichello_2006_USA.jpg\",\n\t\"./Sainz-Ferrari-Australia-55-2024-carrera-1.jpg\": \"./src/assets/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg\",\n\t\"./SalidaGPMalasia2009.jpg\": \"./src/assets/images/SalidaGPMalasia2009.jpg\",\n\t\"./Schumacher_Mercedes_Jerez_(cropped).jpg\": \"./src/assets/images/Schumacher_Mercedes_Jerez_(cropped).jpg\",\n\t\"./Screenshot-2021-11-02-at-16.57.04.jpg\": \"./src/assets/images/Screenshot-2021-11-02-at-16.57.04.jpg\",\n\t\"./Singapore_Circuit.jpg\": \"./src/assets/images/Singapore_Circuit.jpg\",\n\t\"./Spain_Circuit.jpg\": \"./src/assets/images/Spain_Circuit.jpg\",\n\t\"./Suzuka.jpg\": \"./src/assets/images/Suzuka.jpg\",\n\t\"./USA_Circuit.jpg\": \"./src/assets/images/USA_Circuit.jpg\",\n\t\"./USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg\": \"./src/assets/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg\",\n\t\"./UTH_T150-racing-wheel-PS4-PC-1-7.jpg\": \"./src/assets/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg\",\n\t\"./Undercut-F1.jpg\": \"./src/assets/images/Undercut-F1.jpg\",\n\t\"./Valentino-Rossi-piloto-F1-Ferrari-14.jpg\": \"./src/assets/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg\",\n\t\"./Vegas.jpg\": \"./src/assets/images/Vegas.jpg\",\n\t\"./WMMAJSFNRNNNLB263KN6C725KQ.jpg\": \"./src/assets/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg\",\n\t\"./X2ANIYID3BOXNFKVUZ6N7COUX4.jpg\": \"./src/assets/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg\",\n\t\"./XPB_1282060_HiRes.jpg\": \"./src/assets/images/XPB_1282060_HiRes.jpg\",\n\t\"./YCMLNJ6XANIX7LA37KV2EIAGO4.jpg\": \"./src/assets/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg\",\n\t\"./ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg\": \"./src/assets/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg\",\n\t\"./_103266921_hamilton_vettel_getty1.jpg\": \"./src/assets/images/_103266921_hamilton_vettel_getty1.jpg\",\n\t\"./_45650053_07lewisgravel512.jpg\": \"./src/assets/images/_45650053_07lewisgravel512.jpg\",\n\t\"./a-marshal-holds-a-yellow-flag-1.jpg\": \"./src/assets/images/a-marshal-holds-a-yellow-flag-1.jpg\",\n\t\"./a637c951f5abb3d146fc1931d48735df.jpg\": \"./src/assets/images/a637c951f5abb3d146fc1931d48735df.jpg\",\n\t\"./abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg\": \"./src/assets/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg\",\n\t\"./ahav61hj4goa1.jpg\": \"./src/assets/images/ahav61hj4goa1.jpg\",\n\t\"./analisis-gp-brasil-f1-2023-soymotor.jpg\": \"./src/assets/images/analisis-gp-brasil-f1-2023-soymotor.jpg\",\n\t\"./article-1377757-0BAA374500000578-340_634x432.jpg\": \"./src/assets/images/article-1377757-0BAA374500000578-340_634x432.jpg\",\n\t\"./article-2351820-1A95E98F000005DC-265_634x286.jpg\": \"./src/assets/images/article-2351820-1A95E98F000005DC-265_634x286.jpg\",\n\t\"./asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg\": \"./src/assets/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg\",\n\t\"./ava4n-6dmcg.png\": \"./src/assets/images/ava4n-6dmcg.png\",\n\t\"./belgica-hamilton-vettel-2017-f1-soymotor.jpg\": \"./src/assets/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg\",\n\t\"./bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg\": \"./src/assets/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg\",\n\t\"./bottas-pole-eeuu.jpg\": \"./src/assets/images/bottas-pole-eeuu.jpg\",\n\t\"./brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg\": \"./src/assets/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg\",\n\t\"./british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg\": \"./src/assets/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg\",\n\t\"./c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg\": \"./src/assets/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg\",\n\t\"./captura-4643897367.jpg\": \"./src/assets/images/captura-4643897367.jpg\",\n\t\"./carlos-sainz-ferrari-sf-24-2.jpg\": \"./src/assets/images/carlos-sainz-ferrari-sf-24-2.jpg\",\n\t\"./carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg\": \"./src/assets/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg\",\n\t\"./caterham-f1.jpg\": \"./src/assets/images/caterham-f1.jpg\",\n\t\"./coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg\": \"./src/assets/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg\",\n\t\"./codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg\": \"./src/assets/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg\",\n\t\"./codigo.jpg\": \"./src/assets/images/codigo.jpg\",\n\t\"./comisarios-bandera-amarilla-2021-soymotor.jpg\": \"./src/assets/images/comisarios-bandera-amarilla-2021-soymotor.jpg\",\n\t\"./coulthard-mschumacher-francuska-2000-1024x674.jpg\": \"./src/assets/images/coulthard-mschumacher-francuska-2000-1024x674.jpg\",\n\t\"./cui-png2.jpg\": \"./src/assets/images/cui-png2.jpg\",\n\t\"./daniel-ricciardo-gp-monaco-2018.jpg\": \"./src/assets/images/daniel-ricciardo-gp-monaco-2018.jpg\",\n\t\"./daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg\": \"./src/assets/images/daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg\",\n\t\"./daniel_ricciardo_2017_china.jpg\": \"./src/assets/images/daniel_ricciardo_2017_china.jpg\",\n\t\"./desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg\": \"./src/assets/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg\",\n\t\"./doblete-mercedes-baku.jpg\": \"./src/assets/images/doblete-mercedes-baku.jpg\",\n\t\"./ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg\": \"./src/assets/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg\",\n\t\"./el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg\": \"./src/assets/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg\",\n\t\"./el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg\": \"./src/assets/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg\",\n\t\"./f0777c49a212574fd31ea18b515392a9.jpg\": \"./src/assets/images/f0777c49a212574fd31ea18b515392a9.jpg\",\n\t\"./f1-2013-11-bel-parrilla-trasera.jpg\": \"./src/assets/images/f1-2013-11-bel-parrilla-trasera.jpg\",\n\t\"./f1-2015-monaco-rosberg-mercedes-victoria.jpg\": \"./src/assets/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg\",\n\t\"./f1-2016-monaco-mercedes-hamilton-victoria.jpg\": \"./src/assets/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg\",\n\t\"./f1-australia-salida1_hd_32675.jpg\": \"./src/assets/images/f1-australia-salida1_hd_32675.jpg\",\n\t\"./f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg\": \"./src/assets/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg\",\n\t\"./f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg\": \"./src/assets/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg\",\n\t\"./f1-gp-australia-2016-rosberg-gana-primera_1.jpg\": \"./src/assets/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg\",\n\t\"./f1-gp-canada-domenica-935.jpg\": \"./src/assets/images/f1-gp-canada-domenica-935.jpg\",\n\t\"./f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg\": \"./src/assets/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg\",\n\t\"./f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg\": \"./src/assets/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg\",\n\t\"./f1-mclarens-india-inline.jpg\": \"./src/assets/images/f1-mclarens-india-inline.jpg\",\n\t\"./f1-spyker-2007.jpg\": \"./src/assets/images/f1-spyker-2007.jpg\",\n\t\"./f1_416x234.jpg\": \"./src/assets/images/f1_416x234.jpg\",\n\t\"./f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg\": \"./src/assets/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg\",\n\t\"./f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg\": \"./src/assets/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg\",\n\t\"./f768x1-8742_8869_154.jpg\": \"./src/assets/images/f768x1-8742_8869_154.jpg\",\n\t\"./ferari.jpg\": \"./src/assets/images/ferari.jpg\",\n\t\"./fernando-alonso-aston-martin-a-3.jpg\": \"./src/assets/images/fernando-alonso-aston-martin-a-3.jpg\",\n\t\"./fernando-alonso-jaguar-r3-1.jpg\": \"./src/assets/images/fernando-alonso-jaguar-r3-1.jpg\",\n\t\"./ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg\": \"./src/assets/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg\",\n\t\"./fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg\": \"./src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg\",\n\t\"./fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg\": \"./src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg\",\n\t\"./fia.jpg\": \"./src/assets/images/fia.jpg\",\n\t\"./flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg\": \"./src/assets/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg\",\n\t\"./formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg\": \"./src/assets/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg\",\n\t\"./formula-1-european-gp-1997-jac-2.jpg\": \"./src/assets/images/formula-1-european-gp-1997-jac-2.jpg\",\n\t\"./formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg\": \"./src/assets/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg\",\n\t\"./formula-1-hungarian-gp-2021-es-2.jpg\": \"./src/assets/images/formula-1-hungarian-gp-2021-es-2.jpg\",\n\t\"./formula-1-italian-gp-2018-race-2.jpg\": \"./src/assets/images/formula-1-italian-gp-2018-race-2.jpg\",\n\t\"./formula-1-mexico-city-gp-2022--2.jpg\": \"./src/assets/images/formula-1-mexico-city-gp-2022--2.jpg\",\n\t\"./formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg\": \"./src/assets/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg\",\n\t\"./formula-1-united-states-gp-201-2.jpg\": \"./src/assets/images/formula-1-united-states-gp-201-2.jpg\",\n\t\"./fotos-gp-espana-f1-202287138-1653075223_6.jpg\": \"./src/assets/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg\",\n\t\"./fposter,small,wall_texture,square_product,600x600.u3.jpg\": \"./src/assets/images/fposter,small,wall_texture,square_product,600x600.u3.jpg\",\n\t\"./gasly-monza-sabado-2020-soymotor.jpg\": \"./src/assets/images/gasly-monza-sabado-2020-soymotor.jpg\",\n\t\"./gettyimages-499135626-612x612.jpg\": \"./src/assets/images/gettyimages-499135626-612x612.jpg\",\n\t\"./gp-australia-1998-hakkinen-coulthard-soymotor.jpg\": \"./src/assets/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg\",\n\t\"./gp-can-3-123924-1024x576.jpg\": \"./src/assets/images/gp-can-3-123924-1024x576.jpg\",\n\t\"./gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg\": \"./src/assets/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg\",\n\t\"./gp-hungria-f1-2018.jpg\": \"./src/assets/images/gp-hungria-f1-2018.jpg\",\n\t\"./gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg\": \"./src/assets/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg\",\n\t\"./gran-premio-de-mexico-f1-01-viernes-1572107970.jpg\": \"./src/assets/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg\",\n\t\"./h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg\": \"./src/assets/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg\",\n\t\"./hamilton-bahrein-2019.jpg\": \"./src/assets/images/hamilton-bahrein-2019.jpg\",\n\t\"./hamilton-canada-clasificacion-f1-soymotor.jpg\": \"./src/assets/images/hamilton-canada-clasificacion-f1-soymotor.jpg\",\n\t\"./hamilton_suzuka2018-1.jpg\": \"./src/assets/images/hamilton_suzuka2018-1.jpg\",\n\t\"./hamilton_vettel_glock_brasil_2008_soy_motor.jpg\": \"./src/assets/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg\",\n\t\"./il_570xN.5522041097_7lyw.jpg\": \"./src/assets/images/il_570xN.5522041097_7lyw.jpg\",\n\t\"./image23.jpg\": \"./src/assets/images/image23.jpg\",\n\t\"./image26.jpg\": \"./src/assets/images/image26.jpg\",\n\t\"./images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg\": \"./src/assets/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg\",\n\t\"./images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg\": \"./src/assets/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg\",\n\t\"./images.15jpg.jpg\": \"./src/assets/images/images.15jpg.jpg\",\n\t\"./images.jpg\": \"./src/assets/images/images.jpg\",\n\t\"./images10.jpg\": \"./src/assets/images/images10.jpg\",\n\t\"./images11.jpg\": \"./src/assets/images/images11.jpg\",\n\t\"./images12.jpg\": \"./src/assets/images/images12.jpg\",\n\t\"./images14.jpg\": \"./src/assets/images/images14.jpg\",\n\t\"./images15.jpg\": \"./src/assets/images/images15.jpg\",\n\t\"./images16.jpg\": \"./src/assets/images/images16.jpg\",\n\t\"./images17.jpg\": \"./src/assets/images/images17.jpg\",\n\t\"./images2.jpg\": \"./src/assets/images/images2.jpg\",\n\t\"./images22.jpg\": \"./src/assets/images/images22.jpg\",\n\t\"./images24.jpg\": \"./src/assets/images/images24.jpg\",\n\t\"./images25.jpg\": \"./src/assets/images/images25.jpg\",\n\t\"./images27.jpg\": \"./src/assets/images/images27.jpg\",\n\t\"./images28.jpg\": \"./src/assets/images/images28.jpg\",\n\t\"./images29.jpg\": \"./src/assets/images/images29.jpg\",\n\t\"./images30.jpg\": \"./src/assets/images/images30.jpg\",\n\t\"./images31.jpg\": \"./src/assets/images/images31.jpg\",\n\t\"./images32.jpg\": \"./src/assets/images/images32.jpg\",\n\t\"./images4.jpg\": \"./src/assets/images/images4.jpg\",\n\t\"./images5.jpg\": \"./src/assets/images/images5.jpg\",\n\t\"./images6.jpg\": \"./src/assets/images/images6.jpg\",\n\t\"./images7.jpg\": \"./src/assets/images/images7.jpg\",\n\t\"./images8.jpg\": \"./src/assets/images/images8.jpg\",\n\t\"./images9.jpg\": \"./src/assets/images/images9.jpg\",\n\t\"./img2.rtve.jpg\": \"./src/assets/images/img2.rtve.jpg\",\n\t\"./img24.rtve.jpg\": \"./src/assets/images/img24.rtve.jpg\",\n\t\"./img4.rtve.jpg\": \"./src/assets/images/img4.rtve.jpg\",\n\t\"./jeddah.jpg\": \"./src/assets/images/jeddah.jpg\",\n\t\"./lando-norris-llevo-gp-miami.jpg\": \"./src/assets/images/lando-norris-llevo-gp-miami.jpg\",\n\t\"./leclerc-monaco-2024-winner.jpg\": \"./src/assets/images/leclerc-monaco-2024-winner.jpg\",\n\t\"./leclerc_thumb_425.jpg\": \"./src/assets/images/leclerc_thumb_425.jpg\",\n\t\"./lewis-hamilton-2151739.jpg\": \"./src/assets/images/lewis-hamilton-2151739.jpg\",\n\t\"./lewis-hamilton-gana-austin.jpg\": \"./src/assets/images/lewis-hamilton-gana-austin.jpg\",\n\t\"./lewis-hamilton-mercedes-w12-1s.jpg\": \"./src/assets/images/lewis-hamilton-mercedes-w12-1s.jpg\",\n\t\"./lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg\": \"./src/assets/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg\",\n\t\"./lewis_hamilton_2015_china.jpg\": \"./src/assets/images/lewis_hamilton_2015_china.jpg\",\n\t\"./lewis_hamilton_2019_china.jpg\": \"./src/assets/images/lewis_hamilton_2019_china.jpg\",\n\t\"./lewishamiltongpchina2008.jpg\": \"./src/assets/images/lewishamiltongpchina2008.jpg\",\n\t\"./max-verstappen-gran-premio-austria-2019.jpg\": \"./src/assets/images/max-verstappen-gran-premio-austria-2019.jpg\",\n\t\"./max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg\": \"./src/assets/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg\",\n\t\"./max-verstappen-red-bull-racing.jpg\": \"./src/assets/images/max-verstappen-red-bull-racing.jpg\",\n\t\"./max_verstappen-red_bull-carrera-gp-austria-2018.jpg\": \"./src/assets/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg\",\n\t\"./mercedes-ferrari-italia-laf1.jpg\": \"./src/assets/images/mercedes-ferrari-italia-laf1.jpg\",\n\t\"./michael-schumacher-ferrari-f30.jpg\": \"./src/assets/images/michael-schumacher-ferrari-f30.jpg\",\n\t\"./minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg\": \"./src/assets/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg\",\n\t\"./nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png\": \"./src/assets/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png\",\n\t\"./nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png\": \"./src/assets/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png\",\n\t\"./nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png\": \"./src/assets/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png\",\n\t\"./nico_rosberg_2016_china.jpg\": \"./src/assets/images/nico_rosberg_2016_china.jpg\",\n\t\"./nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg\": \"./src/assets/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg\",\n\t\"./oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg\": \"./src/assets/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg\",\n\t\"./pierre-gasly-alphatauri-at02-i.jpg\": \"./src/assets/images/pierre-gasly-alphatauri-at02-i.jpg\",\n\t\"./png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg\": \"./src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg\",\n\t\"./png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png\": \"./src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png\",\n\t\"./podio_japon_2017_soy_motor.jpg\": \"./src/assets/images/podio_japon_2017_soy_motor.jpg\",\n\t\"./pole-verstappen-abu-dhabi-2876011.jpg\": \"./src/assets/images/pole-verstappen-abu-dhabi-2876011.jpg\",\n\t\"./poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg\": \"./src/assets/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg\",\n\t\"./ps5-product-thumbnail-01-en-14sep21.jpg\": \"./src/assets/images/ps5-product-thumbnail-01-en-14sep21.jpg\",\n\t\"./racefansdotnet-20180903-103054-68.jpg\": \"./src/assets/images/racefansdotnet-20180903-103054-68.jpg\",\n\t\"./racefansdotnet-start-istanbul.jpg\": \"./src/assets/images/racefansdotnet-start-istanbul.jpg\",\n\t\"./renault-f1-team-renault-r24-villeneuve-7647.jpg\": \"./src/assets/images/renault-f1-team-renault-r24-villeneuve-7647.jpg\",\n\t\"./ricciardo2017.jpg\": \"./src/assets/images/ricciardo2017.jpg\",\n\t\"./salida-alemania.jpg\": \"./src/assets/images/salida-alemania.jpg\",\n\t\"./salida-gp-espana-2019.jpg\": \"./src/assets/images/salida-gp-espana-2019.jpg\",\n\t\"./salida-gp-espana-jerez-1997.jpg\": \"./src/assets/images/salida-gp-espana-jerez-1997.jpg\",\n\t\"./screenshot-2018-04-03-13-56-50.jpg\": \"./src/assets/images/screenshot-2018-04-03-13-56-50.jpg\",\n\t\"./sddefault.jpg\": \"./src/assets/images/sddefault.jpg\",\n\t\"./sebastian-vettel-clasificacion-canada.jpg\": \"./src/assets/images/sebastian-vettel-clasificacion-canada.jpg\",\n\t\"./sebastian_vettel_2018_china.jpg\": \"./src/assets/images/sebastian_vettel_2018_china.jpg\",\n\t\"./sergio-perez-red-bull-racing-r.jpg\": \"./src/assets/images/sergio-perez-red-bull-racing-r.jpg\",\n\t\"./singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg\": \"./src/assets/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg\",\n\t\"./sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png\": \"./src/assets/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png\",\n\t\"./starting-grid-1.jpg\": \"./src/assets/images/starting-grid-1.jpg\",\n\t\"./the-cars-in-parc-ferme-after-t.jpg\": \"./src/assets/images/the-cars-in-parc-ferme-after-t.jpg\",\n\t\"./the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg\": \"./src/assets/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg\",\n\t\"./unnamed.jpg\": \"./src/assets/images/unnamed.jpg\",\n\t\"./upmac1f.jpg\": \"./src/assets/images/upmac1f.jpg\",\n\t\"./valtteri-bottas-hace-pole-austria.jpg\": \"./src/assets/images/valtteri-bottas-hace-pole-austria.jpg\",\n\t\"./verstappen-arrasa-imola-2683245.jpg\": \"./src/assets/images/verstappen-arrasa-imola-2683245.jpg\",\n\t\"./verstappen-norris-635x358.jpg\": \"./src/assets/images/verstappen-norris-635x358.jpg\",\n\t\"./verstappen-red-bull-2017.jpg\": \"./src/assets/images/verstappen-red-bull-2017.jpg\",\n\t\"./victoria-lewis-hamilton-gp-singapur.jpg\": \"./src/assets/images/victoria-lewis-hamilton-gp-singapur.jpg\",\n\t\"./victoria-vettel-gp-bahrein.jpg\": \"./src/assets/images/victoria-vettel-gp-bahrein.jpg\",\n\t\"./virtual-safety-car-3432279.jpg\": \"./src/assets/images/virtual-safety-car-3432279.jpg\",\n\t\"./virutas-f1-guia-foteros-grada-201846328_4.jpg\": \"./src/assets/images/virutas-f1-guia-foteros-grada-201846328_4.jpg\"\n};\n\n\nfunction webpackContext(req) {\n\tvar id = webpackContextResolve(req);\n\treturn __webpack_require__(id);\n}\nfunction webpackContextResolve(req) {\n\tif(!__webpack_require__.o(map, req)) {\n\t\tvar e = new Error(\"Cannot find module '\" + req + \"'\");\n\t\te.code = 'MODULE_NOT_FOUND';\n\t\tthrow e;\n\t}\n\treturn map[req];\n}\nwebpackContext.keys = function webpackContextKeys() {\n\treturn Object.keys(map);\n};\nwebpackContext.resolve = webpackContextResolve;\nmodule.exports = webpackContext;\nwebpackContext.id = \"./src/assets/images sync recursive ^\\\\.\\\\/.*$\";\n\n//# sourceURL=webpack://frontend/./src/assets/images/_sync_^\\.\\/.*$?");
 
 /***/ }),
 
-/***/ "./src/assests/images/00000224_018-753x494.jpg":
-/*!*****************************************************!*\
-  !*** ./src/assests/images/00000224_018-753x494.jpg ***!
-  \*****************************************************/
+/***/ "./src/assets/images/00000224_018-753x494.jpg":
+/*!****************************************************!*\
+  !*** ./src/assets/images/00000224_018-753x494.jpg ***!
+  \****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/00000224_018-753x494.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/00000224_018-753x494.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/00000224_018-753x494.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/00000224_018-753x494.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/001_small.jpg":
+/***/ "./src/assets/images/001_small.jpg":
+/*!*****************************************!*\
+  !*** ./src/assets/images/001_small.jpg ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/001_small.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/001_small.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/005_small.jpg":
+/*!*****************************************!*\
+  !*** ./src/assets/images/005_small.jpg ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/005_small.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/005_small.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/006_small.jpg":
+/*!*****************************************!*\
+  !*** ./src/assets/images/006_small.jpg ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/006_small.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/006_small.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg":
+/*!***************************************************************************!*\
+  !*** ./src/assets/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/0_vB6AeMdbQEBWJpgX.jpg":
+/*!**************************************************!*\
+  !*** ./src/assets/images/0_vB6AeMdbQEBWJpgX.jpg ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/0_vB6AeMdbQEBWJpgX.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/0_vB6AeMdbQEBWJpgX.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/0_vae50gfk.jpg":
 /*!******************************************!*\
-  !*** ./src/assests/images/001_small.jpg ***!
+  !*** ./src/assets/images/0_vae50gfk.jpg ***!
   \******************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/001_small.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/001_small.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/0_vae50gfk.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/0_vae50gfk.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/005_small.jpg":
-/*!******************************************!*\
-  !*** ./src/assests/images/005_small.jpg ***!
-  \******************************************/
+/***/ "./src/assets/images/1+Alpine+Saudi+Arabian+GP+1.jpg":
+/*!***********************************************************!*\
+  !*** ./src/assets/images/1+Alpine+Saudi+Arabian+GP+1.jpg ***!
+  \***********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/005_small.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/005_small.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/1+Alpine+Saudi+Arabian+GP+1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/1+Alpine+Saudi+Arabian+GP+1.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/006_small.jpg":
-/*!******************************************!*\
-  !*** ./src/assests/images/006_small.jpg ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/006_small.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/006_small.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg":
-/*!****************************************************************************!*\
-  !*** ./src/assests/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg ***!
-  \****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/01_Lewis-Hamilton_GP-Abu-Dhabi-2018-670x445.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/0_vB6AeMdbQEBWJpgX.jpg":
-/*!***************************************************!*\
-  !*** ./src/assests/images/0_vB6AeMdbQEBWJpgX.jpg ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/0_vB6AeMdbQEBWJpgX.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/0_vB6AeMdbQEBWJpgX.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/0_vae50gfk.jpg":
-/*!*******************************************!*\
-  !*** ./src/assests/images/0_vae50gfk.jpg ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/0_vae50gfk.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/0_vae50gfk.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/1+Alpine+Saudi+Arabian+GP+1.jpg":
+/***/ "./src/assets/images/1-bottas-1-f1-abu-dhabi-2017.jpg":
 /*!************************************************************!*\
-  !*** ./src/assests/images/1+Alpine+Saudi+Arabian+GP+1.jpg ***!
+  !*** ./src/assets/images/1-bottas-1-f1-abu-dhabi-2017.jpg ***!
   \************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/1+Alpine+Saudi+Arabian+GP+1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/1+Alpine+Saudi+Arabian+GP+1.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/1-bottas-1-f1-abu-dhabi-2017.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/1-bottas-1-f1-abu-dhabi-2017.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/1-bottas-1-f1-abu-dhabi-2017.jpg":
-/*!*************************************************************!*\
-  !*** ./src/assests/images/1-bottas-1-f1-abu-dhabi-2017.jpg ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/1-bottas-1-f1-abu-dhabi-2017.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/1-bottas-1-f1-abu-dhabi-2017.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg":
-/*!**********************************************************************************!*\
-  !*** ./src/assests/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg ***!
-  \**********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg":
-/*!*************************************************************************!*\
-  !*** ./src/assests/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg ***!
-  \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg":
-/*!*****************************************************************************!*\
-  !*** ./src/assests/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg ***!
-  \*****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/1366_2000.jpeg":
-/*!*******************************************!*\
-  !*** ./src/assests/images/1366_2000.jpeg ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/1366_2000.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/1366_2000.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/1366_2000.jpg":
-/*!******************************************!*\
-  !*** ./src/assests/images/1366_2000.jpg ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/1366_2000.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/1366_2000.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/14633209454616.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/14633209454616.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/14633209454616.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/14633209454616.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/14675636874942_990x0.jpg":
-/*!*****************************************************!*\
-  !*** ./src/assests/images/14675636874942_990x0.jpg ***!
-  \*****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/14675636874942_990x0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/14675636874942_990x0.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/14681648212906_990x0.jpg":
-/*!*****************************************************!*\
-  !*** ./src/assests/images/14681648212906_990x0.jpg ***!
-  \*****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/14681648212906_990x0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/14681648212906_990x0.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/14885385788381.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/14885385788381.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/14885385788381.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/14885385788381.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/14923709613710.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/14923709613710.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/14923709613710.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/14923709613710.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15014222489730.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15014222489730.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15014222489730.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15014222489730.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15041688972205.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15041688972205.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15041688972205.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15041688972205.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15185392040281.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15185392040281.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15185392040281.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15185392040281.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15219625763704.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15219625763704.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15219625763704.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15219625763704.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15250354089549.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15250354089549.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15250354089549.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15250354089549.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15262228901480.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15262228901480.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15262228901480.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15262228901480.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15274979049260.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15274979049260.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15274979049260.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15274979049260.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15289134275279.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15289134275279.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15289134275279.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15289134275279.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15352940634208.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15352940634208.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15352940634208.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15352940634208.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15419540602472.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15419540602472.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15419540602472.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15419540602472.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15588754308513.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15588754308513.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15588754308513.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15588754308513.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15631081847013.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15631081847013.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15631081847013.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15631081847013.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15644308053724.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15644308053724.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15644308053724.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15644308053724.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15673364402578.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15673364402578.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15673364402578.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15673364402578.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15739239356031.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15739239356031.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15739239356031.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15739239356031.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15929284269004.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15929284269004.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15929284269004.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15929284269004.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/15938651546549.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/15938651546549.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/15938651546549.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/15938651546549.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/16172011568663.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/16172011568663.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/16172011568663.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/16172011568663.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/16187597716549.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/16187597716549.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/16187597716549.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/16187597716549.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/16217812688788.png":
-/*!***********************************************!*\
-  !*** ./src/assests/images/16217812688788.png ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/16217812688788.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/16217812688788.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/16387363862558.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/16387363862558.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/16387363862558.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/16387363862558.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/16474210250936.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/16474210250936.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/16474210250936.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/16474210250936.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/16616979678448.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/16616979678448.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/16616979678448.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/16616979678448.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/16907270397230.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/16907270397230.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/16907270397230.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/16907270397230.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/17093981925136.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/17093981925136.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/17093981925136.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/17093981925136.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/1997hidarr03.jpg":
-/*!*********************************************!*\
-  !*** ./src/assests/images/1997hidarr03.jpg ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/1997hidarr03.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/1997hidarr03.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg":
-/*!*********************************************************!*\
-  !*** ./src/assests/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg":
-/*!**************************************************************************************************!*\
-  !*** ./src/assests/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg ***!
-  \**************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/219.jpg":
-/*!************************************!*\
-  !*** ./src/assests/images/219.jpg ***!
-  \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/219.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/219.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/32176-n3.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/32176-n3.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/32176-n3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/32176-n3.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/3242112-66359508-2560-1440.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/3242112-66359508-2560-1440.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/3242112-66359508-2560-1440.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/3242112-66359508-2560-1440.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/34913-n3.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/34913-n3.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/34913-n3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/34913-n3.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg":
+/***/ "./src/assets/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg":
 /*!*********************************************************************************!*\
-  !*** ./src/assests/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg ***!
+  !*** ./src/assets/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg ***!
   \*********************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/1000_F_462300479_Dp2ptL31pC0uo8OBQNTnzwsc2bG9ecVm.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/3785978-77009488-2560-1440.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/3785978-77009488-2560-1440.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/3785978-77009488-2560-1440.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/3785978-77009488-2560-1440.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg":
-/*!*************************************************************************!*\
-  !*** ./src/assests/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg ***!
-  \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/3db56091204561.5e2b4deb5987d.png":
-/*!*************************************************************!*\
-  !*** ./src/assests/images/3db56091204561.5e2b4deb5987d.png ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/3db56091204561.5e2b4deb5987d.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/3db56091204561.5e2b4deb5987d.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/3wkkh475qaad1.jpg":
-/*!**********************************************!*\
-  !*** ./src/assests/images/3wkkh475qaad1.jpg ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/3wkkh475qaad1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/3wkkh475qaad1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/4007762-81292888-2560-1440.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/4007762-81292888-2560-1440.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/4007762-81292888-2560-1440.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/4007762-81292888-2560-1440.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/450_1000.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/450_1000.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/450_1000.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/450_1000.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/517c567d8d6e9f561c4eb73313a8d280.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/517c567d8d6e9f561c4eb73313a8d280.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/517c567d8d6e9f561c4eb73313a8d280.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/517c567d8d6e9f561c4eb73313a8d280.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg":
-/*!******************************************************************************!*\
-  !*** ./src/assests/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg ***!
-  \******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/58.jpg":
-/*!***********************************!*\
-  !*** ./src/assests/images/58.jpg ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/58.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/58.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg":
-/*!*****************************************************************************************************************!*\
-  !*** ./src/assests/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg ***!
-  \*****************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg":
-/*!*******************************************************************************************************!*\
-  !*** ./src/assests/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg ***!
-  \*******************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/5f983feff4709d5867dcc940.jpg":
-/*!*********************************************************!*\
-  !*** ./src/assests/images/5f983feff4709d5867dcc940.jpg ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/5f983feff4709d5867dcc940.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/5f983feff4709d5867dcc940.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/5fa278007fde0.jpg":
-/*!**********************************************!*\
-  !*** ./src/assests/images/5fa278007fde0.jpg ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/5fa278007fde0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/5fa278007fde0.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/5fa2d1d4120ce.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/5fa2d1d4120ce.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/5fa2d1d4120ce.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/5fa2d1d4120ce.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/60e728fca1f4e.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/60e728fca1f4e.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/60e728fca1f4e.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/60e728fca1f4e.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/60e74b03277a9.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/60e74b03277a9.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/60e74b03277a9.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/60e74b03277a9.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/60e7539c0742c.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/60e7539c0742c.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/60e7539c0742c.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/60e7539c0742c.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/60e762a36aac6.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/60e762a36aac6.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/60e762a36aac6.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/60e762a36aac6.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/60e7c34f2c9e5.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/60e7c34f2c9e5.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/60e7c34f2c9e5.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/60e7c34f2c9e5.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/6134d694ae4aa.r_d.963-634-6250.jpeg":
-/*!****************************************************************!*\
-  !*** ./src/assests/images/6134d694ae4aa.r_d.963-634-6250.jpeg ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/6134d694ae4aa.r_d.963-634-6250.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/6134d694ae4aa.r_d.963-634-6250.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/61883968f22bb.r_d.1767-1015-0.jpeg":
-/*!***************************************************************!*\
-  !*** ./src/assests/images/61883968f22bb.r_d.1767-1015-0.jpeg ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/61883968f22bb.r_d.1767-1015-0.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/61883968f22bb.r_d.1767-1015-0.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/61915711c5e7a.r_d.2479-2514-878.jpeg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/61915711c5e7a.r_d.2479-2514-878.jpeg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/61915711c5e7a.r_d.2479-2514-878.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/61915711c5e7a.r_d.2479-2514-878.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/625135306ceeb.r_d.1724-1149-3479.jpeg":
-/*!******************************************************************!*\
-  !*** ./src/assests/images/625135306ceeb.r_d.1724-1149-3479.jpeg ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/625135306ceeb.r_d.1724-1149-3479.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/625135306ceeb.r_d.1724-1149-3479.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/62939be656a96.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/62939be656a96.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/62939be656a96.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/62939be656a96.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/62c1d08761fb9.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/62c1d08761fb9.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/62c1d08761fb9.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/62c1d08761fb9.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/631dee4441565.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/631dee4441565.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/631dee4441565.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/631dee4441565.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/6371467b63d71.r_d.3862-3443-1727.jpeg":
-/*!******************************************************************!*\
-  !*** ./src/assests/images/6371467b63d71.r_d.3862-3443-1727.jpeg ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/6371467b63d71.r_d.3862-3443-1727.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/6371467b63d71.r_d.3862-3443-1727.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/644e62898c269.r_d.2685-1059-4000.jpeg":
-/*!******************************************************************!*\
-  !*** ./src/assests/images/644e62898c269.r_d.2685-1059-4000.jpeg ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/644e62898c269.r_d.2685-1059-4000.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/644e62898c269.r_d.2685-1059-4000.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/64736b8706cd0.r_d.966-1712-3866.jpeg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/64736b8706cd0.r_d.966-1712-3866.jpeg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/64736b8706cd0.r_d.966-1712-3866.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/64736b8706cd0.r_d.966-1712-3866.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/647ca0b69f16b.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/647ca0b69f16b.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/647ca0b69f16b.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/647ca0b69f16b.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/64a18ce92e026.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/64a18ce92e026.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/64a18ce92e026.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/64a18ce92e026.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/64aad147d8e9a.r_d.1859-2256-0.jpeg":
-/*!***************************************************************!*\
-  !*** ./src/assests/images/64aad147d8e9a.r_d.1859-2256-0.jpeg ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/64aad147d8e9a.r_d.1859-2256-0.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/64aad147d8e9a.r_d.1859-2256-0.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg":
-/*!******************************************************************!*\
-  !*** ./src/assests/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/65204d929ab84.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/65204d929ab84.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/65204d929ab84.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/65204d929ab84.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/653452d633f8e.r_d.3831-2554-586.jpeg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/653452d633f8e.r_d.3831-2554-586.jpeg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/653452d633f8e.r_d.3831-2554-586.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/653452d633f8e.r_d.3831-2554-586.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/653ed76848b50.r_d.4059-3018-823.jpeg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/653ed76848b50.r_d.4059-3018-823.jpeg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/653ed76848b50.r_d.4059-3018-823.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/653ed76848b50.r_d.4059-3018-823.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/6547e6216ba11.r_d.2680-2785-629.jpeg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/6547e6216ba11.r_d.2680-2785-629.jpeg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/6547e6216ba11.r_d.2680-2785-629.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/6547e6216ba11.r_d.2680-2785-629.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/65c504f09bce1cad3dcbba833d8ee852.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/65c504f09bce1cad3dcbba833d8ee852.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/65c504f09bce1cad3dcbba833d8ee852.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/65c504f09bce1cad3dcbba833d8ee852.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/6624d1c194742.jpeg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/6624d1c194742.jpeg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/6624d1c194742.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/6624d1c194742.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/6744ae08e6a450e031b21a17e78fc0fa.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/6744ae08e6a450e031b21a17e78fc0fa.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/6744ae08e6a450e031b21a17e78fc0fa.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/6744ae08e6a450e031b21a17e78fc0fa.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/69.jpg":
-/*!***********************************!*\
-  !*** ./src/assests/images/69.jpg ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/69.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/69.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg":
-/*!*******************************************************************************!*\
-  !*** ./src/assests/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg ***!
-  \*******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/709607-21389434-2560-1440.jpg":
-/*!**********************************************************!*\
-  !*** ./src/assests/images/709607-21389434-2560-1440.jpg ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/709607-21389434-2560-1440.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/709607-21389434-2560-1440.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/796930333_236274274_1706x640.jpg":
-/*!*************************************************************!*\
-  !*** ./src/assests/images/796930333_236274274_1706x640.jpg ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/796930333_236274274_1706x640.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/796930333_236274274_1706x640.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/7vsxuxdpdc5a1.jpg":
-/*!**********************************************!*\
-  !*** ./src/assests/images/7vsxuxdpdc5a1.jpg ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/7vsxuxdpdc5a1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/7vsxuxdpdc5a1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/819cOVjBRRL.jpg":
-/*!********************************************!*\
-  !*** ./src/assests/images/819cOVjBRRL.jpg ***!
-  \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/819cOVjBRRL.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/819cOVjBRRL.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/9.jpg":
-/*!**********************************!*\
-  !*** ./src/assests/images/9.jpg ***!
-  \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/9.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/9.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Abu_Dhabi_Circuit.jpg":
-/*!**************************************************!*\
-  !*** ./src/assests/images/Abu_Dhabi_Circuit.jpg ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Abu_Dhabi_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Abu_Dhabi_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Australia_Circuit.jpg":
-/*!**************************************************!*\
-  !*** ./src/assests/images/Australia_Circuit.jpg ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Australia_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Australia_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Austria_Circuit.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/Austria_Circuit.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Austria_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Austria_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Bahrain_Circuit.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/Bahrain_Circuit.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Bahrain_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Bahrain_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Baku_Circuit.jpg":
-/*!*********************************************!*\
-  !*** ./src/assests/images/Baku_Circuit.jpg ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Baku_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Baku_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/BeaF-8xIcAAYBbM.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/BeaF-8xIcAAYBbM.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/BeaF-8xIcAAYBbM.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/BeaF-8xIcAAYBbM.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Belgium_Circuit.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/Belgium_Circuit.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Belgium_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Belgium_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Brasil.jpg":
-/*!***************************************!*\
-  !*** ./src/assests/images/Brasil.jpg ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Brasil.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Brasil.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg":
-/*!****************************************************************************************************!*\
-  !*** ./src/assests/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg ***!
-  \****************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/COKcBbWVAAAi53b.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/COKcBbWVAAAi53b.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/COKcBbWVAAAi53b.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/COKcBbWVAAAi53b.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg":
-/*!**************************************************************!*\
-  !*** ./src/assests/images/CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg ***!
-  \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/CR%C3%83%E2%80%9CNICA-GP-DE-ITALIA-F1-2021.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Canada_Circuit.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/Canada_Circuit.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Canada_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Canada_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Captura de pantalla 2024-08-18 123450.png":
-/*!**********************************************************************!*\
-  !*** ./src/assests/images/Captura de pantalla 2024-08-18 123450.png ***!
-  \**********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Captura de pantalla 2024-08-18 123450.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Captura_de_pantalla_2024-08-18_123450.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/China_Circuit.jpg":
-/*!**********************************************!*\
-  !*** ./src/assests/images/China_Circuit.jpg ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/China_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/China_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg":
-/*!**********************************************************************!*\
-  !*** ./src/assests/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg ***!
-  \**********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/E0sxVjJWQAI783K.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/E0sxVjJWQAI783K.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/E0sxVjJWQAI783K.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/E0sxVjJWQAI783K.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/EmtITbGXEAA40XD.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/EmtITbGXEAA40XD.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/EmtITbGXEAA40XD.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/EmtITbGXEAA40XD.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/F1-AUSTRALIA_93806.jpg":
-/*!***************************************************!*\
-  !*** ./src/assests/images/F1-AUSTRALIA_93806.jpg ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/F1-AUSTRALIA_93806.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/F1-AUSTRALIA_93806.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg":
-/*!******************************************************************************************************************!*\
-  !*** ./src/assests/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg ***!
-  \******************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/FYqwDVvXkAMHGtB.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/FYqwDVvXkAMHGtB.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/FYqwDVvXkAMHGtB.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/FYqwDVvXkAMHGtB.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/FYrYQ9SXoAAR-v6-732x1024.jpg":
-/*!*********************************************************!*\
-  !*** ./src/assests/images/FYrYQ9SXoAAR-v6-732x1024.jpg ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/FYrYQ9SXoAAR-v6-732x1024.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/FYrYQ9SXoAAR-v6-732x1024.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/F_01_672-458_resize.jpg":
-/*!****************************************************!*\
-  !*** ./src/assests/images/F_01_672-458_resize.jpg ***!
-  \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/F_01_672-458_resize.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/F_01_672-458_resize.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/GS7PpavXoAEFq3Z.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/GS7PpavXoAEFq3Z.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/GS7PpavXoAEFq3Z.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/GS7PpavXoAEFq3Z.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/GettyImages-1474638493.jpg":
-/*!*******************************************************!*\
-  !*** ./src/assests/images/GettyImages-1474638493.jpg ***!
-  \*******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/GettyImages-1474638493.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/GettyImages-1474638493.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/GettyImages-1628172829.jpg":
-/*!*******************************************************!*\
-  !*** ./src/assests/images/GettyImages-1628172829.jpg ***!
-  \*******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/GettyImages-1628172829.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/GettyImages-1628172829.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/GettyImages-2161010295.jpg":
-/*!*******************************************************!*\
-  !*** ./src/assests/images/GettyImages-2161010295.jpg ***!
-  \*******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/GettyImages-2161010295.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/GettyImages-2161010295.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/GmPSckjbsAApnT1.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/GmPSckjbsAApnT1.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/GmPSckjbsAApnT1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/GmPSckjbsAApnT1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Great_Britain_Circuit.jpg":
-/*!******************************************************!*\
-  !*** ./src/assests/images/Great_Britain_Circuit.jpg ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Great_Britain_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Great_Britain_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Hungary_Circuit.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/Hungary_Circuit.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Hungary_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Hungary_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Imola.jpg":
-/*!**************************************!*\
-  !*** ./src/assests/images/Imola.jpg ***!
-  \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Imola.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Imola.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Italy_Circuit.jpg":
-/*!**********************************************!*\
-  !*** ./src/assests/images/Italy_Circuit.jpg ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Italy_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Italy_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png":
-/*!*******************************************************************************!*\
-  !*** ./src/assests/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png ***!
-  \*******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Mexico_Circuit.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/Mexico_Circuit.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Mexico_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Mexico_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Miami.jpg":
-/*!**************************************!*\
-  !*** ./src/assests/images/Miami.jpg ***!
-  \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Miami.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Miami.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/ModeloDatosAplicación.png":
-/*!******************************************************!*\
-  !*** ./src/assests/images/ModeloDatosAplicación.png ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/ModeloDatosAplicación.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/ModeloDatosAplicaci%C3%B3n.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Monoco_Circuit.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/Monoco_Circuit.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Monoco_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Monoco_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/NAZ_02017646930e4c1994e9106f0433428b.jpg":
-/*!*********************************************************************!*\
-  !*** ./src/assests/images/NAZ_02017646930e4c1994e9106f0433428b.jpg ***!
-  \*********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/NAZ_02017646930e4c1994e9106f0433428b.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/NAZ_02017646930e4c1994e9106f0433428b.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg":
-/*!*********************************************************************!*\
-  !*** ./src/assests/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg ***!
-  \*********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg":
-/*!*********************************************************************!*\
-  !*** ./src/assests/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg ***!
-  \*********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg":
-/*!*********************************************************************!*\
-  !*** ./src/assests/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg ***!
-  \*********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Netherlands_Circuit.jpg":
-/*!****************************************************!*\
-  !*** ./src/assests/images/Netherlands_Circuit.jpg ***!
-  \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Netherlands_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Netherlands_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Pedro_de_la_Rosa_2005_Britain.jpg":
-/*!**************************************************************!*\
-  !*** ./src/assests/images/Pedro_de_la_Rosa_2005_Britain.jpg ***!
-  \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Pedro_de_la_Rosa_2005_Britain.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Pedro_de_la_Rosa_2005_Britain.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Qatar.jpg":
-/*!**************************************!*\
-  !*** ./src/assests/images/Qatar.jpg ***!
-  \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Qatar.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Qatar.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Rubens_Barrichello_2006_USA.jpg":
-/*!************************************************************!*\
-  !*** ./src/assests/images/Rubens_Barrichello_2006_USA.jpg ***!
-  \************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Rubens_Barrichello_2006_USA.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Rubens_Barrichello_2006_USA.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg":
-/*!**************************************************************************!*\
-  !*** ./src/assests/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg ***!
-  \**************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/SalidaGPMalasia2009.jpg":
-/*!****************************************************!*\
-  !*** ./src/assests/images/SalidaGPMalasia2009.jpg ***!
-  \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/SalidaGPMalasia2009.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/SalidaGPMalasia2009.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Schumacher_Mercedes_Jerez_(cropped).jpg":
-/*!********************************************************************!*\
-  !*** ./src/assests/images/Schumacher_Mercedes_Jerez_(cropped).jpg ***!
-  \********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Schumacher_Mercedes_Jerez_(cropped).jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Schumacher_Mercedes_Jerez_(cropped).jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Screenshot-2021-11-02-at-16.57.04.jpg":
-/*!******************************************************************!*\
-  !*** ./src/assests/images/Screenshot-2021-11-02-at-16.57.04.jpg ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Screenshot-2021-11-02-at-16.57.04.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Screenshot-2021-11-02-at-16.57.04.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Singapore_Circuit.jpg":
-/*!**************************************************!*\
-  !*** ./src/assests/images/Singapore_Circuit.jpg ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Singapore_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Singapore_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Spain_Circuit.jpg":
-/*!**********************************************!*\
-  !*** ./src/assests/images/Spain_Circuit.jpg ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Spain_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Spain_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Suzuka.jpg":
-/*!***************************************!*\
-  !*** ./src/assests/images/Suzuka.jpg ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Suzuka.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Suzuka.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/USA_Circuit.jpg":
-/*!********************************************!*\
-  !*** ./src/assests/images/USA_Circuit.jpg ***!
-  \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/USA_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/USA_Circuit.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg":
-/*!********************************************************************************************************************!*\
-  !*** ./src/assests/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg ***!
-  \********************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Undercut-F1.jpg":
-/*!********************************************!*\
-  !*** ./src/assests/images/Undercut-F1.jpg ***!
-  \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Undercut-F1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Undercut-F1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg":
-/*!*********************************************************************!*\
-  !*** ./src/assests/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg ***!
-  \*********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/Vegas.jpg":
-/*!**************************************!*\
-  !*** ./src/assests/images/Vegas.jpg ***!
-  \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/Vegas.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/Vegas.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/XPB_1282060_HiRes.jpg":
-/*!**************************************************!*\
-  !*** ./src/assests/images/XPB_1282060_HiRes.jpg ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/XPB_1282060_HiRes.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/XPB_1282060_HiRes.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/_103266921_hamilton_vettel_getty1.jpg":
-/*!******************************************************************!*\
-  !*** ./src/assests/images/_103266921_hamilton_vettel_getty1.jpg ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/_103266921_hamilton_vettel_getty1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/_103266921_hamilton_vettel_getty1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/_45650053_07lewisgravel512.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/_45650053_07lewisgravel512.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/_45650053_07lewisgravel512.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/_45650053_07lewisgravel512.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/a-marshal-holds-a-yellow-flag-1.jpg":
-/*!****************************************************************!*\
-  !*** ./src/assests/images/a-marshal-holds-a-yellow-flag-1.jpg ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/a-marshal-holds-a-yellow-flag-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/a-marshal-holds-a-yellow-flag-1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/a637c951f5abb3d146fc1931d48735df.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/a637c951f5abb3d146fc1931d48735df.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/a637c951f5abb3d146fc1931d48735df.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/a637c951f5abb3d146fc1931d48735df.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg":
-/*!*********************************************************************************!*\
-  !*** ./src/assests/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg ***!
-  \*********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/ahav61hj4goa1.jpg":
-/*!**********************************************!*\
-  !*** ./src/assests/images/ahav61hj4goa1.jpg ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/ahav61hj4goa1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/ahav61hj4goa1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/analisis-gp-brasil-f1-2023-soymotor.jpg":
-/*!********************************************************************!*\
-  !*** ./src/assests/images/analisis-gp-brasil-f1-2023-soymotor.jpg ***!
-  \********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/analisis-gp-brasil-f1-2023-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/analisis-gp-brasil-f1-2023-soymotor.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/article-1377757-0BAA374500000578-340_634x432.jpg":
-/*!*****************************************************************************!*\
-  !*** ./src/assests/images/article-1377757-0BAA374500000578-340_634x432.jpg ***!
-  \*****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/article-1377757-0BAA374500000578-340_634x432.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/article-1377757-0BAA374500000578-340_634x432.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/article-2351820-1A95E98F000005DC-265_634x286.jpg":
-/*!*****************************************************************************!*\
-  !*** ./src/assests/images/article-2351820-1A95E98F000005DC-265_634x286.jpg ***!
-  \*****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/article-2351820-1A95E98F000005DC-265_634x286.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/article-2351820-1A95E98F000005DC-265_634x286.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg":
-/*!******************************************************************************************!*\
-  !*** ./src/assests/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg ***!
-  \******************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/ava4n-6dmcg.png":
-/*!********************************************!*\
-  !*** ./src/assests/images/ava4n-6dmcg.png ***!
-  \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/ava4n-6dmcg.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/ava4n-6dmcg.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg":
-/*!*************************************************************************!*\
-  !*** ./src/assests/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg ***!
-  \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg":
-/*!*********************************************************************************!*\
-  !*** ./src/assests/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg ***!
-  \*********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/bottas-pole-eeuu.jpg":
-/*!*************************************************!*\
-  !*** ./src/assests/images/bottas-pole-eeuu.jpg ***!
-  \*************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/bottas-pole-eeuu.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/bottas-pole-eeuu.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg":
-/*!******************************************************************************************!*\
-  !*** ./src/assests/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg ***!
-  \******************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg":
-/*!***********************************************************************************************************!*\
-  !*** ./src/assests/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg ***!
-  \***********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg":
-/*!**********************************************************************************************************!*\
-  !*** ./src/assests/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg ***!
-  \**********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/captura-4643897367.jpg":
-/*!***************************************************!*\
-  !*** ./src/assests/images/captura-4643897367.jpg ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/captura-4643897367.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/captura-4643897367.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/carlos-sainz-ferrari-sf-24-2.jpg":
-/*!*************************************************************!*\
-  !*** ./src/assests/images/carlos-sainz-ferrari-sf-24-2.jpg ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/carlos-sainz-ferrari-sf-24-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/carlos-sainz-ferrari-sf-24-2.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg":
+/***/ "./src/assets/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg":
 /*!************************************************************************!*\
-  !*** ./src/assests/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg ***!
+  !*** ./src/assets/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg ***!
   \************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/caterham-f1.jpg":
+/***/ "./src/assets/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg":
+/*!****************************************************************************!*\
+  !*** ./src/assets/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/1200px-hamilton_canadian_gp_2010_with_f-duct.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/1366_2000.jpeg":
+/*!******************************************!*\
+  !*** ./src/assets/images/1366_2000.jpeg ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/1366_2000.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/1366_2000.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/1366_2000.jpg":
+/*!*****************************************!*\
+  !*** ./src/assets/images/1366_2000.jpg ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/1366_2000.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/1366_2000.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/14633209454616.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/14633209454616.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/14633209454616.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/14633209454616.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/14675636874942_990x0.jpg":
+/*!****************************************************!*\
+  !*** ./src/assets/images/14675636874942_990x0.jpg ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/14675636874942_990x0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/14675636874942_990x0.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/14681648212906_990x0.jpg":
+/*!****************************************************!*\
+  !*** ./src/assets/images/14681648212906_990x0.jpg ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/14681648212906_990x0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/14681648212906_990x0.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/14885385788381.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/14885385788381.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/14885385788381.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/14885385788381.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/14923709613710.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/14923709613710.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/14923709613710.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/14923709613710.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15014222489730.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15014222489730.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15014222489730.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15014222489730.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15041688972205.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15041688972205.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15041688972205.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15041688972205.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15185392040281.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15185392040281.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15185392040281.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15185392040281.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15219625763704.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15219625763704.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15219625763704.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15219625763704.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15250354089549.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15250354089549.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15250354089549.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15250354089549.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15262228901480.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15262228901480.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15262228901480.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15262228901480.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15274979049260.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15274979049260.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15274979049260.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15274979049260.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15289134275279.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15289134275279.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15289134275279.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15289134275279.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15352940634208.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15352940634208.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15352940634208.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15352940634208.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15419540602472.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15419540602472.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15419540602472.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15419540602472.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15588754308513.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15588754308513.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15588754308513.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15588754308513.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15631081847013.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15631081847013.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15631081847013.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15631081847013.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15644308053724.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15644308053724.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15644308053724.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15644308053724.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15673364402578.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15673364402578.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15673364402578.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15673364402578.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15739239356031.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15739239356031.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15739239356031.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15739239356031.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15929284269004.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15929284269004.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15929284269004.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15929284269004.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/15938651546549.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/15938651546549.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/15938651546549.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/15938651546549.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/16172011568663.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/16172011568663.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/16172011568663.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/16172011568663.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/16187597716549.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/16187597716549.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/16187597716549.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/16187597716549.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/16217812688788.png":
+/*!**********************************************!*\
+  !*** ./src/assets/images/16217812688788.png ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/16217812688788.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/16217812688788.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/16387363862558.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/16387363862558.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/16387363862558.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/16387363862558.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/16474210250936.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/16474210250936.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/16474210250936.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/16474210250936.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/16616979678448.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/16616979678448.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/16616979678448.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/16616979678448.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/16907270397230.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/16907270397230.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/16907270397230.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/16907270397230.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/17093981925136.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/17093981925136.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/17093981925136.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/17093981925136.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/1997hidarr03.jpg":
 /*!********************************************!*\
-  !*** ./src/assests/images/caterham-f1.jpg ***!
+  !*** ./src/assets/images/1997hidarr03.jpg ***!
   \********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/caterham-f1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/caterham-f1.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/1997hidarr03.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/1997hidarr03.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg":
-/*!******************************************************************************************************************************************************************************************************!*\
-  !*** ./src/assests/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg ***!
-  \******************************************************************************************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg":
-/*!*******************************************************************************************!*\
-  !*** ./src/assests/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg ***!
-  \*******************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/codigo.jpg":
-/*!***************************************!*\
-  !*** ./src/assests/images/codigo.jpg ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/codigo.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/codigo.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/comisarios-bandera-amarilla-2021-soymotor.jpg":
-/*!**************************************************************************!*\
-  !*** ./src/assests/images/comisarios-bandera-amarilla-2021-soymotor.jpg ***!
-  \**************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/comisarios-bandera-amarilla-2021-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/comisarios-bandera-amarilla-2021-soymotor.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/coulthard-mschumacher-francuska-2000-1024x674.jpg":
-/*!******************************************************************************!*\
-  !*** ./src/assests/images/coulthard-mschumacher-francuska-2000-1024x674.jpg ***!
-  \******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/coulthard-mschumacher-francuska-2000-1024x674.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/coulthard-mschumacher-francuska-2000-1024x674.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/cui-png2.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/cui-png2.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/cui-png2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/cui-png2.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/daniel-ricciardo-gp-monaco-2018.jpg":
-/*!****************************************************************!*\
-  !*** ./src/assests/images/daniel-ricciardo-gp-monaco-2018.jpg ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/daniel-ricciardo-gp-monaco-2018.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/daniel-ricciardo-gp-monaco-2018.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg":
-/*!********************************************************************************************************************!*\
-  !*** ./src/assests/images/daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg ***!
-  \********************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/daniel-ricciardo-red-bull-racing-azerbaiy%C3%83%C6%92%C3%86%E2%80%99%C3%83%E2%80%A0%C3%A2%E2%82%AC%E2%84%A2%C3%83%C6%92%C3%A2%E2%82%AC%C5%A1%C3%83%E2%80%9A%C3%82%C2%A1n-f1-gran-premio-ganador.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/daniel_ricciardo_2017_china.jpg":
-/*!************************************************************!*\
-  !*** ./src/assests/images/daniel_ricciardo_2017_china.jpg ***!
-  \************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/daniel_ricciardo_2017_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/daniel_ricciardo_2017_china.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg":
-/*!***************************************************************************************!*\
-  !*** ./src/assests/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg ***!
-  \***************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/doblete-mercedes-baku.jpg":
-/*!******************************************************!*\
-  !*** ./src/assests/images/doblete-mercedes-baku.jpg ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/doblete-mercedes-baku.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/doblete-mercedes-baku.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg":
-/*!***************************************************************************************************!*\
-  !*** ./src/assests/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg ***!
-  \***************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg":
-/*!*********************************************************************************************************!*\
-  !*** ./src/assests/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg ***!
-  \*********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg":
-/*!*************************************************************************************************************!*\
-  !*** ./src/assests/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg ***!
-  \*************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f0777c49a212574fd31ea18b515392a9.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/f0777c49a212574fd31ea18b515392a9.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f0777c49a212574fd31ea18b515392a9.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f0777c49a212574fd31ea18b515392a9.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-2013-11-bel-parrilla-trasera.jpg":
-/*!****************************************************************!*\
-  !*** ./src/assests/images/f1-2013-11-bel-parrilla-trasera.jpg ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-2013-11-bel-parrilla-trasera.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-2013-11-bel-parrilla-trasera.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg":
-/*!*************************************************************************!*\
-  !*** ./src/assests/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg ***!
-  \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg":
-/*!**************************************************************************!*\
-  !*** ./src/assests/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg ***!
-  \**************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-australia-salida1_hd_32675.jpg":
-/*!**************************************************************!*\
-  !*** ./src/assests/images/f1-australia-salida1_hd_32675.jpg ***!
-  \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-australia-salida1_hd_32675.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-australia-salida1_hd_32675.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg":
-/*!*****************************************************************************************!*\
-  !*** ./src/assests/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg ***!
-  \*****************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg":
-/*!*************************************************************************************************!*\
-  !*** ./src/assests/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg ***!
-  \*************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg":
-/*!****************************************************************************!*\
-  !*** ./src/assests/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg ***!
-  \****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-gp-canada-domenica-935.jpg":
-/*!**********************************************************!*\
-  !*** ./src/assests/images/f1-gp-canada-domenica-935.jpg ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-gp-canada-domenica-935.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-gp-canada-domenica-935.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg":
-/*!*********************************************************************************!*\
-  !*** ./src/assests/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg ***!
-  \*********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg":
-/*!***********************************************************************************************************************************!*\
-  !*** ./src/assests/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg ***!
-  \***********************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-mclarens-india-inline.jpg":
-/*!*********************************************************!*\
-  !*** ./src/assests/images/f1-mclarens-india-inline.jpg ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-mclarens-india-inline.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-mclarens-india-inline.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1-spyker-2007.jpg":
-/*!***********************************************!*\
-  !*** ./src/assests/images/f1-spyker-2007.jpg ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1-spyker-2007.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1-spyker-2007.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f1_416x234.jpg":
-/*!*******************************************!*\
-  !*** ./src/assests/images/f1_416x234.jpg ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f1_416x234.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f1_416x234.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg":
-/*!***************************************************************************************************!*\
-  !*** ./src/assests/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg ***!
-  \***************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg":
-/*!*******************************************************************************************************!*\
-  !*** ./src/assests/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg ***!
-  \*******************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/f768x1-8742_8869_154.jpg":
-/*!*****************************************************!*\
-  !*** ./src/assests/images/f768x1-8742_8869_154.jpg ***!
-  \*****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/f768x1-8742_8869_154.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/f768x1-8742_8869_154.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/ferari.jpg":
-/*!***************************************!*\
-  !*** ./src/assests/images/ferari.jpg ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/ferari.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/ferari.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/fernando-alonso-aston-martin-a-3.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/fernando-alonso-aston-martin-a-3.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/fernando-alonso-aston-martin-a-3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/fernando-alonso-aston-martin-a-3.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/fernando-alonso-jaguar-r3-1.jpg":
-/*!************************************************************!*\
-  !*** ./src/assests/images/fernando-alonso-jaguar-r3-1.jpg ***!
-  \************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/fernando-alonso-jaguar-r3-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/fernando-alonso-jaguar-r3-1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg":
-/*!*****************************************************************************************************************************!*\
-  !*** ./src/assests/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg ***!
-  \*****************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg":
-/*!*******************************************************************************************************!*\
-  !*** ./src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg ***!
-  \*******************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg":
-/*!*******************************************************************************************************!*\
-  !*** ./src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg ***!
-  \*******************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/fia.jpg":
-/*!************************************!*\
-  !*** ./src/assests/images/fia.jpg ***!
-  \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/fia.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/fia.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg":
-/*!***********************************************************************!*\
-  !*** ./src/assests/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg ***!
-  \***********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg":
-/*!***************************************************************************************************************************************!*\
-  !*** ./src/assests/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg ***!
-  \***************************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/formula-1-european-gp-1997-jac-2.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/formula-1-european-gp-1997-jac-2.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/formula-1-european-gp-1997-jac-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/formula-1-european-gp-1997-jac-2.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg":
-/*!********************************************************************************!*\
-  !*** ./src/assests/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg ***!
-  \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/formula-1-hungarian-gp-2021-es-2.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/formula-1-hungarian-gp-2021-es-2.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/formula-1-hungarian-gp-2021-es-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/formula-1-hungarian-gp-2021-es-2.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/formula-1-italian-gp-2018-race-2.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/formula-1-italian-gp-2018-race-2.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/formula-1-italian-gp-2018-race-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/formula-1-italian-gp-2018-race-2.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/formula-1-mexico-city-gp-2022--2.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/formula-1-mexico-city-gp-2022--2.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/formula-1-mexico-city-gp-2022--2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/formula-1-mexico-city-gp-2022--2.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg":
-/*!****************************************************************************************************************************************************************!*\
-  !*** ./src/assests/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg ***!
-  \****************************************************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/formula-1-united-states-gp-201-2.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/formula-1-united-states-gp-201-2.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/formula-1-united-states-gp-201-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/formula-1-united-states-gp-201-2.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg":
-/*!**************************************************************************!*\
-  !*** ./src/assests/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg ***!
-  \**************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/fposter,small,wall_texture,square_product,600x600.u3.jpg":
-/*!*************************************************************************************!*\
-  !*** ./src/assests/images/fposter,small,wall_texture,square_product,600x600.u3.jpg ***!
-  \*************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/fposter,small,wall_texture,square_product,600x600.u3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/fposter,small,wall_texture,square_product,600x600.u3.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/gasly-monza-sabado-2020-soymotor.jpg":
-/*!*****************************************************************!*\
-  !*** ./src/assests/images/gasly-monza-sabado-2020-soymotor.jpg ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/gasly-monza-sabado-2020-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/gasly-monza-sabado-2020-soymotor.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/gettyimages-499135626-612x612.jpg":
-/*!**************************************************************!*\
-  !*** ./src/assests/images/gettyimages-499135626-612x612.jpg ***!
-  \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/gettyimages-499135626-612x612.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/gettyimages-499135626-612x612.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg":
-/*!******************************************************************************!*\
-  !*** ./src/assests/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg ***!
-  \******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/gp-can-3-123924-1024x576.jpg":
-/*!*********************************************************!*\
-  !*** ./src/assests/images/gp-can-3-123924-1024x576.jpg ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/gp-can-3-123924-1024x576.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/gp-can-3-123924-1024x576.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg":
-/*!**********************************************************************************************************!*\
-  !*** ./src/assests/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg ***!
-  \**********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/gp-hungria-f1-2018.jpg":
-/*!***************************************************!*\
-  !*** ./src/assests/images/gp-hungria-f1-2018.jpg ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/gp-hungria-f1-2018.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/gp-hungria-f1-2018.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg":
-/*!*******************************************************************************!*\
-  !*** ./src/assests/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg ***!
-  \*******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg":
-/*!*******************************************************************************!*\
-  !*** ./src/assests/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg ***!
-  \*******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg":
-/*!****************************************************************************!*\
-  !*** ./src/assests/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg ***!
-  \****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/hamilton-bahrein-2019.jpg":
-/*!******************************************************!*\
-  !*** ./src/assests/images/hamilton-bahrein-2019.jpg ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/hamilton-bahrein-2019.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/hamilton-bahrein-2019.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/hamilton-canada-clasificacion-f1-soymotor.jpg":
-/*!**************************************************************************!*\
-  !*** ./src/assests/images/hamilton-canada-clasificacion-f1-soymotor.jpg ***!
-  \**************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/hamilton-canada-clasificacion-f1-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/hamilton-canada-clasificacion-f1-soymotor.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/hamilton_suzuka2018-1.jpg":
-/*!******************************************************!*\
-  !*** ./src/assests/images/hamilton_suzuka2018-1.jpg ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/hamilton_suzuka2018-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/hamilton_suzuka2018-1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg":
-/*!****************************************************************************!*\
-  !*** ./src/assests/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg ***!
-  \****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/il_570xN.5522041097_7lyw.jpg":
-/*!*********************************************************!*\
-  !*** ./src/assests/images/il_570xN.5522041097_7lyw.jpg ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/il_570xN.5522041097_7lyw.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/il_570xN.5522041097_7lyw.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/image23.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/image23.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/image23.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/image23.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/image26.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/image26.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/image26.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/image26.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg":
-/*!****************************************************************************!*\
-  !*** ./src/assests/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg ***!
-  \****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg":
-/*!****************************************************************************!*\
-  !*** ./src/assests/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg ***!
-  \****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images.15jpg.jpg":
-/*!*********************************************!*\
-  !*** ./src/assests/images/images.15jpg.jpg ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images.15jpg.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images.15jpg.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images.jpg":
-/*!***************************************!*\
-  !*** ./src/assests/images/images.jpg ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images10.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images10.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images10.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images10.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images11.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images11.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images11.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images11.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images12.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images12.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images12.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images12.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images14.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images14.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images14.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images14.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images15.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images15.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images15.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images15.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images16.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images16.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images16.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images16.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images17.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images17.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images17.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images17.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images2.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/images2.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images2.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images22.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images22.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images22.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images22.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images24.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images24.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images24.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images24.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images25.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images25.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images25.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images25.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images27.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images27.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images27.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images27.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images28.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images28.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images28.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images28.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images29.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images29.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images29.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images29.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images30.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images30.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images30.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images30.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images31.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images31.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images31.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images31.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images32.jpg":
-/*!*****************************************!*\
-  !*** ./src/assests/images/images32.jpg ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images32.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images32.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images4.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/images4.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images4.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images5.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/images5.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images5.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images5.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images6.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/images6.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images6.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images6.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images7.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/images7.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images7.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images7.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images8.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/images8.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images8.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images8.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/images9.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/images9.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/images9.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/images9.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/img2.rtve.jpg":
-/*!******************************************!*\
-  !*** ./src/assests/images/img2.rtve.jpg ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/img2.rtve.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/img2.rtve.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/img24.rtve.jpg":
-/*!*******************************************!*\
-  !*** ./src/assests/images/img24.rtve.jpg ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/img24.rtve.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/img24.rtve.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/img4.rtve.jpg":
-/*!******************************************!*\
-  !*** ./src/assests/images/img4.rtve.jpg ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/img4.rtve.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/img4.rtve.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/jeddah.jpg":
-/*!***************************************!*\
-  !*** ./src/assests/images/jeddah.jpg ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/jeddah.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/jeddah.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/lando-norris-llevo-gp-miami.jpg":
-/*!************************************************************!*\
-  !*** ./src/assests/images/lando-norris-llevo-gp-miami.jpg ***!
-  \************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/lando-norris-llevo-gp-miami.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/lando-norris-llevo-gp-miami.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/leclerc-monaco-2024-winner.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/leclerc-monaco-2024-winner.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/leclerc-monaco-2024-winner.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/leclerc-monaco-2024-winner.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/leclerc_thumb_425.jpg":
-/*!**************************************************!*\
-  !*** ./src/assests/images/leclerc_thumb_425.jpg ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/leclerc_thumb_425.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/leclerc_thumb_425.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/lewis-hamilton-2151739.jpg":
-/*!*******************************************************!*\
-  !*** ./src/assests/images/lewis-hamilton-2151739.jpg ***!
-  \*******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/lewis-hamilton-2151739.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/lewis-hamilton-2151739.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/lewis-hamilton-gana-austin.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/lewis-hamilton-gana-austin.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/lewis-hamilton-gana-austin.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/lewis-hamilton-gana-austin.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/lewis-hamilton-mercedes-w12-1s.jpg":
-/*!***************************************************************!*\
-  !*** ./src/assests/images/lewis-hamilton-mercedes-w12-1s.jpg ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/lewis-hamilton-mercedes-w12-1s.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/lewis-hamilton-mercedes-w12-1s.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg":
-/*!******************************************************************************************!*\
-  !*** ./src/assests/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg ***!
-  \******************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/lewis_hamilton_2015_china.jpg":
-/*!**********************************************************!*\
-  !*** ./src/assests/images/lewis_hamilton_2015_china.jpg ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/lewis_hamilton_2015_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/lewis_hamilton_2015_china.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/lewis_hamilton_2019_china.jpg":
-/*!**********************************************************!*\
-  !*** ./src/assests/images/lewis_hamilton_2019_china.jpg ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/lewis_hamilton_2019_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/lewis_hamilton_2019_china.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/lewishamiltongpchina2008.jpg":
-/*!*********************************************************!*\
-  !*** ./src/assests/images/lewishamiltongpchina2008.jpg ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/lewishamiltongpchina2008.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/lewishamiltongpchina2008.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/max-verstappen-gran-premio-austria-2019.jpg":
-/*!************************************************************************!*\
-  !*** ./src/assests/images/max-verstappen-gran-premio-austria-2019.jpg ***!
-  \************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/max-verstappen-gran-premio-austria-2019.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/max-verstappen-gran-premio-austria-2019.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg":
-/*!*************************************************************************************************************!*\
-  !*** ./src/assests/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg ***!
-  \*************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/max-verstappen-red-bull-racing.jpg":
-/*!***************************************************************!*\
-  !*** ./src/assests/images/max-verstappen-red-bull-racing.jpg ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/max-verstappen-red-bull-racing.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/max-verstappen-red-bull-racing.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg":
-/*!********************************************************************************!*\
-  !*** ./src/assests/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg ***!
-  \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/mercedes-ferrari-italia-laf1.jpg":
-/*!*************************************************************!*\
-  !*** ./src/assests/images/mercedes-ferrari-italia-laf1.jpg ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/mercedes-ferrari-italia-laf1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/mercedes-ferrari-italia-laf1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/michael-schumacher-ferrari-f30.jpg":
-/*!***************************************************************!*\
-  !*** ./src/assests/images/michael-schumacher-ferrari-f30.jpg ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/michael-schumacher-ferrari-f30.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/michael-schumacher-ferrari-f30.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg":
-/*!***********************************************************************************!*\
-  !*** ./src/assests/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg ***!
-  \***********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png":
-/*!********************************************************************************!*\
-  !*** ./src/assests/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png ***!
-  \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png":
-/*!********************************************************************************!*\
-  !*** ./src/assests/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png ***!
-  \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png":
-/*!********************************************************************************!*\
-  !*** ./src/assests/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png ***!
-  \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/nico_rosberg_2016_china.jpg":
+/***/ "./src/assets/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg":
 /*!********************************************************!*\
-  !*** ./src/assests/images/nico_rosberg_2016_china.jpg ***!
+  !*** ./src/assets/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg ***!
   \********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/nico_rosberg_2016_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/nico_rosberg_2016_china.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/1_foDYHEmOHMtHrSZgpP5q3A.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg":
-/*!********************************************************************************!*\
-  !*** ./src/assests/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg ***!
-  \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg":
-/*!********************************************************************************************************************************!*\
-  !*** ./src/assests/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg ***!
-  \********************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/pierre-gasly-alphatauri-at02-i.jpg":
-/*!***************************************************************!*\
-  !*** ./src/assests/images/pierre-gasly-alphatauri-at02-i.jpg ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/pierre-gasly-alphatauri-at02-i.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/pierre-gasly-alphatauri-at02-i.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg":
-/*!*************************************************************************************************************************!*\
-  !*** ./src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg ***!
-  \*************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png":
-/*!*************************************************************************************************************************!*\
-  !*** ./src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png ***!
-  \*************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/podio_japon_2017_soy_motor.jpg":
-/*!***********************************************************!*\
-  !*** ./src/assests/images/podio_japon_2017_soy_motor.jpg ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/podio_japon_2017_soy_motor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/podio_japon_2017_soy_motor.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/pole-verstappen-abu-dhabi-2876011.jpg":
-/*!******************************************************************!*\
-  !*** ./src/assests/images/pole-verstappen-abu-dhabi-2876011.jpg ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/pole-verstappen-abu-dhabi-2876011.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/pole-verstappen-abu-dhabi-2876011.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg":
+/***/ "./src/assets/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg":
 /*!*************************************************************************************************!*\
-  !*** ./src/assests/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg ***!
+  !*** ./src/assets/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg ***!
   \*************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/2023-02-23-albon-williams-f1-formula-1_1g5h90ukvju111fntxkelozoil.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/ps5-product-thumbnail-01-en-14sep21.jpg":
-/*!********************************************************************!*\
-  !*** ./src/assests/images/ps5-product-thumbnail-01-en-14sep21.jpg ***!
-  \********************************************************************/
+/***/ "./src/assets/images/219.jpg":
+/*!***********************************!*\
+  !*** ./src/assets/images/219.jpg ***!
+  \***********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/ps5-product-thumbnail-01-en-14sep21.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/ps5-product-thumbnail-01-en-14sep21.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/219.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/219.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/racefansdotnet-20180903-103054-68.jpg":
-/*!******************************************************************!*\
-  !*** ./src/assests/images/racefansdotnet-20180903-103054-68.jpg ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/racefansdotnet-20180903-103054-68.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/racefansdotnet-20180903-103054-68.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/racefansdotnet-start-istanbul.jpg":
-/*!**************************************************************!*\
-  !*** ./src/assests/images/racefansdotnet-start-istanbul.jpg ***!
-  \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/racefansdotnet-start-istanbul.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/racefansdotnet-start-istanbul.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/renault-f1-team-renault-r24-villeneuve-7647.jpg":
-/*!****************************************************************************!*\
-  !*** ./src/assests/images/renault-f1-team-renault-r24-villeneuve-7647.jpg ***!
-  \****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/renault-f1-team-renault-r24-villeneuve-7647.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/renault-f1-team-renault-r24-villeneuve-7647.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/ricciardo2017.jpg":
-/*!**********************************************!*\
-  !*** ./src/assests/images/ricciardo2017.jpg ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/ricciardo2017.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/ricciardo2017.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/salida-alemania.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/salida-alemania.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/salida-alemania.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/salida-alemania.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/salida-gp-espana-2019.jpg":
-/*!******************************************************!*\
-  !*** ./src/assests/images/salida-gp-espana-2019.jpg ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/salida-gp-espana-2019.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/salida-gp-espana-2019.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/salida-gp-espana-jerez-1997.jpg":
-/*!************************************************************!*\
-  !*** ./src/assests/images/salida-gp-espana-jerez-1997.jpg ***!
-  \************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/salida-gp-espana-jerez-1997.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/salida-gp-espana-jerez-1997.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/screenshot-2018-04-03-13-56-50.jpg":
-/*!***************************************************************!*\
-  !*** ./src/assests/images/screenshot-2018-04-03-13-56-50.jpg ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/screenshot-2018-04-03-13-56-50.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/screenshot-2018-04-03-13-56-50.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/sddefault.jpg":
-/*!******************************************!*\
-  !*** ./src/assests/images/sddefault.jpg ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/sddefault.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/sddefault.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/sebastian-vettel-clasificacion-canada.jpg":
-/*!**********************************************************************!*\
-  !*** ./src/assests/images/sebastian-vettel-clasificacion-canada.jpg ***!
-  \**********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/sebastian-vettel-clasificacion-canada.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/sebastian-vettel-clasificacion-canada.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/sebastian_vettel_2018_china.jpg":
-/*!************************************************************!*\
-  !*** ./src/assests/images/sebastian_vettel_2018_china.jpg ***!
-  \************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/sebastian_vettel_2018_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/sebastian_vettel_2018_china.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/sergio-perez-red-bull-racing-r.jpg":
-/*!***************************************************************!*\
-  !*** ./src/assests/images/sergio-perez-red-bull-racing-r.jpg ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/sergio-perez-red-bull-racing-r.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/sergio-perez-red-bull-racing-r.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg":
-/*!*********************************************************************************!*\
-  !*** ./src/assests/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg ***!
-  \*********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png":
-/*!*************************************************************************************************************!*\
-  !*** ./src/assests/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png ***!
-  \*************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png?");
-
-/***/ }),
-
-/***/ "./src/assests/images/starting-grid-1.jpg":
-/*!************************************************!*\
-  !*** ./src/assests/images/starting-grid-1.jpg ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/starting-grid-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/starting-grid-1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/the-cars-in-parc-ferme-after-t.jpg":
-/*!***************************************************************!*\
-  !*** ./src/assests/images/the-cars-in-parc-ferme-after-t.jpg ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/the-cars-in-parc-ferme-after-t.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/the-cars-in-parc-ferme-after-t.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg":
-/*!***********************************************************************************************************!*\
-  !*** ./src/assests/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg ***!
-  \***********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/unnamed.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/unnamed.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/unnamed.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/unnamed.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/upmac1f.jpg":
-/*!****************************************!*\
-  !*** ./src/assests/images/upmac1f.jpg ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/upmac1f.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/upmac1f.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/valtteri-bottas-hace-pole-austria.jpg":
-/*!******************************************************************!*\
-  !*** ./src/assests/images/valtteri-bottas-hace-pole-austria.jpg ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/valtteri-bottas-hace-pole-austria.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/valtteri-bottas-hace-pole-austria.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/verstappen-arrasa-imola-2683245.jpg":
-/*!****************************************************************!*\
-  !*** ./src/assests/images/verstappen-arrasa-imola-2683245.jpg ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/verstappen-arrasa-imola-2683245.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/verstappen-arrasa-imola-2683245.jpg?");
-
-/***/ }),
-
-/***/ "./src/assests/images/verstappen-norris-635x358.jpg":
+/***/ "./src/assets/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg":
 /*!**********************************************************!*\
-  !*** ./src/assests/images/verstappen-norris-635x358.jpg ***!
+  !*** ./src/assets/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg ***!
   \**********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/verstappen-norris-635x358.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/verstappen-norris-635x358.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/2CNYO6I33RL3RIAXV6Y7D4P7HA.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/verstappen-red-bull-2017.jpg":
+/***/ "./src/assets/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/2da5e299e491fc1eae59abe0ff97ee1f.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/32176-n3.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/32176-n3.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/32176-n3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/32176-n3.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/3242112-66359508-2560-1440.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/3242112-66359508-2560-1440.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/3242112-66359508-2560-1440.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/3242112-66359508-2560-1440.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/34913-n3.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/34913-n3.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/34913-n3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/34913-n3.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg":
+/*!********************************************************************************!*\
+  !*** ./src/assets/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/3785978-77009488-2560-1440.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/3785978-77009488-2560-1440.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/3785978-77009488-2560-1440.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/3785978-77009488-2560-1440.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg":
+/*!************************************************************************!*\
+  !*** ./src/assets/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg ***!
+  \************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/3SGEZYWNVBNIJH2BK722SZUODE.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/3db56091204561.5e2b4deb5987d.png":
+/*!************************************************************!*\
+  !*** ./src/assets/images/3db56091204561.5e2b4deb5987d.png ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/3db56091204561.5e2b4deb5987d.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/3db56091204561.5e2b4deb5987d.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/3wkkh475qaad1.jpg":
+/*!*********************************************!*\
+  !*** ./src/assets/images/3wkkh475qaad1.jpg ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/3wkkh475qaad1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/3wkkh475qaad1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/4007762-81292888-2560-1440.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/4007762-81292888-2560-1440.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/4007762-81292888-2560-1440.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/4007762-81292888-2560-1440.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/450_1000.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/450_1000.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/450_1000.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/450_1000.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/472XS5KCRRP4LNSSI5RL7FSDLQ.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/517c567d8d6e9f561c4eb73313a8d280.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/517c567d8d6e9f561c4eb73313a8d280.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/517c567d8d6e9f561c4eb73313a8d280.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/517c567d8d6e9f561c4eb73313a8d280.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg":
+/*!*****************************************************************************!*\
+  !*** ./src/assets/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg ***!
+  \*****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/5780b6e54afc966e5bc5e647401e24f01da31d7243f15.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/58.jpg":
+/*!**********************************!*\
+  !*** ./src/assets/images/58.jpg ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/58.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/58.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg":
+/*!****************************************************************************************************************!*\
+  !*** ./src/assets/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg ***!
+  \****************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg":
+/*!******************************************************************************************************!*\
+  !*** ./src/assets/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg ***!
+  \******************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/5f0386e8-c774-464c-8467-20b3e24376c4_alta-libre-aspect-ratio_default_0.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/5f983feff4709d5867dcc940.jpg":
+/*!********************************************************!*\
+  !*** ./src/assets/images/5f983feff4709d5867dcc940.jpg ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/5f983feff4709d5867dcc940.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/5f983feff4709d5867dcc940.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/5fa278007fde0.jpg":
+/*!*********************************************!*\
+  !*** ./src/assets/images/5fa278007fde0.jpg ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/5fa278007fde0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/5fa278007fde0.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/5fa2d1d4120ce.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/5fa2d1d4120ce.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/5fa2d1d4120ce.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/5fa2d1d4120ce.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/60e728fca1f4e.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/60e728fca1f4e.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/60e728fca1f4e.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/60e728fca1f4e.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/60e74b03277a9.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/60e74b03277a9.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/60e74b03277a9.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/60e74b03277a9.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/60e7539c0742c.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/60e7539c0742c.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/60e7539c0742c.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/60e7539c0742c.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/60e762a36aac6.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/60e762a36aac6.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/60e762a36aac6.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/60e762a36aac6.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/60e7c34f2c9e5.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/60e7c34f2c9e5.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/60e7c34f2c9e5.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/60e7c34f2c9e5.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/6134d694ae4aa.r_d.963-634-6250.jpeg":
+/*!***************************************************************!*\
+  !*** ./src/assets/images/6134d694ae4aa.r_d.963-634-6250.jpeg ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/6134d694ae4aa.r_d.963-634-6250.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/6134d694ae4aa.r_d.963-634-6250.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/61883968f22bb.r_d.1767-1015-0.jpeg":
+/*!**************************************************************!*\
+  !*** ./src/assets/images/61883968f22bb.r_d.1767-1015-0.jpeg ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/61883968f22bb.r_d.1767-1015-0.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/61883968f22bb.r_d.1767-1015-0.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/61915711c5e7a.r_d.2479-2514-878.jpeg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/61915711c5e7a.r_d.2479-2514-878.jpeg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/61915711c5e7a.r_d.2479-2514-878.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/61915711c5e7a.r_d.2479-2514-878.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/625135306ceeb.r_d.1724-1149-3479.jpeg":
+/*!*****************************************************************!*\
+  !*** ./src/assets/images/625135306ceeb.r_d.1724-1149-3479.jpeg ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/625135306ceeb.r_d.1724-1149-3479.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/625135306ceeb.r_d.1724-1149-3479.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/62939be656a96.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/62939be656a96.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/62939be656a96.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/62939be656a96.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/62af7d33eeaa0.r_d.2438-1665-921.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/62c1d08761fb9.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/62c1d08761fb9.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/62c1d08761fb9.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/62c1d08761fb9.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/631dee4441565.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/631dee4441565.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/631dee4441565.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/631dee4441565.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/6371467b63d71.r_d.3862-3443-1727.jpeg":
+/*!*****************************************************************!*\
+  !*** ./src/assets/images/6371467b63d71.r_d.3862-3443-1727.jpeg ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/6371467b63d71.r_d.3862-3443-1727.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/6371467b63d71.r_d.3862-3443-1727.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/644e62898c269.r_d.2685-1059-4000.jpeg":
+/*!*****************************************************************!*\
+  !*** ./src/assets/images/644e62898c269.r_d.2685-1059-4000.jpeg ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/644e62898c269.r_d.2685-1059-4000.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/644e62898c269.r_d.2685-1059-4000.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/64736b8706cd0.r_d.966-1712-3866.jpeg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/64736b8706cd0.r_d.966-1712-3866.jpeg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/64736b8706cd0.r_d.966-1712-3866.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/64736b8706cd0.r_d.966-1712-3866.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/647ca0b69f16b.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/647ca0b69f16b.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/647ca0b69f16b.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/647ca0b69f16b.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/64a18ce92e026.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/64a18ce92e026.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/64a18ce92e026.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/64a18ce92e026.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/64aad147d8e9a.r_d.1859-2256-0.jpeg":
+/*!**************************************************************!*\
+  !*** ./src/assets/images/64aad147d8e9a.r_d.1859-2256-0.jpeg ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/64aad147d8e9a.r_d.1859-2256-0.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/64aad147d8e9a.r_d.1859-2256-0.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg":
+/*!*****************************************************************!*\
+  !*** ./src/assets/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/64f49c3e81e86.r_d.3066-2034-3043.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/65204d929ab84.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/65204d929ab84.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/65204d929ab84.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/65204d929ab84.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/653452d633f8e.r_d.3831-2554-586.jpeg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/653452d633f8e.r_d.3831-2554-586.jpeg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/653452d633f8e.r_d.3831-2554-586.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/653452d633f8e.r_d.3831-2554-586.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/653ed76848b50.r_d.4059-3018-823.jpeg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/653ed76848b50.r_d.4059-3018-823.jpeg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/653ed76848b50.r_d.4059-3018-823.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/653ed76848b50.r_d.4059-3018-823.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/6547e6216ba11.r_d.2680-2785-629.jpeg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/6547e6216ba11.r_d.2680-2785-629.jpeg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/6547e6216ba11.r_d.2680-2785-629.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/6547e6216ba11.r_d.2680-2785-629.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/65c504f09bce1cad3dcbba833d8ee852.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/65c504f09bce1cad3dcbba833d8ee852.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/65c504f09bce1cad3dcbba833d8ee852.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/65c504f09bce1cad3dcbba833d8ee852.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/6624d1c194742.jpeg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/6624d1c194742.jpeg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/6624d1c194742.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/6624d1c194742.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/6744ae08e6a450e031b21a17e78fc0fa.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/6744ae08e6a450e031b21a17e78fc0fa.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/6744ae08e6a450e031b21a17e78fc0fa.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/6744ae08e6a450e031b21a17e78fc0fa.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/69.jpg":
+/*!**********************************!*\
+  !*** ./src/assets/images/69.jpg ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/69.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/69.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg":
+/*!******************************************************************************!*\
+  !*** ./src/assets/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg ***!
+  \******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/6c04bc52-3294-483d-add4-1f122587718a_1200x680.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/709607-21389434-2560-1440.jpg":
 /*!*********************************************************!*\
-  !*** ./src/assests/images/verstappen-red-bull-2017.jpg ***!
+  !*** ./src/assets/images/709607-21389434-2560-1440.jpg ***!
   \*********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/verstappen-red-bull-2017.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/verstappen-red-bull-2017.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/709607-21389434-2560-1440.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/709607-21389434-2560-1440.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/victoria-lewis-hamilton-gp-singapur.jpg":
+/***/ "./src/assets/images/796930333_236274274_1706x640.jpg":
+/*!************************************************************!*\
+  !*** ./src/assets/images/796930333_236274274_1706x640.jpg ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/796930333_236274274_1706x640.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/796930333_236274274_1706x640.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/7vsxuxdpdc5a1.jpg":
+/*!*********************************************!*\
+  !*** ./src/assets/images/7vsxuxdpdc5a1.jpg ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/7vsxuxdpdc5a1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/7vsxuxdpdc5a1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/819cOVjBRRL.jpg":
+/*!*******************************************!*\
+  !*** ./src/assets/images/819cOVjBRRL.jpg ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/819cOVjBRRL.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/819cOVjBRRL.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/9-sunday-melbourne-2023.jpg":
+/*!*******************************************************!*\
+  !*** ./src/assets/images/9-sunday-melbourne-2023.jpg ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/9-sunday-melbourne-2023.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/9-sunday-melbourne-2023.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/9.jpg":
+/*!*********************************!*\
+  !*** ./src/assets/images/9.jpg ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/9.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/9.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Abu_Dhabi_Circuit.jpg":
+/*!*************************************************!*\
+  !*** ./src/assets/images/Abu_Dhabi_Circuit.jpg ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Abu_Dhabi_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Abu_Dhabi_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Australia_Circuit.jpg":
+/*!*************************************************!*\
+  !*** ./src/assets/images/Australia_Circuit.jpg ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Australia_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Australia_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Austria_Circuit.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/Austria_Circuit.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Austria_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Austria_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Bahrain_Circuit.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/Bahrain_Circuit.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Bahrain_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Bahrain_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Baku_Circuit.jpg":
+/*!********************************************!*\
+  !*** ./src/assets/images/Baku_Circuit.jpg ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Baku_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Baku_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/BeaF-8xIcAAYBbM.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/BeaF-8xIcAAYBbM.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/BeaF-8xIcAAYBbM.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/BeaF-8xIcAAYBbM.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Belgium_Circuit.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/Belgium_Circuit.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Belgium_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Belgium_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Brasil.jpg":
+/*!**************************************!*\
+  !*** ./src/assets/images/Brasil.jpg ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Brasil.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Brasil.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg":
+/*!***************************************************************************************************!*\
+  !*** ./src/assets/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg ***!
+  \***************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/C3M2TCWVCRIETMLZT6IIZEZUMY.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/COKcBbWVAAAi53b.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/COKcBbWVAAAi53b.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/COKcBbWVAAAi53b.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/COKcBbWVAAAi53b.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg":
+/*!*************************************************************!*\
+  !*** ./src/assets/images/CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/CRÃ“NICA-GP-DE-ITALIA-F1-2021.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/CR%C3%83%E2%80%9CNICA-GP-DE-ITALIA-F1-2021.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Canada_Circuit.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/Canada_Circuit.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Canada_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Canada_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Captura de pantalla 2024-08-18 123450.png":
+/*!*********************************************************************!*\
+  !*** ./src/assets/images/Captura de pantalla 2024-08-18 123450.png ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Captura de pantalla 2024-08-18 123450.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Captura_de_pantalla_2024-08-18_123450.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/China_Circuit.jpg":
+/*!*********************************************!*\
+  !*** ./src/assets/images/China_Circuit.jpg ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/China_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/China_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg":
+/*!*********************************************************************!*\
+  !*** ./src/assets/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Cuatro-neumaticos-Pirelli-de-carreras.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/DMRQ67NFY5RATQY4MIMXDDGGP4.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/E0sxVjJWQAI783K.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/E0sxVjJWQAI783K.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/E0sxVjJWQAI783K.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/E0sxVjJWQAI783K.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/EmtITbGXEAA40XD.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/EmtITbGXEAA40XD.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/EmtITbGXEAA40XD.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/EmtITbGXEAA40XD.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/F1-AUSTRALIA_93806.jpg":
+/*!**************************************************!*\
+  !*** ./src/assets/images/F1-AUSTRALIA_93806.jpg ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/F1-AUSTRALIA_93806.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/F1-AUSTRALIA_93806.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg":
+/*!*****************************************************************************************************************!*\
+  !*** ./src/assets/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg ***!
+  \*****************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/FSJ6ZKWFGZNQ7OZ2DPTG6RZJJM.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/FTVT32DOQYG6QN4CW3O2F3E4SI.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/FYqwDVvXkAMHGtB.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/FYqwDVvXkAMHGtB.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/FYqwDVvXkAMHGtB.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/FYqwDVvXkAMHGtB.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/FYrYQ9SXoAAR-v6-732x1024.jpg":
+/*!********************************************************!*\
+  !*** ./src/assets/images/FYrYQ9SXoAAR-v6-732x1024.jpg ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/FYrYQ9SXoAAR-v6-732x1024.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/FYrYQ9SXoAAR-v6-732x1024.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/F_01_672-458_resize.jpg":
+/*!***************************************************!*\
+  !*** ./src/assets/images/F_01_672-458_resize.jpg ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/F_01_672-458_resize.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/F_01_672-458_resize.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/GS7PpavXoAEFq3Z.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/GS7PpavXoAEFq3Z.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/GS7PpavXoAEFq3Z.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/GS7PpavXoAEFq3Z.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/GettyImages-1474638493.jpg":
+/*!******************************************************!*\
+  !*** ./src/assets/images/GettyImages-1474638493.jpg ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/GettyImages-1474638493.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/GettyImages-1474638493.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/GettyImages-1628172829.jpg":
+/*!******************************************************!*\
+  !*** ./src/assets/images/GettyImages-1628172829.jpg ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/GettyImages-1628172829.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/GettyImages-1628172829.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/GettyImages-2161010295.jpg":
+/*!******************************************************!*\
+  !*** ./src/assets/images/GettyImages-2161010295.jpg ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/GettyImages-2161010295.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/GettyImages-2161010295.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/GmPSckjbsAApnT1.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/GmPSckjbsAApnT1.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/GmPSckjbsAApnT1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/GmPSckjbsAApnT1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Great_Britain_Circuit.jpg":
+/*!*****************************************************!*\
+  !*** ./src/assets/images/Great_Britain_Circuit.jpg ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Great_Britain_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Great_Britain_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Hungary_Circuit.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/Hungary_Circuit.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Hungary_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Hungary_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Imola.jpg":
+/*!*************************************!*\
+  !*** ./src/assets/images/Imola.jpg ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Imola.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Imola.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Italy_Circuit.jpg":
+/*!*********************************************!*\
+  !*** ./src/assets/images/Italy_Circuit.jpg ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Italy_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Italy_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png":
+/*!******************************************************************************!*\
+  !*** ./src/assets/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png ***!
+  \******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/LJYUJXPNYFLO5LCK3POR3HZTBY.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/MN2SHZQEIZPGBCCQ55TE2YTT3U.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Mexico_Circuit.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/Mexico_Circuit.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Mexico_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Mexico_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Miami.jpg":
+/*!*************************************!*\
+  !*** ./src/assets/images/Miami.jpg ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Miami.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Miami.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/ModeloDatosAplicación.png":
+/*!*****************************************************!*\
+  !*** ./src/assets/images/ModeloDatosAplicación.png ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/ModeloDatosAplicación.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/ModeloDatosAplicaci%C3%B3n.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Monoco_Circuit.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/Monoco_Circuit.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Monoco_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Monoco_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/NAZ_02017646930e4c1994e9106f0433428b.jpg":
 /*!********************************************************************!*\
-  !*** ./src/assests/images/victoria-lewis-hamilton-gp-singapur.jpg ***!
+  !*** ./src/assets/images/NAZ_02017646930e4c1994e9106f0433428b.jpg ***!
   \********************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/victoria-lewis-hamilton-gp-singapur.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/victoria-lewis-hamilton-gp-singapur.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/NAZ_02017646930e4c1994e9106f0433428b.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/NAZ_02017646930e4c1994e9106f0433428b.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/victoria-vettel-gp-bahrein.jpg":
+/***/ "./src/assets/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg":
+/*!********************************************************************!*\
+  !*** ./src/assets/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/NAZ_36e2b7e062224ee38ad0cf42ffd97323.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg":
+/*!********************************************************************!*\
+  !*** ./src/assets/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/NAZ_976d02c9851e4cb383fc66fcf23d0714.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg":
+/*!********************************************************************!*\
+  !*** ./src/assets/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/NAZ_e655bfc3b5d54a7e8166699123156887.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Netherlands_Circuit.jpg":
+/*!***************************************************!*\
+  !*** ./src/assets/images/Netherlands_Circuit.jpg ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Netherlands_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Netherlands_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/OMNI2NNSDZCYZMCPMHXLPCOQNE.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/PGXYNMP4P5KDVFJVRTCZVF7ZFU.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Pedro_de_la_Rosa_2005_Britain.jpg":
+/*!*************************************************************!*\
+  !*** ./src/assets/images/Pedro_de_la_Rosa_2005_Britain.jpg ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Pedro_de_la_Rosa_2005_Britain.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Pedro_de_la_Rosa_2005_Britain.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Qatar.jpg":
+/*!*************************************!*\
+  !*** ./src/assets/images/Qatar.jpg ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Qatar.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Qatar.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Rubens_Barrichello_2006_USA.jpg":
 /*!***********************************************************!*\
-  !*** ./src/assests/images/victoria-vettel-gp-bahrein.jpg ***!
+  !*** ./src/assets/images/Rubens_Barrichello_2006_USA.jpg ***!
   \***********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/victoria-vettel-gp-bahrein.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/victoria-vettel-gp-bahrein.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Rubens_Barrichello_2006_USA.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Rubens_Barrichello_2006_USA.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/virtual-safety-car-3432279.jpg":
+/***/ "./src/assets/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg":
+/*!*************************************************************************!*\
+  !*** ./src/assets/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Sainz-Ferrari-Australia-55-2024-carrera-1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/SalidaGPMalasia2009.jpg":
+/*!***************************************************!*\
+  !*** ./src/assets/images/SalidaGPMalasia2009.jpg ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/SalidaGPMalasia2009.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/SalidaGPMalasia2009.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Schumacher_Mercedes_Jerez_(cropped).jpg":
+/*!*******************************************************************!*\
+  !*** ./src/assets/images/Schumacher_Mercedes_Jerez_(cropped).jpg ***!
+  \*******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Schumacher_Mercedes_Jerez_(cropped).jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Schumacher_Mercedes_Jerez_(cropped).jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Screenshot-2021-11-02-at-16.57.04.jpg":
+/*!*****************************************************************!*\
+  !*** ./src/assets/images/Screenshot-2021-11-02-at-16.57.04.jpg ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Screenshot-2021-11-02-at-16.57.04.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Screenshot-2021-11-02-at-16.57.04.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Singapore_Circuit.jpg":
+/*!*************************************************!*\
+  !*** ./src/assets/images/Singapore_Circuit.jpg ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Singapore_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Singapore_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Spain_Circuit.jpg":
+/*!*********************************************!*\
+  !*** ./src/assets/images/Spain_Circuit.jpg ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Spain_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Spain_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Suzuka.jpg":
+/*!**************************************!*\
+  !*** ./src/assets/images/Suzuka.jpg ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Suzuka.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Suzuka.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/USA_Circuit.jpg":
+/*!*******************************************!*\
+  !*** ./src/assets/images/USA_Circuit.jpg ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/USA_Circuit.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/USA_Circuit.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg":
+/*!*******************************************************************************************************************!*\
+  !*** ./src/assets/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg ***!
+  \*******************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/UTH_T150-racing-wheel-PS4-PC-1-7.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Undercut-F1.jpg":
+/*!*******************************************!*\
+  !*** ./src/assets/images/Undercut-F1.jpg ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Undercut-F1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Undercut-F1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg":
+/*!********************************************************************!*\
+  !*** ./src/assets/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Valentino-Rossi-piloto-F1-Ferrari-14.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/Vegas.jpg":
+/*!*************************************!*\
+  !*** ./src/assets/images/Vegas.jpg ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/Vegas.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/Vegas.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/WMMAJSFNRNNNLB263KN6C725KQ.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/X2ANIYID3BOXNFKVUZ6N7COUX4.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/XPB_1282060_HiRes.jpg":
+/*!*************************************************!*\
+  !*** ./src/assets/images/XPB_1282060_HiRes.jpg ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/XPB_1282060_HiRes.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/XPB_1282060_HiRes.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/YCMLNJ6XANIX7LA37KV2EIAGO4.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/ZMC3LQB4LFOQRJLIK3CRQXOLK4.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/_103266921_hamilton_vettel_getty1.jpg":
+/*!*****************************************************************!*\
+  !*** ./src/assets/images/_103266921_hamilton_vettel_getty1.jpg ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/_103266921_hamilton_vettel_getty1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/_103266921_hamilton_vettel_getty1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/_45650053_07lewisgravel512.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/_45650053_07lewisgravel512.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/_45650053_07lewisgravel512.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/_45650053_07lewisgravel512.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/a-marshal-holds-a-yellow-flag-1.jpg":
+/*!***************************************************************!*\
+  !*** ./src/assets/images/a-marshal-holds-a-yellow-flag-1.jpg ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/a-marshal-holds-a-yellow-flag-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/a-marshal-holds-a-yellow-flag-1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/a637c951f5abb3d146fc1931d48735df.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/a637c951f5abb3d146fc1931d48735df.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/a637c951f5abb3d146fc1931d48735df.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/a637c951f5abb3d146fc1931d48735df.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg":
+/*!********************************************************************************!*\
+  !*** ./src/assets/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/ahav61hj4goa1.jpg":
+/*!*********************************************!*\
+  !*** ./src/assets/images/ahav61hj4goa1.jpg ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/ahav61hj4goa1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/ahav61hj4goa1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/analisis-gp-brasil-f1-2023-soymotor.jpg":
+/*!*******************************************************************!*\
+  !*** ./src/assets/images/analisis-gp-brasil-f1-2023-soymotor.jpg ***!
+  \*******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/analisis-gp-brasil-f1-2023-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/analisis-gp-brasil-f1-2023-soymotor.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/article-1377757-0BAA374500000578-340_634x432.jpg":
+/*!****************************************************************************!*\
+  !*** ./src/assets/images/article-1377757-0BAA374500000578-340_634x432.jpg ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/article-1377757-0BAA374500000578-340_634x432.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/article-1377757-0BAA374500000578-340_634x432.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/article-2351820-1A95E98F000005DC-265_634x286.jpg":
+/*!****************************************************************************!*\
+  !*** ./src/assets/images/article-2351820-1A95E98F000005DC-265_634x286.jpg ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/article-2351820-1A95E98F000005DC-265_634x286.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/article-2351820-1A95E98F000005DC-265_634x286.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg":
+/*!*****************************************************************************************!*\
+  !*** ./src/assets/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg ***!
+  \*****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/ava4n-6dmcg.png":
+/*!*******************************************!*\
+  !*** ./src/assets/images/ava4n-6dmcg.png ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/ava4n-6dmcg.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/ava4n-6dmcg.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg":
+/*!************************************************************************!*\
+  !*** ./src/assets/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg ***!
+  \************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/belgica-hamilton-vettel-2017-f1-soymotor.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg":
+/*!********************************************************************************!*\
+  !*** ./src/assets/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/bmwsauberF1-92006586-d799-422b-88d2-fdbc9fac1d9f.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/bottas-pole-eeuu.jpg":
+/*!************************************************!*\
+  !*** ./src/assets/images/bottas-pole-eeuu.jpg ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/bottas-pole-eeuu.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/bottas-pole-eeuu.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg":
+/*!*****************************************************************************************!*\
+  !*** ./src/assets/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg ***!
+  \*****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg":
+/*!**********************************************************************************************************!*\
+  !*** ./src/assets/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg ***!
+  \**********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/british-mclaren-formula-one-racing-team-driver-lewis-news-photo-1650209247.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg":
+/*!*********************************************************************************************************!*\
+  !*** ./src/assets/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg ***!
+  \*********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/captura-4643897367.jpg":
+/*!**************************************************!*\
+  !*** ./src/assets/images/captura-4643897367.jpg ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/captura-4643897367.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/captura-4643897367.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/carlos-sainz-ferrari-sf-24-2.jpg":
+/*!************************************************************!*\
+  !*** ./src/assets/images/carlos-sainz-ferrari-sf-24-2.jpg ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/carlos-sainz-ferrari-sf-24-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/carlos-sainz-ferrari-sf-24-2.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg":
+/*!***********************************************************************!*\
+  !*** ./src/assets/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/caterham-f1.jpg":
+/*!*******************************************!*\
+  !*** ./src/assets/images/caterham-f1.jpg ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/caterham-f1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/caterham-f1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg":
+/*!*****************************************************************************************************************************************************************************************************!*\
+  !*** ./src/assets/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg ***!
+  \*****************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg":
+/*!******************************************************************************************!*\
+  !*** ./src/assets/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg ***!
+  \******************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/codigo-java-ventana-portatil-desarrolladores-ti_338925-335.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/codigo.jpg":
+/*!**************************************!*\
+  !*** ./src/assets/images/codigo.jpg ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/codigo.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/codigo.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/comisarios-bandera-amarilla-2021-soymotor.jpg":
+/*!*************************************************************************!*\
+  !*** ./src/assets/images/comisarios-bandera-amarilla-2021-soymotor.jpg ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/comisarios-bandera-amarilla-2021-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/comisarios-bandera-amarilla-2021-soymotor.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/coulthard-mschumacher-francuska-2000-1024x674.jpg":
+/*!*****************************************************************************!*\
+  !*** ./src/assets/images/coulthard-mschumacher-francuska-2000-1024x674.jpg ***!
+  \*****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/coulthard-mschumacher-francuska-2000-1024x674.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/coulthard-mschumacher-francuska-2000-1024x674.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/cui-png2.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/cui-png2.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/cui-png2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/cui-png2.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/daniel-ricciardo-gp-monaco-2018.jpg":
+/*!***************************************************************!*\
+  !*** ./src/assets/images/daniel-ricciardo-gp-monaco-2018.jpg ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/daniel-ricciardo-gp-monaco-2018.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/daniel-ricciardo-gp-monaco-2018.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg":
+/*!*******************************************************************************************************************!*\
+  !*** ./src/assets/images/daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg ***!
+  \*******************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/daniel-ricciardo-red-bull-racing-azerbaiyÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n-f1-gran-premio-ganador.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/daniel-ricciardo-red-bull-racing-azerbaiy%C3%83%C6%92%C3%86%E2%80%99%C3%83%E2%80%A0%C3%A2%E2%82%AC%E2%84%A2%C3%83%C6%92%C3%A2%E2%82%AC%C5%A1%C3%83%E2%80%9A%C3%82%C2%A1n-f1-gran-premio-ganador.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/daniel_ricciardo_2017_china.jpg":
 /*!***********************************************************!*\
-  !*** ./src/assests/images/virtual-safety-car-3432279.jpg ***!
+  !*** ./src/assets/images/daniel_ricciardo_2017_china.jpg ***!
   \***********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/virtual-safety-car-3432279.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/virtual-safety-car-3432279.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/daniel_ricciardo_2017_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/daniel_ricciardo_2017_china.jpg?");
 
 /***/ }),
 
-/***/ "./src/assests/images/virutas-f1-guia-foteros-grada-201846328_4.jpg":
-/*!**************************************************************************!*\
-  !*** ./src/assests/images/virutas-f1-guia-foteros-grada-201846328_4.jpg ***!
-  \**************************************************************************/
+/***/ "./src/assets/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg":
+/*!**************************************************************************************!*\
+  !*** ./src/assets/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg ***!
+  \**************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assests/images/virutas-f1-guia-foteros-grada-201846328_4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assests/images/virutas-f1-guia-foteros-grada-201846328_4.jpg?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/doblete-mercedes-baku.jpg":
+/*!*****************************************************!*\
+  !*** ./src/assets/images/doblete-mercedes-baku.jpg ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/doblete-mercedes-baku.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/doblete-mercedes-baku.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg":
+/*!**************************************************************************************************!*\
+  !*** ./src/assets/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg ***!
+  \**************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg":
+/*!********************************************************************************************************!*\
+  !*** ./src/assets/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg ***!
+  \********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/el-equipo-da-la-bienvenida-a-checo-al-otro-lado-de-la-bandera-de-cuadros.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg":
+/*!************************************************************************************************************!*\
+  !*** ./src/assets/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg ***!
+  \************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f0777c49a212574fd31ea18b515392a9.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/f0777c49a212574fd31ea18b515392a9.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f0777c49a212574fd31ea18b515392a9.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f0777c49a212574fd31ea18b515392a9.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-2013-11-bel-parrilla-trasera.jpg":
+/*!***************************************************************!*\
+  !*** ./src/assets/images/f1-2013-11-bel-parrilla-trasera.jpg ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-2013-11-bel-parrilla-trasera.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-2013-11-bel-parrilla-trasera.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg":
+/*!************************************************************************!*\
+  !*** ./src/assets/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg ***!
+  \************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-2015-monaco-rosberg-mercedes-victoria.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg":
+/*!*************************************************************************!*\
+  !*** ./src/assets/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-2016-monaco-mercedes-hamilton-victoria.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-australia-salida1_hd_32675.jpg":
+/*!*************************************************************!*\
+  !*** ./src/assets/images/f1-australia-salida1_hd_32675.jpg ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-australia-salida1_hd_32675.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-australia-salida1_hd_32675.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg":
+/*!****************************************************************************************!*\
+  !*** ./src/assets/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg ***!
+  \****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-australian-gp-2015-lewis-hamilton-mercedes-amg-f1-w06.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg":
+/*!************************************************************************************************!*\
+  !*** ./src/assets/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg ***!
+  \************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-australian-gp-2017-race-winner-sebastian-vettel-ferrari-sf70h.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg":
+/*!***************************************************************************!*\
+  !*** ./src/assets/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-gp-australia-2016-rosberg-gana-primera_1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-gp-canada-domenica-935.jpg":
+/*!*********************************************************!*\
+  !*** ./src/assets/images/f1-gp-canada-domenica-935.jpg ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-gp-canada-domenica-935.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-gp-canada-domenica-935.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg":
+/*!********************************************************************************!*\
+  !*** ./src/assets/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-gp-hungria-2016-hamilton-domina-mano-hierro_1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg":
+/*!**********************************************************************************************************************************!*\
+  !*** ./src/assets/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg ***!
+  \**********************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-japanese-gp-2017-lewis-hamilton-mercedes-benz-f1-w08-takes-the-chequered-flag-at-the-en-5817568.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-mclarens-india-inline.jpg":
+/*!********************************************************!*\
+  !*** ./src/assets/images/f1-mclarens-india-inline.jpg ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-mclarens-india-inline.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-mclarens-india-inline.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1-spyker-2007.jpg":
+/*!**********************************************!*\
+  !*** ./src/assets/images/f1-spyker-2007.jpg ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1-spyker-2007.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1-spyker-2007.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f1_416x234.jpg":
+/*!******************************************!*\
+  !*** ./src/assets/images/f1_416x234.jpg ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f1_416x234.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f1_416x234.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg":
+/*!**************************************************************************************************!*\
+  !*** ./src/assets/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg ***!
+  \**************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg":
+/*!******************************************************************************************************!*\
+  !*** ./src/assets/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg ***!
+  \******************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f5111bb8-6f9f-4a31-bb82-e581ff01fb6d_alta-libre-aspect-ratio_default_0.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/f768x1-8742_8869_154.jpg":
+/*!****************************************************!*\
+  !*** ./src/assets/images/f768x1-8742_8869_154.jpg ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/f768x1-8742_8869_154.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/f768x1-8742_8869_154.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/ferari.jpg":
+/*!**************************************!*\
+  !*** ./src/assets/images/ferari.jpg ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/ferari.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/ferari.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/fernando-alonso-aston-martin-a-3.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/fernando-alonso-aston-martin-a-3.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/fernando-alonso-aston-martin-a-3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/fernando-alonso-aston-martin-a-3.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/fernando-alonso-jaguar-r3-1.jpg":
+/*!***********************************************************!*\
+  !*** ./src/assets/images/fernando-alonso-jaguar-r3-1.jpg ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/fernando-alonso-jaguar-r3-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/fernando-alonso-jaguar-r3-1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg":
+/*!****************************************************************************************************************************!*\
+  !*** ./src/assets/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg ***!
+  \****************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg":
+/*!******************************************************************************************************!*\
+  !*** ./src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg ***!
+  \******************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg":
+/*!******************************************************************************************************!*\
+  !*** ./src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg ***!
+  \******************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/fia.jpg":
+/*!***********************************!*\
+  !*** ./src/assets/images/fia.jpg ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/fia.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/fia.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg":
+/*!**********************************************************************!*\
+  !*** ./src/assets/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg ***!
+  \**********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/flat,750x,075,f-pad,750x1000,f8f8f8.u3.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg":
+/*!**************************************************************************************************************************************!*\
+  !*** ./src/assets/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg ***!
+  \**************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/formula-1-bahrain-grand-prix-2024-poster_ss5_p-201348077+u-v48ciqjppqwtzj3bi0bp+v-le3rrz5cbcwquxbrgx2q.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/formula-1-european-gp-1997-jac-2.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/formula-1-european-gp-1997-jac-2.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/formula-1-european-gp-1997-jac-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/formula-1-european-gp-1997-jac-2.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg":
+/*!*******************************************************************************!*\
+  !*** ./src/assets/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/formula-1-gp-japon-2016-rosberg-domina-suzuka_1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/formula-1-hungarian-gp-2021-es-2.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/formula-1-hungarian-gp-2021-es-2.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/formula-1-hungarian-gp-2021-es-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/formula-1-hungarian-gp-2021-es-2.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/formula-1-italian-gp-2018-race-2.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/formula-1-italian-gp-2018-race-2.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/formula-1-italian-gp-2018-race-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/formula-1-italian-gp-2018-race-2.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/formula-1-mexico-city-gp-2022--2.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/formula-1-mexico-city-gp-2022--2.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/formula-1-mexico-city-gp-2022--2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/formula-1-mexico-city-gp-2022--2.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg":
+/*!***************************************************************************************************************************************************************!*\
+  !*** ./src/assets/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg ***!
+  \***************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/formula-1-miami-grand-prix-2023-limited-edition-poster_ss4_p-14416990+u-4demn26qp2aevlwzp8uc+v-1324295d5d6647a798c7bf368eee2af6.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/formula-1-united-states-gp-201-2.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/formula-1-united-states-gp-201-2.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/formula-1-united-states-gp-201-2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/formula-1-united-states-gp-201-2.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg":
+/*!*************************************************************************!*\
+  !*** ./src/assets/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/fotos-gp-espana-f1-202287138-1653075223_6.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/fposter,small,wall_texture,square_product,600x600.u3.jpg":
+/*!************************************************************************************!*\
+  !*** ./src/assets/images/fposter,small,wall_texture,square_product,600x600.u3.jpg ***!
+  \************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/fposter,small,wall_texture,square_product,600x600.u3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/fposter,small,wall_texture,square_product,600x600.u3.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/gasly-monza-sabado-2020-soymotor.jpg":
+/*!****************************************************************!*\
+  !*** ./src/assets/images/gasly-monza-sabado-2020-soymotor.jpg ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/gasly-monza-sabado-2020-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/gasly-monza-sabado-2020-soymotor.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/gettyimages-499135626-612x612.jpg":
+/*!*************************************************************!*\
+  !*** ./src/assets/images/gettyimages-499135626-612x612.jpg ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/gettyimages-499135626-612x612.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/gettyimages-499135626-612x612.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg":
+/*!*****************************************************************************!*\
+  !*** ./src/assets/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg ***!
+  \*****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/gp-australia-1998-hakkinen-coulthard-soymotor.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/gp-can-3-123924-1024x576.jpg":
+/*!********************************************************!*\
+  !*** ./src/assets/images/gp-can-3-123924-1024x576.jpg ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/gp-can-3-123924-1024x576.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/gp-can-3-123924-1024x576.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg":
+/*!*********************************************************************************************************!*\
+  !*** ./src/assets/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg ***!
+  \*********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/gp-de-belgica-2004-siete-veces-michael-schumacher-2024103232-1720946726_3.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/gp-hungria-f1-2018.jpg":
+/*!**************************************************!*\
+  !*** ./src/assets/images/gp-hungria-f1-2018.jpg ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/gp-hungria-f1-2018.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/gp-hungria-f1-2018.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg":
+/*!******************************************************************************!*\
+  !*** ./src/assets/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg ***!
+  \******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg":
+/*!******************************************************************************!*\
+  !*** ./src/assets/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg ***!
+  \******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/gran-premio-de-mexico-f1-01-viernes-1572107970.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg":
+/*!***************************************************************************!*\
+  !*** ./src/assets/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/h2rqBGj3DSwn-Zim8kbtF59KUcUTvlICdAjUHt8QpOI.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/hamilton-bahrein-2019.jpg":
+/*!*****************************************************!*\
+  !*** ./src/assets/images/hamilton-bahrein-2019.jpg ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/hamilton-bahrein-2019.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/hamilton-bahrein-2019.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/hamilton-canada-clasificacion-f1-soymotor.jpg":
+/*!*************************************************************************!*\
+  !*** ./src/assets/images/hamilton-canada-clasificacion-f1-soymotor.jpg ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/hamilton-canada-clasificacion-f1-soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/hamilton-canada-clasificacion-f1-soymotor.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/hamilton_suzuka2018-1.jpg":
+/*!*****************************************************!*\
+  !*** ./src/assets/images/hamilton_suzuka2018-1.jpg ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/hamilton_suzuka2018-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/hamilton_suzuka2018-1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg":
+/*!***************************************************************************!*\
+  !*** ./src/assets/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/hamilton_vettel_glock_brasil_2008_soy_motor.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/il_570xN.5522041097_7lyw.jpg":
+/*!********************************************************!*\
+  !*** ./src/assets/images/il_570xN.5522041097_7lyw.jpg ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/il_570xN.5522041097_7lyw.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/il_570xN.5522041097_7lyw.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/image23.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/image23.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/image23.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/image23.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/image26.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/image26.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/image26.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/image26.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg":
+/*!***************************************************************************!*\
+  !*** ./src/assets/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images-76ce60ff-33a7-424b-9259-57adc1a37f48.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg":
+/*!***************************************************************************!*\
+  !*** ./src/assets/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images-80a199ac-fb13-44c3-9811-0204b7fcb9a9.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images.15jpg.jpg":
+/*!********************************************!*\
+  !*** ./src/assets/images/images.15jpg.jpg ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images.15jpg.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images.15jpg.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images.jpg":
+/*!**************************************!*\
+  !*** ./src/assets/images/images.jpg ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images10.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images10.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images10.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images10.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images11.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images11.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images11.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images11.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images12.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images12.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images12.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images12.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images14.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images14.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images14.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images14.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images15.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images15.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images15.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images15.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images16.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images16.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images16.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images16.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images17.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images17.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images17.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images17.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images2.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/images2.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images2.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images2.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images22.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images22.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images22.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images22.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images24.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images24.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images24.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images24.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images25.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images25.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images25.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images25.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images27.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images27.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images27.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images27.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images28.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images28.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images28.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images28.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images29.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images29.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images29.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images29.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images30.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images30.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images30.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images30.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images31.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images31.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images31.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images31.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images32.jpg":
+/*!****************************************!*\
+  !*** ./src/assets/images/images32.jpg ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images32.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images32.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images4.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/images4.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images4.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images5.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/images5.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images5.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images5.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images6.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/images6.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images6.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images6.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images7.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/images7.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images7.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images7.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images8.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/images8.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images8.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images8.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/images9.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/images9.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/images9.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/images9.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/img2.rtve.jpg":
+/*!*****************************************!*\
+  !*** ./src/assets/images/img2.rtve.jpg ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/img2.rtve.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/img2.rtve.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/img24.rtve.jpg":
+/*!******************************************!*\
+  !*** ./src/assets/images/img24.rtve.jpg ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/img24.rtve.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/img24.rtve.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/img4.rtve.jpg":
+/*!*****************************************!*\
+  !*** ./src/assets/images/img4.rtve.jpg ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/img4.rtve.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/img4.rtve.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/jeddah.jpg":
+/*!**************************************!*\
+  !*** ./src/assets/images/jeddah.jpg ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/jeddah.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/jeddah.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/lando-norris-llevo-gp-miami.jpg":
+/*!***********************************************************!*\
+  !*** ./src/assets/images/lando-norris-llevo-gp-miami.jpg ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/lando-norris-llevo-gp-miami.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/lando-norris-llevo-gp-miami.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/leclerc-monaco-2024-winner.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/leclerc-monaco-2024-winner.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/leclerc-monaco-2024-winner.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/leclerc-monaco-2024-winner.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/leclerc_thumb_425.jpg":
+/*!*************************************************!*\
+  !*** ./src/assets/images/leclerc_thumb_425.jpg ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/leclerc_thumb_425.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/leclerc_thumb_425.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/lewis-hamilton-2151739.jpg":
+/*!******************************************************!*\
+  !*** ./src/assets/images/lewis-hamilton-2151739.jpg ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/lewis-hamilton-2151739.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/lewis-hamilton-2151739.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/lewis-hamilton-gana-austin.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/lewis-hamilton-gana-austin.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/lewis-hamilton-gana-austin.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/lewis-hamilton-gana-austin.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/lewis-hamilton-mercedes-w12-1s.jpg":
+/*!**************************************************************!*\
+  !*** ./src/assets/images/lewis-hamilton-mercedes-w12-1s.jpg ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/lewis-hamilton-mercedes-w12-1s.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/lewis-hamilton-mercedes-w12-1s.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg":
+/*!*****************************************************************************************!*\
+  !*** ./src/assets/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg ***!
+  \*****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/lewis-hamilton-se-proclama-ganador-del-gp-de-f1-de-imola.jpeg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/lewis_hamilton_2015_china.jpg":
+/*!*********************************************************!*\
+  !*** ./src/assets/images/lewis_hamilton_2015_china.jpg ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/lewis_hamilton_2015_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/lewis_hamilton_2015_china.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/lewis_hamilton_2019_china.jpg":
+/*!*********************************************************!*\
+  !*** ./src/assets/images/lewis_hamilton_2019_china.jpg ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/lewis_hamilton_2019_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/lewis_hamilton_2019_china.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/lewishamiltongpchina2008.jpg":
+/*!********************************************************!*\
+  !*** ./src/assets/images/lewishamiltongpchina2008.jpg ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/lewishamiltongpchina2008.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/lewishamiltongpchina2008.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/max-verstappen-gran-premio-austria-2019.jpg":
+/*!***********************************************************************!*\
+  !*** ./src/assets/images/max-verstappen-gran-premio-austria-2019.jpg ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/max-verstappen-gran-premio-austria-2019.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/max-verstappen-gran-premio-austria-2019.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg":
+/*!************************************************************************************************************!*\
+  !*** ./src/assets/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg ***!
+  \************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/max-verstappen-of-the-netherlands-driving-the-red-bull-news-photo-1639586571.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/max-verstappen-red-bull-racing.jpg":
+/*!**************************************************************!*\
+  !*** ./src/assets/images/max-verstappen-red-bull-racing.jpg ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/max-verstappen-red-bull-racing.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/max-verstappen-red-bull-racing.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg":
+/*!*******************************************************************************!*\
+  !*** ./src/assets/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/max_verstappen-red_bull-carrera-gp-austria-2018.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/mercedes-ferrari-italia-laf1.jpg":
+/*!************************************************************!*\
+  !*** ./src/assets/images/mercedes-ferrari-italia-laf1.jpg ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/mercedes-ferrari-italia-laf1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/mercedes-ferrari-italia-laf1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/michael-schumacher-ferrari-f30.jpg":
+/*!**************************************************************!*\
+  !*** ./src/assets/images/michael-schumacher-ferrari-f30.jpg ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/michael-schumacher-ferrari-f30.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/michael-schumacher-ferrari-f30.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg":
+/*!**********************************************************************************!*\
+  !*** ./src/assets/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg ***!
+  \**********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/minuto_a_minuto_directo_carrera_brasil_f1_soymotor.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png":
+/*!*******************************************************************************!*\
+  !*** ./src/assets/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/nba-plain--47dab8bf-3ef4-4eb9-8f9c-eda2990f5252.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png":
+/*!*******************************************************************************!*\
+  !*** ./src/assets/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/nba-plain--4a55a06a-cb26-4d67-83e3-3ff57cdbaea9.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png":
+/*!*******************************************************************************!*\
+  !*** ./src/assets/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/nba-plain--a0d7b593-5a55-4812-b931-8545a64db065.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/nico_rosberg_2016_china.jpg":
+/*!*******************************************************!*\
+  !*** ./src/assets/images/nico_rosberg_2016_china.jpg ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/nico_rosberg_2016_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/nico_rosberg_2016_china.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg":
+/*!*******************************************************************************!*\
+  !*** ./src/assets/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/nico_rosberg_mercedes_domingo_gp_abu_dhabi-2016.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg":
+/*!*******************************************************************************************************************************!*\
+  !*** ./src/assets/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg ***!
+  \*******************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/pierre-gasly-alphatauri-at02-i.jpg":
+/*!**************************************************************!*\
+  !*** ./src/assets/images/pierre-gasly-alphatauri-at02-i.jpg ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/pierre-gasly-alphatauri-at02-i.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/pierre-gasly-alphatauri-at02-i.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg":
+/*!************************************************************************************************************************!*\
+  !*** ./src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg ***!
+  \************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png":
+/*!************************************************************************************************************************!*\
+  !*** ./src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png ***!
+  \************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/png-transparent-ferrari-s-p-a-scuderia-ferrari-car-ferrari-125-s-ferrari-emblem-logo-car.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/podio_japon_2017_soy_motor.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/podio_japon_2017_soy_motor.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/podio_japon_2017_soy_motor.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/podio_japon_2017_soy_motor.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/pole-verstappen-abu-dhabi-2876011.jpg":
+/*!*****************************************************************!*\
+  !*** ./src/assets/images/pole-verstappen-abu-dhabi-2876011.jpg ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/pole-verstappen-abu-dhabi-2876011.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/pole-verstappen-abu-dhabi-2876011.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg":
+/*!************************************************************************************************!*\
+  !*** ./src/assets/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg ***!
+  \************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/poster-gp-emilia-romagna-a4-a3-a2-posters-base-best-print-shop-1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/ps5-product-thumbnail-01-en-14sep21.jpg":
+/*!*******************************************************************!*\
+  !*** ./src/assets/images/ps5-product-thumbnail-01-en-14sep21.jpg ***!
+  \*******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/ps5-product-thumbnail-01-en-14sep21.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/ps5-product-thumbnail-01-en-14sep21.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/racefansdotnet-20180903-103054-68.jpg":
+/*!*****************************************************************!*\
+  !*** ./src/assets/images/racefansdotnet-20180903-103054-68.jpg ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/racefansdotnet-20180903-103054-68.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/racefansdotnet-20180903-103054-68.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/racefansdotnet-start-istanbul.jpg":
+/*!*************************************************************!*\
+  !*** ./src/assets/images/racefansdotnet-start-istanbul.jpg ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/racefansdotnet-start-istanbul.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/racefansdotnet-start-istanbul.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/renault-f1-team-renault-r24-villeneuve-7647.jpg":
+/*!***************************************************************************!*\
+  !*** ./src/assets/images/renault-f1-team-renault-r24-villeneuve-7647.jpg ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/renault-f1-team-renault-r24-villeneuve-7647.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/renault-f1-team-renault-r24-villeneuve-7647.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/ricciardo2017.jpg":
+/*!*********************************************!*\
+  !*** ./src/assets/images/ricciardo2017.jpg ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/ricciardo2017.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/ricciardo2017.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/salida-alemania.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/salida-alemania.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/salida-alemania.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/salida-alemania.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/salida-gp-espana-2019.jpg":
+/*!*****************************************************!*\
+  !*** ./src/assets/images/salida-gp-espana-2019.jpg ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/salida-gp-espana-2019.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/salida-gp-espana-2019.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/salida-gp-espana-jerez-1997.jpg":
+/*!***********************************************************!*\
+  !*** ./src/assets/images/salida-gp-espana-jerez-1997.jpg ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/salida-gp-espana-jerez-1997.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/salida-gp-espana-jerez-1997.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/screenshot-2018-04-03-13-56-50.jpg":
+/*!**************************************************************!*\
+  !*** ./src/assets/images/screenshot-2018-04-03-13-56-50.jpg ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/screenshot-2018-04-03-13-56-50.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/screenshot-2018-04-03-13-56-50.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/sddefault.jpg":
+/*!*****************************************!*\
+  !*** ./src/assets/images/sddefault.jpg ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/sddefault.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/sddefault.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/sebastian-vettel-clasificacion-canada.jpg":
+/*!*********************************************************************!*\
+  !*** ./src/assets/images/sebastian-vettel-clasificacion-canada.jpg ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/sebastian-vettel-clasificacion-canada.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/sebastian-vettel-clasificacion-canada.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/sebastian_vettel_2018_china.jpg":
+/*!***********************************************************!*\
+  !*** ./src/assets/images/sebastian_vettel_2018_china.jpg ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/sebastian_vettel_2018_china.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/sebastian_vettel_2018_china.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/sergio-perez-red-bull-racing-r.jpg":
+/*!**************************************************************!*\
+  !*** ./src/assets/images/sergio-perez-red-bull-racing-r.jpg ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/sergio-perez-red-bull-racing-r.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/sergio-perez-red-bull-racing-r.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg":
+/*!********************************************************************************!*\
+  !*** ./src/assets/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/singapore-f1-grand-prix-2022-race-poster-2K2RF46.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png":
+/*!************************************************************************************************************!*\
+  !*** ./src/assets/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png ***!
+  \************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/sporting-news-2022-photo-with-watermark-3ec90880-af89-417d-9ef3-3c333c5455ba.png?");
+
+/***/ }),
+
+/***/ "./src/assets/images/starting-grid-1.jpg":
+/*!***********************************************!*\
+  !*** ./src/assets/images/starting-grid-1.jpg ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/starting-grid-1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/starting-grid-1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/the-cars-in-parc-ferme-after-t.jpg":
+/*!**************************************************************!*\
+  !*** ./src/assets/images/the-cars-in-parc-ferme-after-t.jpg ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/the-cars-in-parc-ferme-after-t.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/the-cars-in-parc-ferme-after-t.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg":
+/*!**********************************************************************************************************!*\
+  !*** ./src/assets/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg ***!
+  \**********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/the-official-poster-for-the-formula-1-qatar-airways-qatar-v0-j0jvcw0rumqb1.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/unnamed.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/unnamed.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/unnamed.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/unnamed.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/upmac1f.jpg":
+/*!***************************************!*\
+  !*** ./src/assets/images/upmac1f.jpg ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/upmac1f.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/upmac1f.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/valtteri-bottas-hace-pole-austria.jpg":
+/*!*****************************************************************!*\
+  !*** ./src/assets/images/valtteri-bottas-hace-pole-austria.jpg ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/valtteri-bottas-hace-pole-austria.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/valtteri-bottas-hace-pole-austria.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/verstappen-arrasa-imola-2683245.jpg":
+/*!***************************************************************!*\
+  !*** ./src/assets/images/verstappen-arrasa-imola-2683245.jpg ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/verstappen-arrasa-imola-2683245.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/verstappen-arrasa-imola-2683245.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/verstappen-norris-635x358.jpg":
+/*!*********************************************************!*\
+  !*** ./src/assets/images/verstappen-norris-635x358.jpg ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/verstappen-norris-635x358.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/verstappen-norris-635x358.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/verstappen-red-bull-2017.jpg":
+/*!********************************************************!*\
+  !*** ./src/assets/images/verstappen-red-bull-2017.jpg ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/verstappen-red-bull-2017.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/verstappen-red-bull-2017.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/victoria-lewis-hamilton-gp-singapur.jpg":
+/*!*******************************************************************!*\
+  !*** ./src/assets/images/victoria-lewis-hamilton-gp-singapur.jpg ***!
+  \*******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/victoria-lewis-hamilton-gp-singapur.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/victoria-lewis-hamilton-gp-singapur.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/victoria-vettel-gp-bahrein.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/victoria-vettel-gp-bahrein.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/victoria-vettel-gp-bahrein.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/victoria-vettel-gp-bahrein.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/virtual-safety-car-3432279.jpg":
+/*!**********************************************************!*\
+  !*** ./src/assets/images/virtual-safety-car-3432279.jpg ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/virtual-safety-car-3432279.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/virtual-safety-car-3432279.jpg?");
+
+/***/ }),
+
+/***/ "./src/assets/images/virutas-f1-guia-foteros-grada-201846328_4.jpg":
+/*!*************************************************************************!*\
+  !*** ./src/assets/images/virutas-f1-guia-foteros-grada-201846328_4.jpg ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"images/src/assets/images/virutas-f1-guia-foteros-grada-201846328_4.jpg\");\n\n//# sourceURL=webpack://frontend/./src/assets/images/virutas-f1-guia-foteros-grada-201846328_4.jpg?");
 
 /***/ }),
 
@@ -15162,7 +15184,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   chooseAnswer: () => (/* binding */ chooseAnswer),\n/* harmony export */   chooseAward: () => (/* binding */ chooseAward),\n/* harmony export */   createQuiz: () => (/* binding */ createQuiz),\n/* harmony export */   findQuizById: () => (/* binding */ findQuizById),\n/* harmony export */   getAnswersForQuiz: () => (/* binding */ getAnswersForQuiz),\n/* harmony export */   getAvailableAwards: () => (/* binding */ getAvailableAwards),\n/* harmony export */   getAvailableQuizPoints: () => (/* binding */ getAvailableQuizPoints),\n/* harmony export */   getAward: () => (/* binding */ getAward),\n/* harmony export */   getAwardsSelectedByUser: () => (/* binding */ getAwardsSelectedByUser),\n/* harmony export */   getQuestionDetails: () => (/* binding */ getQuestionDetails),\n/* harmony export */   getQuizPoints: () => (/* binding */ getQuizPoints),\n/* harmony export */   getQuizQuestions: () => (/* binding */ getQuizQuestions),\n/* harmony export */   getUserAnswersForQuiz: () => (/* binding */ getUserAnswersForQuiz),\n/* harmony export */   getUserAssessments: () => (/* binding */ getUserAssessments)\n/* harmony export */ });\n/* harmony import */ var _appFetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./appFetch */ \"./src/backend/appFetch.js\");\n\n\n// Crear un nuevo cuestionario\nconst createQuiz = (userId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(\"/quiz/create\", (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"POST\", userId), onSuccess, onErrors);\n};\n\n// Seleccionar una respuesta para una pregunta específica en un cuestionario\nconst chooseAnswer = (quizId, answerParams, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/answer`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"POST\", answerParams), onSuccess, onErrors);\n};\n\n// Obtener preguntas de un cuestionario específico\nconst getQuizQuestions = ({\n  quizId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/questions?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\n\n// Obtener detalles de una pregunta específica\nconst getQuestionDetails = (questionId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/question/${questionId}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\n\n// Obtener resultados de respuestas de un usuario para un cuestionario específico\nconst getUserAnswersForQuiz = ({\n  quizId,\n  userId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/user/results?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\", userId), onSuccess, onErrors);\n};\n\n// Obtener evaluaciones de un usuario\nconst getUserAssessments = ({\n  userId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/user/assessments?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\", userId), onSuccess, onErrors);\n};\nconst getAnswersForQuiz = (questionId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${questionId}/answers`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst findQuizById = (quizId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst getAvailableAwards = ({\n  userId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${userId}/awards?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst getAward = (awardId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/award/${awardId}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst chooseAward = ({\n  awardId,\n  userId\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/awards/award/${awardId}?userId=${userId}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst getAwardsSelectedByUser = ({\n  userId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/user/${userId}/userAwards?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst getQuizPoints = ({\n  quizId,\n  userId\n}, onSuccess) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/user/${userId}/points`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess);\n};\nconst getAvailableQuizPoints = (quizId, onSuccess) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/points`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess);\n};\n\n//# sourceURL=webpack://frontend/./src/backend/quizService.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   chooseAnswer: () => (/* binding */ chooseAnswer),\n/* harmony export */   chooseAward: () => (/* binding */ chooseAward),\n/* harmony export */   createQuiz: () => (/* binding */ createQuiz),\n/* harmony export */   findQuizById: () => (/* binding */ findQuizById),\n/* harmony export */   getAnswersForQuiz: () => (/* binding */ getAnswersForQuiz),\n/* harmony export */   getAvailableAwards: () => (/* binding */ getAvailableAwards),\n/* harmony export */   getAvailableQuizPoints: () => (/* binding */ getAvailableQuizPoints),\n/* harmony export */   getAward: () => (/* binding */ getAward),\n/* harmony export */   getAwardsSelectedByUser: () => (/* binding */ getAwardsSelectedByUser),\n/* harmony export */   getQuestionDetails: () => (/* binding */ getQuestionDetails),\n/* harmony export */   getQuizPoints: () => (/* binding */ getQuizPoints),\n/* harmony export */   getQuizQuestions: () => (/* binding */ getQuizQuestions),\n/* harmony export */   getQuizQuestionsCategory: () => (/* binding */ getQuizQuestionsCategory),\n/* harmony export */   getQuizQuestionsType: () => (/* binding */ getQuizQuestionsType),\n/* harmony export */   getUserAnswersForQuiz: () => (/* binding */ getUserAnswersForQuiz),\n/* harmony export */   getUserAssessments: () => (/* binding */ getUserAssessments)\n/* harmony export */ });\n/* harmony import */ var _appFetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./appFetch */ \"./src/backend/appFetch.js\");\n\nconst createQuiz = (userId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(\"/quiz/create\", (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"POST\", userId), onSuccess, onErrors);\n};\nconst getQuizQuestionsType = (quizId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/quizType`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst getQuizQuestionsCategory = (quizId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/quizType`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\n\n// Seleccionar una respuesta para una pregunta específica en un cuestionario\nconst chooseAnswer = (quizId, answerParams, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/answer`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"POST\", answerParams), onSuccess, onErrors);\n};\n\n// Obtener preguntas de un cuestionario específico\nconst getQuizQuestions = ({\n  quizId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/questions?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\n\n// Obtener detalles de una pregunta específica\nconst getQuestionDetails = (questionId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/question/${questionId}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\n\n// Obtener resultados de respuestas de un usuario para un cuestionario específico\nconst getUserAnswersForQuiz = ({\n  quizId,\n  userId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/user/results?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\", userId), onSuccess, onErrors);\n};\n\n// Obtener evaluaciones de un usuario\nconst getUserAssessments = ({\n  userId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/user/assessments?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\", userId), onSuccess, onErrors);\n};\nconst getAnswersForQuiz = (questionId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${questionId}/answers`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst findQuizById = (quizId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst getAvailableAwards = ({\n  userId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${userId}/awards?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst getAward = (awardId, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/award/${awardId}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst chooseAward = ({\n  awardId,\n  userId\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/awards/award/${awardId}?userId=${userId}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst getAwardsSelectedByUser = ({\n  userId,\n  page\n}, onSuccess, onErrors) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/user/${userId}/userAwards?page=${page}`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess, onErrors);\n};\nconst getQuizPoints = ({\n  quizId,\n  userId\n}, onSuccess) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/user/${userId}/points`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess);\n};\nconst getAvailableQuizPoints = (quizId, onSuccess) => {\n  (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.appFetch)(`/quiz/${quizId}/points`, (0,_appFetch__WEBPACK_IMPORTED_MODULE_0__.fetchConfig)(\"GET\"), onSuccess);\n};\n\n//# sourceURL=webpack://frontend/./src/backend/quizService.js?");
 
 /***/ }),
 
@@ -15195,7 +15217,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   sourceImages: () => (/* binding */ sourceImages)\n/* harmony export */ });\nconst sourceImages = __webpack_require__(\"./src/assests/images sync recursive ^\\\\.\\\\/.*$\");\n\n//# sourceURL=webpack://frontend/./src/helpers/sourceImages.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   sourceImages: () => (/* binding */ sourceImages)\n/* harmony export */ });\n// frontend/src/helpers/sourceImages.js\nconst sourceImages = __webpack_require__(\"./src/assets/images sync recursive ^\\\\.\\\\/.*$\");\n\n//# sourceURL=webpack://frontend/./src/helpers/sourceImages.js?");
 
 /***/ }),
 
@@ -16041,7 +16063,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   CHOOSE_ANSWER_COMPLETED: () => (/* binding */ CHOOSE_ANSWER_COMPLETED),\n/* harmony export */   CHOOSE_AWARD_COMPLETED: () => (/* binding */ CHOOSE_AWARD_COMPLETED),\n/* harmony export */   CREATE_QUIZ_COMPLETED: () => (/* binding */ CREATE_QUIZ_COMPLETED),\n/* harmony export */   FIND_QUIZ_BY_ID_COMPLETED: () => (/* binding */ FIND_QUIZ_BY_ID_COMPLETED),\n/* harmony export */   GET_ANSWERS_FOR_QUESTION_COMPLETED: () => (/* binding */ GET_ANSWERS_FOR_QUESTION_COMPLETED),\n/* harmony export */   GET_AVAILABLE_AWARDS_COMPLETED: () => (/* binding */ GET_AVAILABLE_AWARDS_COMPLETED),\n/* harmony export */   GET_AVAILABLE_QUIZ_POINTS_COMPLETED: () => (/* binding */ GET_AVAILABLE_QUIZ_POINTS_COMPLETED),\n/* harmony export */   GET_AWARDS_SELECTED_BY_USER_COMPLETED: () => (/* binding */ GET_AWARDS_SELECTED_BY_USER_COMPLETED),\n/* harmony export */   GET_AWARD_COMPLETED: () => (/* binding */ GET_AWARD_COMPLETED),\n/* harmony export */   GET_QUESTION_DETAILS_COMPLETED: () => (/* binding */ GET_QUESTION_DETAILS_COMPLETED),\n/* harmony export */   GET_QUIZ_POINTS_COMPLETED: () => (/* binding */ GET_QUIZ_POINTS_COMPLETED),\n/* harmony export */   GET_QUIZ_QUESTIONS_COMPLETED: () => (/* binding */ GET_QUIZ_QUESTIONS_COMPLETED),\n/* harmony export */   GET_USER_ANSWERS_FOR_QUIZ_COMPLETED: () => (/* binding */ GET_USER_ANSWERS_FOR_QUIZ_COMPLETED),\n/* harmony export */   GET_USER_ASSESSMENTS_COMPLETED: () => (/* binding */ GET_USER_ASSESSMENTS_COMPLETED)\n/* harmony export */ });\nconst CREATE_QUIZ_COMPLETED = \"project/quiz/createQuizCompleted\";\nconst CHOOSE_ANSWER_COMPLETED = \"project/quiz/chooseAnswerCompleted\";\nconst GET_QUIZ_QUESTIONS_COMPLETED = \"project/quiz/getQuizQuestionsCompleted\";\nconst GET_QUESTION_DETAILS_COMPLETED = \"project/quiz/getQuestionDetailsCompleted\";\nconst GET_USER_ANSWERS_FOR_QUIZ_COMPLETED = \"project/quiz/getUserAnswersForQuizCompleted\";\nconst GET_USER_ASSESSMENTS_COMPLETED = \"project/quiz/getUserAssessmentsCompleted\";\nconst GET_ANSWERS_FOR_QUESTION_COMPLETED = \"project/quiz/getAnswersForQuestionCompleted\";\nconst FIND_QUIZ_BY_ID_COMPLETED = \"project/quiz/findQuizByIdCompleted\";\nconst GET_AVAILABLE_AWARDS_COMPLETED = \"project/quiz/getAvailableAwardsCompleted\";\nconst GET_AWARD_COMPLETED = \"project/quiz/getAwardCompleted\";\nconst CHOOSE_AWARD_COMPLETED = \"project/quiz/chooseAwardCompleted\";\nconst GET_AWARDS_SELECTED_BY_USER_COMPLETED = \"project/quiz/getAwardsSelectedByUserCompleted\";\nconst GET_QUIZ_POINTS_COMPLETED = \"project/quiz/getQuizPointsCompleted\";\nconst GET_AVAILABLE_QUIZ_POINTS_COMPLETED = \"project/quiz/getAvailableQuizPointsCompleted\";\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/actionTypes.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   CHOOSE_ANSWER_COMPLETED: () => (/* binding */ CHOOSE_ANSWER_COMPLETED),\n/* harmony export */   CHOOSE_AWARD_COMPLETED: () => (/* binding */ CHOOSE_AWARD_COMPLETED),\n/* harmony export */   CREATE_QUIZ_COMPLETED: () => (/* binding */ CREATE_QUIZ_COMPLETED),\n/* harmony export */   FIND_QUIZ_BY_ID_COMPLETED: () => (/* binding */ FIND_QUIZ_BY_ID_COMPLETED),\n/* harmony export */   GET_ANSWERS_FOR_QUESTION_COMPLETED: () => (/* binding */ GET_ANSWERS_FOR_QUESTION_COMPLETED),\n/* harmony export */   GET_AVAILABLE_AWARDS_COMPLETED: () => (/* binding */ GET_AVAILABLE_AWARDS_COMPLETED),\n/* harmony export */   GET_AVAILABLE_QUIZ_POINTS_COMPLETED: () => (/* binding */ GET_AVAILABLE_QUIZ_POINTS_COMPLETED),\n/* harmony export */   GET_AWARDS_SELECTED_BY_USER_COMPLETED: () => (/* binding */ GET_AWARDS_SELECTED_BY_USER_COMPLETED),\n/* harmony export */   GET_AWARD_COMPLETED: () => (/* binding */ GET_AWARD_COMPLETED),\n/* harmony export */   GET_QUESTION_DETAILS_COMPLETED: () => (/* binding */ GET_QUESTION_DETAILS_COMPLETED),\n/* harmony export */   GET_QUIZ_POINTS_COMPLETED: () => (/* binding */ GET_QUIZ_POINTS_COMPLETED),\n/* harmony export */   GET_QUIZ_QUESTIONS_CATEGORY_COMPLETED: () => (/* binding */ GET_QUIZ_QUESTIONS_CATEGORY_COMPLETED),\n/* harmony export */   GET_QUIZ_QUESTIONS_COMPLETED: () => (/* binding */ GET_QUIZ_QUESTIONS_COMPLETED),\n/* harmony export */   GET_QUIZ_QUESTIONS_TYPE_COMPLETED: () => (/* binding */ GET_QUIZ_QUESTIONS_TYPE_COMPLETED),\n/* harmony export */   GET_USER_ANSWERS_FOR_QUIZ_COMPLETED: () => (/* binding */ GET_USER_ANSWERS_FOR_QUIZ_COMPLETED),\n/* harmony export */   GET_USER_ASSESSMENTS_COMPLETED: () => (/* binding */ GET_USER_ASSESSMENTS_COMPLETED)\n/* harmony export */ });\nconst CREATE_QUIZ_COMPLETED = \"project/quiz/createQuizCompleted\";\nconst CHOOSE_ANSWER_COMPLETED = \"project/quiz/chooseAnswerCompleted\";\nconst GET_QUIZ_QUESTIONS_COMPLETED = \"project/quiz/getQuizQuestionsCompleted\";\nconst GET_QUESTION_DETAILS_COMPLETED = \"project/quiz/getQuestionDetailsCompleted\";\nconst GET_USER_ANSWERS_FOR_QUIZ_COMPLETED = \"project/quiz/getUserAnswersForQuizCompleted\";\nconst GET_USER_ASSESSMENTS_COMPLETED = \"project/quiz/getUserAssessmentsCompleted\";\nconst GET_ANSWERS_FOR_QUESTION_COMPLETED = \"project/quiz/getAnswersForQuestionCompleted\";\nconst FIND_QUIZ_BY_ID_COMPLETED = \"project/quiz/findQuizByIdCompleted\";\nconst GET_AVAILABLE_AWARDS_COMPLETED = \"project/quiz/getAvailableAwardsCompleted\";\nconst GET_AWARD_COMPLETED = \"project/quiz/getAwardCompleted\";\nconst CHOOSE_AWARD_COMPLETED = \"project/quiz/chooseAwardCompleted\";\nconst GET_AWARDS_SELECTED_BY_USER_COMPLETED = \"project/quiz/getAwardsSelectedByUserCompleted\";\nconst GET_QUIZ_POINTS_COMPLETED = \"project/quiz/getQuizPointsCompleted\";\nconst GET_AVAILABLE_QUIZ_POINTS_COMPLETED = \"project/quiz/getAvailableQuizPointsCompleted\";\nconst GET_QUIZ_QUESTIONS_TYPE_COMPLETED = \"project/quiz/getQuizQuestionsTypeCompleted\";\nconst GET_QUIZ_QUESTIONS_CATEGORY_COMPLETED = \"project/quiz/getQuizQuestionsCategoryCompleted\";\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/actionTypes.js?");
 
 /***/ }),
 
@@ -16052,7 +16074,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   chooseAnswer: () => (/* binding */ chooseAnswer),\n/* harmony export */   chooseAward: () => (/* binding */ chooseAward),\n/* harmony export */   createQuiz: () => (/* binding */ createQuiz),\n/* harmony export */   findQuizById: () => (/* binding */ findQuizById),\n/* harmony export */   getAnswersForQuestion: () => (/* binding */ getAnswersForQuestion),\n/* harmony export */   getAvailableAwards: () => (/* binding */ getAvailableAwards),\n/* harmony export */   getAvailableQuizPoints: () => (/* binding */ getAvailableQuizPoints),\n/* harmony export */   getAward: () => (/* binding */ getAward),\n/* harmony export */   getAwardsSelectedByUser: () => (/* binding */ getAwardsSelectedByUser),\n/* harmony export */   getQuestionDetails: () => (/* binding */ getQuestionDetails),\n/* harmony export */   getQuizPoints: () => (/* binding */ getQuizPoints),\n/* harmony export */   getQuizQuestions: () => (/* binding */ getQuizQuestions),\n/* harmony export */   getUserAnswersForQuiz: () => (/* binding */ getUserAnswersForQuiz),\n/* harmony export */   getUserAssessments: () => (/* binding */ getUserAssessments)\n/* harmony export */ });\n/* harmony import */ var _backend__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../backend */ \"./src/backend/index.js\");\n/* harmony import */ var _backend_appFetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../backend/appFetch */ \"./src/backend/appFetch.js\");\n/* harmony import */ var _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../quiz/actionTypes */ \"./src/modules/quiz/actionTypes.js\");\n/* harmony import */ var _components_Awards__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/Awards */ \"./src/modules/quiz/components/Awards.js\");\n\n\n\n\nconst createQuizCompleted = quiz => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.CREATE_QUIZ_COMPLETED,\n  quiz\n});\nconst chooseAnswerCompleted = answer => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.CHOOSE_ANSWER_COMPLETED,\n  answer\n});\nconst getQuizQuestionsCompleted = questions => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_QUIZ_QUESTIONS_COMPLETED,\n  questions\n});\nconst getQuestionDetailsCompleted = question => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_QUESTION_DETAILS_COMPLETED,\n  question\n});\nconst getUserAnswersCompleted = userAnswers => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_USER_ANSWERS_FOR_QUIZ_COMPLETED,\n  userAnswers\n});\nconst getUserAssessmentsCompleted = userAssessments => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_USER_ASSESSMENTS_COMPLETED,\n  userAssessments\n});\nconst getAnswersForQuestionCompleted = answers => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_ANSWERS_FOR_QUESTION_COMPLETED,\n  answers\n});\nconst findQuizByIdCompleted = quiz => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.FIND_QUIZ_BY_ID_COMPLETED,\n  quiz\n});\nconst getAvailableAwardsCompleted = awards => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_AVAILABLE_AWARDS_COMPLETED,\n  awards\n});\nconst getAwardCompleted = award => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_AWARD_COMPLETED,\n  award\n});\nconst chooseAwardCompleted = awardId => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.CHOOSE_AWARD_COMPLETED,\n  awardId\n});\nconst getAwardsSelectedByUserCompleted = awards => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_AWARDS_SELECTED_BY_USER_COMPLETED,\n  awards\n});\nconst getQuizPointsCompleted = quizPoints => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_QUIZ_POINTS_COMPLETED,\n  quizPoints\n});\nconst getAvailableQuizPointsCompleted = availableQuizPoints => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_AVAILABLE_QUIZ_POINTS_COMPLETED,\n  availableQuizPoints\n});\nconst createQuiz = (userId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.createQuiz(userId, quiz => {\n  dispatch(createQuizCompleted(quiz));\n  onSuccess(quiz);\n}, onErrors);\nconst chooseAnswer = (quizId, answer, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.chooseAnswer(quizId, answer, answer => {\n  dispatch(chooseAnswerCompleted(answer));\n  onSuccess(answer);\n}, onErrors);\nconst getQuizQuestions = (quiz, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getQuizQuestions(quiz, questions => {\n  dispatch(getQuizQuestionsCompleted(questions));\n  onSuccess(questions);\n}, onErrors);\nconst getQuestionDetails = (questionId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getQuestionDetails(questionId, question => {\n  dispatch(getQuestionDetailsCompleted(question));\n  onSuccess(question);\n}, onErrors);\nconst getUserAnswersForQuiz = (userAnswers, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getUserAnswersForQuiz(userAnswers, userAnswers => {\n  dispatch(getUserAnswersCompleted(userAnswers));\n  onSuccess(userAnswers);\n}, onErrors);\nconst getUserAssessments = (userAssessments, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getUserAssessments(userAssessments, userAssessments => {\n  dispatch(getUserAssessmentsCompleted(userAssessments));\n  onSuccess(userAssessments);\n}, onErrors);\nconst getAnswersForQuestion = (questionId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAnswersForQuiz(questionId, answers => {\n  dispatch(getAnswersForQuestionCompleted(answers));\n  onSuccess(answers);\n}, onErrors);\nconst findQuizById = (quizId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.findQuizById(quizId, quiz => {\n  dispatch(findQuizByIdCompleted(quiz));\n  onSuccess(quiz);\n}, onErrors);\nconst getAvailableAwards = (awards, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAvailableAwards(awards, awards => {\n  dispatch(getAvailableAwardsCompleted(awards));\n  onSuccess(awards);\n}, onErrors);\nconst getAward = (award, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAward(award, award => {\n  dispatch(getAwardCompleted(award));\n  onSuccess(award);\n}, onErrors);\nconst chooseAward = (award, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.chooseAward(award, awardId => {\n  dispatch(chooseAwardCompleted(awardId));\n  onSuccess(awardId);\n}, onErrors);\nconst getAwardsSelectedByUser = (userAwards, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAwardsSelectedByUser(userAwards, awards => {\n  dispatch(getAwardsSelectedByUserCompleted(awards));\n  onSuccess(awards);\n}, onErrors);\nconst getQuizPoints = (quizPoints, onSuccess) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getQuizPoints(quizPoints, quizPoints => {\n  dispatch(getQuizPointsCompleted(quizPoints));\n  onSuccess(quizPoints);\n});\nconst getAvailableQuizPoints = (quizId, onSuccess) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAvailableQuizPoints(quizId, availableQuizPoints => {\n  dispatch(getAvailableQuizPointsCompleted(availableQuizPoints));\n  onSuccess(availableQuizPoints);\n});\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/actions.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   chooseAnswer: () => (/* binding */ chooseAnswer),\n/* harmony export */   chooseAward: () => (/* binding */ chooseAward),\n/* harmony export */   createQuiz: () => (/* binding */ createQuiz),\n/* harmony export */   findQuizById: () => (/* binding */ findQuizById),\n/* harmony export */   getAnswersForQuestion: () => (/* binding */ getAnswersForQuestion),\n/* harmony export */   getAvailableAwards: () => (/* binding */ getAvailableAwards),\n/* harmony export */   getAvailableQuizPoints: () => (/* binding */ getAvailableQuizPoints),\n/* harmony export */   getAward: () => (/* binding */ getAward),\n/* harmony export */   getAwardsSelectedByUser: () => (/* binding */ getAwardsSelectedByUser),\n/* harmony export */   getQuestionDetails: () => (/* binding */ getQuestionDetails),\n/* harmony export */   getQuizPoints: () => (/* binding */ getQuizPoints),\n/* harmony export */   getQuizQuestions: () => (/* binding */ getQuizQuestions),\n/* harmony export */   getQuizQuestionsCategory: () => (/* binding */ getQuizQuestionsCategory),\n/* harmony export */   getQuizQuestionsType: () => (/* binding */ getQuizQuestionsType),\n/* harmony export */   getUserAnswersForQuiz: () => (/* binding */ getUserAnswersForQuiz),\n/* harmony export */   getUserAssessments: () => (/* binding */ getUserAssessments)\n/* harmony export */ });\n/* harmony import */ var _backend__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../backend */ \"./src/backend/index.js\");\n/* harmony import */ var _backend_appFetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../backend/appFetch */ \"./src/backend/appFetch.js\");\n/* harmony import */ var _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../quiz/actionTypes */ \"./src/modules/quiz/actionTypes.js\");\n/* harmony import */ var _components_Awards__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/Awards */ \"./src/modules/quiz/components/Awards.js\");\n\n\n\n\nconst createQuizCompleted = quiz => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.CREATE_QUIZ_COMPLETED,\n  quiz\n});\nconst getQuizQuestionsTypeCompleted = quizType => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_QUIZ_QUESTIONS_TYPE_COMPLETED,\n  quizType\n});\nconst getQuizQuestionsCategoryCompleted = quizCategory => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_QUIZ_QUESTIONS_CATEGORY_COMPLETED,\n  quizCategory\n});\nconst chooseAnswerCompleted = answer => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.CHOOSE_ANSWER_COMPLETED,\n  answer\n});\nconst getQuizQuestionsCompleted = questions => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_QUIZ_QUESTIONS_COMPLETED,\n  questions\n});\nconst getQuestionDetailsCompleted = question => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_QUESTION_DETAILS_COMPLETED,\n  question\n});\nconst getUserAnswersCompleted = userAnswers => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_USER_ANSWERS_FOR_QUIZ_COMPLETED,\n  userAnswers\n});\nconst getUserAssessmentsCompleted = userAssessments => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_USER_ASSESSMENTS_COMPLETED,\n  userAssessments\n});\nconst getAnswersForQuestionCompleted = answers => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_ANSWERS_FOR_QUESTION_COMPLETED,\n  answers\n});\nconst findQuizByIdCompleted = quiz => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.FIND_QUIZ_BY_ID_COMPLETED,\n  quiz\n});\nconst getAvailableAwardsCompleted = awards => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_AVAILABLE_AWARDS_COMPLETED,\n  awards\n});\nconst getAwardCompleted = award => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_AWARD_COMPLETED,\n  award\n});\nconst chooseAwardCompleted = awardId => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.CHOOSE_AWARD_COMPLETED,\n  awardId\n});\nconst getAwardsSelectedByUserCompleted = awards => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_AWARDS_SELECTED_BY_USER_COMPLETED,\n  awards\n});\nconst getQuizPointsCompleted = quizPoints => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_QUIZ_POINTS_COMPLETED,\n  quizPoints\n});\nconst getAvailableQuizPointsCompleted = availableQuizPoints => ({\n  type: _quiz_actionTypes__WEBPACK_IMPORTED_MODULE_2__.GET_AVAILABLE_QUIZ_POINTS_COMPLETED,\n  availableQuizPoints\n});\nconst createQuiz = (userId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.createQuiz(userId, quiz => {\n  dispatch(createQuizCompleted(quiz));\n  onSuccess(quiz);\n}, onErrors);\nconst getQuizQuestionsType = (quizId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getQuizQuestionsType(quizId, quizType => {\n  dispatch(getQuizQuestionsTypeCompleted(quizType));\n  onSuccess(quizType);\n}, onErrors);\nconst getQuizQuestionsCategory = (quizId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getQuizQuestionsCategory(quizId, quizCategory => {\n  dispatch(getQuizQuestionsCategoryCompleted(quizCategory));\n  onSuccess(quizCategory);\n}, onErrors);\nconst chooseAnswer = (quizId, answer, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.chooseAnswer(quizId, answer, answer => {\n  dispatch(chooseAnswerCompleted(answer));\n  onSuccess(answer);\n}, onErrors);\nconst getQuizQuestions = (quiz, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getQuizQuestions(quiz, questions => {\n  dispatch(getQuizQuestionsCompleted(questions));\n  onSuccess(questions);\n}, onErrors);\nconst getQuestionDetails = (questionId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getQuestionDetails(questionId, question => {\n  dispatch(getQuestionDetailsCompleted(question));\n  onSuccess(question);\n}, onErrors);\nconst getUserAnswersForQuiz = (userAnswers, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getUserAnswersForQuiz(userAnswers, userAnswers => {\n  dispatch(getUserAnswersCompleted(userAnswers));\n  onSuccess(userAnswers);\n}, onErrors);\nconst getUserAssessments = (userAssessments, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getUserAssessments(userAssessments, userAssessments => {\n  dispatch(getUserAssessmentsCompleted(userAssessments));\n  onSuccess(userAssessments);\n}, onErrors);\nconst getAnswersForQuestion = (questionId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAnswersForQuiz(questionId, answers => {\n  dispatch(getAnswersForQuestionCompleted(answers));\n  onSuccess(answers);\n}, onErrors);\nconst findQuizById = (quizId, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.findQuizById(quizId, quiz => {\n  dispatch(findQuizByIdCompleted(quiz));\n  onSuccess(quiz);\n}, onErrors);\nconst getAvailableAwards = (awards, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAvailableAwards(awards, awards => {\n  dispatch(getAvailableAwardsCompleted(awards));\n  onSuccess(awards);\n}, onErrors);\nconst getAward = (award, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAward(award, award => {\n  dispatch(getAwardCompleted(award));\n  onSuccess(award);\n}, onErrors);\nconst chooseAward = (award, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.chooseAward(award, awardId => {\n  dispatch(chooseAwardCompleted(awardId));\n  onSuccess(awardId);\n}, onErrors);\nconst getAwardsSelectedByUser = (userAwards, onSuccess, onErrors) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAwardsSelectedByUser(userAwards, awards => {\n  dispatch(getAwardsSelectedByUserCompleted(awards));\n  onSuccess(awards);\n}, onErrors);\nconst getQuizPoints = (quizPoints, onSuccess) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getQuizPoints(quizPoints, quizPoints => {\n  dispatch(getQuizPointsCompleted(quizPoints));\n  onSuccess(quizPoints);\n});\nconst getAvailableQuizPoints = (quizId, onSuccess) => dispatch => _backend__WEBPACK_IMPORTED_MODULE_0__[\"default\"].quizService.getAvailableQuizPoints(quizId, availableQuizPoints => {\n  dispatch(getAvailableQuizPointsCompleted(availableQuizPoints));\n  onSuccess(availableQuizPoints);\n});\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/actions.js?");
 
 /***/ }),
 
@@ -16166,6 +16188,17 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 
 /***/ }),
 
+/***/ "./src/modules/quiz/components/Quiz.css":
+/*!**********************************************!*\
+  !*** ./src/modules/quiz/components/Quiz.css ***!
+  \**********************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ \"./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js\");\n/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/styleDomAPI.js */ \"./node_modules/style-loader/dist/runtime/styleDomAPI.js\");\n/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__);\n/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/insertBySelector.js */ \"./node_modules/style-loader/dist/runtime/insertBySelector.js\");\n/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__);\n/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ \"./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js\");\n/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__);\n/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/insertStyleElement.js */ \"./node_modules/style-loader/dist/runtime/insertStyleElement.js\");\n/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);\n/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../../../../node_modules/style-loader/dist/runtime/styleTagTransform.js */ \"./node_modules/style-loader/dist/runtime/styleTagTransform.js\");\n/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);\n/* harmony import */ var _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/postcss-loader/dist/cjs.js!./Quiz.css */ \"./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./src/modules/quiz/components/Quiz.css\");\n\n      \n      \n      \n      \n      \n      \n      \n      \n      \n\nvar options = {};\n\noptions.styleTagTransform = (_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default());\noptions.setAttributes = (_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default());\n\n      options.insert = _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default().bind(null, \"head\");\n    \noptions.domAPI = (_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default());\noptions.insertStyleElement = (_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default());\n\nvar update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"], options);\n\n\nif (true) {\n  if (!_node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"].locals || module.hot.invalidate) {\n    var isEqualLocals = function isEqualLocals(a, b, isNamedExport) {\n  if (!a && b || a && !b) {\n    return false;\n  }\n  var p;\n  for (p in a) {\n    if (isNamedExport && p === \"default\") {\n      // eslint-disable-next-line no-continue\n      continue;\n    }\n    if (a[p] !== b[p]) {\n      return false;\n    }\n  }\n  for (p in b) {\n    if (isNamedExport && p === \"default\") {\n      // eslint-disable-next-line no-continue\n      continue;\n    }\n    if (!a[p]) {\n      return false;\n    }\n  }\n  return true;\n};\n    var isNamedExport = !_node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"].locals;\n    var oldLocals = isNamedExport ? _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__ : _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"].locals;\n\n    module.hot.accept(\n      /*! !!../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/postcss-loader/dist/cjs.js!./Quiz.css */ \"./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./src/modules/quiz/components/Quiz.css\",\n      __WEBPACK_OUTDATED_DEPENDENCIES__ => { /* harmony import */ _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/postcss-loader/dist/cjs.js!./Quiz.css */ \"./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./src/modules/quiz/components/Quiz.css\");\n(function () {\n        if (!isEqualLocals(oldLocals, isNamedExport ? _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__ : _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"].locals, isNamedExport)) {\n                module.hot.invalidate();\n\n                return;\n              }\n\n              oldLocals = isNamedExport ? _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__ : _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"].locals;\n\n              update(_node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"]);\n      })(__WEBPACK_OUTDATED_DEPENDENCIES__); }\n    )\n  }\n\n  module.hot.dispose(function() {\n    update();\n  });\n}\n\n\n\n       /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"] && _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"].locals ? _node_modules_css_loader_dist_cjs_js_node_modules_postcss_loader_dist_cjs_js_Quiz_css__WEBPACK_IMPORTED_MODULE_6__[\"default\"].locals : undefined);\n\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/components/Quiz.css?");
+
+/***/ }),
+
 /***/ "./src/modules/quiz/components/Quiz.js":
 /*!*********************************************!*\
   !*** ./src/modules/quiz/components/Quiz.js ***!
@@ -16173,7 +16206,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react-redux */ \"./node_modules/react-redux/dist/react-redux.mjs\");\n/* harmony import */ var _selectors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../selectors */ \"./src/modules/quiz/selectors.js\");\n/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions */ \"./src/modules/quiz/actions.js\");\n/* harmony import */ var _users_selectors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../users/selectors */ \"./src/modules/users/selectors.js\");\n/* harmony import */ var _QuizList__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./QuizList */ \"./src/modules/quiz/components/QuizList.js\");\n/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-router-dom */ \"./node_modules/react-router/dist/index.js\");\n\n\n\n\n\n\n\nconst Quiz = () => {\n  const dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_5__.useDispatch)();\n  const navigate = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_6__.useNavigate)();\n  const user = (0,react_redux__WEBPACK_IMPORTED_MODULE_5__.useSelector)(_users_selectors__WEBPACK_IMPORTED_MODULE_3__.getUser);\n  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {\n    if (user.id) {\n      dispatch(_actions__WEBPACK_IMPORTED_MODULE_2__.createQuiz(user.id, quiz => navigate(`/quiz/quiz-list/${quiz}`), () => {}));\n    }\n  }, [dispatch, user]);\n};\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Quiz);\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/components/Quiz.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-redux */ \"./node_modules/react-redux/dist/react-redux.mjs\");\n/* harmony import */ var _selectors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../selectors */ \"./src/modules/quiz/selectors.js\");\n/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions */ \"./src/modules/quiz/actions.js\");\n/* harmony import */ var _users_selectors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../users/selectors */ \"./src/modules/users/selectors.js\");\n/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react-router-dom */ \"./node_modules/react-router/dist/index.js\");\n/* harmony import */ var _helpers_sourceImages__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../helpers/sourceImages */ \"./src/helpers/sourceImages.js\");\n/* harmony import */ var _Quiz_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Quiz.css */ \"./src/modules/quiz/components/Quiz.css\");\n\n\n\n\n\n\n\n\nconst Quiz = () => {\n  const dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_6__.useDispatch)();\n  const navigate = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_7__.useNavigate)();\n  const user = (0,react_redux__WEBPACK_IMPORTED_MODULE_6__.useSelector)(_users_selectors__WEBPACK_IMPORTED_MODULE_3__.getUser);\n  const quizType = (0,react_redux__WEBPACK_IMPORTED_MODULE_6__.useSelector)(_selectors__WEBPACK_IMPORTED_MODULE_1__.getQuizQuestionsType);\n  const quizCategory = (0,react_redux__WEBPACK_IMPORTED_MODULE_6__.useSelector)(_selectors__WEBPACK_IMPORTED_MODULE_1__.getQuizQuestionsCategory);\n  const [stage, setStage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('welcome'); // welcome, loading, type, category\n  const [quizId, setQuizId] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);\n  const [backgroundImage, setBackgroundImage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);\n  const startQuiz = () => {\n    if (!user?.id) return;\n    setStage('loading');\n    dispatch(_actions__WEBPACK_IMPORTED_MODULE_2__.createQuiz(user.id, quiz => {\n      setQuizId(quiz);\n      dispatch(_actions__WEBPACK_IMPORTED_MODULE_2__.getQuizQuestionsType(quiz, type => {\n        try {\n          const image = (0,_helpers_sourceImages__WEBPACK_IMPORTED_MODULE_4__.sourceImages)(`./${type.imagePath}`);\n          setBackgroundImage(image);\n        } catch (e) {\n          console.error(\"Error al cargar imagen del tipo de quiz:\", e);\n        }\n        setStage('type');\n\n        // Delay para mostrar tipo antes de mostrar categoría\n        setTimeout(() => {\n          dispatch(_actions__WEBPACK_IMPORTED_MODULE_2__.getQuizQuestionsCategory(quiz, () => {\n            setStage('category');\n\n            // Delay opcional para navegar tras mostrar la categoría\n            setTimeout(() => {\n              navigate(`/quiz/quiz-list/${quiz}`);\n            }, 500);\n          }, () => {}));\n        }, 2500);\n      }, () => {}));\n    }, () => {\n      console.error(\"Error al crear el quiz\");\n    }));\n  };\n  const handleStart = () => {\n    if (quizId) {\n      navigate(`/quiz/quiz-list/${quizId}`);\n    }\n  };\n  const renderContent = () => {\n    switch (stage) {\n      case 'welcome':\n        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"div\", {\n          className: \"quiz-content\"\n        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"h1\", {\n          className: \"quiz-title\"\n        }, \"\\xA1Bienvenido al modo de juego!\"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"button\", {\n          className: \"quiz-button\",\n          onClick: startQuiz\n        }, \"Jugar ahora\"));\n      case 'loading':\n        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"div\", {\n          className: \"quiz-content\"\n        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"div\", {\n          className: \"loader\"\n        }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"p\", {\n          className: \"loading-text\"\n        }, \"Generando tu cuestionario...\"));\n      case 'type':\n        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"div\", {\n          className: \"quiz-content fade-in\"\n        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"h1\", {\n          className: \"quiz-title\"\n        }, \"Modo seleccionado:\"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"h2\", {\n          className: \"quiz-subtitle\"\n        }, quizType?.code));\n      case 'category':\n        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"div\", {\n          className: \"quiz-content fade-in\"\n        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"h1\", {\n          className: \"quiz-title\"\n        }, \"Categor\\xEDa:\"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"h2\", {\n          className: \"quiz-subtitle\"\n        }, quizCategory?.code), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"button\", {\n          className: \"quiz-button\",\n          onClick: handleStart\n        }, \"Comenzar\"));\n      default:\n        return null;\n    }\n  };\n  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"div\", {\n    className: \"quiz-screen\",\n    style: {\n      backgroundImage: `url(${backgroundImage})`\n    }\n  }, renderContent());\n};\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Quiz);\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/components/Quiz.js?");
 
 /***/ }),
 
@@ -16184,7 +16217,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var _mui_material__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @mui/material */ \"./node_modules/@mui/material/Grid/Grid.js\");\n/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-redux */ \"./node_modules/react-redux/dist/react-redux.mjs\");\n/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react-router-dom */ \"./node_modules/react-router/dist/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _selectors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../selectors */ \"./src/modules/quiz/selectors.js\");\n/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions */ \"./src/modules/quiz/actions.js\");\n/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../common */ \"./src/modules/common/index.js\");\n/* harmony import */ var _QuizQuestions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./QuizQuestions */ \"./src/modules/quiz/components/QuizQuestions.js\");\n\n\n\n\n\n\n\n\nconst QuizList = () => {\n  const {\n    id\n  } = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_5__.useParams)();\n  const dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_6__.useDispatch)();\n  const [currentPage, setCurrentPage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0);\n  const questions = (0,react_redux__WEBPACK_IMPORTED_MODULE_6__.useSelector)(_selectors__WEBPACK_IMPORTED_MODULE_1__.getQuizQuestions);\n  const quiz = (0,react_redux__WEBPACK_IMPORTED_MODULE_6__.useSelector)(_selectors__WEBPACK_IMPORTED_MODULE_1__.findQuiz);\n  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {\n    dispatch(_actions__WEBPACK_IMPORTED_MODULE_2__.getQuizQuestions({\n      quizId: quiz,\n      page: currentPage\n    }, () => {}, () => {}));\n  }, [dispatch, quiz, currentPage]);\n  const handlePageChange = newPage => {\n    setCurrentPage(newPage);\n  };\n  return /*#__PURE__*/React.createElement(_mui_material__WEBPACK_IMPORTED_MODULE_7__[\"default\"], {\n    container: true,\n    spacing: 2,\n    justifyContent: \"center\",\n    alignItems: \"center\"\n  }, /*#__PURE__*/React.createElement(_mui_material__WEBPACK_IMPORTED_MODULE_7__[\"default\"], {\n    item: true,\n    xs: 12\n  }, /*#__PURE__*/React.createElement(_QuizQuestions__WEBPACK_IMPORTED_MODULE_4__[\"default\"], {\n    questions: questions\n  }), /*#__PURE__*/React.createElement(_mui_material__WEBPACK_IMPORTED_MODULE_7__[\"default\"], {\n    container: true,\n    direction: \"column\",\n    alignItems: \"center\",\n    justifyContent: \"center\",\n    sx: {\n      mt: 2\n    }\n  })));\n};\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (QuizList);\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/components/QuizList.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react-redux */ \"./node_modules/react-redux/dist/react-redux.mjs\");\n/* harmony import */ var _mui_material__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @mui/material */ \"./node_modules/@mui/material/Grid/Grid.js\");\n/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-router-dom */ \"./node_modules/react-router/dist/index.js\");\n/* harmony import */ var _selectors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../selectors */ \"./src/modules/quiz/selectors.js\");\n/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions */ \"./src/modules/quiz/actions.js\");\n/* harmony import */ var _QuizQuestions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./QuizQuestions */ \"./src/modules/quiz/components/QuizQuestions.js\");\n/* harmony import */ var _users_selectors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../users/selectors */ \"./src/modules/users/selectors.js\");\n/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../common */ \"./src/modules/common/index.js\");\n\n\n\n\n\n\n\n\n\nconst QuizList = () => {\n  const {\n    quizId\n  } = (0,react_router_dom__WEBPACK_IMPORTED_MODULE_6__.useParams)();\n  const dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_7__.useDispatch)();\n  const user = (0,react_redux__WEBPACK_IMPORTED_MODULE_7__.useSelector)(_users_selectors__WEBPACK_IMPORTED_MODULE_4__.getUser);\n  const questions = (0,react_redux__WEBPACK_IMPORTED_MODULE_7__.useSelector)(_selectors__WEBPACK_IMPORTED_MODULE_1__.getQuizQuestions);\n  const [currentPage, setCurrentPage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0);\n  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {\n    if (quizId && user?.id && sessionStorage.getItem(\"serviceToken\")) {\n      dispatch(_actions__WEBPACK_IMPORTED_MODULE_2__.getQuizQuestions({\n        quizId,\n        page: currentPage\n      }, () => {}, error => {\n        console.error(\"Error cargando preguntas:\", error);\n      }));\n    }\n  }, [dispatch, quizId, user, currentPage]);\n  const handlePageChange = newPage => {\n    setCurrentPage(newPage);\n  };\n  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_mui_material__WEBPACK_IMPORTED_MODULE_8__[\"default\"], {\n    container: true,\n    spacing: 2,\n    justifyContent: \"center\",\n    alignItems: \"center\"\n  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_mui_material__WEBPACK_IMPORTED_MODULE_8__[\"default\"], {\n    item: true,\n    xs: 12\n  }, questions.length > 0 ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_QuizQuestions__WEBPACK_IMPORTED_MODULE_3__[\"default\"], {\n    questions: questions\n  }) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"p\", {\n    style: {\n      textAlign: 'center',\n      marginTop: '2rem'\n    }\n  }, \"Cargando preguntas...\"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_mui_material__WEBPACK_IMPORTED_MODULE_8__[\"default\"], {\n    container: true,\n    direction: \"column\",\n    alignItems: \"center\",\n    justifyContent: \"center\",\n    sx: {\n      mt: 2\n    }\n  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_common__WEBPACK_IMPORTED_MODULE_5__.Pager, {\n    back: {\n      enabled: currentPage > 0,\n      onClick: () => handlePageChange(currentPage - 1)\n    },\n    next: {\n      enabled: questions.length === 10,\n      // suposición: paginación por 10\n      onClick: () => handlePageChange(currentPage + 1)\n    }\n  }))));\n};\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (QuizList);\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/components/QuizList.js?");
 
 /***/ }),
 
@@ -16239,7 +16272,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux */ \"./node_modules/redux/dist/redux.mjs\");\n/* harmony import */ var _actionTypes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./actionTypes */ \"./src/modules/quiz/actionTypes.js\");\n\n\nconst initialState = {\n  quiz: null,\n  answer: null,\n  questions: null,\n  question: null,\n  userAnswers: null,\n  userAssessments: null,\n  answers: null,\n  awards: null,\n  award: null,\n  awardId: null,\n  quizPoints: null,\n  availableQuizPoints: null,\n  userAward: null\n};\nconst quiz = (state = initialState.quiz, action) => {\n  switch (action.type) {\n    case _actionTypes__WEBPACK_IMPORTED_MODULE_0__.CREATE_QUIZ_COMPLETED:\n      return action.quiz;\n    case _actionTypes__WEBPACK_IMPORTED_MODULE_0__.FIND_QUIZ_BY_ID_COMPLETED:\n      return action.quiz;\n    default:\n      return state;\n  }\n};\nconst answer = (state = initialState.answer, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.CHOOSE_ANSWER_COMPLETED) {\n    return action.answer;\n  } else {\n    return state;\n  }\n};\nconst questions = (state = initialState.questions, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_QUIZ_QUESTIONS_COMPLETED) {\n    return action.questions;\n  } else {\n    return state;\n  }\n};\nconst question = (state = initialState.question, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_QUESTION_DETAILS_COMPLETED) {\n    return action.question;\n  } else {\n    return state;\n  }\n};\nconst userAnswers = (state = initialState.userAnswers, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_USER_ANSWERS_FOR_QUIZ_COMPLETED) {\n    return action.userAnswers;\n  } else {\n    return state;\n  }\n};\nconst userAssessments = (state = initialState.userAssessments, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_USER_ASSESSMENTS_COMPLETED) {\n    return action.userAssessments;\n  } else {\n    return state;\n  }\n};\nconst answers = (state = initialState.answers, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_ANSWERS_FOR_QUESTION_COMPLETED) {\n    return action.answers;\n  } else {\n    return state;\n  }\n};\nconst awards = (state = initialState.awards, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_AVAILABLE_AWARDS_COMPLETED) {\n    return action.awards;\n  } else {\n    if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_AWARDS_SELECTED_BY_USER_COMPLETED) {\n      return action.awards;\n    } else {\n      return state;\n    }\n  }\n};\nconst award = (state = initialState.award, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_AWARD_COMPLETED) {\n    return action.award;\n  } else {\n    return state;\n  }\n};\nconst awardId = (state = initialState.awardId, action) => {\n  switch (action.type) {\n    case _actionTypes__WEBPACK_IMPORTED_MODULE_0__.CHOOSE_AWARD_COMPLETED:\n      return action.awardId;\n    default:\n      return state;\n  }\n};\nconst quizPoints = (state = initialState.quizPoints, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_QUIZ_POINTS_COMPLETED) {\n    return action.quizPoints;\n  } else {\n    return state;\n  }\n};\nconst availableQuizPoints = (state = initialState.availableQuizPoints, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_AVAILABLE_QUIZ_POINTS_COMPLETED) {\n    return action.availableQuizPoints;\n  } else {\n    return state;\n  }\n};\nconst reducer = (0,redux__WEBPACK_IMPORTED_MODULE_1__.combineReducers)({\n  quiz,\n  answer,\n  questions,\n  question,\n  userAnswers,\n  userAssessments,\n  answers,\n  awards,\n  award,\n  awardId,\n  quizPoints,\n  availableQuizPoints\n});\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (reducer);\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/reducer.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux */ \"./node_modules/redux/dist/redux.mjs\");\n/* harmony import */ var _actionTypes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./actionTypes */ \"./src/modules/quiz/actionTypes.js\");\n\n\nconst initialState = {\n  quiz: null,\n  answer: null,\n  questions: null,\n  question: null,\n  userAnswers: null,\n  userAssessments: null,\n  answers: null,\n  awards: null,\n  award: null,\n  awardId: null,\n  quizPoints: null,\n  availableQuizPoints: null,\n  userAward: null,\n  quizType: null,\n  quizCategory: null\n};\nconst quiz = (state = initialState.quiz, action) => {\n  switch (action.type) {\n    case _actionTypes__WEBPACK_IMPORTED_MODULE_0__.CREATE_QUIZ_COMPLETED:\n      return action.quiz;\n    case _actionTypes__WEBPACK_IMPORTED_MODULE_0__.FIND_QUIZ_BY_ID_COMPLETED:\n      return action.quiz;\n    default:\n      return state;\n  }\n};\nconst answer = (state = initialState.answer, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.CHOOSE_ANSWER_COMPLETED) {\n    return action.answer;\n  } else {\n    return state;\n  }\n};\nconst questions = (state = initialState.questions, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_QUIZ_QUESTIONS_COMPLETED) {\n    return action.questions;\n  } else {\n    return state;\n  }\n};\nconst question = (state = initialState.question, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_QUESTION_DETAILS_COMPLETED) {\n    return action.question;\n  } else {\n    return state;\n  }\n};\nconst userAnswers = (state = initialState.userAnswers, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_USER_ANSWERS_FOR_QUIZ_COMPLETED) {\n    return action.userAnswers;\n  } else {\n    return state;\n  }\n};\nconst userAssessments = (state = initialState.userAssessments, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_USER_ASSESSMENTS_COMPLETED) {\n    return action.userAssessments;\n  } else {\n    return state;\n  }\n};\nconst answers = (state = initialState.answers, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_ANSWERS_FOR_QUESTION_COMPLETED) {\n    return action.answers;\n  } else {\n    return state;\n  }\n};\nconst awards = (state = initialState.awards, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_AVAILABLE_AWARDS_COMPLETED) {\n    return action.awards;\n  } else {\n    if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_AWARDS_SELECTED_BY_USER_COMPLETED) {\n      return action.awards;\n    } else {\n      return state;\n    }\n  }\n};\nconst award = (state = initialState.award, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_AWARD_COMPLETED) {\n    return action.award;\n  } else {\n    return state;\n  }\n};\nconst awardId = (state = initialState.awardId, action) => {\n  switch (action.type) {\n    case _actionTypes__WEBPACK_IMPORTED_MODULE_0__.CHOOSE_AWARD_COMPLETED:\n      return action.awardId;\n    default:\n      return state;\n  }\n};\nconst quizPoints = (state = initialState.quizPoints, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_QUIZ_POINTS_COMPLETED) {\n    return action.quizPoints;\n  } else {\n    return state;\n  }\n};\nconst availableQuizPoints = (state = initialState.availableQuizPoints, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_AVAILABLE_QUIZ_POINTS_COMPLETED) {\n    return action.availableQuizPoints;\n  } else {\n    return state;\n  }\n};\nconst quizType = (state = initialState.quizType, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_QUIZ_QUESTIONS_TYPE_COMPLETED) {\n    return action.quizType;\n  } else {\n    return state;\n  }\n};\nconst quizCategory = (state = initialState.quizCategory, action) => {\n  if (action.type === _actionTypes__WEBPACK_IMPORTED_MODULE_0__.GET_QUIZ_QUESTIONS_CATEGORY_COMPLETED) {\n    return action.quizCategory;\n  } else {\n    return state;\n  }\n};\nconst reducer = (0,redux__WEBPACK_IMPORTED_MODULE_1__.combineReducers)({\n  quiz,\n  answer,\n  questions,\n  question,\n  userAnswers,\n  userAssessments,\n  answers,\n  awards,\n  award,\n  awardId,\n  quizPoints,\n  availableQuizPoints,\n  quizType,\n  quizCategory\n});\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (reducer);\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/reducer.js?");
 
 /***/ }),
 
@@ -16250,7 +16283,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   findQuiz: () => (/* binding */ findQuiz),\n/* harmony export */   getAnswer: () => (/* binding */ getAnswer),\n/* harmony export */   getAnswers: () => (/* binding */ getAnswers),\n/* harmony export */   getAvailableAwards: () => (/* binding */ getAvailableAwards),\n/* harmony export */   getAvailableQuizPoints: () => (/* binding */ getAvailableQuizPoints),\n/* harmony export */   getAward: () => (/* binding */ getAward),\n/* harmony export */   getQuestionDetails: () => (/* binding */ getQuestionDetails),\n/* harmony export */   getQuizPoints: () => (/* binding */ getQuizPoints),\n/* harmony export */   getQuizQuestions: () => (/* binding */ getQuizQuestions),\n/* harmony export */   getUserAnswersForQuiz: () => (/* binding */ getUserAnswersForQuiz),\n/* harmony export */   getUserAssessments: () => (/* binding */ getUserAssessments)\n/* harmony export */ });\nconst getModuleState = state => state.quiz;\nconst getQuizQuestions = state => getModuleState(state).questions;\nconst getUserAnswersForQuiz = state => getModuleState(state).userAnswers;\nconst getUserAssessments = state => getModuleState(state).userAssessments;\nconst getQuestionDetails = state => getModuleState(state).question;\nconst findQuiz = state => getModuleState(state).quiz;\nconst getAnswers = state => getModuleState(state).answers;\nconst getAnswer = state => getModuleState(state).answer;\nconst getAvailableAwards = state => getModuleState(state).awards;\nconst getAward = state => getModuleState(state).award;\nconst getQuizPoints = state => getModuleState(state).quizPoints;\nconst getAvailableQuizPoints = state => getModuleState(state).availableQuizPoints;\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/selectors.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   findQuiz: () => (/* binding */ findQuiz),\n/* harmony export */   getAnswer: () => (/* binding */ getAnswer),\n/* harmony export */   getAnswers: () => (/* binding */ getAnswers),\n/* harmony export */   getAvailableAwards: () => (/* binding */ getAvailableAwards),\n/* harmony export */   getAvailableQuizPoints: () => (/* binding */ getAvailableQuizPoints),\n/* harmony export */   getAward: () => (/* binding */ getAward),\n/* harmony export */   getQuestionDetails: () => (/* binding */ getQuestionDetails),\n/* harmony export */   getQuizPoints: () => (/* binding */ getQuizPoints),\n/* harmony export */   getQuizQuestions: () => (/* binding */ getQuizQuestions),\n/* harmony export */   getQuizQuestionsCategory: () => (/* binding */ getQuizQuestionsCategory),\n/* harmony export */   getQuizQuestionsType: () => (/* binding */ getQuizQuestionsType),\n/* harmony export */   getUserAnswersForQuiz: () => (/* binding */ getUserAnswersForQuiz),\n/* harmony export */   getUserAssessments: () => (/* binding */ getUserAssessments)\n/* harmony export */ });\nconst getModuleState = state => state.quiz;\nconst getQuizQuestions = state => getModuleState(state).questions;\nconst getUserAnswersForQuiz = state => getModuleState(state).userAnswers;\nconst getUserAssessments = state => getModuleState(state).userAssessments;\nconst getQuestionDetails = state => getModuleState(state).question;\nconst findQuiz = state => getModuleState(state).quiz;\nconst getAnswers = state => getModuleState(state).answers;\nconst getAnswer = state => getModuleState(state).answer;\nconst getAvailableAwards = state => getModuleState(state).awards;\nconst getAward = state => getModuleState(state).award;\nconst getQuizPoints = state => getModuleState(state).quizPoints;\nconst getAvailableQuizPoints = state => getModuleState(state).availableQuizPoints;\nconst getQuizQuestionsType = state => getModuleState(state).quizType;\nconst getQuizQuestionsCategory = state => getModuleState(state).quizCategory;\n\n//# sourceURL=webpack://frontend/./src/modules/quiz/selectors.js?");
 
 /***/ }),
 
@@ -16746,7 +16779,7 @@ eval("module.exports = \"data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/20
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("84747c0d328089ca0d5a")
+/******/ 		__webpack_require__.h = () => ("6547c45bf6fc3883bbfa")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

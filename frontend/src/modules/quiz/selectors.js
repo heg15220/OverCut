@@ -11,3 +11,5 @@ export const getAvailableAwards = (state) => getModuleState(state).awards;
 export const getAward = (state) => getModuleState(state).award;
 export const getQuizPoints = (state) => getModuleState(state).quizPoints;
 export const getAvailableQuizPoints = (state) => getModuleState(state).availableQuizPoints;
+export const getQuizQuestionsType = (state) => getModuleState(state).quizType;
+export const getQuizQuestionsCategory = (state) => getModuleState(state).quizCategory;
