@@ -1,8 +1,12 @@
 package es.udc.fic.tfg.model.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.udc.fic.tfg.model.entities.QuizCategory;
 import es.udc.fic.tfg.model.entities.QuizCategoryCode;
+import es.udc.fic.tfg.model.entities.QuizCategoryDao;
+import es.udc.fic.tfg.model.entities.QuizType;
 import es.udc.fic.tfg.rest.dtos.QuestionAI;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -15,6 +19,7 @@ import java.util.*;
 @Service
 public class QuestionLLMServiceImpl implements QuestionLLMService {
     private static final Map<String, QuizCategoryCode> CATEGORY_MAP = new HashMap<>();
+
 
     static {
         CATEGORY_MAP.put("Scores", QuizCategoryCode.Scores);
@@ -141,8 +146,9 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
                     int levelVal = (Integer) raw.get("knowledgeLevel");
                     String cat = (String) raw.get("category");
 
-                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode));
+                    QuizCategoryCode code = getEnumForCategory(cat);
+
+                    questions.add(new QuestionAI(q, answers, correct, levelVal, code));
                 }
             } else {
                 throw new RuntimeException("Error ejecutando el script regulation_questions.py: código " + exitCode);

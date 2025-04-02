@@ -111,7 +111,7 @@ public class QuizServiceImpl implements QuizService {
         List<Question> result = new ArrayList<>();
         SecureRandom random = new SecureRandom();
 
-        while (result.size() < 10 && (!dbQuestions.isEmpty() || !aiConverted.isEmpty())) {
+            while (result.size() < 10 && (!dbQuestions.isEmpty() || !aiConverted.isEmpty())) {
             if (!dbQuestions.isEmpty() && (aiConverted.isEmpty() || random.nextBoolean())) {
                 result.add(dbQuestions.remove(random.nextInt(dbQuestions.size())));
             } else if (!aiConverted.isEmpty()) {

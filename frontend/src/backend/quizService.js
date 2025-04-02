@@ -24,7 +24,7 @@ export const getQuizQuestionsType = (quizId, onSuccess, onErrors) => {
 export const getQuizQuestionsCategory = (quizId, onSuccess, onErrors) => {
 
     appFetch(
-        `/quiz/${quizId}/quizType`,
+        `/quiz/${quizId}/quizCategory`,
         fetchConfig("GET"),
         onSuccess,
         onErrors
