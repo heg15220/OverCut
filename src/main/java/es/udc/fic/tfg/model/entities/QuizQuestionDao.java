@@ -16,4 +16,8 @@ public interface QuizQuestionDao extends JpaRepository<QuizQuestions, Long> {
     Slice<Question> findQuestionsByQuizId(@Param("quizId") Long quizId, Pageable pageable);
     @Query("SELECT qq.question FROM QuizQuestions qq WHERE qq.quiz.id = :quizId")
     List<Question> findAllQuestionsByQuizId(@Param("quizId") Long quizId);
+    @Query(value = "SELECT qq.question FROM QuizQuestions qq WHERE qq.quiz.id = :quizId ORDER BY qq.id ASC")
+    List<Question> findFirstQuestionByQuizIdLimited(@Param("quizId") Long quizId, Pageable pageable);
+
+
 }

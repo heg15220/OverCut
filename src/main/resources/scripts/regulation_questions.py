@@ -33,7 +33,7 @@ def pregunta_bandera_roja():
         "question": "En caso de suspensión de la carrera por bandera roja, ¿qué sucede con los coches?",
         "answers": [
             "Deben dirigirse al pit lane y detenerse en el orden de carrera",
-            "Regresan a boxes y pueden cambiar neumáticos sin restricción",
+            "Regresan a boxes pero no pueden cambiar neumáticos sin restricción",
             "Continúan circulando detrás del coche de seguridad",
             "Se detienen en la línea de salida en el orden original de la parrilla"
         ],

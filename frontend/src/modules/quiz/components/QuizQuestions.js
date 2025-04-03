@@ -12,6 +12,8 @@ const QuizQuestions = ({ questions, quizType }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const currentQuestion = questions?.items ? questions.items[currentQuestionIndex] : null;
     const navigate = useNavigate();
+    const [score, setScore] = useState(0);
+    const [totalScore, setTotalScore] = useState(0);
 
     const handleNextQuestion = () => {
         setCurrentQuestionIndex((prev) => prev + 1);
@@ -40,7 +42,12 @@ const QuizQuestions = ({ questions, quizType }) => {
                                 question={currentQuestion}
                                 onAnswerSubmit={handleNextQuestion}
                                 quizType={quizType}
+                                setScore={setScore}
+                                setTotalScore={setTotalScore}
+                                score={score}
+                                totalScore={totalScore}
                             />
+
                         </motion.div>
                     ) : (
                         <motion.div
@@ -50,7 +57,7 @@ const QuizQuestions = ({ questions, quizType }) => {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.5 }}
                         >
-                            <ResultsPage />
+                            <ResultsPage score={score} totalScore={totalScore} />
                         </motion.div>
                     )}
                 </AnimatePresence>

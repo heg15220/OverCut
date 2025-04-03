@@ -3,22 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './quizStyles.css';
 import { motion } from 'framer-motion';
 
-const ResultsPage = () => {
+const ResultsPage = ({score, totalScore}) => {
     const navigate = useNavigate();
-    const [score, setScore] = useState(0);
-    const [rawPoints, setRawPoints] = useState(0);
-
-    useEffect(() => {
-        let finalScore = Math.floor(Math.random() * 11); // Simulamos el resultado total (0-10)
-        setRawPoints(finalScore * 3); // Cada respuesta correcta vale 3 puntos
-        let current = 0;
-        const interval = setInterval(() => {
-            current++;
-            setScore(current);
-            if (current >= finalScore) clearInterval(interval);
-        }, 100);
-        return () => clearInterval(interval);
-    }, []);
 
     return (
         <div className="quiz-container" style={{ backgroundImage: `url(${require('../../../assets/images/finish-flag.jpg')})` }}>
@@ -41,7 +27,7 @@ const ResultsPage = () => {
                     transition={{ delay: 1, duration: 0.6 }}
                     style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}
                 >
-                    🏁 Puntos: {score}/10
+                    🏁 Puntos: {score}/{totalScore}
                 </motion.div>
 
                 <motion.div
@@ -51,7 +37,7 @@ const ResultsPage = () => {
                     transition={{ delay: 1.6, duration: 0.6 }}
                     style={{ fontSize: '1.5rem', marginBottom: '2rem' }}
                 >
-                    Total conseguido: {rawPoints} puntos
+                    Total conseguido: {score} puntos
                 </motion.div>
 
                 <motion.button

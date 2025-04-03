@@ -5,6 +5,7 @@ import es.udc.fic.tfg.model.common.exceptions.InstanceNotFoundException;
 import es.udc.fic.tfg.model.entities.*;
 import es.udc.fic.tfg.model.services.exceptions.QuizException;
 import es.udc.fic.tfg.rest.dtos.QuestionAI;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -288,7 +289,6 @@ public class QuizServiceImpl implements QuizService {
     }
     @Override
     public QuizCategory getQuizQuestionsCategory(Long quizId) {
-        // Obtener las preguntas del quiz
         List<Question> questions = quizQuestionDao.findAllQuestionsByQuizId(quizId);
         QuizCategory quizCategory = questions.get(0).getQuizCategory();
 

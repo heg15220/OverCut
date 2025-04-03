@@ -27,6 +27,7 @@ public class QuizController {
     private UserDao userDao;
 
 
+
     @PostMapping("/create")
     public Long createQuiz(@RequestAttribute Long userId) throws InstanceNotFoundException{
         return (quizService.createQuiz(userId)).getId();
@@ -44,8 +45,8 @@ public class QuizController {
 
     @GetMapping("/{quizId}/quizCategory")
     public QuizCategoryDto getQuizQuestionsCategory(@PathVariable Long quizId) {
-        QuizCategory category = quizService.getQuizQuestionsCategory(quizId);
-        QuizCategoryDto categoryDto = QuizCategoryConversor.convertToQuizCategoryDto(category);
+        QuizCategory quizCategory = quizService.getQuizQuestionsCategory(quizId);
+        QuizCategoryDto categoryDto = QuizCategoryConversor.convertToQuizCategoryDto(quizCategory);
         return categoryDto;
     }
     @PostMapping("/{id}/answer")

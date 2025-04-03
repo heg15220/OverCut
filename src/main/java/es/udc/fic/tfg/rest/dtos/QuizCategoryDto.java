@@ -10,9 +10,10 @@ public class QuizCategoryDto {
     private QuizCategoryCode code;
 
 
-    private QuizType quizType;
+    private QuizTypeDto quizType;
 
-    public QuizCategoryDto(Long id, QuizCategoryCode code, QuizType quizType) {
+
+    public QuizCategoryDto(Long id, QuizCategoryCode code, QuizTypeDto quizType) {
         this.id = id;
         this.code = code;
         this.quizType = quizType;
@@ -34,11 +35,11 @@ public class QuizCategoryDto {
         this.code = code;
     }
 
-    public QuizType getQuizType() {
+    public QuizTypeDto getQuizType() {
         return quizType;
     }
 
-    public void setQuizType(QuizType quizType) {
+    public void setQuizType(QuizTypeDto quizType) {
         this.quizType = quizType;
     }
 

@@ -2387,7 +2387,13 @@ def pregunta_circuito_mas_abandonos_piloto():
         if not row:
             return None
         piloto_objetivo = row[0]
-
+        while cursor.nextset():
+            pass
+        cursor.execute("SELECT name FROM drivers d WHERE d.driverId = piloto_objetivo")
+        row = cursor.fetchone()
+        if not row:
+            return None
+        piloto_objetivo_name = row[0]
         # De nuevo: asegurarse de que no quedan resultados pendientes
         while cursor.nextset():
             pass
@@ -2418,7 +2424,7 @@ def pregunta_circuito_mas_abandonos_piloto():
         opciones = incorrectas + [circuito]
         random.shuffle(opciones)
 
-        pregunta = f"¿En qué circuito abandonó más veces el piloto {piloto_objetivo}?"
+        pregunta = f"¿En qué circuito abandonó más veces el piloto {piloto_objetivo_name}?"
         return {
             "question": pregunta,
             "answers": opciones,
