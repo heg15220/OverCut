@@ -3976,7 +3976,7 @@ def pregunta_temporadas_sin_puntos_piloto():
         if LANG == "es":
             pregunta = f"¿Cuántas veces finalizó una temporada sin sumar ningún punto {nombre_piloto}?"
         elif LANG == "en":
-                pregunta = f"How many seasons did {nombre_piloto} finish without points?"
+            pregunta = f"How many seasons did {nombre_piloto} finish without points?"
         opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 20)])
         opciones.append(str(total))
         random.shuffle(opciones)
