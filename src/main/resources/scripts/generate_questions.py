@@ -17,6 +17,7 @@ config = {
     'database': 'f1db'
 }
 
+
 def crear_cursor_local():
     conn = mysql.connector.connect(**config)
     return conn, conn.cursor()
@@ -130,7 +131,10 @@ def generar_pregunta_piloto_primera_victoria_reciente():
         """)
         year, gp, nombre, apellido = cursor.fetchone()
         correcta = f"{nombre} {apellido}"
-        pregunta = f"¿Qué piloto logró su primera victoria en el GP de {gp} en {year}?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto logró su primera victoria en el GP de {gp} en {year}?"
+        elif LANG == "en":
+            pregunta = f"Which driver achieved their first victory at the {gp} Grand Prix in {year}?"
         contemporaneos = obtener_pilotos_entre_anios(year - 2, year + 2, correcta)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
         random.shuffle(opciones)
@@ -139,7 +143,8 @@ def generar_pregunta_piloto_primera_victoria_reciente():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats"
+                "category": "GenericStats",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -173,7 +178,10 @@ def generar_pregunta_piloto_mas_podios_totales():
             correcta = seleccion[0]
             c_nombre, c_podios = correcta
             if all(c_podios > otro[1] for otro in seleccion[1:]):
-                pregunta = "¿Qué piloto tiene más podios en su carrera?"
+                if LANG == "es":
+                    pregunta = "¿Qué piloto tiene más podios en su carrera?"
+                elif LANG == "en":
+                    pregunta = "Which driver has the most podiums in their career?"
                 opciones = [row[0] for row in seleccion]
                 random.shuffle(opciones)
                 return {
@@ -181,7 +189,8 @@ def generar_pregunta_piloto_mas_podios_totales():
                         "answers": opciones,               # <- "answers" en lugar de "options"
                         "correctAnswer": c_nombre,           # <- "correctAnswer" en lugar de "answer"
                         "knowledgeLevel": 2,            # nivel conocimiento arbitrario (ejemplo: 2)
-                        "category": "GenericStats"
+                        "category": "GenericStats",
+                        "language": LANG
                     }
             intentos += 1
 
@@ -221,7 +230,10 @@ def generar_pregunta_campeon_pilotos():
         """, (race_id,))
         nombre, apellido = cursor.fetchone()
         correcta = f"{nombre} {apellido}"
-        pregunta = f"¿Qué piloto ganó el campeonato de F1 en {anio}?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto ganó el campeonato de F1 en {anio}?"
+        elif LANG == "en":
+            pregunta = f"Which driver won the {anio} F1 championship?"
         contemporaneos = obtener_pilotos_entre_anios(anio - 2, anio + 2, correcta)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
         random.shuffle(opciones)
@@ -230,7 +242,8 @@ def generar_pregunta_campeon_pilotos():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats"
+                "category": "GenericStats",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -266,8 +279,10 @@ def generar_pregunta_campeon_constructores():
             WHERE cs.raceId = %s AND cs.position = 1
         """, (race_id,))
         (constructora,) = cursor.fetchone()
-
-        pregunta = f"¿Qué constructor ganó el campeonato de F1 en {anio}?"
+        if LANG == "es":
+            pregunta = f"¿Qué constructor ganó el campeonato de F1 en {anio}?"
+        elif LANG == "en":
+            pregunta = f"Which team won the {anio} F1 constructors championship?"
         cursor.execute("SELECT name FROM constructors WHERE name != %s ORDER BY RAND() LIMIT 3", (constructora,))
         opciones = [row[0] for row in cursor.fetchall()] + [constructora]
         random.shuffle(opciones)
@@ -276,7 +291,8 @@ def generar_pregunta_campeon_constructores():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": constructora,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats"
+                "category": "GenericStats",
+                "language": LANG
             }
 
     finally:
@@ -302,7 +318,10 @@ def generar_pregunta_ganador_gp():
             LIMIT 1
         """)
         year, gp, nombre, apellido = cursor.fetchone()
-        pregunta = f"¿Quién ganó el {gp} en {year}?"
+        if LANG == "es":
+            pregunta = f"¿Quién ganó el {gp} en {year}?"
+        elif LANG == "en":
+            pregunta = f"Who won the {year} {gp}?"
         correcta = f"{nombre} {apellido}"
         contemporaneos = obtener_pilotos_entre_anios(year - 2, year + 2, correcta)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
@@ -312,7 +331,8 @@ def generar_pregunta_ganador_gp():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats"
+                "category": "GenericStats",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -337,7 +357,10 @@ def generar_pregunta_segundo_gp():
             LIMIT 1
         """)
         year, gp, nombre, apellido = cursor.fetchone()
-        pregunta = f"¿Quién quedó segundo en el {gp} en {year}?"
+        if LANG == "es":
+            pregunta = f"¿Quién quedó segundo en el {gp} en {year}?"
+        elif LANG == "en":
+            pregunta = f"Who finished second at the {year} {gp}?"
         correcta = f"{nombre} {apellido}"
         contemporaneos = obtener_pilotos_entre_anios(year, year, correcta)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
@@ -347,7 +370,8 @@ def generar_pregunta_segundo_gp():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats"
+                "category": "GenericStats",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -372,7 +396,10 @@ def generar_pregunta_tercero_gp():
             LIMIT 1
         """)
         year, gp, nombre, apellido = cursor.fetchone()
-        pregunta = f"¿Quién quedó tercero en el {gp} en {year}?"
+        if LANG == "es":
+            pregunta = f"¿Quién quedó tercero en el {gp} en {year}?"
+        elif LANG == "en":
+            pregunta = f"Who finished third at the {year} {gp}?"
         correcta = f"{nombre} {apellido}"
         contemporaneos = obtener_pilotos_entre_anios(year, year, correcta)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
@@ -382,7 +409,8 @@ def generar_pregunta_tercero_gp():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats"
+                "category": "GenericStats",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -407,7 +435,10 @@ def generar_pregunta_escuderia_ganadora():
             LIMIT 1
         """)
         year, gp, team = cursor.fetchone()
-        pregunta = f"¿Qué escudería ganó el {gp} en {year}?"
+        if LANG == "es":
+            pregunta = f"¿Qué escudería ganó el {gp} en {year}?"
+        elif LANG == "en":
+            pregunta = f"Which team won the {year} {gp}?"
         cursor.execute("SELECT name FROM constructors WHERE name != %s ORDER BY RAND() LIMIT 3", (team,))
         opciones = [row[0] for row in cursor.fetchall()] + [team]
         random.shuffle(opciones)
@@ -416,7 +447,8 @@ def generar_pregunta_escuderia_ganadora():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": team,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats"
+                "category": "GenericStats",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -442,7 +474,10 @@ def generar_pregunta_constructor_mas_titulos():
             LIMIT 1
         """)
         constructor, _, anio_inicio, anio_fin = cursor.fetchone()
-        pregunta = "¿Qué constructor ha ganado más títulos de constructores en F1?"
+        if LANG == "es":
+            pregunta = "¿Qué constructor ha ganado más títulos de constructores en F1?"
+        elif LANG == "en":
+            pregunta = "Which team has won more F1 constructors championships?"
         contemporaneos = obtener_constructores_entre_anios(anio_inicio, anio_fin, constructor)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [constructor]
         random.shuffle(opciones)
@@ -451,7 +486,8 @@ def generar_pregunta_constructor_mas_titulos():
             "answers": opciones,
             "correctAnswer": constructor,
             "knowledgeLevel": 3,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -518,15 +554,17 @@ def generar_pregunta_piloto_mas_poles_en_circuito():
                 opciones = [row[0] for row in seleccion if row[0] != correcta_nombre]
                 opciones = random.sample(opciones, min(3, len(opciones))) + [correcta_nombre]
                 random.shuffle(opciones)
-
-                pregunta = f"¿Qué piloto ha conseguido más poles en el circuito {circuito}?"
-
+                if LANG == "es":
+                    pregunta = f"¿Qué piloto ha conseguido más poles en el circuito {circuito}?"
+                elif LANG == "en":
+                    pregunta = f"Which has more pole positions in {circuito}?"
                 return {
                     "question": pregunta,
                     "answers": opciones,
                     "correctAnswer": correcta_nombre,
                     "knowledgeLevel": 3,
-                    "category": "GenericStats"
+                    "category": "GenericStats",
+                    "language": LANG
                 }
 
         raise Exception("No se pudo generar una pregunta válida de poles sin empates tras múltiples intentos.")
@@ -570,11 +608,14 @@ def generar_pregunta_constructor_mas_victorias_en_circuito():
             LIMIT 1
         """, (circuito,))
         constructora, _, anio_inicio, anio_fin = cursor.fetchone()
-        pregunta = f"¿Qué constructor ha ganado más veces en el circuito de {circuito}?"
+        if LANG == "es":
+            pregunta = f"¿Qué constructor ha ganado más veces en el circuito de {circuito}?"
+        elif LANG == "en":
+            pregunta = f"Which team has won more times in {circuito}?"
         contemporaneos = obtener_constructores_entre_anios(anio_inicio, anio_fin, constructora)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [constructora]
         random.shuffle(opciones)
-        return {"question": pregunta, "answers": opciones, "correctAnswer": constructora, "knowledgeLevel": 2, "category": "GenericStats"}
+        return {"question": pregunta, "answers": opciones, "correctAnswer": constructora, "knowledgeLevel": 2, "category": "GenericStats", "language": LANG}
     finally:
             cursor.close()
             conn.close()
@@ -612,11 +653,14 @@ def generar_pregunta_constructor_mas_victorias_en_pais():
             LIMIT 1
         """, (pais,))
         constructora, _, anio_inicio, anio_fin = cursor.fetchone()
-        pregunta = f"¿Qué constructor ha ganado más veces en {pais}?"
+        if LANG == "es":
+            pregunta = f"¿Qué constructor ha ganado más veces en {pais}?"
+        elif LANG == "en":
+            pregunta = f"Which team has won more times at {pais}?"
         contemporaneos = obtener_constructores_entre_anios(anio_inicio, anio_fin, constructora)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [constructora]
         random.shuffle(opciones)
-        return {"question": pregunta, "answers": opciones, "correctAnswer": constructora, "knowledgeLevel": 3, "category": "GenericStats"}
+        return {"question": pregunta, "answers": opciones, "correctAnswer": constructora, "knowledgeLevel": 3, "category": "GenericStats", "language": LANG}
     finally:
             cursor.close()
             conn.close()
@@ -648,11 +692,14 @@ def generar_pregunta_circuito_mas_carreras():
             correcta = seleccion[0]
             if all(correcta[1] > otro[1] for otro in seleccion[1:]):
                 nombre_circuito = correcta[0]
-                pregunta = "¿Qué circuito ha sido usado más veces en la historia de la F1?"
+                if LANG == "es":
+                    pregunta = "¿Qué circuito ha sido usado más veces en la historia de la F1?"
+                elif LANG == "en":
+                    pregunta = "Which track has been used more times in F1 history?"
                 opciones = [row[0] for row in seleccion]
                 random.shuffle(opciones)
                 return {"question": pregunta, "answers": opciones, "correctAnswer": nombre_circuito,
-                 "knowledgeLevel": 2, "category": "GenericStats"}
+                 "knowledgeLevel": 2, "category": "GenericStats", "language": LANG}
             intentos += 1
 
         raise Exception("No se pudo generar una pregunta válida de circuitos sin empates.")
@@ -695,11 +742,14 @@ def generar_pregunta_piloto_mas_victorias_en_circuito():
         """, (circuito,))
         nombre, apellido, _, anio_inicio, anio_fin = cursor.fetchone()
         correcta = f"{nombre} {apellido}"
-        pregunta = f"¿Qué piloto ha ganado más veces en el circuito {circuito}?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto ha ganado más veces en el circuito {circuito}?"
+        elif LANG == "en":
+            pregunta = f"Which driver has won more times in {circuito}?"
         contemporaneos = obtener_pilotos_entre_anios(anio_inicio, anio_fin, correcta)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
         random.shuffle(opciones)
-        return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 3, "category": "GenericStats"}
+        return {"question": pregunta, "answers": opciones, "correctAnswer": correcta, "knowledgeLevel": 3, "category": "GenericStats", "language": LANG}
     finally:
             cursor.close()
             conn.close()
@@ -716,7 +766,10 @@ def pregunta_rival_de_senna_en_mclaren():
             pass
 
         piloto = "Alain Prost"
-        pregunta = "¿Quién fue el gran rival de Ayrton Senna durante su etapa en McLaren?"
+        if LANG == "es":
+            pregunta = "¿Quién fue el gran rival de Ayrton Senna durante su etapa en McLaren?"
+        elif LANG == "en":
+            pregunta = "Who was Ayrton Senna`s biggest rival in the McLaren days?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -725,7 +778,8 @@ def pregunta_rival_de_senna_en_mclaren():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels"
+                "category": "Duels",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -752,7 +806,10 @@ def pregunta_piloto_perdio_titulo_en_ultima_curva_2008():
         if not row:
             return None
         piloto = f"{row[0]} {row[1]}"
-        pregunta = "¿Qué piloto perdió el campeonato del mundo en la última curva del último GP de 2008?"
+        if LANG == "es":
+            pregunta = "¿Qué piloto perdió el campeonato del mundo en la última curva del último GP de 2008?"
+        elif LANG == "en":
+            pregunta = "Which driver lost the 2008 F1 championship at the last corner of the last gp?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -761,7 +818,8 @@ def pregunta_piloto_perdio_titulo_en_ultima_curva_2008():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels"
+                "category": "Duels",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -788,7 +846,10 @@ def pregunta_rival_schumacher_2000():
         if not row:
             return None
         piloto = f"{row[0]} {row[1]}"
-        pregunta = "¿Quién fue el principal rival de Michael Schumacher durante su primer título con Ferrari en 2000?"
+        if LANG == "es":
+            pregunta = "¿Quién fue el principal rival de Michael Schumacher durante su primer título con Ferrari en 2000?"
+        elif LANG == "en":
+            pregunta = "Who was Michael Schumacher`s biggest rival during his first title with Ferrari in 2000?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -797,7 +858,8 @@ def pregunta_rival_schumacher_2000():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels"
+                "category": "Duels",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -820,7 +882,10 @@ def pregunta_ano_choque_hamilton_rosberg_espana():
         """)
         years = [row[0] for row in cursor.fetchall()]
         year = 2016 if 2016 in years else max(years)
-        pregunta = "¿En qué temporada ocurrió el choque entre Hamilton y Rosberg en el GP de España?"
+        if LANG == "es":
+            pregunta = "¿En qué temporada ocurrió el choque entre Hamilton y Rosberg en el GP de España?"
+        elif LANG == "en":
+            pregunta = "In which season happened Hamilton and Rosberg crash at the Spanish GP?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(2010, 2021)])
         opciones.append(str(year))
         random.shuffle(opciones)
@@ -829,7 +894,8 @@ def pregunta_ano_choque_hamilton_rosberg_espana():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels"
+                "category": "Duels",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -854,7 +920,10 @@ def pregunta_duelo_vettel_canada_2019():
         if not row:
             return None
         piloto = f"{row[0]} {row[1]}"
-        pregunta = "¿Quién ganó el polémico duelo con Sebastian Vettel en Canadá 2019 debido a una penalización?"
+        if LANG == "es":
+            pregunta = "¿Quién ganó el polémico duelo con Sebastian Vettel en Canadá 2019 debido a una penalización?"
+        elif LANG == "en":
+            pregunta = "Who won the controversial duel with Sebastian Vettel at the 2019 Canadian GP?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -863,7 +932,8 @@ def pregunta_duelo_vettel_canada_2019():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels"
+                "category": "Duels",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -895,7 +965,10 @@ def pregunta_piloto_campeon_temporada():
             return None
         nombre, apellido = row
         piloto = f"{nombre} {apellido}"
-        pregunta = f"¿Qué piloto ganó el campeonato de pilotos en la temporada {temporada_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto ganó el campeonato de pilotos en la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which driver won the {temporada_objetivo} championship?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -904,7 +977,8 @@ def pregunta_piloto_campeon_temporada():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "LegendarySeason"
+                "category": "LegendarySeason",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -932,7 +1006,10 @@ def pregunta_constructor_campeon_temporada():
         if not row:
             return None
         constructor = row[0]
-        pregunta = f"¿Qué escudería ganó el campeonato de constructores en la temporada {temporada_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué escudería ganó el campeonato de constructores en la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which team won the constructors championship in {temporada_objetivo}?"
         incorrectas = get_respuestas_incorrectas(constructor, get_constructores_cache())
         opciones = incorrectas + [constructor]
         random.shuffle(opciones)
@@ -941,7 +1018,8 @@ def pregunta_constructor_campeon_temporada():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "LegendarySeason"
+                "category": "LegendarySeason",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -987,16 +1065,21 @@ def pregunta_gp_mas_abandonos_temporada():
         # Segunda consulta: obtener posibles opciones incorrectas
         cursor.execute("SELECT DISTINCT name FROM races WHERE year = %s AND name != %s", (temporada_objetivo, gp))
         rows = cursor.fetchall()
+        if LANG == "es":
+            pregunta = f"¿Cuál fue la carrera con más abandonos en la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which race had the most retirements in {temporada_objetivo}?"
         incorrectas = get_respuestas_incorrectas(gp, [r[0] for r in rows])
         opciones = incorrectas + [gp]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Cuál fue la carrera con más abandonos en la temporada {temporada_objetivo}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": gp,
             "knowledgeLevel": 2,
-            "category": "LegendarySeason"
+            "category": "LegendarySeason",
+            "language": LANG
         }
 
     finally:
@@ -1037,7 +1120,10 @@ def pregunta_victorias_campeon_temporada():
         """, (temporada_objetivo, driver_id))
         victorias = cursor.fetchone()[0]
         piloto_nombre = f"{nombre} {apellido}"
-        pregunta = f"¿Cuántas victorias logró {piloto_nombre} durante la temporada {temporada_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Cuántas victorias logró {piloto_nombre} durante la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"How many wins did {piloto_nombre} get during the {temporada_objetivo} season?"
         opciones = get_respuestas_incorrectas(str(victorias), [str(i) for i in range(0, 15)])
         opciones.append(str(victorias))
         random.shuffle(opciones)
@@ -1046,7 +1132,8 @@ def pregunta_victorias_campeon_temporada():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(victorias),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "LegendarySeason"
+                "category": "LegendarySeason",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1073,7 +1160,10 @@ def pregunta_ultimo_gp_temporada():
         if not row:
             return None
         circuito = row[0]
-        pregunta = f"¿En qué circuito se disputó la última carrera de la temporada {temporada_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿En qué circuito se disputó la última carrera de la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"In which circuit was held the last GP of the {temporada_objetivo} season?"
         cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,))
         incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.fetchall()])
         opciones = incorrectas + [circuito]
@@ -1083,7 +1173,8 @@ def pregunta_ultimo_gp_temporada():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "LegendarySeason"
+                "category": "LegendarySeason",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1114,7 +1205,10 @@ def pregunta_piloto_mas_poles_temporada():
             return None
         nombre, apellido, _ = row
         piloto = f"{nombre} {apellido}"
-        pregunta = f"¿Qué piloto consiguió más pole positions en la temporada {temporada_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto consiguió más pole positions en la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which driver got more pole positions in the {temporada_objetivo} season?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -1123,7 +1217,8 @@ def pregunta_piloto_mas_poles_temporada():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "LegendarySeason"
+                "category": "LegendarySeason",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1152,7 +1247,10 @@ def pregunta_circuito_mas_vueltas_temporada():
         if not row:
             return None
         circuito = row[0]
-        pregunta = f"¿Qué circuito tuvo el mayor número de vueltas disputadas durante la temporada {temporada_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué circuito tuvo el mayor número de vueltas disputadas durante la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which circuit had the biggest amount of laps held during the {temporada_objetivo} season?"
         cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,))
         incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.fetchall()])
         opciones = incorrectas + [circuito]
@@ -1162,7 +1260,8 @@ def pregunta_circuito_mas_vueltas_temporada():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": circuito,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "LegendarySeason"
+                "category": "LegendarySeason",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1197,7 +1296,10 @@ def pregunta_escuderia_mas_abandonos_temporada():
         if not row:
             return None
         constructor = row[0]
-        pregunta = f"¿Qué escudería tuvo más abandonos en la temporada {temporada_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué escudería tuvo más abandonos en la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which team had more retirements in the {temporada_objetivo} season?"
         incorrectas = get_respuestas_incorrectas(constructor, get_constructores_cache())
         opciones = incorrectas + [constructor]
         random.shuffle(opciones)
@@ -1206,7 +1308,8 @@ def pregunta_escuderia_mas_abandonos_temporada():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "LegendarySeason"
+                "category": "LegendarySeason",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1231,7 +1334,10 @@ def pregunta_cuantos_pilotos_ganaron_temporada():
         if not row:
             return None
         total = row[0]
-        pregunta = f"¿Cuántos pilotos distintos ganaron al menos una carrera durante la temporada {temporada_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Cuántos pilotos distintos ganaron al menos una carrera durante la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"How many different drivers won at least 1 GP during the {temporada_objetivo} season?"
         opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 15)])
         opciones.append(str(total))
         random.shuffle(opciones)
@@ -1240,7 +1346,8 @@ def pregunta_cuantos_pilotos_ganaron_temporada():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(total),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "LegendarySeason"
+                "category": "LegendarySeason",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1279,7 +1386,10 @@ def pregunta_piloto_mas_puntos_sin_ganar_temporada():
             return None
         nombre, apellido, _ = row
         piloto = f"{nombre} {apellido}"
-        pregunta = f"¿Qué piloto sumó más puntos sin ganar ninguna carrera en la temporada {temporada_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto sumó más puntos sin ganar ninguna carrera en la temporada {temporada_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which driver got more points without winning any race un the {temporada_objetivo} season?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -1288,7 +1398,8 @@ def pregunta_piloto_mas_puntos_sin_ganar_temporada():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "LegendarySeason"
+                "category": "LegendarySeason",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1329,17 +1440,21 @@ def pregunta_piloto_mas_victorias_escuderia():
         if not row:
             return None
         piloto = f"{row[0]} {row[1]}"
-
+        if LANG == "es":
+            pregunta = f"¿Qué piloto logró más victorias para la escudería {escuderia}?"
+        elif LANG == "en":
+            pregunta = f"Which driver got more wins for {escuderia}?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Qué piloto logró más victorias para la escudería {escuderia}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 2,
-            "category": "Team"
+            "category": "Team",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -1378,17 +1493,21 @@ def pregunta_temporada_mas_puntos_escuderia():
         if not row:
             return None
         year = row[0]
-
+        if LANG == "es":
+            pregunta = f"¿En qué temporada consiguió más puntos la escudería {escuderia}?"
+        elif LANG == "en":
+            pregunta = f"In which season did {escuderia} get more points?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
 
         return {
-            "question": f"¿En qué temporada consiguió más puntos la escudería {escuderia}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(year),
             "knowledgeLevel": 2,
-            "category": "Team"
+            "category": "Team",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -1422,17 +1541,21 @@ def pregunta_poles_totales_escuderia():
         if not row:
             return None
         total_poles = row[0]
-
+        if LANG == "es":
+            pregunta = f"¿Cuántas pole positions logró la escudería {escuderia} en su historia?"
+        elif LANG == "en":
+            pregunta = f"How many pole positions achieved {escuderia} during its history?"
         opciones = get_respuestas_incorrectas(str(total_poles), [str(i) for i in range(0, 250)])
         opciones.append(str(total_poles))
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Cuántas pole positions logró la escudería {escuderia} en su historia?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(total_poles),
             "knowledgeLevel": 2,
-            "category": "Team"
+            "category": "Team",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -1475,17 +1598,22 @@ def pregunta_circuito_mas_victorias_escuderia():
         otros = [r[0] for r in cursor.fetchall()]
         if len(otros) < 3:
             return None
-
+        if LANG == "es":
+            pregunta = f"¿En qué circuito logró más victorias la escudería {escuderia}?"
+        elif LANG == "en":
+            pregunta = f"In which circuit did {escuderia} get more victories at?"
         incorrectas = get_respuestas_incorrectas(circuito, otros)
         opciones = incorrectas + [circuito]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿En qué circuito logró más victorias la escudería {escuderia}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": circuito,
             "knowledgeLevel": 2,
-            "category": "Team"
+            "category": "Team",
+            "language": LANG
+
         }
     finally:
         cursor.close()
@@ -1520,17 +1648,21 @@ def pregunta_campeonatos_constructores_escuderia():
         if not row:
             return None
         total = row[0]
-
+        if LANG == "es":
+            pregunta = f"¿Cuántas veces ganó el campeonato de constructores la escudería {escuderia}?"
+        elif LANG == "en":
+            pregunta = f"How many times did {escuderia} win the constructors championship?"
         opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 20)])
         opciones.append(str(total))
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Cuántas veces ganó el campeonato de constructores la escudería {escuderia}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(total),
             "knowledgeLevel": 1,
-            "category": "Team"
+            "category": "Team",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -1574,17 +1706,21 @@ def pregunta_piloto_mas_abandonos_escuderia():
         if not row:
             return None
         piloto = f"{row[0]} {row[1]}"
-
+        if LANG == "es":
+            pregunta = f"¿Qué piloto abandonó más veces con la escudería {escuderia}?"
+        elif LANG == "en":
+            pregunta = f"Which driver retired the most with {escuderia}?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Qué piloto abandonó más veces con la escudería {escuderia}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 2,
-            "category": "Team"
+            "category": "Team",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -1623,17 +1759,21 @@ def pregunta_peor_temporada_puntos_escuderia():
         if not row:
             return None
         year = row[0]
-
+        if LANG == "es":
+            pregunta = f"¿Cuál fue la peor temporada en puntos para la escudería {escuderia}?"
+        elif LANG == "en":
+            pregunta = f"Which was {escuderia} worst season in points?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Cuál fue la peor temporada en puntos para la escudería {escuderia}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(year),
             "knowledgeLevel": 2,
-            "category": "Team"
+            "category": "Team",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -1689,7 +1829,10 @@ def pregunta_constructor_mas_abandonos_circuito():
             return None
         constructor = row[0]
 
-        pregunta = f"¿Qué escudería tuvo más abandonos en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué escudería tuvo más abandonos en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which team retired the most at {circuito_objetivo}?"
         incorrectas = get_respuestas_incorrectas(constructor, get_constructores_cache())
         opciones = incorrectas + [constructor]
         random.shuffle(opciones)
@@ -1699,7 +1842,8 @@ def pregunta_constructor_mas_abandonos_circuito():
             "answers": opciones,
             "correctAnswer": constructor,
             "knowledgeLevel": 2,
-            "category": "Circuit"
+            "category": "Circuit",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -1744,7 +1888,10 @@ def pregunta_piloto_mas_poles_sin_ganar_circuito():
             return None
         nombre, apellido, _ = row
         piloto = f"{nombre} {apellido}"
-        pregunta = f"¿Qué piloto logró más poles sin ganar nunca en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto logró más poles sin ganar nunca en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which driver got more poles without winning any race at {circuito_objetivo}?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -1753,7 +1900,8 @@ def pregunta_piloto_mas_poles_sin_ganar_circuito():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1789,7 +1937,10 @@ def pregunta_anio_mas_cambios_lider():
         if not row:
             return None
         year = row[0]
-        pregunta = f"¿En qué año hubo más cambios de líder en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿En qué año hubo más cambios de líder en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which year had more lead changes in the {circuito_objetivo} circuit?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
@@ -1798,7 +1949,8 @@ def pregunta_anio_mas_cambios_lider():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1847,16 +1999,21 @@ def pregunta_anio_mas_abandonos_circuito():
             return None
 
         year = row[0]
+        if LANG == "es":
+            pregunta = f"¿Qué año tuvo más abandonos en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"In which year did the {circuito_objetivo} circuit have more retirements?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Qué año tuvo más abandonos en el circuito de {circuito_objetivo}, indicando una carrera especialmente caótica?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(year),
             "knowledgeLevel": 2,
-            "category": "Circuit"
+            "category": "Circuit",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -1901,7 +2058,10 @@ def pregunta_piloto_pole_y_vuelta_rapida_misma_edicion():
             return None
         nombre, apellido = row
         piloto = f"{nombre} {apellido}"
-        pregunta = f"¿Qué piloto logró la pole y la vuelta rápida en una misma edición en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto logró la pole y la vuelta rápida en una misma edición en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which driver got pole and fastest lap at the same GP  in the {circuito_objetivo} circuit?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -1910,7 +2070,8 @@ def pregunta_piloto_pole_y_vuelta_rapida_misma_edicion():
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 2,
-            "category": "Circuit"
+            "category": "Circuit",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -1947,7 +2108,10 @@ def pregunta_anio_velocidad_promedio_mas_alta():
         if not row:
             return None
         year = row[0]
-        pregunta = f"¿En qué año se alcanzó la mayor velocidad promedio en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿En qué año se alcanzó la mayor velocidad promedio en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"In what year was the highest average speed reached on the {circuito_objetivo} circuit?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
@@ -1956,7 +2120,8 @@ def pregunta_anio_velocidad_promedio_mas_alta():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -1985,7 +2150,10 @@ def pregunta_pais_circuito():
         if not row:
             return None
         pais = row[0]
-        pregunta = f"¿En qué país se encuentra el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿En qué país se encuentra el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"In what country is {circuito_objetivo} circuit placed?"
         incorrectas = get_respuestas_incorrectas(pais, get_paises_cache())
         opciones = incorrectas + [pais]
         random.shuffle(opciones)
@@ -1994,7 +2162,8 @@ def pregunta_pais_circuito():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": pais,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -2034,7 +2203,10 @@ def pregunta_anio_cancelado_del_calendario():
         if not gaps:
             return None
         cancelado = gaps[0]
-        pregunta = f"¿En qué año no se celebró el Gran Premio en {circuito_objetivo} aunque formaba parte del calendario en años cercanos?"
+        if LANG == "es":
+            pregunta = f"¿En qué año no se celebró el Gran Premio en {circuito_objetivo} aunque formaba parte del calendario en años cercanos?"
+        elif LANG == "en":
+            pregunta = f"In what year was not held the GP at {circuito_objetivo} even though formed part of calendar in recent years?"
         opciones = get_respuestas_incorrectas(str(cancelado), [str(y) for y in range(1950, 2024)])
         opciones.append(str(cancelado))
         random.shuffle(opciones)
@@ -2043,7 +2215,8 @@ def pregunta_anio_cancelado_del_calendario():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(cancelado),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -2081,7 +2254,10 @@ def pregunta_piloto_fue_campeon_en_ese_circuito():
             return None
         nombre, apellido, _ = row
         piloto = f"{nombre} {apellido}"
-        pregunta = f"¿Qué piloto se proclamó campeón del mundo en el circuito de {circuito_objetivo} más de una vez?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto se proclamó campeón del mundo en el circuito de {circuito_objetivo} más de una vez?"
+        elif LANG == "en":
+            pregunta = f"Which driver became F1 world champion at the {circuito_objetivo} circuit more tha once?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -2090,7 +2266,8 @@ def pregunta_piloto_fue_campeon_en_ese_circuito():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -2129,7 +2306,10 @@ def pregunta_gp_con_mas_campeones_en_circuito():
         if not row:
             return None
         year = row[0]
-        pregunta = f"¿En qué edición del GP de {circuito_objetivo} compitieron más campeones del mundo al mismo tiempo?"
+        if LANG == "es":
+            pregunta = f"¿En qué edición del GP de {circuito_objetivo} compitieron más campeones del mundo al mismo tiempo?"
+        elif LANG == "en":
+            pregunta = f"In what edition of the GP at {circuito_objetivo} competed more world champions at the same time?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
@@ -2138,7 +2318,8 @@ def pregunta_gp_con_mas_campeones_en_circuito():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -2175,7 +2356,10 @@ def pregunta_piloto_mas_victorias_circuito():
         if not row:
             return None
         piloto = f"{row[0]} {row[1]}"
-        pregunta = f"¿Qué piloto ha ganado más veces en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué piloto ha ganado más veces en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which driver has won more times at the {circuito_objetivo} circuit?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -2184,7 +2368,8 @@ def pregunta_piloto_mas_victorias_circuito():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -2221,7 +2406,10 @@ def pregunta_constructor_mas_poles_circuito():
         if not row:
             return None
         constructor = row[0]
-        pregunta = f"¿Qué constructor logró más poles en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Qué constructor logró más poles en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"Which team got more poles at {circuito_objetivo} circuit?"
         incorrectas = get_respuestas_incorrectas(constructor, get_constructores_cache())
         opciones = incorrectas + [constructor]
         random.shuffle(opciones)
@@ -2230,7 +2418,8 @@ def pregunta_constructor_mas_poles_circuito():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": constructor,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -2271,7 +2460,10 @@ def pregunta_ano_mas_abandonos_circuito():
         if not row:
             return None
         year = row[0]
-        pregunta = f"¿En qué año hubo más abandonos en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿En qué año hubo más abandonos en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"In what year were more retirements in {circuito_objetivo}?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
@@ -2280,7 +2472,8 @@ def pregunta_ano_mas_abandonos_circuito():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -2312,7 +2505,10 @@ def pregunta_numero_gp_en_circuito():
         if not row:
             return None
         cantidad = row[0]
-        pregunta = f"¿Cuántas veces se celebró un Gran Premio en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿Cuántas veces se celebró un Gran Premio en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"How many times was a Gran Prix held at {circuito_objetivo}?"
         opciones = get_respuestas_incorrectas(str(cantidad), [str(i) for i in range(0, 100)])
         opciones.append(str(cantidad))
         random.shuffle(opciones)
@@ -2321,7 +2517,8 @@ def pregunta_numero_gp_en_circuito():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(cantidad),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -2357,16 +2554,21 @@ def pregunta_anio_vuelta_rapida_circuito():
         if not row:
             return None
         year = row[0]
-        pregunta = f"¿En qué año se logró la vuelta rápida más rápida en el circuito de {circuito_objetivo}?"
+        if LANG == "es":
+            pregunta = f"¿En qué año se logró la vuelta rápida más rápida en el circuito de {circuito_objetivo}?"
+        elif LANG == "en":
+            pregunta = f"In which year the {circuito_objetivo} circuit`s fastest lap was achieved?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1980, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
+
         return {
                 "question": pregunta,
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Circuit"
+                "category": "Circuit",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -2419,18 +2621,22 @@ def pregunta_circuito_mas_abandonos_piloto():
         circuito = row[0]
 
         cursor.execute("SELECT name FROM circuits WHERE name != %s ORDER BY RAND() LIMIT 3", (circuito,))
+        if LANG == "es":
+            pregunta = f"¿En qué circuito abandonó más veces el piloto {piloto_objetivo_name}?"
+        elif LANG == "en":
+            pregunta = f"In what track {piloto_objetivo_name} retired the most?"
         incorrectas = [r[0] for r in cursor.fetchall()]
 
         opciones = incorrectas + [circuito]
         random.shuffle(opciones)
 
-        pregunta = f"¿En qué circuito abandonó más veces el piloto {piloto_objetivo_name}?"
         return {
             "question": pregunta,
             "answers": opciones,
             "correctAnswer": circuito,
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2477,7 +2683,10 @@ def pregunta_puntos_consecutivos_piloto():
             rachas.append(actual)
 
         total_rachas = len(rachas)
-        pregunta = f"¿Cuántas veces logró puntos consecutivos en al menos 5 carreras el piloto {nombre_piloto}?"
+        if LANG == "es":
+            pregunta = f"¿Cuántas veces logró puntos consecutivos en al menos 5 carreras el piloto {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"How many times {nombre_piloto} achieved at least 5 consecutive races in the points?"
         incorrectas = get_respuestas_incorrectas(str(total_rachas), [str(i) for i in range(0, 10)])
         opciones = incorrectas + [str(total_rachas)]
         random.shuffle(opciones)
@@ -2487,7 +2696,8 @@ def pregunta_puntos_consecutivos_piloto():
             "answers": opciones,
             "correctAnswer": str(total_rachas),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2520,8 +2730,10 @@ def pregunta_promedio_posicion_clasificacion():
         if not row or row[0] is None:
             return None
         promedio = round(float(row[0]), 1)
-
-        pregunta = f"¿Cuál fue el promedio de posición de clasificación de {nombre_piloto} en toda su carrera?"
+        if LANG == "es":
+            pregunta = f"¿Cuál fue el promedio de posición de clasificación de {nombre_piloto} en toda su carrera?"
+        elif LANG == "en":
+            pregunta = f"What is {nombre_piloto} qualifying average position in his whole career?"
         incorrectas = get_respuestas_incorrectas(str(promedio), [str(round(i + 0.5, 1)) for i in range(1, 11)])
         opciones = incorrectas + [str(promedio)]
         random.shuffle(opciones)
@@ -2531,7 +2743,8 @@ def pregunta_promedio_posicion_clasificacion():
             "answers": opciones,
             "correctAnswer": str(promedio),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2567,8 +2780,10 @@ def pregunta_temporada_mas_paradas_boxes():
         if not row or row[0] is None:
             return None
         year = row[0]
-
-        pregunta = f"¿En qué temporada {nombre_piloto} tuvo más paradas en boxes?"
+        if LANG == "es":
+            pregunta = f"¿En qué temporada {nombre_piloto} tuvo más paradas en boxes?"
+        elif LANG == "en":
+            pregunta = f"Which season did {nombre_piloto} have more pit stops?"
         incorrectas = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024) if y != year])
         opciones = incorrectas + [str(year)]
         random.shuffle(opciones)
@@ -2578,7 +2793,8 @@ def pregunta_temporada_mas_paradas_boxes():
             "answers": opciones,
             "correctAnswer": str(year),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2617,7 +2833,10 @@ def pregunta_porcentaje_carreras_finalizadas():
             return None
         porcentaje = row[0]
 
-        pregunta = f"¿Cuál fue el porcentaje de carreras finalizadas por {nombre_piloto} respecto a las disputadas?"
+        if LANG == "es":
+            pregunta = f"¿Cuál fue el porcentaje de carreras finalizadas por {nombre_piloto} respecto a las disputadas?"
+        elif LANG == "en":
+            pregunta = f"What is {nombre_piloto} completed races average regarding the races contested?"
         incorrectas = get_respuestas_incorrectas(str(porcentaje), [str(round(i, 2)) for i in range(40, 101, 10)])
         opciones = incorrectas + [str(porcentaje)]
         random.shuffle(opciones)
@@ -2627,7 +2846,8 @@ def pregunta_porcentaje_carreras_finalizadas():
             "answers": opciones,
             "correctAnswer": str(porcentaje),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2673,14 +2893,17 @@ def pregunta_circuito_no_victoria_piloto():
         incorrectas = [r[0] for r in cursor.fetchall()]
         opciones = incorrectas + [circuito]
         random.shuffle(opciones)
-
-        pregunta = f"¿En qué circuito {nombre_piloto} no ha logrado nunca una victoria?"
+        if LANG == "es":
+            pregunta = f"¿En qué circuito {nombre_piloto} no ha logrado nunca una victoria?"
+        elif LANG == "en":
+            pregunta = f"In which track did not {nombre_piloto} achieve any race win?"
         return {
             "question": pregunta,
             "answers": opciones,
             "correctAnswer": circuito,
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2713,8 +2936,10 @@ def pregunta_pilotos_distintos_compitio():
         if not row:
             return None
         total = row[0]
-
-        pregunta = f"¿Con cuántos pilotos distintos ha competido {nombre_piloto} en su historia?"
+        if LANG == "es":
+            pregunta = f"¿Con cuántos pilotos distintos ha competido {nombre_piloto} en su historia?"
+        elif LANG == "en":
+            pregunta = f"With how many drivers has {nombre_piloto} competed during his career?"
         opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(50, 150)])
         opciones.append(str(total))
         random.shuffle(opciones)
@@ -2724,7 +2949,8 @@ def pregunta_pilotos_distintos_compitio():
             "answers": opciones,
             "correctAnswer": str(total),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2777,7 +3003,10 @@ def pregunta_racha_sin_ganar():
             else:
                 racha = 0
 
-        pregunta = f"¿Cuál fue la racha más larga de temporadas sin ganar {nombre_piloto}?"
+        if LANG == "es":
+            pregunta = f"¿Cuál fue la racha más larga de temporadas sin ganar {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"Which was {nombre_piloto} biggest no seasons winning streak?"
         opciones = get_respuestas_incorrectas(str(max_racha), [str(i) for i in range(1, 10)])
         opciones.append(str(max_racha))
         random.shuffle(opciones)
@@ -2787,7 +3016,8 @@ def pregunta_racha_sin_ganar():
             "answers": opciones,
             "correctAnswer": str(max_racha),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2820,8 +3050,10 @@ def pregunta_peor_posicion_clasificacion_piloto():
         if not row or row[0] is None:
             return None
         posicion = int(row[0])
-
-        pregunta = f"¿Cuál fue la peor posición de clasificación desde la que logró puntuar {nombre_piloto}?"
+        if LANG == "es":
+            pregunta = f"¿Cuál fue la peor posición de clasificación desde la que logró puntuar {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"Which was {nombre_piloto} worst qualifying positions from which he managed to score points?"
         opciones = get_respuestas_incorrectas(str(posicion), [str(i) for i in range(1, 25)])
         opciones.append(str(posicion))
         random.shuffle(opciones)
@@ -2831,7 +3063,8 @@ def pregunta_peor_posicion_clasificacion_piloto():
             "answers": opciones,
             "correctAnswer": str(posicion),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2863,8 +3096,10 @@ def pregunta_remontadas_puesto_15_piloto():
         if not row:
             return None
         remontadas = row[0]
-
-        pregunta = f"¿Cuántas veces remontó del puesto 15 o peor al podio {nombre_piloto}?"
+        if LANG == "es":
+            pregunta = f"¿Cuántas veces remontó del puesto 15 o peor al podio {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"How many times did {nombre_piloto} comeback from 15th place or lower to the podium?"
         opciones = get_respuestas_incorrectas(str(remontadas), [str(i) for i in range(0, 20)])
         opciones.append(str(remontadas))
         random.shuffle(opciones)
@@ -2874,7 +3109,8 @@ def pregunta_remontadas_puesto_15_piloto():
             "answers": opciones,
             "correctAnswer": str(remontadas),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2907,8 +3143,10 @@ def pregunta_carreras_lideradas_piloto():
         if not row:
             return None
         lideradas = row[0]
-
-        pregunta = f"¿En cuántas carreras lideró al menos una vuelta {nombre_piloto}?"
+        if LANG == "es":
+            pregunta = f"¿En cuántas carreras lideró al menos una vuelta {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"How many races did {nombre_piloto} lead at least one lap?"
         opciones = get_respuestas_incorrectas(str(lideradas), [str(i) for i in range(0, 20)])
         opciones.append(str(lideradas))
         random.shuffle(opciones)
@@ -2918,7 +3156,8 @@ def pregunta_carreras_lideradas_piloto():
             "answers": opciones,
             "correctAnswer": str(lideradas),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2955,8 +3194,10 @@ def pregunta_supero_mas_clasificacion():
         if not row:
             return None
         piloto_superado = f"{row[0]} {row[1]}"
-
-        pregunta = f"¿A qué piloto superó más veces en clasificación directa {nombre_piloto}?"
+        if LANG == "es":
+            pregunta = f"¿A qué piloto superó más veces en clasificación directa {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f" To which driver did {nombre_piloto} qualified ahead more times?"
         incorrectas = get_respuestas_incorrectas(piloto_superado, get_pilotos_cache())
         opciones = incorrectas + [piloto_superado]
         random.shuffle(opciones)
@@ -2966,7 +3207,8 @@ def pregunta_supero_mas_clasificacion():
             "answers": opciones,
             "correctAnswer": piloto_superado,
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -2998,8 +3240,10 @@ def pregunta_mejor_vuelta_rapida():
         if not row or row[0] is None:
             return None
         mejor_vuelta = int(row[0])
-
-        pregunta = f"¿Cuál fue la mejor vuelta rápida (en milisegundos) de {nombre_piloto}?"
+        if LANG == "es":
+            pregunta = f"¿Cuál fue la mejor vuelta rápida (en milisegundos) de {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"Which has been {nombre_piloto} best fastest lap (in milliseconds)?"
         opciones = get_respuestas_incorrectas(str(mejor_vuelta), [str(i * 1000) for i in range(55, 75)])  # 55s-75s
         opciones.append(str(mejor_vuelta))
         random.shuffle(opciones)
@@ -3009,7 +3253,8 @@ def pregunta_mejor_vuelta_rapida():
             "answers": opciones,
             "correctAnswer": str(mejor_vuelta),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3045,8 +3290,10 @@ def pregunta_piloto_anio_mas_puntos():
         if not row:
             return None
         year = row[0]
-
-        pregunta = f"¿En qué año logró más puntos {nombre_piloto}?"
+        if LANG == "es":
+            pregunta = f"¿En qué año logró más puntos {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"What year did {nombre_piloto} score more points?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
@@ -3056,7 +3303,8 @@ def pregunta_piloto_anio_mas_puntos():
             "answers": opciones,
             "correctAnswer": str(year),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3087,8 +3335,10 @@ def pregunta_escuderias_distintas_piloto():
         if not row:
             return None
         total = row[0]
-
-        pregunta = f"¿Con cuántas escuderías distintas ha competido {nombre_piloto}?"
+        if LANG == "es":
+            pregunta = f"¿Con cuántas escuderías distintas ha competido {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"With how many different teams has {nombre_piloto} raced for?"
         opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(1, 15)])
         opciones.append(str(total))
         random.shuffle(opciones)
@@ -3098,7 +3348,8 @@ def pregunta_escuderias_distintas_piloto():
             "answers": opciones,
             "correctAnswer": str(total),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3140,15 +3391,17 @@ def pregunta_gp_mas_participaciones_piloto():
         incorrectas = [r[0] for r in cursor.fetchall()]
         opciones = incorrectas + [circuito]
         random.shuffle(opciones)
-
-        pregunta = f"¿En qué Gran Premio participó más veces {nombre_piloto}?"
-
+        if LANG == "es":
+            pregunta = f"¿En qué Gran Premio participó más veces {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"In what Gran Prix has {nombre_piloto} participated more times at?"
         return {
             "question": pregunta,
             "answers": opciones,
             "correctAnswer": circuito,
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3188,8 +3441,10 @@ def pregunta_abandonos_piloto():
         if not row:
             return None
         abandonos = row[0]
-
-        pregunta = f"¿Cuántas veces abandonó {nombre_piloto} en su carrera?"
+        if LANG == "es":
+            pregunta = f"¿Cuántas veces abandonó {nombre_piloto} en su carrera?"
+        elif LANG == "en":
+            pregunta = f"How many times {nombre_piloto} retired in his career?"
         opciones = get_respuestas_incorrectas(str(abandonos), [str(i) for i in range(0, 100)])
         opciones.append(str(abandonos))
         random.shuffle(opciones)
@@ -3199,7 +3454,8 @@ def pregunta_abandonos_piloto():
             "answers": opciones,
             "correctAnswer": str(abandonos),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3237,20 +3493,21 @@ def pregunta_ultimo_gp_victoria_piloto():
         if not row:
             return None
         circuito = row[0]
-
+        if LANG == "es":
+            pregunta = f"¿En qué circuito logró su última victoria {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"In which track {nombre_piloto} won his last Gran Prix?"
         cursor.execute("SELECT name FROM circuits WHERE name != %s ORDER BY RAND() LIMIT 3", (circuito,))
         incorrectas = [r[0] for r in cursor.fetchall()]
         opciones = incorrectas + [circuito]
         random.shuffle(opciones)
-
-        pregunta = f"¿En qué circuito logró su última victoria {nombre_piloto}?"
-
         return {
             "question": pregunta,
             "answers": opciones,
             "correctAnswer": circuito,
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3305,19 +3562,20 @@ def pregunta_companero_podio_piloto():
         if not row:
             return None
         compañero = f"{row[0]} {row[1]}"
-
+        if LANG == "es":
+            pregunta = f"¿Qué compañero de equipo compartió más podios con {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"Which teammate shared more podiums with {nombre_piloto}?"
         incorrectas = get_respuestas_incorrectas(compañero, get_pilotos_cache())
         opciones = incorrectas + [compañero]
         random.shuffle(opciones)
-
-        pregunta = f"¿Qué compañero de equipo compartió más podios con {nombre_piloto}?"
-
         return {
             "question": pregunta,
             "answers": opciones,
             "correctAnswer": compañero,
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3351,19 +3609,20 @@ def pregunta_ano_debut_piloto():
         if not row:
             return None
         debut = row[0]
-
+        if LANG == "es":
+            pregunta = f"¿En qué año debutó {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"What year did {nombre_piloto} make his F1 debut?"
         opciones = get_respuestas_incorrectas(str(debut), [str(y) for y in range(1950, 2024)])
         opciones.append(str(debut))
         random.shuffle(opciones)
-
-        pregunta = f"¿En qué año debutó {nombre_piloto}?"
-
         return {
             "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(debut),
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3400,16 +3659,21 @@ def pregunta_primera_victoria_escuderia_piloto():
         if not row:
             return None
         escuderia = row[0]
+        if LANG == "es":
+            pregunta = f"¿Con qué escudería logró su primera victoria {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"With which team did {nombre_piloto} achieve his first win?"
         incorrectas = get_respuestas_incorrectas(escuderia, get_constructores_cache())
         opciones = incorrectas + [escuderia]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Con qué escudería logró su primera victoria {nombre_piloto}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": escuderia,
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3443,16 +3707,21 @@ def pregunta_poles_piloto():
         if not row:
             return None
         poles = row[0]
+        if LANG == "es":
+            pregunta = f"¿Cuántas poles consiguió {nombre_piloto} en su carrera?"
+        elif LANG == "en":
+            pregunta = f"How many poles did {nombre_piloto} get in his career?"
         opciones = get_respuestas_incorrectas(str(poles), [str(i) for i in range(0, 100)])
         opciones.append(str(poles))
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Cuántas poles consiguió {nombre_piloto} en su carrera?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(poles),
             "knowledgeLevel": 1,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3495,16 +3764,21 @@ def pregunta_circuito_mas_podios_piloto():
             pass
 
         cursor.execute("SELECT name FROM circuits WHERE name != %s ORDER BY RAND() LIMIT 3", (circuito,))
+        if LANG == "es":
+            pregunta = f"¿En qué circuito {nombre_piloto} subió más veces al podio?"
+        elif LANG == "en":
+            pregunta = f"In which track did {nombre_piloto} stand on the podium the most?"
         incorrectas = [r[0] for r in cursor.fetchall()]
         opciones = incorrectas + [circuito]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿En qué circuito {nombre_piloto} subió más veces al podio?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": circuito,
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3548,16 +3822,21 @@ def pregunta_pais_mas_victorias_piloto():
             pass
 
         cursor.execute("SELECT DISTINCT country FROM circuits WHERE country != %s ORDER BY RAND() LIMIT 3", (pais,))
+        if LANG == "es":
+            pregunta = f"¿Qué país vio más victorias de {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"In which country did {nombre_piloto} win more times at?"
         incorrectas = [r[0] for r in cursor.fetchall()]
         opciones = incorrectas + [pais]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Qué país vio más victorias de {nombre_piloto}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": pais,
             "knowledgeLevel": 2,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3591,17 +3870,21 @@ def obtener_victorias_piloto():
         if not row:
             return None
         victorias = row[0]
-
+        if LANG == "es":
+            pregunta = f"¿Cuántas victorias consiguió {nombre_piloto} en su carrera?"
+        elif LANG == "en":
+            pregunta = f"How many F1 wins achieved {nombre_piloto} in his career?"
         opciones = get_respuestas_incorrectas(str(victorias), [str(i) for i in range(0, 100)])
         opciones.append(str(victorias))
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Cuántas victorias consiguió {nombre_piloto} en su carrera?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(victorias),
             "knowledgeLevel": 1,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3641,17 +3924,21 @@ def pregunta_peor_temporada_puntos_piloto():
         if not row:
             return None
         year = row[0]
-
+        if LANG == "es":
+            pregunta = f"¿Cuál fue la peor temporada en puntos para {nombre_piloto}?"
+        elif LANG == "en":
+            pregunta = f"Which was {nombre_piloto} worst season in terms of points?"
         opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
         opciones.append(str(year))
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Cuál fue la peor temporada en puntos para {nombre_piloto}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(year),
             "knowledgeLevel": 1,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3686,17 +3973,21 @@ def pregunta_temporadas_sin_puntos_piloto():
         if not row:
             return None
         total = row[0]
-
+        if LANG == "es":
+            pregunta = f"¿Cuántas veces finalizó una temporada sin sumar ningún punto {nombre_piloto}?"
+        elif LANG == "en":
+                pregunta = f"How many seasons did {nombre_piloto} finish without points?"
         opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 20)])
         opciones.append(str(total))
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Cuántas veces finalizó una temporada sin sumar ningún punto {nombre_piloto}?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": str(total),
             "knowledgeLevel": 1,
-            "category": "Driver"
+            "category": "Driver",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3730,7 +4021,10 @@ def pregunta_piloto_gano_en_mas_paises():
         if not row:
             return None
         piloto = f"{row[0]} {row[1]}"
-        pregunta = f"¿Qué piloto ganó en más países diferentes?"
+        if LANG == "es":
+            pregunta = "¿Qué piloto ganó en más países diferentes?"
+        elif LANG == "en":
+            pregunta = "Which driver won in more different countries?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -3739,7 +4033,8 @@ def pregunta_piloto_gano_en_mas_paises():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats"
+                "category": "GenericStats",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -3778,16 +4073,20 @@ def pregunta_circuito_campeones_distintos():
         otros_circuitos = [r[0] for r in cursor.fetchall()]
         if len(otros_circuitos) < 3:
             return None  # protección para evitar el error de muestra
-
+        if LANG == "es":
+            pregunta = "¿Qué circuito ha visto ganar a más campeones del mundo diferentes?"
+        elif LANG == "en":
+            pregunta = "Wihich country has seen more different world champions win?"
         incorrectas = get_respuestas_incorrectas(circuito, otros_circuitos)
         opciones = incorrectas + [circuito]
         random.shuffle(opciones)
         return {
-            "question": f"¿Qué circuito ha visto ganar a más campeones del mundo diferentes?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": circuito,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3823,8 +4122,10 @@ def pregunta_piloto_sin_pole_subio_podio():
         # De nuevo: asegurarse de que no quedan resultados pendientes
         while cursor.nextset():
             pass
-
-        pregunta = f"¿Qué piloto subió más veces al podio sin hacer pole?"
+        if LANG == "es":
+            pregunta = "¿Qué piloto subió más veces al podio sin hacer pole?"
+        elif LANG == "en":
+            pregunta = "Which driver stood on the podium more times without taking pole position?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -3833,7 +4134,8 @@ def pregunta_piloto_sin_pole_subio_podio():
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3869,16 +4171,20 @@ def pregunta_pais_mas_constructores():
         otros_paises = [r[0] for r in cursor.fetchall()]
         if len(otros_paises) < 3:
             return None
-
+        if LANG == "es":
+            pregunta = "¿Qué país ha tenido más constructores participando en la historia de la F1?"
+        elif LANG == "en":
+            pregunta = "Which country has had more teams participating in F1 history?"
         incorrectas = get_respuestas_incorrectas(pais, otros_paises)
         opciones = incorrectas + [pais]
         random.shuffle(opciones)
         return {
-            "question": "¿Qué país ha tenido más constructores participando en la historia de la F1?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": pais,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3909,8 +4215,10 @@ def pregunta_piloto_mas_vueltas_rapidas_sin_puntos():
         _, nombre, apellido, _ = row
         piloto = f"{nombre} {apellido}"
 
-
-        pregunta = f"¿Qué piloto logró más vueltas rápidas en GPs donde no puntuó?"
+        if LANG == "es":
+            pregunta = "¿Qué piloto logró más vueltas rápidas en GPs donde no puntuó?"
+        elif LANG == "en":
+            pregunta = "Which driver took more fastest laps in GPs where he did not score points?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -3919,7 +4227,8 @@ def pregunta_piloto_mas_vueltas_rapidas_sin_puntos():
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3951,8 +4260,10 @@ def pregunta_piloto_perdio_campeonato_por_un_punto():
         nombre, apellido = row
         piloto = f"{nombre} {apellido}"
 
-
-        pregunta = f"¿Qué piloto perdió un campeonato por 1 solo punto en la última carrera?"
+        if LANG == "es":
+            pregunta = "¿Qué piloto perdió un campeonato por 1 solo punto en la última carrera?"
+        elif LANG == "en":
+            pregunta = "Which driver lost a championship by 1 point on the last race?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -3961,7 +4272,8 @@ def pregunta_piloto_perdio_campeonato_por_un_punto():
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -3990,8 +4302,10 @@ def pregunta_escuderia_descalificada_aleron_ilegal():
             return None
         escuderia = row[0]
 
-
-        pregunta = f"¿Qué escudería fue descalificada por un alerón ilegal en clasificación?"
+        if LANG == "es":
+            pregunta = "¿Qué escudería fue descalificada por un alerón ilegal en clasificación?"
+        elif LANG == "en":
+            pregunta = "Which team was disqualified because of an illegal rear wing in qualifying?"
         incorrectas = get_respuestas_incorrectas(escuderia, get_constructores_cache())
         opciones = incorrectas + [escuderia]
         random.shuffle(opciones)
@@ -4000,7 +4314,8 @@ def pregunta_escuderia_descalificada_aleron_ilegal():
             "answers": opciones,
             "correctAnswer": escuderia,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4028,8 +4343,10 @@ def pregunta_piloto_victoria_ultimo_cambio_neumaticos():
             return None
         piloto = f"{row[0]} {row[1]}"
 
-
-        pregunta = f"¿Qué piloto ganó un GP tras cambiar de neumáticos en la última vuelta?"
+        if LANG == "es":
+            pregunta = "¿Qué piloto ganó un GP tras cambiar de neumáticos en la última vuelta?"
+        elif LANG == "en":
+            pregunta = "Which driver won a GP by changing tyres on the last lap?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -4038,7 +4355,8 @@ def pregunta_piloto_victoria_ultimo_cambio_neumaticos():
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4065,8 +4383,10 @@ def pregunta_piloto_debut_victoria():
             return None
         piloto = f"{row[0]} {row[1]}"
 
-
-        pregunta = f"¿Qué piloto ganó en su debut en Fórmula 1?"
+        if LANG == "es":
+            pregunta = "¿Qué piloto ganó en su debut en Fórmula 1?"
+        elif LANG == "en":
+            pregunta = "Which driver won on his F1 debut?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -4075,7 +4395,8 @@ def pregunta_piloto_debut_victoria():
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4085,8 +4406,10 @@ def pregunta_piloto_debut_victoria():
 def pregunta_primer_circuito_urbano():
     conn, cursor = crear_cursor_local()
     try:
-
-        pregunta = "¿Cuál fue el primer circuito urbano en albergar un GP?"
+        if LANG == "es":
+            pregunta = "¿Cuál fue el primer circuito urbano en albergar un GP?"
+        elif LANG == "en":
+            pregunta = "Which urban circuit was the first one to take a GP?"
         opciones = ["Monaco", "Baku", "Singapur", "Azerbaiyán"]
         random.shuffle(opciones)
         return {
@@ -4094,7 +4417,8 @@ def pregunta_primer_circuito_urbano():
                 "answers": opciones,               # <- "answers" en lugar de "options"
                 "correctAnswer": "Monaco",           # <- "correctAnswer" en lugar de "answer"
                 "knowledgeLevel": 1,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats"
+                "category": "GenericStats",
+                "language": LANG
             }
     finally:
             cursor.close()
@@ -4123,8 +4447,10 @@ def pregunta_escuderia_debut_victoria():
         if not row:
             return None
         escuderia = row[0]
-
-        pregunta = f"¿Qué escudería debutó con victoria en su primera carrera?"
+        if LANG == "es":
+            pregunta = "¿Qué escudería debutó con victoria en su primera carrera?"
+        elif LANG == "en":
+            pregunta = "Which team made its debut by winning the first race?"
         incorrectas = get_respuestas_incorrectas(escuderia, get_constructores_cache())
         opciones = incorrectas + [escuderia]
         random.shuffle(opciones)
@@ -4134,7 +4460,8 @@ def pregunta_escuderia_debut_victoria():
             "answers": opciones,
             "correctAnswer": escuderia,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
 
     finally:
@@ -4165,8 +4492,10 @@ def pregunta_piloto_sin_podio_largo():
             return None
         piloto = f"{row[0]} {row[1]}"
 
-
-        pregunta = f"¿Qué piloto corrió más carreras sin subir al podio?"
+        if LANG == "es":
+            pregunta = "¿Qué piloto corrió más carreras sin subir al podio?"
+        elif LANG == "en":
+            pregunta = "Which driver raced more times without standing on the podium?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -4175,7 +4504,8 @@ def pregunta_piloto_sin_podio_largo():
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4202,8 +4532,10 @@ def pregunta_primer_gp_fuera_europa():
             return None
         pais = row[1]
 
-
-        pregunta = f"¿Cuál fue el primer país en celebrar un Gran Premio fuera de Europa?"
+        if LANG == "es":
+            pregunta = "¿Cuál fue el primer país en celebrar un Gran Premio fuera de Europa?"
+        elif LANG == "en":
+            pregunta = "Which country was the first one to celebrate a Gran Prix outside of Europe?"
         cursor.execute("SELECT DISTINCT country FROM circuits WHERE country != %s", (pais,))
         incorrectas = get_respuestas_incorrectas(pais, [r[0] for r in cursor.fetchall()])
         opciones = incorrectas + [pais]
@@ -4213,7 +4545,8 @@ def pregunta_primer_gp_fuera_europa():
             "answers": opciones,
             "correctAnswer": pais,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4241,8 +4574,10 @@ def pregunta_pais_mas_gran_premios():
             return None
         pais = row[0]
 
-
-        pregunta = f"¿En qué país se ha disputado el mayor número de Grandes Premios?"
+        if LANG == "es":
+            pregunta = "¿En qué país se ha disputado el mayor número de Grandes Premios?"
+        elif LANG == "en":
+            pregunta = "Which country hosted more GPs?"
         cursor.execute("SELECT DISTINCT country FROM circuits WHERE country != %s", (pais,))
         incorrectas = get_respuestas_incorrectas(pais, [r[0] for r in cursor.fetchall()])
         opciones = incorrectas + [pais]
@@ -4252,7 +4587,8 @@ def pregunta_pais_mas_gran_premios():
             "answers": opciones,
             "correctAnswer": pais,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4289,8 +4625,10 @@ def pregunta_piloto_combustible_ilegal():
         if not row:
             return None
         piloto = f"{row[0]} {row[1]}"
-
-        pregunta = f"¿Qué piloto fue descalificado por tener combustible ilegal?"
+        if LANG == "es":
+            pregunta = "¿Qué piloto fue descalificado por tener combustible ilegal?"
+        elif LANG == "en":
+            pregunta = "Which driver was disqualified for having illegal fuel?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
@@ -4299,7 +4637,9 @@ def pregunta_piloto_combustible_ilegal():
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
+
         }
     finally:
             cursor.close()
@@ -4329,8 +4669,10 @@ def pregunta_gp_suspendido_por_lluvia():
             return None
         year, circuito = row
 
-
-        pregunta = f"¿Qué GP fue suspendido por lluvia intensa sin dar una vuelta completa?"
+        if LANG == "es":
+            pregunta = "¿Qué GP fue suspendido por lluvia intensa sin dar una vuelta completa?"
+        elif LANG == "en":
+            pregunta = "Which GP was suspended because of heavy rain without making a single lap?"
         cursor.execute("SELECT name FROM circuits WHERE name != %s", (circuito,))
         incorrectas = get_respuestas_incorrectas(circuito, [r[0] for r in cursor.fetchall()])
         opciones = incorrectas + [circuito]
@@ -4340,7 +4682,8 @@ def pregunta_gp_suspendido_por_lluvia():
             "answers": opciones,
             "correctAnswer": circuito,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4368,18 +4711,22 @@ def pregunta_ciudad_carrera_nocturna():
         # De nuevo: asegurarse de que no quedan resultados pendientes
         while cursor.nextset():
             pass
-
+        if LANG == "es":
+            pregunta = "¿Qué ciudad ha acogido una carrera nocturna de Fórmula 1?"
+        elif LANG == "en":
+            pregunta = "Which city has hosted a night race in F1?"
         cursor.execute("SELECT location FROM circuits WHERE location != %s", (ciudad,))
         incorrectas = get_respuestas_incorrectas(ciudad, [r[0] for r in cursor.fetchall()])
         opciones = incorrectas + [ciudad]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Qué ciudad ha acogido una carrera nocturna de Fórmula 1?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": ciudad,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4409,17 +4756,21 @@ def pregunta_piloto_mas_participaciones_escuderia():
         nombre, apellido, escuderia, _ = row
         piloto = f"{nombre} {apellido}"
         respuesta_correcta = f"{piloto} ({escuderia})"
-
+        if LANG == "es":
+            pregunta = "¿Qué piloto tiene más participaciones en una misma escudería?"
+        elif LANG == "en":
+            pregunta = "Which driver has more races with the same team?"
         incorrectas = get_respuestas_incorrectas(respuesta_correcta, [f"{p} ({e})" for p in get_pilotos_cache() for e in get_constructores_cache()])
         opciones = incorrectas + [respuesta_correcta]
         random.shuffle(opciones)
 
         return {
-            "question": "¿Qué piloto tiene más participaciones en una misma escudería?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": respuesta_correcta,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4448,17 +4799,22 @@ def pregunta_gp_mas_antiguo():
         while cursor.nextset():
             pass
 
+        if LANG == "es":
+            pregunta = "¿Cuál es el Gran Premio más antiguo celebrado en la historia de la F1?"
+        elif LANG == "en":
+            pregunta = "What is the oldest GP held in F1 history?"
         cursor.execute("SELECT DISTINCT name FROM races WHERE name != %s", (gp,))
         incorrectas = get_respuestas_incorrectas(gp, [r[0] for r in cursor.fetchall()])
         opciones = incorrectas + [gp]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Cuál es el Gran Premio más antiguo celebrado en la historia de la F1?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": gp,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4488,16 +4844,21 @@ def pregunta_piloto_primera_victoria_joven():
             return None
         piloto = f"{row[0]} {row[1]}"
 
+        if LANG == "es":
+            pregunta = "¿Qué piloto fue el primero en lograr una victoria en la historia de la F1?"
+        elif LANG == "en":
+            pregunta = "Which was the first driver to take a win in F1 history?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
 
         return {
-            "question": f"¿Qué piloto fue el primero en lograr una victoria en la historia de la F1?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4529,15 +4890,20 @@ def pregunta_escuderia_mas_dobletes():
         if not row:
             return None
         escuderia = row[0]
+        if LANG == "es":
+            pregunta = "¿Qué escudería ha logrado más dobletes (1º y 2º puesto) en la misma carrera?"
+        elif LANG == "en":
+            pregunta = "Which team has achieved more 1-2 finishes in the same GP?"
         opciones = get_respuestas_incorrectas(escuderia, get_constructores_cache())
         opciones.append(escuderia)
         random.shuffle(opciones)
         return {
-            "question": f"¿Qué escudería ha logrado más dobletes (1º y 2º puesto) en la misma carrera?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": escuderia,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4565,15 +4931,20 @@ def pregunta_piloto_mas_temporadas_consecutivas():
         if not row:
             return None
         piloto = f"{row[0]} {row[1]}"
+        if LANG == "es":
+            pregunta = "¿Qué piloto tiene más temporadas en Fórmula 1?"
+        elif LANG == "en":
+            pregunta = "Which driver has more seasons in F1?"
         opciones = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones.append(piloto)
         random.shuffle(opciones)
         return {
-            "question": f"¿Qué piloto tiene más temporadas en Fórmula 1 (no necesariamente consecutivas)?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4603,15 +4974,20 @@ def pregunta_piloto_mas_victorias_temporada():
             return None
         piloto = f"{row[0]} {row[1]}"
         cursor.fetchall()
+        if LANG == "es":
+            pregunta = "¿Qué piloto logró más victorias en una temporada?"
+        elif LANG == "en":
+            pregunta = "Which driver won more races in a season?"
         opciones = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones.append(piloto)
         random.shuffle(opciones)
         return {
-            "question": f"¿Qué piloto logró más victorias en una temporada?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4641,15 +5017,20 @@ def pregunta_piloto_compartio_podio_mas_veces():
             return None
         piloto = f"{row[0]} {row[1]}"
         cursor.fetchall()  # limpia resultados si quedaran más
+        if LANG == "es":
+            pregunta = "¿Qué piloto ha subido más veces al podio?"
+        elif LANG == "en":
+            pregunta = "Which driver stood more time on the podium?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
         return {
-            "question": f"¿Qué piloto ha subido más veces al podio?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4680,15 +5061,20 @@ def pregunta_piloto_mas_carreras_sin_victoria():
         piloto = f"{row[0]} {row[1]}"
         # Aseguramos que la consulta anterior ha terminado antes de seguir
         cursor.fetchall()  # Vacía el cursor por si acaso
+        if LANG == "es":
+            pregunta = "¿Qué piloto ha disputado más carreras sin victoria?"
+        elif LANG == "en":
+            pregunta = "Which driver raced more times without winning?"
         incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
         opciones = incorrectas + [piloto]
         random.shuffle(opciones)
         return {
-            "question": f"¿Qué piloto ha disputado más carreras sin victoria?",
+            "question": pregunta,
             "answers": opciones,
             "correctAnswer": piloto,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4718,8 +5104,10 @@ def pregunta_constructor_mas_podios_temporada():
             return None
         escuderia = row[0]
         year = row[1]
-
-        pregunta = f"¿Qué constructor logró más podios en una sola temporada?"
+        if LANG == "es":
+            pregunta = "¿Qué constructor logró más podios en una sola temporada?"
+        elif LANG == "en":
+            pregunta = "Which team stood on the podium the most in a single season?"
         incorrectas = get_respuestas_incorrectas(escuderia, get_constructores_cache())
         opciones = incorrectas + [escuderia]
         random.shuffle(opciones)
@@ -4728,7 +5116,8 @@ def pregunta_constructor_mas_podios_temporada():
             "answers": opciones,
             "correctAnswer": escuderia,
             "knowledgeLevel": 1,
-            "category": "GenericStats"
+            "category": "GenericStats",
+            "language": LANG
         }
     finally:
             cursor.close()
@@ -4863,20 +5252,20 @@ def generar_preguntas_concurrentemente_por_categoria(categoria, max_workers=10):
     return preguntas
 
 def main():
+    global LANG  # ✅ Esto hace que se modifique la variable global y no una local
     parser = argparse.ArgumentParser()
     parser.add_argument("--category", type=str, help="Filtrar por categoría (opcional)", default=None)
+    parser.add_argument('--lang', type=str, default='es')
     args = parser.parse_args()
+    LANG = args.lang  # Ahora sí modifica la global
 
     categoria_objetivo = args.category.strip() if args.category else None
 
-
     preguntas_generadas = generar_preguntas_concurrentemente_por_categoria(categoria_objetivo)
-
-    # Limitar el número de preguntas según el parámetro num_preguntas
     preguntas_generadas = preguntas_generadas[:10]
 
-
     print(json.dumps(preguntas_generadas, ensure_ascii=False, indent=2))
+
 
 if __name__ == "__main__":
     main()

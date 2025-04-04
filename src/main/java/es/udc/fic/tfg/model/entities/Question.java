@@ -22,6 +22,9 @@ public class Question {
 
     private QuizCategory quizCategory;
 
+    private String language;
+
+
     private List<QuizQuestions> quizQuestions;
     private List<Answer> answers;
 
@@ -131,4 +134,17 @@ public class Question {
     public void setUserAnswers(List<UserAnswer> userAnswers) {
         this.userAnswers = userAnswers;
     }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
 }
+
+
+
+

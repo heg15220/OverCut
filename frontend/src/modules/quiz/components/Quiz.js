@@ -15,14 +15,20 @@ const Quiz = () => {
 
     const handleStart = () => {
         if (user.id) {
+            const rawLang = navigator.language || navigator.userLanguage; // fallback por compatibilidad
+            const normalizedLang = rawLang.toLowerCase().startsWith('es') ? 'es' : 'en';
+
             setLoading(true);
-            dispatch(actions.createQuiz(
-                user.id,
-                (quizId) => navigate(`/quiz/quiz-list/${quizId}`),
-                () => setLoading(false) // fallback en caso de error
-            ));
+            dispatch(actions.createQuiz({
+                userId: user.id,
+                lang: normalizedLang,
+                onSuccess: (quizId) => navigate(`/quiz/quiz-list/${quizId}`),
+                onErrors: () => setLoading(false)
+            }));
         }
     };
+
+
 
     return (
         <div className="quiz-container" style={{ backgroundImage: `url(${sourceImages('./f1-2013-11-bel-parrilla-trasera.jpg')})` }}>

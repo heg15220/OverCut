@@ -13,6 +13,8 @@
         private String name;
         private boolean correct;
         private Question question;
+        private String language;
+
         private List<UserAnswer> userAnswer;
     
         public Answer(){
@@ -89,5 +91,13 @@
     
         public void setUserAnswer(List<UserAnswer> userAnswer) {
             this.userAnswer = userAnswer;
+        }
+
+        public String getLanguage() {
+            return language;
+        }
+
+        public void setLanguage(String language) {
+            this.language = language;
         }
     }

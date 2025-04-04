@@ -51,7 +51,7 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
     }
 
     @Override
-    public List<QuestionAI> generateQuestionsAI(String category) {
+    public List<QuestionAI> generateQuestionsAI(String language, String category) {
         List<QuestionAI> questions = new ArrayList<>();
 
         try {
@@ -63,9 +63,12 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
             command.add(scriptPath);
 
             if (category != null && !category.isEmpty()) {
-                QuizCategoryCode code = getEnumForCategory(category);
-                command.add("--category=" + code.name());
+                command.add("--category=" + category);
             }
+            if (language != null && !language.isEmpty()) {
+                command.add("--lang=" + language);
+            }
+
 
             ProcessBuilder pb = new ProcessBuilder(command);
             pb.redirectErrorStream(true);
@@ -88,9 +91,10 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
                     String correct = (String) raw.get("correctAnswer");
                     int levelVal = (Integer) raw.get("knowledgeLevel");
                     String cat = (String) raw.get("category");
-
+                    String lang = (String) raw.get("language");
                     QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode));
+                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+
                 }
             } else {
                 throw new RuntimeException("Error ejecutando el script: código " + exitCode);
@@ -104,7 +108,7 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
     }
 
     @Override
-    public List<QuestionAI> generateRegulationQuestions(String category) {
+    public List<QuestionAI> generateRegulationQuestions(String language, String category) {
         List<QuestionAI> questions = new ArrayList<>();
 
         try {
@@ -116,10 +120,12 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
             command.add(scriptPath);
 
             if (category != null && !category.isEmpty()) {
-                // No uses el enum aquí para pasar al script, pasa la categoría tal cual
-                command.add("--category=" + category.toLowerCase());
-
+                command.add("--category=" + category);
             }
+            if (language != null && !language.isEmpty()) {
+                command.add("--lang=" + language);
+            }
+
 
             // Preparación del proceso
             ProcessBuilder pb = new ProcessBuilder(command);
@@ -145,10 +151,9 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
                     String correct = (String) raw.get("correctAnswer");
                     int levelVal = (Integer) raw.get("knowledgeLevel");
                     String cat = (String) raw.get("category");
-
-                    QuizCategoryCode code = getEnumForCategory(cat);
-
-                    questions.add(new QuestionAI(q, answers, correct, levelVal, code));
+                    String lang = (String) raw.get("language");
+                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
+                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
                 }
             } else {
                 throw new RuntimeException("Error ejecutando el script regulation_questions.py: código " + exitCode);

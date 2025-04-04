@@ -71,16 +71,19 @@ public class QuizServiceImpl implements QuizService {
 
 
 
-    private List<Question> getRandomQuestionsByTypeAndCategory(QuizType quizType, QuizCategory quizCategory) {
+    private List<Question> getRandomQuestionsByTypeAndCategory(QuizType quizType, QuizCategory quizCategory, String language)
+    {
         // Obtener preguntas existentes en BD por categoría
-        List<Question> dbQuestions = questionDao.findByQuizCategory(quizCategory);
+        List<Question> dbQuestions = questionDao.findByQuizCategoryAndLanguage(quizCategory, language);
+
 
         // Generar preguntas por IA según el tipo de quiz
         List<QuestionAI> aiQuestions = new ArrayList<>();
         if (quizType.getCode().equals(QuizTypeCode.Regulations)) {
-            aiQuestions = questionLLMService.generateRegulationQuestions(quizCategory.getCode().name());
+            aiQuestions = questionLLMService.generateRegulationQuestions(language, quizCategory.getCode().name());
         } else if(quizType.getCode().equals(QuizTypeCode.Stats)) {
-            aiQuestions = questionLLMService.generateQuestionsAI(quizCategory.getCode().name());
+            aiQuestions = questionLLMService.generateQuestionsAI(language, quizCategory.getCode().name());
+
         }
 
         if (dbQuestions.isEmpty() && (aiQuestions == null || aiQuestions.isEmpty())) {
@@ -178,8 +181,8 @@ public class QuizServiceImpl implements QuizService {
         q.setName(ai.getQuestion());
         q.setKnowledgequestionlevel(ai.getKnowledgeLevel());
         q.setImagePath(null);
+        q.setLanguage(ai.getLanguage()); // ← añadir esto
 
-        // Obtener la categoría por código enum
         Optional<QuizCategory> category = quizCategoryDao.findByCode(ai.getCategory());
         if (category.isEmpty()) {
             throw new RuntimeException("No se encontró la categoría: " + ai.getCategory());
@@ -192,12 +195,14 @@ public class QuizServiceImpl implements QuizService {
             ans.setName(a);
             ans.setCorrect(a.equals(ai.getCorrectAnswer()));
             ans.setQuestion(q);
+            ans.setLanguage(ai.getLanguage()); // ← si deseas traducir respuestas
             answers.add(ans);
         }
 
         q.setAnswers(answers);
         return q;
     }
+
 
     private void updateAssessmentPoints(Long userId, Long quizId, int pointsToAdd) throws QuizException {
         // Buscar el registro de Assessment para el usuario y el quiz
@@ -248,7 +253,7 @@ public class QuizServiceImpl implements QuizService {
 
 
     @Override
-    public Quiz createQuiz(Long userId) throws InstanceNotFoundException {
+    public Quiz createQuiz(Long userId, String language) throws InstanceNotFoundException {
         Optional<User> userOptional = userDao.findById(userId);
         if (!userOptional.isPresent()) {
             throw new InstanceNotFoundException("User not found here", userId);
@@ -256,7 +261,8 @@ public class QuizServiceImpl implements QuizService {
 
         QuizType quizType = chooseQuizType();
         QuizCategory quizCategory = chooseQuizCategory(quizType);
-        List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType,quizCategory);
+        List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType, quizCategory, language);
+
 
 
         int knowledgeLevelQuestions = getUserKnowledgeLevel(storedQuestions);

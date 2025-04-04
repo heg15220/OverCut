@@ -87,12 +87,13 @@ const getAvailableQuizPointsCompleted = (availableQuizPoints) => ({
     availableQuizPoints
 });
 
-export const createQuiz = (userId, onSuccess, onErrors) => dispatch =>
-    backend.quizService.createQuiz(userId, quiz => {
+export const createQuiz = ({ userId, lang, onSuccess, onErrors }) => dispatch =>
+    backend.quizService.createQuiz(userId, lang, quiz => {
             dispatch(createQuizCompleted(quiz));
             onSuccess(quiz);
         },
         onErrors);
+
 
 
 export const getQuizQuestionsType = (quizId, onSuccess, onErrors) => dispatch =>

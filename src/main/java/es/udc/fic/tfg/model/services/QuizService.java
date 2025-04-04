@@ -12,7 +12,7 @@ public interface QuizService {
 
     QuizCategory chooseQuizCategory(QuizType quizType);
 
-    Quiz createQuiz(Long userId) throws InstanceNotFoundException;
+    Quiz createQuiz(Long userId, String language) throws InstanceNotFoundException;
 
     QuizType getQuizQuestionsType(Long quizId);
 

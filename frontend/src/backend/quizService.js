@@ -3,14 +3,15 @@ import {
     appFetch,
 } from "./appFetch";
 
-export const createQuiz = (userId, onSuccess, onErrors) => {
+export const createQuiz = (userId, lang, onSuccess, onErrors) => {
     appFetch(
-        "/quiz/create",
-        fetchConfig("POST",  userId ),
+        `/quiz/create?lang=${lang}`,
+        fetchConfig("POST", userId),
         onSuccess,
         onErrors
     );
 };
+
 export const getQuizQuestionsType = (quizId, onSuccess, onErrors) => {
 
     appFetch(

@@ -10,15 +10,17 @@ public class QuestionAI {
     private String correctAnswer;
     private int knowledgeLevel;
     private QuizCategoryCode category; // Enum en lugar de String
+    private String language;
 
     public QuestionAI() {}
 
-    public QuestionAI(String question, List<String> answers, String correctAnswer, int knowledgeLevel, QuizCategoryCode category) {
+    public QuestionAI(String question, List<String> answers, String correctAnswer, int knowledgeLevel, QuizCategoryCode category, String language) {
         this.question = question;
         this.answers = answers;
         this.correctAnswer = correctAnswer;
         this.knowledgeLevel = knowledgeLevel;
         this.category = category;
+        this.language = language;
     }
 
     // Getters y Setters
@@ -36,4 +38,12 @@ public class QuestionAI {
 
     public QuizCategoryCode getCategory() { return category; }
     public void setCategory(QuizCategoryCode category) { this.category = category; }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 }

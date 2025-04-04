@@ -25,6 +25,8 @@ public interface QuestionDao extends CrudRepository<Question, Long> {
     @Query("SELECT q FROM Question q WHERE q.quizCategory = :quizCategory")
     List<Question> findByQuizCategory(@Param("quizCategory") QuizCategory quizCategory);
 
+    List<Question> findByQuizCategoryAndLanguage(QuizCategory quizCategory, String language);
+
 
 
 
