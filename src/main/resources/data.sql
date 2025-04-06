@@ -761,7 +761,7 @@ VALUES ('¿Cuál es el circuito más largo en la historia de la Fórmula 1?', nu
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Circuito de Spa-Francorchamps', false, 73, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Autódromo Hermanos Rodríguez', false, 73, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Circuito Gilles Villeneuve', false, 73, 'es');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nürburgring', true, 73, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nurburgring', true, 73, 'es');
 
 -- Pregunta 32
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
@@ -770,7 +770,7 @@ VALUES ('¿Qué circuito es, con diferencia, el más largo usado regularmente en
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Circuito de Spa-Francorchamps', true, 74, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Autódromo José Carlos Pace', false, 74, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Circuito Gilles Villeneuve', false, 74, 'es');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nürburgring', false, 74, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nurburgring', false, 74, 'es');
 
 -- Pregunta 33
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
@@ -1737,7 +1737,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Corea 2010', f
 -- Pregunta 98
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('Nombra el circuito y el año de este momento', '15644308053724.jpg', 1, 'es');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nürburgring 2020', false, 196, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nurburgring 2020', false, 196, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungría 2018', false, 196, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Gran Bretaña 2018', false, 196, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Alemania 2019', true, 196, 'es');
@@ -1806,7 +1806,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Francia 2019',
 -- Pregunta 100
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('Nombra el circuito', 'sddefault.jpg', 2, 'es');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nürburgring', false, 204, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nurburgring', false, 204, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Magny-Cours', false, 204, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monza', false, 204, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hockenheim', true, 204, 'es');
@@ -2670,7 +2670,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ayrton Senna',
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('Nombra el circuito y el año de este momento', 'Kepernyofoto-2024-02-09-8.31.33-e1707464078190.png', 1, 'es');
 
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nürburgring 2006', false, 307, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nurburgring 2006', false, 307, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Gran Bretaña 2005', false, 307, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Francia 2006', false, 307, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungría 2006', true, 307, 'es');
@@ -4604,4 +4604,3 @@ VALUES ('Qatar GP', '23th round of the F1 season', '2025-11-30', 'Qatar','the-of
 
 INSERT INTO Event (name, description, date, location, imageUrl)
 VALUES ('Abu Dhabi GP', '24th round of the F1 season', '2024-12-07', 'Abu Dhabi','abu-dhabi-f1-grand-prix-2023-race-poster-2T5R5KF.jpg');
-

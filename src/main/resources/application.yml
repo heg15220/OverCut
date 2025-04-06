@@ -18,6 +18,7 @@ spring:
     remove-abandoned-timeout: 60
     log-abandoned: true
     validation-query: SELECT 1
+    sql-script-encoding: UTF-8
   devtools:
     restart:
       trigger-file: reload
@@ -36,7 +37,11 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   main:
     allow-bean-definition-overriding: true
-
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 server:
   servlet:
     context-path: '@project.contextPath@'

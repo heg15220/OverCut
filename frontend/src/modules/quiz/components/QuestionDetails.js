@@ -110,34 +110,106 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
             <Box
                 sx={{
                     display: 'flex',
-                    justifyContent: 'center',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    mt: 1,
-                    mb: 1
+                    mt: 2,
+                    mb: 2,
+                    position: 'relative',
+                    zIndex: 2,
                 }}
             >
+                {/* Cronómetro */}
                 <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.5 }}
                     style={{
-                        width: 70,
-                        height: 70,
+                        width: 80,
+                        height: 80,
                         borderRadius: '50%',
-                        border: '4px solid #ffcc00',
+                        border: '5px solid #ffcc00',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '1.2rem',
+                        fontSize: '1.6rem',
                         fontWeight: 'bold',
                         backgroundColor: 'rgba(0, 0, 0, 0.6)',
                         color: '#fff',
-                        boxShadow: '0 0 10px #ffcc00',
+                        boxShadow: '0 0 12px #ffcc00',
+                        marginBottom: 12
                     }}
                 >
                     {timeLeft}s
                 </motion.div>
+
+                {/* Contenedor de animaciones: alineadas a extremos */}
+                {(answered || scoreEffect) && (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                            maxWidth: '800px',
+                            px: { xs: 2, sm: 4 },
+                            mb: 2,
+                            position: 'relative',
+                        }}
+                    >
+                        {/* Respuesta correcta (izquierda) */}
+                        {answered && scoreEffect === '-0' && (
+                            <motion.div
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.6 }}
+                                style={{
+                                    fontWeight: 'bold',
+                                    color: '#ffcc00',
+                                    fontSize: '1rem',
+                                    backgroundColor: 'rgba(0,0,0,0.7)',
+                                    padding: '10px 14px',
+                                    borderRadius: '12px',
+                                    maxWidth: '45%',
+                                    textAlign: 'left',
+                                    whiteSpace: 'normal',
+                                    wordBreak: 'break-word',
+                                }}
+                            >
+                                La respuesta correcta era: {answers.find((a) => a.correct)?.name || 'Desconocida'}
+                            </motion.div>
+                        )}
+
+                        {/* Espaciador central invisible para mantener el cronómetro arriba centrado */}
+                        <div style={{ flex: 1 }}></div>
+
+                        {/* Puntos obtenidos (derecha) */}
+                        {scoreEffect && (
+                            <motion.div
+                                key={scoreEffect}
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                transition={{ duration: 0.8 }}
+                                style={{
+                                    fontWeight: 'bold',
+                                    fontSize: '1.4rem',
+                                    color: scoreEffect.startsWith('+') ? '#00e676' : '#ff1744',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                    padding: '10px 18px',
+                                    borderRadius: '12px',
+                                    textAlign: 'center',
+                                    minWidth: '80px',
+                                    maxWidth: '20%',
+                                }}
+                            >
+                                {scoreEffect}
+                            </motion.div>
+                        )}
+                    </Box>
+                )}
+
             </Box>
+
 
            <Grid container spacing={2} justifyContent="center" mt={3}>
                {answers && answers.map((answer) => {
@@ -164,22 +236,6 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
                    );
                })}
            </Grid>
-
-
-            <AnimatePresence>
-                {scoreEffect && (
-                    <motion.div
-                        key={scoreEffect}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.8 }}
-                        className={`score-popup ${scoreEffect.startsWith('+') ? 'positive' : 'negative'}`}
-                    >
-                        {scoreEffect}
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </Box>
     );
 };

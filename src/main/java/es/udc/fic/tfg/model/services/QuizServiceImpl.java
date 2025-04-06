@@ -12,6 +12,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
 import java.time.LocalDateTime;
@@ -71,11 +73,60 @@ public class QuizServiceImpl implements QuizService {
 
 
 
+    private boolean containsEncodingArtifacts(String text) {
+        return text != null && (
+                text.contains("Ã¡") || text.contains("Ã©") || text.contains("Ã­") ||
+                        text.contains("Ã³") || text.contains("Ãº") || text.contains("Ã±") ||
+                        text.contains("Â¿") || text.contains("Â¡") || text.contains("â")
+        );
+    }
+    private String tryFixEncoding(String input) {
+        try {
+            byte[] isoBytes = input.getBytes(StandardCharsets.ISO_8859_1);
+            return new String(isoBytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    private void fixEncodingIssuesSafe(List<Question> questions) {
+        for (Question q : questions) {
+            try {
+                String originalName = q.getName();
+                if (containsEncodingArtifacts(originalName)) {
+                    String fixed = tryFixEncoding(originalName);
+                    if (fixed != null && !originalName.equals(fixed)) {
+                        q.setName(fixed);
+                        System.out.println("Pregunta reparada: " + originalName + " → " + fixed);
+                    }
+                }
+
+                if (q.getAnswers() != null) {
+                    for (Answer a : q.getAnswers()) {
+                        String ansOriginal = a.getName();
+                        if (containsEncodingArtifacts(ansOriginal)) {
+                            String fixed = tryFixEncoding(ansOriginal);
+                            if (fixed != null && !ansOriginal.equals(fixed)) {
+                                a.setName(fixed);
+                                System.out.println("Respuesta reparada: " + ansOriginal + " → " + fixed);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error recodificando pregunta ID " + q.getId() + ": " + e.getMessage());
+            }
+        }
+    }
+
+
+
     private List<Question> getRandomQuestionsByTypeAndCategory(QuizType quizType, QuizCategory quizCategory, String language)
     {
         // Obtener preguntas existentes en BD por categoría
         List<Question> dbQuestions = questionDao.findByQuizCategoryAndLanguage(quizCategory, language);
 
+
+        fixEncodingIssuesSafe(dbQuestions);
 
         // Generar preguntas por IA según el tipo de quiz
         List<QuestionAI> aiQuestions = new ArrayList<>();
