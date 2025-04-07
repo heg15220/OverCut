@@ -6,6 +6,7 @@
     background-size: cover;
     background-position: center;
     min-height: 100vh;
+    overflow: hidden;
     position: relative;
     font-family: 'Orbitron', sans-serif;
 }
@@ -23,6 +24,7 @@
     padding: 3rem 1rem;
     color: white;
     text-align: center;
+    z-index: 3;
 }
 
 
@@ -48,6 +50,23 @@
     margin-bottom: 2rem;
     box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
 }
+
+.background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* se queda dentro del contenedor */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transform-origin: center center;
+    will-change: transform, opacity;
+    z-index: 0;
+    pointer-events: none; /* para evitar que interfiera con clicks */
+}
+
+
 
 .quiz-answer-btn {
     font-family: 'Orbitron', sans-serif;
@@ -163,4 +182,85 @@
 .answer-text {
     flex-grow: 1;
     text-align: center;
+}
+
+.intro-card {
+    padding: 2rem;
+}
+
+.f1-car {
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    height: 80px;
+    z-index: 6;
+    pointer-events: none;
+}
+
+.f1-car-trail {
+    position: absolute;
+    bottom: 55px;
+    left: 0;
+    width: 200px;
+    height: 20px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.4), transparent);
+    filter: blur(10px);
+    z-index: 5;
+    pointer-events: none;
+    border-radius: 10px;
+}
+
+.f1-car-wrapper {
+    position: absolute;
+    bottom: 50px;
+    left: 10vw;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10;
+}
+
+.f1-car-static {
+    height: 80px;
+    pointer-events: none;
+    z-index: 11;
+}
+
+/* Ruedas animadas */
+.wheel {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(#444, #000);
+    box-shadow: inset 0 0 4px #000;
+    animation: spin 1.2s linear infinite;
+    z-index: 9;
+}
+
+.wheel-left {
+    position: absolute;
+    left: 20px;
+    bottom: 5px;
+}
+
+.wheel-right {
+    position: absolute;
+    left: 80px;
+    bottom: 5px;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.loading-text {
+    position: absolute;
+    bottom: -25px;
+    left: 0;
+    width: 200px;
+    font-size: 1.2rem;
+    color: white;
+    text-shadow: 1px 1px 4px black;
+    font-weight: 500;
 }
