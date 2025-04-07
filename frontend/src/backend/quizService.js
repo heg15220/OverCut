@@ -12,20 +12,20 @@ export const createQuiz = (userId, lang, onSuccess, onErrors) => {
     );
 };
 
-export const getQuizQuestionsType = (quizId, onSuccess, onErrors) => {
+export const getQuizQuestionsType = (quizId,lang, onSuccess, onErrors) => {
 
     appFetch(
-        `/quiz/${quizId}/quizType`,
+        `/quiz/${quizId}/quizType?lang=${lang}`,
         fetchConfig("GET"),
         onSuccess,
         onErrors
     );
 };
 
-export const getQuizQuestionsCategory = (quizId, onSuccess, onErrors) => {
+export const getQuizQuestionsCategory = (quizId, lang, onSuccess, onErrors) => {
 
     appFetch(
-        `/quiz/${quizId}/quizCategory`,
+        `/quiz/${quizId}/quizCategory?lang=${lang}`,
         fetchConfig("GET"),
         onSuccess,
         onErrors

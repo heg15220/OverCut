@@ -96,15 +96,15 @@ export const createQuiz = ({ userId, lang, onSuccess, onErrors }) => dispatch =>
 
 
 
-export const getQuizQuestionsType = (quizId, onSuccess, onErrors) => dispatch =>
-    backend.quizService.getQuizQuestionsType(quizId, quizType => {
+export const getQuizQuestionsType = ({quizId, lang, onSuccess, onErrors}) => dispatch =>
+    backend.quizService.getQuizQuestionsType(quizId, lang, quizType => {
         dispatch(getQuizQuestionsTypeCompleted(quizType));
         onSuccess(quizType);
     },
     onErrors);
 
-export const getQuizQuestionsCategory = (quizId, onSuccess, onErrors) => dispatch =>
-    backend.quizService.getQuizQuestionsCategory(quizId, quizCategory => {
+export const getQuizQuestionsCategory = ({quizId, lang, onSuccess, onErrors}) => dispatch =>
+    backend.quizService.getQuizQuestionsCategory(quizId, lang, quizCategory => {
         dispatch(getQuizQuestionsCategoryCompleted(quizCategory));
         onSuccess(quizCategory);
     },

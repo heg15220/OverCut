@@ -3,11 +3,15 @@ package es.udc.fic.tfg.rest.dtos;
 import es.udc.fic.tfg.model.entities.QuizCategory;
 import es.udc.fic.tfg.model.entities.QuizCategoryCode;
 import es.udc.fic.tfg.model.entities.QuizType;
+import es.udc.fic.tfg.model.services.QuizService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class QuizCategoryConversor {
+
+
     private QuizCategoryConversor() {
         // Constructor privado para evitar instanciación
     }

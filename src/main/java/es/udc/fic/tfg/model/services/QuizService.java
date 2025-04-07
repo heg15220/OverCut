@@ -8,6 +8,9 @@ import java.util.List;
 
 public interface QuizService {
 
+    String getQuizTypeName(QuizType quizType, String lang);
+
+    String getQuizCategoryName(QuizCategory quizCategory, String lang);
     QuizType chooseQuizType();
 
     QuizCategory chooseQuizCategory(QuizType quizType);

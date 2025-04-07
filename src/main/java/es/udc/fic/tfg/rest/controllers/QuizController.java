@@ -39,20 +39,24 @@ public class QuizController {
 
 
     @GetMapping("/{quizId}/quizType")
-    public QuizTypeDto getQuizQuestionsType(@PathVariable Long quizId){
+    public QuizTypeDto getQuizQuestionsType(@PathVariable Long quizId, @RequestParam(defaultValue = "es") String lang){
         QuizType type = quizService.getQuizQuestionsType(quizId);
-        QuizTypeDto typeDto = QuizTypeConversor.convertToQuizTypeDto(type);
-        return typeDto;
+        String name = quizService.getQuizTypeName(type,lang);
+        return new QuizTypeDto(type.getId(),type.getCode(),type.getImagePath(),name);
     }
 
     @GetMapping("/{quizId}/quizCategory")
-    public QuizCategoryDto getQuizQuestionsCategory(@PathVariable Long quizId) {
+    public QuizCategoryDto getQuizQuestionsCategory(@PathVariable Long quizId,
+                                                    @RequestParam(defaultValue = "es") String lang) {
         QuizCategory quizCategory = quizService.getQuizQuestionsCategory(quizId);
-        QuizCategoryDto categoryDto = QuizCategoryConversor.convertToQuizCategoryDto(quizCategory);
-        return categoryDto;
+        String name = quizService.getQuizCategoryName(quizCategory,lang);
+        QuizType quizType = quizService.getQuizQuestionsType(quizId);
+        QuizTypeDto quizTypeDto = QuizTypeConversor.convertToQuizTypeDto(quizType);
+        return new QuizCategoryDto(quizCategory.getId(),quizCategory.getCode(),quizTypeDto,name);
     }
     @PostMapping("/{id}/answer")
-    public void chooseAnswer(@PathVariable("id") Long quizId, @Validated @RequestBody AnswerParamsDto params) throws QuizException,
+    public void chooseAnswer(@PathVariable("id") Long quizId, @Validated @RequestBody AnswerParamsDto params)
+            throws QuizException,
             InstanceNotFoundException{
         quizService.chooseAnswer(quizId, params.getQuestionId(), params.getUserId(), params.getAnswerId());
     }

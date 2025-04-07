@@ -20,8 +20,22 @@ const QuizList = () => {
 
     useEffect(() => {
         if (quiz) {
-            dispatch(actions.getQuizQuestionsType(quiz, () => {}, () => {}));
-            dispatch(actions.getQuizQuestionsCategory(quiz, () => {}, () => {}));
+            const rawLang = navigator.language || navigator.userLanguage; // fallback por compatibilidad
+            const normalizedLang = rawLang.toLowerCase().startsWith('es') ? 'es' : 'en';
+
+            dispatch(actions.getQuizQuestionsType({
+                quizId: quiz,
+                lang: normalizedLang,
+                onSuccess: () => {},
+                onErrors: () => {}
+            }));
+
+            dispatch(actions.getQuizQuestionsCategory({
+                quizId: quiz,
+                lang: normalizedLang,
+                onSuccess: () => {},
+                onErrors: () => {}
+            }));
             dispatch(actions.getQuizQuestions({ quizId: quiz, page: currentPage }, () => {}, () => {}));
         }
     }, [dispatch, quiz, currentPage]);

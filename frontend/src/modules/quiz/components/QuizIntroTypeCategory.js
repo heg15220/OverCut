@@ -37,7 +37,7 @@ const QuizIntroTypeCategory = ({ quizType, quizCategory, onContinue }) => {
                             fontWeight: 'bold'
                         }}
                     >
-                        {quizType.code}
+                        {quizType.name}
                     </motion.p>
                     <motion.p
                         initial={{ y: 20, opacity: 0 }}
@@ -50,7 +50,7 @@ const QuizIntroTypeCategory = ({ quizType, quizCategory, onContinue }) => {
                             textShadow: '1px 1px 3px rgba(0,0,0,0.6)'
                         }}
                     >
-                        {quizCategory.code}
+                        {quizCategory.name}
                     </motion.p>
                 </motion.div>
             </div>

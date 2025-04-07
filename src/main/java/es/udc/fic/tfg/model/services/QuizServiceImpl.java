@@ -64,6 +64,11 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private QuestionLLMService questionLLMService;
 
+    @Autowired
+    private QuizTypeTranslationRepositoryDao quizTypeTranslationDao;
+
+    @Autowired
+    private QuizCategoryTranslationDao quizCategoryTranslationDao;
 
     /**
      * The permission checker.
@@ -72,6 +77,33 @@ public class QuizServiceImpl implements QuizService {
     private PermissionChecker permissionChecker;
 
 
+    @Override
+    public String getQuizTypeName(QuizType quizType, String lang) {
+        return quizTypeTranslationDao.findByQuizTypeIdAndLanguage(quizType.getId(), lang)
+                .map(QuizTypeTranslation::getName)
+                .map(this::fixEncodingIfNeeded)
+                .orElse(quizType.getCode().name());
+    }
+
+    @Override
+    public String getQuizCategoryName(QuizCategory quizCategory, String lang) {
+        return quizCategoryTranslationDao.findByQuizCategoryIdAndLanguage(quizCategory.getId(), lang)
+                .map(QuizCategoryTranslation::getName)
+                .map(this::fixEncodingIfNeeded)
+                .orElse(quizCategory.getCode().name());
+    }
+
+
+    private String fixEncodingIfNeeded(String input) {
+        if (containsEncodingArtifacts(input)) {
+            String fixed = tryFixEncoding(input);
+            if (fixed != null && !input.equals(fixed)) {
+                System.out.println("Texto reparado: " + input + " → " + fixed);
+                return fixed;
+            }
+        }
+        return input;
+    }
 
     private boolean containsEncodingArtifacts(String text) {
         return text != null && (

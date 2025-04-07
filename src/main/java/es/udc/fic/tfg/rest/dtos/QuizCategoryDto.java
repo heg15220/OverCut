@@ -12,11 +12,22 @@ public class QuizCategoryDto {
 
     private QuizTypeDto quizType;
 
+    private String name;
+
+    public QuizCategoryDto() {
+    }
 
     public QuizCategoryDto(Long id, QuizCategoryCode code, QuizTypeDto quizType) {
         this.id = id;
         this.code = code;
         this.quizType = quizType;
+    }
+
+    public QuizCategoryDto(Long id, QuizCategoryCode code, QuizTypeDto quizType, String name) {
+        this.id = id;
+        this.code = code;
+        this.quizType = quizType;
+        this.name = name;
     }
 
     public Long getId() {
@@ -43,4 +54,11 @@ public class QuizCategoryDto {
         this.quizType = quizType;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

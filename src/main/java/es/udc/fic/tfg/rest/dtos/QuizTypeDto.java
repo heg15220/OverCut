@@ -9,10 +9,22 @@ public class QuizTypeDto {
 
     private String imagePath;
 
+    private String name;
+
+    public QuizTypeDto() {
+    }
+
     public QuizTypeDto(Long id, QuizTypeCode code, String imagePath) {
         this.id = id;
         this.code = code;
         this.imagePath = imagePath;
+    }
+
+    public QuizTypeDto(Long id, QuizTypeCode code, String imagePath, String name) {
+        this.id = id;
+        this.code = code;
+        this.imagePath = imagePath;
+        this.name = name;
     }
 
     public Long getId() {
@@ -37,6 +49,14 @@ public class QuizTypeDto {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
 
