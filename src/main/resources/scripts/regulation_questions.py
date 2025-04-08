@@ -733,83 +733,8 @@ def pregunta_regla_107_por_ciento():
             "category": "Qualifying",
             "language": LANG
         }
-def pregunta_dia_sprint_shootout():
-    if LANG == "es":
-        return {
-            "question": "¿Qué día se celebra la Sprint Shootout durante un fin de semana con formato sprint?",
-            "answers": ["Sábado", "Domingo", "Viernes", "Depende del circuito"],
-            "correctAnswer": "Sábado",
-            "knowledgeLevel": 1,
-            "category": "Sprint",
-            "language": LANG
-        }
-    elif LANG == "en":
-        return {
-            "question": "On what day is the Sprint Shootout held during a sprint weekend?",
-            "answers": ["Saturday", "Sunday", "Friday", "Depends on the circuit"],
-            "correctAnswer": "Saturday",
-            "knowledgeLevel": 1,
-            "category": "Sprint",
-            "language": LANG
-        }
-def pregunta_modificaciones_bandera_roja():
-    if LANG == "es":
-        return {
-            "question": "¿Qué se permite hacer en los coches durante una bandera roja?",
-            "answers": [
-                "Se pueden realizar reparaciones bajo supervisión",
-                "Se puede cambiar cualquier pieza libremente",
-                "Solo se permite repostar combustible",
-                "No está permitido tocar el coche bajo ninguna circunstancia"
-            ],
-            "correctAnswer": "Se pueden realizar reparaciones bajo supervisión",
-            "knowledgeLevel": 2,
-            "category": "RedFlag",
-            "language": LANG
-        }
-    elif LANG == "en":
-        return {
-            "question": "What is allowed to be done to the cars during a red flag?",
-            "answers": [
-                "Repairs can be made under supervision",
-                "Any part can be freely replaced",
-                "Only refueling is allowed",
-                "Cars cannot be touched under any circumstances"
-            ],
-            "correctAnswer": "Repairs can be made under supervision",
-            "knowledgeLevel": 2,
-            "category": "RedFlag",
-            "language": LANG
-        }
-def pregunta_reemplazo_piloto():
-    if LANG == "es":
-        return {
-            "question": "¿Qué debe hacer un equipo si un piloto no puede competir tras iniciado el evento?",
-            "answers": [
-                "Solicitar autorización para sustituirlo",
-                "Abandonar la competición",
-                "Pedir reemplazo de equipo también",
-                "Nada, se omite su participación"
-            ],
-            "correctAnswer": "Solicitar autorización para sustituirlo",
-            "knowledgeLevel": 2,
-            "category": "Drivers",
-            "language": LANG
-        }
-    elif LANG == "en":
-        return {
-            "question": "What is allowed to be done to the cars during a red flag?",
-            "answers": [
-                "Repairs can be made under supervision",
-                "Any part can be freely replaced",
-                "Only refueling is allowed",
-                "Cars cannot be touched under any circumstances"
-            ],
-            "correctAnswer": "Repairs can be made under supervision",
-            "knowledgeLevel": 2,
-            "category": "RedFlag",
-            "language": LANG
-        }
+
+
 def pregunta_revision_postcarrera():
     if LANG == "es":
         return {
@@ -1648,8 +1573,8 @@ def pregunta_parque_cerrado_despues_sprint():
     if LANG == "es":
         return {
             "question": "¿Se aplica el parque cerrado después de una carrera sprint?",
-            "answers": ["Sí, hasta la parrilla de la carrera principal", "No, solo tras clasificación", "Solo si llueve", "Sí, pero solo en la Q3"],
-            "correctAnswer": "Sí, hasta la parrilla de la carrera principal",
+            "answers": ["Sí, hasta la parrilla de la carrera principal", "No, antes de la clasificación", "Solo si llueve", "Sí, pero solo en la Q3"],
+            "correctAnswer": "No, antes de la clasificación",
             "knowledgeLevel": 2,
             "category": "ParcFerme",
             "language": LANG
@@ -1657,8 +1582,8 @@ def pregunta_parque_cerrado_despues_sprint():
     elif LANG == "en":
         return {
             "question": "Is parc fermé applied after a sprint race?",
-            "answers": ["Yes, until the main race grid", "No, only after qualifying", "Only if it rains", "Yes, but only during Q3"],
-            "correctAnswer": "Yes, until the main race grid",
+            "answers": ["Yes, until the main race grid", "No, only before qualifying", "Only if it rains", "Yes, but only during Q3"],
+            "correctAnswer": "No, only before qualifying",
             "knowledgeLevel": 2,
             "category": "ParcFerme",
             "language": LANG
@@ -2549,8 +2474,8 @@ def pregunta_uso_neumaticos_q3():
 def pregunta_dia_sprint_shootout():
     if LANG == "es":
         return {
-            "question": "¿Qué día se celebra la Sprint Shootout en un formato sprint weekend?",
-            "answers": ["Sábado", "Viernes", "Domingo", "Depende del circuito"],
+            "question": "¿Qué día se celebra la Sprint Shootout durante un fin de semana con formato sprint?",
+            "answers": ["Sábado", "Domingo", "Viernes", "Depende del circuito"],
             "correctAnswer": "Sábado",
             "knowledgeLevel": 1,
             "category": "Sprint",
@@ -2558,8 +2483,8 @@ def pregunta_dia_sprint_shootout():
         }
     elif LANG == "en":
         return {
-            "question": "What day is the Sprint Shootout held during a sprint weekend?",
-            "answers": ["Saturday", "Friday", "Sunday", "Depends on the circuit"],
+            "question": "On what day is the Sprint Shootout held during a sprint weekend?",
+            "answers": ["Saturday", "Sunday", "Friday", "Depends on the circuit"],
             "correctAnswer": "Saturday",
             "knowledgeLevel": 1,
             "category": "Sprint",
@@ -2598,7 +2523,7 @@ def pregunta_objetivo_sprint():
                 "Reducir el número de prácticas",
                 "Asignar neumáticos"
             ],
-            "correctAnswer": "Determinar el orden de salida del Gran Premio",
+            "correctAnswer": "Reducir el número de prácticas",
             "knowledgeLevel": 1,
             "category": "Sprint",
             "language": LANG
@@ -2612,39 +2537,8 @@ def pregunta_objetivo_sprint():
                 "To reduce practice sessions",
                 "To allocate tyres"
             ],
-            "correctAnswer": "To determine the starting grid for the Grand Prix",
+            "correctAnswer": "To reduce practice sessions",
             "knowledgeLevel": 1,
-            "category": "Sprint",
-            "language": LANG
-        }
-
-
-def pregunta_orden_salida_sprint():
-    if LANG == "es":
-        return {
-            "question": "¿Cómo se determina el orden de salida de la Sprint?",
-            "answers": [
-                "Según el resultado de la Sprint Shootout",
-                "Por orden del campeonato",
-                "Por sorteo",
-                "Con base en prácticas libres 1"
-            ],
-            "correctAnswer": "Según el resultado de la Sprint Shootout",
-            "knowledgeLevel": 2,
-            "category": "Sprint",
-            "language": LANG
-        }
-    elif LANG == "en":
-        return {
-            "question": "How is the Sprint starting order determined?",
-            "answers": [
-                "Based on the result of the Sprint Shootout",
-                "By championship order",
-                "By lottery",
-                "Based on Free Practice 1"
-            ],
-            "correctAnswer": "Based on the result of the Sprint Shootout",
-            "knowledgeLevel": 2,
             "category": "Sprint",
             "language": LANG
         }
@@ -3386,96 +3280,10 @@ def pregunta_debut_f1():
 
 
 
-
-def generar_preguntas_reglamento():
-    generadores = [
+generadores_por_categoria = {
+    "Scores": [
         pregunta_puntuacion_diez_puntos,
         pregunta_licencia_12_puntos,
-        pregunta_superlicencia,
-        pregunta_puntos_superlicencia,
-        pregunta_cambio_numero,
-        pregunta_duracion_contrato,
-        pregunta_uso_mismo_coche,
-        pregunta_test_jovenes,
-        pregunta_sustitucion_urgente,
-        pregunta_debut_f1,
-        pregunta_activacion_drs,
-        pregunta_fin_parque_cerrado,
-        pregunta_doble_bandera_amarilla,
-        pregunta_neumaticos_compuestos,
-        pregunta_vsc_significado,
-        pregunta_condiciones_vsc,
-        pregunta_tiempos_vsc,
-        pregunta_regla_107_por_ciento,
-        pregunta_dia_sprint_shootout,
-        pregunta_bandera_roja,
-        pregunta_verificacion_tecnica,
-        caso_reincorporacion_peligrosa,
-        pregunta_puntos_sprint,
-        pregunta_penalizacion_componentes,
-        pregunta_bandera_roja,
-        pregunta_modificaciones_parque_cerrado,
-        pregunta_vuelta_formacion,
-        pregunta_velocidad_pitlane,
-        pregunta_neumaticos_disponibles,
-        pregunta_safety_car,
-        pregunta_sesiones_clasificacion,
-        pregunta_orden_salida_sprint,
-        pregunta_bandera_roja_suspension,
-        pregunta_cambio_piloto
-    ]
-    preguntas = []
-    while len(preguntas) < 10:
-        gen = random.choice(generadores)
-        q = gen()
-        if q not in preguntas:
-            preguntas.append(q)
-    return preguntas
-
-
-
-def generar_preguntas_filtradas(categoria):
-    generadores = [
-        pregunta_puntuacion_diez_puntos,
-        pregunta_licencia_12_puntos,
-        pregunta_superlicencia,
-        pregunta_puntos_superlicencia,
-        pregunta_cambio_numero,
-        pregunta_duracion_contrato,
-        pregunta_uso_mismo_coche,
-        pregunta_test_jovenes,
-        pregunta_sustitucion_urgente,
-        pregunta_debut_f1,
-        pregunta_activacion_drs,
-        pregunta_fin_parque_cerrado,
-        pregunta_doble_bandera_amarilla,
-        pregunta_neumaticos_compuestos,
-        pregunta_vsc_significado,
-        pregunta_condiciones_vsc,
-        pregunta_tiempos_vsc,
-        pregunta_regla_107_por_ciento,
-        pregunta_dia_sprint_shootout,
-        pregunta_bandera_roja,
-        pregunta_verificacion_tecnica,
-        caso_reincorporacion_peligrosa,
-        pregunta_puntos_sprint,
-        pregunta_penalizacion_componentes,
-        pregunta_bandera_roja,
-        pregunta_modificaciones_parque_cerrado,
-        pregunta_vuelta_formacion,
-        pregunta_velocidad_pitlane,
-        pregunta_neumaticos_disponibles,
-        pregunta_safety_car,
-        pregunta_sesiones_clasificacion,
-        pregunta_orden_salida_sprint,
-        pregunta_bandera_roja_suspension,
-        pregunta_cambio_piloto,
-        caso_bandera_roja_pista_bloqueada,
-        caso_exceso_velocidad_pitlane,
-        caso_neumatico_incorrecto_clasificacion,
-        caso_orden_reinicio_bandera_roja,
-        caso_adelantar_tras_safety_car,
-        #Sección: Puntuaciones
         pregunta_puntuacion_segundo_clasificado,
         pregunta_puntuacion_quinto_clasificado,
         pregunta_puntos_reducidos_condiciones,
@@ -3484,7 +3292,9 @@ def generar_preguntas_filtradas(categoria):
         pregunta_equipo_1y2,
         pregunta_puntos_octavo_sprint,
         pregunta_puntos_bandera_roja,
-        # Sección: Sanciones
+        pregunta_puntos_sprint
+    ],
+    "Penalty": [
         pregunta_sancion_pit_lane,
         pregunta_penalizacion_5_segundos,
         pregunta_penalizacion_10_segundos,
@@ -3495,17 +3305,176 @@ def generar_preguntas_filtradas(categoria):
         pregunta_aleron_ilegal,
         pregunta_bandera_azul,
         pregunta_repostaje_irregular,
-
+        pregunta_penalizacion_componentes
+    ],
+    "Procedures": [
+        pregunta_final_vuelta_formacion,
+        pregunta_no_arranca_parrilla,
+        pregunta_segunda_vuelta_formacion,
+        pregunta_coche_detiene_parrilla,
+        pregunta_salida_abortada,
+        pregunta_inicio_carrera,
+        pregunta_salida_pitlane_parrilla,
+        pregunta_cierre_pitlane,
+        pregunta_boxes_vuelta_formacion,
+        pregunta_luces_salida,
+        pregunta_activacion_drs,
+        pregunta_vuelta_formacion
+    ],
+    "ParcFerme": [
+        pregunta_inicio_parque_cerrado,
+        pregunta_final_parque_cerrado,
+        pregunta_autorizacion_modificaciones,
+        pregunta_motivo_sancion_pc,
+        pregunta_tipo_modificaciones_permitidas,
+        pregunta_sustitucion_componentes_pc,
+        pregunta_reparaciones_durante_pc,
+        pregunta_objetivo_parque_cerrado,
+        pregunta_parque_cerrado_despues_sprint,
+        pregunta_comunicacion_violacion_pc,
+        pregunta_fin_parque_cerrado
+    ],
+    "Safety": [
+        pregunta_doble_bandera_amarilla,
+        pregunta_bandera_roja_seguridad,
+        pregunta_bandera_amarilla_simple,
+        pregunta_bandera_azul_significado,
+        pregunta_bandera_blanca,
+        pregunta_bandera_negra,
+        pregunta_luces_pit_lane,
+        pregunta_bandera_a_cuadros,
+        pregunta_bandera_negra_naranja,
+        pregunta_bandera_verde,
+        pregunta_velocidad_pitlane
+    ],
+    "Tyres": [
+        pregunta_uso_dos_compuestos,
+        pregunta_tipo_compuestos_drs,
+        pregunta_neumaticos_clasificacion,
+        pregunta_compuestos_lluvia,
+        pregunta_uso_intermedios,
+        pregunta_restriccion_uso_neumaticos,
+        pregunta_asignacion_neumaticos,
+        pregunta_pit_stop_neumaticos,
+        pregunta_neumaticos_sprint,
+        pregunta_marca_colores_neumaticos,
+        pregunta_neumaticos_compuestos,
+        pregunta_neumaticos_disponibles
+    ],
+    "SafetyCar": [
+        pregunta_salida_safety_car,
+        pregunta_regreso_boxes_safety_car,
+        pregunta_condiciones_vsc,
+        pregunta_adelantamientos_safety_car,
+        pregunta_salida_safety_car_linea,
+        pregunta_tiempos_vsc,
+        pregunta_vuelta_lanzada,
+        pregunta_coche_doblado_safety_car,
+        pregunta_bandera_verde_post_sc,
+        pregunta_vsc_significado,
+        pregunta_safety_car
+    ],
+    "Qualifying": [
+        pregunta_formato_clasificacion,
+        pregunta_duracion_q3,
+        pregunta_orden_salida_clasificacion,
+        pregunta_tiempos_q1_eliminacion,
+        pregunta_prohibiciones_clasificacion,
+        pregunta_autorizacion_participacion_fuera_107,
+        pregunta_influencia_sanciones_clasificacion,
+        pregunta_mas_de_un_tiempo,
+        pregunta_uso_neumaticos_q3,
+        pregunta_regla_107_por_ciento,
+        pregunta_sesiones_clasificacion
+    ],
+    "Sprint": [
+        pregunta_duracion_sprint,
+        pregunta_objetivo_sprint,
+        pregunta_compuestos_sprint,
+        pregunta_parrilla_gp,
+        pregunta_neumaticos_ss,
+        pregunta_vuelta_lanzada_sprint,
+        pregunta_penalizaciones_sprint,
+        pregunta_dia_sprint_shootout,
+        pregunta_orden_salida_sprint
+    ],
+    "RedFlag": [
+        pregunta_bandera_roja,
+        pregunta_fin_bandera_roja,
+        pregunta_duracion_maxima_suspension,
+        pregunta_motivo_bandera_roja,
+        pregunta_posiciones_bandera_roja,
+        pregunta_pitlane_durante_roja,
+        pregunta_pilotos_vehiculos_roja,
+        pregunta_comunicacion_bandera_roja,
+        pregunta_obligaciones_durante_roja,
+        pregunta_modificacion_setup_roja,
+        pregunta_bandera_roja_suspension
+    ],
+    "Drivers": [
+        pregunta_minimo_edad_piloto,
+        pregunta_superlicencia,
+        pregunta_puntos_superlicencia,
+        pregunta_cambio_numero,
+        pregunta_duracion_contrato,
+        pregunta_uso_mismo_coche,
+        pregunta_test_jovenes,
+        pregunta_sustitucion_urgente,
+        pregunta_debut_f1,
+        pregunta_cambio_piloto,
+        pregunta_reemplazo_piloto,
+        pregunta_revision_postcarrera
+    ],
+    "Technical": [
+        pregunta_verificacion_tecnica,
+        pregunta_modificaciones_parque_cerrado,
+        pregunta_bandera_amarilla_doble,
+        pregunta_modificaciones_bandera_roja
+    ],
+    "PracticalCase": [
+        caso_reincorporacion_peligrosa,
+        caso_bandera_roja_pista_bloqueada,
+        caso_exceso_velocidad_pitlane,
+        caso_neumatico_incorrecto_clasificacion,
+        caso_orden_reinicio_bandera_roja,
+        caso_adelantar_tras_safety_car
     ]
+}
+
+
+# Función auxiliar para barajar respuestas y mantener la correcta
+def barajar_respuestas(pregunta):
+    if not pregunta or "answers" not in pregunta or "correctAnswer" not in pregunta:
+        return pregunta
+
+    respuestas = pregunta["answers"]
+    correcta = pregunta["correctAnswer"]
+
+    if correcta not in respuestas:
+        return pregunta
+
+    random.shuffle(respuestas)
+    pregunta["answers"] = respuestas
+    return pregunta
+
+def generar_preguntas_filtradas(categoria):
     preguntas = []
-    for gen in generadores:
-        p = gen()
-        if categoria and p["category"].lower() != categoria.lower():
-            continue
-        preguntas.append(p)
+
+    if not categoria:
+        return preguntas
+
+    # Buscar la categoría sin importar mayúsculas/minúsculas
+    categoria_real = next((k for k in generadores_por_categoria if k.lower() == categoria.lower()), None)
+
+    if categoria_real:
+        generadores = generadores_por_categoria[categoria_real]
+        generadores_seleccionados = random.sample(generadores, min(10, len(generadores)))
+        for gen in generadores_seleccionados:
+            p = gen()
+            if p:
+                p = barajar_respuestas(p)
+                preguntas.append(p)
     return preguntas
-
-
 
 if __name__ == "__main__":
     global LANG  # ✅ Esto hace que se modifique la variable global y no una local
@@ -3523,6 +3492,6 @@ if __name__ == "__main__":
         print(f"[ERROR] No se encontraron preguntas para la categoría: {args.category}", file=sys.stderr)
         sys.exit(1)
 
-    print(json.dumps(preguntas, ensure_ascii=False))
+    print(json.dumps(preguntas, ensure_ascii=False, indent=2))
 
 

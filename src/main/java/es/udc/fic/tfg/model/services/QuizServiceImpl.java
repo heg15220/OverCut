@@ -340,7 +340,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private QuizCategory getQuizCategoryType(){
-        return quizCategoryDao.findCategoryById(3L);
+        return quizCategoryDao.findCategoryById(19L);
     }
 
     @Override
@@ -351,7 +351,7 @@ public class QuizServiceImpl implements QuizService {
         }
 
         QuizType quizType = chooseQuizType();
-        //QuizType quizType = getStatsType(QuizTypeCode.Stats);
+        //QuizType quizType = getStatsType(QuizTypeCode.Regulations);
         QuizCategory quizCategory = chooseQuizCategory(quizType);
         //QuizCategory quizCategory = getQuizCategoryType();
         List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType, quizCategory, language);
