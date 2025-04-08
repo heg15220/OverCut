@@ -7,19 +7,20 @@ import random
 import json
 import argparse  # <- AÑADE ESTO AQUÍ
 import concurrent.futures
-
-
-config = {
-    'host': 'localhost',
-    'port': 3306,
-    'user': 'root',
-    'password': 'root',
-    'database': 'f1db'
-}
-
+from mysql.connector import pooling
+# --- Connection Pool Setup ---
+connection_pool = pooling.MySQLConnectionPool(
+    pool_name="f1db_pool",
+    pool_size=32,
+    host='localhost',
+    port=3306,
+    user='root',
+    password='root',
+    database='f1db'
+)
 
 def crear_cursor_local():
-    conn = mysql.connector.connect(**config)
+    conn = connection_pool.get_connection()
     return conn, conn.cursor()
 
 _pilotos_cache = None
@@ -2591,11 +2592,13 @@ def pregunta_circuito_mas_abandonos_piloto():
         piloto_objetivo = row[0]
         while cursor.nextset():
             pass
-        cursor.execute("SELECT name FROM drivers d WHERE d.driverId = piloto_objetivo")
+        cursor.execute("SELECT forename, surname FROM drivers WHERE driverId = %s", (piloto_objetivo,))
         row = cursor.fetchone()
+
         if not row:
             return None
-        piloto_objetivo_name = row[0]
+        piloto_objetivo_name = f"{row[0]} {row[1]}"
+
         # De nuevo: asegurarse de que no quedan resultados pendientes
         while cursor.nextset():
             pass
@@ -2857,19 +2860,32 @@ def pregunta_porcentaje_carreras_finalizadas():
 def pregunta_circuito_no_victoria_piloto():
     conn, cursor = crear_cursor_local()
     try:
-
-        # De nuevo: asegurarse de que no quedan resultados pendientes
         while cursor.nextset():
             pass
-        cursor.execute("SELECT driverId, forename, surname FROM drivers ORDER BY RAND() LIMIT 1")
+
+        # Escoger piloto aleatorio que haya ganado al menos en 3 circuitos
+        cursor.execute("""
+            SELECT d.driverId, d.forename, d.surname
+            FROM drivers d
+            WHERE (
+                SELECT COUNT(DISTINCT ra.circuitId)
+                FROM results r
+                JOIN races ra ON r.raceId = ra.raceId
+                WHERE r.driverId = d.driverId AND r.position = 1
+            ) >= 3
+            ORDER BY RAND()
+            LIMIT 1
+        """)
         row = cursor.fetchone()
         if not row:
             return None
-        piloto_objetivo, forename, surname = row
+        piloto_id, forename, surname = row
         nombre_piloto = f"{forename} {surname}"
-        # De nuevo: asegurarse de que no quedan resultados pendientes
+
         while cursor.nextset():
             pass
+
+        # Obtener circuitos en los que NO ha ganado
         cursor.execute("""
             SELECT c.name
             FROM circuits c
@@ -2881,33 +2897,50 @@ def pregunta_circuito_no_victoria_piloto():
             )
             ORDER BY RAND()
             LIMIT 1
-        """, (piloto_objetivo,))
+        """, (piloto_id,))
         row = cursor.fetchone()
         if not row:
             return None
-        circuito = row[0]
-        # De nuevo: asegurarse de que no quedan resultados pendientes
+        circuito_no_ganado = row[0]
+
         while cursor.nextset():
             pass
-        cursor.execute("SELECT name FROM circuits WHERE name != %s ORDER BY RAND() LIMIT 3", (circuito,))
-        incorrectas = [r[0] for r in cursor.fetchall()]
-        opciones = incorrectas + [circuito]
+
+        # Obtener 3 circuitos donde SÍ ha ganado
+        cursor.execute("""
+            SELECT DISTINCT c.name
+            FROM results r
+            JOIN races ra ON r.raceId = ra.raceId
+            JOIN circuits c ON ra.circuitId = c.circuitId
+            WHERE r.driverId = %s AND r.position = 1
+            ORDER BY RAND()
+            LIMIT 3
+        """, (piloto_id,))
+        circuitos_ganados = [r[0] for r in cursor.fetchall()]
+
+        if len(circuitos_ganados) < 3:
+            return None  # Seguridad extra
+
+        opciones = circuitos_ganados + [circuito_no_ganado]
         random.shuffle(opciones)
+
         if LANG == "es":
             pregunta = f"¿En qué circuito {nombre_piloto} no ha logrado nunca una victoria?"
         elif LANG == "en":
             pregunta = f"In which track did not {nombre_piloto} achieve any race win?"
+
         return {
             "question": pregunta,
             "answers": opciones,
-            "correctAnswer": circuito,
+            "correctAnswer": circuito_no_ganado,
             "knowledgeLevel": 2,
             "category": "Driver",
             "language": LANG
         }
     finally:
-            cursor.close()
-            conn.close()
+        cursor.close()
+        conn.close()
+
 
 
 def pregunta_pilotos_distintos_compitio():
@@ -3004,7 +3037,7 @@ def pregunta_racha_sin_ganar():
                 racha = 0
 
         if LANG == "es":
-            pregunta = f"¿Cuál fue la racha más larga de temporadas sin ganar {nombre_piloto}?"
+            pregunta = f"¿Cuál fue la racha más larga de temporadas sin ganar para {nombre_piloto}?"
         elif LANG == "en":
             pregunta = f"Which was {nombre_piloto} biggest no seasons winning streak?"
         opciones = get_respuestas_incorrectas(str(max_racha), [str(i) for i in range(1, 10)])
@@ -4533,9 +4566,9 @@ def pregunta_primer_gp_fuera_europa():
         pais = row[1]
 
         if LANG == "es":
-            pregunta = "¿Cuál fue el primer país en celebrar un Gran Premio fuera de Europa?"
+            pregunta = "¿Cuál de entre estos países fue el primero en celebrar un Gran Premio?"
         elif LANG == "en":
-            pregunta = "Which country was the first one to celebrate a Gran Prix outside of Europe?"
+            pregunta = "Which country was the first one to celebrate a Gran Prix between them?"
         cursor.execute("SELECT DISTINCT country FROM circuits WHERE country != %s", (pais,))
         incorrectas = get_respuestas_incorrectas(pais, [r[0] for r in cursor.fetchall()])
         opciones = incorrectas + [pais]

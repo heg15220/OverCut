@@ -334,6 +334,14 @@ public class QuizServiceImpl implements QuizService {
         return categories.get(randomIndex);
     }
 
+    private QuizType getStatsType(QuizTypeCode code){
+        return quizTypeDao.findByCodeWithoutOptional(code);
+
+    }
+
+    private QuizCategory getQuizCategoryType(){
+        return quizCategoryDao.findCategoryById(3L);
+    }
 
     @Override
     public Quiz createQuiz(Long userId, String language) throws InstanceNotFoundException {
@@ -343,7 +351,9 @@ public class QuizServiceImpl implements QuizService {
         }
 
         QuizType quizType = chooseQuizType();
+        //QuizType quizType = getStatsType(QuizTypeCode.Stats);
         QuizCategory quizCategory = chooseQuizCategory(quizType);
+        //QuizCategory quizCategory = getQuizCategoryType();
         List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType, quizCategory, language);
 
 

@@ -18,92 +18,86 @@ VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example artic
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
 
-INSERT INTO QuizType (code,imagePath) VALUES
-('Stats', 'f1-2013-11-bel-parrilla-trasera.jpg'),
-('Regulations', 'fia.jpg'),
-('Pictures', 'coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg');
+INSERT INTO QuizType (code,imagePath) VALUES ('Stats', 'f1-2013-11-bel-parrilla-trasera.jpg');
+INSERT INTO QuizType (code,imagePath) VALUES ('Regulations', 'fia.jpg');
+INSERT INTO QuizType (code,imagePath) VALUES ('Pictures', 'coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg');
 
 -- Traducciones al español (es)
-INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES
-(1, 'es', 'Estadísticas'),
-(2, 'es', 'Reglamento'),
-(3, 'es', 'Imágenes');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (1, 'es', 'Estadísticas');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (2, 'es', 'Reglamento');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (3, 'es', 'Imágenes');
 
 -- Traducciones al inglés (en)
-INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES
-(1, 'en', 'Statistics'),
-(2, 'en', 'Regulations'),
-(3, 'en', 'Pictures');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (1, 'en', 'Statistics');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (2, 'en', 'Regulations');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (3, 'en', 'Pictures');
 
 
 -- Asociadas a QuizType 'Stats'
-INSERT INTO QuizCategory (code, quizTypeId) VALUES
-('Scores', 2),
-('Penalty', 2),
-('Driver', 1),
-('Team', 1),
-('LegendarySeason', 1),
-('Duels', 1),
-('Circuit', 1),
-('GenericStats', 1),
-('Procedures', 2),
-('ParcFerme', 2),
-('Safety', 2),
-('Tyres', 2),
-('SafetyCar', 2),
-('Qualifying', 2),
-('Sprint', 2),
-('RedFlag', 2),
-('Drivers', 2),
-('Technical', 2),
-('PracticalCase', 2),
-('DescriptiveImages', 3);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Scores', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Penalty', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Driver', 1);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Team', 1);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('LegendarySeason', 1);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Duels', 1);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Circuit', 1);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('GenericStats', 1);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Procedures', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('ParcFerme', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Safety', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Tyres', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('SafetyCar', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Qualifying', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Sprint', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('RedFlag', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Drivers', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Technical', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('PracticalCase', 2);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('DescriptiveImages', 3);
 
 -- Español (es)
-INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES
-(1, 'es', 'Puntuaciones'),
-(2, 'es', 'Sanciones'),
-(3, 'es', 'Pilotos'),
-(4, 'es', 'Escuderías'),
-(5, 'es', 'Temporadas Legendarias'),
-(6, 'es', 'Duelos'),
-(7, 'es', 'Circuito'),
-(8, 'es', 'Estadisticas Genericas'),
-(9, 'es', 'Procedimientos'),
-(10, 'es', 'Parque Cerrado'),
-(11, 'es', 'Seguridad'),
-(12, 'es', 'Neumaticos'),
-(13, 'es', 'Coche de seguridad'),
-(14, 'es', 'Clasificacion'),
-(15, 'es', 'Sprint'),
-(16, 'es', 'Bandera Roja'),
-(17, 'es', 'Pilotos'),
-(18, 'es', 'Tecnica'),
-(19, 'es', 'Casos practicos'),
-(20, 'es', 'Imagenes Descriptivas');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (1, 'es', 'Puntuaciones');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (2, 'es', 'Sanciones');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (3, 'es', 'Pilotos');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (4, 'es', 'Escuderías');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (5, 'es', 'Temporadas Legendarias');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (6, 'es', 'Duelos');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (7, 'es', 'Circuito');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (8, 'es', 'Estadísticas Genéricas');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (9, 'es', 'Procedimientos');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (10, 'es', 'Parque Cerrado');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (11, 'es', 'Seguridad');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (12, 'es', 'Neumaticos');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (13, 'es', 'Coche de seguridad');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (14, 'es', 'Clasificacion');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (15, 'es', 'Sprint');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (16, 'es', 'Bandera Roja');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (17, 'es', 'Pilotos');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (18, 'es', 'Tecnica');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (19, 'es', 'Casos practicos');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (20, 'es', 'Imagenes Descriptivas');
 
 -- Inglés (en)
-INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES
-(1, 'en', 'Scores'),
-(2, 'en', 'Penalty'),
-(3, 'en', 'Drivers'),
-(4, 'en', 'Teams'),
-(5, 'en', 'Legendary Seasons'),
-(6, 'en', 'Duels'),
-(7, 'en', 'Circuit'),
-(8, 'en', 'Generic Stats'),
-(9, 'en', 'Procedures'),
-(10, 'en', 'Parc Ferme'),
-(11, 'en', 'Safety'),
-(12, 'en', 'Tyres'),
-(13, 'en', 'Safety Car'),
-(14, 'en', 'Qualifying'),
-(15, 'en', 'Sprint'),
-(16, 'en', 'Red Flag'),
-(17, 'en', 'Drivers'),
-(18, 'en', 'Technical'),
-(19, 'en', 'Practical case'),
-(20, 'en', 'Descriptive Images');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (1, 'en', 'Scores');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (2, 'en', 'Penalty');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (3, 'en', 'Drivers');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (4, 'en', 'Teams');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (5, 'en', 'Legendary Seasons');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (6, 'en', 'Duels');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (7, 'en', 'Circuit');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (8, 'en', 'Generic Stats');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (9, 'en', 'Procedures');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (10, 'en', 'Parc Ferme');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (11, 'en', 'Safety');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES  (12, 'en', 'Tyres');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (13, 'en', 'Safety Car');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (14, 'en', 'Qualifying');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (15, 'en', 'Sprint');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (16, 'en', 'Red Flag');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (17, 'en', 'Drivers');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (18, 'en', 'Technical');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (19, 'en', 'Practical case');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (20, 'en', 'Descriptive Images');
 
 
 
@@ -1949,8 +1943,8 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Alemania', fal
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('¿Qué circuito ha albergado más Grandes Premios en la historia de la Fórmula 1?', NULL, 1, 'es');
 
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monza', false, 219, 'es');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Silverstone', true, 219, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monza', true, 219, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Silverstone', false, 219, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Spa-Francorchamps', false, 219, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Suzuka', false, 219, 'es');
 

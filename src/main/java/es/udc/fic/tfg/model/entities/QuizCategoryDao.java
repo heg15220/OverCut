@@ -19,5 +19,8 @@ public interface QuizCategoryDao extends JpaRepository<QuizCategory,Long> {
     @Query("SELECT qc.quizType FROM QuizCategory qc WHERE qc.code = :code")
     QuizType findQuizTypeByCategoryCode(@Param("code") QuizCategoryCode code);
 
+    @Query("SELECT qc FROM QuizCategory qc WHERE qc.id = :id")
+    QuizCategory findCategoryById(@Param("id") Long id);
+
 
 }
