@@ -166,7 +166,8 @@ public class QuizServiceImpl implements QuizService {
             aiQuestions = questionLLMService.generateRegulationQuestions(language, quizCategory.getCode().name());
         } else if(quizType.getCode().equals(QuizTypeCode.Stats)) {
             aiQuestions = questionLLMService.generateQuestionsAI(language, quizCategory.getCode().name());
-
+        } else if(quizType.getCode().equals(QuizTypeCode.Strategy)){
+            aiQuestions = questionLLMService.generateStrategyQuestions(language,quizCategory.getCode().name());
         }
 
         if (dbQuestions.isEmpty() && (aiQuestions == null || aiQuestions.isEmpty())) {
@@ -340,7 +341,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private QuizCategory getQuizCategoryType(){
-        return quizCategoryDao.findCategoryById(19L);
+        return quizCategoryDao.findCategoryById(21L);
     }
 
     @Override
@@ -350,10 +351,10 @@ public class QuizServiceImpl implements QuizService {
             throw new InstanceNotFoundException("User not found here", userId);
         }
 
-        QuizType quizType = chooseQuizType();
-        //QuizType quizType = getStatsType(QuizTypeCode.Regulations);
-        QuizCategory quizCategory = chooseQuizCategory(quizType);
-        //QuizCategory quizCategory = getQuizCategoryType();
+        //QuizType quizType = chooseQuizType();
+        QuizType quizType = getStatsType(QuizTypeCode.Strategy);
+        //QuizCategory quizCategory = chooseQuizCategory(quizType);
+        QuizCategory quizCategory = getQuizCategoryType();
         List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType, quizCategory, language);
 
 

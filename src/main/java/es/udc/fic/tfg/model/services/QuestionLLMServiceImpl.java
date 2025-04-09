@@ -41,7 +41,8 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
         CATEGORY_MAP.put("Duels", QuizCategoryCode.Duels);
         CATEGORY_MAP.put("LegendarySeason", QuizCategoryCode.LegendarySeason);
         CATEGORY_MAP.put("Team", QuizCategoryCode.Team);
-
+        CATEGORY_MAP.put("RaceStrategy", QuizCategoryCode.RaceStrategy);
+        CATEGORY_MAP.put("F1Physics", QuizCategoryCode.F1Physics);
 
     }
 
@@ -116,6 +117,65 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
             List<String> command = new ArrayList<>();
             command.add("python"); // Cambia por "python" si estás en Windows o usa variable @Value
             String scriptPath = Paths.get("src/main/resources/scripts/regulation_questions.py")
+                    .toAbsolutePath().toString();
+            command.add(scriptPath);
+
+            if (category != null && !category.isEmpty()) {
+                command.add("--category=" + category);
+            }
+            if (language != null && !language.isEmpty()) {
+                command.add("--lang=" + language);
+            }
+
+
+            // Preparación del proceso
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            // Leer la salida del script
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder jsonOutput = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonOutput.append(line);
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                ObjectMapper mapper = new ObjectMapper();
+                List<Map<String, Object>> rawQuestions = mapper.readValue(jsonOutput.toString(), List.class);
+
+                for (Map<String, Object> raw : rawQuestions) {
+                    String q = (String) raw.get("question");
+                    List<String> answers = (List<String>) raw.get("answers");
+                    String correct = (String) raw.get("correctAnswer");
+                    int levelVal = (Integer) raw.get("knowledgeLevel");
+                    String cat = (String) raw.get("category");
+                    String lang = (String) raw.get("language");
+                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
+                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+                }
+            } else {
+                throw new RuntimeException("Error ejecutando el script regulation_questions.py: código " + exitCode);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return questions;
+    }
+
+    @Override
+    public List<QuestionAI> generateStrategyQuestions(String language, String category) {
+        List<QuestionAI> questions = new ArrayList<>();
+
+        try {
+            // Construcción del comando
+            List<String> command = new ArrayList<>();
+            command.add("python"); // Cambia por "python" si estás en Windows o usa variable @Value
+            String scriptPath = Paths.get("src/main/resources/scripts/strategy_questions.py")
                     .toAbsolutePath().toString();
             command.add(scriptPath);
 

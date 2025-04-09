@@ -21,16 +21,25 @@ VALUES ('This is a comment.', 1, NULL, 1);
 INSERT INTO QuizType (code,imagePath) VALUES ('Stats', 'f1-2013-11-bel-parrilla-trasera.jpg');
 INSERT INTO QuizType (code,imagePath) VALUES ('Regulations', 'fia.jpg');
 INSERT INTO QuizType (code,imagePath) VALUES ('Pictures', 'coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg');
+INSERT INTO QuizType (code,imagePath) VALUES ('Strategy', 'parada-boxes-coche-carreras-formula-tripulacion-accion_771335-69432.jpg');
+INSERT INTO QuizType (code, imagePath) VALUES ('Physics', null);
+
 
 -- Traducciones al español (es)
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (1, 'es', 'Estadísticas');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (2, 'es', 'Reglamento');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (3, 'es', 'Imágenes');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (4, 'es', 'Estrategia');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (5, 'es', 'Física');
+
 
 -- Traducciones al inglés (en)
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (1, 'en', 'Statistics');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (2, 'en', 'Regulations');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (3, 'en', 'Pictures');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (4, 'en', 'Strategy');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (5, 'en', 'Physics');
+
 
 
 -- Asociadas a QuizType 'Stats'
@@ -54,6 +63,10 @@ INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Drivers', 2);
 INSERT INTO QuizCategory (code, quizTypeId) VALUES ('Technical', 2);
 INSERT INTO QuizCategory (code, quizTypeId) VALUES ('PracticalCase', 2);
 INSERT INTO QuizCategory (code, quizTypeId) VALUES ('DescriptiveImages', 3);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('RaceStrategy', 4);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('F1Physics', 5);
+
+
 
 -- Español (es)
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (1, 'es', 'Puntuaciones');
@@ -67,15 +80,19 @@ INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (8, 
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (9, 'es', 'Procedimientos');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (10, 'es', 'Parque Cerrado');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (11, 'es', 'Seguridad');
-INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (12, 'es', 'Neumaticos');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (12, 'es', 'Neumáticos');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (13, 'es', 'Coche de seguridad');
-INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (14, 'es', 'Clasificacion');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (14, 'es', 'Clasificación');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (15, 'es', 'Sprint');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (16, 'es', 'Bandera Roja');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (17, 'es', 'Pilotos');
-INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (18, 'es', 'Tecnica');
-INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (19, 'es', 'Casos practicos');
-INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (20, 'es', 'Imagenes Descriptivas');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (18, 'es', 'Técnica');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (19, 'es', 'Casos prácticos');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (20, 'es', 'Imágenes Descriptivas');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (21, 'es', 'Estrategias de carrera');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (22, 'es', 'Física en la F1');
+
+
 
 -- Inglés (en)
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (1, 'en', 'Scores');
@@ -98,6 +115,8 @@ INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (17,
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (18, 'en', 'Technical');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (19, 'en', 'Practical case');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (20, 'en', 'Descriptive Images');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (21, 'en', 'Race Strategy');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (22, 'en', 'F1 Physics');
 
 
 
@@ -3869,13 +3888,160 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Primera posici
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('El tiempo más rápido y la primera posición para la salida de la carrera', true, 395, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ninguna de las anteriores', false, 395, 'es');
 
+-- Pregunta 196
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Name track and year for this moment', 'Ut_HKthATH4eww8X4xMDoxOjBzMTt2bJ_5157621.jpg', 2, 'en');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Imola 2019', false, 396, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Imola 2020', true, 396, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungary 2018', false, 396, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monza 2019', false, 396, 'en');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Nombra circuito y año de este momento', 'Ut_HKthATH4eww8X4xMDoxOjBzMTt2bJ_5157621.jpg', 2, 'es');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Imola 2019', false, 397, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Imola 2020', true, 397, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungary 2018', false, 397, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monza 2019', false, 397, 'es');
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Name track and year for this moment', 'Captura de pantalla 2025-04-09 001904.png', 2, 'en');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Spain 2009', false, 398, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Turkey 2010', false, 398, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungary 2010', true, 398, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Canada 2011', false, 398, 'en');
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Nombra circuito y año de este momento', 'Captura de pantalla 2025-04-09 001904.png', 2, 'es');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('España 2009', false, 399, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Turquía 2010', false, 399, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungría 2010', true, 399, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Canadá 2011', false, 399, 'es');
+
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Name track and year for this moment', '_48910403_vettel-button-crash640.jpg', 2, 'en');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Turkey 2010', false, 400, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Italy 2011', false, 400, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Malaysia 2010', false, 400, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Belgium 2010', true, 400, 'en');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Nombra circuito y año de este momento', '_48910403_vettel-button-crash640.jpg', 2, 'es');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Turquía 2010', false, 401, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Italia 2011', false, 401, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Malasia 2010', false, 401, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Bélgica 2010', true, 401, 'es');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Name track and year for this moment', '_45612850_vettel2_av512.jpg', 2, 'en');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2009', true, 402, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2010', false, 402, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2011', false, 402, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2012', false, 402, 'en');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Nombra circuito y año de este momento', '_45612850_vettel2_av512.jpg', 2, 'es');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2009', true, 403, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2010', false, 403, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2011', false, 403, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2012', false, 403, 'es');
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Name track and year for this moment', 'btf1angitsxz.jpg', 2, 'en');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Abu Dhabi 2010', true, 404, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Singapore 2012', false, 404, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Abu Dhabi 2009', false, 404, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Singapore 2010', false, 404, 'en');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Nombra circuito y año de este momento', 'btf1angitsxz.jpg', 2, 'es');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Abu Dhabi 2010', true, 405, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Singapur 2012', false, 405, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Abu Dhabi 2009', false, 405, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Singapur 2010', false, 405, 'es');
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Name track and year for this moment', '_48566348_barrichelloandschumacher640.jpg', 2, 'en');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Spain 2010', false, 406, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Europe 2010', false, 406, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Great Britain 2010', false, 406, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungary 2010', true, 406, 'en');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Nombra circuito y año de este momento', 'btf1angitsxz.jpg', 2, 'es');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('España 2010', false, 407, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Europa 2010', false, 407, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Gran Bretaña 2010', false, 407, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungría 2010', true, 407, 'es');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Name track and year for this moment', 'accidente-en-la-salida-del-gp-de-hungria.-getty-655x368.jpg', 1, 'en');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Spain 2021', false, 408, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungary 2021', true, 408, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungary 2020', false, 408, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Austria 2020', false, 408, 'en');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Nombra circuito y año de este momento', 'accidente-en-la-salida-del-gp-de-hungria.-getty-655x368.jpg', 1, 'es');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('España 2021', false, 409, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungría 2021', false, 409, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hungría 2020', false, 409, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Austria 2020', true, 409, 'es');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Name track and year for this moment', 'Schumacher-Rascasse-2006.jpg', 1, 'en');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monaco 2006', true, 410, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monaco 2005', false, 410, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monaco 2004', false, 410, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monaco 2007', false, 410, 'en');
+
+
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
+VALUES ('Nombra circuito y año de este momento', 'Schumacher-Rascasse-2006.jpg', 1, 'es');
+
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mónaco 2006', false, 411, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mónaco 2005', false, 411, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mónaco 2004', false, 411, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mónaco 2007', true, 411, 'es');
+
+
+
+
+
+
+
 
 
 UPDATE Question SET quizCategoryId = 20 WHERE id IN (
  1, 5, 6, 7, 11, 12, 43, 53,160,165,180,185,187,188,189,190,191,192,193,194,195,196,197,198,200,201,203,204,206,207,215,
    216, 223, 224, 230, 239, 233, 242, 243, 250, 244, 251, 274, 293,294, 298, 299, 302, 307, 303, 308,
        304, 309, 305, 310, 311, 316, 312, 313, 317, 318, 333, 334,335,338, 339, 340, 341, 342, 346,347,
-       374, 375, 376, 377, 378,379, 380, 381, 382, 384, 385, 387, 388, 390);
+       374, 375, 376, 377, 378,379, 380, 381, 382, 384, 385, 387, 388, 390, 397, 398, 399, 400, 401, 402, 403);
 
 
 UPDATE Question SET quizCategoryId = 18 WHERE id IN (

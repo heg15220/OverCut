@@ -20,5 +20,7 @@ public enum QuizCategoryCode {
     Drivers,
     Technical,
     PracticalCase,
-    DescriptiveImages
+    DescriptiveImages,
+    RaceStrategy,
+    F1Physics
 }

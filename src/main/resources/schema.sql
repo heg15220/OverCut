@@ -38,7 +38,7 @@ CREATE TABLE Users (
 
 CREATE TABLE QuizType (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    code ENUM('Stats', 'Regulations', 'Pictures') NOT NULL UNIQUE,
+    code ENUM('Stats', 'Regulations', 'Pictures', 'Strategy', 'Physics') NOT NULL UNIQUE,
     imagePath VARCHAR(255)
 );
 
@@ -58,7 +58,7 @@ CREATE TABLE QuizCategory (
         'Scores', 'Penalty', 'Driver', 'Team', 'LegendarySeason',
         'Duels', 'Circuit', 'GenericStats', 'Procedures', 'ParcFerme',
         'Safety', 'Tyres', 'SafetyCar', 'Qualifying', 'Sprint',
-        'RedFlag', 'Drivers', 'Technical', 'PracticalCase', 'DescriptiveImages'
+        'RedFlag', 'Drivers', 'Technical', 'PracticalCase', 'DescriptiveImages', 'RaceStrategy', 'F1Physics'
     ) NOT NULL,
     quizTypeId BIGINT NOT NULL,
     CONSTRAINT QuizCategoryFK FOREIGN KEY (quizTypeId) REFERENCES QuizType(id) ON DELETE CASCADE,
