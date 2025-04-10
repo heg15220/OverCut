@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS TikiTakaCell;
+DROP TABLE IF EXISTS TikiTakaCriteria;
+DROP TABLE IF EXISTS TikiTakaGame;
+DROP TABLE IF EXISTS MinigameQuestion;
+DROP TABLE IF EXISTS Minigame;
 DROP TABLE IF EXISTS UserAward;
 DROP TABLE IF EXISTS Award;
 DROP TABLE IF EXISTS UserAnswer;
@@ -183,6 +188,53 @@ CREATE TABLE UserAnswer (
     CONSTRAINT AnswerIdFK FOREIGN KEY (answerId) REFERENCES Answer (id),
     CONSTRAINT QuizIdFK FOREIGN KEY (quizId) REFERENCES Quiz (id)
 );
+
+CREATE TABLE Minigame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE MinigameQuestion (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    minigameId BIGINT NOT NULL,
+    statement VARCHAR(255),
+    answer VARCHAR(100) NOT NULL,
+    language VARCHAR(5) NOT NULL,
+    category VARCHAR(50),
+    FOREIGN KEY (minigameId) REFERENCES Minigame(id)
+);
+
+CREATE TABLE TikiTakaGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    playerX VARCHAR(255),
+    playerO VARCHAR(255),
+    currentTurn VARCHAR(1),
+    status VARCHAR(20),
+    createdAt TIMESTAMP
+);
+
+CREATE TABLE TikiTakaCell (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT,
+    rowGame BIGINT,
+    columnGame BIGINT,
+    filledBy VARCHAR(1),
+    piloto VARCHAR(255),
+    isValid BOOLEAN,
+    FOREIGN KEY (gameId) REFERENCES TikiTakaGame(id)
+);
+
+CREATE TABLE TikiTakaCriteria (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    axis VARCHAR(10),
+    positionGame INT,
+    description VARCHAR(255),
+    code VARCHAR(50)
+);
+
+
+
 
 CREATE TABLE Award(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
