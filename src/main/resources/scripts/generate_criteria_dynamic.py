@@ -5,388 +5,281 @@ import argparse
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-# --- CONFIGURACIÓN BBDD ---
 DB_URL = 'mysql+pymysql://root:root@localhost/f1db'
 engine = create_engine(DB_URL, pool_size=25, max_overflow=20)
 Session = sessionmaker(bind=engine)
 
-NUM_CRITERIOS = 3  # Número de filas y columnas
+NUM_CRITERIOS = 3
+
+CRITERIOS = [
+    'nationality',
+    'team',
+    'era',
+    'min_wins',
+    'min_podiums'
+]
 
 
-def son_incompatibles(criterio1, criterio2):
-    code1 = criterio1['code']
-    code2 = criterio2['code']
-
-    # No pueden ser dos nacionalidades distintas
-    if code1.startswith('nationality_') and code2.startswith('nationality_'):
-        nationality1 = code1.split('_', 1)[1]
-        nationality2 = code2.split('_', 1)[1]
-        if nationality1 != nationality2:
-            return True
-
-    # No pueden ser dos debut distintos
-    if code1.startswith('debut_') and code2.startswith('debut_'):
-        debut1 = code1.split('_', 1)[1]
-        debut2 = code2.split('_', 1)[1]
-        if debut1 != debut2:
-            return True
-
-    # Circuito ganador vs podio o ganador vs ganador o podio vs podio → incompatibles siempre
-    if (
-        (code1.startswith('winner_') and code2.startswith('winner_')) or
-        (code1.startswith('podium_') and code2.startswith('podium_')) or
-        (code1.startswith('winner_') and code2.startswith('podium_')) or
-        (code1.startswith('podium_') and code2.startswith('winner_'))
-    ):
-        return True
-
+def eras_incompatibles(code1, code2):
+    if code1.startswith('era_') and code2.startswith('era_'):
+        _, inicio1, fin1 = code1.split('_')
+        _, inicio2, fin2 = code2.split('_')
+        inicio1, fin1, inicio2, fin2 = int(inicio1), int(fin1), int(inicio2), int(fin2)
+        return fin1 < inicio2 or fin2 < inicio1
     return False
 
 
-
-# Todos los criterios ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-
-def criterio_nacionalidad(session):
-    result = session.execute(text("""
-        SELECT nationality, COUNT(*) as total
-        FROM drivers
-        WHERE nationality IS NOT NULL
-        GROUP BY nationality
-        HAVING total >= 2
-    """)).fetchall()
-    if not result:
-        return None
-    row = random.choice(result)
-    return {"description": f"Piloto {row[0]}", "code": f"nationality_{row[0].lower().replace(' ', '_')}"}
-
-def criterio_anyo_debut(session):
-    result = session.execute(text("""
-        SELECT DISTINCT year
-        FROM races
-        WHERE year IS NOT NULL
-    """)).fetchall()
-    if not result:
-        return None
-    year = random.choice(result)[0]
-    return {"description": f"Debutó en {year}", "code": f"debut_{year}"}
-
-def criterio_constructor(session):
-    result = session.execute(text("""
-        SELECT c.name, COUNT(DISTINCT res.driverId) as total
-        FROM results res
-        JOIN constructors c ON res.constructorId = c.constructorId
-        GROUP BY c.name
-        HAVING total >= 2
-    """)).fetchall()
-    if not result:
-        return None
-    row = random.choice(result)
-    return {"description": f"Corrió para {row[0]}", "code": f"team_{row[0].lower().replace(' ','_')}"}
-
-def criterio_victorias(session, min_wins=1):
-    result = session.execute(text("""
-        SELECT d.driverId, COUNT(*) as wins
-        FROM results res
-        JOIN drivers d ON res.driverId = d.driverId
-        WHERE res.positionOrder = 1
-        GROUP BY d.driverId
-        HAVING wins >= :min_wins
-    """), {"min_wins": min_wins}).fetchall()
-    if len(result) < 2:
-        return None
-    return {"description": f"Piloto con al menos {min_wins} victorias", "code": f"min_{min_wins}_wins"}
-
-def criterio_podios(session, min_podiums=5):
-    result = session.execute(text("""
-        SELECT d.driverId, COUNT(*) as podiums
-        FROM results res
-        JOIN drivers d ON res.driverId = d.driverId
-        WHERE res.positionOrder <= 3
-        GROUP BY d.driverId
-        HAVING podiums >= :min_podiums
-    """), {"min_podiums": min_podiums}).fetchall()
-    if len(result) < 2:
-        return None
-    return {"description": f"Piloto con al menos {min_podiums} podios", "code": f"min_{min_podiums}_podiums"}
-
-def criterio_epoca(session, year_start, year_end):
-    result = session.execute(text("""
-        SELECT DISTINCT CONCAT(d.forename, ' ', d.surname)
-        FROM results res
-        JOIN drivers d ON res.driverId = d.driverId
-        JOIN races r ON res.raceId = r.raceId
-        WHERE r.year BETWEEN :y1 AND :y2
-    """), {"y1": year_start, "y2": year_end}).fetchall()
-    if len(result) < 2:
-        return None
-    return {"description": f"Piloto activo entre {year_start}-{year_end}", "code": f"era_{year_start}_{year_end}"}
-
-def criterio_companero_equipo(session):
-    result = session.execute(text("""
-        SELECT DISTINCT CONCAT(d.forename, ' ', d.surname) AS nombre, d.driverId
-        FROM drivers d
-    """)).fetchall()
-    if not result:
-        return None
-    piloto_objetivo = random.choice(result)
-    piloto_id = piloto_objetivo[1]  # Cambiado de 'driverId' a índice 1
-    piloto_nombre = piloto_objetivo[0]  # Cambiado de 'nombre' a índice 0
-    query = """
-        SELECT DISTINCT CONCAT(d2.forename, ' ', d2.surname)
-        FROM results r1
-        JOIN results r2 ON r1.raceId = r2.raceId AND r1.constructorId = r2.constructorId
-        JOIN drivers d2 ON r2.driverId = d2.driverId
-        WHERE r1.driverId = :pilot_id AND r2.driverId != :pilot_id
-    """
-    companeros = session.execute(text(query), {"pilot_id": piloto_id}).fetchall()
-    if len(companeros) < 2:
-        return None
-    return {"description": f"Compañero de equipo de {piloto_nombre}", "code": f"teammate_of_{piloto_nombre.lower().replace(' ','_')}"}
-
-INGENIEROS_FAMOSOS = {
-    "Adrian Newey": ["Red Bull", "McLaren", "Williams"],
-    "Ross Brawn": ["Ferrari", "Benetton", "Honda"],
-    "Pat Symonds": ["Renault", "Benetton"]
-}
-
-def criterio_ingeniero_famoso(session):
-    ingeniero, equipos = random.choice(list(INGENIEROS_FAMOSOS.items()))
-    query = """
-        SELECT DISTINCT d.driverId
-        FROM results res
-        JOIN constructors c ON res.constructorId = c.constructorId
-        JOIN drivers d ON res.driverId = d.driverId
-        WHERE c.name IN :equipos
-    """
-    pilotos = session.execute(text(query), {"equipos": tuple(equipos)}).fetchall()
-    if len(pilotos) < 2:
-        return None
-    return {"description": f"Piloto dirigido por {ingeniero}", "code": f"coached_by_{ingeniero.lower().replace(' ','_')}"}
+def nacionalidades_incompatibles(code1, code2):
+    if code1.startswith('nationality_') and code2.startswith('nationality_'):
+        nacionalidad1 = code1.replace('nationality_', '')
+        nacionalidad2 = code2.replace('nationality_', '')
+        return nacionalidad1 != nacionalidad2
+    return False
 
 
-
-def es_code_circuito_valido(session, code, criterios_existentes):
-    if not (code.startswith('winner_') or code.startswith('podium_')):
-        return True  # No es circuito → válido
-
-    circuito_name = code.split('_', 1)[1].replace('_', ' ').title()
-
-    result = session.execute(text("""
-        SELECT DISTINCT r.year
-        FROM circuits c
-        JOIN races r ON c.circuitId = r.circuitId
-        WHERE c.name = :name
-    """), {"name": circuito_name}).fetchall()
-
-    anos_circuito = {row[0] for row in result}
-
-    for criterio in criterios_existentes:
-        if criterio['code'].startswith('era_'):
-            _, year_start, year_end = criterio['code'].split('_')
-            year_start, year_end = int(year_start), int(year_end)
-            if not any(year_start <= ano <= year_end for ano in anos_circuito):
-                return False
-
-    return True
-
-
-def es_circuito_id_valido(session, circuito_id, criterios_existentes):
-    result = session.execute(text("""
-        SELECT DISTINCT r.year
-        FROM races r
-        WHERE r.circuitId = :circuit_id
-    """), {"circuit_id": circuito_id}).fetchall()
-
-    anos_circuito = {row[0] for row in result}
-
-    for criterio in criterios_existentes:
-        if criterio['code'].startswith('era_'):
-            _, year_start, year_end = criterio['code'].split('_')
-            year_start, year_end = int(year_start), int(year_end)
-            if not any(year_start <= ano <= year_end for ano in anos_circuito):
-                return False
-
-    return True
-
-
-def criterio_podio_en_circuito(session, criterios_existentes):
-    # Obtener circuitos donde al menos dos pilotos han logrado un podio
-    result = session.execute(text("""
-        SELECT c.circuitId, c.name
-        FROM circuits c
-        JOIN races r ON c.circuitId = r.circuitId
-        JOIN results res ON r.raceId = res.raceId
-        WHERE res.positionOrder <= 3
-        GROUP BY c.circuitId, c.name
-        HAVING COUNT(DISTINCT res.driverId) >= 2
-    """)).fetchall()
-
-    if not result:
-        return None
-
-    # Filtrar circuitos que sean compatibles con los criterios existentes
-    circuitos_validos = []
-    for circuito_id, circuito_nombre in result:
-        if es_circuito_id_valido(session, circuito_id, criterios_existentes):
-            circuitos_validos.append((circuito_id, circuito_nombre))
-
-
-    if not circuitos_validos:
-        return None
-
-    circuito_id, circuito_nombre = random.choice(circuitos_validos)
-    return {
-        "description": f"Podio en {circuito_nombre}",
-        "code": f"podium_{circuito_nombre.lower().replace(' ', '_')}"
-    }
-
-
-def criterio_victoria_en_circuito(session, criterios_existentes):
-    # Obtener circuitos donde al menos dos pilotos han logrado una victoria
-    result = session.execute(text("""
-        SELECT c.circuitId, c.name
-        FROM circuits c
-        JOIN races r ON c.circuitId = r.circuitId
-        JOIN results res ON r.raceId = res.raceId
-        WHERE res.positionOrder = 1
-        GROUP BY c.circuitId, c.name
-        HAVING COUNT(DISTINCT res.driverId) >= 2
-    """)).fetchall()
-
-    if not result:
-        return None
-
-    # Filtrar circuitos que sean compatibles con los criterios existentes
-    circuitos_validos = []
-    for circuito_id, circuito_nombre in result:
-        if es_circuito_id_valido(session, circuito_id, criterios_existentes):
-            circuitos_validos.append((circuito_id, circuito_nombre))
-
-    if not circuitos_validos:
-        return None
-
-    circuito_id, circuito_nombre = random.choice(circuitos_validos)
-    return {
-        "description": f"Ganador en {circuito_nombre}",
-        "code": f"winner_{circuito_nombre.lower().replace(' ', '_')}"
-    }
-
-
-
-
-
-
-CRITERIOS_FUNCTIONS = [
-    criterio_nacionalidad,
-    criterio_constructor,
-    lambda s: criterio_victorias(s, 2),
-    lambda s: criterio_podios(s, 5),
-    lambda s: criterio_epoca(s, 1990, 2000),
-    lambda s: criterio_epoca(s, 2001, 2010),
-    lambda s: criterio_epoca(s, 2011, 2024),
-    criterio_companero_equipo,
-    criterio_ingeniero_famoso,
-    criterio_podio_en_circuito,
-    criterio_victoria_en_circuito
-]
-
-def convertir_code_a_sql(code):
-    if code.startswith('winner_') or code.startswith('podium_'):
-        circuit_name = code.split('_', 1)[1].replace('_', ' ').title()
-        return f"c.name = '{circuit_name}'"
-
-    if code.startswith('nationality_'):
-        nationality = code.split('_', 1)[1].replace('_', ' ').title()
-        return f"d.nationality = '{nationality}'"
-
-    if code.startswith('team_'):
-        team_name = code.split('_', 1)[1].replace('_', ' ').title()
-        return f"c.name = '{team_name}'"
-
-    return None
-
-
-
-def existen_pilotos_para_combinar(session, code1, code2):
-    cond1 = convertir_code_a_sql(code1)
-    cond2 = convertir_code_a_sql(code2)
-
-    if cond1 is None or cond2 is None:
+def check_nationality_and_stats(session, code1, code2):
+    if code1.startswith('nationality_') and (code2.startswith('min_') and ('wins' in code2 or 'podiums' in code2)):
+        nationality_code, stats_code = code1, code2
+    elif code2.startswith('nationality_') and (code1.startswith('min_') and ('wins' in code1 or 'podiums' in code1)):
+        nationality_code, stats_code = code2, code1
+    else:
         return True
 
-    query = f"""
-        SELECT DISTINCT d.driverId
+    nationality = nationality_code.replace('nationality_', '').replace('_', ' ').title()
+
+    min_required = int(stats_code.split('_')[1])
+    if 'wins' in stats_code:
+        pos = 1
+    else:
+        pos = 3
+
+    query = text("""
+        SELECT 1
         FROM drivers d
         JOIN results r ON d.driverId = r.driverId
         JOIN races ra ON r.raceId = ra.raceId
-        JOIN circuits c ON ra.circuitId = c.circuitId
-        WHERE {cond1} AND {cond2}
+        WHERE d.nationality = :nationality
+        AND r.positionOrder <= :pos
+        AND ra.year >= 1980
+        GROUP BY d.driverId
+        HAVING COUNT(*) >= :min_required
         LIMIT 1
-    """
+    """)
 
-    result = session.execute(text(query)).fetchone()
+    result = session.execute(query, {"nationality": nationality, "pos": pos, "min_required": min_required}).fetchone()
     return result is not None
 
 
-def existen_pilotos_compatibles(session, criterio1, criterio2):
-    # Check SQL conditions (for circuits, nationality, team)
-    if not existen_pilotos_para_combinar(session, criterio1['code'], criterio2['code']):
+def check_nationality_or_stats_with_team(session, code1, code2):
+    if code1.startswith('nationality_') and code2.startswith('team_'):
+        nationality_code, team_code = code1, code2
+    elif code2.startswith('nationality_') and code1.startswith('team_'):
+        nationality_code, team_code = code2, code1
+    else:
+        return True
+
+    nationality = nationality_code.replace('nationality_', '').replace('_', ' ').title()
+    team = team_code.replace('team_', '').replace('_', ' ').title()
+
+    query = text("""
+        SELECT 1
+        FROM drivers d
+        JOIN results r ON d.driverId = r.driverId
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        WHERE d.nationality = :nationality
+        AND c.name = :team
+        AND ra.year >= 1980
+        LIMIT 1
+    """)
+
+    result = session.execute(query, {"nationality": nationality, "team": team}).fetchone()
+    return result is not None
+
+def check_nationality_with_era(session, code1, code2):
+    if code1.startswith('nationality_') and code2.startswith('era_'):
+        nationality_code, era_code = code1, code2
+    elif code2.startswith('nationality_') and code1.startswith('era_'):
+        nationality_code, era_code = code2, code1
+    else:
+        return True  # No aplica
+
+    nationality = nationality_code.replace('nationality_', '').replace('_', ' ').title()
+    _, inicio, fin = era_code.split('_')
+    inicio, fin = int(inicio), int(fin)
+
+    query = text("""
+        SELECT 1
+        FROM drivers d
+        JOIN results r ON d.driverId = r.driverId
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE d.nationality = :nationality
+        AND ra.year BETWEEN :inicio AND :fin
+        LIMIT 1
+    """)
+
+    result = session.execute(query, {"nationality": nationality, "inicio": inicio, "fin": fin}).fetchone()
+    return result is not None
+
+
+def check_team_with_team_or_era(session, code1, code2):
+    if code1.startswith('team_') and code2.startswith('era_'):
+        team_code, era_code = code1, code2
+    elif code2.startswith('team_') and code1.startswith('era_'):
+        team_code, era_code = code2, code1
+    elif code1.startswith('team_') and code2.startswith('team_'):
+        team1 = code1.replace('team_', '').replace('_', ' ').title()
+        team2 = code2.replace('team_', '').replace('_', ' ').title()
+        query = text("""
+            SELECT 1
+            FROM results r1
+            JOIN results r2 ON r1.driverId = r2.driverId
+            JOIN constructors c1 ON r1.constructorId = c1.constructorId
+            JOIN constructors c2 ON r2.constructorId = c2.constructorId
+            WHERE c1.name = :team1
+            AND c2.name = :team2
+            LIMIT 1
+        """)
+        result = session.execute(query, {"team1": team1, "team2": team2}).fetchone()
+        return result is not None
+    else:
+        return True
+
+    team = team_code.replace('team_', '').replace('_', ' ').title()
+    _, inicio, fin = era_code.split('_')
+    inicio, fin = int(inicio), int(fin)
+
+    query = text("""
+        SELECT 1
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        WHERE c.name = :team
+        AND ra.year BETWEEN :inicio AND :fin
+        LIMIT 1
+    """)
+    result = session.execute(query, {"team": team, "inicio": inicio, "fin": fin}).fetchone()
+    return result is not None
+
+
+def check_team_with_stats(session, code1, code2):
+    if code1.startswith('team_') and (code2.startswith('min_') and ('wins' in code2 or 'podiums' in code2)):
+        team_code, stats_code = code1, code2
+    elif code2.startswith('team_') and (code1.startswith('min_') and ('wins' in code1 or 'podiums' in code1)):
+        team_code, stats_code = code2, code1
+    else:
+        return True
+
+    team = team_code.replace('team_', '').replace('_', ' ').title()
+    min_required = int(stats_code.split('_')[1])
+    pos = 1 if 'wins' in stats_code else 3
+
+    query = text("""
+        SELECT 1
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        WHERE c.name = :team
+        AND r.positionOrder <= :pos
+        AND ra.year >= 1980
+        GROUP BY r.driverId
+        HAVING COUNT(*) >= :min_required
+        LIMIT 1
+    """)
+
+    result = session.execute(query, {"team": team, "pos": pos, "min_required": min_required}).fetchone()
+    return result is not None
+
+
+def existen_pilotos_para_fila_columna(session, criterio_fila, criterio_columna):
+    if eras_incompatibles(criterio_fila['code'], criterio_columna['code']):
+        return False
+    if nacionalidades_incompatibles(criterio_fila['code'], criterio_columna['code']):
+        return False
+    if not check_team_with_team_or_era(session, criterio_fila['code'], criterio_columna['code']):
+        return False
+    return True
+
+
+
+def obtener_criterio_valido(session, usados, criterios_existentes):
+    while True:
+        tipo = random.choice(CRITERIOS)
+
+        if tipo == 'nationality':
+            result = session.execute(text("""
+                SELECT nationality FROM drivers
+                WHERE nationality IS NOT NULL
+                GROUP BY nationality
+                HAVING COUNT(DISTINCT driverId) >= 2
+            """)).fetchall()
+            if not result:
+                continue
+            seleccion = random.choice(result)[0]
+            code = f'nationality_{seleccion.lower().replace(" ", "_")}'
+            desc = f'Piloto {seleccion}'
+
+        elif tipo == 'team':
+            result = session.execute(text("""
+                SELECT name FROM constructors
+                WHERE constructorId IN (
+                    SELECT constructorId FROM results r
+                    JOIN races ra ON r.raceId = ra.raceId
+                    WHERE ra.year >= 1980
+                )
+                GROUP BY name
+                HAVING COUNT(DISTINCT constructorId) >= 1
+            """)).fetchall()
+            if not result:
+                continue
+            seleccion = random.choice(result)[0]
+            code = f'team_{seleccion.lower().replace(" ", "_")}'
+            desc = f'Corrió para {seleccion}'
+
+        elif tipo == 'era':
+            inicio = random.randint(1980, 2015)
+            fin = inicio + 5
+            code = f'era_{inicio}_{fin}'
+            desc = f'Piloto activo entre {inicio}-{fin}'
+
+        elif tipo == 'min_wins':
+            wins = random.choice([1, 2, 3])
+            code = f'min_{wins}_wins'
+            desc = f'Piloto con al menos {wins} victorias'
+
+        elif tipo == 'min_podiums':
+            podiums = random.choice([3, 5, 7])
+            code = f'min_{podiums}_podiums'
+            desc = f'Piloto con al menos {podiums} podios'
+
+        else:
+            continue
+
+        if code not in usados:
+            usados.add(code)
+            return {"description": desc, "code": code}
+
+
+def existen_pilotos_para_fila_columna(session, criterio_fila, criterio_columna):
+    if eras_incompatibles(criterio_fila['code'], criterio_columna['code']):
+        return False
+    if nacionalidades_incompatibles(criterio_fila['code'], criterio_columna['code']):
+        return False
+    if not check_nationality_and_stats(session, criterio_fila['code'], criterio_columna['code']):
+        return False
+    if not check_nationality_or_stats_with_team(session, criterio_fila['code'], criterio_columna['code']):
         return False
 
-    query = """
-        SELECT DISTINCT d.driverId
-        FROM drivers d
-        WHERE 1=1
-    """
+    if not check_nationality_with_era(session, criterio_fila['code'], criterio_columna['code']):
+        return False
 
-    condiciones = []
-    params = {}
+    if not check_team_with_stats(session, criterio_fila['code'], criterio_columna['code']):
+        return False
 
-    for idx, crit in enumerate([criterio1, criterio2]):
-        if crit['code'].startswith('era_'):
-            _, inicio, fin = crit['code'].split('_')
-            condiciones.append(f"""EXISTS (
-                SELECT 1 FROM results res
-                JOIN races r ON res.raceId = r.raceId
-                WHERE res.driverId = d.driverId AND r.year BETWEEN :inicio{idx} AND :fin{idx}
-            )""")
-            params[f"inicio{idx}"] = int(inicio)
-            params[f"fin{idx}"] = int(fin)
+    if not check_team_with_team_or_era(session, criterio_fila['code'], criterio_columna['code']):
+        return False
 
-        if crit['code'].startswith('teammate_of_'):
-            nombre = crit['code'].replace('teammate_of_', '').replace('_', ' ').title()
-            condiciones.append(f"""EXISTS (
-                SELECT 1 FROM results r1
-                JOIN results r2 ON r1.raceId = r2.raceId AND r1.constructorId = r2.constructorId
-                JOIN drivers d2 ON r2.driverId = d2.driverId
-                WHERE r1.driverId = d.driverId AND CONCAT(d2.forename, ' ', d2.surname) = :nombre{idx}
-            )""")
-            params[f"nombre{idx}"] = nombre
-
-    if condiciones:
-        query += " AND " + " AND ".join(condiciones)
-
-    result = session.execute(text(query), params).fetchall()
-    return len(result) >= 1
-
-
-
-
-
-
-def generar_criterio_valido(session, usados, funciones, criterios_existentes):
-    while True:
-        funcion = random.choice(funciones)
-
-        # Si la función requiere criterios existentes → se los pasamos
-        if funcion.__code__.co_argcount == 2:  # (session, criterios_existentes)
-            criterio = funcion(session, criterios_existentes)
-        else:  # Solo session
-            criterio = funcion(session)
-
-        if criterio and criterio['code'] not in usados:
-            usados.add(criterio['code'])
-            return criterio
+    return True
 
 
 def generar_criterios():
@@ -395,39 +288,31 @@ def generar_criterios():
         usados = set()
         filas, columnas = [], []
 
-        # Generar filas (sin restricciones extra)
-        for _ in range(NUM_CRITERIOS):
-            filas.append(generar_criterio_valido(session, usados, CRITERIOS_FUNCTIONS, filas))
-
-        # Generar columnas (validando que cada celda fila[i] - columna[i] tenga al menos un piloto compatible)
-        for i in range(NUM_CRITERIOS):
+        # Generar filas
+        while len(filas) < NUM_CRITERIOS:
             intentos = 0
             while True:
-                nuevo = generar_criterio_valido(session, usados, CRITERIOS_FUNCTIONS, filas + columnas)
-
-                if existen_pilotos_compatibles(session, filas[i], nuevo):
-                    if not son_incompatibles(filas[i], nuevo):
-                        # Validar que ambos criterios (fila y columna) comparten años si alguno es circuito
-                        if es_code_circuito_valido(session, filas[i]['code'], [nuevo]) and es_code_circuito_valido(session, nuevo['code'], [filas[i]]):
-                            columnas.append(nuevo)
-                            break
+                criterio = obtener_criterio_valido(session, usados, filas)
                 intentos += 1
-                if intentos > 100:  # Seguridad anti bucle infinito
-                    raise Exception("No se han podido generar columnas compatibles tras muchos intentos")
+                if intentos > 100:
+                    raise Exception("No se han podido generar suficientes filas válidas.")
+                if criterio:
+                    filas.append(criterio)
+                    break
 
-        if len(filas) < NUM_CRITERIOS or len(columnas) < NUM_CRITERIOS:
-            raise Exception("No se han podido generar suficientes criterios")
+        # Generar columnas
+        while len(columnas) < NUM_CRITERIOS:
+            intentos = 0
+            while True:
+                criterio = obtener_criterio_valido(session, usados, filas + columnas)
+                intentos += 1
+                if intentos > 100:
+                    raise Exception("No se han podido generar suficientes columnas válidas.")
+                if all(existen_pilotos_para_fila_columna(session, fila, criterio) for fila in filas):
+                    columnas.append(criterio)
+                    break
 
-        output = {
-            "rowCriteria": filas,
-            "columnCriteria": columnas
-        }
-
-        print(json.dumps(output, ensure_ascii=False))
-
-    except Exception as e:
-        print(json.dumps({"error": str(e)}))
-        sys.exit(1)
+        print(json.dumps({"rowCriteria": filas, "columnCriteria": columnas}, ensure_ascii=False))
 
     finally:
         session.close()
@@ -436,9 +321,9 @@ def generar_criterios():
 
 
 
-# Entrada del script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--lang', type=str, default='es')
     args = parser.parse_args()
     generar_criterios()
+

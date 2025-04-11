@@ -117,12 +117,19 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
                 throw new RuntimeException("Error: No se pudieron generar criterios válidos");
             }
 
+            // Eliminar los criterios antiguos
+            criteriaDao.deleteByAxis("row");
+            criteriaDao.deleteByAxis("column");
+
             List<TikiTakaCriteria> filas = guardarOCargarCriterios(filasJson, "row");
             List<TikiTakaCriteria> columnas = guardarOCargarCriterios(columnasJson, "column");
 
-
-            for (int i = 1; i <= 3; i++) {
+            // Asignar positionGame correcto
+            for (int i = 1; i <= filas.size(); i++) {
                 filas.get(i - 1).setPositionGame(i);
+            }
+
+            for (int i = 1; i <= columnas.size(); i++) {
                 columnas.get(i - 1).setPositionGame(i);
             }
 
@@ -133,6 +140,7 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
             throw new RuntimeException("Error generando criterios dinámicos", e);
         }
     }
+
 
     private void asignarCriteriosAleatorios() {
 

@@ -185,11 +185,16 @@ def validate_criteria(cursor, criteria_code, driverId):
 
 
 if __name__ == "__main__":
-    input_data = json.loads(sys.stdin.read())
-    output = validate_pilot(
-        input_data["row_criteria_code"],
-        input_data["column_criteria_code"],
-        input_data["piloto"]
-    )
-    print(json.dumps(output))
+    try:
+        input_data = json.loads(sys.stdin.read())
+        output = validate_pilot(
+            input_data["row_criteria_code"],
+            input_data["column_criteria_code"],
+            input_data["piloto"]
+        )
+        print(json.dumps(output))
+
+    except Exception as e:
+        print(json.dumps({"is_valid": False, "reason": f"Error interno en Python: {str(e)}"}))
+
 
