@@ -75,7 +75,7 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         return draw ? "DRAW" : "IN_PROGRESS";
     }
 
-    private List<TikiTakaCriteria> guardarOCargarCriterios(JsonNode criteriaArray, String axis) {
+    private List<TikiTakaCriteria> guardarOCargarCriterios(JsonNode criteriaArray, String axis, TikiTakaGame game) {
 
         List<TikiTakaCriteria> result = new ArrayList<>();
 
@@ -83,23 +83,16 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
             String code = c.get("code").asText();
             String description = c.get("description").asText();
 
-            Optional<TikiTakaCriteria> existing = criteriaDao.findAll().stream()
-                    .filter(cr -> cr.getCode().equals(code) && cr.getAxis().equals(axis))
-                    .findFirst();
-
-            if (existing.isPresent()) {
-                result.add(existing.get());
-            } else {
-                result.add(new TikiTakaCriteria(axis, 0, description, code));
-            }
+            result.add(new TikiTakaCriteria(game, axis, 0, description, code));
         }
+
         return result;
     }
 
 
 
-    private void generarCriteriosDinamicos() {
 
+    private void generarCriteriosDinamicos(TikiTakaGame game) {
         try {
             String output = PythonLLMCriteriaGame.executePythonScript("src/main/resources/scripts/generate_criteria_dynamic.py");
 
@@ -117,21 +110,11 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
                 throw new RuntimeException("Error: No se pudieron generar criterios válidos");
             }
 
-            // Eliminar los criterios antiguos
-            criteriaDao.deleteByAxis("row");
-            criteriaDao.deleteByAxis("column");
+            List<TikiTakaCriteria> filas = guardarOCargarCriterios(filasJson, "row", game);
+            List<TikiTakaCriteria> columnas = guardarOCargarCriterios(columnasJson, "column", game);
 
-            List<TikiTakaCriteria> filas = guardarOCargarCriterios(filasJson, "row");
-            List<TikiTakaCriteria> columnas = guardarOCargarCriterios(columnasJson, "column");
-
-            // Asignar positionGame correcto
-            for (int i = 1; i <= filas.size(); i++) {
-                filas.get(i - 1).setPositionGame(i);
-            }
-
-            for (int i = 1; i <= columnas.size(); i++) {
-                columnas.get(i - 1).setPositionGame(i);
-            }
+            for (int i = 1; i <= filas.size(); i++) filas.get(i - 1).setPositionGame(i);
+            for (int i = 1; i <= columnas.size(); i++) columnas.get(i - 1).setPositionGame(i);
 
             criteriaDao.saveAll(filas);
             criteriaDao.saveAll(columnas);
@@ -140,6 +123,7 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
             throw new RuntimeException("Error generando criterios dinámicos", e);
         }
     }
+
 
 
     private void asignarCriteriosAleatorios() {
@@ -163,20 +147,18 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         criteriaDao.saveAll(columnas);
     }
 
-    private void generarCriteriosEstaticos() {
+    private void generarCriteriosEstaticos(TikiTakaGame game) {
         try {
             String output = PythonLLMCriteriaGame.executePythonScript("src/main/resources/scripts/generate_criteria_static.py");
 
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(output);
 
-            List<TikiTakaCriteria> filas = guardarOCargarCriterios(jsonNode.get("rowCriteria"), "row");
-            List<TikiTakaCriteria> columnas = guardarOCargarCriterios(jsonNode.get("columnCriteria"), "column");
+            List<TikiTakaCriteria> filas = guardarOCargarCriterios(jsonNode.get("rowCriteria"), "row", game);
+            List<TikiTakaCriteria> columnas = guardarOCargarCriterios(jsonNode.get("columnCriteria"), "column", game);
 
-            for (int i = 1; i <= 3; i++) {
-                filas.get(i - 1).setPositionGame(i);
-                columnas.get(i - 1).setPositionGame(i);
-            }
+            for (int i = 1; i <= filas.size(); i++) filas.get(i - 1).setPositionGame(i);
+            for (int i = 1; i <= columnas.size(); i++) columnas.get(i - 1).setPositionGame(i);
 
             criteriaDao.saveAll(filas);
             criteriaDao.saveAll(columnas);
@@ -185,6 +167,7 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
             throw new RuntimeException("Error generando criterios estáticos", e);
         }
     }
+
 
 
 
@@ -210,10 +193,11 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         }
 
         if (request.isUseDynamicCriteria()) {
-            generarCriteriosDinamicos();
+            generarCriteriosDinamicos(game);
         } else {
-            generarCriteriosEstaticos();
+            generarCriteriosEstaticos(game);
         }
+
 
         return game.getId();
     }

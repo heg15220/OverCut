@@ -1,15 +1,13 @@
 package es.udc.fic.tfg.model.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class TikiTakaCriteria {
 
     private Long id;
 
+    private TikiTakaGame game;
     private String axis; // "row" o "column"
     private int positionGame; // posición 1,2,3
     private String description; // Texto visible
@@ -18,7 +16,8 @@ public class TikiTakaCriteria {
     public TikiTakaCriteria() {
     }
 
-    public TikiTakaCriteria(String axis, int positionGame, String description, String code) {
+    public TikiTakaCriteria(TikiTakaGame game, String axis, int positionGame, String description, String code) {
+        this.game = game;
         this.axis = axis;
         this.positionGame = positionGame;
         this.description = description;
@@ -33,6 +32,16 @@ public class TikiTakaCriteria {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "gameId")
+    public TikiTakaGame getGame() {
+        return game;
+    }
+
+    public void setGame(TikiTakaGame game) {
+        this.game = game;
     }
 
     public String getAxis() {

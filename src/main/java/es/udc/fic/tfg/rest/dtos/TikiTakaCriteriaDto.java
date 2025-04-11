@@ -3,13 +3,15 @@ package es.udc.fic.tfg.rest.dtos;
 public class TikiTakaCriteriaDto {
     private Long id;
 
+    private Long gameId;
     private String axis; // "row" o "column"
     private int positionGame; // posición 1,2,3
     private String description; // Texto visible
     private String code; // Código
 
-    public TikiTakaCriteriaDto(Long id, String axis, int positionGame, String description, String code) {
+    public TikiTakaCriteriaDto(Long id, Long gameId, String axis, int positionGame, String description, String code) {
         this.id = id;
+        this.gameId = gameId;
         this.axis = axis;
         this.positionGame = positionGame;
         this.description = description;
@@ -22,6 +24,14 @@ public class TikiTakaCriteriaDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(Long gameId) {
+        this.gameId = gameId;
     }
 
     public String getAxis() {

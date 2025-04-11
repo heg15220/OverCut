@@ -30,18 +30,25 @@ public class ValidationGameServiceImpl implements ValidationGameService{
             writer.flush();
 
             // TIMEOUT -> 5 segundos máximo para validar
-            boolean finished = process.waitFor(5, java.util.concurrent.TimeUnit.SECONDS);
+            boolean finished = process.waitFor(30, java.util.concurrent.TimeUnit.SECONDS);
 
             if (!finished) {
                 process.destroyForcibly();
                 throw new RuntimeException("Timeout validando piloto: demasiado lento");
             }
 
-            String outputJson = reader.readLine();
+            StringBuilder outputJsonBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                outputJsonBuilder.append(line);
+            }
 
-            if (outputJson == null) {
+            String outputJson = outputJsonBuilder.toString().trim(); // evita espacios raros
+
+            if (outputJson.isBlank()) {
                 throw new RuntimeException("Respuesta vacía desde Python");
             }
+
 
             Map<String, Object> result = new ObjectMapper().readValue(outputJson, Map.class);
             return (Boolean) result.get("is_valid");

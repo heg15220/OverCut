@@ -28,10 +28,12 @@ public class TikiTakaGameController {
     @GetMapping("/{id}")
     public TikiTakaGameBoardDto getGame(@PathVariable Long id) {
         TikiTakaGame game = gameService.getGame(id);
-        List<TikiTakaCriteria> rowCriteria = criteriaDao.findByAxis("row");
-        List<TikiTakaCriteria> columnCriteria = criteriaDao.findByAxis("column");
+        List<TikiTakaCriteria> rowCriteria = criteriaDao.findByAxisAndGameId("row", id);
+        List<TikiTakaCriteria> columnCriteria = criteriaDao.findByAxisAndGameId("column", id);
         return TikiTakaGameBoardDtoConversor.toTikiTakaGameBoardDto(game, rowCriteria, columnCriteria);
     }
+
+
 
 
 

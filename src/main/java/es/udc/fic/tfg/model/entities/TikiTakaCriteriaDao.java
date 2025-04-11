@@ -11,8 +11,7 @@ import java.util.List;
 public interface TikiTakaCriteriaDao extends JpaRepository<TikiTakaCriteria, Long> {
     List<TikiTakaCriteria> findByAxis(String axis);
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM TikiTakaCriteria t WHERE t.axis = :axis")
-    void deleteByAxis(@Param("axis") String axis);
+    @Query("SELECT t FROM TikiTakaCriteria t WHERE t.axis = :axis AND t.game.id = :gameId")
+    List<TikiTakaCriteria> findByAxisAndGameId(@Param("axis") String axis, @Param("gameId") Long gameId);
+
 }

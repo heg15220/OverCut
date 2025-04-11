@@ -227,10 +227,12 @@ CREATE TABLE TikiTakaCell (
 
 CREATE TABLE TikiTakaCriteria (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
     axis VARCHAR(10),
     positionGame INT,
     description VARCHAR(255),
-    code VARCHAR(50)
+    code VARCHAR(50),
+    FOREIGN KEY (gameId) REFERENCES TikiTakaGame(id) ON DELETE CASCADE
 );
 
 

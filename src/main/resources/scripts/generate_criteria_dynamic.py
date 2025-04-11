@@ -286,36 +286,50 @@ def generar_criterios():
     session = Session()
     try:
         usados = set()
-        filas, columnas = [], []
 
-        # Generar filas
-        while len(filas) < NUM_CRITERIOS:
-            intentos = 0
-            while True:
-                criterio = obtener_criterio_valido(session, usados, filas)
-                intentos += 1
-                if intentos > 100:
-                    raise Exception("No se han podido generar suficientes filas válidas.")
-                if criterio:
-                    filas.append(criterio)
-                    break
+        for intentos_generales in range(5):  # Intentamos hasta 5 veces generar filas+columnas
+            filas, columnas = [], []
 
-        # Generar columnas
-        while len(columnas) < NUM_CRITERIOS:
-            intentos = 0
-            while True:
-                criterio = obtener_criterio_valido(session, usados, filas + columnas)
-                intentos += 1
-                if intentos > 100:
-                    raise Exception("No se han podido generar suficientes columnas válidas.")
-                if all(existen_pilotos_para_fila_columna(session, fila, criterio) for fila in filas):
-                    columnas.append(criterio)
-                    break
+            # Generar filas
+            while len(filas) < NUM_CRITERIOS:
+                intentos = 0
+                while True:
+                    criterio = obtener_criterio_valido(session, usados, filas)
+                    intentos += 1
+                    if intentos > 100:
+                        break
+                    if criterio:
+                        filas.append(criterio)
+                        break
 
-        print(json.dumps({"rowCriteria": filas, "columnCriteria": columnas}, ensure_ascii=False))
+            if len(filas) < NUM_CRITERIOS:
+                continue  # Reiniciamos intento general
+
+            # Generar columnas
+            while len(columnas) < NUM_CRITERIOS:
+                intentos = 0
+                while True:
+                    criterio = obtener_criterio_valido(session, usados, filas + columnas)
+                    intentos += 1
+                    if intentos > 100:
+                        break
+                    if all(existen_pilotos_para_fila_columna(session, fila, criterio) for fila in filas):
+                        columnas.append(criterio)
+                        break
+
+            if len(columnas) < NUM_CRITERIOS:
+                continue  # Reiniciamos intento general
+
+            # Si conseguimos 3 filas y 3 columnas → OK
+            print(json.dumps({"rowCriteria": filas, "columnCriteria": columnas}, ensure_ascii=False))
+            return
+
+        # Si no conseguimos tras varios intentos
+        raise Exception("No se han podido generar suficientes filas y columnas válidas tras varios intentos.")
 
     finally:
         session.close()
+
 
 
 

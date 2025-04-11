@@ -13,7 +13,7 @@ public class TikiTakaCriteriaDtoConversor {
     }
 
     public static final TikiTakaCriteriaDto toTikiTakaCriteriaDto(TikiTakaCriteria tikiTakaCriteria) {
-        return new TikiTakaCriteriaDto(tikiTakaCriteria.getId(), tikiTakaCriteria.getAxis(),
+        return new TikiTakaCriteriaDto(tikiTakaCriteria.getId(), tikiTakaCriteria.getGame().getId(),tikiTakaCriteria.getAxis(),
                 tikiTakaCriteria.getPositionGame(), tikiTakaCriteria.getDescription(), tikiTakaCriteria.getCode());
     }
 
