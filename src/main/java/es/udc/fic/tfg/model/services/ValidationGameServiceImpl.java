@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -15,47 +17,38 @@ public class ValidationGameServiceImpl implements ValidationGameService{
     @Override
     public boolean validatePilot(String rowCriteria, String columnCriteria, String piloto) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python", "src/main/resources/scripts/validate_pilot.py");
-            Process process = pb.start();
-
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            String inputJson = new ObjectMapper().writeValueAsString(
-                    Map.of("row_criteria_code", rowCriteria, "column_criteria_code", columnCriteria, "piloto", piloto)
+            List<String> command = List.of(
+                    "python",
+                    "src/main/resources/scripts/validate_pilot.py",
+                    "--row=" + rowCriteria,
+                    "--col=" + columnCriteria,
+                    "--pilot=" + piloto
             );
 
-            writer.write(inputJson);
-            writer.newLine();
-            writer.flush();
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
 
-            // TIMEOUT -> 5 segundos máximo para validar
-            boolean finished = process.waitFor(30, java.util.concurrent.TimeUnit.SECONDS);
-
-            if (!finished) {
-                process.destroyForcibly();
-                throw new RuntimeException("Timeout validando piloto: demasiado lento");
-            }
-
-            StringBuilder outputJsonBuilder = new StringBuilder();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder outputJson = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                outputJsonBuilder.append(line);
+                outputJson.append(line);
             }
 
-            String outputJson = outputJsonBuilder.toString().trim(); // evita espacios raros
+            int exitCode = process.waitFor();
 
-            if (outputJson.isBlank()) {
-                throw new RuntimeException("Respuesta vacía desde Python");
+            if (exitCode != 0) {
+                throw new RuntimeException("Error ejecutando script Python: " + outputJson);
             }
 
-
-            Map<String, Object> result = new ObjectMapper().readValue(outputJson, Map.class);
+            Map<String, Object> result = new ObjectMapper().readValue(outputJson.toString(), Map.class);
             return (Boolean) result.get("is_valid");
 
         } catch (Exception e) {
             throw new RuntimeException("Error validando piloto: " + e.getMessage(), e);
         }
     }
+
 
 }
