@@ -76,18 +76,18 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
     }
 
     private List<TikiTakaCriteria> guardarOCargarCriterios(JsonNode criteriaArray, String axis, TikiTakaGame game) {
-
         List<TikiTakaCriteria> result = new ArrayList<>();
 
         for (JsonNode c : criteriaArray) {
             String code = c.get("code").asText();
             String description = c.get("description").asText();
+            String imageUrl = c.has("imageUrl") ? c.get("imageUrl").asText() : null;
 
-            result.add(new TikiTakaCriteria(game, axis, 0, description, code));
+            result.add(new TikiTakaCriteria(game, axis, 0, description, code, imageUrl));
         }
-
         return result;
     }
+
 
 
 

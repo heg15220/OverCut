@@ -6,6 +6,7 @@ import * as selectors from '../selectors';
 import { Container, Typography, Grid, Box, Paper, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from '@mui/material';
 import { motion } from 'framer-motion';
 import './TicTacToeGame.css';
+import CriteriaBox from './CriteriaBox';
 
 
 const TicTacToeGame = () => {
@@ -80,20 +81,18 @@ const TicTacToeGame = () => {
                     {/* Column Criteria */}
                     <Box className="criteria-top">
                         {game.columnCriteria.map(c => (
-                            <motion.div key={c.code} whileHover={{ scale: 1.05 }}>
-                                <Paper elevation={3} className="criteria-cell">{c.description}</Paper>
-                            </motion.div>
+                          <CriteriaBox key={c.code} criteria={c} />
                         ))}
+
                     </Box>
 
                     <Box className="board-row">
                         {/* Row Criteria */}
                         <Box className="criteria-left">
                             {game.rowCriteria.map(c => (
-                                <motion.div key={c.code} whileHover={{ scale: 1.05 }}>
-                                    <Paper elevation={3} className="criteria-cell">{c.description}</Paper>
-                                </motion.div>
+                              <CriteriaBox key={c.code} criteria={c} />
                             ))}
+
                         </Box>
 
                         {/* Board */}

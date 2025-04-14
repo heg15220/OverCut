@@ -8,6 +8,7 @@ public class TikiTakaCriteriaDto {
     private int positionGame; // posición 1,2,3
     private String description; // Texto visible
     private String code; // Código
+    private String imageUrl;
 
     public TikiTakaCriteriaDto(Long id, Long gameId, String axis, int positionGame, String description, String code) {
         this.id = id;
@@ -16,6 +17,22 @@ public class TikiTakaCriteriaDto {
         this.positionGame = positionGame;
         this.description = description;
         this.code = code;
+    }
+
+    public TikiTakaCriteriaDto(Long id, Long gameId, String axis, int positionGame, String description, String code, String imageUrl) {
+        this.id = id;
+        this.gameId = gameId;
+        this.axis = axis;
+        this.positionGame = positionGame;
+        this.description = description;
+        this.code = code;
+        this.imageUrl = imageUrl;
+    }
+
+    public TikiTakaCriteriaDto(String description, String code, String imageUrl) {
+        this.description = description;
+        this.code = code;
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {
@@ -64,5 +81,13 @@ public class TikiTakaCriteriaDto {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

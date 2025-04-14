@@ -2,6 +2,8 @@ import random
 import json
 import sys
 import argparse
+import requests
+import urllib.parse
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
@@ -19,6 +21,56 @@ CRITERIOS = [
     'min_podiums'
 ]
 
+# Mapeo ISO para flagcdn
+# Mapeo ISO para flagcdn (más nacionalidades de F1)
+ISO_MAPPING = {
+    "british": "gb",
+    "german": "de",
+    "italian": "it",
+    "french": "fr",
+    "spanish": "es",
+    "dutch": "nl",
+    "finnish": "fi",
+    "brazilian": "br",
+    "argentine": "ar",
+    "mexican": "mx",
+    "canadian": "ca",
+    "austrian": "at",
+    "australian": "au",
+    "swiss": "ch",
+    "belgian": "be",
+    "swedish": "se",
+    "portuguese": "pt",
+    "chilean": "cl",
+    "american": "us",
+    "new zealander": "nz",
+    "irish": "ie",
+    "south african": "za",
+    "japanese": "jp",
+    "russian": "ru",
+    "polish": "pl",
+    "venezuelan": "ve",
+    "colombian": "co",
+    "czech": "cz",
+    "hungarian": "hu",
+    "monégasque": "mc",
+    "monacan": "mc",
+    "thai": "th",
+    "chinese": "cn",
+    "indian": "in",
+    "malaysian": "my",
+    "indonesian": "id",
+    "dane": "dk",
+    "danish": "dk",
+    "estonian": "ee",
+    "latvian": "lv",
+    "uruguayan": "uy"
+}
+
+headers = {
+    "User-Agent": "OverCutBot/1.0 (https://overcut.com)"
+}
+
 
 def eras_incompatibles(code1, code2):
     if code1.startswith('era_') and code2.startswith('era_'):
@@ -35,6 +87,139 @@ def nacionalidades_incompatibles(code1, code2):
         nacionalidad2 = code2.replace('nationality_', '')
         return nacionalidad1 != nacionalidad2
     return False
+
+SPORTMONKS_API_TOKEN = '5UhlDsMlTnKg0kCfOtTd6BvmX28RUwInhj5pY9x77TSfVpABspG9Gb4ISbN1'
+SPORTMONKS_BASE_URL = 'https://api.sportmonks.com/v1/formula-1/teams'
+
+def get_team_logo_url(team_name):
+    try:
+        response = requests.get(
+            SPORTMONKS_BASE_URL,
+            params={'api_token': SPORTMONKS_API_TOKEN}
+        )
+        if response.status_code == 200:
+            data = response.json()['data']
+            for team in data:
+                if team_name.lower() in team['name'].lower():
+                    return team.get('image_path', None)
+        return None
+    except Exception as e:
+        print(f"Error fetching logo from API: {e}")
+        return None
+
+
+def obtener_logo_equipo_wikipedia(team_name):
+    try:
+        url = "https://commons.wikimedia.org/w/api.php"
+
+        posibles_queries = [
+            f"{team_name} Grand Prix logo",
+            f"BWT {team_name} logo 2020",
+            f"{team_name} Racing Cars logo",
+            f"{team_name} Automobili S.p.A. logo",
+            f"{team_name} Formula Ltd.",
+            f"{team_name} Arrows logo",
+            f"Logo of {team_name}",
+            f"{team_name} Logo",
+            f"{team_name} Grand Prix logo",
+            f"{team_name} Formula 1 Team logo",
+            f"{team_name} F1 team",
+            f"{team_name} F1 Team logo",
+            f"Logo {team_name} F1",
+            f"{team_name} F1 logo",
+            f"{team_name} Racing logo",
+            f"{team_name} Automotive logo",
+            f"Mini Free Logo {team_name}",
+            f"{team_name} logo",
+            f"{team_name} AMG Petronas F1 Logo",
+            f"{team_name} Team logo"
+        ]
+
+        if team_name.upper() == "BAR":
+            posibles_queries.insert(0, "British American Racing logo")
+
+        extensiones_validas = ('.svg', '.png', '.jpg', '.jpeg')
+
+        for query in posibles_queries:
+            params = {
+                "action": "query",
+                "format": "json",
+                "prop": "imageinfo",
+                "iiprop": "url",
+                "generator": "search",
+                "gsrsearch": query,
+                "gsrlimit": 5,
+                "gsrnamespace": 6
+            }
+
+            response = requests.get(url, params=params, headers=headers, timeout=10)
+
+            if response.status_code != 200:
+                continue
+
+            data = response.json()
+            pages = data.get("query", {}).get("pages", {})
+
+            for page in pages.values():
+                title = page.get("title", "").lower()
+                url_image = page["imageinfo"][0]["url"]
+
+                # Condiciones de validación final
+                if ("logo" in title or "emblem" in title) and title.endswith(extensiones_validas):
+                    return url_image
+
+        return None
+
+    except Exception as e:
+        print(f"[LOG] Error buscando logo equipo Wikipedia: {e}", file=sys.stderr)
+        return None
+
+
+
+
+def obtener_bandera_nacionalidad_wikipedia(nationality):
+    try:
+        query = f"Flag of {nationality}"
+        url = "https://commons.wikimedia.org/w/api.php"
+        params = {
+            "action": "query",
+            "format": "json",
+            "prop": "imageinfo",
+            "iiprop": "url",
+            "generator": "search",
+            "gsrsearch": query,
+            "gsrlimit": 1,
+            "gsrnamespace": 6  # SOLO IMÁGENES
+        }
+        response = requests.get(url, params=params, headers=headers, timeout=10)
+
+        data = response.json()
+
+        pages = data.get("query", {}).get("pages", {})
+        for page in pages.values():
+            return page["imageinfo"][0]["url"]
+
+    except Exception as e:
+        print(f"[LOG] Error buscando bandera Wikipedia: {e}", file=sys.stderr)
+    return None
+
+
+
+
+def get_logo_url(tipo, value):
+    if tipo == 'team':
+        logo_url = obtener_logo_equipo_wikipedia(value)
+        return logo_url
+
+    if tipo == 'nationality':
+        iso_code = ISO_MAPPING.get(value.lower())
+        if iso_code:
+            return f"https://flagcdn.com/w320/{iso_code}.png"
+        # Si no se encuentra el código ISO, intentar obtener la bandera desde Wikipedia
+        bandera_url = obtener_bandera_nacionalidad_wikipedia(value)
+        return bandera_url
+
+    return None
 
 
 def check_nationality_and_stats(session, code1, code2):
@@ -201,7 +386,6 @@ def existen_pilotos_para_fila_columna(session, criterio_fila, criterio_columna):
     return True
 
 
-
 def obtener_criterio_valido(session, usados, criterios_existentes):
     while True:
         tipo = random.choice(CRITERIOS)
@@ -257,7 +441,8 @@ def obtener_criterio_valido(session, usados, criterios_existentes):
 
         if code not in usados:
             usados.add(code)
-            return {"description": desc, "code": code}
+            image_url = get_logo_url(tipo, seleccion if tipo in ['team', 'nationality'] else None)
+            return {"description": desc, "code": code, "imageUrl": image_url}
 
 
 def existen_pilotos_para_fila_columna(session, criterio_fila, criterio_columna):
@@ -282,57 +467,27 @@ def existen_pilotos_para_fila_columna(session, criterio_fila, criterio_columna):
     return True
 
 
+
 def generar_criterios():
     session = Session()
     try:
         usados = set()
+        filas, columnas = [], []
 
-        for intentos_generales in range(5):  # Intentamos hasta 5 veces generar filas+columnas
-            filas, columnas = [], []
+        while len(filas) < NUM_CRITERIOS:
+            criterio = obtener_criterio_valido(session, usados, filas)
+            if criterio:
+                filas.append(criterio)
 
-            # Generar filas
-            while len(filas) < NUM_CRITERIOS:
-                intentos = 0
-                while True:
-                    criterio = obtener_criterio_valido(session, usados, filas)
-                    intentos += 1
-                    if intentos > 100:
-                        break
-                    if criterio:
-                        filas.append(criterio)
-                        break
+        while len(columnas) < NUM_CRITERIOS:
+            criterio = obtener_criterio_valido(session, usados, filas + columnas)
+            if criterio:
+                columnas.append(criterio)
 
-            if len(filas) < NUM_CRITERIOS:
-                continue  # Reiniciamos intento general
-
-            # Generar columnas
-            while len(columnas) < NUM_CRITERIOS:
-                intentos = 0
-                while True:
-                    criterio = obtener_criterio_valido(session, usados, filas + columnas)
-                    intentos += 1
-                    if intentos > 100:
-                        break
-                    if all(existen_pilotos_para_fila_columna(session, fila, criterio) for fila in filas):
-                        columnas.append(criterio)
-                        break
-
-            if len(columnas) < NUM_CRITERIOS:
-                continue  # Reiniciamos intento general
-
-            # Si conseguimos 3 filas y 3 columnas → OK
-            print(json.dumps({"rowCriteria": filas, "columnCriteria": columnas}, ensure_ascii=False))
-            return
-
-        # Si no conseguimos tras varios intentos
-        raise Exception("No se han podido generar suficientes filas y columnas válidas tras varios intentos.")
+        print(json.dumps({"rowCriteria": filas, "columnCriteria": columnas}, ensure_ascii=False))
 
     finally:
         session.close()
-
-
-
-
 
 
 if __name__ == "__main__":
@@ -340,4 +495,3 @@ if __name__ == "__main__":
     parser.add_argument('--lang', type=str, default='es')
     args = parser.parse_args()
     generar_criterios()
-

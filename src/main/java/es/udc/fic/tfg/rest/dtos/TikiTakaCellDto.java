@@ -2,57 +2,43 @@ package es.udc.fic.tfg.rest.dtos;
 
 public class TikiTakaCellDto {
 
-    private int row;
-    private int column;
-    private String filledBy;
-    private String piloto;
-    private boolean isValid;
+    private Long id;
+    private int rowGame;
+    private int columnGame;
+    private String filledBy; // "X" | "O" | null
+    private String piloto;   // Nombre del piloto si existe
+    private boolean valid;   // Si cumplió criterios
 
-    public TikiTakaCellDto(int row, int column, String filledBy, String piloto, boolean isValid) {
-        this.row = row;
-        this.column = column;
+    public TikiTakaCellDto(Long id, int rowGame, int columnGame, String filledBy, String piloto, boolean valid) {
+        this.id = id;
+        this.rowGame = rowGame;
+        this.columnGame = columnGame;
         this.filledBy = filledBy;
         this.piloto = piloto;
-        this.isValid = isValid;
+        this.valid = valid;
     }
 
-    public int getRow() {
-        return row;
+    public Long getId() {
+        return id;
     }
 
-    public void setRow(int row) {
-        this.row = row;
+    public int getRowGame() {
+        return rowGame;
     }
 
-    public int getColumn() {
-        return column;
-    }
-
-    public void setColumn(int column) {
-        this.column = column;
+    public int getColumnGame() {
+        return columnGame;
     }
 
     public String getFilledBy() {
         return filledBy;
     }
 
-    public void setFilledBy(String filledBy) {
-        this.filledBy = filledBy;
-    }
-
     public String getPiloto() {
         return piloto;
     }
 
-    public void setPiloto(String piloto) {
-        this.piloto = piloto;
-    }
-
     public boolean isValid() {
-        return isValid;
-    }
-
-    public void setValid(boolean valid) {
-        isValid = valid;
+        return valid;
     }
 }

@@ -12,16 +12,19 @@ public class TikiTakaCriteria {
     private int positionGame; // posición 1,2,3
     private String description; // Texto visible
     private String code; // Código
+    private String imageUrl;
 
     public TikiTakaCriteria() {
     }
 
-    public TikiTakaCriteria(TikiTakaGame game, String axis, int positionGame, String description, String code) {
+    public TikiTakaCriteria(TikiTakaGame game, String axis, int positionGame, String description,
+                            String code, String imageUrl) {
         this.game = game;
         this.axis = axis;
         this.positionGame = positionGame;
         this.description = description;
         this.code = code;
+        this.imageUrl = imageUrl;
     }
 
     @Id
@@ -74,5 +77,13 @@ public class TikiTakaCriteria {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

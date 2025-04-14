@@ -12,22 +12,35 @@ public class TikiTakaGameBoardDtoConversor {
 
     private TikiTakaGameBoardDtoConversor() {}
 
-    public static TikiTakaGameBoardDto toTikiTakaGameBoardDto(TikiTakaGame game, List<TikiTakaCriteria> rowCriteria, List<TikiTakaCriteria> columnCriteria) {
+    public static TikiTakaGameBoardDto toTikiTakaGameBoardDto(TikiTakaGame game,
+                                                              List<TikiTakaCriteria> rowCriteria,
+                                                              List<TikiTakaCriteria> columnCriteria) {
 
         List<TikiTakaCellDto> cellsDtos = game.getCells().stream()
-                .map(c -> new TikiTakaCellDto(c.getRowGame(), c.getColumnGame(), c.getFilledBy(), c.getPiloto(), c.isValid()))
+                .map(c -> new TikiTakaCellDto(
+                        c.getId(),
+                        c.getRowGame(),
+                        c.getColumnGame(),
+                        c.getFilledBy(),
+                        c.getPiloto(),
+                        c.isValid()
+                ))
                 .collect(Collectors.toList());
 
-        List<TikiTakaCriteriaDto> rowCriteriaDtos = rowCriteria.stream()
-                .map(TikiTakaCriteriaDtoConversor::toTikiTakaCriteriaDto)
-                .collect(Collectors.toList());
+        List<TikiTakaCriteriaDto> rowCriteriaDtos = TikiTakaCriteriaDtoConversor.toTikiTakaCriteriaDtos(rowCriteria);
 
-        List<TikiTakaCriteriaDto> columnCriteriaDtos = columnCriteria.stream()
-                .map(TikiTakaCriteriaDtoConversor::toTikiTakaCriteriaDto)
-                .collect(Collectors.toList());
+        List<TikiTakaCriteriaDto> columnCriteriaDtos = TikiTakaCriteriaDtoConversor.toTikiTakaCriteriaDtos(columnCriteria);
 
-        return new TikiTakaGameBoardDto(game.getId(), game.getPlayerX(), game.getPlayerO(),
-                game.getCurrentTurn(), game.getStatus(), game.getCreatedAt(), cellsDtos,
-                rowCriteriaDtos, columnCriteriaDtos);
+
+        return new TikiTakaGameBoardDto(
+                game.getId(),
+                game.getPlayerX(),
+                game.getPlayerO(),
+                game.getCurrentTurn(),
+                game.getStatus(),
+                cellsDtos,
+                rowCriteriaDtos,
+                columnCriteriaDtos
+        );
     }
 }

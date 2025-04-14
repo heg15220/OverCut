@@ -232,8 +232,10 @@ CREATE TABLE TikiTakaCriteria (
     positionGame INT,
     description VARCHAR(255),
     code VARCHAR(50),
+    imageUrl VARCHAR(512), -- NUEVA COLUMNA PARA LOGOS / BANDERAS
     FOREIGN KEY (gameId) REFERENCES TikiTakaGame(id) ON DELETE CASCADE
 );
+
 
 
 
