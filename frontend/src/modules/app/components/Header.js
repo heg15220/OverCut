@@ -49,6 +49,16 @@ const Header = () => {
                             </Link>
                         </li>
                         }
+
+                        {isLogged &&
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/minigames" style={{ color: 'white' }}>
+                                <FormattedMessage id="project.app.Header.minigames" />
+                                <Puzzle className="ms-1" size={16} color="#FFFFFF" />
+                            </Link>
+                        </li>
+                        }
+
                         <li className="nav-item">
                         <Link className="nav-link" to={`/circuits/category/3`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.historic" />

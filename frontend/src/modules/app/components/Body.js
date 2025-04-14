@@ -11,6 +11,10 @@ import QuestionDetails from "../../quiz/components/QuestionDetails";
 import Awards from "../../quiz/components/Awards";
 import AwardsList from "../../quiz/components/AwardsList";
 import AwardsUserList from "../../quiz/components/AwardsUserList";
+import MinigamesHome from "../../tictactoe/components/MinigamesHome";
+import TicTacToe from "../../tictactoe/components/TicTacToe";
+import TicTacToeGame from "../../tictactoe/components/TicTacToeGame";
+
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
@@ -76,6 +80,9 @@ const Body = () => {
                     <Route path="/historic/stats" element={<TeamsPage />} />
                     <Route path="/circuit/:id/stats" element={<TeamsVictoriesCircuitBarChart />} />
                     {loggedIn && <Route path="/:id/user-award-confirmed" element={<UserAwardConfirmed />} />}
+                    {loggedIn && <Route path="/minigames" element={<MinigamesHome />} />}
+                    {loggedIn && <Route path="/minigames/tictactoe" element={<TicTacToe />} />}
+                    {loggedIn && <Route path="/minigames/tictactoe/game/:id" element={<TicTacToeGame />} />}
 
                 </Route>
             </Routes>

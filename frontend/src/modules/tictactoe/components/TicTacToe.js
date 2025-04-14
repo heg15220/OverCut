@@ -1,0 +1,42 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import * as actions from '../actions';
+import { Container, Typography, Button, Stack } from '@mui/material';
+import { motion } from 'framer-motion';
+import './TicTacToe.css';
+
+const TicTacToe = () => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const createGame = (dynamic) => {
+        const request = { useDynamicCriteria: dynamic };
+
+        dispatch(actions.createGame(
+            request,
+            (gameId) => navigate(`/minigames/tictactoe/game/${gameId}`),
+            () => alert('Error creando partida')
+        ));
+    };
+
+    return (
+        <Container maxWidth="sm" className="tictactoe-container">
+            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                <Typography variant="h3" color="primary" gutterBottom>
+                    Tic Tac Toe F1
+                </Typography>
+                <Stack spacing={3} direction="column" alignItems="center">
+                    <Button variant="contained" color="error" size="large" onClick={() => createGame(false)}>
+                        Modo Clásico
+                    </Button>
+                    <Button variant="contained" color="error" size="large" onClick={() => createGame(true)}>
+                        Modo Dinámico
+                    </Button>
+                </Stack>
+            </motion.div>
+        </Container>
+    );
+};
+
+export default TicTacToe;

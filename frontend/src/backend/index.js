@@ -10,9 +10,10 @@ import * as quizService from "./quizService"
 import * as historicService from "./historicService";
 import * as eventService from "./eventService";
 
+import * as tiktakService from "./tiktakService";
 
 const backExport = { init, NetworkError, userService,
-    postService,quizService, historicService,eventService}
+    postService,quizService, historicService,eventService,tiktakService}
 
 
 export default backExport;

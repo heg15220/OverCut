@@ -110,5 +110,6 @@ const en = {
     'project.entities.Quiz.Result': 'Results',
     'project.entities.Award.Result.Achieved': 'Well done! You achieved the award!',
     'project.entities.Award.Result.ButtonHome': 'Go to my awards list',
+    'project.app.Header.minigames': 'MiniGames',
 }
 export default en;

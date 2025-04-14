@@ -109,7 +109,7 @@ const es = {
     'project.entities.Quiz.Result': 'Resultados',
     'project.entities.Award.Result.Achieved': '¡Enhorabuena! ¡Has canjeado la recompensa!',
     'project.entities.Award.Result.ButtonHome': 'Ir a mi lista de recompensas canjeadas',
-
+    'project.app.Header.minigames': 'Minijuegos',
 
 }
 export default es;
