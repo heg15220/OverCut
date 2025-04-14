@@ -67,6 +67,8 @@ ISO_MAPPING = {
     "uruguayan": "uy"
 }
 
+
+
 headers = {
     "User-Agent": "OverCutBot/1.0 (https://overcut.com)"
 }
@@ -107,36 +109,74 @@ def get_team_logo_url(team_name):
         print(f"Error fetching logo from API: {e}")
         return None
 
+def obtener_logo_equipo_local(team_name):
+    key = team_name.lower().replace(" ", "_")
+    return TEAM_LOGOS_LOCAL.get(key)
+
+
 
 def obtener_logo_equipo_wikipedia(team_name):
     try:
         url = "https://commons.wikimedia.org/w/api.php"
 
+        # Si empieza por "Team " → lo eliminamos
+        if team_name.startswith("Team "):
+            team_name = team_name[5:]  # Quita "Team " (5 caracteres)
+
         posibles_queries = [
-            f"{team_name} Grand Prix logo",
-            f"BWT {team_name} logo 2020",
-            f"{team_name} Racing Cars logo",
-            f"{team_name} Automobili S.p.A. logo",
-            f"{team_name} Formula Ltd.",
-            f"{team_name} Arrows logo",
-            f"Logo of {team_name}",
-            f"{team_name} Logo",
+            f"{team_name} Benz AMG Petronas Formula One Team Logo Wheelsology",
+            f"{team_name} AMG Petronas F1 Logo",
             f"{team_name} Grand Prix logo",
             f"{team_name} Formula 1 Team logo",
             f"{team_name} F1 team",
+            f"{team_name} Formula One Team",
             f"{team_name} F1 Team logo",
-            f"Logo {team_name} F1",
+            f"{team_name} Grand Prix logo",
             f"{team_name} F1 logo",
             f"{team_name} Racing logo",
-            f"{team_name} Automotive logo",
-            f"Mini Free Logo {team_name}",
-            f"{team_name} logo",
-            f"{team_name} AMG Petronas F1 Logo",
+            f"Scuderia {team_name} Logo",
+            f"Logo of {team_name}",
+            f"{team_name} 1 Team logo 2019",
+            f"{team_name} Racing logo ita",
             f"{team_name} Team logo"
+            f"{team_name} logo F1",
+            f"{team_name} logo",
+            f"Logo {team_name} F1",
+            f"BWT {team_name} logo 2020",
+            f"{team_name} Honda 007",
+            f"Logo {team_name} F1",
+            f"{team_name} F1 Team Stake Logo",
+            f"{team_name} Racing Cars logo",
+            f"{team_name} Automobili S.p.A. logo",
+            f"{team_name}racing",
+            f"{team_name} Formula Ltd.",
+            f"{team_name} Arrows logo",
+            f"{team_name} Logo",
+            f"{team_name} Automotive logo",
+            f"{team_name} MF1 Racing-Logo",
+            f"{team_name}",
+            f"{team_name} logo",
+            f"Scuderia_Alpha-Tauri",
+            f"Mini Free Logo {team_name}"
         ]
 
         if team_name.upper() == "BAR":
             posibles_queries.insert(0, "British American Racing logo")
+
+        if team_name.upper() == "Midland":
+            posibles_queries.insert(0, "MF1")
+
+        if team_name.upper() == "Ferrari":
+            posibles_queries.insert(0, "Escuderia Ferrari")
+
+        if team_name.upper() == "Aston Martin":
+            posibles_queries.insert(0, "Aston Martin F1 Team")
+
+        if team_name.upper() == "McLaren":
+            posibles_queries.insert(0, "McLaren Racing logo")
+
+        if team_name.upper() == "Force India":
+            posibles_queries.insert(0, "Mini Free Logo Force India")
 
         extensiones_validas = ('.svg', '.png', '.jpg', '.jpeg')
 
@@ -208,18 +248,16 @@ def obtener_bandera_nacionalidad_wikipedia(nationality):
 
 def get_logo_url(tipo, value):
     if tipo == 'team':
-        logo_url = obtener_logo_equipo_wikipedia(value)
-        return logo_url
+        return obtener_logo_equipo_wikipedia(value)
 
     if tipo == 'nationality':
         iso_code = ISO_MAPPING.get(value.lower())
         if iso_code:
             return f"https://flagcdn.com/w320/{iso_code}.png"
-        # Si no se encuentra el código ISO, intentar obtener la bandera desde Wikipedia
-        bandera_url = obtener_bandera_nacionalidad_wikipedia(value)
-        return bandera_url
+        return obtener_bandera_nacionalidad_wikipedia(value)
 
     return None
+
 
 
 def check_nationality_and_stats(session, code1, code2):
