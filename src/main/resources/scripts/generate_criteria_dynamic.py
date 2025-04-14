@@ -248,15 +248,22 @@ def obtener_bandera_nacionalidad_wikipedia(nationality):
 
 def get_logo_url(tipo, value):
     if tipo == 'team':
-        return obtener_logo_equipo_wikipedia(value)
+        logo_url = obtener_logo_equipo_wikipedia(value)
+        return logo_url
 
     if tipo == 'nationality':
         iso_code = ISO_MAPPING.get(value.lower())
         if iso_code:
             return f"https://flagcdn.com/w320/{iso_code}.png"
-        return obtener_bandera_nacionalidad_wikipedia(value)
+        bandera_url = obtener_bandera_nacionalidad_wikipedia(value)
+        return bandera_url
+
+    if tipo == 'era':
+        # Imagen ilustrativa fija para era
+        return "https://overcut.com/static/images/era_f1.png"
 
     return None
+
 
 
 
