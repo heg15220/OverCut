@@ -519,20 +519,34 @@ def generar_criterios():
         usados = set()
         filas, columnas = [], []
 
-        while len(filas) < NUM_CRITERIOS:
-            criterio = obtener_criterio_valido(session, usados, filas)
-            if criterio:
-                filas.append(criterio)
+        # Decidir si las nationalities van solo en filas o solo en columnas
+        nationality_in_rows = random.choice([True, False])
 
-        while len(columnas) < NUM_CRITERIOS:
-            criterio = obtener_criterio_valido(session, usados, filas + columnas)
-            if criterio:
-                columnas.append(criterio)
+        tipos_prohibidos_filas = ['nationality'] if not nationality_in_rows else []
+        tipos_prohibidos_columnas = ['nationality'] if nationality_in_rows else []
 
-        print(json.dumps({"rowCriteria": filas, "columnCriteria": columnas}, ensure_ascii=False))
+        for intentos_generales in range(5):
+            filas, columnas = [], []
 
+            while len(filas) < NUM_CRITERIOS:
+                criterio = obtener_criterio_valido(session, usados, filas)
+                if criterio and not criterio['code'].startswith(tuple(tipos_prohibidos_filas)):
+                    filas.append(criterio)
+
+            while len(columnas) < NUM_CRITERIOS:
+                criterio = obtener_criterio_valido(session, usados, filas + columnas)
+                if criterio and not criterio['code'].startswith(tuple(tipos_prohibidos_columnas)):
+                    if all(existen_pilotos_para_fila_columna(session, fila, criterio) for fila in filas):
+                        columnas.append(criterio)
+
+            if len(columnas) == NUM_CRITERIOS:
+                print(json.dumps({"rowCriteria": filas, "columnCriteria": columnas}, ensure_ascii=False))
+                return
+
+        raise Exception("No se han podido generar suficientes filas y columnas válidas tras varios intentos.")
     finally:
         session.close()
+
 
 
 if __name__ == "__main__":
