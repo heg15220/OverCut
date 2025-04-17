@@ -1,11 +1,14 @@
 import random
 import json
 import sys
+import os
 import argparse
 import requests
+import atexit
 import urllib.parse
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 DB_URL = 'mysql+pymysql://root:root@localhost/f1db'
 engine = create_engine(DB_URL, pool_size=25, max_overflow=20)
@@ -53,7 +56,8 @@ ISO_MAPPING = {
     "colombian": "co",
     "czech": "cz",
     "hungarian": "hu",
-    "monégasque": "mc",
+    "monegasque": "mc",
+    "Monegasque": "mc",
     "monacan": "mc",
     "thai": "th",
     "chinese": "cn",
@@ -73,6 +77,36 @@ headers = {
     "User-Agent": "OverCutBot/1.0 (https://overcut.com)"
 }
 
+logo_cache = {}
+
+
+
+# Cargar caché de logos
+if os.path.exists("logos_cache.json"):
+    try:
+        with open("logos_cache.json", "r", encoding="utf-8") as f:
+            logo_cache.update(json.load(f))
+    except Exception as e:
+        print(f"[CACHE] Error cargando logos_cache.json: {e}", file=sys.stderr)
+
+
+# Cargar nacionalidades y equipos válidos al inicio
+def precargar_listas():
+    session = Session()
+    try:
+        nationalities = [row[0] for row in session.execute(text("""
+            SELECT nationality FROM drivers WHERE nationality IS NOT NULL
+            GROUP BY nationality HAVING COUNT(DISTINCT driverId) >= 2
+        """)).fetchall()]
+        teams = [row[0] for row in session.execute(text("""
+            SELECT name FROM constructors GROUP BY name
+            HAVING COUNT(*) >= 1
+        """)).fetchall()]
+        return nationalities, teams
+    finally:
+        session.close()
+
+NATIONALITIES, TEAMS = precargar_listas()
 
 def eras_incompatibles(code1, code2):
     if code1.startswith('era_') and code2.startswith('era_'):
@@ -113,6 +147,8 @@ def obtener_logo_equipo_local(team_name):
     key = team_name.lower().replace(" ", "_")
     return TEAM_LOGOS_LOCAL.get(key)
 
+timeout = 3  # en lugar de 10
+max_queries = 3  # cortar antes
 
 
 def obtener_logo_equipo_wikipedia(team_name):
@@ -122,6 +158,10 @@ def obtener_logo_equipo_wikipedia(team_name):
         # Si empieza por "Team " → lo eliminamos
         if team_name.startswith("Team "):
             team_name = team_name[5:]  # Quita "Team " (5 caracteres)
+
+        timeout = 5
+        max_queries = 5
+        extensiones_validas = ('.svg', '.png', '.jpg', '.jpeg')
 
         posibles_queries = [
             f"{team_name} Benz AMG Petronas Formula One Team Logo Wheelsology",
@@ -178,9 +218,7 @@ def obtener_logo_equipo_wikipedia(team_name):
         if team_name.upper() == "Force India":
             posibles_queries.insert(0, "Mini Free Logo Force India")
 
-        extensiones_validas = ('.svg', '.png', '.jpg', '.jpeg')
-
-        for query in posibles_queries:
+        def buscar_logo(query):
             params = {
                 "action": "query",
                 "format": "json",
@@ -192,27 +230,38 @@ def obtener_logo_equipo_wikipedia(team_name):
                 "gsrnamespace": 6
             }
 
-            response = requests.get(url, params=params, headers=headers, timeout=10)
+            try:
+                response = requests.get(url, params=params, headers=headers, timeout=8)
+                if response.status_code != 200:
+                    return None
 
-            if response.status_code != 200:
-                continue
+                data = response.json()
+                pages = data.get("query", {}).get("pages", {})
 
-            data = response.json()
-            pages = data.get("query", {}).get("pages", {})
+                for page in pages.values():
+                    title = page.get("title", "").lower()
+                    url_image = page["imageinfo"][0]["url"]
 
-            for page in pages.values():
-                title = page.get("title", "").lower()
-                url_image = page["imageinfo"][0]["url"]
+                    if ("logo" in title or "emblem" in title) and title.endswith(extensiones_validas):
+                        return url_image
 
-                # Condiciones de validación final
-                if ("logo" in title or "emblem" in title) and title.endswith(extensiones_validas):
-                    return url_image
+                return None
+            except Exception:
+                return None
+
+        with ThreadPoolExecutor(max_workers=max_queries) as executor:
+            futures = [executor.submit(buscar_logo, query) for query in posibles_queries[:max_queries]]
+            for future in as_completed(futures):
+                url_logo = future.result()
+                if url_logo:
+                    return url_logo
 
         return None
 
     except Exception as e:
         print(f"[LOG] Error buscando logo equipo Wikipedia: {e}", file=sys.stderr)
         return None
+
 
 
 
@@ -247,22 +296,28 @@ def obtener_bandera_nacionalidad_wikipedia(nationality):
 
 
 def get_logo_url(tipo, value):
+    key = f"{tipo}_{(value or '').lower()}"
+
+    if key in logo_cache:
+        return logo_cache[key]
+
+    url = None
+
     if tipo == 'team':
-        logo_url = obtener_logo_equipo_wikipedia(value)
-        return logo_url
+        url = obtener_logo_equipo_wikipedia(value)
+        if not url:
+            url = "https://overcut.com/static/images/default_team.png"
+    elif tipo == 'nationality':
+        iso = ISO_MAPPING.get(value.lower())
+        url = f"https://flagcdn.com/w320/{iso}.png" if iso else "https://overcut.com/static/images/no_flag.png"
+        logo_cache[key] = url
+    elif tipo == 'era':
+        url = "https://overcut.com/static/images/era_f1.png"
 
-    if tipo == 'nationality':
-        iso_code = ISO_MAPPING.get(value.lower())
-        if iso_code:
-            return f"https://flagcdn.com/w320/{iso_code}.png"
-        bandera_url = obtener_bandera_nacionalidad_wikipedia(value)
-        return bandera_url
+    return url
 
-    if tipo == 'era':
-        # Imagen ilustrativa fija para era
-        return "https://overcut.com/static/images/era_f1.png"
 
-    return None
+
 
 
 
@@ -421,131 +476,148 @@ def check_team_with_stats(session, code1, code2):
     return result is not None
 
 
-def existen_pilotos_para_fila_columna(session, criterio_fila, criterio_columna):
-    if eras_incompatibles(criterio_fila['code'], criterio_columna['code']):
-        return False
-    if nacionalidades_incompatibles(criterio_fila['code'], criterio_columna['code']):
-        return False
-    if not check_team_with_team_or_era(session, criterio_fila['code'], criterio_columna['code']):
-        return False
-    return True
 
 
-def obtener_criterio_valido(session, usados, criterios_existentes):
+
+def obtener_criterio_valido(usados, tipos_prohibidos):
     while True:
-        tipo = random.choice(CRITERIOS)
-
+        tipo = random.choice([t for t in CRITERIOS if t not in tipos_prohibidos])
         if tipo == 'nationality':
-            result = session.execute(text("""
-                SELECT nationality FROM drivers
-                WHERE nationality IS NOT NULL
-                GROUP BY nationality
-                HAVING COUNT(DISTINCT driverId) >= 2
-            """)).fetchall()
-            if not result:
-                continue
-            seleccion = random.choice(result)[0]
+            seleccion = random.choice(NATIONALITIES)
             code = f'nationality_{seleccion.lower().replace(" ", "_")}'
             desc = f'Piloto {seleccion}'
-
         elif tipo == 'team':
-            result = session.execute(text("""
-                SELECT name FROM constructors
-                WHERE constructorId IN (
-                    SELECT constructorId FROM results r
-                    JOIN races ra ON r.raceId = ra.raceId
-                    WHERE ra.year >= 1980
-                )
-                GROUP BY name
-                HAVING COUNT(DISTINCT constructorId) >= 1
-            """)).fetchall()
-            if not result:
-                continue
-            seleccion = random.choice(result)[0]
+            seleccion = random.choice(TEAMS)
             code = f'team_{seleccion.lower().replace(" ", "_")}'
             desc = f'Corrió para {seleccion}'
-
         elif tipo == 'era':
             inicio = random.randint(1980, 2015)
             fin = inicio + 5
             code = f'era_{inicio}_{fin}'
             desc = f'Piloto activo entre {inicio}-{fin}'
-
+            seleccion = None
         elif tipo == 'min_wins':
-            wins = random.choice([1, 2, 3])
-            code = f'min_{wins}_wins'
-            desc = f'Piloto con al menos {wins} victorias'
-
+            n = random.choice([1, 2, 3])
+            code = f'min_{n}_wins'
+            desc = f'Piloto con al menos {n} victorias'
+            seleccion = None
         elif tipo == 'min_podiums':
-            podiums = random.choice([3, 5, 7])
-            code = f'min_{podiums}_podiums'
-            desc = f'Piloto con al menos {podiums} podios'
-
+            n = random.choice([3, 5, 7])
+            code = f'min_{n}_podiums'
+            desc = f'Piloto con al menos {n} podios'
+            seleccion = None
         else:
             continue
 
-        if code not in usados:
-            usados.add(code)
-            image_url = get_logo_url(tipo, seleccion if tipo in ['team', 'nationality'] else None)
-            return {"description": desc, "code": code, "imageUrl": image_url}
+        if code in usados:
+            continue
+
+        usados.add(code)
+        logo = get_logo_url(tipo, seleccion if tipo in ['team', 'nationality'] else None)
+        return {"description": desc, "code": code, "imageUrl": logo}
 
 
-def existen_pilotos_para_fila_columna(session, criterio_fila, criterio_columna):
-    if eras_incompatibles(criterio_fila['code'], criterio_columna['code']):
-        return False
-    if nacionalidades_incompatibles(criterio_fila['code'], criterio_columna['code']):
-        return False
-    if not check_nationality_and_stats(session, criterio_fila['code'], criterio_columna['code']):
-        return False
-    if not check_nationality_or_stats_with_team(session, criterio_fila['code'], criterio_columna['code']):
-        return False
-
-    if not check_nationality_with_era(session, criterio_fila['code'], criterio_columna['code']):
-        return False
-
-    if not check_team_with_stats(session, criterio_fila['code'], criterio_columna['code']):
-        return False
-
-    if not check_team_with_team_or_era(session, criterio_fila['code'], criterio_columna['code']):
-        return False
-
+def existen_pilotos_para_fila_columna(criterio_fila, criterio_columna):
+    with Session() as session:
+        if eras_incompatibles(criterio_fila['code'], criterio_columna['code']):
+            return False
+        if nacionalidades_incompatibles(criterio_fila['code'], criterio_columna['code']):
+            return False
+        if not check_nationality_and_stats(session, criterio_fila['code'], criterio_columna['code']):
+            return False
+        if not check_nationality_or_stats_with_team(session, criterio_fila['code'], criterio_columna['code']):
+            return False
+        if not check_nationality_with_era(session, criterio_fila['code'], criterio_columna['code']):
+            return False
+        if not check_team_with_stats(session, criterio_fila['code'], criterio_columna['code']):
+            return False
+        if not check_team_with_team_or_era(session, criterio_fila['code'], criterio_columna['code']):
+            return False
     return True
 
 
 
 def generar_criterios():
-    session = Session()
-    try:
-        usados = set()
-        filas, columnas = [], []
+    usados = set()
+    NUM_CRITERIOS = 3
 
-        # Decidir si las nationalities van solo en filas o solo en columnas
+    while True:  # Repetimos hasta que filas y columnas >= 3 y haya al menos un team y 2 nationality
+        filas, columnas_validas = [], []
+        usados.clear()
+        tiene_team = False
+        count_nationality = 0
+
         nationality_in_rows = random.choice([True, False])
+        tipos_filas = ['nationality'] if not nationality_in_rows else []
+        tipos_columnas = ['nationality'] if nationality_in_rows else []
 
-        tipos_prohibidos_filas = ['nationality'] if not nationality_in_rows else []
-        tipos_prohibidos_columnas = ['nationality'] if nationality_in_rows else []
+        max_intentos = 50
 
-        for intentos_generales in range(5):
-            filas, columnas = [], []
+        # Generar filas
+        intentos_filas = 0
+        while len(filas) < NUM_CRITERIOS and intentos_filas < max_intentos:
+            intentos_filas += 1
+            fila = obtener_criterio_valido(usados, tipos_filas)
 
-            while len(filas) < NUM_CRITERIOS:
-                criterio = obtener_criterio_valido(session, usados, filas)
-                if criterio and not criterio['code'].startswith(tuple(tipos_prohibidos_filas)):
-                    filas.append(criterio)
+            if fila['code'].startswith('team_'):
+                tiene_team = True
+            if fila['code'].startswith('nationality_'):
+                count_nationality += 1
 
-            while len(columnas) < NUM_CRITERIOS:
-                criterio = obtener_criterio_valido(session, usados, filas + columnas)
-                if criterio and not criterio['code'].startswith(tuple(tipos_prohibidos_columnas)):
-                    if all(existen_pilotos_para_fila_columna(session, fila, criterio) for fila in filas):
-                        columnas.append(criterio)
+            with ThreadPoolExecutor(max_workers=NUM_CRITERIOS) as executor:
+                futures = [executor.submit(existen_pilotos_para_fila_columna, fila, c) for c in columnas_validas]
+                validaciones = [f.result() for f in as_completed(futures)] if columnas_validas else [True]
 
-            if len(columnas) == NUM_CRITERIOS:
-                print(json.dumps({"rowCriteria": filas, "columnCriteria": columnas}, ensure_ascii=False))
-                return
+            if all(validaciones):
+                filas.append(fila)
 
-        raise Exception("No se han podido generar suficientes filas y columnas válidas tras varios intentos.")
-    finally:
-        session.close()
+        # Generar columnas
+        intentos_columnas = 0
+        while len(columnas_validas) < NUM_CRITERIOS and intentos_columnas < max_intentos:
+            intentos_columnas += 1
+            columna = obtener_criterio_valido(usados, tipos_columnas)
+
+            if columna['code'].startswith('team_'):
+                tiene_team = True
+            if columna['code'].startswith('nationality_'):
+                count_nationality += 1
+
+            with ThreadPoolExecutor(max_workers=NUM_CRITERIOS) as executor:
+                futures = [executor.submit(existen_pilotos_para_fila_columna, f, columna) for f in filas]
+                validaciones = [f.result() for f in as_completed(futures)] if filas else [True]
+
+            if all(validaciones):
+                columnas_validas.append(columna)
+
+        # Condición de éxito:
+        if len(filas) >= NUM_CRITERIOS and len(columnas_validas) >= NUM_CRITERIOS and tiene_team and count_nationality >= 2:
+            break  # Éxito
+
+    resultado = {
+        "rowCriteria": filas,
+        "columnCriteria": columnas_validas
+    }
+
+    print(json.dumps(resultado, ensure_ascii=False))
+
+
+
+
+
+
+
+
+
+# Guardar caché al salir
+def save_cache():
+    try:
+        with open("logos_cache.json", "w", encoding="utf-8") as f:
+            json.dump(logo_cache, f, ensure_ascii=False, indent=2)
+        print(f"[CACHE] Logos cache guardado con {len(logo_cache)} elementos", file=sys.stderr)
+    except Exception as e:
+        print(f"[CACHE] Error guardando logos_cache.json: {e}", file=sys.stderr)
+
+atexit.register(save_cache)
 
 
 
