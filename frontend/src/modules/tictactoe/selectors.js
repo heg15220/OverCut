@@ -8,4 +8,4 @@ export const playMove = (state) => getModuleState(state).checkDriver;
 
 export const getCriteria = (state) => getModuleState(state).criteria;
 
-
+export const selectSuggestions = state => state.tictactoe.suggestions;

@@ -23,6 +23,15 @@ const getCriteriaCompleted = (criteria) => ({
     criteria
 });
 
+export const setPilotSuggestionsCompleted = (suggestions) => ({
+  type: actionTypes.SET_PILOT_SUGGESTIONS_COMPLETED,
+  suggestions
+});
+
+
+
+
+
 
 export const createGame = (request, onSuccess, onErrors ) => dispatch =>
     backend.tiktakService.createGame(request, gameId => {
@@ -51,3 +60,11 @@ export const getCriteria = (onSuccess, onErrors ) => dispatch =>
             onSuccess(criteria);
         },
         onErrors);
+
+
+export const fetchPilotSuggestions = (name, onSuccess, onErrors) => dispatch =>
+  backend.pilotService.autocomplete(name, suggestions => {
+        dispatch(setPilotSuggestionsCompleted(suggestions));
+        onSuccess(suggestions);
+  },
+    onErrors);

@@ -1,0 +1,48 @@
+.helmet-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 10px;
+  animation: fadeInPilot 0.6s ease-in-out;
+  transform: scale(1);
+}
+
+@keyframes fadeInPilot {
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.helmet-image {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0% { filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0.5)); }
+  50% { filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9)); }
+  100% { filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0.5)); }
+}
+
+.pilot-name {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: white;
+  font-weight: bold;
+  font-family: 'F1 Regular', sans-serif;
+  text-shadow: 0 0 4px #000;
+}
+
+.blue-bg {
+  background-color: rgba(0, 89, 255, 0.7);
+  box-shadow: 0 0 12px rgba(0, 89, 255, 0.6);
+}
+
+.white-bg {
+  background-color: #fff;
+  color: #111;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+}

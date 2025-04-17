@@ -26,7 +26,7 @@ export const playMove = (id, request, onSuccess, onErrors) => {
 
     appFetch(
         `/ticktacktoe/${id}/move`,
-        fetchConfig("GET", request),
+        fetchConfig("POST", request),
         onSuccess,
         onErrors
     );

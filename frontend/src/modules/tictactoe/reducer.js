@@ -7,6 +7,7 @@ const initialState = {
     game: null,
     checkDriver: null,
     criteria: null,
+    suggestions: null,
 };
 
 const gameId = (state = initialState.gameId, action) => {
@@ -41,10 +42,19 @@ const criteria = (state = initialState.criteria, action) => {
     }
 }
 
+const suggestions = (state = initialState.suggestions, action) => {
+    if (action.type === actionTypes.SET_PILOT_SUGGESTIONS_COMPLETED) {
+        return action.suggestions;
+    } else {
+        return state;
+    }
+}
+
 const reducer = combineReducers({
     gameId,
     game,
     checkDriver,
     criteria,
+    suggestions,
 });
 export default reducer;
