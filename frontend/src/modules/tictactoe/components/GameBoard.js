@@ -5,7 +5,7 @@ import PilotAutocomplete from './PilotAutoComplete';
 import PilotHelmet from './PilotHelmet';
 import TurnIndicator from './TurnIndicator';
 import CriteriaBox from './CriteriaBox';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert } from '@mui/material';
 import './GameBoard.css';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -19,19 +19,31 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
   const [winner, setWinner] = useState(null);
   const [isDraw, setIsDraw] = useState(false);
   const [statusEvaluated, setStatusEvaluated] = useState(false);
+  const [showInvalidPilot, setShowInvalidPilot] = useState(false);
 
   useEffect(() => {
-      if (!statusEvaluated && (gameData.status === 'X_WINS' || gameData.status === 'O_WINS' || gameData.status === 'DRAW')) {
-        setStatusEvaluated(true);
-        setTimeout(() => {
-          if (gameData.status === 'X_WINS' || gameData.status === 'O_WINS') {
-            setWinner(gameData.status.startsWith('X') ? 'Jugador X' : 'Jugador O');
-          } else if (gameData.status === 'DRAW') {
-            setIsDraw(true);
-          }
-        }, 2000);
-      }
-    }, [gameData.status, statusEvaluated]);
+    if (!statusEvaluated && (gameData.status === 'X_WINS' || gameData.status === 'O_WINS' || gameData.status === 'DRAW')) {
+      setStatusEvaluated(true);
+      setTimeout(() => {
+        if (gameData.status === 'X_WINS' || gameData.status === 'O_WINS') {
+          setWinner(gameData.status.startsWith('X') ? 'Jugador X' : 'Jugador O');
+        } else if (gameData.status === 'DRAW') {
+          setIsDraw(true);
+        }
+      }, 2000);
+    }
+  }, [gameData.status, statusEvaluated]);
+
+  useEffect(() => {
+    setWinner(null);
+    setIsDraw(false);
+    setStatusEvaluated(false);
+    setShowInvalidPilot(false);
+    setSelectedCell(null);
+    setShowDialog(false);
+    setDrawConfirm(false);
+  }, [gameData.id]);
+
 
   const handleCellClick = (cell) => {
     if (cell.filledBy || winner || isDraw) return;
@@ -52,6 +64,9 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
       id,
       request,
       (res) => {
+        if (!res.valid) {
+          setShowInvalidPilot(true);
+        }
         dispatch(actions.getGame(id, () => {}, () => {}));
       },
       () => {}
@@ -114,8 +129,8 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
       <Dialog open={drawConfirm} onClose={() => setDrawConfirm(false)}>
         <DialogTitle className="dialog-title">¿Confirmar empate?</DialogTitle>
         <DialogActions>
-          <Button onClick={() => onDrawRequest('new')}>Nueva partida</Button>
-          <Button onClick={() => onDrawRequest('home')}>Volver al inicio</Button>
+          <Button onClick={() => navigate('/minigames/tictactoe')}>Nueva partida</Button>
+          <Button onClick={() => navigate('/minigames')}>Volver al inicio</Button>
         </DialogActions>
       </Dialog>
 
@@ -133,9 +148,21 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
         <DialogTitle className="dialog-title">🤝 ¡La partida ha terminado en empate!</DialogTitle>
         <DialogActions>
           <Button onClick={() => navigate('/minigames')}>Volver al inicio</Button>
-          <Button onClick={() => window.location.reload()}>Nueva partida</Button>
+          <Button onClick={() => navigate('/minigames/tictactoe')}>Nueva partida</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar de error */}
+      <Snackbar
+        open={showInvalidPilot}
+        autoHideDuration={3000}
+        onClose={() => setShowInvalidPilot(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="error" onClose={() => setShowInvalidPilot(false)}>
+          Piloto incorrecto para esta celda. ¡Turno perdido!
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

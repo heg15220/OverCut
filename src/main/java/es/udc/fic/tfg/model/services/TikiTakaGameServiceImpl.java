@@ -230,13 +230,14 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
             return new ValidationResponseTikTak(false, "Cell already occupied");
         }
 
-        String rowCriteria = criteriaDao.findByAxis("row").stream()
+        String rowCriteria = criteriaDao.findByAxisAndGameId("row", gameId).stream()
                 .filter(c -> c.getPositionGame() == request.getRow())
                 .findFirst().get().getCode();
 
-        String columnCriteria = criteriaDao.findByAxis("column").stream()
+        String columnCriteria = criteriaDao.findByAxisAndGameId("column", gameId).stream()
                 .filter(c -> c.getPositionGame() == request.getColumn())
                 .findFirst().get().getCode();
+
 
 
 
