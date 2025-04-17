@@ -18,4 +18,6 @@ public interface TikiTakaGameService {
     ValidationResponseTikTak playMove(Long gameId, MoveRequest request);
 
     List<TikiTakaCriteria> getAllCriteria();
+
+    void skipTurn(Long gameId);
 }

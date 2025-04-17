@@ -272,5 +272,14 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
     }
 
 
+    @Override
+    public void skipTurn(Long gameId) {
+        TikiTakaGame game = getGame(gameId);
+        if (!game.getStatus().equals("IN_PROGRESS")) return;
+
+        game.setCurrentTurn(game.getCurrentTurn().equals("X") ? "O" : "X");
+        gameDao.save(game);
+    }
+
 }
 

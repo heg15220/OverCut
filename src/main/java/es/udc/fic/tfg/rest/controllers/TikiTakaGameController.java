@@ -47,5 +47,11 @@ public class TikiTakaGameController {
     public List<TikiTakaCriteriaDto> getCriteria() {
         return TikiTakaCriteriaDtoConversor.toTikiTakaCriteriaDtos(gameService.getAllCriteria());
     }
+
+    @PostMapping("/{id}/skip")
+    public void skipTurn(@PathVariable Long id) {
+        gameService.skipTurn(id);
+    }
+
 }
 

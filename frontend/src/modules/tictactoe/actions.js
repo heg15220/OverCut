@@ -68,3 +68,12 @@ export const fetchPilotSuggestions = (name, onSuccess, onErrors) => dispatch =>
         onSuccess(suggestions);
   },
     onErrors);
+
+export const skipTurn = (id, onSuccess, onErrors) => dispatch =>
+  backend.tiktakService.skipTurn(id,
+    () => {
+      dispatch(getGame(id, onSuccess, onErrors));
+    },
+    onErrors
+  );
+

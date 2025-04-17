@@ -41,3 +41,12 @@ export const getCriteria = (onSuccess, onErrors) => {
         onErrors
     );
 };
+
+export const skipTurn = (id, onSuccess, onErrors) => {
+  appFetch(
+    `/ticktacktoe/${id}/skip`,
+    fetchConfig("POST"),
+    onSuccess,
+    onErrors
+  );
+};
