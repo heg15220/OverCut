@@ -20,4 +20,6 @@ public interface TikiTakaGameService {
     List<TikiTakaCriteria> getAllCriteria();
 
     void skipTurn(Long gameId);
+
+    void forceDraw(Long gameId);
 }

@@ -77,3 +77,12 @@ export const skipTurn = (id, onSuccess, onErrors) => dispatch =>
     onErrors
   );
 
+export const forceDraw = (id, onSuccess, onErrors) => dispatch =>
+  backend.tiktakService.forceDraw(id,
+    () => {
+      dispatch(getGame(id, onSuccess, onErrors));
+    },
+    onErrors
+  );
+
+

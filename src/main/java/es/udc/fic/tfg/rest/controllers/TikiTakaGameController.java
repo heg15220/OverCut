@@ -53,5 +53,10 @@ public class TikiTakaGameController {
         gameService.skipTurn(id);
     }
 
+    @PostMapping("/{id}/draw")
+    public void forceDraw(@PathVariable Long id) {
+        gameService.forceDraw(id);
+    }
+
 }
 

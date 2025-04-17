@@ -82,13 +82,30 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
     return null;
   };
 
+const handleDrawRequest = () => {
+  setDrawConfirm(true);
+};
+
+const confirmDraw = (mode) => {
+  if (mode === 'home') {
+    navigate("/minigames");
+  } else if (mode === 'new') {
+    dispatch(actions.forceDraw(id, () => {
+      setTimeout(() => navigate('/minigames/tictactoe'), 1000);
+    }, () => {}));
+  }
+  setDrawConfirm(false);
+};
+
+
+
   return (
     <div className="game-container">
       <div className="game-header">
         <TurnIndicator
           currentTurn={gameData.currentTurn}
           onSwitch={onSwitchTurn}
-          onDraw={() => setDrawConfirm(true)}
+          onDraw={handleDrawRequest}
         />
       </div>
 
@@ -127,12 +144,13 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
 
       {/* Modal de empate */}
       <Dialog open={drawConfirm} onClose={() => setDrawConfirm(false)}>
-        <DialogTitle className="dialog-title">¿Confirmar empate?</DialogTitle>
+        <DialogTitle className="dialog-title">Empate</DialogTitle>
         <DialogActions>
-          <Button onClick={() => navigate('/minigames/tictactoe')}>Nueva partida</Button>
-          <Button onClick={() => navigate('/minigames')}>Volver al inicio</Button>
+          <Button onClick={() => confirmDraw('new')}>Nueva partida</Button>
+          <Button onClick={() => confirmDraw('home')}>Volver al inicio</Button>
         </DialogActions>
       </Dialog>
+
 
       {/* Modal de victoria */}
       <Dialog open={!!winner} onClose={() => setWinner(null)}>

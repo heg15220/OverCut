@@ -50,3 +50,12 @@ export const skipTurn = (id, onSuccess, onErrors) => {
     onErrors
   );
 };
+
+export const forceDraw = (id, onSuccess, onErrors) => {
+  appFetch(
+    `/ticktacktoe/${id}/draw`,
+    fetchConfig("POST"),
+    onSuccess,
+    onErrors
+  );
+};

@@ -281,5 +281,15 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         gameDao.save(game);
     }
 
+    @Override
+    public void forceDraw(Long gameId) {
+        TikiTakaGame game = getGame(gameId);
+        if (!game.getStatus().equals("IN_PROGRESS")) return;
+
+        game.setStatus("DRAW");
+        gameDao.save(game);
+    }
+
+
 }
 
