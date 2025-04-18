@@ -10,8 +10,14 @@ const TicTacToe = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const createGame = (dynamic) => {
-        const request = { useDynamicCriteria: dynamic };
+    const createGame = (randomCriteria, useDynamicCriteria, modo2000Plus) => {
+        const request = {
+            playerX: "Jugador X", // puedes reemplazarlo si es configurable
+            playerO: "Jugador O",
+            randomCriteria,
+            useDynamicCriteria,
+            modo2000Plus
+        };
 
         dispatch(actions.createGame(
             request,
@@ -27,12 +33,33 @@ const TicTacToe = () => {
                     Tic Tac Toe F1
                 </Typography>
                 <Stack spacing={3} direction="column" alignItems="center">
-                    <Button variant="contained" color="error" size="large" onClick={() => createGame(false)}>
-                        Modo Clásico
-                    </Button>
-                    <Button variant="contained" color="error" size="large" onClick={() => createGame(true)}>
-                        Modo Dinámico
-                    </Button>
+                   <Button
+                       variant="contained"
+                       color="error"
+                       size="large"
+                       onClick={() => createGame(false, false, false)} // clásico
+                   >
+                       Modo Clásico
+                   </Button>
+
+                   <Button
+                       variant="contained"
+                       color="error"
+                       size="large"
+                       onClick={() => createGame(false, true, false)} // dinámico
+                   >
+                       Modo Dinámico
+                   </Button>
+
+                   <Button
+                       variant="contained"
+                       color="error"
+                       size="large"
+                       onClick={() => createGame(false, false, true)} // dinámico desde 2000
+                   >
+                       Modo 2000+
+                   </Button>
+
                 </Stack>
             </motion.div>
         </Container>

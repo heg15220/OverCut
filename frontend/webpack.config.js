@@ -28,7 +28,8 @@ module.exports = (env, argv) => {
                     },
                 },
                 {
-                    test: /\.(png|jpe?g|gif)$/i,
+                    // Manejo unificado de imágenes incluyendo SVGs como recursos estáticos
+                    test: /\.(png|jpe?g|gif|svg)$/i,
                     use: [
                         {
                             loader: 'file-loader',
@@ -47,11 +48,7 @@ module.exports = (env, argv) => {
                         'css-loader',
                         'postcss-loader',
                     ],
-                },
-                {
-                    test: /\.svg$/,
-                    use: ['@svgr/webpack'],
-                },
+                }
             ],
         },
         plugins: [
@@ -64,7 +61,7 @@ module.exports = (env, argv) => {
             !isProduction && new HotModuleReplacementPlugin(),
         ].filter(Boolean),
         devServer: {
-            contentBase: path.join(__dirname, 'dist'),
+            static: path.join(__dirname, 'dist'), // Webpack 5 reemplaza `contentBase` por `static`
             compress: true,
             port: 8080,
             hot: !isProduction,

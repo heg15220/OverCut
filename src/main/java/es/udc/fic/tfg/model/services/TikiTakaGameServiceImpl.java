@@ -125,6 +125,38 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
     }
 
 
+    private void generarCriteriosDinamicosModo2000(TikiTakaGame game) {
+        try {
+            String output = PythonLLMCriteriaGame.executePythonScript("src/main/resources/scripts/generate_criteria_dynamic_2000.py");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(output);
+
+            if (jsonNode.has("error")) {
+                throw new RuntimeException("Error desde Python: " + jsonNode.get("error").asText());
+            }
+
+            JsonNode filasJson = jsonNode.has("rowCriteria") ? jsonNode.get("rowCriteria") : jsonNode.get("rows");
+            JsonNode columnasJson = jsonNode.has("columnCriteria") ? jsonNode.get("columnCriteria") : jsonNode.get("cols");
+
+
+            if (filasJson == null || columnasJson == null) {
+                throw new RuntimeException("Error: No se pudieron generar criterios válidos modo 2000+");
+            }
+
+            List<TikiTakaCriteria> filas = guardarOCargarCriterios(filasJson, "row", game);
+            List<TikiTakaCriteria> columnas = guardarOCargarCriterios(columnasJson, "column", game);
+
+            for (int i = 1; i <= filas.size(); i++) filas.get(i - 1).setPositionGame(i);
+            for (int i = 1; i <= columnas.size(); i++) columnas.get(i - 1).setPositionGame(i);
+
+            criteriaDao.saveAll(filas);
+            criteriaDao.saveAll(columnas);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error generando criterios dinámicos modo 2000+", e);
+        }
+    }
 
     private void asignarCriteriosAleatorios() {
 
@@ -194,10 +226,12 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
 
         if (request.isUseDynamicCriteria()) {
             generarCriteriosDinamicos(game);
+
+        } else if (request.isModo2000Plus()) {
+            generarCriteriosDinamicosModo2000(game);
         } else {
             generarCriteriosEstaticos(game);
         }
-
 
         return game.getId();
     }
