@@ -127,7 +127,8 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
 
     private void generarCriteriosDinamicosModo2000(TikiTakaGame game) {
         try {
-            String output = PythonLLMCriteriaGame.executePythonScript("src/main/resources/scripts/generate_criteria_dynamic_2000.py");
+            //String output = PythonLLMCriteriaGame.executePythonScript("src/main/resources/scripts/generate_criteria_dynamic_2000.py");
+            String output = CriteriaService.fetchCriteria();
 
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(output);

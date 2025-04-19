@@ -13,7 +13,7 @@ STATIC_LOGO_DIR = "frontend/src/assets/images/tictactoe"
 
 ISO_MAPPING = {
     "british": "gb", "german": "de", "italian": "it", "french": "fr", "spanish": "es", "dutch": "nl",
-    "finnish": "fi", "brazilian": "br", "argentine": "ar", "mexican": "mx", "canadian": "ca",
+    "finnish": "fi", "brazilian": "br", "argentinean": "ar", "mexican": "mx", "canadian": "ca",
     "austrian": "at", "australian": "au", "swiss": "ch", "belgian": "be", "swedish": "se",
     "portuguese": "pt", "chilean": "cl", "american": "us", "new zealander": "nz", "irish": "ie",
     "south african": "za", "japanese": "jp", "russian": "ru", "polish": "pl", "venezuelan": "ve",

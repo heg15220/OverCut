@@ -1,8 +1,11 @@
 package es.udc.fic.tfg.model.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.*;
 
 public class PythonLLMCriteriaGame {
+
 
     public static String executePythonScript(String scriptPath) throws IOException, InterruptedException {
 

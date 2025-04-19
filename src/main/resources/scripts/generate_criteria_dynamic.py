@@ -1,15 +1,26 @@
 import random
 import json
+import os
+import time
+import pickle
+from itertools import combinations
+from collections import defaultdict
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+# DB setup
 DB_URL = 'mysql+pymysql://root:root@localhost/f1db'
-engine = create_engine(DB_URL, pool_size=25, max_overflow=20)
+engine = create_engine(DB_URL, pool_size=25, max_overflow=20, future=True)
 Session = sessionmaker(bind=engine)
 
+# Paths and cache
+STATIC_LOGO_DIR = "frontend/src/assets/images/tictactoe"
+CACHE_FILE = "frontend/src/assets/images/tictactoe/configs_cache.pkl"
+
+# ISO map
 ISO_MAPPING = {
     "british": "gb", "german": "de", "italian": "it", "french": "fr", "spanish": "es", "dutch": "nl",
-    "finnish": "fi", "brazilian": "br", "argentine": "ar", "mexican": "mx", "canadian": "ca",
+    "finnish": "fi", "brazilian": "br", "argentinean": "ar", "mexican": "mx", "canadian": "ca",
     "austrian": "at", "australian": "au", "swiss": "ch", "belgian": "be", "swedish": "se",
     "portuguese": "pt", "chilean": "cl", "american": "us", "new zealander": "nz", "irish": "ie",
     "south african": "za", "japanese": "jp", "russian": "ru", "polish": "pl", "venezuelan": "ve",
@@ -18,158 +29,164 @@ ISO_MAPPING = {
     "dane": "dk", "danish": "dk", "estonian": "ee", "latvian": "lv", "uruguayan": "uy"
 }
 
-TEAMS = []
-NATIONALITIES = []
+# Globals
+COMBINACIONES_PILOTO = set()
+VALORES_VALIDOS = defaultdict(set)
+team_logo_cache = {}
+criteria_list = []
+row_combos = []
+team_to_nats = defaultdict(set)
+team_to_debuts = defaultdict(set)
+nat_to_teams = defaultdict(set)
+VALID_CONFIGS = []
 
-with Session() as session:
-    TEAMS = [r[0] for r in session.execute(text("""
-        SELECT DISTINCT c.name
-        FROM constructors c
-        JOIN results r ON c.constructorId = r.constructorId
-        JOIN races ra ON r.raceId = ra.raceId
-        WHERE ra.year >= 2000
-    """)).fetchall()]
+# Preload driver data
+def precargar_datos():
+    with Session() as session:
+        rows = session.execute(text("""
+            SELECT d.driverId, d.nationality, MIN(ra.year) AS debutYear,
+                   GROUP_CONCAT(DISTINCT c.name) AS teams
+            FROM drivers d
+            JOIN results r ON d.driverId = r.driverId
+            JOIN races ra ON r.raceId = ra.raceId
+            JOIN constructors c ON r.constructorId = c.constructorId
+            WHERE ra.year >= 2000
+            GROUP BY d.driverId
+            HAVING debutYear >= 2000
+        """)).fetchall()
+    for _, nat, debut, teams_concat in rows:
+        if not teams_concat:
+            continue
+        debut = int(debut)
+        for team in teams_concat.split(','):
+            COMBINACIONES_PILOTO.add((team, nat, debut))
+            VALORES_VALIDOS['team'].add(team)
+            VALORES_VALIDOS['nationality'].add(nat)
+            VALORES_VALIDOS['debut'].add(debut)
+            team_to_nats[team].add(nat)
+            team_to_debuts[team].add(debut)
+            nat_to_teams[nat].add(team)
 
-    NATIONALITIES = [r[0] for r in session.execute(text("""
-        SELECT DISTINCT d.nationality
-        FROM drivers d
-        JOIN results r ON d.driverId = r.driverId
-        JOIN races ra ON r.raceId = ra.raceId
-        WHERE ra.year >= 2000
-    """)).fetchall()]
+# Index logos once
+def index_logos():
+    for fname in os.listdir(STATIC_LOGO_DIR):
+        base, ext = os.path.splitext(fname)
+        team = base.replace('_', ' ')
+        team_logo_cache[team] = f"/assets/images/tictactoe/{fname}"
 
-import os
-
-STATIC_LOGO_DIR = "frontend/public/assets/images/tictactoe"
-
+# Logo URL helper
 def get_logo_url(tipo, value):
     if tipo == 'team':
-        # Probar con .svg y .png respetando mayúsculas
-        base = value.replace(" ", "_").replace("-", "_")
-        for ext in ['.svg', '.png', '.jpg']:
-            filename = f"{base}{ext}"
-            full_path = os.path.join(STATIC_LOGO_DIR, filename)
-            if os.path.exists(full_path):
-                return f"/assets/images/tictactoe/{filename}"
-        # Si no se encuentra ninguno
-        return "/assets/images/tictactoe/default_team.png"
-    elif tipo == 'nationality':
+        return team_logo_cache.get(value, "/assets/images/tictactoe/default_team.png")
+    if tipo == 'nationality':
         iso = ISO_MAPPING.get(value.lower())
         return f"https://flagcdn.com/w320/{iso}.png" if iso else "https://overcut.com/static/images/no_flag.png"
-    elif tipo == 'debut':
+    if tipo == 'debut':
         return "/assets/images/tictactoe/calendar.png"
     return ""
 
+# Build criteria list
+def build_criteria_list():
+    global criteria_list
+    criteria_list = []
+    for team in VALORES_VALIDOS['team']:
+        criteria_list.append({
+            'type': 'team', 'value': team,
+            'code': f"team_{team.lower().replace(' ', '_')}",
+            'description': f"Corrió para {team}",
+            'imageUrl': get_logo_url('team', team)
+        })
+    for nat in VALORES_VALIDOS['nationality']:
+        criteria_list.append({
+            'type': 'nationality', 'value': nat,
+            'code': f"nationality_{nat.lower().replace(' ', '_')}",
+            'description': f"Piloto {nat}",
+            'imageUrl': get_logo_url('nationality', nat)
+        })
+    for debut in VALORES_VALIDOS['debut']:
+        criteria_list.append({
+            'type': 'debut', 'value': debut,
+            'code': f"debut_{debut}",
+            'description': f"Debut en {debut}",
+            'imageUrl': get_logo_url('debut', debut)
+        })
 
-def obtener_criterio_valido(usados, tipo):
-    with Session() as session:
-        if tipo == 'nationality':
-            value = random.choice(NATIONALITIES)
-            code = f"nationality_{value.lower().replace(' ', '_')}"
-            desc = f"Piloto {value}"
-        elif tipo == 'team':
-            value = random.choice(TEAMS)
-            code = f"team_{value.lower().replace(' ', '_')}"
-            desc = f"Corrió para {value}"
-        elif tipo == 'debut':
-            years = session.execute(text("""
-                SELECT DISTINCT MIN(ra.year)
-                FROM drivers d
-                JOIN results r ON d.driverId = r.driverId
-                JOIN races ra ON r.raceId = ra.raceId
-                GROUP BY d.driverId
-                HAVING MIN(ra.year) >= 2000
-            """)).fetchall()
-            if not years:
-                return None
-            value = random.choice([r[0] for r in years])
-            code = f"debut_{value}"
-            desc = f"Debut en {value}"
-        else:
-            return None
+# Precompute row triples: 1 team + 2 nationalities
+def build_row_combos():
+    global row_combos
+    teams = [c for c in criteria_list if c['type']=='team']
+    nats  = [c for c in criteria_list if c['type']=='nationality']
+    row_combos = []
+    for t in teams:
+        for n1, n2 in combinations(nats, 2):
+            row_combos.append([t, n1, n2])
 
-        if code in usados:
-            return None
+# Quick pair validity
+def valid_pair(a, b):
+    if a['type']=='team' and b['type']=='nationality':
+        return b['value'] in team_to_nats[a['value']]
+    if a['type']=='team' and b['type']=='debut':
+        return b['value'] in team_to_debuts[a['value']]
+    if a['type']=='nationality' and b['type']=='team':
+        return b['value'] in nat_to_teams[a['value']]
+    if b['type']=='nationality' and a['type']=='debut':
+        return a['value'] in team_to_debuts.get(b['value'], set())
+    return True
 
-        usados.add(code)
-        return {
-            "description": desc,
-            "code": code,
-            "imageUrl": get_logo_url(tipo, value),
-            "type": tipo
-        }
+def valid_combo(row, col):
+    for r in row:
+        for c in col:
+            if r['type']==c['type'] and r['value']!=c['value'] and r['type'] in ['nationality','debut']:
+                return False
+            if not valid_pair(r, c) or not valid_pair(c, r):
+                return False
+    return True
 
-def criterios_incompatibles(a, b):
-    if a['type'] == b['type'] and a['code'] != b['code'] and a['type'] in ['nationality', 'debut']:
-        return True
-    return False
+# Load or generate configurations with caching
+def precargar_configuraciones(target=500, max_attempts=30):
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, 'rb') as f:
+            return pickle.load(f)
 
-def existen_pilotos_para_fila_columna(row, col):
-    if criterios_incompatibles(row, col):
-        return False
+    configs, seen = [], set()
+    for row in row_combos:
+        if len(configs) >= target:
+            break
+        row_codes = {c['code'] for c in row}
+        for _ in range(max_attempts):
+            col = random.sample(criteria_list, 3)
+            col_codes = {c['code'] for c in col}
+            if row_codes & col_codes:
+                continue
+            if not valid_combo(row, col):
+                continue
+            key = tuple(sorted(row_codes | col_codes))
+            if key in seen:
+                continue
+            seen.add(key)
+            configs.append({'rowCriteria': row, 'columnCriteria': col})
+            break
+    with open(CACHE_FILE, 'wb') as f:
+        pickle.dump(configs, f)
+    return configs
 
-    query = """
-        SELECT DISTINCT d.driverId
-        FROM drivers d
-        JOIN results r ON d.driverId = r.driverId
-        JOIN races ra ON r.raceId = ra.raceId
-        JOIN constructors c ON r.constructorId = c.constructorId
-        WHERE ra.year >= 2000
-    """
-    condiciones = []
-    params = {}
+# Initialize everything
+def init():
+    t0 = time.perf_counter()
+    precargar_datos()
+    index_logos()
+    build_criteria_list()
+    build_row_combos()
+    global VALID_CONFIGS
+    VALID_CONFIGS = precargar_configuraciones()
+    elapsed = time.perf_counter() - t0
+    print(f"Init completo en {elapsed:.2f}s con {len(VALID_CONFIGS)} configs")
 
-    if row['type'] == 'team' or col['type'] == 'team':
-        team = row['description'].replace('Corrió para ', '') if row['type'] == 'team' else col['description'].replace('Corrió para ', '')
-        condiciones.append("c.name = :team")
-        params['team'] = team
+# Generate one board in O(1)
+def generar_partida():
+    return random.choice(VALID_CONFIGS)
 
-    if row['type'] == 'nationality' or col['type'] == 'nationality':
-        nat = row['description'].replace('Piloto ', '') if row['type'] == 'nationality' else col['description'].replace('Piloto ', '')
-        condiciones.append("d.nationality = :nat")
-        params['nat'] = nat
-
-    if row['type'] == 'debut' or col['type'] == 'debut':
-        debut = int(row['description'].split()[-1]) if row['type'] == 'debut' else int(col['description'].split()[-1])
-        condiciones.append("ra.year = :debut")
-        params['debut'] = debut
-
-    if condiciones:
-        query += " AND " + " AND ".join(condiciones)
-
-    with Session() as session:
-        result = session.execute(text(query), params).fetchall()
-        return len(result) >= 1
-
-def generar_criterios():
-    usados = set()
-    filas, columnas = [], []
-    tiene_team = False
-    count_nationality = 0
-
-    tipos = ['team', 'nationality', 'debut']
-    random.shuffle(tipos)
-
-    while len(filas) < 3:
-        tipo = random.choice(tipos)
-        criterio = obtener_criterio_valido(usados, tipo)
-        if criterio:
-            filas.append(criterio)
-            if criterio['type'] == 'team': tiene_team = True
-            if criterio['type'] == 'nationality': count_nationality += 1
-
-    while len(columnas) < 3:
-        tipo = random.choice(tipos)
-        criterio = obtener_criterio_valido(usados, tipo)
-        if criterio and all(existen_pilotos_para_fila_columna(r, criterio) for r in filas):
-            columnas.append(criterio)
-            if criterio['type'] == 'team': tiene_team = True
-            if criterio['type'] == 'nationality': count_nationality += 1
-
-    if not tiene_team or count_nationality < 2:
-        return generar_criterios()
-
-    print(json.dumps({"rowCriteria": filas, "columnCriteria": columnas}, ensure_ascii=False))
-
-if __name__ == "__main__":
-    generar_criterios()
+if __name__ == '__main__':
+    init()
+    partida = generar_partida()
+    print(json.dumps(partida, ensure_ascii=False, indent=2))
