@@ -4,22 +4,29 @@ public class CreateGameRequest {
     private String playerX;
     private String playerO;
     private boolean randomCriteria;
-    private boolean useDynamicCriteria; // true → dinámico | false → clásico
-    private boolean modo2000Plus;       // true → solo desde año 2000+
+    private boolean useDynamicCriteria; // true → dinámico clásico (1980–1999)
+    private boolean modo2000Plus;       // true → dinámico desde 2000 en adelante
+    private boolean historicRangeMode;       // true → filtrar sólo entre 1980–1999
 
-    public CreateGameRequest(String playerX, String playerO, boolean randomCriteria,
-                             boolean useDynamicCriteria, boolean modo2000Plus) {
-        this.playerX = playerX;
-        this.playerO = playerO;
-        this.randomCriteria = randomCriteria;
+    public CreateGameRequest(String playerX,
+                             String playerO,
+                             boolean randomCriteria,
+                             boolean useDynamicCriteria,
+                             boolean modo2000Plus,
+                             boolean historicMode) {
+        this.playerX            = playerX;
+        this.playerO            = playerO;
+        this.randomCriteria     = randomCriteria;
         this.useDynamicCriteria = useDynamicCriteria;
-        this.modo2000Plus = modo2000Plus;
+        this.modo2000Plus       = modo2000Plus;
+        this.historicRangeMode       = historicMode;
     }
+
+    // getters & setters
 
     public String getPlayerX() {
         return playerX;
     }
-
     public void setPlayerX(String playerX) {
         this.playerX = playerX;
     }
@@ -27,7 +34,6 @@ public class CreateGameRequest {
     public String getPlayerO() {
         return playerO;
     }
-
     public void setPlayerO(String playerO) {
         this.playerO = playerO;
     }
@@ -35,7 +41,6 @@ public class CreateGameRequest {
     public boolean isRandomCriteria() {
         return randomCriteria;
     }
-
     public void setRandomCriteria(boolean randomCriteria) {
         this.randomCriteria = randomCriteria;
     }
@@ -43,7 +48,6 @@ public class CreateGameRequest {
     public boolean isUseDynamicCriteria() {
         return useDynamicCriteria;
     }
-
     public void setUseDynamicCriteria(boolean useDynamicCriteria) {
         this.useDynamicCriteria = useDynamicCriteria;
     }
@@ -51,8 +55,14 @@ public class CreateGameRequest {
     public boolean isModo2000Plus() {
         return modo2000Plus;
     }
-
     public void setModo2000Plus(boolean modo2000Plus) {
         this.modo2000Plus = modo2000Plus;
+    }
+
+    public boolean isHistoricRangeMode() {
+        return historicRangeMode;
+    }
+    public void setHistoricRangeMode(boolean historicMode) {
+        this.historicRangeMode = historicMode;
     }
 }

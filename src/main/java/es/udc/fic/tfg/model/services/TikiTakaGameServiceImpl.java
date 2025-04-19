@@ -127,8 +127,8 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
 
     private void generarCriteriosDinamicosModo2000(TikiTakaGame game) {
         try {
-            //String output = PythonLLMCriteriaGame.executePythonScript("src/main/resources/scripts/generate_criteria_dynamic_2000.py");
-            String output = CriteriaService.fetchCriteria();
+            String output = PythonLLMCriteriaGame.executePythonScript("src/main/resources/scripts/generate_criteria_dynamic_2000.py");
+
 
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(output);
@@ -201,36 +201,70 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         }
     }
 
+    private void generarCriteriosDinamicosFiltrados(TikiTakaGame game, int sinceYear, Integer endYear) {
+        try {
+            // Llamada al servicio Java que construye ?sinceYear=X&endYear=Y
+            String output = CriteriaService.fetchCriteria(sinceYear, endYear);
 
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(output);
+            if (jsonNode.has("error")) {
+                throw new RuntimeException("Error desde servidor criterios: "
+                        + jsonNode.get("error").asText());
+            }
 
+            JsonNode filasJson    = jsonNode.get("rowCriteria");
+            JsonNode columnasJson = jsonNode.get("columnCriteria");
+            if (filasJson == null || columnasJson == null) {
+                throw new RuntimeException("No se pudieron generar criterios dinámicos filtrados");
+            }
+
+            List<TikiTakaCriteria> filas = guardarOCargarCriterios(filasJson, "row", game);
+            List<TikiTakaCriteria> columnas = guardarOCargarCriterios(columnasJson, "column", game);
+
+            for (int i = 1; i <= filas.size(); i++) filas.get(i - 1).setPositionGame(i);
+            for (int i = 1; i <= columnas.size(); i++) columnas.get(i - 1).setPositionGame(i);
+
+            criteriaDao.saveAll(filas);
+            criteriaDao.saveAll(columnas);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error generando criterios dinámicos filtrados", e);
+        }
+    }
 
 
     @Override
     public Long createGame(CreateGameRequest request) {
 
+        // 1) Creación del juego y celdas (igual que antes) ...
         TikiTakaGame game = new TikiTakaGame(
-                request.getPlayerX(),
-                request.getPlayerO(),
-                "X",
-                "IN_PROGRESS",
-                LocalDateTime.now(),
-                new ArrayList<>()
+                request.getPlayerX(), request.getPlayerO(),
+                "X", "IN_PROGRESS",
+                LocalDateTime.now(), new ArrayList<>()
         );
         gameDao.save(game);
-
         for (int row = 1; row <= 3; row++) {
             for (int col = 1; col <= 3; col++) {
-                TikiTakaCell cell = new TikiTakaCell(game, row, col, null, null, false);
-                cellDao.save(cell);
+                cellDao.save(new TikiTakaCell(game, row, col, null, null, false));
             }
         }
+        int sinceYear = request.isModo2000Plus() ? 2000 : 1980;
 
-        if (request.isUseDynamicCriteria()) {
-            generarCriteriosDinamicos(game);
-
-        } else if (request.isModo2000Plus()) {
-            generarCriteriosDinamicosModo2000(game);
-        } else {
+        // 2) Selección de criterios según request:
+        if (request.isRandomCriteria()) {
+            asignarCriteriosAleatorios();
+        }
+        else if (request.isUseDynamicCriteria()) {
+            generarCriteriosDinamicosFiltrados(game, 1980,null);
+        }
+        else if (request.isModo2000Plus()) {
+            generarCriteriosDinamicosFiltrados(game, 2000, null);
+        } else if(request.isHistoricRangeMode()){
+            generarCriteriosDinamicosFiltrados(game,1980, 1999);
+        }
+        else {
+            // Criterios estáticos en Python
             generarCriteriosEstaticos(game);
         }
 

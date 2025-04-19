@@ -11,22 +11,30 @@ public class CriteriaService {
     private static final String ENDPOINT = "http://127.0.0.1:8000/generate";
 
     /**
-     * Llama al servidor FastAPI y devuelve el JSON de criterios.
+     * Llama al servidor FastAPI y devuelve el JSON de criterios,
+     * filtrado desde sinceYear hasta endYear (inclusive).
      */
-    public static String fetchCriteria() {
+    public static String fetchCriteria(int sinceYear, Integer endYear) {
         try {
+            StringBuilder sb = new StringBuilder(ENDPOINT)
+                    .append("?sinceYear=").append(sinceYear);
+            if (endYear != null) {
+                sb.append("&endYear=").append(endYear);
+            }
+            URI uri = new URI(sb.toString());
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(new URI(ENDPOINT))
+                    .uri(uri)
                     .GET()
                     .build();
 
             HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
 
             if (resp.statusCode() != 200) {
-                throw new RuntimeException("Error from criteria server: HTTP " + resp.statusCode() +
-                        " → " + resp.body());
+                throw new RuntimeException("Error from criteria server: HTTP "
+                        + resp.statusCode() + " → " + resp.body());
             }
             return resp.body();
+
         } catch (Exception e) {
             throw new RuntimeException("No se pudo obtener criterios del servidor", e);
         }

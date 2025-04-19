@@ -10,13 +10,14 @@ const TicTacToe = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const createGame = (randomCriteria, useDynamicCriteria, modo2000Plus) => {
+    const createGame = (randomCriteria, useDynamicCriteria, modo2000Plus, historicRangeMode) => {
         const request = {
             playerX: "Jugador X", // puedes reemplazarlo si es configurable
             playerO: "Jugador O",
             randomCriteria,
             useDynamicCriteria,
-            modo2000Plus
+            modo2000Plus,
+            historicRangeMode
         };
 
         dispatch(actions.createGame(
@@ -37,7 +38,7 @@ const TicTacToe = () => {
                        variant="contained"
                        color="error"
                        size="large"
-                       onClick={() => createGame(false, false, false)} // clásico
+                       onClick={() => createGame(false, false, false, false)} // clásico
                    >
                        Modo Clásico
                    </Button>
@@ -46,7 +47,7 @@ const TicTacToe = () => {
                        variant="contained"
                        color="error"
                        size="large"
-                       onClick={() => createGame(false, true, false)} // dinámico
+                       onClick={() => createGame(false, true, false, false)} // dinámico
                    >
                        Modo Dinámico
                    </Button>
@@ -55,10 +56,19 @@ const TicTacToe = () => {
                        variant="contained"
                        color="error"
                        size="large"
-                       onClick={() => createGame(false, false, true)} // dinámico desde 2000
+                       onClick={() => createGame(false, false, true, false)} // dinámico desde 2000
                    >
                        Modo 2000+
                    </Button>
+
+                   <Button
+                      variant="contained"
+                      color="error"
+                      size="large"
+                      onClick={() => createGame(false, false, false, true)} // dinámico desde 2000
+                  >
+                      Modo 1980-1999
+                  </Button>
 
                 </Stack>
             </motion.div>
