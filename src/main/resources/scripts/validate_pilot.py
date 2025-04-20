@@ -3,11 +3,18 @@ import sys
 import argparse
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+import unicodedata
 
 # --- CONFIGURACIÓN BBDD ---
 DB_URL = 'mysql+pymysql://root:root@localhost/f1db'
 engine = create_engine(DB_URL, pool_size=20, max_overflow=10)
 Session = sessionmaker(bind=engine)
+
+def _slugify(s: str) -> str:
+    # quita acentos, pasa a ASCII
+    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode()
+    # minúsculas, espacios/guiones → _
+    return '_'.join(s.lower().replace('-', ' ').split())
 
 def load_driver_data(session, piloto):
     sql = text("""
@@ -44,23 +51,29 @@ def validate_criteria(driver, criteria_code, session):
         return session.execute(sql, {'driverId': driver['driverId']}).first() is not None
 
     if criteria_code.startswith("nationality_"):
-        return driver['nationality'].lower().replace(" ", "_") == criteria_code.replace("nationality_", "")
+        crit = _slugify(criteria_code[len("nationality_"):])
+        return _slugify(driver['nationality']) == crit
 
     if criteria_code.startswith("min_") and criteria_code.endswith("_wins"):
         required = int(criteria_code.split("_")[1])
-        return driver['wins'] >= required
+        return int(driver.get('wins') or 0) >= required
 
     if criteria_code.startswith("min_") and criteria_code.endswith("_podiums"):
         required = int(criteria_code.split("_")[1])
-        return driver['podiums'] >= required
+        return int(driver.get('podiums') or 0) >= required
+
 
     if criteria_code.startswith("era_"):
         _, start, end = criteria_code.split("_")
         return driver['lastYear'] >= int(start) and driver['debutYear'] <= int(end)
 
     if criteria_code.startswith("team_"):
-        team_name = criteria_code.replace("team_", "").replace("_", " ").title()
-        return team_name in (driver['teams'] or "").split(",")
+        # extrae el slug tras "team_"
+        team_slug = criteria_code[len("team_"):]
+        teams = [(t or "").strip() for t in (driver['teams'] or "").split(",")]
+        # compara case‑insensitive
+        return any(team_slug.lower() == t.lower() for t in teams)
+
 
     return False
 

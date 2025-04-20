@@ -79,6 +79,10 @@ def get_logo_url(tipo: str, value: str) -> str:
         return f"https://flagcdn.com/w320/{iso}.png" if iso else ""
     if tipo == "debut":
         return "/assets/images/tictactoe/calendar.png"
+    if tipo == "min_wins":
+        return "/assets/images/trophy_1.png"
+    if tipo == "min_podiums":
+        return "assets/images/podium_plain.png"
     return ""
 
 def load_all_data(min_year=0, max_year=None):
@@ -116,13 +120,39 @@ def load_all_data(min_year=0, max_year=None):
                AND {cond2}
                AND c1.name <> c2.name
         """)).fetchall()
+        # 3) Contar victorias por nacionalidad
+        win_rows = ses.execute(text(f"""
+            SELECT d.nationality, COUNT(*) AS wins
+              FROM results r
+              JOIN races    ra ON r.raceId    = ra.raceId
+              JOIN drivers  d  ON r.driverId  = d.driverId
+             WHERE r.position = 1
+               AND ra.year   >= {min_year}
+               {f"AND ra.year <= {max_year}" if max_year else ""}
+             GROUP BY d.nationality
+        """)).fetchall()
+        nat_to_wins = {nat: w for nat, w in win_rows}
 
-    return rows, pairs
+        # (Opcional) contar podios, mismo estilo:
+        podium_rows = ses.execute(text(f"""
+            SELECT d.nationality, COUNT(*) AS podiums
+              FROM results r
+              JOIN races    ra ON r.raceId    = ra.raceId
+              JOIN drivers  d  ON r.driverId  = d.driverId
+             WHERE r.position <= 3
+               AND ra.year   >= {min_year}
+               {f"AND ra.year <= {max_year}" if max_year else ""}
+             GROUP BY d.nationality
+        """)).fetchall()
+        nat_to_podiums = {nat: p for nat, p in podium_rows}
+
+    return rows, pairs, nat_to_wins, nat_to_podiums
+
 
 
 def build_for_range(args):
     """Genera el cache para un solo rango. Es llamado en paralelo."""
-    since, end, target, rows, pairs = args
+    since, end, target, rows, pairs, nat_to_wins, nat_to_podiums = args
 
     # 1) Limpio estructuras
     valores     = defaultdict(set)
@@ -178,6 +208,25 @@ def build_for_range(args):
           'imageUrl':    get_logo_url('debut', d)
         })
 
+    for wins in [1, 2, 3]:
+        criteria.append({
+            'type':        'min_wins',
+            'value':       wins,
+            'code':        f"min_{wins}_wins",
+            'description': f"Piloto con al menos {wins} victorias",
+            'imageUrl':    get_logo_url('min_wins', None)
+        })
+
+    # —— nuevo: criterios de mínimo de podios ——
+    for podiums in [3, 5, 7]:
+        criteria.append({
+            'type':        'min_podiums',
+            'value':       podiums,
+            'code':        f"min_{podiums}_podiums",
+            'description': f"Piloto con al menos {podiums} podios",
+            'imageUrl':    get_logo_url('min_podiums', None)
+        })
+
     row_combos = []
     teams = [c for c in criteria if c['type']=='team']
     nats  = [c for c in criteria if c['type']=='nationality']
@@ -196,6 +245,16 @@ def build_for_range(args):
         if a['type']=='debut'      and b['type']=='nationality': return a['value'] in nat_to_deb[b['value']]
         if a['type']=='team'       and b['type']=='team':        return (a['value'],b['value']) in team_pairs
         if a['type']==b['type'] and a['type'] in ('nationality','debut'): return a['value']==b['value']
+        # nacionalidad vs. mínimo de victorias
+        if a['type']=='nationality' and b['type']=='min_wins':
+            return nat_to_wins.get(a['value'], 0) >= b['value']
+        if a['type']=='min_wins' and b['type']=='nationality':
+            return nat_to_wins.get(b['value'], 0) >= a['value']
+        # nacionalidad vs. mínimo de podios
+        if a['type']=='nationality' and b['type']=='min_podiums':
+            return nat_to_podiums.get(a['value'], 0) >= b['value']
+        if a['type']=='min_podiums' and b['type']=='nationality':
+            return nat_to_podiums.get(b['value'], 0) >= a['value']
         return True
 
     def valid_combo(r,c):
@@ -233,10 +292,14 @@ def build_for_range(args):
 
 def main():
     # Cargamos TODA la data de una vez (desde 1980 en adelante cubre ambos)
-    rows, pairs = load_all_data(min_year=1980, max_year=None)
-
+    # Después
+    rows, pairs, nat_to_wins, nat_to_podiums = load_all_data(min_year=1980, max_year=None)
     # Preparamos argumentos por rango
-    jobs = [(s,e,t,rows,pairs) for (s,e,t) in RANGES]
+    jobs = [
+        (s, e, t, rows, pairs, nat_to_wins, nat_to_podiums)
+        for (s, e, t) in RANGES
+    ]
+
 
     # Paralelizamos según cores
     with Pool(min(len(jobs), cpu_count())) as pool:
