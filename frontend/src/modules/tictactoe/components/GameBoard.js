@@ -5,8 +5,9 @@ import PilotAutocomplete from './PilotAutoComplete';
 import PilotHelmet from './PilotHelmet';
 import TurnIndicator from './TurnIndicator';
 import CriteriaBox from './CriteriaBox';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert } from '@mui/material';
+import { Dialog, DialogTitle, DialogActions, Button, Snackbar, Alert } from '@mui/material';
 import './GameBoard.css';
+import './CriteriaBox.css';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
@@ -109,38 +110,50 @@ const confirmDraw = (mode) => {
         />
       </div>
 
-      <div className="game-layout">
-        <div className="criteria-top">
-          {gameData.columnCriteria.map((crit, idx) => (
-            <CriteriaBox key={idx} criteria={crit} />
-          ))}
-        </div>
-
-        {Array.from({ length: 3 }).map((_, row) => (
-          <div key={row} className="board-row">
-            <div className="criteria-left">
-              <CriteriaBox criteria={gameData.rowCriteria[row]} />
-            </div>
-            {gameData.cells.filter(c => c.rowGame === row + 1).map(cell => (
-              <div
-                key={`${cell.rowGame}-${cell.columnGame}`}
-                className="cell"
-                onClick={() => handleCellClick(cell)}
-              >
-                {renderCellContent(cell)}
-              </div>
+      <div className="game-grid-wrapper">
+        <div className="board-frame">
+          <div className="game-layout-grid">
+            <div className="empty-cell" />
+            {gameData.columnCriteria.map((crit, idx) => (
+              <CriteriaBox key={`col-${idx}`} criteria={crit} className="column-criteria" />
             ))}
+
+            {Array.from({ length: 3 }).flatMap((_, row) => [
+              <CriteriaBox key={`row-${row}`} criteria={gameData.rowCriteria[row]} />,
+              ...gameData.cells
+                .filter(c => c.rowGame === row + 1)
+                .map(cell => (
+                  <div
+                    key={`${cell.rowGame}-${cell.columnGame}`}
+                    className="cell"
+                    onClick={() => handleCellClick(cell)}
+                  >
+                    {renderCellContent(cell)}
+                  </div>
+                ))
+            ])}
           </div>
-        ))}
+        </div>
       </div>
 
+
+
       {/* Diálogo para autocompletar piloto */}
-      <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
-        <DialogTitle>Selecciona un piloto</DialogTitle>
-        <DialogContent className="dialog-content">
-          <PilotAutocomplete onSelect={handlePilotSelect} />
-        </DialogContent>
-      </Dialog>
+      {showDialog && (
+        <div className="pilot-input-panel">
+          <div className="pilot-input-content">
+            <h3 className="pilot-input-title">Selecciona un piloto</h3>
+            <PilotAutocomplete onSelect={handlePilotSelect} />
+            <div className="pilot-input-actions">
+              <Button variant="outlined" color="error" onClick={() => setShowDialog(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
 
       {/* Modal de empate */}
       <Dialog open={drawConfirm} onClose={() => setDrawConfirm(false)}>
