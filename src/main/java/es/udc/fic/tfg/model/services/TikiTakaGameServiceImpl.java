@@ -243,13 +243,24 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
                 "X", "IN_PROGRESS",
                 LocalDateTime.now(), new ArrayList<>()
         );
+        if(request.isUseDynamicCriteria()){
+            game.setSinceYear(1980);
+        }
+
+        if(request.isModo2000Plus()){
+            game.setSinceYear(2000);
+        }
+
+        if(request.isHistoricRangeMode()){
+            game.setSinceYear(1980);
+            game.setEndYear(1999);
+        }
         gameDao.save(game);
         for (int row = 1; row <= 3; row++) {
             for (int col = 1; col <= 3; col++) {
                 cellDao.save(new TikiTakaCell(game, row, col, null, null, false));
             }
         }
-        int sinceYear = request.isModo2000Plus() ? 2000 : 1980;
 
         // 2) Selección de criterios según request:
         if (request.isRandomCriteria()) {
@@ -310,7 +321,7 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
 
 
 
-        boolean valid = validationService.validatePilot(rowCriteria, columnCriteria, request.getPiloto());
+        boolean valid = validationService.validatePilot(gameId, rowCriteria, columnCriteria, request.getPiloto());
 
         if (!valid) {
             return new ValidationResponseTikTak(false, "Invalid pilot for selected cell");

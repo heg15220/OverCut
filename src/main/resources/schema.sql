@@ -211,7 +211,9 @@ CREATE TABLE TikiTakaGame (
     playerO VARCHAR(255),
     currentTurn VARCHAR(1),
     status VARCHAR(20),
-    createdAt TIMESTAMP
+    createdAt TIMESTAMP,
+    sinceYear INT NULL,
+    endYear INT NULL
 );
 
 CREATE TABLE TikiTakaCell (

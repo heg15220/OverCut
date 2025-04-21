@@ -17,18 +17,32 @@ public class TikiTakaGame {
 
     private LocalDateTime createdAt;
 
+    private Integer sinceYear;
+    private Integer endYear;
+
     private List<TikiTakaCell> cells;
 
     public TikiTakaGame() {
     }
 
-    public TikiTakaGame(String playerX, String playerO, String currentTurn, String status, LocalDateTime createdAt,
-                        List<TikiTakaCell> cells) {
+    public TikiTakaGame(String playerX, String playerO, String currentTurn, String status, LocalDateTime createdAt,List<TikiTakaCell> cells) {
         this.playerX = playerX;
         this.playerO = playerO;
         this.currentTurn = currentTurn;
         this.status = status;
         this.createdAt = createdAt;
+        this.cells = cells;
+    }
+
+    public TikiTakaGame(String playerX, String playerO, String currentTurn, String status,
+                        LocalDateTime createdAt, Integer sinceYear, Integer endYear, List<TikiTakaCell> cells) {
+        this.playerX = playerX;
+        this.playerO = playerO;
+        this.currentTurn = currentTurn;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.sinceYear = sinceYear;
+        this.endYear = endYear;
         this.cells = cells;
     }
 
@@ -81,6 +95,23 @@ public class TikiTakaGame {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public Integer getSinceYear() {
+        return sinceYear;
+    }
+
+    public void setSinceYear(Integer sinceYear) {
+        this.sinceYear = sinceYear;
+    }
+
+    public Integer getEndYear() {
+        return endYear;
+    }
+
+    public void setEndYear(Integer endYear) {
+        this.endYear = endYear;
+    }
+
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
     public List<TikiTakaCell> getCells() {
