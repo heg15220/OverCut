@@ -5,6 +5,7 @@ import PilotAutocomplete from './PilotAutoComplete';
 import PilotHelmet from './PilotHelmet';
 import TurnIndicator from './TurnIndicator';
 import CriteriaBox from './CriteriaBox';
+import { sourceTictactoeImages } from '../../../helpers/sourceTictactoeImages';
 import { Dialog, DialogTitle, DialogActions, Button, Snackbar, Alert } from '@mui/material';
 import './GameBoard.css';
 import './CriteriaBox.css';
@@ -21,6 +22,7 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
   const [isDraw, setIsDraw] = useState(false);
   const [statusEvaluated, setStatusEvaluated] = useState(false);
   const [showInvalidPilot, setShowInvalidPilot] = useState(false);
+  const f1CarImage = sourceTictactoeImages(`./car_game.png`);
 
   useEffect(() => {
     if (!statusEvaluated && (gameData.status === 'X_WINS' || gameData.status === 'O_WINS' || gameData.status === 'DRAW')) {
@@ -46,6 +48,7 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
   }, [gameData.id]);
 
 
+
   const handleCellClick = (cell) => {
     if (cell.filledBy || winner || isDraw) return;
     setSelectedCell(cell);
@@ -67,7 +70,9 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
       (res) => {
         if (!res.valid) {
           setShowInvalidPilot(true);
+          onSwitchTurn(); //cambia el turno aunque el piloto sea incorrecto
         }
+
         dispatch(actions.getGame(id, () => {}, () => {}));
       },
       () => {}
@@ -102,18 +107,23 @@ const confirmDraw = (mode) => {
 
   return (
     <div className="game-container">
-      <div className="game-header">
-        <TurnIndicator
-          currentTurn={gameData.currentTurn}
-          onSwitch={onSwitchTurn}
-          onDraw={handleDrawRequest}
-        />
+      <div className="game-grid-wrapper">
+        <div className="turn-indicator-wrapper">
+          <TurnIndicator
+            currentTurn={gameData.currentTurn}
+            onSwitch={onSwitchTurn}
+            onDraw={handleDrawRequest}
+          />
+        </div>
       </div>
+
 
       <div className="game-grid-wrapper">
         <div className="board-frame">
           <div className="game-layout-grid">
-            <div className="empty-cell" />
+            <div className="empty-cell logo-cell">
+              <img src={f1CarImage} alt="F1 Car" className="f1-car-logo" />
+            </div>
             {gameData.columnCriteria.map((crit, idx) => (
               <CriteriaBox key={`col-${idx}`} criteria={crit} className="column-criteria" />
             ))}
@@ -125,11 +135,12 @@ const confirmDraw = (mode) => {
                 .map(cell => (
                   <div
                     key={`${cell.rowGame}-${cell.columnGame}`}
-                    className="cell"
+                    className="cell grid-cell"
                     onClick={() => handleCellClick(cell)}
                   >
                     {renderCellContent(cell)}
                   </div>
+
                 ))
             ])}
           </div>

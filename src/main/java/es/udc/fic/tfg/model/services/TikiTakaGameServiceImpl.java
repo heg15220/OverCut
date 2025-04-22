@@ -324,8 +324,12 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         boolean valid = validationService.validatePilot(gameId, rowCriteria, columnCriteria, request.getPiloto());
 
         if (!valid) {
+            // Cambiar turno aunque la jugada sea inválida
+            game.setCurrentTurn(game.getCurrentTurn().equals("X") ? "O" : "X");
+            gameDao.save(game);
             return new ValidationResponseTikTak(false, "Invalid pilot for selected cell");
         }
+
 
         cell.setFilledBy(game.getCurrentTurn());
         cell.setPiloto(request.getPiloto());

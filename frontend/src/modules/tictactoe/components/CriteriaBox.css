@@ -37,9 +37,14 @@
 
 
 .criteria-description {
-  font-size: 0.8rem;
+  font-size: clamp(0.65rem, 1.8vw, 0.85rem); /* se adapta a contenido y viewport */
   color: #cccccc;
   max-width: 90%;
   word-break: break-word;
+  text-align: center;
   font-family: 'F1 Regular', sans-serif;
+  line-height: 1.1;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
+

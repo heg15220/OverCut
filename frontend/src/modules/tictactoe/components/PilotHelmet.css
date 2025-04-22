@@ -1,48 +1,47 @@
-.helmet-container {
+.pilot-helmet {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  border-radius: 10px;
-  animation: fadeInPilot 0.6s ease-in-out;
-  transform: scale(1);
-}
-
-@keyframes fadeInPilot {
-  0% { opacity: 0; transform: scale(0.6); }
-  100% { opacity: 1; transform: scale(1); }
+  gap: 6px;
 }
 
 .helmet-image {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: auto;
   object-fit: contain;
-  animation: pulseGlow 2s infinite;
-}
-
-@keyframes pulseGlow {
-  0% { filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0.5)); }
-  50% { filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9)); }
-  100% { filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0.5)); }
+  animation: zoomHelmet 0.4s ease-out;
 }
 
 .pilot-name {
-  margin-top: 0.4rem;
+  font-style: italic;
   font-size: 0.9rem;
-  color: white;
-  font-weight: bold;
-  font-family: 'F1 Regular', sans-serif;
-  text-shadow: 0 0 4px #000;
+  letter-spacing: 0.5px;
+  font-family: 'F1 Italic', sans-serif;
+  animation: fadeInName 0.6s ease-out;
 }
 
-.blue-bg {
-  background-color: rgba(0, 89, 255, 0.7);
-  box-shadow: 0 0 12px rgba(0, 89, 255, 0.6);
+.helmet-x .pilot-name {
+  color: #00aaff;
+  text-shadow: 0 0 6px rgba(0, 170, 255, 0.5);
 }
 
-.white-bg {
-  background-color: #fff;
-  color: #111;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+.helmet-o .pilot-name {
+  color: #ff1e1e;
+  font-style: italic;
+  text-shadow: 0 0 6px rgba(255, 30, 30, 0.5);
+}
+
+
+@keyframes zoomHelmet {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeInName {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.helmet-o .helmet-image {
+  transform: scale(1.14); /* Puedes ajustar 1.05 o 1.15 según lo necesites */
 }
