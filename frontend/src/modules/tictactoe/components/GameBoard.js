@@ -61,8 +61,10 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
     const request = {
       row: selectedCell.rowGame,
       column: selectedCell.columnGame,
-      piloto: pilotName
+      piloto: pilotName,
     };
+
+    setShowDialog(false);
 
     dispatch(actions.playMove(
       id,
@@ -70,16 +72,22 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
       (res) => {
         if (!res.valid) {
           setShowInvalidPilot(true);
-          onSwitchTurn(); //cambia el turno aunque el piloto sea incorrecto
+          onSwitchTurn(); // turno cambia aunque el piloto sea incorrecto
         }
 
-        dispatch(actions.getGame(id, () => {}, () => {}));
+        // Jugada válida: actualizar visualmente de inmediato
+        dispatch(actions.getGame(id, () => {
+          // Después de 2 segundos, si el bot debe jugar, esperamos y actualizamos el tablero
+          setTimeout(() => {
+            dispatch(actions.getGame(id, () => {}, () => {}));
+          }, 2000);
+        }, () => {}));
       },
       () => {}
     ));
-
-    setShowDialog(false);
   };
+
+
 
   const renderCellContent = (cell) => {
     if (cell.valid && cell.piloto) {

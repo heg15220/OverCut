@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -33,7 +36,10 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
     @Autowired
     private ValidationGameService validationService;
 
+    @Autowired
+    private BotPlayerService botPlayerService;
 
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 
     private String checkWinnerOrDraw(TikiTakaGame game) {
@@ -243,6 +249,11 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
                 "X", "IN_PROGRESS",
                 LocalDateTime.now(), new ArrayList<>()
         );
+
+        if (request.isVsBot()) {
+            game.setPlayerO("BOT");
+        }
+
         if(request.isUseDynamicCriteria()){
             game.setSinceYear(1980);
         }
@@ -290,6 +301,7 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
     public TikiTakaGame getGame(Long gameId) {
         return gameDao.findById(gameId).orElseThrow(() -> new RuntimeException("Game not found"));
     }
+
 
     @Override
     public ValidationResponseTikTak playMove(Long gameId, MoveRequest request) {
@@ -346,6 +358,19 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         }
 
         gameDao.save(game);
+
+        if ("IN_PROGRESS".equals(game.getStatus())
+                && "O".equals(game.getCurrentTurn())
+                && "BOT".equals(game.getPlayerO())) {
+
+            TikiTakaGame g = gameDao.findById(game.getId()).orElse(null);
+            if (g != null) botPlayerService.playAsBot(g);
+
+
+        }
+
+
+
 
         return new ValidationResponseTikTak(true, "Correct move");
     }

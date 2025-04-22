@@ -296,4 +296,18 @@
   animation: carSubtleMove 3s infinite ease-in-out;
 }
 
+.bot-info {
+  margin-top: 8px;
+  font-style: italic;
+  color: #aaaaaa;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bot-info::before {
+  content: "🤖";
+  font-size: 1.1rem;
+}
 

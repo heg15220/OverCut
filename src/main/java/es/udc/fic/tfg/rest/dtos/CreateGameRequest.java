@@ -7,19 +7,17 @@ public class CreateGameRequest {
     private boolean useDynamicCriteria; // true → dinámico clásico (1980–1999)
     private boolean modo2000Plus;       // true → dinámico desde 2000 en adelante
     private boolean historicRangeMode;       // true → filtrar sólo entre 1980–1999
+    private boolean vsBot;
 
-    public CreateGameRequest(String playerX,
-                             String playerO,
-                             boolean randomCriteria,
-                             boolean useDynamicCriteria,
-                             boolean modo2000Plus,
-                             boolean historicMode) {
-        this.playerX            = playerX;
-        this.playerO            = playerO;
-        this.randomCriteria     = randomCriteria;
+    public CreateGameRequest(String playerX, String playerO, boolean randomCriteria, boolean useDynamicCriteria,
+                             boolean modo2000Plus, boolean historicRangeMode, boolean vsBot) {
+        this.playerX = playerX;
+        this.playerO = playerO;
+        this.randomCriteria = randomCriteria;
         this.useDynamicCriteria = useDynamicCriteria;
-        this.modo2000Plus       = modo2000Plus;
-        this.historicRangeMode       = historicMode;
+        this.modo2000Plus = modo2000Plus;
+        this.historicRangeMode = historicRangeMode;
+        this.vsBot = vsBot;
     }
 
     // getters & setters
@@ -64,5 +62,13 @@ public class CreateGameRequest {
     }
     public void setHistoricRangeMode(boolean historicMode) {
         this.historicRangeMode = historicMode;
+    }
+
+    public boolean isVsBot() {
+        return vsBot;
+    }
+
+    public void setVsBot(boolean vsBot) {
+        this.vsBot = vsBot;
     }
 }
