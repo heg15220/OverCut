@@ -1,0 +1,90 @@
+package es.udc.fic.tfg.rest.controllers;
+
+import es.udc.fic.tfg.model.entities.CrosswordCell;
+import es.udc.fic.tfg.model.entities.CrosswordGame;
+import es.udc.fic.tfg.model.entities.CrosswordWord;
+import es.udc.fic.tfg.model.services.CrosswordService;
+import es.udc.fic.tfg.rest.dtos.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/crossword")
+public class CrosswordGameController {
+
+    @Autowired
+    private CrosswordService crosswordService;
+
+    // 1. Crear nueva partida de crucigrama
+    @PostMapping("/create")
+    public Long createGame(@RequestBody CreateCrossWordGameRequest request) {
+            Long gameId = crosswordService.createGame(
+                request.getRows(),
+                request.getCols(),
+                request.getLanguage()
+        );
+        return gameId;
+    }
+
+    // 2. Obtener partida por id
+    @GetMapping("/{gameId}")
+    public CrosswordGameDto getGame(@PathVariable Long gameId) {
+        CrosswordGame gameOpt = crosswordService.getGame(gameId);
+        return CrosswordGameDtoConversor.toCrossWordGameDto(gameOpt);
+    }
+
+    // 3. Obtener celdas de una partida
+    @GetMapping("/{gameId}/cells")
+    public List<CrosswordCellDto> getCellsByGame(@PathVariable Long gameId) {
+        List<CrosswordCell> cells = crosswordService.getCellsByGame(gameId);
+        List<CrosswordCellDto> cellDtos = cells.stream()
+                .map(CrosswordCellDtoConversor::toCrosswordCellDto)
+                .collect(Collectors.toList());
+        return cellDtos;
+    }
+
+    // 4. Obtener palabras de una partida
+    @GetMapping("/{gameId}/words")
+    public List<CrosswordWordDto> getWordsByGame(@PathVariable Long gameId) {
+        List<CrosswordWord> words = crosswordService.getWordsByGame(gameId);
+        List<CrosswordWordDto> wordDtos = words.stream()
+                .map(CrosswordWordDtoConversor::toCrosswordWordDto)
+                .collect(Collectors.toList());
+        return wordDtos;
+    }
+
+    // 5. Actualizar input de usuario para una celda concreta
+    @PutMapping("/cell/{cellId}/input")
+    public void updateCellUserInput(@PathVariable Long cellId, @RequestBody UpdateCellUserInputRequest request) throws Exception {
+        crosswordService.updateCellUserInput(cellId, request.getUserInput());
+    }
+
+    // 6. Comprobar si una celda es correcta
+    @PostMapping("/cell/{cellId}/check")
+    public boolean checkCell(@PathVariable Long cellId, @RequestBody CheckCellRequest request) {
+        return crosswordService.checkCell(cellId, request.getUserInput());
+    }
+
+    // 7. Comprobar si una palabra es correcta
+    @PostMapping("/word/{wordId}/check")
+    public boolean checkWord(@PathVariable Long wordId, @RequestBody CheckWordRequest request) {
+        return crosswordService.checkWord(wordId, request.getUserInput());
+    }
+
+    // 8. Comprobar si el juego está completado
+    @GetMapping("/{gameId}/completed")
+    public boolean checkGame(@PathVariable Long gameId) {
+        return crosswordService.checkGame(gameId);
+    }
+
+    // 9. Reiniciar la partida (vacía todos los userInput)
+    @PostMapping("/{gameId}/reset")
+    public void resetGame(@PathVariable Long gameId) {
+        crosswordService.resetGame(gameId);
+    }
+}

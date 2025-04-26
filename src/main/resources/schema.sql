@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS CrosswordCell;
+DROP TABLE IF EXISTS CrosswordWord;
+DROP TABLE IF EXISTS CrosswordGame;
 DROP TABLE IF EXISTS TikiTakaCell;
 DROP TABLE IF EXISTS TikiTakaCriteria;
 DROP TABLE IF EXISTS TikiTakaGame;
@@ -316,3 +319,31 @@ CREATE TABLE UserNotification (
     FOREIGN KEY (eventId) REFERENCES Event(id)
 );
 
+CREATE TABLE CrosswordGame (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    rows INT NOT NULL,
+    cols INT NOT NULL
+);
+
+CREATE TABLE CrosswordWord (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    gameId BIGINT NOT NULL,
+    word VARCHAR(50) NOT NULL,
+    clue VARCHAR(255) NOT NULL,
+    rowIndex INT NOT NULL,
+    col INT NOT NULL,
+    direction ENUM('HORIZONTAL', 'VERTICAL') NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES CrosswordGame(id)
+);
+
+-- Opcional: Para guardar respuestas del usuario
+CREATE TABLE CrosswordCell (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    wordId BIGINT NOT NULL,
+    letter CHAR(1) NOT NULL,
+    positionCell INT NOT NULL, -- posición dentro de la palabra
+    filled BOOLEAN DEFAULT FALSE,
+    userInput CHAR(1),
+    FOREIGN KEY (wordId) REFERENCES CrosswordWord(id)
+);
