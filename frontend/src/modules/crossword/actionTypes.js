@@ -1,0 +1,9 @@
+export const CREATE_CROSSWORD_GAME_COMPLETED =  "project/crossword/createCrosswordGameCompleted";
+export const GET_CROSSWORD_GAME_COMPLETED =  "project/crossword/getCrossWordGameCompleted";
+export const GET_CELLS_COMPLETED =  "project/crossword/getCellsCompleted";
+export const GET_WORDS_COMPLETED =  "project/crossword/getWordsCompleted";
+export const UPDATE_USER_INPUT_COMPLETED = "project/crossword/updateUserInputCompleted";
+export const CHECK_CELL_COMPLETED = "project/crossword/checkCellCompleted";
+export const CHECK_WORD_COMPLETED = "project/crossword/checkWordCompleted";
+export const CHECK_CROSSWORD_GAME_COMPLETED = "project/crossword/checkCrosswordGameCompleted";
+export const RESET_GAME_COMPLETED = "project/crossword/resetGameCompleted";

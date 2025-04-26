@@ -7,6 +7,7 @@ import quiz from '../modules/quiz';
 import circuits from '../modules/historic';
 import events from '../modules/events';
 import tictactoe from '../modules/tictactoe';
+import crossword from '../modules/crossword';
 
 
 const rootReducer = combineReducers({
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
     circuits: circuits.reducer,
     events:events.reducer,
     tictactoe: tictactoe.reducer,
+    crossword: crossword.reducer,
 });
 
 export default rootReducer;

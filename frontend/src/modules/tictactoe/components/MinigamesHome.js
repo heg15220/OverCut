@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Container, Typography, Grid, Card, CardContent } from '@mui/material';
 import { motion } from 'framer-motion';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import CrosswordIcon from '@mui/icons-material/GridOn'; // O cualquier otro icono de crucigrama
 import './MinigamesHome.css';
 
 const MinigamesHome = () => {
@@ -19,17 +20,31 @@ const MinigamesHome = () => {
                 <Typography variant="h6" color="textSecondary">
                     ¡Pon a prueba tus conocimientos de Fórmula 1 jugando!
                 </Typography>
-
                 <Grid container spacing={4} justifyContent="center" marginTop={4}>
                     <Grid item>
                         <Link to="/minigames/tictactoe" style={{ textDecoration: 'none' }}>
-                            <motion.div whileHover={{ scale: 1.1 }}>
+                            <motion.div whileHover={{ scale: 1.08 }}>
                                 <Card className="minigame-card">
                                     <CardContent>
                                         <SportsEsportsIcon style={{ fontSize: 50, color: '#FF1E1E' }} />
                                         <Typography variant="h5">Tic Tac Toe F1</Typography>
                                         <Typography variant="body2" color="textSecondary">
                                             Consigue 3 en raya adivinando pilotos
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        </Link>
+                    </Grid>
+                    <Grid item>
+                        <Link to="/minigames/crossword" style={{ textDecoration: 'none' }}>
+                            <motion.div whileHover={{ scale: 1.08 }}>
+                                <Card className="minigame-card">
+                                    <CardContent>
+                                        <CrosswordIcon style={{ fontSize: 50, color: '#1976d2' }} />
+                                        <Typography variant="h5">Crucigrama F1</Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Rellena el crucigrama de Fórmula 1
                                         </Typography>
                                     </CardContent>
                                 </Card>

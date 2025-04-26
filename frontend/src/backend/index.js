@@ -13,8 +13,10 @@ import * as pilotService from "./pilotService";
 
 import * as tiktakService from "./tiktakService";
 
+import * as crosswordService from "./crosswordService";
+
 const backExport = { init, NetworkError, userService,
-    postService,quizService, historicService,eventService,tiktakService, pilotService}
+    postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService}
 
 
 export default backExport;

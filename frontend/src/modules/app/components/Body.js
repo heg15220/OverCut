@@ -15,6 +15,7 @@ import MinigamesHome from "../../tictactoe/components/MinigamesHome";
 import TicTacToe from "../../tictactoe/components/TicTacToe";
 import TicTacToeGame from "../../tictactoe/components/TicTacToeGame";
 
+import Crossword from "../../crossword/components/Crossword";
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
@@ -83,6 +84,8 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames" element={<MinigamesHome />} />}
                     {loggedIn && <Route path="/minigames/tictactoe" element={<TicTacToe />} />}
                     {loggedIn && <Route path="/minigames/tictactoe/game/:id" element={<TicTacToeGame />} />}
+                    {loggedIn && <Route path="/minigames/crossword" element={<Crossword />} />}
+
 
                 </Route>
             </Routes>
