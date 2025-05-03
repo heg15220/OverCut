@@ -109,30 +109,91 @@ public class CrossWordServiceImpl implements CrosswordService{
 
     // 5. Actualizar input del usuario para una celda concreta
     @Override
-    public void updateCellUserInput(Long cellId, Character userInput) throws Exception{
+    public CrosswordCell updateCellUserInput(Long cellId, Character userInput) throws Exception {
         CrosswordCell cell = cellDao.findById(cellId)
                 .orElseThrow(() -> new Exception("Cell not found"));
         cell.setUserInput(userInput);
         cell.setFilled(userInput != null && userInput.equals(cell.getLetter()));
         cellDao.save(cell);
+        return cell;
     }
 
+
+
+    private boolean validatePartialWord(CrosswordWord word) {
+        List<CrosswordCell> cells = word.getCrosswordCellList();
+        if (cells == null || cells.isEmpty()) return false;
+
+        for (CrosswordCell cell : cells) {
+            if (cell.getUserInput() != null) {
+                Character expected = Character.toUpperCase(cell.getLetter());
+                Character current = Character.toUpperCase(cell.getUserInput());
+                if (!expected.equals(current)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private String sanitize(String input) {
+        if (input == null) return "";
+        return input.trim().toUpperCase().replaceAll("\\s+", "");
+    }
     // 6. Comprobar si una celda es correcta
+
     @Override
     public boolean checkCell(Long cellId, Character userInput) {
         CrosswordCell cell = cellDao.findById(cellId)
                 .orElseThrow(() -> new NoSuchElementException("Cell not found"));
-        return cell.getLetter() == Character.toUpperCase(userInput);
+
+        Character expectedLetter = Character.toUpperCase(cell.getLetter());
+        Character userChar = (userInput != null) ? Character.toUpperCase(userInput) : null;
+
+        if (userChar == null || !expectedLetter.equals(userChar)) {
+            return false;
+        }
+
+        // Si pertenece a más de una palabra, validar también las otras palabras
+        List<CrosswordWord> relatedWords = wordDao.findAllByCrosswordCellId(cellId);
+
+        for (CrosswordWord word : relatedWords) {
+            if (!validatePartialWord(word)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // 7. Comprobar si una palabra es correcta
     @Override
-    public boolean checkWord(Long wordId, String userInput) {
+    public boolean checkWord(Long wordId, String userInput) throws IOException {
         CrosswordWord word = wordDao.findById(wordId)
                 .orElseThrow(() -> new NoSuchElementException("Word not found"));
-        String solution = word.getWord().toUpperCase();
-        return solution.equalsIgnoreCase(userInput.trim());
+
+        String sanitizedInput = sanitize(userInput);
+        String expectedWord = sanitize(word.getWord());
+
+
+        for (CrosswordCell cell : word.getCrosswordCellList()) {
+            if (cell.getUserInput() == null ||
+                    Character.toUpperCase(cell.getUserInput()) != Character.toUpperCase(cell.getLetter())) {
+                return false;
+            }
+        }
+
+        // ✅ Marcar celdas como acertadas visualmente (filled=true)
+        for (CrosswordCell cell : word.getCrosswordCellList()) {
+            cell.setFilled(true);
+            cellDao.save(cell);
+        }
+
+        // Validación semántica adicional
+        return crosswordGenerator.validateUserAnswerWithDatabase(userInput, word.getClue(), "es");
     }
+
+
 
     // 8. Comprobar si la partida está completada
     @Override

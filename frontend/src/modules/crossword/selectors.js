@@ -8,7 +8,6 @@ export const getCrosswordCells = (state) => getModuleState(state).cells;
 
 export const getCrosswordWords = (state) => getModuleState(state).words;
 
-export const updateCellUserInput = (state) => getModuleState(state).userInput;
 
 export const checkCell = (state) => getModuleState(state).cell;
 
@@ -17,3 +16,5 @@ export const checkWord = (state) => getModuleState(state).word;
 export const checkGameCompleted = (state) => getModuleState(state).game;
 
 export const resetCrosswordGame = (state) => getModuleState(state).reset;
+
+export const getWordValidation = (state) => getModuleState(state).result;

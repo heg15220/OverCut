@@ -41,10 +41,11 @@ export const updateCellUserInput = (cellId, userInput, onSuccess, onErrors) => {
     appFetch(
         `/crossword/cell/${cellId}/input`,
         fetchConfig("PUT", { userInput }),
-        onSuccess,
+        onSuccess, // ahora recibes la celda
         onErrors
     );
 };
+
 
 export const checkCell = (cellId, userInput, onSuccess, onErrors) => {
     appFetch(

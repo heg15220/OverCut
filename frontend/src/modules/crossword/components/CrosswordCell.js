@@ -1,29 +1,64 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, TextField } from "@mui/material";
-import { useDispatch } from "react-redux";
 import * as actions from "../actions";
+import { useDispatch, useSelector } from "react-redux";
+import * as selectors from "../selectors";
 
 const CrosswordCell = ({ cell, row, col }) => {
     const dispatch = useDispatch();
-    const [value, setValue] = useState(cell?.userInput || "");
+    const cells = useSelector(selectors.getCrosswordCells);
+    const wordValidation = useSelector(selectors.getWordValidation);
+    const validation = wordValidation?.[cell?.wordId];
 
     if (!cell) {
         return <Box sx={{ width: 36, height: 36, background: "#ddd", border: "1px solid #ccc" }} />;
     }
 
+    // 🔄 Usa el valor real actualizado desde Redux (no local)
+    const updatedCell = cells?.find(c => c.id === cell.id) || cell;
+    const value = updatedCell.userInput || "";
+
+    let backgroundColor = "#fff";
+    if (validation === "correct") backgroundColor = "#c8e6c9";
+    else if (validation === "incorrect") backgroundColor = "#ffcdd2";
+
     const handleChange = (e) => {
         const input = e.target.value.toUpperCase().slice(-1);
-        setValue(input);
-        if (input) {
-            dispatch(actions.updateCellUserInput(cell.id, input, () => {}));
-        }
+        dispatch(actions.updateCellUserInput(cell.id, input, () => {
+            const wordCells = cells
+                .filter(c => c.wordId === cell.wordId)
+                .map(c => ({
+                    ...c,
+                    userInput: c.id === cell.id ? input : c.userInput
+                }))
+                .sort((a, b) => a.positionCell - b.positionCell);
+
+            const allFilled = wordCells.every(c =>
+                typeof c.userInput === "string" &&
+                c.userInput.trim() !== "" &&
+                /^[A-Z]$/.test(c.userInput)
+            );
+
+            const userInput = wordCells.map(c =>
+                c.userInput ? c.userInput.toUpperCase() : ""
+            ).join("");
+
+            if (
+                allFilled &&
+                userInput.length === wordCells.length &&
+                !wordValidation?.[cell.wordId]
+            ) {
+                dispatch(actions.checkWord(cell.wordId, userInput, () => {}, () => {}));
+            }
+        }));
+
     };
 
     return (
         <Box sx={{
             width: 36,
             height: 36,
-            background: cell.filled ? "#c8e6c9" : "#fff",
+            background: backgroundColor,
             border: "2px solid #1976d2",
             display: "flex",
             alignItems: "center",

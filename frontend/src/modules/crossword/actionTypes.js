@@ -7,3 +7,5 @@ export const CHECK_CELL_COMPLETED = "project/crossword/checkCellCompleted";
 export const CHECK_WORD_COMPLETED = "project/crossword/checkWordCompleted";
 export const CHECK_CROSSWORD_GAME_COMPLETED = "project/crossword/checkCrosswordGameCompleted";
 export const RESET_GAME_COMPLETED = "project/crossword/resetGameCompleted";
+export const SET_WORD_VALIDATION = "project/crossword/setWordValidation";
+export const GET_CHECK_WORD_COMPLETED = "project/crossword/getCheckWordCompleted";

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,9 +61,11 @@ public class CrosswordGameController {
 
     // 5. Actualizar input de usuario para una celda concreta
     @PutMapping("/cell/{cellId}/input")
-    public void updateCellUserInput(@PathVariable Long cellId, @RequestBody UpdateCellUserInputRequest request) throws Exception {
-        crosswordService.updateCellUserInput(cellId, request.getUserInput());
+    public CrosswordCellDto updateCellUserInput(@PathVariable Long cellId, @RequestBody UpdateCellUserInputRequest request) throws Exception {
+        CrosswordCell cell = crosswordService.updateCellUserInput(cellId, request.getUserInput());
+        return CrosswordCellDtoConversor.toCrosswordCellDto(cell);
     }
+
 
     // 6. Comprobar si una celda es correcta
     @PostMapping("/cell/{cellId}/check")
@@ -72,7 +75,7 @@ public class CrosswordGameController {
 
     // 7. Comprobar si una palabra es correcta
     @PostMapping("/word/{wordId}/check")
-    public boolean checkWord(@PathVariable Long wordId, @RequestBody CheckWordRequest request) {
+    public boolean checkWord(@PathVariable Long wordId, @RequestBody CheckWordRequest request) throws IOException {
         return crosswordService.checkWord(wordId, request.getUserInput());
     }
 

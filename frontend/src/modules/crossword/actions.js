@@ -25,10 +25,11 @@ const getCrosswordWordsCompleted = (words) => ({
 
 
 
-const updateCellCompleted = (userInput) => ({
+const updateCellCompleted = (updatedCell) => ({
     type: actionTypes.UPDATE_USER_INPUT_COMPLETED,
-    userInput
+    updatedCell
 });
+
 
 
 const checkCellCompleted = (cell) => ({
@@ -38,9 +39,16 @@ const checkCellCompleted = (cell) => ({
 
 
 
-const checkWordCompleted = (word) => ({
+const checkWordCompleted = (wordId, result) => ({
     type: actionTypes.CHECK_WORD_COMPLETED,
-    word
+    wordId,
+    result // "correct" o "incorrect"
+});
+
+export const setWordValidation = (wordId, result) => ({
+    type: actionTypes.SET_WORD_VALIDATION,
+    wordId,
+    result
 });
 
 
@@ -53,6 +61,11 @@ const checkCrossWordGameCompleted = (game) => ({
 const resetCrosswordGameCompleted = (reset) => ({
     type: actionTypes.RESET_GAME_COMPLETED,
     reset
+});
+
+const getCheckWordCompleted = (result) => ({
+    type: actionTypes.GET_CHECK_WORD_COMPLETED,
+    result
 });
 
 export const createCrosswordGame = (request, onSuccess, onErrors ) => dispatch =>
@@ -84,11 +97,12 @@ export const getCrosswordWords = (gameId, onSuccess, onErrors) => dispatch =>
     onErrors);
 
 export const updateCellUserInput = (cellId, userInput, onSuccess, onErrors) => dispatch =>
-    backend.crosswordService.updateCellUserInput(cellId, userInput, userInput => {
-        dispatch(updateCellCompleted(userInput));
-        onSuccess(userInput);
-    },
-    onErrors);
+    backend.crosswordService.updateCellUserInput(cellId, userInput, updatedCell => {
+        dispatch(updateCellCompleted(updatedCell)); // puedes adaptar si combinas con las existentes
+        onSuccess(updatedCell);
+    }, onErrors);
+
+
 
 export const checkCell = (cellId, userInput, onSuccess, onErrors) => dispatch =>
     backend.crosswordService.checkCell(cellId, userInput, cell => {
@@ -98,11 +112,18 @@ export const checkCell = (cellId, userInput, onSuccess, onErrors) => dispatch =>
     onErrors);
 
 export const checkWord = (wordId, userInput, onSuccess, onErrors) => dispatch =>
-    backend.crosswordService.checkWord(wordId, userInput, word => {
-        dispatch(checkWordCompleted(word));
-        onSuccess(word);
-    },
-    onErrors);
+    backend.crosswordService.checkWord(wordId, userInput, result => {
+        dispatch({
+            type: actionTypes.GET_CHECK_WORD_COMPLETED,
+            wordId,
+            result: result === true ? "correct" : "incorrect"
+        });
+        onSuccess(result);
+    }, onErrors);
+
+
+
+
 
 export const checkGameCompleted = (gameId, onSuccess, onErrors) => dispatch =>
     backend.crosswordService.checkGameCompleted(gameId, game => {

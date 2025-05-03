@@ -4,6 +4,7 @@ import es.udc.fic.tfg.model.entities.CrosswordGame;
 import es.udc.fic.tfg.model.entities.CrosswordWord;
 import es.udc.fic.tfg.model.entities.CrosswordCell;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,11 +18,12 @@ public interface CrosswordService {
 
     List<CrosswordWord> getWordsByGame(Long gameId);
 
-    void updateCellUserInput(Long cellId, Character userInput) throws Exception;
+    CrosswordCell updateCellUserInput(Long cellId, Character userInput) throws Exception;
 
     boolean checkCell(Long cellId, Character userInput);
 
-    boolean checkWord(Long wordId, String userInput);
+    public boolean checkWord(Long wordId, String userInput) throws IOException;
+
 
     boolean checkGame(Long gameId);
 

@@ -6,11 +6,12 @@ const initialState = {
     game: null,
     cells: null,
     words: null,
-    userInput: null,
     cell: null,
     word: null,
     gameCompleted: null,
     reset: null,
+    updatedCell: null,
+    result: {}, // ✅ un objeto vacío desde el principio
 };
 
 // ID del juego creado
@@ -31,11 +32,21 @@ const game = (state = initialState.game, action) => {
 
 // Celdas del crucigrama
 const cells = (state = initialState.cells, action) => {
-    if (action.type === actionTypes.GET_CELLS_COMPLETED) {
-        return action.cells;
+    switch (action.type) {
+        case actionTypes.GET_CELLS_COMPLETED:
+            return action.cells;
+        case actionTypes.UPDATE_USER_INPUT_COMPLETED:
+            if (!state) return state;
+            return state.map(cell =>
+                cell.id === action.updatedCell.id
+                    ? action.updatedCell
+                    : cell
+            );
+        default:
+            return state;
     }
-    return state;
 };
+
 
 // Palabras del crucigrama
 const words = (state = initialState.words, action) => {
@@ -45,13 +56,7 @@ const words = (state = initialState.words, action) => {
     return state;
 };
 
-// Último input de usuario en una celda (opcional)
-const userInput = (state = initialState.userInput, action) => {
-    if (action.type === actionTypes.UPDATE_USER_INPUT_COMPLETED) {
-        return action.userInput;
-    }
-    return state;
-};
+
 
 // Resultado de checkCell
 const cell = (state = initialState.cell, action) => {
@@ -77,6 +82,8 @@ const gameCompleted = (state = initialState.gameCompleted, action) => {
     return state;
 };
 
+
+
 // Resultado del reset de la partida
 const reset = (state = initialState.reset, action) => {
     if (action.type === actionTypes.RESET_GAME_COMPLETED) {
@@ -84,17 +91,28 @@ const reset = (state = initialState.reset, action) => {
     }
     return state;
 };
+const result = (state = {}, action) => {
+    if (action.type === actionTypes.GET_CHECK_WORD_COMPLETED) {
+        return { ...state, [action.wordId]: action.result };
+    }
+    if (action.type === actionTypes.RESET_GAME_COMPLETED) {
+        return {}; // Limpia resultados si reinicias
+    }
+    return state;
+};
+
+
 
 const reducer = combineReducers({
     gameId,
     game,
     cells,
     words,
-    userInput,
     cell,
     word,
     gameCompleted,
     reset,
+    result,
 });
 
 export default reducer;
