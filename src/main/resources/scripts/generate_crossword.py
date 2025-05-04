@@ -17,11 +17,19 @@ def pista_piloto(session, piloto, lang):
         WHERE driverId = :driverId AND position = 1
     """)
     titles = session.execute(q_titles, {"driverId": piloto["driverId"]}).mappings().fetchone()["titles"]
+
     q_victories = text("""
         SELECT COUNT(*) AS victories FROM results
         WHERE driverId = :driverId AND positionOrder = 1
     """)
     victories = session.execute(q_victories, {"driverId": piloto["driverId"]}).mappings().fetchone()["victories"]
+
+    q_debut = text("""
+        SELECT MIN(year) AS debut FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE r.driverId = :driverId
+    """)
+    debut = session.execute(q_debut, {"driverId": piloto["driverId"]}).mappings().fetchone()["debut"]
 
     if lang == "es":
         clue = f"Piloto de F1"
@@ -29,6 +37,8 @@ def pista_piloto(session, piloto, lang):
             clue += f", campeón del mundo {titles} vez/veces"
         if victories > 0:
             clue += f", ganador de {victories} carreras"
+        if debut:
+            clue += f", debutó en {debut}"
         clue += f". Nacionalidad: {piloto['nationality']}."
     else:
         clue = f"F1 driver"
@@ -36,6 +46,8 @@ def pista_piloto(session, piloto, lang):
             clue += f", world champion {titles} time(s)"
         if victories > 0:
             clue += f", {victories} Grand Prix wins"
+        if debut:
+            clue += f", debuted in {debut}"
         clue += f". Nationality: {piloto['nationality']}."
     return clue
 
@@ -46,17 +58,36 @@ def pista_equipo(session, equipo, lang):
     """)
     titles = session.execute(q_titles, {"constructorId": equipo["constructorId"]}).mappings().fetchone()["titles"]
 
+    q_debut = text("""
+        SELECT MIN(year) AS debut FROM constructorresults cr
+        JOIN races r ON cr.raceId = r.raceId
+        WHERE cr.constructorId = :constructorId
+    """)
+    debut = session.execute(q_debut, {"constructorId": equipo["constructorId"]}).mappings().fetchone()["debut"]
+
+    word_raw = equipo["name"].replace(" ", "").replace("-", "").replace("_", "").upper()
+    n_letters = len(word_raw)
+
     if lang == "es":
         clue = f"Escudería de F1"
         if titles > 0:
             clue += f", campeona del mundo {titles} vez/veces"
+        if debut:
+            clue += f", debutó en {debut}"
         clue += f". Nacionalidad: {equipo['nationality']}."
+        clue += f" ({n_letters} letras)"
     else:
         clue = f"F1 team"
         if titles > 0:
             clue += f", world champion {titles} time(s)"
+        if debut:
+            clue += f", debuted in {debut}"
         clue += f". Nationality: {equipo['nationality']}."
+        clue += f" ({n_letters} letters)"
     return clue
+
+
+
 
 def pista_circuito(session, circuito, lang):
     q_races = text("""

@@ -28,6 +28,10 @@ public class CrossWordServiceImpl implements CrosswordService{
     // 1. Crear partida (llama al script Python, parsea, guarda entidades)
     @Override
     public Long createGame(int rows, int cols, String language) {
+        if (!language.equals("es") && !language.equals("en")) {
+            throw new IllegalArgumentException("Unsupported language: " + language);
+        }
+
         CrosswordGame game = new CrosswordGame();
         game.setRows(rows);
         game.setCols(cols);
@@ -36,6 +40,7 @@ public class CrossWordServiceImpl implements CrosswordService{
         try {
             List<CrosswordGeneratorPythonAdapter.CrosswordWordData> wordsData =
                     crosswordGenerator.generateCrossword(rows, cols, language);
+
 
             List<CrosswordWord> words = new ArrayList<>();
             for (CrosswordGeneratorPythonAdapter.CrosswordWordData data : wordsData) {
@@ -168,13 +173,12 @@ public class CrossWordServiceImpl implements CrosswordService{
 
     // 7. Comprobar si una palabra es correcta
     @Override
-    public boolean checkWord(Long wordId, String userInput) throws IOException {
+    public boolean checkWord(Long wordId, String userInput, String language) throws IOException {
         CrosswordWord word = wordDao.findById(wordId)
                 .orElseThrow(() -> new NoSuchElementException("Word not found"));
 
         String sanitizedInput = sanitize(userInput);
         String expectedWord = sanitize(word.getWord());
-
 
         for (CrosswordCell cell : word.getCrosswordCellList()) {
             if (cell.getUserInput() == null ||
@@ -189,9 +193,11 @@ public class CrossWordServiceImpl implements CrosswordService{
             cellDao.save(cell);
         }
 
-        // Validación semántica adicional
-        return crosswordGenerator.validateUserAnswerWithDatabase(userInput, word.getClue(), "es");
+
+        // Validación semántica con el idioma correcto
+        return crosswordGenerator.validateUserAnswerWithDatabase(userInput, word.getClue(), language);
     }
+
 
 
 

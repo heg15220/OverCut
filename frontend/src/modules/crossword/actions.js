@@ -111,15 +111,16 @@ export const checkCell = (cellId, userInput, onSuccess, onErrors) => dispatch =>
     },
     onErrors);
 
-export const checkWord = (wordId, userInput, onSuccess, onErrors) => dispatch =>
-    backend.crosswordService.checkWord(wordId, userInput, result => {
-        dispatch({
-            type: actionTypes.GET_CHECK_WORD_COMPLETED,
-            wordId,
-            result: result === true ? "correct" : "incorrect"
-        });
-        onSuccess(result);
-    }, onErrors);
+export const checkWord = (wordId, userInput, language, onSuccess, onErrors) => dispatch =>
+  backend.crosswordService.checkWord(wordId, userInput, language, result => {
+    dispatch({
+      type: actionTypes.GET_CHECK_WORD_COMPLETED,
+      wordId,
+      result: result === true ? "correct" : "incorrect"
+    });
+    onSuccess(result);
+  }, onErrors);
+
 
 
 

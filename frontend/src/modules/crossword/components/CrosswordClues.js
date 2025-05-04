@@ -6,7 +6,7 @@ import * as selectors from "../selectors";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 
-const CrosswordClues = ({ words }) => {
+const CrosswordClues = ({ words, language }) => {
     const dispatch = useDispatch();
     const cells = useSelector(selectors.getCrosswordCells);
     const gameId = useSelector(selectors.createCrosswordGame);
@@ -21,27 +21,42 @@ const CrosswordClues = ({ words }) => {
 
     // 🧠 Detecta automáticamente cuando el usuario ha completado la palabra
     useEffect(() => {
-        words.forEach(word => {
-            const wordCells = cells
-                .filter(c => c.wordId === word.id)
-                .sort((a, b) => a.positionCell - b.positionCell);
+      if (!cells || !words) return;
 
-            const allFilled = wordCells.every(c => typeof c.userInput === "string" && c.userInput.trim() !== "");
+      words.forEach(word => {
+        const wordCells = cells
+          .filter(c => c.wordId === word.id)
+          .sort((a, b) => a.positionCell - b.positionCell);
 
-            const input = wordCells.map(c => (c.userInput ? c.userInput.toUpperCase() : "")).join("");
+        const userInputArray = wordCells.map(c => c.userInput);
 
-            if (
-                allFilled &&
-                input.trim().length >= 3 && // evita validar palabras demasiado cortas
-                wordValidation[word.id] === undefined
-            ) {
-                dispatch(actions.checkWord(word.id, input, () => {
-                    dispatch(actions.getCrosswordCells(gameId, () => {}, () => {}));
-                }, () => {}));
-            }
+        // Requiere que al menos una letra sea NO nula ni vacía
+        const atLeastOneNonEmpty = userInputArray.some(l => typeof l === "string" && l.trim().length === 1);
 
-        });
+        // Solo seguimos si el usuario ha empezado a escribir algo
+        if (!atLeastOneNonEmpty) return;
+
+        // Ahora sí, procesamos letras como strings
+        const normalizedInput = userInputArray.map(l => (typeof l === "string" ? l.toUpperCase() : ""));
+        const allFilled = normalizedInput.every(l => /^[A-Z]$/.test(l));
+        const input = normalizedInput.join("");
+        const expectedLength = word.word.length;
+
+        if (
+          allFilled &&
+          input.length === expectedLength &&
+          wordValidation[word.id] === undefined
+        ) {
+          dispatch(actions.checkWord(word.id, input, language, () => {
+            dispatch(actions.getCrosswordCells(gameId, () => {}, () => {}));
+          }, () => {}));
+        }
+      });
     }, [cells, words, wordValidation, dispatch]);
+
+
+
+
 
 
    const renderClue = (word, idx, color) => {
@@ -66,8 +81,8 @@ const CrosswordClues = ({ words }) => {
                {/* Botón opcional solo visible si el usuario quiere volver a validar manualmente */}
                <Button
                    onClick={() =>
-                       dispatch(actions.checkWord(word.id, userInput, () => {
-                           dispatch(actions.getCrosswordCells(gameId, () => {}, () => {}));
+                       dispatch(actions.checkWord(word.id, userInput, language, () => {
+                         dispatch(actions.getCrosswordCells(gameId, () => {}, () => {}));
                        }, () => {}))
                    }
                    variant="outlined"

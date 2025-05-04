@@ -76,8 +76,9 @@ public class CrosswordGameController {
     // 7. Comprobar si una palabra es correcta
     @PostMapping("/word/{wordId}/check")
     public boolean checkWord(@PathVariable Long wordId, @RequestBody CheckWordRequest request) throws IOException {
-        return crosswordService.checkWord(wordId, request.getUserInput());
+        return crosswordService.checkWord(wordId, request.getUserInput(), request.getLanguage());
     }
+
 
     // 8. Comprobar si el juego está completado
     @GetMapping("/{gameId}/completed")

@@ -2,7 +2,7 @@ import React from "react";
 import { Paper, Grid } from "@mui/material";
 import CrosswordCell from "./CrosswordCell";
 
-const CrosswordBoard = ({ rows, cols, cells, words}) => {
+const CrosswordBoard = ({ rows, cols, cells, words, language}) => {
     // Crear una matriz vacía del tamaño del tablero
     const board = Array.from({ length: rows }, () =>
         Array.from({ length: cols }, () => null)
@@ -33,11 +33,7 @@ const CrosswordBoard = ({ rows, cols, cells, words}) => {
                 {board.map((rowCells, i) =>
                     rowCells.map((cell, j) => (
                         <Grid item key={`${i}-${j}`} xs={1}>
-                            <CrosswordCell
-                              cell={cell}
-                              row={i}
-                              col={j}
-                            />
+                            <CrosswordCell cell={cell} row={i} col={j} language={language} />
 
                         </Grid>
                     ))

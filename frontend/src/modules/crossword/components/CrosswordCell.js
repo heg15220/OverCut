@@ -4,7 +4,7 @@ import * as actions from "../actions";
 import { useDispatch, useSelector } from "react-redux";
 import * as selectors from "../selectors";
 
-const CrosswordCell = ({ cell, row, col }) => {
+const CrosswordCell = ({ cell, row, col, language }) => {
     const dispatch = useDispatch();
     const cells = useSelector(selectors.getCrosswordCells);
     const wordValidation = useSelector(selectors.getWordValidation);
@@ -16,7 +16,7 @@ const CrosswordCell = ({ cell, row, col }) => {
 
     // 🔄 Usa el valor real actualizado desde Redux (no local)
     const updatedCell = cells?.find(c => c.id === cell.id) || cell;
-    const value = updatedCell.userInput || "";
+    const value = updatedCell.userInput;
 
     let backgroundColor = "#fff";
     if (validation === "correct") backgroundColor = "#c8e6c9";
@@ -48,7 +48,11 @@ const CrosswordCell = ({ cell, row, col }) => {
                 userInput.length === wordCells.length &&
                 !wordValidation?.[cell.wordId]
             ) {
-                dispatch(actions.checkWord(cell.wordId, userInput, () => {}, () => {}));
+                dispatch(actions.checkWord(cell.wordId, userInput, language, () => {
+                  // ...
+                }, () => {}));
+
+
             }
         }));
 

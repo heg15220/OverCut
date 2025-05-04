@@ -22,7 +22,7 @@ public interface CrosswordService {
 
     boolean checkCell(Long cellId, Character userInput);
 
-    public boolean checkWord(Long wordId, String userInput) throws IOException;
+    public boolean checkWord(Long wordId, String userInput, String language) throws IOException;
 
 
     boolean checkGame(Long gameId);

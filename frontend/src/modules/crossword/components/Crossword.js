@@ -15,23 +15,26 @@ const Crossword = () => {
     const game = useSelector(selectors.getCrosswordGame);
     const cells = useSelector(selectors.getCrosswordCells);
     const words = useSelector(selectors.getCrosswordWords);
+    const browserLang = navigator.language.startsWith("es") ? "es" : "en";
+    const [language, setLanguage] = useState(browserLang);
 
-
-    const [language, setLanguage] = useState("es");
 
     // Crear nueva partida al entrar
     useEffect(() => {
-        dispatch(actions.createCrosswordGame({
-            rows: DEFAULT_ROWS,
-            cols: DEFAULT_COLS,
-            language,
-        }, (id) => {
-            dispatch(actions.getCrosswordGame(id, () => {
-                dispatch(actions.getCrosswordCells(id, () => {}));
-                dispatch(actions.getCrosswordWords(id, () => {}));
-            }));
+      const browserLang = navigator.language.startsWith("es") ? "es" : "en";
+      setLanguage(browserLang); // actualiza el estado
+      dispatch(actions.createCrosswordGame({
+        rows: DEFAULT_ROWS,
+        cols: DEFAULT_COLS,
+        language: browserLang, // <- idioma enviado al backend
+      }, (id) => {
+        dispatch(actions.getCrosswordGame(id, () => {
+          dispatch(actions.getCrosswordCells(id, () => {}));
+          dispatch(actions.getCrosswordWords(id, () => {}));
         }));
+      }));
     }, [dispatch]);
+
 
 
     if (!game || !cells || !words) {
@@ -55,11 +58,12 @@ const Crossword = () => {
                       cols={game.cols}
                       cells={cells}
                       words={words}
+                      language = {language}
                     />
 
                 </Grid>
                 <Grid item xs={12} md={5}>
-                    <CrosswordClues words={words} />
+                    <CrosswordClues words={words} language={language}/>
                     <Button
                         variant="outlined"
                         color="primary"

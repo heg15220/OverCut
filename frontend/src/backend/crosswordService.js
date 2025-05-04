@@ -56,14 +56,15 @@ export const checkCell = (cellId, userInput, onSuccess, onErrors) => {
     );
 };
 
-export const checkWord = (wordId, userInput, onSuccess, onErrors) => {
-    appFetch(
-        `/crossword/word/${wordId}/check`,
-        fetchConfig("POST", { userInput }),
-        onSuccess,
-        onErrors
-    );
+export const checkWord = (wordId, userInput, language, onSuccess, onErrors) => {
+  appFetch(
+    `/crossword/word/${wordId}/check`,
+    fetchConfig("POST", { userInput, language }),
+    onSuccess,
+    onErrors
+  );
 };
+
 
 export const checkGameCompleted = (gameId, onSuccess, onErrors) => {
     appFetch(
