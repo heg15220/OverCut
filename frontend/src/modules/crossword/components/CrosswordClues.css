@@ -1,0 +1,50 @@
+/* CrosswordClues.css */
+
+.crossword-clues-title {
+  color: #ffffff;
+  border-bottom: 2px solid #e10600;
+  padding-bottom: 0.5rem;
+  margin-top: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.crossword-clue-item {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 0 5px #333;
+}
+
+.crossword-clue-item .MuiListItemText-primary {
+  color: #ffffff;
+}
+
+.crossword-clue-item .MuiChip-root {
+  background-color: #e10600;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* Crossword Buttons */
+.crossword-restart-button {
+  margin-top: 1.5rem;
+  border-radius: 30px;
+  font-weight: bold;
+  color: white;
+  background-color: #e10600;
+  box-shadow: 0 0 10px #e10600;
+  transition: all 0.3s ease;
+}
+
+.crossword-restart-button:hover {
+  background-color: #ff1e1e;
+  box-shadow: 0 0 12px #ff4d4d;
+}
+
+.crossword-restart-button:disabled {
+  background-color: #555 !important;
+  color: #bbb !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}

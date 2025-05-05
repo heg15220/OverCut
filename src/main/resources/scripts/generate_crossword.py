@@ -68,23 +68,26 @@ def pista_equipo(session, equipo, lang):
     word_raw = equipo["name"].replace(" ", "").replace("-", "").replace("_", "").upper()
     n_letters = len(word_raw)
 
+    # ❌ Rechazar equipos sin debut registrado o con nombres inválidos
+    if debut is None or n_letters < 3:
+        return None
+
     if lang == "es":
         clue = f"Escudería de F1"
         if titles > 0:
             clue += f", campeona del mundo {titles} vez/veces"
-        if debut:
-            clue += f", debutó en {debut}"
+        clue += f", debutó en {debut}"
         clue += f". Nacionalidad: {equipo['nationality']}."
         clue += f" ({n_letters} letras)"
     else:
         clue = f"F1 team"
         if titles > 0:
             clue += f", world champion {titles} time(s)"
-        if debut:
-            clue += f", debuted in {debut}"
+        clue += f", debuted in {debut}"
         clue += f". Nationality: {equipo['nationality']}."
         clue += f" ({n_letters} letters)"
-    return clue
+
+    return {"word": word_raw, "clue": clue, "type": "team"}
 
 
 
@@ -117,16 +120,17 @@ def obtener_pilotos(session, n, lang):
     return words
 
 def obtener_equipos(session, n, lang):
-    q = text("SELECT constructorId, name, nationality FROM constructors ORDER BY RAND() LIMIT :n")
-    result = session.execute(q, {"n": n}).mappings()
+    q = text("SELECT constructorId, name, nationality FROM constructors ORDER BY RAND() LIMIT 100")
+    result = session.execute(q).mappings()
     words = []
     for r in result:
-        palabra = r["name"].replace(" ", "").replace("-", "").upper()
-        if len(palabra) < 3:
-            continue
-        clue = pista_equipo(session, r, lang)
-        words.append({"word": palabra, "clue": clue, "type": "team"})
+        pista = pista_equipo(session, r, lang)
+        if pista:
+            words.append(pista)
+        if len(words) >= n:
+            break
     return words
+
 
 def obtener_circuitos(session, n, lang):
     q = text("SELECT circuitId, circuitRef, country FROM circuits ORDER BY RAND() LIMIT :n")

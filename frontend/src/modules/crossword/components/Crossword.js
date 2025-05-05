@@ -4,6 +4,8 @@ import * as selectors from "../selectors";
 import * as actions from "../actions";
 import { Button, Grid, Typography, Paper, Box } from "@mui/material";
 import { motion } from "framer-motion";
+import "./Crossword.css";
+import { sourceImages } from "../../../helpers/sourceImages";
 import CrosswordBoard from "./CrosswordBoard";
 import CrosswordClues from "./CrosswordClues";
 
@@ -42,15 +44,55 @@ const Crossword = () => {
     }
 
     return (
-        <Box mt={4}>
-            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}>
-                <Typography variant="h4" align="center" gutterBottom>
-                    Crucigrama de Fórmula 1
+        <Box
+          sx={{
+            backgroundColor: "#000000",
+            minHeight: "100vh",
+            paddingTop: "2rem",
+          }}
+        >
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <Box
+                sx={{
+                  textAlign: "center",
+                  mb: 4,
+                  px: 2,
+                }}
+              >
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "3rem" },
+                    color: "#e10600",
+                    textShadow: "0 0 8px rgba(255, 0, 0, 0.6)",
+                    letterSpacing: 1,
+                    mb: 1,
+                  }}
+                >
+                  Crucigrama de Fórmula 1
                 </Typography>
-                <Typography variant="subtitle1" align="center" color="textSecondary">
-                    ¡Rellena todas las palabras usando tus conocimientos de F1!
+
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontSize: { xs: "1rem", md: "1.2rem" },
+                    color: "#cccccc",
+                    fontStyle: "italic",
+                    maxWidth: "700px",
+                    margin: "0 auto",
+                    textShadow: "0 0 6px rgba(255, 255, 255, 0.2)",
+                  }}
+                >
+                  Rellena todas las palabras y demuestra que conoces cada rincón del paddock.
                 </Typography>
+              </Box>
             </motion.div>
+
             <Grid container spacing={4} justifyContent="center" alignItems="flex-start" mt={2}>
                 <Grid item xs={12} md={7}>
                     <CrosswordBoard
