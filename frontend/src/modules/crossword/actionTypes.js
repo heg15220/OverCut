@@ -9,3 +9,5 @@ export const CHECK_CROSSWORD_GAME_COMPLETED = "project/crossword/checkCrosswordG
 export const RESET_GAME_COMPLETED = "project/crossword/resetGameCompleted";
 export const SET_WORD_VALIDATION = "project/crossword/setWordValidation";
 export const GET_CHECK_WORD_COMPLETED = "project/crossword/getCheckWordCompleted";
+export const RESET_WORD_VALIDATION = "RESET_WORD_VALIDATION";
+export const RESET_SINGLE_WORD_VALIDATION = "RESET_SINGLE_WORD_VALIDATION";

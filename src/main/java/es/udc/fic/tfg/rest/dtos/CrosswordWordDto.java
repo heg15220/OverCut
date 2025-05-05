@@ -20,13 +20,14 @@ public class CrosswordWordDto {
 
     private Direction direction;
 
-    List<CrosswordCellDto> crosswordCellList;
+
+    private List<CrosswordCellWordLinkDto> cellLinks;
 
     public CrosswordWordDto() {
     }
 
-    public CrosswordWordDto(Long id, Long gameId, String word, String clue, int row, int col, Direction direction,
-                            List<CrosswordCellDto> crosswordCellList) {
+    public CrosswordWordDto(Long id, Long gameId, String word, String clue, int row, int col,
+                            Direction direction, List<CrosswordCellWordLinkDto> cellLinks) {
         this.id = id;
         this.gameId = gameId;
         this.word = word;
@@ -34,7 +35,7 @@ public class CrosswordWordDto {
         this.row = row;
         this.col = col;
         this.direction = direction;
-        this.crosswordCellList = crosswordCellList;
+        this.cellLinks = cellLinks;
     }
 
     public Long getId() {
@@ -93,11 +94,11 @@ public class CrosswordWordDto {
         this.direction = direction;
     }
 
-    public List<CrosswordCellDto> getCrosswordCellList() {
-        return crosswordCellList;
+    public List<CrosswordCellWordLinkDto> getCellLinks() {
+        return cellLinks;
     }
 
-    public void setCrosswordCellList(List<CrosswordCellDto> crosswordCellList) {
-        this.crosswordCellList = crosswordCellList;
+    public void setCellLinks(List<CrosswordCellWordLinkDto> cellLinks) {
+        this.cellLinks = cellLinks;
     }
 }

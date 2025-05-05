@@ -39,16 +39,16 @@ const checkCellCompleted = (cell) => ({
 
 
 
-const checkWordCompleted = (wordId, result) => ({
+const checkWordCompleted = (wordId, wordValidation) => ({
     type: actionTypes.CHECK_WORD_COMPLETED,
     wordId,
-    result // "correct" o "incorrect"
+    wordValidation // "correct" o "incorrect"
 });
 
-export const setWordValidation = (wordId, result) => ({
+export const setWordValidation = (wordId, wordValidation) => ({
     type: actionTypes.SET_WORD_VALIDATION,
     wordId,
-    result
+    wordValidation
 });
 
 
@@ -63,10 +63,25 @@ const resetCrosswordGameCompleted = (reset) => ({
     reset
 });
 
-const getCheckWordCompleted = (result) => ({
+const getCheckWordCompleted = (wordValidation) => ({
     type: actionTypes.GET_CHECK_WORD_COMPLETED,
-    result
+    wordValidation
 });
+
+
+export const resetWordValidation = () => ({
+    type: actionTypes.RESET_WORD_VALIDATION,
+});
+
+// actions.js
+export const resetSingleWordValidation = (wordId) => ({
+  type: actionTypes.RESET_SINGLE_WORD_VALIDATION,
+  wordId
+});
+
+
+
+
 
 export const createCrosswordGame = (request, onSuccess, onErrors ) => dispatch =>
     backend.crosswordService.createCrosswordGame(request, gameId => {
@@ -112,14 +127,18 @@ export const checkCell = (cellId, userInput, onSuccess, onErrors) => dispatch =>
     onErrors);
 
 export const checkWord = (wordId, userInput, language, onSuccess, onErrors) => dispatch =>
-  backend.crosswordService.checkWord(wordId, userInput, language, result => {
-    dispatch({
-      type: actionTypes.GET_CHECK_WORD_COMPLETED,
-      wordId,
-      result: result === true ? "correct" : "incorrect"
-    });
-    onSuccess(result);
+  backend.crosswordService.checkWord(wordId, userInput, language, wordValidation => {
+    if (wordValidation !== null) {
+      dispatch({
+        type: actionTypes.GET_CHECK_WORD_COMPLETED,
+        wordId,
+        result: wordValidation === true ? "correct" : "incorrect" // <-- CAMBIO AQUÍ
+      });
+    }
+
+    onSuccess(wordValidation);
   }, onErrors);
+
 
 
 

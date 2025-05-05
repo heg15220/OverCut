@@ -2,11 +2,11 @@ package es.udc.fic.tfg.rest.dtos;
 
 import es.udc.fic.tfg.model.entities.CrosswordWord;
 
+import java.util.List;
+
 public class CrosswordCellDto {
 
     private Long id;
-
-    private Long wordId;
 
     private char letter;             // Letra correcta de la solución
     private int positionCell;        // Posición dentro de la palabra (0-indexed)
@@ -14,18 +14,22 @@ public class CrosswordCellDto {
     private boolean filled = false;  // ¿El usuario ya la ha rellenado?
     private Character userInput;     // Letra introducida por el usuario (puede ser null)
 
+    private boolean modifiedByUser;
+
+    List<CrosswordCellWordLinkDto> crosswordCellWordLinkDtoList;
 
 
     public CrosswordCellDto() {
     }
 
-    public CrosswordCellDto(Long id, Long wordId, char letter, int positionCell, boolean filled, Character userInput) {
+    public CrosswordCellDto(Long id, char letter, int positionCell,
+                            boolean filled, Character userInput, boolean modifiedByUser) {
         this.id = id;
-        this.wordId = wordId;
         this.letter = letter;
         this.positionCell = positionCell;
         this.filled = filled;
         this.userInput = userInput;
+        this.modifiedByUser = modifiedByUser;
     }
 
     public Long getId() {
@@ -36,13 +40,6 @@ public class CrosswordCellDto {
         this.id = id;
     }
 
-    public Long getWordId() {
-        return wordId;
-    }
-
-    public void setWordId(Long wordId) {
-        this.wordId = wordId;
-    }
 
     public char getLetter() {
         return letter;
@@ -74,5 +71,21 @@ public class CrosswordCellDto {
 
     public void setUserInput(Character userInput) {
         this.userInput = userInput;
+    }
+
+    public boolean isModifiedByUser() {
+        return modifiedByUser;
+    }
+
+    public void setModifiedByUser(boolean modifiedByUser) {
+        this.modifiedByUser = modifiedByUser;
+    }
+
+    public List<CrosswordCellWordLinkDto> getCrosswordCellWordLinkDtoList() {
+        return crosswordCellWordLinkDtoList;
+    }
+
+    public void setCrosswordCellWordLinkDtoList(List<CrosswordCellWordLinkDto> crosswordCellWordLinkDtoList) {
+        this.crosswordCellWordLinkDtoList = crosswordCellWordLinkDtoList;
     }
 }

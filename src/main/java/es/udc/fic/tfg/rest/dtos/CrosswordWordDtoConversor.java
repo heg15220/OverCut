@@ -21,14 +21,16 @@ public class CrosswordWordDtoConversor {
         crosswordWordDto.setRow(gameWord.getRowIndex());
         crosswordWordDto.setCol(gameWord.getCol());
         crosswordWordDto.setDirection(gameWord.getDirection());
-        crosswordWordDto.setCrosswordCellList(
-                gameWord.getCrosswordCellList() == null
+
+        crosswordWordDto.setCellLinks(
+                gameWord.getCellLinks() == null
                         ? null
-                        : gameWord.getCrosswordCellList()
+                        : gameWord.getCellLinks()
                         .stream()
-                        .map(CrosswordCellDtoConversor::toCrosswordCellDto)
+                        .map(CrosswordCellWordLinkConversor::toCrosswordCellWordLinkDto)
                         .collect(Collectors.toList())
         );
+
 
 
         return crosswordWordDto;

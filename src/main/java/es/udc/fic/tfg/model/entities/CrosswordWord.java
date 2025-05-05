@@ -2,6 +2,7 @@ package es.udc.fic.tfg.model.entities;
 
 import jakarta.persistence.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -18,7 +19,7 @@ public class CrosswordWord {
 
     private Direction direction;
 
-    List<CrosswordCell> crosswordCellList;
+    private List<CrosswordCellWordLink> cellLinks;
 
     public CrosswordWord() {
     }
@@ -95,12 +96,21 @@ public class CrosswordWord {
         this.direction = direction;
     }
 
-    @OneToMany(mappedBy = "word", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    public List<CrosswordCell> getCrosswordCellList() {
-        return crosswordCellList;
+    @OneToMany(mappedBy = "word", cascade = CascadeType.ALL, orphanRemoval = true)
+    public List<CrosswordCellWordLink> getCellLinks() {
+        return cellLinks;
     }
 
-    public void setCrosswordCellList(List<CrosswordCell> crosswordCellList) {
-        this.crosswordCellList = crosswordCellList;
+    public void setCellLinks(List<CrosswordCellWordLink> cellLinks) {
+        this.cellLinks = cellLinks;
     }
+
+    @Transient
+    public List<CrosswordCell> getCrosswordCellsFromLinks() {
+        if (cellLinks == null) return Collections.emptyList();
+        return cellLinks.stream()
+                .map(CrosswordCellWordLink::getCell)
+                .toList();
+    }
+
 }

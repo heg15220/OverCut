@@ -1,30 +1,35 @@
+// ✅ CrosswordBoard.jsx actualizado
 import React from "react";
-import { Paper, Grid } from "@mui/material";
+import { Paper, Grid, Box } from "@mui/material";
 import CrosswordCell from "./CrosswordCell";
-import "./CrosswordBoard.css"; // Importa los estilos
+import "./CrosswordBoard.css";
 
 const CrosswordBoard = ({ rows, cols, cells, words, language }) => {
-  // Crear una matriz vacía del tamaño del tablero
   const board = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => null)
   );
 
-  // Coloca las letras en su posición (solo la letra si ya rellenada)
   cells.forEach(cell => {
-    const word = words.find(w => w.id === cell.wordId);
-    if (word) {
+    const links = cell.crosswordCellWordLinkDtoList || []; // 🛡️ Evita crash si undefined
+    links.forEach(link => {
+      const word = words.find(w => w.id === link.wordId);
+      if (!word) return;
+
       let row = word.row;
       let col = word.col;
+
       if (word.direction === "HORIZONTAL") {
-        col = word.col + cell.positionCell;
+        col += link.positionCell;
       } else {
-        row = word.row + cell.positionCell;
+        row += link.positionCell;
       }
+
       if (row >= 0 && col >= 0 && row < rows && col < cols) {
         board[row][col] = cell;
       }
-    }
+    });
   });
+
 
   return (
     <Paper elevation={6} className="crossword-container">
@@ -32,7 +37,11 @@ const CrosswordBoard = ({ rows, cols, cells, words, language }) => {
         {board.map((rowCells, i) =>
           rowCells.map((cell, j) => (
             <Grid item key={`${i}-${j}`} xs={1}>
-              <CrosswordCell cell={cell} row={i} col={j} language={language} />
+              {cell ? (
+                <CrosswordCell cell={cell} row={i} col={j} language={language} />
+              ) : (
+                <Box className="crossword-placeholder" />
+              )}
             </Grid>
           ))
         )}

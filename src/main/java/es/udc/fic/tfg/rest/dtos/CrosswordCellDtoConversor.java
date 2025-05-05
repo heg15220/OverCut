@@ -12,18 +12,22 @@ public class CrosswordCellDtoConversor {
 
     }
 
-    public static final CrosswordCellDto toCrosswordCellDto(CrosswordCell gameCell) {
-        CrosswordCellDto crosswordCellDto= new CrosswordCellDto();
-        crosswordCellDto.setId(gameCell.getId());
-        crosswordCellDto.setWordId(gameCell.getWord().getId());
-        crosswordCellDto.setLetter(gameCell.getLetter());
-        crosswordCellDto.setPositionCell(gameCell.getPositionCell());
-        crosswordCellDto.setFilled(gameCell.isFilled());
-        crosswordCellDto.setUserInput(gameCell.getUserInput());
-
-
-        return crosswordCellDto;
+    public static CrosswordCellDto toCrosswordCellDto(CrosswordCell cell) {
+        CrosswordCellDto dto = new CrosswordCellDto();
+        dto.setId(cell.getId());
+        dto.setLetter(cell.getLetter());
+        dto.setPositionCell(cell.getPositionCell());
+        dto.setUserInput(cell.getUserInput());
+        dto.setFilled(cell.isFilled());
+        dto.setModifiedByUser(cell.isModifiedByUser());
+        // ✅ Convertimos los links asociados a la celda
+        List<CrosswordCellWordLinkDto> linkDtos = cell.getWordLinks() != null
+                ? CrosswordCellWordLinkConversor.toCrosswordCellWordLinkDtos(cell.getWordLinks())
+                : List.of();
+        dto.setCrosswordCellWordLinkDtoList(linkDtos);
+        return dto;
     }
+
 
     public static final List<CrosswordCellDto> toCrosswordCellDtos(List<CrosswordCell> crosswordCellList) {
         return crosswordCellList.stream().map(CrosswordCellDtoConversor::toCrosswordCellDto).collect(Collectors.toList());

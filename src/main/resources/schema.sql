@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS CrosswordCellWordLink;
 DROP TABLE IF EXISTS CrosswordCell;
 DROP TABLE IF EXISTS CrosswordWord;
 DROP TABLE IF EXISTS CrosswordGame;
@@ -340,10 +341,21 @@ CREATE TABLE CrosswordWord (
 -- Opcional: Para guardar respuestas del usuario
 CREATE TABLE CrosswordCell (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    wordId BIGINT NOT NULL,
     letter CHAR(1) NOT NULL,
     positionCell INT NOT NULL, -- posición dentro de la palabra
     filled BOOLEAN DEFAULT FALSE,
     userInput CHAR(1),
-    FOREIGN KEY (wordId) REFERENCES CrosswordWord(id)
+    modifiedByUser BOOLEAN DEFAULT FALSE
 );
+
+CREATE TABLE CrosswordCellWordLink (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    cellId BIGINT NOT NULL,
+    wordId BIGINT NOT NULL,
+    positionCell INT NOT NULL,
+
+    FOREIGN KEY (cellId) REFERENCES CrosswordCell(id) ON DELETE CASCADE,
+    FOREIGN KEY (wordId) REFERENCES CrosswordWord(id) ON DELETE CASCADE,
+    UNIQUE (cellId, wordId)
+);
+

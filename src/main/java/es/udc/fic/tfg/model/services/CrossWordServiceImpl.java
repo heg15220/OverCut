@@ -21,6 +21,10 @@ public class CrossWordServiceImpl implements CrosswordService{
     private CrosswordCellDao cellDao;
 
     @Autowired
+    private CrosswordCellWordLinkDao cellWordLinkDao;
+
+
+    @Autowired
     private CrosswordGeneratorPythonAdapter crosswordGenerator;
 
 
@@ -41,13 +45,16 @@ public class CrossWordServiceImpl implements CrosswordService{
             List<CrosswordGeneratorPythonAdapter.CrosswordWordData> wordsData =
                     crosswordGenerator.generateCrossword(rows, cols, language);
 
-
+            Map<String, CrosswordCell> cellMap = new HashMap<>(); // clave: "row-col"
             List<CrosswordWord> words = new ArrayList<>();
+            List<CrosswordCell> allCells = new ArrayList<>();
+            List<CrosswordCellWordLink> allLinks = new ArrayList<>();
+
             for (CrosswordGeneratorPythonAdapter.CrosswordWordData data : wordsData) {
-                // VALIDACIÓN
                 if (data.direction == null || data.direction.trim().isEmpty()) {
                     throw new IllegalArgumentException("Direction nulo o vacío para palabra: " + data.word);
                 }
+
                 String directionValue = data.direction.trim().toUpperCase();
                 if (!directionValue.equals("HORIZONTAL") && !directionValue.equals("VERTICAL")) {
                     throw new IllegalArgumentException("Valor inválido de direction: " + data.direction + " para palabra: " + data.word);
@@ -60,31 +67,69 @@ public class CrossWordServiceImpl implements CrosswordService{
                 word.setRowIndex(data.row);
                 word.setCol(data.col);
                 word.setDirection(Direction.valueOf(directionValue));
-                // Resto igual
-                List<CrosswordCell> cells = new ArrayList<>();
+
+                List<CrosswordCellWordLink> cellLinks = new ArrayList<>();
+
                 for (int i = 0; i < data.word.length(); i++) {
-                    CrosswordCell cell = new CrosswordCell();
-                    cell.setWord(word);
-                    cell.setLetter(data.word.charAt(i));
-                    cell.setPositionCell(i);
-                    cell.setFilled(false);
-                    cell.setUserInput(null);
-                    cells.add(cell);
+                    int row = data.row + (directionValue.equals("VERTICAL") ? i : 0);
+                    int col = data.col + (directionValue.equals("HORIZONTAL") ? i : 0);
+                    String key = row + "-" + col;
+
+                    CrosswordCell cell;
+                    if (cellMap.containsKey(key)) {
+                        cell = cellMap.get(key);
+                    } else {
+                        cell = new CrosswordCell();
+                        cell.setLetter(data.word.charAt(i));
+                        cell.setFilled(false);
+                        cell.setUserInput(null);
+                        cell.setModifiedByUser(false);
+                        cellMap.put(key, cell);
+                        allCells.add(cell);
+                    }
+
+                    // ⚠️ Por ahora no añadimos los links aquí
+                    // Ya los haremos después de guardar las celdas
                 }
-                word.setCrosswordCellList(cells);
+
                 words.add(word);
             }
-            game.setWords(words);
-            game = gameDao.save(game);
 
+            game.setWords(words);
+            gameDao.save(game); // guarda game y palabras
+
+            // 🟢 Ahora sí: guardamos las celdas y ya tienen IDs válidos
+            cellDao.saveAll(allCells);
+
+            // 🔄 Crear los links ahora, usando celdas y palabras ya persistidas
+            for (CrosswordWord word : words) {
+                String directionValue = word.getDirection().name();
+                List<CrosswordCellWordLink> cellLinks = new ArrayList<>();
+
+                for (int i = 0; i < word.getWord().length(); i++) {
+                    int row = word.getRowIndex() + (directionValue.equals("VERTICAL") ? i : 0);
+                    int col = word.getCol() + (directionValue.equals("HORIZONTAL") ? i : 0);
+                    String key = row + "-" + col;
+
+                    CrosswordCell cell = cellMap.get(key); // ya guardada
+                    CrosswordCellWordLink link = new CrosswordCellWordLink(cell, word, i);
+                    cellLinks.add(link);
+                    allLinks.add(link);
+                }
+
+                word.setCellLinks(cellLinks);
+            }
+
+            // 🔐 Guardar los links ahora que todo tiene ID
+            cellWordLinkDao.saveAll(allLinks);
 
         } catch (IOException e) {
-            // Manejo de error: puedes lanzar excepción custom
             throw new RuntimeException("No se pudo generar el crucigrama: " + e.getMessage(), e);
         }
 
         return game.getId();
     }
+
 
 
     // 2. Obtener partida por id
@@ -96,14 +141,9 @@ public class CrossWordServiceImpl implements CrosswordService{
     // 3. Obtener todas las celdas de la partida
     @Override
     public List<CrosswordCell> getCellsByGame(Long gameId) {
-        Optional<CrosswordGame> gameOpt = gameDao.findById(gameId);
-        if (gameOpt.isEmpty()) return Collections.emptyList();
-        List<CrosswordCell> cells = new ArrayList<>();
-        for (CrosswordWord word : gameOpt.get().getWords()) {
-            cells.addAll(word.getCrosswordCellList()); // Necesita método getCells() en CrosswordWord
-        }
-        return cells;
+        return cellDao.findCellsWithLinksByGameId(gameId);
     }
+
 
     // 4. Obtener todas las palabras de la partida
     @Override
@@ -115,18 +155,22 @@ public class CrossWordServiceImpl implements CrosswordService{
     // 5. Actualizar input del usuario para una celda concreta
     @Override
     public CrosswordCell updateCellUserInput(Long cellId, Character userInput) throws Exception {
-        CrosswordCell cell = cellDao.findById(cellId)
+        CrosswordCell cell = cellDao.findCellWithLinksById(cellId)
                 .orElseThrow(() -> new Exception("Cell not found"));
+
         cell.setUserInput(userInput);
         cell.setFilled(userInput != null && userInput.equals(cell.getLetter()));
+        cell.setModifiedByUser(true);
         cellDao.save(cell);
         return cell;
     }
 
 
 
+
+
     private boolean validatePartialWord(CrosswordWord word) {
-        List<CrosswordCell> cells = word.getCrosswordCellList();
+        List<CrosswordCell> cells = word.getCrosswordCellsFromLinks(); // 🟢 Cambiado
         if (cells == null || cells.isEmpty()) return false;
 
         for (CrosswordCell cell : cells) {
@@ -173,30 +217,33 @@ public class CrossWordServiceImpl implements CrosswordService{
 
     // 7. Comprobar si una palabra es correcta
     @Override
-    public boolean checkWord(Long wordId, String userInput, String language) throws IOException {
+    public Boolean checkWord(Long wordId, String userInput, String language) throws IOException {
         CrosswordWord word = wordDao.findById(wordId)
                 .orElseThrow(() -> new NoSuchElementException("Word not found"));
 
-        String sanitizedInput = sanitize(userInput);
-        String expectedWord = sanitize(word.getWord());
+        boolean wasModified = word.getCrosswordCellsFromLinks().stream() // 🟢 Cambiado
+                .anyMatch(CrosswordCell::isModifiedByUser);
+        if (!wasModified) {
+            return null;
+        }
 
-        for (CrosswordCell cell : word.getCrosswordCellList()) {
-            if (cell.getUserInput() == null ||
+        for (CrosswordCell cell : word.getCrosswordCellsFromLinks()) { // 🟢 Cambiado
+            if (!cell.isModifiedByUser() ||
+                    cell.getUserInput() == null ||
                     Character.toUpperCase(cell.getUserInput()) != Character.toUpperCase(cell.getLetter())) {
                 return false;
             }
         }
 
-        // ✅ Marcar celdas como acertadas visualmente (filled=true)
-        for (CrosswordCell cell : word.getCrosswordCellList()) {
+        for (CrosswordCell cell : word.getCrosswordCellsFromLinks()) { // 🟢 Cambiado
             cell.setFilled(true);
             cellDao.save(cell);
         }
 
-
-        // Validación semántica con el idioma correcto
         return crosswordGenerator.validateUserAnswerWithDatabase(userInput, word.getClue(), language);
     }
+
+
 
 
 
@@ -207,7 +254,7 @@ public class CrossWordServiceImpl implements CrosswordService{
         Optional<CrosswordGame> gameOpt = gameDao.findById(gameId);
         if (gameOpt.isEmpty()) return false;
         for (CrosswordWord word : gameOpt.get().getWords()) {
-            for (CrosswordCell cell : word.getCrosswordCellList()) {
+            for (CrosswordCell cell : word.getCrosswordCellsFromLinks()) { // 🟢 Cambiado
                 if (!cell.isFilled()) return false;
             }
         }
@@ -220,9 +267,10 @@ public class CrossWordServiceImpl implements CrosswordService{
         Optional<CrosswordGame> gameOpt = gameDao.findById(gameId);
         if (gameOpt.isEmpty()) return;
         for (CrosswordWord word : gameOpt.get().getWords()) {
-            for (CrosswordCell cell : word.getCrosswordCellList()) {
+            for (CrosswordCell cell : word.getCrosswordCellsFromLinks()) { // 🟢 Cambiado
                 cell.setUserInput(null);
                 cell.setFilled(false);
+                cell.setModifiedByUser(false);
                 cellDao.save(cell);
             }
         }

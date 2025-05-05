@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface CrosswordWordDao extends JpaRepository<CrosswordWord, Long> {
 
-    @Query("SELECT w FROM CrosswordWord w JOIN w.crosswordCellList c WHERE c.id = :cellId")
+    @Query("SELECT DISTINCT l.word FROM CrosswordCellWordLink l WHERE l.cell.id = :cellId")
     List<CrosswordWord> findAllByCrosswordCellId(@Param("cellId") Long cellId);
 }

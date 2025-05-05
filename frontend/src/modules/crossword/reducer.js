@@ -11,7 +11,7 @@ const initialState = {
     gameCompleted: null,
     reset: null,
     updatedCell: null,
-    result: {}, // ✅ un objeto vacío desde el principio
+    wordValidation: {}, // ✅ un objeto vacío desde el principio
 };
 
 // ID del juego creado
@@ -91,15 +91,23 @@ const reset = (state = initialState.reset, action) => {
     }
     return state;
 };
-const result = (state = {}, action) => {
-    if (action.type === actionTypes.GET_CHECK_WORD_COMPLETED) {
-        return { ...state, [action.wordId]: action.result };
+// reducer.js
+const wordValidation = (state = {}, action) => {
+    switch (action.type) {
+        case actionTypes.GET_CHECK_WORD_COMPLETED:
+            return { ...state, [action.wordId]: action.result };
+        case actionTypes.RESET_WORD_VALIDATION:
+        case actionTypes.RESET_GAME_COMPLETED:
+            return {}; // limpiar todo
+        case actionTypes.RESET_SINGLE_WORD_VALIDATION:
+            const { [action.wordId]: _, ...rest } = state;
+            return rest;
+        default:
+            return state;
     }
-    if (action.type === actionTypes.RESET_GAME_COMPLETED) {
-        return {}; // Limpia resultados si reinicias
-    }
-    return state;
 };
+
+
 
 
 
@@ -112,7 +120,7 @@ const reducer = combineReducers({
     word,
     gameCompleted,
     reset,
-    result,
+    wordValidation,
 });
 
 export default reducer;

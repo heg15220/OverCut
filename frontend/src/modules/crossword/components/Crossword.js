@@ -25,6 +25,7 @@ const Crossword = () => {
     useEffect(() => {
       const browserLang = navigator.language.startsWith("es") ? "es" : "en";
       setLanguage(browserLang); // actualiza el estado
+      dispatch(actions.resetWordValidation());
       dispatch(actions.createCrosswordGame({
         rows: DEFAULT_ROWS,
         cols: DEFAULT_COLS,
