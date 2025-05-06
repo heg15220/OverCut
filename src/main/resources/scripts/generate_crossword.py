@@ -31,6 +31,9 @@ def pista_piloto(session, piloto, lang):
     """)
     debut = session.execute(q_debut, {"driverId": piloto["driverId"]}).mappings().fetchone()["debut"]
 
+    word_raw = (piloto["forename"] + piloto["surname"]).replace(" ", "").replace("-", "").upper()
+    n_letters = len(word_raw)
+
     if lang == "es":
         clue = f"Piloto de F1"
         if titles > 0:
@@ -40,6 +43,7 @@ def pista_piloto(session, piloto, lang):
         if debut:
             clue += f", debutó en {debut}"
         clue += f". Nacionalidad: {piloto['nationality']}."
+        clue += f" ({n_letters} letras)"
     else:
         clue = f"F1 driver"
         if titles > 0:
@@ -49,7 +53,10 @@ def pista_piloto(session, piloto, lang):
         if debut:
             clue += f", debuted in {debut}"
         clue += f". Nationality: {piloto['nationality']}."
+        clue += f" ({n_letters} letters)"
+
     return clue
+
 
 def pista_equipo(session, equipo, lang):
     q_titles = text("""
@@ -108,16 +115,19 @@ def pista_circuito(session, circuito, lang):
 # === SELECCIÓN DE PALABRAS CON DATOS Y PISTAS ===
 
 def obtener_pilotos(session, n, lang):
-    q = text("SELECT driverId, forename, surname, nationality FROM drivers ORDER BY RAND() LIMIT :n")
-    result = session.execute(q, {"n": n}).mappings()
+    q = text("SELECT driverId, forename, surname, nationality FROM drivers ORDER BY RAND() LIMIT 200")
+    result = session.execute(q).mappings()
     words = []
     for r in result:
         palabra = (r["forename"] + r["surname"]).replace(" ", "").replace("-", "").upper()
-        if len(palabra) < 3:
+        if len(palabra) < 3 or len(palabra) > 10:  # ⛔ Excluir respuestas demasiado largas
             continue
         clue = pista_piloto(session, r, lang)
         words.append({"word": palabra, "clue": clue, "type": "driver"})
+        if len(words) >= n:
+            break
     return words
+
 
 def obtener_equipos(session, n, lang):
     q = text("SELECT constructorId, name, nationality FROM constructors ORDER BY RAND() LIMIT 100")

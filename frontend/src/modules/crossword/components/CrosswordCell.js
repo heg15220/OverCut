@@ -30,13 +30,15 @@ const CrosswordCell = ({ cell, row, col, language }) => {
 
 
   const handleChange = (e) => {
-    const input = e.target.value.toUpperCase().slice(-1);
+    const raw = e.target.value.toUpperCase().slice(-1);
+    const input = /^[A-Z\-]$/.test(raw) ? raw : "";
     dispatch(actions.updateCellUserInput(cell.id, input, () => {
       wordIds.forEach(wordId => {
         dispatch(actions.resetSingleWordValidation(wordId));
       });
     }));
   };
+
 
 
   let cellClass = "crossword-cell";

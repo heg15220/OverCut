@@ -17,57 +17,93 @@ def clean_nat(n):
 
 def validate_driver(connection, word, clue):
     try:
-        query = text("SELECT * FROM drivers WHERE surname LIKE :name OR forename LIKE :name")
-        result = connection.execute(query, {"name": f"%{word}%"}).mappings().fetchone()
-        if not result:
-            return False
+        normalized_word = normalize(word)
 
-        # Validar si debe tener títulos (campeón)
-        if "campeón" in clue.lower() or "champion" in clue.lower():
-            query2 = text("""
-                SELECT COUNT(*) as titles
-                FROM driver_standings
-                WHERE driverId = :driverId AND position = 1
-            """)
-            standings = connection.execute(query2, {"driverId": result["driverId"]}).mappings().fetchone()
-            if not standings or standings["titles"] == 0:
-                return False
+        query = text("SELECT * FROM drivers")
+        result = connection.execute(query).mappings().all()
 
-        # Validar nacionalidad si se menciona
-        if "nacionalidad" in clue.lower() or "nationality" in clue.lower():
-            match = re.search(r"(nacionalidad|nationality):\s*([a-zA-Z]+)", clue, re.IGNORECASE)
-            if match:
-                expected_nat = clean_nat(match.group(2))
-                actual_nat = clean_nat(result["nationality"])
-                if actual_nat != expected_nat:
-                    return False
+        for row in result:
+            full_name = (row["forename"] + row["surname"])
+            if normalize(full_name) != normalized_word:
+                continue
 
-        return True
+            # Validar nacionalidad
+            if "nacionalidad" in clue.lower() or "nationality" in clue.lower():
+                match = re.search(r"(nacionalidad|nationality):\s*([a-zA-Z]+)", clue, re.IGNORECASE)
+                if match:
+                    expected_nat = clean_nat(match.group(2))
+                    actual_nat = clean_nat(row["nationality"])
+                    if actual_nat != expected_nat:
+                        continue
+
+            # Validar debut
+            if "debutó en" in clue.lower() or "debut in" in clue.lower():
+                match = re.search(r"(debutó en|debut in)\s*(\d{4})", clue, re.IGNORECASE)
+                if match:
+                    expected_year = int(match.group(2))
+                    query_year = text("""
+                        SELECT MIN(r.year) AS debut_year
+                        FROM results res
+                        JOIN races r ON res.raceId = r.raceId
+                        WHERE res.driverId = :driverId
+                    """)
+                    debut_result = connection.execute(query_year, {"driverId": row["driverId"]}).mappings().fetchone()
+                    if not debut_result or debut_result["debut_year"] != expected_year:
+                        continue
+
+            return True  # ✅ Todos los filtros pasados
+
+        return False
     except Exception as e:
         print(f"[ERROR DRIVER] {e}", file=sys.stderr)
         return False
 
+
+
 def validate_constructor(connection, word, clue):
     try:
-        query = text("SELECT * FROM constructors WHERE name LIKE :name")
-        result = connection.execute(query, {"name": f"%{word}%"}).mappings().fetchone()
-        if not result:
-            return False
+        normalized_word = normalize(word)
 
-        # Validar nacionalidad si se menciona
-        if "nacionalidad" in clue.lower() or "nationality" in clue.lower():
-            match = re.search(r"(nacionalidad|nationality):\s*([a-zA-Z]+)", clue, re.IGNORECASE)
-            if match:
-                expected_nat = clean_nat(match.group(2))
-                actual_nat = clean_nat(result["nationality"])
+        query = text("SELECT * FROM constructors")
+        result = connection.execute(query).mappings().all()
 
-                if actual_nat != expected_nat:
-                    return False
+        for row in result:
+            constructor_name = row["name"]
+            if normalize(constructor_name) != normalized_word:
+                continue
 
-        return True
+            # Validar nacionalidad si se menciona
+            if "nacionalidad" in clue.lower() or "nationality" in clue.lower():
+                match = re.search(r"(nacionalidad|nationality):\s*([a-zA-Z]+)", clue, re.IGNORECASE)
+                if match:
+                    expected_nat = clean_nat(match.group(2))
+                    actual_nat = clean_nat(row["nationality"])
+
+                    if actual_nat != expected_nat:
+                        continue
+
+            # Validar debut si se menciona
+            if "debutó en" in clue.lower() or "debuted in" in clue.lower():
+                match = re.search(r"(debutó en|debuted in)\s*(\d{4})", clue, re.IGNORECASE)
+                if match:
+                    expected_year = int(match.group(2))
+                    q_debut = text("""
+                        SELECT MIN(r.year) AS debut
+                        FROM constructorresults cr
+                        JOIN races r ON cr.raceId = r.raceId
+                        WHERE cr.constructorId = :constructorId
+                    """)
+                    debut_result = connection.execute(q_debut, {"constructorId": row["constructorId"]}).mappings().fetchone()
+                    if not debut_result or debut_result["debut"] != expected_year:
+                        continue
+
+            return True  # ✅ Todos los filtros pasados
+
+        return False
     except Exception as e:
         print(f"[ERROR CONSTRUCTOR] {e}", file=sys.stderr)
         return False
+
 
 def validate_circuit(connection, word, clue):
     try:

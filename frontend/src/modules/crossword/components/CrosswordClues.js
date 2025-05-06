@@ -34,7 +34,7 @@ const CrosswordClues = ({ words, language }) => {
 
     if (wordCells.length !== word.word.length) return false;
 
-    return wordCells.every(cell => /^[A-Z]$/.test(cell.userInput));
+    return wordCells.every(cell => /^[A-Z\-]$/.test(cell.userInput));
   };
 
   const renderClue = (word, idx, color) => {
