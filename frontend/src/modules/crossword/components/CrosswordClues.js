@@ -4,10 +4,12 @@ import { useDispatch, useSelector } from "react-redux";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { FormattedMessage } from 'react-intl';
 import CancelIcon from '@mui/icons-material/Cancel';
 import "./CrosswordClues.css";
 
 const CrosswordClues = ({ words, language }) => {
+
   const dispatch = useDispatch();
   const cells = useSelector(selectors.getCrosswordCells);
   const gameId = useSelector(selectors.createCrosswordGame);
@@ -82,7 +84,7 @@ const CrosswordClues = ({ words, language }) => {
           }
           className="crossword-restart-button"
         >
-          Validar palabra
+          <FormattedMessage id="crossword.validate" />
         </Button>
       </ListItem>
     );
@@ -96,13 +98,13 @@ const CrosswordClues = ({ words, language }) => {
   return (
     <div>
       <Typography variant="h6" className="crossword-clues-title">
-        Pistas Horizontales
+        <FormattedMessage id="crossword.clues.horizontal" />
       </Typography>
       <List dense>
         {cluesHorizontal.map((word, idx) => renderClue(word, idx, "primary"))}
       </List>
       <Typography variant="h6" className="crossword-clues-title">
-        Pistas Verticales
+        <FormattedMessage id="crossword.clues.vertical" />
       </Typography>
       <List dense>
         {cluesVertical.map((word, idx) => renderClue(word, idx, "secondary"))}

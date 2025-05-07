@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as selectors from "../selectors";
 import * as actions from "../actions";
+import { FormattedMessage } from 'react-intl';
 import { Button, Grid, Typography, Paper, Box } from "@mui/material";
 import { motion } from "framer-motion";
 import "./Crossword.css";
@@ -75,7 +76,7 @@ const Crossword = () => {
                     mb: 1,
                   }}
                 >
-                  Crucigrama de Fórmula 1
+                   <FormattedMessage id="crossword.title" />
                 </Typography>
 
                 <Typography
@@ -89,7 +90,7 @@ const Crossword = () => {
                     textShadow: "0 0 6px rgba(255, 255, 255, 0.2)",
                   }}
                 >
-                  Rellena todas las palabras y demuestra que conoces cada rincón del paddock.
+                  <FormattedMessage id="crossword.subtitle" />
                 </Typography>
               </Box>
             </motion.div>
@@ -115,7 +116,7 @@ const Crossword = () => {
                             dispatch(actions.getCrosswordCells(game.id, () => {}));
                         }))}
                     >
-                        Reiniciar crucigrama
+                        <FormattedMessage id="crossword.reset" />
                     </Button>
                 </Grid>
             </Grid>

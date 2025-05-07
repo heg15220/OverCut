@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../actions';
+import { FormattedMessage } from 'react-intl';
 import * as UserSelector from '../../users/selectors';
 import { useNavigate } from 'react-router-dom';
 import './quizStyles.css';
@@ -95,7 +96,7 @@ const Quiz = () => {
                             transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                         />
                         <p style={{ marginTop: '1rem', color: 'white', fontSize: '1.2rem' }}>
-                            Preparando la parrilla de salida...
+                            <FormattedMessage id="quiz.loading" />
                         </p>
                     </motion.div>
                 ) : (
@@ -107,9 +108,9 @@ const Quiz = () => {
                         transition={{ duration: 1 }}
                         className="intro-card"
                     >
-                        <h1 className="question-title">Bienvenido al Quiz F1</h1>
+                        <h1 className="question-title"><FormattedMessage id="quiz.intro.title" /></h1>
                         <p style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '2rem' }}>
-                            Demuestra tu conocimiento sobre la Fórmula 1
+                            <FormattedMessage id="quiz.intro.subtitle" />
                         </p>
                         <motion.button
                             whileHover={{ scale: 1.1 }}
@@ -117,7 +118,7 @@ const Quiz = () => {
                             className="quiz-answer-btn"
                             onClick={handleStart}
                         >
-                            Jugar ahora
+                            <FormattedMessage id="quiz.intro.play" />
                         </motion.button>
                     </motion.div>
                 )}

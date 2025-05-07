@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './quizStyles.css';
 import { motion } from 'framer-motion';
+import { FormattedMessage } from 'react-intl';
 
 const ResultsPage = ({score, totalScore}) => {
     const navigate = useNavigate();
@@ -15,9 +16,9 @@ const ResultsPage = ({score, totalScore}) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1 }}
             >
-                <h2 className="question-title">¡Carrera terminada!</h2>
+                <h2 className="question-title"><FormattedMessage id="quiz.result.title" /></h2>
                 <p style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1rem' }}>
-                    ¡Gracias por participar en este quiz de Fórmula 1!
+                    <FormattedMessage id="quiz.result.subtitle" />
                 </p>
 
                 <motion.div
@@ -27,7 +28,7 @@ const ResultsPage = ({score, totalScore}) => {
                     transition={{ delay: 1, duration: 0.6 }}
                     style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}
                 >
-                    🏁 Puntos: {score}/{totalScore}
+                    <FormattedMessage id="quiz.result.points" /> {score}/{totalScore}
                 </motion.div>
 
                 <motion.div
@@ -37,7 +38,7 @@ const ResultsPage = ({score, totalScore}) => {
                     transition={{ delay: 1.6, duration: 0.6 }}
                     style={{ fontSize: '1.5rem', marginBottom: '2rem' }}
                 >
-                    Total conseguido: {score} puntos
+                    <FormattedMessage id="quiz.result.total" /> {score} <FormattedMessage id="quiz.result.point" />
                 </motion.div>
 
                 <motion.button
@@ -46,7 +47,7 @@ const ResultsPage = ({score, totalScore}) => {
                     className="quiz-answer-btn"
                     onClick={() => navigate('/')}
                 >
-                    Volver al inicio
+                    <FormattedMessage id="quiz.result.back" />
                 </motion.button>
             </motion.div>
         </div>

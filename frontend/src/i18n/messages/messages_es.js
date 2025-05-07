@@ -110,6 +110,22 @@ const es = {
     'project.entities.Award.Result.Achieved': '¡Enhorabuena! ¡Has canjeado la recompensa!',
     'project.entities.Award.Result.ButtonHome': 'Ir a mi lista de recompensas canjeadas',
     'project.app.Header.minigames': 'Minijuegos',
+    'crossword.title': 'Crucigrama de Fórmula 1',
+    'crossword.subtitle': 'Rellena todas las palabras y demuestra que conoces la historia de la F1',
+    'crossword.reset': 'Reiniciar crucigrama',
+    'crossword.clues.horizontal': 'Pistas Horizontales',
+    'crossword.clues.vertical': 'Pistas Verticales',
+    'crossword.validate': 'Validar palabra',
+    'quiz.loading': 'Preparando la parrilla de salida...',
+    'quiz.intro.title': 'Bienvenido al Quiz F1',
+    'quiz.intro.subtitle': 'Demuestra tu conocimiento sobre la Fórmula 1',
+    'quiz.intro.play': 'Jugar ahora',
+    'quiz.result.title': '¡Carrera terminada!',
+    'quiz.result.subtitle': '¡Gracias por participar en este quiz de Fórmula 1!',
+    'quiz.result.points': '🏁 Puntos:',
+    'quiz.result.total': 'Total conseguido:',
+    'quiz.result.point': 'puntos',
+    'quiz.result.back': 'Volver al inicio',
 
 }
 export default es;

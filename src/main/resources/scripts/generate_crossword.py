@@ -13,10 +13,24 @@ Session = sessionmaker(bind=engine)
 
 def pista_piloto(session, piloto, lang):
     q_titles = text("""
-        SELECT COUNT(*) AS titles FROM driverstandings
-        WHERE driverId = :driverId AND position = 1
+        SELECT COUNT(*) AS titles
+        FROM (
+            SELECT r.year
+            FROM driverstandings ds
+            JOIN races r ON ds.raceId = r.raceId
+            WHERE ds.position = 1
+            GROUP BY r.year
+            HAVING COUNT(*) = 1
+        ) AS sub
+        WHERE EXISTS (
+            SELECT 1
+            FROM driverstandings ds2
+            JOIN races r2 ON ds2.raceId = r2.raceId
+            WHERE ds2.driverId = :driverId AND ds2.position = 1 AND r2.year = sub.year
+        )
     """)
     titles = session.execute(q_titles, {"driverId": piloto["driverId"]}).mappings().fetchone()["titles"]
+
 
     q_victories = text("""
         SELECT COUNT(*) AS victories FROM results
@@ -60,10 +74,25 @@ def pista_piloto(session, piloto, lang):
 
 def pista_equipo(session, equipo, lang):
     q_titles = text("""
-        SELECT COUNT(*) AS titles FROM constructorstandings
-        WHERE constructorId = :constructorId AND position = 1
+        SELECT COUNT(*) AS titles
+        FROM (
+            SELECT r.year
+            FROM constructorstandings cs
+            JOIN races r ON cs.raceId = r.raceId
+            WHERE cs.position = 1
+            GROUP BY r.year
+            HAVING COUNT(*) = 1
+        ) AS sub
+        WHERE EXISTS (
+            SELECT 1
+            FROM constructorstandings cs2
+            JOIN races r2 ON cs2.raceId = r2.raceId
+            WHERE cs2.constructorId = :constructorId AND cs2.position = 1 AND r2.year = sub.year
+        )
     """)
+
     titles = session.execute(q_titles, {"constructorId": equipo["constructorId"]}).mappings().fetchone()["titles"]
+
 
     q_debut = text("""
         SELECT MIN(year) AS debut FROM constructorresults cr

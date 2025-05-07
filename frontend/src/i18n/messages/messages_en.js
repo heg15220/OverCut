@@ -111,5 +111,22 @@ const en = {
     'project.entities.Award.Result.Achieved': 'Well done! You achieved the award!',
     'project.entities.Award.Result.ButtonHome': 'Go to my awards list',
     'project.app.Header.minigames': 'MiniGames',
+    'crossword.title': 'Formula 1 Crossword',
+    'crossword.subtitle': 'Fill in all the words and prove you know F1 history',
+    'crossword.reset': 'Reset crossword',
+    'crossword.clues.horizontal': 'Horizontal Clues',
+    'crossword.clues.vertical': 'Vertical Clues',
+    'crossword.validate': 'Check word',
+    'quiz.loading': 'Preparing the starting grid...',
+    'quiz.intro.title': 'Welcome to the F1 Quiz',
+    'quiz.intro.subtitle': 'Show your knowledge about Formula 1',
+    'quiz.intro.play': 'Play now',
+    'quiz.result.title': 'Race finished!',
+    'quiz.result.subtitle': 'Thanks for taking part in this Formula 1 quiz!',
+    'quiz.result.points': '🏁 Points:',
+    'quiz.result.total': 'Total achieved:',
+    'quiz.result.point': 'points',
+    'quiz.result.back': 'Return to home',
+
 }
 export default en;
