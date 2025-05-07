@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS GridSlot;
+DROP TABLE IF EXISTS GridGame;
 DROP TABLE IF EXISTS CrosswordCellWordLink;
 DROP TABLE IF EXISTS CrosswordCell;
 DROP TABLE IF EXISTS CrosswordWord;
@@ -359,3 +361,20 @@ CREATE TABLE CrosswordCellWordLink (
     UNIQUE (cellId, wordId)
 );
 
+-- Tabla principal del minijuego
+CREATE TABLE GridGame (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    seasonYear INT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla que representa cada casilla de la parrilla
+CREATE TABLE GridSlot (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    gameId BIGINT NOT NULL,
+    positionGame INT NOT NULL, -- Posición en la parrilla (1, 2, 3, ...)
+    nationalityCode VARCHAR(3) NOT NULL, -- Código ISO de la bandera mostrada
+    filledByPilotId VARCHAR(10), -- ID del piloto elegido, si ya fue respondida
+
+    FOREIGN KEY (gameId) REFERENCES GridGame(id)
+);
