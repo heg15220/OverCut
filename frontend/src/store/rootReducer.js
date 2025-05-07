@@ -8,6 +8,7 @@ import circuits from '../modules/historic';
 import events from '../modules/events';
 import tictactoe from '../modules/tictactoe';
 import crossword from '../modules/crossword';
+import gridgame from '../modules/gridgame';
 
 
 const rootReducer = combineReducers({
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
     events:events.reducer,
     tictactoe: tictactoe.reducer,
     crossword: crossword.reducer,
+    gridgame: gridgame.reducer,
 });
 
 export default rootReducer;

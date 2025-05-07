@@ -15,8 +15,10 @@ import * as tiktakService from "./tiktakService";
 
 import * as crosswordService from "./crosswordService";
 
+import * as gridGameService from "./gridGameService";
+
 const backExport = { init, NetworkError, userService,
-    postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService}
+    postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService, gridGameService}
 
 
 export default backExport;

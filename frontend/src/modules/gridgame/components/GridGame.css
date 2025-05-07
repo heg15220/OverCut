@@ -1,0 +1,206 @@
+.grid-game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+.grid-game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.2rem;
+    width: 100%;
+    max-width: 1200px;
+    padding: 2rem;
+    z-index: 2;
+    position: relative;
+}
+
+
+.grid-slot {
+    background-color: #222;
+    padding: 1rem;
+    border: 1px solid #333;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+}
+
+.grid-slot-position {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.grid-slot-flag {
+    margin: 0.5rem 0;
+    height: 18px;
+}
+
+.grid-slot-button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    background-color: #cc0000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+
+
+.autosuggest-input {
+    background-color: #111;
+    border: 1px solid #444;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.suggestion-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.3rem 0 0;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.suggestion-list li {
+    padding: 0.3rem;
+    cursor: pointer;
+}
+
+.suggestion-list li:hover {
+    background-color: #333;
+}
+
+.grid-slot-car {
+    position: relative;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.grid-slot-car img.car-image {
+    width: 100%;
+    max-height: 50px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.grid-slot-name {
+    font-style: italic;
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+    color: #f5f5f5;
+    font-family: 'F1 Bold', sans-serif;
+    letter-spacing: 0.5px;
+    animation: fadeInText 0.6s ease-in forwards;
+}
+
+@keyframes fadeInText {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.car-image.colorized {
+    width: 100%;
+    max-height: 50px;
+    transition: filter 0.4s ease-in-out;
+}
+
+.game-completed-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.game-completed-content {
+    font-size: 2rem;
+    padding: 2rem;
+    background: #222;
+    border: 3px solid #fbc02d;
+    border-radius: 20px;
+    text-align: center;
+    animation: zoomIn 0.5s ease-out;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.completed-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.completed-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border: none;
+    background-color: #fbc02d;
+    color: #000;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+}
+
+.completed-btn:hover {
+    transform: scale(1.05);
+    background-color: #ffcf44;
+}
+
+
+.grid-game-background-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.3;
+}
+
+.grid-game-overlay {
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(6px);
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 16px;
+    padding: 2rem;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.grid-game-title {
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    font-size: 2.5rem;
+    font-family: 'F1 Bold', sans-serif;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(0,0,0,0.7);
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 0.5rem 1.5rem;
+    border-radius: 12px;
+}

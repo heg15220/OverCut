@@ -1,4 +1,5 @@
 import React from "react";
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { Link } from "react-router-dom";
 import { Container, Typography, Grid, Card, CardContent } from '@mui/material';
 import { motion } from 'framer-motion';
@@ -51,6 +52,22 @@ const MinigamesHome = () => {
                             </motion.div>
                         </Link>
                     </Grid>
+                    <Grid item>
+                        <Link to="/minigames/gridgame" style={{ textDecoration: 'none' }}>
+                            <motion.div whileHover={{ scale: 1.08 }}>
+                                <Card className="minigame-card">
+                                    <CardContent>
+                                        <DirectionsCarIcon style={{ fontSize: 50, color: '#fbc02d' }} />
+                                        <Typography variant="h5">Parrilla F1</Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Acierta los pilotos por nacionalidad en la parrilla
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        </Link>
+                    </Grid>
+
                 </Grid>
             </motion.div>
         </Container>

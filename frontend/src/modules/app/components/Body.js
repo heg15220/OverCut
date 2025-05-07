@@ -14,6 +14,7 @@ import AwardsUserList from "../../quiz/components/AwardsUserList";
 import MinigamesHome from "../../tictactoe/components/MinigamesHome";
 import TicTacToe from "../../tictactoe/components/TicTacToe";
 import TicTacToeGame from "../../tictactoe/components/TicTacToeGame";
+import GridGamePage from "../../gridgame/components/GridGamePage";
 
 import Crossword from "../../crossword/components/Crossword";
 
@@ -85,6 +86,8 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/tictactoe" element={<TicTacToe />} />}
                     {loggedIn && <Route path="/minigames/tictactoe/game/:id" element={<TicTacToeGame />} />}
                     {loggedIn && <Route path="/minigames/crossword" element={<Crossword />} />}
+                    {loggedIn && <Route path="/minigames/gridgame" element={<GridGamePage />} />}
+
 
 
                 </Route>
