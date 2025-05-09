@@ -6,6 +6,7 @@ import * as actions from "../actions";
 import { getGridBoard, getValidatedSlots } from "../selectors";
 import GridSlot from "./GridSlot";
 import { sourceImages } from '../../../helpers/sourceImages';
+import { gridGameTranslations } from "../../../i18n/gamegrid/translations";
 import "./GridGame.css";
 import SearchPilotInput from "./SearchPilotInput";
 
@@ -15,7 +16,8 @@ const GridGameBoard = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [gameCompleted, setGameCompleted] = useState(false);
-
+    const lang = navigator.language.startsWith("es") ? "es" : "en";
+    const t = gridGameTranslations[lang];
 
     useEffect(() => {
         if (!board) return;
@@ -27,12 +29,17 @@ const GridGameBoard = () => {
         }
     }, [board, validated]);
 
-    if (!board) return <div className="grid-loading">Cargando parrilla...</div>;
+    if (!board) return <div className="grid-loading">{t.loading}</div>;
 
-   const columnSize = Math.ceil(board.grid.length / 3);
-   const column1 = board.grid.slice(0, columnSize);
-   const column2 = board.grid.slice(columnSize, columnSize * 2);
-   const column3 = board.grid.slice(columnSize * 2);
+   const numColumns = board.grid.length > 29 ? 5 : board.grid.length > 21 ? 4 : 3;
+
+   const columns = Array.from({ length: numColumns }, (_, i) =>
+     board.grid.slice(
+       Math.floor((i * board.grid.length) / numColumns),
+       Math.floor(((i + 1) * board.grid.length) / numColumns)
+     )
+   );
+
 
 
     const groupSlotsInRows = (slots, perRow = 4) => {
@@ -48,14 +55,14 @@ const GridGameBoard = () => {
      return (
         <div className="grid-ranking-container">
           <h2 className="grid-ranking-title">
-            <span className="grid-title-main">Parrilla F1</span>{" "}
+            <span className="grid-title-main">{t.title}</span>{" "}
             {board?.seasonYear && (
-              <span className="grid-title-season">Temporada {board.seasonYear}</span>
+              <span className="grid-title-season">{t.season} {board.seasonYear}</span>
             )}
           </h2>
 
           <div className="grid-columns">
-            {[column1, column2, column3].map((col, i) => (
+            {columns.map((col, i) => (
               <div key={i} className="grid-column">
                 {col.map(slot => {
                   const slotValidated = validated[slot.position];
@@ -69,10 +76,10 @@ const GridGameBoard = () => {
                     />
                   );
                 })}
-
               </div>
             ))}
           </div>
+
 
 
           <SearchPilotInput />

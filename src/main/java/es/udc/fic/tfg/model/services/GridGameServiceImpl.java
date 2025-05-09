@@ -73,7 +73,7 @@ public class GridGameServiceImpl implements GridGameService{
         Collections.shuffle(drivers);
 
         List<GridSlot> slots = new ArrayList<>();
-        int maxPositions = Math.min(drivers.size(), 20); // limitar a 20
+        int maxPositions = drivers.size(); // sin límite artificial
         for (int i = 0; i < maxPositions; i++) {
             DriverInfo driver = drivers.get(i);
             GridSlot slot = new GridSlot();

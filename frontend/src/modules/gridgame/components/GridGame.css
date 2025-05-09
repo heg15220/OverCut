@@ -344,6 +344,7 @@
   display: block;
   outline: none;
   transition: border-color 0.3s;
+  margin-bottom: 0;
 }
 
 .searchPlayerInput:focus {
@@ -372,26 +373,34 @@
 
 
 .search-player-container .suggestion-list {
-  background: #101f2a;
-  border: 1px solid #264861;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111a2e;
+  border: 1px solid #fbc02d;
   border-radius: 10px;
-  margin-top: 5px;
+  margin-top: 0;
   list-style: none;
-  max-height: 160px;
+  max-height: 220px;
   overflow-y: auto;
-  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+  box-shadow: 0 0 10px rgba(251, 192, 45, 0.15);
+  z-index: 10;
+  padding: 0.3rem 0;
+  font-family: 'F1 Regular', sans-serif;
 }
 
 .search-player-container .suggestion-list li {
-  padding: 0.6rem 0.8rem;
-  color: white;
+  padding: 0.6rem 1rem;
+  color: #f0f0f0;
   cursor: pointer;
+  transition: background 0.2s;
   font-size: 0.95rem;
 }
 
 .search-player-container .suggestion-list li:hover,
 .suggestion-list li.selected {
-  background-color: #264861;
+  background-color: rgba(251, 192, 45, 0.15);
+  color: #ffd700;
 }
 
 
@@ -418,6 +427,19 @@
   transform-style: preserve-3d;
   backface-visibility: hidden;
 }
+
+.grid-slot-name.filled {
+  color: #ffd700; /* dorado más brillante */
+  text-shadow:
+    0 0 2px #000,
+    0 0 6px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(255, 215, 0, 0.6);
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.6px;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
 
 
 

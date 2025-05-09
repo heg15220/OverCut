@@ -24,7 +24,7 @@ const es = {
     'project.global.fields.event.description': 'Descripción',
     'project.global.fields.events.location' : 'Localización',
     'project.global.fields.events.date' : 'Fecha Evento',
-    'project.global.buttons.save"': 'Guardar',
+    'project.global.buttons.save': 'Guardar',
     'project.global.buttons.UpdateProfile': 'Actualizar Perfil',
     'project.global.buttons.back': 'Anterior',
     'project.global.buttons.continue': 'Continuar',

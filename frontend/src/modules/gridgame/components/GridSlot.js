@@ -80,7 +80,10 @@ const GridSlot = ({ position, nationalityCode, filledPilot }) => {
         src={`https://flagcdn.com/w40/${getFlagCode(nationalityCode)}.png`}
         alt={nationalityCode}
       />
-      {filledPilot && <div className="grid-slot-name">{filledPilot}</div>}
+      {filledPilot && (
+        <div className="grid-slot-name filled">{filledPilot}</div>
+      )}
+
     </div>
 
   );
