@@ -30,13 +30,13 @@ const SearchPilotInput = () => {
 
   const handleSelect = (name) => {
     dispatch(actions.validatePilotInGrid(gameId, name, (result) => {
-      const { validPositions, pilotName } = result;
+      const { validPositions, pilotName, nationalityCode } = result;
 
       const alreadyUsed = new Set(Object.keys(validated).map(Number));
       const availablePosition = validPositions.find(pos => !alreadyUsed.has(pos));
 
       if (availablePosition != null) {
-        dispatch({ type: "VALIDATE_GRID_SLOT_COMPLETED", position: availablePosition, pilotName });
+        dispatch({ type: "VALIDATE_GRID_SLOT_COMPLETED", position: availablePosition, pilotName, nationalityCode });
       }
     }, () => {}));
 

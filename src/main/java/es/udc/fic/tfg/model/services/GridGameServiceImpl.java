@@ -7,6 +7,7 @@ import es.udc.fic.tfg.model.entities.GridGameDao;
 import es.udc.fic.tfg.model.entities.GridSlot;
 import es.udc.fic.tfg.model.entities.GridSlotDao;
 import es.udc.fic.tfg.rest.dtos.DriverInfo;
+import es.udc.fic.tfg.rest.dtos.GridValidationResultDto;
 import es.udc.fic.tfg.utils.NationalityIsoMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,11 +151,11 @@ public class GridGameServiceImpl implements GridGameService{
 
 
     @Override
-    public List<Integer> validatePilotAcrossGrid(Long gameId, String pilotName) {
-        GridGame game = gridGameDao.findById(gameId).orElseThrow(() -> new RuntimeException("Juego no encontrado"));
+    public GridValidationResultDto validatePilotAcrossGrid(Long gameId, String pilotName) {
+        GridGame game = gridGameDao.findById(gameId)
+                .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
         int season = game.getSeasonYear();
 
-        // 1. Validar si el piloto participó en esa temporada
         boolean valid;
         try {
             List<String> command = List.of(
@@ -180,14 +181,13 @@ public class GridGameServiceImpl implements GridGameService{
             throw new RuntimeException("Error al validar piloto", e);
         }
 
-        if (!valid) {
-            return Collections.emptyList();
+        String pilotNationality = getNationalityForPilot(pilotName, season);
+
+        if (!valid || pilotNationality == null) {
+            return new GridValidationResultDto(false, pilotName, pilotNationality, List.of());
         }
 
-        // 2. Buscar en qué posiciones encaja según nacionalidad
         List<GridSlot> slots = gridSlotDao.findByGameId(gameId);
-        String pilotNationality = getNationalityForPilot(pilotName, season);
-        if (pilotNationality == null) return Collections.emptyList();
 
         Optional<GridSlot> firstAvailableSlot = slots.stream()
                 .filter(slot -> slot.getFilledByPilotId() == null)
@@ -201,14 +201,13 @@ public class GridGameServiceImpl implements GridGameService{
         if (firstAvailableSlot.isPresent()) {
             GridSlot slot = firstAvailableSlot.get();
             slot.setFilledByPilotId(pilotName);
-            gridSlotDao.save(slot); // ✅ guardar en base de datos
-            return List.of(slot.getPositionGame());
+            gridSlotDao.save(slot);
+            return new GridValidationResultDto(true, pilotName, pilotNationality, List.of(slot.getPositionGame()));
         } else {
-            return Collections.emptyList();
+            return new GridValidationResultDto(false, pilotName, pilotNationality, List.of());
         }
-
-
     }
+
 
 
 

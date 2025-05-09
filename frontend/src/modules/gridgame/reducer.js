@@ -15,18 +15,22 @@ const board = (state = initialState.board, action) =>
     action.type === actionTypes.GET_GRID_GAME_BOARD_COMPLETED ? action.board : state;
 
 const validatedSlots = (state = {}, action) => {
-    switch (action.type) {
-        case actionTypes.VALIDATE_GRID_SLOT_COMPLETED:
-            return {
-                ...state,
-                [action.position]: action.pilotName
-            };
-        case "RESET_GRID_GAME_STATE":
-            return {}; // 🧼 Limpia los slots validados
-        default:
-            return state;
-    }
+  switch (action.type) {
+    case actionTypes.VALIDATE_GRID_SLOT_COMPLETED:
+      return {
+        ...state,
+        [action.position]: {
+          pilotName: action.pilotName,
+          nationalityCode: action.nationalityCode
+        }
+      };
+    case "RESET_GRID_GAME_STATE":
+      return {};
+    default:
+      return state;
+  }
 };
+
 
 
 const suggestions = (state = initialState.suggestions, action) => {

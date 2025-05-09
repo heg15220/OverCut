@@ -187,7 +187,6 @@
 .grid-slot {
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #1e2f3f, #152532);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   padding: 0.5rem 1rem;
@@ -201,6 +200,11 @@
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
   animation: fadeInUp 0.4s ease-out;
   transition: all 0.25s ease;
+}
+
+/* Solo aplica el fondo por defecto cuando está vacía */
+.grid-slot.empty {
+  background: linear-gradient(135deg, #1e2f3f, #152532);
 }
 
 

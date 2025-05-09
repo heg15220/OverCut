@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/gridGame")
@@ -38,9 +39,10 @@ public class GridGameController {
             @PathVariable Long gameId,
             @RequestBody GridPilotValidationRequestDto request) {
 
-        List<Integer> validPositions = gridGameService.validatePilotAcrossGrid(gameId, request.getPilotName());
-        return new GridValidationResultDto(!validPositions.isEmpty(), request.getPilotName(), validPositions);
+        return gridGameService.validatePilotAcrossGrid(gameId, request.getPilotName());
     }
+
+
 
 
 

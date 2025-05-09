@@ -16,6 +16,7 @@ const GridGameBoard = () => {
     const dispatch = useDispatch();
     const [gameCompleted, setGameCompleted] = useState(false);
 
+
     useEffect(() => {
         if (!board) return;
         const filledCount = board.grid.filter(slot =>
@@ -43,6 +44,7 @@ const GridGameBoard = () => {
     };
 
 
+
      return (
         <div className="grid-ranking-container">
           <h2 className="grid-ranking-title">
@@ -55,14 +57,19 @@ const GridGameBoard = () => {
           <div className="grid-columns">
             {[column1, column2, column3].map((col, i) => (
               <div key={i} className="grid-column">
-                {col.map(slot => (
-                  <GridSlot
-                    key={slot.position}
-                    position={slot.position}
-                    nationalityCode={slot.nationalityCode}
-                    filledPilot={validated[slot.position] || slot.filledByPilotId}
-                  />
-                ))}
+                {col.map(slot => {
+                  const slotValidated = validated[slot.position];
+
+                  return (
+                    <GridSlot
+                      key={slot.position}
+                      position={slot.position}
+                      nationalityCode={slotValidated?.nationalityCode ?? slot.nationalityCode}
+                      filledPilot={slotValidated?.pilotName ?? slot.filledByPilotId}
+                    />
+                  );
+                })}
+
               </div>
             ))}
           </div>

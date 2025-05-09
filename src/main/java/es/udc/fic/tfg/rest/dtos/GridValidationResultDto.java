@@ -5,11 +5,16 @@ import java.util.List;
 public class GridValidationResultDto {
     private boolean valid;
     private String pilotName;
+    private String nationalityCode;
     private List<Integer> validPositions;
 
-    public GridValidationResultDto(boolean valid, String pilotName, List<Integer> validPositions) {
+    public GridValidationResultDto() {
+    }
+
+    public GridValidationResultDto(boolean valid, String pilotName, String nationalityCode, List<Integer> validPositions) {
         this.valid = valid;
         this.pilotName = pilotName;
+        this.nationalityCode = nationalityCode;
         this.validPositions = validPositions;
     }
 
@@ -29,6 +34,14 @@ public class GridValidationResultDto {
         this.pilotName = pilotName;
     }
 
+    public String getNationalityCode() {
+        return nationalityCode;
+    }
+
+    public void setNationalityCode(String nationalityCode) {
+        this.nationalityCode = nationalityCode;
+    }
+
     public List<Integer> getValidPositions() {
         return validPositions;
     }
@@ -36,7 +49,5 @@ public class GridValidationResultDto {
     public void setValidPositions(List<Integer> validPositions) {
         this.validPositions = validPositions;
     }
-
-    // constructor, getters y setters
 }
 

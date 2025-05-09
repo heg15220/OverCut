@@ -18,12 +18,21 @@ export const getGridGameBoard = (gameId, onSuccess, onErrors) => dispatch =>
     }, onErrors);
 
 export const validatePilotInGrid = (gameId, pilotName, onSuccess, onErrors) => dispatch =>
-    backend.gridGameService.validatePilotInGrid(gameId, pilotName, result => {
-        result.validPositions.forEach(pos => {
-            dispatch({ type: actionTypes.VALIDATE_GRID_SLOT_COMPLETED, position: pos, pilotName: result.pilotName });
-        });
-        onSuccess(result);
-    }, onErrors);
+  backend.gridGameService.validatePilotInGrid(gameId, pilotName, result => {
+    const { validPositions, pilotName, nationalityCode } = result;
+
+    validPositions.forEach(pos => {
+      dispatch({
+        type: actionTypes.VALIDATE_GRID_SLOT_COMPLETED,
+        position: pos,
+        pilotName,
+        nationalityCode // ✅ ahora también mandas la nacionalidad
+      });
+    });
+
+    onSuccess(result);
+  }, onErrors);
+
 
 export const autocompletePilots = (gameId, query, onSuccess, onErrors) => dispatch =>
     backend.gridGameService.autocompletePilots(gameId, query, suggestions => {
