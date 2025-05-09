@@ -10,6 +10,7 @@ import java.util.List;
 public interface GridGameService {
     GridGame createRandomGame();
     List<GridSlot> getGrid(Long gameId);
-    boolean validateSlot(Long gameId, int position, String pilotName);
+    List<Integer> validatePilotAcrossGrid(Long gameId, String pilotName);
     List<String> autocompletePilots(Long gameId, String partial) throws InstanceNotFoundException;
+
 }

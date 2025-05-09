@@ -26,7 +26,8 @@ def get_drivers_for_season(season):
             drivers.append({
                 "pilotId": driver_id,
                 "name": name,
-                "nationalityCode": nationality.strip()[:3].upper()  # Ej: "British" -> "BRI"
+                "nationalityCode": nationality.strip()
+
             })
 
         return drivers

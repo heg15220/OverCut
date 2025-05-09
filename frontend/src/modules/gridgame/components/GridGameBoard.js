@@ -7,6 +7,7 @@ import { getGridBoard, getValidatedSlots } from "../selectors";
 import GridSlot from "./GridSlot";
 import { sourceImages } from '../../../helpers/sourceImages';
 import "./GridGame.css";
+import SearchPilotInput from "./SearchPilotInput";
 
 const GridGameBoard = () => {
     const board = useSelector(getGridBoard);
@@ -27,6 +28,12 @@ const GridGameBoard = () => {
 
     if (!board) return <div className="grid-loading">Cargando parrilla...</div>;
 
+   const columnSize = Math.ceil(board.grid.length / 3);
+   const column1 = board.grid.slice(0, columnSize);
+   const column2 = board.grid.slice(columnSize, columnSize * 2);
+   const column3 = board.grid.slice(columnSize * 2);
+
+
     const groupSlotsInRows = (slots, perRow = 4) => {
       const rows = [];
       for (let i = 0; i < slots.length; i += perRow) {
@@ -36,68 +43,35 @@ const GridGameBoard = () => {
     };
 
 
-    return (
-        <div className="grid-game-container">
-            <img
-                src={sourceImages(`./grid-background-ai.png`)}
-                alt="Parrilla F1"
-                className="grid-game-background-img"
-            />
-
-        <h2 className="grid-game-title">
-            Minijuego: Parrilla F1 {board?.seasonYear && `- Temporada ${board.seasonYear}`}
-        </h2>
-
-            <div className="grid-game-grid">
-              {groupSlotsInRows(board.grid, 4).map((row, rowIndex) => (
-                <div className="grid-row" key={rowIndex}>
-                  {row.map((slot, colIndex) => (
-                    <div
-                      key={slot.position}
-                      className="grid-cell"
-                      style={{ transform: `translateY(${colIndex * 6}px)` }} // escalonado por columna
-                    >
-                      <GridSlot
-                        position={slot.position}
-                        nationalityCode={slot.nationalityCode}
-                        filledPilot={validated[slot.position] || slot.filledByPilotId}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-
-
-
-            {gameCompleted && (
-                <div className="game-completed-overlay">
-                    <div className="game-completed-content">
-                        <h2>🏁 ¡Parrilla completada con éxito!</h2>
-                        <div className="completed-buttons">
-                            <button
-                                className="completed-btn"
-                                onClick={() => {
-                                    setGameCompleted(false); // ocultar overlay
-                                    dispatch(actions.createGridGame(gameId => {
-                                        dispatch(actions.getGridGameBoard(gameId, () => {}, () => {}));
-                                    }, () => {}));
-                                }}
-                            >
-                                🔁 Jugar otra vez
-                            </button>
-                            <button
-                                className="completed-btn"
-                                onClick={() => navigate("/minigames")}
-                            >
-                                🏠 Volver al inicio
-                            </button>
-                        </div>
-                    </div>
-                </div>
+     return (
+        <div className="grid-ranking-container">
+          <h2 className="grid-ranking-title">
+            <span className="grid-title-main">Parrilla F1</span>{" "}
+            {board?.seasonYear && (
+              <span className="grid-title-season">Temporada {board.seasonYear}</span>
             )}
+          </h2>
+
+          <div className="grid-columns">
+            {[column1, column2, column3].map((col, i) => (
+              <div key={i} className="grid-column">
+                {col.map(slot => (
+                  <GridSlot
+                    key={slot.position}
+                    position={slot.position}
+                    nationalityCode={slot.nationalityCode}
+                    filledPilot={validated[slot.position] || slot.filledByPilotId}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+
+
+          <SearchPilotInput />
+
         </div>
-    );
+      );
 };
 
 export default GridGameBoard;

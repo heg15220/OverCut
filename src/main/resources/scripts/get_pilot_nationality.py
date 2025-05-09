@@ -10,11 +10,11 @@ Session = sessionmaker(bind=engine)
 def normalize_name(name):
     return name.strip().lower()
 
-def pilot_exists_for_season(pilot_name, season):
+def get_nationality(pilot_name, season):
     session = Session()
     try:
         query = text("""
-            SELECT d.driverId
+            SELECT d.nationality
             FROM drivers d
             JOIN results r ON d.driverId = r.driverId
             JOIN races ra ON ra.raceId = r.raceId
@@ -26,7 +26,9 @@ def pilot_exists_for_season(pilot_name, season):
             "pilot_name": normalize_name(pilot_name),
             "season": season
         }).fetchone()
-        return result is not None
+        if result:
+            return result[0]
+        return None
     finally:
         session.close()
 
@@ -34,8 +36,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--pilot", required=True)
     parser.add_argument("--season", type=int, required=True)
-
     args = parser.parse_args()
-    is_valid = pilot_exists_for_season(args.pilot, args.season)
 
-    print(json.dumps({"valid": is_valid}))
+    nationality = get_nationality(args.pilot, args.season)
+    if nationality:
+        print(json.dumps({"nationality": nationality}))
+    else:
+        print(json.dumps({"nationality": None}))

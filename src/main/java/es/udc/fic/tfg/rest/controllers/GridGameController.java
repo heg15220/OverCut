@@ -34,13 +34,15 @@ public class GridGameController {
     }
 
     @PostMapping("/{gameId}/validate")
-    public GridValidationResultDto validatePilot(
+    public GridValidationResultDto validatePilotInGrid(
             @PathVariable Long gameId,
-            @RequestBody GridValidationRequestDto request) {
+            @RequestBody GridPilotValidationRequestDto request) {
 
-        boolean valid = gridGameService.validateSlot(gameId, request.getPosition(), request.getPilotName());
-        return new GridValidationResultDto(valid, valid ? request.getPilotName() : null);
+        List<Integer> validPositions = gridGameService.validatePilotAcrossGrid(gameId, request.getPilotName());
+        return new GridValidationResultDto(!validPositions.isEmpty(), request.getPilotName(), validPositions);
     }
+
+
 
     @GetMapping("/{gameId}/autocomplete")
     public List<String> autocompletePilots(
@@ -50,5 +52,7 @@ public class GridGameController {
         return gridGameService.autocompletePilots(gameId, q);
 
     }
+
+
 }
 

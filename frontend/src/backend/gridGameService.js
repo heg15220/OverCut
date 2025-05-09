@@ -18,14 +18,15 @@ export const getGridGame = (gameId, onSuccess, onErrors) => {
     );
 };
 
-export const validateGridSlot = (gameId, position, pilotName, onSuccess, onErrors) => {
-    appFetch(
-        `/gridGame/${gameId}/validate`,
-        fetchConfig("POST", { position, pilotName }),
-        onSuccess,
-        onErrors
-    );
+export const validatePilotInGrid = (gameId, pilotName, onSuccess, onErrors) => {
+  appFetch(
+    `/gridGame/${gameId}/validate`,
+    fetchConfig("POST", { pilotName }), // ✅ sólo esto
+    onSuccess,
+    onErrors
+  );
 };
+
 
 export const autocompletePilots = (gameId, query, onSuccess, onErrors) => {
     appFetch(
@@ -35,3 +36,5 @@ export const autocompletePilots = (gameId, query, onSuccess, onErrors) => {
         onErrors
     );
 };
+
+

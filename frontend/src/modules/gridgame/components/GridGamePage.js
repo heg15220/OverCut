@@ -13,8 +13,11 @@ const GridGamePage = () => {
     }, [dispatch]);
 
     return (
-        <GridGameBoard />
+        <div className="grid-game-body">
+            <GridGameBoard />
+        </div>
     );
 };
 
 export default GridGamePage;
+

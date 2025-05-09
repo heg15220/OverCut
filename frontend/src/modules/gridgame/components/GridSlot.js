@@ -1,66 +1,59 @@
-import React, { useState } from "react";
-import AutoSuggestInput from "./AutoSuggestInput";
-import { useDispatch, useSelector } from "react-redux";
-import { validateGridSlot } from "../actions";
-import { getGameId } from "../selectors";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { getFlagCode } from "./getCountryCode";
 import { getHueFromName } from "./colorFromName";
-import { getFlagCode } from "./getCountryCode"; // ajusta path según estructura
-
 
 const GridSlot = ({ position, nationalityCode, filledPilot }) => {
-    const [open, setOpen] = useState(false);
-    const dispatch = useDispatch();
-    const gameId = useSelector(getGameId);
+  const [isAnimated, setIsAnimated] = useState(false);
 
-    const onPilotSelected = (pilotName) => {
-        dispatch(validateGridSlot(gameId, position, pilotName, () => setOpen(false)));
-    };
+  useEffect(() => {
+    if (filledPilot) {
+      setIsAnimated(true);
+      const timer = setTimeout(() => setIsAnimated(false), 700); // limpiar clase tras animación
+      return () => clearTimeout(timer);
+    }
+  }, [filledPilot]);
 
-    const carHue = filledPilot ? getHueFromName(filledPilot) : 0;
+  const nationalityColors = {
+    Spanish: "#c60b1e",
+    Italian: "#007b3a",
+    French: "#0055a4",
+    German: "#000000",
+    British: "#00247d",
+    Brazilian: "#009739",
+    Argentine: "#74acdf",
+    American: "#3c3b6e",
+    Dutch: "#21468b",
+    Finnish: "#003580",
+    Australian: "#012169",
+    Canadian: "#d80621",
+    Japanese: "#bc002d",
+    Swedish: "#005eb8",
+    Mexican: "#006847",
+    Belgian: "#fdc300",
+    default: "#1e2f3f"
+  };
 
-    return (
-        <div className="grid-slot">
-            <div className="grid-slot-position">{position}</div>
-            <img
-              className="grid-slot-flag"
-              src={`https://flagcdn.com/24x18/${getFlagCode(nationalityCode)}.png`}
-              alt={nationalityCode}
-            />
+
+  const cleanCode = (nationalityCode || "").trim();
+  const backgroundColor = filledPilot
+    ? nationalityColors[cleanCode] || nationalityColors.default
+    : "transparent";
 
 
-            {filledPilot ? (
-                <motion.div
-                    className="grid-slot-car"
-                    initial={{ opacity: 0, scale: 0.6, y: -20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                >
-                    <img
-                        src="/assets/images/f1car-colored.png"
-                        alt="F1 Car"
-                        className="car-image colorized"
-                        style={{ filter: `hue-rotate(${carHue}deg)` }}
-                    />
-                    <motion.div
-                        className="grid-slot-name"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                    >
-                        {filledPilot}
-                    </motion.div>
-                </motion.div>
-            ) : (
-                <>
-                    <button className="grid-slot-button" onClick={() => setOpen(true)}>Elegir piloto</button>
-                    {open && (
-                        <AutoSuggestInput onSelect={onPilotSelected} />
-                    )}
-                </>
-            )}
-        </div>
-    );
+  return (
+    <div
+      className={`grid-slot ${isAnimated ? "animated-flip" : ""}`}
+      style={{ backgroundColor, transition: "background-color 0.6s ease" }}
+    >
+      <div className="grid-slot-position">{position}.</div>
+      <img
+        className="grid-slot-flag"
+        src={`https://flagcdn.com/w40/${getFlagCode(nationalityCode)}.png`}
+        alt={nationalityCode}
+      />
+      {filledPilot && <div className="grid-slot-name">{filledPilot}</div>}
+    </div>
+  );
 };
 
 export default GridSlot;

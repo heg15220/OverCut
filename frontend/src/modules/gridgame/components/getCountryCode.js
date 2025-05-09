@@ -1,44 +1,19 @@
 // utils/getCountryCode.js
 
-const nationalityToCountryCode = {
-  // Europa
-  GBR: "gb", ENG: "gb", UK: "gb",
-  FRA: "fr", GER: "de", DEU: "de",
-  ITA: "it", ESP: "es", POR: "pt",
-  NLD: "nl", BEL: "be", SWE: "se",
-  SUI: "ch", AUT: "at", FIN: "fi",
-  DEN: "dk", NOR: "no", IRL: "ie",
-  CZE: "cz", SVK: "sk", HUN: "hu",
-  POL: "pl", RUS: "ru", EST: "ee",
-  LAT: "lv", LTU: "lt", LUX: "lu",
-  LIE: "li", MON: "mc", SMR: "sm",
-  AND: "ad",
-
-  // América
-  USA: "us", CAN: "ca", MEX: "mx",
-  BRA: "br", ARG: "ar", COL: "co",
-  CHI: "cl", URU: "uy", VEN: "ve",
-  ECU: "ec", PER: "pe", CUB: "cu",
-
-  // Asia
-  JPN: "jp", CHN: "cn", IND: "in",
-  THA: "th", KOR: "kr", IDN: "id",
-  MAS: "my", HKG: "hk", TUR: "tr",
-  KAZ: "kz", QAT: "qa", UAE: "ae",
-
-  // Oceanía
-  AUS: "au", NZL: "nz",
-
-  // África
-  ZAF: "za", MAR: "ma", EGY: "eg",
-  RHO: "zw", ZIM: "zw", MOZ: "mz",
-
-  // Medio Oriente y otros
-  LBN: "lb", ISR: "il", PAK: "pk",
-  JAM: "jm", BAR: "bb", TRI: "tt",
+const ISO_MAPPING = {
+  british: "gb", german: "de", italian: "it", french: "fr", spanish: "es", dutch: "nl",
+  finnish: "fi", brazilian: "br", argentinean: "ar", mexican: "mx", canadian: "ca",
+  austrian: "at", australian: "au", swiss: "ch", belgian: "be", swedish: "se",
+  portuguese: "pt", chilean: "cl", american: "us", "new zealander": "nz", irish: "ie",
+  "south african": "za", japanese: "jp", russian: "ru", polish: "pl", venezuelan: "ve",
+  colombian: "co", czech: "cz", hungarian: "hu", monegasque: "mc", monacan: "mc",
+  thai: "th", chinese: "cn", indian: "in", malaysian: "my", indonesian: "id",
+  dane: "dk", danish: "dk", estonian: "ee", latvian: "lv", uruguayan: "uy"
 };
 
-export const getFlagCode = (nationalityCode) => {
-  if (!nationalityCode) return "un";
-  return nationalityToCountryCode[nationalityCode.toUpperCase()] || "un"; // fallback to 'un' (unknown)
+export const getFlagCode = (nationalityRaw) => {
+  if (!nationalityRaw) return "un";
+  const key = nationalityRaw.trim().toLowerCase();
+  return ISO_MAPPING[key] || "un";
 };
+
