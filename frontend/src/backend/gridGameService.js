@@ -38,3 +38,11 @@ export const autocompletePilots = (gameId, query, onSuccess, onErrors) => {
 };
 
 
+export const revealAllAnswers = (gameId, onSuccess, onErrors) => {
+  appFetch(
+    `/gridGame/${gameId}/reveal-all`,
+    fetchConfig("GET"),
+    onSuccess,
+    onErrors
+  );
+};

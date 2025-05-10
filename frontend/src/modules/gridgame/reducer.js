@@ -6,6 +6,7 @@ const initialState = {
     board: null,
     validatedSlots: {},
     suggestions: null,
+    revealedSlots: {},
 };
 
 const gameId = (state = initialState.gameId, action) =>
@@ -41,10 +42,31 @@ const suggestions = (state = initialState.suggestions, action) => {
 };
 
 
+const revealedSlots = (state = {}, action) => {
+  switch (action.type) {
+    case "REVEAL_ALL_SLOTS_COMPLETED":
+      const updated = {};
+      action.slots.forEach(slot => {
+        updated[slot.position] = {
+          pilotName: slot.pilotName,
+          nationalityCode: slot.nationalityCode
+        };
+      });
+      return updated;
+    case "RESET_GRID_GAME_STATE":
+      return {};
+    default:
+      return state;
+  }
+};
+
+
+
 export default combineReducers({
   gameId,
   board,
   validatedSlots,
   suggestions,
+  revealedSlots
 });
 

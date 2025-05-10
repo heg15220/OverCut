@@ -51,4 +51,13 @@ export const fetchGridPilotSuggestions = (gameId, query, onSuccess, onErrors) =>
     onSuccess(suggestions);
   }, onErrors);
 
+export const revealAllAnswers = (gameId, onSuccess, onErrors) => dispatch =>
+  backend.gridGameService.revealAllAnswers(gameId, result => {
+    dispatch({
+      type: "REVEAL_ALL_SLOTS_COMPLETED",
+      slots: result
+    });
+    onSuccess?.(result);
+  }, onErrors);
+
 

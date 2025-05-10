@@ -7,6 +7,7 @@ import es.udc.fic.tfg.model.entities.GridGameDao;
 import es.udc.fic.tfg.model.entities.GridSlot;
 import es.udc.fic.tfg.model.entities.GridSlotDao;
 import es.udc.fic.tfg.rest.dtos.DriverInfo;
+import es.udc.fic.tfg.rest.dtos.GridSlotReveal;
 import es.udc.fic.tfg.rest.dtos.GridValidationResultDto;
 import es.udc.fic.tfg.utils.NationalityIsoMapper;
 import jakarta.transaction.Transactional;
@@ -31,6 +32,8 @@ public class GridGameServiceImpl implements GridGameService{
     @Autowired
     private GridSlotDao gridSlotDao;
 
+
+    private final Map<Integer, List<DriverInfo>> seasonCache = new HashMap<>();
 
 
     private List<DriverInfo> getDriversForSeason(int season) {
@@ -245,6 +248,65 @@ public class GridGameServiceImpl implements GridGameService{
         } catch (Exception e) {
             throw new RuntimeException("Error al ejecutar script de autocomplete: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<GridSlotReveal> revealAllAnswers(Long gameId) {
+        GridGame game = gridGameDao.findById(gameId)
+                .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
+
+        int season = game.getSeasonYear();
+        List<GridSlot> slots = gridSlotDao.findByGameId(gameId);
+
+        Set<String> alreadyUsedPilots = slots.stream()
+                .map(GridSlot::getFilledByPilotId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        for (GridSlot slot : slots) {
+            if (slot.getFilledByPilotId() == null) {
+                String targetNationality = NationalityIsoMapper.normalizeNationality(slot.getNationalityCode());
+
+                String pilot = getAnyValidPilotForSlot(targetNationality, season, alreadyUsedPilots);
+                if (pilot != null) {
+                    slot.setFilledByPilotId(pilot);
+                    alreadyUsedPilots.add(pilot); // ✅ evitar repetir
+                }
+            }
+        }
+
+        // Guardamos los cambios en la base de datos
+        List<GridSlot> updated = gridSlotDao.saveAll(slots);
+
+        // Convertimos a GridSlotReveal
+        return updated.stream()
+                .map(slot -> new GridSlotReveal(
+                        slot.getPositionGame(),
+                        slot.getNationalityCode(),
+                        slot.getFilledByPilotId() // ← este es el nombre del piloto
+                ))
+                .collect(Collectors.toList());
+    }
+
+
+    private List<DriverInfo> getCachedDriversForSeason(int season) {
+        return seasonCache.computeIfAbsent(season, this::getDriversForSeason);
+    }
+
+    /**
+     * Devuelve un piloto cualquiera que coincida con la nacionalidad
+     */
+    private String getAnyValidPilotForSlot(String targetNationality, int season, Set<String> alreadyUsed) {
+        List<DriverInfo> drivers = getCachedDriversForSeason(season);
+
+        for (DriverInfo driver : drivers) {
+            String normalized = NationalityIsoMapper.normalizeNationality(driver.getNationalityCode());
+            if (normalized.equalsIgnoreCase(targetNationality)
+                    && !alreadyUsed.contains(driver.getName())) {
+                return driver.getName();
+            }
+        }
+        return null;
     }
 
 

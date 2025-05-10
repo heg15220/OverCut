@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as actions from "../actions";
-import { getGridBoard, getValidatedSlots } from "../selectors";
+import { getGridBoard, getValidatedSlots, getRevealedSlots } from "../selectors";
 import GridSlot from "./GridSlot";
 import { sourceImages } from '../../../helpers/sourceImages';
 import { gridGameTranslations } from "../../../i18n/gamegrid/translations";
@@ -16,6 +16,7 @@ const GridGameBoard = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [gameCompleted, setGameCompleted] = useState(false);
+    const revealed = useSelector(getRevealedSlots);
     const lang = navigator.language.startsWith("es") ? "es" : "en";
     const t = gridGameTranslations[lang];
 
@@ -65,7 +66,8 @@ const GridGameBoard = () => {
             {columns.map((col, i) => (
               <div key={i} className="grid-column">
                 {col.map(slot => {
-                  const slotValidated = validated[slot.position];
+                  const slotValidated = validated[slot.position] ?? revealed[slot.position];
+
 
                   return (
                     <GridSlot

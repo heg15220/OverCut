@@ -55,6 +55,9 @@ public class GridGameController {
 
     }
 
-
+    @GetMapping("/{gameId}/reveal-all")
+    public List<GridSlotReveal> revealAllAnswers(@PathVariable Long gameId) {
+        return gridGameService.revealAllAnswers(gameId);
+    }
 }
 

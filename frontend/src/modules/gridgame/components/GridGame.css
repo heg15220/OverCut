@@ -59,11 +59,24 @@
 }
 
 .suggestion-list {
-    list-style: none;
-    padding: 0;
-    margin: 0.3rem 0 0;
-    max-height: 100px;
-    overflow-y: auto;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: auto; /* importante */
+  background: #111a2e;
+  border: 1px solid #fbc02d;
+  border-radius: 0 0 10px 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(251, 192, 45, 0.15);
+  z-index: 10;
+  margin-top: 4px;
+  font-family: 'F1 Regular', sans-serif;
+}
+
+/* Nuevo: asegura que ul se ancle al ancho del input */
+.search-input-wrapper input + .suggestion-list {
+  width: 100%;
 }
 
 .suggestion-list li {
@@ -336,15 +349,12 @@
   padding: 10px 14px;
   font-size: 1rem;
   border: 2px solid #fbc02d;
-  border-radius: 12px;
+  border-radius: 12px 0 0 12px;
   background-color: #1b2c3b;
   color: #fff;
-  margin: 2rem auto 3rem;
   width: 280px;
-  display: block;
   outline: none;
   transition: border-color 0.3s;
-  margin-bottom: 0;
 }
 
 .searchPlayerInput:focus {
@@ -368,6 +378,7 @@
 .search-player-container {
   text-align: center;
   position: relative;
+  margin: 2rem auto 3rem;
   margin-bottom: 3rem; /* ⬅️ Añade separación antes del footer */
 }
 
@@ -443,3 +454,52 @@
 
 
 
+
+.reveal-all-button {
+  background: #fbc02d;
+  color: #000;
+  font-size: 1.4rem;
+  padding: 0.35rem 0.8rem;
+  border: 2px solid #fbc02d;
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s ease;
+  height: 100%;
+}
+
+.reveal-all-button:hover {
+  background: #ffeb3b;
+  transform: scale(1.05);
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  margin-bottom: 1rem;
+}
+
+.input-suggestion-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 280px; /* mismo ancho que input */
+}
+
+.input-suggestion-wrapper .suggestion-list {
+  position: absolute;
+  top: 100%;
+  left: 51%;
+  width: 100%; /* ⬅️ Se limita al ancho del input */
+  background: #111a2e;
+  border: 1px solid #fbc02d;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(251, 192, 45, 0.15);
+  z-index: 10;
+  padding: 0.3rem 0;
+  font-family: 'F1 Regular', sans-serif;
+}
