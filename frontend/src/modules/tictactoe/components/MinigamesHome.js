@@ -68,6 +68,22 @@ const MinigamesHome = () => {
                         </Link>
                     </Grid>
 
+                <Grid item>
+                    <Link to="/minigames/guessdriver" style={{ textDecoration: 'none' }}>
+                        <motion.div whileHover={{ scale: 1.08 }}>
+                            <Card className="minigame-card">
+                                <CardContent>
+                                    <DirectionsCarIcon style={{ fontSize: 50, color: '#00c853' }} />
+                                    <Typography variant="h5">Adivina el Piloto</Typography>
+                                    <Typography variant="body2" color="textSecondary">
+                                        Haz preguntas y adivina al piloto misterioso
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    </Link>
+                </Grid>
+
                 </Grid>
             </motion.div>
         </Container>

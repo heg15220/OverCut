@@ -398,6 +398,7 @@ CREATE TABLE GuessDriverQuestion (
     valueUser VARCHAR(255), -- Lo que seleccionó el usuario (por ejemplo, "Ferrari" o "británica")
     isCorrect BOOLEAN NOT NULL,
     createAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    question TEXT,
     FOREIGN KEY (gameId) REFERENCES GuessDriverGame(id) ON DELETE CASCADE
 );
 

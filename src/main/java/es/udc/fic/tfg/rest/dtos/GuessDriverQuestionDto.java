@@ -6,18 +6,20 @@ public class GuessDriverQuestionDto {
     private String valueUser;
     private boolean isCorrect;
     private String createdAt;
+    private String question;
 
     public GuessDriverQuestionDto() {
     }
 
-    public GuessDriverQuestionDto(Long id, String category, String valueUser, boolean isCorrect, String createdAt) {
+    public GuessDriverQuestionDto(Long id, String category, String valueUser,
+                                  boolean isCorrect, String createdAt, String question) {
         this.id = id;
         this.category = category;
         this.valueUser = valueUser;
         this.isCorrect = isCorrect;
         this.createdAt = createdAt;
+        this.question = question;
     }
-
 
     public Long getId() {
         return id;
@@ -57,5 +59,13 @@ public class GuessDriverQuestionDto {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
     }
 }

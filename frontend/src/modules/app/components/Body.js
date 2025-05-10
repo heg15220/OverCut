@@ -18,6 +18,8 @@ import GridGamePage from "../../gridgame/components/GridGamePage";
 
 import Crossword from "../../crossword/components/Crossword";
 
+import GuessDriverGame from "../../guessDriver/components/GuessDriverGame";
+
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
     Circuits,
@@ -87,6 +89,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/tictactoe/game/:id" element={<TicTacToeGame />} />}
                     {loggedIn && <Route path="/minigames/crossword" element={<Crossword />} />}
                     {loggedIn && <Route path="/minigames/gridgame" element={<GridGamePage />} />}
+                    {loggedIn && <Route path="/minigames/guessDriver" element={<GuessDriverGame />} />}
 
 
 

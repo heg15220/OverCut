@@ -80,8 +80,6 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
 
             ProcessBuilder pb = new ProcessBuilder(command);
             pb.environment().put("LANG", lang);
-            pb.environment().put("DB_URI", System.getenv("DB_URI"));
-            pb.redirectErrorStream(true);
 
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -103,6 +101,7 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
             question.setCategory(category);
             question.setValueUser(value);
             question.setCorrect(isCorrect);
+            question.setQuestion(questionText);
             questionDao.save(question);
 
             game.getQuestions().add(question);

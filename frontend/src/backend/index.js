@@ -17,8 +17,11 @@ import * as crosswordService from "./crosswordService";
 
 import * as gridGameService from "./gridGameService";
 
+import * as guessDriverService from "./guessDriverService";
+
 const backExport = { init, NetworkError, userService,
-    postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService, gridGameService}
+    postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
+    gridGameService, guessDriverService}
 
 
 export default backExport;

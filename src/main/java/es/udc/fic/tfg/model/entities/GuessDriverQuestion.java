@@ -19,17 +19,19 @@ public class GuessDriverQuestion {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    private String question;
+
     public GuessDriverQuestion() {
     }
 
-    public GuessDriverQuestion(Long id, GuessDriverGame game, String category, String value,
-                               boolean isCorrect, LocalDateTime createdAt) {
-        this.id = id;
+    public GuessDriverQuestion(GuessDriverGame game, String category, String valueUser,
+                               boolean isCorrect, LocalDateTime createdAt, String question) {
         this.game = game;
         this.category = category;
-        this.valueUser = value;
+        this.valueUser = valueUser;
         this.isCorrect = isCorrect;
         this.createdAt = createdAt;
+        this.question = question;
     }
 
     @Id
@@ -68,6 +70,7 @@ public class GuessDriverQuestion {
         this.valueUser = valueUser;
     }
 
+    @Column(name = "isCorrect", nullable = false)
     public boolean isCorrect() {
         return isCorrect;
     }
@@ -76,11 +79,21 @@ public class GuessDriverQuestion {
         isCorrect = correct;
     }
 
+    @Column(name = "createAt", nullable = false)
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @Column(name = "question", columnDefinition = "TEXT")
+    public String getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
     }
 }

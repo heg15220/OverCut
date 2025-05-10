@@ -9,6 +9,7 @@ import events from '../modules/events';
 import tictactoe from '../modules/tictactoe';
 import crossword from '../modules/crossword';
 import gridgame from '../modules/gridgame';
+import guessDriver from '../modules/guessDriver';
 
 
 const rootReducer = combineReducers({
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
     tictactoe: tictactoe.reducer,
     crossword: crossword.reducer,
     gridgame: gridgame.reducer,
+    guessDriver: guessDriver.reducer,
 });
 
 export default rootReducer;

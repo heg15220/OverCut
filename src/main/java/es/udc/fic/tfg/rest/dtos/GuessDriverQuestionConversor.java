@@ -15,7 +15,9 @@ public class GuessDriverQuestionConversor {
         dto.setValueUser(q.getValueUser());
         dto.setCorrect(q.isCorrect());
         dto.setCreatedAt(q.getCreatedAt().toString());
+        dto.setQuestion(q.getQuestion()); // ← Añade esta línea
         return dto;
     }
+
 
 }
