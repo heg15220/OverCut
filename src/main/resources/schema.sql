@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS GuessDriverQuestion;
+DROP TABLE IF EXISTS GuessDriverGame;
 DROP TABLE IF EXISTS GridSlot;
 DROP TABLE IF EXISTS GridGame;
 DROP TABLE IF EXISTS CrosswordCellWordLink;
@@ -378,3 +380,24 @@ CREATE TABLE GridSlot (
 
     FOREIGN KEY (gameId) REFERENCES GridGame(id)
 );
+
+CREATE TABLE GuessDriverGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    driverId BIGINT NOT NULL, -- ID del piloto misterioso
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    questionCount INT NOT NULL DEFAULT 0,
+    finished BOOLEAN NOT NULL DEFAULT FALSE,
+    successful BOOLEAN DEFAULT NULL,
+    driverName VARCHAR(100)
+);
+
+CREATE TABLE GuessDriverQuestion (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    valueUser VARCHAR(255), -- Lo que seleccionó el usuario (por ejemplo, "Ferrari" o "británica")
+    isCorrect BOOLEAN NOT NULL,
+    createAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (gameId) REFERENCES GuessDriverGame(id) ON DELETE CASCADE
+);
+

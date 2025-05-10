@@ -8,6 +8,7 @@ public class DriverInfo {
     public DriverInfo() {
     }
 
+
     public DriverInfo(String pilotId, String name, String nationalityCode) {
         this.pilotId = pilotId;
         this.name = name;
