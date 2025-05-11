@@ -127,11 +127,12 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
         GuessDriverGame game = gameDao.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found"));
 
-        if (game.isFinished()) {
-            throw new IllegalStateException("Game is already finished");
+        // ✅ Permitir adivinar incluso si está finished, pero solo si aún no ha acertado
+        if (game.isFinished() && game.getSuccessful() != null && game.getSuccessful()) {
+            throw new IllegalStateException("Game is already finished and successful");
         }
 
-        String realName = game.getDriverName(); // ← usamos el nombre ya guardado
+        String realName = game.getDriverName();
         boolean isSuccess = guessedName.trim().equalsIgnoreCase(realName.trim());
 
         game.setFinished(true);
@@ -140,6 +141,7 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
         return gameDao.save(game);
     }
 
+
     @Override
     public GuessDriverGame getGameStatus(Long gameId) {
         return gameDao.findById(gameId)
@@ -147,7 +149,8 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
     }
 
     @Override
-    public List<String> getRecommendations(String category) {
+    public List<String> getRecommendations(String category, String lang)
+    {
         try {
             List<String> command = List.of(
                     "python",
@@ -157,6 +160,7 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
 
             ProcessBuilder pb = new ProcessBuilder(command);
             pb.redirectErrorStream(true);
+            pb.environment().put("LANG", lang); // ← añadir esta línea
             Process process = pb.start();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -174,5 +178,31 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
             throw new RuntimeException("Error al obtener recomendaciones para categoría: " + category, e);
         }
     }
+
+    @Override
+    public List<String> autocompletePilotNames(String partial) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(
+                    "python",
+                    "src/main/resources/scripts/recommend_pilots.py",
+                    "--partial", partial
+            );
+            Process process = pb.start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder jsonBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonBuilder.append(line);
+            }
+            process.waitFor();
+
+            ObjectMapper mapper = new ObjectMapper();
+            return Arrays.asList(mapper.readValue(jsonBuilder.toString(), String[].class));
+        } catch (Exception e) {
+            throw new RuntimeException("Error en recomendación de pilotos: " + e.getMessage(), e);
+        }
+    }
+
 
 }

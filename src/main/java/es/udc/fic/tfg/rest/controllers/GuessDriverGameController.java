@@ -50,7 +50,14 @@ public class GuessDriverGameController {
     }
 
     @GetMapping("/recommendations")
-    public List<String> getRecommendations(@RequestParam String category) {
-        return guessDriverGameService.getRecommendations(category);
+    public List<String> getRecommendations(@RequestParam String category, @RequestParam(defaultValue = "es") String lang) {
+        return guessDriverGameService.getRecommendations(category, lang);
     }
+
+
+    @GetMapping("/autocomplete")
+    public List<String> autocompleteGuessDriverPilot(@RequestParam String partial) {
+        return guessDriverGameService.autocompletePilotNames(partial);
+    }
+
 }

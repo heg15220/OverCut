@@ -15,5 +15,7 @@ public interface GuessDriverGameService {
 
     GuessDriverGame getGameStatus(Long gameId);
 
-    List<String> getRecommendations(String category);
+    List<String> getRecommendations(String category, String lang);
+
+    List<String> autocompletePilotNames(String partial);
 }

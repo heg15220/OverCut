@@ -12,5 +12,8 @@ export const guessPilot = (request, onSuccess, onErrors) =>
 export const getGuessDriverStatus = (gameId, onSuccess, onErrors) =>
   appFetch(`/guessDriver/status/${gameId}`, fetchConfig("GET"), onSuccess, onErrors);
 
-export const getGuessDriverRecommendations = (category, onSuccess, onErrors) =>
-  appFetch(`/guessDriver/recommendations?category=${category}`, fetchConfig("GET"), onSuccess, onErrors);
+export const getGuessDriverRecommendations = (category, lang, onSuccess, onErrors) =>
+  appFetch(`/guessDriver/recommendations?category=${category}&lang=${lang}`, fetchConfig("GET"), onSuccess, onErrors);
+
+export const getPilotSuggestions = (partial, onSuccess, onError) =>
+  appFetch(`/guessDriver/autocomplete?partial=${partial}`, fetchConfig("GET"), onSuccess, onError);

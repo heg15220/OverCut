@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as actions from "../actions";
+import { fetchPilotSuggestions, clearPilotSuggestions } from "../actions";
 import * as selectors from "../selectors";
 import "./Guessdriver.css";
 import { sourceImages } from '../../../helpers/sourceImages';
@@ -10,15 +11,23 @@ const GuessDriverGame = () => {
   const game = useSelector(selectors.getGuessDriverGame);
   const recommendations = useSelector(selectors.getGuessDriverRecommendations);
 
-
   const [category, setCategory] = useState("current");
   const [value, setValue] = useState("");
-  const [guess, setGuess] = useState("");
+  const [pilotInput, setPilotInput] = useState("");
   const [lang] = useState(navigator.language.startsWith("es") ? "es" : "en");
   const [showRecommendations, setShowRecommendations] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const listRef = useRef([]);
+  const [pilotHighlightedIndex, setPilotHighlightedIndex] = useState(-1);
+  const [valueHighlightedIndex, setValueHighlightedIndex] = useState(-1);
+  const pilotListRef = useRef([]);
+  const valueListRef = useRef([]);
+  const inputRef = useRef();
 
+  const pilotSuggestions = useSelector(selectors.getGuessDriverPilotSuggestions);
+
+  const decadeOptions = [
+    "1950s", "1960s", "1970s", "1980s", "1990s",
+    "2000s", "2010s", "2020s"
+  ];
 
   useEffect(() => {
     dispatch(actions.startGuessDriverGame());
@@ -26,9 +35,36 @@ const GuessDriverGame = () => {
 
   useEffect(() => {
     if (category !== "current" && category !== "retired" && category !== "champion") {
-      dispatch(actions.getRecommendations(category));
+      dispatch(actions.getRecommendations(category, lang)); // 👈 pasa lang
     }
-  }, [category, dispatch]);
+  }, [category, dispatch, lang]);
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      if (pilotInput.trim().length >= 2) {
+        dispatch(fetchPilotSuggestions(pilotInput.trim()));
+      } else {
+        dispatch(clearPilotSuggestions());
+      }
+    }, 300);
+    return () => clearTimeout(delay);
+  }, [pilotInput, dispatch]);
+
+  useEffect(() => {
+    if (pilotHighlightedIndex >= 0 && pilotListRef.current[pilotHighlightedIndex]) {
+      pilotListRef.current[pilotHighlightedIndex].scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [pilotHighlightedIndex]);
+
+  useEffect(() => {
+    if (valueHighlightedIndex >= 0 && valueListRef.current[valueHighlightedIndex]) {
+      valueListRef.current[valueHighlightedIndex].scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [valueHighlightedIndex]);
+
+  const visibleRecommendations = recommendations.filter(r =>
+    r.toLowerCase().includes(value.toLowerCase())
+  );
 
   const handleAskQuestion = () => {
     dispatch(actions.askQuestion({ gameId: game.id, category, value, lang }));
@@ -36,28 +72,12 @@ const GuessDriverGame = () => {
   };
 
   const handleGuessPilot = () => {
-    dispatch(actions.guessPilot({ gameId: game.id, guess }));
-    setGuess("");
+    dispatch(actions.guessPilot({ gameId: game.id, guess: pilotInput }));
+    setPilotInput("");
+    dispatch(clearPilotSuggestions());
   };
 
-
-useEffect(() => {
-  if (
-    highlightedIndex >= 0 &&
-    listRef.current[highlightedIndex]
-  ) {
-    listRef.current[highlightedIndex].scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-    });
-  }
-}, [highlightedIndex]);
-
   if (!game) return <div className="grid-game-body">Cargando juego...</div>;
-
-const visibleRecommendations = recommendations.filter(r =>
-r.toLowerCase().includes(value.toLowerCase())
-);
 
   return (
     <div className="grid-game-container">
@@ -70,103 +90,179 @@ r.toLowerCase().includes(value.toLowerCase())
           />
         </div>
 
-        <div className="search-input-wrapper">
+        {/* INPUT PILOTO */}
+        <div className="search-input-wrapper" style={{ position: "relative", width: "100%" }}>
           <input
             className="searchPlayerInput"
-            placeholder="Nombre del piloto"
-            value={guess}
-            onChange={(e) => setGuess(e.target.value)}
+            ref={inputRef}
+            placeholder={lang === "es" ? "Nombre del piloto" : "Driver name"}
+            value={pilotInput}
+            onChange={(e) => {
+              setPilotInput(e.target.value);
+              setPilotHighlightedIndex(-1);
+            }}
+            onKeyDown={(e) => {
+              if (game.successful) return;
+              if (pilotSuggestions.length === 0) return;
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setPilotHighlightedIndex((prev) => (prev + 1) % pilotSuggestions.length);
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setPilotHighlightedIndex((prev) =>
+                  prev <= 0 ? pilotSuggestions.length - 1 : prev - 1
+                );
+              } else if (e.key === "Enter") {
+                e.preventDefault();
+                if (pilotHighlightedIndex >= 0) {
+                  const selected = pilotSuggestions[pilotHighlightedIndex];
+                  setPilotInput("");
+                  dispatch(clearPilotSuggestions());
+                  dispatch(actions.guessPilot({ gameId: game.id, guess: selected }));
+                } else if (pilotInput.trim() !== "") {
+                  handleGuessPilot();
+                }
+              }
+            }}
           />
-          <button className="reveal-all-button" onClick={handleGuessPilot}>¡Adivinar!</button>
+          <button
+            className="reveal-all-button"
+            onClick={handleGuessPilot}
+            disabled={game.successful} // ← desactiva si ya ha ganado
+          >
+            {lang === "es" ? "¡Adivinar!" : "Guess!"}
+          </button>
+
+
+          {pilotSuggestions.length > 0 && (
+            <div className="pilot-suggestion-list">
+              {pilotSuggestions.map((name, index) => (
+                <div
+                  key={index}
+                  ref={(el) => (pilotListRef.current[index] = el)}
+                  className={`recommendation-item ${pilotHighlightedIndex === index ? "selected" : ""}`}
+                  onClick={() => {
+                    setPilotInput("");
+                    dispatch(clearPilotSuggestions());
+                    dispatch(actions.guessPilot({ gameId: game.id, guess: name }));
+                  }}
+                  onMouseEnter={() => setPilotHighlightedIndex(index)}
+                >
+                  {name}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
+        {/* SELECT CATEGORÍA */}
         <div className="input-wrapper">
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="category-selector"
           >
-            <option value="current">¿Actual?</option>
-            <option value="retired">¿Retirado?</option>
-            <option value="team">Equipo</option>
-            <option value="circuit">Circuito</option>
-            <option value="nationality">Nacionalidad</option>
-            <option value="champion">¿Campeón?</option>
+            <option value="current">{lang === "es" ? "¿Actual?" : "Current?"}</option>
+            <option value="retired">{lang === "es" ? "¿Retirado?" : "Retired?"}</option>
+            <option value="team">{lang === "es" ? "Equipo" : "Team"}</option>
+            <option value="circuit">{lang === "es" ? "Circuito" : "Circuit"}</option>
+            <option value="nationality">{lang === "es" ? "Nacionalidad" : "Nationality"}</option>
+            <option value="champion">{lang === "es" ? "¿Campeón?" : "Champion?"}</option>
+            <option value="gpwinner">{lang === "es" ? "¿Ganó un GP?" : "GP Winner?"}</option>
+            <option value="over50gps">{lang === "es" ? "¿Más de 50 GP?" : "Over 50 GPs?"}</option>
+            <option value="over150gps">{lang === "es" ? "¿Más de 150 GP?" : "Over 150 GPs?"}</option>
+            <option value="decade">{lang === "es" ? "¿Década?" : "Decade?"}</option>
           </select>
+        </div>
 
-          {(category !== "current" && category !== "retired" && category !== "champion") && (
-            <div className="input-wrapper" style={{ position: 'relative' }}>
-              <input
+        {/* INPUT O SELECT SEGÚN CATEGORÍA */}
+        {!["current", "retired", "champion", "gpwinner", "over50gps", "over150gps"].includes(category) && (
+          <div className="input-wrapper" style={{ position: "relative" }}>
+            {category === "decade" ? (
+              <select
                 className="autosuggest-input"
-                placeholder={`Introduce valor para ${category}`}
                 value={value}
-                onChange={(e) => {
-                  setValue(e.target.value);
-                  setShowRecommendations(true);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    setHighlightedIndex((prev) => (prev + 1) % visibleRecommendations.length);
-                  } else if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    setHighlightedIndex((prev) =>
-                      prev <= 0 ? visibleRecommendations.length - 1 : prev - 1
-                    );
-                  } else if (e.key === "Enter") {
-                    if (highlightedIndex >= 0 && visibleRecommendations[highlightedIndex]) {
-                      const selected = visibleRecommendations[highlightedIndex];
-                      setValue(""); // ✅ limpia el input
-                      dispatch(actions.askQuestion({ gameId: game.id, category, value: selected, lang }));
-                      setShowRecommendations(false);
-                      setHighlightedIndex(-1);
+                onChange={(e) => setValue(e.target.value)}
+              >
+                <option value="">{lang === "es" ? "Selecciona una década" : "Select a decade"}</option>
+                {decadeOptions.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            ) : (
+              <>
+                <input
+                  className="autosuggest-input"
+                  placeholder={`Introduce valor para ${category}`}
+                  value={value}
+                  onChange={(e) => {
+                    setValue(e.target.value);
+                    setShowRecommendations(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      setValueHighlightedIndex((prev) => (prev + 1) % visibleRecommendations.length);
+                    } else if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setValueHighlightedIndex((prev) =>
+                        prev <= 0 ? visibleRecommendations.length - 1 : prev - 1
+                      );
+                    } else if (e.key === "Enter") {
+                      if (valueHighlightedIndex >= 0 && visibleRecommendations[valueHighlightedIndex]) {
+                        const selected = visibleRecommendations[valueHighlightedIndex];
+                        setValue("");
+                        dispatch(actions.askQuestion({ gameId: game.id, category, value: selected, lang }));
+                        setShowRecommendations(false);
+                        setValueHighlightedIndex(-1);
+                      }
                     }
+                  }}
+                />
 
-                  }
-                }}
-
-              />
-
-              {recommendations.length > 0 && value && showRecommendations && (
-                <div className="recommendation-list">
-                  {recommendations
-                    .filter(r => r.toLowerCase().includes(value.toLowerCase()))
-                    .map((rec, index) => (
+                {recommendations.length > 0 && value && showRecommendations && (
+                  <div className="recommendation-list">
+                    {visibleRecommendations.map((rec, index) => (
                       <div
                         key={index}
-                        ref={(el) => (listRef.current[index] = el)}
-                        className={`recommendation-item ${highlightedIndex === index ? "selected" : ""}`}
+                        ref={(el) => (valueListRef.current[index] = el)}
+                        className={`recommendation-item ${valueHighlightedIndex === index ? "selected" : ""}`}
                         onClick={() => {
-                          setValue(""); // ✅ limpia el input
+                          setValue("");
                           dispatch(actions.askQuestion({ gameId: game.id, category, value: rec, lang }));
                           setShowRecommendations(false);
-                          setHighlightedIndex(-1);
+                          setValueHighlightedIndex(-1);
                         }}
-
-
-                        onMouseEnter={() => setHighlightedIndex(index)}
+                        onMouseEnter={() => setValueHighlightedIndex(index)}
                       >
                         {rec}
                       </div>
-                  ))}
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
-                </div>
-              )}
-            </div>
-          )}
+        <button className="extraClassButton" onClick={handleAskQuestion}>
+          {lang === "es" ? "Hacer pregunta" : "Ask question"}
+        </button>
 
+        <div className="questionsLeft">
+          {lang === "es" ? "Preguntas realizadas" : "Questions asked"}: {game.questionCount}
         </div>
-
-        <button className="extraClassButton" onClick={handleAskQuestion}>Hacer pregunta</button>
-
-        <div className="questionsLeft">Preguntas realizadas: {game.questionCount}</div>
 
         <div className="scrollable-questions-wrapper">
           <div className="question-list-view">
             {game.questions.map((q, index) => (
               <div key={index} className="individual-question-view">
-                <span className="questionText">{q.question || `${q.category}: ${q.valueUser || "(sin valor)"}`}</span>
-                <span className={q.correct ? "correctAnswer" : "wrongAnswer"}>{q.correct ? "Sí" : "No"}</span>
+                <span className="questionText">
+                  {q.question || `${q.category}: ${q.valueUser || "(sin valor)"}`}
+                </span>
+                <span className={q.correct ? "correctAnswer" : "wrongAnswer"}>
+                  {q.correct ? (lang === "es" ? "Sí" : "Yes") : (lang === "es" ? "No" : "No")}
+                </span>
               </div>
             ))}
           </div>

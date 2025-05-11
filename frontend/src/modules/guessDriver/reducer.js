@@ -3,6 +3,7 @@ import * as actionTypes from "./actionTypes";
 const initialState = {
   game: null,
   recommendations: [],
+  pilotSuggestions: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -22,6 +23,13 @@ const reducer = (state = initialState, action) => {
       };
     case actionTypes.GET_RECOMMENDATIONS_COMPLETED:
       return { ...state, recommendations: action.recs };
+
+    case actionTypes.GET_PILOT_SUGGESTIONS_COMPLETED:
+      return { ...state, pilotSuggestions: action.suggestions };
+
+    case actionTypes.CLEAR_PILOT_SUGGESTIONS:
+      return { ...state, pilotSuggestions: [] };
+
     default:
       return state;
   }

@@ -411,3 +411,35 @@
   background-color: #264861;
   color: #ffd700;
 }
+
+.pilot-suggestion-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background-color: #1b2c3b;
+  border: 2px solid #fbc02d;
+  border-radius: 10px;
+  color: white;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 0.3rem;
+  box-shadow: 0 0 10px rgba(251, 192, 45, 0.2);
+}
+
+.pilot-suggestion-list .recommendation-item {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pilot-suggestion-list .recommendation-item:hover {
+  background-color: rgba(251, 192, 45, 0.2);
+}
+
+.pilot-suggestion-list .recommendation-item.selected {
+  background-color: #264861;
+  color: #ffd700;
+}
