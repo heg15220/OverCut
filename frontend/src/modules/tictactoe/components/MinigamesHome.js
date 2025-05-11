@@ -83,6 +83,22 @@ const MinigamesHome = () => {
                         </motion.div>
                     </Link>
                 </Grid>
+                <Grid item>
+                  <Link to="/minigames/top10" style={{ textDecoration: 'none' }}>
+                    <motion.div whileHover={{ scale: 1.08 }}>
+                      <Card className="minigame-card">
+                        <CardContent>
+                          <DirectionsCarIcon style={{ fontSize: 50, color: '#29b6f6' }} />
+                          <Typography variant="h5">Top 10 F1</Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Adivina los 10 primeros de una carrera real
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </Link>
+                </Grid>
+
 
                 </Grid>
             </motion.div>

@@ -20,6 +20,8 @@ import Crossword from "../../crossword/components/Crossword";
 
 import GuessDriverGame from "../../guessDriver/components/GuessDriverGame";
 
+import Top10GamePage from "../../top10game/components/Top10GamePage";
+
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
     Circuits,
@@ -90,6 +92,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/crossword" element={<Crossword />} />}
                     {loggedIn && <Route path="/minigames/gridgame" element={<GridGamePage />} />}
                     {loggedIn && <Route path="/minigames/guessDriver" element={<GuessDriverGame />} />}
+                    {loggedIn && <Route path="/minigames/top10" element={<Top10GamePage />} />}
 
 
 

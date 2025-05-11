@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS Top10Slot;
+DROP TABLE IF EXISTS Top10Game;
 DROP TABLE IF EXISTS GuessDriverQuestion;
 DROP TABLE IF EXISTS GuessDriverGame;
 DROP TABLE IF EXISTS GridSlot;
@@ -400,5 +402,23 @@ CREATE TABLE GuessDriverQuestion (
     createAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     question TEXT,
     FOREIGN KEY (gameId) REFERENCES GuessDriverGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Top10Game (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    seasonYear INT NOT NULL,
+    raceId INT NOT NULL,
+    raceName VARCHAR(255),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Top10Slot (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    gameId BIGINT NOT NULL,
+    positionGame INT NOT NULL, -- posición 1 a 10
+    filledByPilotName VARCHAR(255), -- si el usuario ha respondido correctamente
+    correctPilotName VARCHAR(255),-- nombre real
+    nationalityCode VARCHAR(100) NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES Top10Game(id)
 );
 
