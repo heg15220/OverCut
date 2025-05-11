@@ -110,8 +110,9 @@ def pregunta_circuito(session, driver_id, circuit_name):
 def pregunta_campeon(session, driver_id):
     return session.execute(text("""
         SELECT COUNT(*) FROM driverstandings
-        WHERE driverId = :driver_id AND positionOrder = 1
+        WHERE driverId = :driver_id AND position = '1'
     """), {"driver_id": driver_id}).scalar() > 0
+
 
 def pregunta_ganador_gp(session, driver_id):
     return session.execute(text("""
