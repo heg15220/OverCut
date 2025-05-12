@@ -12,6 +12,39 @@ const DriversLinkGame = () => {
   const [guessInput, setGuessInput] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const suggestionsRef = useRef([]);
+  const lang = navigator.language.startsWith('es') ? 'es' : 'en';
+
+  const translations = {
+    title: {
+      es: '🔗 Drivers Link',
+      en: '🔗 Drivers Link',
+    },
+    placeholder: {
+      es: 'Nombre del piloto',
+      en: 'Driver name',
+    },
+    guess: {
+      es: 'Adivinar',
+      en: 'Guess',
+    },
+    skip: {
+      es: '⏭️ Pista siguiente',
+      en: '⏭️ Skip',
+    },
+    loading: {
+      es: 'Cargando juego...',
+      en: 'Loading game...',
+    },
+    win: {
+      es: '¡Ganaste!',
+      en: 'You won!',
+    },
+    lose: {
+      es: 'Perdiste, era',
+      en: 'You lost, it was',
+    },
+  };
+
 
   useEffect(() => {
     dispatch(actions.startDriversLinkGame());
@@ -45,12 +78,21 @@ const DriversLinkGame = () => {
     setHighlightedIndex(-1);
   };
 
-  if (!game) return <div className="drivers-link-container">Cargando juego...</div>;
+  if (!game) return <div className="drivers-link-container">{translations.loading[lang]}</div>;
 
   return (
     <div className="drivers-link-container">
       <div className="drivers-link-overlay">
-        <h2 className="drivers-link-title">🔗 Drivers Link</h2>
+        <h2 className="drivers-link-title">{translations.title[lang]}</h2>
+
+        <div className={`driver-reveal-card-wrapper ${game.finished ? 'flipped' : ''}`}>
+          <div className="driver-reveal-card-inner">
+            <div className="driver-reveal-card-face front">?</div>
+            <div className={`driver-reveal-card-face back ${game.successful ? 'success' : 'fail'}`}>
+              {game.driverName}
+            </div>
+          </div>
+        </div>
 
         <div className="clues-row">
           {game.clues.slice(0, game.currentClueIndex + 1).map((clue, idx) => (
@@ -66,7 +108,7 @@ const DriversLinkGame = () => {
             <div style={{ position: 'relative', width: '100%' }}>
               <input
                 className="driver-input"
-                placeholder="Nombre del piloto"
+                placeholder={translations.placeholder[lang]}
                 value={guessInput}
                 onChange={(e) => {
                   setGuessInput(e.target.value);
@@ -119,19 +161,23 @@ const DriversLinkGame = () => {
             </div>
 
             <div className="action-buttons">
-              <button className="guess-btn" onClick={handleGuess}>Adivinar</button>
-              <button className="skip-btn" onClick={() => dispatch(actions.skipClue(game.id))}>⏭️ Skip</button>
+              <button className="guess-btn" onClick={handleGuess}>{translations.guess[lang]}</button>
+              <button className="skip-btn" onClick={() => dispatch(actions.skipClue(game.id))}>
+                {translations.skip[lang]}
+              </button>
             </div>
-
           </>
         ) : (
           <div className={`game-result ${game.successful ? 'win' : 'lose'}`}>
-            {game.successful ? '¡Ganaste!' : `Perdiste, era ${game.driverName}`}
+            {game.successful
+              ? translations.win[lang]
+              : `${translations.lose[lang]} ${game.driverName}`}
           </div>
         )}
       </div>
     </div>
   );
+
 };
 
 export default DriversLinkGame;

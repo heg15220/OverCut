@@ -41,7 +41,7 @@ const es = {
     'project.user.userImage.title': 'Añadir tu imagen de usuario',
     'project.global.fields.title': 'Titulo',
     'project.global.fields.url': 'URL',
-    'project.global.fields.userName': 'Nombre',
+    'project.global.fields.userName': 'Nombre usuario',
     'project.users.Profile.title': 'Titulo',
     'project.users.CreatePost.title': 'Crear Publicación',
     'project.users.MyPosts.title': 'Mis Publicaciones',
