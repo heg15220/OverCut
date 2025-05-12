@@ -24,3 +24,9 @@ export const fetchDriverSuggestions = (partial) => dispatch =>
 export const clearDriverSuggestions = () => ({
   type: actionTypes.CLEAR_DRIVER_SUGGESTIONS
 });
+
+export const skipClue = (gameId) => dispatch =>
+  backend.driversLinkService.skipClue(gameId, game =>
+    dispatch({ type: actionTypes.GUESS_DRIVER_COMPLETED, game }) // Reutilizamos el mismo tipo
+  );
+

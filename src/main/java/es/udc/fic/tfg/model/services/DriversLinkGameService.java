@@ -9,4 +9,6 @@ public interface DriversLinkGameService {
     DriversLinkGame guessDriver(Long gameId, String driverGuess);
     DriversLinkGame getGameStatus(Long gameId);
     List<String> autocompletePilotNames(String partial);
+    DriversLinkGame skipClue(Long gameId);
+
 }

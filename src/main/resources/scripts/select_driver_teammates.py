@@ -5,20 +5,22 @@ from sqlalchemy import create_engine, text
 engine = create_engine("mysql+pymysql://root:root@localhost:3306/f1db")
 
 with engine.connect() as conn:
-    # 1. Obtener candidatos válidos: pilotos ganadores de GP desde 1985 con al menos 3 compañeros reales
+    # 1. Obtener pilotos con al menos 2 podios entre 1980 y actualidad y al menos 3 compañeros de equipo reales
     valid_drivers = conn.execute(text("""
         SELECT r1.driverId
         FROM results r1
+        JOIN races ra ON r1.raceId = ra.raceId
         JOIN results r2 ON r1.raceId = r2.raceId AND r1.constructorId = r2.constructorId
-        WHERE r1.driverId != r2.driverId
-          AND r1.positionOrder = 1
-          AND r1.raceId IN (SELECT raceId FROM races WHERE year BETWEEN 1985 AND YEAR(CURDATE()))
+        WHERE ra.year BETWEEN 1980 AND YEAR(CURDATE())
+          AND r1.driverId != r2.driverId
+          AND r1.positionOrder IN (1, 2, 3)
         GROUP BY r1.driverId
-        HAVING COUNT(DISTINCT r2.driverId) >= 3
+        HAVING COUNT(DISTINCT CASE WHEN r1.positionOrder IN (1, 2, 3) THEN r1.raceId END) >= 2
+           AND COUNT(DISTINCT r2.driverId) >= 3
     """)).fetchall()
 
     if not valid_drivers:
-        raise Exception("No se encontraron pilotos válidos con suficientes compañeros.")
+        raise Exception("No se encontraron pilotos válidos con suficientes podios y compañeros.")
 
     # 2. Seleccionar un piloto aleatorio entre ellos
     selected_driver_id = random.choice(valid_drivers)[0]

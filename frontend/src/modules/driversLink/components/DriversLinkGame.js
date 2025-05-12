@@ -118,7 +118,11 @@ const DriversLinkGame = () => {
               )}
             </div>
 
-            <button className="guess-btn" onClick={handleGuess}>Adivinar</button>
+            <div className="action-buttons">
+              <button className="guess-btn" onClick={handleGuess}>Adivinar</button>
+              <button className="skip-btn" onClick={() => dispatch(actions.skipClue(game.id))}>⏭️ Skip</button>
+            </div>
+
           </>
         ) : (
           <div className={`game-result ${game.successful ? 'win' : 'lose'}`}>

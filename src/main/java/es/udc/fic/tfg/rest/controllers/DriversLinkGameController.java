@@ -41,5 +41,11 @@ public class DriversLinkGameController {
     public List<String> autocompletePilotNames(@RequestParam String partial) {
         return driversLinkGameService.autocompletePilotNames(partial);
     }
+    @PostMapping("/skip/{gameId}")
+    public DriversLinkGameDto skipClue(@PathVariable Long gameId) {
+        DriversLinkGame game = driversLinkGameService.skipClue(gameId);
+        return DriversLinkGameConversor.toDto(game);
+    }
+
 }
 

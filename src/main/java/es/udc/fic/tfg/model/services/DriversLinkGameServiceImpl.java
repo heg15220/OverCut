@@ -94,4 +94,19 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public DriversLinkGame skipClue(Long gameId) {
+        DriversLinkGame game = gameDao.findById(gameId).orElseThrow();
+
+        // Solo incrementa el índice si no estamos en la última pista
+        if (!game.isFinished() && game.getCurrentClueIndex() < game.getClues().size() - 1) {
+            game.setCurrentClueIndex(game.getCurrentClueIndex() + 1);
+        }
+
+        // NO marcar como terminado aquí
+        gameDao.save(game);
+        return game;
+    }
+
 }

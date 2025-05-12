@@ -11,3 +11,6 @@ export const getGameStatus = (gameId, onSuccess, onErrors) =>
 
 export const autocompletePilotNames = (partial, onSuccess, onErrors) =>
   appFetch(`/driversLink/autocomplete?partial=${partial}`, fetchConfig("GET"), onSuccess, onErrors);
+
+export const skipClue = (gameId, onSuccess, onErrors) =>
+  appFetch(`/driversLink/skip/${gameId}`, fetchConfig("POST"), onSuccess, onErrors);
