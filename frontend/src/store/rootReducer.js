@@ -11,6 +11,7 @@ import crossword from '../modules/crossword';
 import gridgame from '../modules/gridgame';
 import guessDriver from '../modules/guessDriver';
 import top10game from '../modules/top10game';
+import driversLink from '../modules/driversLink';
 
 
 const rootReducer = combineReducers({
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
     gridgame: gridgame.reducer,
     guessDriver: guessDriver.reducer,
     top10game: top10game.reducer,
+    driversLink: driversLink.reducer,
 });
 
 export default rootReducer;

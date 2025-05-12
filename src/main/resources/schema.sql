@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS DriversLinkClue;
+DROP TABLE IF EXISTS DriversLinkGame;
 DROP TABLE IF EXISTS Top10Slot;
 DROP TABLE IF EXISTS Top10Game;
 DROP TABLE IF EXISTS GuessDriverQuestion;
@@ -422,3 +424,21 @@ CREATE TABLE Top10Slot (
     FOREIGN KEY (gameId) REFERENCES Top10Game(id)
 );
 
+CREATE TABLE DriversLinkGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    driverId BIGINT NOT NULL, -- Piloto a adivinar
+    driverName VARCHAR(100) NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    currentClueIndex INT DEFAULT 0,
+    finished BOOLEAN DEFAULT FALSE,
+    successful BOOLEAN DEFAULT NULL
+);
+
+CREATE TABLE DriversLinkClue (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    teammateName VARCHAR(100) NOT NULL,
+    teammateDriverId BIGINT NOT NULL,
+    clueOrder INT NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES DriversLinkGame(id) ON DELETE CASCADE
+);

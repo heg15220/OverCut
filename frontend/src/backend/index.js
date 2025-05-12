@@ -21,9 +21,11 @@ import * as guessDriverService from "./guessDriverService";
 
 import * as top10Service from "./top10Service";
 
+import * as driversLinkService from "./driversLinkService";
+
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
-    gridGameService, guessDriverService, top10Service}
+    gridGameService, guessDriverService, top10Service, driversLinkService}
 
 
 export default backExport;

@@ -98,7 +98,21 @@ const MinigamesHome = () => {
                     </motion.div>
                   </Link>
                 </Grid>
-
+                <Grid item>
+                    <Link to="/minigames/driverslink" style={{ textDecoration: 'none' }}>
+                        <motion.div whileHover={{ scale: 1.08 }}>
+                            <Card className="minigame-card">
+                                <CardContent>
+                                    <DirectionsCarIcon style={{ fontSize: 50, color: '#8e24aa' }} />
+                                    <Typography variant="h5">Drivers Link</Typography>
+                                    <Typography variant="body2" color="textSecondary">
+                                        Adivina al piloto por sus compañeros
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    </Link>
+                </Grid>
 
                 </Grid>
             </motion.div>
