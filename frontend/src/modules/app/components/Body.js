@@ -24,6 +24,9 @@ import Top10GamePage from "../../top10game/components/Top10GamePage";
 
 import DriversLinkGame from "../../driversLink/components/DriversLinkGame";
 
+import RondoGame from "../../rondo/components/RondoGame";
+
+
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
     Circuits,
@@ -96,7 +99,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/guessDriver" element={<GuessDriverGame />} />}
                     {loggedIn && <Route path="/minigames/top10" element={<Top10GamePage />} />}
                     {loggedIn && <Route path="/minigames/driverslink" element={<DriversLinkGame />} />}
-
+                    {loggedIn && <Route path="/minigames/rondo" element={<RondoGame />} />}
 
                 </Route>
             </Routes>

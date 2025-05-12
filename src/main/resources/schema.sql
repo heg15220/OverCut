@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS RondoLetter;
+DROP TABLE IF EXISTS RondoGame;
 DROP TABLE IF EXISTS DriversLinkClue;
 DROP TABLE IF EXISTS DriversLinkGame;
 DROP TABLE IF EXISTS Top10Slot;
@@ -441,4 +443,23 @@ CREATE TABLE DriversLinkClue (
     teammateDriverId BIGINT NOT NULL,
     clueOrder INT NOT NULL,
     FOREIGN KEY (gameId) REFERENCES DriversLinkGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE RondoGame (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    startTime TIMESTAMP,
+    endTime TIMESTAMP,
+    score INT,
+    status ENUM('IN_PROGRESS', 'COMPLETED', 'TIMEOUT'),
+    language VARCHAR(5) DEFAULT 'es'
+);
+
+CREATE TABLE RondoLetter (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    gameId BIGINT,
+    letter CHAR(1),
+    question TEXT,
+    answer VARCHAR(255),
+    status ENUM('UNANSWERED', 'CORRECT', 'WRONG', 'SKIPPED'),
+    FOREIGN KEY (gameId) REFERENCES RondoGame(id)
 );

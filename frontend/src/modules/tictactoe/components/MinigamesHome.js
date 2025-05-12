@@ -114,6 +114,22 @@ const MinigamesHome = () => {
                     </Link>
                 </Grid>
 
+                <Grid item>
+                  <Link to="/minigames/rondo" style={{ textDecoration: 'none' }}>
+                    <motion.div whileHover={{ scale: 1.08 }}>
+                      <Card className="minigame-card">
+                        <CardContent>
+                          <DirectionsCarIcon style={{ fontSize: 50, color: '#ff9100' }} />
+                          <Typography variant="h5">Pasapalabra F1</Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Acierta palabras del rosco F1 letra a letra
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </Link>
+                </Grid>
+
                 </Grid>
             </motion.div>
         </Container>

@@ -319,8 +319,8 @@
 .driver-reveal-card-face.front {
   background: linear-gradient(135deg, #333, #111);
   color: #fbc02d;
-  animation: pulse 1.5s infinite ease-in-out;
 }
+
 
 .driver-reveal-card-face.back {
   transform: rotateY(180deg);

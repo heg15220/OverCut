@@ -12,7 +12,7 @@ import gridgame from '../modules/gridgame';
 import guessDriver from '../modules/guessDriver';
 import top10game from '../modules/top10game';
 import driversLink from '../modules/driversLink';
-
+import rondo from '../modules/rondo';
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -27,6 +27,7 @@ const rootReducer = combineReducers({
     guessDriver: guessDriver.reducer,
     top10game: top10game.reducer,
     driversLink: driversLink.reducer,
+    rondo: rondo.reducer,
 });
 
 export default rootReducer;
