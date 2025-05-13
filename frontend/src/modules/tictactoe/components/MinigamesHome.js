@@ -1,156 +1,95 @@
 import React from "react";
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { Link } from "react-router-dom";
-import { Container, Typography, Grid, Card, CardContent } from '@mui/material';
-import { motion } from 'framer-motion';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import CrosswordIcon from '@mui/icons-material/GridOn'; // O cualquier otro icono de crucigrama
 import './MinigamesHome.css';
+import { sourceImages } from '../../../helpers/sourceMiniGamesImages';
+
+const minigames = [
+  {
+    path: "/minigames/tictactoe",
+    title: "Tic Tac Toe F1",
+    description: "Consigue 3 en raya adivinando pilotos",
+    img: sourceImages(`./tictactoe.png`)
+  },
+  {
+    path: "/minigames/crossword",
+    title: "Crossword F1",
+    description: "Rellena el crucigrama de Fórmula 1",
+    img: sourceImages(`./crossword.png`)
+  },
+  {
+    path: "/minigames/gridgame",
+    title: "F1 Grid",
+    description: "Acierta pilotos por nacionalidad",
+    img: sourceImages(`./F1Grid.png`)
+  },
+  {
+    path: "/minigames/guessdriver",
+    title: "Guess Driver",
+    description: "Haz preguntas para descubrir al piloto",
+    img: sourceImages(`./GuessDriver.png`)
+  },
+  {
+    path: "/minigames/top10",
+    title: "Top 10 F1",
+    description: "Adivina el top 10 de una carrera",
+    img: sourceImages(`./top10.png`)
+  },
+  {
+    path: "/minigames/driverslink",
+    title: "Drivers Link",
+    description: "Adivina al piloto por sus compañeros",
+    img: sourceImages(`./DriversLink.png`)
+  },
+  {
+    path: "/minigames/rondo",
+    title: "Rondo F1",
+    description: "Acierta palabras del rosco F1",
+    img: sourceImages(`./Rondo.png`)
+  },
+  {
+    path: "/minigames/careerpath",
+    title: "Career Path",
+    description: "Adivina al piloto por sus equipos",
+    img: sourceImages(`./CareerPath.png`)
+  }
+];
+
+const translations = {
+  subtitle: {
+    es: "¡Demuestra tu conocimiento sobre Fórmula 1 jugando!",
+    en: "Prove your Formula 1 knowledge by playing!"
+  }
+};
 
 const MinigamesHome = () => {
-    return (
-        <Container maxWidth="md" className="minigames-home-container">
-            <motion.div
-                initial={{ opacity: 0, y: -50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-            >
-                <Typography variant="h3" gutterBottom color="primary">
-                    Minijuegos OverCut
-                </Typography>
-                <Typography variant="h6" color="textSecondary">
-                    ¡Pon a prueba tus conocimientos de Fórmula 1 jugando!
-                </Typography>
-                <Grid container spacing={4} justifyContent="center" marginTop={4}>
-                    <Grid item>
-                        <Link to="/minigames/tictactoe" style={{ textDecoration: 'none' }}>
-                            <motion.div whileHover={{ scale: 1.08 }}>
-                                <Card className="minigame-card">
-                                    <CardContent>
-                                        <SportsEsportsIcon style={{ fontSize: 50, color: '#FF1E1E' }} />
-                                        <Typography variant="h5">Tic Tac Toe F1</Typography>
-                                        <Typography variant="body2" color="textSecondary">
-                                            Consigue 3 en raya adivinando pilotos
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        </Link>
-                    </Grid>
-                    <Grid item>
-                        <Link to="/minigames/crossword" style={{ textDecoration: 'none' }}>
-                            <motion.div whileHover={{ scale: 1.08 }}>
-                                <Card className="minigame-card">
-                                    <CardContent>
-                                        <CrosswordIcon style={{ fontSize: 50, color: '#1976d2' }} />
-                                        <Typography variant="h5">Crucigrama F1</Typography>
-                                        <Typography variant="body2" color="textSecondary">
-                                            Rellena el crucigrama de Fórmula 1
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        </Link>
-                    </Grid>
-                    <Grid item>
-                        <Link to="/minigames/gridgame" style={{ textDecoration: 'none' }}>
-                            <motion.div whileHover={{ scale: 1.08 }}>
-                                <Card className="minigame-card">
-                                    <CardContent>
-                                        <DirectionsCarIcon style={{ fontSize: 50, color: '#fbc02d' }} />
-                                        <Typography variant="h5">Parrilla F1</Typography>
-                                        <Typography variant="body2" color="textSecondary">
-                                            Acierta los pilotos por nacionalidad en la parrilla
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        </Link>
-                    </Grid>
+    const lang = navigator.language.startsWith('es') ? 'es' : 'en';
+  return (
+    <div className="minigames-page">
+    <div className="minigames-header animate__animated animate__fadeIn">
+      <h1 className="minigames-title">OverCut<span className="highlight">Games</span></h1>
+      <p className="minigames-subtitle">{translations.subtitle[lang]}</p>
+    </div>
+      <div className="games">
+        {minigames.map((game, index) => (
+          <Link
+            to={game.path}
+            key={index}
+            className="gameThumbnailLink animate__animated animate__fadeIn"
+          >
+            {game.isNew && <div className="tag">NEW</div>}
+            <div className="cardDiv">
+              <img src={game.img} alt={game.title} className="gameImage" />
+              <div className="text">
+                <p className="playLabel">Play</p>
+                <p className="gameTitle">{game.title}</p>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 
-                <Grid item>
-                    <Link to="/minigames/guessdriver" style={{ textDecoration: 'none' }}>
-                        <motion.div whileHover={{ scale: 1.08 }}>
-                            <Card className="minigame-card">
-                                <CardContent>
-                                    <DirectionsCarIcon style={{ fontSize: 50, color: '#00c853' }} />
-                                    <Typography variant="h5">Adivina el Piloto</Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Haz preguntas y adivina al piloto misterioso
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </Link>
-                </Grid>
-                <Grid item>
-                  <Link to="/minigames/top10" style={{ textDecoration: 'none' }}>
-                    <motion.div whileHover={{ scale: 1.08 }}>
-                      <Card className="minigame-card">
-                        <CardContent>
-                          <DirectionsCarIcon style={{ fontSize: 50, color: '#29b6f6' }} />
-                          <Typography variant="h5">Top 10 F1</Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Adivina los 10 primeros de una carrera real
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  </Link>
-                </Grid>
-                <Grid item>
-                    <Link to="/minigames/driverslink" style={{ textDecoration: 'none' }}>
-                        <motion.div whileHover={{ scale: 1.08 }}>
-                            <Card className="minigame-card">
-                                <CardContent>
-                                    <DirectionsCarIcon style={{ fontSize: 50, color: '#8e24aa' }} />
-                                    <Typography variant="h5">Drivers Link</Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Adivina al piloto por sus compañeros
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </Link>
-                </Grid>
-
-                <Grid item>
-                  <Link to="/minigames/rondo" style={{ textDecoration: 'none' }}>
-                    <motion.div whileHover={{ scale: 1.08 }}>
-                      <Card className="minigame-card">
-                        <CardContent>
-                          <DirectionsCarIcon style={{ fontSize: 50, color: '#ff9100' }} />
-                          <Typography variant="h5">Pasapalabra F1</Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Acierta palabras del rosco F1 letra a letra
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  </Link>
-                </Grid>
-
-                <Grid item>
-                  <Link to="/minigames/careerpath" style={{ textDecoration: 'none' }}>
-                    <motion.div whileHover={{ scale: 1.08 }}>
-                      <Card className="minigame-card">
-                        <CardContent>
-                          <DirectionsCarIcon style={{ fontSize: 50, color: '#ff4081' }} />
-                          <Typography variant="h5">Career Path</Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Adivina al piloto por los equipos en que corrió
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  </Link>
-                </Grid>
-
-
-                </Grid>
-            </motion.div>
-        </Container>
-    );
 };
 
 export default MinigamesHome;

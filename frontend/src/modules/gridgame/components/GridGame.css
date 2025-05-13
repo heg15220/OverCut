@@ -200,6 +200,7 @@
 .grid-slot {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   padding: 0.5rem 1rem;
@@ -215,7 +216,20 @@
   transition: all 0.25s ease;
 }
 
+.slot-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.slot-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
 /* Solo aplica el fondo por defecto cuando está vacía */
+
 .grid-slot.empty {
   background: linear-gradient(135deg, #1e2f3f, #152532);
 }
@@ -246,20 +260,19 @@
 .grid-slot-flag {
   width: 28px;
   height: 18px;
-  margin-right: 0.6rem;
   object-fit: cover;
   border: 1px solid #555;
-  box-shadow: 0 0 2px rgba(0,0,0,0.6);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
+
 .grid-slot-name {
-  margin-left: 0.8rem;
   font-style: italic;
   font-size: 1.05rem;
   font-family: 'F1 Bold', sans-serif;
-  color: #e0e0e0;
+  color: #999;
+  min-height: 1.2rem; /* Para evitar salto vertical */
 }
-
 
 @keyframes fadeInUp {
   from {
@@ -440,7 +453,7 @@
 }
 
 .grid-slot-name.filled {
-  color: #ffd700; /* dorado más brillante */
+  color: #ffd700;
   text-shadow:
     0 0 2px #000,
     0 0 6px rgba(0, 0, 0, 0.5),

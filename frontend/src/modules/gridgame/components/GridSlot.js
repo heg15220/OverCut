@@ -72,21 +72,24 @@ const GridSlot = ({ position, nationalityCode, filledPilot }) => {
   return (
     <div
       className={`grid-slot ${isAnimated ? "animated-flip" : ""} ${isEmpty ? "empty" : ""}`}
-      style={backgroundColor ? { backgroundColor } : undefined}
+      style={!isEmpty ? { backgroundColor } : {}}
     >
-      <div className="grid-slot-position">{position}.</div>
-      <img
-        className="grid-slot-flag"
-        src={`https://flagcdn.com/w40/${getFlagCode(nationalityCode)}.png`}
-        alt={nationalityCode}
-      />
-      {filledPilot && (
-        <div className="grid-slot-name filled">{filledPilot}</div>
-      )}
-
+      <div className="slot-left">
+        <div className="grid-slot-position">{position}.</div>
+        <img
+          className="grid-slot-flag"
+          src={`https://flagcdn.com/w40/${getFlagCode(nationalityCode)}.png`}
+          alt={nationalityCode}
+        />
+      </div>
+      <div className="slot-right">
+        <div className={`grid-slot-name ${filledPilot ? "filled" : ""}`}>
+          {filledPilot || ""}
+        </div>
+      </div>
     </div>
-
   );
+
 };
 
 export default GridSlot;
