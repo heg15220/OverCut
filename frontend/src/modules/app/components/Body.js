@@ -26,6 +26,8 @@ import DriversLinkGame from "../../driversLink/components/DriversLinkGame";
 
 import RondoGame from "../../rondo/components/RondoGame";
 
+import CareerPathGame from "../../careerPath/components/CareerPathGame";
+
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
@@ -100,6 +102,8 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/top10" element={<Top10GamePage />} />}
                     {loggedIn && <Route path="/minigames/driverslink" element={<DriversLinkGame />} />}
                     {loggedIn && <Route path="/minigames/rondo" element={<RondoGame />} />}
+                    {loggedIn && <Route path="/minigames/careerPath" element={<CareerPathGame />} />}
+
 
                 </Route>
             </Routes>

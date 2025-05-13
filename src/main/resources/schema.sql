@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS CareerPathClue;
+DROP TABLE IF EXISTS CareerPathGame;
 DROP TABLE IF EXISTS RondoLetter;
 DROP TABLE IF EXISTS RondoGame;
 DROP TABLE IF EXISTS DriversLinkClue;
@@ -462,4 +464,22 @@ CREATE TABLE RondoLetter (
     answer VARCHAR(255),
     status ENUM('UNANSWERED', 'CORRECT', 'WRONG', 'SKIPPED'),
     FOREIGN KEY (gameId) REFERENCES RondoGame(id)
+);
+
+CREATE TABLE CareerPathGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    driverId BIGINT NOT NULL,
+    driverName VARCHAR(100) NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    currentClueIndex INT DEFAULT 0,
+    finished BOOLEAN DEFAULT FALSE,
+    successful BOOLEAN DEFAULT NULL
+);
+
+CREATE TABLE CareerPathClue (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    teamName VARCHAR(100) NOT NULL,
+    clueOrder INT NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES CareerPathGame(id) ON DELETE CASCADE
 );

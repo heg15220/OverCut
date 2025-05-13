@@ -130,6 +130,23 @@ const MinigamesHome = () => {
                   </Link>
                 </Grid>
 
+                <Grid item>
+                  <Link to="/minigames/careerpath" style={{ textDecoration: 'none' }}>
+                    <motion.div whileHover={{ scale: 1.08 }}>
+                      <Card className="minigame-card">
+                        <CardContent>
+                          <DirectionsCarIcon style={{ fontSize: 50, color: '#ff4081' }} />
+                          <Typography variant="h5">Career Path</Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Adivina al piloto por los equipos en que corrió
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </Link>
+                </Grid>
+
+
                 </Grid>
             </motion.div>
         </Container>
