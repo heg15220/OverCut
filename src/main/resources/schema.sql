@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS F1ImpostorPilot;
+DROP TABLE IF EXISTS F1ImpostorGame;
 DROP TABLE IF EXISTS TwoTeamsOneDriverPair;
 DROP TABLE IF EXISTS TwoTeamsOneDriverGame;
 DROP TABLE IF EXISTS F1WordleAttempt;
@@ -523,4 +525,22 @@ CREATE TABLE TwoTeamsOneDriverPair (
     guessedCorrectly BOOLEAN DEFAULT NULL,
     pairOrder INT NOT NULL,
     FOREIGN KEY (gameId) REFERENCES TwoTeamsOneDriverGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE F1ImpostorGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    category VARCHAR(255) NOT NULL,
+    themeDescription VARCHAR(255) NOT NULL,
+    finished BOOLEAN DEFAULT FALSE,
+    won BOOLEAN DEFAULT NULL
+);
+
+CREATE TABLE F1ImpostorPilot (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    pilotName VARCHAR(100) NOT NULL,
+    valid BOOLEAN NOT NULL,
+    selectedByUser BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (gameId) REFERENCES F1ImpostorGame(id) ON DELETE CASCADE
 );

@@ -16,6 +16,8 @@ import rondo from '../modules/rondo';
 import careerPath from '../modules/careerPath';
 import wordle from '../modules/wordle';
 import twoTeams from '../modules/twoTeams';
+import f1impostor from '../modules/f1impostor';
+
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -34,6 +36,7 @@ const rootReducer = combineReducers({
     careerPath: careerPath.reducer,
     wordle: wordle.reducer,
     twoTeams: twoTeams.reducer,
+    f1impostor: f1impostor.reducer,
 });
 
 export default rootReducer;

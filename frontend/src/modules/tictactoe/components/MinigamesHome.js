@@ -65,7 +65,15 @@ const minigames = [
     title: "2 Teams, 1 Driver",
     description: "Acierta un piloto que corrió para ambos equipos",
     img: sourceImages(`./TwoTeams.png`)
+  },
+
+  {
+    path: "/minigames/f1Impostor",
+    title: "F1 Impostors",
+    description: "Evita a los impostores en un reto temático",
+    img: sourceImages(`./F1Impostors.png`)
   }
+
 
 ];
 
