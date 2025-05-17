@@ -14,6 +14,7 @@ import top10game from '../modules/top10game';
 import driversLink from '../modules/driversLink';
 import rondo from '../modules/rondo';
 import careerPath from '../modules/careerPath';
+import wordle from '../modules/wordle';
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
     driversLink: driversLink.reducer,
     rondo: rondo.reducer,
     careerPath: careerPath.reducer,
+    wordle: wordle.reducer,
 });
 
 export default rootReducer;

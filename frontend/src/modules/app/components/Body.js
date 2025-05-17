@@ -28,6 +28,8 @@ import RondoGame from "../../rondo/components/RondoGame";
 
 import CareerPathGame from "../../careerPath/components/CareerPathGame";
 
+import WordleGame from "../../wordle/components/WordleGame";
+
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
@@ -103,7 +105,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/driverslink" element={<DriversLinkGame />} />}
                     {loggedIn && <Route path="/minigames/rondo" element={<RondoGame />} />}
                     {loggedIn && <Route path="/minigames/careerPath" element={<CareerPathGame />} />}
-
+                    {loggedIn && <Route path="/minigames/wordle" element={<WordleGame />} />}
 
                 </Route>
             </Routes>

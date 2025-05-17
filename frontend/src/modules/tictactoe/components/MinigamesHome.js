@@ -51,6 +51,13 @@ const minigames = [
     title: "Career Path",
     description: "Adivina al piloto por sus equipos",
     img: sourceImages(`./CareerPath.png`)
+  },
+
+  {
+    path: "/minigames/wordle",
+    title: "F1 Wordle",
+    description: "Adivina el apellido de un piloto F1",
+    img: sourceImages(`./F1Wordle.png`)
   }
 ];
 

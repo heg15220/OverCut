@@ -25,9 +25,11 @@ import * as driversLinkService from "./driversLinkService";
 
 import * as careerPathService from "./careerPathService";
 
+import * as wordleService from "./wordleService";
+
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
-    gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService}
+    gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService, wordleService}
 
 
 export default backExport;
