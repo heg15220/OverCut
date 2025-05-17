@@ -109,9 +109,17 @@ def pregunta_circuito(session, driver_id, circuit_name):
 
 def pregunta_campeon(session, driver_id):
     return session.execute(text("""
-        SELECT COUNT(*) FROM driverstandings
-        WHERE driverId = :driver_id AND position = '1'
+        SELECT COUNT(*) FROM driverstandings ds
+        JOIN races r ON ds.raceId = r.raceId
+        WHERE ds.driverId = :driver_id
+        AND ds.position = '1'
+        AND r.round = (
+            SELECT MAX(r2.round)
+            FROM races r2
+            WHERE r2.year = r.year
+        )
     """), {"driver_id": driver_id}).scalar() > 0
+
 
 
 def pregunta_ganador_gp(session, driver_id):
