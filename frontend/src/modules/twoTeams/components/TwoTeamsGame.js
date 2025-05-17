@@ -13,6 +13,40 @@ const TwoTeamsGame = () => {
   const [guessInput, setGuessInput] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const suggestionsRef = useRef([]);
+  const [animateFlip, setAnimateFlip] = useState(true);
+
+  const lang = navigator.language.startsWith('es') ? 'es' : 'en';
+
+  const translations = {
+    title: {
+      es: "2 EQUIPOS, 1 PILOTO",
+      en: "2 TEAMS, 1 DRIVER",
+    },
+    placeholder: {
+      es: "Nombre del piloto",
+      en: "Driver name",
+    },
+    guess: {
+      es: "✅ Adivinar",
+      en: "✅ Guess",
+    },
+    skip: {
+      es: "⏭️ Saltar",
+      en: "⏭️ Skip",
+    },
+    loading: {
+      es: "Cargando...",
+      en: "Loading...",
+    },
+    gameOver: {
+      es: "Juego terminado",
+      en: "Game Over",
+    },
+    score: {
+      es: (n) => `Aciertos: ${n} / 10`,
+      en: (n) => `Correct: ${n} / 10`,
+    }
+  };
 
   useEffect(() => {
     dispatch(actions.startTwoTeamsGame());
@@ -29,6 +63,13 @@ const TwoTeamsGame = () => {
     }
   }, [guessInput, dispatch]);
 
+  useEffect(() => {
+    setAnimateFlip(false);
+    const timer = setTimeout(() => setAnimateFlip(true), 50); // breve pausa para reiniciar la animación
+    return () => clearTimeout(timer);
+  }, [game?.currentPairIndex]);
+
+
   const handleGuess = () => {
     if (!guessInput.trim()) return;
     dispatch(actions.guessDriver({ gameId: game.id, driverGuess: guessInput }));
@@ -44,21 +85,21 @@ const TwoTeamsGame = () => {
     dispatch(actions.clearDriverSuggestions());
   };
 
-  if (!game) return <div className="two-teams-game">Loading...</div>;
+  if (!game) return <div className="two-teams-game">{translations.loading[lang]}</div>;
 
   const current = game.pairs[game.currentPairIndex];
   const showResult = current.guessedCorrectly !== null;
 
   return (
     <div className="two-teams-game">
-      <h2 className="two-teams-title">2 EQUIPOS, 1 PILOTO</h2>
+      <h2 className="two-teams-title">{translations.title[lang]}</h2>
 
       <div className="teams-pair">
-        <div className={`team-box ${showResult && current.guessedCorrectly ? 'correct' : ''}`}>
+        <div className={`team-box ${showResult && current.guessedCorrectly ? 'correct' : ''} ${animateFlip ? 'flip-in' : ''}`}>
           <TeamLogo teamName={current.teamA} />
           <span>{current.teamA}</span>
         </div>
-        <div className={`team-box ${showResult && current.guessedCorrectly ? 'correct' : ''}`}>
+        <div className={`team-box ${showResult && current.guessedCorrectly ? 'correct' : ''} ${animateFlip ? 'flip-in' : ''}`}>
           <TeamLogo teamName={current.teamB} />
           <span>{current.teamB}</span>
         </div>
@@ -66,10 +107,10 @@ const TwoTeamsGame = () => {
 
       {!game.finished && (
         <>
-          <div style={{ position: 'relative', width: '100%' }}>
+          <div className="search-panel">
             <input
               className="driver-input"
-              placeholder="Nombre del piloto"
+              placeholder={translations.placeholder[lang]}
               value={guessInput}
               onChange={(e) => setGuessInput(e.target.value)}
               onKeyDown={(e) => {
@@ -121,17 +162,23 @@ const TwoTeamsGame = () => {
           </div>
 
           <div className="action-buttons">
-            <button className="guess-btn" onClick={handleGuess}>✅ Adivinar</button>
-            <button className="skip-btn" onClick={handleSkip}>⏭️ Saltar</button>
+            <button className="guess-btn" onClick={handleGuess}>
+              {translations.guess[lang]}
+            </button>
+            <button className="skip-btn" onClick={handleSkip}>
+              {translations.skip[lang]}
+            </button>
+
           </div>
         </>
       )}
 
       {game.finished && (
         <div className="final-result">
-          <h3>Juego terminado</h3>
-          <p>Aciertos: {game.correctAnswers} / 10</p>
+          <h3>{translations.gameOver[lang]}</h3>
+          <p>{translations.score[lang](game.correctAnswers)}</p>
         </div>
+
       )}
     </div>
   );

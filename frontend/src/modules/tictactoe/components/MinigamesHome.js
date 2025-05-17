@@ -64,7 +64,7 @@ const minigames = [
     path: "/minigames/twoTeams",
     title: "2 Teams, 1 Driver",
     description: "Acierta un piloto que corrió para ambos equipos",
-    img: null // puedes dejarlo vacío hasta que tengas una imagen
+    img: sourceImages(`./TwoTeams.png`)
   }
 
 ];

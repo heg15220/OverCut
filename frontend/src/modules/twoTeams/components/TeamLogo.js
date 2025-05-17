@@ -22,12 +22,8 @@ const TeamLogo = ({ teamName }) => {
   if (!src) return null;
 
   return (
-    <img
-      src={src}
-      alt={teamName}
-      className="team-logo"
-      style={{ width: 48, height: 48, objectFit: 'contain', borderRadius: 8 }}
-    />
+    <img src={src} alt={teamName} className="team-logo" />
+
   );
 };
 
