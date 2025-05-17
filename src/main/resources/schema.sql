@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS TwoTeamsOneDriverPair;
+DROP TABLE IF EXISTS TwoTeamsOneDriverGame;
 DROP TABLE IF EXISTS F1WordleAttempt;
 DROP TABLE IF EXISTS F1WordleGame;
 DROP TABLE IF EXISTS CareerPathClue;
@@ -502,4 +504,23 @@ CREATE TABLE F1WordleAttempt (
     attemptOrder INT NOT NULL,
     feedback VARCHAR(100) NOT NULL,
     FOREIGN KEY (gameId) REFERENCES F1WordleGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE TwoTeamsOneDriverGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    currentPairIndex INT DEFAULT 0,
+    finished BOOLEAN DEFAULT FALSE,
+    correctAnswers INT DEFAULT 0
+);
+
+CREATE TABLE TwoTeamsOneDriverPair (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    teamA VARCHAR(100) NOT NULL,
+    teamB VARCHAR(100) NOT NULL,
+    guessedDriverName VARCHAR(100),
+    guessedCorrectly BOOLEAN DEFAULT NULL,
+    pairOrder INT NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES TwoTeamsOneDriverGame(id) ON DELETE CASCADE
 );

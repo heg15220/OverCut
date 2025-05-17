@@ -58,7 +58,15 @@ const minigames = [
     title: "F1 Wordle",
     description: "Adivina el apellido de un piloto F1",
     img: sourceImages(`./F1Wordle.png`)
+  },
+
+  {
+    path: "/minigames/twoTeams",
+    title: "2 Teams, 1 Driver",
+    description: "Acierta un piloto que corrió para ambos equipos",
+    img: null // puedes dejarlo vacío hasta que tengas una imagen
   }
+
 ];
 
 const translations = {

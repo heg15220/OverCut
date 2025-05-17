@@ -15,6 +15,7 @@ import driversLink from '../modules/driversLink';
 import rondo from '../modules/rondo';
 import careerPath from '../modules/careerPath';
 import wordle from '../modules/wordle';
+import twoTeams from '../modules/twoTeams';
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -32,6 +33,7 @@ const rootReducer = combineReducers({
     rondo: rondo.reducer,
     careerPath: careerPath.reducer,
     wordle: wordle.reducer,
+    twoTeams: twoTeams.reducer,
 });
 
 export default rootReducer;

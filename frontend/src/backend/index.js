@@ -27,9 +27,12 @@ import * as careerPathService from "./careerPathService";
 
 import * as wordleService from "./wordleService";
 
+import * as twoTeamsService from "./twoTeamsService";
+
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
-    gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService, wordleService}
+    gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService,
+     wordleService, twoTeamsService}
 
 
 export default backExport;
