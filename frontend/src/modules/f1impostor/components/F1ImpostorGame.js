@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./F1ImpostorGame.css";
 
 const F1ImpostorGame = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const game = useSelector(selectors.getGame);
   const [selected, setSelected] = useState([]);
   const lang = navigator.language.startsWith("es") ? "es" : "en";
@@ -30,6 +32,10 @@ const F1ImpostorGame = () => {
     lose: {
       es: "❌ Has fallado. Había impostores.",
       en: "❌ You failed. There were impostors."
+    },
+    back: {
+      es: "⬅️ Volver al inicio",
+      en: "⬅️ Back to home"
     }
   };
 
@@ -51,6 +57,10 @@ const F1ImpostorGame = () => {
       gameId: game.id,
       selectedPilotNames: selected
     }));
+  };
+
+  const handleBack = () => {
+    navigate("/minigames");
   };
 
   return (
@@ -81,14 +91,28 @@ const F1ImpostorGame = () => {
               style={{ transform: `rotate(${i * 36}deg) translate(12rem) rotate(-${i * 36}deg)` }}
               onClick={() => toggleSelect(p.pilotName)}
             >
-              <span>{p.pilotName}</span>
+              <span>
+                {p.pilotName}
+                {game.finished && (
+                  <>
+                    {isCorrect && " ✅"}
+                    {isWrong && " ❌"}
+                    {isMissedValid && " ⚠️"}
+                    {isImpostorAvoided && " 🕵️"}
+                  </>
+                )}
+              </span>
             </div>
           );
         })}
 
-        {!game.finished && (
+        {!game.finished ? (
           <button className="f1impostor-validate-btn center-button" onClick={handleValidate}>
             {translations.check[lang]}
+          </button>
+        ) : (
+          <button className="f1impostor-validate-btn center-button" onClick={handleBack}>
+            {translations.back[lang]}
           </button>
         )}
       </div>
