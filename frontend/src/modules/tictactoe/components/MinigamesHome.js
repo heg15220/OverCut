@@ -72,6 +72,13 @@ const minigames = [
     title: "F1 Impostors",
     description: "Evita a los impostores en un reto temático",
     img: sourceImages(`./F1Impostors.png`)
+  },
+
+  {
+    path: "/minigames/teamGuess",
+    title: "Guess the Team",
+    description: "Adivina el equipo por sus pilotos",
+    img: sourceImages(`./GuessTeam.png`)
   }
 
 

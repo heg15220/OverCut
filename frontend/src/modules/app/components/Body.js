@@ -34,6 +34,8 @@ import TwoTeamsGame from "../../twoTeams/components/TwoTeamsGame";
 
 import F1ImpostorGame from "../../f1impostor/components/F1ImpostorGame";
 
+import TeamGuessGame from "../../teamGuess/components/TeamGuessGame";
+
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
@@ -112,6 +114,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/wordle" element={<WordleGame />} />}
                     {loggedIn && <Route path="/minigames/twoTeams" element={<TwoTeamsGame />} />}
                     {loggedIn && <Route path="/minigames/f1Impostor" element={<F1ImpostorGame />} />}
+                    {loggedIn && <Route path="/minigames/teamGuess" element={<TeamGuessGame />} />}
 
                 </Route>
             </Routes>

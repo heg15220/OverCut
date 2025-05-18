@@ -17,7 +17,7 @@ import careerPath from '../modules/careerPath';
 import wordle from '../modules/wordle';
 import twoTeams from '../modules/twoTeams';
 import f1impostor from '../modules/f1impostor';
-
+import teamGuess from '../modules/teamGuess';
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -37,6 +37,7 @@ const rootReducer = combineReducers({
     wordle: wordle.reducer,
     twoTeams: twoTeams.reducer,
     f1impostor: f1impostor.reducer,
+    teamGuess: teamGuess.reducer,
 });
 
 export default rootReducer;
