@@ -29,9 +29,13 @@ const F1ImpostorGame = () => {
       es: "🎉 ¡Has ganado!",
       en: "🎉 You won!"
     },
-    lose: {
+    lose_impostor: {
       es: "❌ Has fallado. Había impostores.",
       en: "❌ You failed. There were impostors."
+    },
+    lose_missing: {
+      es: "⚠️ Faltaban respuestas correctas.",
+      en: "⚠️ Missing correct answers."
     },
     back: {
       es: "⬅️ Volver al inicio",
@@ -62,6 +66,18 @@ const F1ImpostorGame = () => {
   const handleBack = () => {
     navigate("/minigames");
   };
+
+  const countWrongSelections = game.pilots.filter(p => !p.valid && p.selectedByUser).length;
+  const countMissedValids = game.pilots.filter(p => p.valid && !p.selectedByUser).length;
+
+  let finalMessage = "";
+  if (game.won) {
+    finalMessage = translations.win[lang];
+  } else if (countWrongSelections > 0) {
+    finalMessage = translations.lose_impostor[lang];
+  } else {
+    finalMessage = translations.lose_missing[lang];
+  }
 
   return (
     <div className="f1impostor-container">
@@ -119,7 +135,7 @@ const F1ImpostorGame = () => {
 
       {game.finished && (
         <div className="f1impostor-result">
-          {game.won ? translations.win[lang] : translations.lose[lang]}
+          {finalMessage}
         </div>
       )}
     </div>
