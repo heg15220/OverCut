@@ -83,10 +83,9 @@ const minigames = [
 
   {
     path: "/minigames/driversConnections",
-    title: "Drivers Connections",
+    title: "Drivers Connection",
     description: "Agrupa 4 pilotos que compartan una categoría secreta",
-    img: null,
-    isNew: true
+    img: sourceImages(`./DriversConnection.png`)
   }
 
 ];

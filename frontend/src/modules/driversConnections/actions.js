@@ -1,10 +1,12 @@
 import * as actionTypes from "./actionTypes";
 import backend from "../../backend";
 
-export const startConnectionsGame = () => dispatch =>
-  backend.driversConnectionsService.startConnectionsGame(game =>
+export const startConnectionsGame = () => dispatch => {
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+  backend.driversConnectionsService.startConnectionsGame(lang, game =>
     dispatch({ type: actionTypes.START_CONNECTIONS_GAME_COMPLETED, game })
   );
+};
 
 export const validateGroup = (request) => dispatch =>
   backend.driversConnectionsService.validateConnectionsGroup(request, isValid =>

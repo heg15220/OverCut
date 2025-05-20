@@ -23,6 +23,35 @@ const DriversConnectionsGame = () => {
   const [selectedDrivers, setSelectedDrivers] = useState([]);
   const [solvedGroups, setSolvedGroups] = useState([]);
   const [lastValidatedGroup, setLastValidatedGroup] = useState(null);
+  const [partialMatchCount, setPartialMatchCount] = useState(null);
+  const [retainSelection, setRetainSelection] = useState(false);
+
+  const translations = {
+    es: {
+      title: "Drivers Connection",
+      loading: "Cargando juego...",
+      validate: "Validar Grupo",
+      surrender: "Rendirse",
+      backToHome: "🏁 Volver al inicio",
+      correctGroup: "✅ ¡Grupo correcto!",
+      incorrectGroup: "❌ Grupo incorrecto",
+      correctMatches: "Coincidencias correctas"
+    },
+    en: {
+      title: "Drivers Connection",
+      loading: "Loading game...",
+      validate: "Validate Group",
+      surrender: "Give Up",
+      backToHome: "🏁 Back to home",
+      correctGroup: "✅ Correct group!",
+      incorrectGroup: "❌ Incorrect group",
+      correctMatches: "Correct matches"
+    }
+  };
+
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+  const t = translations[lang];
+
 
   useEffect(() => {
     dispatch(actions.startConnectionsGame());
@@ -68,16 +97,31 @@ const DriversConnectionsGame = () => {
         }
         setSelectedDrivers([]);
         setLastValidatedGroup(null);
+        setPartialMatchCount(null);
+        setRetainSelection(false);
       } else if (isValidGroup === false) {
-        setTimeout(() => {
-          setSelectedDrivers([]);
-          setLastValidatedGroup(null);
-        }, 1000);
+        const bestMatch = game.categories.reduce((max, cat) => {
+          const pilotNames = cat.pilots.map(p => p.driverName);
+          const matches = lastValidatedGroup.filter(d => pilotNames.includes(d)).length;
+          return Math.max(max, matches);
+        }, 0);
+        setPartialMatchCount(bestMatch);
+        setRetainSelection(true);
       }
     }
   }, [isValidGroup, selectedDrivers, lastValidatedGroup, game, solvedGroups]);
 
-  if (!game) return <div className="drivers-connections-container">Cargando juego...</div>;
+  useEffect(() => {
+    if (retainSelection && isValidGroup === false) {
+      const timeout = setTimeout(() => {
+        setRetainSelection(false);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [retainSelection, isValidGroup]);
+
+  if (!game) return <div className="drivers-connections-container">{t.loading}</div>;
+
 
   const allDrivers = game.categories
     .flatMap(c => c.pilots)
@@ -89,11 +133,11 @@ const DriversConnectionsGame = () => {
 
   return (
     <div className="drivers-connections-container">
-      <h2 className="connections-title">🔗 Drivers Connections</h2>
+      <h2 className="connections-title">🏎️ {t.title} 🏎️</h2>
 
-     {!gameFinished && solvedGroups.length > 0 && (
-       <div className="solved-grid">
-         {solvedGroups.map((category, idx) => (
+      {!gameFinished && solvedGroups.length > 0 && (
+        <div className="solved-grid">
+          {solvedGroups.map((category, idx) => (
             <div key={idx} className={`solved-category ${getColorClass(idx)}`}>
               <h3 className="category-title" style={{ color: '#000', fontWeight: 'bold', letterSpacing: '0.5px' }}>{category.description}</h3>
               <div className="solved-row">
@@ -142,16 +186,29 @@ const DriversConnectionsGame = () => {
       <div className="actions-row">
         {!gameFinished ? (
           <>
-            <button className="validate-btn" onClick={handleValidate} disabled={selectedDrivers.length !== 4}>Validar Grupo</button>
-            <button className="reveal-btn" onClick={handleSurrender}>Rendirse</button>
+            <button className="validate-btn" onClick={handleValidate} disabled={selectedDrivers.length !== 4}>
+              {t.validate}
+            </button>
+            <button className="reveal-btn" onClick={handleSurrender}>{t.surrender}</button>
+
           </>
         ) : (
-          <button className="validate-btn" onClick={handleGoHome}>🏁 Volver al inicio</button>
+          <button className="validate-btn" onClick={handleGoHome}>{t.backToHome}</button>
         )}
       </div>
 
-      {isValidGroup === true && <div className="result-msg success">✅ ¡Grupo correcto!</div>}
-      {isValidGroup === false && <div className="result-msg fail">❌ Grupo incorrecto</div>}
+      {isValidGroup === true && <div className="result-msg success">{t.correctGroup}</div>}
+
+      {isValidGroup === false && (
+        <div className="result-msg fail">
+          {t.incorrectGroup}
+          {partialMatchCount > 0 && (
+            <div style={{ fontSize: "1rem", marginTop: "0.3rem" }}>
+              {t.correctMatches}: {partialMatchCount} / 4
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -27,9 +27,13 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
     private DriversConnectionsPilotDao pilotDao;
 
     @Override
-    public DriversConnectionsGame startGame() {
+    public DriversConnectionsGame startGame(String lang) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python", "src/main/resources/scripts/generate_drivers_connections.py");
+            ProcessBuilder pb = new ProcessBuilder(
+                    "python",
+                    "src/main/resources/scripts/generate_drivers_connections.py",
+                    "--lang", lang
+            );
             Process process = pb.start();
 
             String jsonOutput;
@@ -67,6 +71,7 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
             throw new RuntimeException("Error starting DriversConnectionsGame", e);
         }
     }
+
 
     @Override
     public boolean validateGroup(Long gameId, List<String> selectedDriverNames) {

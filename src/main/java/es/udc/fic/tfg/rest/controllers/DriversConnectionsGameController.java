@@ -16,9 +16,10 @@ public class DriversConnectionsGameController {
     private DriversConnectionsGameService service;
 
     @PostMapping("/start")
-    public DriversConnectionsGameDto startGame() {
-        return DriversConnectionsGameConversor.toDto(service.startGame());
+    public DriversConnectionsGameDto startGame(@RequestParam(name = "lang", defaultValue = "es") String language) {
+        return DriversConnectionsGameConversor.toDto(service.startGame(language));
     }
+
 
     @PostMapping("/validate")
     public Boolean validateGroup(@RequestBody ValidateGroupRequestDto dto) {

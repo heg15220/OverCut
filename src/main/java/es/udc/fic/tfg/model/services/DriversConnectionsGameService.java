@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface DriversConnectionsGameService {
 
-    DriversConnectionsGame startGame();
+    DriversConnectionsGame startGame(String lang);
 
     boolean validateGroup(Long gameId, List<String> selectedDriverNames);
 
