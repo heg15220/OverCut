@@ -1,7 +1,8 @@
 import { fetchConfig, appFetch } from "./appFetch";
 
-export const startOrderGame = (onSuccess, onErrors) =>
-  appFetch("/orderDriver/start", fetchConfig("POST"), onSuccess, onErrors);
+export const startOrderGame = (lang, onSuccess, onErrors) =>
+  appFetch(`/orderDriver/start?lang=${lang}`, fetchConfig("POST"), onSuccess, onErrors);
+
 
 export const submitOrder = (request, onSuccess, onErrors) =>
   appFetch("/orderDriver/submit", fetchConfig("POST", request), onSuccess, onErrors);

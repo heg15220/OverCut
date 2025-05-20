@@ -27,10 +27,11 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public OrderDriverGame startGame() {
+    public OrderDriverGame startGame(String lang) {
         try {
             ProcessBuilder pb = new ProcessBuilder("python",
-                    "src/main/resources/scripts/generate_order_drivers.py");
+                    "src/main/resources/scripts/generate_order_drivers.py",
+                    "--lang", lang);
             Process process = pb.start();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -59,6 +60,7 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
             throw new RuntimeException("Error al iniciar juego de orden de pilotos", e);
         }
     }
+
 
     @Override
     public OrderDriverGame validateSubmission(OrderSubmissionDto submission) {

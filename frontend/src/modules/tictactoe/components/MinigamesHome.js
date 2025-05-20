@@ -92,8 +92,7 @@ const minigames = [
     path: "/minigames/orderDrivers",
     title: "Sort Drivers",
     description: "Ordena a los pilotos según el criterio F1",
-    img: null, // Asegúrate de que la imagen exista
-    isNew: true
+    img: sourceImages(`./OrderDriversGame.png`)
   }
 
 

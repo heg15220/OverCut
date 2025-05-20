@@ -55,19 +55,20 @@
 }
 
 .ranking-slot {
+  display: flex;
+  align-items: center;        /* 🟢 Fuerza la alineación vertical */
+  justify-content: flex-start;
+  gap: 12px;                  /* 🟢 Espacio entre número y nombre */
+  padding: 0.5rem 1rem;
+  min-height: 48px;           /* 🟢 Altura suficiente para alinear */
+  font-size: 1rem;
   background: linear-gradient(135deg, #1f1f1f, #2a2a2a);
   border: 2px dashed #555;
-  padding: 0.5rem 0.9rem;
   border-radius: 10px;
   color: white;
-  text-align: center;
-  cursor: pointer;
-  min-height: 36px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
   transition: background 0.2s ease;
+  cursor: pointer;
+  line-height: 1;
 }
 
 .ranking-slot:hover {
@@ -76,8 +77,10 @@
 
 .position-number {
   font-weight: bold;
-  color: #bbb;
+  width: 28px;
+  text-align: center;
 }
+
 
 .driver-name {
   color: #fff;
@@ -219,3 +222,32 @@
   background: transparent;
   box-shadow: none;
 }
+
+.driver-name,
+.placeholder {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.back-btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.05rem;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(to right, #2196f3, #64b5f6); /* Azul brillante */
+  color: white;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(to right, #42a5f5, #90caf9);
+}
+
+

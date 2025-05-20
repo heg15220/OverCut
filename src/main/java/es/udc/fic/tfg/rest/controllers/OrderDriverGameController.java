@@ -17,10 +17,12 @@ public class OrderDriverGameController {
     private OrderDriverGameService orderService;
 
     @PostMapping("/start")
-    public OrderDriverGameDto startGame() {
-        OrderDriverGame game = orderService.startGame();
+    public OrderDriverGameDto startGame(@RequestParam(defaultValue = "es") String lang) {
+        OrderDriverGame game = orderService.startGame(lang);
         return OrderDriverGameConversor.toDto(game);
     }
+
+
 
     @PostMapping("/submit")
     public OrderDriverGameDto submitOrder(@RequestBody OrderSubmissionDto submission) {

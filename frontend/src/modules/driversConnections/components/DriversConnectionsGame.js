@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
+import { useMemo } from "react";
 import "./DriversConnectionsGame.css";
 
 const categoryColors = [
@@ -120,12 +121,18 @@ const DriversConnectionsGame = () => {
     }
   }, [retainSelection, isValidGroup]);
 
+  const allDrivers = useMemo(() => {
+    if (!game) return [];
+
+    return game.categories
+      .flatMap(c => c.pilots)
+      .filter(d => !solvedGroups.some(cat => cat.pilots.some(p => p.driverName === d.driverName)))
+      .sort(() => Math.random() - 0.5);
+  }, [game, solvedGroups]);
+
   if (!game) return <div className="drivers-connections-container">{t.loading}</div>;
 
 
-  const allDrivers = game.categories
-    .flatMap(c => c.pilots)
-    .filter(d => !solvedGroups.some(cat => cat.pilots.some(p => p.driverName === d.driverName)));
 
   const getColorClass = (index) => `category-color-${index % categoryColors.length}`;
 
