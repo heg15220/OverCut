@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS DriversConnectionsPilot;
+DROP TABLE IF EXISTS DriversConnectionsCategory;
+DROP TABLE IF EXISTS DriversConnectionsGame;
 DROP TABLE IF EXISTS TeamGuessClue;
 DROP TABLE IF EXISTS TeamGuessGame;
 DROP TABLE IF EXISTS F1ImpostorPilot;
@@ -563,4 +566,28 @@ CREATE TABLE TeamGuessClue (
     driverName VARCHAR(100) NOT NULL,
     clueOrder INT NOT NULL,
     FOREIGN KEY (gameId) REFERENCES TeamGuessGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE DriversConnectionsGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    finished BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE DriversConnectionsCategory (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    categoryCode VARCHAR(100) NOT NULL,
+    categoryDescription VARCHAR(255) NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES DriversConnectionsGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE DriversConnectionsPilot (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    categoryId BIGINT NOT NULL,
+    driverId BIGINT NOT NULL,
+    driverName VARCHAR(100) NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES DriversConnectionsGame(id) ON DELETE CASCADE,
+    FOREIGN KEY (categoryId) REFERENCES DriversConnectionsCategory(id) ON DELETE CASCADE
 );

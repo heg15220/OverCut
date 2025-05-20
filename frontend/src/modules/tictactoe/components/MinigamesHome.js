@@ -79,8 +79,15 @@ const minigames = [
     title: "Guess the Team",
     description: "Adivina el equipo por sus pilotos",
     img: sourceImages(`./GuessTeam.png`)
-  }
+  },
 
+  {
+    path: "/minigames/driversConnections",
+    title: "Drivers Connections",
+    description: "Agrupa 4 pilotos que compartan una categoría secreta",
+    img: null,
+    isNew: true
+  }
 
 ];
 

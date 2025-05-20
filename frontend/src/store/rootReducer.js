@@ -18,6 +18,7 @@ import wordle from '../modules/wordle';
 import twoTeams from '../modules/twoTeams';
 import f1impostor from '../modules/f1impostor';
 import teamGuess from '../modules/teamGuess';
+import driversConnections from '../modules/driversConnections';
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
     twoTeams: twoTeams.reducer,
     f1impostor: f1impostor.reducer,
     teamGuess: teamGuess.reducer,
+    driversConnections: driversConnections.reducer,
 });
 
 export default rootReducer;
