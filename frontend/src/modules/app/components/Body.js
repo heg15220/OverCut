@@ -39,6 +39,8 @@ import TeamGuessGame from "../../teamGuess/components/TeamGuessGame";
 
 import DriversConnectionsGame from "../../driversConnections/components/DriversConnectionsGame";
 
+import OrderDriverGame from "../../orderDriver/components/OrderDriverGame";
+
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
@@ -119,6 +121,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/f1Impostor" element={<F1ImpostorGame />} />}
                     {loggedIn && <Route path="/minigames/teamGuess" element={<TeamGuessGame />} />}
                     {loggedIn && <Route path="/minigames/driversConnections" element={<DriversConnectionsGame />} />}
+                    {loggedIn && <Route path="/minigames/orderDrivers" element={<OrderDriverGame />} />}
 
                 </Route>
             </Routes>

@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS OrderDriverSlot;
+DROP TABLE IF EXISTS OrderDriverGame;
 DROP TABLE IF EXISTS DriversConnectionsPilot;
 DROP TABLE IF EXISTS DriversConnectionsCategory;
 DROP TABLE IF EXISTS DriversConnectionsGame;
@@ -590,4 +592,21 @@ CREATE TABLE DriversConnectionsPilot (
     driverName VARCHAR(100) NOT NULL,
     FOREIGN KEY (gameId) REFERENCES DriversConnectionsGame(id) ON DELETE CASCADE,
     FOREIGN KEY (categoryId) REFERENCES DriversConnectionsCategory(id) ON DELETE CASCADE
+);
+
+CREATE TABLE OrderDriverGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    topic VARCHAR(255) NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    finished BOOLEAN DEFAULT FALSE,
+    successful BOOLEAN DEFAULT NULL
+);
+
+CREATE TABLE OrderDriverSlot (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    driverId BIGINT NOT NULL,
+    driverName VARCHAR(100) NOT NULL,
+    correctOrder INT NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES OrderDriverGame(id) ON DELETE CASCADE
 );

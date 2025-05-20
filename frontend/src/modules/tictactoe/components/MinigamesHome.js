@@ -86,7 +86,16 @@ const minigames = [
     title: "Drivers Connection",
     description: "Agrupa 4 pilotos que compartan una categoría secreta",
     img: sourceImages(`./DriversConnection.png`)
+  },
+
+  {
+    path: "/minigames/orderDrivers",
+    title: "Sort Drivers",
+    description: "Ordena a los pilotos según el criterio F1",
+    img: null, // Asegúrate de que la imagen exista
+    isNew: true
   }
+
 
 ];
 

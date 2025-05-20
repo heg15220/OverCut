@@ -19,6 +19,7 @@ import twoTeams from '../modules/twoTeams';
 import f1impostor from '../modules/f1impostor';
 import teamGuess from '../modules/teamGuess';
 import driversConnections from '../modules/driversConnections';
+import orderDriver from '../modules/orderDriver';
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -40,6 +41,7 @@ const rootReducer = combineReducers({
     f1impostor: f1impostor.reducer,
     teamGuess: teamGuess.reducer,
     driversConnections: driversConnections.reducer,
+    orderDriver: orderDriver.reducer,
 });
 
 export default rootReducer;
