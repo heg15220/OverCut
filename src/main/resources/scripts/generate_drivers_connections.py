@@ -28,7 +28,7 @@ def get_champions_category():
         """
     }
 
-def get_team_category(conn):
+def get_team_categories(conn, used_teams):
     teams = conn.execute(text("""
         SELECT c.constructorId, c.name
         FROM constructors c
@@ -38,26 +38,28 @@ def get_team_category(conn):
         HAVING COUNT(*) > 5
     """)).fetchall()
 
-    if not teams:
-        return None
+    random.shuffle(teams)
+    categories = []
+    for constructor_id, team_name in teams:
+        if team_name in used_teams:
+            continue
+        used_teams.add(team_name)
+        categories.append({
+            "code": f"team_{team_name.lower().replace(' ', '_')}",
+            "description": f"Pilotos que han corrido para {team_name}",
+            "query": """
+                SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
+                FROM drivers d
+                JOIN results r ON d.driverId = r.driverId
+                WHERE r.constructorId = :constructorId
+            """,
+            "params": {"constructorId": constructor_id}
+        })
+        if len(categories) >= 3:
+            break
+    return categories
 
-    constructor = random.choice(teams)
-    constructor_id = constructor[0]
-    team_name = constructor[1]
-
-    return {
-        "code": f"team_{team_name.lower().replace(' ', '_')}",
-        "description": f"Pilotos que han corrido para {team_name}",
-        "query": """
-            SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
-            FROM drivers d
-            JOIN results r ON d.driverId = r.driverId
-            WHERE r.constructorId = :constructorId
-        """,
-        "params": {"constructorId": constructor_id}
-    }
-
-def get_country_category(conn):
+def get_country_categories(conn, used_countries):
     countries = conn.execute(text("""
         SELECT nationality
         FROM drivers
@@ -65,37 +67,72 @@ def get_country_category(conn):
         HAVING COUNT(*) >= 4
     """)).fetchall()
 
-    if not countries:
-        return None
+    random.shuffle(countries)
+    categories = []
+    for (nationality,) in countries:
+        if nationality in used_countries:
+            continue
+        used_countries.add(nationality)
+        categories.append({
+            "code": f"country_{nationality.lower().replace(' ', '_')}",
+            "description": f"Pilotos de nacionalidad {nationality}",
+            "query": """
+                SELECT d.driverId, CONCAT(d.forename, ' ', d.surname)
+                FROM drivers d
+                WHERE d.nationality = :nationality
+            """,
+            "params": {"nationality": nationality}
+        })
+        if len(categories) >= 3:
+            break
+    return categories
 
-    nationality = random.choice(countries)[0]
-
+def get_race_winner_category():
     return {
-        "code": f"country_{nationality.lower().replace(' ', '_')}",
-        "description": f"Pilotos de nacionalidad {nationality}",
+        "code": "race_winners",
+        "description": "Pilotos que han ganado al menos 1 Gran Premio",
         "query": """
             SELECT d.driverId, CONCAT(d.forename, ' ', d.surname)
             FROM drivers d
-            WHERE d.nationality = :nationality
-        """,
-        "params": {"nationality": nationality}
+            JOIN results r ON d.driverId = r.driverId
+            WHERE r.positionOrder = 1
+            GROUP BY d.driverId
+            HAVING COUNT(*) >= 1
+        """
+    }
+
+def get_experienced_category():
+    return {
+        "code": "fifty_gp",
+        "description": "Pilotos con más de 50 Grandes Premios disputados",
+        "query": """
+            SELECT d.driverId, CONCAT(d.forename, ' ', d.surname)
+            FROM drivers d
+            JOIN results r ON d.driverId = r.driverId
+            GROUP BY d.driverId
+            HAVING COUNT(DISTINCT r.raceId) > 50
+        """
     }
 
 def generate_game():
     with engine.connect() as conn:
         selected_categories = []
         used_driver_ids = set()
+        used_teams = set()
+        used_countries = set()
 
-        raw_categories = [
+        base_categories = [
             get_champions_category(),
-            get_team_category(conn),
-            get_country_category(conn),
+            get_race_winner_category(),
+            get_experienced_category()
         ]
 
-        # Elimina posibles None si no se pudo generar alguna
-        raw_categories = [cat for cat in raw_categories if cat]
+        dynamic_categories = get_team_categories(conn, used_teams) + get_country_categories(conn, used_countries)
+        random.shuffle(dynamic_categories)
+        all_categories = base_categories + dynamic_categories
+        random.shuffle(all_categories)
 
-        for category in raw_categories:
+        for category in all_categories:
             params = category.get("params", {})
             candidates = get_all_drivers_matching_query(conn, category["query"], params)
 
@@ -114,11 +151,13 @@ def generate_game():
                 "pilots": selected_pilots
             })
 
-        if len(selected_categories) < 3:
-            raise Exception("No se pudieron generar 3 categorías válidas.")
+            if len(selected_categories) == 4:
+                break
+
+        if len(selected_categories) < 4:
+            raise Exception("No se pudieron generar 4 categorías válidas.")
 
         return {"categories": selected_categories}
-
 
 if __name__ == "__main__":
     try:
