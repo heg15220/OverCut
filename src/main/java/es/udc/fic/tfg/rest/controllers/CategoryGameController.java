@@ -22,9 +22,12 @@ public class CategoryGameController {
 
     @PostMapping("/submit")
     public CategoryGameDto submitAnswers(@RequestBody SubmitCategoryAnswersDto request) {
-        CategoryGame game = categoryGameService.submitAnswers(request.getGameId(), request.getAnswers());
+        CategoryGame game = categoryGameService.submitAnswers(
+                request.getGameId(), request.getAnswers(), request.getLang()
+        );
         return CategoryGameConversor.toDto(game);
     }
+
 
     @GetMapping("/status/{gameId}")
     public CategoryGameDto getGameStatus(@PathVariable Long gameId) {

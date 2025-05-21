@@ -6,10 +6,11 @@ export const startGame = (lang) => dispatch =>
     dispatch({ type: actionTypes.CATEGORY_GAME_START_COMPLETED, game })
   );
 
-export const submitAnswers = (gameId, answers) => dispatch =>
-  service.submitCategoryAnswers({ gameId, answers }, game => {
+export const submitAnswers = (gameId, answers, lang) => dispatch =>
+  service.submitCategoryAnswers({ gameId, answers, lang }, game => {
     dispatch({ type: actionTypes.CATEGORY_GAME_SUBMIT_COMPLETED, game });
   });
+
 
 
 export const getGameStatus = (gameId) => dispatch =>

@@ -75,7 +75,7 @@ public class CategoryGameServiceImpl implements CategoryGameService {
     }
 
     @Override
-    public CategoryGame submitAnswers(Long gameId, Map<String, String> answers) {
+    public CategoryGame submitAnswers(Long gameId, Map<String, String> answers, String lang) {
         CategoryGame game = categoryGameDao.findById(gameId).orElseThrow();
         game.setFinished(true);
         char letter = game.getLetter();
@@ -97,7 +97,7 @@ public class CategoryGameServiceImpl implements CategoryGameService {
                         "--category", category,
                         "--answer", userAnswer,
                         "--letter", String.valueOf(letter),
-                        "--lang", "es"
+                        "--lang", lang
                 );
 
                 Process process = pb.start();

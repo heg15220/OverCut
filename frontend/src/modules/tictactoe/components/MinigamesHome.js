@@ -99,8 +99,7 @@ const minigames = [
     path: "/minigames/categoryGame",
     title: "F1 Categories",
     description: "Responde categorías que empiezan con la misma letra",
-    img: null, // Asegúrate de tener esta imagen en assets
-    isNew: true
+    img: sourceImages(`./gameCategory.png`)
   }
 
 
