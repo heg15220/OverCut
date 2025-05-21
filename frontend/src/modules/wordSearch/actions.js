@@ -11,11 +11,20 @@ export const getWordSearchGame = (gameId) => dispatch =>
     dispatch({ type: actionTypes.GET_WORDSEARCH_GAME_COMPLETED, game })
   );
 
-export const validateWord = (request) => dispatch =>
+export const validateWord = (request, onSuccess) => dispatch =>
   service.validateWord(request, game => {
-    dispatch({ type: actionTypes.GET_WORDSEARCH_GAME_COMPLETED, game }); // reusa esta acción para actualizar tablero
-    dispatch({ type: actionTypes.ADD_FOUND_WORD, word: request.attemptedSurname });
+    // Verificamos que al menos una palabra se haya marcado como revelada
+    const matched = game.words?.some(word => word.revealed && word.surname.toUpperCase() === request.attemptedSurname.toUpperCase());
+
+    dispatch({ type: actionTypes.GET_WORDSEARCH_GAME_COMPLETED, game });
+
+    if (matched) {
+      dispatch({ type: actionTypes.ADD_FOUND_WORD, word: request.attemptedSurname });
+    }
+
+    if (onSuccess) onSuccess({ valid: matched });
   });
+
 
 
 export const submitSolution = (request) => dispatch =>

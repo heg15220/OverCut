@@ -11,7 +11,7 @@ export default function reducer(state = initialState, action) {
     case actionTypes.START_WORDSEARCH_GAME_COMPLETED:
     case actionTypes.GET_WORDSEARCH_GAME_COMPLETED:
     case actionTypes.SUBMIT_WORDSEARCH_SOLUTION_COMPLETED:
-    case actionTypes.REVEAL_WORDS_COMPLETED:  // Nueva acción para "Rendirse"
+    case actionTypes.REVEAL_WORDS_COMPLETED:
       return { ...state, game: action.game };
 
     case actionTypes.VALIDATE_WORD_COMPLETED:
@@ -27,6 +27,12 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         foundWords: [...state.foundWords, action.word]
+      };
+
+    case "wordSearch/resetFoundWords":
+      return {
+        ...state,
+        foundWords: []
       };
 
     default:
