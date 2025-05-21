@@ -21,6 +21,7 @@ import teamGuess from '../modules/teamGuess';
 import driversConnections from '../modules/driversConnections';
 import orderDriver from '../modules/orderDriver';
 import categoryGame from '../modules/categoryGame';
+import wordSearch from '../modules/wordSearch';
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -44,6 +45,7 @@ const rootReducer = combineReducers({
     driversConnections: driversConnections.reducer,
     orderDriver: orderDriver.reducer,
     categoryGame: categoryGame.reducer,
+    wordSearch: wordSearch.reducer,
 });
 
 export default rootReducer;

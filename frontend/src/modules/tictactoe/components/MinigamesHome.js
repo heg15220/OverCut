@@ -100,7 +100,15 @@ const minigames = [
     title: "F1 Categories",
     description: "Responde categorías que empiezan con la misma letra",
     img: sourceImages(`./gameCategory.png`)
+  },
+  {
+    path: "/minigames/wordSearch",
+    title: "Word Search F1",
+    description: "Encuentra apellidos de pilotos con podios",
+    img:null,
+    isNew: true // opcional si quieres mostrar el tag NEW
   }
+
 
 
 

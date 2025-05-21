@@ -44,6 +44,9 @@ import OrderDriverGame from "../../orderDriver/components/OrderDriverGame";
 import CategoryGame from "../../categoryGame/components/CategoryGame";
 
 
+import WordSearchGame from '../../wordSearch/components/WordSearchGame';
+
+
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
 import {
     Circuits,
@@ -125,6 +128,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/driversConnections" element={<DriversConnectionsGame />} />}
                     {loggedIn && <Route path="/minigames/orderDrivers" element={<OrderDriverGame />} />}
                     {loggedIn && <Route path="/minigames/categoryGame" element={<CategoryGame />} />}
+                    <Route path="/minigames/wordSearch" element={<WordSearchGame />} />
 
                 </Route>
             </Routes>

@@ -37,10 +37,13 @@ import * as driversConnectionsService from "./driversConnectionsService";
 
 import * as orderDriverService from "./orderDriverService";
 
+import * as wordSearchService from "./wordSearchService";
+
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
     gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService,
-     wordleService, twoTeamsService, f1ImpostorService, teamGuessService, driversConnectionsService, orderDriverService}
+     wordleService, twoTeamsService, f1ImpostorService, teamGuessService, driversConnectionsService, orderDriverService,
+     wordSearchService}
 
 
 export default backExport;

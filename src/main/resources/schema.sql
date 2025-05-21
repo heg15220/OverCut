@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS WordSearchCell;
+DROP TABLE IF EXISTS WordSearchWord;
+DROP TABLE IF EXISTS WordSearchGame;
 DROP TABLE IF EXISTS CategorySlot;
 DROP TABLE IF EXISTS CategoryGame;
 DROP TABLE IF EXISTS OrderDriverSlot;
@@ -627,4 +630,33 @@ CREATE TABLE CategorySlot (
     answer VARCHAR(100),
     valid BOOLEAN,
     FOREIGN KEY (gameId) REFERENCES CategoryGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE WordSearchGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    theme VARCHAR(100),
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    finished BOOLEAN DEFAULT FALSE,
+    successful BOOLEAN DEFAULT NULL
+);
+
+CREATE TABLE WordSearchWord (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    driverId BIGINT NOT NULL,
+    surname VARCHAR(100) NOT NULL,
+    startRow INT NOT NULL,
+    startCol INT NOT NULL,
+    direction VARCHAR(10) NOT NULL,
+    revealed BOOLEAN,
+    FOREIGN KEY (gameId) REFERENCES WordSearchGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE WordSearchCell (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    rowIndex INT NOT NULL,
+    colIndex INT NOT NULL,
+    letter CHAR(1) NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES WordSearchGame(id) ON DELETE CASCADE
 );
