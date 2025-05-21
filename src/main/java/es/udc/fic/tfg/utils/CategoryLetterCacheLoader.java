@@ -22,7 +22,7 @@ public class CategoryLetterCacheLoader {
 
     @PostConstruct
     public void init() {
-        loadCache("es", "/scripts/category_letter_cache_es.json");
+        loadCache("es", "/scripts/category_letter_cache.json");
         loadCache("en", "/scripts/category_letter_cache_en.json");
     }
 

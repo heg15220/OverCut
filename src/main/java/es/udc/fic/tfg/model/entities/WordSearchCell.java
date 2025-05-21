@@ -14,14 +14,17 @@ public class WordSearchCell {
     private int colIndex;
     private char letter;
 
+    private boolean revealed;
+
     public WordSearchCell() {
     }
 
-    public WordSearchCell(WordSearchGame game, int rowIndex, int colIndex, char letter) {
+    public WordSearchCell(WordSearchGame game, int rowIndex, int colIndex, char letter, boolean revealed) {
         this.game = game;
         this.rowIndex = rowIndex;
         this.colIndex = colIndex;
         this.letter = letter;
+        this.revealed = revealed;
     }
 
     @Id
@@ -66,5 +69,13 @@ public class WordSearchCell {
 
     public void setLetter(char letter) {
         this.letter = letter;
+    }
+
+    public boolean isRevealed() {
+        return revealed;
+    }
+
+    public void setRevealed(boolean revealed) {
+        this.revealed = revealed;
     }
 }

@@ -11,7 +11,12 @@ public class WordSearchConversor {
 
     public static WordSearchGameDto toDto(WordSearchGame game) {
         List<WordSearchCellDto> cells = game.getCells().stream()
-                .map(cell -> new WordSearchCellDto(cell.getRowIndex(), cell.getColIndex(), cell.getLetter()))
+                .map(cell -> new WordSearchCellDto(
+                        cell.getRowIndex(),
+                        cell.getColIndex(),
+                        cell.getLetter(),
+                        cell.isRevealed()
+                ))
                 .collect(Collectors.toList());
 
         List<WordSearchWordDto> words = game.getWords().stream()

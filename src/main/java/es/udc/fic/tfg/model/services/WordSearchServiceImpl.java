@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,25 +86,71 @@ public class WordSearchServiceImpl implements WordSearchService {
     public boolean validateWord(Long gameId, String attemptedSurname) {
         WordSearchGame game = getGame(gameId);
 
-        return game.getWords().stream()
-                .map(WordSearchWord::getSurname)
-                .map(String::toUpperCase)
-                .anyMatch(word -> word.equals(attemptedSurname.toUpperCase()));
+        String normalized = attemptedSurname.toUpperCase();
+        for (WordSearchWord word : game.getWords()) {
+            if (word.getSurname().toUpperCase().equals(normalized) && !word.isRevealed()) {
+                word.setRevealed(true);
+
+                Map<String, WordSearchCell> cellMap = game.getCells().stream()
+                        .collect(Collectors.toMap(
+                                c -> c.getRowIndex() + "," + c.getColIndex(),
+                                c -> c
+                        ));
+
+                String[] dir = word.getDirection().split(",");
+                int dr = Integer.parseInt(dir[0]);
+                int dc = Integer.parseInt(dir[1]);
+                int len = word.getSurname().length();
+
+                for (int i = 0; i < len; i++) {
+                    int r = word.getStartRow() + i * dr;
+                    int c = word.getStartCol() + i * dc;
+                    WordSearchCell cell = cellMap.get(r + "," + c);
+                    if (cell != null) {
+                        cell.setRevealed(true);
+                    }
+                }
+
+                gameDao.save(game); // Guarda los cambios
+                return true;
+            }
+        }
+
+        return false;
     }
-    @Override
+
     public WordSearchGame revealWords(Long gameId) {
         WordSearchGame game = getGame(gameId);
 
-        // Se marcan todas las palabras encontradas
+        // Crear una matriz de acceso rápido a las celdas por coordenadas
+        Map<String, WordSearchCell> cellMap = game.getCells().stream()
+                .collect(Collectors.toMap(
+                        c -> c.getRowIndex() + "," + c.getColIndex(),
+                        c -> c
+                ));
+
+        // Marcar palabras reveladas y sus celdas
         game.getWords().forEach(word -> {
-            word.setRevealed(true); // Asume que has agregado un campo "revealed" en la entidad WordSearchWord
+            word.setRevealed(true);
+
+            String[] dir = word.getDirection().split(",");
+            int dr = Integer.parseInt(dir[0]);
+            int dc = Integer.parseInt(dir[1]);
+            int len = word.getSurname().length();
+
+            for (int i = 0; i < len; i++) {
+                int row = word.getStartRow() + i * dr;
+                int col = word.getStartCol() + i * dc;
+                WordSearchCell cell = cellMap.get(row + "," + col);
+                if (cell != null) cell.setRevealed(true);
+            }
         });
 
-        game.setFinished(true);  // Marcamos el juego como terminado
-        game.setSuccessful(false); // El jugador se rinde, por lo tanto, no es un éxito
-
-        return gameDao.save(game); // Guardamos los cambios
+        game.setFinished(true);
+        game.setSuccessful(false);
+        return gameDao.save(game);
     }
+
 
 
 }

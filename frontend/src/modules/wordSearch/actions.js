@@ -12,9 +12,11 @@ export const getWordSearchGame = (gameId) => dispatch =>
   );
 
 export const validateWord = (request) => dispatch =>
-  service.validateWord(request, result =>
-    dispatch({ type: actionTypes.VALIDATE_WORD_COMPLETED, result, attempted: request.attemptedSurname })
-  );
+  service.validateWord(request, game => {
+    dispatch({ type: actionTypes.GET_WORDSEARCH_GAME_COMPLETED, game }); // reusa esta acción para actualizar tablero
+    dispatch({ type: actionTypes.ADD_FOUND_WORD, word: request.attemptedSurname });
+  });
+
 
 export const submitSolution = (request) => dispatch =>
   service.submitSolution(request, game =>

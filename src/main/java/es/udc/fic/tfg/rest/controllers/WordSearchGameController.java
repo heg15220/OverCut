@@ -28,12 +28,10 @@ public class WordSearchGameController {
     }
 
     @PostMapping("/validate")
-    public WordSearchValidateResultDto validateWord(@RequestBody WordSearchValidateRequestDto request) {
-        boolean result = wordSearchService.validateWord(
-                request.getGameId(),
-                request.getAttemptedSurname()
-        );
-        return new WordSearchValidateResultDto(result);
+    public WordSearchGameDto validateWord(@RequestBody WordSearchValidateRequestDto request) {
+        wordSearchService.validateWord(request.getGameId(), request.getAttemptedSurname());
+        WordSearchGame updatedGame = wordSearchService.getGame(request.getGameId());
+        return WordSearchConversor.toDto(updatedGame);
     }
 
     @PostMapping("/submit")

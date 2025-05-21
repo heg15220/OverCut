@@ -658,5 +658,6 @@ CREATE TABLE WordSearchCell (
     rowIndex INT NOT NULL,
     colIndex INT NOT NULL,
     letter CHAR(1) NOT NULL,
+    revealed BOOLEAN,
     FOREIGN KEY (gameId) REFERENCES WordSearchGame(id) ON DELETE CASCADE
 );
