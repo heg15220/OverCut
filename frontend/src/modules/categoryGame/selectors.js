@@ -1,0 +1,1 @@
+export const getCategoryGame = state => state.categoryGame.game;

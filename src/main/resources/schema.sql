@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS CategorySlot;
+DROP TABLE IF EXISTS CategoryGame;
 DROP TABLE IF EXISTS OrderDriverSlot;
 DROP TABLE IF EXISTS OrderDriverGame;
 DROP TABLE IF EXISTS DriversConnectionsPilot;
@@ -609,4 +611,20 @@ CREATE TABLE OrderDriverSlot (
     driverName VARCHAR(100) NOT NULL,
     correctOrder INT NOT NULL,
     FOREIGN KEY (gameId) REFERENCES OrderDriverGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE CategoryGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    letter CHAR(1) NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    finished BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE CategorySlot (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    answer VARCHAR(100),
+    valid BOOLEAN,
+    FOREIGN KEY (gameId) REFERENCES CategoryGame(id) ON DELETE CASCADE
 );
