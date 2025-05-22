@@ -116,3 +116,17 @@
 .rondo-finish-button:hover {
   background-color: #666;
 }
+.rondo-home-button {
+  margin-top: 1rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.rondo-home-button:hover {
+  background-color: #1565c0;
+}

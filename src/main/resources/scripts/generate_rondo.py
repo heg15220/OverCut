@@ -6,6 +6,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 import concurrent.futures
+from threading import Lock
 from functools import lru_cache
 
 # Configuración de base de datos
@@ -16,10 +17,72 @@ engine = create_engine(DB_URL, poolclass=QueuePool, pool_size=10, max_overflow=5
 Session = sessionmaker(bind=engine)
 
 LETTERS = [chr(i) for i in range(ord('A'), ord('Z') + 1)]
+CACHE_FILE_TEMPLATE = "rosco_cache_{lang}.json"
+CACHE_SIZE = 20
+cache = []
+cache_lock = Lock()
+
+
+NAT_TRANSLATIONS = {
+    "en": {
+        "American": "American", "American-Italian": "American-Italian", "Argentine": "Argentine",
+        "Argentine-Italian": "Argentine-Italian", "Argentinian": "Argentinian", "Australian": "Australian",
+        "Austrian": "Austrian", "Belgian": "Belgian", "Brazilian": "Brazilian", "British": "British",
+        "Canadian": "Canadian", "Chilean": "Chilean", "Chinese": "Chinese", "Colombian": "Colombian",
+        "Czech": "Czech", "Danish": "Danish", "Dutch": "Dutch", "East German": "East German",
+        "Finnish": "Finnish", "French": "French", "German": "German", "Hungarian": "Hungarian",
+        "Indian": "Indian", "Indonesian": "Indonesian", "Irish": "Irish", "Italian": "Italian",
+        "Japanese": "Japanese", "Liechtensteiner": "Liechtensteiner", "Malaysian": "Malaysian",
+        "Mexican": "Mexican", "Monegasque": "Monegasque", "New Zealander": "New Zealander",
+        "Polish": "Polish", "Portuguese": "Portuguese", "Rhodesian": "Rhodesian", "Russian": "Russian",
+        "South African": "South African", "Spanish": "Spanish", "Swedish": "Swedish", "Swiss": "Swiss",
+        "Thai": "Thai", "Uruguayan": "Uruguayan", "Venezuelan": "Venezuelan"
+    },
+    "es": {
+        "American": "Estadounidense", "American-Italian": "Estadounidense-Italiano", "Argentine": "Argentino",
+        "Argentine-Italian": "Argentino-Italiano", "Argentinian": "Argentino", "Australian": "Australiano",
+        "Austrian": "Austriaco", "Belgian": "Belga", "Brazilian": "Brasileño", "British": "Británico",
+        "Canadian": "Canadiense", "Chilean": "Chileno", "Chinese": "Chino", "Colombian": "Colombiano",
+        "Czech": "Checo", "Danish": "Danés", "Dutch": "Neerlandés", "East German": "Alemán Oriental",
+        "Finnish": "Finlandés", "French": "Francés", "German": "Alemán", "Hungarian": "Húngaro",
+        "Indian": "Indio", "Indonesian": "Indonesio", "Irish": "Irlandés", "Italian": "Italiano",
+        "Japanese": "Japonés", "Liechtensteiner": "Liechtensteiniano", "Malaysian": "Malasio",
+        "Mexican": "Mexicano", "Monegasque": "Monegasco", "New Zealander": "Neozelandés",
+        "Polish": "Polaco", "Portuguese": "Portugués", "Rhodesian": "Rodesiano", "Russian": "Ruso",
+        "South African": "Sudafricano", "Spanish": "Español", "Swedish": "Sueco", "Swiss": "Suizo",
+        "Thai": "Tailandés", "Uruguayan": "Uruguayo", "Venezuelan": "Venezolano"
+    }
+}
+def translate_nationality(nationality, lang):
+    return NAT_TRANSLATIONS.get(lang, {}).get(nationality.strip(), nationality)
 
 @lru_cache(maxsize=None)
 def strip_accents(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+
+
+def cargar_cache(lang):
+    global cache
+    filename = CACHE_FILE_TEMPLATE.format(lang=lang)
+    if os.path.exists(filename):
+        with open(filename, 'r', encoding='utf-8') as f:
+            cache = json.load(f)
+    else:
+        regenerar_cache(lang)
+
+def regenerar_cache(lang):
+    global cache
+    nuevos_roscos = [generar_rosco(lang) for _ in range(CACHE_SIZE)]
+    with open(CACHE_FILE_TEMPLATE.format(lang=lang), 'w', encoding='utf-8') as f:
+        json.dump(nuevos_roscos, f, ensure_ascii=False, indent=2)
+    cache = nuevos_roscos
+
+def obtener_rosco_aleatorio(lang):
+    with cache_lock:
+        if not cache:
+            regenerar_cache(lang)
+        return cache.pop(random.randint(0, len(cache)-1))
+
 
 def prefetch_data(session):
     return {
@@ -126,19 +189,28 @@ def get_driver_teams(session, letter, lang):
 
 def get_world_champions(session, letter, lang):
     query = text("""
-        SELECT d.forename, d.surname, c.name
+        SELECT d.driverId, d.forename, d.surname, GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', ') as constructors
         FROM driverstandings ds
-        JOIN results r ON ds.raceId = r.raceId AND ds.driverId = r.driverId
-        JOIN drivers d ON r.driverId = d.driverId
-        JOIN constructors c ON r.constructorId = c.constructorId
+        JOIN races r ON ds.raceId = r.raceId
+        JOIN drivers d ON ds.driverId = d.driverId
+        JOIN results res ON res.raceId = r.raceId AND res.driverId = d.driverId
+        JOIN constructors c ON res.constructorId = c.constructorId
         WHERE ds.position = 1
+          AND r.round = (
+              SELECT MAX(r2.round)
+              FROM races r2
+              WHERE r2.year = r.year
+          )
+        GROUP BY d.driverId, d.forename, d.surname
     """)
 
     results = session.execute(query).fetchall()
-    champions = {}
-    for forename, surname, constructor in results:
+    champions = {}  # ← ESTA LÍNEA FALTABA
+
+    for driverId, forename, surname, constructor_string in results:
+        teams = set(constructor_string.split(", "))
         key = (forename, surname)
-        champions.setdefault(key, set()).add(constructor)
+        champions.setdefault(key, teams)
 
     candidates = []
     for (forename, surname), teams in champions.items():
@@ -153,6 +225,7 @@ def get_world_champions(session, letter, lang):
             candidates.append((q1, surname))
             candidates.append((q2, surname))
     return candidates
+
 
 def get_constructor_extra_questions(session, letter, lang):
     candidates = []
@@ -207,13 +280,21 @@ def get_constructor_extra_questions(session, letter, lang):
 
     # 4. Campeones del mundo que han corrido en el equipo
     query_champs = text("""
-        SELECT DISTINCT c.name, d.forename, d.surname
-        FROM results r
-        JOIN constructors c ON r.constructorId = c.constructorId
-        JOIN drivers d ON r.driverId = d.driverId
-        JOIN driverstandings ds ON r.raceId = ds.raceId AND r.driverId = ds.driverId
+        SELECT c.name, d.forename, d.surname
+        FROM driverstandings ds
+        JOIN races r ON ds.raceId = r.raceId
+        JOIN drivers d ON ds.driverId = d.driverId
+        JOIN results res ON res.raceId = r.raceId AND res.driverId = d.driverId
+        JOIN constructors c ON res.constructorId = c.constructorId
         WHERE ds.position = 1
+          AND r.round = (
+              SELECT MAX(r2.round)
+              FROM races r2
+              WHERE r2.year = r.year
+          )
     """)
+
+
 
     team_champions = {}
     for team, forename, surname in session.execute(query_champs):
@@ -463,77 +544,93 @@ def get_f1_jargon_questions(letter, lang):
 
 
 
-def generate_question_answer(letter, lang, data, indexes):
-    races_by_id, driver_names, constructor_names, stats = indexes
+
+def generate_for_letter(letter, lang, data):
     letter = strip_accents(letter.upper())
     candidates = []
-
-    for driverId, forename, surname, nationality in data["drivers"]:
-        if strip_accents(surname.upper()).startswith(letter):
-            candidates.append((f"¿Cuál es el apellido del piloto llamado {forename}?" if lang == "es"
-                               else f"What is the surname of the driver named {forename}", surname))
-        if strip_accents(forename.upper()).startswith(letter):
-            candidates.append((f"¿Cuál es el nombre del piloto cuyo apellido es {surname}?" if lang == "es"
-                               else f"What is the first name of the driver whose surname is {surname}", forename))
-        if strip_accents(nationality.upper()).startswith(letter):
-            candidates.append((f"Piloto de nacionalidad {nationality}" if lang == "es"
-                               else f"Driver with nationality {nationality}", surname))
-
-    for constructorId, name, nationality in data["constructors"]:
-        if strip_accents(name.upper()).startswith(letter):
-            candidates.append((f"Escudería {nationality} cuyo nombre comienza por {letter}" if lang == "es"
-                               else f"F1 team from {nationality} starting with letter {letter}", name))
-        if strip_accents(nationality.upper()).startswith(letter):
-            candidates.append((f"Equipo de nacionalidad {nationality}" if lang == "es"
-                               else f"Team with nationality {nationality}", name))
-
-    for (circuit,) in data["circuits"]:
-        if strip_accents(circuit.upper()).startswith(letter):
-            candidates.append((f"Circuito de F1 cuyo nombre empieza por la letra {letter}" if lang == "es"
-                               else f"F1 circuit starting with letter {letter}", circuit))
-
-    for (driverId, pos), total in stats.items():
-        if total >= 5:
-            forename, surname = driver_names[driverId]
+    session = Session()
+    try:
+        for _, forename, surname, nationality in data["drivers"]:
+            translated_nat = translate_nationality(nationality, lang)
             if strip_accents(surname.upper()).startswith(letter):
-                label = {1: "victorias", 2: "podios", 3: "poles"}[pos]
-                label_en = {"victorias": "wins", "podios": "podiums", "poles": "pole positions"}[label]
-                q = (f"Piloto con más de 5 {label} cuyo apellido empieza por {letter}" if lang == "es"
-                     else f"Driver with over 5 {label_en} whose surname starts with {letter}")
+                q = f"Piloto de nacionalidad {translated_nat}" if lang == "es" else f"Driver with nationality {translated_nat}"
+                candidates.append((q, surname))
+            if strip_accents(forename.upper()).startswith(letter):
+                q = f"¿Cuál es el apellido del piloto llamado {forename}?" if lang == "es" else f"What is the surname of the driver named {forename}"
                 candidates.append((q, surname))
 
-    champion_teams = {}
-    for driverId, raceId, pos in data["driver_standings"]:
-        if pos == 1:
-            for r in data["results"]:
-                if r[0] == raceId and r[1] == driverId:
-                    constructorId = r[2]
-                    champion_teams.setdefault(driverId, set()).add(constructor_names.get(constructorId, ""))
-    for driverId, teams in champion_teams.items():
-        forename, surname = driver_names[driverId]
-        if strip_accents(surname.upper()).startswith(letter):
-            q1 = f"Piloto campeón del mundo cuyo apellido empieza por {letter}" if lang == "es" else f"World champion whose surname starts with {letter}"
-            q2 = f"Piloto que fue campeón del mundo con: {', '.join(teams)}" if lang == "es" else f"Driver who won the championship with: {', '.join(teams)}"
-            candidates.append((q1, surname))
-            candidates.append((q2, surname))
+        for _, name, nationality in data["constructors"]:
+            translated_nat = translate_nationality(nationality, lang)
+            if strip_accents(name.upper()).startswith(letter):
+                q = f"Escudería de nacionalidad {translated_nat}" if lang == "es" else f"Team with nationality {translated_nat}"
+                candidates.append((q, name))
+            if strip_accents(nationality.upper()).startswith(letter):
+                q = f"Equipo con nacionalidad que empieza por {letter}" if lang == "es" else f"Team with nationality starting with {letter}"
+                candidates.append((q, name))
 
-    candidates.extend(get_f1_jargon_questions(letter, lang))
-    random.shuffle(candidates)
-    return candidates[0] if candidates else (f"No hay definición disponible para la letra {letter}" if lang == "es"
-                                             else f"No definition available for letter {letter}", f"Letra {letter}")
+        for (circuit,) in data["circuits"]:
+            if strip_accents(circuit.upper()).startswith(letter):
+                q = f"Circuito de F1 cuyo nombre empieza por {letter}" if lang == "es" else f"F1 circuit starting with {letter}"
+                candidates.append((q, circuit))
+
+        from generate_rondo import get_statistical_highlights, get_driver_teams, get_world_champions, get_constructor_extra_questions, get_f1_jargon_questions
+
+        for row in get_statistical_highlights(session, letter, 1, "victorias"):
+            candidates.append((f"Piloto con al menos 5 victorias cuyo apellido empieza por {letter}" if lang == "es" else f"Driver with at least 5 wins whose surname starts with {letter}", row[1]))
+
+        candidates += get_driver_teams(session, letter, lang)
+        candidates += get_world_champions(session, letter, lang)
+        candidates += get_constructor_extra_questions(session, letter, lang)
+        candidates += get_f1_jargon_questions(letter, lang)
+
+        grouped = {}
+        for question, answer in candidates:
+            grouped.setdefault(question, []).append(answer)
+
+        valid = [(q, [a for a in ans if strip_accents(a.upper()).startswith(letter)]) for q, ans in grouped.items()]
+        valid = [(q, ans) for q, ans in valid if len(ans) > 0]
+
+        if not valid:
+            return {"letter": letter, "question": f"No hay pregunta para {letter}", "hasValidAnswer": False}
+
+        question, answers = random.choice(valid)
+        return {"letter": letter, "question": question, "hasValidAnswer": True}
+
+    except Exception as e:
+        print(f"[ERROR] Letra {letter} → {e}")
+        return {"letter": letter, "question": f"Error generando pregunta para {letter}", "hasValidAnswer": False}
+    finally:
+        session.close()
+
+
 
 def generar_rosco(lang):
     session = Session()
     try:
-        data = prefetch_data(session)
-        indexes = build_indexes(data)
+        data = {
+            "drivers": session.execute(text("SELECT driverId, forename, surname, nationality FROM drivers")).fetchall(),
+            "constructors": session.execute(text("SELECT constructorId, name, nationality FROM constructors")).fetchall(),
+            "circuits": session.execute(text("SELECT circuitRef FROM circuits")).fetchall(),
+            "races": session.execute(text("SELECT raceId, year FROM races WHERE year >= 1980")).fetchall(),
+            "results": session.execute(text("""
+                SELECT r.raceId, r.driverId, r.constructorId, r.position
+                FROM results r
+                JOIN races ra ON r.raceId = ra.raceId
+                WHERE ra.year >= 1980
+            """)).fetchall(),
+            "driver_standings": session.execute(text("""
+                SELECT ds.driverId, ds.raceId, ds.position
+                FROM driverstandings ds
+                JOIN races ra ON ds.raceId = ra.raceId
+                WHERE ra.year >= 1980
+            """)).fetchall()
+        }
 
-        def generar_para_letra(letter):
-            question, answer = generate_question_answer(letter, lang, data, indexes)
-            return {"letter": letter, "question": question, "answer": answer}
+        def process_letter(letter):
+            return generate_for_letter(letter, lang, data)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
-            futures = [executor.submit(generar_para_letra, letter) for letter in LETTERS]
+            futures = [executor.submit(process_letter, letter) for letter in LETTERS]
             results = [f.result() for f in concurrent.futures.as_completed(futures)]
 
         results.sort(key=lambda x: x["letter"])
@@ -541,17 +638,12 @@ def generar_rosco(lang):
     finally:
         session.close()
 
-@lru_cache(maxsize=2)
-def generar_rosco_cached(lang: str):
-    return generar_rosco(lang)
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--lang", default="es", choices=["es", "en"])
     args = parser.parse_args()
-    rosco = generar_rosco_cached(args.lang)
+    rosco = generar_rosco(args.lang)
     print(json.dumps(rosco, ensure_ascii=False, indent=2))
 
 if __name__ == "__main__":
     main()
-

@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 public class RondoGameServiceImpl implements RondoGameService {
@@ -63,12 +64,17 @@ public class RondoGameServiceImpl implements RondoGameService {
     @Override
     public RondoGame createGame(String language) {
         try {
-            // Ejecutar script y obtener salida
-            String output = runPythonScript(SCRIPT_PATH, "--lang", language);
-
-            // Parsear salida JSON
+            // Leer archivo de caché con roscos pre-generados
+            String cachePath = "src/main/resources/scripts/rosco_cache_" + language + ".json";
             ObjectMapper mapper = new ObjectMapper();
-            List<Map<String, String>> rosco = mapper.readValue(output, new TypeReference<>() {});
+            List<List<Map<String, Object>>> todosLosRoscos;
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(cachePath))) {
+                todosLosRoscos = mapper.readValue(reader, new TypeReference<>() {});
+            }
+
+            // Elegir uno aleatorio
+            List<Map<String, Object>> rosco = todosLosRoscos.get(new Random().nextInt(todosLosRoscos.size()));
 
             // Crear entidad del juego
             RondoGame game = new RondoGame();
@@ -80,12 +86,16 @@ public class RondoGameServiceImpl implements RondoGameService {
 
             // Crear letras asociadas
             List<RondoLetter> letters = new ArrayList<>();
-            for (Map<String, String> entry : rosco) {
+            for (Map<String, Object> entry : rosco) {
                 RondoLetter letter = new RondoLetter();
                 letter.setGame(game);
-                letter.setLetter(entry.get("letter").charAt(0));
-                letter.setQuestion(entry.get("question"));
-                letter.setAnswer(entry.get("answer"));
+                letter.setLetter(entry.get("letter").toString().charAt(0));
+                letter.setQuestion(entry.get("question").toString());
+
+                // Guardamos la lista de respuestas como JSON plano
+                String jsonAnswers = mapper.writeValueAsString(entry.get("answers"));
+                letter.setAnswer(jsonAnswers);
+
                 letter.setStatus("UNANSWERED");
                 letters.add(letter);
             }
@@ -96,9 +106,11 @@ public class RondoGameServiceImpl implements RondoGameService {
             return game;
 
         } catch (IOException e) {
-            throw new RuntimeException("Error generating Pasapalabra game: " + e.getMessage(), e);
+            throw new RuntimeException("Error loading rosco from cache: " + e.getMessage(), e);
         }
     }
+
+
 
 
     @Override
@@ -112,7 +124,7 @@ public class RondoGameServiceImpl implements RondoGameService {
     }
 
     @Override
-    public RondoLetter answerLetter(Long gameId, char letter, String answer) throws InstanceNotFoundException {
+    public RondoLetter answerLetter(Long gameId, char letter, String userAnswer) throws InstanceNotFoundException {
         RondoLetter letterEntity = letterDao.findByGameIdAndLetter(gameId, letter)
                 .orElseThrow(() -> new InstanceNotFoundException("RondoLetter", letter));
 
@@ -120,8 +132,31 @@ public class RondoGameServiceImpl implements RondoGameService {
             return letterEntity;
         }
 
-        String correctAnswer = letterEntity.getAnswer().trim().toLowerCase();
-        if (answer.trim().equalsIgnoreCase(correctAnswer)) {
+        // Ejecutar script Python de validación dinámica
+        String scriptPath = "src/main/resources/scripts/validate_rondo_answer.py";
+        String result;
+        try {
+            ProcessBuilder pb = new ProcessBuilder("python", scriptPath,
+                    "--letter", String.valueOf(letter),
+                    "--question", letterEntity.getQuestion(),
+                    "--answer", userAnswer);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                result = reader.readLine();
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode != 0 || result == null) {
+                throw new RuntimeException("Validation script failed or returned null");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error executing validation script", e);
+        }
+
+        if (result.trim().equalsIgnoreCase("true")) {
             letterEntity.setStatus("CORRECT");
             RondoGame game = letterEntity.getGame();
             game.setScore(game.getScore() + 1);
@@ -129,9 +164,11 @@ public class RondoGameServiceImpl implements RondoGameService {
         } else {
             letterEntity.setStatus("WRONG");
         }
+
         letterDao.save(letterEntity);
         return letterEntity;
     }
+
 
     @Override
     public void skipLetter(Long gameId, char letter) throws InstanceNotFoundException {

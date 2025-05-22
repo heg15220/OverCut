@@ -1,17 +1,52 @@
-// src/games/rondo/components/RondoGame.jsx
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
+import { useNavigate } from "react-router-dom";
 import "./RondoGame.css";
 
+const translations = {
+  es: {
+    loading: "Cargando juego...",
+    summaryTitle: "Resumen del juego",
+    correct: "Correctas",
+    wrong: "Incorrectas",
+    skipped: "Sin responder",
+    backToHome: "Volver al inicio",
+    inputPlaceholder: "Tu respuesta o pasapalabra",
+    submit: "Responder",
+    finish: "Finalizar juego"
+  },
+  en: {
+    loading: "Loading game...",
+    summaryTitle: "Game Summary",
+    correct: "Correct",
+    wrong: "Wrong",
+    skipped: "Skipped",
+    backToHome: "Back to home",
+    inputPlaceholder: "Your answer or pass",
+    submit: "Submit",
+    finish: "Finish game"
+  }
+};
+
+const getLang = () => {
+  const lang = navigator.language.slice(0, 2);
+  return translations[lang] ? lang : "es";
+};
+
 const RondoGame = () => {
+  const lang = getLang();
+  const t = translations[lang];
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const game = useSelector(selectors.getRondoGame);
   const letters = useSelector(selectors.getRondoLetters);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
+  const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
     dispatch(actions.startRondoGame());
@@ -32,9 +67,14 @@ const RondoGame = () => {
 
   const handleFinish = () => {
     dispatch(actions.completeRondoGame(game.id));
+    setIsFinished(true);
   };
 
-  if (!game || letters.length === 0) return <div className="rondo-container">Cargando juego...</div>;
+  const countStatus = (status) =>
+    letters.filter((l) => l.status.toLowerCase() === status).length;
+
+  if (!game || letters.length === 0)
+    return <div className="rondo-container">{t.loading}</div>;
 
   const currentLetter = letters[currentIndex];
 
@@ -53,17 +93,31 @@ const RondoGame = () => {
       </div>
 
       <div className="rondo-center">
-        <h3>{currentLetter.question}</h3>
-        <form onSubmit={handleSubmit}>
-          <input
-            className="rondo-input"
-            placeholder="Tu respuesta o pasapalabra"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-          />
-          <button type="submit" className="rondo-button">Responder</button>
-        </form>
-        <button className="rondo-finish-button" onClick={handleFinish}>Finalizar juego</button>
+        {isFinished ? (
+          <>
+            <h3>{t.summaryTitle}</h3>
+            <p>✅ {t.correct}: {countStatus("correct")}</p>
+            <p>❌ {t.wrong}: {countStatus("wrong")}</p>
+            <p>⏭️ {t.skipped}: {countStatus("skipped")}</p>
+            <button className="rondo-home-button" onClick={() => navigate("/minigames")}>
+              {t.backToHome}
+            </button>
+          </>
+        ) : (
+          <>
+            <h3>{currentLetter.question}</h3>
+            <form onSubmit={handleSubmit}>
+              <input
+                className="rondo-input"
+                placeholder={t.inputPlaceholder}
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+              />
+              <button type="submit" className="rondo-button">{t.submit}</button>
+            </form>
+            <button className="rondo-finish-button" onClick={handleFinish}>{t.finish}</button>
+          </>
+        )}
       </div>
     </div>
   );
