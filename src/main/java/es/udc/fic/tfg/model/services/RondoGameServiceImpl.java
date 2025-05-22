@@ -69,7 +69,7 @@ public class RondoGameServiceImpl implements RondoGameService {
             ObjectMapper mapper = new ObjectMapper();
             List<List<Map<String, Object>>> todosLosRoscos;
 
-            try (BufferedReader reader = new BufferedReader(new FileReader(cachePath))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(cachePath), "UTF-8"))) {
                 todosLosRoscos = mapper.readValue(reader, new TypeReference<>() {});
             }
 
