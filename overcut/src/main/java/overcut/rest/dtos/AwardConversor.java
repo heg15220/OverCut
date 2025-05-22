@@ -1,0 +1,32 @@
+package overcut.rest.dtos;
+
+import overcut.model.entities.Award;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class AwardConversor {
+    private AwardConversor() {
+        // Constructor privado para evitar instanciación
+    }
+
+    /**
+     * Convierte un objeto Award en un objeto AwardDto.
+     *
+     * @param award el objeto Award a convertir
+     * @return el objeto AwardDto resultante
+     */
+    public static AwardDto convertToAwardDto(Award award) {
+
+        if(award.getUser() == null) {
+            return new AwardDto(award.getId(), award.getAward(),award.getRequiredPoints(), award.getImage(), null);
+        }
+
+        return new AwardDto(award.getId(), award.getAward(),award.getRequiredPoints(), award.getImage(), award.getUser().getId());
+    }
+
+    public static final List<AwardDto> toAwardDtos(List<Award> awards) {
+        return awards.stream().map(AwardConversor::convertToAwardDto).collect(Collectors.toList());
+
+    }
+}

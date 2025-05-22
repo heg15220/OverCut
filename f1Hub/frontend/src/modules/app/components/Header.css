@@ -1,0 +1,31 @@
+.f1hub-header {
+  background-color: #0d0d0d;
+  color: #ffcc00;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  font-family: 'Racing Sans One', sans-serif;
+  border-bottom: 2px solid #ffcc00;
+}
+
+.f1hub-logo {
+  font-size: 1.8rem;
+  text-transform: uppercase;
+}
+
+.f1hub-logo span {
+  color: white;
+}
+
+.f1hub-nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 2rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.f1hub-nav a:hover {
+  color: #ffcc00;
+}

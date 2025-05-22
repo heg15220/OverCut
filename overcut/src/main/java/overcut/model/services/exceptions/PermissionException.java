@@ -1,0 +1,8 @@
+package overcut.model.services.exceptions;
+
+/**
+ * The Class PermissionException.
+ */
+@SuppressWarnings("serial")
+public class PermissionException  extends Exception {}
+

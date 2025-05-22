@@ -1,0 +1,49 @@
+package overcut.model.services;
+
+import overcut.model.common.exceptions.InstanceNotFoundException;
+import overcut.model.entities.*;
+import overcut.model.services.exceptions.QuizException;
+
+import java.util.List;
+
+public interface QuizService {
+
+    String getQuizTypeName(QuizType quizType, String lang);
+
+    String getQuizCategoryName(QuizCategory quizCategory, String lang);
+    QuizType chooseQuizType();
+
+    QuizCategory chooseQuizCategory(QuizType quizType);
+
+    Quiz createQuiz(Long userId, String language) throws InstanceNotFoundException;
+
+    QuizType getQuizQuestionsType(Long quizId);
+
+    QuizCategory getQuizQuestionsCategory(Long quizId);
+
+    void chooseAnswer(Long quizId, Long questionId, Long userId, Long answerId) throws QuizException, InstanceNotFoundException;
+
+    Block<Question> findQuestionsByQuizId(Long quizId, int page, int size) throws InstanceNotFoundException;
+
+    Question getQuestionDetails(Long questionId) throws InstanceNotFoundException;
+    Block<UserAnswer> getUserAnswersForQuiz(Long userId, Long quizId, int page, int size) throws QuizException;
+
+    Block<Assessment> getUserAssessments(Long userId, int page, int size) throws InstanceNotFoundException;
+
+
+    Award chooseAward(Long awardId, Long userId) throws QuizException, InstanceNotFoundException;
+
+    Block<Award> getAvailableAwards(Long userId, int page, int size) throws InstanceNotFoundException;
+
+    List<Answer> getAnswersByQuestion(Long questionId) throws InstanceNotFoundException;
+    Quiz findQuizById(Long quizId);
+    UserAward getUserAward(Long userAwardId);
+    int getUserPoints(Long userId);
+
+    Award getAward(Long awardId);
+
+    Block<Award> getAwardsSelectedByUser(Long userId, int page, int size);
+    int getQuizPoints(Long quizId, Long userId);
+
+    int getAvailableQuizPoints(Long quizId);
+}
