@@ -1,0 +1,156 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import * as actions from '../actions';
+import * as userActions from '../../users/actions';
+import * as selectors from '../selectors';
+import * as userSelectors from '../../users/selectors';
+import { Card, CardContent, CardMedia, Typography, Button, Box, Container, Alert, AlertTitle } from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CancelIcon from '@mui/icons-material/Cancel';
+import { Grid } from '@mui/material';
+import {useNavigate, useParams} from "react-router-dom";
+import {FormattedMessage} from "react-intl";
+import {sourceImages} from "../../../helpers/sourceImages";
+
+const Awards = () => {
+    const {id} = useParams();
+    const user = useSelector(userSelectors.getUser);
+    const points = useSelector(userSelectors.getUserPoints);
+    const dispatch = useDispatch();
+    const [backendErrors, setBackendErrors] = useState(null);
+    const award = useSelector(selectors.getAward);
+    const [success, setSuccess] = useState(null);
+    const navigate = useNavigate();
+    const [imageRef, setImageRef] = useState(null);
+
+    useEffect(() => {
+        const awardId = Number(id);
+        if (!Number.isNaN(awardId) && awardId !== "undefined") {
+            dispatch(actions.getAward(awardId, () => {}, () => {}));
+        }
+    }, [id, dispatch]);
+
+    useEffect(() => {
+        const userId = Number(user.id);
+        if (!Number.isNaN(userId) && userId !== "undefined") {
+            dispatch(userActions.getUserPoints(userId, () => {}, () => {}));
+        }
+    }, [user, dispatch]);
+    // Awards.js
+
+    const handleChooseAward = (award) => {
+        const awardId = Number(award.id);
+        const userId = Number(user.id);
+        dispatch(actions.chooseAward({
+            awardId: awardId,
+            userId: userId
+        }, () => {
+            // Navegar a UserAwardConfirmed después de elegir el premio con éxito
+            navigate(`/${awardId}/user-award-confirmed`);
+        }, () => {
+            setBackendErrors('Hubo un error al seleccionar el premio.');
+        }));
+    };
+
+
+    if (!award) {
+        return null;
+    }
+
+
+    return (
+        <Container sx={{ marginTop: 0 }}>
+            <Box my={0}>
+                {backendErrors && (
+                    <Alert severity="error" onClose={() => setBackendErrors(null)}>
+                        <AlertTitle>Error</AlertTitle>
+                        {backendErrors}
+                    </Alert>
+                )}
+                {success && (
+                    <Alert severity="success" onClose={() => setSuccess(null)}>
+                        <AlertTitle>Success</AlertTitle>
+                        {success}
+                    </Alert>
+                )}
+                <Card>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: '40vh',
+                            overflow: 'hidden',
+                            position: 'relative',
+                        }}
+                    >
+                        <img
+                            ref={setImageRef}
+                            className="image-hover-target"
+                            src={sourceImages(`./${award.image}`)}
+                            alt="Award Image"
+                            style={{ width: '60%', height: '100%', objectFit: 'contain' }}
+                            sx={{
+                                transition: 'transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out',
+                            }}
+                        />
+                    </Box>
+                    <CardContent>
+                        <Typography variant="h5" component="div" sx={{
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            color: 'text.primary',
+                            marginTop: '1rem',
+                            marginBottom: '1rem',
+                        }}>
+                            {award.award}
+                        </Typography>
+
+                        <Typography variant="h5" component="div" sx={{
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            color: 'text.primary',
+                            marginTop: '1rem',
+                            marginBottom: '1rem',
+                        }}>
+                            <FormattedMessage id="project.entities.AwardDetails.Points"></FormattedMessage>
+                            {award.requiredPoints}
+                        </Typography>
+
+                        <Typography variant="h5" component="div" sx={{
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            color: 'text.primary',
+                            marginTop: '1rem',
+                            marginBottom: '1rem',
+                        }}>
+                            <FormattedMessage id="project.entities.User.Points"></FormattedMessage>
+                            {points}
+                        </Typography>
+                        {points >= award.requiredPoints? (<Button
+                                key={award.id}
+                                variant="contained"
+                                onClick={() => handleChooseAward(award)}
+                            >
+                                <FormattedMessage id="project.entities.AwardDetails.Button"> </FormattedMessage>
+                            </Button>
+                        ): <Typography variant="h5" component="div" sx={{
+                            fontSize: '1.5rem',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            color: 'text.primary',
+                            fontStyle: 'italic',
+                            marginTop: '1rem',
+                            marginBottom: '1rem',
+                        }}>
+                            <FormattedMessage id="project.entities.Awards.User.Points"></FormattedMessage></Typography>}
+
+                    </CardContent>
+                </Card>
+            </Box>
+        </Container>
+    );
+};
+
+export default Awards;

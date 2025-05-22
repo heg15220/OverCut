@@ -1,0 +1,313 @@
+/* Contenedor principal */
+.game-container {
+    background: radial-gradient(circle at center, #0a0a0a, #000000 80%);
+    color: white;
+    min-height: 100vh;
+    padding: 4rem 1rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    font-family: 'F1 Regular', 'Roboto', sans-serif;
+}
+
+/* Encabezado */
+.game-header {
+  margin-bottom: 0.5rem; /* antes era 2rem */
+  margin-top: -2rem;     /* lo sube visualmente en la pantalla */
+}
+
+
+.turn-indicator-wrapper {
+  width: 100%;
+  margin-bottom: 0; /* ✅ Lo quitamos */
+}
+
+
+.turn-indicator {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #121212;
+  border: 1px solid #2b2b2b;
+  border-radius: 14px;
+  font-family: 'F1 Bold', sans-serif;
+  font-size: 1rem;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(255, 30, 30, 0.3);
+}
+
+
+.turn-indicator button {
+    margin-left: 12px;
+    background-color: #ff1e1e;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.turn-indicator button:hover {
+    background-color: #d31515;
+}
+
+/* Nuevo contenedor para tablero + criterios */
+.game-grid-wrapper {
+  width: fit-content;
+  margin: 0 auto;
+  margin-top: 0; /* ✅ Sin espacio extra arriba */
+}
+
+
+/* Grid adaptado al nuevo tamaño */
+.game-layout-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 130px); /* 3 celdas + 1 criterio */
+  grid-template-rows: repeat(4, 130px);
+  gap: 20px; /* un poco más amplio */
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.empty-cell {
+  width: 130px;
+  height: 130px;
+}
+
+
+/* Criterios superiores */
+.criteria-top {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+/* Filas del tablero */
+.board-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+
+/* Criterios laterales */
+.criteria-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Casillas */
+.cell {
+  background-color: #151515;
+  border: 1px solid rgba(255, 30, 30, 0.25); /* líneas divisorias */
+  border-radius: 0; /* bordes rectos para el efecto rejilla */
+  width: 130px;
+  height: 130px;
+  font-size: 1.6rem;
+  color: #ff1e1e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: inset 0 0 6px rgba(255, 30, 30, 0.2);
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+
+.cell:hover {
+    background-color: #202020;
+    box-shadow: 0 0 20px rgba(255, 30, 30, 0.7);
+    transform: scale(1.05);
+}
+
+/* Efectos visuales */
+.cell-success {
+    background-color: #1f1f1f;
+    box-shadow: 0 0 14px 3px rgba(0, 255, 0, 0.7);
+    animation: glowSuccess 0.5s ease-in-out;
+}
+
+.cell-error {
+    background-color: #1f1f1f;
+    box-shadow: 0 0 14px 3px rgba(255, 0, 0, 0.7);
+    animation: shakeError 0.5s ease-in-out;
+}
+
+@keyframes glowSuccess {
+    0% { box-shadow: 0 0 0 rgba(0,255,0,0); }
+    50% { box-shadow: 0 0 20px rgba(0,255,0,0.8); }
+    100% { box-shadow: 0 0 14px rgba(0,255,0,0.6); }
+}
+
+@keyframes shakeError {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-2px); }
+}
+
+/* Diálogos */
+.dialog-title {
+    color: #ff1e1e;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+
+.dialog-content {
+    background-color: #101010;
+}
+
+/* Imagen de coche */
+.car-f1 {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 200px;
+    opacity: 0.65;
+    animation: moveCar 6s infinite alternate;
+}
+
+@keyframes moveCar {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-24px); }
+}
+/* Espacio y altura mejorada para el diálogo de selección de piloto */
+.pilot-dialog-content {
+  min-height: 160px;
+  padding: 2rem 1.5rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .pilot-dialog-content {
+    padding: 1.5rem 1rem !important;
+  }
+}
+
+.pilot-input-wrapper {
+  width: 100%;
+  max-width: 580px;
+  transition: all 0.3s ease;
+  margin-bottom: 0;
+}
+
+.pilot-input-wrapper.expanded {
+  margin-bottom: 280px; /* espacio para la lista desplegada */
+}
+
+
+.pilot-input-panel {
+  width: 100%;
+  background-color: #111;
+  border-top: 2px solid #ff1e1e;
+  padding: 1.5rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 -4px 12px rgba(255, 30, 30, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.pilot-input-content {
+  width: 100%;
+  max-width: calc(130px * 4 + 20px * 3); /* 520 + 60 = 580px */
+  text-align: center;
+}
+
+.pilot-input-panel {
+  position: absolute;
+  top: calc(130px * 2 + 20px * 2 + 65px + 240px); /* desplazamos 30px hacia abajo */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+
+  width: 638px;
+  background-color: #111;
+  border: 2px solid #ff1e1e;
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  box-shadow: 0 0 16px rgba(255, 30, 30, 0.2), 0 0 8px rgba(255, 30, 30, 0.1) inset;
+  animation: slideUp 0.3s ease-out;
+}
+
+
+.pilot-input-content {
+  width: 100%;
+  max-width: 580px;
+  text-align: center;
+}
+
+.board-frame {
+  padding: 30px;
+  background: linear-gradient(145deg, #121212, #1a1a1a);
+  border: 2px solid #ff1e1e;
+  border-radius: 20px;
+  box-shadow:
+    0 0 30px rgba(255, 30, 30, 0.15),
+    0 0 10px rgba(255, 30, 30, 0.1) inset;
+  transition: all 0.3s ease;
+}
+
+
+.grid-cell {
+  outline: 1px solid rgba(255, 30, 30, 0.3);
+  box-sizing: border-box;
+}
+
+
+
+.pilot-input-actions {
+  margin-top: 1.2rem;
+}
+
+.logo-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 130px;
+  height: 130px;
+  transform: scale(1.3); /* ¡Este es el truco visual! */
+  transform-origin: center;
+  padding: 0;
+}
+
+
+.f1-car-logo {
+  width: 140px;         /* antes: 120px */
+  height: 80px;         /* añade altura específica */
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(255, 30, 30, 0.5));
+  animation: carSubtleMove 3s infinite ease-in-out;
+}
+
+.bot-info {
+  margin-top: 8px;
+  font-style: italic;
+  color: #aaaaaa;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bot-info::before {
+  content: "🤖";
+  font-size: 1.1rem;
+}
+

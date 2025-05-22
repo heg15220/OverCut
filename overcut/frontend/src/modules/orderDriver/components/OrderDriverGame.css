@@ -1,0 +1,253 @@
+.order-driver-container {
+  padding: 2rem;
+  max-width: 880px;
+  margin: 0 auto;
+  font-family: 'F1 Regular', sans-serif;
+  min-height: calc(100vh - 150px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: #0d0d0d;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.order-driver-container.surrendered-mode {
+  justify-content: center;
+}
+
+.order-driver-title {
+  text-align: center;
+  color: #ffcc00;
+  font-size: 1.9rem;
+  margin-bottom: 1.8rem;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+  font-family: 'F1 Bold', sans-serif;
+}
+
+.order-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.8rem;
+}
+
+.order-layout.centered {
+  justify-content: center;
+}
+
+.side-candidates {
+  width: 22%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ranking-slots {
+  width: 42%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  background-color: #161616;
+  border-radius: 12px;
+  box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.05);
+}
+
+.ranking-slot {
+  display: flex;
+  align-items: center;        /* 🟢 Fuerza la alineación vertical */
+  justify-content: flex-start;
+  gap: 12px;                  /* 🟢 Espacio entre número y nombre */
+  padding: 0.5rem 1rem;
+  min-height: 48px;           /* 🟢 Altura suficiente para alinear */
+  font-size: 1rem;
+  background: linear-gradient(135deg, #1f1f1f, #2a2a2a);
+  border: 2px dashed #555;
+  border-radius: 10px;
+  color: white;
+  transition: background 0.2s ease;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.ranking-slot:hover {
+  background: #333;
+}
+
+.position-number {
+  font-weight: bold;
+  width: 28px;
+  text-align: center;
+}
+
+
+.driver-name {
+  color: #fff;
+  font-weight: 600;
+}
+
+.placeholder {
+  color: #666;
+  font-style: italic;
+}
+
+.driver-card {
+  background: linear-gradient(135deg, #252525, #333);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.15s ease;
+  text-align: center;
+}
+
+.driver-card:hover {
+  background: #3f3f3f;
+  transform: scale(1.02);
+}
+
+.driver-card.selected {
+  background: #ffcc00;
+  color: black;
+  font-weight: bold;
+  transform: scale(1.03);
+}
+
+.validate-btn, .surrender-btn {
+  width: 48%;
+  background: #ffcc00;
+  border: none;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.15);
+}
+
+.surrender-btn {
+  background: #ff4444;
+  margin-left: 4%;
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+  width: 42%;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 4%;
+}
+
+.validate-btn:hover {
+  background: #ffee58;
+  transform: translateY(-1px);
+}
+
+.surrender-btn:hover {
+  background: #ff6666;
+  transform: translateY(-1px);
+}
+
+.order-result {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+}
+
+.order-result.success {
+  color: #00e676;
+}
+
+.order-result.fail {
+  color: #ff1744;
+}
+
+
+
+/* Colores de slots cuando se validan o se muestra el resultado */
+.ranking-slot.success {
+  background: #ffcc00;
+  color: black;
+  font-weight: bold;
+  border-color: #ffcc00;
+}
+
+.ranking-slot.success .driver-name,
+.ranking-slot.success .position-number {
+  color: black;
+}
+
+.ranking-slot.fail {
+  background: linear-gradient(135deg, #ff1744, #b71c1c);
+  border-color: #ff1744;
+  color: white;
+}
+
+/* Estos colores deben coincidir con el .driver-card.selected visualmente */
+.driver-card.success {
+  background: #ffcc00;
+  color: black;
+  font-weight: bold;
+  transform: scale(1.03);
+}
+
+.driver-card.success .driver-name,
+.driver-card.success .position-number {
+  color: black;
+}
+
+.driver-card.fail {
+  background: #ff1744;
+  color: white;
+  font-weight: bold;
+  transform: scale(1.03);
+}
+
+.order-driver-page {
+  background: linear-gradient(to bottom, #0a1a2f, #050f1e);
+  color: white;
+  min-height: 100vh;
+}
+
+.order-driver-container {
+  background: transparent;
+  box-shadow: none;
+}
+
+.driver-name,
+.placeholder {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.back-btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.05rem;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(to right, #2196f3, #64b5f6); /* Azul brillante */
+  color: white;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(to right, #42a5f5, #90caf9);
+}
+
+
