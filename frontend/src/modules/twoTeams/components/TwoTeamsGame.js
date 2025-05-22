@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../actions';
 import * as selectors from '../selectors';
 import TeamLogo from './TeamLogo';
+import { useNavigate } from 'react-router-dom';
 import './TwoTeamsGame.css';
 
 const TwoTeamsGame = () => {
@@ -14,6 +15,7 @@ const TwoTeamsGame = () => {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const suggestionsRef = useRef([]);
   const [animateFlip, setAnimateFlip] = useState(true);
+  const navigate = useNavigate();
 
   const lang = navigator.language.startsWith('es') ? 'es' : 'en';
 
@@ -177,8 +179,11 @@ const TwoTeamsGame = () => {
         <div className="final-result">
           <h3>{translations.gameOver[lang]}</h3>
           <p>{translations.score[lang](game.correctAnswers)}</p>
-        </div>
 
+          <button className="back-btn" onClick={() => navigate('/minigames')}>
+            ⬅️ {lang === 'es' ? 'Volver al inicio' : 'Back home'}
+          </button>
+        </div>
       )}
     </div>
   );

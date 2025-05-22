@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../actions';
 import * as selectors from '../selectors';
+import { useNavigate } from 'react-router-dom';
 import './DriversLinkGame.css';
 
 const DriversLinkGame = () => {
@@ -9,6 +10,7 @@ const DriversLinkGame = () => {
   const game = useSelector(selectors.getDriversLinkGame);
   const suggestions = useSelector(selectors.getDriverSuggestions);
 
+  const navigate = useNavigate();
   const [guessInput, setGuessInput] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const suggestionsRef = useRef([]);
@@ -36,12 +38,12 @@ const DriversLinkGame = () => {
       en: 'Loading game...',
     },
     win: {
-      es: '¡Ganaste!',
-      en: 'You won!',
+      es: '¡Correcto!',
+      en: 'Correct!',
     },
     lose: {
-      es: 'Perdiste, era',
-      en: 'You lost, it was',
+      es: 'Incorrecto, era',
+      en: 'Incorrect, it was',
     },
   };
 
@@ -169,9 +171,15 @@ const DriversLinkGame = () => {
           </>
         ) : (
           <div className={`game-result ${game.successful ? 'win' : 'lose'}`}>
-            {game.successful
-              ? translations.win[lang]
-              : `${translations.lose[lang]} ${game.driverName}`}
+            <div>
+              {game.successful
+                ? translations.win[lang]
+                : `${translations.lose[lang]} ${game.driverName}`}
+            </div>
+
+            <button className="back-btn" onClick={() => navigate('/minigames')}>
+              ⬅️ {lang === 'es' ? 'Volver al inicio' : 'Back home'}
+            </button>
           </div>
         )}
       </div>

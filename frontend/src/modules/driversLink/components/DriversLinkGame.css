@@ -347,4 +347,21 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
+.back-btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.05rem;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(to right, #2196f3, #64b5f6); /* Azul brillante */
+  color: white;
+  transition: transform 0.2s ease, background 0.3s ease;
+  margin-top: 1rem;
+}
+
+.back-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(to right, #42a5f5, #90caf9);
+}
 

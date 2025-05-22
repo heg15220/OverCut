@@ -9,6 +9,7 @@ import "./Crossword.css";
 import { sourceImages } from "../../../helpers/sourceImages";
 import CrosswordBoard from "./CrosswordBoard";
 import CrosswordClues from "./CrosswordClues";
+import { useNavigate } from "react-router-dom";
 
 const DEFAULT_ROWS = 10;
 const DEFAULT_COLS = 10;
@@ -20,6 +21,7 @@ const Crossword = () => {
     const words = useSelector(selectors.getCrosswordWords);
     const browserLang = navigator.language.startsWith("es") ? "es" : "en";
     const [language, setLanguage] = useState(browserLang);
+    const navigate = useNavigate();
 
 
     // Crear nueva partida al entrar
@@ -108,16 +110,26 @@ const Crossword = () => {
                 </Grid>
                 <Grid item xs={12} md={5}>
                     <CrosswordClues words={words} language={language}/>
-                    <Button
+                    <Box sx={{ display: 'flex', gap: 2, mt: 3, flexWrap: 'wrap' }}>
+                      <Button
                         variant="outlined"
                         color="primary"
-                        sx={{ mt: 3 }}
                         onClick={() => dispatch(actions.resetCrosswordGame(game.id, () => {
                             dispatch(actions.getCrosswordCells(game.id, () => {}));
                         }))}
-                    >
+                      >
                         <FormattedMessage id="crossword.reset" />
-                    </Button>
+                      </Button>
+
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => navigate('/minigames')}
+                      >
+                        {language === 'es' ? 'Volver al inicio' : 'Back home'}
+                      </Button>
+                    </Box>
+
                 </Grid>
             </Grid>
         </Box>

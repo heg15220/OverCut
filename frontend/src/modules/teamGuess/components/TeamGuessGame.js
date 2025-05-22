@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../actions';
 import * as selectors from '../selectors';
 import TeamLogo from './TeamLogo';
+import { useNavigate } from 'react-router-dom';
 import './TeamGuessGame.css';
 
 const TeamGuessGame = () => {
@@ -12,6 +13,7 @@ const TeamGuessGame = () => {
   const [guessInput, setGuessInput] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const suggestionsRef = useRef([]);
+  const navigate = useNavigate();
   const lang = navigator.language.startsWith('es') ? 'es' : 'en';
 
   const translations = {
@@ -132,12 +134,18 @@ const TeamGuessGame = () => {
             <button className="guess-btn" onClick={handleGuess}>{translations.guess[lang]}</button>
           </>
         ) : (
-              <>
-
+              <div className="result-container">
                 <div className={`game-result ${game.successful ? 'win' : 'lose'}`}>
-                  {game.successful ? translations.win[lang] : `${translations.lose[lang]} ${game.teamName}`}
+                  {game.successful
+                    ? translations.win[lang]
+                    : `${translations.lose[lang]} ${game.teamName}`}
                 </div>
-              </>
+
+                <button className="back-btn" onClick={() => navigate('/minigames')}>
+                  ⬅️ {lang === 'es' ? 'Volver al inicio' : 'Back home'}
+                </button>
+              </div>
+
             )}
       </div>
     </div>
