@@ -1,12 +1,32 @@
-// === src/modules/f1hub/components/TableView.jsx ===
-import React from "react";
+import React, { useState } from "react";
+import RaceSelector from "../../raceSelector/components/RaceSelector";
 import RaceResultTable from "../../raceResults/components/RaceResultTable";
+import QualifyingResultTable from "../../raceResults/components/QualifyingResultTable";
+import SprintResultTable from "../../raceResults/components/SprintResultTable";
 
 const TableView = () => {
-  // Aquí usas un ID fijo (por ejemplo: 1), luego lo harás dinámico con selector o filtro
+  const [selectedRace, setSelectedRace] = useState(null);
+
+  const handleSelection = (selection) => {
+    setSelectedRace(selection);
+  };
+
   return (
     <div>
-      <RaceResultTable raceId={1} />
+      <h2 style={{ textAlign: "center", color: "#ffcc00" }}>Visualización de Resultados</h2>
+
+      <RaceSelector onRaceSelected={handleSelection} />
+
+      {selectedRace?.session === "QUALI" && (
+        <QualifyingResultTable raceId={selectedRace.raceId} />
+      )}
+
+      {selectedRace?.session === "RACE" && (
+        <RaceResultTable raceId={selectedRace.raceId} />
+      )}
+      {selectedRace?.session === "SPRINT" && (
+        <SprintResultTable raceId={selectedRace.raceId} />
+      )}
     </div>
   );
 };

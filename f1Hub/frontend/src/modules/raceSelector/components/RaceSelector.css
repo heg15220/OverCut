@@ -1,0 +1,17 @@
+/* RaceSelector.css */
+.race-selector {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem auto;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.race-selector select {
+  padding: 0.5rem 1rem;
+  font-family: 'F1 Regular', sans-serif;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background-color: #111;
+  color: white;
+}

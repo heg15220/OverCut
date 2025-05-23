@@ -14,6 +14,7 @@ public class Constructor {
     private String constructorRef;
     private String name;
     private List<Result> resultList;
+    private List<SprintResult> sprintResults;
 
     public Constructor() {
     }
@@ -57,5 +58,14 @@ public class Constructor {
 
     public void setResultList(List<Result> resultList) {
         this.resultList = resultList;
+    }
+
+    @OneToMany(mappedBy = "constructor")
+    public List<SprintResult> getSprintResults() {
+        return sprintResults;
+    }
+
+    public void setSprintResults(List<SprintResult> sprintResults) {
+        this.sprintResults = sprintResults;
     }
 }

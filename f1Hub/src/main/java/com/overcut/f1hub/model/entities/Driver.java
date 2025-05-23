@@ -16,6 +16,8 @@ public class Driver {
 
     private List<Result> results;
 
+    private List<SprintResult> sprintResults;
+
     public Driver() {
     }
 
@@ -67,5 +69,14 @@ public class Driver {
 
     public void setResults(List<Result> results) {
         this.results = results;
+    }
+
+    @OneToMany(mappedBy = "driver")
+    public List<SprintResult> getSprintResults() {
+        return sprintResults;
+    }
+
+    public void setSprintResults(List<SprintResult> sprintResults) {
+        this.sprintResults = sprintResults;
     }
 }

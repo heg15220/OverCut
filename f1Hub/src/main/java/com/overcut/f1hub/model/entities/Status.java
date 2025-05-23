@@ -13,13 +13,15 @@ public class Status {
     private Long statusId;
     private String status;
     private List<Result> resultList;
+    private List<SprintResult> sprintResults;
 
     public Status() {
     }
 
-    public Status(String status, List<Result> resultList) {
+    public Status(String status, List<Result> resultList, List<SprintResult> sprintResults) {
         this.status = status;
         this.resultList = resultList;
+        this.sprintResults = sprintResults;
     }
 
     @Id
@@ -47,6 +49,16 @@ public class Status {
 
     public void setResultList(List<Result> resultList) {
         this.resultList = resultList;
+    }
+
+
+    @OneToMany(mappedBy = "status")
+    public List<SprintResult> getSprintResults() {
+        return sprintResults;
+    }
+
+    public void setSprintResults(List<SprintResult> sprintResults) {
+        this.sprintResults = sprintResults;
     }
 }
 
