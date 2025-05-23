@@ -7,6 +7,9 @@ public class GrandPrixDTO {
     private int round;
     private String circuitName;
     private String circuitCountry;
+    private int year; // ✅ Añadido
+    private String circuitCountryCode;
+
 
     public GrandPrixDTO(Long raceId, String name, int round, String circuitName, String circuitCountry) {
         this.raceId = raceId;
@@ -14,6 +17,26 @@ public class GrandPrixDTO {
         this.round = round;
         this.circuitName = circuitName;
         this.circuitCountry = circuitCountry;
+    }
+
+    public GrandPrixDTO(Long raceId, String name, int round, String circuitName, String circuitCountry, int year) {
+        this.raceId = raceId;
+        this.name = name;
+        this.round = round;
+        this.circuitName = circuitName;
+        this.circuitCountry = circuitCountry;
+        this.year = year;
+    }
+
+    public GrandPrixDTO(Long raceId, String name, int round, String circuitName,
+                        String circuitCountry, int year, String circuitCountryCode) {
+        this.raceId = raceId;
+        this.name = name;
+        this.round = round;
+        this.circuitName = circuitName;
+        this.circuitCountry = circuitCountry;
+        this.year = year;
+        this.circuitCountryCode = circuitCountryCode;
     }
 
     public Long getRaceId() {
@@ -54,5 +77,21 @@ public class GrandPrixDTO {
 
     public void setCircuitCountry(String circuitCountry) {
         this.circuitCountry = circuitCountry;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public String getCircuitCountryCode() {
+        return circuitCountryCode;
+    }
+
+    public void setCircuitCountryCode(String circuitCountryCode) {
+        this.circuitCountryCode = circuitCountryCode;
     }
 }

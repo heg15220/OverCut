@@ -9,3 +9,6 @@ export const getQualifyingResults = (raceId, onSuccess, onError) =>
 
 export const getSprintResults = (raceId, onSuccess, onErrors) =>
   appFetch(`/races/${raceId}/sprint`, fetchConfig("GET"), onSuccess, onErrors);
+
+export const getRaceInfo = (raceId, onSuccess, onError) =>
+  appFetch(`/races/race/${raceId}/info`, fetchConfig("GET"), onSuccess, onError);

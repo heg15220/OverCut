@@ -56,9 +56,66 @@ public class RaceResultServiceImpl implements RaceResultService {
         if (race.getFp1Date() != null) sessions.add("FP1");
         if (race.getFp2Date() != null) sessions.add("FP2");
         if (race.getFp3Date() != null) sessions.add("FP3");
-        if (qualifyingDao.existsByRaceRaceId(raceId)) sessions.add("QUALI");
+        if (qualifyingDao.existsQualifyingForRace(raceId)) sessions.add("QUALI");
         if (race.getSprintDate() != null) sessions.add("SPRINT");
         sessions.add("RACE"); // Siempre disponible
         return sessions;
+    }
+
+    private String getCountryCode(String country) {
+        return switch (country.toLowerCase()) {
+            case "argentina" -> "ar";
+            case "australia" -> "au";
+            case "austria" -> "at";
+            case "azerbaijan" -> "az";
+            case "bahrain" -> "bh";
+            case "belgium" -> "be";
+            case "brazil" -> "br";
+            case "canada" -> "ca";
+            case "china" -> "cn";
+            case "france" -> "fr";
+            case "germany" -> "de";
+            case "hungary" -> "hu";
+            case "india" -> "in";
+            case "italy" -> "it";
+            case "japan" -> "jp";
+            case "korea" -> "kr";
+            case "malaysia" -> "my";
+            case "mexico" -> "mx";
+            case "monaco" -> "mc";
+            case "morocco" -> "ma";
+            case "netherlands" -> "nl";
+            case "portugal" -> "pt";
+            case "qatar" -> "qa";
+            case "russia" -> "ru";
+            case "saudi arabia" -> "sa";
+            case "singapore" -> "sg";
+            case "south africa" -> "za";
+            case "spain" -> "es";
+            case "sweden" -> "se";
+            case "switzerland" -> "ch";
+            case "turkey" -> "tr";
+            case "uae" -> "ae";
+            case "uk" -> "gb";
+            case "united kingdom" -> "gb";
+            case "united states", "usa" -> "us";
+            default -> "xx"; // fallback: not found
+        };
+    }
+
+
+    @Override
+    public GrandPrixDTO getRaceInfo(Long raceId) {
+        var race = raceDao.findById(raceId).orElseThrow();
+        var circuit = race.getCircuit();
+        return new GrandPrixDTO(
+                race.getRaceId(),
+                race.getName(),
+                race.getRound(),
+                circuit != null ? circuit.getName() : "Desconocido",
+                circuit != null ? circuit.getCountry() : "Desconocido",
+                race.getYear(),
+                getCountryCode(circuit.getCountry())
+        );
     }
 }

@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as actions from '../actions';
-import * as actionTypes from '../actionTypes';
 import * as selectors from '../selectors';
+import "./RaceSelector.css";
 
 const RaceSelector = ({ onRaceSelected }) => {
-  console.log("👀 RaceSelector montado");
-
   const dispatch = useDispatch();
   const years = useSelector(selectors.getYears);
   const grandsPrix = useSelector(selectors.getGrandsPrix);
@@ -36,20 +34,26 @@ const RaceSelector = ({ onRaceSelected }) => {
   };
 
   const handleSessionChange = e => {
-    const session = e.target.value;
-    setSelectedSession(session);
+    setSelectedSession(e.target.value);
   };
+
+  const handleSubmit = () => {
+    if (selectedYear && selectedRaceId && selectedSession) {
+      onRaceSelected({ raceId: selectedRaceId, session: selectedSession });
+    }
+  };
+
 
   return (
     <div className="race-selector">
-      <select onChange={handleYearChange} value={selectedYear || ""}>
+      <select onChange={handleYearChange} value={selectedYear || ""} className={selectedYear ? "selected" : ""}>
         <option value="">Selecciona un año</option>
         {years.map(y => (
           <option key={y} value={y}>{y}</option>
         ))}
       </select>
 
-      <select onChange={handleGrandPrixChange} value={selectedRaceId || ""} disabled={!selectedYear}>
+      <select onChange={handleGrandPrixChange} value={selectedRaceId || ""} disabled={!selectedYear} className={selectedRaceId ? "selected" : ""}>
         <option value="">Selecciona GP</option>
         {grandsPrix.map(gp => (
           <option key={gp.raceId} value={gp.raceId}>
@@ -58,7 +62,7 @@ const RaceSelector = ({ onRaceSelected }) => {
         ))}
       </select>
 
-      <select onChange={handleSessionChange} value={selectedSession || ""} disabled={!selectedRaceId}>
+      <select onChange={handleSessionChange} value={selectedSession || ""} disabled={!selectedRaceId} className={selectedSession ? "selected" : ""}>
         <option value="">Selecciona sesión</option>
         {sessions.map(session => (
           <option key={session} value={session}>{session}</option>
@@ -66,12 +70,11 @@ const RaceSelector = ({ onRaceSelected }) => {
       </select>
 
       <button
-        onClick={() => onRaceSelected({ raceId: selectedRaceId, session: selectedSession })}
+        onClick={handleSubmit}
         disabled={!selectedYear || !selectedRaceId || !selectedSession}
       >
         Ver resultados
       </button>
-
     </div>
   );
 };

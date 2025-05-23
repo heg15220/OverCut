@@ -11,4 +11,5 @@ public interface RaceResultService {
     List<Integer> getAvailableYears();
     List<GrandPrixDTO> getGrandsPrixByYear(int year);
     List<String> getSessionsForRace(Long raceId);
+    GrandPrixDTO getRaceInfo(Long raceId);
 }

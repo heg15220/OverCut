@@ -79,5 +79,11 @@ public class RaceResultController {
     }
 
 
+    @GetMapping("/race/{raceId}/info")
+    public GrandPrixDTO getRaceInfo(@PathVariable Long raceId) {
+        return raceResultService.getRaceInfo(raceId);
+    }
+
+
 
 }
