@@ -1,0 +1,64 @@
+.race-result-table {
+  padding: 2rem;
+  font-family: 'F1 Regular', sans-serif;
+  background-color: #0f0f0f;
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+  max-width: 1000px;
+  margin: 2rem auto;
+  overflow-x: auto;
+}
+
+
+.race-result-title {
+  text-align: center;
+  color: #ffcc00;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  text-shadow: 0 0 8px rgba(255, 204, 0, 0.3);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+
+th, td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #333;
+}
+
+.pilot-cell, .team-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pilot-bar, .team-bar {
+  width: 6px;
+  height: 24px;
+  border-radius: 2px;
+}
+
+.flag {
+  width: 24px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 0 2px black;
+}
+
+@media (max-width: 768px) {
+  th, td {
+    padding: 0.6rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .race-result-title {
+    font-size: 1.5rem;
+  }
+}

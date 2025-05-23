@@ -1,10 +1,9 @@
-import React from 'react';
+import React from "react";
+import RaceResultTable from "../raceResults/components/RaceResultTable";
 
-const TableView = () => (
-  <div>
-    <h2>Vista de Tablas</h2>
-    <p>Aquí se mostrarán tablas de resultados históricos de F1.</p>
-  </div>
-);
+const TableView = () => {
+
+    return <RaceResultTable raceId={1} />;
+};
 
 export default TableView;

@@ -1,5 +1,10 @@
 // frontend/src/config/constants.js
+const isDev = process.env.NODE_ENV === "development";
+
 export const config = {
-  BASE_PATH: "/f1hub/api",  // ✅ Actualiza si f1Hub está en otro path backend
+  BASE_PATH: isDev
+    ? "http://localhost:8082/f1hub/api"  // ← llama al backend real en desarrollo
+    : "/f1hub/api",                     // ← cuando se haga build, es relativo
   SERVICE_TOKEN_NAME: "serviceToken"
-}
+};
+

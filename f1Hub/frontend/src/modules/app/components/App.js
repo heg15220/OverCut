@@ -8,7 +8,7 @@ import Body from './Body';
 
 const App = () => {
   return (
-    <Router>
+    <Router basename={process.env.NODE_ENV === "production" ? "/f1hub" : ""}>
       <Helmet>
         <meta charSet="UTF-8" />
         <title>F1Hub - Big Data F1</title>

@@ -2,8 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import HomePage from './HomePage';
-import TableView from './TableView';
-import GraphView from './GraphView';
+import TableView from '../../f1hub/components/TableView';
 
 const Body = () => {
   return (
@@ -11,7 +10,7 @@ const Body = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/tables" element={<TableView />} />
-        <Route path="/graphs" element={<GraphView />} />
+
       </Routes>
     </main>
   );

@@ -10,6 +10,7 @@ module.exports = (env, argv) => {
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'dist'),
+      publicPath: isProduction ? '/f1hub/' : '/',  // ✅ cambia aquí
       filename: 'bundle.js',
       clean: true
     },
@@ -65,6 +66,8 @@ module.exports = (env, argv) => {
       compress: true,
       port: 8080,
       hot: !isProduction,
+      historyApiFallback: true,
+      open: true // ← 🔥 ESTO hace que abra el navegador automáticamente
     },
     mode: isProduction ? 'production' : 'development',
   };
