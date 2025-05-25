@@ -64,30 +64,30 @@ public class ChampionshipTrackingServiceImpl implements ChampionshipTrackingServ
                 String key = driverId + "-" + raceId;
                 double racePoints = result.getPoints() != null ? result.getPoints() : 0.0;
                 double sprintPts = sprintPoints.getOrDefault(key, 0.0);
-                double total = racePoints + sprintPts;
 
-                String value;
-                if (statusText.toLowerCase().contains("ret") || statusText.toLowerCase().contains("accident")
-                        || statusText.toLowerCase().contains("engine") || statusText.toLowerCase().contains("gearbox")) {
-                    value = "DNF";
-                } else {
-                    value = total > 0 ? String.valueOf(total) : "0";
-                }
+                // ✅ Estatus separado solo para la carrera
+                String raceStatus = statusText.toLowerCase().contains("did not start") ? "DNS"
+                        : statusText.toLowerCase().contains("not classified") ? "DNF"
+                        : "OK";
 
                 ChampionshipTrackingDTO dto = driverMap.get(driverId);
                 if (dto == null) {
                     String countryCode = getCountryCodeFromNationality(nationality);
                     dto = new ChampionshipTrackingDTO(driverName, nationality, flagUrl, countryCode);
-
                     driverMap.put(driverId, dto);
                 }
-                dto.getRoundPoints().put(round, new RoundPoints(sprintPts, racePoints, value));
+
+                int positionOrder = result.getPositionOrder() != null ? result.getPositionOrder() : 999;
+
+                // ✅ Guardar status real, sprint y carrera por separado
+                dto.getRoundPoints().put(round, new RoundPoints(sprintPts, racePoints, raceStatus, positionOrder));
+
             }
 
             // Marcar DNS para pilotos que no están en la carrera
             for (ChampionshipTrackingDTO dto : driverMap.values()) {
                 if (!dto.getRoundPoints().containsKey(round)) {
-                    dto.getRoundPoints().put(round, new RoundPoints(0.0, 0.0, "DNS"));
+                    dto.getRoundPoints().put(round, new RoundPoints(0.0, 0.0, "DNS", 999));
 
                 }
             }
@@ -95,11 +95,22 @@ public class ChampionshipTrackingServiceImpl implements ChampionshipTrackingServ
 
         List<ChampionshipTrackingDTO> sorted = driverMap.values().stream()
                 .sorted((a, b) -> {
-                    double pointsA = getTotalPoints(a.getRoundPoints());
-                    double pointsB = getTotalPoints(b.getRoundPoints());
-                    return Double.compare(pointsB, pointsA);
+                    int cmp = Double.compare(getTotalPoints(b.getRoundPoints()), getTotalPoints(a.getRoundPoints()));
+                    if (cmp != 0) return cmp;
+
+                    // Desempate por posiciones reales (1º, 2º, ..., 10º)
+                    for (int pos = 1; pos <= 10; pos++) {
+                        int countA = countRacePositions(a.getRoundPoints(), pos);
+                        int countB = countRacePositions(b.getRoundPoints(), pos);
+                        if (countA != countB) return Integer.compare(countB, countA);
+                    }
+
+                    return a.getDriverName().compareTo(b.getDriverName()); // último recurso
                 })
                 .toList();
+
+
+
 
         // Asignar posición final
         int position = 1;
@@ -113,9 +124,74 @@ public class ChampionshipTrackingServiceImpl implements ChampionshipTrackingServ
 
     private double getTotalPoints(Map<Integer, RoundPoints> roundPoints) {
         return roundPoints.values().stream()
-                .filter(rp -> !rp.getStatus().equals("DNF") && !rp.getStatus().equals("DNS"))
-                .mapToDouble(rp -> rp.getSprintPoints() + rp.getRacePoints())
+                .mapToDouble(rp -> {
+                    double sprint = rp.getSprintPoints() != null ? rp.getSprintPoints() : 0.0;
+                    double race = rp.getRacePoints() != null ? rp.getRacePoints() : 0.0;
+                    return sprint + race;
+                })
                 .sum();
+    }
+
+
+
+    private int countRacePositions(Map<Integer, RoundPoints> roundPoints, int targetPosition) {
+        return (int) roundPoints.values().stream()
+                .filter(rp -> "OK".equals(rp.getStatus()))
+                .filter(rp -> rp.getPositionOrder() == targetPosition)
+                .count();
+    }
+
+
+
+
+    private int getPointsForPosition(int pos, int year) {
+        if (year >= 2010) {
+            return switch (pos) {
+                case 1 -> 25;
+                case 2 -> 18;
+                case 3 -> 15;
+                case 4 -> 12;
+                case 5 -> 10;
+                case 6 -> 8;
+                case 7 -> 6;
+                case 8 -> 4;
+                case 9 -> 2;
+                case 10 -> 1;
+                default -> 0;
+            };
+        } else if (year >= 2003) {
+            return switch (pos) {
+                case 1 -> 10;
+                case 2 -> 8;
+                case 3 -> 6;
+                case 4 -> 5;
+                case 5 -> 4;
+                case 6 -> 3;
+                case 7 -> 2;
+                case 8 -> 1;
+                default -> 0;
+            };
+        } else if (year >= 1991) {
+            return switch (pos) {
+                case 1 -> 10;
+                case 2 -> 6;
+                case 3 -> 4;
+                case 4 -> 3;
+                case 5 -> 2;
+                case 6 -> 1;
+                default -> 0;
+            };
+        } else {
+            return switch (pos) {
+                case 1 -> 9;
+                case 2 -> 6;
+                case 3 -> 4;
+                case 4 -> 3;
+                case 5 -> 2;
+                case 6 -> 1;
+                default -> 0;
+            };
+        }
     }
 
 
