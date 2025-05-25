@@ -6,6 +6,8 @@ import * as raceResultService from "./raceResultService";
 
 import * as raceSelectorService from "./raceSelectorService";
 
-const backExport = { init, NetworkError, raceResultService, raceSelectorService}
+import * as statisticsService from "./statisticsService";
+
+const backExport = { init, NetworkError, raceResultService, raceSelectorService, statisticsService}
 
 export default backExport;

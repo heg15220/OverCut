@@ -1,0 +1,44 @@
+.stat-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.stat-controls select,
+.stat-controls input {
+  padding: 0.5rem 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  color: white;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.stat-controls input[type="number"] {
+  width: 100px;
+}
+.pilot-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pilot-bar {
+  width: 6px;
+  height: 24px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.flag {
+  height: 20px;
+  border-radius: 3px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+.flag {
+  height: 24px;
+  border-radius: 3px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}

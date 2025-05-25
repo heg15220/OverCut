@@ -96,6 +96,48 @@ public class QualifyingToDtoConverter {
     }
 
     private String getFlagUrl(String nationality) {
-        return "https://flagsapi.com/" + nationality.replace(" ", "_") + "/flat/24.png";
+        String code = switch (nationality.toLowerCase().trim()) {
+            case "argentine", "argentinian" -> "AR";
+            case "australian" -> "AU";
+            case "austrian" -> "AT";
+            case "belgian" -> "BE";
+            case "brazilian" -> "BR";
+            case "british" -> "GB";
+            case "canadian" -> "CA";
+            case "chilean" -> "CL";
+            case "chinese" -> "CN";
+            case "colombian" -> "CO";
+            case "czech" -> "CZ";
+            case "danish" -> "DK";
+            case "dutch" -> "NL";
+            case "east german", "german" -> "DE";
+            case "finnish" -> "FI";
+            case "french" -> "FR";
+            case "hungarian" -> "HU";
+            case "indian" -> "IN";
+            case "indonesian" -> "ID";
+            case "irish" -> "IE";
+            case "italian" -> "IT";
+            case "japanese" -> "JP";
+            case "liechtensteiner" -> "LI";
+            case "malaysian" -> "MY";
+            case "mexican" -> "MX";
+            case "monegasque" -> "MC";
+            case "new zealander" -> "NZ";
+            case "polish" -> "PL";
+            case "portuguese" -> "PT";
+            case "rhodesian" -> "ZW"; // (histórico)
+            case "russian" -> "RU";
+            case "south african" -> "ZA";
+            case "spanish" -> "ES";
+            case "swedish" -> "SE";
+            case "swiss" -> "CH";
+            case "thai" -> "TH";
+            case "uruguayan" -> "UY";
+            case "venezuelan" -> "VE";
+            case "american", "american-italian" -> "US";
+            default -> "XX"; // Unknown
+        };
+        return "https://flagsapi.com/" + code + "/flat/24.png";
     }
 }
