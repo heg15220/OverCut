@@ -133,3 +133,101 @@
   letter-spacing: 0.5px;
   color: #ddd;
 }
+
+.sprint-points {
+  color: #00eaff; /* Cian brillante */
+  font-weight: 600;
+}
+
+
+.race-points {
+  color: #ffd700;
+  font-weight: 600;
+}
+
+.plus-separator {
+  color: #999;
+  font-weight: 400;
+}
+
+.status-cell {
+  font-weight: bold;
+  color: #ff6b6b;
+}
+.race-winner {
+  color: #ffcc00;
+  font-weight: 700;
+}
+
+
+.race-second {
+  color: #f0f0f5;
+  font-weight: 700;
+}
+
+.race-third {
+  color: #cd7f32;
+  font-weight: 600;
+}
+
+.race-other {
+  color: #e0e0e0;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+}
+.race-other-points {
+  color: #6fbce3; /* azul acero más brillante */
+  font-weight: 600;
+}
+
+
+.race-other-zero {
+  color: #a0a0a0;
+  font-weight: 500;
+}
+
+
+
+.scroll-wrapper {
+  position: relative;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.scroll-top,
+.scroll-bottom {
+  height: 12px;
+  overflow-x: auto;
+}
+
+.scroll-top::-webkit-scrollbar,
+.scroll-bottom::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.result-table {
+  border-collapse: collapse;
+  width: max-content; /* permite scroll horizontal natural */
+  min-width: 100%;
+}
+
+.pilot-col {
+  position: sticky;
+  left: 0;
+  background-color: #151515;
+  z-index: 1;
+  box-shadow: 4px 0 4px -2px rgba(0, 0, 0, 0.4);
+}
+
+.race-bonus {
+  color: #ff69b4; /* rosa brillante para destacar */
+  font-weight: 700;
+}
+

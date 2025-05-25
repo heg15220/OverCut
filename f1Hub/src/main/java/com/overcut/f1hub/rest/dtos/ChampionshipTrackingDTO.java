@@ -10,7 +10,7 @@ public class ChampionshipTrackingDTO {
     private String flagUrl;
     private String driverCountryCode; // 🔧 NUEVO
     private int finalPosition;
-    private Map<Integer, String> roundPoints = new LinkedHashMap<>();
+    private Map<Integer, RoundPoints> roundPoints = new LinkedHashMap<>();
 
     public ChampionshipTrackingDTO() {}
 
@@ -45,11 +45,11 @@ public class ChampionshipTrackingDTO {
         this.flagUrl = flagUrl;
     }
 
-    public Map<Integer, String> getRoundPoints() {
+    public Map<Integer, RoundPoints> getRoundPoints() {
         return roundPoints;
     }
 
-    public void setRoundPoints(Map<Integer, String> roundPoints) {
+    public void setRoundPoints(Map<Integer, RoundPoints> roundPoints) {
         this.roundPoints = roundPoints;
     }
 

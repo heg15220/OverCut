@@ -8,6 +8,7 @@ import com.overcut.f1hub.model.entities.ResultDao;
 import com.overcut.f1hub.model.entities.SprintResult;
 import com.overcut.f1hub.model.entities.SprintResultDao;
 import com.overcut.f1hub.rest.dtos.ChampionshipTrackingDTO;
+import com.overcut.f1hub.rest.dtos.RoundPoints;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,13 +81,14 @@ public class ChampionshipTrackingServiceImpl implements ChampionshipTrackingServ
 
                     driverMap.put(driverId, dto);
                 }
-                dto.getRoundPoints().put(round, value);
+                dto.getRoundPoints().put(round, new RoundPoints(sprintPts, racePoints, value));
             }
 
             // Marcar DNS para pilotos que no están en la carrera
             for (ChampionshipTrackingDTO dto : driverMap.values()) {
                 if (!dto.getRoundPoints().containsKey(round)) {
-                    dto.getRoundPoints().put(round, "DNS");
+                    dto.getRoundPoints().put(round, new RoundPoints(0.0, 0.0, "DNS"));
+
                 }
             }
         }
@@ -109,12 +111,14 @@ public class ChampionshipTrackingServiceImpl implements ChampionshipTrackingServ
 
     }
 
-    private double getTotalPoints(Map<Integer, String> roundPoints) {
+    private double getTotalPoints(Map<Integer, RoundPoints> roundPoints) {
         return roundPoints.values().stream()
-                .filter(val -> val.matches("\\d+(\\.\\d+)?")) // solo números válidos
-                .mapToDouble(Double::parseDouble)
+                .filter(rp -> !rp.getStatus().equals("DNF") && !rp.getStatus().equals("DNS"))
+                .mapToDouble(rp -> rp.getSprintPoints() + rp.getRacePoints())
                 .sum();
     }
+
+
 
 
     private String getFlagUrl(String nationality) {
