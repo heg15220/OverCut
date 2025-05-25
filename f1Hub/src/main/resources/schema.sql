@@ -1,11 +1,17 @@
+DROP TABLE IF EXISTS laptimes;
+DROP TABLE IF EXISTS pitstops;
+DROP TABLE IF EXISTS qualifying;
+DROP TABLE IF EXISTS sprintresults;
 DROP TABLE IF EXISTS results;
+DROP TABLE IF EXISTS constructorresults;
+DROP TABLE IF EXISTS constructorstandings;
+DROP TABLE IF EXISTS driverstandings;
 DROP TABLE IF EXISTS races;
+DROP TABLE IF EXISTS seasons;
 DROP TABLE IF EXISTS circuits;
 DROP TABLE IF EXISTS drivers;
 DROP TABLE IF EXISTS constructors;
 DROP TABLE IF EXISTS status;
-DROP TABLE IF EXISTS qualifying;
-DROP TABLE IF EXISTS sprintresults;
 
 CREATE TABLE qualifying (
     qualifyId BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -120,3 +126,76 @@ CREATE TABLE sprintresults (
 );
 
 UPDATE sprintresults SET position = positionOrder WHERE position IS NULL;
+
+CREATE TABLE laptimes (
+    raceId BIGINT NOT NULL,
+    driverId BIGINT NOT NULL,
+    lap INT NOT NULL,
+    position INT,
+    time VARCHAR(50),
+    milliseconds INT,
+
+    PRIMARY KEY (raceId, driverId, lap),
+    CONSTRAINT fk_laptimes_race FOREIGN KEY (raceId) REFERENCES races(raceId),
+    CONSTRAINT fk_laptimes_driver FOREIGN KEY (driverId) REFERENCES drivers(driverId)
+);
+
+CREATE TABLE pitstops (
+    raceId BIGINT NOT NULL,
+    driverId BIGINT NOT NULL,
+    stop INT NOT NULL,
+    lap INT,
+    time VARCHAR(50),
+    duration VARCHAR(50),
+    milliseconds INT,
+
+    PRIMARY KEY (raceId, driverId, stop),
+    CONSTRAINT fk_pitstops_race FOREIGN KEY (raceId) REFERENCES races(raceId),
+    CONSTRAINT fk_pitstops_driver FOREIGN KEY (driverId) REFERENCES drivers(driverId)
+);
+
+
+CREATE TABLE constructorresults (
+    constructorResultsId BIGINT AUTO_INCREMENT PRIMARY KEY,
+    raceId BIGINT NOT NULL,
+    constructorId BIGINT NOT NULL,
+    points DOUBLE,
+    status VARCHAR(255),
+
+    CONSTRAINT fk_constructorresults_race FOREIGN KEY (raceId) REFERENCES races(raceId),
+    CONSTRAINT fk_constructorresults_constructor FOREIGN KEY (constructorId) REFERENCES constructors(constructorId)
+);
+
+
+CREATE TABLE constructorstandings (
+    constructorStandingsId BIGINT AUTO_INCREMENT PRIMARY KEY,
+    raceId BIGINT NOT NULL,
+    constructorId BIGINT NOT NULL,
+    points DOUBLE,
+    position INT,
+    positionText VARCHAR(10),
+    wins INT,
+
+    CONSTRAINT fk_constructorstandings_race FOREIGN KEY (raceId) REFERENCES races(raceId),
+    CONSTRAINT fk_constructorstandings_constructor FOREIGN KEY (constructorId) REFERENCES constructors(constructorId)
+);
+
+
+CREATE TABLE driverstandings (
+    driverStandingsId BIGINT AUTO_INCREMENT PRIMARY KEY,
+    raceId BIGINT NOT NULL,
+    driverId BIGINT NOT NULL,
+    points DOUBLE,
+    position INT,
+    positionText VARCHAR(10),
+    wins INT,
+
+    CONSTRAINT fk_driverstandings_race FOREIGN KEY (raceId) REFERENCES races(raceId),
+    CONSTRAINT fk_driverstandings_driver FOREIGN KEY (driverId) REFERENCES drivers(driverId)
+);
+
+
+CREATE TABLE seasons (
+    year INT PRIMARY KEY,
+    url VARCHAR(255)
+);

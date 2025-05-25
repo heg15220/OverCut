@@ -1,0 +1,54 @@
+package com.overcut.f1hub.model.service;
+
+import com.overcut.f1hub.rest.dtos.ChartDataDTO;
+
+public interface AdvancedStatsService {
+
+    ChartDataDTO getAveragePointsPerSeasonByDriver();
+
+    ChartDataDTO getVictoryPercentageByDriverPerSeason();
+
+    ChartDataDTO getPodiumPercentageVsTeammate(String driverId);
+
+    ChartDataDTO getQ3PercentageVsTeammate(String driverId);
+
+    ChartDataDTO getAverageAccidentsBySeason();
+
+    ChartDataDTO getAvgPositionsGainedFirstLaps();
+
+    ChartDataDTO getAvgPositionsGainedBySeason(String driverId);
+
+    ChartDataDTO getQualiVsTeammateComparison(String driverId);
+
+    ChartDataDTO getRaceVsTeammateComparison(String driverId);
+
+    ChartDataDTO getWinsFrom3rdOrWorse();
+
+    ChartDataDTO getPodiumsFrom3rdOrWorse();
+
+    ChartDataDTO getMostCommonFinishPosition();
+
+    ChartDataDTO getMostCommonQualiPosition();
+
+    ChartDataDTO getAvgGapToPolePerSeason();
+
+    ChartDataDTO getDriverVsTeamChampionshipFinish();
+
+    ChartDataDTO getWinsWithoutTop2();
+
+    ChartDataDTO getTeamComebacksBySeason();
+
+    ChartDataDTO getMostTeamPoints();
+
+    ChartDataDTO getAvgPointsPerTeamPerSeason();
+
+    ChartDataDTO getPitStopsPerRace(String year);
+
+    ChartDataDTO getAvgPitStopsPerSeason();
+
+    ChartDataDTO getOvertakesPerRace(String year);
+
+    ChartDataDTO getAvgOvertakesPerSeason();
+
+    ChartDataDTO getPointsDeltaVsTeammate(String season);
+}
