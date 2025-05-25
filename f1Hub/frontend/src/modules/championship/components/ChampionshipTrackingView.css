@@ -1,0 +1,135 @@
+.championship-tracking {
+  padding: 2rem;
+  font-family: 'F1 Regular', sans-serif;
+  background-color: #111;
+  color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.04);
+  max-width: 100%;
+  margin: 2rem auto;
+  overflow-x: auto;
+}
+
+.championship-title {
+  text-align: center;
+  color: #ffcc00;
+  font-size: 2.2rem;
+  margin-bottom: 2.5rem;
+  text-shadow: 0 0 6px rgba(255, 204, 0, 0.4);
+  letter-spacing: 1px;
+}
+
+.stat-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.stat-controls select {
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  background-color: #1a1a1a;
+  color: white;
+  border: 1px solid #333;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.stat-controls select:focus {
+  outline: none;
+  border-color: #ffcc00;
+  box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #151515;
+  font-size: 0.95rem;
+  min-width: 950px;
+}
+
+.result-table thead {
+  background-color: #1a1a1a;
+  color: #ffcc00;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.04rem;
+}
+
+.result-table th,
+.result-table td {
+  padding: 0.8rem 0.6rem;
+  text-align: center;
+  border-bottom: 1px solid #2a2a2a;
+  white-space: nowrap;
+}
+
+.result-table td {
+  font-weight: 400;
+  color: #ddd;
+}
+
+.result-table tbody tr:hover {
+  background-color: #222;
+  transition: background-color 0.2s ease;
+}
+
+.pilot-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  padding-left: 0.5rem;
+}
+
+.pilot-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.flag {
+  height: 20px;
+  border-radius: 3px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+  vertical-align: middle;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .championship-title {
+    font-size: 1.5rem;
+  }
+
+  .result-table {
+    font-size: 0.85rem;
+    min-width: unset;
+  }
+
+  .pilot-name {
+    font-size: 0.85rem;
+  }
+
+  .result-table th,
+  .result-table td {
+    padding: 0.5rem 0.4rem;
+  }
+}
+.race-header-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.race-abbr {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: #ddd;
+}

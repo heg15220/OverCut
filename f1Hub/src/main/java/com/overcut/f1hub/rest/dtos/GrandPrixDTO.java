@@ -9,7 +9,10 @@ public class GrandPrixDTO {
     private String circuitCountry;
     private int year; // ✅ Añadido
     private String circuitCountryCode;
+    private String gpAbbreviation;
 
+    public GrandPrixDTO() {
+    }
 
     public GrandPrixDTO(Long raceId, String name, int round, String circuitName, String circuitCountry) {
         this.raceId = raceId;
@@ -93,5 +96,13 @@ public class GrandPrixDTO {
 
     public void setCircuitCountryCode(String circuitCountryCode) {
         this.circuitCountryCode = circuitCountryCode;
+    }
+
+    public String getGpAbbreviation() {
+        return gpAbbreviation;
+    }
+
+    public void setGpAbbreviation(String gpAbbreviation) {
+        this.gpAbbreviation = gpAbbreviation;
     }
 }
