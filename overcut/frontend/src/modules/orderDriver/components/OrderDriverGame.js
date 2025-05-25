@@ -13,6 +13,10 @@ const OrderDriverGame = () => {
   const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
   const [surrendered, setSurrendered] = useState(false);
+  const [correctSlots, setCorrectSlots] = useState([]);
+  const [finished, setFinished] = useState(false);
+
+
 
   const translations = {
     es: {
@@ -50,13 +54,13 @@ const OrderDriverGame = () => {
 
   useEffect(() => {
     if (game) {
-      // Barajar los candidatos aleatoriamente
       const shuffled = [...game.slots].sort(() => Math.random() - 0.5);
       setAllCandidates(shuffled);
-      // Crear ranking del mismo tamaño que los candidatos
       setRanking(Array(game.slots.length).fill(null));
+      setCorrectSlots(Array(game.slots.length).fill(false));
     }
   }, [game]);
+
 
   const usedDriverIds = ranking.filter(Boolean).map(driver => driver.driverId);
   const availableCandidates = allCandidates.filter(driver => !usedDriverIds.includes(driver.driverId));
@@ -66,22 +70,62 @@ const OrderDriverGame = () => {
   };
 
   const handleSlotClick = (index) => {
-    if (!selected) return;
+    if (!selected || correctSlots[index]) return;
+
     const alreadyUsed = ranking.find(slot => slot?.driverId === selected.driverId);
     if (alreadyUsed) return;
+
     const newRanking = [...ranking];
     newRanking[index] = selected;
+
     setRanking(newRanking);
     setSelected(null);
   };
 
+
+
   const onSubmit = () => {
-    const orderedIds = ranking.map(s => s?.driverId || null);
-    if (orderedIds.includes(null)) {
-      return alert(t("incomplete"));
+    const newCorrectSlots = ranking.map((driver, index) => {
+      const correctId = getCorrectDriverIdAt(index);
+      return driver?.driverId === correctId;
+    });
+
+    setCorrectSlots(newCorrectSlots);
+
+    // Separar los que están bien y los que no
+    const updatedRanking = ranking.map((driver, index) => {
+      return newCorrectSlots[index] ? driver : null;
+    });
+
+    const incorrectDrivers = ranking
+      .map((driver, index) => (!newCorrectSlots[index] && driver ? driver : null))
+      .filter(Boolean);
+
+    // Devolver los incorrectos a la lista
+    const updatedCandidates = [...allCandidates, ...incorrectDrivers];
+    const deduplicatedCandidates = updatedCandidates.filter(
+      (driver, index, self) =>
+        self.findIndex(d => d.driverId === driver.driverId) === index
+    );
+
+    setRanking(updatedRanking);
+    setAllCandidates(deduplicatedCandidates);
+
+    const allCorrect = newCorrectSlots.every(val => val);
+    const allFilled = updatedRanking.every(slot => slot !== null);
+
+    if (allCorrect && allFilled) {
+      const orderedIds = updatedRanking.map(s => s.driverId);
+      dispatch(actions.submitDriverOrder(game.id, orderedIds));
     }
-    dispatch(actions.submitDriverOrder(game.id, orderedIds));
+
+    if (allFilled) {
+      setFinished(true);
+    }
+
   };
+
+
 
   const onSurrender = () => {
     const ordered = [...game.slots].sort((a, b) => a.correctOrder - b.correctOrder);
@@ -121,12 +165,16 @@ const OrderDriverGame = () => {
               <div
                 key={index}
                 className={`ranking-slot ${
-                  (surrendered || game.finished)
+                  surrendered || finished
                     ? slot?.driverId === getCorrectDriverIdAt(index)
                       ? 'success'
                       : 'fail'
-                    : ''
+                    : correctSlots[index]
+                      ? 'success'
+                      : ''
                 }`}
+
+
                 onClick={() => handleSlotClick(index)}
               >
                 <span className="position-number">{index + 1}</span>
@@ -143,12 +191,13 @@ const OrderDriverGame = () => {
           {!surrendered && <div className="side-candidates" />}
         </div>
 
-        {!game.finished && !surrendered && (
+        {!finished && !surrendered && (
           <div className="button-row">
             <button className="validate-btn" onClick={onSubmit}>{t("validate")}</button>
             <button className="surrender-btn" onClick={onSurrender}>{t("surrender")}</button>
           </div>
         )}
+
 
         {game.finished && (
           <div className={`order-result ${game.successful ? "success" : "fail"}`}>
@@ -160,13 +209,14 @@ const OrderDriverGame = () => {
           <div className="order-result fail">{t("reveal")}</div>
         )}
 
-        {(game.finished || surrendered) && (
+        {(finished || surrendered) && (
           <div className="button-row">
             <button className="back-btn" onClick={() => navigate("/minigames")}>
               {t("back")}
             </button>
           </div>
         )}
+
       </div>
     </div>
   );

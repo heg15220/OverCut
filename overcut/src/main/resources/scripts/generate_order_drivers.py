@@ -137,7 +137,7 @@ def generate_themes(conn, lang):
         {
             "topic": "Campeones del mundo" if lang == "es" else "World Champions",
             "query": """
-                SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName
+                SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS titles
                 FROM drivers d
                 JOIN driverStandings ds ON d.driverId = ds.driverId
                 JOIN races r ON ds.raceId = r.raceId
@@ -148,6 +148,7 @@ def generate_themes(conn, lang):
                       WHERE r2.year = r.year
                   )
                 GROUP BY d.driverId
+                ORDER BY titles DESC
                 LIMIT 10
             """
         },
