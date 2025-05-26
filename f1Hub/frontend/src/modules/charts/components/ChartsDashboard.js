@@ -16,7 +16,7 @@ const ChartsDashboard = () => {
   const [driverId, setDriverId] = useState("");
   const [constructorId, setConstructorId] = useState("");
   const [season, setSeason] = useState("");
-  const [decade, setDecade] = useState("");  // Nueva variable de estado para la década
+  const [decade, setDecade] = useState("");  // Variable para la década
 
   useEffect(() => {
     dispatch(charts.actions.fetchChartCategories());
@@ -30,7 +30,7 @@ const ChartsDashboard = () => {
       setDriverId("");
       setConstructorId("");
       setSeason("");
-      setDecade("");  // Resetear la década al cambiar de categoría
+      setDecade("");  // Resetear década al cambiar de categoría
 
       const param = metadata?.[first]?.param;
       if (!param) {
@@ -63,16 +63,15 @@ const ChartsDashboard = () => {
     if (param === "driverId" && driverId) params.driverId = driverId;
     if (param === "constructorId" && constructorId) params.constructorId = constructorId;
     if (param === "season" && season) params.season = season;
-    if (decade) params.decade = decade;  // Agregar filtro de década
+    if (decade) params.decade = decade;  // Filtro de década
 
-    const key = `${selectedChart}-${driverId}-${constructorId}-${season}-${decade}`; // Incluir década en la clave
+    const key = `${selectedChart}-${driverId}-${constructorId}-${season}-${decade}`;
     dispatch(charts.actions.fetchChartData(selectedChart, params));
   };
 
   const currentParam = metadata?.[selectedChart]?.param;
 
-  // Comprobamos si tenemos datos para la gráfica
-  const chartKey = `${selectedChart}-${driverId}-${constructorId}-${season}-${decade}`; // Incluir década en la clave
+  const chartKey = `${selectedChart}-${driverId}-${constructorId}-${season}-${decade}`;
   const chart = chartsData[chartKey] || chartsData[selectedChart];
 
   return (
@@ -105,47 +104,6 @@ const ChartsDashboard = () => {
             ))}
           </select>
 
-          {/* Desplegables según el parámetro de la gráfica */}
-          {currentParam === "driverId" && (
-            <select
-              className="chart-dropdown mt-2"
-              value={driverId}
-              onChange={e => setDriverId(e.target.value)}
-            >
-              <option value="">Seleccione piloto</option>
-              {filters.drivers?.map(d => (
-                <option key={d.driverId} value={d.driverId}>{d.name}</option>
-              ))}
-            </select>
-          )}
-
-          {currentParam === "constructorId" && (
-            <select
-              className="chart-dropdown mt-2"
-              value={constructorId}
-              onChange={e => setConstructorId(e.target.value)}
-            >
-              <option value="">Seleccione equipo</option>
-              {filters.constructors?.map(c => (
-                <option key={c.constructorId} value={c.constructorId}>{c.name}</option>
-              ))}
-            </select>
-          )}
-
-          {currentParam === "season" && (
-            <select
-              className="chart-dropdown mt-2"
-              value={season}
-              onChange={e => setSeason(e.target.value)}
-            >
-              <option value="">Seleccione temporada</option>
-              {filters.seasons?.map(y => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          )}
-
-          {/* Selecciona la década si el gráfico es "victory-percentage-by-decade" */}
           {selectedChart === "victory-percentage-by-decade" && (
             <select
               className="chart-dropdown mt-2"

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import charts from "../index";
+import ChartCardPie from "./ChartCardPie"; // Importar el nuevo componente
 import ChartCard from "./ChartCard";
 import "./ChartStyles.css";
 import { buildChartKey } from "../utils/chartKey";
@@ -13,6 +14,7 @@ const ChartSelector = () => {
   const [constructorId, setConstructorId] = useState("");
   const [season, setSeason] = useState("");
   const [limit, setLimit] = useState(10);
+  const [decade, setDecade] = useState(""); // Estado para la década
 
   const filters = useSelector(charts.selectors.getChartFilters);
   const chartKey = selected
@@ -39,8 +41,7 @@ const ChartSelector = () => {
     if (selected.param === "driverId" && driverId) params.driverId = driverId;
     if (selected.param === "constructorId" && constructorId) params.constructorId = constructorId;
     if (selected.param === "season" && season) params.season = season;
-
-    if (selected.param !== "season") params.limit = limit;
+    if (decade) params.decade = decade; // Agregar el parámetro de década
 
     const key = buildChartKey(selected.endpoint, params);
     console.log("🔑 Key de gráfico que se usará:", key);
@@ -50,21 +51,19 @@ const ChartSelector = () => {
 
   const chartOptions = {
     Pilotos: [
-      { endpoint: "podium-percentage-vs-teammate", label: "Podios vs Compañero", param: "driverId" },
-      { endpoint: "avg-positions-gained-by-season", label: "Posiciones Ganadas por Temporada", param: "driverId" },
-      { endpoint: "points-delta-vs-teammate", label: "Δ Puntos por Temporada", param: "season" },
-      { endpoint: "victory-percentage-by-decade", label: "Porcentaje de Victorias por Década", param: "decade" } // Actualizado
+      { endpoint: "podium-percentage-vs-teammate", label: "Podios vs Compañero", param: "driverId", chartType: "bar" },
+      { endpoint: "avg-positions-gained-by-season", label: "Posiciones Ganadas por Temporada", param: "driverId", chartType: "line" },
+      { endpoint: "points-delta-vs-teammate", label: "Δ Puntos por Temporada", param: "season", chartType: "bar" },
+      { endpoint: "victory-percentage-by-decade", label: "Porcentaje de Victorias por Década", param: "decade", chartType: "pie" } // Actualizado
     ],
     Constructores: [
-      { endpoint: "avg-team-points-by-season", label: "Puntos por Equipo", param: "constructorId" }
+      { endpoint: "avg-team-points-by-season", label: "Puntos por Equipo", param: "constructorId", chartType: "bar" }
     ],
     Carreras: [
-      { endpoint: "pitstops-per-race", label: "Pitstops por Carrera", param: "season" },
-      { endpoint: "overtakes-per-race", label: "Cambios de Posición por Carrera", param: "season" }
+      { endpoint: "pitstops-per-race", label: "Pitstops por Carrera", param: "season", chartType: "line" },
+      { endpoint: "overtakes-per-race", label: "Cambios de Posición por Carrera", param: "season", chartType: "bar" }
     ]
   };
-
-
 
   return (
     <div className="chart-selector-container">
@@ -80,6 +79,7 @@ const ChartSelector = () => {
               setDriverId("");
               setConstructorId("");
               setSeason("");
+              setDecade(""); // Resetear la década al cambiar de categoría
               setLimit(10);
             }}
             className={`selector-button ${category === cat ? "active" : ""}`}
@@ -138,6 +138,22 @@ const ChartSelector = () => {
             </select>
           )}
 
+          {/* Filtro para la década, solo se muestra para "victory-percentage-by-decade" */}
+          {selected.endpoint === "victory-percentage-by-decade" && (
+            <select
+              value={decade}
+              onChange={e => setDecade(e.target.value)}
+              className="chart-dropdown mt-2"
+            >
+              <option value="">Seleccione década</option>
+              <option value="1980s">Década de 1980</option>
+              <option value="1990s">Década de 1990</option>
+              <option value="2000s">Década de 2000</option>
+              <option value="2010s">Década de 2010</option>
+              <option value="2020s">Década de 2020</option>
+            </select>
+          )}
+
           <input
             type="number"
             min="1"
@@ -157,7 +173,17 @@ const ChartSelector = () => {
         </div>
       )}
 
-      {chart && <ChartCard chart={chart} />}
+      {chart ? (
+        selected.chartType === "pie" ? (
+          <ChartCardPie chart={chart} /> // Usar ChartCardPie para gráficos circulares
+        ) : (
+          <ChartCard chart={chart} />
+        )
+      ) : selected ? (
+        <div className="chart-empty text-center">Cargue los filtros para ver el gráfico.</div>
+      ) : (
+        <div className="chart-empty text-center">Seleccione una categoría y gráfica.</div>
+      )}
     </div>
   );
 };

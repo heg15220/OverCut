@@ -124,6 +124,11 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                         d -> d.getForename() + " " + d.getSurname()
                 ));
 
+        // Colores predefinidos para cada piloto
+        String[] colors = {
+                "#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FF8C33", "#33FF8C", "#8C33FF", "#33A1FF"
+        };
+
         Map<Long, Integer> raceYearMap = raceDao.findAll().stream()
                 .collect(Collectors.toMap(
                         Race::getRaceId,
@@ -138,7 +143,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             Integer year = raceYearMap.get(r.getRace().getRaceId());
             if (year == null) continue;
 
-            // Si se pasa el parámetro de década, solo contar años dentro de esa década
+            // Filtrar por la década si se pasa el parámetro
             if (decade != null) {
                 int decadeStart = Integer.parseInt(decade.substring(0, 4));  // Extraer el año de inicio de la década
                 if (year < decadeStart || year >= (decadeStart + 10)) continue;  // Filtrar por década
@@ -147,9 +152,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             stats.computeIfAbsent(driverId, k -> new HashMap<>());
             Map<Integer, int[]> yearly = stats.get(driverId);
             int[] counts = yearly.computeIfAbsent(year, y -> new int[2]);
-            counts[1]++; // total races
+            counts[1]++; // Total de carreras
             if (r.getPositionOrder() != null && r.getPositionOrder() == 1) {
-                counts[0]++; // wins
+                counts[0]++; // Victorias
             }
         }
 
@@ -161,7 +166,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         Map<String, List<Integer>> decades = new HashMap<>();
         for (Integer year : allYears) {
             int decadeStart = (year / 10) * 10;
-            String decadeLabel = decadeStart + "s"; // Por ejemplo: "1950s"
+            String decadeLabel = decadeStart + "s"; // Ejemplo: "1950s"
             decades.computeIfAbsent(decadeLabel, k -> new ArrayList<>()).add(year);
         }
 
@@ -169,19 +174,28 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         decadeLabels.sort(Comparator.naturalOrder());
 
         List<ChartSeriesDTO> datasets = new ArrayList<>();
-        for (Map.Entry<Long, Map<Integer, int[]>> entry : stats.entrySet()) {
-            Long driverId = entry.getKey();
-            String label = driverNames.getOrDefault(driverId, "Driver " + driverId);
-            List<Double> data = new ArrayList<>();
+        int colorIndex = 0;  // Para asignar colores únicos a los pilotos
 
-            // Calcular el porcentaje de victorias por década
-            for (String decade1 : decadeLabels) {
-                List<Integer> yearsInDecade = decades.get(decade1);
+        for (String decade1 : decadeLabels) {
+            List<Double> data = new ArrayList<>();
+            List<String> labels = new ArrayList<>();
+            List<String> colorsForPie = new ArrayList<>();  // Almacena los colores para los segmentos del gráfico
+
+            // Solo agregar pilotos que hayan ganado en la década
+            for (Map.Entry<Long, Map<Integer, int[]>> entry : stats.entrySet()) {
+                Long driverId = entry.getKey();
+                int totalWins = entry.getValue().values().stream()
+                        .mapToInt(counts -> counts[0])  // Sumar las victorias por año
+                        .sum();
+
+                if (totalWins == 0) {
+                    continue; // Ignorar pilotos sin victorias
+                }
+
+                // Calcular el porcentaje de victorias en esa década
                 int totalRacesInDecade = 0;
                 int winsInDecade = 0;
-
-                // Sumar los resultados de las temporadas dentro de la década
-                for (Integer year : yearsInDecade) {
+                for (Integer year : decades.get(decade1)) {
                     int[] val = entry.getValue().getOrDefault(year, new int[]{0, 0});
                     winsInDecade += val[0];
                     totalRacesInDecade += val[1];
@@ -189,13 +203,34 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
                 double percent = (totalRacesInDecade == 0) ? 0.0 : (100.0 * winsInDecade) / totalRacesInDecade;
                 data.add(percent);
+                labels.add(driverNames.getOrDefault(driverId, "Driver " + driverId)); // Usar el nombre del piloto como etiqueta
+
+                // Asignar colores dinámicos para los segmentos del gráfico circular
+                colorsForPie.add(colors[colorIndex % colors.length]);
+                colorIndex++;  // Incrementar el índice del color
             }
 
-            datasets.add(new ChartSeriesDTO(label, "#82ca9d", data)); // color genérico
+            if (!data.isEmpty()) {
+                // Crear la serie de datos solo con la información necesaria
+                datasets.add(new ChartSeriesDTO(decade1, colorsForPie, data)); // Colores específicos por piloto
+            }
         }
 
-        return new ChartDataDTO("Porcentaje de victorias por década", "bar", decadeLabels, datasets);
+        // Usar un gráfico circular (pie chart)
+        return new ChartDataDTO(
+                "Porcentaje de victorias por década",
+                "pie", // Tipo de gráfico circular
+                decadeLabels,
+                datasets
+        );
     }
+
+
+
+
+
+
+
 
 
 
