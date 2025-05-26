@@ -28,7 +28,7 @@ const metadata = {
   "pitstops-per-race": { label: "Pitstops por Gran Premio", param: "season" },
   "avg-pitstops-per-season": { label: "Pitstops Promedio por Temporada" },
   "overtakes-per-race": { label: "Adelantamientos por Gran Premio", param: "season" },
-  "avg-overtakes-per-season": { label: "Adelantamientos Promedio por Temporada" }
+  "avg-overtakes-per-season": { label: "Cambios de Posición Promedio por Temporada" }
 };
 
 export default metadata;

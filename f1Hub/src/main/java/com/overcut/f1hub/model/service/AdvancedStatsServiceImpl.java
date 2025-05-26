@@ -117,7 +117,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
     @Override
-    public ChartDataDTO getVictoryPercentageByDriverPerSeason() {
+    public ChartDataDTO getVictoryPercentageByDriverPerSeason(String decade) {
         Map<Long, String> driverNames = driverDao.findAll().stream()
                 .collect(Collectors.toMap(
                         Driver::getDriverId,
@@ -138,6 +138,12 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             Integer year = raceYearMap.get(r.getRace().getRaceId());
             if (year == null) continue;
 
+            // Si se pasa el parámetro de década, solo contar años dentro de esa década
+            if (decade != null) {
+                int decadeStart = Integer.parseInt(decade.substring(0, 4));  // Extraer el año de inicio de la década
+                if (year < decadeStart || year >= (decadeStart + 10)) continue;  // Filtrar por década
+            }
+
             stats.computeIfAbsent(driverId, k -> new HashMap<>());
             Map<Integer, int[]> yearly = stats.get(driverId);
             int[] counts = yearly.computeIfAbsent(year, y -> new int[2]);
@@ -147,25 +153,52 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             }
         }
 
+        // Obtener todas las temporadas y agruparlas por década
         Set<Integer> allYears = new TreeSet<>();
         stats.values().forEach(map -> allYears.addAll(map.keySet()));
-        List<String> yearLabels = allYears.stream().map(String::valueOf).toList();
+
+        // Crear un mapa de décadas
+        Map<String, List<Integer>> decades = new HashMap<>();
+        for (Integer year : allYears) {
+            int decadeStart = (year / 10) * 10;
+            String decadeLabel = decadeStart + "s"; // Por ejemplo: "1950s"
+            decades.computeIfAbsent(decadeLabel, k -> new ArrayList<>()).add(year);
+        }
+
+        List<String> decadeLabels = new ArrayList<>(decades.keySet());
+        decadeLabels.sort(Comparator.naturalOrder());
 
         List<ChartSeriesDTO> datasets = new ArrayList<>();
         for (Map.Entry<Long, Map<Integer, int[]>> entry : stats.entrySet()) {
             Long driverId = entry.getKey();
             String label = driverNames.getOrDefault(driverId, "Driver " + driverId);
             List<Double> data = new ArrayList<>();
-            for (Integer year : allYears) {
-                int[] val = entry.getValue().getOrDefault(year, new int[]{0, 0});
-                double percent = (val[1] == 0) ? 0.0 : (100.0 * val[0]) / val[1];
+
+            // Calcular el porcentaje de victorias por década
+            for (String decade1 : decadeLabels) {
+                List<Integer> yearsInDecade = decades.get(decade1);
+                int totalRacesInDecade = 0;
+                int winsInDecade = 0;
+
+                // Sumar los resultados de las temporadas dentro de la década
+                for (Integer year : yearsInDecade) {
+                    int[] val = entry.getValue().getOrDefault(year, new int[]{0, 0});
+                    winsInDecade += val[0];
+                    totalRacesInDecade += val[1];
+                }
+
+                double percent = (totalRacesInDecade == 0) ? 0.0 : (100.0 * winsInDecade) / totalRacesInDecade;
                 data.add(percent);
             }
+
             datasets.add(new ChartSeriesDTO(label, "#82ca9d", data)); // color genérico
         }
 
-        return new ChartDataDTO("Porcentaje de victorias por temporada", "bar", yearLabels, datasets);
+        return new ChartDataDTO("Porcentaje de victorias por década", "bar", decadeLabels, datasets);
     }
+
+
+
 
 
     @Override
@@ -548,29 +581,43 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getWinsFrom3rdOrWorse() {
-        Map<Long, Driver> driverMap = driverDao.findAll().stream()
-                .collect(Collectors.toMap(Driver::getDriverId, d -> d));
+        // Consulta para obtener solo los resultados relevantes (victorias desde P3 o peor)
+        List<Result> results = resultDao.findAllByPositionOrderAndGridGreaterThan(1, 2);
 
+        // Mapa para contar las victorias de los conductores
         Map<Long, Integer> winCount = new HashMap<>();
 
-        for (Result r : resultDao.findAll()) {
-            if (r.getPositionOrder() != null && r.getPositionOrder() == 1 && r.getGrid() != null && r.getGrid() > 2) {
-                Long driverId = r.getDriver().getDriverId();
-                winCount.merge(driverId, 1, Integer::sum);
-            }
+        // Recorremos los resultados y contamos las victorias de los conductores
+        for (Result r : results) {
+            Long driverId = r.getDriver().getDriverId();
+            winCount.merge(driverId, 1, Integer::sum);
         }
 
-        List<ChartSeriesDTO> dataset = winCount.entrySet().stream()
-                .map(e -> {
-                    String label = driverMap.containsKey(e.getKey())
-                            ? driverMap.get(e.getKey()).getForename() + " " + driverMap.get(e.getKey()).getSurname()
-                            : "Driver " + e.getKey();
-                    return new ChartSeriesDTO(label, "#8884d8", List.of((double) e.getValue()));
-                })
-                .toList();
+        // Obtener los conductores relacionados a las victorias
+        List<Driver> drivers = driverDao.findByDriverIds(winCount.keySet());
 
+        // Crear los datos para la gráfica
+        List<ChartSeriesDTO> dataset = winCount.entrySet().stream()
+                .map(entry -> {
+                    // Buscar el nombre del conductor
+                    Driver driver = drivers.stream()
+                            .filter(d -> d.getDriverId().equals(entry.getKey()))
+                            .findFirst()
+                            .orElse(null);
+
+                    String label = (driver != null)
+                            ? driver.getForename() + " " + driver.getSurname()
+                            : "Driver " + entry.getKey();
+
+                    // Generar la serie de datos
+                    return new ChartSeriesDTO(label, "#8884d8", List.of((double) entry.getValue()));
+                })
+                .collect(Collectors.toList());
+
+        // Devolver los datos de la gráfica
         return new ChartDataDTO("Victorias desde P3 o peor", "bar", List.of("Victorias desde atrás"), dataset);
     }
+
 
 
     @Override
@@ -1033,8 +1080,10 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     @Override
     public ChartDataDTO getOvertakesPerRace(String yearStr) {
         int year = Integer.parseInt(yearStr);
-        Map<Long, Race> raceMap = raceDao.findAll().stream()
-                .filter(r -> r.getYear() == year)
+
+        // Usamos la consulta personalizada para obtener las carreras ordenadas por ronda
+        List<Race> races = raceDao.findByYearOrderByRoundAsc(year);
+        Map<Long, Race> raceMap = races.stream()
                 .collect(Collectors.toMap(Race::getRaceId, r -> r));
 
         Map<Long, Integer> overtakeMap = new HashMap<>();
@@ -1042,8 +1091,11 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         // Mapa para almacenar las posiciones de cada piloto por carrera y vuelta
         Map<Long, Map<Integer, Integer>> driverPositions = new HashMap<>();
 
+        // Obtener los tiempos de vuelta de las carreras seleccionadas (en vez de findAll())
+        List<LapTime> lapTimes = lapTimeDao.findByRaceIdIn(raceMap.keySet());
+
         // Recorremos todos los tiempos de vuelta
-        for (LapTime lapTime : lapTimeDao.findAll()) {
+        for (LapTime lapTime : lapTimes) {
             Long driverId = lapTime.getDriverId();
             Long raceId = lapTime.getRaceId();
             Integer lapNumber = lapTime.getLap();
@@ -1077,7 +1129,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         // Aseguramos que todas las carreras estén en el mapa, incluso si no hubo adelantamientos
         for (Long raceId : raceMap.keySet()) {
-            overtakeMap.putIfAbsent(raceId, 0);
+            overtakeMap.putIfAbsent(raceId, 0);  // Asegura que la carrera esté en el mapa con valor 0 si no hubo adelantamientos
         }
 
         // Ordenamos las carreras por número de ronda
@@ -1107,33 +1159,80 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
 
+
+
     @Override
     public ChartDataDTO getAvgOvertakesPerSeason() {
-        Map<Long, Integer> raceYears = raceDao.findAll().stream()
+        // Mapeamos las carreras por su año
+        Map<Long, Integer> raceYears = raceDao.findAllOrderByYearAndRound().stream()
                 .collect(Collectors.toMap(Race::getRaceId, Race::getYear));
 
-        Map<Integer, Integer> yearTotal = new HashMap<>();
-        Map<Integer, Integer> yearCount = new HashMap<>();
+        // Mapa para almacenar los adelantamientos totales por temporada y el conteo de carreras
+        Map<Integer, Integer> yearTotal = new HashMap<>();  // Usar Integer para 'year'
+        Map<Integer, Integer> yearCount = new HashMap<>();  // Usar Integer para 'year'
 
-        for (Result r : resultDao.findAll()) {
-            Integer year = raceYears.get(r.getRace().getRaceId());
-            if (year == null || r.getGrid() == null || r.getPositionOrder() == null) continue;
+        // Usamos la consulta personalizada para obtener los tiempos de vuelta de las carreras
+        List<LapTime> lapTimes = lapTimeDao.findByRaceIdIn(raceYears.keySet());
 
-            if (r.getGrid() > r.getPositionOrder()) {
-                yearTotal.merge(year, 1, Integer::sum);
+        // Mapa para almacenar las posiciones de cada piloto por carrera y vuelta
+        Map<Integer, Map<Long, Map<Integer, Integer>>> driverPositions = new HashMap<>();  // Cambié a Integer para year
+
+        // Recorremos todos los tiempos de vuelta
+        for (LapTime lapTime : lapTimes) {
+            Long driverId = lapTime.getDriverId();
+            Long raceId = lapTime.getRaceId();
+            Integer lapNumber = lapTime.getLap();
+            Integer position = lapTime.getPosition();
+
+            // Cambié el tipo de 'year' a Integer para que coincida con el tipo esperado
+            Integer year = raceYears.get(raceId);  // Mantener Integer aquí
+            if (year == null || position == null) continue;
+
+            // Inicializamos el mapa de posiciones para cada piloto y carrera si es la primera vez que vemos al piloto
+            driverPositions.computeIfAbsent(year, k -> new HashMap<>());
+            driverPositions.get(year).computeIfAbsent(raceId, k -> new HashMap<>());
+
+            Map<Integer, Integer> positions = driverPositions.get(year).get(raceId);
+
+            // Si no tenemos la posición para esta vuelta, la asignamos
+            if (!positions.containsKey(lapNumber)) {
+                positions.put(lapNumber, position);
+            } else {
+                // Comprobamos si la posición ha cambiado respecto a la vuelta anterior
+                if (positions.containsKey(lapNumber - 1)) {
+                    int previousPosition = positions.get(lapNumber - 1);
+
+                    // Solo contamos el adelantamiento si la posición ha cambiado (es menor la nueva)
+                    if (position < previousPosition) {
+                        // Incrementamos el contador de adelantamientos para esta temporada
+                        yearTotal.merge(year, 1, Integer::sum);
+                    }
+                }
+
+                // Actualizamos la posición para la vuelta actual
+                positions.put(lapNumber, position);
             }
+
+            // Incrementamos el contador de carreras procesadas para la temporada
             yearCount.merge(year, 1, Integer::sum);
         }
 
-        List<Integer> years = yearTotal.keySet().stream().sorted().toList();
+        // Preparamos las etiquetas para los años
+        List<Integer> years = new ArrayList<>(yearTotal.keySet());
+        years.sort(Comparator.naturalOrder()); // Ordenamos los años
         List<String> labels = years.stream().map(String::valueOf).toList();
+
+        // Preparamos los valores de los adelantamientos promedio por temporada
         List<Double> values = years.stream()
                 .map(y -> yearTotal.get(y) / (double) yearCount.getOrDefault(y, 1))
                 .toList();
 
-        return new ChartDataDTO("Promedio de adelantamientos por temporada", "line", labels,
-                List.of(new ChartSeriesDTO("Adelantamientos promedio", "#0088fe", values)));
+        // Devolvemos los datos para la gráfica
+        return new ChartDataDTO("Promedio de cambios de posición por temporada", "line", labels,
+                List.of(new ChartSeriesDTO("Cambios de Posición promedio", "#0088fe", values)));
     }
+
+
 
 
     @Override

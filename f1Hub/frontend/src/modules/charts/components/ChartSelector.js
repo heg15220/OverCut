@@ -52,7 +52,8 @@ const ChartSelector = () => {
     Pilotos: [
       { endpoint: "podium-percentage-vs-teammate", label: "Podios vs Compañero", param: "driverId" },
       { endpoint: "avg-positions-gained-by-season", label: "Posiciones Ganadas por Temporada", param: "driverId" },
-      { endpoint: "points-delta-vs-teammate", label: "Δ Puntos por Temporada", param: "season" }
+      { endpoint: "points-delta-vs-teammate", label: "Δ Puntos por Temporada", param: "season" },
+      { endpoint: "victory-percentage-by-decade", label: "Porcentaje de Victorias por Década", param: "decade" } // Actualizado
     ],
     Constructores: [
       { endpoint: "avg-team-points-by-season", label: "Puntos por Equipo", param: "constructorId" }
@@ -62,6 +63,8 @@ const ChartSelector = () => {
       { endpoint: "overtakes-per-race", label: "Cambios de Posición por Carrera", param: "season" }
     ]
   };
+
+
 
   return (
     <div className="chart-selector-container">
