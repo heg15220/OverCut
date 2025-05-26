@@ -8,6 +8,10 @@ import TableView from "../../f1hub/components/TableView";
 import ChampionshipTrackingView from "../../championship/components/ChampionshipTrackingView";
 import GraphView from "../../f1hub/components/GraphView";
 
+import ChartsDashboard from "../../charts/components/ChartsDashboard";
+import ChartSelector from "../../charts/components/ChartSelector";
+import ChartModeSelector from "../../charts/components/ChartModeSelector";
+
 const Body = () => {
   return (
     <main className="container" style={{ padding: "2rem" }}>
@@ -18,10 +22,15 @@ const Body = () => {
         <Route path="/tables/championships" element={<StatisticsView />} />
         <Route path="/statistics" element={<StatisticsView />} />
         <Route path="/tracking" element={<ChampionshipTrackingView />} />
-        <Route path="/graphs" element={<GraphView />} />
+        <Route path="/graphs" element={<ChartModeSelector />}>
+          <Route path="standard" element={<ChartsDashboard />} />
+          <Route path="advanced" element={<ChartSelector />} />
+        </Route>
+
       </Routes>
     </main>
   );
 };
+
 
 export default Body;

@@ -1,59 +1,76 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import charts from "../index";
 import ChartCard from "./ChartCard";
 
-const parameterizedCharts = {
-  Pilotos: [
-    { endpoint: "podium-percentage-vs-teammate", label: "Podios vs Compañero", param: "driverId" },
-    { endpoint: "q3-percentage-vs-teammate", label: "Q3 vs Compañero", param: "driverId" },
-    { endpoint: "avg-positions-gained-by-season", label: "Posiciones Ganadas por Temporada", param: "driverId" },
-    { endpoint: "race-vs-teammate-comparison", label: "Carreras vs Compañero", param: "driverId" },
-    { endpoint: "quali-vs-teammate-comparison", label: "Quali vs Compañero", param: "driverId" },
-    { endpoint: "points-delta-vs-teammate", label: "Δ Puntos por Temporada", param: "season" }
-  ],
-  Carreras: [
-    { endpoint: "pitstops-per-race", label: "Pitstops por Carrera", param: "year" },
-    { endpoint: "overtakes-per-race", label: "Adelantamientos por Carrera", param: "year" }
-  ]
-};
-
 const ChartSelector = () => {
   const dispatch = useDispatch();
-  const [category, setCategory] = useState(null); // ← inicia en null
+  const [category, setCategory] = useState(null);
   const [selected, setSelected] = useState(null);
-  const [input, setInput] = useState("");
+  const [driverId, setDriverId] = useState("");
+  const [constructorId, setConstructorId] = useState("");
+  const [season, setSeason] = useState("");
+  const [limit, setLimit] = useState(10);
 
+  const filters = useSelector(charts.selectors.getChartFilters);
   const chart = useSelector(state =>
-    selected && input
-      ? charts.selectors.getChartByEndpoint(state, `${selected.endpoint}:${input}`)
+    selected && (driverId || constructorId || season)
+      ? charts.selectors.getChartByEndpoint(
+          state,
+          `${selected.endpoint}:${driverId || constructorId || season}`
+        )
       : null
   );
 
+  useEffect(() => {
+    dispatch(charts.actions.fetchChartFilters());
+  }, [dispatch]);
+
   const handleFetch = () => {
-    if (input.trim() !== "" && selected) {
-      dispatch(charts.actions.fetchChartData(selected.endpoint, { [selected.param]: input }));
-    }
+    if (!selected) return;
+
+    const params = {};
+    if (selected.param === "driverId") params.driverId = driverId;
+    if (selected.param === "constructorId") params.constructorId = constructorId;
+    if (selected.param === "season") params.season = season;
+    if (limit) params.limit = limit;
+
+    dispatch(charts.actions.fetchChartData(selected.endpoint, params));
+  };
+
+  const chartOptions = {
+    Pilotos: [
+      { endpoint: "podium-percentage-vs-teammate", label: "Podios vs Compañero", param: "driverId" },
+      { endpoint: "avg-positions-gained-by-season", label: "Posiciones Ganadas por Temporada", param: "driverId" },
+      { endpoint: "points-delta-vs-teammate", label: "Δ Puntos por Temporada", param: "season" }
+    ],
+    Constructores: [
+      { endpoint: "avg-team-points-by-season", label: "Puntos por Equipo", param: "constructorId" }
+    ],
+    Carreras: [
+      { endpoint: "pitstops-per-race", label: "Pitstops por Carrera", param: "season" },
+      { endpoint: "overtakes-per-race", label: "Adelantamientos por Carrera", param: "season" }
+    ]
   };
 
   return (
-    <div className="p-4 bg-white shadow rounded-xl">
-      <h2 className="text-xl font-semibold mb-4">📌 Gráficos por Parámetro</h2>
+    <div className="p-4 bg-white shadow-xl rounded-xl">
+      <h2 className="text-xl font-bold mb-4">🎛️ Gráficos con Filtros Avanzados</h2>
 
-      {/* 🔹 Selección de categoría */}
       <div className="flex gap-4 mb-4">
-        {Object.keys(parameterizedCharts).map(cat => (
+        {Object.keys(chartOptions).map(cat => (
           <button
             key={cat}
             onClick={() => {
               setCategory(cat);
-              setSelected(parameterizedCharts[cat][0]);
-              setInput("");
+              setSelected(chartOptions[cat][0]);
+              setDriverId("");
+              setConstructorId("");
+              setSeason("");
+              setLimit(10);
             }}
-            className={`px-4 py-2 rounded ${
-              category === cat
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+            className={`px-4 py-2 rounded font-medium shadow-sm ${
+              category === cat ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
             }`}
           >
             {cat}
@@ -61,29 +78,67 @@ const ChartSelector = () => {
         ))}
       </div>
 
-      {/* 🔹 Solo si hay categoría activa, muestra filtros */}
       {category && selected && (
-        <div className="flex flex-wrap gap-4 mb-4">
+        <div className="flex flex-wrap items-center gap-4 mb-4">
           <select
             value={selected.endpoint}
             onChange={e =>
-              setSelected(parameterizedCharts[category].find(c => c.endpoint === e.target.value))
+              setSelected(chartOptions[category].find(c => c.endpoint === e.target.value))
             }
-            className="border p-2 rounded"
+            className="border rounded p-2"
           >
-            {parameterizedCharts[category].map(c => (
-              <option key={c.endpoint} value={c.endpoint}>
-                {c.label}
-              </option>
+            {chartOptions[category].map(opt => (
+              <option key={opt.endpoint} value={opt.endpoint}>{opt.label}</option>
             ))}
           </select>
 
+          {selected.param === "driverId" && (
+            <select
+              value={driverId}
+              onChange={e => setDriverId(e.target.value)}
+              className="border rounded p-2"
+            >
+              <option value="">Seleccione piloto</option>
+              {filters.drivers?.map(d => (
+                <option key={d.driverId} value={d.driverId}>{d.name}</option>
+              ))}
+            </select>
+          )}
+
+          {selected.param === "constructorId" && (
+            <select
+              value={constructorId}
+              onChange={e => setConstructorId(e.target.value)}
+              className="border rounded p-2"
+            >
+              <option value="">Seleccione equipo</option>
+              {filters.constructors?.map(c => (
+                <option key={c.constructorId} value={c.constructorId}>{c.name}</option>
+              ))}
+            </select>
+          )}
+
+          {selected.param === "season" && (
+            <select
+              value={season}
+              onChange={e => setSeason(e.target.value)}
+              className="border rounded p-2"
+            >
+              <option value="">Seleccione temporada</option>
+              {filters.seasons?.map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          )}
+
           <input
-            type="text"
-            placeholder={selected.param}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            className="border p-2 rounded"
+            type="number"
+            min="1"
+            max="50"
+            value={limit}
+            onChange={e => setLimit(e.target.value)}
+            className="border rounded p-2 w-24"
+            placeholder="Top N"
           />
 
           <button
@@ -95,7 +150,6 @@ const ChartSelector = () => {
         </div>
       )}
 
-      {/* 🔹 Mostrar el gráfico si está cargado */}
       {chart && <ChartCard chart={chart} />}
     </div>
   );

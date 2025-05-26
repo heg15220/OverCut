@@ -5,3 +5,6 @@ export const getChartByEndpoint = (state, endpoint) =>
 
 export const getChartCategories = state =>
   getModuleState(state).categories;
+
+export const getChartFilters = state =>
+  getModuleState(state).filters;

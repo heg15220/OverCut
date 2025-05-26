@@ -1,6 +1,7 @@
 package com.overcut.f1hub.model.service;
 
 import com.overcut.f1hub.model.entities.*;
+import com.overcut.f1hub.rest.controllers.ChartController;
 import com.overcut.f1hub.rest.dtos.ChartDataDTO;
 import com.overcut.f1hub.rest.dtos.ChartSeriesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,30 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     @Autowired
     private PitStopDao pitStopDao;
 
+
+
+
+    public List<DriverOption> getAllDrivers() {
+        return driverDao.findAll().stream()
+                .sorted(Comparator.comparing(d -> d.getSurname() + d.getForename()))
+                .map(d -> new DriverOption(d.getDriverId(), d.getForename() + " " + d.getSurname()))
+                .collect(Collectors.toList());
+    }
+
+    public List<ConstructorOption> getAllConstructors() {
+        return constructorDao.findAll().stream()
+                .sorted(Comparator.comparing(Constructor::getName))
+                .map(c -> new ConstructorOption(c.getConstructorId(), c.getName()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Integer> getAllSeasons() {
+        return raceDao.findAll().stream()
+                .map(Race::getYear)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
     @Override
     public ChartDataDTO getAveragePointsPerSeasonByDriver() {
         Map<Long, String> driverNames = driverDao.findAll().stream()

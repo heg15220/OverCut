@@ -1,8 +1,13 @@
 import * as actionTypes from "./actionTypes";
 
 const initialState = {
-  charts: {},            // endpoint => ChartDataDTO
-  categories: {}         // categoría => [endpoints]
+  charts: {},
+  categories: {},
+  filters: {
+    drivers: [],
+    constructors: [],
+    seasons: []
+  }
 };
 
 export default function reducer(state = initialState, action) {
@@ -27,6 +32,13 @@ export default function reducer(state = initialState, action) {
         ...state,
         charts: {}
       };
+
+    case actionTypes.FETCH_CHART_FILTERS_COMPLETED:
+      return {
+        ...state,
+        filters: action.data
+      };
+
 
     default:
       return state;

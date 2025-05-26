@@ -2,6 +2,7 @@ package com.overcut.f1hub.rest.controllers;
 
 import com.overcut.f1hub.model.service.AdvancedStatsService;
 import com.overcut.f1hub.rest.dtos.ChartDataDTO;
+import com.overcut.f1hub.rest.dtos.ChartFilterOptionsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -174,6 +175,30 @@ public class ChartController {
         ));
 
         return categories;
+    }
+
+    @GetMapping("/drivers")
+    public List<AdvancedStatsService.DriverOption> getAllDrivers() {
+        return advancedStatsService.getAllDrivers();
+    }
+
+    @GetMapping("/constructors")
+    public List<AdvancedStatsService.ConstructorOption> getAllConstructors() {
+        return advancedStatsService.getAllConstructors();
+    }
+
+    @GetMapping("/seasons")
+    public List<Integer> getAllSeasons() {
+        return advancedStatsService.getAllSeasons();
+    }
+
+    @GetMapping("/filters")
+    public ChartFilterOptionsDTO getChartFilters() {
+        return new ChartFilterOptionsDTO(
+                advancedStatsService.getAllDrivers(),
+                advancedStatsService.getAllConstructors(),
+                advancedStatsService.getAllSeasons()
+        );
     }
 
 }

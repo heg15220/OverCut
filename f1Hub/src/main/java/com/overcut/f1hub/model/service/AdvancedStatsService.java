@@ -2,7 +2,18 @@ package com.overcut.f1hub.model.service;
 
 import com.overcut.f1hub.rest.dtos.ChartDataDTO;
 
+import java.util.List;
+
 public interface AdvancedStatsService {
+
+    record DriverOption(Long driverId, String name) {}
+    record ConstructorOption(Long constructorId, String name) {}
+
+    List<DriverOption> getAllDrivers();
+
+    List<ConstructorOption> getAllConstructors();
+
+    List<Integer> getAllSeasons();
 
     ChartDataDTO getAveragePointsPerSeasonByDriver();
 

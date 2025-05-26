@@ -31,3 +31,14 @@ export const fetchChartCategories = () => dispatch => {
 export const clearChartData = () => ({
   type: actionTypes.CLEAR_CHART_DATA
 });
+
+export const fetchChartFilters = () => dispatch => {
+  backend.chartService.getChartFilters(
+    data =>
+      dispatch({
+        type: actionTypes.FETCH_CHART_FILTERS_COMPLETED,
+        data
+      }),
+    () => {}
+  );
+};
