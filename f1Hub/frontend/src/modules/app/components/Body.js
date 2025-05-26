@@ -6,6 +6,7 @@ import StatisticsView from "../../statistics/components/StatisticsView";
 import TableMenu from "../../f1hub/components/TableMenu";
 import TableView from "../../f1hub/components/TableView";
 import ChampionshipTrackingView from "../../championship/components/ChampionshipTrackingView";
+import GraphView from "../../f1hub/components/GraphView";
 
 const Body = () => {
   return (
@@ -17,6 +18,7 @@ const Body = () => {
         <Route path="/tables/championships" element={<StatisticsView />} />
         <Route path="/statistics" element={<StatisticsView />} />
         <Route path="/tracking" element={<ChampionshipTrackingView />} />
+        <Route path="/graphs" element={<GraphView />} />
       </Routes>
     </main>
   );

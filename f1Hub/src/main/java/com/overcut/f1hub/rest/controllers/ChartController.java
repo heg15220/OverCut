@@ -5,6 +5,11 @@ import com.overcut.f1hub.rest.dtos.ChartDataDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/charts")
 public class ChartController {
@@ -131,5 +136,44 @@ public class ChartController {
         return advancedStatsService.getWinsFrom3rdOrWorse();
     }
 
+
+    @GetMapping("/by-category")
+    public Map<String, List<String>> getChartEndpointsByCategory() {
+        Map<String, List<String>> categories = new HashMap<>();
+
+        categories.put("Pilotos", List.of(
+                "average-points-per-season",
+                "victory-percentage-per-season",
+                "podium-percentage-vs-teammate",
+                "q3-percentage-vs-teammate",
+                "avg-positions-gained-by-season",
+                "avg-positions-gained-first-laps",
+                "race-vs-teammate-comparison",
+                "quali-vs-teammate-comparison",
+                "most-common-finish-position",
+                "most-common-quali-position",
+                "points-delta-vs-teammate",
+                "driver-vs-team-championship-finish"
+        ));
+
+        categories.put("Constructores", List.of(
+                "team-comebacks-by-season",
+                "avg-team-points-by-season",
+                "most-team-points",
+                "wins-no-front-row"
+        ));
+
+        categories.put("Carreras", List.of(
+                "wins-from-3rd-or-worse",
+                "podiums-from-3rd-or-worse",
+                "average-accidents-by-season",
+                "pitstops-per-race",
+                "avg-pitstops-per-season",
+                "overtakes-per-race",
+                "avg-overtakes-per-season"
+        ));
+
+        return categories;
+    }
 
 }

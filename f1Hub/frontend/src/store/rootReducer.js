@@ -4,6 +4,7 @@ import raceResults from "../modules/raceResults";
 import raceSelector from "../modules/raceSelector";
 import statistics from "../modules/statistics";
 import championship from "../modules/championship";
+import charts from "../modules/charts";
 // Agrega solo los módulos que uses realmente en f1Hub
 
 const rootReducer = combineReducers({
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
   raceSelector: raceSelector.reducer,
   statistics: statistics.reducer,
   championship: championship.reducer,
+  charts: charts.reducer,
 });
 
 export default rootReducer;

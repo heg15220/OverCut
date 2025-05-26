@@ -10,6 +10,10 @@ import * as statisticsService from "./statisticsService";
 
 import * as championshipService from "./championshipService";
 
-const backExport = { init, NetworkError, raceResultService, raceSelectorService, statisticsService, championshipService}
+
+import * as chartService from "./chartService";
+
+const backExport = { init, NetworkError, raceResultService, raceSelectorService, statisticsService, championshipService,
+chartService}
 
 export default backExport;
