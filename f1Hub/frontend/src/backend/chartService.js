@@ -1,7 +1,16 @@
 import { appFetch, fetchConfig } from "./appFetch";
 
-export const getChartData = (endpoint, params, onSuccess, onError) =>
-  appFetch(`/charts/${endpoint}`, fetchConfig("GET", params), onSuccess, onError);
+
+export const getChartData = (endpoint, params, onSuccess, onError) => {
+  let url = `/charts/${endpoint}`;
+  if (params && Object.keys(params).length > 0) {
+    const query = new URLSearchParams(params).toString();
+    url += `?${query}`;
+  }
+
+  appFetch(url, fetchConfig("GET"), onSuccess, onError);
+};
+
 
 export const getChartCategories = (onSuccess, onError) =>
   appFetch("/charts/by-category", fetchConfig("GET"), onSuccess, onError);

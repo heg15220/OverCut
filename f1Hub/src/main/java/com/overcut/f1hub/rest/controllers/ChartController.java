@@ -113,18 +113,17 @@ public class ChartController {
     }
 
     @GetMapping("/pitstops-per-race")
-    public ChartDataDTO getPitStopsPerRace(@RequestParam String year) {
-        return advancedStatsService.getPitStopsPerRace(year);
+    public ChartDataDTO getPitStopsPerRace(@RequestParam("season") String season) {
+        return advancedStatsService.getPitStopsPerRace(season);
     }
-
     @GetMapping("/avg-pitstops-per-season")
     public ChartDataDTO getAvgPitStopsPerSeason() {
         return advancedStatsService.getAvgPitStopsPerSeason();
     }
 
     @GetMapping("/overtakes-per-race")
-    public ChartDataDTO getOvertakesPerRace(@RequestParam String year) {
-        return advancedStatsService.getOvertakesPerRace(year);
+    public ChartDataDTO getOvertakesPerRace(@RequestParam("season") String season) {
+        return advancedStatsService.getOvertakesPerRace(season);
     }
 
     @GetMapping("/avg-overtakes-per-season")

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import charts from "../index";
 import ChartCard from "./ChartCard";
+import { buildChartKey } from "../utils/chartKey";
 
 const ChartSelector = () => {
   const dispatch = useDispatch();
@@ -13,14 +14,19 @@ const ChartSelector = () => {
   const [limit, setLimit] = useState(10);
 
   const filters = useSelector(charts.selectors.getChartFilters);
+  const chartKey = selected
+    ? buildChartKey(selected.endpoint, {
+        driverId,
+        constructorId,
+        season,
+        limit
+      })
+    : null;
+
   const chart = useSelector(state =>
-    selected && (driverId || constructorId || season)
-      ? charts.selectors.getChartByEndpoint(
-          state,
-          `${selected.endpoint}:${driverId || constructorId || season}`
-        )
-      : null
+    chartKey ? charts.selectors.getChartByEndpoint(state, chartKey) : null
   );
+
 
   useEffect(() => {
     dispatch(charts.actions.fetchChartFilters());
@@ -30,13 +36,24 @@ const ChartSelector = () => {
     if (!selected) return;
 
     const params = {};
-    if (selected.param === "driverId") params.driverId = driverId;
-    if (selected.param === "constructorId") params.constructorId = constructorId;
-    if (selected.param === "season") params.season = season;
-    if (limit) params.limit = limit;
+    if (selected.param === "driverId" && driverId) params.driverId = driverId;
+    if (selected.param === "constructorId" && constructorId) params.constructorId = constructorId;
+    if (selected.param === "season" && season) params.season = season;
+
+    // Solo agrega `limit` si es relevante
+    if (selected.param !== "season") params.limit = limit;
+
+    const key = buildChartKey(selected.endpoint, params);
+    console.log("🔑 Key de gráfico que se usará:", key);
 
     dispatch(charts.actions.fetchChartData(selected.endpoint, params));
   };
+
+
+
+
+
+
 
   const chartOptions = {
     Pilotos: [

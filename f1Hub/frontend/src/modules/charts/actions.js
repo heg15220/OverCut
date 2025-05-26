@@ -1,21 +1,30 @@
 import * as actionTypes from "./actionTypes";
 import backend from "../../backend";
+import { buildChartKey } from "./utils/chartKey";
+
 
 export const fetchChartData = (endpoint, params) => dispatch => {
+  const key = buildChartKey(endpoint, params);
+
   backend.chartService.getChartData(
     endpoint,
     params,
-    data =>
+    data => {
+      console.log("📊 Datos recibidos:", data); // <—— AÑADE ESTO
       dispatch({
         type: actionTypes.FETCH_CHART_DATA_COMPLETED,
-        endpoint: params
-          ? `${endpoint}:${Object.values(params).join(":")}`
-          : endpoint,
+        endpoint: key,
         data
-      }),
-    () => {}
+      });
+    },
+    err => {
+      console.error("❌ Error al obtener gráfica:", err);
+    }
   );
 };
+
+
+
 
 export const fetchChartCategories = () => dispatch => {
   backend.chartService.getChartCategories(
