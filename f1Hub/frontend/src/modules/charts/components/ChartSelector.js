@@ -59,7 +59,7 @@ const ChartSelector = () => {
     ],
     Carreras: [
       { endpoint: "pitstops-per-race", label: "Pitstops por Carrera", param: "season" },
-      { endpoint: "overtakes-per-race", label: "Adelantamientos por Carrera", param: "season" }
+      { endpoint: "overtakes-per-race", label: "Cambios de Posición por Carrera", param: "season" }
     ]
   };
 

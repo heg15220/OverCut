@@ -967,31 +967,40 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     @Override
     public ChartDataDTO getPitStopsPerRace(String yearStr) {
         int year = Integer.parseInt(yearStr);
+
+        // Obtener carreras de la temporada
         Map<Long, Race> raceMap = raceDao.findAll().stream()
-                .filter(r -> r.getYear() == year)
+                .filter(r -> r.getYear() == year)  // Filtramos solo las carreras de ese año
                 .collect(Collectors.toMap(Race::getRaceId, r -> r));
 
+        // Contar las paradas por carrera
         Map<Long, Integer> pitCount = new HashMap<>();
         for (PitStop p : pitStopDao.findAll()) {
+            // Solo contar las paradas si la carrera está dentro de la temporada seleccionada
             if (raceMap.containsKey(p.getRaceId())) {
-                pitCount.merge(p.getRaceId(), 1, Integer::sum);
+                pitCount.merge(p.getRaceId(), 1, Integer::sum);  // Incrementamos el contador de paradas
             }
         }
 
+        // Ordenar las carreras por su número de vuelta
         List<Map.Entry<Long, Integer>> sorted = pitCount.entrySet().stream()
-                .sorted(Comparator.comparing(e -> raceMap.get(e.getKey()).getRound()))
-                .toList();
+                .sorted(Comparator.comparing(e -> raceMap.get(e.getKey()).getRound()))  // Ordenar por el orden de la carrera
+                .collect(Collectors.toList());
 
+        // Preparar las etiquetas y valores de las paradas
         List<String> labels = sorted.stream()
-                .map(e -> raceMap.get(e.getKey()).getName())
-                .toList();
-        List<Double> values = sorted.stream()
-                .map(e -> (double) e.getValue())
-                .toList();
+                .map(e -> raceMap.get(e.getKey()).getName())  // Usamos el nombre de la carrera
+                .collect(Collectors.toList());
 
+        List<Double> values = sorted.stream()
+                .map(e -> (double) e.getValue())  // Convertimos los valores a Double
+                .collect(Collectors.toList());
+
+        // Devolver los datos calculados en el DTO adecuado
         return new ChartDataDTO("Paradas por carrera (" + year + ")", "bar", labels,
                 List.of(new ChartSeriesDTO("Paradas en boxes", "#ff8042", values)));
     }
+
 
 
     @Override
@@ -1029,24 +1038,73 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .collect(Collectors.toMap(Race::getRaceId, r -> r));
 
         Map<Long, Integer> overtakeMap = new HashMap<>();
-        for (Result r : resultDao.findAll()) {
-            if (raceMap.containsKey(r.getRace().getRaceId()) && r.getGrid() != null && r.getPositionOrder() != null) {
-                if (r.getGrid() > r.getPositionOrder()) {
-                    overtakeMap.merge(r.getRace().getRaceId(), 1, Integer::sum);
+
+        // Mapa para almacenar las posiciones de cada piloto por carrera y vuelta
+        Map<Long, Map<Integer, Integer>> driverPositions = new HashMap<>();
+
+        // Recorremos todos los tiempos de vuelta
+        for (LapTime lapTime : lapTimeDao.findAll()) {
+            Long driverId = lapTime.getDriverId();
+            Long raceId = lapTime.getRaceId();
+            Integer lapNumber = lapTime.getLap();
+            Integer position = lapTime.getPosition();
+
+            if (raceMap.containsKey(raceId) && position != null) {
+                // Inicializamos el mapa de posiciones si es la primera vez que vemos al piloto
+                driverPositions.computeIfAbsent(driverId, k -> new HashMap<>());
+                Map<Integer, Integer> positions = driverPositions.get(driverId);
+
+                // Si no tenemos la posición para esta vuelta, la asignamos
+                if (!positions.containsKey(lapNumber)) {
+                    positions.put(lapNumber, position);
+                } else {
+                    // Comprobamos si la posición ha cambiado respecto a la vuelta anterior
+                    if (positions.containsKey(lapNumber - 1)) {
+                        int previousPosition = positions.get(lapNumber - 1);
+
+                        // Solo contamos el adelantamiento si la posición ha cambiado (es menor la nueva)
+                        if (position < previousPosition) {
+                            // Incrementamos el contador de adelantamientos para la carrera
+                            overtakeMap.merge(raceId, 1, Integer::sum);
+                        }
+                    }
+
+                    // Actualizamos la posición para la vuelta actual
+                    positions.put(lapNumber, position);
                 }
             }
         }
 
+        // Aseguramos que todas las carreras estén en el mapa, incluso si no hubo adelantamientos
+        for (Long raceId : raceMap.keySet()) {
+            overtakeMap.putIfAbsent(raceId, 0);
+        }
+
+        // Ordenamos las carreras por número de ronda
         List<Map.Entry<Long, Integer>> sorted = overtakeMap.entrySet().stream()
                 .sorted(Comparator.comparing(e -> raceMap.get(e.getKey()).getRound()))
-                .toList();
+                .collect(Collectors.toList());
 
-        List<String> labels = sorted.stream().map(e -> raceMap.get(e.getKey()).getName()).toList();
-        List<Double> values = sorted.stream().map(e -> (double) e.getValue()).toList();
+        // Preparamos las etiquetas para las carreras
+        List<String> labels = sorted.stream()
+                .map(e -> raceMap.get(e.getKey()).getName())
+                .collect(Collectors.toList());
 
-        return new ChartDataDTO("Adelantamientos por carrera (" + year + ")", "bar", labels,
-                List.of(new ChartSeriesDTO("Adelantamientos", "#00c49f", values)));
+        // Preparamos los valores de los adelantamientos
+        List<Double> values = sorted.stream()
+                .map(e -> (double) e.getValue())
+                .collect(Collectors.toList());
+
+        // Devolvemos los datos para la gráfica
+        return new ChartDataDTO("Cambios de Posición por carrera (" + year + ")", "bar", labels,
+                List.of(new ChartSeriesDTO("Cambios de Posición", "#00c49f", values)));
     }
+
+
+
+
+
+
 
 
     @Override

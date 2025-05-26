@@ -1,16 +1,6 @@
 import React from "react";
-import {
-  BarChart,
-  LineChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Bar,
-  Line
-} from "recharts";
+import ReactECharts from "echarts-for-react";
+import "./ChartStyles.css";
 
 const ChartCard = ({ chart }) => {
   if (
@@ -21,73 +11,92 @@ const ChartCard = ({ chart }) => {
     chart.datasets.length === 0
   ) {
     return (
-      <div className="chart-card shadow rounded-xl bg-white p-6 text-center text-gray-500 italic">
-        Cargando gráfico...
-      </div>
+      <div className="chart-card shadow rounded-xl text-center chart-empty">Cargando gráfico...</div>
     );
   }
 
   const { title, chartType, labels, datasets } = chart;
 
-  const chartData = labels.map((label, i) => {
-    const row = { name: label };
-    datasets.forEach(ds => {
-      row[ds.label] = ds.data[i];
-    });
-    return row;
-  });
+  const series = datasets.map(ds => ({
+    name: ds.label,
+    type: chartType === "bar" ? "bar" : "line",
+    data: ds.data,
+    itemStyle: {
+      color: ds.color || "#ffcc00"
+    },
+    smooth: chartType === "line",
+    symbolSize: 8
+  }));
 
-  const commonStyles = {
-    margin: { top: 20, right: 30, left: 0, bottom: 5 }
+  const option = {
+    backgroundColor: "#0f0f0f",
+    title: {
+      text: title,
+      left: "center",
+      textStyle: {
+        color: "#ffcc00",
+        fontSize: 18,
+        fontFamily: "F1 Bold, sans-serif"
+      }
+    },
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: "#1e1e1e",
+      borderColor: "#444",
+      borderWidth: 1,
+      textStyle: {
+        color: "#fff"
+      }
+    },
+    legend: {
+      top: 30,
+      textStyle: {
+        color: "#ccc"
+      }
+    },
+    grid: {
+      left: "5%",
+      right: "5%",
+      bottom: "8%",
+      containLabel: true
+    },
+    xAxis: {
+      type: "category",
+      data: labels,
+      axisLine: {
+        lineStyle: {
+          color: "#777"
+        }
+      },
+      axisLabel: {
+        color: "#ccc",
+        fontSize: 12
+      }
+    },
+    yAxis: {
+      type: "value",
+      axisLine: {
+        lineStyle: {
+          color: "#777"
+        }
+      },
+      axisLabel: {
+        color: "#ccc",
+        fontSize: 12
+      },
+      splitLine: {
+        lineStyle: {
+          color: "#444",
+          type: "dashed"
+        }
+      }
+    },
+    series
   };
 
   return (
-    <div className="chart-card shadow-lg rounded-2xl bg-white p-6 transition duration-300 hover:shadow-2xl">
-      <h2 className="chart-title">{title}</h2>
-      <ResponsiveContainer width="100%" height={320}>
-        {chartType === "bar" ? (
-          <BarChart data={chartData} {...commonStyles}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip
-              contentStyle={{ fontSize: "14px", backgroundColor: "#ffffff", borderRadius: "8px" }}
-              labelStyle={{ fontWeight: "bold" }}
-            />
-            <Legend wrapperStyle={{ fontSize: 13 }} />
-            {datasets.map(ds => (
-              <Bar
-                key={ds.label}
-                dataKey={ds.label}
-                fill={ds.color || "#8884d8"}
-                radius={[4, 4, 0, 0]}
-              />
-            ))}
-          </BarChart>
-        ) : (
-          <LineChart data={chartData} {...commonStyles}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip
-              contentStyle={{ fontSize: "14px", backgroundColor: "#ffffff", borderRadius: "8px" }}
-              labelStyle={{ fontWeight: "bold" }}
-            />
-            <Legend wrapperStyle={{ fontSize: 13 }} />
-            {datasets.map(ds => (
-              <Line
-                key={ds.label}
-                type="monotone"
-                dataKey={ds.label}
-                stroke={ds.color || "#8884d8"}
-                strokeWidth={2}
-                dot={{ r: 3 }}
-                activeDot={{ r: 5 }}
-              />
-            ))}
-          </LineChart>
-        )}
-      </ResponsiveContainer>
+    <div className="chart-card">
+      <ReactECharts option={option} style={{ height: 400, width: "100%" }} />
     </div>
   );
 };

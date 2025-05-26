@@ -71,3 +71,58 @@
 .fetch-button:hover {
   background-color: #1d4ed8;
 }
+:root {
+  --accent: #ffcc00;
+  --tooltip-bg: #1e1e1e;
+  --tooltip-border: #444;
+}
+
+/* === Tarjeta contenedora de la gráfica === */
+.chart-card {
+  background: linear-gradient(180deg, #0f0f0f, #1a1a1a);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(255, 204, 0, 0.06);
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: white;
+}
+
+.chart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(255, 204, 0, 0.15);
+}
+
+.chart-title {
+  font-family: 'F1 Bold', sans-serif;
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+  text-align: center;
+  color: var(--accent);
+}
+
+.chart-empty {
+  color: #888;
+  background-color: #1a1a1a;
+}
+
+/* === Gráfica interna === */
+.chart-graphic {
+  font-family: 'F1 Regular', sans-serif;
+}
+
+/* === Ejes y ticks === */
+.chart-axis line,
+.chart-axis path {
+  stroke: #777 !important;
+}
+
+.chart-tick {
+  font-size: 12px;
+  fill: #ccc !important;
+}
+
+/* === Cuadrícula === */
+.chart-grid line {
+  stroke: #444;
+  stroke-opacity: 0.6;
+}
