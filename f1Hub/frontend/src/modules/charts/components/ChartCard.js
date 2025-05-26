@@ -43,7 +43,7 @@ const ChartCard = ({ chart }) => {
 
   return (
     <div className="chart-card shadow-lg rounded-2xl bg-white p-6 transition duration-300 hover:shadow-2xl">
-      <h2 className="font-bold text-lg text-gray-800 mb-4">{title}</h2>
+      <h2 className="chart-title">{title}</h2>
       <ResponsiveContainer width="100%" height={320}>
         {chartType === "bar" ? (
           <BarChart data={chartData} {...commonStyles}>

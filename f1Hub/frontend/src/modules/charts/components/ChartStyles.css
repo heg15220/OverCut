@@ -1,0 +1,73 @@
+/* === Chart Card General === */
+.chart-card {
+  background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  padding: 1.8rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+}
+
+.chart-title {
+  font-family: 'F1 Bold', 'Inter', sans-serif;
+  font-size: 1.4rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* === Chart Selector Buttons === */
+.selector-button {
+  padding: 0.6rem 1.4rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  background: #e5e7eb;
+  color: #111827;
+  transition: all 0.2s ease-in-out;
+  border: none;
+}
+
+.selector-button:hover {
+  background-color: #d1d5db;
+}
+
+.selector-button.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* === Dropdowns and Inputs === */
+.chart-dropdown,
+.chart-input {
+  border: 2px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  background: #f9fafb;
+  transition: border-color 0.2s ease-in-out;
+  font-size: 0.95rem;
+}
+
+.chart-dropdown:focus,
+.chart-input:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+/* === Action Button === */
+.fetch-button {
+  background-color: #2563eb;
+  color: white;
+  font-weight: bold;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  border: none;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.fetch-button:hover {
+  background-color: #1d4ed8;
+}

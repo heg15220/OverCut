@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import charts from "../index";
 import ChartCard from "./ChartCard";
+import "./ChartStyles.css";
 import { buildChartKey } from "../utils/chartKey";
 
 const ChartSelector = () => {
@@ -27,7 +28,6 @@ const ChartSelector = () => {
     chartKey ? charts.selectors.getChartByEndpoint(state, chartKey) : null
   );
 
-
   useEffect(() => {
     dispatch(charts.actions.fetchChartFilters());
   }, [dispatch]);
@@ -40,7 +40,6 @@ const ChartSelector = () => {
     if (selected.param === "constructorId" && constructorId) params.constructorId = constructorId;
     if (selected.param === "season" && season) params.season = season;
 
-    // Solo agrega `limit` si es relevante
     if (selected.param !== "season") params.limit = limit;
 
     const key = buildChartKey(selected.endpoint, params);
@@ -48,12 +47,6 @@ const ChartSelector = () => {
 
     dispatch(charts.actions.fetchChartData(selected.endpoint, params));
   };
-
-
-
-
-
-
 
   const chartOptions = {
     Pilotos: [
@@ -71,10 +64,10 @@ const ChartSelector = () => {
   };
 
   return (
-    <div className="p-4 bg-white shadow-xl rounded-xl">
-      <h2 className="text-xl font-bold mb-4">🎛️ Gráficos con Filtros Avanzados</h2>
+    <div className="chart-selector-container">
+      <h2 className="chart-selector-title">🎛️ Gráficos con Filtros Avanzados</h2>
 
-      <div className="flex gap-4 mb-4">
+      <div className="flex gap-3 flex-wrap justify-center mb-4">
         {Object.keys(chartOptions).map(cat => (
           <button
             key={cat}
@@ -86,9 +79,7 @@ const ChartSelector = () => {
               setSeason("");
               setLimit(10);
             }}
-            className={`px-4 py-2 rounded font-medium shadow-sm ${
-              category === cat ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
-            }`}
+            className={`selector-button ${category === cat ? "active" : ""}`}
           >
             {cat}
           </button>
@@ -96,13 +87,12 @@ const ChartSelector = () => {
       </div>
 
       {category && selected && (
-        <div className="flex flex-wrap items-center gap-4 mb-4">
+        <div className="race-selector">
           <select
             value={selected.endpoint}
             onChange={e =>
               setSelected(chartOptions[category].find(c => c.endpoint === e.target.value))
             }
-            className="border rounded p-2"
           >
             {chartOptions[category].map(opt => (
               <option key={opt.endpoint} value={opt.endpoint}>{opt.label}</option>
@@ -113,7 +103,6 @@ const ChartSelector = () => {
             <select
               value={driverId}
               onChange={e => setDriverId(e.target.value)}
-              className="border rounded p-2"
             >
               <option value="">Seleccione piloto</option>
               {filters.drivers?.map(d => (
@@ -126,7 +115,6 @@ const ChartSelector = () => {
             <select
               value={constructorId}
               onChange={e => setConstructorId(e.target.value)}
-              className="border rounded p-2"
             >
               <option value="">Seleccione equipo</option>
               {filters.constructors?.map(c => (
@@ -139,7 +127,6 @@ const ChartSelector = () => {
             <select
               value={season}
               onChange={e => setSeason(e.target.value)}
-              className="border rounded p-2"
             >
               <option value="">Seleccione temporada</option>
               {filters.seasons?.map(y => (
@@ -154,13 +141,13 @@ const ChartSelector = () => {
             max="50"
             value={limit}
             onChange={e => setLimit(e.target.value)}
-            className="border rounded p-2 w-24"
+            className="chart-input w-24"
             placeholder="Top N"
           />
 
           <button
             onClick={handleFetch}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            disabled={!selected}
           >
             Mostrar
           </button>
