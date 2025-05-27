@@ -49,7 +49,8 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getWinsWithoutTop2();
 
-    ChartDataDTO getTeamComebacksBySeason();
+    ChartDataDTO getTeamComebacksBySeason(String decade);
+
 
     ChartDataDTO getMostTeamPoints();
 

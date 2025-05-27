@@ -106,7 +106,7 @@ const ChartsDashboard = () => {
             ))}
           </select>
 
-          {selectedChart === "victory-percentage-by-decade" && (
+          {currentParam === "decade" && (
             <select
               className="chart-dropdown mt-2"
               value={decade}
@@ -120,6 +120,7 @@ const ChartsDashboard = () => {
               <option value="2020s">Década de 2020</option>
             </select>
           )}
+
 
           {currentParam && (
             <button
@@ -139,7 +140,7 @@ const ChartsDashboard = () => {
       )}
 
       {chart ? (
-        ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse"].includes(selectedChart) ? (
+        ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse", "team-comebacks-by-season"].includes(selectedChart) ? (
           <ChartCardColored chart={chart} />
         ) : (
           <ChartCard chart={chart} />

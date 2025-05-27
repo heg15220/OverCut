@@ -16,7 +16,7 @@ const metadata = {
   "driver-vs-team-championship-finish": { label: "Resultado Piloto vs Equipo en el Campeonato" },
 
   // Constructores
-  "team-comebacks-by-season": { label: "Remontadas por Temporada (Equipos)" },
+  "team-comebacks-by-season": { label: "Remontadas por Temporada (Equipos)", param: "decade" },
   "avg-team-points-by-season": { label: "Puntos Promedio por Temporada (Equipos)", param: "constructorId" },
   "most-team-points": { label: "Máximos Puntos de un Equipo" },
   "wins-no-front-row": { label: "Victorias sin Salir en 1ª Fila" },

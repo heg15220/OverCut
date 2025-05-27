@@ -80,8 +80,8 @@ public class ChartController {
         return advancedStatsService.getPointsDeltaVsTeammate(season);
     }
     @GetMapping("/team-comebacks-by-season")
-    public ChartDataDTO getTeamComebacksBySeason() {
-        return advancedStatsService.getTeamComebacksBySeason();
+    public ChartDataDTO getTeamComebacksBySeason(@RequestParam(required = false) String decade) {
+        return advancedStatsService.getTeamComebacksBySeason(decade);
     }
 
     @GetMapping("/avg-team-points-by-season")

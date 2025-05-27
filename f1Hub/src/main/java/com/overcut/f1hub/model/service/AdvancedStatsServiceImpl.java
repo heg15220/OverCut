@@ -1029,23 +1029,41 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
+    // Implementación
     @Override
-    public ChartDataDTO getTeamComebacksBySeason() {
+    public ChartDataDTO getTeamComebacksBySeason(String decade) {
+        int startYear = 0, endYear = 9999;
+        if (decade != null) {
+            switch (decade) {
+                case "1980s": startYear = 1980; endYear = 1989; break;
+                case "1990s": startYear = 1990; endYear = 1999; break;
+                case "2000s": startYear = 2000; endYear = 2009; break;
+                case "2010s": startYear = 2010; endYear = 2019; break;
+                case "2020s": startYear = 2020; endYear = 2029; break;
+                case "2030s": startYear = 2030; endYear = 2039; break;
+                case "2040s": startYear = 2040; endYear = 2049; break;
+                case "2050s": startYear = 2050; endYear = 2059; break;
+                case "2060s": startYear = 2060; endYear = 2069; break;
+            }
+
+        }
+
         Map<Long, Constructor> constructorMap = constructorDao.findAll().stream()
                 .collect(Collectors.toMap(Constructor::getConstructorId, c -> c));
 
         Map<Long, Integer> raceYearMap = raceDao.findAll().stream()
                 .collect(Collectors.toMap(Race::getRaceId, Race::getYear));
 
-        // Map<constructorId, Map<year, List<posiciones ganadas>>>
         Map<Long, Map<Integer, List<Integer>>> data = new HashMap<>();
 
         for (Result r : resultDao.findAll()) {
             if (r.getGrid() == null || r.getPositionOrder() == null || r.getConstructor() == null) continue;
-            int delta = r.getGrid() - r.getPositionOrder(); // posiciones ganadas
-            Long constructorId = r.getConstructor().getConstructorId();
+
             Integer year = raceYearMap.get(r.getRace().getRaceId());
-            if (year == null) continue;
+            if (year == null || year < startYear || year > endYear) continue;
+
+            int delta = r.getGrid() - r.getPositionOrder();
+            Long constructorId = r.getConstructor().getConstructorId();
 
             data.computeIfAbsent(constructorId, k -> new HashMap<>())
                     .computeIfAbsent(year, y -> new ArrayList<>())
@@ -1063,14 +1081,20 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             List<Double> values = new ArrayList<>();
             for (Integer year : allYears) {
                 List<Integer> deltas = teamEntry.getValue().getOrDefault(year, List.of());
-                double avg = deltas.stream().mapToInt(i -> i).average().orElse(0.0);
-                values.add(avg);
+                if (deltas.isEmpty()) {
+                    values.add(null); // o Double.NaN
+                } else {
+                    double avg = deltas.stream().mapToInt(i -> i).average().orElse(0.0);
+                    values.add(avg);
+                }
+
             }
             datasets.add(new ChartSeriesDTO(label, "#8884d8", values));
         }
 
         return new ChartDataDTO("Promedio de posiciones ganadas por equipo y temporada", "line", labels, datasets);
     }
+
 
 
     @Override
