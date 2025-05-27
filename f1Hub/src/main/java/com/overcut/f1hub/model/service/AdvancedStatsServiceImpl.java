@@ -1002,7 +1002,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         Map<Long, Constructor> constructorMap = constructorDao.findAll().stream()
                 .collect(Collectors.toMap(Constructor::getConstructorId, c -> c));
 
-        // Map<constructorId, count>
         Map<Long, Integer> winsMap = new HashMap<>();
 
         for (Result r : resultDao.findAll()) {
@@ -1013,12 +1012,26 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             }
         }
 
-        List<ChartSeriesDTO> dataset = winsMap.entrySet().stream()
-                .map(e -> {
-                    String label = constructorMap.getOrDefault(e.getKey(), new Constructor()).getName();
-                    return new ChartSeriesDTO(label, "#8884d8", List.of((double) e.getValue()));
-                })
-                .toList();
+        String[] colorPalette = {
+                "#E10600", "#1B9CFC", "#F97F51", "#B33771", "#3B3B98", "#55E6C1",
+                "#F8EFBA", "#25CCF7", "#FD7272", "#9AECDB", "#D6A2E8", "#33d9b2",
+                "#218c74", "#40407a", "#ffb142", "#706fd3", "#ff5252", "#2C3A47",
+                "#34ace0", "#ffb8b8", "#3ae374", "#ffa801", "#cd84f1", "#7efff5",
+                "#c56cf0", "#ff3838", "#70a1ff", "#2ed573", "#5352ed", "#ff6b81",
+                "#1e90ff", "#ffeaa7", "#2f3542", "#1abc9c", "#9b59b6", "#f39c12"
+        };
+
+        List<Map.Entry<Long, Integer>> sortedEntries = new ArrayList<>(winsMap.entrySet());
+        sortedEntries.sort(Map.Entry.<Long, Integer>comparingByValue().reversed());
+
+        List<ChartSeriesDTO> dataset = new ArrayList<>();
+        for (int i = 0; i < sortedEntries.size(); i++) {
+            Long constructorId = sortedEntries.get(i).getKey();
+            Integer wins = sortedEntries.get(i).getValue();
+            String label = constructorMap.getOrDefault(constructorId, new Constructor()).getName();
+            String color = colorPalette[i % colorPalette.length];
+            dataset.add(new ChartSeriesDTO(label, color, List.of((double) wins)));
+        }
 
         return new ChartDataDTO(
                 "Victorias sin salir desde 1ª o 2ª posición",
@@ -1027,6 +1040,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 dataset
         );
     }
+
 
 
     // Implementación
