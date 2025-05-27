@@ -24,7 +24,7 @@ public class ChartController {
     }
 
     @GetMapping("/victory-percentage-by-decade")
-    public ChartDataDTO getVictoryPercentageByDriverPerSeason(@RequestParam(required = false) String decade) {
+    public ChartDataDTO getVictoryPercentageByDriverPerDecade(@RequestParam(required = false) String decade) {
         // Filtrar los datos según la década (si se pasa el parámetro)
         return advancedStatsService.getVictoryPercentageByDriverPerSeason(decade);
     }

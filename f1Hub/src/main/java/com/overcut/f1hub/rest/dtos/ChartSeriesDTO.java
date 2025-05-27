@@ -20,6 +20,11 @@ public class ChartSeriesDTO {
         this.data = data;
     }
 
+    public ChartSeriesDTO(String label, List<Double> data) {
+        this.label = label;
+        this.data = data;
+    }
+
     public ChartSeriesDTO(String label, List<String> colors, List<Double> data) {
         this.label = label;
         this.colors = colors;

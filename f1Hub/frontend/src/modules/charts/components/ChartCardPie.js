@@ -2,6 +2,21 @@ import React from "react";
 import ReactECharts from "echarts-for-react";
 import "./ChartStyles.css";
 
+// Función para generar colores dinámicamente
+const generateColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
+
+// Función para redondear los porcentajes a 2 decimales
+const roundToTwoDecimals = (num) => {
+  return Math.round(num * 100) / 100;
+};
+
 const ChartCardPie = ({ chart }) => {
   if (
     !chart ||
@@ -17,17 +32,37 @@ const ChartCardPie = ({ chart }) => {
 
   const { title, labels, datasets } = chart;
 
-  // Preparar los datos para el gráfico circular (pie chart)
-  const series = datasets.map(ds => ({
-    type: "pie", // Establecer tipo "pie" para gráfico circular
-    radius: "55%", // Ajuste el tamaño del gráfico
-    data: ds.data.map((value, index) => ({
-      value,
-      name: labels[index], // Asignar los nombres de los pilotos como etiquetas
-    })),
-    itemStyle: {
-      color: ds.color || "#ffcc00", // Colores de cada segmento (puedes personalizar esto)
+  // Verificación de la estructura de los datos para asegurarnos que estamos recibiendo los datos correctos
+  console.log("📊 Datos de la gráfica", chart);
+
+  // Preparar los datos para el gráfico circular (tipo anillo)
+  const series = datasets.map((ds) => ({
+    type: "pie",
+    radius: ["30%", "50%"], // Crear un gráfico en forma de anillo (donut)
+    avoidLabelOverlap: false,
+    label: {
+      show: true,
+      position: "outside", // Mostrar las etiquetas afuera de la gráfica
+      formatter: "{b}: {c} ({d}%)", // Formato de la etiqueta
+      color: "#fff",
+      fontSize: 14,
     },
+    labelLine: {
+      show: true,
+      length: 20, // Ajustar la longitud de las líneas del label
+      lineStyle: {
+        width: 1,
+        type: "solid",
+      },
+    },
+    // Usamos los nombres de los pilotos que están en `colors` para los nombres y generamos colores para las secciones
+    data: ds.data.map((value, index) => ({
+      value: roundToTwoDecimals(value),  // Redondeamos el valor a dos decimales
+      name: ds.colors[index], // Usamos `ds.colors` para los nombres de los pilotos
+      itemStyle: {
+        color: generateColor(), // Asignamos un color aleatorio desde la función
+      },
+    })),
     emphasis: {
       itemStyle: {
         color: "#ff6347", // Color al resaltar un segmento
@@ -35,33 +70,38 @@ const ChartCardPie = ({ chart }) => {
     },
   }));
 
+  // Opciones del gráfico
   const option = {
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#1c1c1c", // Fondo oscuro
     title: {
       text: title,
       left: "center",
       textStyle: {
-        color: "#ffcc00",
+        color: "#fff", // Color del título
         fontSize: 18,
         fontFamily: "F1 Bold, sans-serif",
       },
     },
     tooltip: {
-      trigger: "item", // Usar "item" para el gráfico tipo pie
-      backgroundColor: "#1e1e1e",
+      trigger: "item",
+      backgroundColor: "#333", // Fondo más oscuro en los tooltips
       borderColor: "#444",
       borderWidth: 1,
       textStyle: {
-        color: "#fff",
+        color: "#fff", // Color del texto del tooltip
       },
-      formatter: "{b}: {c} ({d}%)", // Formato del tooltip con nombre y porcentaje
+      // Redondeamos los valores en el tooltip a dos decimales
+      formatter: (params) => {
+        return `${params.name}: ${params.value.toFixed(2)} (${params.percent.toFixed(2)}%)`;
+      },
     },
     legend: {
       top: "5%",
       left: "center",
       textStyle: {
-        color: "#ccc",
+        color: "#ccc", // Color de las leyendas
       },
+      data: datasets[0].colors, // Usamos los `colors` para la leyenda, ya que contienen los nombres de los pilotos
     },
     series,
   };

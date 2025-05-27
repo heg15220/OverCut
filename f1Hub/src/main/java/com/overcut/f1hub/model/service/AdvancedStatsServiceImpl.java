@@ -1,10 +1,12 @@
 package com.overcut.f1hub.model.service;
 
 import com.overcut.f1hub.model.entities.*;
-import com.overcut.f1hub.rest.controllers.ChartController;
 import com.overcut.f1hub.rest.dtos.ChartDataDTO;
 import com.overcut.f1hub.rest.dtos.ChartSeriesDTO;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,7 +45,11 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     @Autowired
     private PitStopDao pitStopDao;
 
+    @PersistenceContext
+    private EntityManager entityManager;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
 
     public List<DriverOption> getAllDrivers() {
@@ -116,114 +122,85 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         return new ChartDataDTO("Promedio de puntos por temporada", "line", yearLabels, datasets);
     }
 
-    @Override
     public ChartDataDTO getVictoryPercentageByDriverPerSeason(String decade) {
-        Map<Long, String> driverNames = driverDao.findAll().stream()
-                .collect(Collectors.toMap(
-                        Driver::getDriverId,
-                        d -> d.getForename() + " " + d.getSurname()
-                ));
+        // Extraer el año de inicio y fin de la década
+        int decadeStart = Integer.parseInt(decade.substring(0, 4));
+        int decadeEnd = decadeStart + 9;
 
-        // Colores predefinidos para cada piloto
-        String[] colors = {
-                "#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FF8C33", "#33FF8C", "#8C33FF", "#33A1FF"
-        };
+        // Consulta SQL para obtener los pilotos que participaron en la década
+        String driversQuery =
+                "SELECT DISTINCT d.driverId, d.forename, d.surname " +
+                        "FROM results r " +
+                        "JOIN races ra ON r.raceId = ra.raceId " +
+                        "JOIN drivers d ON r.driverId = d.driverId " +
+                        "WHERE ra.year BETWEEN ? AND ?";
 
-        Map<Long, Integer> raceYearMap = raceDao.findAll().stream()
-                .collect(Collectors.toMap(
-                        Race::getRaceId,
-                        Race::getYear
-                ));
+        // Ejecutar la consulta para obtener todos los pilotos de la década
+        List<Map<String, Object>> driverResults = jdbcTemplate.queryForList(driversQuery, decadeStart, decadeEnd);
 
-        // Map<DriverId, Map<Year, [wins, totalRaces]>>
-        Map<Long, Map<Integer, int[]>> stats = new HashMap<>();
+        // Consultas SQL para contar las victorias y las carreras disputadas para cada piloto
+        String victoryQuery =
+                "SELECT COUNT(*) AS wins " +
+                        "FROM results r " +
+                        "JOIN races ra ON r.raceId = ra.raceId " +
+                        "WHERE r.driverId = ? " +
+                        "AND r.positionOrder = 1 " +
+                        "AND ra.year BETWEEN ? AND ?";
 
-        for (Result r : resultDao.findAll()) {
-            Long driverId = r.getDriver().getDriverId();
-            Integer year = raceYearMap.get(r.getRace().getRaceId());
-            if (year == null) continue;
+        String racesQuery =
+                "SELECT COUNT(*) " +
+                        "FROM races " +
+                        "WHERE year BETWEEN ? AND ?";
 
-            // Filtrar por la década si se pasa el parámetro
-            if (decade != null) {
-                int decadeStart = Integer.parseInt(decade.substring(0, 4));  // Extraer el año de inicio de la década
-                if (year < decadeStart || year >= (decadeStart + 10)) continue;  // Filtrar por década
-            }
+        // Listas para almacenar los resultados del gráfico
+        List<String> labels = new ArrayList<>();
+        List<Double> data = new ArrayList<>();
 
-            stats.computeIfAbsent(driverId, k -> new HashMap<>());
-            Map<Integer, int[]> yearly = stats.get(driverId);
-            int[] counts = yearly.computeIfAbsent(year, y -> new int[2]);
-            counts[1]++; // Total de carreras
-            if (r.getPositionOrder() != null && r.getPositionOrder() == 1) {
-                counts[0]++; // Victorias
+        // Iterar sobre cada piloto para calcular sus victorias y total de carreras
+        for (Map<String, Object> driver : driverResults) {
+            // Asegúrate de que 'driverId' sea tratado como Long
+            Long driverId = ((Number) driver.get("driverId")).longValue(); // Aquí convertimos a Long
+            String forename = (String) driver.get("forename");
+            String surname = (String) driver.get("surname");
+
+            // Ejecutar la consulta de victorias para el piloto
+            int wins = jdbcTemplate.queryForObject(victoryQuery, new Object[] {driverId, decadeStart, decadeEnd}, Integer.class);
+
+            // Ejecutar la consulta de carreras disputadas en la década para el piloto
+            int totalRaces = jdbcTemplate.queryForObject(racesQuery, new Object[] {decadeStart, decadeEnd}, Integer.class);
+
+            double winsPercentage = 100.0 * wins;
+            // Calcular el porcentaje de victorias
+            double winPercentage = (totalRaces > 0) ? (winsPercentage / totalRaces) : 0.0;
+
+            if (winPercentage > 0.0) {
+                // Agregar los resultados a las listas de datos
+                labels.add(forename + " " + surname); // Nombre completo del piloto
+                data.add(winPercentage);
             }
         }
 
-        // Obtener todas las temporadas y agruparlas por década
-        Set<Integer> allYears = new TreeSet<>();
-        stats.values().forEach(map -> allYears.addAll(map.keySet()));
-
-        // Crear un mapa de décadas
-        Map<String, List<Integer>> decades = new HashMap<>();
-        for (Integer year : allYears) {
-            int decadeStart = (year / 10) * 10;
-            String decadeLabel = decadeStart + "s"; // Ejemplo: "1950s"
-            decades.computeIfAbsent(decadeLabel, k -> new ArrayList<>()).add(year);
-        }
-
-        List<String> decadeLabels = new ArrayList<>(decades.keySet());
-        decadeLabels.sort(Comparator.naturalOrder());
-
+        // Crear el gráfico de datos
         List<ChartSeriesDTO> datasets = new ArrayList<>();
-        int colorIndex = 0;  // Para asignar colores únicos a los pilotos
+        datasets.add(new ChartSeriesDTO("Victorias", labels, data));
 
-        for (String decade1 : decadeLabels) {
-            List<Double> data = new ArrayList<>();
-            List<String> labels = new ArrayList<>();
-            List<String> colorsForPie = new ArrayList<>();  // Almacena los colores para los segmentos del gráfico
-
-            // Solo agregar pilotos que hayan ganado en la década
-            for (Map.Entry<Long, Map<Integer, int[]>> entry : stats.entrySet()) {
-                Long driverId = entry.getKey();
-                int totalWins = entry.getValue().values().stream()
-                        .mapToInt(counts -> counts[0])  // Sumar las victorias por año
-                        .sum();
-
-                if (totalWins == 0) {
-                    continue; // Ignorar pilotos sin victorias
-                }
-
-                // Calcular el porcentaje de victorias en esa década
-                int totalRacesInDecade = 0;
-                int winsInDecade = 0;
-                for (Integer year : decades.get(decade1)) {
-                    int[] val = entry.getValue().getOrDefault(year, new int[]{0, 0});
-                    winsInDecade += val[0];
-                    totalRacesInDecade += val[1];
-                }
-
-                double percent = (totalRacesInDecade == 0) ? 0.0 : (100.0 * winsInDecade) / totalRacesInDecade;
-                data.add(percent);
-                labels.add(driverNames.getOrDefault(driverId, "Driver " + driverId)); // Usar el nombre del piloto como etiqueta
-
-                // Asignar colores dinámicos para los segmentos del gráfico circular
-                colorsForPie.add(colors[colorIndex % colors.length]);
-                colorIndex++;  // Incrementar el índice del color
-            }
-
-            if (!data.isEmpty()) {
-                // Crear la serie de datos solo con la información necesaria
-                datasets.add(new ChartSeriesDTO(decade1, colorsForPie, data)); // Colores específicos por piloto
-            }
-        }
-
-        // Usar un gráfico circular (pie chart)
+        // Preparar el resultado del gráfico
         return new ChartDataDTO(
                 "Porcentaje de victorias por década",
                 "pie", // Tipo de gráfico circular
-                decadeLabels,
+                List.of(decade + "s"), // Etiquetas de las décadas
                 datasets
         );
     }
+
+
+
+
+
+
+
+
+
 
 
 
