@@ -69,4 +69,7 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getAverageQualiGapBetween10thAndPolePerSeason();
 
+    ChartDataDTO getAverageRaceGapBetween1stAnd2ndPerSeason();
+
+
 }

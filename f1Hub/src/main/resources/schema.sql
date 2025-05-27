@@ -94,6 +94,7 @@ CREATE TABLE results (
     laps INT,
     time VARCHAR(100),
     points DOUBLE,
+    milliseconds INT,
 
     CONSTRAINT fk_result_race FOREIGN KEY (raceId) REFERENCES races(raceId),
     CONSTRAINT fk_result_driver FOREIGN KEY (driverId) REFERENCES drivers(driverId),

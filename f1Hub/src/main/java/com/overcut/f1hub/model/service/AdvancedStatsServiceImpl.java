@@ -1539,6 +1539,65 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
+    @Override
+    public ChartDataDTO getAverageRaceGapBetween1stAnd2ndPerSeason() {
+        // Map<raceId, year>
+        Map<Long, Integer> raceYearMap = raceDao.findAll().stream()
+                .collect(Collectors.toMap(Race::getRaceId, Race::getYear));
+
+        // Agrupar resultados por carrera
+        Map<Long, List<Result>> resultsByRace = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() == 1 || r.getPositionOrder() == 2)
+                .filter(r -> r.getMilliseconds() != null)
+                .collect(Collectors.groupingBy(r -> r.getRace().getRaceId()));
+
+        // Map<year, List<diferencias entre P2 y P1>
+        Map<Integer, List<Long>> yearToDifferences = new HashMap<>();
+
+        for (Map.Entry<Long, List<Result>> entry : resultsByRace.entrySet()) {
+            Long raceId = entry.getKey();
+            List<Result> raceResults = entry.getValue();
+
+            Integer year = raceYearMap.get(raceId);
+            if (year == null) continue;
+
+            Optional<Result> p1 = raceResults.stream()
+                    .filter(r -> r.getPositionOrder() == 1)
+                    .findFirst();
+            Optional<Result> p2 = raceResults.stream()
+                    .filter(r -> r.getPositionOrder() == 2)
+                    .findFirst();
+
+            if (p1.isEmpty() || p2.isEmpty()) continue;
+
+            long time1 = p1.get().getMilliseconds();
+            long time2 = p2.get().getMilliseconds();
+
+            long diff = time2 - time1;
+            if (diff < 0) continue;
+
+            yearToDifferences.computeIfAbsent(year, y -> new ArrayList<>()).add(diff);
+        }
+
+        List<Integer> sortedYears = new ArrayList<>(yearToDifferences.keySet());
+        Collections.sort(sortedYears);
+
+        List<String> labels = sortedYears.stream().map(String::valueOf).toList();
+        List<Double> data = sortedYears.stream()
+                .map(year -> {
+                    List<Long> diffs = yearToDifferences.get(year);
+                    return diffs.stream().mapToLong(Long::longValue).average().orElse(0);
+                })
+                .toList();
+
+        return new ChartDataDTO(
+                "Promedio de diferencia entre P1 y P2 en carrera por temporada",
+                "line",
+                labels,
+                List.of(new ChartSeriesDTO("Gap en ms", "#FF4444", data))
+        );
+    }
+
 
     private Long getBestQualiTimeMs(Qualifying q) {
         List<Long> times = new ArrayList<>();
