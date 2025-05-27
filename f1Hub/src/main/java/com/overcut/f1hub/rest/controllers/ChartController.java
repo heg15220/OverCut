@@ -19,8 +19,8 @@ public class ChartController {
     private AdvancedStatsService advancedStatsService;
 
     @GetMapping("/average-points-per-season")
-    public ChartDataDTO getAveragePointsPerSeasonByDriver() {
-        return advancedStatsService.getAveragePointsPerSeasonByDriver();
+    public ChartDataDTO getAveragePointsPerSeasonByDriver(@RequestParam(required = false) String decade) {
+        return advancedStatsService.getAveragePointsPerSeasonByDriver(decade);
     }
 
     @GetMapping("/victory-percentage-by-decade")

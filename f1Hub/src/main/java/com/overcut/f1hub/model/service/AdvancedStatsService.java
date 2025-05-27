@@ -15,7 +15,7 @@ public interface AdvancedStatsService {
 
     List<Integer> getAllSeasons();
 
-    ChartDataDTO getAveragePointsPerSeasonByDriver();
+    ChartDataDTO getAveragePointsPerSeasonByDriver(String decade);
 
     ChartDataDTO getVictoryPercentageByDriverPerSeason(String decade);
 

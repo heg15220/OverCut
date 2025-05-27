@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import charts from "../index";
 import ChartCardPie from "./ChartCardPie"; // Importar el nuevo componente
 import ChartCard from "./ChartCard";
+import ChartCardColored from "./ChartCardColored";
 import "./ChartStyles.css";
 import { buildChartKey } from "../utils/chartKey";
 
@@ -54,7 +55,8 @@ const ChartSelector = () => {
       { endpoint: "podium-percentage-vs-teammate", label: "Podios vs Compañero", param: "driverId", chartType: "bar" },
       { endpoint: "avg-positions-gained-by-season", label: "Posiciones Ganadas por Temporada", param: "driverId", chartType: "line" },
       { endpoint: "points-delta-vs-teammate", label: "Δ Puntos por Temporada", param: "season", chartType: "bar" },
-      { endpoint: "victory-percentage-by-decade", label: "Porcentaje de Victorias por Década", param: "decade", chartType: "pie" } // Actualizado
+      { endpoint: "victory-percentage-by-decade", label: "Porcentaje de Victorias por Década", param: "decade", chartType: "pie" },
+       { endpoint: "average-points-per-season", label: "Promedio de puntos por temporada filtrado en décadas ", param: "decade", chartType: "line" }
     ],
     Constructores: [
       { endpoint: "avg-team-points-by-season", label: "Puntos por Equipo", param: "constructorId", chartType: "bar" }
@@ -64,6 +66,24 @@ const ChartSelector = () => {
       { endpoint: "overtakes-per-race", label: "Cambios de Posición por Carrera", param: "season", chartType: "bar" }
     ]
   };
+
+// Después del chartOptions:
+const chartRenderMap = {
+  "podium-percentage-vs-teammate": ChartCard,
+  "avg-positions-gained-by-season": ChartCard,
+  "points-delta-vs-teammate": ChartCard,
+  "victory-percentage-by-decade": ChartCardPie,
+  "average-points-per-season": ChartCardColored,
+  "avg-team-points-by-season": ChartCard,
+  "pitstops-per-race": ChartCard,
+  "overtakes-per-race": ChartCard
+};
+
+const getChartComponent = (endpoint, chartType) => {
+  return chartRenderMap[endpoint] || (chartType === "pie" ? ChartCardPie : ChartCard);
+};
+
+
 
   return (
     <div className="chart-selector-container">
@@ -138,8 +158,8 @@ const ChartSelector = () => {
             </select>
           )}
 
-          {/* Filtro para la década, solo se muestra para "victory-percentage-by-decade" */}
-          {selected.endpoint === "victory-percentage-by-decade" && (
+
+          {selected.param === "decade" && (
             <select
               value={decade}
               onChange={e => setDecade(e.target.value)}
@@ -153,6 +173,7 @@ const ChartSelector = () => {
               <option value="2020s">Década de 2020</option>
             </select>
           )}
+
 
           <input
             type="number"
@@ -173,17 +194,15 @@ const ChartSelector = () => {
         </div>
       )}
 
+
       {chart ? (
-        selected.chartType === "pie" ? (
-          <ChartCardPie chart={chart} /> // Usar ChartCardPie para gráficos circulares
-        ) : (
-          <ChartCard chart={chart} />
-        )
+        React.createElement(getChartComponent(selected.endpoint, selected.chartType), { chart })
       ) : selected ? (
         <div className="chart-empty text-center">Cargue los filtros para ver el gráfico.</div>
       ) : (
         <div className="chart-empty text-center">Seleccione una categoría y gráfica.</div>
       )}
+
     </div>
   );
 };
