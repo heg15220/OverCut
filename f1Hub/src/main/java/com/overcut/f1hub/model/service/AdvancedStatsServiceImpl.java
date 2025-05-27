@@ -322,39 +322,63 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getAverageAccidentsBySeason() {
-        Map<Long, Integer> statusMap = statusDao.findAll().stream()
-                .filter(s -> s.getStatus().toLowerCase().contains("accident"))
-                .collect(Collectors.toMap(Status::getStatusId, s -> 1));
+        // 1. Identificamos los ID de status que representan accidentes o colisiones
+        Set<Long> accidentStatusIds = statusDao.findAll().stream()
+                .filter(s -> {
+                    String status = s.getStatus().toLowerCase();
+                    return status.contains("accident") || status.contains("collision");
+                })
+                .map(Status::getStatusId)
+                .collect(Collectors.toSet());
 
-        Map<Long, Integer> raceYears = raceDao.findAll().stream()
+        // 2. Mapeamos raceId → year
+        Map<Long, Integer> raceYearMap = raceDao.findAll().stream()
                 .collect(Collectors.toMap(Race::getRaceId, Race::getYear));
 
-        Map<Integer, Integer> yearCounts = new HashMap<>();
-        Map<Integer, Integer> yearAccidents = new HashMap<>();
+        // 3. Map<Year, Número de carreras>
+        Map<Integer, Integer> racesPerYear = new HashMap<>();
 
-        for (Result r : resultDao.findAll()) {
-            Integer year = raceYears.get(r.getRace().getRaceId());
+        // 4. Map<Year, Total de accidentes>
+        Map<Integer, Integer> accidentsPerYear = new HashMap<>();
+
+        // 5. Agrupar resultados por carrera
+        Map<Long, List<Result>> resultsByRace = resultDao.findAll().stream()
+                .collect(Collectors.groupingBy(r -> r.getRace().getRaceId()));
+
+        // 6. Contamos accidentes por carrera y agregamos al año correspondiente
+        for (Map.Entry<Long, List<Result>> entry : resultsByRace.entrySet()) {
+            Long raceId = entry.getKey();
+            List<Result> results = entry.getValue();
+
+            Integer year = raceYearMap.get(raceId);
             if (year == null) continue;
-            yearCounts.merge(year, 1, Integer::sum);
-            if (statusMap.containsKey(r.getStatus().getStatusId())) {
-                yearAccidents.merge(year, 1, Integer::sum);
-            }
+
+            int accidentsInRace = (int) results.stream()
+                    .filter(r -> accidentStatusIds.contains(r.getStatus().getStatusId()))
+                    .count();
+
+            accidentsPerYear.merge(year, accidentsInRace, Integer::sum);
+            racesPerYear.merge(year, 1, Integer::sum);
         }
 
-        List<String> labels = yearCounts.keySet().stream().sorted().map(String::valueOf).toList();
-        List<Double> data = labels.stream()
-                .map(Integer::parseInt)
-                .map(y -> {
-                    int acc = yearAccidents.getOrDefault(y, 0);
-                    int total = yearCounts.getOrDefault(y, 1);
-                    return (double) acc / total;
+        // 7. Generar datos para la gráfica
+        List<Integer> sortedYears = new ArrayList<>(racesPerYear.keySet());
+        Collections.sort(sortedYears);
+
+        List<String> labels = sortedYears.stream().map(String::valueOf).toList();
+        List<Double> data = sortedYears.stream()
+                .map(year -> {
+                    int totalAccidents = accidentsPerYear.getOrDefault(year, 0);
+                    int numRaces = racesPerYear.getOrDefault(year, 1); // evitar división por cero
+                    return (double) totalAccidents / numRaces;
                 })
                 .toList();
 
         return new ChartDataDTO("Promedio de accidentes por temporada", "line", labels, List.of(
-                new ChartSeriesDTO("Accidentes / Resultados", "#ff7300", data)
+                new ChartSeriesDTO("Accidentes por carrera", "#ff7300", data)
         ));
     }
+
 
 
     @Override
