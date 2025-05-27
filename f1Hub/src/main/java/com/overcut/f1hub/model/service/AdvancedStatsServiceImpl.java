@@ -45,12 +45,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     @Autowired
     private PitStopDao pitStopDao;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
 
     public List<DriverOption> getAllDrivers() {
         return driverDao.findAll().stream()
@@ -127,52 +121,29 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         int decadeStart = Integer.parseInt(decade.substring(0, 4));
         int decadeEnd = decadeStart + 9;
 
-        // Consulta SQL para obtener los pilotos que participaron en la década
-        String driversQuery =
-                "SELECT DISTINCT d.driverId, d.forename, d.surname " +
-                        "FROM results r " +
-                        "JOIN races ra ON r.raceId = ra.raceId " +
-                        "JOIN drivers d ON r.driverId = d.driverId " +
-                        "WHERE ra.year BETWEEN ? AND ?";
+        // Paso 1: Obtener todos los pilotos que participaron en la década seleccionada
+        List<Driver> driversInDecade = driverDao.findDriversByDecade(decadeStart, decadeEnd);
 
-        // Ejecutar la consulta para obtener todos los pilotos de la década
-        List<Map<String, Object>> driverResults = jdbcTemplate.queryForList(driversQuery, decadeStart, decadeEnd);
-
-        // Consultas SQL para contar las victorias y las carreras disputadas para cada piloto
-        String victoryQuery =
-                "SELECT COUNT(*) AS wins " +
-                        "FROM results r " +
-                        "JOIN races ra ON r.raceId = ra.raceId " +
-                        "WHERE r.driverId = ? " +
-                        "AND r.positionOrder = 1 " +
-                        "AND ra.year BETWEEN ? AND ?";
-
-        String racesQuery =
-                "SELECT COUNT(*) " +
-                        "FROM races " +
-                        "WHERE year BETWEEN ? AND ?";
-
-        // Listas para almacenar los resultados del gráfico
+        // Paso 2: Listas para almacenar los resultados del gráfico
         List<String> labels = new ArrayList<>();
         List<Double> data = new ArrayList<>();
 
-        // Iterar sobre cada piloto para calcular sus victorias y total de carreras
-        for (Map<String, Object> driver : driverResults) {
-            // Asegúrate de que 'driverId' sea tratado como Long
-            Long driverId = ((Number) driver.get("driverId")).longValue(); // Aquí convertimos a Long
-            String forename = (String) driver.get("forename");
-            String surname = (String) driver.get("surname");
+        // Paso 3: Iterar sobre cada piloto para calcular sus victorias y total de carreras
+        for (Driver driver : driversInDecade) {
+            Long driverId = driver.getDriverId();
+            String forename = driver.getForename();
+            String surname = driver.getSurname();
 
-            // Ejecutar la consulta de victorias para el piloto
-            int wins = jdbcTemplate.queryForObject(victoryQuery, new Object[] {driverId, decadeStart, decadeEnd}, Integer.class);
+            // Paso 4: Contar las victorias de este piloto en la década
+            long wins = resultDao.countWinsByDriverAndYear(driverId, decadeStart, decadeEnd);
 
-            // Ejecutar la consulta de carreras disputadas en la década para el piloto
-            int totalRaces = jdbcTemplate.queryForObject(racesQuery, new Object[] {decadeStart, decadeEnd}, Integer.class);
+            // Paso 5: Contar las carreras disputadas en la década para este piloto
+            long totalRaces = resultDao.countRacesInDecade(decadeStart, decadeEnd);
 
-            double winsPercentage = 100.0 * wins;
-            // Calcular el porcentaje de victorias
-            double winPercentage = (totalRaces > 0) ? (winsPercentage / totalRaces) : 0.0;
+            // Paso 6: Calcular el porcentaje de victorias
+            double winPercentage = (totalRaces > 0) ? (100.0 * wins) / totalRaces : 0.0;
 
+            // Paso 7: Solo agregar pilotos con porcentaje de victorias > 0
             if (winPercentage > 0.0) {
                 // Agregar los resultados a las listas de datos
                 labels.add(forename + " " + surname); // Nombre completo del piloto
@@ -180,11 +151,11 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             }
         }
 
-        // Crear el gráfico de datos
+        // Paso 8: Crear el gráfico de datos
         List<ChartSeriesDTO> datasets = new ArrayList<>();
         datasets.add(new ChartSeriesDTO("Victorias", labels, data));
 
-        // Preparar el resultado del gráfico
+        // Paso 9: Preparar el resultado del gráfico
         return new ChartDataDTO(
                 "Porcentaje de victorias por década",
                 "pie", // Tipo de gráfico circular

@@ -11,4 +11,15 @@ public interface ResultDao extends JpaRepository<Result, Long> {
     @Query("SELECT r FROM Result r WHERE r.positionOrder = 1 AND r.grid > 2")
     List<Result> findAllByPositionOrderAndGridGreaterThan(@Param("positionOrder") int positionOrder, @Param("grid") int grid);
 
+
+    @Query("SELECT COUNT(r) FROM Result r JOIN r.race ra WHERE r.driver.driverId = :driverId AND r.positionOrder = 1 AND ra.year BETWEEN :startYear AND :endYear")
+    long countWinsByDriverAndYear(@Param("driverId") Long driverId, @Param("startYear") int startYear, @Param("endYear") int endYear);
+
+    // Contar total de carreras disputadas por piloto en la década
+    @Query("SELECT COUNT(r) FROM Result r JOIN r.race ra WHERE r.driver.driverId = :driverId AND ra.year BETWEEN :startYear AND :endYear")
+    long countRacesByDriverAndYear(@Param("driverId") Long driverId, @Param("startYear") int startYear, @Param("endYear") int endYear);
+
+    @Query("SELECT COUNT(r) FROM Race r WHERE r.year BETWEEN :startYear AND :endYear")
+    long countRacesInDecade(@Param("startYear") int startYear, @Param("endYear") int endYear);
+
 }
