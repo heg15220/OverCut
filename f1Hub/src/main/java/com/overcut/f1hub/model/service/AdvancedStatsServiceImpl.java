@@ -1128,7 +1128,22 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getAvgPointsPerTeamPerSeason() {
+    public ChartDataDTO getAvgPointsPerTeamPerSeason(String decade) {
+        int startYear = 0, endYear = 9999;
+        if (decade != null) {
+            switch (decade) {
+                case "1980s": startYear = 1980; endYear = 1989; break;
+                case "1990s": startYear = 1990; endYear = 1999; break;
+                case "2000s": startYear = 2000; endYear = 2009; break;
+                case "2010s": startYear = 2010; endYear = 2019; break;
+                case "2020s": startYear = 2020; endYear = 2029; break;
+                case "2030s": startYear = 2030; endYear = 2039; break;
+                case "2040s": startYear = 2040; endYear = 2049; break;
+                case "2050s": startYear = 2050; endYear = 2059; break;
+                case "2060s": startYear = 2060; endYear = 2069; break;
+            }
+        }
+
         Map<Long, Constructor> constructorMap = constructorDao.findAll().stream()
                 .collect(Collectors.toMap(Constructor::getConstructorId, c -> c));
 
@@ -1140,31 +1155,39 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         for (Result r : resultDao.findAll()) {
             if (r.getConstructor() == null || r.getPoints() == null) continue;
-            Long constructorId = r.getConstructor().getConstructorId();
             Integer year = raceYearMap.get(r.getRace().getRaceId());
-            if (year == null) continue;
+            if (year == null || year < startYear || year > endYear) continue;
+
+            Long constructorId = r.getConstructor().getConstructorId();
 
             data.computeIfAbsent(constructorId, k -> new HashMap<>())
                     .merge(year, r.getPoints(), Double::sum);
         }
 
+        // Generar etiquetas (años presentes en la década)
         Set<Integer> allYears = new TreeSet<>();
         data.values().forEach(map -> allYears.addAll(map.keySet()));
         List<String> labels = allYears.stream().map(String::valueOf).toList();
 
+        // Construir datasets
         List<ChartSeriesDTO> datasets = new ArrayList<>();
         for (Map.Entry<Long, Map<Integer, Double>> entry : data.entrySet()) {
             Long constructorId = entry.getKey();
             String label = constructorMap.getOrDefault(constructorId, new Constructor()).getName();
-            List<Double> pointsPerYear = new ArrayList<>();
+            List<Double> values = new ArrayList<>();
             for (Integer year : allYears) {
-                pointsPerYear.add(entry.getValue().getOrDefault(year, 0.0));
+                if (entry.getValue().containsKey(year)) {
+                    values.add(entry.getValue().get(year));
+                } else {
+                    values.add(null); // evitar línea falsa
+                }
             }
-            datasets.add(new ChartSeriesDTO(label, "#82ca9d", pointsPerYear));
+            datasets.add(new ChartSeriesDTO(label, "#82ca9d", values));
         }
 
         return new ChartDataDTO("Puntos por equipo y temporada", "line", labels, datasets);
     }
+
 
 
     @Override

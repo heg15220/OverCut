@@ -17,7 +17,7 @@ const metadata = {
 
   // Constructores
   "team-comebacks-by-season": { label: "Remontadas por Temporada (Equipos)", param: "decade" },
-  "avg-team-points-by-season": { label: "Puntos Promedio por Temporada (Equipos)", param: "constructorId" },
+  "avg-team-points-by-season": { label: "Puntos Promedio por Temporada (Equipos)", param: "decade" },
   "most-team-points": { label: "Máximos Puntos de un Equipo" },
   "wins-no-front-row": { label: "Victorias sin Salir en 1ª Fila" },
 

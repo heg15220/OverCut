@@ -54,7 +54,8 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getMostTeamPoints();
 
-    ChartDataDTO getAvgPointsPerTeamPerSeason();
+    ChartDataDTO getAvgPointsPerTeamPerSeason(String decade);
+
 
     ChartDataDTO getPitStopsPerRace(String year);
 

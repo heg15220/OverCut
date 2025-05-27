@@ -85,8 +85,8 @@ public class ChartController {
     }
 
     @GetMapping("/avg-team-points-by-season")
-    public ChartDataDTO getAvgPointsPerTeamPerSeason() {
-        return advancedStatsService.getAvgPointsPerTeamPerSeason();
+    public ChartDataDTO getAvgPointsPerTeamPerSeason(@RequestParam(required = false) String decade) {
+        return advancedStatsService.getAvgPointsPerTeamPerSeason(decade);
     }
 
     @GetMapping("/wins-no-front-row")
