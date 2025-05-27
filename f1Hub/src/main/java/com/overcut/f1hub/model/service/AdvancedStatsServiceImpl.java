@@ -379,6 +379,71 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         ));
     }
 
+    @Override
+    public ChartDataDTO getAverageRetirementsBySeason() {
+        // Lista de status que NO se consideran abandonos
+        Set<String> excludedStatuses = Set.of(
+                "did not qualify",
+                "disqualified",
+                "did not start",
+                "finished",
+                "not classified"
+        );
+
+        // Map<raceId, year>
+        Map<Long, Integer> raceYearMap = raceDao.findAll().stream()
+                .collect(Collectors.toMap(Race::getRaceId, Race::getYear));
+
+        // Map<year, carreras>
+        Map<Integer, Integer> raceCountPerYear = new HashMap<>();
+
+        // Map<year, abandonos>
+        Map<Integer, Integer> retirementsPerYear = new HashMap<>();
+
+        // Agrupamos resultados por carrera
+        Map<Long, List<Result>> resultsByRace = resultDao.findAll().stream()
+                .collect(Collectors.groupingBy(r -> r.getRace().getRaceId()));
+
+        for (Map.Entry<Long, List<Result>> entry : resultsByRace.entrySet()) {
+            Long raceId = entry.getKey();
+            List<Result> results = entry.getValue();
+
+            Integer year = raceYearMap.get(raceId);
+            if (year == null) continue;
+
+            // Contar abandonos (status no incluido en los excluidos)
+            int retirements = (int) results.stream()
+                    .map(Result::getStatus)
+                    .filter(Objects::nonNull)
+                    .map(s -> s.getStatus().toLowerCase())
+                    .filter(status -> !excludedStatuses.contains(status))
+                    .count();
+
+            // Sumamos abandonos y número de carreras
+            retirementsPerYear.merge(year, retirements, Integer::sum);
+            raceCountPerYear.merge(year, 1, Integer::sum);
+        }
+
+        List<Integer> sortedYears = new ArrayList<>(raceCountPerYear.keySet());
+        Collections.sort(sortedYears);
+
+        List<String> labels = sortedYears.stream().map(String::valueOf).toList();
+        List<Double> data = sortedYears.stream()
+                .map(year -> {
+                    int totalRetirements = retirementsPerYear.getOrDefault(year, 0);
+                    int totalRaces = raceCountPerYear.getOrDefault(year, 1);
+                    return (double) totalRetirements / totalRaces;
+                })
+                .toList();
+
+        return new ChartDataDTO(
+                "Promedio de abandonos por temporada",
+                "line",
+                labels,
+                List.of(new ChartSeriesDTO("Abandonos por carrera", "#cc0000", data))
+        );
+    }
+
 
 
     @Override

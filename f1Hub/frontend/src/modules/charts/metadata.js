@@ -25,6 +25,7 @@ const metadata = {
   "wins-from-3rd-or-worse": { label: "Victorias desde 3ª Posición o Peor" },
   "podiums-from-3rd-or-worse": { label: "Podios desde 3ª Posición o Peor" },
   "average-accidents-by-season": { label: "Accidentes Promedio por Temporada" },
+  "average-retirements-by-season": { label: "Abandonos Promedio por Temporada"},
   "pitstops-per-race": { label: "Pitstops por Gran Premio", param: "season" },
   "avg-pitstops-per-season": { label: "Pitstops Promedio por Temporada" },
   "overtakes-per-race": { label: "Adelantamientos por Gran Premio", param: "season" },

@@ -23,6 +23,8 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getQ3PercentageVsTeammate(String driverId);
 
+    ChartDataDTO getAverageRetirementsBySeason();
+
     ChartDataDTO getAverageAccidentsBySeason();
 
     ChartDataDTO getAvgPositionsGainedFirstLaps();

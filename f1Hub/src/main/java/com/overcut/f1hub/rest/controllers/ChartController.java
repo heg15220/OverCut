@@ -114,6 +114,13 @@ public class ChartController {
         return advancedStatsService.getAverageAccidentsBySeason();
     }
 
+
+    @GetMapping("/average-retirements-by-season")
+    public ChartDataDTO getAverageRetirementsBySeason() {
+        return advancedStatsService.getAverageRetirementsBySeason();
+    }
+
+
     @GetMapping("/pitstops-per-race")
     public ChartDataDTO getPitStopsPerRace(@RequestParam("season") String season) {
         return advancedStatsService.getPitStopsPerRace(season);
@@ -169,6 +176,7 @@ public class ChartController {
                 "wins-from-3rd-or-worse",
                 "podiums-from-3rd-or-worse",
                 "average-accidents-by-season",
+                "average-retirements-by-season",
                 "pitstops-per-race",
                 "avg-pitstops-per-season",
                 "overtakes-per-race",
