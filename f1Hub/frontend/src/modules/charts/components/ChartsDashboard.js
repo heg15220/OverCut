@@ -139,17 +139,17 @@ const ChartsDashboard = () => {
       )}
 
       {chart ? (
-        selectedChart === "wins-from-3rd-or-worse" ? (
+        ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse"].includes(selectedChart) ? (
           <ChartCardColored chart={chart} />
         ) : (
           <ChartCard chart={chart} />
         )
       ) : selectedChart ? (
-
         <div className="chart-empty text-center">Cargue los filtros para ver el gráfico.</div>
       ) : (
         <div className="chart-empty text-center">Seleccione una categoría y gráfica.</div>
       )}
+
     </div>
   );
 };

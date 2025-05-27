@@ -660,28 +660,54 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getPodiumsFrom3rdOrWorse() {
-        Map<Long, Driver> driverMap = driverDao.findAll().stream()
-                .collect(Collectors.toMap(Driver::getDriverId, d -> d));
+        // 1. Obtener resultados donde el piloto hizo podio desde P3 o peor en la parrilla
+        List<Result> results = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3
+                        && r.getGrid() != null && r.getGrid() > 2)
+                .toList();
 
-        Map<Long, Integer> podiums = new HashMap<>();
-
-        for (Result r : resultDao.findAll()) {
-            if (r.getPositionOrder() != null && r.getPositionOrder() <= 3 && r.getGrid() != null && r.getGrid() > 2) {
-                Long driverId = r.getDriver().getDriverId();
-                podiums.merge(driverId, 1, Integer::sum);
-            }
+        // 2. Contar los podios por piloto
+        Map<Long, Integer> podiumCount = new HashMap<>();
+        for (Result r : results) {
+            Long driverId = r.getDriver().getDriverId();
+            podiumCount.merge(driverId, 1, Integer::sum);
         }
 
-        List<ChartSeriesDTO> dataset = podiums.entrySet().stream()
-                .map(e -> {
-                    String label = driverMap.containsKey(e.getKey())
-                            ? driverMap.get(e.getKey()).getForename() + " " + driverMap.get(e.getKey()).getSurname()
-                            : "Driver " + e.getKey();
-                    return new ChartSeriesDTO(label, "#8884d8", List.of((double) e.getValue()));
-                }).toList();
+        // 3. Obtener pilotos involucrados
+        List<Driver> drivers = driverDao.findByDriverIds(podiumCount.keySet());
 
-        return new ChartDataDTO("Podios desde P3 o peor", "bar", List.of("Podios desde atrás"), dataset);
+        // 4. Asignar colores únicos por piloto
+        String[] colors = {
+                "#E10600", "#1B9CFC", "#F97F51", "#B33771", "#3B3B98", "#55E6C1", "#F8EFBA", "#25CCF7",
+                "#FD7272", "#9AECDB", "#D6A2E8", "#33d9b2", "#218c74", "#40407a", "#ffb142", "#706fd3",
+                "#ff5252", "#2C3A47", "#34ace0", "#ffb8b8", "#3ae374", "#ffa801", "#cd84f1", "#7efff5"
+        };
+
+        // 5. Construir el dataset
+        List<ChartSeriesDTO> dataset = new ArrayList<>();
+        int i = 0;
+        for (Map.Entry<Long, Integer> entry : podiumCount.entrySet()) {
+            Long driverId = entry.getKey();
+            Driver driver = drivers.stream()
+                    .filter(d -> d.getDriverId().equals(driverId))
+                    .findFirst()
+                    .orElse(null);
+
+            String label = (driver != null)
+                    ? driver.getForename() + " " + driver.getSurname()
+                    : "Driver " + driverId;
+
+            String color = colors[i % colors.length];
+            dataset.add(new ChartSeriesDTO(label, color, List.of(entry.getValue().doubleValue())));
+            i++;
+        }
+
+        // 6. Labels únicos (uno solo porque es tipo bar compacto)
+        List<String> labels = List.of("Podios desde P3 o peor");
+
+        return new ChartDataDTO("Podios desde P3 o peor", "bar", labels, dataset);
     }
+
 
 
     @Override
