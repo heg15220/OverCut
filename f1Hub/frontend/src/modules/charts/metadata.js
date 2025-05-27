@@ -5,7 +5,6 @@ const metadata = {
   "average-points-per-season": { label: "Puntos Promedio por Temporada" },
   "victory-percentage-per-season": { label: "Porcentaje de Victorias por Temporada" },
   "podium-percentage-vs-teammate": { label: "Podios vs Compañero", param: "driverId" },
-  "q3-percentage-vs-teammate": { label: "Q3 vs Compañero", param: "driverId" },
   "avg-positions-gained-by-season": { label: "Posiciones Ganadas por Temporada", param: "driverId" },
   "avg-positions-gained-first-laps": { label: "Posiciones Ganadas en Primeras Vueltas" },
   "race-vs-teammate-comparison": { label: "Rendimiento en Carrera vs Compañero", param: "driverId" },

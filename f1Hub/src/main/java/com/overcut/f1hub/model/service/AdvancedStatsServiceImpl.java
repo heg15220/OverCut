@@ -260,47 +260,72 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getQ3PercentageVsTeammate(String driverIdStr) {
-        Long targetDriverId = Long.parseLong(driverIdStr);
-
-        Map<Long, Driver> driverMap = driverDao.findAll().stream()
-                .collect(Collectors.toMap(Driver::getDriverId, d -> d));
-
-        Map<Long, Race> raceMap = raceDao.findAll().stream()
-                .collect(Collectors.toMap(Race::getRaceId, r -> r));
-
-        // Map<Year, [driverQ3s, teamTotalQ3s]>
-        Map<Integer, int[]> seasonQ3s = new HashMap<>();
-
-        for (Qualifying q : qualifyingDao.findAll()) {
-            Integer year = raceMap.containsKey(q.getRace().getRaceId()) ? raceMap.get(q.getRace().getRaceId()).getYear() : null;
-            if (year == null || q.getConstructor().getConstructorId() == null || q.getDriver().getDriverId() == null)
-                continue;
-            if (q.getQ3() == null) continue;
-
-            int[] values = seasonQ3s.computeIfAbsent(year, y -> new int[]{0, 0});
-            values[1]++; // total Q3s for team
-            if (Objects.equals(q.getDriver().getDriverId(), targetDriverId)) {
-                values[0]++; // Q3s for this driver
-            }
+        Long driverId = Long.parseLong(driverIdStr);
+        Driver targetDriver = driverDao.findById(driverId).orElse(null);
+        if (targetDriver == null) {
+            return new ChartDataDTO("Piloto no encontrado", "line", List.of(), List.of());
         }
 
-        List<Integer> allYears = seasonQ3s.keySet().stream().sorted().toList();
-        List<String> labels = allYears.stream().map(String::valueOf).toList();
+        String forename = targetDriver.getForename();
+        String surname = targetDriver.getSurname();
+
+        // Map<year, constructorRef>
+        Map<Integer, String> yearToConstructorRef = qualifyingDao.findAll().stream()
+                .filter(q -> q.getDriver().getDriverId().equals(driverId)
+                        && q.getRace() != null
+                        && q.getConstructor() != null)
+                .collect(Collectors.groupingBy(
+                        q -> q.getRace().getYear(),
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> list.get(0).getConstructor().getConstructorRef()
+                        )
+                ));
+
+        List<String> labels = new ArrayList<>();
         List<Double> data = new ArrayList<>();
 
-        for (Integer year : allYears) {
-            int[] vals = seasonQ3s.get(year);
-            double pct = (vals[1] == 0) ? 0.0 : (100.0 * vals[0]) / vals[1];
-            data.add(pct);
+        for (Map.Entry<Integer, String> entry : yearToConstructorRef.entrySet()) {
+            int year = entry.getKey();
+            String constructorRef = entry.getValue();
+
+            long driverQCount;
+            long teamTotalQCount;
+
+            if (year < 2006) {
+                // Pre-2006: usamos Q1 como proxy de clasificación
+                driverQCount = qualifyingDao.countByDriverAndQ1NotNull(forename, surname, year);
+                teamTotalQCount = qualifyingDao.countByConstructorAndQ1NotNull(constructorRef, year);
+            } else {
+                // Desde 2006: usamos Q3 como siempre
+                driverQCount = qualifyingDao.countQ3ByDriverInYear(forename, surname, year);
+                teamTotalQCount = qualifyingDao.countQ3ByConstructorInYear(constructorRef, year)
+                        .stream()
+                        .mapToLong(obj -> (Long) obj[2])
+                        .sum();
+            }
+
+            double percentage = (teamTotalQCount == 0) ? 0.0 : (100.0 * driverQCount) / teamTotalQCount;
+            labels.add(String.valueOf(year));
+            data.add(percentage);
         }
 
-        String driverName = driverMap.containsKey(targetDriverId)
-                ? driverMap.get(targetDriverId).getForename() + " " + driverMap.get(targetDriverId).getSurname()
-                : "Driver " + targetDriverId;
+        String driverName = forename + " " + surname;
+        List<Double> fiftyLine = new ArrayList<>(Collections.nCopies(data.size(), 50.0));
 
-        ChartSeriesDTO series = new ChartSeriesDTO(driverName, "#ff7f50", data);
-        return new ChartDataDTO("Porcentaje de Q3 vs compañero (" + driverName + ")", "bar", labels, List.of(series));
+        return new ChartDataDTO(
+                "Porcentaje de clasificación vs compañero (" + driverName + ")",
+                "line",
+                labels,
+                List.of(
+                        new ChartSeriesDTO(driverName, "#ff7f50", data),
+                        new ChartSeriesDTO("50%", "#999999", fiftyLine)
+                )
+        );
     }
+
+
+
 
 
     @Override
