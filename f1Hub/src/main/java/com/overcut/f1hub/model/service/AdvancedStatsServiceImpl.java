@@ -143,14 +143,14 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
             for (Integer year : allYears) {
                 List<Double> pts = entry.getValue().getOrDefault(year, Collections.emptyList());
-                double averagePoints = pts.isEmpty() ? 0.0 : pts.stream().mapToDouble(d -> d).average().orElse(0.0);
-
-                // Si el promedio de puntos es mayor que 0, marcamos que el piloto tiene puntos
-                if (averagePoints > 0.0) {
-                    // Añadimos el promedio de puntos, solo si no es 0.0
+                if (pts.isEmpty()) {
+                    data.add(null); // null → ECharts no dibuja nada, evita falsas líneas
+                } else {
+                    double averagePoints = pts.stream().mapToDouble(d -> d).average().orElse(0.0);
                     data.add(averagePoints);
                 }
             }
+
 
 
             datasets.add(new ChartSeriesDTO(label, "#8884d8", data)); // Puedes reemplazar el color por nacionalidad
@@ -610,42 +610,51 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getWinsFrom3rdOrWorse() {
-        // Consulta para obtener solo los resultados relevantes (victorias desde P3 o peor)
+        // 1. Obtener solo los resultados donde el piloto ganó desde P3 o peor
         List<Result> results = resultDao.findAllByPositionOrderAndGridGreaterThan(1, 2);
 
-        // Mapa para contar las victorias de los conductores
+        // 2. Contar las victorias por piloto
         Map<Long, Integer> winCount = new HashMap<>();
-
-        // Recorremos los resultados y contamos las victorias de los conductores
         for (Result r : results) {
             Long driverId = r.getDriver().getDriverId();
             winCount.merge(driverId, 1, Integer::sum);
         }
 
-        // Obtener los conductores relacionados a las victorias
+        // 3. Obtener pilotos involucrados
         List<Driver> drivers = driverDao.findByDriverIds(winCount.keySet());
 
-        // Crear los datos para la gráfica
-        List<ChartSeriesDTO> dataset = winCount.entrySet().stream()
-                .map(entry -> {
-                    // Buscar el nombre del conductor
-                    Driver driver = drivers.stream()
-                            .filter(d -> d.getDriverId().equals(entry.getKey()))
-                            .findFirst()
-                            .orElse(null);
+        // 4. Colores únicos por piloto (puedes usar tu propia lógica `getDriverColor()`)
+        String[] colors = {
+                "#E10600", "#1B9CFC", "#F97F51", "#B33771", "#3B3B98", "#55E6C1", "#F8EFBA", "#25CCF7",
+                "#FD7272", "#9AECDB", "#D6A2E8", "#33d9b2", "#218c74", "#40407a", "#ffb142", "#706fd3",
+                "#ff5252", "#2C3A47", "#34ace0", "#ffb8b8", "#3ae374", "#ffa801", "#cd84f1", "#7efff5"
+        };
 
-                    String label = (driver != null)
-                            ? driver.getForename() + " " + driver.getSurname()
-                            : "Driver " + entry.getKey();
+        // 5. Construir el dataset
+        List<ChartSeriesDTO> dataset = new ArrayList<>();
+        int i = 0;
+        for (Map.Entry<Long, Integer> entry : winCount.entrySet()) {
+            Long driverId = entry.getKey();
+            Driver driver = drivers.stream()
+                    .filter(d -> d.getDriverId().equals(driverId))
+                    .findFirst()
+                    .orElse(null);
 
-                    // Generar la serie de datos
-                    return new ChartSeriesDTO(label, "#8884d8", List.of((double) entry.getValue()));
-                })
-                .collect(Collectors.toList());
+            String label = (driver != null)
+                    ? driver.getForename() + " " + driver.getSurname()
+                    : "Driver " + driverId;
 
-        // Devolver los datos de la gráfica
-        return new ChartDataDTO("Victorias desde P3 o peor", "bar", List.of("Victorias desde atrás"), dataset);
+            String color = colors[i % colors.length];
+            dataset.add(new ChartSeriesDTO(label, color, List.of(entry.getValue().doubleValue())));
+            i++;
+        }
+
+        // 6. Labels únicos (uno solo porque es tipo bar compacto)
+        List<String> labels = List.of("Victorias desde P3 o peor");
+
+        return new ChartDataDTO("Victorias desde P3 o peor", "bar", labels, dataset);
     }
+
 
 
 

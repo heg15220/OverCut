@@ -4,6 +4,8 @@ import charts from "../index";
 import ChartCard from "./ChartCard";
 import "./ChartStyles.css";
 import metadata from "../metadata"; // Ajusta la ruta según tu estructura de carpetas
+import ChartCardColored from "./ChartCardColored";
+
 
 const ChartsDashboard = () => {
   const dispatch = useDispatch();
@@ -137,8 +139,13 @@ const ChartsDashboard = () => {
       )}
 
       {chart ? (
-        <ChartCard chart={chart} />
+        selectedChart === "wins-from-3rd-or-worse" ? (
+          <ChartCardColored chart={chart} />
+        ) : (
+          <ChartCard chart={chart} />
+        )
       ) : selectedChart ? (
+
         <div className="chart-empty text-center">Cargue los filtros para ver el gráfico.</div>
       ) : (
         <div className="chart-empty text-center">Seleccione una categoría y gráfica.</div>

@@ -43,16 +43,18 @@ filteredDatasets.forEach((ds, idx) => {
     const isBar = chartType === "bar";
     const fallbackColor = defaultColorPalette[datasetIndex % defaultColorPalette.length];
 
+    const seriesColor =
+      Array.isArray(ds.color) ? null : ds.color || fallbackColor;
+
     return {
       name: ds.label,
       type: isBar ? "bar" : "line",
       data: ds.data.map((value, i) => ({
         value,
         itemStyle: {
-          color:
-            ds.colors?.[i] ||  // color individual por punto (preferencia)
-            ds.color ||         // color único por dataset
-            fallbackColor       // color por defecto según índice
+          color: Array.isArray(ds.color)
+            ? ds.color[i] || fallbackColor
+            : seriesColor
         }
       })),
       smooth: !isBar,
@@ -60,6 +62,7 @@ filteredDatasets.forEach((ds, idx) => {
       showSymbol: !isBar
     };
   });
+
 
 
   const option = {
