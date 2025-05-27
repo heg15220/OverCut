@@ -29,7 +29,9 @@ const metadata = {
   "pitstops-per-race": { label: "Pitstops por Gran Premio", param: "season" },
   "avg-pitstops-per-season": { label: "Pitstops Promedio por Temporada" },
   "overtakes-per-race": { label: "Adelantamientos por Gran Premio", param: "season" },
-  "avg-overtakes-per-season": { label: "Cambios de Posición Promedio por Temporada" }
+  "avg-overtakes-per-season": { label: "Cambios de Posición Promedio por Temporada" },
+  "quali-gap-1st-to-2nd-average": { label: "Diferencia promedio entre P1 y P2 en clasificación por temporada"},
+  "quali-gap-1st-to-10th-average": { label: "Diferencia promedio entre P1 y P10 en clasificación por temporada"}
 };
 
 export default metadata;

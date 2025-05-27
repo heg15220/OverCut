@@ -67,6 +67,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .sorted()
                 .collect(Collectors.toList());
     }
+
     @Override
     public ChartDataDTO getAveragePointsPerSeasonByDriver(String decade) {
         Map<Long, String> driverNames = driverDao.findAll().stream()
@@ -152,7 +153,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             }
 
 
-
             datasets.add(new ChartSeriesDTO(label, "#8884d8", data)); // Puedes reemplazar el color por nacionalidad
         }
 
@@ -211,25 +211,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public ChartDataDTO getPodiumPercentageVsTeammate(String driverIdStr) {
         Long targetDriverId = Long.parseLong(driverIdStr);
@@ -245,7 +226,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         for (Result r : resultDao.findAll()) {
             Integer year = raceMap.containsKey(r.getRace().getRaceId()) ? raceMap.get(r.getRace().getRaceId()).getYear() : null;
-            if (year == null || r.getConstructor().getConstructorId() == null || r.getDriver().getDriverId() == null) continue;
+            if (year == null || r.getConstructor().getConstructorId() == null || r.getDriver().getDriverId() == null)
+                continue;
             if (r.getPositionOrder() == null || r.getPositionOrder() > 3) continue; // only podiums
 
             int[] values = seasonPodiums.computeIfAbsent(year, y -> new int[]{0, 0});
@@ -291,7 +273,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         for (Qualifying q : qualifyingDao.findAll()) {
             Integer year = raceMap.containsKey(q.getRace().getRaceId()) ? raceMap.get(q.getRace().getRaceId()).getYear() : null;
-            if (year == null || q.getConstructor().getConstructorId() == null || q.getDriver().getDriverId() == null) continue;
+            if (year == null || q.getConstructor().getConstructorId() == null || q.getDriver().getDriverId() == null)
+                continue;
             if (q.getQ3() == null) continue;
 
             int[] values = seasonQ3s.computeIfAbsent(year, y -> new int[]{0, 0});
@@ -443,7 +426,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 List.of(new ChartSeriesDTO("Abandonos por carrera", "#cc0000", data))
         );
     }
-
 
 
     @Override
@@ -745,8 +727,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
-
-
     @Override
     public ChartDataDTO getPodiumsFrom3rdOrWorse() {
         // 1. Obtener resultados donde el piloto hizo podio desde P3 o peor en la parrilla
@@ -796,7 +776,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         return new ChartDataDTO("Podios desde P3 o peor", "bar", labels, dataset);
     }
-
 
 
     @Override
@@ -1202,7 +1181,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
-
     @Override
     public ChartDataDTO getAvgPitStopsPerSeason() {
         Map<Long, Integer> raceYears = raceDao.findAll().stream()
@@ -1306,14 +1284,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
-
-
-
-
-
-
-
-
     @Override
     public ChartDataDTO getAvgOvertakesPerSeason() {
         // Mapeamos las carreras por su año
@@ -1386,8 +1356,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
-
-
     @Override
     public ChartDataDTO getPointsDeltaVsTeammate(String seasonStr) {
         int season = Integer.parseInt(seasonStr);
@@ -1448,4 +1416,138 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         );
     }
 
+    private Long parseTimeToMilliseconds(String timeStr) {
+        if (timeStr == null || timeStr.isBlank()) return null;
+        try {
+            String[] parts = timeStr.split(":");
+            if (parts.length == 2) {
+                double minutes = Double.parseDouble(parts[0]);
+                double seconds = Double.parseDouble(parts[1]);
+                return (long) ((minutes * 60 + seconds) * 1000);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public ChartDataDTO getAverageQualiGapBetween1stAnd2ndPerSeason() {
+        // Agrupamos las qualis por carrera
+        Map<Long, List<Qualifying>> qualiByRace = qualifyingDao.findAll().stream()
+                .filter(q -> q.getPosition() != null)
+                .collect(Collectors.groupingBy(q -> q.getRace().getRaceId()));
+
+        // Map<year, List<diferencias entre P2 y P1>
+        Map<Integer, List<Long>> yearToDifferences = new HashMap<>();
+
+        for (Map.Entry<Long, List<Qualifying>> entry : qualiByRace.entrySet()) {
+            List<Qualifying> qList = entry.getValue();
+
+            // Buscar P1 y P2
+            Optional<Qualifying> poleOpt = qList.stream().filter(q -> q.getPosition() == 1).findFirst();
+            Optional<Qualifying> secondOpt = qList.stream().filter(q -> q.getPosition() == 2).findFirst();
+
+            if (poleOpt.isEmpty() || secondOpt.isEmpty()) continue;
+
+            Qualifying pole = poleOpt.get();
+            Qualifying second = secondOpt.get();
+
+            Long poleTime = getBestQualiTimeMs(pole);
+            Long secondTime = getBestQualiTimeMs(second);
+
+            if (poleTime == null || secondTime == null) continue;
+
+            long diff = secondTime - poleTime;
+            if (diff < 0) continue; // Datos inválidos
+
+            int year = pole.getRace().getYear();
+            yearToDifferences.computeIfAbsent(year, y -> new ArrayList<>()).add(diff);
+        }
+
+        List<Integer> sortedYears = new ArrayList<>(yearToDifferences.keySet());
+        Collections.sort(sortedYears);
+
+        List<String> labels = sortedYears.stream().map(String::valueOf).toList();
+        List<Double> data = sortedYears.stream()
+                .map(year -> {
+                    List<Long> diffs = yearToDifferences.get(year);
+                    return diffs.stream().mapToLong(Long::longValue).average().orElse(0);
+                })
+                .toList();
+
+        return new ChartDataDTO(
+                "Promedio de diferencia entre P1 y P2 en clasificación por temporada",
+                "line",
+                labels,
+                List.of(new ChartSeriesDTO("Gap en ms", "#00C49F", data))
+        );
+    }
+
+
+    @Override
+    public ChartDataDTO getAverageQualiGapBetween10thAndPolePerSeason() {
+        // Agrupar por carrera
+        Map<Long, List<Qualifying>> qualiByRace = qualifyingDao.findAll().stream()
+                .filter(q -> q.getPosition() != null)
+                .collect(Collectors.groupingBy(q -> q.getRace().getRaceId()));
+
+        // Map<year, List<diferencias entre P10 y P1>
+        Map<Integer, List<Long>> yearToDifferences = new HashMap<>();
+
+        for (Map.Entry<Long, List<Qualifying>> entry : qualiByRace.entrySet()) {
+            List<Qualifying> qList = entry.getValue();
+
+            Optional<Qualifying> poleOpt = qList.stream().filter(q -> q.getPosition() == 1).findFirst();
+            Optional<Qualifying> tenthOpt = qList.stream().filter(q -> q.getPosition() == 10).findFirst();
+
+            if (poleOpt.isEmpty() || tenthOpt.isEmpty()) continue;
+
+            Qualifying pole = poleOpt.get();
+            Qualifying tenth = tenthOpt.get();
+
+            Long poleTime = getBestQualiTimeMs(pole);
+            Long tenthTime = getBestQualiTimeMs(tenth);
+
+            if (poleTime == null || tenthTime == null) continue;
+
+            long diff = tenthTime - poleTime;
+            if (diff < 0) continue;
+
+            int year = pole.getRace().getYear();
+            yearToDifferences.computeIfAbsent(year, y -> new ArrayList<>()).add(diff);
+        }
+
+        List<Integer> sortedYears = new ArrayList<>(yearToDifferences.keySet());
+        Collections.sort(sortedYears);
+
+        List<String> labels = sortedYears.stream().map(String::valueOf).toList();
+        List<Double> data = sortedYears.stream()
+                .map(year -> {
+                    List<Long> diffs = yearToDifferences.get(year);
+                    return diffs.stream().mapToLong(Long::longValue).average().orElse(0);
+                })
+                .toList();
+
+        return new ChartDataDTO(
+                "Promedio de diferencia entre P10 y la pole por temporada",
+                "line",
+                labels,
+                List.of(new ChartSeriesDTO("Gap en ms", "#FFBB28", data))
+        );
+    }
+
+
+
+    private Long getBestQualiTimeMs(Qualifying q) {
+        List<Long> times = new ArrayList<>();
+        times.add(parseTimeToMilliseconds(q.getQ1()));
+        times.add(parseTimeToMilliseconds(q.getQ2()));
+        times.add(parseTimeToMilliseconds(q.getQ3()));
+        return times.stream()
+                .filter(Objects::nonNull)
+                .min(Long::compareTo)
+                .orElse(null);
+    }
 }

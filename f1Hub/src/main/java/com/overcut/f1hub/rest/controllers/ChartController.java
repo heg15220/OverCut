@@ -146,6 +146,13 @@ public class ChartController {
     }
 
 
+
+    @GetMapping("/quali-gap-1st-to-2nd-average")
+    public ChartDataDTO getAverageQualiGapBetween1stAnd2ndPerSeason(){ return advancedStatsService.getAverageQualiGapBetween1stAnd2ndPerSeason();}
+
+    @GetMapping("/quali-gap-1st-to-10th-average")
+    public ChartDataDTO getAverageQualiGapBetween10thAndPolePerSeason(){ return  advancedStatsService.getAverageQualiGapBetween10thAndPolePerSeason();}
+
     @GetMapping("/by-category")
     public Map<String, List<String>> getChartEndpointsByCategory() {
         Map<String, List<String>> categories = new HashMap<>();
@@ -180,7 +187,9 @@ public class ChartController {
                 "pitstops-per-race",
                 "avg-pitstops-per-season",
                 "overtakes-per-race",
-                "avg-overtakes-per-season"
+                "avg-overtakes-per-season",
+                "quali-gap-1st-to-2nd-average",
+                "quali-gap-1st-to-10th-average"
         ));
 
         return categories;

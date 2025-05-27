@@ -64,4 +64,9 @@ public interface AdvancedStatsService {
     ChartDataDTO getAvgOvertakesPerSeason();
 
     ChartDataDTO getPointsDeltaVsTeammate(String season);
+
+    ChartDataDTO getAverageQualiGapBetween1stAnd2ndPerSeason();
+
+    ChartDataDTO getAverageQualiGapBetween10thAndPolePerSeason();
+
 }
