@@ -2,8 +2,6 @@
 
 const metadata = {
   // Pilotos
-  "average-points-per-season": { label: "Puntos Promedio por Temporada" },
-  "victory-percentage-per-season": { label: "Porcentaje de Victorias por Temporada" },
   "podium-percentage-vs-teammate": { label: "Podios vs Compañero", param: "decade" },
   "avg-positions-gained-by-season": { label: "Posiciones Ganadas por Temporada", param: "driverId" },
   "avg-positions-gained-first-laps": { label: "Posiciones Ganadas en Primeras Vueltas" },
@@ -11,7 +9,7 @@ const metadata = {
   "quali-vs-teammate-comparison": { label: "Rendimiento en Clasificación vs Compañero", param: "driverId" },
   "most-common-finish-position": { label: "Posición Final Más Frecuente" },
   "most-common-quali-position": { label: "Posición de Clasificación Más Frecuente" },
-  "driver-vs-team-championship-finish": { label: "Resultado Piloto vs Equipo en el Campeonato" },
+  "driver-vs-team-championship-finish": { label: "Resultado Piloto vs Equipo en el Campeonato", param: "decade" },
 
   // Constructores
   "team-comebacks-by-season": { label: "Remontadas por Temporada (Equipos)", param: "decade" },

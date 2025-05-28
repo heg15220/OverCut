@@ -45,7 +45,7 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getAvgGapToPolePerSeason();
 
-    ChartDataDTO getDriverVsTeamChampionshipFinish();
+    ChartDataDTO getDriverVsTeamChampionshipFinish(String decade);
 
     ChartDataDTO getWinsWithoutTop2();
 

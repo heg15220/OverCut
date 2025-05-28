@@ -1014,17 +1014,74 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getDriverVsTeamChampionshipFinish() {
+    public ChartDataDTO getDriverVsTeamChampionshipFinish(String decade) {
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
         Map<Long, Race> racesById = raceDao.findAll().stream()
                 .collect(Collectors.toMap(Race::getRaceId, r -> r));
 
-        // Map<driverId, count>
-        Map<Long, Integer> matches = new HashMap<>();
+        // Filtro por década con estilo clásico
+        int startYear = 0;
+        int endYear = 9999;
+        if (decade != null) {
+            switch (decade) {
+                case "1950s":
+                    startYear = 1950;
+                    endYear = 1959;
+                    break;
+                case "1960s":
+                    startYear = 1960;
+                    endYear = 1969;
+                    break;
+                case "1970s":
+                    startYear = 1970;
+                    endYear = 1979;
+                    break;
+                case "1980s":
+                    startYear = 1980;
+                    endYear = 1989;
+                    break;
+                case "1990s":
+                    startYear = 1990;
+                    endYear = 1999;
+                    break;
+                case "2000s":
+                    startYear = 2000;
+                    endYear = 2009;
+                    break;
+                case "2010s":
+                    startYear = 2010;
+                    endYear = 2019;
+                    break;
+                case "2020s":
+                    startYear = 2020;
+                    endYear = 2029;
+                    break;
+                case "2030s":
+                    startYear = 2030;
+                    endYear = 2039;
+                    break;
+                case "2040s":
+                    startYear = 2040;
+                    endYear = 2049;
+                    break;
+                case "2050s":
+                    startYear = 2050;
+                    endYear = 2059;
+                    break;
+                case "2060s":
+                    startYear = 2060;
+                    endYear = 2069;
+                    break;
+            }
+        }
+
+        final int finalStartYear = startYear;
+        final int finalEndYear = endYear;
 
         List<Race> finalRaces = raceDao.findAll().stream()
+                .filter(r -> r.getYear() >= finalStartYear && r.getYear() <= finalEndYear)
                 .collect(Collectors.groupingBy(Race::getYear))
                 .values().stream()
                 .map(list -> list.stream().max(Comparator.comparingInt(Race::getRound)).orElse(null))
@@ -1041,28 +1098,54 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .filter(cs -> finalRaceIds.contains(cs.getRaceId()))
                 .toList();
 
-        Map<Integer, Map<Long, Integer>> driverFinalPos = new HashMap<>();
-        Map<Integer, Integer> teamFinalPos = new HashMap<>();
-
-        for (DriverStanding ds : driverStandings) {
-            int year = racesById.get(ds.getRaceId()).getYear();
-            driverFinalPos.computeIfAbsent(year, y -> new HashMap<>())
-                    .put(ds.getDriverId(), ds.getPosition());
-        }
-
+        Map<Long, Map<Long, Integer>> constructorPosByRace = new HashMap<>();
         for (ConstructorStanding cs : constructorStandings) {
-            int year = racesById.get(cs.getRaceId()).getYear();
-            teamFinalPos.put(year, cs.getPosition());
+            constructorPosByRace
+                    .computeIfAbsent(cs.getRaceId(), k -> new HashMap<>())
+                    .put(cs.getConstructorId(), cs.getPosition());
         }
 
-        for (Map.Entry<Integer, Map<Long, Integer>> entry : driverFinalPos.entrySet()) {
-            Integer year = entry.getKey();
-            Integer teamPos = teamFinalPos.getOrDefault(year, 99);
-            for (Map.Entry<Long, Integer> driverEntry : entry.getValue().entrySet()) {
-                if (driverEntry.getValue() <= teamPos) {
-                    matches.merge(driverEntry.getKey(), 1, Integer::sum);
-                }
+        // Map<raceId + driverId -> constructorId>
+        Map<String, Long> driverConstructorByRace = resultDao.findAll().stream()
+                .filter(r -> finalRaceIds.contains(r.getRace().getRaceId()))
+                .collect(Collectors.toMap(
+                        r -> r.getRace().getRaceId() + "_" + r.getDriver().getDriverId(),
+                        r -> r.getConstructor().getConstructorId(),
+                        (a, b) -> a // en caso de duplicado, mantener primero
+                ));
+
+
+        Map<Long, Integer> matches = new HashMap<>();
+        for (DriverStanding ds : driverStandings) {
+            Long driverId = ds.getDriverId();
+            Long raceId = ds.getRaceId();
+            Integer driverPos = ds.getPosition();
+
+            String key = raceId + "_" + driverId;
+            Long constructorId = driverConstructorByRace.get(key);
+            if (constructorId == null) continue;
+
+            Integer teamPos = constructorPosByRace.getOrDefault(raceId, Map.of())
+                    .getOrDefault(constructorId, 99);
+
+            if (driverPos <= teamPos) {
+                matches.merge(driverId, 1, Integer::sum);
             }
+        }
+
+
+        // 🎨 Paleta extensa
+        String[] colorPalette = {
+                "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0",
+                "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8",
+                "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080", "#ffffff",
+                "#000000", "#ff7f00", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c"
+        };
+
+        List<Long> driverIds = matches.keySet().stream().sorted().toList();
+        Map<Long, String> colorMap = new HashMap<>();
+        for (int i = 0; i < driverIds.size(); i++) {
+            colorMap.put(driverIds.get(i), colorPalette[i % colorPalette.length]);
         }
 
         List<ChartSeriesDTO> dataset = matches.entrySet().stream()
@@ -1070,11 +1153,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     String label = driverMap.containsKey(e.getKey())
                             ? driverMap.get(e.getKey()).getForename() + " " + driverMap.get(e.getKey()).getSurname()
                             : "Driver " + e.getKey();
-                    return new ChartSeriesDTO(label, "#8884d8", List.of((double) e.getValue()));
+                    String color = colorMap.getOrDefault(e.getKey(), "#cccccc");
+                    return new ChartSeriesDTO(label, color, List.of((double) e.getValue()));
                 }).toList();
 
-        return new ChartDataDTO("Pilotos que superaron o igualaron al equipo en el campeonato", "bar", List.of("Veces"), dataset);
+        String title = "Pilotos que superaron o igualaron a su equipo en el campeonato"
+                + (finalStartYear > 0 ? " (" + finalStartYear + "s)" : "");
+
+        return new ChartDataDTO(title, "bar", List.of("Veces"), dataset);
     }
+
 
 
     @Override

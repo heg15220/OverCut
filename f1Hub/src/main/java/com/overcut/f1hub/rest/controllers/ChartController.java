@@ -105,8 +105,8 @@ public class ChartController {
     }
 
     @GetMapping("/driver-vs-team-championship-finish")
-    public ChartDataDTO getDriverVsTeamChampionshipFinish() {
-        return advancedStatsService.getDriverVsTeamChampionshipFinish();
+    public ChartDataDTO getDriverVsTeamChampionshipFinish(@RequestParam(required = false) String decade) {
+        return advancedStatsService.getDriverVsTeamChampionshipFinish(decade);
     }
 
     @GetMapping("/average-accidents-by-season")
