@@ -11,7 +11,6 @@ const metadata = {
   "quali-vs-teammate-comparison": { label: "Rendimiento en Clasificación vs Compañero", param: "driverId" },
   "most-common-finish-position": { label: "Posición Final Más Frecuente" },
   "most-common-quali-position": { label: "Posición de Clasificación Más Frecuente" },
-  "points-delta-vs-teammate": { label: "Diferencia de Puntos vs Compañero", param: "season" },
   "driver-vs-team-championship-finish": { label: "Resultado Piloto vs Equipo en el Campeonato" },
 
   // Constructores

@@ -1501,6 +1501,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     public ChartDataDTO getPointsDeltaVsTeammate(String seasonStr) {
         int season = Integer.parseInt(seasonStr);
 
+        String[] colorPalette = {
+                "#E10600", "#1B9CFC", "#F97F51", "#B33771", "#3B3B98", "#55E6C1",
+                "#F8EFBA", "#25CCF7", "#FD7272", "#9AECDB", "#D6A2E8", "#33d9b2",
+                "#218c74", "#40407a", "#ffb142", "#706fd3", "#ff5252", "#2C3A47",
+                "#34ace0", "#ffb8b8", "#3ae374", "#ffa801", "#cd84f1", "#7efff5",
+                "#c56cf0", "#ff3838", "#70a1ff", "#2ed573", "#5352ed", "#ff6b81",
+                "#1e90ff", "#ffeaa7", "#2f3542", "#1abc9c", "#9b59b6", "#f39c12"
+        };
+
+
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
@@ -1525,6 +1535,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     .collect(Collectors.groupingBy(r -> r.getConstructor().getConstructorId()));
 
             for (List<Result> teamResults : byConstructor.values()) {
+                double teamTotalPoints = teamResults.stream()
+                        .mapToDouble(Result::getPoints)
+                        .sum();
+
+                // ✅ Filtrar equipos sin puntos en esta carrera
+                if (teamTotalPoints == 0.0) continue;
+
                 for (Result a : teamResults) {
                     for (Result b : teamResults) {
                         if (a.getDriver().getDriverId().equals(b.getDriver().getDriverId())) continue;
@@ -1537,6 +1554,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         List<ChartSeriesDTO> seriesList = new ArrayList<>();
+        int colorIndex = 0;
+
         for (Map.Entry<Long, List<Double>> entry : deltas.entrySet()) {
             Long driverId = entry.getKey();
             List<Double> deltaList = entry.getValue();
@@ -1546,8 +1565,12 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     ? driverMap.get(driverId).getForename() + " " + driverMap.get(driverId).getSurname()
                     : "Driver " + driverId;
 
-            seriesList.add(new ChartSeriesDTO(label, "#8884d8", List.of(avgDelta)));
+            String color = colorPalette[colorIndex % colorPalette.length];
+            colorIndex++;
+
+            seriesList.add(new ChartSeriesDTO(label, color, List.of(avgDelta)));
         }
+
 
         return new ChartDataDTO(
                 "Diferencia media de puntos vs compañero (" + season + ")",
@@ -1556,6 +1579,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 seriesList
         );
     }
+
 
     private Long parseTimeToMilliseconds(String timeStr) {
         if (timeStr == null || timeStr.isBlank()) return null;
