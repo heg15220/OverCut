@@ -13,6 +13,8 @@ public class ChartSeriesDTO {
     private String color; // Color único para la serie (si se usa un único color)
     private List<String> colors; // Lista de colores para segmentos (si se usan colores diferentes)
     private List<Double> data; // Valores por punto en el eje X
+    private String abbreviation;
+
 
     public ChartSeriesDTO(String label, String color, List<Double> data) {
         this.label = label;

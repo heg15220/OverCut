@@ -8,7 +8,6 @@ const metadata = {
   "race-vs-teammate-comparison": { label: "Rendimiento en Carrera vs Compañero", param: "driverId" },
   "quali-vs-teammate-comparison": { label: "Rendimiento en Clasificación vs Compañero", param: "driverId" },
   "most-common-finish-position": { label: "Posición Final Más Frecuente" },
-  "most-common-quali-position": { label: "Posición de Clasificación Más Frecuente" },
   "driver-vs-team-championship-finish": { label: "Resultado Piloto vs Equipo en el Campeonato", param: "decade" },
 
   // Constructores

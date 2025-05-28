@@ -4,6 +4,7 @@ import charts from "../index";
 import ChartCardPie from "./ChartCardPie"; // Importar el nuevo componente
 import ChartCard from "./ChartCard";
 import ChartCardColored from "./ChartCardColored";
+import ChartCardScatter from "./ChartCardScatter";
 import "./ChartStyles.css";
 import { buildChartKey } from "../utils/chartKey";
 
@@ -57,6 +58,7 @@ const ChartSelector = () => {
       { endpoint: "victory-percentage-by-decade", label: "Porcentaje de Victorias por Década", param: "decade", chartType: "pie" },
        { endpoint: "average-points-per-season", label: "Promedio de puntos por temporada filtrado en décadas ", param: "decade", chartType: "line" },
        { endpoint: "q3-percentage-vs-teammate", label: "Q3 vs Compañero", param: "driverId" },
+       { endpoint: "most-common-quali-position", label: "Posición de Clasificación Más Frecuente"},
     ],
     Constructores: [
       { endpoint: "avg-team-points-by-season", label: "Puntos por Equipo", param: "constructorId", chartType: "bar" }
@@ -76,7 +78,8 @@ const chartRenderMap = {
   "average-points-per-season": ChartCardColored,
   "avg-team-points-by-season": ChartCard,
   "pitstops-per-race": ChartCard,
-  "overtakes-per-race": ChartCard
+  "overtakes-per-race": ChartCard,
+  "most-common-quali-position": ChartCardColored
 };
 
 const getChartComponent = (endpoint, chartType) => {

@@ -920,6 +920,20 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     .merge(pos, 1, Integer::sum);
         }
 
+        // 🎨 Paleta de colores extensa
+        String[] colorPalette = {
+                "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0",
+                "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8",
+                "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080", "#ffffff",
+                "#000000", "#ff7f00", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c"
+        };
+
+        List<Long> driverIds = positionCounts.keySet().stream().sorted().toList();
+        Map<Long, String> colorMap = new HashMap<>();
+        for (int i = 0; i < driverIds.size(); i++) {
+            colorMap.put(driverIds.get(i), colorPalette[i % colorPalette.length]);
+        }
+
         List<ChartSeriesDTO> dataset = new ArrayList<>();
         for (Map.Entry<Long, Map<Integer, Integer>> entry : positionCounts.entrySet()) {
             Long driverId = entry.getKey();
@@ -929,11 +943,20 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     .max(Map.Entry.comparingByValue());
 
             if (mostCommon.isPresent()) {
-                String label = driverMap.containsKey(driverId)
-                        ? driverMap.get(driverId).getForename() + " " + driverMap.get(driverId).getSurname()
+                Driver driver = driverMap.get(driverId);
+                String label = driver != null
+                        ? driver.getForename() + " " + driver.getSurname()
                         : "Driver " + driverId;
 
-                dataset.add(new ChartSeriesDTO(label, "#8884d8", List.of((double) mostCommon.get().getKey())));
+                String abbr = driver != null
+                        ? driver.getSurname().toUpperCase().substring(0, Math.min(3, driver.getSurname().length()))
+                        : "UNK";
+
+                String color = colorMap.getOrDefault(driverId, "#cccccc");
+
+                ChartSeriesDTO dto = new ChartSeriesDTO(label, color, List.of((double) mostCommon.get().getKey()));
+                dto.setAbbreviation(abbr); // ← asegúrate de tener este campo en el DTO
+                dataset.add(dto);
             }
         }
 
@@ -944,6 +967,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 dataset
         );
     }
+
 
 
     @Override
