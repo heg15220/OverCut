@@ -22,4 +22,33 @@ public interface ResultDao extends JpaRepository<Result, Long> {
     @Query("SELECT COUNT(r) FROM Race r WHERE r.year BETWEEN :startYear AND :endYear")
     long countRacesInDecade(@Param("startYear") int startYear, @Param("endYear") int endYear);
 
+
+    @Query("""
+    SELECT COUNT(r)
+    FROM Result r
+    JOIN r.race race
+    JOIN r.driver d
+    WHERE race.year = :year
+      AND d.forename = :forename
+      AND d.surname = :surname
+      AND r.positionOrder IN (1, 2, 3)
+    """)
+    long countPodiumsByDriverInYear(@Param("forename") String forename,
+                                    @Param("surname") String surname,
+                                    @Param("year") int year);
+
+
+
+    @Query("""
+    SELECT COUNT(r)
+    FROM Result r
+    JOIN r.race race
+    JOIN r.constructor c
+    WHERE race.year = :year
+      AND c.constructorRef = :constructorRef
+      AND r.positionOrder IN (1, 2, 3)
+    """)
+    long countPodiumsByConstructorInYear(@Param("constructorRef") String constructorRef,
+                                         @Param("year") int year);
+
 }

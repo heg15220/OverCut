@@ -141,7 +141,7 @@ const ChartsDashboard = () => {
 
       {chart ? (
         ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse", "team-comebacks-by-season",
-        "avg-team-points-by-season", "most-team-points"].includes(selectedChart) ? (
+        "avg-team-points-by-season", "most-team-points", "podium-percentage-vs-teammate"].includes(selectedChart) ? (
           <ChartCardColored chart={chart} />
         ) : (
           <ChartCard chart={chart} />

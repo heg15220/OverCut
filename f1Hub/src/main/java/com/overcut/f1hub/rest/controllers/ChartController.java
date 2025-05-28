@@ -31,8 +31,8 @@ public class ChartController {
 
 
     @GetMapping("/podium-percentage-vs-teammate")
-    public ChartDataDTO getPodiumPercentageVsTeammate(@RequestParam String driverId) {
-        return advancedStatsService.getPodiumPercentageVsTeammate(driverId);
+    public ChartDataDTO getPodiumPercentageVsTeammate(@RequestParam(required = false) String decade) {
+        return advancedStatsService.getPodiumPercentageVsTeammate(decade);
     }
 
     @GetMapping("/q3-percentage-vs-teammate")

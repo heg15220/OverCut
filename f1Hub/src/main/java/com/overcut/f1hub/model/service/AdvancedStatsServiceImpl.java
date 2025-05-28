@@ -212,50 +212,105 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getPodiumPercentageVsTeammate(String driverIdStr) {
-        Long targetDriverId = Long.parseLong(driverIdStr);
+    public ChartDataDTO getPodiumPercentageVsTeammate(String decade) {
+        int startYear = 0, endYear = 9999;
+        if (decade != null) {
+            switch (decade) {
+                case "1980s": startYear = 1980; endYear = 1989; break;
+                case "1990s": startYear = 1990; endYear = 1999; break;
+                case "2000s": startYear = 2000; endYear = 2009; break;
+                case "2010s": startYear = 2010; endYear = 2019; break;
+                case "2020s": startYear = 2020; endYear = 2029; break;
+                case "2030s": startYear = 2030; endYear = 2039; break;
+                case "2040s": startYear = 2040; endYear = 2049; break;
+                case "2050s": startYear = 2050; endYear = 2059; break;
+                case "2060s": startYear = 2060; endYear = 2069; break;
+            }
 
-        Map<Long, Driver> driverMap = driverDao.findAll().stream()
-                .collect(Collectors.toMap(Driver::getDriverId, d -> d));
+        }
 
-        Map<Long, Race> raceMap = raceDao.findAll().stream()
-                .collect(Collectors.toMap(Race::getRaceId, r -> r));
+        final int fromYear = startYear;
+        final int toYear = endYear;
 
-        // Map<Year, [driverPodiums, teamTotalPodiums]>
-        Map<Integer, int[]> seasonPodiums = new HashMap<>();
+        List<Driver> allDrivers = driverDao.findAll();
+        List<Result> allResults = resultDao.findAll();
 
-        for (Result r : resultDao.findAll()) {
-            Integer year = raceMap.containsKey(r.getRace().getRaceId()) ? raceMap.get(r.getRace().getRaceId()).getYear() : null;
-            if (year == null || r.getConstructor().getConstructorId() == null || r.getDriver().getDriverId() == null)
-                continue;
-            if (r.getPositionOrder() == null || r.getPositionOrder() > 3) continue; // only podiums
+        Map<Long, String> driverNames = allDrivers.stream()
+                .collect(Collectors.toMap(
+                        Driver::getDriverId,
+                        d -> d.getForename() + " " + d.getSurname()
+                ));
 
-            int[] values = seasonPodiums.computeIfAbsent(year, y -> new int[]{0, 0});
-            values[1]++; // team total podiums
+        // Map<driverId, Map<year, constructorRef>>
+        Map<Long, Map<Integer, String>> driverYearTeamMap = new HashMap<>();
+        for (Result r : allResults) {
+            if (r.getDriver() == null || r.getRace() == null || r.getConstructor() == null) continue;
+            Integer year = r.getRace().getYear();
+            if (year < startYear || year > endYear) continue;
 
-            if (Objects.equals(r.getDriver().getDriverId(), targetDriverId)) {
-                values[0]++; // driver podiums
+            Long dId = r.getDriver().getDriverId();
+            String constructorRef = r.getConstructor().getConstructorRef();
+
+            driverYearTeamMap
+                    .computeIfAbsent(dId, k -> new HashMap<>())
+                    .putIfAbsent(year, constructorRef); // asumimos un equipo por año
+        }
+
+        // Labels comunes (años dentro de la década)
+        Set<Integer> allYears = allResults.stream()
+                .map(r -> r.getRace().getYear())
+                .filter(y -> y >= fromYear && y <= toYear)
+                .collect(Collectors.toCollection(TreeSet::new));
+        List<String> labels = new ArrayList<>();
+        for (Integer year : allYears) {
+            labels.add(String.valueOf(year));
+        }
+
+
+        List<ChartSeriesDTO> seriesList = new ArrayList<>();
+
+        for (Driver d : allDrivers) {
+            String forename = d.getForename();
+            String surname = d.getSurname();
+            Long driverId = d.getDriverId();
+
+            Map<Integer, String> yearTeamMap = driverYearTeamMap.getOrDefault(driverId, Map.of());
+            List<Double> data = new ArrayList<>();
+            long totalPodiums = 0;
+
+            for (Integer year : allYears) {
+                String constructorRef = yearTeamMap.get(year);
+                if (constructorRef == null) {
+                    data.add(null);
+                    continue;
+                }
+
+                long driverPodiums = resultDao.countPodiumsByDriverInYear(forename, surname, year);
+                long teamPodiums = resultDao.countPodiumsByConstructorInYear(constructorRef, year);
+
+                if (driverPodiums > 0) totalPodiums += driverPodiums;
+
+                double percentage = (teamPodiums == 0) ? 0.0 : (100.0 * driverPodiums) / teamPodiums;
+                data.add(percentage);
+            }
+
+            if (totalPodiums > 0) {
+                seriesList.add(new ChartSeriesDTO(driverNames.get(driverId), "#8884d8", data));
             }
         }
 
-        List<Integer> allYears = seasonPodiums.keySet().stream().sorted().toList();
-        List<String> labels = allYears.stream().map(String::valueOf).toList();
-        List<Double> data = new ArrayList<>();
+        // Línea de referencia al 50%
+        List<Double> fiftyLine = new ArrayList<>(Collections.nCopies(labels.size(), 50.0));
+        seriesList.add(new ChartSeriesDTO("50%", "#999999", fiftyLine));
 
-        for (Integer year : allYears) {
-            int[] vals = seasonPodiums.get(year);
-            double pct = (vals[1] == 0) ? 0.0 : (100.0 * vals[0]) / vals[1];
-            data.add(pct);
-        }
 
-        String driverName = driverMap.containsKey(targetDriverId)
-                ? driverMap.get(targetDriverId).getForename() + " " + driverMap.get(targetDriverId).getSurname()
-                : "Driver " + targetDriverId;
-
-        ChartSeriesDTO series = new ChartSeriesDTO(driverName, "#ffc658", data);
-
-        return new ChartDataDTO("Porcentaje de podios vs compañero (" + driverName + ")", "bar", labels, List.of(series));
+        return new ChartDataDTO("Porcentaje de podios vs compañero", "line", labels, seriesList);
     }
+
+
+
+
+
 
 
     @Override

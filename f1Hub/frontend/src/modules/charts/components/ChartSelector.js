@@ -52,7 +52,6 @@ const ChartSelector = () => {
 
   const chartOptions = {
     Pilotos: [
-      { endpoint: "podium-percentage-vs-teammate", label: "Podios vs Compañero", param: "driverId", chartType: "bar" },
       { endpoint: "avg-positions-gained-by-season", label: "Posiciones Ganadas por Temporada", param: "driverId", chartType: "line" },
       { endpoint: "points-delta-vs-teammate", label: "Δ Puntos por Temporada", param: "season", chartType: "bar" },
       { endpoint: "victory-percentage-by-decade", label: "Porcentaje de Victorias por Década", param: "decade", chartType: "pie" },

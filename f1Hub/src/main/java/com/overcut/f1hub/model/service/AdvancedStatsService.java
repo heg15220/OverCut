@@ -19,7 +19,7 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getVictoryPercentageByDriverPerSeason(String decade);
 
-    ChartDataDTO getPodiumPercentageVsTeammate(String driverId);
+    ChartDataDTO getPodiumPercentageVsTeammate(String decade);
 
     ChartDataDTO getQ3PercentageVsTeammate(String driverId);
 
