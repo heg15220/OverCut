@@ -513,7 +513,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
-        // Map<driverId, List<posiciones ganadas en vuelta 2>
         Map<Long, List<Integer>> gains = new HashMap<>();
 
         Map<String, LapTime> lap2Map = lapTimeDao.findAll().stream()
@@ -521,11 +520,12 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .collect(Collectors.toMap(
                         l -> l.getRaceId() + "_" + l.getDriverId(),
                         l -> l,
-                        (a, b) -> a // evitar colisiones
+                        (a, b) -> a
                 ));
 
         for (Result r : resultDao.findAll()) {
-            if (r.getGrid() == null || r.getGrid() == 0) continue; // no clasificación válida
+            if (r.getGrid() == null || r.getGrid() == 0) continue;
+
             String key = r.getRace().getRaceId() + "_" + r.getDriver().getDriverId();
             LapTime lap2 = lap2Map.get(key);
             if (lap2 == null || lap2.getPosition() == null) continue;
@@ -537,24 +537,67 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             gains.computeIfAbsent(r.getDriver().getDriverId(), k -> new ArrayList<>()).add(delta);
         }
 
-        List<ChartSeriesDTO> datasets = new ArrayList<>();
+        // Paleta de colores
+        String[] colorPalette = {
+                "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0",
+                "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8",
+                "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080", "#ffffff",
+                "#000000", "#ff7f00", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c"
+        };
+
+        List<Long> driverIds = gains.keySet().stream().sorted().toList();
+        Map<Long, String> colorMap = new HashMap<>();
+        for (int i = 0; i < driverIds.size(); i++) {
+            colorMap.put(driverIds.get(i), colorPalette[i % colorPalette.length]);
+        }
+
+        // Agrupar pilotos por valor Y (promedio redondeado)
+        Map<Double, List<ChartSeriesDTO>> groupedByY = new HashMap<>();
+
         for (Map.Entry<Long, List<Integer>> entry : gains.entrySet()) {
             Long driverId = entry.getKey();
             List<Integer> list = entry.getValue();
-            double avgGain = list.stream().mapToInt(i -> i).average().orElse(0);
-            String label = driverMap.containsKey(driverId)
-                    ? driverMap.get(driverId).getForename() + " " + driverMap.get(driverId).getSurname()
-                    : "Driver " + driverId;
-            datasets.add(new ChartSeriesDTO(label, "#8884d8", List.of(avgGain)));
+            double avgGain = Math.round(list.stream().mapToDouble(i -> i).average().orElse(0.0) * 10.0) / 10.0;
+
+            Driver d = driverMap.get(driverId);
+            String label = d != null ? d.getForename() + " " + d.getSurname() : "Driver " + driverId;
+            String abbr = d != null
+                    ? d.getSurname().replaceAll("[^A-Za-z]", "").toUpperCase().substring(0, Math.min(3, d.getSurname().length()))
+                    : "UNK";
+            String color = colorMap.getOrDefault(driverId, "#cccccc");
+
+            ChartSeriesDTO dto = new ChartSeriesDTO(label, color, new ArrayList<>());
+            dto.setAbbreviation(abbr);
+
+            groupedByY.computeIfAbsent(avgGain, k -> new ArrayList<>()).add(dto);
+        }
+
+        // Asignar coordenadas [X, Y]
+        List<ChartSeriesDTO> dataset = new ArrayList<>();
+
+        for (Map.Entry<Double, List<ChartSeriesDTO>> entry : groupedByY.entrySet()) {
+            double y = entry.getKey();
+            List<ChartSeriesDTO> group = entry.getValue();
+            int n = group.size();
+
+            for (int i = 0; i < n; i++) {
+                double xOffset = i - (n - 1) / 2.0;
+                ChartSeriesDTO dto = group.get(i);
+                dto.setData(List.of(xOffset, y));
+                dataset.add(dto);
+            }
         }
 
         return new ChartDataDTO(
                 "Promedio de posiciones ganadas tras 2 vueltas",
-                "bar",
-                List.of("Ganancia promedio"),
-                datasets
+                "scatter",
+                List.of("Promedio en eje Y, dispersión en X"),
+                dataset
         );
     }
+
+
+
 
 
     @Override

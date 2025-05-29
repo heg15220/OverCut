@@ -5,6 +5,7 @@ import ChartCard from "./ChartCard";
 import "./ChartStyles.css";
 import metadata from "../metadata"; // Ajusta la ruta según tu estructura de carpetas
 import ChartCardColored from "./ChartCardColored";
+import ChartCardScatter from "./ChartCardScatter";
 
 
 const ChartsDashboard = () => {
@@ -140,8 +141,11 @@ const ChartsDashboard = () => {
       )}
 
       {chart ? (
-        ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse", "team-comebacks-by-season",
-        "avg-team-points-by-season", "most-team-points", "podium-percentage-vs-teammate"].includes(selectedChart) ? (
+        selectedChart === "avg-positions-gained-first-laps" ? (
+          <ChartCardScatter chart={chart} />
+        ) : ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse", "team-comebacks-by-season",
+            "avg-team-points-by-season", "most-team-points", "podium-percentage-vs-teammate"
+          ].includes(selectedChart) ? (
           <ChartCardColored chart={chart} />
         ) : (
           <ChartCard chart={chart} />
@@ -151,6 +155,7 @@ const ChartsDashboard = () => {
       ) : (
         <div className="chart-empty text-center">Seleccione una categoría y gráfica.</div>
       )}
+
 
     </div>
   );

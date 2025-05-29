@@ -20,12 +20,10 @@ const ChartCardScatter = ({ chart }) => {
 
   const { title, datasets } = chart;
 
-  // Filtrar datasets vacíos
   const filteredDatasets = datasets.filter(ds =>
-    ds.data.some(v => v !== 0 && v !== null && v !== undefined)
+    ds.data && ds.data.length === 2 && ds.data.every(v => v !== null && v !== undefined)
   );
 
-  // Configuración inicial de la leyenda: solo uno activado
   const selected = {};
   filteredDatasets.forEach((ds, idx) => {
     selected[ds.label] = idx === 0;
@@ -39,7 +37,7 @@ const ChartCardScatter = ({ chart }) => {
     return {
       name: ds.label,
       type: "scatter",
-      data: ds.data.map(value => [value, 0]), // eje X = valor, Y = fijo en 0
+      data: [ds.data], // ← data viene como [x, y]
       symbolSize: 18,
       itemStyle: {
         color
@@ -49,7 +47,7 @@ const ChartCardScatter = ({ chart }) => {
         position: "top",
         color: "#fff",
         fontWeight: "bold",
-        formatter: abbreviation
+        formatter: () => abbreviation
       }
     };
   });
@@ -71,7 +69,7 @@ const ChartCardScatter = ({ chart }) => {
       borderColor: "#444",
       borderWidth: 1,
       formatter: params =>
-        `${params.seriesName}: ${params.data[0]}`,
+        `${params.seriesName}: ${params.data[1]} posiciones ganadas`,
       textStyle: {
         color: "#fff"
       }
@@ -85,7 +83,7 @@ const ChartCardScatter = ({ chart }) => {
       },
       data: filteredDatasets.map(ds => ds.label),
       selected,
-      selectedMode: selected,
+      selectedMode: "multiple",
       pageIconColor: "#ffcc00",
       pageTextStyle: {
         color: "#ccc"
@@ -100,9 +98,7 @@ const ChartCardScatter = ({ chart }) => {
     },
     xAxis: {
       type: "value",
-      name: "Posición más común",
-      min: 1,
-      max: 20,
+      name: "Separación horizontal (visual)",
       axisLine: {
         lineStyle: {
           color: "#777"
@@ -121,16 +117,29 @@ const ChartCardScatter = ({ chart }) => {
     },
     yAxis: {
       type: "value",
-      show: false,
-      min: -1,
-      max: 1
+      name: "Posiciones ganadas (promedio)",
+      axisLine: {
+        lineStyle: {
+          color: "#777"
+        }
+      },
+      axisLabel: {
+        color: "#ccc",
+        fontSize: 12
+      },
+      splitLine: {
+        lineStyle: {
+          color: "#444",
+          type: "dashed"
+        }
+      }
     },
     series
   };
 
   return (
     <div className="chart-card">
-      <ReactECharts option={option} style={{ height: 400, width: "100%" }} />
+      <ReactECharts option={option} style={{ height: 500, width: "100%" }} />
     </div>
   );
 };
