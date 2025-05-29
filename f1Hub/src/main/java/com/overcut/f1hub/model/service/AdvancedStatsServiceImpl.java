@@ -226,14 +226,12 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 case "2050s": startYear = 2050; endYear = 2059; break;
                 case "2060s": startYear = 2060; endYear = 2069; break;
             }
-
         }
 
         final int fromYear = startYear;
         final int toYear = endYear;
 
         List<Driver> allDrivers = driverDao.findAll();
-        List<Result> allResults = resultDao.findAll();
 
         Map<Long, String> driverNames = allDrivers.stream()
                 .collect(Collectors.toMap(
@@ -241,39 +239,61 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                         d -> d.getForename() + " " + d.getSurname()
                 ));
 
+        List<Result> filteredResults = resultDao.findAll().stream()
+                .filter(r -> r.getRace() != null && r.getDriver() != null && r.getConstructor() != null)
+                .filter(r -> {
+                    int year = r.getRace().getYear();
+                    return year >= fromYear && year <= toYear;
+                })
+                .toList();
+
         // Map<driverId, Map<year, constructorRef>>
         Map<Long, Map<Integer, String>> driverYearTeamMap = new HashMap<>();
-        for (Result r : allResults) {
-            if (r.getDriver() == null || r.getRace() == null || r.getConstructor() == null) continue;
-            Integer year = r.getRace().getYear();
-            if (year < startYear || year > endYear) continue;
-
-            Long dId = r.getDriver().getDriverId();
+        for (Result r : filteredResults) {
+            int year = r.getRace().getYear();
+            Long driverId = r.getDriver().getDriverId();
             String constructorRef = r.getConstructor().getConstructorRef();
 
             driverYearTeamMap
-                    .computeIfAbsent(dId, k -> new HashMap<>())
-                    .putIfAbsent(year, constructorRef); // asumimos un equipo por año
+                    .computeIfAbsent(driverId, k -> new HashMap<>())
+                    .putIfAbsent(year, constructorRef);
         }
 
-        // Labels comunes (años dentro de la década)
-        Set<Integer> allYears = allResults.stream()
+        // Filtrar solo podios
+        List<Result> podiumResults = filteredResults.stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .toList();
+
+        // Map<driverId, Map<year, count>>
+        Map<Long, Map<Integer, Long>> podiumsByDriverYear = podiumResults.stream()
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.groupingBy(
+                                r -> r.getRace().getYear(),
+                                Collectors.counting()
+                        )
+                ));
+
+        // Map<constructorRef, Map<year, count>>
+        Map<String, Map<Integer, Long>> podiumsByConstructorYear = podiumResults.stream()
+                .collect(Collectors.groupingBy(
+                        r -> r.getConstructor().getConstructorRef(),
+                        Collectors.groupingBy(
+                                r -> r.getRace().getYear(),
+                                Collectors.counting()
+                        )
+                ));
+
+        // Extraer años en orden
+        Set<Integer> allYears = filteredResults.stream()
                 .map(r -> r.getRace().getYear())
-                .filter(y -> y >= fromYear && y <= toYear)
                 .collect(Collectors.toCollection(TreeSet::new));
-        List<String> labels = new ArrayList<>();
-        for (Integer year : allYears) {
-            labels.add(String.valueOf(year));
-        }
-
+        List<String> labels = allYears.stream().map(String::valueOf).toList();
 
         List<ChartSeriesDTO> seriesList = new ArrayList<>();
 
         for (Driver d : allDrivers) {
-            String forename = d.getForename();
-            String surname = d.getSurname();
             Long driverId = d.getDriverId();
-
             Map<Integer, String> yearTeamMap = driverYearTeamMap.getOrDefault(driverId, Map.of());
             List<Double> data = new ArrayList<>();
             long totalPodiums = 0;
@@ -285,8 +305,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     continue;
                 }
 
-                long driverPodiums = resultDao.countPodiumsByDriverInYear(forename, surname, year);
-                long teamPodiums = resultDao.countPodiumsByConstructorInYear(constructorRef, year);
+                long driverPodiums = podiumsByDriverYear
+                        .getOrDefault(driverId, Map.of())
+                        .getOrDefault(year, 0L);
+
+                long teamPodiums = podiumsByConstructorYear
+                        .getOrDefault(constructorRef, Map.of())
+                        .getOrDefault(year, 0L);
 
                 if (driverPodiums > 0) totalPodiums += driverPodiums;
 
@@ -299,13 +324,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             }
         }
 
-        // Línea de referencia al 50%
+        // Línea al 50%
         List<Double> fiftyLine = new ArrayList<>(Collections.nCopies(labels.size(), 50.0));
         seriesList.add(new ChartSeriesDTO("50%", "#999999", fiftyLine));
 
-
         return new ChartDataDTO("Porcentaje de podios vs compañero", "line", labels, seriesList);
     }
+
 
 
     @Override
