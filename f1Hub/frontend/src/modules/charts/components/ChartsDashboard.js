@@ -141,7 +141,7 @@ const ChartsDashboard = () => {
       )}
 
       {chart ? (
-        selectedChart === "avg-positions-gained-first-laps" ? (
+        ["avg-positions-gained-first-laps", "total-podium-percentage-vs-all-teammates"].includes(selectedChart) ? (
           <ChartCardScatter chart={chart} />
         ) : ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse", "team-comebacks-by-season",
             "avg-team-points-by-season", "most-team-points", "podium-percentage-vs-teammate"
@@ -155,6 +155,7 @@ const ChartsDashboard = () => {
       ) : (
         <div className="chart-empty text-center">Seleccione una categoría y gráfica.</div>
       )}
+
 
 
     </div>

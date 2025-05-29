@@ -35,6 +35,9 @@ public class ChartController {
         return advancedStatsService.getPodiumPercentageVsTeammate(decade);
     }
 
+    @GetMapping("/total-podium-percentage-vs-all-teammates")
+    public ChartDataDTO getPodiumPercentageTotalVsAllTeammates() { return advancedStatsService.getPodiumPercentageTotalVsAllTeammates();}
+
     @GetMapping("/q3-percentage-vs-teammate")
     public ChartDataDTO getQ3PercentageVsTeammate(@RequestParam String driverId) {
         return advancedStatsService.getQ3PercentageVsTeammate(driverId);
@@ -172,7 +175,8 @@ public class ChartController {
                 "most-common-finish-position",
                 "most-common-quali-position",
                 "points-delta-vs-teammate",
-                "driver-vs-team-championship-finish"
+                "driver-vs-team-championship-finish",
+                "total-podium-percentage-vs-all-teammates"
         ));
 
         categories.put("Constructores", List.of(

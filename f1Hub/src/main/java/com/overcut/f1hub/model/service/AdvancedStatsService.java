@@ -21,6 +21,8 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getPodiumPercentageVsTeammate(String decade);
 
+    ChartDataDTO getPodiumPercentageTotalVsAllTeammates();
+
     ChartDataDTO getQ3PercentageVsTeammate(String driverId);
 
     ChartDataDTO getAverageRetirementsBySeason();

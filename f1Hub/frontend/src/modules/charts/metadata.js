@@ -3,6 +3,7 @@
 const metadata = {
   // Pilotos
   "podium-percentage-vs-teammate": { label: "Podios vs Compañero", param: "decade" },
+  "total-podium-percentage-vs-all-teammates": { label: "Porcentaje Total Podios vs Compañeros"},
   "avg-positions-gained-by-season": { label: "Posiciones Ganadas por Temporada", param: "driverId" },
   "avg-positions-gained-first-laps": { label: "Posiciones Ganadas en Primeras Vueltas" },
   "race-vs-teammate-comparison": { label: "Rendimiento en Carrera vs Compañero", param: "driverId" },

@@ -308,6 +308,132 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
+    @Override
+    public ChartDataDTO getPodiumPercentageTotalVsAllTeammates() {
+        List<Driver> allDrivers = driverDao.findAll();
+        List<Result> allResults = resultDao.findAll().stream()
+                .filter(r -> r.getRace() != null && r.getDriver() != null && r.getConstructor() != null)
+                .toList();
+
+        // Filtrar solo resultados con podio
+        List<Result> podiumResults = allResults.stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .toList();
+
+        // Paleta de colores extensa
+        String[] colorPalette = {
+                "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0",
+                "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8",
+                "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080", "#ffffff",
+                "#000000", "#ff7f00", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c"
+        };
+
+        Map<Long, String> colorMap = new HashMap<>();
+        List<Long> driverIds = allDrivers.stream().map(Driver::getDriverId).sorted().toList();
+        for (int i = 0; i < driverIds.size(); i++) {
+            colorMap.put(driverIds.get(i), colorPalette[i % colorPalette.length]);
+        }
+
+        // Map<driverId, Map<year, constructorRef>>
+        Map<Long, Map<Integer, String>> driverYearTeamMap = new HashMap<>();
+        for (Result r : allResults) {
+            int year = r.getRace().getYear();
+            Long dId = r.getDriver().getDriverId();
+            String constructorRef = r.getConstructor().getConstructorRef();
+            driverYearTeamMap
+                    .computeIfAbsent(dId, k -> new HashMap<>())
+                    .putIfAbsent(year, constructorRef);
+        }
+
+        // Map<driverId, Map<year, count>>
+        Map<Long, Map<Integer, Long>> podiumsByDriverYear = podiumResults.stream()
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.groupingBy(
+                                r -> r.getRace().getYear(),
+                                Collectors.counting()
+                        )
+                ));
+
+        // Map<constructorRef, Map<year, count>>
+        Map<String, Map<Integer, Long>> podiumsByConstructorYear = podiumResults.stream()
+                .collect(Collectors.groupingBy(
+                        r -> r.getConstructor().getConstructorRef(),
+                        Collectors.groupingBy(
+                                r -> r.getRace().getYear(),
+                                Collectors.counting()
+                        )
+                ));
+
+        // Agrupación por %Y → lista de pilotos para distribuir en X
+        Map<Double, List<ChartSeriesDTO>> groupedByY = new HashMap<>();
+
+        for (Driver d : allDrivers) {
+            Long driverId = d.getDriverId();
+            String name = d.getForename() + " " + d.getSurname();
+            String abbr = d.getSurname().replaceAll("[^A-Za-z]", "").toUpperCase().substring(0, Math.min(3, d.getSurname().length()));
+            String color = colorMap.getOrDefault(driverId, "#cccccc");
+
+            Map<Integer, String> yearTeamMap = driverYearTeamMap.getOrDefault(driverId, Map.of());
+            if (yearTeamMap.isEmpty()) continue;
+
+            double totalDriverPodiums = 0;
+            double totalTeamPodiums = 0;
+
+            for (Map.Entry<Integer, String> e : yearTeamMap.entrySet()) {
+                int year = e.getKey();
+                String team = e.getValue();
+
+                long driverPodiums = podiumsByDriverYear
+                        .getOrDefault(driverId, Map.of())
+                        .getOrDefault(year, 0L);
+
+                long teamPodiums = podiumsByConstructorYear
+                        .getOrDefault(team, Map.of())
+                        .getOrDefault(year, 0L);
+
+                totalDriverPodiums += driverPodiums;
+                totalTeamPodiums += teamPodiums;
+            }
+
+            if (totalDriverPodiums > 0 && totalTeamPodiums > 0) {
+                double percentage = Math.round((totalDriverPodiums * 100.0 / totalTeamPodiums) * 10.0) / 10.0;
+
+                ChartSeriesDTO dto = new ChartSeriesDTO(name, color, new ArrayList<>());
+                dto.setAbbreviation(abbr);
+
+                groupedByY.computeIfAbsent(percentage, k -> new ArrayList<>()).add(dto);
+            }
+        }
+
+        // Distribución horizontal por nivel Y
+        List<ChartSeriesDTO> dataset = new ArrayList<>();
+
+        for (Map.Entry<Double, List<ChartSeriesDTO>> entry : groupedByY.entrySet()) {
+            double y = entry.getKey();
+            List<ChartSeriesDTO> group = entry.getValue();
+            int size = group.size();
+
+            double spreadFactor = 0.75;
+            double totalWidth = (size - 1) * spreadFactor;
+            double startX = -totalWidth / 2.0;
+
+            for (int i = 0; i < size; i++) {
+                double xOffset = startX + i * spreadFactor;
+                ChartSeriesDTO dto = group.get(i);
+                dto.setData(List.of(xOffset, y));
+                dataset.add(dto);
+            }
+        }
+
+        return new ChartDataDTO(
+                "Porcentaje total de podios del piloto frente a su equipo",
+                "scatter",
+                List.of("Y: % Podios vs equipo, X: distribución horizontal"),
+                dataset
+        );
+    }
+
 
 
 
