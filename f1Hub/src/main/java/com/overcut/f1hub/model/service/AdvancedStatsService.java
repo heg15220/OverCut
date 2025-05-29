@@ -75,5 +75,7 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getAverageRaceGapBetween1stAnd2ndPerSeason();
 
+    ChartDataDTO getDistinctGridPositionsFromWhichDriverWon();
+
 
 }

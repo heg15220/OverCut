@@ -143,7 +143,7 @@ const ChartsDashboard = () => {
       )}
 
       {chart ? (
-        ["avg-positions-gained-first-laps", "total-podium-percentage-vs-all-teammates"].includes(selectedChart) ? (
+        ["avg-positions-gained-first-laps", "total-podium-percentage-vs-all-teammates", "distinct-grid-positions-winning"].includes(selectedChart) ? (
           <ChartCardScatter chart={chart} />
         ) : ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse", "team-comebacks-by-season",
             "avg-team-points-by-season", "most-team-points", "podium-percentage-vs-teammate"

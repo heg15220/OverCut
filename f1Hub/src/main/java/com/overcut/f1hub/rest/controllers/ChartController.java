@@ -159,6 +159,11 @@ public class ChartController {
     @GetMapping("/race-gap-1st-to-2nd-average")
     public ChartDataDTO getAverageRaceGapBetween1stAnd2ndPerSeason() { return advancedStatsService.getAverageRaceGapBetween1stAnd2ndPerSeason();}
 
+    @GetMapping("/distinct-grid-positions-winning")
+    public ChartDataDTO getDistinctGridPositionsFromWhichDriverWon() { return  advancedStatsService.getDistinctGridPositionsFromWhichDriverWon();}
+
+
+
     @GetMapping("/by-category")
     public Map<String, List<String>> getChartEndpointsByCategory() {
         Map<String, List<String>> categories = new HashMap<>();
@@ -169,7 +174,8 @@ public class ChartController {
                 "avg-positions-gained-first-laps",
                 "most-common-finish-position",
                 "driver-vs-team-championship-finish",
-                "total-podium-percentage-vs-all-teammates"
+                "total-podium-percentage-vs-all-teammates",
+                "distinct-grid-positions-winning"
         ));
 
         categories.put("Constructores", List.of(
@@ -217,5 +223,6 @@ public class ChartController {
                 advancedStatsService.getAllSeasons()
         );
     }
+
 
 }

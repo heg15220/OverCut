@@ -14,4 +14,5 @@ public class ChartDataDTO {
     private String chartType; // "bar", "line", "pie", "boxplot", etc.
     private List<String> labels; // Eje X o categorías
     private List<ChartSeriesDTO> datasets; // Serie(s) de datos con valores
+
 }

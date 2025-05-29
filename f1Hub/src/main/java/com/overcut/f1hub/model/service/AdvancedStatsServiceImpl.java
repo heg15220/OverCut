@@ -48,7 +48,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     public List<DriverOption> getAllDrivers() {
         return driverDao.findAll().stream()
-                .sorted(Comparator.comparing(d -> d.getSurname() + d.getForename()))
+                .sorted(Comparator.comparing(d -> d.getForename() + d.getSurname())) // Ordenar por nombre + apellido
                 .map(d -> new DriverOption(d.getDriverId(), d.getForename() + " " + d.getSurname()))
                 .collect(Collectors.toList());
     }
@@ -64,7 +64,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         return raceDao.findAll().stream()
                 .map(Race::getYear)
                 .distinct()
-                .sorted()
+                .sorted(Comparator.reverseOrder()) // Orden descendente
                 .collect(Collectors.toList());
     }
 
@@ -2068,6 +2068,95 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 List.of(new ChartSeriesDTO("Gap en ms", "#FF4444", data))
         );
     }
+
+    @Override
+    public ChartDataDTO getDistinctGridPositionsFromWhichDriverWon() {
+        Map<Long, Driver> driverMap = driverDao.findAll().stream()
+                .collect(Collectors.toMap(Driver::getDriverId, d -> d));
+
+        // Map<gridPos, Set<driverId>>
+        Map<Integer, Set<Long>> winnersByGridPos = new HashMap<>();
+
+        for (Result r : resultDao.findAll()) {
+            if (r.getPositionOrder() != null && r.getPositionOrder() == 1 &&
+                    r.getGrid() != null && r.getDriver() != null) {
+                int grid = r.getGrid();
+                long driverId = r.getDriver().getDriverId();
+                winnersByGridPos.computeIfAbsent(grid, k -> new HashSet<>()).add(driverId);
+            }
+        }
+
+        // Obtener todos los pilotos involucrados y asignar colores únicos
+        Set<Long> allDrivers = winnersByGridPos.values().stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        List<Long> sortedDriverIds = allDrivers.stream()
+                .sorted(Comparator.comparing(id -> {
+                    Driver d = driverMap.get(id);
+                    return d.getForename() + " " + d.getSurname();
+                }))
+                .toList();
+
+        String[] palette = {
+                "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0",
+                "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8",
+                "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080"
+        };
+
+        Map<Long, String> driverColors = new HashMap<>();
+        for (int i = 0; i < sortedDriverIds.size(); i++) {
+            driverColors.put(sortedDriverIds.get(i), palette[i % palette.length]);
+        }
+
+        // Labels para eje Y → posiciones de parrilla ordenadas de menor a mayor
+        List<Integer> gridPositions = winnersByGridPos.keySet().stream()
+                .sorted()
+                .toList();
+
+        List<String> labels = gridPositions.stream()
+                .map(Object::toString)
+                .toList();
+
+        List<ChartSeriesDTO> dataset = new ArrayList<>();
+
+        for (Integer grid : gridPositions) {
+            List<Long> drivers = winnersByGridPos.get(grid).stream()
+                    .sorted(Comparator.comparing(id -> {
+                        Driver d = driverMap.get(id);
+                        return d.getForename() + " " + d.getSurname();
+                    }))
+                    .toList();
+
+            int n = drivers.size();
+            for (int i = 0; i < n; i++) {
+                Long driverId = drivers.get(i);
+                double xOffset = i - (n - 1) / 2.0;  // desplazamiento horizontal
+                double y = grid;
+
+                Driver d = driverMap.get(driverId);
+                String name = d.getForename() + " " + d.getSurname();
+                String color = driverColors.get(driverId);
+                String abbr = d.getSurname().replaceAll("[^A-Za-z]", "")
+                        .toUpperCase().substring(0, Math.min(3, d.getSurname().length()));
+
+                ChartSeriesDTO dto = new ChartSeriesDTO(name, color, List.of(xOffset, y));
+                dto.setAbbreviation(abbr);
+                dataset.add(dto);
+            }
+        }
+
+        ChartDataDTO chart = new ChartDataDTO();
+        chart.setTitle("Parrillas desde las que ganó cada piloto");
+        chart.setChartType("scatter");
+        chart.setLabels(labels); // eje Y → posiciones de parrilla
+        chart.setDatasets(dataset);
+        return chart;
+    }
+
+
+
+
 
 
     private Long getBestQualiTimeMs(Qualifying q) {

@@ -8,6 +8,7 @@ const metadata = {
   "avg-positions-gained-first-laps": { label: "Posiciones Ganadas en Primeras Vueltas" },
   "most-common-finish-position": { label: "Posición Final Más Frecuente" },
   "driver-vs-team-championship-finish": { label: "Resultado Piloto vs Equipo en el Campeonato", param: "decade" },
+  "distinct-grid-positions-winning": { label: "Victorias desde distintas posiciones de salida"},
 
   // Constructores
   "team-comebacks-by-season": { label: "Remontadas por Temporada (Equipos)", param: "decade" },
