@@ -11,4 +11,5 @@ public class ChartFilterOptionsDTO {
     private List<AdvancedStatsService.DriverOption> drivers;
     private List<AdvancedStatsService.ConstructorOption> constructors;
     private List<Integer> seasons;
+    private List<AdvancedStatsService.CircuitOption> circuitOptions;
 }

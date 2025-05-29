@@ -8,12 +8,17 @@ public interface AdvancedStatsService {
 
     record DriverOption(Long driverId, String name) {}
     record ConstructorOption(Long constructorId, String name) {}
+    record CircuitOption(String circuitRef, String name) {}
+
 
     List<DriverOption> getAllDrivers();
 
     List<ConstructorOption> getAllConstructors();
 
     List<Integer> getAllSeasons();
+
+    List<CircuitOption> getAllCircuits();
+
 
     ChartDataDTO getAveragePointsPerSeasonByDriver(String decade);
 
@@ -78,5 +83,9 @@ public interface AdvancedStatsService {
     ChartDataDTO getDistinctGridPositionsFromWhichDriverWon();
 
     ChartDataDTO getFrontRowVictoryRatePerSeason();
+
+    ChartDataDTO getWinPercentageByDriverAtCircuit(String circuitRef);
+
+    ChartDataDTO getPoleWinRateAtCircuit(String circuitRef);
 
 }

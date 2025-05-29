@@ -165,6 +165,16 @@ public class ChartController {
     @GetMapping("/front-row-wins-rate")
     public ChartDataDTO getFrontRowVictoryRatePerSeason() { return advancedStatsService.getFrontRowVictoryRatePerSeason();}
 
+    @GetMapping("/wins-percentage-driver-circuit")
+    public ChartDataDTO getWinPercentageByDriverAtCircuit(@RequestParam("circuitOptions") String circuitRef){
+        return advancedStatsService.getWinPercentageByDriverAtCircuit(circuitRef);
+    }
+
+    @GetMapping("/pole-win-rate-circuit")
+    public ChartDataDTO getPoleWinRateAtCircuit(@RequestParam("circuitOptions") String circuitRef){
+        return advancedStatsService.getPoleWinRateAtCircuit(circuitRef);
+    }
+
 
     @GetMapping("/by-category")
     public Map<String, List<String>> getChartEndpointsByCategory() {
@@ -200,6 +210,11 @@ public class ChartController {
                 "front-row-wins-rate"
         ));
 
+        categories.put("Circuitos", List.of(
+                "wins-percentage-driver-circuit",
+                "pole-win-rate-circuit"
+        ));
+
         return categories;
     }
 
@@ -218,12 +233,19 @@ public class ChartController {
         return advancedStatsService.getAllSeasons();
     }
 
+    @GetMapping("/circuits")
+    public List<AdvancedStatsService.CircuitOption> getAllCircuits() {
+        return advancedStatsService.getAllCircuits();
+    }
+
+
     @GetMapping("/filters")
     public ChartFilterOptionsDTO getChartFilters() {
         return new ChartFilterOptionsDTO(
                 advancedStatsService.getAllDrivers(),
                 advancedStatsService.getAllConstructors(),
-                advancedStatsService.getAllSeasons()
+                advancedStatsService.getAllSeasons(),
+                advancedStatsService.getAllCircuits()
         );
     }
 

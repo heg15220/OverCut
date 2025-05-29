@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import charts from "../index";
 import ChartCard from "./ChartCard";
-import "./ChartStyles.css";
-import metadata from "../metadata"; // Ajusta la ruta según tu estructura de carpetas
 import ChartCardColored from "./ChartCardColored";
 import ChartCardScatter from "./ChartCardScatter";
-
+import ChartCardPie from "./ChartCardPie";
+import metadata from "../metadata";
+import "./ChartStyles.css";
 
 const ChartsDashboard = () => {
   const dispatch = useDispatch();
@@ -19,7 +19,8 @@ const ChartsDashboard = () => {
   const [driverId, setDriverId] = useState("");
   const [constructorId, setConstructorId] = useState("");
   const [season, setSeason] = useState("");
-  const [decade, setDecade] = useState("");  // Variable para la década
+  const [decade, setDecade] = useState("");
+  const [circuitRef, setCircuitRef] = useState("");
 
   useEffect(() => {
     dispatch(charts.actions.fetchChartCategories());
@@ -33,7 +34,8 @@ const ChartsDashboard = () => {
       setDriverId("");
       setConstructorId("");
       setSeason("");
-      setDecade("");  // Resetear década al cambiar de categoría
+      setDecade("");
+      setCircuitRef("");
 
       const param = metadata?.[first]?.param;
       if (!param) {
@@ -48,7 +50,8 @@ const ChartsDashboard = () => {
     setDriverId("");
     setConstructorId("");
     setSeason("");
-    setDecade("");  // Resetear la década al cambiar el gráfico
+    setDecade("");
+    setCircuitRef("");
 
     const param = metadata?.[endpoint]?.param;
     if (!param) {
@@ -62,19 +65,18 @@ const ChartsDashboard = () => {
     const param = metadata?.[selectedChart]?.param;
     const params = {};
 
-    // Agregar condiciones para manejar los nuevos filtros
     if (param === "driverId" && driverId) params.driverId = driverId;
     if (param === "constructorId" && constructorId) params.constructorId = constructorId;
     if (param === "season" && season) params.season = season;
-    if (decade) params.decade = decade;  // Filtro de década
+    if (param === "decade" && decade) params.decade = decade;
+    if (param === "circuitOptions" && circuitRef) params.circuitOptions = circuitRef;
 
-    const key = `${selectedChart}-${driverId}-${constructorId}-${season}-${decade}`;
+    const key = `${selectedChart}-${driverId}-${constructorId}-${season}-${decade}-${circuitRef}`;
     dispatch(charts.actions.fetchChartData(selectedChart, params));
   };
 
   const currentParam = metadata?.[selectedChart]?.param;
-
-  const chartKey = `${selectedChart}-${driverId}-${constructorId}-${season}-${decade}`;
+  const chartKey = `${selectedChart}-${driverId}-${constructorId}-${season}-${decade}-${circuitRef}`;
   const chart = chartsData[chartKey] || chartsData[selectedChart];
 
   return (
@@ -122,8 +124,20 @@ const ChartsDashboard = () => {
             </select>
           )}
 
-
-
+          {currentParam === "circuitOptions" && (
+            <select
+              className="chart-dropdown mt-2"
+              value={circuitRef}
+              onChange={e => setCircuitRef(e.target.value)}
+            >
+              <option value="">Seleccione circuito</option>
+              {(filters?.circuitOptions || []).map(opt => (
+                <option key={opt.circuitRef} value={opt.circuitRef}>
+                  {opt.name}
+                </option>
+              ))}
+            </select>
+          )}
 
           {currentParam && (
             <button
@@ -133,7 +147,8 @@ const ChartsDashboard = () => {
                 (currentParam === "driverId" && !driverId) ||
                 (currentParam === "constructorId" && !constructorId) ||
                 (currentParam === "season" && !season) ||
-                (currentParam === "decade" && !decade)
+                (currentParam === "decade" && !decade) ||
+                (currentParam === "circuitOptions" && !circuitRef)
               }
             >
               Mostrar
@@ -143,7 +158,9 @@ const ChartsDashboard = () => {
       )}
 
       {chart ? (
-        ["avg-positions-gained-first-laps", "total-podium-percentage-vs-all-teammates", "distinct-grid-positions-winning"].includes(selectedChart) ? (
+        ["wins-percentage-driver-circuit"].includes(selectedChart) ? (
+          <ChartCardPie chart={chart} />
+        ) : ["avg-positions-gained-first-laps", "total-podium-percentage-vs-all-teammates", "distinct-grid-positions-winning"].includes(selectedChart) ? (
           <ChartCardScatter chart={chart} />
         ) : ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse", "team-comebacks-by-season",
             "avg-team-points-by-season", "most-team-points", "podium-percentage-vs-teammate"
@@ -157,9 +174,6 @@ const ChartsDashboard = () => {
       ) : (
         <div className="chart-empty text-center">Seleccione una categoría y gráfica.</div>
       )}
-
-
-
     </div>
   );
 };

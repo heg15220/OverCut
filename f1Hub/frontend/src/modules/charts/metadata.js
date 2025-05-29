@@ -26,7 +26,12 @@ const metadata = {
   "quali-gap-1st-to-2nd-average": { label: "Diferencia promedio entre P1 y P2 en clasificación por temporada"},
   "quali-gap-1st-to-10th-average": { label: "Diferencia promedio entre P1 y P10 en clasificación por temporada"},
   "race-gap-1st-to-2nd-average": { label: "Diferencia promedio entre P1 y P2 en carrera por temporada"},
-  "front-row-wins-rate": { label: "Promedio de victorias desde primera fila por temporada"}
+  "front-row-wins-rate": { label: "Promedio de victorias desde primera fila por temporada"},
+
+  //Circuitos
+
+  "wins-percentage-driver-circuit": {label: "Porcentaje Victorias en Circuito", param: "circuitOptions"},
+  "pole-win-rate-circuit": {label: "Promedio de victorias desde la pole", param: "circuitOptions"}
 };
 
 export default metadata;

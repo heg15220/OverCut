@@ -45,6 +45,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     @Autowired
     private PitStopDao pitStopDao;
 
+    @Autowired
+    private CircuitDao circuitDao;
 
     public List<DriverOption> getAllDrivers() {
         return driverDao.findAll().stream()
@@ -67,6 +69,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .sorted(Comparator.reverseOrder()) // Orden descendente
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<CircuitOption> getAllCircuits() {
+        return circuitDao.findAll().stream()
+                .sorted(Comparator.comparing(Circuit::getName))
+                .map(c -> new CircuitOption(c.getCircuitRef(), c.getCircuitRef()))
+                .collect(Collectors.toList());
+    }
+
+
 
     @Override
     public ChartDataDTO getAveragePointsPerSeasonByDriver(String decade) {
@@ -2192,6 +2204,108 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
+    @Override
+    public ChartDataDTO getWinPercentageByDriverAtCircuit(String circuitRef) {
+        // 1. Obtener todos los circuitos que coincidan con el circuitRef
+        List<Circuit> circuits = circuitDao.findAll().stream()
+                .filter(c -> c.getCircuitRef().equalsIgnoreCase(circuitRef))
+                .toList();
+
+        Set<Long> circuitIds = circuits.stream()
+                .map(Circuit::getCircuitId)
+                .collect(Collectors.toSet());
+
+        // 2. Obtener carreras en esos circuitos
+        Set<Long> raceIds = raceDao.findAll().stream()
+                .filter(r -> circuitIds.contains(r.getCircuit().getCircuitId()))
+                .map(Race::getRaceId)
+                .collect(Collectors.toSet());
+
+        // 3. Filtrar resultados de victorias en esos circuitos
+        Map<Long, Long> winCountByDriver = resultDao.findAll().stream()
+                .filter(r -> raceIds.contains(r.getRace().getRaceId()))
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() == 1)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.counting()
+                ));
+
+        long totalWins = winCountByDriver.values().stream().mapToLong(Long::longValue).sum();
+
+        // 4. Preparar listas para el gráfico pie
+        List<String> labels = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+        List<String> colors = new ArrayList<>();
+
+        for (Map.Entry<Long, Long> entry : winCountByDriver.entrySet()) {
+            if (entry.getValue() == 0) continue;
+
+            Driver d = driverDao.findById(entry.getKey()).orElse(null);
+            String name = (d != null) ? d.getForename() + " " + d.getSurname() : "Desconocido";
+            double percentage = (entry.getValue() * 100.0) / totalWins;
+
+            labels.add(name);
+            values.add(percentage);
+            colors.add(getDriverColor(entry.getKey()));
+        }
+
+        // 5. Crear una sola serie para el gráfico pie
+        ChartSeriesDTO pieSeries = new ChartSeriesDTO("Victorias", labels, values);
+
+        return new ChartDataDTO(
+                "Porcentaje de victorias por piloto en " + circuitRef,
+                "pie",
+                labels,
+                List.of(pieSeries)
+        );
+    }
+
+
+
+    @Override
+    public ChartDataDTO getPoleWinRateAtCircuit(String circuitRef) {
+        // 1. Obtener circuitos
+        Set<Long> circuitIds = circuitDao.findAll().stream()
+                .filter(c -> c.getCircuitRef().equalsIgnoreCase(circuitRef))
+                .map(Circuit::getCircuitId)
+                .collect(Collectors.toSet());
+
+        // 2. Obtener carreras en ese circuito
+        Set<Long> raceIds = raceDao.findAll().stream()
+                .filter(r -> circuitIds.contains(r.getCircuit().getCircuitId()))
+                .map(Race::getRaceId)
+                .collect(Collectors.toSet());
+
+        int totalRaces = raceIds.size();
+        int winsFromPole = 0;
+
+        // 3. Analizar resultados
+        for (Long raceId : raceIds) {
+            Optional<Result> poleResult = resultDao.findAll().stream()
+                    .filter(r -> r.getRace().getRaceId().equals(raceId))
+                    .filter(r -> r.getGrid() != null && r.getGrid() == 1)
+                    .findFirst();
+
+            if (poleResult.isPresent() && poleResult.get().getPositionOrder() != null && poleResult.get().getPositionOrder() == 1) {
+                winsFromPole++;
+            }
+        }
+
+        double ratio = totalRaces > 0 ? (winsFromPole * 100.0) / totalRaces : 0;
+
+        // 4. Preparar gráfico
+        ChartSeriesDTO series = new ChartSeriesDTO("Victorias desde la Pole", "#66cc33", List.of(ratio));
+        return new ChartDataDTO(
+                "Promedio de victorias desde la Pole en " + circuitRef,
+                "line",
+                List.of(circuitRef),
+                List.of(series)
+        );
+    }
+
+
+
+
 
 
 
@@ -2205,4 +2319,17 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .min(Long::compareTo)
                 .orElse(null);
     }
+
+    private String getDriverColor(Long driverId) {
+        // Paleta de colores amplia para pilotos
+        String[] colors = {
+                "#E10600", "#1B9CFC", "#F97F51", "#B33771", "#3B3B98", "#55E6C1", "#F8EFBA", "#3DC1D3",
+                "#FFC312", "#C4E538", "#12CBC4", "#FDA7DF", "#ED4C67", "#F79F1F", "#A3CB38", "#1289A7",
+                "#D980FA", "#B53471", "#EE5A24", "#009432", "#0652DD", "#9980FA", "#833471", "#006266"
+        };
+        // Asignar color determinista usando hash del driverId
+        int index = Math.abs(driverId.hashCode()) % colors.length;
+        return colors[index];
+    }
+
 }
