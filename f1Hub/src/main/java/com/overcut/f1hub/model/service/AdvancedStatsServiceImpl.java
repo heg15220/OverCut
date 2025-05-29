@@ -2264,44 +2264,66 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getPoleWinRateAtCircuit(String circuitRef) {
-        // 1. Obtener circuitos
+        // 1. Obtener circuitos que coincidan con el circuitRef
         Set<Long> circuitIds = circuitDao.findAll().stream()
                 .filter(c -> c.getCircuitRef().equalsIgnoreCase(circuitRef))
                 .map(Circuit::getCircuitId)
                 .collect(Collectors.toSet());
 
-        // 2. Obtener carreras en ese circuito
+        if (circuitIds.isEmpty()) {
+            return new ChartDataDTO("Circuito no encontrado", "bar", List.of(), List.of());
+        }
+
+        // 2. Obtener carreras en esos circuitos
         Set<Long> raceIds = raceDao.findAll().stream()
                 .filter(r -> circuitIds.contains(r.getCircuit().getCircuitId()))
                 .map(Race::getRaceId)
                 .collect(Collectors.toSet());
 
-        int totalRaces = raceIds.size();
-        int winsFromPole = 0;
+        if (raceIds.isEmpty()) {
+            return new ChartDataDTO("Sin carreras para " + circuitRef, "bar", List.of(), List.of());
+        }
 
-        // 3. Analizar resultados
+        // 3. Filtrar todos los resultados solo una vez
+        Map<Long, List<Result>> resultsByRace = resultDao.findAll().stream()
+                .filter(r -> r.getRace() != null && raceIds.contains(r.getRace().getRaceId()))
+                .collect(Collectors.groupingBy(r -> r.getRace().getRaceId()));
+
+        int winsFromPole = 0;
+        int winsNotFromPole = 0;
+
+        // 4. Procesar los ganadores de cada carrera
         for (Long raceId : raceIds) {
-            Optional<Result> poleResult = resultDao.findAll().stream()
-                    .filter(r -> r.getRace().getRaceId().equals(raceId))
-                    .filter(r -> r.getGrid() != null && r.getGrid() == 1)
+            List<Result> results = resultsByRace.get(raceId);
+            if (results == null) continue;
+
+            Optional<Result> winnerOpt = results.stream()
+                    .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() == 1)
                     .findFirst();
 
-            if (poleResult.isPresent() && poleResult.get().getPositionOrder() != null && poleResult.get().getPositionOrder() == 1) {
-                winsFromPole++;
+            if (winnerOpt.isPresent()) {
+                Integer grid = winnerOpt.get().getGrid();
+                if (grid != null && grid == 1) {
+                    winsFromPole++;
+                } else {
+                    winsNotFromPole++;
+                }
             }
         }
 
-        double ratio = totalRaces > 0 ? (winsFromPole * 100.0) / totalRaces : 0;
+        // 5. Preparar datos del gráfico
+        ChartSeriesDTO fromPole = new ChartSeriesDTO("Desde la Pole", "#2ecc71", List.of((double) winsFromPole));
+        ChartSeriesDTO fromBehind = new ChartSeriesDTO("Desde otra Posición", "#e74c3c", List.of((double) winsNotFromPole));
 
-        // 4. Preparar gráfico
-        ChartSeriesDTO series = new ChartSeriesDTO("Victorias desde la Pole", "#66cc33", List.of(ratio));
         return new ChartDataDTO(
-                "Promedio de victorias desde la Pole en " + circuitRef,
-                "line",
-                List.of(circuitRef),
-                List.of(series)
+                "Victorias desde la Pole vs. otras posiciones en " + circuitRef,
+                "bar",
+                List.of("Victorias"),
+                List.of(fromPole, fromBehind)
         );
     }
+
+
 
 
 

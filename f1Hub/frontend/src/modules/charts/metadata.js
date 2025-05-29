@@ -31,7 +31,7 @@ const metadata = {
   //Circuitos
 
   "wins-percentage-driver-circuit": {label: "Porcentaje Victorias en Circuito", param: "circuitOptions"},
-  "pole-win-rate-circuit": {label: "Promedio de victorias desde la pole", param: "circuitOptions"}
+  "pole-win-rate-circuit": {label: "Victorias desde la pole vs otras posiciones", param: "circuitOptions"}
 };
 
 export default metadata;
