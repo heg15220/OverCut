@@ -2155,6 +2155,42 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
+    @Override
+    public ChartDataDTO getFrontRowVictoryRatePerSeason() {
+        // Map<year, totalCarreras>
+        Map<Integer, Long> totalRacesPerYear = raceDao.findAll().stream()
+                .collect(Collectors.groupingBy(Race::getYear, Collectors.counting()));
+
+        // Map<year, victorias desde 1ª fila>
+        Map<Integer, Long> frontRowWinsPerYear = resultDao.findAll().stream()
+                .filter(r -> r.getGrid() != null && (r.getGrid() == 1 || r.getGrid() == 2))
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() == 1)
+                .filter(r -> r.getRace() != null)
+                .collect(Collectors.groupingBy(r -> r.getRace().getYear(), Collectors.counting()));
+
+        // Crear datos para la gráfica
+        List<Integer> years = totalRacesPerYear.keySet().stream()
+                .sorted()
+                .toList();
+
+        List<Double> ratios = years.stream()
+                .map(year -> {
+                    long totalRaces = totalRacesPerYear.getOrDefault(year, 0L);
+                    long frontRowWins = frontRowWinsPerYear.getOrDefault(year, 0L);
+                    return totalRaces == 0 ? 0.0 : (double) frontRowWins / totalRaces;
+                })
+                .toList();
+
+        ChartSeriesDTO series = new ChartSeriesDTO("Victorias desde 1ª fila", "#2ecc71", ratios);
+
+        return new ChartDataDTO(
+                "Porcentaje de victorias desde la primera fila por temporada",
+                "line",
+                years.stream().map(String::valueOf).toList(),
+                List.of(series)
+        );
+    }
+
 
 
 

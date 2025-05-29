@@ -77,5 +77,6 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getDistinctGridPositionsFromWhichDriverWon();
 
+    ChartDataDTO getFrontRowVictoryRatePerSeason();
 
 }

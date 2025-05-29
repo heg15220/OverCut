@@ -162,6 +162,8 @@ public class ChartController {
     @GetMapping("/distinct-grid-positions-winning")
     public ChartDataDTO getDistinctGridPositionsFromWhichDriverWon() { return  advancedStatsService.getDistinctGridPositionsFromWhichDriverWon();}
 
+    @GetMapping("/front-row-wins-rate")
+    public ChartDataDTO getFrontRowVictoryRatePerSeason() { return advancedStatsService.getFrontRowVictoryRatePerSeason();}
 
 
     @GetMapping("/by-category")
@@ -194,7 +196,8 @@ public class ChartController {
                 "avg-overtakes-per-season",
                 "quali-gap-1st-to-2nd-average",
                 "quali-gap-1st-to-10th-average",
-                "race-gap-1st-to-2nd-average"
+                "race-gap-1st-to-2nd-average",
+                "front-row-wins-rate"
         ));
 
         return categories;
