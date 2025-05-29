@@ -1623,8 +1623,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .collect(Collectors.toList());
 
         // Devolver los datos calculados en el DTO adecuado
-        return new ChartDataDTO("Paradas por carrera (" + year + ")", "bar", labels,
-                List.of(new ChartSeriesDTO("Paradas en boxes", "#ff8042", values)));
+        return new ChartDataDTO("Pasos por el pit lane por carrera (" + year + ")", "bar", labels,
+                List.of(new ChartSeriesDTO("Pasos por pit lane", "#ff8042", values)));
     }
 
 

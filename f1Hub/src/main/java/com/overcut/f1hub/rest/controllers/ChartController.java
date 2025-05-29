@@ -164,17 +164,10 @@ public class ChartController {
         Map<String, List<String>> categories = new HashMap<>();
 
         categories.put("Pilotos", List.of(
-                "average-points-per-season",
-                "victory-percentage-per-season",
                 "podium-percentage-vs-teammate",
-                "q3-percentage-vs-teammate",
                 "avg-positions-gained-by-season",
                 "avg-positions-gained-first-laps",
-                "race-vs-teammate-comparison",
-                "quali-vs-teammate-comparison",
                 "most-common-finish-position",
-                "most-common-quali-position",
-                "points-delta-vs-teammate",
                 "driver-vs-team-championship-finish",
                 "total-podium-percentage-vs-all-teammates"
         ));
@@ -191,9 +184,7 @@ public class ChartController {
                 "podiums-from-3rd-or-worse",
                 "average-accidents-by-season",
                 "average-retirements-by-season",
-                "pitstops-per-race",
                 "avg-pitstops-per-season",
-                "overtakes-per-race",
                 "avg-overtakes-per-season",
                 "quali-gap-1st-to-2nd-average",
                 "quali-gap-1st-to-10th-average",

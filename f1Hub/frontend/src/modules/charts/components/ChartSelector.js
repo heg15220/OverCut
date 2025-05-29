@@ -59,6 +59,8 @@ const ChartSelector = () => {
        { endpoint: "average-points-per-season", label: "Promedio de puntos por temporada filtrado en décadas ", param: "decade", chartType: "line" },
        { endpoint: "q3-percentage-vs-teammate", label: "Q3 vs Compañero", param: "driverId" },
        { endpoint: "most-common-quali-position", label: "Posición de Clasificación Más Frecuente"},
+       { endpoint: "quali-vs-teammate-comparison", label: "Rendimiento en Clasificación vs Compañero", param: "driverId"},
+       { endpoint: "race-vs-teammate-comparison", label: "Rendimiento en Carrera vs Compañero", param: "driverId"}
     ],
     Constructores: [
       { endpoint: "avg-team-points-by-season", label: "Puntos por Equipo", param: "constructorId", chartType: "bar" }

@@ -6,8 +6,6 @@ const metadata = {
   "total-podium-percentage-vs-all-teammates": { label: "Porcentaje Total Podios vs Compañeros"},
   "avg-positions-gained-by-season": { label: "Posiciones Ganadas por Temporada", param: "driverId" },
   "avg-positions-gained-first-laps": { label: "Posiciones Ganadas en Primeras Vueltas" },
-  "race-vs-teammate-comparison": { label: "Rendimiento en Carrera vs Compañero", param: "driverId" },
-  "quali-vs-teammate-comparison": { label: "Rendimiento en Clasificación vs Compañero", param: "driverId" },
   "most-common-finish-position": { label: "Posición Final Más Frecuente" },
   "driver-vs-team-championship-finish": { label: "Resultado Piloto vs Equipo en el Campeonato", param: "decade" },
 
@@ -22,9 +20,7 @@ const metadata = {
   "podiums-from-3rd-or-worse": { label: "Podios desde 3ª Posición o Peor" },
   "average-accidents-by-season": { label: "Accidentes Promedio por Temporada" },
   "average-retirements-by-season": { label: "Abandonos Promedio por Temporada"},
-  "pitstops-per-race": { label: "Pitstops por Gran Premio", param: "season" },
   "avg-pitstops-per-season": { label: "Pitstops Promedio por Temporada" },
-  "overtakes-per-race": { label: "Adelantamientos por Gran Premio", param: "season" },
   "avg-overtakes-per-season": { label: "Cambios de Posición Promedio por Temporada" },
   "quali-gap-1st-to-2nd-average": { label: "Diferencia promedio entre P1 y P2 en clasificación por temporada"},
   "quali-gap-1st-to-10th-average": { label: "Diferencia promedio entre P1 y P10 en clasificación por temporada"},
