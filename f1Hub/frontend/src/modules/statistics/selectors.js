@@ -10,3 +10,9 @@ export const getDriverWinsByTeam = state => getModuleState(state).driverWinsByTe
 export const getDriverPodiumsByTeam = state => getModuleState(state).driverPodiumsByTeam;
 export const getDriverPolesByTeam = state => getModuleState(state).driverPolesByTeam;
 export const getConstructors = state => getModuleState(state).constructors;
+export const getChampionsByTitleCount = state => getModuleState(state).championsByTitleCount;
+export const getChampionsChronologically = state => getModuleState(state).championsChronologically;
+export const getChampionsByAge = state => getModuleState(state).championsByAge;
+export const getConsecutiveTitles = state => getModuleState(state).consecutiveTitles;
+export const getLongestGapBetweenTitles = state => getModuleState(state).longestGapBetweenTitles;
+export const getGpCountBeforeTitle = state => getModuleState(state).gpCountBeforeTitle;

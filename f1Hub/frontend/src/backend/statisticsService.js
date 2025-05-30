@@ -29,3 +29,21 @@ export const getDriverPolesByTeam = (constructorRef, onSuccess, onError) =>
 
 export const getAllConstructorOptions = (onSuccess, onError) =>
   appFetch(`/statistics/constructor-options`, fetchConfig("GET"), onSuccess, onError);
+
+export const getChampionsByTitleCount = (onSuccess, onError) =>
+  appFetch(`/statistics/drivers/championships/by-count`, fetchConfig("GET"), onSuccess, onError);
+
+export const getChampionsChronologically = (onSuccess, onError) =>
+  appFetch(`/statistics/drivers/championships/chronological`, fetchConfig("GET"), onSuccess, onError);
+
+export const getChampionsByAge = (onSuccess, onError) =>
+  appFetch(`/statistics/drivers/championships/by-age`, fetchConfig("GET"), onSuccess, onError);
+
+export const getConsecutiveChampions = (onSuccess, onError) =>
+  appFetch(`/statistics/drivers/championships/consecutive`, fetchConfig("GET"), onSuccess, onError);
+
+export const getLongestGapBetweenTitles = (onSuccess, onError) =>
+  appFetch(`/statistics/drivers/championships/longest-gap`, fetchConfig("GET"), onSuccess, onError);
+
+export const getGpCountBeforeFirstTitle = (onSuccess, onError) =>
+  appFetch(`/statistics/drivers/championships/gps-before-title`, fetchConfig("GET"), onSuccess, onError);

@@ -17,9 +17,17 @@ public interface StatisticsService {
     List<DriverRankingDTO> getDriverPodiumRanking();
     List<DriverRankingDTO> getDriverPoleRanking();
     List<DriverRankingDTO> getDriverGrandChelemRanking();
+    List<DriverRankingDTO> getWorldChampionsByTitleCount();
+    List<DriverRankingDTO> getWorldChampionsChronologically();
 
     List<DriverRankingDTO> getDriverWinsByTeam(String constructorRef);
     List<DriverRankingDTO> getDriverPodiumsByTeam(String constructorRef);
     List<DriverRankingDTO> getDriverPolesByTeamSince2003(String constructorRef);
+
+    List<DriverRankingDTO> getChampionsByYoungestAge();
+    List<DriverRankingDTO> getConsecutiveTitles();
+    List<DriverRankingDTO> getLongestIntervalBetweenTitles();
+    List<DriverRankingDTO> getGpCountBeforeFirstTitle();
+
 
 }

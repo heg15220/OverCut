@@ -11,9 +11,10 @@ import jakarta.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.*;
 
 @Service
 public class StatisticsServiceImpl implements StatisticsService {
@@ -256,6 +257,72 @@ public class StatisticsServiceImpl implements StatisticsService {
         return list;
     }
 
+    private List<DriverRankingDTO> mapToDriverRankingDTOList(String sql) {
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String forename = (String) row[0];
+            String surname = (String) row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            String fullName = forename + " " + surname;
+            String flagUrl = getFlagUrl(nationality);
+
+            result.add(new DriverRankingDTO(fullName, nationality, count, flagUrl));
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getWorldChampionsByTitleCount() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) as titles
+        FROM driverstandings ds
+        JOIN races r ON ds.raceId = r.raceId
+        JOIN (
+            SELECT year, MAX(round) AS last_round
+            FROM races
+            GROUP BY year
+        ) last_races ON r.year = last_races.year AND r.round = last_races.last_round
+        JOIN drivers d ON ds.driverId = d.driverId
+        WHERE ds.position = 1
+        GROUP BY d.driverId
+        ORDER BY titles DESC
+    """;
+
+        return mapToDriverRankingDTOList(sql);
+    }
+
+
+    public List<DriverRankingDTO> getWorldChampionsChronologically() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, r.year
+        FROM driverstandings ds
+        JOIN drivers d ON ds.driverId = d.driverId
+        JOIN races r ON ds.raceId = r.raceId
+        WHERE ds.position = 1
+        AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+        ORDER BY r.year DESC
+    """;
+
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int year = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, year, getFlagUrl(nationality)));
+        }
+        return result;
+    }
+
+
+
+
     @Override
     public List<DriverRankingDTO> getDriverWinsByTeam(String constructorName) {
         String constructorRef = constructorDao.findAll().stream()
@@ -358,6 +425,191 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         return result;
     }
+
+
+
+    public List<DriverRankingDTO> getChampionsByYoungestAge() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, d.dob, r.date
+        FROM driverstandings ds
+        JOIN drivers d ON ds.driverId = d.driverId
+        JOIN races r ON ds.raceId = r.raceId
+        WHERE ds.position = 1
+        AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+    """;
+
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        return rows.stream()
+                .map(row -> {
+                    String name = row[0] + " " + row[1];
+                    String nationality = (String) row[2];
+                    LocalDate dob = ((Date) row[3]).toLocalDate();
+                    LocalDate titleDate = ((Date) row[4]).toLocalDate();
+                    int age = Period.between(dob, titleDate).getYears();
+                    return new DriverRankingDTO(name, nationality, age, getFlagUrl(nationality));
+                })
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue))
+                .toList();
+    }
+
+
+
+    public List<DriverRankingDTO> getConsecutiveTitles() {
+        String sql = """
+        SELECT d.driverId, d.forename, d.surname, d.nationality, r.year
+        FROM driverstandings ds
+        JOIN drivers d ON ds.driverId = d.driverId
+        JOIN races r ON ds.raceId = r.raceId
+        WHERE ds.position = 1
+        AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+        ORDER BY d.driverId, r.year
+    """;
+
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        Map<Long, List<Integer>> yearsByDriver = new HashMap<>();
+
+        for (Object[] row : rows) {
+            Long driverId = ((Number) row[0]).longValue();
+            int year = ((Number) row[4]).intValue();
+            yearsByDriver.computeIfAbsent(driverId, k -> new ArrayList<>()).add(year);
+        }
+
+        List<DriverRankingDTO> result = new ArrayList<>();
+        for (Map.Entry<Long, List<Integer>> entry : yearsByDriver.entrySet()) {
+            List<Integer> years = entry.getValue();
+            int maxStreak = 1, current = 1;
+            for (int i = 1; i < years.size(); i++) {
+                if (years.get(i) == years.get(i - 1) + 1) current++;
+                else current = 1;
+                maxStreak = Math.max(maxStreak, current);
+            }
+
+            if (maxStreak >= 2) {
+                Object[] row = rows.stream().filter(r -> ((Number) r[0]).longValue() == entry.getKey()).findFirst().get();
+                String name = row[1] + " " + row[2];
+                String nationality = (String) row[3];
+                result.add(new DriverRankingDTO(name, nationality, maxStreak, getFlagUrl(nationality)));
+            }
+        }
+
+        result.sort(Comparator.comparingInt(DriverRankingDTO::getValue).reversed());
+        return result;
+    }
+
+    public List<DriverRankingDTO> getLongestIntervalBetweenTitles() {
+        String sql = """
+        SELECT d.driverId, d.forename, d.surname, d.nationality, r.year
+        FROM driverstandings ds
+        JOIN drivers d ON ds.driverId = d.driverId
+        JOIN races r ON ds.raceId = r.raceId
+        WHERE ds.position = 1
+        AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+        ORDER BY d.driverId, r.year
+    """;
+
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        Map<Long, List<Integer>> yearsByDriver = new HashMap<>();
+
+        for (Object[] row : rows) {
+            Long driverId = ((Number) row[0]).longValue();
+            int year = ((Number) row[4]).intValue();
+            yearsByDriver.computeIfAbsent(driverId, k -> new ArrayList<>()).add(year);
+        }
+
+        List<DriverRankingDTO> result = new ArrayList<>();
+        for (Map.Entry<Long, List<Integer>> entry : yearsByDriver.entrySet()) {
+            List<Integer> years = entry.getValue();
+            if (years.size() >= 2) {
+                int interval = years.get(years.size() - 1) - years.get(0);
+                Object[] row = rows.stream().filter(r -> ((Number) r[0]).longValue() == entry.getKey()).findFirst().get();
+                String name = row[1] + " " + row[2];
+                String nationality = (String) row[3];
+                result.add(new DriverRankingDTO(name, nationality, interval, getFlagUrl(nationality)));
+            }
+        }
+
+        result.sort(Comparator.comparingInt(DriverRankingDTO::getValue).reversed());
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getGpCountBeforeFirstTitle() {
+        String championInfoSql = """
+        SELECT ds.driverId, d.forename, d.surname, d.nationality
+        FROM driverstandings ds
+        JOIN races r ON ds.raceId = r.raceId
+        JOIN drivers d ON ds.driverId = d.driverId
+        JOIN (
+            SELECT ds.driverId, MIN(r.year) AS first_title_year
+            FROM driverstandings ds
+            JOIN races r ON ds.raceId = r.raceId
+            WHERE ds.position = 1
+              AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+            GROUP BY ds.driverId
+        ) ft ON ft.driverId = ds.driverId
+        WHERE ds.position = 1
+          AND r.year = ft.first_title_year
+          AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+    """;
+
+        List<Object[]> champions = entityManager.createNativeQuery(championInfoSql).getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : champions) {
+            Long driverId = ((Number) row[0]).longValue();
+            String name = row[1] + " " + row[2];
+            String nationality = (String) row[3];
+
+            String gpCountSql = """
+            WITH first_title_year AS (
+              SELECT MIN(r.year) AS year
+              FROM driverstandings ds
+              JOIN races r ON ds.raceId = r.raceId
+              WHERE ds.driverId = :driverId
+                AND ds.position = 1
+                AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+            ),
+            debut_year_round AS (
+              SELECT MIN(r.year) AS year, MIN(r.round) AS round
+              FROM results res
+              JOIN races r ON res.raceId = r.raceId
+              WHERE res.driverId = :driverId
+            ),
+            valid_races AS (
+              SELECT r.year, r.round
+              FROM races r
+              WHERE (r.year > (SELECT year FROM debut_year_round) 
+                     AND r.year < (SELECT year FROM first_title_year))
+                 OR (r.year = (SELECT year FROM debut_year_round) AND r.round >= (SELECT round FROM debut_year_round))
+                 OR (r.year = (SELECT year FROM first_title_year) AND r.round <= (
+                    SELECT MAX(round) FROM races WHERE year = (SELECT year FROM first_title_year)
+                 ))
+            )
+            SELECT COUNT(*) FROM (
+              SELECT DISTINCT r.year, r.round
+              FROM results res
+              JOIN races r ON res.raceId = r.raceId
+              WHERE res.driverId = :driverId
+                AND (r.year, r.round) IN (SELECT year, round FROM valid_races)
+            ) sub
+        """;
+
+            int gpCount = ((Number) entityManager.createNativeQuery(gpCountSql)
+                    .setParameter("driverId", driverId)
+                    .getSingleResult()).intValue();
+
+            result.add(new DriverRankingDTO(name, nationality, gpCount, getFlagUrl(nationality)));
+        }
+
+        result.sort(Comparator.comparingInt(DriverRankingDTO::getValue));
+        return result;
+    }
+
+
+
+
+
+
 
 
 

@@ -69,3 +69,38 @@ export const fetchConstructors = () => dispatch =>
     () => {}
   );
 
+export const fetchChampionsByTitleCount = () => dispatch =>
+  backend.statisticsService.getChampionsByTitleCount(
+    data => dispatch({ type: actionTypes.FETCH_CHAMPIONS_BY_TITLE_COUNT_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchChampionsChronologically = () => dispatch =>
+  backend.statisticsService.getChampionsChronologically(
+    data => dispatch({ type: actionTypes.FETCH_CHAMPIONS_CHRONOLOGICALLY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchChampionsByAge = () => dispatch =>
+  backend.statisticsService.getChampionsByAge(
+    data => dispatch({ type: actionTypes.FETCH_CHAMPIONS_BY_AGE_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchConsecutiveChampions = () => dispatch =>
+  backend.statisticsService.getConsecutiveChampions(
+    data => dispatch({ type: actionTypes.FETCH_CONSECUTIVE_TITLES_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchLongestGapBetweenTitles = () => dispatch =>
+  backend.statisticsService.getLongestGapBetweenTitles(
+    data => dispatch({ type: actionTypes.FETCH_LONGEST_GAP_TITLES_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGpCountBeforeFirstTitle = () => dispatch =>
+  backend.statisticsService.getGpCountBeforeFirstTitle(
+    data => dispatch({ type: actionTypes.FETCH_GP_COUNT_BEFORE_TITLE_COMPLETED, data }),
+    () => {}
+  );

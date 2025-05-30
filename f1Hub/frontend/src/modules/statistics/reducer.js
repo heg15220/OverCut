@@ -11,7 +11,13 @@ const initialState = {
   driverPodiumsByTeam: [],
   driverPolesByTeam: [],
   years: [],
-  constructors: []
+  constructors: [],
+  championsByTitleCount: [],
+  championsChronologically: [],
+  championsByAge: [],
+  consecutiveTitles: [],
+  longestGapBetweenTitles: [],
+  gpCountBeforeTitle: []
 
 };
 
@@ -38,6 +44,19 @@ export default function reducer(state = initialState, action) {
       return { ...state, driverPolesByTeam: action.ranking };
     case actionTypes.FETCH_CONSTRUCTORS_COMPLETED:
       return { ...state, constructors: action.list };
+
+    case actionTypes.FETCH_CHAMPIONS_BY_TITLE_COUNT_COMPLETED:
+      return { ...state, championsByTitleCount: action.data };
+    case actionTypes.FETCH_CHAMPIONS_CHRONOLOGICALLY_COMPLETED:
+      return { ...state, championsChronologically: action.data };
+    case actionTypes.FETCH_CHAMPIONS_BY_AGE_COMPLETED:
+      return { ...state, championsByAge: action.data };
+    case actionTypes.FETCH_CONSECUTIVE_TITLES_COMPLETED:
+      return { ...state, consecutiveTitles: action.data };
+    case actionTypes.FETCH_LONGEST_GAP_TITLES_COMPLETED:
+      return { ...state, longestGapBetweenTitles: action.data };
+    case actionTypes.FETCH_GP_COUNT_BEFORE_TITLE_COMPLETED:
+      return { ...state, gpCountBeforeTitle: action.data };
 
     default:
       return state;

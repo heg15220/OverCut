@@ -67,6 +67,36 @@ public class StatisticsController {
         return statisticsService.getDriverPolesByTeamSince2003(constructorRef);
     }
 
+    @GetMapping("/drivers/championships/by-count")
+    public List<DriverRankingDTO> getWorldChampionsByTitleCount() {
+        return statisticsService.getWorldChampionsByTitleCount();
+    }
+
+    @GetMapping("/drivers/championships/chronological")
+    public List<DriverRankingDTO> getWorldChampionsChronologically() {
+        return statisticsService.getWorldChampionsChronologically();
+    }
+
+    @GetMapping("/drivers/championships/by-age")
+    public List<DriverRankingDTO> getChampionsByYoungestAge() {
+        return statisticsService.getChampionsByYoungestAge();
+    }
+
+    @GetMapping("/drivers/championships/consecutive")
+    public List<DriverRankingDTO> getConsecutiveTitles() {
+        return statisticsService.getConsecutiveTitles();
+    }
+
+    @GetMapping("/drivers/championships/longest-gap")
+    public List<DriverRankingDTO> getLongestIntervalBetweenTitles() {
+        return statisticsService.getLongestIntervalBetweenTitles();
+    }
+
+    @GetMapping("/drivers/championships/gps-before-title")
+    public List<DriverRankingDTO> getGpCountBeforeFirstTitle() {
+        return statisticsService.getGpCountBeforeFirstTitle();
+    }
+
 
     @GetMapping("/constructor-options")
     public List<StatisticsService.ConstructorOption> getAllConstructors() {
