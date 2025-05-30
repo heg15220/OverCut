@@ -33,6 +33,9 @@ public class StatisticsController {
         return statisticsService.getDriverWinRanking();
     }
 
-    // Aquí podrías añadir más rankings en el futuro, por ejemplo:
-    // /drivers/podiums, /drivers/poles, /constructors/wins, etc.
+    @GetMapping("/drivers/podiums")
+    public List<DriverRankingDTO> getDriverPodiumRanking() {
+        return statisticsService.getDriverPodiumRanking();
+    }
+
 }

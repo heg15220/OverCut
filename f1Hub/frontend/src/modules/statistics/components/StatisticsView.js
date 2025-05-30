@@ -15,7 +15,6 @@ const StatisticsView = () => {
 
   const driverStandings = useSelector(statisticsSelectors.getDriverStandings);
   const constructorStandings = useSelector(statisticsSelectors.getConstructorStandings);
-  const driverWins = useSelector(statisticsSelectors.getDriverWins);
 
   useEffect(() => {
     dispatch(raceSelectorActions.fetchYears());
@@ -26,10 +25,10 @@ const StatisticsView = () => {
       dispatch(statisticsActions.fetchDriverStandings(year));
     } else if (mode === "constructors" && year) {
       dispatch(statisticsActions.fetchConstructorStandings(year));
-    } else if (mode === "wins") {
-      dispatch(statisticsActions.fetchDriverWins());
     }
   }, [dispatch, year, mode]);
+
+  const data = mode === "drivers" ? driverStandings : constructorStandings;
 
   return (
     <div className="race-result-table">
@@ -39,17 +38,14 @@ const StatisticsView = () => {
         <select value={mode} onChange={e => setMode(e.target.value)}>
           <option value="drivers">Clasificación Pilotos</option>
           <option value="constructors">Clasificación Constructores</option>
-          <option value="wins">Pilotos Ganadores de GP</option>
         </select>
 
-        {(mode === "drivers" || mode === "constructors") && (
-          <select onChange={e => setYear(Number(e.target.value))} value={year || ""}>
-            <option value="">Selecciona un año</option>
-            {years.map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        )}
+        <select onChange={e => setYear(Number(e.target.value))} value={year || ""}>
+          <option value="">Selecciona un año</option>
+          {years.map(y => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
       </div>
 
       <div className="table-container">
@@ -58,14 +54,11 @@ const StatisticsView = () => {
             <tr>
               <th>Pos</th>
               <th>{mode === "constructors" ? "Equipo" : "Piloto"}</th>
-              <th>{mode === "wins" ? "Victorias" : "Puntos"}</th>
+              <th>Puntos</th>
             </tr>
           </thead>
           <tbody>
-            {(mode === "drivers" ? driverStandings
-              : mode === "constructors" ? constructorStandings
-              : driverWins
-            ).map((item, index) => (
+            {(data || []).map((item, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
                 <td>
@@ -79,13 +72,10 @@ const StatisticsView = () => {
                     <span className="pilot-name">{item.driverName || item.constructorName}</span>
                   </div>
                 </td>
-                <td>{item.totalPoints || item.value}</td>
+                <td>{item.totalPoints}</td>
               </tr>
             ))}
           </tbody>
-
-
-
         </table>
       </div>
     </div>

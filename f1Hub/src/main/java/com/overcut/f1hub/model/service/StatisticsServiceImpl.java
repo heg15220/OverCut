@@ -152,6 +152,35 @@ public class StatisticsServiceImpl implements StatisticsService {
         return result;
     }
 
+
+    @Override
+    public List<DriverRankingDTO> getDriverPodiumRanking() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) AS podiums
+        FROM results r
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE r.positionOrder <= 3
+        GROUP BY d.driverId
+        ORDER BY podiums DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String forename = (String) row[0];
+            String surname = (String) row[1];
+            String nationality = (String) row[2];
+            int podiums = ((Number) row[3]).intValue();
+            String flagUrl = getFlagUrl(nationality);
+            result.add(new DriverRankingDTO(forename + " " + surname, nationality, podiums, flagUrl));
+        }
+
+        return result;
+    }
+
+
     private String getFlagUrl(String nationality) {
         String code = switch (nationality.toLowerCase().trim()) {
             case "argentine", "argentinian" -> "AR";

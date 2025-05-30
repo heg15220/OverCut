@@ -11,4 +11,5 @@ public interface StatisticsService {
     List<DriverStandingDTO> getDriverStandings(int year);
     List<ConstructorStandingDTO> getConstructorStandings(int year);
     List<DriverRankingDTO> getDriverWinRanking();
+    List<DriverRankingDTO> getDriverPodiumRanking();
 }

@@ -13,6 +13,7 @@ const TableMenu = () => {
         <button onClick={() => navigate("/tables/grands-prix")}>🏁 Grandes Premios</button>
         <button onClick={() => navigate("/tables/championships")}>🏆 Campeonatos</button>
         <button onClick={() => navigate("/tracking")}>📊 Seguimiento Campeonato</button>
+        <button onClick={() => navigate("/tables/rankings")}>📈 Rankings y Récords</button>
       </div>
     </div>
   );

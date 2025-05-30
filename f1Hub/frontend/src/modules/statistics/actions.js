@@ -20,3 +20,9 @@ export const fetchDriverWins = () => dispatch =>
     ranking => dispatch({ type: actionTypes.FETCH_DRIVER_WINS_COMPLETED, ranking }),
     () => {}
   );
+
+export const fetchDriverPodiums = () => dispatch =>
+  backend.statisticsService.getDriverPodiumRanking(
+    ranking => dispatch({ type: actionTypes.FETCH_DRIVER_PODIUMS_COMPLETED, ranking }),
+    () => {}
+  );

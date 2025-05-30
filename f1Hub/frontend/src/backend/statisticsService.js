@@ -8,3 +8,6 @@ export const getConstructorStandings = (year, onSuccess, onError) =>
 
 export const getDriverWinRanking = (onSuccess, onError) =>
   appFetch(`/statistics/drivers/wins`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriverPodiumRanking = (onSuccess, onError) =>
+  appFetch(`/statistics/drivers/podiums`, fetchConfig("GET"), onSuccess, onError);

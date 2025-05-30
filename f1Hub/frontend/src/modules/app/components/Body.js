@@ -11,6 +11,8 @@ import GraphView from "../../f1hub/components/GraphView";
 import ChartsDashboard from "../../charts/components/ChartsDashboard";
 import ChartSelector from "../../charts/components/ChartSelector";
 import ChartModeSelector from "../../charts/components/ChartModeSelector";
+import RankingsView from "../../statistics/components/RankingsView";
+
 
 const Body = () => {
   return (
@@ -26,7 +28,7 @@ const Body = () => {
           <Route path="standard" element={<ChartsDashboard />} />
           <Route path="advanced" element={<ChartSelector />} />
         </Route>
-
+        <Route path="/tables/rankings" element={<RankingsView />} />
       </Routes>
     </main>
   );

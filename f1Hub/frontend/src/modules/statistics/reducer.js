@@ -3,8 +3,10 @@ import * as actionTypes from "./actionTypes";
 const initialState = {
   driverStandings: [],
   constructorStandings: [],
-  driverWins: []
+  driverWins: [],
+  driverPodiums: []
 };
+
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
@@ -14,6 +16,9 @@ export default function reducer(state = initialState, action) {
       return { ...state, constructorStandings: action.standings };
     case actionTypes.FETCH_DRIVER_WINS_COMPLETED:
       return { ...state, driverWins: action.ranking };
+    case actionTypes.FETCH_DRIVER_PODIUMS_COMPLETED:
+      return { ...state, driverPodiums: action.ranking };
+
     default:
       return state;
   }
