@@ -2328,6 +2328,74 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
 
+    @Override
+    public ChartDataDTO getChampionshipProgressTop2Drivers(String seasonStr, String lang) {
+        int targetSeason = Integer.parseInt(seasonStr);
+
+        // 1. Obtener todas las carreras del año ordenadas
+        List<Race> races = raceDao.findAll().stream()
+                .filter(r -> r.getYear() == targetSeason)
+                .sorted(Comparator.comparingInt(Race::getRound))
+                .toList();
+
+        if (races.isEmpty()) {
+            return new ChartDataDTO("No races for season " + targetSeason, "line", List.of(), List.of());
+        }
+
+        // 2. Obtener la última carrera para determinar top 2 final
+        Race finalRace = races.get(races.size() - 1);
+        List<DriverStanding> finalStandings = driverStandingDao.findByRaceIdOrderByPositionAsc(finalRace.getRaceId());
+        if (finalStandings.size() < 2) {
+            return new ChartDataDTO("Incomplete standings", "line", List.of(), List.of());
+        }
+
+        Long driverId1 = finalStandings.get(0).getDriverId();
+        Long driverId2 = finalStandings.get(1).getDriverId();
+
+        Driver d1 = driverDao.findById(driverId1).orElse(null);
+        Driver d2 = driverDao.findById(driverId2).orElse(null);
+        if (d1 == null || d2 == null) return new ChartDataDTO("Driver not found", "line", List.of(), List.of());
+
+        String name1 = d1.getForename() + " " + d1.getSurname();
+        String name2 = d2.getForename() + " " + d2.getSurname();
+
+        // 3. Obtener todos los driverstandings del año filtrados por esos dos pilotos
+        Set<Long> raceIds = races.stream().map(Race::getRaceId).collect(Collectors.toSet());
+        Map<Long, Double> points1 = new HashMap<>();
+        Map<Long, Double> points2 = new HashMap<>();
+
+        for (DriverStanding ds : driverStandingDao.findAll()) {
+            if (!raceIds.contains(ds.getRaceId())) continue;
+
+            if (ds.getDriverId().equals(driverId1)) {
+                points1.put(ds.getRaceId(), ds.getPoints());
+            } else if (ds.getDriverId().equals(driverId2)) {
+                points2.put(ds.getRaceId(), ds.getPoints());
+            }
+        }
+
+        // 4. Construir series en el mismo orden de las carreras
+        List<String> labels = races.stream().map(Race::getName).toList();
+        List<Double> series1 = races.stream()
+                .map(r -> points1.getOrDefault(r.getRaceId(), null))
+                .toList();
+        List<Double> series2 = races.stream()
+                .map(r -> points2.getOrDefault(r.getRaceId(), null))
+                .toList();
+
+        ChartSeriesDTO s1 = new ChartSeriesDTO(name1, getDriverColor(driverId1), series1);
+        ChartSeriesDTO s2 = new ChartSeriesDTO(name2, getDriverColor(driverId2), series2);
+
+        return new ChartDataDTO(
+                chartI18n.get("championshipProgressTop2", lang) + seasonStr,
+                "line",
+                labels,
+                List.of(s1, s2)
+        );
+    }
+
+
+
 
 
 

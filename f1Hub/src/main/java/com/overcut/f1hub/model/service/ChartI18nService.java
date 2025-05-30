@@ -140,7 +140,12 @@ public class ChartI18nService {
             Map.entry("poleWinRateAtCircuit", Map.of(
                     "es", "Victorias desde la Pole vs. otras posiciones en ",
                     "en", "Wins from Pole vs other positions at "
+            )),
+            Map.entry("championshipProgressTop2", Map.of(
+                    "es", "Progreso del campeonato (top 2) ",
+                    "en", "Championship progress (top 2) "
             ))
+
     );
 
     public String get(String key, String lang) {

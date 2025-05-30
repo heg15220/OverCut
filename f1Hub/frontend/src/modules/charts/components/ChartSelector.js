@@ -105,7 +105,8 @@ const ChartSelector = () => {
       { endpoint: "q3-percentage-vs-teammate", label: { es: "Q3 vs Compañero", en: "Q3 vs Teammate" }, param: "driverId" },
       { endpoint: "most-common-quali-position", label: { es: "Posición de Clasificación Más Frecuente", en: "Most Common Quali Position" }},
       { endpoint: "quali-vs-teammate-comparison", label: { es: "Rendimiento en Clasificación vs Compañero", en: "Quali Performance vs Teammate" }, param: "driverId"},
-      { endpoint: "race-vs-teammate-comparison", label: { es: "Rendimiento en Carrera vs Compañero", en: "Race Performance vs Teammate" }, param: "driverId"}
+      { endpoint: "race-vs-teammate-comparison", label: { es: "Rendimiento en Carrera vs Compañero", en: "Race Performance vs Teammate" }, param: "driverId"},
+      { endpoint: "championship-progress-top2", label: { es: "Seguimiento Top 2 Campeonato", en: "Championship progress top 2"}, param: "season"}
     ],
     Constructores: [
       { endpoint: "avg-team-points-by-season", label: { es: "Puntos por Equipo", en: "Team Points per Season" }, param: "constructorId", chartType: "bar" }

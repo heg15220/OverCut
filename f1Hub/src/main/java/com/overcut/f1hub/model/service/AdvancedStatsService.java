@@ -88,4 +88,6 @@ public interface AdvancedStatsService {
 
     ChartDataDTO getPoleWinRateAtCircuit(String circuitRef,String lang);
 
+    ChartDataDTO getChampionshipProgressTop2Drivers(String seasonStr, String lang);
+
 }

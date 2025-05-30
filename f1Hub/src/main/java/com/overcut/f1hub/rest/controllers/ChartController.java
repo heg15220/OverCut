@@ -195,6 +195,11 @@ public class ChartController {
         return advancedStatsService.getPoleWinRateAtCircuit(circuitRef, lang);
     }
 
+    @GetMapping("/championship-progress-top2")
+    public ChartDataDTO getChampionshipProgressTop2Drivers(@RequestParam("season") String season,
+                                                           @RequestParam String lang){
+        return advancedStatsService.getChampionshipProgressTop2Drivers(season,lang);
+    }
 
     @GetMapping("/by-category")
     public Map<String, List<String>> getChartEndpointsByCategory() {
