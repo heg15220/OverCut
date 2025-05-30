@@ -11,3 +11,9 @@ export const getDriverWinRanking = (onSuccess, onError) =>
 
 export const getDriverPodiumRanking = (onSuccess, onError) =>
   appFetch(`/statistics/drivers/podiums`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriverPoleRanking = (onSuccess, onError) =>
+  appFetch(`/statistics/drivers/poles`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriverGrandChelemRanking = (onSuccess, onError) =>
+  appFetch(`/statistics/drivers/grand-chelems`, fetchConfig("GET"), onSuccess, onError);

@@ -180,6 +180,70 @@ public class StatisticsServiceImpl implements StatisticsService {
         return result;
     }
 
+    @Override
+    public List<DriverRankingDTO> getDriverPoleRanking() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) AS poles
+        FROM qualifying q
+        JOIN races ra ON q.raceId = ra.raceId
+        JOIN drivers d ON q.driverId = d.driverId
+        WHERE q.position = 1 AND ra.year >= 2003
+        GROUP BY d.driverId
+        ORDER BY poles DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int value = ((Number) row[3]).intValue();
+            String flagUrl = getFlagUrl(nationality);
+            result.add(new DriverRankingDTO(name, nationality, value, flagUrl));
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getDriverGrandChelemRanking() {
+        List<DriverRankingDTO> list = new ArrayList<>();
+
+        list.add(new DriverRankingDTO("Jim Clark", "British", 8, getFlagUrl("british")));
+        list.add(new DriverRankingDTO("Lewis Hamilton", "British", 6, getFlagUrl("british")));
+        list.add(new DriverRankingDTO("Alberto Ascari", "Italian", 5, getFlagUrl("italian")));
+        list.add(new DriverRankingDTO("Michael Schumacher", "German", 5, getFlagUrl("german")));
+        list.add(new DriverRankingDTO("Max Verstappen", "Dutch", 5, getFlagUrl("dutch")));
+        list.add(new DriverRankingDTO("Jackie Stewart", "British", 4, getFlagUrl("british")));
+        list.add(new DriverRankingDTO("Ayrton Senna", "Brazilian", 4, getFlagUrl("brazilian")));
+        list.add(new DriverRankingDTO("Nigel Mansell", "British", 4, getFlagUrl("british")));
+        list.add(new DriverRankingDTO("Sebastian Vettel", "German", 4, getFlagUrl("german")));
+        list.add(new DriverRankingDTO("Nelson Piquet", "Brazilian", 3, getFlagUrl("brazilian")));
+        list.add(new DriverRankingDTO("Juan Manuel Fangio", "Argentine", 2, getFlagUrl("argentine")));
+        list.add(new DriverRankingDTO("Jack Brabham", "Australian", 2, getFlagUrl("australian")));
+        list.add(new DriverRankingDTO("Mika Hakkinen", "Finnish", 2, getFlagUrl("finnish")));
+        list.add(new DriverRankingDTO("Nico Rosberg", "German", 2, getFlagUrl("german")));
+        list.add(new DriverRankingDTO("Mike Hawthorn", "British", 1, getFlagUrl("british")));
+        list.add(new DriverRankingDTO("Stirling Moss", "British", 1, getFlagUrl("british")));
+        list.add(new DriverRankingDTO("Jo Siffert", "Swiss", 1, getFlagUrl("swiss")));
+        list.add(new DriverRankingDTO("Jacky Ickx", "Belgian", 1, getFlagUrl("belgian")));
+        list.add(new DriverRankingDTO("Clay Regazzoni", "Swiss", 1, getFlagUrl("swiss")));
+        list.add(new DriverRankingDTO("Niki Lauda", "Austrian", 1, getFlagUrl("austrian")));
+        list.add(new DriverRankingDTO("Jacques Laffite", "French", 1, getFlagUrl("french")));
+        list.add(new DriverRankingDTO("Gilles Villeneuve", "Canadian", 1, getFlagUrl("canadian")));
+        list.add(new DriverRankingDTO("Gerhard Berger", "Austrian", 1, getFlagUrl("austrian")));
+        list.add(new DriverRankingDTO("Damon Hill", "British", 1, getFlagUrl("british")));
+        list.add(new DriverRankingDTO("Fernando Alonso", "Spanish", 1, getFlagUrl("spanish")));
+        list.add(new DriverRankingDTO("Charles Leclerc", "Monegasque", 1, getFlagUrl("monegasque")));
+
+        return list;
+    }
+
+
+
 
     private String getFlagUrl(String nationality) {
         String code = switch (nationality.toLowerCase().trim()) {

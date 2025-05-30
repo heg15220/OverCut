@@ -2,3 +2,5 @@ export const FETCH_DRIVER_STANDINGS_COMPLETED = "statistics/fetchDriverStandings
 export const FETCH_CONSTRUCTOR_STANDINGS_COMPLETED = "statistics/fetchConstructorStandingsCompleted";
 export const FETCH_DRIVER_WINS_COMPLETED = "statistics/fetchDriverWinsCompleted";
 export const FETCH_DRIVER_PODIUMS_COMPLETED = "statistics/fetchDriverPodiumsCompleted";
+export const FETCH_DRIVER_POLES_COMPLETED = "statistics/fetchDriverPolesCompleted";
+export const FETCH_DRIVER_GRAND_CHELEMS_COMPLETED = "statistics/fetchDriverGrandChelemsCompleted";

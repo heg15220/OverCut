@@ -10,19 +10,44 @@ const RankingsView = () => {
 
   const driverWins = useSelector(statisticsSelectors.getDriverWins);
   const driverPodiums = useSelector(statisticsSelectors.getDriverPodiums);
+  const driverPoles = useSelector(statisticsSelectors.getDriverPoles);
+  const driverGrandChelems = useSelector(statisticsSelectors.getDriverGrandChelems);
 
   useEffect(() => {
-    if (mode === "wins") {
-      dispatch(statisticsActions.fetchDriverWins());
-    } else if (mode === "podiums") {
-      dispatch(statisticsActions.fetchDriverPodiums());
+    switch (mode) {
+      case "wins":
+        dispatch(statisticsActions.fetchDriverWins());
+        break;
+      case "podiums":
+        dispatch(statisticsActions.fetchDriverPodiums());
+        break;
+      case "poles":
+        dispatch(statisticsActions.fetchDriverPoles());
+        break;
+      case "grand_chelems":
+        dispatch(statisticsActions.fetchDriverGrandChelems());
+        break;
+      default:
+        break;
     }
   }, [dispatch, mode]);
 
   const data =
     mode === "wins" ? driverWins :
     mode === "podiums" ? driverPodiums :
+    mode === "poles" ? driverPoles :
+    mode === "grand_chelems" ? driverGrandChelems :
     [];
+
+  const getLabel = () => {
+    switch (mode) {
+      case "wins": return "Victorias";
+      case "podiums": return "Podios";
+      case "poles": return "Poles";
+      case "grand_chelems": return "Grand Chelems";
+      default: return "Valor";
+    }
+  };
 
   return (
     <div className="race-result-table">
@@ -30,9 +55,10 @@ const RankingsView = () => {
 
       <div className="stat-controls">
         <select value={mode} onChange={e => setMode(e.target.value)}>
-          <option value="wins">Pilotos con más Victorias</option>
-          <option value="podiums">Pilotos con más Podios</option>
-          {/* Podrás añadir más opciones: poles, vueltas rápidas... */}
+          <option value="wins">Victorias en F1</option>
+          <option value="podiums">Podios en F1</option>
+          <option value="poles">Poles desde 2003</option>
+          <option value="grand_chelems">Grand Chelems</option>
         </select>
       </div>
 
@@ -42,7 +68,7 @@ const RankingsView = () => {
             <tr>
               <th>Pos</th>
               <th>Piloto</th>
-              <th>{mode === "wins" ? "Victorias" : "Podios"}</th>
+              <th>{getLabel()}</th>
             </tr>
           </thead>
           <tbody>

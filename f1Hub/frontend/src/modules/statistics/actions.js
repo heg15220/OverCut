@@ -26,3 +26,17 @@ export const fetchDriverPodiums = () => dispatch =>
     ranking => dispatch({ type: actionTypes.FETCH_DRIVER_PODIUMS_COMPLETED, ranking }),
     () => {}
   );
+
+
+export const fetchDriverPoles = () => dispatch =>
+  backend.statisticsService.getDriverPoleRanking(
+    ranking => dispatch({ type: actionTypes.FETCH_DRIVER_POLES_COMPLETED, ranking }),
+    () => {}
+  );
+
+export const fetchDriverGrandChelems = () => dispatch =>
+  backend.statisticsService.getDriverGrandChelemRanking(
+    ranking => dispatch({ type: actionTypes.FETCH_DRIVER_GRAND_CHELEMS_COMPLETED, ranking }),
+    () => {}
+  );
+

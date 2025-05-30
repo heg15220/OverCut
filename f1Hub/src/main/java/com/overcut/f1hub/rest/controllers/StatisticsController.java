@@ -38,4 +38,15 @@ public class StatisticsController {
         return statisticsService.getDriverPodiumRanking();
     }
 
+    @GetMapping("/drivers/poles")
+    public List<DriverRankingDTO> getDriverPoleRanking() {
+        return statisticsService.getDriverPoleRanking();
+    }
+
+    @GetMapping("/drivers/grand-chelems")
+    public List<DriverRankingDTO> getDriverGrandChelemRanking() {
+        return statisticsService.getDriverGrandChelemRanking();
+    }
+
+
 }
