@@ -1,6 +1,7 @@
 package com.overcut.f1hub.rest.controllers;
 
 
+import com.overcut.f1hub.model.service.AdvancedStatsService;
 import com.overcut.f1hub.model.service.StatisticsService;
 import com.overcut.f1hub.rest.dtos.ConstructorStandingDTO;
 import com.overcut.f1hub.rest.dtos.DriverRankingDTO;
@@ -17,6 +18,9 @@ public class StatisticsController {
 
     @Autowired
     private StatisticsService statisticsService;
+
+    @Autowired
+    private AdvancedStatsService advancedStatsService;
 
     @GetMapping("/drivers/year/{year}")
     public List<DriverStandingDTO> getDriverStandings(@PathVariable int year) {
@@ -47,6 +51,29 @@ public class StatisticsController {
     public List<DriverRankingDTO> getDriverGrandChelemRanking() {
         return statisticsService.getDriverGrandChelemRanking();
     }
+
+    @GetMapping("/drivers/wins/team/{constructorRef}")
+    public List<DriverRankingDTO> getDriverWinsByTeam(@PathVariable String constructorRef) {
+        return statisticsService.getDriverWinsByTeam(constructorRef);
+    }
+
+    @GetMapping("/drivers/podiums/team/{constructorRef}")
+    public List<DriverRankingDTO> getDriverPodiumsByTeam(@PathVariable String constructorRef) {
+        return statisticsService.getDriverPodiumsByTeam(constructorRef);
+    }
+
+    @GetMapping("/drivers/poles/team/{constructorRef}")
+    public List<DriverRankingDTO> getDriverPolesByTeamSince2003(@PathVariable String constructorRef) {
+        return statisticsService.getDriverPolesByTeamSince2003(constructorRef);
+    }
+
+
+    @GetMapping("/constructor-options")
+    public List<StatisticsService.ConstructorOption> getAllConstructors() {
+        return statisticsService.getAllConstructors();
+    }
+
+
 
 
 }

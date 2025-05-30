@@ -4,3 +4,7 @@ export const FETCH_DRIVER_WINS_COMPLETED = "statistics/fetchDriverWinsCompleted"
 export const FETCH_DRIVER_PODIUMS_COMPLETED = "statistics/fetchDriverPodiumsCompleted";
 export const FETCH_DRIVER_POLES_COMPLETED = "statistics/fetchDriverPolesCompleted";
 export const FETCH_DRIVER_GRAND_CHELEMS_COMPLETED = "statistics/fetchDriverGrandChelemsCompleted";
+export const FETCH_DRIVER_WINS_BY_TEAM_COMPLETED = "statistics/fetchDriverWinsByTeamCompleted";
+export const FETCH_DRIVER_PODIUMS_BY_TEAM_COMPLETED = "statistics/fetchDriverPodiumsByTeamCompleted";
+export const FETCH_DRIVER_POLES_BY_TEAM_COMPLETED = "statistics/fetchDriverPolesByTeamCompleted";
+export const FETCH_CONSTRUCTORS_COMPLETED = "constructors/fetchAllConstructors";

@@ -6,7 +6,12 @@ const initialState = {
   driverWins: [],
   driverPodiums: [],
   driverPoles: [],
-  driverGrandChelems: []
+  driverGrandChelems: [],
+  driverWinsByTeam: [],
+  driverPodiumsByTeam: [],
+  driverPolesByTeam: [],
+  years: [],
+  constructors: []
 
 };
 
@@ -25,6 +30,14 @@ export default function reducer(state = initialState, action) {
       return { ...state, driverPoles: action.ranking };
     case actionTypes.FETCH_DRIVER_GRAND_CHELEMS_COMPLETED:
       return { ...state, driverGrandChelems: action.ranking };
+    case actionTypes.FETCH_DRIVER_WINS_BY_TEAM_COMPLETED:
+      return { ...state, driverWinsByTeam: action.ranking };
+    case actionTypes.FETCH_DRIVER_PODIUMS_BY_TEAM_COMPLETED:
+      return { ...state, driverPodiumsByTeam: action.ranking };
+    case actionTypes.FETCH_DRIVER_POLES_BY_TEAM_COMPLETED:
+      return { ...state, driverPolesByTeam: action.ranking };
+    case actionTypes.FETCH_CONSTRUCTORS_COMPLETED:
+      return { ...state, constructors: action.list };
 
     default:
       return state;

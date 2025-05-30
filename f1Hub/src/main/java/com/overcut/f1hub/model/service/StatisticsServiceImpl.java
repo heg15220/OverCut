@@ -1,15 +1,18 @@
 package com.overcut.f1hub.model.service;
 
 
+import com.overcut.f1hub.model.entities.ConstructorDao;
 import com.overcut.f1hub.rest.dtos.ConstructorStandingDTO;
 import com.overcut.f1hub.rest.dtos.DriverRankingDTO;
 import com.overcut.f1hub.rest.dtos.DriverStandingDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -17,6 +20,17 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private ConstructorDao constructorDao;
+
+    @Override
+    public List<ConstructorOption> getAllConstructors() {
+        return constructorDao.findAll().stream()
+                .map(c -> new ConstructorOption(c.getConstructorId(), c.getName()))
+                .sorted(Comparator.comparing(ConstructorOption::name))
+                .toList();
+    }
 
     @Override
     public List<DriverStandingDTO> getDriverStandings(int year) {
@@ -241,6 +255,111 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         return list;
     }
+
+    @Override
+    public List<DriverRankingDTO> getDriverWinsByTeam(String constructorName) {
+        String constructorRef = constructorDao.findAll().stream()
+                .filter(c -> c.getName().equalsIgnoreCase(constructorName.replace("_", " ")))
+                .findFirst()
+                .map(c -> c.getConstructorRef())
+                .orElseThrow(() -> new RuntimeException("Constructor no encontrado: " + constructorName));
+
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) AS wins
+        FROM results r
+        JOIN drivers d ON r.driverId = d.driverId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        WHERE r.positionOrder = 1 AND c.constructorRef = :constructorRef
+        GROUP BY d.driverId
+        ORDER BY wins DESC
+    """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("constructorRef", constructorRef);
+
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String fullName = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(fullName, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getDriverPodiumsByTeam(String constructorName) {
+        String constructorRef = constructorDao.findAll().stream()
+                .filter(c -> c.getName().equalsIgnoreCase(constructorName.replace("_", " ")))
+                .findFirst()
+                .map(c -> c.getConstructorRef())
+                .orElseThrow(() -> new RuntimeException("Constructor no encontrado: " + constructorName));
+
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) AS podiums
+        FROM results r
+        JOIN drivers d ON r.driverId = d.driverId
+        JOIN constructors c ON r.constructorId = c.constructorId
+        WHERE r.positionOrder <= 3 AND c.constructorRef = :constructorRef
+        GROUP BY d.driverId
+        ORDER BY podiums DESC
+    """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("constructorRef", constructorRef);
+
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String fullName = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(fullName, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getDriverPolesByTeamSince2003(String constructorName) {
+        String constructorRef = constructorDao.findAll().stream()
+                .filter(c -> c.getName().equalsIgnoreCase(constructorName.replace("_", " ")))
+                .findFirst()
+                .map(c -> c.getConstructorRef())
+                .orElseThrow(() -> new RuntimeException("Constructor no encontrado: " + constructorName));
+
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) AS poles
+        FROM qualifying q
+        JOIN races ra ON q.raceId = ra.raceId
+        JOIN drivers d ON q.driverId = d.driverId
+        JOIN constructors c ON q.constructorId = c.constructorId
+        WHERE q.position = 1 AND ra.year >= 2003 AND c.constructorRef = :constructorRef
+        GROUP BY d.driverId
+        ORDER BY poles DESC
+    """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("constructorRef", constructorRef);
+
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String fullName = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(fullName, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+
 
 
 

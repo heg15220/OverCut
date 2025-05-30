@@ -40,3 +40,32 @@ export const fetchDriverGrandChelems = () => dispatch =>
     () => {}
   );
 
+
+export const fetchDriverWinsByTeam = (team) => dispatch =>
+  backend.statisticsService.getDriverWinsByTeam(
+    team,
+    ranking => dispatch({ type: actionTypes.FETCH_DRIVER_WINS_BY_TEAM_COMPLETED, ranking }),
+    () => {}
+  );
+
+export const fetchDriverPodiumsByTeam = (team) => dispatch =>
+  backend.statisticsService.getDriverPodiumsByTeam(
+    team,
+    ranking => dispatch({ type: actionTypes.FETCH_DRIVER_PODIUMS_BY_TEAM_COMPLETED, ranking }),
+    () => {}
+  );
+
+export const fetchDriverPolesByTeam = (team) => dispatch =>
+  backend.statisticsService.getDriverPolesByTeam(
+    team,
+    ranking => dispatch({ type: actionTypes.FETCH_DRIVER_POLES_BY_TEAM_COMPLETED, ranking }),
+    () => {}
+  );
+
+
+export const fetchConstructors = () => dispatch =>
+  backend.statisticsService.getAllConstructorOptions(
+    list => dispatch({ type: actionTypes.FETCH_CONSTRUCTORS_COMPLETED, list }),
+    () => {}
+  );
+

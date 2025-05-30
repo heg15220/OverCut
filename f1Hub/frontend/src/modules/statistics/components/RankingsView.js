@@ -2,17 +2,38 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as statisticsActions from "../actions";
 import * as statisticsSelectors from "../selectors";
+import * as raceSelectorActions from "../../raceSelector/actions";
+import * as raceSelectorSelectors from "../../raceSelector/selectors";
 import "./StatisticsTable.css";
 
 const RankingsView = () => {
   const dispatch = useDispatch();
+
   const [mode, setMode] = useState("wins");
+  const [team, setTeam] = useState("");
 
-  const driverWins = useSelector(statisticsSelectors.getDriverWins);
-  const driverPodiums = useSelector(statisticsSelectors.getDriverPodiums);
-  const driverPoles = useSelector(statisticsSelectors.getDriverPoles);
-  const driverGrandChelems = useSelector(statisticsSelectors.getDriverGrandChelems);
+  // Datos globales
+  const constructors = useSelector(statisticsSelectors.getConstructors);
 
+  // Rankings generales
+  const wins = useSelector(statisticsSelectors.getDriverWins);
+  const podiums = useSelector(statisticsSelectors.getDriverPodiums);
+  const poles = useSelector(statisticsSelectors.getDriverPoles);
+  const grandChelems = useSelector(statisticsSelectors.getDriverGrandChelems);
+
+  // Rankings por equipo
+  const winsByTeam = useSelector(statisticsSelectors.getDriverWinsByTeam);
+  const podiumsByTeam = useSelector(statisticsSelectors.getDriverPodiumsByTeam);
+  const polesByTeam = useSelector(statisticsSelectors.getDriverPolesByTeam);
+
+  const showTeamSelector = ["wins_team", "podiums_team", "poles_team"].includes(mode);
+
+  // Cargar equipos dinámicamente
+  useEffect(() => {
+    dispatch(statisticsActions.fetchConstructors());
+  }, [dispatch]);
+
+  // Cargar ranking general
   useEffect(() => {
     switch (mode) {
       case "wins":
@@ -32,34 +53,68 @@ const RankingsView = () => {
     }
   }, [dispatch, mode]);
 
+  // Cargar ranking por equipo
+  useEffect(() => {
+    if (!team) return;
+
+    switch (mode) {
+      case "wins_team":
+        dispatch(statisticsActions.fetchDriverWinsByTeam(team));
+        break;
+      case "podiums_team":
+        dispatch(statisticsActions.fetchDriverPodiumsByTeam(team));
+        break;
+      case "poles_team":
+        dispatch(statisticsActions.fetchDriverPolesByTeam(team));
+        break;
+      default:
+        break;
+    }
+  }, [dispatch, team, mode]);
+
   const data =
-    mode === "wins" ? driverWins :
-    mode === "podiums" ? driverPodiums :
-    mode === "poles" ? driverPoles :
-    mode === "grand_chelems" ? driverGrandChelems :
+    mode === "wins" ? wins :
+    mode === "podiums" ? podiums :
+    mode === "poles" ? poles :
+    mode === "grand_chelems" ? grandChelems :
+    mode === "wins_team" ? winsByTeam :
+    mode === "podiums_team" ? podiumsByTeam :
+    mode === "poles_team" ? polesByTeam :
     [];
 
   const getLabel = () => {
-    switch (mode) {
-      case "wins": return "Victorias";
-      case "podiums": return "Podios";
-      case "poles": return "Poles";
-      case "grand_chelems": return "Grand Chelems";
-      default: return "Valor";
-    }
+    if (mode.includes("wins")) return "Victorias";
+    if (mode.includes("podiums")) return "Podios";
+    if (mode.includes("poles")) return "Poles";
+    if (mode.includes("grand_chelems")) return "Grand Chelems";
+    return "Valor";
   };
 
   return (
     <div className="race-result-table">
-      <h2 className="race-result-title">🏆 Rankings y Récords F1</h2>
+      <h2 className="race-result-title">📈 Rankings y Récords</h2>
 
       <div className="stat-controls">
-        <select value={mode} onChange={e => setMode(e.target.value)}>
-          <option value="wins">Victorias en F1</option>
-          <option value="podiums">Podios en F1</option>
-          <option value="poles">Poles desde 2003</option>
-          <option value="grand_chelems">Grand Chelems</option>
+        <select value={mode} onChange={e => { setMode(e.target.value); setTeam(""); }}>
+          <option value="wins">Pilotos con más Victorias</option>
+          <option value="podiums">Pilotos con más Podios</option>
+          <option value="poles">Pilotos con más Poles (desde 2003)</option>
+          <option value="grand_chelems">Pilotos con más Grand Chelems</option>
+          <option value="wins_team">Victorias por Equipo</option>
+          <option value="podiums_team">Podios por Equipo</option>
+          <option value="poles_team">Poles por Equipo (desde 2003)</option>
         </select>
+
+        {showTeamSelector && (
+          <select value={team} onChange={e => setTeam(e.target.value)}>
+            <option value="">Selecciona equipo</option>
+            {constructors.map(c => (
+              <option key={c.constructorId} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div className="table-container">
