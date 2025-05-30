@@ -21,6 +21,7 @@ const ChartsDashboard = () => {
   const [season, setSeason] = useState("");
   const [decade, setDecade] = useState("");
   const [circuitRef, setCircuitRef] = useState("");
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
 
   useEffect(() => {
     dispatch(charts.actions.fetchChartCategories());
@@ -104,7 +105,7 @@ const ChartsDashboard = () => {
           >
             {categories[activeCategory].map(endpoint => (
               <option key={endpoint} value={endpoint}>
-                {metadata?.[endpoint]?.label || endpoint}
+                {metadata?.[endpoint]?.label?.[lang] || endpoint}
               </option>
             ))}
           </select>

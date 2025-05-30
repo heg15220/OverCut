@@ -20,72 +20,72 @@ public interface AdvancedStatsService {
     List<CircuitOption> getAllCircuits();
 
 
-    ChartDataDTO getAveragePointsPerSeasonByDriver(String decade);
+    ChartDataDTO getAveragePointsPerSeasonByDriver(String decade, String lang);
 
-    ChartDataDTO getVictoryPercentageByDriverPerSeason(String decade);
+    ChartDataDTO getVictoryPercentageByDriverPerSeason(String decade, String lang);
 
-    ChartDataDTO getPodiumPercentageVsTeammate(String decade);
+    ChartDataDTO getPodiumPercentageVsTeammate(String decade, String lang);
 
-    ChartDataDTO getPodiumPercentageTotalVsAllTeammates();
+    ChartDataDTO getPodiumPercentageTotalVsAllTeammates(String lang);
 
-    ChartDataDTO getQ3PercentageVsTeammate(String driverId);
+    ChartDataDTO getQ3PercentageVsTeammate(String driverId, String lang);
 
-    ChartDataDTO getAverageRetirementsBySeason();
+    ChartDataDTO getAverageRetirementsBySeason(String lang);
 
-    ChartDataDTO getAverageAccidentsBySeason();
+    ChartDataDTO getAverageAccidentsBySeason(String lang);
 
-    ChartDataDTO getAvgPositionsGainedFirstLaps();
+    ChartDataDTO getAvgPositionsGainedFirstLaps(String lang);
 
-    ChartDataDTO getAvgPositionsGainedBySeason(String driverId);
+    ChartDataDTO getAvgPositionsGainedBySeason(String driverId, String lang);
 
-    ChartDataDTO getQualiVsTeammateComparison(String driverId);
+    ChartDataDTO getQualiVsTeammateComparison(String driverId, String lang);
 
-    ChartDataDTO getRaceVsTeammateComparison(String driverId);
+    ChartDataDTO getRaceVsTeammateComparison(String driverId, String lang);
 
-    ChartDataDTO getWinsFrom3rdOrWorse();
+    ChartDataDTO getWinsFrom3rdOrWorse(String lang);
 
-    ChartDataDTO getPodiumsFrom3rdOrWorse();
+    ChartDataDTO getPodiumsFrom3rdOrWorse(String lang);
 
-    ChartDataDTO getMostCommonFinishPosition();
+    ChartDataDTO getMostCommonFinishPosition(String lang);
 
-    ChartDataDTO getMostCommonQualiPosition();
+    ChartDataDTO getMostCommonQualiPosition(String lang);
 
-    ChartDataDTO getAvgGapToPolePerSeason();
+    ChartDataDTO getAvgGapToPolePerSeason(String lang);
 
-    ChartDataDTO getDriverVsTeamChampionshipFinish(String decade);
+    ChartDataDTO getDriverVsTeamChampionshipFinish(String decade, String lang);
 
-    ChartDataDTO getWinsWithoutTop2();
+    ChartDataDTO getWinsWithoutTop2(String lang);
 
-    ChartDataDTO getTeamComebacksBySeason(String decade);
-
-
-    ChartDataDTO getMostTeamPoints();
-
-    ChartDataDTO getAvgPointsPerTeamPerSeason(String decade);
+    ChartDataDTO getTeamComebacksBySeason(String decade, String lang);
 
 
-    ChartDataDTO getPitStopsPerRace(String year);
+    ChartDataDTO getMostTeamPoints(String lang);
 
-    ChartDataDTO getAvgPitStopsPerSeason();
+    ChartDataDTO getAvgPointsPerTeamPerSeason(String decade, String lang);
 
-    ChartDataDTO getOvertakesPerRace(String year);
 
-    ChartDataDTO getAvgOvertakesPerSeason();
+    ChartDataDTO getPitStopsPerRace(String year, String lang);
 
-    ChartDataDTO getPointsDeltaVsTeammate(String season);
+    ChartDataDTO getAvgPitStopsPerSeason(String lang);
 
-    ChartDataDTO getAverageQualiGapBetween1stAnd2ndPerSeason();
+    ChartDataDTO getOvertakesPerRace(String year, String lang);
 
-    ChartDataDTO getAverageQualiGapBetween10thAndPolePerSeason();
+    ChartDataDTO getAvgOvertakesPerSeason(String lang);
 
-    ChartDataDTO getAverageRaceGapBetween1stAnd2ndPerSeason();
+    ChartDataDTO getPointsDeltaVsTeammate(String season, String lang);
 
-    ChartDataDTO getDistinctGridPositionsFromWhichDriverWon();
+    ChartDataDTO getAverageQualiGapBetween1stAnd2ndPerSeason(String lang);
 
-    ChartDataDTO getFrontRowVictoryRatePerSeason();
+    ChartDataDTO getAverageQualiGapBetween10thAndPolePerSeason(String lang);
 
-    ChartDataDTO getWinPercentageByDriverAtCircuit(String circuitRef);
+    ChartDataDTO getAverageRaceGapBetween1stAnd2ndPerSeason(String lang);
 
-    ChartDataDTO getPoleWinRateAtCircuit(String circuitRef);
+    ChartDataDTO getDistinctGridPositionsFromWhichDriverWon(String lang);
+
+    ChartDataDTO getFrontRowVictoryRatePerSeason(String lang);
+
+    ChartDataDTO getWinPercentageByDriverAtCircuit(String circuitRef, String lang);
+
+    ChartDataDTO getPoleWinRateAtCircuit(String circuitRef,String lang);
 
 }

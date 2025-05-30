@@ -48,6 +48,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     @Autowired
     private CircuitDao circuitDao;
 
+    @Autowired
+    private ChartI18nService chartI18n;
+
     public List<DriverOption> getAllDrivers() {
         return driverDao.findAll().stream()
                 .sorted(Comparator.comparing(d -> d.getForename() + d.getSurname())) // Ordenar por nombre + apellido
@@ -81,7 +84,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getAveragePointsPerSeasonByDriver(String decade) {
+    public ChartDataDTO getAveragePointsPerSeasonByDriver(String decade, String lang) {
         Map<Long, String> driverNames = driverDao.findAll().stream()
                 .collect(Collectors.toMap(
                         Driver::getDriverId,
@@ -168,13 +171,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             datasets.add(new ChartSeriesDTO(label, "#8884d8", data)); // Puedes reemplazar el color por nacionalidad
         }
 
-        return new ChartDataDTO("Promedio de puntos por temporada", "line", yearLabels, datasets);
+        return new ChartDataDTO(chartI18n.get("averagePointsPerSeason", lang), "line", yearLabels, datasets);
 
     }
 
 
     //Is called getVictoryPercentageByDriverPerSeason but refers to wins percentage by DECADE, not season
-    public ChartDataDTO getVictoryPercentageByDriverPerSeason(String decade) {
+    public ChartDataDTO getVictoryPercentageByDriverPerSeason(String decade, String lang) {
         // Extraer el año de inicio y fin de la década
         int decadeStart = Integer.parseInt(decade.substring(0, 4));
         int decadeEnd = decadeStart + 9;
@@ -211,11 +214,11 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         // Paso 8: Crear el gráfico de datos
         List<ChartSeriesDTO> datasets = new ArrayList<>();
-        datasets.add(new ChartSeriesDTO("Victorias", labels, data));
+        datasets.add(new ChartSeriesDTO("Wins", labels, data));
 
         // Paso 9: Preparar el resultado del gráfico
         return new ChartDataDTO(
-                "Porcentaje de victorias por década",
+                chartI18n.get("victoryPercentageByDecade", lang),
                 "pie", // Tipo de gráfico circular
                 List.of(decade + "s"), // Etiquetas de las décadas
                 datasets
@@ -224,7 +227,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getPodiumPercentageVsTeammate(String decade) {
+    public ChartDataDTO getPodiumPercentageVsTeammate(String decade, String lang) {
         int startYear = 0, endYear = 9999;
         if (decade != null) {
             switch (decade) {
@@ -340,13 +343,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         List<Double> fiftyLine = new ArrayList<>(Collections.nCopies(labels.size(), 50.0));
         seriesList.add(new ChartSeriesDTO("50%", "#999999", fiftyLine));
 
-        return new ChartDataDTO("Porcentaje de podios vs compañero", "line", labels, seriesList);
+        return new ChartDataDTO(chartI18n.get("podiumPercentageVsTeammate", lang), "line", labels, seriesList);
     }
 
 
 
     @Override
-    public ChartDataDTO getPodiumPercentageTotalVsAllTeammates() {
+    public ChartDataDTO getPodiumPercentageTotalVsAllTeammates(String lang) {
         List<Driver> allDrivers = driverDao.findAll();
         List<Result> allResults = resultDao.findAll().stream()
                 .filter(r -> r.getRace() != null && r.getDriver() != null && r.getConstructor() != null)
@@ -464,9 +467,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         return new ChartDataDTO(
-                "Porcentaje total de podios del piloto frente a su equipo",
+                chartI18n.get("totalPodiumsVsTeammates", lang),
                 "scatter",
-                List.of("Y: % Podios vs equipo, X: distribución horizontal"),
+                List.of("Y: % Podiums vs team, X: horizontal distribution"),
                 dataset
         );
     }
@@ -477,7 +480,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getQ3PercentageVsTeammate(String driverIdStr) {
+    public ChartDataDTO getQ3PercentageVsTeammate(String driverIdStr, String lang) {
         Long driverId = Long.parseLong(driverIdStr);
         Driver targetDriver = driverDao.findById(driverId).orElse(null);
         if (targetDriver == null) {
@@ -532,7 +535,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         List<Double> fiftyLine = new ArrayList<>(Collections.nCopies(data.size(), 50.0));
 
         return new ChartDataDTO(
-                "Porcentaje de clasificación vs compañero (" + driverName + ")",
+                chartI18n.get("q3PercentageVsTeammate", lang) + driverName,
                 "line",
                 labels,
                 List.of(
@@ -547,7 +550,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getAverageAccidentsBySeason() {
+    public ChartDataDTO getAverageAccidentsBySeason(String lang) {
         // 1. Identificamos los ID de status que representan accidentes o colisiones
         Set<Long> accidentStatusIds = statusDao.findAll().stream()
                 .filter(s -> {
@@ -600,13 +603,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 })
                 .toList();
 
-        return new ChartDataDTO("Promedio de accidentes por temporada", "line", labels, List.of(
-                new ChartSeriesDTO("Accidentes por carrera", "#ff7300", data)
+        return new ChartDataDTO(chartI18n.get("avgAccidentsPerSeason", lang), "line", labels, List.of(
+                new ChartSeriesDTO("Accidents per race", "#ff7300", data)
         ));
     }
 
     @Override
-    public ChartDataDTO getAverageRetirementsBySeason() {
+    public ChartDataDTO getAverageRetirementsBySeason(String lang) {
         // Lista de status que NO se consideran abandonos
         Set<String> excludedStatuses = Set.of(
                 "did not qualify",
@@ -663,16 +666,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .toList();
 
         return new ChartDataDTO(
-                "Promedio de abandonos por temporada",
+                chartI18n.get("avgRetirementsPerSeason", lang),
                 "line",
                 labels,
-                List.of(new ChartSeriesDTO("Abandonos por carrera", "#cc0000", data))
+                List.of(new ChartSeriesDTO("Retirements per race", "#cc0000", data))
         );
     }
 
 
     @Override
-    public ChartDataDTO getAvgPositionsGainedFirstLaps() {
+    public ChartDataDTO getAvgPositionsGainedFirstLaps(String lang) {
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
@@ -752,9 +755,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         return new ChartDataDTO(
-                "Promedio de posiciones ganadas tras 2 vueltas",
+                chartI18n.get("avgPositionsGainedAfter2Laps", lang),
                 "scatter",
-                List.of("Promedio en eje Y, dispersión en X"),
+                List.of("Average in Y axis, dispersion on the X axis"),
                 dataset
         );
     }
@@ -764,7 +767,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getAvgPositionsGainedBySeason(String driverIdStr) {
+    public ChartDataDTO getAvgPositionsGainedBySeason(String driverIdStr, String lang) {
         Long driverId = Long.parseLong(driverIdStr);
 
         Map<Long, Race> raceMap = raceDao.findAll().stream()
@@ -800,12 +803,12 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         ChartSeriesDTO series = new ChartSeriesDTO(label, "#8884d8", data);
 
-        return new ChartDataDTO("Posiciones ganadas por temporada (" + label + ")", "line", labels, List.of(series));
+        return new ChartDataDTO(chartI18n.get("avgPositionsGainedBySeason", lang) + label , "line", labels, List.of(series));
     }
 
 
     @Override
-    public ChartDataDTO getQualiVsTeammateComparison(String driverIdStr) {
+    public ChartDataDTO getQualiVsTeammateComparison(String driverIdStr, String lang) {
         Long targetDriverId = Long.parseLong(driverIdStr);
 
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
@@ -874,19 +877,19 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 : "Driver " + targetDriverId;
 
         return new ChartDataDTO(
-                "Comparativa clasificación vs compañero - " + driverName,
+                 chartI18n.get("qualiComparisonVsTeammate", lang) + driverName,
                 "bar",
                 labels,
                 List.of(
-                        new ChartSeriesDTO("Victorias en quali", "#00bcd4", wins),
-                        new ChartSeriesDTO("Derrotas en quali", "#ff5722", losses)
+                        new ChartSeriesDTO("Wins quali", "#00bcd4", wins),
+                        new ChartSeriesDTO("Loses quali", "#ff5722", losses)
                 )
         );
     }
 
 
     @Override
-    public ChartDataDTO getRaceVsTeammateComparison(String driverIdStr) {
+    public ChartDataDTO getRaceVsTeammateComparison(String driverIdStr, String lang) {
         Long targetDriverId = Long.parseLong(driverIdStr);
 
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
@@ -954,19 +957,19 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 : "Driver " + targetDriverId;
 
         return new ChartDataDTO(
-                "Comparativa carrera vs compañero - " + driverName,
+                chartI18n.get("raceComparisonVsTeammate", lang) + driverName,
                 "bar",
                 labels,
                 List.of(
-                        new ChartSeriesDTO("Victorias sobre compañero", "#00C49F", wins),
-                        new ChartSeriesDTO("Derrotas frente a compañero", "#FF8042", losses)
+                        new ChartSeriesDTO("Wins", "#00C49F", wins),
+                        new ChartSeriesDTO("Loses", "#FF8042", losses)
                 )
         );
     }
 
 
     @Override
-    public ChartDataDTO getWinsFrom3rdOrWorse() {
+    public ChartDataDTO getWinsFrom3rdOrWorse(String lang) {
         // 1. Obtener solo los resultados donde el piloto ganó desde P3 o peor
         List<Result> results = resultDao.findAllByPositionOrderAndGridGreaterThan(1, 2);
 
@@ -1007,14 +1010,14 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         // 6. Labels únicos (uno solo porque es tipo bar compacto)
-        List<String> labels = List.of("Victorias desde P3 o peor");
+        List<String> labels = List.of("Wins P3 or worse");
 
-        return new ChartDataDTO("Victorias desde P3 o peor", "bar", labels, dataset);
+        return new ChartDataDTO(chartI18n.get("winsFromP3OrWorse", lang), "bar", labels, dataset);
     }
 
 
     @Override
-    public ChartDataDTO getPodiumsFrom3rdOrWorse() {
+    public ChartDataDTO getPodiumsFrom3rdOrWorse(String lang) {
         // 1. Obtener resultados donde el piloto hizo podio desde P3 o peor en la parrilla
         List<Result> results = resultDao.findAll().stream()
                 .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3
@@ -1058,14 +1061,14 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         // 6. Labels únicos (uno solo porque es tipo bar compacto)
-        List<String> labels = List.of("Podios desde P3 o peor");
+        List<String> labels = List.of("Podiums P3 or worse");
 
-        return new ChartDataDTO("Podios desde P3 o peor", "bar", labels, dataset);
+        return new ChartDataDTO(chartI18n.get("podiumsFromP3OrWorse", lang), "bar", labels, dataset);
     }
 
 
     @Override
-    public ChartDataDTO getMostCommonFinishPosition() {
+    public ChartDataDTO getMostCommonFinishPosition(String lang) {
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
@@ -1100,16 +1103,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         return new ChartDataDTO(
-                "Posición más frecuente en carrera por piloto",
+                chartI18n.get("mostCommonFinishPosition", lang),
                 "bar",
-                List.of("Posición más común"),
+                List.of("Most common position"),
                 dataset
         );
     }
 
 
     @Override
-    public ChartDataDTO getMostCommonQualiPosition() {
+    public ChartDataDTO getMostCommonQualiPosition(String lang) {
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
@@ -1167,9 +1170,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         return new ChartDataDTO(
-                "Posición más frecuente en clasificación por piloto",
+                chartI18n.get("mostCommonQualiPosition", lang),
                 "bar",
-                List.of("Posición más común"),
+                List.of("Most common position"),
                 dataset
         );
     }
@@ -1177,7 +1180,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getAvgGapToPolePerSeason() {
+    public ChartDataDTO getAvgGapToPolePerSeason(String lang) {
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
@@ -1225,7 +1228,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             datasets.add(new ChartSeriesDTO(label, "#a4de6c", data));
         }
 
-        return new ChartDataDTO("Gap promedio con la pole (Q3)", "line", yearLabels, datasets);
+        return new ChartDataDTO(chartI18n.get("avgQualiGapToPole", lang), "line", yearLabels, datasets);
     }
 
     private double parseTimeToMillis(String timeStr) {
@@ -1244,7 +1247,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getDriverVsTeamChampionshipFinish(String decade) {
+    public ChartDataDTO getDriverVsTeamChampionshipFinish(String decade, String lang) {
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
@@ -1387,16 +1390,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     return new ChartSeriesDTO(label, color, List.of((double) e.getValue()));
                 }).toList();
 
-        String title = "Pilotos que superaron o igualaron a su equipo en el campeonato"
+        String title = chartI18n.get("driverVsTeamChampionshipFinish", lang)
                 + (finalStartYear > 0 ? " (" + finalStartYear + "s)" : "");
 
-        return new ChartDataDTO(title, "bar", List.of("Veces"), dataset);
+        return new ChartDataDTO(title, "bar", List.of("Times"), dataset);
     }
 
 
 
     @Override
-    public ChartDataDTO getWinsWithoutTop2() {
+    public ChartDataDTO getWinsWithoutTop2(String lang) {
         Map<Long, Constructor> constructorMap = constructorDao.findAll().stream()
                 .collect(Collectors.toMap(Constructor::getConstructorId, c -> c));
 
@@ -1432,9 +1435,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         return new ChartDataDTO(
-                "Victorias sin salir desde 1ª o 2ª posición",
+                chartI18n.get("winsWithoutTop2", lang),
                 "bar",
-                List.of("Victorias desde P3+"),
+                List.of("Wins from P3+"),
                 dataset
         );
     }
@@ -1443,7 +1446,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     // Implementación
     @Override
-    public ChartDataDTO getTeamComebacksBySeason(String decade) {
+    public ChartDataDTO getTeamComebacksBySeason(String decade, String lang) {
         int startYear = 0, endYear = 9999;
         if (decade != null) {
             switch (decade) {
@@ -1504,13 +1507,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             datasets.add(new ChartSeriesDTO(label, "#8884d8", values));
         }
 
-        return new ChartDataDTO("Promedio de posiciones ganadas por equipo y temporada", "line", labels, datasets);
+        return new ChartDataDTO(chartI18n.get("teamComebacksBySeason", lang), "line", labels, datasets);
     }
 
 
 
     @Override
-    public ChartDataDTO getMostTeamPoints() {
+    public ChartDataDTO getMostTeamPoints(String lang) {
         Map<Long, Constructor> constructorMap = constructorDao.findAll().stream()
                 .collect(Collectors.toMap(Constructor::getConstructorId, c -> c));
 
@@ -1531,16 +1534,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .toList();
 
         return new ChartDataDTO(
-                "Puntos totales por equipo (histórico)",
+                chartI18n.get("totalPointsByTeam", lang),
                 "bar",
-                List.of("Total puntos"),
+                List.of("Total points"),
                 dataset
         );
     }
 
 
     @Override
-    public ChartDataDTO getAvgPointsPerTeamPerSeason(String decade) {
+    public ChartDataDTO getAvgPointsPerTeamPerSeason(String decade, String lang) {
         int startYear = 0, endYear = 9999;
         if (decade != null) {
             switch (decade) {
@@ -1597,13 +1600,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             datasets.add(new ChartSeriesDTO(label, "#82ca9d", values));
         }
 
-        return new ChartDataDTO("Puntos por equipo y temporada", "line", labels, datasets);
+        return new ChartDataDTO(chartI18n.get("avgPointsByTeamPerSeason", lang), "line", labels, datasets);
     }
 
 
 
     @Override
-    public ChartDataDTO getPitStopsPerRace(String yearStr) {
+    public ChartDataDTO getPitStopsPerRace(String yearStr, String lang) {
         int year = Integer.parseInt(yearStr);
 
         // Obtener carreras de la temporada
@@ -1635,13 +1638,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .collect(Collectors.toList());
 
         // Devolver los datos calculados en el DTO adecuado
-        return new ChartDataDTO("Pasos por el pit lane por carrera (" + year + ")", "bar", labels,
-                List.of(new ChartSeriesDTO("Pasos por pit lane", "#ff8042", values)));
+        return new ChartDataDTO(chartI18n.get("pitStopsPerRace", lang) + (" + year + "), "bar", labels,
+                List.of(new ChartSeriesDTO("Times on pit lane", "#ff8042", values)));
     }
 
 
     @Override
-    public ChartDataDTO getAvgPitStopsPerSeason() {
+    public ChartDataDTO getAvgPitStopsPerSeason(String lang) {
         Map<Long, Integer> raceYears = raceDao.findAll().stream()
                 .collect(Collectors.toMap(Race::getRaceId, Race::getYear));
 
@@ -1662,13 +1665,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .map(y -> yearPits.get(y) / (double) yearCounts.getOrDefault(y, 1))
                 .toList();
 
-        return new ChartDataDTO("Promedio de paradas por temporada", "line", labels,
+        return new ChartDataDTO(chartI18n.get("avgPitStopsPerSeason", lang), "line", labels,
                 List.of(new ChartSeriesDTO("Pit stops promedio", "#8884d8", values)));
     }
 
 
     @Override
-    public ChartDataDTO getOvertakesPerRace(String yearStr) {
+    public ChartDataDTO getOvertakesPerRace(String yearStr, String lang) {
         int year = Integer.parseInt(yearStr);
 
         // Usamos la consulta personalizada para obtener las carreras ordenadas por ronda
@@ -1738,13 +1741,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .collect(Collectors.toList());
 
         // Devolvemos los datos para la gráfica
-        return new ChartDataDTO("Cambios de Posición por carrera (" + year + ")", "bar", labels,
-                List.of(new ChartSeriesDTO("Cambios de Posición", "#00c49f", values)));
+        return new ChartDataDTO(chartI18n.get("overtakesPerRace", lang) +  year , "bar", labels,
+                List.of(new ChartSeriesDTO("Position changes", "#00c49f", values)));
     }
 
 
     @Override
-    public ChartDataDTO getAvgOvertakesPerSeason() {
+    public ChartDataDTO getAvgOvertakesPerSeason(String lang) {
         // Mapeamos las carreras por su año
         Map<Long, Integer> raceYears = raceDao.findAllOrderByYearAndRound().stream()
                 .collect(Collectors.toMap(Race::getRaceId, Race::getYear));
@@ -1810,13 +1813,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .toList();
 
         // Devolvemos los datos para la gráfica
-        return new ChartDataDTO("Promedio de cambios de posición por temporada", "line", labels,
-                List.of(new ChartSeriesDTO("Cambios de Posición promedio", "#0088fe", values)));
+        return new ChartDataDTO(chartI18n.get("avgOvertakesPerSeason", lang), "line", labels,
+                List.of(new ChartSeriesDTO("Average change of positions", "#0088fe", values)));
     }
 
 
     @Override
-    public ChartDataDTO getPointsDeltaVsTeammate(String seasonStr) {
+    public ChartDataDTO getPointsDeltaVsTeammate(String seasonStr, String lang) {
         int season = Integer.parseInt(seasonStr);
 
         String[] colorPalette = {
@@ -1891,9 +1894,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
         return new ChartDataDTO(
-                "Diferencia media de puntos vs compañero (" + season + ")",
+                chartI18n.get("pointsDeltaVsTeammate",lang) + season ,
                 "bar",
-                List.of("Δ puntos"),
+                List.of("Δ points"),
                 seriesList
         );
     }
@@ -1916,7 +1919,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
     @Override
-    public ChartDataDTO getAverageQualiGapBetween1stAnd2ndPerSeason() {
+    public ChartDataDTO getAverageQualiGapBetween1stAnd2ndPerSeason(String lang) {
         // Agrupamos las qualis por carrera
         Map<Long, List<Qualifying>> qualiByRace = qualifyingDao.findAll().stream()
                 .filter(q -> q.getPosition() != null)
@@ -1961,16 +1964,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .toList();
 
         return new ChartDataDTO(
-                "Promedio de diferencia entre P1 y P2 en clasificación por temporada",
+                chartI18n.get("avgQualiGapP1P2", lang),
                 "line",
                 labels,
-                List.of(new ChartSeriesDTO("Gap en ms", "#00C49F", data))
+                List.of(new ChartSeriesDTO("Gap in ms", "#00C49F", data))
         );
     }
 
 
     @Override
-    public ChartDataDTO getAverageQualiGapBetween10thAndPolePerSeason() {
+    public ChartDataDTO getAverageQualiGapBetween10thAndPolePerSeason(String lang) {
         // Agrupar por carrera
         Map<Long, List<Qualifying>> qualiByRace = qualifyingDao.findAll().stream()
                 .filter(q -> q.getPosition() != null)
@@ -2014,16 +2017,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .toList();
 
         return new ChartDataDTO(
-                "Promedio de diferencia entre P10 y la pole por temporada",
+                chartI18n.get("avgQualiGapP10Pole",lang),
                 "line",
                 labels,
-                List.of(new ChartSeriesDTO("Gap en ms", "#FFBB28", data))
+                List.of(new ChartSeriesDTO("Gap in ms", "#FFBB28", data))
         );
     }
 
 
     @Override
-    public ChartDataDTO getAverageRaceGapBetween1stAnd2ndPerSeason() {
+    public ChartDataDTO getAverageRaceGapBetween1stAnd2ndPerSeason(String lang) {
         // Map<raceId, year>
         Map<Long, Integer> raceYearMap = raceDao.findAll().stream()
                 .collect(Collectors.toMap(Race::getRaceId, Race::getYear));
@@ -2074,15 +2077,15 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .toList();
 
         return new ChartDataDTO(
-                "Promedio de diferencia entre P1 y P2 en carrera por temporada",
+                chartI18n.get("avgRaceGapP1P2", lang),
                 "line",
                 labels,
-                List.of(new ChartSeriesDTO("Gap en ms", "#FF4444", data))
+                List.of(new ChartSeriesDTO("Gap in ms", "#FF4444", data))
         );
     }
 
     @Override
-    public ChartDataDTO getDistinctGridPositionsFromWhichDriverWon() {
+    public ChartDataDTO getDistinctGridPositionsFromWhichDriverWon(String lang) {
         Map<Long, Driver> driverMap = driverDao.findAll().stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
@@ -2159,7 +2162,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         ChartDataDTO chart = new ChartDataDTO();
-        chart.setTitle("Parrillas desde las que ganó cada piloto");
+        chart.setTitle(chartI18n.get("gridPositionsFromWhichDriversWon", lang));
         chart.setChartType("scatter");
         chart.setLabels(labels); // eje Y → posiciones de parrilla
         chart.setDatasets(dataset);
@@ -2168,7 +2171,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getFrontRowVictoryRatePerSeason() {
+    public ChartDataDTO getFrontRowVictoryRatePerSeason(String lang) {
         // Map<year, totalCarreras>
         Map<Integer, Long> totalRacesPerYear = raceDao.findAll().stream()
                 .collect(Collectors.groupingBy(Race::getYear, Collectors.counting()));
@@ -2193,10 +2196,10 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 })
                 .toList();
 
-        ChartSeriesDTO series = new ChartSeriesDTO("Victorias desde 1ª fila", "#2ecc71", ratios);
+        ChartSeriesDTO series = new ChartSeriesDTO("Wins from front row", "#2ecc71", ratios);
 
         return new ChartDataDTO(
-                "Porcentaje de victorias desde la primera fila por temporada",
+                chartI18n.get("frontRowVictoryRate", lang),
                 "line",
                 years.stream().map(String::valueOf).toList(),
                 List.of(series)
@@ -2205,7 +2208,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getWinPercentageByDriverAtCircuit(String circuitRef) {
+    public ChartDataDTO getWinPercentageByDriverAtCircuit(String circuitRef, String lang) {
         // 1. Obtener todos los circuitos que coincidan con el circuitRef
         List<Circuit> circuits = circuitDao.findAll().stream()
                 .filter(c -> c.getCircuitRef().equalsIgnoreCase(circuitRef))
@@ -2250,10 +2253,10 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         // 5. Crear una sola serie para el gráfico pie
-        ChartSeriesDTO pieSeries = new ChartSeriesDTO("Victorias", labels, values);
+        ChartSeriesDTO pieSeries = new ChartSeriesDTO("Wins", labels, values);
 
         return new ChartDataDTO(
-                "Porcentaje de victorias por piloto en " + circuitRef,
+                chartI18n.get("winPercentageByDriverAtCircuit", lang) + circuitRef,
                 "pie",
                 labels,
                 List.of(pieSeries)
@@ -2263,7 +2266,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getPoleWinRateAtCircuit(String circuitRef) {
+    public ChartDataDTO getPoleWinRateAtCircuit(String circuitRef, String lang) {
         // 1. Obtener circuitos que coincidan con el circuitRef
         Set<Long> circuitIds = circuitDao.findAll().stream()
                 .filter(c -> c.getCircuitRef().equalsIgnoreCase(circuitRef))
@@ -2312,13 +2315,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         }
 
         // 5. Preparar datos del gráfico
-        ChartSeriesDTO fromPole = new ChartSeriesDTO("Desde la Pole", "#2ecc71", List.of((double) winsFromPole));
-        ChartSeriesDTO fromBehind = new ChartSeriesDTO("Desde otra Posición", "#e74c3c", List.of((double) winsNotFromPole));
+        ChartSeriesDTO fromPole = new ChartSeriesDTO("From Pole", "#2ecc71", List.of((double) winsFromPole));
+        ChartSeriesDTO fromBehind = new ChartSeriesDTO("From other position", "#e74c3c", List.of((double) winsNotFromPole));
 
         return new ChartDataDTO(
-                "Victorias desde la Pole vs. otras posiciones en " + circuitRef,
+                chartI18n.get("poleWinRateAtCircuit", lang) + circuitRef,
                 "bar",
-                List.of("Victorias"),
+                List.of("Wins"),
                 List.of(fromPole, fromBehind)
         );
     }
