@@ -38,5 +38,16 @@ public interface StatisticsService {
     List<DriverRankingDTO> getOldestDriversToWin();
     List<DriverRankingDTO> getWinsOnBirthday();
 
+    List<DriverRankingDTO> getLongestConsecutiveWinStreaks();
+    List<DriverRankingDTO> getLongestSeasonStartWinStreaks();
+    List<DriverRankingDTO> getLastCareerWinPerDriver();
+    List<DriverRankingDTO> getBiggestGapBetweenWins();
+    List<DriverRankingDTO> getGapBetweenFirstAndLastWin();
+    List<DriverRankingDTO> getMostWinsInSingleYear();
+    List<DriverRankingDTO> getMostYearsWithWins();
+    List<DriverRankingDTO> getMostConsecutiveWinningYears();
+    List<DriverRankingDTO> getGpCountBeforeFirstWin();
+
+
 
 }

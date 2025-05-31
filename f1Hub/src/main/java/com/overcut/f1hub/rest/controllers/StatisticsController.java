@@ -129,6 +129,58 @@ public class StatisticsController {
         return statisticsService.getWinsOnBirthday();
     }
 
+    // RECORDS – VICTORIES: Rachas y temporadas
+
+    @GetMapping("/victories/streaks/consecutive")
+    public List<DriverRankingDTO> getLongestConsecutiveWinStreaks() {
+        return statisticsService.getLongestConsecutiveWinStreaks();
+    }
+
+    @GetMapping("/victories/streaks/start-season")
+    public List<DriverRankingDTO> getLongestSeasonStartWinStreaks() {
+        return statisticsService.getLongestSeasonStartWinStreaks();
+    }
+
+    @GetMapping("/victories/last")
+    public List<DriverRankingDTO> getLastCareerWinPerDriver() {
+        return statisticsService.getLastCareerWinPerDriver();
+    }
+
+    @GetMapping("/victories/gap-between-wins")
+    public List<DriverRankingDTO> getBiggestGapBetweenWins() {
+        return statisticsService.getBiggestGapBetweenWins();
+    }
+
+    @GetMapping("/victories/gap-first-last")
+    public List<DriverRankingDTO> getGapBetweenFirstAndLastWin() {
+        return statisticsService.getGapBetweenFirstAndLastWin();
+    }
+
+    @GetMapping("/victories/most-in-single-year")
+    public List<DriverRankingDTO> getMostWinsInSingleYear() {
+        return statisticsService.getMostWinsInSingleYear();
+    }
+
+    @GetMapping("/victories/most-winning-years")
+    public List<DriverRankingDTO> getMostYearsWithWins() {
+        return statisticsService.getMostYearsWithWins();
+    }
+
+    @GetMapping("/victories/most-consecutive-winning-years")
+    public List<DriverRankingDTO> getMostConsecutiveWinningYears() {
+        return statisticsService.getMostConsecutiveWinningYears();
+    }
+
+    @GetMapping("/victories/gps-before-first-win")
+    public List<DriverRankingDTO> getGpCountBeforeFirstWin() {
+        return statisticsService.getGpCountBeforeFirstWin();
+    }
+
+
+
+
+
+
 
     @GetMapping("/constructor-options")
     public List<StatisticsService.ConstructorOption> getAllConstructors() {

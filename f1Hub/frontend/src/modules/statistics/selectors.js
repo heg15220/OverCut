@@ -22,3 +22,13 @@ export const getTeamWinsChronologically = state => getModuleState(state).teamWin
 export const getYoungestDriversAtFirstWin = state => getModuleState(state).youngestWinDrivers;
 export const getOldestDriversToWin = state => getModuleState(state).oldestWinDrivers;
 export const getWinsOnBirthday = state => getModuleState(state).winsOnBirthday;
+export const getLongestConsecutiveWinStreaks = state => getModuleState(state).longestConsecutiveWinStreaks;
+export const getLongestSeasonStartWinStreaks = state => getModuleState(state).seasonStartWinStreaks;
+export const getLastCareerWinPerDriver = state => getModuleState(state).lastCareerWins;
+export const getBiggestGapBetweenWins = state => getModuleState(state).biggestWinGaps;
+export const getGapBetweenFirstAndLastWin = state => getModuleState(state).firstLastWinGaps;
+export const getMostWinsInSingleYear = state => getModuleState(state).mostWinsSingleYear;
+export const getMostYearsWithWins = state => getModuleState(state).mostYearsWithWins;
+export const getMostConsecutiveWinningYears = state => getModuleState(state).mostConsecutiveWinningYears;
+export const getGpCountBeforeFirstWin = state => getModuleState(state).gpCountBeforeFirstWin;
+

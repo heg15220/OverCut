@@ -23,7 +23,16 @@ const initialState = {
   teamWinsChronologically: [],
   youngestWinDrivers: [],
   oldestWinDrivers: [],
-  winsOnBirthday: []
+  winsOnBirthday: [],
+  longestConsecutiveWinStreaks: [],
+  seasonStartWinStreaks: [],
+  lastCareerWins: [],
+  biggestWinGaps: [],
+  firstLastWinGaps: [],
+  mostWinsSingleYear: [],
+  mostYearsWithWins: [],
+  mostConsecutiveWinningYears: [],
+  gpCountBeforeFirstWin: []
 
 
 };
@@ -78,6 +87,26 @@ export default function reducer(state = initialState, action) {
       return { ...state, oldestWinDrivers: action.data };
     case actionTypes.FETCH_WINS_ON_BIRTHDAY_COMPLETED:
       return { ...state, winsOnBirthday: action.data };
+
+
+    case actionTypes.FETCH_CONSECUTIVE_WIN_STREAKS_COMPLETED:
+      return { ...state, longestConsecutiveWinStreaks: action.data };
+    case actionTypes.FETCH_SEASON_START_WIN_STREAKS_COMPLETED:
+      return { ...state, seasonStartWinStreaks: action.data };
+    case actionTypes.FETCH_LAST_CAREER_WIN_COMPLETED:
+      return { ...state, lastCareerWins: action.data };
+    case actionTypes.FETCH_GAP_BETWEEN_WINS_COMPLETED:
+      return { ...state, biggestWinGaps: action.data };
+    case actionTypes.FETCH_GAP_FIRST_LAST_WIN_COMPLETED:
+      return { ...state, firstLastWinGaps: action.data };
+    case actionTypes.FETCH_MOST_WINS_SINGLE_YEAR_COMPLETED:
+      return { ...state, mostWinsSingleYear: action.data };
+    case actionTypes.FETCH_MOST_YEARS_WITH_WINS_COMPLETED:
+      return { ...state, mostYearsWithWins: action.data };
+    case actionTypes.FETCH_CONSECUTIVE_WINNING_YEARS_COMPLETED:
+      return { ...state, mostConsecutiveWinningYears: action.data };
+    case actionTypes.FETCH_GPS_BEFORE_FIRST_WIN_COMPLETED:
+      return { ...state, gpCountBeforeFirstWin: action.data };
 
 
     default:

@@ -65,3 +65,31 @@ export const getOldestDriversToWin = (onSuccess, onError) =>
 
 export const getWinsOnBirthday = (onSuccess, onError) =>
   appFetch(`/statistics/victories/on-birthday`, fetchConfig("GET"), onSuccess, onError);
+
+
+export const getLongestConsecutiveWinStreaks = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/streaks/consecutive`, fetchConfig("GET"), onSuccess, onError);
+
+export const getLongestSeasonStartWinStreaks = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/streaks/start-season`, fetchConfig("GET"), onSuccess, onError);
+
+export const getLastCareerWinPerDriver = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/last`, fetchConfig("GET"), onSuccess, onError);
+
+export const getBiggestGapBetweenWins = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/gap-between-wins`, fetchConfig("GET"), onSuccess, onError);
+
+export const getGapBetweenFirstAndLastWin = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/gap-first-last`, fetchConfig("GET"), onSuccess, onError);
+
+export const getMostWinsInSingleYear = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/most-in-single-year`, fetchConfig("GET"), onSuccess, onError);
+
+export const getMostYearsWithWins = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/most-winning-years`, fetchConfig("GET"), onSuccess, onError);
+
+export const getMostConsecutiveWinningYears = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/most-consecutive-winning-years`, fetchConfig("GET"), onSuccess, onError);
+
+export const getGpCountBeforeFirstWin = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/gps-before-first-win`, fetchConfig("GET"), onSuccess, onError);

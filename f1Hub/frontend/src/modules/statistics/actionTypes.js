@@ -20,3 +20,14 @@ export const FETCH_TEAM_WINS_CHRONOLOGICALLY_COMPLETED = "statistics/fetchTeamWi
 export const FETCH_YOUNGEST_WINNERS_COMPLETED = "statistics/fetchYoungestDriversAtFirstWinCompleted";
 export const FETCH_OLDEST_WINNERS_COMPLETED = "statistics/fetchOldestDriversToWinCompleted";
 export const FETCH_WINS_ON_BIRTHDAY_COMPLETED = "statistics/fetchWinsOnBirthdayCompleted";
+
+export const FETCH_CONSECUTIVE_WIN_STREAKS_COMPLETED = "statistics/fetchConsecutiveWinStreaksCompleted";
+export const FETCH_SEASON_START_WIN_STREAKS_COMPLETED = "statistics/fetchSeasonStartWinStreaksCompleted";
+export const FETCH_LAST_CAREER_WIN_COMPLETED = "statistics/fetchLastCareerWinCompleted";
+export const FETCH_GAP_BETWEEN_WINS_COMPLETED = "statistics/fetchGapBetweenWinsCompleted";
+export const FETCH_GAP_FIRST_LAST_WIN_COMPLETED = "statistics/fetchGapFirstLastWinCompleted";
+export const FETCH_MOST_WINS_SINGLE_YEAR_COMPLETED = "statistics/fetchMostWinsSingleYearCompleted";
+export const FETCH_MOST_YEARS_WITH_WINS_COMPLETED = "statistics/fetchMostYearsWithWinsCompleted";
+export const FETCH_CONSECUTIVE_WINNING_YEARS_COMPLETED = "statistics/fetchConsecutiveWinningYearsCompleted";
+export const FETCH_GPS_BEFORE_FIRST_WIN_COMPLETED = "statistics/fetchGpCountBeforeFirstWinCompleted";
+

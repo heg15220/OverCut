@@ -140,3 +140,57 @@ export const fetchWinsOnBirthday = () => dispatch =>
     data => dispatch({ type: actionTypes.FETCH_WINS_ON_BIRTHDAY_COMPLETED, data }),
     () => {}
   );
+
+export const fetchLongestConsecutiveWinStreaks = () => dispatch =>
+  backend.statisticsService.getLongestConsecutiveWinStreaks(
+    data => dispatch({ type: actionTypes.FETCH_CONSECUTIVE_WIN_STREAKS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchLongestSeasonStartWinStreaks = () => dispatch =>
+  backend.statisticsService.getLongestSeasonStartWinStreaks(
+    data => dispatch({ type: actionTypes.FETCH_SEASON_START_WIN_STREAKS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchLastCareerWinPerDriver = () => dispatch =>
+  backend.statisticsService.getLastCareerWinPerDriver(
+    data => dispatch({ type: actionTypes.FETCH_LAST_CAREER_WIN_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchBiggestGapBetweenWins = () => dispatch =>
+  backend.statisticsService.getBiggestGapBetweenWins(
+    data => dispatch({ type: actionTypes.FETCH_GAP_BETWEEN_WINS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGapBetweenFirstAndLastWin = () => dispatch =>
+  backend.statisticsService.getGapBetweenFirstAndLastWin(
+    data => dispatch({ type: actionTypes.FETCH_GAP_FIRST_LAST_WIN_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchMostWinsInSingleYear = () => dispatch =>
+  backend.statisticsService.getMostWinsInSingleYear(
+    data => dispatch({ type: actionTypes.FETCH_MOST_WINS_SINGLE_YEAR_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchMostYearsWithWins = () => dispatch =>
+  backend.statisticsService.getMostYearsWithWins(
+    data => dispatch({ type: actionTypes.FETCH_MOST_YEARS_WITH_WINS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchMostConsecutiveWinningYears = () => dispatch =>
+  backend.statisticsService.getMostConsecutiveWinningYears(
+    data => dispatch({ type: actionTypes.FETCH_CONSECUTIVE_WINNING_YEARS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGpCountBeforeFirstWin = () => dispatch =>
+  backend.statisticsService.getGpCountBeforeFirstWin(
+    data => dispatch({ type: actionTypes.FETCH_GPS_BEFORE_FIRST_WIN_COMPLETED, data }),
+    () => {}
+  );

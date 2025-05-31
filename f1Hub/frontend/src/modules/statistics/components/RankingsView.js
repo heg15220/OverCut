@@ -37,6 +37,15 @@ const RankingsView = () => {
   const youngestWinDrivers = useSelector(statisticsSelectors.getYoungestDriversAtFirstWin);
   const oldestWinDrivers = useSelector(statisticsSelectors.getOldestDriversToWin);
   const winsOnBirthday = useSelector(statisticsSelectors.getWinsOnBirthday);
+  const longestConsecutiveWinStreaks = useSelector(statisticsSelectors.getLongestConsecutiveWinStreaks);
+  const longestSeasonStartWinStreaks = useSelector(statisticsSelectors.getLongestSeasonStartWinStreaks);
+  const lastCareerWinPerDriver = useSelector(statisticsSelectors.getLastCareerWinPerDriver);
+  const biggestGapBetweenWins = useSelector(statisticsSelectors.getBiggestGapBetweenWins);
+  const gapBetweenFirstAndLastWin = useSelector(statisticsSelectors.getGapBetweenFirstAndLastWin);
+  const mostWinsInSingleYear = useSelector(statisticsSelectors.getMostWinsInSingleYear);
+  const mostYearsWithWins = useSelector(statisticsSelectors.getMostYearsWithWins);
+  const mostConsecutiveWinningYears = useSelector(statisticsSelectors.getMostConsecutiveWinningYears);
+  const gpCountBeforeFirstWin = useSelector(statisticsSelectors.getGpCountBeforeFirstWin);
 
   const showTeamSelector = section === "team_rankings";
 
@@ -84,6 +93,15 @@ const RankingsView = () => {
         case "wins_youngest": dispatch(statisticsActions.fetchYoungestDriversAtFirstWin()); break;
         case "wins_oldest": dispatch(statisticsActions.fetchOldestDriversToWin()); break;
         case "wins_on_birthday": dispatch(statisticsActions.fetchWinsOnBirthday()); break;
+        case "wins_consecutive": dispatch(statisticsActions.fetchLongestConsecutiveWinStreaks()); break;
+        case "wins_season_start": dispatch(statisticsActions.fetchLongestSeasonStartWinStreaks()); break;
+        case "wins_last": dispatch(statisticsActions.fetchLastCareerWinPerDriver()); break;
+        case "wins_biggest_gap": dispatch(statisticsActions.fetchBiggestGapBetweenWins()); break;
+        case "wins_first_last_gap": dispatch(statisticsActions.fetchGapBetweenFirstAndLastWin()); break;
+        case "wins_in_single_year": dispatch(statisticsActions.fetchMostWinsInSingleYear()); break;
+        case "wins_years_with": dispatch(statisticsActions.fetchMostYearsWithWins()); break;
+        case "wins_years_consecutive": dispatch(statisticsActions.fetchMostConsecutiveWinningYears()); break;
+        case "wins_gp_before": dispatch(statisticsActions.fetchGpCountBeforeFirstWin()); break;
         default: break;
       }
     }
@@ -102,6 +120,15 @@ const RankingsView = () => {
     : recordMode === "wins_youngest" ? youngestWinDrivers
     : recordMode === "wins_oldest" ? oldestWinDrivers
     : recordMode === "wins_on_birthday" ? winsOnBirthday
+    : recordMode === "wins_consecutive" ? longestConsecutiveWinStreaks
+    : recordMode === "wins_season_start" ? longestSeasonStartWinStreaks
+    : recordMode === "wins_last" ? lastCareerWinPerDriver
+    : recordMode === "wins_biggest_gap" ? biggestGapBetweenWins
+    : recordMode === "wins_first_last_gap" ? gapBetweenFirstAndLastWin
+    : recordMode === "wins_in_single_year" ? mostWinsInSingleYear
+    : recordMode === "wins_years_with" ? mostYearsWithWins
+    : recordMode === "wins_years_consecutive" ? mostConsecutiveWinningYears
+    : recordMode === "wins_gp_before" ? gpCountBeforeFirstWin
     : []
     : section === "rankings"
     ? mode === "wins" ? wins
@@ -127,6 +154,15 @@ const RankingsView = () => {
         case "wins_youngest": return "Edad";
         case "wins_oldest": return "Edad";
         case "wins_on_birthday": return "Año";
+        case "wins_consecutive": return "Victorias consecutivas";
+        case "wins_season_start": return "Racha inicial";
+        case "wins_last": return "Última victoria";
+        case "wins_biggest_gap": return "Días entre victorias";
+        case "wins_first_last_gap": return "Años entre primera y última";
+        case "wins_in_single_year": return "Victorias en un año";
+        case "wins_years_with": return "Años con victorias";
+        case "wins_years_consecutive": return "Años consecutivos con victoria";
+        case "wins_gp_before": return "GPs antes de la primera victoria";
         default: return "Valor";
       }
     }
@@ -177,6 +213,15 @@ const RankingsView = () => {
                 <option value="wins_youngest">Más jóvenes al ganar</option>
                 <option value="wins_oldest">Más veteranos al ganar</option>
                 <option value="wins_on_birthday">Victorias en cumpleaños</option>
+                <option value="wins_consecutive">Racha de victorias consecutivas</option>
+                <option value="wins_season_start">Racha al comienzo de temporada</option>
+                <option value="wins_last">Última victoria de cada piloto</option>
+                <option value="wins_biggest_gap">Mayor intervalo entre victorias</option>
+                <option value="wins_first_last_gap">Años entre primera y última victoria</option>
+                <option value="wins_in_single_year">Más victorias en un solo año</option>
+                <option value="wins_years_with">Años distintos con victoria</option>
+                <option value="wins_years_consecutive">Años consecutivos con victoria</option>
+                <option value="wins_gp_before">GPs antes de la primera victoria</option>
               </optgroup>
             )}
           </select>
@@ -185,13 +230,7 @@ const RankingsView = () => {
 
       {section !== "records" && (
         <div className="stat-controls">
-          <select
-            value={mode}
-            onChange={(e) => {
-              setMode(e.target.value);
-              setTeam("");
-            }}
-          >
+          <select value={mode} onChange={(e) => { setMode(e.target.value); setTeam(""); }}>
             {section === "rankings" && (
               <>
                 <option value="wins">Pilotos con más Victorias</option>
