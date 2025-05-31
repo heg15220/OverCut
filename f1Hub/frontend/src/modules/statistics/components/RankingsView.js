@@ -62,6 +62,16 @@ const RankingsView = () => {
   const winsWithFastestLap = useSelector(statisticsSelectors.getWinsWithFastestLap);
 
 
+const secondPlacePodiums = useSelector(statisticsSelectors.getSecondPlacePodiums);
+const thirdPlacePodiums = useSelector(statisticsSelectors.getThirdPlacePodiums);
+const secondThirdPlacePodiums = useSelector(statisticsSelectors.getSecondThirdPlacePodiums);
+const podiumChronology = useSelector(statisticsSelectors.getPodiumChronology);
+const teamPodiumChronology = useSelector(statisticsSelectors.getTeamPodiumChronology);
+const youngestPodiumDrivers = useSelector(statisticsSelectors.getYoungestPodiumDrivers);
+const podiumsOnBirthday = useSelector(statisticsSelectors.getPodiumsOnBirthday);
+const oldestPodiumDriversByNationality = useSelector(statisticsSelectors.getOldestPodiumDriversByNationality);
+
+
 
   const showTeamSelector = section === "team_rankings";
 
@@ -131,6 +141,16 @@ const RankingsView = () => {
         case "wins_no_laps_led": dispatch(statisticsActions.fetchWinsWithoutLeadingAnyLap()); break;
         case "wins_without_pole": dispatch(statisticsActions.fetchWinsWithoutPolePosition()); break;
         case "wins_with_fastest_lap": dispatch(statisticsActions.fetchWinsWithFastestLap()); break;
+        case "podiums_second_place": dispatch(statisticsActions.fetchSecondPlacePodiums()); break;
+        case "podiums_third_place": dispatch(statisticsActions.fetchThirdPlacePodiums()); break;
+        case "podiums_second_and_third": dispatch(statisticsActions.fetchSecondAndThirdPlacePodiums()); break;
+        case "podiums_chronology": dispatch(statisticsActions.fetchPodiumChronology()); break;
+        case "podiums_team_chronology": dispatch(statisticsActions.fetchTeamPodiumChronology()); break;
+        case "podiums_youngest": dispatch(statisticsActions.fetchYoungestPodiumDrivers()); break;
+        case "podiums_on_birthday": dispatch(statisticsActions.fetchPodiumsOnBirthday()); break;
+        case "podiums_oldest_by_nationality": dispatch(statisticsActions.fetchOldestPodiumDriversByNationality()); break;
+
+
         default: break;
       }
     }
@@ -171,6 +191,15 @@ const RankingsView = () => {
     : recordMode === "wins_no_laps_led" ? winsWithoutLeadingAnyLap
     : recordMode === "wins_without_pole" ? winsWithoutPolePosition
     : recordMode === "wins_with_fastest_lap" ? winsWithFastestLap
+    : recordMode === "podiums_second_place" ? secondPlacePodiums
+    : recordMode === "podiums_third_place" ? thirdPlacePodiums
+    : recordMode === "podiums_second_and_third" ? secondThirdPlacePodiums
+    : recordMode === "podiums_chronology" ? podiumChronology
+    : recordMode === "podiums_team_chronology" ? teamPodiumChronology
+    : recordMode === "podiums_youngest" ? youngestPodiumDrivers
+    : recordMode === "podiums_on_birthday" ? podiumsOnBirthday
+    : recordMode === "podiums_oldest_by_nationality" ? oldestPodiumDriversByNationality
+
     : []
     : section === "rankings"
     ? mode === "wins" ? wins
@@ -218,6 +247,15 @@ const RankingsView = () => {
           case "wins_no_laps_led": return "Victorias sin liderar";
           case "wins_without_pole": return "Victorias sin pole";
           case "wins_with_fastest_lap": return "Victorias con vuelta rápida";
+          case "podiums_second_place": return "Pódiums en 2ª";
+          case "podiums_third_place": return "Pódiums en 3ª";
+          case "podiums_second_and_third": return "Pódiums (2ª o 3ª)";
+          case "podiums_chronology": return "Año";
+          case "podiums_team_chronology": return "Año";
+          case "podiums_youngest": return "Edad";
+          case "podiums_on_birthday": return "Año";
+          case "podiums_oldest_by_nationality": return "Edad";
+
           default: return "Valor";
         }
       }
@@ -243,10 +281,15 @@ const RankingsView = () => {
                 <select value={recordCategory} onChange={e => {
                   const category = e.target.value;
                   setRecordCategory(category);
-                  setRecordMode(category === "champions" ? "titles_by_count" : "wins_chronological");
+                  let newMode = "titles_by_count";
+                  if (category === "victories") newMode = "wins_chronological";
+                  else if (category === "podiums") newMode = "podiums_second_place";
+                  setRecordMode(newMode);
+
                 }}>
                   <option value="champions">🏆 Campeones del Mundo</option>
                   <option value="victories">🥇 Victorias</option>
+                  <option value="podiums">🥈 Pódiums</option>
                 </select>
 
                 <select value={recordMode} onChange={e => setRecordMode(e.target.value)}>
@@ -292,6 +335,21 @@ const RankingsView = () => {
                       <option value="wins_with_fastest_lap">Victorias con vuelta rápida</option>
                     </optgroup>
                   )}
+
+                  {recordCategory === "podiums" && (
+                    <optgroup label="🥈 Pódiums">
+                      <option value="podiums_second_place">Pódiums en 2ª posición</option>
+                      <option value="podiums_third_place">Pódiums en 3ª posición</option>
+                      <option value="podiums_second_and_third">Pódiums en 2ª y 3ª posición</option>
+                      <option value="podiums_chronology">Primera aparición en el podio</option>
+                      <option value="podiums_team_chronology">Primer podio por equipo</option>
+                      <option value="podiums_youngest">Pilotos más jóvenes en el podio</option>
+                      <option value="podiums_on_birthday">Pódiums en el cumpleaños</option>
+                      <option value="podiums_oldest_by_nationality">Mayores en podio por país</option>
+                    </optgroup>
+                  )}
+
+
                 </select>
               </div>
             )}

@@ -45,3 +45,11 @@ export const FETCH_WINS_NO_LAPS_LED_COMPLETED = "statistics/fetchWinsWithoutLead
 export const FETCH_WINS_WITHOUT_POLE_COMPLETED = "statistics/fetchWinsWithoutPoleCompleted";
 export const FETCH_WINS_WITH_FASTEST_LAP_COMPLETED = "statistics/fetchWinsWithFastestLapCompleted";
 
+export const FETCH_PODIUMS_SECOND_PLACE_COMPLETED = "statistics/fetchPodiumsSecondPlaceCompleted";
+export const FETCH_PODIUMS_THIRD_PLACE_COMPLETED = "statistics/fetchPodiumsThirdPlaceCompleted";
+export const FETCH_PODIUMS_SECOND_THIRD_PLACE_COMPLETED = "statistics/fetchPodiumsSecondAndThirdPlaceCompleted";
+export const FETCH_PODIUMS_CHRONOLOGY_COMPLETED = "statistics/fetchPodiumsChronologyCompleted";
+export const FETCH_PODIUMS_TEAM_CHRONOLOGY_COMPLETED = "statistics/fetchTeamPodiumChronologyCompleted";
+export const FETCH_PODIUMS_YOUNGEST_COMPLETED = "statistics/fetchYoungestPodiumDriversCompleted";
+export const FETCH_PODIUMS_ON_BIRTHDAY_COMPLETED = "statistics/fetchPodiumsOnBirthdayCompleted";
+export const FETCH_PODIUMS_OLDEST_BY_NATIONALITY_COMPLETED = "statistics/fetchOldestPodiumDriversByNationalityCompleted";

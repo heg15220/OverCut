@@ -44,4 +44,12 @@ export const getDriversWithHomeGPWins = state => getModuleState(state).homeGPWin
 export const getWinsWithoutLeadingAnyLap = state => getModuleState(state).winsWithoutLeadingLap;
 export const getWinsWithoutPolePosition = state => getModuleState(state).winsWithoutPole;
 export const getWinsWithFastestLap = state => getModuleState(state).winsWithFastestLap;
+export const getSecondPlacePodiums = state => getModuleState(state).secondPlacePodiums;
+export const getThirdPlacePodiums = state => getModuleState(state).thirdPlacePodiums;
+export const getSecondThirdPlacePodiums = state => getModuleState(state).secondThirdPlacePodiums;
+export const getPodiumChronology = state => getModuleState(state).podiumChronology;
+export const getTeamPodiumChronology = state => getModuleState(state).teamPodiumChronology;
+export const getYoungestPodiumDrivers = state => getModuleState(state).youngestPodiumDrivers;
+export const getPodiumsOnBirthday = state => getModuleState(state).podiumsOnBirthday;
+export const getOldestPodiumDriversByNationality = state => getModuleState(state).oldestPodiumDriversByNationality;
 

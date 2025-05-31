@@ -132,3 +132,27 @@ export const getWinsWithoutPolePosition = (onSuccess, onError) =>
 
 export const getWinsWithFastestLap = (onSuccess, onError) =>
   appFetch(`/statistics/wins/with-fastest-lap`, fetchConfig("GET"), onSuccess, onError);
+
+export const getSecondPlacePodiums = (onSuccess, onError) =>
+  appFetch(`/statistics/second-place`, fetchConfig("GET"), onSuccess, onError);
+
+export const getThirdPlacePodiums = (onSuccess, onError) =>
+  appFetch(`/statistics/third-place`, fetchConfig("GET"), onSuccess, onError);
+
+export const getSecondAndThirdPlacePodiums = (onSuccess, onError) =>
+  appFetch(`/statistics/second-and-third-place`, fetchConfig("GET"), onSuccess, onError);
+
+export const getPodiumChronology = (onSuccess, onError) =>
+  appFetch(`/statistics/chronology`, fetchConfig("GET"), onSuccess, onError);
+
+export const getTeamPodiumChronology = (onSuccess, onError) =>
+  appFetch(`/statistics/team-chronology`, fetchConfig("GET"), onSuccess, onError);
+
+export const getYoungestPodiumDrivers = (onSuccess, onError) =>
+  appFetch(`/statistics/youngest`, fetchConfig("GET"), onSuccess, onError);
+
+export const getPodiumsOnBirthday = (onSuccess, onError) =>
+  appFetch(`/statistics/on-birthday`, fetchConfig("GET"), onSuccess, onError);
+
+export const getOldestPodiumDriversByNationality = (onSuccess, onError) =>
+  appFetch(`/statistics/oldest-by-nationality`, fetchConfig("GET"), onSuccess, onError);

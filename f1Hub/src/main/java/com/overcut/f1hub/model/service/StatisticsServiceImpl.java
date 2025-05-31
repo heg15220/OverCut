@@ -15,7 +15,9 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StatisticsServiceImpl implements StatisticsService {
@@ -1441,8 +1443,161 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 
 
+    @Override
+    public List<DriverRankingDTO> getSecondPlacePodiums() {
+        return getPodiumsByPosition(2);
+    }
+
+    @Override
+    public List<DriverRankingDTO> getThirdPlacePodiums() {
+        return getPodiumsByPosition(3);
+    }
+
+    @Override
+    public List<DriverRankingDTO> getSecondAndThirdPlacePodiums() {
+        return getPodiumsByPosition(2, 3);
+    }
+
+    private List<DriverRankingDTO> getPodiumsByPosition(Integer... positions) {
+        Set<Integer> positionSet = Set.of(positions);
+        Map<Long, Integer> podiums = new HashMap<>();
+
+        for (Result r : resultDao.findAll()) {
+            if (r.getPositionOrder() != null && positionSet.contains(r.getPositionOrder())) {
+                podiums.merge(r.getDriver().getDriverId(), 1, Integer::sum);
+            }
+        }
+
+        List<Driver> drivers = driverDao.findByDriverIds(podiums.keySet());
+
+        return drivers.stream()
+                .map(d -> new DriverRankingDTO(
+                        d.getForename() + " " + d.getSurname(),
+                        d.getNationality(),
+                        podiums.getOrDefault(d.getDriverId(), 0),
+                        getFlagUrl(d.getNationality())))
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
 
 
+    @Override
+    public List<DriverRankingDTO> getPodiumChronology() {
+        return resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .sorted(Comparator.comparing(r -> r.getRace().getDate()))
+                .collect(Collectors.toMap(
+                        r -> r.getDriver().getDriverId(),
+                        r -> r,
+                        (r1, r2) -> r1)) // keep first
+                .values().stream()
+                .map(r -> {
+                    Driver d = r.getDriver();
+                    String name = d.getForename() + " " + d.getSurname();
+                    return new DriverRankingDTO(name, d.getNationality(), r.getRace().getYear(), getFlagUrl(d.getNationality()));
+                })
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue))
+                .toList();
+    }
+
+    @Override
+    public List<DriverRankingDTO> getTeamPodiumChronology() {
+        return resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .sorted(Comparator.comparing(r -> r.getRace().getDate()))
+                .collect(Collectors.toMap(
+                        r -> r.getConstructor().getConstructorId(),
+                        r -> r,
+                        (r1, r2) -> r1)) // keep first
+                .values().stream()
+                .map(r -> {
+                    Constructor c = r.getConstructor();
+                    return new DriverRankingDTO(c.getName(), "–", r.getRace().getYear(), null);
+                })
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue))
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getYoungestPodiumDrivers() {
+        return resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .filter(r -> r.getDriver().getDob() != null && r.getRace().getDate() != null)
+                .collect(Collectors.toMap(
+                        r -> r.getDriver().getDriverId(),
+                        r -> r,
+                        (r1, r2) -> r1)) // first podium
+                .values().stream()
+                .map(r -> {
+                    Driver d = r.getDriver();
+                    long ageDays = ChronoUnit.DAYS.between(d.getDob(), (Temporal) r.getRace().getDate());
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            (int) (ageDays / 365.25),
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue))
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getPodiumsOnBirthday() {
+        return resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .filter(r -> {
+                    LocalDate dob = r.getDriver().getDob().atStartOfDay().toLocalDate();
+                    LocalDate raceDate = r.getRace().getDate().toLocalDate();
+                    return dob != null && raceDate != null &&
+                            dob.getDayOfMonth() == raceDate.getDayOfMonth() &&
+                            dob.getMonth() == raceDate.getMonth();
+                })
+                .collect(Collectors.groupingBy(r -> r.getDriver().getDriverId(), Collectors.counting()))
+                .entrySet().stream()
+                .map(e -> {
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            e.getValue().intValue(),
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+    @Override
+    public List<DriverRankingDTO> getOldestPodiumDriversByNationality() {
+        return resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .filter(r -> r.getDriver().getDob() != null && r.getRace().getDate() != null)
+                .collect(Collectors.toMap(
+                        r -> r.getDriver().getDriverId(),
+                        r -> r,
+                        (r1, r2) -> r2)) // keep last (older)
+                .values().stream()
+                .map(r -> {
+                    Driver d = r.getDriver();
+                    LocalDate dob = d.getDob().atStartOfDay().toLocalDate();
+                    LocalDate raceDate = r.getRace().getDate().toLocalDate();
+                    long ageDays = ChronoUnit.DAYS.between(dob, raceDate);
+
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            (int) (ageDays / 365.25),
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
 
 
 

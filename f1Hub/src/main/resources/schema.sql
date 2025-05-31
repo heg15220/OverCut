@@ -57,8 +57,10 @@ CREATE TABLE drivers (
     driverId BIGINT PRIMARY KEY,
     forename VARCHAR(100),
     surname VARCHAR(100),
-    nationality VARCHAR(100)
+    nationality VARCHAR(100),
+    dob DATE
 );
+
 
 CREATE TABLE constructors (
     constructorId BIGINT PRIMARY KEY,

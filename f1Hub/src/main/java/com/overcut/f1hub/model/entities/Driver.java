@@ -1,7 +1,9 @@
 package com.overcut.f1hub.model.entities;
 
+import com.overcut.f1hub.rest.dtos.LocalDateAttributeConverter;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -13,6 +15,10 @@ public class Driver {
     private String forename;
     private String surname;
     private String nationality;
+
+    @Column(name = "dob")
+    @Convert(converter = LocalDateAttributeConverter.class)
+    private LocalDate dob;
 
     private List<Result> results;
 
@@ -28,7 +34,13 @@ public class Driver {
         this.results = results;
     }
 
-
+    public Driver(String forename, String surname, String nationality, LocalDate dob, List<Result> results) {
+        this.forename = forename;
+        this.surname = surname;
+        this.nationality = nationality;
+        this.dob = dob;
+        this.results = results;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,5 +92,13 @@ public class Driver {
 
     public void setSprintResults(List<SprintResult> sprintResults) {
         this.sprintResults = sprintResults;
+    }
+
+    public LocalDate getDob() {
+        return dob;
+    }
+
+    public void setDob(LocalDate dob) {
+        this.dob = dob;
     }
 }

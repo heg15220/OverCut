@@ -64,4 +64,15 @@ public interface StatisticsService {
     List<DriverRankingDTO> getWinsWithFastestLap();
 
 
+
+    List<DriverRankingDTO> getSecondPlacePodiums();
+    List<DriverRankingDTO> getThirdPlacePodiums();
+    List<DriverRankingDTO> getSecondAndThirdPlacePodiums();
+    List<DriverRankingDTO> getPodiumChronology();
+    List<DriverRankingDTO> getTeamPodiumChronology();
+    List<DriverRankingDTO> getYoungestPodiumDrivers();
+    List<DriverRankingDTO> getPodiumsOnBirthday();
+    List<DriverRankingDTO> getOldestPodiumDriversByNationality();
+
+
 }

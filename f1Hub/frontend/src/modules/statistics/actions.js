@@ -273,3 +273,51 @@ export const fetchWinsWithFastestLap = () => dispatch =>
     () => {}
   );
 
+export const fetchSecondPlacePodiums = () => dispatch =>
+  backend.statisticsService.getSecondPlacePodiums(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_SECOND_PLACE_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchThirdPlacePodiums = () => dispatch =>
+  backend.statisticsService.getThirdPlacePodiums(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_THIRD_PLACE_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchSecondAndThirdPlacePodiums = () => dispatch =>
+  backend.statisticsService.getSecondAndThirdPlacePodiums(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_SECOND_THIRD_PLACE_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchPodiumChronology = () => dispatch =>
+  backend.statisticsService.getPodiumChronology(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_CHRONOLOGY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchTeamPodiumChronology = () => dispatch =>
+  backend.statisticsService.getTeamPodiumChronology(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_TEAM_CHRONOLOGY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchYoungestPodiumDrivers = () => dispatch =>
+  backend.statisticsService.getYoungestPodiumDrivers(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_YOUNGEST_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchPodiumsOnBirthday = () => dispatch =>
+  backend.statisticsService.getPodiumsOnBirthday(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_ON_BIRTHDAY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchOldestPodiumDriversByNationality = () => dispatch =>
+  backend.statisticsService.getOldestPodiumDriversByNationality(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_OLDEST_BY_NATIONALITY_COMPLETED, data }),
+    () => {}
+  );
+

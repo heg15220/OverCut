@@ -241,6 +241,45 @@ public class StatisticsController {
         return statisticsService.getWinsWithFastestLap();
     }
 
+    @GetMapping("/second-place")
+    public List<DriverRankingDTO> getSecondPlacePodiums() {
+        return statisticsService.getSecondPlacePodiums();
+    }
+
+    @GetMapping("/third-place")
+    public List<DriverRankingDTO> getThirdPlacePodiums() {
+        return statisticsService.getThirdPlacePodiums();
+    }
+
+    @GetMapping("/second-and-third-place")
+    public List<DriverRankingDTO> getSecondAndThirdPlacePodiums() {
+        return statisticsService.getSecondAndThirdPlacePodiums();
+    }
+
+    @GetMapping("/chronology")
+    public List<DriverRankingDTO> getPodiumChronology() {
+        return statisticsService.getPodiumChronology();
+    }
+
+    @GetMapping("/team-chronology")
+    public List<DriverRankingDTO> getTeamPodiumChronology() {
+        return statisticsService.getTeamPodiumChronology();
+    }
+
+    @GetMapping("/youngest")
+    public List<DriverRankingDTO> getYoungestPodiumDrivers() {
+        return statisticsService.getYoungestPodiumDrivers();
+    }
+
+    @GetMapping("/on-birthday")
+    public List<DriverRankingDTO> getPodiumsOnBirthday() {
+        return statisticsService.getPodiumsOnBirthday();
+    }
+
+    @GetMapping("/oldest-by-nationality")
+    public List<DriverRankingDTO> getOldestPodiumDriversByNationality() {
+        return statisticsService.getOldestPodiumDriversByNationality();
+    }
 
 
 

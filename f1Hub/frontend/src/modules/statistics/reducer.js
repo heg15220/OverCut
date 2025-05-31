@@ -45,7 +45,15 @@ const initialState = {
   homeGPWins: [],
   winsWithoutLeadingLap: [],
   winsWithoutPole: [],
-  winsWithFastestLap: []
+  winsWithFastestLap: [],
+  secondPlacePodiums: [],
+  thirdPlacePodiums: [],
+  secondThirdPlacePodiums: [],
+  podiumChronology: [],
+  teamPodiumChronology: [],
+  youngestPodiumDrivers: [],
+  podiumsOnBirthday: [],
+  oldestPodiumDriversByNationality: []
 
 
 };
@@ -148,6 +156,25 @@ export default function reducer(state = initialState, action) {
       return { ...state, winsWithoutPole: action.data };
     case actionTypes.FETCH_WINS_WITH_FASTEST_LAP_COMPLETED:
       return { ...state, winsWithFastestLap: action.data };
+
+
+    case actionTypes.FETCH_PODIUMS_SECOND_PLACE_COMPLETED:
+      return { ...state, secondPlacePodiums: action.data };
+    case actionTypes.FETCH_PODIUMS_THIRD_PLACE_COMPLETED:
+      return { ...state, thirdPlacePodiums: action.data };
+    case actionTypes.FETCH_PODIUMS_SECOND_THIRD_PLACE_COMPLETED:
+      return { ...state, secondThirdPlacePodiums: action.data };
+    case actionTypes.FETCH_PODIUMS_CHRONOLOGY_COMPLETED:
+      return { ...state, podiumChronology: action.data };
+    case actionTypes.FETCH_PODIUMS_TEAM_CHRONOLOGY_COMPLETED:
+      return { ...state, teamPodiumChronology: action.data };
+    case actionTypes.FETCH_PODIUMS_YOUNGEST_COMPLETED:
+      return { ...state, youngestPodiumDrivers: action.data };
+    case actionTypes.FETCH_PODIUMS_ON_BIRTHDAY_COMPLETED:
+      return { ...state, podiumsOnBirthday: action.data };
+    case actionTypes.FETCH_PODIUMS_OLDEST_BY_NATIONALITY_COMPLETED:
+      return { ...state, oldestPodiumDriversByNationality: action.data };
+
 
 
     default:
