@@ -194,3 +194,82 @@ export const fetchGpCountBeforeFirstWin = () => dispatch =>
     data => dispatch({ type: actionTypes.FETCH_GPS_BEFORE_FIRST_WIN_COMPLETED, data }),
     () => {}
   );
+
+export const fetchDriversWithMostWinsSameConstructor = () => dispatch =>
+  backend.statisticsService.getDriversWithMostWinsSameConstructor(
+    data => dispatch({ type: actionTypes.FETCH_MOST_WINS_SAME_CONSTRUCTOR_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostConstructorsWithWins = () => dispatch =>
+  backend.statisticsService.getDriversWithMostConstructorsWithWins(
+    data => dispatch({ type: actionTypes.FETCH_MOST_CONSTRUCTORS_WITH_WINS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchWinsByGrandPrix = () => dispatch =>
+  backend.statisticsService.getWinsByGrandPrix(
+    data => dispatch({ type: actionTypes.FETCH_WINS_BY_GP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchConsecutiveWinsByGrandPrix = () => dispatch =>
+  backend.statisticsService.getConsecutiveWinsByGrandPrix(
+    data => dispatch({ type: actionTypes.FETCH_CONSECUTIVE_WINS_BY_GP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostDifferentGPsWon = () => dispatch =>
+  backend.statisticsService.getDriversWithMostDifferentGPsWon(
+    data => dispatch({ type: actionTypes.FETCH_MOST_DIFFERENT_GPS_WON_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostCircuitWins = () => dispatch =>
+  backend.statisticsService.getDriversWithMostCircuitWins(
+    data => dispatch({ type: actionTypes.FETCH_MOST_CIRCUIT_WINS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostDifferentCircuitWins = () => dispatch =>
+  backend.statisticsService.getDriversWithMostDifferentCircuitWins(
+    data => dispatch({ type: actionTypes.FETCH_MOST_DIFFERENT_CIRCUIT_WINS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchWinsByStartingGridPosition = () => dispatch =>
+  backend.statisticsService.getWinsByStartingGridPosition(
+    data => dispatch({ type: actionTypes.FETCH_WINS_BY_GRID_POSITION_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGridPositionsWithWins = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGridPositionsWithWins(
+    data => dispatch({ type: actionTypes.FETCH_MOST_GRID_POSITIONS_WITH_WINS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithHomeGPWins = () => dispatch =>
+  backend.statisticsService.getDriversWithHomeGPWins(
+    data => dispatch({ type: actionTypes.FETCH_HOME_GP_WINS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchWinsWithoutLeadingAnyLap = () => dispatch =>
+  backend.statisticsService.getWinsWithoutLeadingAnyLap(
+    data => dispatch({ type: actionTypes.FETCH_WINS_NO_LAPS_LED_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchWinsWithoutPolePosition = () => dispatch =>
+  backend.statisticsService.getWinsWithoutPolePosition(
+    data => dispatch({ type: actionTypes.FETCH_WINS_WITHOUT_POLE_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchWinsWithFastestLap = () => dispatch =>
+  backend.statisticsService.getWinsWithFastestLap(
+    data => dispatch({ type: actionTypes.FETCH_WINS_WITH_FASTEST_LAP_COMPLETED, data }),
+    () => {}
+  );
+

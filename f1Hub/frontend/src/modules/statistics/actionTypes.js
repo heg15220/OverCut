@@ -31,3 +31,17 @@ export const FETCH_MOST_YEARS_WITH_WINS_COMPLETED = "statistics/fetchMostYearsWi
 export const FETCH_CONSECUTIVE_WINNING_YEARS_COMPLETED = "statistics/fetchConsecutiveWinningYearsCompleted";
 export const FETCH_GPS_BEFORE_FIRST_WIN_COMPLETED = "statistics/fetchGpCountBeforeFirstWinCompleted";
 
+export const FETCH_MOST_WINS_SAME_CONSTRUCTOR_COMPLETED = "statistics/fetchMostWinsSameConstructorCompleted";
+export const FETCH_MOST_CONSTRUCTORS_WITH_WINS_COMPLETED = "statistics/fetchMostConstructorsWithWinsCompleted";
+export const FETCH_WINS_BY_GP_COMPLETED = "statistics/fetchWinsByGrandPrixCompleted";
+export const FETCH_CONSECUTIVE_WINS_BY_GP_COMPLETED = "statistics/fetchConsecutiveWinsByGrandPrixCompleted";
+export const FETCH_MOST_DIFFERENT_GPS_WON_COMPLETED = "statistics/fetchMostDifferentGPsWonCompleted";
+export const FETCH_MOST_CIRCUIT_WINS_COMPLETED = "statistics/fetchMostCircuitWinsCompleted";
+export const FETCH_MOST_DIFFERENT_CIRCUIT_WINS_COMPLETED = "statistics/fetchMostDifferentCircuitWinsCompleted";
+export const FETCH_WINS_BY_GRID_POSITION_COMPLETED = "statistics/fetchWinsByGridPositionCompleted";
+export const FETCH_MOST_GRID_POSITIONS_WITH_WINS_COMPLETED = "statistics/fetchMostGridPositionsWithWinsCompleted";
+export const FETCH_HOME_GP_WINS_COMPLETED = "statistics/fetchHomeGPWinsCompleted";
+export const FETCH_WINS_NO_LAPS_LED_COMPLETED = "statistics/fetchWinsWithoutLeadingLapCompleted";
+export const FETCH_WINS_WITHOUT_POLE_COMPLETED = "statistics/fetchWinsWithoutPoleCompleted";
+export const FETCH_WINS_WITH_FASTEST_LAP_COMPLETED = "statistics/fetchWinsWithFastestLapCompleted";
+

@@ -31,4 +31,17 @@ export const getMostWinsInSingleYear = state => getModuleState(state).mostWinsSi
 export const getMostYearsWithWins = state => getModuleState(state).mostYearsWithWins;
 export const getMostConsecutiveWinningYears = state => getModuleState(state).mostConsecutiveWinningYears;
 export const getGpCountBeforeFirstWin = state => getModuleState(state).gpCountBeforeFirstWin;
+export const getDriversWithMostWinsSameConstructor = state => getModuleState(state).driversWithMostWinsSameConstructor;
+export const getDriversWithMostConstructorsWithWins = state => getModuleState(state).driversWithMostConstructorsWithWins;
+export const getWinsByGrandPrix = state => getModuleState(state).winsByGrandPrix;
+export const getConsecutiveWinsByGrandPrix = state => getModuleState(state).consecutiveWinsByGrandPrix;
+export const getDriversWithMostDifferentGPsWon = state => getModuleState(state).mostDifferentGPsWon;
+export const getDriversWithMostCircuitWins = state => getModuleState(state).mostCircuitWins;
+export const getDriversWithMostDifferentCircuitWins = state => getModuleState(state).mostDifferentCircuitWins;
+export const getWinsByStartingGridPosition = state => getModuleState(state).winsByGridPosition;
+export const getDriversWithMostGridPositionsWithWins = state => getModuleState(state).gridPositionsWithWins;
+export const getDriversWithHomeGPWins = state => getModuleState(state).homeGPWins;
+export const getWinsWithoutLeadingAnyLap = state => getModuleState(state).winsWithoutLeadingLap;
+export const getWinsWithoutPolePosition = state => getModuleState(state).winsWithoutPole;
+export const getWinsWithFastestLap = state => getModuleState(state).winsWithFastestLap;
 

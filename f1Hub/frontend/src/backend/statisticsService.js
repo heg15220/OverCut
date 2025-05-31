@@ -93,3 +93,42 @@ export const getMostConsecutiveWinningYears = (onSuccess, onError) =>
 
 export const getGpCountBeforeFirstWin = (onSuccess, onError) =>
   appFetch(`/statistics/victories/gps-before-first-win`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostWinsSameConstructor = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/most-by-same-constructor`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostConstructorsWithWins = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/most-constructors-with-wins`, fetchConfig("GET"), onSuccess, onError);
+
+export const getWinsByGrandPrix = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/by-grand-prix`, fetchConfig("GET"), onSuccess, onError);
+
+export const getConsecutiveWinsByGrandPrix = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/consecutive-by-grand-prix`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostDifferentGPsWon = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/most-different-gps`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostCircuitWins = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/most-circuit-wins`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostDifferentCircuitWins = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/most-different-circuit-wins`, fetchConfig("GET"), onSuccess, onError);
+
+export const getWinsByStartingGridPosition = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/by-grid-position`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostGridPositionsWithWins = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/by-grid-variation`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithHomeGPWins = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/home-gp`, fetchConfig("GET"), onSuccess, onError);
+
+export const getWinsWithoutLeadingAnyLap = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/no-laps-led`, fetchConfig("GET"), onSuccess, onError);
+
+export const getWinsWithoutPolePosition = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/without-pole`, fetchConfig("GET"), onSuccess, onError);
+
+export const getWinsWithFastestLap = (onSuccess, onError) =>
+  appFetch(`/statistics/wins/with-fastest-lap`, fetchConfig("GET"), onSuccess, onError);

@@ -32,7 +32,20 @@ const initialState = {
   mostWinsSingleYear: [],
   mostYearsWithWins: [],
   mostConsecutiveWinningYears: [],
-  gpCountBeforeFirstWin: []
+  gpCountBeforeFirstWin: [],
+  driversWithMostWinsSameConstructor: [],
+  driversWithMostConstructorsWithWins: [],
+  winsByGrandPrix: [],
+  consecutiveWinsByGrandPrix: [],
+  mostDifferentGPsWon: [],
+  mostCircuitWins: [],
+  mostDifferentCircuitWins: [],
+  winsByGridPosition: [],
+  gridPositionsWithWins: [],
+  homeGPWins: [],
+  winsWithoutLeadingLap: [],
+  winsWithoutPole: [],
+  winsWithFastestLap: []
 
 
 };
@@ -107,6 +120,34 @@ export default function reducer(state = initialState, action) {
       return { ...state, mostConsecutiveWinningYears: action.data };
     case actionTypes.FETCH_GPS_BEFORE_FIRST_WIN_COMPLETED:
       return { ...state, gpCountBeforeFirstWin: action.data };
+
+
+    case actionTypes.FETCH_MOST_WINS_SAME_CONSTRUCTOR_COMPLETED:
+      return { ...state, driversWithMostWinsSameConstructor: action.data };
+    case actionTypes.FETCH_MOST_CONSTRUCTORS_WITH_WINS_COMPLETED:
+      return { ...state, driversWithMostConstructorsWithWins: action.data };
+    case actionTypes.FETCH_WINS_BY_GP_COMPLETED:
+      return { ...state, winsByGrandPrix: action.data };
+    case actionTypes.FETCH_CONSECUTIVE_WINS_BY_GP_COMPLETED:
+      return { ...state, consecutiveWinsByGrandPrix: action.data };
+    case actionTypes.FETCH_MOST_DIFFERENT_GPS_WON_COMPLETED:
+      return { ...state, mostDifferentGPsWon: action.data };
+    case actionTypes.FETCH_MOST_CIRCUIT_WINS_COMPLETED:
+      return { ...state, mostCircuitWins: action.data };
+    case actionTypes.FETCH_MOST_DIFFERENT_CIRCUIT_WINS_COMPLETED:
+      return { ...state, mostDifferentCircuitWins: action.data };
+    case actionTypes.FETCH_WINS_BY_GRID_POSITION_COMPLETED:
+      return { ...state, winsByGridPosition: action.data };
+    case actionTypes.FETCH_MOST_GRID_POSITIONS_WITH_WINS_COMPLETED:
+      return { ...state, gridPositionsWithWins: action.data };
+    case actionTypes.FETCH_HOME_GP_WINS_COMPLETED:
+      return { ...state, homeGPWins: action.data };
+    case actionTypes.FETCH_WINS_NO_LAPS_LED_COMPLETED:
+      return { ...state, winsWithoutLeadingLap: action.data };
+    case actionTypes.FETCH_WINS_WITHOUT_POLE_COMPLETED:
+      return { ...state, winsWithoutPole: action.data };
+    case actionTypes.FETCH_WINS_WITH_FASTEST_LAP_COMPLETED:
+      return { ...state, winsWithFastestLap: action.data };
 
 
     default:

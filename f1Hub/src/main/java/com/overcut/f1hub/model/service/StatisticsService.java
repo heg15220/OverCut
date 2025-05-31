@@ -49,5 +49,19 @@ public interface StatisticsService {
     List<DriverRankingDTO> getGpCountBeforeFirstWin();
 
 
+    List<DriverRankingDTO> getDriversWithMostWinsSameConstructor();
+    List<DriverRankingDTO> getDriversWithMostConstructorsWithWins();
+    List<DriverRankingDTO> getWinsByGrandPrix();
+    List<DriverRankingDTO> getConsecutiveWinsByGrandPrix();
+    List<DriverRankingDTO> getDriversWithMostDifferentGPsWon();
+    List<DriverRankingDTO> getDriversWithMostCircuitWins();
+    List<DriverRankingDTO> getDriversWithMostDifferentCircuitWins();
+    List<DriverRankingDTO> getWinsByStartingGridPosition();
+    List<DriverRankingDTO> getDriversWithMostGridPositionsWithWins();
+    List<DriverRankingDTO> getDriversWithHomeGPWins();
+    List<DriverRankingDTO> getWinsWithoutLeadingAnyLap();
+    List<DriverRankingDTO> getWinsWithoutPolePosition();
+    List<DriverRankingDTO> getWinsWithFastestLap();
+
 
 }

@@ -47,6 +47,22 @@ const RankingsView = () => {
   const mostConsecutiveWinningYears = useSelector(statisticsSelectors.getMostConsecutiveWinningYears);
   const gpCountBeforeFirstWin = useSelector(statisticsSelectors.getGpCountBeforeFirstWin);
 
+  const driversWithMostWinsSameConstructor = useSelector(statisticsSelectors.getDriversWithMostWinsSameConstructor);
+  const driversWithMostConstructorsWithWins = useSelector(statisticsSelectors.getDriversWithMostConstructorsWithWins);
+  const winsByGrandPrix = useSelector(statisticsSelectors.getWinsByGrandPrix);
+  const consecutiveWinsByGrandPrix = useSelector(statisticsSelectors.getConsecutiveWinsByGrandPrix);
+  const driversWithMostDifferentGPsWon = useSelector(statisticsSelectors.getDriversWithMostDifferentGPsWon);
+  const driversWithMostCircuitWins = useSelector(statisticsSelectors.getDriversWithMostCircuitWins);
+  const driversWithMostDifferentCircuitWins = useSelector(statisticsSelectors.getDriversWithMostDifferentCircuitWins);
+  const winsByStartingGridPosition = useSelector(statisticsSelectors.getWinsByStartingGridPosition);
+  const driversWithMostGridPositionsWithWins = useSelector(statisticsSelectors.getDriversWithMostGridPositionsWithWins);
+  const driversWithHomeGPWins = useSelector(statisticsSelectors.getDriversWithHomeGPWins);
+  const winsWithoutLeadingAnyLap = useSelector(statisticsSelectors.getWinsWithoutLeadingAnyLap);
+  const winsWithoutPolePosition = useSelector(statisticsSelectors.getWinsWithoutPolePosition);
+  const winsWithFastestLap = useSelector(statisticsSelectors.getWinsWithFastestLap);
+
+
+
   const showTeamSelector = section === "team_rankings";
 
   useEffect(() => {
@@ -102,6 +118,19 @@ const RankingsView = () => {
         case "wins_years_with": dispatch(statisticsActions.fetchMostYearsWithWins()); break;
         case "wins_years_consecutive": dispatch(statisticsActions.fetchMostConsecutiveWinningYears()); break;
         case "wins_gp_before": dispatch(statisticsActions.fetchGpCountBeforeFirstWin()); break;
+        case "wins_most_same_constructor": dispatch(statisticsActions.fetchDriversWithMostWinsSameConstructor()); break;
+        case "wins_most_constructors": dispatch(statisticsActions.fetchDriversWithMostConstructorsWithWins()); break;
+        case "wins_by_gp": dispatch(statisticsActions.fetchWinsByGrandPrix()); break;
+        case "wins_consecutive_by_gp": dispatch(statisticsActions.fetchConsecutiveWinsByGrandPrix()); break;
+        case "wins_most_different_gps": dispatch(statisticsActions.fetchDriversWithMostDifferentGPsWon()); break;
+        case "wins_most_circuit": dispatch(statisticsActions.fetchDriversWithMostCircuitWins()); break;
+        case "wins_most_different_circuits": dispatch(statisticsActions.fetchDriversWithMostDifferentCircuitWins()); break;
+        case "wins_by_grid_position": dispatch(statisticsActions.fetchWinsByStartingGridPosition()); break;
+        case "wins_most_grid_positions": dispatch(statisticsActions.fetchDriversWithMostGridPositionsWithWins()); break;
+        case "wins_home_gp": dispatch(statisticsActions.fetchDriversWithHomeGPWins()); break;
+        case "wins_no_laps_led": dispatch(statisticsActions.fetchWinsWithoutLeadingAnyLap()); break;
+        case "wins_without_pole": dispatch(statisticsActions.fetchWinsWithoutPolePosition()); break;
+        case "wins_with_fastest_lap": dispatch(statisticsActions.fetchWinsWithFastestLap()); break;
         default: break;
       }
     }
@@ -129,6 +158,19 @@ const RankingsView = () => {
     : recordMode === "wins_years_with" ? mostYearsWithWins
     : recordMode === "wins_years_consecutive" ? mostConsecutiveWinningYears
     : recordMode === "wins_gp_before" ? gpCountBeforeFirstWin
+    : recordMode === "wins_most_same_constructor" ? driversWithMostWinsSameConstructor
+    : recordMode === "wins_most_constructors" ? driversWithMostConstructorsWithWins
+    : recordMode === "wins_by_gp" ? winsByGrandPrix
+    : recordMode === "wins_consecutive_by_gp" ? consecutiveWinsByGrandPrix
+    : recordMode === "wins_most_different_gps" ? driversWithMostDifferentGPsWon
+    : recordMode === "wins_most_circuit" ? driversWithMostCircuitWins
+    : recordMode === "wins_most_different_circuits" ? driversWithMostDifferentCircuitWins
+    : recordMode === "wins_by_grid_position" ? winsByStartingGridPosition
+    : recordMode === "wins_most_grid_positions" ? driversWithMostGridPositionsWithWins
+    : recordMode === "wins_home_gp" ? driversWithHomeGPWins
+    : recordMode === "wins_no_laps_led" ? winsWithoutLeadingAnyLap
+    : recordMode === "wins_without_pole" ? winsWithoutPolePosition
+    : recordMode === "wins_with_fastest_lap" ? winsWithFastestLap
     : []
     : section === "rankings"
     ? mode === "wins" ? wins
@@ -139,39 +181,52 @@ const RankingsView = () => {
     : mode === "podiums_team" ? podiumsByTeam
     : polesByTeam;
 
-  const getLabel = () => {
-    if (section === "records") {
-      switch (recordMode) {
-        case "titles_by_count": return "Títulos";
-        case "titles_chronological": return "Año";
-        case "titles_by_age": return "Edad";
-        case "titles_consecutive": return "Títulos consecutivos";
-        case "titles_gap": return "Años de diferencia";
-        case "titles_gp_before": return "GPs antes del título";
-        case "titles_by_constructors": return "Constructores distintos";
-        case "wins_chronological": return "Año";
-        case "wins_team_chronological": return "Año";
-        case "wins_youngest": return "Edad";
-        case "wins_oldest": return "Edad";
-        case "wins_on_birthday": return "Año";
-        case "wins_consecutive": return "Victorias consecutivas";
-        case "wins_season_start": return "Racha inicial";
-        case "wins_last": return "Última victoria";
-        case "wins_biggest_gap": return "Días entre victorias";
-        case "wins_first_last_gap": return "Años entre primera y última";
-        case "wins_in_single_year": return "Victorias en un año";
-        case "wins_years_with": return "Años con victorias";
-        case "wins_years_consecutive": return "Años consecutivos con victoria";
-        case "wins_gp_before": return "GPs antes de la primera victoria";
-        default: return "Valor";
+    const getLabel = () => {
+      if (section === "records") {
+        switch (recordMode) {
+          case "titles_by_count": return "Títulos";
+          case "titles_chronological": return "Año";
+          case "titles_by_age": return "Edad";
+          case "titles_consecutive": return "Títulos consecutivos";
+          case "titles_gap": return "Años de diferencia";
+          case "titles_gp_before": return "GPs antes del título";
+          case "titles_by_constructors": return "Constructores distintos";
+          case "wins_chronological": return "Año";
+          case "wins_team_chronological": return "Año";
+          case "wins_youngest": return "Edad";
+          case "wins_oldest": return "Edad";
+          case "wins_on_birthday": return "Año";
+          case "wins_consecutive": return "Victorias consecutivas";
+          case "wins_season_start": return "Racha inicial";
+          case "wins_last": return "Última victoria";
+          case "wins_biggest_gap": return "Días entre victorias";
+          case "wins_first_last_gap": return "Años entre primera y última";
+          case "wins_in_single_year": return "Victorias en un año";
+          case "wins_years_with": return "Años con victorias";
+          case "wins_years_consecutive": return "Años consecutivos con victoria";
+          case "wins_gp_before": return "GPs antes de la primera victoria";
+          case "wins_most_same_constructor": return "Victorias con mismo constructor";
+          case "wins_most_constructors": return "Constructores distintos con victoria";
+          case "wins_by_gp": return "Victorias por GP";
+          case "wins_consecutive_by_gp": return "Victorias consecutivas en GP";
+          case "wins_most_different_gps": return "GPs diferentes ganados";
+          case "wins_most_circuit": return "Victorias en mismo circuito";
+          case "wins_most_different_circuits": return "Circuitos diferentes ganados";
+          case "wins_by_grid_position": return "Posición de salida";
+          case "wins_most_grid_positions": return "Posiciones de parrilla con victorias";
+          case "wins_home_gp": return "Victorias en GP local";
+          case "wins_no_laps_led": return "Victorias sin liderar";
+          case "wins_without_pole": return "Victorias sin pole";
+          case "wins_with_fastest_lap": return "Victorias con vuelta rápida";
+          default: return "Valor";
+        }
       }
-    }
-    if (mode.includes("wins")) return "Victorias";
-    if (mode.includes("podiums")) return "Podios";
-    if (mode.includes("poles")) return "Poles";
-    if (mode.includes("grand_chelems")) return "Grand Chelems";
-    return "Valor";
-  };
+      if (mode.includes("wins")) return "Victorias";
+      if (mode.includes("podiums")) return "Podios";
+      if (mode.includes("poles")) return "Poles";
+      if (mode.includes("grand_chelems")) return "Grand Chelems";
+      return "Valor";
+    };
 
   return (
     <div className="race-result-table">
@@ -184,49 +239,62 @@ const RankingsView = () => {
       </div>
 
       {section === "records" && (
-        <div className="stat-controls">
-          <select value={recordCategory} onChange={e => {
-            const category = e.target.value;
-            setRecordCategory(category);
-            setRecordMode(category === "champions" ? "titles_by_count" : "wins_chronological");
-          }}>
-            <option value="champions">🏆 Campeones del Mundo</option>
-            <option value="victories">🥇 Victorias</option>
-          </select>
+              <div className="stat-controls">
+                <select value={recordCategory} onChange={e => {
+                  const category = e.target.value;
+                  setRecordCategory(category);
+                  setRecordMode(category === "champions" ? "titles_by_count" : "wins_chronological");
+                }}>
+                  <option value="champions">🏆 Campeones del Mundo</option>
+                  <option value="victories">🥇 Victorias</option>
+                </select>
 
-          <select value={recordMode} onChange={e => setRecordMode(e.target.value)}>
-            {recordCategory === "champions" && (
-              <optgroup label="🏆 Campeones del Mundo">
-                <option value="titles_by_count">Por número de títulos</option>
-                <option value="titles_chronological">Orden cronológico</option>
-                <option value="titles_by_age">Por edad</option>
-                <option value="titles_consecutive">Títulos consecutivos</option>
-                <option value="titles_gap">Mayor intervalo entre títulos</option>
-                <option value="titles_gp_before">GPs antes del primer título</option>
-                <option value="titles_by_constructors">Por número de constructores</option>
-              </optgroup>
+                <select value={recordMode} onChange={e => setRecordMode(e.target.value)}>
+                  {recordCategory === "champions" && (
+                    <optgroup label="🏆 Campeones del Mundo">
+                      <option value="titles_by_count">Por número de títulos</option>
+                      <option value="titles_chronological">Orden cronológico</option>
+                      <option value="titles_by_age">Por edad</option>
+                      <option value="titles_consecutive">Títulos consecutivos</option>
+                      <option value="titles_gap">Mayor intervalo entre títulos</option>
+                      <option value="titles_gp_before">GPs antes del primer título</option>
+                      <option value="titles_by_constructors">Por número de constructores</option>
+                    </optgroup>
+                  )}
+                  {recordCategory === "victories" && (
+                    <optgroup label="🥇 Victorias">
+                      <option value="wins_chronological">Primera victoria de cada piloto</option>
+                      <option value="wins_team_chronological">Primera victoria por constructor</option>
+                      <option value="wins_youngest">Más jóvenes al ganar</option>
+                      <option value="wins_oldest">Más veteranos al ganar</option>
+                      <option value="wins_on_birthday">Victorias en cumpleaños</option>
+                      <option value="wins_consecutive">Racha de victorias consecutivas</option>
+                      <option value="wins_season_start">Racha al comienzo de temporada</option>
+                      <option value="wins_last">Última victoria de cada piloto</option>
+                      <option value="wins_biggest_gap">Mayor intervalo entre victorias</option>
+                      <option value="wins_first_last_gap">Años entre primera y última victoria</option>
+                      <option value="wins_in_single_year">Más victorias en un solo año</option>
+                      <option value="wins_years_with">Años distintos con victoria</option>
+                      <option value="wins_years_consecutive">Años consecutivos con victoria</option>
+                      <option value="wins_gp_before">GPs antes de la primera victoria</option>
+                      <option value="wins_most_same_constructor">Más victorias con mismo constructor</option>
+                      <option value="wins_most_constructors">Más constructores distintos con victorias</option>
+                      <option value="wins_by_gp">Victorias por Gran Premio</option>
+                      <option value="wins_consecutive_by_gp">Victorias consecutivas en un GP</option>
+                      <option value="wins_most_different_gps">GPs diferentes ganados</option>
+                      <option value="wins_most_circuit">Más victorias en un mismo circuito</option>
+                      <option value="wins_most_different_circuits">Circuitos diferentes ganados</option>
+                      <option value="wins_by_grid_position">Victorias por posición de salida</option>
+                      <option value="wins_most_grid_positions">Parrillas diferentes con victorias</option>
+                      <option value="wins_home_gp">Victorias en GP local</option>
+                      <option value="wins_no_laps_led">Victorias sin liderar ninguna vuelta</option>
+                      <option value="wins_without_pole">Victorias sin pole position</option>
+                      <option value="wins_with_fastest_lap">Victorias con vuelta rápida</option>
+                    </optgroup>
+                  )}
+                </select>
+              </div>
             )}
-            {recordCategory === "victories" && (
-              <optgroup label="🥇 Victorias">
-                <option value="wins_chronological">Primera victoria de cada piloto</option>
-                <option value="wins_team_chronological">Primera victoria por constructor</option>
-                <option value="wins_youngest">Más jóvenes al ganar</option>
-                <option value="wins_oldest">Más veteranos al ganar</option>
-                <option value="wins_on_birthday">Victorias en cumpleaños</option>
-                <option value="wins_consecutive">Racha de victorias consecutivas</option>
-                <option value="wins_season_start">Racha al comienzo de temporada</option>
-                <option value="wins_last">Última victoria de cada piloto</option>
-                <option value="wins_biggest_gap">Mayor intervalo entre victorias</option>
-                <option value="wins_first_last_gap">Años entre primera y última victoria</option>
-                <option value="wins_in_single_year">Más victorias en un solo año</option>
-                <option value="wins_years_with">Años distintos con victoria</option>
-                <option value="wins_years_consecutive">Años consecutivos con victoria</option>
-                <option value="wins_gp_before">GPs antes de la primera victoria</option>
-              </optgroup>
-            )}
-          </select>
-        </div>
-      )}
 
       {section !== "records" && (
         <div className="stat-controls">

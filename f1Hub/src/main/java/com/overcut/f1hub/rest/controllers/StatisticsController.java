@@ -176,6 +176,72 @@ public class StatisticsController {
         return statisticsService.getGpCountBeforeFirstWin();
     }
 
+    @GetMapping("/wins/most-by-same-constructor")
+    public List<DriverRankingDTO> getDriversWithMostWinsSameConstructor() {
+        return statisticsService.getDriversWithMostWinsSameConstructor();
+    }
+
+    @GetMapping("/wins/most-constructors-with-wins")
+    public List<DriverRankingDTO> getDriversWithMostConstructorsWithWins() {
+        return statisticsService.getDriversWithMostConstructorsWithWins();
+    }
+
+    @GetMapping("/wins/by-grand-prix")
+    public List<DriverRankingDTO> getWinsByGrandPrix() {
+        return statisticsService.getWinsByGrandPrix();
+    }
+
+    @GetMapping("/wins/consecutive-by-grand-prix")
+    public List<DriverRankingDTO> getConsecutiveWinsByGrandPrix() {
+        return statisticsService.getConsecutiveWinsByGrandPrix();
+    }
+
+    @GetMapping("/wins/most-different-gps")
+    public List<DriverRankingDTO> getDriversWithMostDifferentGPsWon() {
+        return statisticsService.getDriversWithMostDifferentGPsWon();
+    }
+
+    @GetMapping("/wins/most-circuit-wins")
+    public List<DriverRankingDTO> getDriversWithMostCircuitWins() {
+        return statisticsService.getDriversWithMostCircuitWins();
+    }
+
+    @GetMapping("/wins/most-different-circuit-wins")
+    public List<DriverRankingDTO> getDriversWithMostDifferentCircuitWins() {
+        return statisticsService.getDriversWithMostDifferentCircuitWins();
+    }
+
+    @GetMapping("/wins/by-grid-position")
+    public List<DriverRankingDTO> getWinsByStartingGridPosition() {
+        return statisticsService.getWinsByStartingGridPosition();
+    }
+
+    @GetMapping("/wins/by-grid-variation")
+    public List<DriverRankingDTO> getDriversWithMostGridPositionsWithWins() {
+        return statisticsService.getDriversWithMostGridPositionsWithWins();
+    }
+
+    @GetMapping("/wins/home-gp")
+    public List<DriverRankingDTO> getDriversWithHomeGPWins() {
+        return statisticsService.getDriversWithHomeGPWins();
+    }
+
+    @GetMapping("/wins/no-laps-led")
+    public List<DriverRankingDTO> getWinsWithoutLeadingAnyLap() {
+        return statisticsService.getWinsWithoutLeadingAnyLap();
+    }
+
+    @GetMapping("/wins/without-pole")
+    public List<DriverRankingDTO> getWinsWithoutPolePosition() {
+        return statisticsService.getWinsWithoutPolePosition();
+    }
+
+    @GetMapping("/wins/with-fastest-lap")
+    public List<DriverRankingDTO> getWinsWithFastestLap() {
+        return statisticsService.getWinsWithFastestLap();
+    }
+
+
 
 
 
