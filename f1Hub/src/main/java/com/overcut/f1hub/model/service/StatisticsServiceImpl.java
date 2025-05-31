@@ -605,6 +605,39 @@ public class StatisticsServiceImpl implements StatisticsService {
         return result;
     }
 
+    @Override
+    public List<DriverRankingDTO> getTitleCountByDriverAndConstructorVariety() {
+        String sql = """
+        SELECT d.driverId, d.forename, d.surname, d.nationality, GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', ') AS team_names
+        FROM driverstandings ds
+        JOIN races r ON ds.raceId = r.raceId
+        JOIN drivers d ON ds.driverId = d.driverId
+        JOIN results res ON res.raceId = ds.raceId AND res.driverId = ds.driverId
+        JOIN constructors c ON res.constructorId = c.constructorId
+        WHERE ds.position = 1
+          AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+        GROUP BY d.driverId
+        ORDER BY COUNT(DISTINCT c.name) DESC
+    """;
+
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String fullName = row[1] + " " + row[2];
+            String nationality = (String) row[3];
+            String teams = (String) row[4];
+            int teamCount = teams.split(",").length;
+
+            result.add(new DriverRankingDTO(fullName, nationality, teamCount, getFlagUrl(nationality), teams));
+        }
+
+        return result;
+    }
+
+
+
+
 
 
 

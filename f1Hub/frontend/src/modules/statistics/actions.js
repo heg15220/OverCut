@@ -104,3 +104,9 @@ export const fetchGpCountBeforeFirstTitle = () => dispatch =>
     data => dispatch({ type: actionTypes.FETCH_GP_COUNT_BEFORE_TITLE_COMPLETED, data }),
     () => {}
   );
+
+export const fetchChampionsByConstructorVariety = () => dispatch =>
+  backend.statisticsService.getChampionsByConstructorVariety(
+    data => dispatch({ type: actionTypes.FETCH_CHAMPIONS_BY_CONSTRUCTOR_VARIETY_COMPLETED, data }),
+    () => {}
+  );

@@ -6,6 +6,16 @@ public class DriverRankingDTO {
     private String nationality;
     private int value;
     private String flagUrl;
+    private String extra; // ← nuevo campo opcional
+
+    // Constructor actualizado
+    public DriverRankingDTO(String driverName, String nationality, int value, String flagUrl, String extra) {
+        this.driverName = driverName;
+        this.nationality = nationality;
+        this.value = value;
+        this.flagUrl = flagUrl;
+        this.extra = extra;
+    }
 
     public DriverRankingDTO() {
     }
@@ -47,5 +57,13 @@ public class DriverRankingDTO {
 
     public void setFlagUrl(String flagUrl) {
         this.flagUrl = flagUrl;
+    }
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
     }
 }

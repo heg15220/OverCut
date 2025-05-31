@@ -97,6 +97,11 @@ public class StatisticsController {
         return statisticsService.getGpCountBeforeFirstTitle();
     }
 
+    @GetMapping("/drivers/championships/by-constructors")
+    public List<DriverRankingDTO> getChampionsByConstructorVariety() {
+        return statisticsService.getTitleCountByDriverAndConstructorVariety();
+    }
+
 
     @GetMapping("/constructor-options")
     public List<StatisticsService.ConstructorOption> getAllConstructors() {

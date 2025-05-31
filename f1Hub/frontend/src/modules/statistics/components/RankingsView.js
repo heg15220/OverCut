@@ -29,6 +29,7 @@ const RankingsView = () => {
   const consecutiveTitles = useSelector(statisticsSelectors.getConsecutiveTitles);
   const longestGapBetweenTitles = useSelector(statisticsSelectors.getLongestGapBetweenTitles);
   const gpCountBeforeTitle = useSelector(statisticsSelectors.getGpCountBeforeTitle);
+  const championsByConstructorVariety = useSelector(statisticsSelectors.getChampionsByConstructorVariety);
 
   const showTeamSelector = section === "team_rankings";
 
@@ -98,6 +99,9 @@ const RankingsView = () => {
         case "titles_gp_before":
           dispatch(statisticsActions.fetchGpCountBeforeFirstTitle());
           break;
+        case "titles_by_constructors":
+          dispatch(statisticsActions.fetchChampionsByConstructorVariety());
+          break;
         default:
           break;
       }
@@ -118,6 +122,8 @@ const RankingsView = () => {
         ? longestGapBetweenTitles
         : recordMode === "titles_gp_before"
         ? gpCountBeforeTitle
+        : recordMode === "titles_by_constructors"
+        ? championsByConstructorVariety
         : []
       : section === "rankings"
       ? mode === "wins"
@@ -142,6 +148,7 @@ const RankingsView = () => {
         case "titles_consecutive": return "Títulos consecutivos";
         case "titles_gap": return "Años de diferencia";
         case "titles_gp_before": return "GPs antes del título";
+        case "titles_by_constructors": return "Constructores distintos";
         default: return "Valor";
       }
     }
@@ -172,6 +179,7 @@ const RankingsView = () => {
               <option value="titles_consecutive">Títulos consecutivos</option>
               <option value="titles_gap">Mayor intervalo entre títulos</option>
               <option value="titles_gp_before">GPs antes del primer título</option>
+              <option value="titles_by_constructors">Por número de constructores</option>
             </optgroup>
           </select>
         </div>
@@ -223,6 +231,7 @@ const RankingsView = () => {
               <th>Pos</th>
               <th>Piloto</th>
               <th>{getLabel()}</th>
+              {recordMode === "titles_by_constructors" && <th>Constructores</th>}
             </tr>
           </thead>
           <tbody>
@@ -242,6 +251,9 @@ const RankingsView = () => {
                   </div>
                 </td>
                 <td>{item.value}</td>
+                {recordMode === "titles_by_constructors" && (
+                  <td>{item.extra || "-"}</td>
+                )}
               </tr>
             ))}
           </tbody>

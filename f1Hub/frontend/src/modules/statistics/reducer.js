@@ -17,7 +17,9 @@ const initialState = {
   championsByAge: [],
   consecutiveTitles: [],
   longestGapBetweenTitles: [],
-  gpCountBeforeTitle: []
+  gpCountBeforeTitle: [],
+  championsByConstructorVariety: []
+
 
 };
 
@@ -57,6 +59,9 @@ export default function reducer(state = initialState, action) {
       return { ...state, longestGapBetweenTitles: action.data };
     case actionTypes.FETCH_GP_COUNT_BEFORE_TITLE_COMPLETED:
       return { ...state, gpCountBeforeTitle: action.data };
+    case actionTypes.FETCH_CHAMPIONS_BY_CONSTRUCTOR_VARIETY_COMPLETED:
+      return { ...state, championsByConstructorVariety: action.data };
+
 
     default:
       return state;

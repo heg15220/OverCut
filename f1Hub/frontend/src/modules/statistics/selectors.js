@@ -16,3 +16,4 @@ export const getChampionsByAge = state => getModuleState(state).championsByAge;
 export const getConsecutiveTitles = state => getModuleState(state).consecutiveTitles;
 export const getLongestGapBetweenTitles = state => getModuleState(state).longestGapBetweenTitles;
 export const getGpCountBeforeTitle = state => getModuleState(state).gpCountBeforeTitle;
+export const getChampionsByConstructorVariety = state => getModuleState(state).championsByConstructorVariety;

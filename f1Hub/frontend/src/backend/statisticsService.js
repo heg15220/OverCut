@@ -47,3 +47,6 @@ export const getLongestGapBetweenTitles = (onSuccess, onError) =>
 
 export const getGpCountBeforeFirstTitle = (onSuccess, onError) =>
   appFetch(`/statistics/drivers/championships/gps-before-title`, fetchConfig("GET"), onSuccess, onError);
+
+  export const getChampionsByConstructorVariety = (onSuccess, onError) =>
+    appFetch(`/statistics/drivers/championships/by-constructors`, fetchConfig("GET"), onSuccess, onError);

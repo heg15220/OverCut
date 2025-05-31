@@ -28,6 +28,7 @@ public interface StatisticsService {
     List<DriverRankingDTO> getConsecutiveTitles();
     List<DriverRankingDTO> getLongestIntervalBetweenTitles();
     List<DriverRankingDTO> getGpCountBeforeFirstTitle();
+    List<DriverRankingDTO> getTitleCountByDriverAndConstructorVariety();
 
 
 }

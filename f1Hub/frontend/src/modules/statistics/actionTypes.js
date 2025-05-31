@@ -14,3 +14,4 @@ export const FETCH_CHAMPIONS_BY_AGE_COMPLETED = "statistics/fetchChampionsByAgeC
 export const FETCH_CONSECUTIVE_TITLES_COMPLETED = "statistics/fetchConsecutiveTitlesCompleted";
 export const FETCH_LONGEST_GAP_TITLES_COMPLETED = "statistics/fetchLongestGapTitlesCompleted";
 export const FETCH_GP_COUNT_BEFORE_TITLE_COMPLETED = "statistics/fetchGpCountBeforeTitleCompleted";
+export const FETCH_CHAMPIONS_BY_CONSTRUCTOR_VARIETY_COMPLETED = "statistics/fetchChampionsByConstructorVarietyCompleted";
