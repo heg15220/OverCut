@@ -637,7 +637,140 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 
 
+    @Override
+    public List<DriverRankingDTO> getDriverWinsChronologically() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, MIN(r.date) AS first_win_date
+        FROM results res
+        JOIN drivers d ON res.driverId = d.driverId
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder = 1
+        GROUP BY res.driverId
+        ORDER BY first_win_date ASC
+    """;
 
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            LocalDate date = ((Date) row[3]).toLocalDate();
+            result.add(new DriverRankingDTO(name, nationality, date.getYear(), getFlagUrl(nationality), date.toString()));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getTeamWinsChronologically() {
+        String sql = """
+        SELECT c.name, c.nationality, MIN(r.date) AS first_win_date
+        FROM results res
+        JOIN constructors c ON res.constructorId = c.constructorId
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder = 1
+        GROUP BY res.constructorId
+        ORDER BY first_win_date ASC
+    """;
+
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = (String) row[0];
+            String nationality = (String) row[1];
+            LocalDate date = ((Date) row[2]).toLocalDate();
+            result.add(new DriverRankingDTO(name, nationality, date.getYear(), getFlagUrl(nationality), date.toString()));
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getYoungestDriversAtFirstWin() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, d.dob, MIN(r.date) AS win_date
+        FROM results res
+        JOIN drivers d ON res.driverId = d.driverId
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder = 1
+        GROUP BY res.driverId
+        ORDER BY win_date ASC
+    """;
+
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            LocalDate dob = ((Date) row[3]).toLocalDate();
+            LocalDate winDate = ((Date) row[4]).toLocalDate();
+            int age = Period.between(dob, winDate).getYears();
+            result.add(new DriverRankingDTO(name, nationality, age, getFlagUrl(nationality), winDate.toString()));
+        }
+
+        result.sort(Comparator.comparingInt(DriverRankingDTO::getValue));
+        return result;
+    }
+
+
+
+    @Override
+    public List<DriverRankingDTO> getOldestDriversToWin() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, d.dob, r.date
+        FROM results res
+        JOIN drivers d ON res.driverId = d.driverId
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder = 1
+    """;
+
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            LocalDate dob = ((Date) row[3]).toLocalDate();
+            LocalDate winDate = ((Date) row[4]).toLocalDate();
+            int age = Period.between(dob, winDate).getYears();
+            result.add(new DriverRankingDTO(name, nationality, age, getFlagUrl(nationality), winDate.toString()));
+        }
+
+        result.sort(Comparator.comparingInt(DriverRankingDTO::getValue).reversed());
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getWinsOnBirthday() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, d.dob, r.date
+        FROM results res
+        JOIN drivers d ON res.driverId = d.driverId
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder = 1
+    """;
+
+        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            LocalDate dob = ((Date) row[3]).toLocalDate();
+            LocalDate winDate = ((Date) row[4]).toLocalDate();
+
+            if (dob.getDayOfMonth() == winDate.getDayOfMonth() && dob.getMonth() == winDate.getMonth()) {
+                result.add(new DriverRankingDTO(name, nationality, winDate.getYear(), getFlagUrl(nationality), winDate.toString()));
+            }
+        }
+
+        result.sort(Comparator.comparing(DriverRankingDTO::getExtra)); // por fecha
+        return result;
+    }
 
 
 

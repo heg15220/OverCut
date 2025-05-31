@@ -110,3 +110,33 @@ export const fetchChampionsByConstructorVariety = () => dispatch =>
     data => dispatch({ type: actionTypes.FETCH_CHAMPIONS_BY_CONSTRUCTOR_VARIETY_COMPLETED, data }),
     () => {}
   );
+
+export const fetchDriverWinsChronologically = () => dispatch =>
+  backend.statisticsService.getDriverWinsChronologically(
+    data => dispatch({ type: actionTypes.FETCH_DRIVER_WINS_CHRONOLOGICALLY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchTeamWinsChronologically = () => dispatch =>
+  backend.statisticsService.getTeamWinsChronologically(
+    data => dispatch({ type: actionTypes.FETCH_TEAM_WINS_CHRONOLOGICALLY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchYoungestDriversAtFirstWin = () => dispatch =>
+  backend.statisticsService.getYoungestDriversAtFirstWin(
+    data => dispatch({ type: actionTypes.FETCH_YOUNGEST_WINNERS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchOldestDriversToWin = () => dispatch =>
+  backend.statisticsService.getOldestDriversToWin(
+    data => dispatch({ type: actionTypes.FETCH_OLDEST_WINNERS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchWinsOnBirthday = () => dispatch =>
+  backend.statisticsService.getWinsOnBirthday(
+    data => dispatch({ type: actionTypes.FETCH_WINS_ON_BIRTHDAY_COMPLETED, data }),
+    () => {}
+  );

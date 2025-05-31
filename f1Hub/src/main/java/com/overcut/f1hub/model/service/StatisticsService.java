@@ -24,11 +24,19 @@ public interface StatisticsService {
     List<DriverRankingDTO> getDriverPodiumsByTeam(String constructorRef);
     List<DriverRankingDTO> getDriverPolesByTeamSince2003(String constructorRef);
 
+    //Champions methods
     List<DriverRankingDTO> getChampionsByYoungestAge();
     List<DriverRankingDTO> getConsecutiveTitles();
     List<DriverRankingDTO> getLongestIntervalBetweenTitles();
     List<DriverRankingDTO> getGpCountBeforeFirstTitle();
     List<DriverRankingDTO> getTitleCountByDriverAndConstructorVariety();
+
+    //Victories methods
+    List<DriverRankingDTO> getDriverWinsChronologically();
+    List<DriverRankingDTO> getTeamWinsChronologically();
+    List<DriverRankingDTO> getYoungestDriversAtFirstWin();
+    List<DriverRankingDTO> getOldestDriversToWin();
+    List<DriverRankingDTO> getWinsOnBirthday();
 
 
 }

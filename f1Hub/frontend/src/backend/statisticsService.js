@@ -50,3 +50,18 @@ export const getGpCountBeforeFirstTitle = (onSuccess, onError) =>
 
   export const getChampionsByConstructorVariety = (onSuccess, onError) =>
     appFetch(`/statistics/drivers/championships/by-constructors`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriverWinsChronologically = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/by-driver/chronology`, fetchConfig("GET"), onSuccess, onError);
+
+export const getTeamWinsChronologically = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/by-team/chronology`, fetchConfig("GET"), onSuccess, onError);
+
+export const getYoungestDriversAtFirstWin = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/youngest`, fetchConfig("GET"), onSuccess, onError);
+
+export const getOldestDriversToWin = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/oldest`, fetchConfig("GET"), onSuccess, onError);
+
+export const getWinsOnBirthday = (onSuccess, onError) =>
+  appFetch(`/statistics/victories/on-birthday`, fetchConfig("GET"), onSuccess, onError);

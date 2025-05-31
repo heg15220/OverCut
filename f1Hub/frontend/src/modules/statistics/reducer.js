@@ -18,7 +18,12 @@ const initialState = {
   consecutiveTitles: [],
   longestGapBetweenTitles: [],
   gpCountBeforeTitle: [],
-  championsByConstructorVariety: []
+  championsByConstructorVariety: [],
+  driverWinsChronologically: [],
+  teamWinsChronologically: [],
+  youngestWinDrivers: [],
+  oldestWinDrivers: [],
+  winsOnBirthday: []
 
 
 };
@@ -61,6 +66,18 @@ export default function reducer(state = initialState, action) {
       return { ...state, gpCountBeforeTitle: action.data };
     case actionTypes.FETCH_CHAMPIONS_BY_CONSTRUCTOR_VARIETY_COMPLETED:
       return { ...state, championsByConstructorVariety: action.data };
+
+
+    case actionTypes.FETCH_DRIVER_WINS_CHRONOLOGICALLY_COMPLETED:
+      return { ...state, driverWinsChronologically: action.data };
+    case actionTypes.FETCH_TEAM_WINS_CHRONOLOGICALLY_COMPLETED:
+      return { ...state, teamWinsChronologically: action.data };
+    case actionTypes.FETCH_YOUNGEST_WINNERS_COMPLETED:
+      return { ...state, youngestWinDrivers: action.data };
+    case actionTypes.FETCH_OLDEST_WINNERS_COMPLETED:
+      return { ...state, oldestWinDrivers: action.data };
+    case actionTypes.FETCH_WINS_ON_BIRTHDAY_COMPLETED:
+      return { ...state, winsOnBirthday: action.data };
 
 
     default:

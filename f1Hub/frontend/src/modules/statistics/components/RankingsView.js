@@ -11,6 +11,7 @@ const RankingsView = () => {
   const [mode, setMode] = useState("wins");
   const [team, setTeam] = useState("");
   const [recordMode, setRecordMode] = useState("titles_by_count");
+  const [recordCategory, setRecordCategory] = useState("champions");
 
   const constructors = useSelector(statisticsSelectors.getConstructors);
 
@@ -31,6 +32,12 @@ const RankingsView = () => {
   const gpCountBeforeTitle = useSelector(statisticsSelectors.getGpCountBeforeTitle);
   const championsByConstructorVariety = useSelector(statisticsSelectors.getChampionsByConstructorVariety);
 
+  const driverWinsChronologically = useSelector(statisticsSelectors.getDriverWinsChronologically);
+  const teamWinsChronologically = useSelector(statisticsSelectors.getTeamWinsChronologically);
+  const youngestWinDrivers = useSelector(statisticsSelectors.getYoungestDriversAtFirstWin);
+  const oldestWinDrivers = useSelector(statisticsSelectors.getOldestDriversToWin);
+  const winsOnBirthday = useSelector(statisticsSelectors.getWinsOnBirthday);
+
   const showTeamSelector = section === "team_rankings";
 
   useEffect(() => {
@@ -42,20 +49,11 @@ const RankingsView = () => {
   useEffect(() => {
     if (section === "rankings") {
       switch (mode) {
-        case "wins":
-          dispatch(statisticsActions.fetchDriverWins());
-          break;
-        case "podiums":
-          dispatch(statisticsActions.fetchDriverPodiums());
-          break;
-        case "poles":
-          dispatch(statisticsActions.fetchDriverPoles());
-          break;
-        case "grand_chelems":
-          dispatch(statisticsActions.fetchDriverGrandChelems());
-          break;
-        default:
-          break;
+        case "wins": dispatch(statisticsActions.fetchDriverWins()); break;
+        case "podiums": dispatch(statisticsActions.fetchDriverPodiums()); break;
+        case "poles": dispatch(statisticsActions.fetchDriverPoles()); break;
+        case "grand_chelems": dispatch(statisticsActions.fetchDriverGrandChelems()); break;
+        default: break;
       }
     }
   }, [dispatch, section, mode]);
@@ -64,80 +62,55 @@ const RankingsView = () => {
     if (section !== "team_rankings" || !team) return;
 
     switch (mode) {
-      case "wins_team":
-        dispatch(statisticsActions.fetchDriverWinsByTeam(team));
-        break;
-      case "podiums_team":
-        dispatch(statisticsActions.fetchDriverPodiumsByTeam(team));
-        break;
-      case "poles_team":
-        dispatch(statisticsActions.fetchDriverPolesByTeam(team));
-        break;
-      default:
-        break;
+      case "wins_team": dispatch(statisticsActions.fetchDriverWinsByTeam(team)); break;
+      case "podiums_team": dispatch(statisticsActions.fetchDriverPodiumsByTeam(team)); break;
+      case "poles_team": dispatch(statisticsActions.fetchDriverPolesByTeam(team)); break;
+      default: break;
     }
   }, [dispatch, team, section, mode]);
 
   useEffect(() => {
     if (section === "records") {
       switch (recordMode) {
-        case "titles_by_count":
-          dispatch(statisticsActions.fetchChampionsByTitleCount());
-          break;
-        case "titles_chronological":
-          dispatch(statisticsActions.fetchChampionsChronologically());
-          break;
-        case "titles_by_age":
-          dispatch(statisticsActions.fetchChampionsByAge());
-          break;
-        case "titles_consecutive":
-          dispatch(statisticsActions.fetchConsecutiveChampions());
-          break;
-        case "titles_gap":
-          dispatch(statisticsActions.fetchLongestGapBetweenTitles());
-          break;
-        case "titles_gp_before":
-          dispatch(statisticsActions.fetchGpCountBeforeFirstTitle());
-          break;
-        case "titles_by_constructors":
-          dispatch(statisticsActions.fetchChampionsByConstructorVariety());
-          break;
-        default:
-          break;
+        case "titles_by_count": dispatch(statisticsActions.fetchChampionsByTitleCount()); break;
+        case "titles_chronological": dispatch(statisticsActions.fetchChampionsChronologically()); break;
+        case "titles_by_age": dispatch(statisticsActions.fetchChampionsByAge()); break;
+        case "titles_consecutive": dispatch(statisticsActions.fetchConsecutiveChampions()); break;
+        case "titles_gap": dispatch(statisticsActions.fetchLongestGapBetweenTitles()); break;
+        case "titles_gp_before": dispatch(statisticsActions.fetchGpCountBeforeFirstTitle()); break;
+        case "titles_by_constructors": dispatch(statisticsActions.fetchChampionsByConstructorVariety()); break;
+        case "wins_chronological": dispatch(statisticsActions.fetchDriverWinsChronologically()); break;
+        case "wins_team_chronological": dispatch(statisticsActions.fetchTeamWinsChronologically()); break;
+        case "wins_youngest": dispatch(statisticsActions.fetchYoungestDriversAtFirstWin()); break;
+        case "wins_oldest": dispatch(statisticsActions.fetchOldestDriversToWin()); break;
+        case "wins_on_birthday": dispatch(statisticsActions.fetchWinsOnBirthday()); break;
+        default: break;
       }
     }
   }, [dispatch, section, recordMode]);
 
-  const data =
-    section === "records"
-      ? recordMode === "titles_by_count"
-        ? championsByTitleCount
-        : recordMode === "titles_chronological"
-        ? championsChronologically
-        : recordMode === "titles_by_age"
-        ? championsByAge
-        : recordMode === "titles_consecutive"
-        ? consecutiveTitles
-        : recordMode === "titles_gap"
-        ? longestGapBetweenTitles
-        : recordMode === "titles_gp_before"
-        ? gpCountBeforeTitle
-        : recordMode === "titles_by_constructors"
-        ? championsByConstructorVariety
-        : []
-      : section === "rankings"
-      ? mode === "wins"
-        ? wins
-        : mode === "podiums"
-        ? podiums
-        : mode === "poles"
-        ? poles
-        : grandChelems
-      : mode === "wins_team"
-      ? winsByTeam
-      : mode === "podiums_team"
-      ? podiumsByTeam
-      : polesByTeam;
+  const data = section === "records"
+    ? recordMode === "titles_by_count" ? championsByTitleCount
+    : recordMode === "titles_chronological" ? championsChronologically
+    : recordMode === "titles_by_age" ? championsByAge
+    : recordMode === "titles_consecutive" ? consecutiveTitles
+    : recordMode === "titles_gap" ? longestGapBetweenTitles
+    : recordMode === "titles_gp_before" ? gpCountBeforeTitle
+    : recordMode === "titles_by_constructors" ? championsByConstructorVariety
+    : recordMode === "wins_chronological" ? driverWinsChronologically
+    : recordMode === "wins_team_chronological" ? teamWinsChronologically
+    : recordMode === "wins_youngest" ? youngestWinDrivers
+    : recordMode === "wins_oldest" ? oldestWinDrivers
+    : recordMode === "wins_on_birthday" ? winsOnBirthday
+    : []
+    : section === "rankings"
+    ? mode === "wins" ? wins
+    : mode === "podiums" ? podiums
+    : mode === "poles" ? poles
+    : grandChelems
+    : mode === "wins_team" ? winsByTeam
+    : mode === "podiums_team" ? podiumsByTeam
+    : polesByTeam;
 
   const getLabel = () => {
     if (section === "records") {
@@ -149,6 +122,11 @@ const RankingsView = () => {
         case "titles_gap": return "Años de diferencia";
         case "titles_gp_before": return "GPs antes del título";
         case "titles_by_constructors": return "Constructores distintos";
+        case "wins_chronological": return "Año";
+        case "wins_team_chronological": return "Año";
+        case "wins_youngest": return "Edad";
+        case "wins_oldest": return "Edad";
+        case "wins_on_birthday": return "Año";
         default: return "Valor";
       }
     }
@@ -171,16 +149,36 @@ const RankingsView = () => {
 
       {section === "records" && (
         <div className="stat-controls">
+          <select value={recordCategory} onChange={e => {
+            const category = e.target.value;
+            setRecordCategory(category);
+            setRecordMode(category === "champions" ? "titles_by_count" : "wins_chronological");
+          }}>
+            <option value="champions">🏆 Campeones del Mundo</option>
+            <option value="victories">🥇 Victorias</option>
+          </select>
+
           <select value={recordMode} onChange={e => setRecordMode(e.target.value)}>
-            <optgroup label="🏆 Campeones del Mundo">
-              <option value="titles_by_count">Por número de títulos</option>
-              <option value="titles_chronological">Orden cronológico</option>
-              <option value="titles_by_age">Por edad</option>
-              <option value="titles_consecutive">Títulos consecutivos</option>
-              <option value="titles_gap">Mayor intervalo entre títulos</option>
-              <option value="titles_gp_before">GPs antes del primer título</option>
-              <option value="titles_by_constructors">Por número de constructores</option>
-            </optgroup>
+            {recordCategory === "champions" && (
+              <optgroup label="🏆 Campeones del Mundo">
+                <option value="titles_by_count">Por número de títulos</option>
+                <option value="titles_chronological">Orden cronológico</option>
+                <option value="titles_by_age">Por edad</option>
+                <option value="titles_consecutive">Títulos consecutivos</option>
+                <option value="titles_gap">Mayor intervalo entre títulos</option>
+                <option value="titles_gp_before">GPs antes del primer título</option>
+                <option value="titles_by_constructors">Por número de constructores</option>
+              </optgroup>
+            )}
+            {recordCategory === "victories" && (
+              <optgroup label="🥇 Victorias">
+                <option value="wins_chronological">Primera victoria de cada piloto</option>
+                <option value="wins_team_chronological">Primera victoria por constructor</option>
+                <option value="wins_youngest">Más jóvenes al ganar</option>
+                <option value="wins_oldest">Más veteranos al ganar</option>
+                <option value="wins_on_birthday">Victorias en cumpleaños</option>
+              </optgroup>
+            )}
           </select>
         </div>
       )}
@@ -215,9 +213,7 @@ const RankingsView = () => {
             <select value={team} onChange={(e) => setTeam(e.target.value)}>
               <option value="">Selecciona equipo</option>
               {constructors.map((c) => (
-                <option key={c.constructorId} value={c.name}>
-                  {c.name}
-                </option>
+                <option key={c.constructorId} value={c.name}>{c.name}</option>
               ))}
             </select>
           )}
@@ -240,20 +236,12 @@ const RankingsView = () => {
                 <td>{index + 1}</td>
                 <td>
                   <div className="pilot-cell">
-                    {item.flagUrl && (
-                      <img
-                        src={item.flagUrl}
-                        className="flag"
-                        alt={item.nationality}
-                      />
-                    )}
+                    {item.flagUrl && <img src={item.flagUrl} className="flag" alt={item.nationality} />}
                     <span className="pilot-name">{item.driverName}</span>
                   </div>
                 </td>
                 <td>{item.value}</td>
-                {recordMode === "titles_by_constructors" && (
-                  <td>{item.extra || "-"}</td>
-                )}
+                {recordMode === "titles_by_constructors" && <td>{item.extra || "-"}</td>}
               </tr>
             ))}
           </tbody>

@@ -102,6 +102,33 @@ public class StatisticsController {
         return statisticsService.getTitleCountByDriverAndConstructorVariety();
     }
 
+    // VICTORIES
+
+    @GetMapping("/victories/by-driver/chronology")
+    public List<DriverRankingDTO> getDriverWinsChronologically() {
+        return statisticsService.getDriverWinsChronologically();
+    }
+
+    @GetMapping("/victories/by-team/chronology")
+    public List<DriverRankingDTO> getTeamWinsChronologically() {
+        return statisticsService.getTeamWinsChronologically();
+    }
+
+    @GetMapping("/victories/youngest")
+    public List<DriverRankingDTO> getYoungestDriversAtFirstWin() {
+        return statisticsService.getYoungestDriversAtFirstWin();
+    }
+
+    @GetMapping("/victories/oldest")
+    public List<DriverRankingDTO> getOldestDriversToWin() {
+        return statisticsService.getOldestDriversToWin();
+    }
+
+    @GetMapping("/victories/on-birthday")
+    public List<DriverRankingDTO> getWinsOnBirthday() {
+        return statisticsService.getWinsOnBirthday();
+    }
+
 
     @GetMapping("/constructor-options")
     public List<StatisticsService.ConstructorOption> getAllConstructors() {
