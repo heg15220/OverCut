@@ -156,3 +156,54 @@ export const getPodiumsOnBirthday = (onSuccess, onError) =>
 
 export const getOldestPodiumDriversByNationality = (onSuccess, onError) =>
   appFetch(`/statistics/oldest-by-nationality`, fetchConfig("GET"), onSuccess, onError);
+
+export const getLongestPodiumStreaks = (onSuccess, onError) =>
+  appFetch(`/statistics/streaks`, fetchConfig("GET"), onSuccess, onError);
+
+export const getSeasonStartPodiumStreaks = (onSuccess, onError) =>
+  appFetch(`/statistics/streaks/season-start`, fetchConfig("GET"), onSuccess, onError);
+
+export const getLastPodiumPerDriver = (onSuccess, onError) =>
+  appFetch(`/statistics/last`, fetchConfig("GET"), onSuccess, onError);
+
+export const getBiggestGapBetweenPodiums = (onSuccess, onError) =>
+  appFetch(`/statistics/gap-between`, fetchConfig("GET"), onSuccess, onError);
+
+export const getGapBetweenFirstAndLastPodium = (onSuccess, onError) =>
+  appFetch(`/statistics/gap-first-last`, fetchConfig("GET"), onSuccess, onError);
+
+export const getMostPodiumsInSingleYear = (onSuccess, onError) =>
+  appFetch(`/statistics/most-in-single-year`, fetchConfig("GET"), onSuccess, onError);
+
+export const getPodiumYearsCount = (onSuccess, onError) =>
+  appFetch(`/statistics/years-count`, fetchConfig("GET"), onSuccess, onError);
+
+export const getConsecutivePodiumYears = (onSuccess, onError) =>
+  appFetch(`/statistics/consecutive-years`, fetchConfig("GET"), onSuccess, onError);
+
+export const getGpCountBeforeFirstPodium = (onSuccess, onError) =>
+  appFetch(`/statistics/gps-before-first`, fetchConfig("GET"), onSuccess, onError);
+
+export const getPodiumsBeforeFirstWin = (onSuccess, onError) =>
+  appFetch(`/statistics/before-win`, fetchConfig("GET"), onSuccess, onError);
+
+export const getPodiumsWithSingleConstructor = (onSuccess, onError) =>
+  appFetch(`/statistics/single-constructor`, fetchConfig("GET"), onSuccess, onError);
+
+export const getPodiumsWithNoWins = (onSuccess, onError) =>
+  appFetch(`/statistics/no-wins`, fetchConfig("GET"), onSuccess, onError);
+
+export const getPodiumsWithMostConstructors = (onSuccess, onError) =>
+  appFetch(`/statistics/most-constructors`, fetchConfig("GET"), onSuccess, onError);
+
+export const getPodiumsByGrandPrix = (onSuccess, onError) =>
+  appFetch(`/statistics/by-grand-prix`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostDifferentGPsWithPodium = (onSuccess, onError) =>
+  appFetch(`/statistics/different-grand-prix`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostDifferentCircuitsWithPodium = (onSuccess, onError) =>
+  appFetch(`/statistics/different-circuits`, fetchConfig("GET"), onSuccess, onError);
+
+export const getPodiumsAtHomeGP = (onSuccess, onError) =>
+  appFetch(`/statistics/home-gp`, fetchConfig("GET"), onSuccess, onError);

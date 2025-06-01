@@ -282,6 +282,95 @@ public class StatisticsController {
     }
 
 
+    // Pódiums – Secuencias y frecuencia
+    @GetMapping("/streaks")
+    public List<DriverRankingDTO> getLongestPodiumStreaks() {
+        return statisticsService.getLongestPodiumStreaks();
+    }
+
+    @GetMapping("/streaks/season-start")
+    public List<DriverRankingDTO> getSeasonStartPodiumStreaks() {
+        return statisticsService.getSeasonStartPodiumStreaks();
+    }
+
+    @GetMapping("/last")
+    public List<DriverRankingDTO> getLastPodiumPerDriver() {
+        return statisticsService.getLastPodiumPerDriver();
+    }
+
+    @GetMapping("/gap-between")
+    public List<DriverRankingDTO> getBiggestGapBetweenPodiums() {
+        return statisticsService.getBiggestGapBetweenPodiums();
+    }
+
+    @GetMapping("/gap-first-last")
+    public List<DriverRankingDTO> getGapBetweenFirstAndLastPodium() {
+        return statisticsService.getGapBetweenFirstAndLastPodium();
+    }
+
+    @GetMapping("/most-in-single-year")
+    public List<DriverRankingDTO> getMostPodiumsInSingleYear() {
+        return statisticsService.getMostPodiumsInSingleYear();
+    }
+
+    @GetMapping("/years-count")
+    public List<DriverRankingDTO> getPodiumYearsCount() {
+        return statisticsService.getPodiumYearsCount();
+    }
+
+    @GetMapping("/consecutive-years")
+    public List<DriverRankingDTO> getConsecutivePodiumYears() {
+        return statisticsService.getConsecutivePodiumYears();
+    }
+
+    @GetMapping("/gps-before-first")
+    public List<DriverRankingDTO> getGpCountBeforeFirstPodium() {
+        return statisticsService.getGpCountBeforeFirstPodium();
+    }
+
+    @GetMapping("/before-win")
+    public List<DriverRankingDTO> getPodiumsBeforeFirstWin() {
+        return statisticsService.getPodiumsBeforeFirstWin();
+    }
+
+    // Pódiums – Constructores
+    @GetMapping("/single-constructor")
+    public List<DriverRankingDTO> getPodiumsWithSingleConstructor() {
+        return statisticsService.getPodiumsWithSingleConstructor();
+    }
+
+    @GetMapping("/no-wins")
+    public List<DriverRankingDTO> getPodiumsWithNoWins() {
+        return statisticsService.getPodiumsWithNoWins();
+    }
+
+    @GetMapping("/most-constructors")
+    public List<DriverRankingDTO> getPodiumsWithMostConstructors() {
+        return statisticsService.getPodiumsWithMostConstructors();
+    }
+
+    // Pódiums – GPs y Circuitos
+    @GetMapping("/by-grand-prix")
+    public List<DriverRankingDTO> getPodiumsByGrandPrix() {
+        return statisticsService.getPodiumsByGrandPrix();
+    }
+
+    @GetMapping("/different-grand-prix")
+    public List<DriverRankingDTO> getDriversWithMostDifferentGPsWithPodium() {
+        return statisticsService.getDriversWithMostDifferentGPsWithPodium();
+    }
+
+    @GetMapping("/different-circuits")
+    public List<DriverRankingDTO> getDriversWithMostDifferentCircuitsWithPodium() {
+        return statisticsService.getDriversWithMostDifferentCircuitsWithPodium();
+    }
+
+    @GetMapping("/home-gp")
+    public List<DriverRankingDTO> getPodiumsAtHomeGP() {
+        return statisticsService.getPodiumsAtHomeGP();
+    }
+
+
 
 
 

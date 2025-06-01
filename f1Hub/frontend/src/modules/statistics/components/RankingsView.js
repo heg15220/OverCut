@@ -72,6 +72,26 @@ const podiumsOnBirthday = useSelector(statisticsSelectors.getPodiumsOnBirthday);
 const oldestPodiumDriversByNationality = useSelector(statisticsSelectors.getOldestPodiumDriversByNationality);
 
 
+const longestPodiumStreaks = useSelector(statisticsSelectors.getLongestPodiumStreaks);
+const seasonStartPodiumStreaks = useSelector(statisticsSelectors.getSeasonStartPodiumStreaks);
+const lastPodiumPerDriver = useSelector(statisticsSelectors.getLastPodiumPerDriver);
+const biggestGapBetweenPodiums = useSelector(statisticsSelectors.getBiggestGapBetweenPodiums);
+const gapBetweenFirstAndLastPodium = useSelector(statisticsSelectors.getGapBetweenFirstAndLastPodium);
+const mostPodiumsInSingleYear = useSelector(statisticsSelectors.getMostPodiumsInSingleYear);
+const podiumYearsCount = useSelector(statisticsSelectors.getPodiumYearsCount);
+const consecutivePodiumYears = useSelector(statisticsSelectors.getConsecutivePodiumYears);
+const gpCountBeforeFirstPodium = useSelector(statisticsSelectors.getGpCountBeforeFirstPodium);
+const podiumsBeforeFirstWin = useSelector(statisticsSelectors.getPodiumsBeforeFirstWin);
+const podiumsWithSingleConstructor = useSelector(statisticsSelectors.getPodiumsWithSingleConstructor);
+const podiumsWithNoWins = useSelector(statisticsSelectors.getPodiumsWithNoWins);
+const podiumsWithMostConstructors = useSelector(statisticsSelectors.getPodiumsWithMostConstructors);
+const podiumsByGrandPrix = useSelector(statisticsSelectors.getPodiumsByGrandPrix);
+const mostDifferentGPsWithPodium = useSelector(statisticsSelectors.getDriversWithMostDifferentGPsWithPodium);
+const mostDifferentCircuitsWithPodium = useSelector(statisticsSelectors.getDriversWithMostDifferentCircuitsWithPodium);
+const podiumsAtHomeGP = useSelector(statisticsSelectors.getPodiumsAtHomeGP);
+
+
+
 
   const showTeamSelector = section === "team_rankings";
 
@@ -149,6 +169,24 @@ const oldestPodiumDriversByNationality = useSelector(statisticsSelectors.getOlde
         case "podiums_youngest": dispatch(statisticsActions.fetchYoungestPodiumDrivers()); break;
         case "podiums_on_birthday": dispatch(statisticsActions.fetchPodiumsOnBirthday()); break;
         case "podiums_oldest_by_nationality": dispatch(statisticsActions.fetchOldestPodiumDriversByNationality()); break;
+        case "podiums_streaks": dispatch(statisticsActions.fetchLongestPodiumStreaks()); break;
+        case "podiums_streaks_season": dispatch(statisticsActions.fetchSeasonStartPodiumStreaks()); break;
+        case "podiums_last": dispatch(statisticsActions.fetchLastPodiumPerDriver()); break;
+        case "podiums_gap": dispatch(statisticsActions.fetchBiggestGapBetweenPodiums()); break;
+        case "podiums_gap_first_last": dispatch(statisticsActions.fetchGapBetweenFirstAndLastPodium()); break;
+        case "podiums_single_year": dispatch(statisticsActions.fetchMostPodiumsInSingleYear()); break;
+        case "podiums_years_count": dispatch(statisticsActions.fetchPodiumYearsCount()); break;
+        case "podiums_consecutive_years": dispatch(statisticsActions.fetchConsecutivePodiumYears()); break;
+        case "podiums_gp_before": dispatch(statisticsActions.fetchGpCountBeforeFirstPodium()); break;
+        case "podiums_before_win": dispatch(statisticsActions.fetchPodiumsBeforeFirstWin()); break;
+        case "podiums_single_constructor": dispatch(statisticsActions.fetchPodiumsWithSingleConstructor()); break;
+        case "podiums_no_wins": dispatch(statisticsActions.fetchPodiumsWithNoWins()); break;
+        case "podiums_most_constructors": dispatch(statisticsActions.fetchPodiumsWithMostConstructors()); break;
+        case "podiums_by_gp": dispatch(statisticsActions.fetchPodiumsByGrandPrix()); break;
+        case "podiums_most_different_gps": dispatch(statisticsActions.fetchDriversWithMostDifferentGPsWithPodium()); break;
+        case "podiums_most_different_circuits": dispatch(statisticsActions.fetchDriversWithMostDifferentCircuitsWithPodium()); break;
+        case "podiums_home_gp": dispatch(statisticsActions.fetchPodiumsAtHomeGP()); break;
+
 
 
         default: break;
@@ -199,6 +237,23 @@ const oldestPodiumDriversByNationality = useSelector(statisticsSelectors.getOlde
     : recordMode === "podiums_youngest" ? youngestPodiumDrivers
     : recordMode === "podiums_on_birthday" ? podiumsOnBirthday
     : recordMode === "podiums_oldest_by_nationality" ? oldestPodiumDriversByNationality
+    : recordMode === "podiums_streaks" ? longestPodiumStreaks
+    : recordMode === "podiums_streaks_season" ? seasonStartPodiumStreaks
+    : recordMode === "podiums_last" ? lastPodiumPerDriver
+    : recordMode === "podiums_gap" ? biggestGapBetweenPodiums
+    : recordMode === "podiums_gap_first_last" ? gapBetweenFirstAndLastPodium
+    : recordMode === "podiums_single_year" ? mostPodiumsInSingleYear
+    : recordMode === "podiums_years_count" ? podiumYearsCount
+    : recordMode === "podiums_consecutive_years" ? consecutivePodiumYears
+    : recordMode === "podiums_gp_before" ? gpCountBeforeFirstPodium
+    : recordMode === "podiums_before_win" ? podiumsBeforeFirstWin
+    : recordMode === "podiums_single_constructor" ? podiumsWithSingleConstructor
+    : recordMode === "podiums_no_wins" ? podiumsWithNoWins
+    : recordMode === "podiums_most_constructors" ? podiumsWithMostConstructors
+    : recordMode === "podiums_by_gp" ? podiumsByGrandPrix
+    : recordMode === "podiums_most_different_gps" ? mostDifferentGPsWithPodium
+    : recordMode === "podiums_most_different_circuits" ? mostDifferentCircuitsWithPodium
+    : recordMode === "podiums_home_gp" ? podiumsAtHomeGP
 
     : []
     : section === "rankings"
@@ -213,6 +268,7 @@ const oldestPodiumDriversByNationality = useSelector(statisticsSelectors.getOlde
     const getLabel = () => {
       if (section === "records") {
         switch (recordMode) {
+          // Campeonatos
           case "titles_by_count": return "Títulos";
           case "titles_chronological": return "Año";
           case "titles_by_age": return "Edad";
@@ -220,6 +276,8 @@ const oldestPodiumDriversByNationality = useSelector(statisticsSelectors.getOlde
           case "titles_gap": return "Años de diferencia";
           case "titles_gp_before": return "GPs antes del título";
           case "titles_by_constructors": return "Constructores distintos";
+
+          // Victorias
           case "wins_chronological": return "Año";
           case "wins_team_chronological": return "Año";
           case "wins_youngest": return "Edad";
@@ -247,6 +305,8 @@ const oldestPodiumDriversByNationality = useSelector(statisticsSelectors.getOlde
           case "wins_no_laps_led": return "Victorias sin liderar";
           case "wins_without_pole": return "Victorias sin pole";
           case "wins_with_fastest_lap": return "Victorias con vuelta rápida";
+
+          // Pódiums
           case "podiums_second_place": return "Pódiums en 2ª";
           case "podiums_third_place": return "Pódiums en 3ª";
           case "podiums_second_and_third": return "Pódiums (2ª o 3ª)";
@@ -255,16 +315,35 @@ const oldestPodiumDriversByNationality = useSelector(statisticsSelectors.getOlde
           case "podiums_youngest": return "Edad";
           case "podiums_on_birthday": return "Año";
           case "podiums_oldest_by_nationality": return "Edad";
+          case "podiums_streaks": return "Racha de pódiums";
+          case "podiums_streaks_season": return "Racha inicial";
+          case "podiums_last": return "Último podio";
+          case "podiums_gap": return "Días entre pódiums";
+          case "podiums_gap_first_last": return "Años entre primero y último";
+          case "podiums_single_year": return "Pódiums en un año";
+          case "podiums_years_count": return "Años con pódiums";
+          case "podiums_consecutive_years": return "Años consecutivos con pódium";
+          case "podiums_gp_before": return "GPs antes del primer podio";
+          case "podiums_before_win": return "Pódiums antes de la primera victoria";
+          case "podiums_single_constructor": return "Con un solo constructor";
+          case "podiums_no_wins": return "Pódiums sin victorias";
+          case "podiums_most_constructors": return "Constructores con pódiums";
+          case "podiums_by_gp": return "Pódiums por GP";
+          case "podiums_most_different_gps": return "GPs diferentes con podio";
+          case "podiums_most_different_circuits": return "Circuitos diferentes con podio";
+          case "podiums_home_gp": return "Pódiums en GP local";
 
           default: return "Valor";
         }
       }
+
       if (mode.includes("wins")) return "Victorias";
       if (mode.includes("podiums")) return "Podios";
       if (mode.includes("poles")) return "Poles";
       if (mode.includes("grand_chelems")) return "Grand Chelems";
       return "Valor";
     };
+
 
   return (
     <div className="race-result-table">
@@ -346,6 +425,22 @@ const oldestPodiumDriversByNationality = useSelector(statisticsSelectors.getOlde
                       <option value="podiums_youngest">Pilotos más jóvenes en el podio</option>
                       <option value="podiums_on_birthday">Pódiums en el cumpleaños</option>
                       <option value="podiums_oldest_by_nationality">Mayores en podio por país</option>
+                        <option value="podiums_streaks">Racha más larga de pódiums</option>
+                        <option value="podiums_streaks_season">Racha inicial de temporada</option>
+                        <option value="podiums_last">Último podio</option>
+                        <option value="podiums_gap_first_last">Años entre primer y último podio</option>
+                        <option value="podiums_single_year">Más podios en un año</option>
+                        <option value="podiums_years_count">Años diferentes con podios</option>
+                        <option value="podiums_consecutive_years">Años consecutivos con podios</option>
+                        <option value="podiums_gp_before">GPs antes del primer podio</option>
+                        <option value="podiums_before_win">Pódiums antes de la primera victoria</option>
+                        <option value="podiums_single_constructor">Pódiums con un solo constructor</option>
+                        <option value="podiums_no_wins">Pódiums sin victorias</option>
+                        <option value="podiums_most_constructors">Más constructores con pódiums</option>
+                        <option value="podiums_by_gp">Pódiums por GP</option>
+                        <option value="podiums_most_different_gps">GPs diferentes con podio</option>
+                        <option value="podiums_most_different_circuits">Circuitos diferentes con podio</option>
+                        <option value="podiums_home_gp">Pódiums en GP local</option>
                     </optgroup>
                   )}
 

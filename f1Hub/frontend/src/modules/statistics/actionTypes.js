@@ -53,3 +53,22 @@ export const FETCH_PODIUMS_TEAM_CHRONOLOGY_COMPLETED = "statistics/fetchTeamPodi
 export const FETCH_PODIUMS_YOUNGEST_COMPLETED = "statistics/fetchYoungestPodiumDriversCompleted";
 export const FETCH_PODIUMS_ON_BIRTHDAY_COMPLETED = "statistics/fetchPodiumsOnBirthdayCompleted";
 export const FETCH_PODIUMS_OLDEST_BY_NATIONALITY_COMPLETED = "statistics/fetchOldestPodiumDriversByNationalityCompleted";
+
+export const FETCH_LONGEST_PODIUM_STREAKS_COMPLETED = "statistics/fetchLongestPodiumStreaksCompleted";
+export const FETCH_SEASON_START_PODIUM_STREAKS_COMPLETED = "statistics/fetchSeasonStartPodiumStreaksCompleted";
+export const FETCH_LAST_PODIUM_COMPLETED = "statistics/fetchLastPodiumCompleted";
+export const FETCH_BIGGEST_PODIUM_GAP_COMPLETED = "statistics/fetchBiggestGapBetweenPodiumsCompleted";
+export const FETCH_PODIUM_FIRST_LAST_GAP_COMPLETED = "statistics/fetchGapBetweenFirstAndLastPodiumCompleted";
+export const FETCH_PODIUMS_SINGLE_YEAR_COMPLETED = "statistics/fetchMostPodiumsInSingleYearCompleted";
+export const FETCH_PODIUM_YEARS_COUNT_COMPLETED = "statistics/fetchPodiumYearsCountCompleted";
+export const FETCH_CONSECUTIVE_PODIUM_YEARS_COMPLETED = "statistics/fetchConsecutivePodiumYearsCompleted";
+export const FETCH_GPS_BEFORE_FIRST_PODIUM_COMPLETED = "statistics/fetchGpCountBeforeFirstPodiumCompleted";
+export const FETCH_PODIUMS_BEFORE_FIRST_WIN_COMPLETED = "statistics/fetchPodiumsBeforeFirstWinCompleted";
+export const FETCH_PODIUMS_SINGLE_CONSTRUCTOR_COMPLETED = "statistics/fetchPodiumsWithSingleConstructorCompleted";
+export const FETCH_PODIUMS_NO_WINS_COMPLETED = "statistics/fetchPodiumsWithNoWinsCompleted";
+export const FETCH_PODIUMS_MOST_CONSTRUCTORS_COMPLETED = "statistics/fetchPodiumsWithMostConstructorsCompleted";
+export const FETCH_PODIUMS_BY_GP_COMPLETED = "statistics/fetchPodiumsByGrandPrixCompleted";
+export const FETCH_PODIUMS_MOST_DIFFERENT_GPS_COMPLETED = "statistics/fetchDriversWithMostDifferentGPsWithPodiumCompleted";
+export const FETCH_PODIUMS_MOST_DIFFERENT_CIRCUITS_COMPLETED = "statistics/fetchDriversWithMostDifferentCircuitsWithPodiumCompleted";
+export const FETCH_PODIUMS_HOME_GP_COMPLETED = "statistics/fetchPodiumsAtHomeGPCompleted";
+

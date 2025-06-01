@@ -53,7 +53,24 @@ const initialState = {
   teamPodiumChronology: [],
   youngestPodiumDrivers: [],
   podiumsOnBirthday: [],
-  oldestPodiumDriversByNationality: []
+  oldestPodiumDriversByNationality: [],
+  longestPodiumStreaks: [],
+  seasonStartPodiumStreaks: [],
+  lastPodiums: [],
+  biggestPodiumGaps: [],
+  firstLastPodiumGaps: [],
+  mostPodiumsSingleYear: [],
+  podiumYearsCount: [],
+  consecutivePodiumYears: [],
+  gpCountBeforeFirstPodium: [],
+  podiumsBeforeFirstWin: [],
+  podiumsWithSingleConstructor: [],
+  podiumsWithNoWins: [],
+  podiumsWithMostConstructors: [],
+  podiumsByGrandPrix: [],
+  mostDifferentGPsWithPodium: [],
+  mostDifferentCircuitsWithPodium: [],
+  podiumsAtHomeGP: []
 
 
 };
@@ -174,6 +191,43 @@ export default function reducer(state = initialState, action) {
       return { ...state, podiumsOnBirthday: action.data };
     case actionTypes.FETCH_PODIUMS_OLDEST_BY_NATIONALITY_COMPLETED:
       return { ...state, oldestPodiumDriversByNationality: action.data };
+
+
+    case actionTypes.FETCH_LONGEST_PODIUM_STREAKS_COMPLETED:
+      return { ...state, longestPodiumStreaks: action.data };
+    case actionTypes.FETCH_SEASON_START_PODIUM_STREAKS_COMPLETED:
+      return { ...state, seasonStartPodiumStreaks: action.data };
+    case actionTypes.FETCH_LAST_PODIUM_COMPLETED:
+      return { ...state, lastPodiums: action.data };
+    case actionTypes.FETCH_BIGGEST_PODIUM_GAP_COMPLETED:
+      return { ...state, biggestPodiumGaps: action.data };
+    case actionTypes.FETCH_PODIUM_FIRST_LAST_GAP_COMPLETED:
+      return { ...state, firstLastPodiumGaps: action.data };
+    case actionTypes.FETCH_PODIUMS_SINGLE_YEAR_COMPLETED:
+      return { ...state, mostPodiumsSingleYear: action.data };
+    case actionTypes.FETCH_PODIUM_YEARS_COUNT_COMPLETED:
+      return { ...state, podiumYearsCount: action.data };
+    case actionTypes.FETCH_CONSECUTIVE_PODIUM_YEARS_COMPLETED:
+      return { ...state, consecutivePodiumYears: action.data };
+    case actionTypes.FETCH_GPS_BEFORE_FIRST_PODIUM_COMPLETED:
+      return { ...state, gpCountBeforeFirstPodium: action.data };
+    case actionTypes.FETCH_PODIUMS_BEFORE_FIRST_WIN_COMPLETED:
+      return { ...state, podiumsBeforeFirstWin: action.data };
+    case actionTypes.FETCH_PODIUMS_SINGLE_CONSTRUCTOR_COMPLETED:
+      return { ...state, podiumsWithSingleConstructor: action.data };
+    case actionTypes.FETCH_PODIUMS_NO_WINS_COMPLETED:
+      return { ...state, podiumsWithNoWins: action.data };
+    case actionTypes.FETCH_PODIUMS_MOST_CONSTRUCTORS_COMPLETED:
+      return { ...state, podiumsWithMostConstructors: action.data };
+    case actionTypes.FETCH_PODIUMS_BY_GP_COMPLETED:
+      return { ...state, podiumsByGrandPrix: action.data };
+    case actionTypes.FETCH_PODIUMS_MOST_DIFFERENT_GPS_COMPLETED:
+      return { ...state, mostDifferentGPsWithPodium: action.data };
+    case actionTypes.FETCH_PODIUMS_MOST_DIFFERENT_CIRCUITS_COMPLETED:
+      return { ...state, mostDifferentCircuitsWithPodium: action.data };
+    case actionTypes.FETCH_PODIUMS_HOME_GP_COMPLETED:
+      return { ...state, podiumsAtHomeGP: action.data };
+
 
 
 

@@ -321,3 +321,106 @@ export const fetchOldestPodiumDriversByNationality = () => dispatch =>
     () => {}
   );
 
+export const fetchLongestPodiumStreaks = () => dispatch =>
+  backend.statisticsService.getLongestPodiumStreaks(
+    data => dispatch({ type: actionTypes.FETCH_LONGEST_PODIUM_STREAKS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchSeasonStartPodiumStreaks = () => dispatch =>
+  backend.statisticsService.getSeasonStartPodiumStreaks(
+    data => dispatch({ type: actionTypes.FETCH_SEASON_START_PODIUM_STREAKS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchLastPodiumPerDriver = () => dispatch =>
+  backend.statisticsService.getLastPodiumPerDriver(
+    data => dispatch({ type: actionTypes.FETCH_LAST_PODIUM_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchBiggestGapBetweenPodiums = () => dispatch =>
+  backend.statisticsService.getBiggestGapBetweenPodiums(
+    data => dispatch({ type: actionTypes.FETCH_BIGGEST_PODIUM_GAP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGapBetweenFirstAndLastPodium = () => dispatch =>
+  backend.statisticsService.getGapBetweenFirstAndLastPodium(
+    data => dispatch({ type: actionTypes.FETCH_PODIUM_FIRST_LAST_GAP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchMostPodiumsInSingleYear = () => dispatch =>
+  backend.statisticsService.getMostPodiumsInSingleYear(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_SINGLE_YEAR_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchPodiumYearsCount = () => dispatch =>
+  backend.statisticsService.getPodiumYearsCount(
+    data => dispatch({ type: actionTypes.FETCH_PODIUM_YEARS_COUNT_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchConsecutivePodiumYears = () => dispatch =>
+  backend.statisticsService.getConsecutivePodiumYears(
+    data => dispatch({ type: actionTypes.FETCH_CONSECUTIVE_PODIUM_YEARS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGpCountBeforeFirstPodium = () => dispatch =>
+  backend.statisticsService.getGpCountBeforeFirstPodium(
+    data => dispatch({ type: actionTypes.FETCH_GPS_BEFORE_FIRST_PODIUM_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchPodiumsBeforeFirstWin = () => dispatch =>
+  backend.statisticsService.getPodiumsBeforeFirstWin(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_BEFORE_FIRST_WIN_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchPodiumsWithSingleConstructor = () => dispatch =>
+  backend.statisticsService.getPodiumsWithSingleConstructor(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_SINGLE_CONSTRUCTOR_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchPodiumsWithNoWins = () => dispatch =>
+  backend.statisticsService.getPodiumsWithNoWins(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_NO_WINS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchPodiumsWithMostConstructors = () => dispatch =>
+  backend.statisticsService.getPodiumsWithMostConstructors(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_MOST_CONSTRUCTORS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchPodiumsByGrandPrix = () => dispatch =>
+  backend.statisticsService.getPodiumsByGrandPrix(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_BY_GP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostDifferentGPsWithPodium = () => dispatch =>
+  backend.statisticsService.getDriversWithMostDifferentGPsWithPodium(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_MOST_DIFFERENT_GPS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostDifferentCircuitsWithPodium = () => dispatch =>
+  backend.statisticsService.getDriversWithMostDifferentCircuitsWithPodium(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_MOST_DIFFERENT_CIRCUITS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchPodiumsAtHomeGP = () => dispatch =>
+  backend.statisticsService.getPodiumsAtHomeGP(
+    data => dispatch({ type: actionTypes.FETCH_PODIUMS_HOME_GP_COMPLETED, data }),
+    () => {}
+  );
+
+

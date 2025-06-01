@@ -53,3 +53,22 @@ export const getYoungestPodiumDrivers = state => getModuleState(state).youngestP
 export const getPodiumsOnBirthday = state => getModuleState(state).podiumsOnBirthday;
 export const getOldestPodiumDriversByNationality = state => getModuleState(state).oldestPodiumDriversByNationality;
 
+
+export const getLongestPodiumStreaks = state => getModuleState(state).longestPodiumStreaks;
+export const getSeasonStartPodiumStreaks = state => getModuleState(state).seasonStartPodiumStreaks;
+export const getLastPodiumPerDriver = state => getModuleState(state).lastPodiums;
+export const getBiggestGapBetweenPodiums = state => getModuleState(state).biggestPodiumGaps;
+export const getGapBetweenFirstAndLastPodium = state => getModuleState(state).firstLastPodiumGaps;
+export const getMostPodiumsInSingleYear = state => getModuleState(state).mostPodiumsSingleYear;
+export const getPodiumYearsCount = state => getModuleState(state).podiumYearsCount;
+export const getConsecutivePodiumYears = state => getModuleState(state).consecutivePodiumYears;
+export const getGpCountBeforeFirstPodium = state => getModuleState(state).gpCountBeforeFirstPodium;
+export const getPodiumsBeforeFirstWin = state => getModuleState(state).podiumsBeforeFirstWin;
+export const getPodiumsWithSingleConstructor = state => getModuleState(state).podiumsWithSingleConstructor;
+export const getPodiumsWithNoWins = state => getModuleState(state).podiumsWithNoWins;
+export const getPodiumsWithMostConstructors = state => getModuleState(state).podiumsWithMostConstructors;
+export const getPodiumsByGrandPrix = state => getModuleState(state).podiumsByGrandPrix;
+export const getDriversWithMostDifferentGPsWithPodium = state => getModuleState(state).mostDifferentGPsWithPodium;
+export const getDriversWithMostDifferentCircuitsWithPodium = state => getModuleState(state).mostDifferentCircuitsWithPodium;
+export const getPodiumsAtHomeGP = state => getModuleState(state).podiumsAtHomeGP;
+

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.*;
@@ -1601,7 +1602,490 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 
 
+    @Override
+    public List<DriverRankingDTO> getLongestPodiumStreaks() {
+        Map<Long, List<Result>> resultsByDriver = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .sorted(Comparator.comparing(r -> r.getRace().getDate()))
+                .collect(Collectors.groupingBy(r -> r.getDriver().getDriverId()));
 
+        List<DriverRankingDTO> streaks = new ArrayList<>();
+
+        for (Map.Entry<Long, List<Result>> entry : resultsByDriver.entrySet()) {
+            Long driverId = entry.getKey();
+            List<Result> results = entry.getValue();
+            int maxStreak = 1, current = 1;
+
+            for (int i = 1; i < results.size(); i++) {
+                long diff = ChronoUnit.DAYS.between(results.get(i - 1).getRace().getDate().toLocalDate(), results.get(i).getRace().getDate().toLocalDate());
+                if (diff >= 1 && diff <= 21) current++;
+                else { maxStreak = Math.max(maxStreak, current); current = 1; }
+            }
+
+            maxStreak = Math.max(maxStreak, current);
+            Driver d = results.get(0).getDriver();
+            streaks.add(new DriverRankingDTO(d.getForename() + " " + d.getSurname(), d.getNationality(), maxStreak, getFlagUrl(d.getNationality())));
+        }
+
+        return streaks.stream()
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getSeasonStartPodiumStreaks() {
+        Map<Long, List<Result>> resultsByDriver = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .sorted(Comparator.comparing(r -> r.getRace().getDate()))
+                .collect(Collectors.groupingBy(r -> r.getDriver().getDriverId()));
+
+        List<DriverRankingDTO> streaks = new ArrayList<>();
+
+        for (Map.Entry<Long, List<Result>> entry : resultsByDriver.entrySet()) {
+            Long driverId = entry.getKey();
+            Map<Integer, List<Result>> bySeason = entry.getValue().stream()
+                    .collect(Collectors.groupingBy(r -> r.getRace().getYear()));
+
+            int max = 0;
+
+            for (List<Result> seasonResults : bySeason.values()) {
+                seasonResults.sort(Comparator.comparing(r -> r.getRace().getRound()));
+                int streak = 0;
+                for (int i = 0; i < seasonResults.size(); i++) {
+                    if (seasonResults.get(i).getRace().getRound() == i + 1) streak++;
+                    else break;
+                }
+                max = Math.max(max, streak);
+            }
+
+            if (max > 0) {
+                Driver d = entry.getValue().get(0).getDriver();
+                streaks.add(new DriverRankingDTO(d.getForename() + " " + d.getSurname(), d.getNationality(), max, getFlagUrl(d.getNationality())));
+            }
+        }
+
+        return streaks.stream()
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getLastPodiumPerDriver() {
+        return resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.toMap(
+                        r -> r.getDriver().getDriverId(),
+                        r -> r,
+                        (r1, r2) -> r1.getRace().getDate().after(r2.getRace().getDate()) ? r1 : r2))
+                .values().stream()
+                .map(r -> {
+                    Driver d = r.getDriver();
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            r.getRace().getYear(),
+                            getFlagUrl(d.getNationality()));
+                })
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+    @Override
+    public List<DriverRankingDTO> getBiggestGapBetweenPodiums() {
+        Map<Long, List<LocalDate>> podiumDates = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .filter(r -> r.getRace() != null && r.getRace().getDate() != null)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.mapping(
+                                r -> r.getRace().getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                                Collectors.toList()
+                        )
+                ));
+
+        List<DriverRankingDTO> result = new ArrayList<>();
+        for (Map.Entry<Long, List<LocalDate>> entry : podiumDates.entrySet()) {
+            List<LocalDate> dates = entry.getValue().stream().sorted().toList();
+            long maxGap = 0;
+            for (int i = 1; i < dates.size(); i++) {
+                long diff = ChronoUnit.DAYS.between(dates.get(i - 1), dates.get(i));
+                maxGap = Math.max(maxGap, diff);
+            }
+            if (maxGap > 0) {
+                long finalMaxGap = maxGap;
+                driverDao.findById(entry.getKey()).ifPresent(d ->
+                        result.add(new DriverRankingDTO(
+                                d.getForename() + " " + d.getSurname(),
+                                d.getNationality(),
+                                (int) finalMaxGap,
+                                getFlagUrl(d.getNationality())
+                        ))
+                );
+            }
+        }
+
+        return result.stream()
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getGapBetweenFirstAndLastPodium() {
+        Map<Long, List<Date>> podiumDates = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.mapping(r -> r.getRace().getDate(), Collectors.toList())));
+
+        List<DriverRankingDTO> result = new ArrayList<>();
+        for (Map.Entry<Long, List<Date>> entry : podiumDates.entrySet()) {
+            List<Date> dates = entry.getValue();
+            if (dates.size() < 2) continue;
+            Date first = Collections.min(dates);
+            Date last = Collections.max(dates);
+            long days = ChronoUnit.DAYS.between(first.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                    last.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            Driver d = driverDao.findById(entry.getKey()).orElse(null);
+            if (d != null) {
+                result.add(new DriverRankingDTO(d.getForename() + " " + d.getSurname(), d.getNationality(), (int)(days / 365.25), getFlagUrl(d.getNationality())));
+            }
+        }
+        return result.stream().sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed()).toList();
+    }
+
+    @Override
+    public List<DriverRankingDTO> getMostPodiumsInSingleYear() {
+        Map<String, Long> count = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId() + "-" + r.getRace().getYear(),
+                        Collectors.counting()
+                ));
+
+        return count.entrySet().stream()
+                .filter(e -> e.getValue() >= 11) // aplicar filtro
+                .map(e -> {
+                    String[] parts = e.getKey().split("-");
+                    Long driverId = Long.parseLong(parts[0]);
+                    Driver d = driverDao.findById(driverId).orElse(null);
+                    return d == null ? null : new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            e.getValue().intValue(),
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+
+
+    @Override
+    public List<DriverRankingDTO> getPodiumYearsCount() {
+        Map<Long, Set<Integer>> yearsPerDriver = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.mapping(r -> r.getRace().getYear(), Collectors.toSet())
+                ));
+
+        return yearsPerDriver.entrySet().stream()
+                .map(e -> {
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            e.getValue().size(),
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+    @Override
+    public List<DriverRankingDTO> getConsecutivePodiumYears() {
+        Map<Long, Set<Integer>> yearsPerDriver = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.mapping(r -> r.getRace().getYear(), Collectors.toSet())
+                ));
+
+        return yearsPerDriver.entrySet().stream()
+                .map(e -> {
+                    List<Integer> years = new ArrayList<>(e.getValue());
+                    Collections.sort(years);
+                    int maxStreak = 1, current = 1;
+                    for (int i = 1; i < years.size(); i++) {
+                        if (years.get(i) == years.get(i - 1) + 1) current++;
+                        else current = 1;
+                        maxStreak = Math.max(maxStreak, current);
+                    }
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            maxStreak,
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getGpCountBeforeFirstPodium() {
+        List<Result> allResults = resultDao.findAll();
+
+        Map<Long, List<Result>> byDriver = allResults.stream()
+                .collect(Collectors.groupingBy(r -> r.getDriver().getDriverId()));
+
+        return byDriver.entrySet().stream()
+                .map(e -> {
+                    List<Result> results = e.getValue().stream()
+                            .filter(r -> r.getRace() != null)
+                            .sorted(Comparator.comparing(r -> r.getRace().getDate()))
+                            .toList();
+
+                    int count = 0;
+                    for (Result r : results) {
+                        if (r.getPositionOrder() != null && r.getPositionOrder() <= 3) break;
+                        count++;
+                    }
+
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            count,
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getPodiumsBeforeFirstWin() {
+        Map<Long, List<Result>> grouped = resultDao.findAll().stream()
+                .filter(r -> r.getRace() != null && r.getDriver() != null)
+                .collect(Collectors.groupingBy(r -> r.getDriver().getDriverId()));
+
+        return grouped.entrySet().stream()
+                .map(e -> {
+                    List<Result> sorted = e.getValue().stream()
+                            .sorted(Comparator.comparing(r -> r.getRace().getDate()))
+                            .toList();
+
+                    int podiumsBeforeWin = 0;
+                    for (Result r : sorted) {
+                        if (r.getPositionOrder() != null && r.getPositionOrder() == 1) break;
+                        if (r.getPositionOrder() != null && r.getPositionOrder() <= 3) {
+                            podiumsBeforeWin++;
+                        }
+                    }
+
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            podiumsBeforeWin,
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getPodiumsWithSingleConstructor() {
+        return resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.mapping(r -> r.getConstructor().getConstructorId(), Collectors.toSet())
+                ))
+                .entrySet().stream()
+                .filter(e -> e.getValue().size() == 1)
+                .map(e -> {
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            1,
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(DriverRankingDTO::getDriverName))
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getPodiumsWithNoWins() {
+        Map<Long, List<Result>> grouped = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getRace() != null)
+                .collect(Collectors.groupingBy(r -> r.getDriver().getDriverId()));
+
+        return grouped.entrySet().stream()
+                .filter(e -> e.getValue().stream().anyMatch(r -> r.getPositionOrder() <= 3) &&
+                        e.getValue().stream().noneMatch(r -> r.getPositionOrder() == 1))
+                .map(e -> {
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    long count = e.getValue().stream().filter(r -> r.getPositionOrder() <= 3).count();
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            (int) count,
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getPodiumsWithMostConstructors() {
+        return resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.mapping(r -> r.getConstructor().getConstructorId(), Collectors.toSet())
+                ))
+                .entrySet().stream()
+                .map(e -> {
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            e.getValue().size(),
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getPodiumsByGrandPrix() {
+        Map<String, Long> podiumsByGP = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.groupingBy(r -> r.getRace().getName(), Collectors.counting()));
+
+        return podiumsByGP.entrySet().stream()
+                .map(e -> new DriverRankingDTO(e.getKey(), "", e.getValue().intValue(), null))
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getDriversWithMostDifferentGPsWithPodium() {
+        Map<Long, Set<String>> gpsByDriver = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.mapping(r -> r.getRace().getName(), Collectors.toSet())
+                ));
+
+        return gpsByDriver.entrySet().stream()
+                .map(e -> {
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            e.getValue().size(),
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getDriversWithMostDifferentCircuitsWithPodium() {
+        Map<Long, Set<Long>> circuitsByDriver = resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.mapping(r -> r.getRace().getCircuit().getCircuitId(), Collectors.toSet())
+                ));
+
+        return circuitsByDriver.entrySet().stream()
+                .map(e -> {
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            e.getValue().size(),
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+    @Override
+    public List<DriverRankingDTO> getPodiumsAtHomeGP() {
+        return resultDao.findAll().stream()
+                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                .filter(r -> r.getRace() != null && r.getRace().getCircuit() != null)
+                .filter(r -> r.getDriver() != null && r.getDriver().getNationality() != null)
+                .filter(r -> {
+                    String nationality = r.getDriver().getNationality();
+                    String country = r.getRace().getCircuit().getCountry();
+                    return isHomeGP(nationality, country);
+                })
+                .collect(Collectors.groupingBy(
+                        r -> r.getDriver().getDriverId(),
+                        Collectors.counting()
+                ))
+                .entrySet().stream()
+                .map(e -> {
+                    Driver d = driverDao.findById(e.getKey()).orElse(null);
+                    if (d == null) return null;
+                    return new DriverRankingDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            d.getNationality(),
+                            e.getValue().intValue(),
+                            getFlagUrl(d.getNationality())
+                    );
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
 
 
 
@@ -1725,5 +2209,41 @@ public class StatisticsServiceImpl implements StatisticsService {
             // Resto usarán gris por defecto
             default -> "#aaaaaa";
         };
+    }
+
+    private static final Map<String, Set<String>> NATIONALITY_TO_COUNTRIES = Map.ofEntries(
+            Map.entry("british", Set.of("UK")),
+            Map.entry("english", Set.of("UK")),
+            Map.entry("scottish", Set.of("UK")),
+            Map.entry("welsh", Set.of("UK")),
+            Map.entry("american", Set.of("USA", "United States")),
+            Map.entry("german", Set.of("Germany")),
+            Map.entry("french", Set.of("France")),
+            Map.entry("spanish", Set.of("Spain")),
+            Map.entry("brazilian", Set.of("Brazil")),
+            Map.entry("italian", Set.of("Italy")),
+            Map.entry("japanese", Set.of("Japan")),
+            Map.entry("canadian", Set.of("Canada")),
+            Map.entry("australian", Set.of("Australia")),
+            Map.entry("argentine", Set.of("Argentina")),
+            Map.entry("mexican", Set.of("Mexico")),
+            Map.entry("dutch", Set.of("Netherlands")),
+            Map.entry("monegasque", Set.of("Monaco")),
+            Map.entry("finnish", Set.of("Finland")),
+            Map.entry("russian", Set.of("Russia")),
+            Map.entry("austrian", Set.of("Austria")),
+            Map.entry("portuguese", Set.of("Portugal")),
+            Map.entry("swiss", Set.of("Switzerland")),
+            Map.entry("south african", Set.of("South Africa")),
+            Map.entry("swedish", Set.of("Sweden")),
+            Map.entry("belgian", Set.of("Belgium")),
+            Map.entry("hungarian", Set.of("Hungary"))
+            // Añade más si es necesario
+    );
+
+    public static boolean isHomeGP(String nationality, String country) {
+        if (nationality == null || country == null) return false;
+        Set<String> validCountries = NATIONALITY_TO_COUNTRIES.get(nationality.trim().toLowerCase());
+        return validCountries != null && validCountries.contains(country.trim());
     }
 }
