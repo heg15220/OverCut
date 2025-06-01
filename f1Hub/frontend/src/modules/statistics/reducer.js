@@ -74,7 +74,29 @@ const initialState = {
   repeatedIdenticalPodiums: [],
   mostFrequentPodiumTrios: [],
   mostFrequentPodiumPairs: [],
-  mostCommonFirstSecondPairs: []
+  mostCommonFirstSecondPairs: [],
+  mostPoints: [],
+  pointsChronology: [],
+  lastPoints: [],
+  youngestPoints: [],
+  oldestPoints: [],
+  youngestPointsByNationality: [],
+  oldestPointsByNationality: [],
+  pointsStreaks: [],
+  pointsStreaksNoSprints: [],
+  gapBetweenPoints: [],
+  gapFirstLastPoints: [],
+  mostPointsSingleYear: [],
+  mostPointsAllSessionsSingleYear: [],
+  yearsScoringPoints: [],
+  consecutiveSeasonsPoints: [],
+  avgPointsPerRace: [],
+  avgPointsPerSeason: [],
+  pointsNoWins: [],
+  pointsNoPodiums: [],
+  constructorsWithPoints: [],
+  gpCountBeforeFirstPoints: [],
+  gpCountWhereScoredPoints: []
 
 
 };
@@ -241,6 +263,46 @@ export default function reducer(state = initialState, action) {
     case actionTypes.FETCH_MOST_COMMON_FIRST_SECOND_PAIRS_COMPLETED:
       return { ...state, mostCommonFirstSecondPairs: action.data };
 
+
+
+    case actionTypes.FETCH_MOST_POINTS_COMPLETED:
+      return { ...state, mostPoints: action.data };
+    case actionTypes.FETCH_POINTS_CHRONOLOGY_COMPLETED:
+      return { ...state, pointsChronology: action.data };
+    case actionTypes.FETCH_LAST_POINTS_COMPLETED:
+      return { ...state, lastPoints: action.data };
+    case actionTypes.FETCH_YOUNGEST_POINTS_COMPLETED:
+      return { ...state, youngestPoints: action.data };
+    case actionTypes.FETCH_OLDEST_POINTS_COMPLETED:
+      return { ...state, oldestPoints: action.data };
+    case actionTypes.FETCH_YOUNGEST_POINTS_BY_NATIONALITY_COMPLETED:
+      return { ...state, youngestPointsByNationality: action.data };
+    case actionTypes.FETCH_OLDEST_POINTS_BY_NATIONALITY_COMPLETED:
+      return { ...state, oldestPointsByNationality: action.data };
+    case actionTypes.FETCH_POINTS_STREAKS_COMPLETED:
+      return { ...state, pointsStreaks: action.data };
+    case actionTypes.FETCH_POINTS_STREAKS_NO_SPRINTS_COMPLETED:
+      return { ...state, pointsStreaksNoSprints: action.data };
+    case actionTypes.FETCH_GAP_BETWEEN_POINTS_COMPLETED:
+      return { ...state, gapBetweenPoints: action.data };
+    case actionTypes.FETCH_GAP_FIRST_LAST_POINTS_COMPLETED:
+      return { ...state, gapFirstLastPoints: action.data };
+    case actionTypes.FETCH_MOST_POINTS_SINGLE_YEAR_COMPLETED:
+      return { ...state, mostPointsSingleYear: action.data };
+    case actionTypes.FETCH_YEARS_SCORING_POINTS_COMPLETED:
+      return { ...state, yearsScoringPoints: action.data };
+    case actionTypes.FETCH_CONSECUTIVE_SEASONS_POINTS_COMPLETED:
+      return { ...state, consecutiveSeasonsPoints: action.data };
+    case actionTypes.FETCH_POINTS_NO_WINS_COMPLETED:
+      return { ...state, pointsNoWins: action.data };
+    case actionTypes.FETCH_POINTS_NO_PODIUMS_COMPLETED:
+      return { ...state, pointsNoPodiums: action.data };
+    case actionTypes.FETCH_CONSTRUCTORS_WITH_POINTS_COMPLETED:
+      return { ...state, constructorsWithPoints: action.data };
+    case actionTypes.FETCH_GPS_BEFORE_FIRST_POINTS_COMPLETED:
+      return { ...state, gpCountBeforeFirstPoints: action.data };
+    case actionTypes.FETCH_GPS_SCORED_POINTS_COMPLETED:
+      return { ...state, gpCountWhereScoredPoints: action.data };
 
 
 

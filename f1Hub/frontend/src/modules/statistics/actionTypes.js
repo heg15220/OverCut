@@ -78,3 +78,27 @@ export const FETCH_MOST_FREQUENT_PODIUM_PAIRS_COMPLETED = "statistics/fetchMostF
 export const FETCH_MOST_COMMON_FIRST_SECOND_PAIRS_COMPLETED = "statistics/fetchMostCommonFirstSecondPairsCompleted";
 
 
+export const FETCH_MOST_POINTS_COMPLETED = "statistics/fetchMostPointsCompleted";
+export const FETCH_POINTS_CHRONOLOGY_COMPLETED = "statistics/fetchPointsChronologyCompleted";
+export const FETCH_LAST_POINTS_COMPLETED = "statistics/fetchLastPointsCompleted";
+export const FETCH_YOUNGEST_POINTS_COMPLETED = "statistics/fetchYoungestPointsCompleted";
+export const FETCH_OLDEST_POINTS_COMPLETED = "statistics/fetchOldestPointsCompleted";
+export const FETCH_YOUNGEST_POINTS_BY_NATIONALITY_COMPLETED = "statistics/fetchYoungestPointsByNationalityCompleted";
+export const FETCH_OLDEST_POINTS_BY_NATIONALITY_COMPLETED = "statistics/fetchOldestPointsByNationalityCompleted";
+export const FETCH_POINTS_STREAKS_COMPLETED = "statistics/fetchPointsStreaksCompleted";
+export const FETCH_POINTS_STREAKS_NO_SPRINTS_COMPLETED = "statistics/fetchPointsStreaksNoSprintsCompleted";
+export const FETCH_GAP_BETWEEN_POINTS_COMPLETED = "statistics/fetchGapBetweenPointsCompleted";
+export const FETCH_GAP_FIRST_LAST_POINTS_COMPLETED = "statistics/fetchGapFirstLastPointsCompleted";
+export const FETCH_MOST_POINTS_SINGLE_YEAR_COMPLETED = "statistics/fetchMostPointsSingleYearCompleted";
+export const FETCH_MOST_POINTS_ALL_SESSIONS_SINGLE_YEAR_COMPLETED = "statistics/fetchMostPointsAllSessionsSingleYearCompleted";
+export const FETCH_YEARS_SCORING_POINTS_COMPLETED = "statistics/fetchYearsScoringPointsCompleted";
+export const FETCH_CONSECUTIVE_SEASONS_POINTS_COMPLETED = "statistics/fetchConsecutiveSeasonsPointsCompleted";
+export const FETCH_AVG_POINTS_PER_RACE_COMPLETED = "statistics/fetchAvgPointsPerRaceCompleted";
+export const FETCH_AVG_POINTS_PER_SEASON_COMPLETED = "statistics/fetchAvgPointsPerSeasonCompleted";
+export const FETCH_POINTS_NO_WINS_COMPLETED = "statistics/fetchPointsNoWinsCompleted";
+export const FETCH_POINTS_NO_PODIUMS_COMPLETED = "statistics/fetchPointsNoPodiumsCompleted";
+export const FETCH_CONSTRUCTORS_WITH_POINTS_COMPLETED = "statistics/fetchConstructorsWithPointsCompleted";
+export const FETCH_GPS_BEFORE_FIRST_POINTS_COMPLETED = "statistics/fetchGpCountBeforeFirstPointsCompleted";
+export const FETCH_GPS_SCORED_POINTS_COMPLETED = "statistics/fetchGpCountWhereScoredPointsCompleted";
+
+

@@ -449,3 +449,118 @@ export const fetchMostCommonFirstSecondPairs = () => dispatch =>
     () => {}
   );
 
+export const fetchDriversWithMostPoints = () => dispatch =>
+  backend.statisticsService.getDriversWithMostPoints(
+    data => dispatch({ type: actionTypes.FETCH_MOST_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversToScorePointsChronologically = () => dispatch =>
+  backend.statisticsService.getDriversToScorePointsChronologically(
+    data => dispatch({ type: actionTypes.FETCH_POINTS_CHRONOLOGY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchLastPointsPerDriver = () => dispatch =>
+  backend.statisticsService.getLastPointsPerDriver(
+    data => dispatch({ type: actionTypes.FETCH_LAST_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchYoungestDriversToScorePoints = () => dispatch =>
+  backend.statisticsService.getYoungestDriversToScorePoints(
+    data => dispatch({ type: actionTypes.FETCH_YOUNGEST_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchOldestDriversToScorePoints = () => dispatch =>
+  backend.statisticsService.getOldestDriversToScorePoints(
+    data => dispatch({ type: actionTypes.FETCH_OLDEST_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchYoungestDriversToScorePointsByNationality = () => dispatch =>
+  backend.statisticsService.getYoungestDriversToScorePointsByNationality(
+    data => dispatch({ type: actionTypes.FETCH_YOUNGEST_POINTS_BY_NATIONALITY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchOldestDriversToScorePointsByNationality = () => dispatch =>
+  backend.statisticsService.getOldestDriversToScorePointsByNationality(
+    data => dispatch({ type: actionTypes.FETCH_OLDEST_POINTS_BY_NATIONALITY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchLongestConsecutivePointsStreaks = () => dispatch =>
+  backend.statisticsService.getLongestConsecutivePointsStreaks(
+    data => dispatch({ type: actionTypes.FETCH_POINTS_STREAKS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchLongestConsecutivePointsStreaksWithoutSprints = () => dispatch =>
+  backend.statisticsService.getLongestConsecutivePointsStreaksWithoutSprints(
+    data => dispatch({ type: actionTypes.FETCH_POINTS_STREAKS_NO_SPRINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchLongestGapBetweenPoints = () => dispatch =>
+  backend.statisticsService.getLongestGapBetweenPoints(
+    data => dispatch({ type: actionTypes.FETCH_GAP_BETWEEN_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGapBetweenFirstAndLastPoints = () => dispatch =>
+  backend.statisticsService.getGapBetweenFirstAndLastPoints(
+    data => dispatch({ type: actionTypes.FETCH_GAP_FIRST_LAST_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchMostPointsInSingleYear = () => dispatch =>
+  backend.statisticsService.getMostPointsInSingleYear(
+    data => dispatch({ type: actionTypes.FETCH_MOST_POINTS_SINGLE_YEAR_COMPLETED, data }),
+    () => {}
+  );
+
+
+export const fetchMostYearsScoringPoints = () => dispatch =>
+  backend.statisticsService.getMostYearsScoringPoints(
+    data => dispatch({ type: actionTypes.FETCH_YEARS_SCORING_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchMostConsecutiveSeasonsWithPoints = () => dispatch =>
+  backend.statisticsService.getMostConsecutiveSeasonsWithPoints(
+    data => dispatch({ type: actionTypes.FETCH_CONSECUTIVE_SEASONS_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+
+export const fetchDriversWithPointsButNoWins = () => dispatch =>
+  backend.statisticsService.getDriversWithPointsButNoWins(
+    data => dispatch({ type: actionTypes.FETCH_POINTS_NO_WINS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithPointsButNoPodiums = () => dispatch =>
+  backend.statisticsService.getDriversWithPointsButNoPodiums(
+    data => dispatch({ type: actionTypes.FETCH_POINTS_NO_PODIUMS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostConstructorsWithPoints = () => dispatch =>
+  backend.statisticsService.getDriversWithMostConstructorsWithPoints(
+    data => dispatch({ type: actionTypes.FETCH_CONSTRUCTORS_WITH_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGpCountBeforeFirstPoints = () => dispatch =>
+  backend.statisticsService.getGpCountBeforeFirstPoints(
+    data => dispatch({ type: actionTypes.FETCH_GPS_BEFORE_FIRST_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGpCountWhereDriverScoredPoints = () => dispatch =>
+  backend.statisticsService.getGpCountWhereDriverScoredPoints(
+    data => dispatch({ type: actionTypes.FETCH_GPS_SCORED_POINTS_COMPLETED, data }),
+    () => {}
+  );

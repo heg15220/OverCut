@@ -98,4 +98,27 @@ public interface StatisticsService {
     List<DriverRankingDTO> getMostFrequentPodiumPairs();
     List<DriverRankingDTO> getMostCommonFirstSecondPairs();
 
+
+
+
+    List<DriverRankingDTO> getDriversWithMostPoints();
+    List<DriverRankingDTO> getDriversToScorePointsChronologically();
+    List<DriverRankingDTO> getLastPointsPerDriver();
+    List<DriverRankingDTO> getYoungestDriversToScorePoints();
+    List<DriverRankingDTO> getOldestDriversToScorePoints();
+    List<DriverRankingDTO> getYoungestDriversToScorePointsByNationality();
+    List<DriverRankingDTO> getOldestDriversToScorePointsByNationality();
+    List<DriverRankingDTO> getLongestConsecutivePointsStreaks();
+    List<DriverRankingDTO> getLongestConsecutivePointsStreaksWithoutSprints();
+    List<DriverRankingDTO> getLongestGapBetweenPoints();
+    List<DriverRankingDTO> getGapBetweenFirstAndLastPoints();
+    List<DriverRankingDTO> getMostPointsInSingleYear();
+    List<DriverRankingDTO> getMostYearsScoringPoints();
+    List<DriverRankingDTO> getMostConsecutiveSeasonsWithPoints();
+    List<DriverRankingDTO> getGpCountBeforeFirstPoints();
+    List<DriverRankingDTO> getGpCountWhereDriverScoredPoints();
+    List<DriverRankingDTO> getDriversWithPointsButNoWins();
+    List<DriverRankingDTO> getDriversWithPointsButNoPodiums();
+    List<DriverRankingDTO> getDriversWithMostConstructorsWithPoints();
+
 }

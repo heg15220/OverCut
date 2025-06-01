@@ -76,3 +76,27 @@ export const getMostFrequentPodiumTrios = state => getModuleState(state).mostFre
 export const getMostFrequentPodiumPairs = state => getModuleState(state).mostFrequentPodiumPairs;
 export const getMostCommonFirstSecondPairs = state => getModuleState(state).mostCommonFirstSecondPairs;
 
+
+
+
+export const getDriversWithMostPoints = state => getModuleState(state).mostPoints;
+export const getDriversToScorePointsChronologically = state => getModuleState(state).pointsChronology;
+export const getLastPointsPerDriver = state => getModuleState(state).lastPoints;
+export const getYoungestDriversToScorePoints = state => getModuleState(state).youngestPoints;
+export const getOldestDriversToScorePoints = state => getModuleState(state).oldestPoints;
+export const getYoungestDriversToScorePointsByNationality = state => getModuleState(state).youngestPointsByNationality;
+export const getOldestDriversToScorePointsByNationality = state => getModuleState(state).oldestPointsByNationality;
+export const getLongestConsecutivePointsStreaks = state => getModuleState(state).pointsStreaks;
+export const getLongestConsecutivePointsStreaksWithoutSprints = state => getModuleState(state).pointsStreaksNoSprints;
+export const getLongestGapBetweenPoints = state => getModuleState(state).gapBetweenPoints;
+export const getGapBetweenFirstAndLastPoints = state => getModuleState(state).gapFirstLastPoints;
+export const getMostPointsInSingleYear = state => getModuleState(state).mostPointsSingleYear;
+export const getMostYearsScoringPoints = state => getModuleState(state).yearsScoringPoints;
+export const getMostConsecutiveSeasonsWithPoints = state => getModuleState(state).consecutiveSeasonsPoints;
+export const getDriversWithPointsButNoWins = state => getModuleState(state).pointsNoWins;
+export const getDriversWithPointsButNoPodiums = state => getModuleState(state).pointsNoPodiums;
+export const getDriversWithMostConstructorsWithPoints = state => getModuleState(state).constructorsWithPoints;
+export const getGpCountBeforeFirstPoints = state => getModuleState(state).gpCountBeforeFirstPoints;
+export const getGpCountWhereDriverScoredPoints = state => getModuleState(state).gpCountWhereScoredPoints;
+
+

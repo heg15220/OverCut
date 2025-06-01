@@ -219,3 +219,62 @@ export const getMostFrequentPodiumPairs = (onSuccess, onError) =>
 
 export const getMostCommonFirstSecondPairs = (onSuccess, onError) =>
   appFetch(`/statistics/most-common-first-second`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostPoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/total`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversToScorePointsChronologically = (onSuccess, onError) =>
+  appFetch(`/statistics/points/chronology`, fetchConfig("GET"), onSuccess, onError);
+
+export const getLastPointsPerDriver = (onSuccess, onError) =>
+  appFetch(`/statistics/points/last`, fetchConfig("GET"), onSuccess, onError);
+
+export const getYoungestDriversToScorePoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/youngest`, fetchConfig("GET"), onSuccess, onError);
+
+export const getOldestDriversToScorePoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/oldest`, fetchConfig("GET"), onSuccess, onError);
+
+export const getYoungestDriversToScorePointsByNationality = (onSuccess, onError) =>
+  appFetch(`/statistics/points/youngest-by-nationality`, fetchConfig("GET"), onSuccess, onError);
+
+export const getOldestDriversToScorePointsByNationality = (onSuccess, onError) =>
+  appFetch(`/statistics/points/oldest-by-nationality`, fetchConfig("GET"), onSuccess, onError);
+
+export const getLongestConsecutivePointsStreaks = (onSuccess, onError) =>
+  appFetch(`/statistics/points/streaks`, fetchConfig("GET"), onSuccess, onError);
+
+export const getLongestConsecutivePointsStreaksWithoutSprints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/streaks/no-sprints`, fetchConfig("GET"), onSuccess, onError);
+
+export const getLongestGapBetweenPoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/gap-between`, fetchConfig("GET"), onSuccess, onError);
+
+export const getGapBetweenFirstAndLastPoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/gap-first-last`, fetchConfig("GET"), onSuccess, onError);
+
+export const getMostPointsInSingleYear = (onSuccess, onError) =>
+  appFetch(`/statistics/points/most-in-single-year`, fetchConfig("GET"), onSuccess, onError);
+
+
+export const getMostYearsScoringPoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/years-scoring`, fetchConfig("GET"), onSuccess, onError);
+
+export const getMostConsecutiveSeasonsWithPoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/consecutive-seasons`, fetchConfig("GET"), onSuccess, onError);
+
+
+export const getDriversWithPointsButNoWins = (onSuccess, onError) =>
+  appFetch(`/statistics/points/no-wins`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithPointsButNoPodiums = (onSuccess, onError) =>
+  appFetch(`/statistics/points/no-podiums`, fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostConstructorsWithPoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/most-constructors`, fetchConfig("GET"), onSuccess, onError);
+
+export const getGpCountBeforeFirstPoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/gps-before-first`, fetchConfig("GET"), onSuccess, onError);
+
+export const getGpCountWhereDriverScoredPoints = (onSuccess, onError) =>
+  appFetch(`/statistics/points/gps-scored`, fetchConfig("GET"), onSuccess, onError);

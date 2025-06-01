@@ -97,6 +97,29 @@ const mostCommonFirstSecondPairs = useSelector(statisticsSelectors.getMostCommon
 
 
 
+const driversWithMostPoints = useSelector(statisticsSelectors.getDriversWithMostPoints);
+const driversToScorePointsChronologically = useSelector(statisticsSelectors.getDriversToScorePointsChronologically);
+const lastPointsPerDriver = useSelector(statisticsSelectors.getLastPointsPerDriver);
+const youngestDriversToScorePoints = useSelector(statisticsSelectors.getYoungestDriversToScorePoints);
+const oldestDriversToScorePoints = useSelector(statisticsSelectors.getOldestDriversToScorePoints);
+const youngestDriversToScorePointsByNationality = useSelector(statisticsSelectors.getYoungestDriversToScorePointsByNationality);
+const oldestDriversToScorePointsByNationality = useSelector(statisticsSelectors.getOldestDriversToScorePointsByNationality);
+const longestConsecutivePointsStreaks = useSelector(statisticsSelectors.getLongestConsecutivePointsStreaks);
+const longestConsecutivePointsStreaksWithoutSprints = useSelector(statisticsSelectors.getLongestConsecutivePointsStreaksWithoutSprints);
+const longestGapBetweenPoints = useSelector(statisticsSelectors.getLongestGapBetweenPoints);
+const gapBetweenFirstAndLastPoints = useSelector(statisticsSelectors.getGapBetweenFirstAndLastPoints);
+const mostPointsInSingleYear = useSelector(statisticsSelectors.getMostPointsInSingleYear);
+const mostYearsScoringPoints = useSelector(statisticsSelectors.getMostYearsScoringPoints);
+const mostConsecutiveSeasonsWithPoints = useSelector(statisticsSelectors.getMostConsecutiveSeasonsWithPoints);
+const driversWithPointsButNoWins = useSelector(statisticsSelectors.getDriversWithPointsButNoWins);
+const driversWithPointsButNoPodiums = useSelector(statisticsSelectors.getDriversWithPointsButNoPodiums);
+const driversWithMostConstructorsWithPoints = useSelector(statisticsSelectors.getDriversWithMostConstructorsWithPoints);
+const gpCountBeforeFirstPoints = useSelector(statisticsSelectors.getGpCountBeforeFirstPoints);
+const gpCountWhereDriverScoredPoints = useSelector(statisticsSelectors.getGpCountWhereDriverScoredPoints);
+
+
+
+
 
 
 
@@ -202,6 +225,25 @@ const mostCommonFirstSecondPairs = useSelector(statisticsSelectors.getMostCommon
         case "podiums_first_second":
           dispatch(statisticsActions.fetchMostCommonFirstSecondPairs()); break;
 
+        case "points_total": dispatch(statisticsActions.fetchDriversWithMostPoints()); break;
+        case "points_chronology": dispatch(statisticsActions.fetchDriversToScorePointsChronologically()); break;
+        case "points_last": dispatch(statisticsActions.fetchLastPointsPerDriver()); break;
+        case "points_youngest": dispatch(statisticsActions.fetchYoungestDriversToScorePoints()); break;
+        case "points_oldest": dispatch(statisticsActions.fetchOldestDriversToScorePoints()); break;
+        case "points_youngest_nationality": dispatch(statisticsActions.fetchYoungestDriversToScorePointsByNationality()); break;
+        case "points_oldest_nationality": dispatch(statisticsActions.fetchOldestDriversToScorePointsByNationality()); break;
+        case "points_streaks": dispatch(statisticsActions.fetchLongestConsecutivePointsStreaks()); break;
+        case "points_streaks_no_sprints": dispatch(statisticsActions.fetchLongestConsecutivePointsStreaksWithoutSprints()); break;
+        case "points_gap": dispatch(statisticsActions.fetchLongestGapBetweenPoints()); break;
+        case "points_gap_first_last": dispatch(statisticsActions.fetchGapBetweenFirstAndLastPoints()); break;
+        case "points_most_single_year": dispatch(statisticsActions.fetchMostPointsInSingleYear()); break;
+        case "points_years": dispatch(statisticsActions.fetchMostYearsScoringPoints()); break;
+        case "points_years_consecutive": dispatch(statisticsActions.fetchMostConsecutiveSeasonsWithPoints()); break;
+        case "points_no_wins": dispatch(statisticsActions.fetchDriversWithPointsButNoWins()); break;
+        case "points_no_podiums": dispatch(statisticsActions.fetchDriversWithPointsButNoPodiums()); break;
+        case "points_most_constructors": dispatch(statisticsActions.fetchDriversWithMostConstructorsWithPoints()); break;
+        case "points_gp_before": dispatch(statisticsActions.fetchGpCountBeforeFirstPoints()); break;
+        case "points_gp_scored": dispatch(statisticsActions.fetchGpCountWhereDriverScoredPoints()); break;
 
 
         default: break;
@@ -273,6 +315,26 @@ const mostCommonFirstSecondPairs = useSelector(statisticsSelectors.getMostCommon
     : recordMode === "podiums_trios" ? mostFrequentPodiumTrios
     : recordMode === "podiums_pairs" ? mostFrequentPodiumPairs
     : recordMode === "podiums_first_second" ? mostCommonFirstSecondPairs
+    : recordMode === "points_total" ? driversWithMostPoints
+    : recordMode === "points_chronology" ? driversToScorePointsChronologically
+    : recordMode === "points_last" ? lastPointsPerDriver
+    : recordMode === "points_youngest" ? youngestDriversToScorePoints
+    : recordMode === "points_oldest" ? oldestDriversToScorePoints
+    : recordMode === "points_youngest_nationality" ? youngestDriversToScorePointsByNationality
+    : recordMode === "points_oldest_nationality" ? oldestDriversToScorePointsByNationality
+    : recordMode === "points_streaks" ? longestConsecutivePointsStreaks
+    : recordMode === "points_streaks_no_sprints" ? longestConsecutivePointsStreaksWithoutSprints
+    : recordMode === "points_gap" ? longestGapBetweenPoints
+    : recordMode === "points_gap_first_last" ? gapBetweenFirstAndLastPoints
+    : recordMode === "points_most_single_year" ? mostPointsInSingleYear
+    : recordMode === "points_years" ? mostYearsScoringPoints
+    : recordMode === "points_years_consecutive" ? mostConsecutiveSeasonsWithPoints
+    : recordMode === "points_no_wins" ? driversWithPointsButNoWins
+    : recordMode === "points_no_podiums" ? driversWithPointsButNoPodiums
+    : recordMode === "points_most_constructors" ? driversWithMostConstructorsWithPoints
+    : recordMode === "points_gp_before" ? gpCountBeforeFirstPoints
+    : recordMode === "points_gp_scored" ? gpCountWhereDriverScoredPoints
+
 
 
     : []
@@ -357,6 +419,29 @@ const mostCommonFirstSecondPairs = useSelector(statisticsSelectors.getMostCommon
           case "podiums_pairs": return "Veces juntos";
           case "podiums_first_second": return "Veces (1º y 2º)";
 
+        //Puntos
+          // Puntos
+          case "points_total": return "Puntos";
+          case "points_chronology": return "Año";
+          case "points_last": return "Últimos puntos";
+          case "points_youngest": return "Edad";
+          case "points_oldest": return "Edad";
+          case "points_youngest_nationality": return "Edad";
+          case "points_oldest_nationality": return "Edad";
+          case "points_streaks": return "Racha de puntos";
+          case "points_streaks_no_sprints": return "Racha (sin sprint)";
+          case "points_gap": return "Días entre puntos";
+          case "points_gap_first_last": return "Años entre primero y último";
+          case "points_most_single_year": return "Puntos en un año";
+          case "points_years": return "Años con puntos";
+          case "points_years_consecutive": return "Años consecutivos con puntos";
+          case "points_no_wins": return "Sin victorias";
+          case "points_no_podiums": return "Sin pódiums";
+          case "points_most_constructors": return "Constructores distintos";
+          case "points_gp_before": return "GPs antes de puntuar";
+          case "points_gp_scored": return "GPs con puntos";
+
+
 
           default: return "Valor";
         }
@@ -394,6 +479,7 @@ const mostCommonFirstSecondPairs = useSelector(statisticsSelectors.getMostCommon
                   <option value="champions">🏆 Campeones del Mundo</option>
                   <option value="victories">🥇 Victorias</option>
                   <option value="podiums">🥈 Pódiums</option>
+                  <option value="points">📊 Puntos</option>
                 </select>
 
                 <select value={recordMode} onChange={e => setRecordMode(e.target.value)}>
@@ -473,6 +559,34 @@ const mostCommonFirstSecondPairs = useSelector(statisticsSelectors.getMostCommon
 
                     </optgroup>
                   )}
+
+                  {recordCategory === "points" && (
+                    <optgroup label="📊 Puntos">
+                      <option value="points_total">Pilotos con más puntos</option>
+                      <option value="points_chronology">Primeros puntos</option>
+                      <option value="points_last">Últimos puntos</option>
+                      <option value="points_youngest">Más jóvenes al puntuar</option>
+                      <option value="points_oldest">Más veteranos al puntuar</option>
+                      <option value="points_youngest_nationality">Más jóvenes por nacionalidad</option>
+                      <option value="points_oldest_nationality">Más veteranos por nacionalidad</option>
+                      <option value="points_streaks">Rachas consecutivas</option>
+                      <option value="points_streaks_no_sprints">Rachas sin sprint</option>
+                      <option value="points_gap">Mayor intervalo</option>
+                      <option value="points_gap_first_last">Entre primeros y últimos</option>
+                      <option value="points_most_single_year">Más puntos en un año</option>
+                      <option value="points_all_sessions_year">Más puntos (todas sesiones)</option>
+                      <option value="points_years">Años distintos puntuando</option>
+                      <option value="points_years_consecutive">Años consecutivos</option>
+                      <option value="points_avg_per_race">Promedio por carrera</option>
+                      <option value="points_avg_per_season">Promedio por temporada</option>
+                      <option value="points_no_wins">Puntos sin victorias</option>
+                      <option value="points_no_podiums">Puntos sin podios</option>
+                      <option value="points_most_constructors">Más constructores distintos</option>
+                      <option value="points_gp_before">GPs antes de puntuar</option>
+                      <option value="points_gp_scored">GPs puntuados</option>
+                    </optgroup>
+                  )}
+
 
 
                 </select>

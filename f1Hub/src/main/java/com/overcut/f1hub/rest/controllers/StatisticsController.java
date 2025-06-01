@@ -392,6 +392,110 @@ public class StatisticsController {
     }
 
 
+    // Puntos – Totales y cronología
+    @GetMapping("/points/total")
+    public List<DriverRankingDTO> getDriversWithMostPoints() {
+        return statisticsService.getDriversWithMostPoints();
+    }
+
+    @GetMapping("/points/chronology")
+    public List<DriverRankingDTO> getDriversToScorePointsChronologically() {
+        return statisticsService.getDriversToScorePointsChronologically();
+    }
+
+    @GetMapping("/points/last")
+    public List<DriverRankingDTO> getLastPointsPerDriver() {
+        return statisticsService.getLastPointsPerDriver();
+    }
+
+    // Puntos – Edad al puntuar
+    @GetMapping("/points/youngest")
+    public List<DriverRankingDTO> getYoungestDriversToScorePoints() {
+        return statisticsService.getYoungestDriversToScorePoints();
+    }
+
+    @GetMapping("/points/oldest")
+    public List<DriverRankingDTO> getOldestDriversToScorePoints() {
+        return statisticsService.getOldestDriversToScorePoints();
+    }
+
+    @GetMapping("/points/youngest-by-nationality")
+    public List<DriverRankingDTO> getYoungestDriversToScorePointsByNationality() {
+        return statisticsService.getYoungestDriversToScorePointsByNationality();
+    }
+
+    @GetMapping("/points/oldest-by-nationality")
+    public List<DriverRankingDTO> getOldestDriversToScorePointsByNationality() {
+        return statisticsService.getOldestDriversToScorePointsByNationality();
+    }
+
+    // Puntos – Rachas y extremos
+    @GetMapping("/points/streaks")
+    public List<DriverRankingDTO> getLongestConsecutivePointsStreaks() {
+        return statisticsService.getLongestConsecutivePointsStreaks();
+    }
+
+    @GetMapping("/points/streaks/no-sprints")
+    public List<DriverRankingDTO> getLongestConsecutivePointsStreaksWithoutSprints() {
+        return statisticsService.getLongestConsecutivePointsStreaksWithoutSprints();
+    }
+
+    @GetMapping("/points/gap-between")
+    public List<DriverRankingDTO> getLongestGapBetweenPoints() {
+        return statisticsService.getLongestGapBetweenPoints();
+    }
+
+    @GetMapping("/points/gap-first-last")
+    public List<DriverRankingDTO> getGapBetweenFirstAndLastPoints() {
+        return statisticsService.getGapBetweenFirstAndLastPoints();
+    }
+
+    // Puntos – Temporadas y promedios
+    @GetMapping("/points/most-in-single-year")
+    public List<DriverRankingDTO> getMostPointsInSingleYear() {
+        return statisticsService.getMostPointsInSingleYear();
+    }
+
+
+
+    @GetMapping("/points/years-scoring")
+    public List<DriverRankingDTO> getMostYearsScoringPoints() {
+        return statisticsService.getMostYearsScoringPoints();
+    }
+
+    @GetMapping("/points/consecutive-seasons")
+    public List<DriverRankingDTO> getMostConsecutiveSeasonsWithPoints() {
+        return statisticsService.getMostConsecutiveSeasonsWithPoints();
+    }
+
+    // Puntos – Casos especiales
+    @GetMapping("/points/no-wins")
+    public List<DriverRankingDTO> getDriversWithPointsButNoWins() {
+        return statisticsService.getDriversWithPointsButNoWins();
+    }
+
+    @GetMapping("/points/no-podiums")
+    public List<DriverRankingDTO> getDriversWithPointsButNoPodiums() {
+        return statisticsService.getDriversWithPointsButNoPodiums();
+    }
+
+    @GetMapping("/points/most-constructors")
+    public List<DriverRankingDTO> getDriversWithMostConstructorsWithPoints() {
+        return statisticsService.getDriversWithMostConstructorsWithPoints();
+    }
+
+
+    @GetMapping("/points/gps-before-first")
+    public List<DriverRankingDTO> getGpCountBeforeFirstPoints() {
+        return statisticsService.getGpCountBeforeFirstPoints();
+    }
+
+    @GetMapping("/points/gps-scored")
+    public List<DriverRankingDTO> getGpCountWhereDriverScoredPoints() {
+        return statisticsService.getGpCountWhereDriverScoredPoints();
+    }
+
+
 
     @GetMapping("/constructor-options")
     public List<StatisticsService.ConstructorOption> getAllConstructors() {
