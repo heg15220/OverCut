@@ -90,6 +90,13 @@ const mostDifferentGPsWithPodium = useSelector(statisticsSelectors.getDriversWit
 const mostDifferentCircuitsWithPodium = useSelector(statisticsSelectors.getDriversWithMostDifferentCircuitsWithPodium);
 const podiumsAtHomeGP = useSelector(statisticsSelectors.getPodiumsAtHomeGP);
 
+const repeatedIdenticalPodiums = useSelector(statisticsSelectors.getRepeatedIdenticalPodiums);
+const mostFrequentPodiumTrios = useSelector(statisticsSelectors.getMostFrequentPodiumTrios);
+const mostFrequentPodiumPairs = useSelector(statisticsSelectors.getMostFrequentPodiumPairs);
+const mostCommonFirstSecondPairs = useSelector(statisticsSelectors.getMostCommonFirstSecondPairs);
+
+
+
 
 
 
@@ -186,6 +193,14 @@ const podiumsAtHomeGP = useSelector(statisticsSelectors.getPodiumsAtHomeGP);
         case "podiums_most_different_gps": dispatch(statisticsActions.fetchDriversWithMostDifferentGPsWithPodium()); break;
         case "podiums_most_different_circuits": dispatch(statisticsActions.fetchDriversWithMostDifferentCircuitsWithPodium()); break;
         case "podiums_home_gp": dispatch(statisticsActions.fetchPodiumsAtHomeGP()); break;
+        case "podiums_identical_repeats":
+          dispatch(statisticsActions.fetchRepeatedIdenticalPodiums()); break;
+        case "podiums_trios":
+          dispatch(statisticsActions.fetchMostFrequentPodiumTrios()); break;
+        case "podiums_pairs":
+          dispatch(statisticsActions.fetchMostFrequentPodiumPairs()); break;
+        case "podiums_first_second":
+          dispatch(statisticsActions.fetchMostCommonFirstSecondPairs()); break;
 
 
 
@@ -254,6 +269,11 @@ const podiumsAtHomeGP = useSelector(statisticsSelectors.getPodiumsAtHomeGP);
     : recordMode === "podiums_most_different_gps" ? mostDifferentGPsWithPodium
     : recordMode === "podiums_most_different_circuits" ? mostDifferentCircuitsWithPodium
     : recordMode === "podiums_home_gp" ? podiumsAtHomeGP
+    : recordMode === "podiums_identical_repeats" ? repeatedIdenticalPodiums
+    : recordMode === "podiums_trios" ? mostFrequentPodiumTrios
+    : recordMode === "podiums_pairs" ? mostFrequentPodiumPairs
+    : recordMode === "podiums_first_second" ? mostCommonFirstSecondPairs
+
 
     : []
     : section === "rankings"
@@ -332,6 +352,11 @@ const podiumsAtHomeGP = useSelector(statisticsSelectors.getPodiumsAtHomeGP);
           case "podiums_most_different_gps": return "GPs diferentes con podio";
           case "podiums_most_different_circuits": return "Circuitos diferentes con podio";
           case "podiums_home_gp": return "Pódiums en GP local";
+          case "podiums_identical_repeats": return "Veces repetido";
+          case "podiums_trios": return "Veces juntos";
+          case "podiums_pairs": return "Veces juntos";
+          case "podiums_first_second": return "Veces (1º y 2º)";
+
 
           default: return "Valor";
         }
@@ -441,6 +466,11 @@ const podiumsAtHomeGP = useSelector(statisticsSelectors.getPodiumsAtHomeGP);
                         <option value="podiums_most_different_gps">GPs diferentes con podio</option>
                         <option value="podiums_most_different_circuits">Circuitos diferentes con podio</option>
                         <option value="podiums_home_gp">Pódiums en GP local</option>
+                        <option value="podiums_identical_repeats">Pódiums idénticos repetidos</option>
+                        <option value="podiums_trios">Tríos más frecuentes en el podio</option>
+                        <option value="podiums_pairs">Dúos más frecuentes en el podio</option>
+                        <option value="podiums_first_second">Parejas más frecuentes 1º-2º</option>
+
                     </optgroup>
                   )}
 

@@ -71,4 +71,8 @@ export const getPodiumsByGrandPrix = state => getModuleState(state).podiumsByGra
 export const getDriversWithMostDifferentGPsWithPodium = state => getModuleState(state).mostDifferentGPsWithPodium;
 export const getDriversWithMostDifferentCircuitsWithPodium = state => getModuleState(state).mostDifferentCircuitsWithPodium;
 export const getPodiumsAtHomeGP = state => getModuleState(state).podiumsAtHomeGP;
+export const getRepeatedIdenticalPodiums = state => getModuleState(state).repeatedIdenticalPodiums;
+export const getMostFrequentPodiumTrios = state => getModuleState(state).mostFrequentPodiumTrios;
+export const getMostFrequentPodiumPairs = state => getModuleState(state).mostFrequentPodiumPairs;
+export const getMostCommonFirstSecondPairs = state => getModuleState(state).mostCommonFirstSecondPairs;
 

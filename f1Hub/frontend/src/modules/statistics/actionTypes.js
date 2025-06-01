@@ -72,3 +72,9 @@ export const FETCH_PODIUMS_MOST_DIFFERENT_GPS_COMPLETED = "statistics/fetchDrive
 export const FETCH_PODIUMS_MOST_DIFFERENT_CIRCUITS_COMPLETED = "statistics/fetchDriversWithMostDifferentCircuitsWithPodiumCompleted";
 export const FETCH_PODIUMS_HOME_GP_COMPLETED = "statistics/fetchPodiumsAtHomeGPCompleted";
 
+export const FETCH_REPEATED_IDENTICAL_PODIUMS_COMPLETED = "statistics/fetchRepeatedIdenticalPodiumsCompleted";
+export const FETCH_MOST_FREQUENT_PODIUM_TRIOS_COMPLETED = "statistics/fetchMostFrequentPodiumTriosCompleted";
+export const FETCH_MOST_FREQUENT_PODIUM_PAIRS_COMPLETED = "statistics/fetchMostFrequentPodiumPairsCompleted";
+export const FETCH_MOST_COMMON_FIRST_SECOND_PAIRS_COMPLETED = "statistics/fetchMostCommonFirstSecondPairsCompleted";
+
+

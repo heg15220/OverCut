@@ -371,8 +371,25 @@ public class StatisticsController {
     }
 
 
+    @GetMapping("/repeated-identical")
+    public List<DriverRankingDTO> getRepeatedIdenticalPodiums() {
+        return statisticsService.getRepeatedIdenticalPodiums();
+    }
 
+    @GetMapping("/most-frequent-trios")
+    public List<DriverRankingDTO> getMostFrequentPodiumTrios() {
+        return statisticsService.getMostFrequentPodiumTrios();
+    }
 
+    @GetMapping("/most-frequent-pairs")
+    public List<DriverRankingDTO> getMostFrequentPodiumPairs() {
+        return statisticsService.getMostFrequentPodiumPairs();
+    }
+
+    @GetMapping("/most-common-first-second")
+    public List<DriverRankingDTO> getMostCommonFirstSecondPairs() {
+        return statisticsService.getMostCommonFirstSecondPairs();
+    }
 
 
 

@@ -3,6 +3,7 @@ package com.overcut.f1hub.model.service;
 
 import com.overcut.f1hub.model.entities.*;
 import com.overcut.f1hub.rest.dtos.ConstructorStandingDTO;
+import com.overcut.f1hub.rest.dtos.CustomRankingDTO;
 import com.overcut.f1hub.rest.dtos.DriverRankingDTO;
 import com.overcut.f1hub.rest.dtos.DriverStandingDTO;
 import jakarta.persistence.EntityManager;
@@ -34,6 +35,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Autowired
     private ResultDao resultDao;
+
+    @Autowired
+    private RaceDao raceDao;
 
     @Override
     public List<ConstructorOption> getAllConstructors() {
@@ -2083,6 +2087,133 @@ public class StatisticsServiceImpl implements StatisticsService {
                     );
                 })
                 .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+    @Override
+    public List<DriverRankingDTO> getRepeatedIdenticalPodiums() {
+        Map<String, Integer> podiumCounts = new HashMap<>();
+
+        List<Long> raceIds = raceDao.findAll().stream()
+                .map(Race::getRaceId)
+                .toList();
+
+        for (Long raceId : raceIds) {
+            List<Result> podium = resultDao.findByRaceId(raceId).stream()
+                    .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                    .sorted(Comparator.comparing(Result::getPositionOrder))
+                    .toList();
+
+            if (podium.size() == 3) {
+                String combo = podium.stream()
+                        .map(r -> r.getDriver().getSurname().toLowerCase())
+                        .collect(Collectors.joining(" - "));
+
+                podiumCounts.merge(combo, 1, Integer::sum);
+            }
+        }
+
+        return podiumCounts.entrySet().stream()
+                .filter(e -> e.getValue() >= 2)
+                .map(e -> new DriverRankingDTO(
+                        e.getKey(),        // driverName = "hamilton-verstappen-leclerc"
+                        null,              // nationality
+                        e.getValue(),      // value = veces repetido
+                        null,              // flagUrl
+                        null               // extra
+                ))
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getMostFrequentPodiumTrios() {
+        Map<String, Integer> trioCounts = new HashMap<>();
+
+        for (Long raceId : raceDao.findAll().stream().map(Race::getRaceId).toList()) {
+            List<String> trio = resultDao.findByRaceId(raceId).stream()
+                    .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                    .map(r -> r.getDriver().getSurname().toLowerCase())
+                    .sorted()
+                    .toList();
+
+            if (trio.size() == 3) {
+                String combo = String.join(" - ", trio);
+                trioCounts.merge(combo, 1, Integer::sum);
+            }
+        }
+
+        return trioCounts.entrySet().stream()
+                .map(e -> new DriverRankingDTO(
+                        e.getKey(), null, e.getValue(), null, null
+                ))
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+
+    @Override
+    public List<DriverRankingDTO> getMostFrequentPodiumPairs() {
+        Map<String, Integer> pairCounts = new HashMap<>();
+
+        for (Long raceId : raceDao.findAll().stream().map(Race::getRaceId).toList()) {
+            List<String> podium = resultDao.findByRaceId(raceId).stream()
+                    .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 3)
+                    .map(r -> r.getDriver().getSurname().toLowerCase())
+                    .toList();
+
+            if (podium.size() == 3) {
+                for (int i = 0; i < 3; i++) {
+                    for (int j = i + 1; j < 3; j++) {
+                        String a = podium.get(i);
+                        String b = podium.get(j);
+                        String pair = a.compareTo(b) < 0 ? a + " - " + b : b + " - " + a;
+                        pairCounts.merge(pair, 1, Integer::sum);
+                    }
+                }
+            }
+        }
+
+        return pairCounts.entrySet().stream()
+                .map(e -> new DriverRankingDTO(
+                        e.getKey(), null, e.getValue(), null, null
+                ))
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .toList();
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getMostCommonFirstSecondPairs() {
+        Map<String, Integer> pairCounts = new HashMap<>();
+
+        for (Long raceId : raceDao.findAll().stream().map(Race::getRaceId).toList()) {
+            Map<Integer, List<String>> grouped = resultDao.findByRaceId(raceId).stream()
+                    .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() <= 2)
+                    .collect(Collectors.groupingBy(
+                            Result::getPositionOrder,
+                            Collectors.mapping(r -> r.getDriver().getSurname().toLowerCase(), Collectors.toList())
+                    ));
+
+            // Aseguramos que haya exactamente un piloto en P1 y P2
+            if (grouped.containsKey(1) && grouped.containsKey(2)
+                    && grouped.get(1).size() == 1 && grouped.get(2).size() == 1) {
+
+                String first = grouped.get(1).get(0);
+                String second = grouped.get(2).get(0);
+                String combo = first + " - " + second;
+
+                pairCounts.merge(combo, 1, Integer::sum);
+            }
+        }
+
+        return pairCounts.entrySet().stream()
+                .map(e -> new DriverRankingDTO(
+                        e.getKey(), null, e.getValue(), null, null
+                ))
                 .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
                 .toList();
     }

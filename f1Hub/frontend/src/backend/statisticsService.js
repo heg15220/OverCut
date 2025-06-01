@@ -207,3 +207,15 @@ export const getDriversWithMostDifferentCircuitsWithPodium = (onSuccess, onError
 
 export const getPodiumsAtHomeGP = (onSuccess, onError) =>
   appFetch(`/statistics/home-gp`, fetchConfig("GET"), onSuccess, onError);
+
+export const getRepeatedIdenticalPodiums = (onSuccess, onError) =>
+  appFetch(`/statistics/repeated-identical`, fetchConfig("GET"), onSuccess, onError);
+
+export const getMostFrequentPodiumTrios = (onSuccess, onError) =>
+  appFetch(`/statistics/most-frequent-trios`, fetchConfig("GET"), onSuccess, onError);
+
+export const getMostFrequentPodiumPairs = (onSuccess, onError) =>
+  appFetch(`/statistics/most-frequent-pairs`, fetchConfig("GET"), onSuccess, onError);
+
+export const getMostCommonFirstSecondPairs = (onSuccess, onError) =>
+  appFetch(`/statistics/most-common-first-second`, fetchConfig("GET"), onSuccess, onError);

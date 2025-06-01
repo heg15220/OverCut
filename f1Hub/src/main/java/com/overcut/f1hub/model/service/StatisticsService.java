@@ -2,6 +2,7 @@ package com.overcut.f1hub.model.service;
 
 
 import com.overcut.f1hub.rest.dtos.ConstructorStandingDTO;
+import com.overcut.f1hub.rest.dtos.CustomRankingDTO;
 import com.overcut.f1hub.rest.dtos.DriverRankingDTO;
 import com.overcut.f1hub.rest.dtos.DriverStandingDTO;
 
@@ -92,7 +93,9 @@ public interface StatisticsService {
     List<DriverRankingDTO> getDriversWithMostDifferentGPsWithPodium();
     List<DriverRankingDTO> getDriversWithMostDifferentCircuitsWithPodium();
     List<DriverRankingDTO> getPodiumsAtHomeGP();
-
-
+    List<DriverRankingDTO> getRepeatedIdenticalPodiums();
+    List<DriverRankingDTO> getMostFrequentPodiumTrios();
+    List<DriverRankingDTO> getMostFrequentPodiumPairs();
+    List<DriverRankingDTO> getMostCommonFirstSecondPairs();
 
 }

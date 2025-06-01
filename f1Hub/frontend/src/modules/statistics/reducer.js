@@ -70,7 +70,11 @@ const initialState = {
   podiumsByGrandPrix: [],
   mostDifferentGPsWithPodium: [],
   mostDifferentCircuitsWithPodium: [],
-  podiumsAtHomeGP: []
+  podiumsAtHomeGP: [],
+  repeatedIdenticalPodiums: [],
+  mostFrequentPodiumTrios: [],
+  mostFrequentPodiumPairs: [],
+  mostCommonFirstSecondPairs: []
 
 
 };
@@ -227,6 +231,16 @@ export default function reducer(state = initialState, action) {
       return { ...state, mostDifferentCircuitsWithPodium: action.data };
     case actionTypes.FETCH_PODIUMS_HOME_GP_COMPLETED:
       return { ...state, podiumsAtHomeGP: action.data };
+
+    case actionTypes.FETCH_REPEATED_IDENTICAL_PODIUMS_COMPLETED:
+      return { ...state, repeatedIdenticalPodiums: action.data };
+    case actionTypes.FETCH_MOST_FREQUENT_PODIUM_TRIOS_COMPLETED:
+      return { ...state, mostFrequentPodiumTrios: action.data };
+    case actionTypes.FETCH_MOST_FREQUENT_PODIUM_PAIRS_COMPLETED:
+      return { ...state, mostFrequentPodiumPairs: action.data };
+    case actionTypes.FETCH_MOST_COMMON_FIRST_SECOND_PAIRS_COMPLETED:
+      return { ...state, mostCommonFirstSecondPairs: action.data };
+
 
 
 

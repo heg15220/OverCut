@@ -423,4 +423,29 @@ export const fetchPodiumsAtHomeGP = () => dispatch =>
     () => {}
   );
 
+export const fetchRepeatedIdenticalPodiums = () => dispatch =>
+  backend.statisticsService.getRepeatedIdenticalPodiums(
+    data => dispatch({ type: actionTypes.FETCH_REPEATED_IDENTICAL_PODIUMS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchMostFrequentPodiumTrios = () => dispatch =>
+  backend.statisticsService.getMostFrequentPodiumTrios(
+    data => dispatch({ type: actionTypes.FETCH_MOST_FREQUENT_PODIUM_TRIOS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchMostFrequentPodiumPairs = () => dispatch =>
+  backend.statisticsService.getMostFrequentPodiumPairs(
+    data => dispatch({ type: actionTypes.FETCH_MOST_FREQUENT_PODIUM_PAIRS_COMPLETED, data }),
+    () => {}
+  );
+
+
+
+export const fetchMostCommonFirstSecondPairs = () => dispatch =>
+  backend.statisticsService.getMostCommonFirstSecondPairs(
+    data => dispatch({ type: actionTypes.FETCH_MOST_COMMON_FIRST_SECOND_PAIRS_COMPLETED, data }),
+    () => {}
+  );
 
