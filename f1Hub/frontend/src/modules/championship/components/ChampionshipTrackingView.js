@@ -82,6 +82,32 @@ useEffect(() => {
     );
   };
 
+const getScoringSystem = (year) => {
+  if (year >= 2010) {
+    return { first: 25, second: 18, third: 15 };
+  } else if (year >= 2003) {
+    return { first: 10, second: 8, third: 6 };
+  } else if (year >= 1991) {
+    return { first: 10, second: 6, third: 4 };
+  } else if (year >= 1961) {
+    return { first: 9, second: 6, third: 4 };
+  } else {
+    return { first: 8, second: 6, third: 4 };
+  }
+};
+
+const getRaceClass = (racePoints, year) => {
+  const { first, second, third } = getScoringSystem(year);
+
+  if (racePoints === first + 1) return "race-bonus"; // victoria + FL
+  if (racePoints === first) return "race-winner";
+  if (racePoints === second) return "race-second";
+  if (racePoints === third) return "race-third";
+  if (racePoints > 0) return "race-other-points";
+  return "race-other-zero";
+};
+
+
 
   return (
     <div className="championship-tracking">
@@ -128,17 +154,9 @@ useEffect(() => {
 
                       const showSprint = sprintPoints > 0;
 
-                      const raceClass = racePoints === 26
-                        ? "race-bonus"
-                        : racePoints === 25
-                        ? "race-winner"
-                        : racePoints === 18
-                        ? "race-second"
-                        : racePoints === 15
-                        ? "race-third"
-                        : racePoints > 0
-                        ? "race-other-points"
-                        : "race-other-zero";
+
+
+                      const raceClass = getRaceClass(racePoints, year); // ← esta línea faltaba
 
                       return (
                         <td key={race.raceId}>
@@ -148,6 +166,7 @@ useEffect(() => {
                         </td>
                       );
                     })}
+
                   </tr>
                 ))}
               </tbody>
