@@ -496,6 +496,147 @@ public class StatisticsController {
     }
 
 
+    @GetMapping("/grands-prix/most")
+    public List<DriverRankingDTO> getDriversWithMostGrandsPrix() {
+        return statisticsService.getDriversWithMostGrandsPrix();
+    }
+
+    @GetMapping("/grands-prix/debut-chronology")
+    public List<DriverRankingDTO> getDriverGpDebutChronology() {
+        return statisticsService.getDriverGpDebutChronology();
+    }
+
+    @GetMapping("/grands-prix/debut-chronology/by-constructor")
+    public List<DriverRankingDTO> getGpDebutChronologyByConstructor() {
+        return statisticsService.getGpDebutChronologyByConstructor();
+    }
+
+
+
+    @GetMapping("/grands-prix/streaks")
+    public List<DriverRankingDTO> getLongestGpStreaks() {
+        return statisticsService.getLongestGpStreaks();
+    }
+
+    @GetMapping("/grands-prix/gap-days")
+    public List<DriverRankingDTO> getBiggestGapBetweenGrandsPrix() {
+        return statisticsService.getBiggestGapBetweenGrandsPrix();
+    }
+
+    @GetMapping("/grands-prix/gap-years")
+    public List<DriverRankingDTO> getGapBetweenFirstAndLastGp() {
+        return statisticsService.getGapBetweenFirstAndLastGp();
+    }
+
+    // Acumulados físicos
+    @GetMapping("/grands-prix/laps")
+    public List<DriverRankingDTO> getDriversByTotalLapsCompleted() {
+        return statisticsService.getDriversByTotalLapsCompleted();
+    }
+
+    // Relaciones con campeonatos y compañeros
+    @GetMapping("/grands-prix/with-world-champions")
+    public List<DriverRankingDTO> getDriversWithGpsWithWorldChampions() {
+        return statisticsService.getDriversWithGpsWithWorldChampions();
+    }
+
+    @GetMapping("/grands-prix/with-race-winners")
+    public List<DriverRankingDTO> getDriversWithGpsWithRaceWinner() {
+        return statisticsService.getDriversWithGpsWithRaceWinner();
+    }
+
+    @GetMapping("/grands-prix/most-with-same-constructor")
+    public List<DriverRankingDTO> getDriversWithMostGpsWithSameConstructor() {
+        return statisticsService.getDriversWithMostGpsWithSameConstructor();
+    }
+
+    @GetMapping("/grands-prix/most-constructors")
+    public List<DriverRankingDTO> getDriversWithMostConstructorsInGps() {
+        return statisticsService.getDriversWithMostConstructorsInGps();
+    }
+
+    @GetMapping("/grands-prix/most-with-same-engine")
+    public List<DriverRankingDTO> getDriversWithMostGpsWithSameEngine() {
+        return statisticsService.getDriversWithMostGpsWithSameEngine();
+    }
+
+    @GetMapping("/grands-prix/most-engines")
+    public List<DriverRankingDTO> getDriversWithMostEnginesInGps() {
+        return statisticsService.getDriversWithMostEnginesInGps();
+    }
+
+    @GetMapping("/grands-prix/most-with-same-teammate")
+    public List<DriverRankingDTO> getDriversWithMostGpsWithSameTeammate() {
+        return statisticsService.getDriversWithMostGpsWithSameTeammate();
+    }
+
+    // Edad
+
+    @GetMapping("/grands-prix/age/by-nationality")
+    public List<DriverRankingDTO> getDriversGpAgeByNationality() {
+        return statisticsService.getDriversGpAgeByNationality();
+    }
+
+    @GetMapping("/grands-prix/age/oldest")
+    public List<DriverRankingDTO> getOldestDriversAtGp() {
+        return statisticsService.getOldestDriversAtGp();
+    }
+
+    @GetMapping("/grands-prix/age/average")
+    public List<DriverRankingDTO> getAverageDriverAgePerGp() {
+        return statisticsService.getAverageDriverAgePerGp();
+    }
+
+    // Sin eventos clave
+    @GetMapping("/grands-prix/no-win")
+    public List<DriverRankingDTO> getDriversWithMostGpsWithoutWin() {
+        return statisticsService.getDriversWithMostGpsWithoutWin();
+    }
+
+    @GetMapping("/grands-prix/no-pole")
+    public List<DriverRankingDTO> getDriversWithMostGpsWithoutPole() {
+        return statisticsService.getDriversWithMostGpsWithoutPole();
+    }
+
+    @GetMapping("/grands-prix/no-fastest-lap")
+    public List<DriverRankingDTO> getDriversWithMostGpsWithoutFastestLap() {
+        return statisticsService.getDriversWithMostGpsWithoutFastestLap();
+    }
+
+    @GetMapping("/grands-prix/no-points")
+    public List<DriverRankingDTO> getDriversWithMostGpsWithoutPoints() {
+        return statisticsService.getDriversWithMostGpsWithoutPoints();
+    }
+
+    @GetMapping("/grands-prix/no-podium")
+    public List<DriverRankingDTO> getDriversWithMostGpsWithoutPodium() {
+        return statisticsService.getDriversWithMostGpsWithoutPodium();
+    }
+
+    @GetMapping("/grands-prix/no-lead-lap")
+    public List<DriverRankingDTO> getDriversWithMostGpsWithoutLeadingLap() {
+        return statisticsService.getDriversWithMostGpsWithoutLeadingLap();
+    }
+
+    @GetMapping("/grands-prix/no-win-pole-fastest")
+    public List<DriverRankingDTO> getDriversWithGpsWithoutWinPoleOrFastestLap() {
+        return statisticsService.getDriversWithGpsWithoutWinPoleOrFastestLap();
+    }
+
+    // Temporadas
+    @GetMapping("/grands-prix/seasons/total")
+    public List<DriverRankingDTO> getDriversWithMostSeasons() {
+        return statisticsService.getDriversWithMostSeasons();
+    }
+
+    @GetMapping("/grands-prix/seasons/consecutive")
+    public List<DriverRankingDTO> getDriversWithMostConsecutiveSeasons() {
+        return statisticsService.getDriversWithMostConsecutiveSeasons();
+    }
+
+
+
+
 
     @GetMapping("/constructor-options")
     public List<StatisticsService.ConstructorOption> getAllConstructors() {

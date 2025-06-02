@@ -564,3 +564,163 @@ export const fetchGpCountWhereDriverScoredPoints = () => dispatch =>
     data => dispatch({ type: actionTypes.FETCH_GPS_SCORED_POINTS_COMPLETED, data }),
     () => {}
   );
+
+export const getDriversWithMostGrandsPrix = () => dispatch =>
+    backend.statisticsService.getDriversWithMostGrandsPrix(
+        data => dispatch({ type: actionTypes.FETCH_MOST_GRANDS_PRIX_COMPLETED, data }),
+        () => {}
+    );
+
+export const fetchMostConsecutiveSeasons = () => dispatch =>
+    backend.statisticsService.getDriversWithMostConsecutiveSeasons(
+      data => dispatch({ type: actionTypes.FETCH_MOST_CONSECUTIVE_SEASONS_COMPLETED, data }),
+      () => {}
+    );
+
+export const fetchMostSeasons = () => dispatch =>
+    backend.statisticsService.getDriversWithMostSeasons(
+      data => dispatch({ type: actionTypes.FETCH_MOST_CONSECUTIVE_SEASONS_COMPLETED, data }),
+      () => {}
+    );
+
+export const fetchDriverGpDebutChronology = () => dispatch =>
+  backend.statisticsService.getDriverGpDebutChronology(
+    data => dispatch({ type: actionTypes.FETCH_GP_DEBUT_CHRONOLOGY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGpDebutChronologyByConstructor = () => dispatch =>
+  backend.statisticsService.getGpDebutChronologyByConstructor(
+    data => dispatch({ type: actionTypes.FETCH_GP_DEBUT_BY_CONSTRUCTOR_COMPLETED, data }),
+    () => {}
+  );
+
+
+export const fetchLongestGpStreaks = () => dispatch =>
+  backend.statisticsService.getLongestGpStreaks(
+    data => dispatch({ type: actionTypes.FETCH_LONGEST_GP_STREAKS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchBiggestGapBetweenGrandsPrix = () => dispatch =>
+  backend.statisticsService.getBiggestGapBetweenGrandsPrix(
+    data => dispatch({ type: actionTypes.FETCH_BIGGEST_GP_GAP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchGapBetweenFirstAndLastGp = () => dispatch =>
+  backend.statisticsService.getGapBetweenFirstAndLastGp(
+    data => dispatch({ type: actionTypes.FETCH_FIRST_LAST_GP_GAP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversByTotalLapsCompleted = () => dispatch =>
+  backend.statisticsService.getDriversByTotalLapsCompleted(
+    data => dispatch({ type: actionTypes.FETCH_TOTAL_LAPS_COMPLETED, data }),
+    () => {}
+  );
+
+
+
+export const fetchDriversWithGpsWithWorldChampions = () => dispatch =>
+  backend.statisticsService.getDriversWithGpsWithWorldChampions(
+    data => dispatch({ type: actionTypes.FETCH_GPS_WITH_CHAMPIONS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithGpsWithRaceWinner = () => dispatch =>
+  backend.statisticsService.getDriversWithGpsWithRaceWinner(
+    data => dispatch({ type: actionTypes.FETCH_GPS_WITH_WINNERS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGpsWithSameConstructor = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGpsWithSameConstructor(
+    data => dispatch({ type: actionTypes.FETCH_MOST_GPS_SAME_CONSTRUCTOR_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostConstructorsInGps = () => dispatch =>
+  backend.statisticsService.getDriversWithMostConstructorsInGps(
+    data => dispatch({ type: actionTypes.FETCH_MOST_CONSTRUCTORS_IN_GPS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGpsWithSameEngine = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGpsWithSameEngine(
+    data => dispatch({ type: actionTypes.FETCH_MOST_GPS_SAME_ENGINE_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostEnginesInGps = () => dispatch =>
+  backend.statisticsService.getDriversWithMostEnginesInGps(
+    data => dispatch({ type: actionTypes.FETCH_MOST_ENGINES_IN_GPS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGpsWithSameTeammate = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGpsWithSameTeammate(
+    data => dispatch({ type: actionTypes.FETCH_MOST_GPS_SAME_TEAMMATE_COMPLETED, data }),
+    () => {}
+  );
+
+
+export const fetchDriversGpAgeByNationality = () => dispatch =>
+  backend.statisticsService.getDriversGpAgeByNationality(
+    data => dispatch({ type: actionTypes.FETCH_GP_AGE_BY_NATIONALITY_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchOldestDriversAtGp = () => dispatch =>
+  backend.statisticsService.getOldestDriversAtGp(
+    data => dispatch({ type: actionTypes.FETCH_OLDEST_GP_DRIVERS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchAverageDriverAgePerGp = () => dispatch =>
+  backend.statisticsService.getAverageDriverAgePerGp(
+    data => dispatch({ type: actionTypes.FETCH_AVG_AGE_PER_GP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGpsWithoutWin = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGpsWithoutWin(
+    data => dispatch({ type: actionTypes.FETCH_GPS_NO_WIN_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGpsWithoutPole = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGpsWithoutPole(
+    data => dispatch({ type: actionTypes.FETCH_GPS_NO_POLE_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGpsWithoutFastestLap = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGpsWithoutFastestLap(
+    data => dispatch({ type: actionTypes.FETCH_GPS_NO_FASTEST_LAP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGpsWithoutPoints = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGpsWithoutPoints(
+    data => dispatch({ type: actionTypes.FETCH_GPS_NO_POINTS_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGpsWithoutPodium = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGpsWithoutPodium(
+    data => dispatch({ type: actionTypes.FETCH_GPS_NO_PODIUM_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithMostGpsWithoutLeadingLap = () => dispatch =>
+  backend.statisticsService.getDriversWithMostGpsWithoutLeadingLap(
+    data => dispatch({ type: actionTypes.FETCH_GPS_NO_LEAD_LAP_COMPLETED, data }),
+    () => {}
+  );
+
+export const fetchDriversWithGpsWithoutWinPoleOrFastestLap = () => dispatch =>
+  backend.statisticsService.getDriversWithGpsWithoutWinPoleOrFastestLap(
+    data => dispatch({ type: actionTypes.FETCH_GPS_NO_WIN_POLE_FASTEST_COMPLETED, data }),
+    () => {}
+  );

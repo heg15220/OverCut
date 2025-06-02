@@ -278,3 +278,93 @@ export const getGpCountBeforeFirstPoints = (onSuccess, onError) =>
 
 export const getGpCountWhereDriverScoredPoints = (onSuccess, onError) =>
   appFetch(`/statistics/points/gps-scored`, fetchConfig("GET"), onSuccess, onError);
+
+
+
+
+// Número y cronología
+export const getDriversWithMostGrandsPrix = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/most", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriverGpDebutChronology = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/debut-chronology", fetchConfig("GET"), onSuccess, onError);
+
+export const getGpDebutChronologyByConstructor = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/debut-chronology/by-constructor", fetchConfig("GET"), onSuccess, onError);
+
+
+// Rachas y diferencias
+export const getLongestGpStreaks = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/streaks", fetchConfig("GET"), onSuccess, onError);
+
+export const getBiggestGapBetweenGrandsPrix = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/gap-days", fetchConfig("GET"), onSuccess, onError);
+
+export const getGapBetweenFirstAndLastGp = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/gap-years", fetchConfig("GET"), onSuccess, onError);
+
+// Acumulados físicos
+export const getDriversByTotalLapsCompleted = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/laps", fetchConfig("GET"), onSuccess, onError);
+
+// Relaciones con otros
+export const getDriversWithGpsWithWorldChampions = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/with-world-champions", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithGpsWithRaceWinner = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/with-race-winners", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostGpsWithSameConstructor = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/most-with-same-constructor", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostConstructorsInGps = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/most-constructors", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostGpsWithSameEngine = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/most-with-same-engine", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostEnginesInGps = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/most-engines", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostGpsWithSameTeammate = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/most-with-same-teammate", fetchConfig("GET"), onSuccess, onError);
+
+// Edad
+
+export const getDriversGpAgeByNationality = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/age/by-nationality", fetchConfig("GET"), onSuccess, onError);
+
+export const getOldestDriversAtGp = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/age/oldest", fetchConfig("GET"), onSuccess, onError);
+
+export const getAverageDriverAgePerGp = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/age/average", fetchConfig("GET"), onSuccess, onError);
+
+// Sin eventos clave
+export const getDriversWithMostGpsWithoutWin = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/no-win", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostGpsWithoutPole = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/no-pole", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostGpsWithoutFastestLap = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/no-fastest-lap", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostGpsWithoutPoints = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/no-points", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostGpsWithoutPodium = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/no-podium", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostGpsWithoutLeadingLap = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/no-lead-lap", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithGpsWithoutWinPoleOrFastestLap = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/no-win-pole-fastest", fetchConfig("GET"), onSuccess, onError);
+
+// Temporadas
+export const getDriversWithMostSeasons = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/seasons/total", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversWithMostConsecutiveSeasons = (onSuccess, onError) =>
+  appFetch("/statistics/grands-prix/seasons/consecutive", fetchConfig("GET"), onSuccess, onError);

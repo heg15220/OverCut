@@ -120,6 +120,35 @@ const gpCountWhereDriverScoredPoints = useSelector(statisticsSelectors.getGpCoun
 
 
 
+const mostGrandsPrix = useSelector(statisticsSelectors.getMostGrandsPrix);
+const gpDebutChronology = useSelector(statisticsSelectors.getGpDebutChronology);
+const gpDebutByConstructor = useSelector(statisticsSelectors.getGpDebutByConstructor);
+const longestGpStreaks = useSelector(statisticsSelectors.getLongestGpStreaks);
+const biggestGpGap = useSelector(statisticsSelectors.getBiggestGpGap);
+const firstLastGpGap = useSelector(statisticsSelectors.getFirstLastGpGap);
+const totalLapsCompleted = useSelector(statisticsSelectors.getTotalLapsCompleted);
+const gpsWithChampions = useSelector(statisticsSelectors.getGpsWithChampions);
+const gpsWithWinners = useSelector(statisticsSelectors.getGpsWithWinners);
+const mostGpsSameConstructor = useSelector(statisticsSelectors.getMostGpsSameConstructor);
+const mostConstructorsInGps = useSelector(statisticsSelectors.getMostConstructorsInGps);
+const mostGpsSameEngine = useSelector(statisticsSelectors.getMostGpsSameEngine);
+const mostEnginesInGps = useSelector(statisticsSelectors.getMostEnginesInGps);
+const mostGpsSameTeammate = useSelector(statisticsSelectors.getMostGpsSameTeammate);
+const gpAgeByNationality = useSelector(statisticsSelectors.getGpAgeByNationality);
+const oldestGpDrivers = useSelector(statisticsSelectors.getOldestGpDrivers);
+const avgAgePerGp = useSelector(statisticsSelectors.getAvgAgePerGp);
+const gpsNoWin = useSelector(statisticsSelectors.getGpsNoWin);
+const gpsNoPole = useSelector(statisticsSelectors.getGpsNoPole);
+const gpsNoFastestLap = useSelector(statisticsSelectors.getGpsNoFastestLap);
+const gpsNoPoints = useSelector(statisticsSelectors.getGpsNoPoints);
+const gpsNoPodium = useSelector(statisticsSelectors.getGpsNoPodium);
+const gpsNoLeadLap = useSelector(statisticsSelectors.getGpsNoLeadLap);
+const gpsNoWinPoleFastest = useSelector(statisticsSelectors.getGpsNoWinPoleFastest);
+const mostSeasons = useSelector(statisticsSelectors.getMostSeasons);
+const mostConsecutiveSeasons = useSelector(statisticsSelectors.getMostConsecutiveSeasons);
+
+
+
 
 
 
@@ -246,6 +275,112 @@ const gpCountWhereDriverScoredPoints = useSelector(statisticsSelectors.getGpCoun
         case "points_gp_scored": dispatch(statisticsActions.fetchGpCountWhereDriverScoredPoints()); break;
 
 
+        case "most_grands_prix":
+          dispatch(statisticsActions.getDriversWithMostGrandsPrix());
+          break;
+
+        case "gp_debut_chronology":
+          dispatch(statisticsActions.fetchDriverGpDebutChronology());
+          break;
+
+        case "gp_debut_by_constructor":
+          dispatch(statisticsActions.fetchGpDebutChronologyByConstructor());
+          break;
+
+        case "gp_streaks":
+          dispatch(statisticsActions.fetchLongestGpStreaks());
+          break;
+
+        case "gp_gap_days":
+          dispatch(statisticsActions.fetchBiggestGapBetweenGrandsPrix());
+          break;
+
+        case "gp_gap_years":
+          dispatch(statisticsActions.fetchGapBetweenFirstAndLastGp());
+          break;
+
+        case "gp_laps":
+          dispatch(statisticsActions.fetchDriversByTotalLapsCompleted());
+          break;
+
+        case "gp_with_champions":
+          dispatch(statisticsActions.fetchDriversWithGpsWithWorldChampions());
+          break;
+
+        case "gp_with_winners":
+          dispatch(statisticsActions.fetchDriversWithGpsWithRaceWinner());
+          break;
+
+        case "gp_same_constructor":
+          dispatch(statisticsActions.fetchDriversWithMostGpsWithSameConstructor());
+          break;
+
+        case "gp_most_constructors":
+          dispatch(statisticsActions.fetchDriversWithMostConstructorsInGps());
+          break;
+
+        case "gp_same_engine":
+          dispatch(statisticsActions.fetchDriversWithMostGpsWithSameEngine());
+          break;
+
+        case "gp_most_engines":
+          dispatch(statisticsActions.fetchDriversWithMostEnginesInGps());
+          break;
+
+        case "gp_same_teammate":
+          dispatch(statisticsActions.fetchDriversWithMostGpsWithSameTeammate());
+          break;
+
+        case "gp_age_nationality":
+          dispatch(statisticsActions.fetchDriversGpAgeByNationality());
+          break;
+
+        case "gp_oldest":
+          dispatch(statisticsActions.fetchOldestDriversAtGp());
+          break;
+
+        case "gp_avg_age":
+          dispatch(statisticsActions.fetchAverageDriverAgePerGp());
+          break;
+
+        case "gp_no_win":
+          dispatch(statisticsActions.fetchDriversWithMostGpsWithoutWin());
+          break;
+
+        case "gp_no_pole":
+          dispatch(statisticsActions.fetchDriversWithMostGpsWithoutPole());
+          break;
+
+        case "gp_no_fastest_lap":
+          dispatch(statisticsActions.fetchDriversWithMostGpsWithoutFastestLap());
+          break;
+
+        case "gp_no_points":
+          dispatch(statisticsActions.fetchDriversWithMostGpsWithoutPoints());
+          break;
+
+        case "gp_no_podium":
+          dispatch(statisticsActions.fetchDriversWithMostGpsWithoutPodium());
+          break;
+
+        case "gp_no_lead_lap":
+          dispatch(statisticsActions.fetchDriversWithMostGpsWithoutLeadingLap());
+          break;
+
+        case "gp_no_win_pole_fastest":
+          dispatch(statisticsActions.fetchDriversWithGpsWithoutWinPoleOrFastestLap());
+          break;
+
+        case "gp_seasons_total":
+          dispatch(statisticsActions.fetchMostSeasons());
+          break;
+
+        case "gp_seasons_consecutive":
+          dispatch(statisticsActions.fetchMostConsecutiveSeasons());
+          break;
+
+
+
         default: break;
       }
     }
@@ -334,6 +469,34 @@ const gpCountWhereDriverScoredPoints = useSelector(statisticsSelectors.getGpCoun
     : recordMode === "points_most_constructors" ? driversWithMostConstructorsWithPoints
     : recordMode === "points_gp_before" ? gpCountBeforeFirstPoints
     : recordMode === "points_gp_scored" ? gpCountWhereDriverScoredPoints
+    : recordMode === "most_grands_prix" ? mostGrandsPrix
+    : recordMode === "gp_debut_chronology" ? gpDebutChronology
+    : recordMode === "gp_debut_by_constructor" ? gpDebutByConstructor
+    : recordMode === "gp_streaks" ? longestGpStreaks
+    : recordMode === "gp_gap_days" ? biggestGpGap
+    : recordMode === "gp_gap_years" ? firstLastGpGap
+    : recordMode === "gp_laps" ? totalLapsCompleted
+    : recordMode === "gp_kilometers" ? totalKmCompleted
+    : recordMode === "gp_with_champions" ? gpsWithChampions
+    : recordMode === "gp_with_winners" ? gpsWithWinners
+    : recordMode === "gp_same_constructor" ? mostGpsSameConstructor
+    : recordMode === "gp_most_constructors" ? mostConstructorsInGps
+    : recordMode === "gp_same_engine" ? mostGpsSameEngine
+    : recordMode === "gp_most_engines" ? mostEnginesInGps
+    : recordMode === "gp_same_teammate" ? mostGpsSameTeammate
+    : recordMode === "gp_age_chronology" ? gpAgeChronology
+    : recordMode === "gp_age_nationality" ? gpAgeByNationality
+    : recordMode === "gp_oldest" ? oldestGpDrivers
+    : recordMode === "gp_avg_age" ? avgAgePerGp
+    : recordMode === "gp_no_win" ? gpsNoWin
+    : recordMode === "gp_no_pole" ? gpsNoPole
+    : recordMode === "gp_no_fastest_lap" ? gpsNoFastestLap
+    : recordMode === "gp_no_points" ? gpsNoPoints
+    : recordMode === "gp_no_podium" ? gpsNoPodium
+    : recordMode === "gp_no_lead_lap" ? gpsNoLeadLap
+    : recordMode === "gp_no_win_pole_fastest" ? gpsNoWinPoleFastest
+    : recordMode === "gp_seasons_total" ? mostSeasons
+    : recordMode === "gp_seasons_consecutive" ? mostConsecutiveSeasons
 
 
 
@@ -442,6 +605,36 @@ const gpCountWhereDriverScoredPoints = useSelector(statisticsSelectors.getGpCoun
           case "points_gp_scored": return "GPs con puntos";
 
 
+         //Grandes Premios
+          case "most_grands_prix": return "Grandes Premios";
+          case "gp_debut_chronology": return "Año de debut";
+          case "gp_debut_by_constructor": return "Año de debut";
+          case "gp_streaks": return "Racha de GPs";
+          case "gp_gap_days": return "Días entre GPs";
+          case "gp_gap_years": return "Años entre primero y último";
+          case "gp_laps": return "Vueltas completadas";
+          case "gp_kilometers": return "Km completados";
+          case "gp_with_champions": return "GPs con campeones";
+          case "gp_with_winners": return "GPs con ganadores";
+          case "gp_same_constructor": return "GPs con mismo constructor";
+          case "gp_most_constructors": return "Constructores distintos";
+          case "gp_same_engine": return "GPs con mismo motor";
+          case "gp_most_engines": return "Motores distintos";
+          case "gp_same_teammate": return "GPs con mismo compañero";
+          case "gp_age_chronology": return "Edad en GP";
+          case "gp_age_nationality": return "Edad por nacionalidad";
+          case "gp_oldest": return "Mayor edad en GP";
+          case "gp_avg_age": return "Edad media por GP";
+          case "gp_no_win": return "GPs sin victoria";
+          case "gp_no_pole": return "GPs sin pole";
+          case "gp_no_fastest_lap": return "GPs sin VR";
+          case "gp_no_points": return "GPs sin puntos";
+          case "gp_no_podium": return "GPs sin podio";
+          case "gp_no_lead_lap": return "GPs sin liderar";
+          case "gp_no_win_pole_fastest": return "GPs sin victoria, pole ni VR";
+          case "gp_seasons_total": return "Temporadas";
+          case "gp_seasons_consecutive": return "Temporadas consecutivas";
+
 
           default: return "Valor";
         }
@@ -472,6 +665,7 @@ const gpCountWhereDriverScoredPoints = useSelector(statisticsSelectors.getGpCoun
                   setRecordCategory(category);
                   let newMode = "titles_by_count";
                   if (category === "victories") newMode = "wins_chronological";
+                  if (category === "grands_prix") newMode = "most_grands_prix";
                   else if (category === "podiums") newMode = "podiums_second_place";
                   setRecordMode(newMode);
 
@@ -480,6 +674,7 @@ const gpCountWhereDriverScoredPoints = useSelector(statisticsSelectors.getGpCoun
                   <option value="victories">🥇 Victorias</option>
                   <option value="podiums">🥈 Pódiums</option>
                   <option value="points">📊 Puntos</option>
+                  <option value="grands_prix">📍 Grandes Premios</option>
                 </select>
 
                 <select value={recordMode} onChange={e => setRecordMode(e.target.value)}>
@@ -587,7 +782,37 @@ const gpCountWhereDriverScoredPoints = useSelector(statisticsSelectors.getGpCoun
                     </optgroup>
                   )}
 
-
+                {recordCategory === "grands_prix" && (
+                  <optgroup label="📍 Grandes Premios">
+                    <option value="most_grands_prix">Más grandes premios disputados</option>
+                    <option value="gp_debut_chronology">Debut cronológico</option>
+                    <option value="gp_debut_by_constructor">Debut por constructor</option>
+                    <option value="gp_streaks">Rachas consecutivas</option>
+                    <option value="gp_gap_days">Mayor intervalo en días</option>
+                    <option value="gp_gap_years">Mayor intervalo entre primero y último</option>
+                    <option value="gp_laps">Más vueltas completadas</option>
+                    <option value="gp_kilometers">Más km recorridos</option>
+                    <option value="gp_with_champions">GPs con campeones</option>
+                    <option value="gp_with_winners">GPs con ganadores</option>
+                    <option value="gp_same_constructor">Más GPs con mismo constructor</option>
+                    <option value="gp_most_constructors">Más constructores distintos</option>
+                    <option value="gp_same_engine">Más GPs con mismo motor</option>
+                    <option value="gp_most_engines">Más motores distintos</option>
+                    <option value="gp_same_teammate">Más GPs con mismo compañero</option>
+                    <option value="gp_age_nationality">Edad por nacionalidad</option>
+                    <option value="gp_oldest">Pilotos más veteranos</option>
+                    <option value="gp_avg_age">Edad media por GP</option>
+                    <option value="gp_no_win">GPs sin victoria</option>
+                    <option value="gp_no_pole">GPs sin pole</option>
+                    <option value="gp_no_fastest_lap">GPs sin vuelta rápida</option>
+                    <option value="gp_no_points">GPs sin puntos</option>
+                    <option value="gp_no_podium">GPs sin podio</option>
+                    <option value="gp_no_lead_lap">GPs sin liderar vuelta</option>
+                    <option value="gp_no_win_pole_fastest">GPs sin victoria, pole ni VR</option>
+                    <option value="gp_seasons_total">Temporadas totales</option>
+                    <option value="gp_seasons_consecutive">Temporadas consecutivas</option>
+                  </optgroup>
+                )}
 
                 </select>
               </div>

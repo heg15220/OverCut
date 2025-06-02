@@ -96,7 +96,33 @@ const initialState = {
   pointsNoPodiums: [],
   constructorsWithPoints: [],
   gpCountBeforeFirstPoints: [],
-  gpCountWhereScoredPoints: []
+  gpCountWhereScoredPoints: [],
+  mostGrandsPrix: [],
+  gpDebutChronology: [],
+  gpDebutByConstructor: [],
+  longestGpStreaks: [],
+  biggestGpGap: [],
+  firstLastGpGap: [],
+  totalLapsCompleted: [],
+  gpsWithChampions: [],
+  gpsWithWinners: [],
+  mostGpsSameConstructor: [],
+  mostConstructorsInGps: [],
+  mostGpsSameEngine: [],
+  mostEnginesInGps: [],
+  mostGpsSameTeammate: [],
+  gpAgeByNationality: [],
+  oldestGpDrivers: [],
+  avgAgePerGp: [],
+  gpsNoWin: [],
+  gpsNoPole: [],
+  gpsNoFastestLap: [],
+  gpsNoPoints: [],
+  gpsNoPodium: [],
+  gpsNoLeadLap: [],
+  gpsNoWinPoleFastest: [],
+  mostSeasons: [],
+  mostConsecutiveSeasons: []
 
 
 };
@@ -304,6 +330,60 @@ export default function reducer(state = initialState, action) {
     case actionTypes.FETCH_GPS_SCORED_POINTS_COMPLETED:
       return { ...state, gpCountWhereScoredPoints: action.data };
 
+
+
+    case actionTypes.FETCH_MOST_GRANDS_PRIX_COMPLETED:
+      return { ...state, mostGrandsPrix: action.data };
+    case actionTypes.FETCH_GP_DEBUT_CHRONOLOGY_COMPLETED:
+      return { ...state, gpDebutChronology: action.data };
+    case actionTypes.FETCH_GP_DEBUT_BY_CONSTRUCTOR_COMPLETED:
+      return { ...state, gpDebutByConstructor: action.data };
+    case actionTypes.FETCH_LONGEST_GP_STREAKS_COMPLETED:
+      return { ...state, longestGpStreaks: action.data };
+    case actionTypes.FETCH_BIGGEST_GP_GAP_COMPLETED:
+      return { ...state, biggestGpGap: action.data };
+    case actionTypes.FETCH_FIRST_LAST_GP_GAP_COMPLETED:
+      return { ...state, firstLastGpGap: action.data };
+    case actionTypes.FETCH_TOTAL_LAPS_COMPLETED:
+      return { ...state, totalLapsCompleted: action.data };
+    case actionTypes.FETCH_GPS_WITH_CHAMPIONS_COMPLETED:
+      return { ...state, gpsWithChampions: action.data };
+    case actionTypes.FETCH_GPS_WITH_WINNERS_COMPLETED:
+      return { ...state, gpsWithWinners: action.data };
+    case actionTypes.FETCH_MOST_GPS_SAME_CONSTRUCTOR_COMPLETED:
+      return { ...state, mostGpsSameConstructor: action.data };
+    case actionTypes.FETCH_MOST_CONSTRUCTORS_IN_GPS_COMPLETED:
+      return { ...state, mostConstructorsInGps: action.data };
+    case actionTypes.FETCH_MOST_GPS_SAME_ENGINE_COMPLETED:
+      return { ...state, mostGpsSameEngine: action.data };
+    case actionTypes.FETCH_MOST_ENGINES_IN_GPS_COMPLETED:
+      return { ...state, mostEnginesInGps: action.data };
+    case actionTypes.FETCH_MOST_GPS_SAME_TEAMMATE_COMPLETED:
+      return { ...state, mostGpsSameTeammate: action.data };
+    case actionTypes.FETCH_GP_AGE_BY_NATIONALITY_COMPLETED:
+      return { ...state, gpAgeByNationality: action.data };
+    case actionTypes.FETCH_OLDEST_GP_DRIVERS_COMPLETED:
+      return { ...state, oldestGpDrivers: action.data };
+    case actionTypes.FETCH_AVG_AGE_PER_GP_COMPLETED:
+      return { ...state, avgAgePerGp: action.data };
+    case actionTypes.FETCH_GPS_NO_WIN_COMPLETED:
+      return { ...state, gpsNoWin: action.data };
+    case actionTypes.FETCH_GPS_NO_POLE_COMPLETED:
+      return { ...state, gpsNoPole: action.data };
+    case actionTypes.FETCH_GPS_NO_FASTEST_LAP_COMPLETED:
+      return { ...state, gpsNoFastestLap: action.data };
+    case actionTypes.FETCH_GPS_NO_POINTS_COMPLETED:
+      return { ...state, gpsNoPoints: action.data };
+    case actionTypes.FETCH_GPS_NO_PODIUM_COMPLETED:
+      return { ...state, gpsNoPodium: action.data };
+    case actionTypes.FETCH_GPS_NO_LEAD_LAP_COMPLETED:
+      return { ...state, gpsNoLeadLap: action.data };
+    case actionTypes.FETCH_GPS_NO_WIN_POLE_FASTEST_COMPLETED:
+      return { ...state, gpsNoWinPoleFastest: action.data };
+    case actionTypes.FETCH_MOST_SEASONS_COMPLETED:
+      return { ...state, mostSeasons: action.data };
+    case actionTypes.FETCH_MOST_CONSECUTIVE_SEASONS_COMPLETED:
+      return { ...state, mostConsecutiveSeasons: action.data };
 
 
 

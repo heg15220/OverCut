@@ -102,3 +102,35 @@ export const FETCH_GPS_BEFORE_FIRST_POINTS_COMPLETED = "statistics/fetchGpCountB
 export const FETCH_GPS_SCORED_POINTS_COMPLETED = "statistics/fetchGpCountWhereScoredPointsCompleted";
 
 
+
+
+export const FETCH_MOST_GRANDS_PRIX_COMPLETED = "statistics/fetchMostGrandsPrixCompleted";
+export const FETCH_GP_DEBUT_CHRONOLOGY_COMPLETED = "statistics/fetchGpDebutChronologyCompleted";
+export const FETCH_GP_DEBUT_BY_CONSTRUCTOR_COMPLETED = "statistics/fetchGpDebutByConstructorCompleted";
+export const FETCH_LONGEST_GP_STREAKS_COMPLETED = "statistics/fetchLongestGpStreaksCompleted";
+export const FETCH_BIGGEST_GP_GAP_COMPLETED = "statistics/fetchBiggestGpGapCompleted";
+export const FETCH_FIRST_LAST_GP_GAP_COMPLETED = "statistics/fetchFirstLastGpGapCompleted";
+export const FETCH_TOTAL_LAPS_COMPLETED = "statistics/fetchTotalLapsCompleted";
+export const FETCH_TOTAL_KM_COMPLETED = "statistics/fetchTotalKmCompleted";
+export const FETCH_GPS_WITH_CHAMPIONS_COMPLETED = "statistics/fetchGpsWithChampionsCompleted";
+export const FETCH_GPS_WITH_WINNERS_COMPLETED = "statistics/fetchGpsWithWinnersCompleted";
+export const FETCH_MOST_GPS_SAME_CONSTRUCTOR_COMPLETED = "statistics/fetchMostGpsSameConstructorCompleted";
+export const FETCH_MOST_CONSTRUCTORS_IN_GPS_COMPLETED = "statistics/fetchMostConstructorsInGpsCompleted";
+export const FETCH_MOST_GPS_SAME_ENGINE_COMPLETED = "statistics/fetchMostGpsSameEngineCompleted";
+export const FETCH_MOST_ENGINES_IN_GPS_COMPLETED = "statistics/fetchMostEnginesInGpsCompleted";
+export const FETCH_MOST_GPS_SAME_TEAMMATE_COMPLETED = "statistics/fetchMostGpsSameTeammateCompleted";
+export const FETCH_GP_AGE_CHRONOLOGY_COMPLETED = "statistics/fetchGpAgeChronologyCompleted";
+export const FETCH_GP_AGE_BY_NATIONALITY_COMPLETED = "statistics/fetchGpAgeByNationalityCompleted";
+export const FETCH_OLDEST_GP_DRIVERS_COMPLETED = "statistics/fetchOldestGpDriversCompleted";
+export const FETCH_AVG_AGE_PER_GP_COMPLETED = "statistics/fetchAvgAgePerGpCompleted";
+export const FETCH_GPS_NO_WIN_COMPLETED = "statistics/fetchGpsNoWinCompleted";
+export const FETCH_GPS_NO_POLE_COMPLETED = "statistics/fetchGpsNoPoleCompleted";
+export const FETCH_GPS_NO_FASTEST_LAP_COMPLETED = "statistics/fetchGpsNoFastestLapCompleted";
+export const FETCH_GPS_NO_POINTS_COMPLETED = "statistics/fetchGpsNoPointsCompleted";
+export const FETCH_GPS_NO_PODIUM_COMPLETED = "statistics/fetchGpsNoPodiumCompleted";
+export const FETCH_GPS_NO_LEAD_LAP_COMPLETED = "statistics/fetchGpsNoLeadLapCompleted";
+export const FETCH_GPS_NO_WIN_POLE_FASTEST_COMPLETED = "statistics/fetchGpsNoWinPoleFastestCompleted";
+export const FETCH_MOST_SEASONS_COMPLETED = "statistics/fetchMostSeasonsCompleted";
+export const FETCH_MOST_CONSECUTIVE_SEASONS_COMPLETED = "statistics/fetchMostConsecutiveSeasonsCompleted";
+
+

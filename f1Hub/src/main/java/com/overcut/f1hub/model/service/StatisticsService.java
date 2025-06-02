@@ -121,4 +121,43 @@ public interface StatisticsService {
     List<DriverRankingDTO> getDriversWithPointsButNoPodiums();
     List<DriverRankingDTO> getDriversWithMostConstructorsWithPoints();
 
+
+
+    // Grandes Premios - Generales
+    List<DriverRankingDTO> getDriversWithMostGrandsPrix();
+    List<DriverRankingDTO> getDriverGpDebutChronology();
+    List<DriverRankingDTO> getGpDebutChronologyByConstructor();
+    List<DriverRankingDTO> getLongestGpStreaks();
+    List<DriverRankingDTO> getBiggestGapBetweenGrandsPrix();
+    List<DriverRankingDTO> getGapBetweenFirstAndLastGp();
+
+    // Acumulados físicos
+    List<DriverRankingDTO> getDriversByTotalLapsCompleted();
+
+    // Relaciones con campeonatos y compañeros
+    List<DriverRankingDTO> getDriversWithGpsWithWorldChampions();
+    List<DriverRankingDTO> getDriversWithGpsWithRaceWinner();
+    List<DriverRankingDTO> getDriversWithMostGpsWithSameConstructor();
+    List<DriverRankingDTO> getDriversWithMostConstructorsInGps();
+    List<DriverRankingDTO> getDriversWithMostGpsWithSameEngine();
+    List<DriverRankingDTO> getDriversWithMostEnginesInGps();
+    List<DriverRankingDTO> getDriversWithMostGpsWithSameTeammate();
+
+    // Edad
+    List<DriverRankingDTO> getDriversGpAgeByNationality();
+    List<DriverRankingDTO> getOldestDriversAtGp();
+    List<DriverRankingDTO> getAverageDriverAgePerGp();
+
+    // Sin eventos clave
+    List<DriverRankingDTO> getDriversWithMostGpsWithoutWin();
+    List<DriverRankingDTO> getDriversWithMostGpsWithoutPole();
+    List<DriverRankingDTO> getDriversWithMostGpsWithoutFastestLap();
+    List<DriverRankingDTO> getDriversWithMostGpsWithoutPoints();
+    List<DriverRankingDTO> getDriversWithMostGpsWithoutPodium();
+    List<DriverRankingDTO> getDriversWithMostGpsWithoutLeadingLap();
+    List<DriverRankingDTO> getDriversWithGpsWithoutWinPoleOrFastestLap();
+
+    // Temporadas
+    List<DriverRankingDTO> getDriversWithMostSeasons();
+    List<DriverRankingDTO> getDriversWithMostConsecutiveSeasons();
 }

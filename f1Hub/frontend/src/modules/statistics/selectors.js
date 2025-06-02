@@ -100,3 +100,32 @@ export const getGpCountBeforeFirstPoints = state => getModuleState(state).gpCoun
 export const getGpCountWhereDriverScoredPoints = state => getModuleState(state).gpCountWhereScoredPoints;
 
 
+
+
+export const getMostGrandsPrix = state => getModuleState(state).mostGrandsPrix;
+export const getGpDebutChronology = state => getModuleState(state).gpDebutChronology;
+export const getGpDebutByConstructor = state => getModuleState(state).gpDebutByConstructor;
+export const getLongestGpStreaks = state => getModuleState(state).longestGpStreaks;
+export const getBiggestGpGap = state => getModuleState(state).biggestGpGap;
+export const getFirstLastGpGap = state => getModuleState(state).firstLastGpGap;
+export const getTotalLapsCompleted = state => getModuleState(state).totalLapsCompleted;
+export const getGpsWithChampions = state => getModuleState(state).gpsWithChampions;
+export const getGpsWithWinners = state => getModuleState(state).gpsWithWinners;
+export const getMostGpsSameConstructor = state => getModuleState(state).mostGpsSameConstructor;
+export const getMostConstructorsInGps = state => getModuleState(state).mostConstructorsInGps;
+export const getMostGpsSameEngine = state => getModuleState(state).mostGpsSameEngine;
+export const getMostEnginesInGps = state => getModuleState(state).mostEnginesInGps;
+export const getMostGpsSameTeammate = state => getModuleState(state).mostGpsSameTeammate;
+export const getGpAgeByNationality = state => getModuleState(state).gpAgeByNationality;
+export const getOldestGpDrivers = state => getModuleState(state).oldestGpDrivers;
+export const getAvgAgePerGp = state => getModuleState(state).avgAgePerGp;
+export const getGpsNoWin = state => getModuleState(state).gpsNoWin;
+export const getGpsNoPole = state => getModuleState(state).gpsNoPole;
+export const getGpsNoFastestLap = state => getModuleState(state).gpsNoFastestLap;
+export const getGpsNoPoints = state => getModuleState(state).gpsNoPoints;
+export const getGpsNoPodium = state => getModuleState(state).gpsNoPodium;
+export const getGpsNoLeadLap = state => getModuleState(state).gpsNoLeadLap;
+export const getGpsNoWinPoleFastest = state => getModuleState(state).gpsNoWinPoleFastest;
+export const getMostSeasons = state => getModuleState(state).mostSeasons;
+export const getMostConsecutiveSeasons = state => getModuleState(state).mostConsecutiveSeasons;
+
