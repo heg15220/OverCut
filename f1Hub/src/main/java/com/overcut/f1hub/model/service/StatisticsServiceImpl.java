@@ -3762,22 +3762,27 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getMostFrequentFrontRowDuos() {
         String sql = """
-        SELECT 
-            LEAST(d1.driverId, d2.driverId) AS driver1Id,
-            GREATEST(d1.driverId, d2.driverId) AS driver2Id,
-            CONCAT(LEAST(d1.forename, d2.forename), ' ', LEAST(d1.surname, d2.surname)) AS driver1Name,
-            CONCAT(GREATEST(d1.forename, d2.forename), ' ', GREATEST(d1.surname, d2.surname)) AS driver2Name,
-            LEAST(d1.nationality, d2.nationality) AS nationality1,
-            COUNT(*) AS front_row_count
-        FROM qualifying q1
-        JOIN qualifying q2 ON q1.raceId = q2.raceId AND q1.driverId <> q2.driverId
-        JOIN drivers d1 ON q1.driverId = d1.driverId
-        JOIN drivers d2 ON q2.driverId = d2.driverId
-        WHERE q1.position IN (1, 2) AND q2.position IN (1, 2)
-        GROUP BY driver1Id, driver2Id
-        HAVING COUNT(*) > 0
-        ORDER BY front_row_count DESC
-    """;
+                    SELECT
+                         LEAST(d1.driverId, d2.driverId) AS driver1Id,
+                         GREATEST(d1.driverId, d2.driverId) AS driver2Id,
+                         LEAST(CONCAT(d1.forename, ' ', d1.surname), CONCAT(d2.forename, ' ', d2.surname)) AS driver1Name,
+                         GREATEST(CONCAT(d1.forename, ' ', d1.surname), CONCAT(d2.forename, ' ', d2.surname)) AS driver2Name,
+                         LEAST(d1.nationality, d2.nationality) AS nationality1,
+                         COUNT(*) AS front_row_count
+                     FROM qualifying q1
+                     JOIN qualifying q2 ON q1.raceId = q2.raceId AND q1.driverId <> q2.driverId
+                     JOIN drivers d1 ON q1.driverId = d1.driverId
+                     JOIN drivers d2 ON q2.driverId = d2.driverId
+                     WHERE q1.position IN (1, 2) AND q2.position IN (1, 2)
+                     GROUP BY\s
+                         LEAST(d1.driverId, d2.driverId),
+                         GREATEST(d1.driverId, d2.driverId),
+                         LEAST(CONCAT(d1.forename, ' ', d1.surname), CONCAT(d2.forename, ' ', d2.surname)),
+                         GREATEST(CONCAT(d1.forename, ' ', d1.surname), CONCAT(d2.forename, ' ', d2.surname)),
+                         LEAST(d1.nationality, d2.nationality)
+                     ORDER BY front_row_count DESC
+                     
+                """;
 
         Query query = entityManager.createNativeQuery(sql);
         List<Object[]> rows = query.getResultList();
@@ -3913,14 +3918,16 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getFastestQualifyingLaps() {
         String sql = """
-            SELECT d.forename, d.surname, d.nationality, MIN(q.milliseconds) AS best_lap
+            SELECT d.forename, d.surname, d.nationality,
+                   MIN(LEAST(q.q1, q.q2, q.q3)) AS best_lap
             FROM qualifying q
             JOIN drivers d ON q.driverId = d.driverId
-            WHERE q.milliseconds IS NOT NULL
+            WHERE q.q1 IS NOT NULL OR q.q2 IS NOT NULL OR q.q3 IS NOT NULL
             GROUP BY d.driverId
             ORDER BY best_lap ASC
             LIMIT 30
-        """;
+            """;
+
 
         Query query = entityManager.createNativeQuery(sql);
         List<Object[]> rows = query.getResultList();
@@ -4078,12 +4085,13 @@ public class StatisticsServiceImpl implements StatisticsService {
             names.put(driverId, fullName);
             nationalities.put(driverId, nationality);
 
-            if (!status.contains("ret") && !status.contains("disq") && !status.contains("dis")) {
+            if (status.equals("finished") || status.matches("\\+\\d+ laps")) {
                 currentStreaks.put(driverId, currentStreaks.getOrDefault(driverId, 0) + 1);
                 maxStreaks.put(driverId, Math.max(maxStreaks.getOrDefault(driverId, 0), currentStreaks.get(driverId)));
             } else {
                 currentStreaks.put(driverId, 0);
             }
+
         }
 
         List<DriverRankingDTO> result = new ArrayList<>();
@@ -4107,10 +4115,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             FROM results r
             JOIN drivers d ON r.driverId = d.driverId
             JOIN status s ON r.statusId = s.statusId
-            WHERE LOWER(s.status) LIKE '%ret%' OR LOWER(s.status) LIKE '%dis%' OR LOWER(s.status) LIKE '%disq%'
+            WHERE LOWER(s.status) NOT LIKE 'finished'
+              AND LOWER(s.status) NOT REGEXP '^\\+[0-9]+ laps$'
             GROUP BY d.driverId
             ORDER BY dnfs DESC
-        """;
+            """;
+
 
         Query query = entityManager.createNativeQuery(sql);
         List<Object[]> rows = query.getResultList();
@@ -4154,12 +4164,13 @@ public class StatisticsServiceImpl implements StatisticsService {
             names.put(driverId, fullName);
             nationalities.put(driverId, nationality);
 
-            if (status.contains("ret") || status.contains("disq") || status.contains("dis")) {
+            if (!(status.equals("finished") || status.matches("\\+\\d+ laps"))) {
                 currentStreaks.put(driverId, currentStreaks.getOrDefault(driverId, 0) + 1);
                 maxStreaks.put(driverId, Math.max(maxStreaks.getOrDefault(driverId, 0), currentStreaks.get(driverId)));
             } else {
                 currentStreaks.put(driverId, 0);
             }
+
         }
 
         List<DriverRankingDTO> result = new ArrayList<>();
@@ -4184,11 +4195,13 @@ public class StatisticsServiceImpl implements StatisticsService {
             FROM results r
             JOIN drivers d ON r.driverId = d.driverId
             JOIN status s ON r.statusId = s.statusId
-            WHERE (LOWER(s.status) LIKE '%ret%' OR LOWER(s.status) LIKE '%dis%' OR LOWER(s.status) LIKE '%disq%')
+            WHERE LOWER(s.status) NOT LIKE 'finished'
+              AND LOWER(s.status) NOT REGEXP '^ +[0-9]+ laps$'
               AND r.lap = 1
             GROUP BY d.driverId
             ORDER BY dnf_first_lap DESC
         """;
+
 
         Query query = entityManager.createNativeQuery(sql);
         List<Object[]> rows = query.getResultList();
@@ -4209,12 +4222,17 @@ public class StatisticsServiceImpl implements StatisticsService {
         String sql = """
             SELECT d.forename, d.surname, d.nationality, COUNT(*) AS on_lead_lap
             FROM results r
-            JOIN races ra ON r.raceId = ra.raceId
             JOIN drivers d ON r.driverId = d.driverId
-            WHERE r.laps = ra.laps
+            JOIN (
+                SELECT raceId, MAX(laps) AS leader_laps
+                FROM results
+                GROUP BY raceId
+            ) leaders ON r.raceId = leaders.raceId
+            WHERE r.laps = leaders.leader_laps
             GROUP BY d.driverId
             ORDER BY on_lead_lap DESC
         """;
+
 
         Query query = entityManager.createNativeQuery(sql);
         List<Object[]> rows = query.getResultList();
@@ -4229,6 +4247,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         return result;
     }
+
 
     @Override
     public List<DriverRankingDTO> getAverageFinishPosition() {

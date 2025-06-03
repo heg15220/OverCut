@@ -421,7 +421,6 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
         case "varios_no_dnf_streak": dispatch(statisticsActions.fetchLongestStreakWithoutDNF()); break;
         case "varios_dnfs": dispatch(statisticsActions.fetchDNFCount()); break;
         case "varios_dnf_streak": dispatch(statisticsActions.fetchConsecutiveDNFs()); break;
-        case "varios_first_lap_dnfs": dispatch(statisticsActions.fetchFirstLapDNFs()); break;
         case "varios_on_leader_lap": dispatch(statisticsActions.fetchDriversOnLeaderLapMostOften()); break;
         case "varios_finish_position_avg": dispatch(statisticsActions.fetchAverageFinishPosition()); break;
         case "varios_position_gain_avg": dispatch(statisticsActions.fetchBestAveragePositionGains()); break;
@@ -565,7 +564,6 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
     : recordMode === "varios_no_dnf_streak" ? variosNoDnfStreak
     : recordMode === "varios_dnfs" ? variosDnfs
     : recordMode === "varios_dnf_streak" ? variosDnfStreak
-    : recordMode === "varios_first_lap_dnfs" ? variosFirstLapDnfs
     : recordMode === "varios_on_leader_lap" ? variosOnLeaderLap
     : recordMode === "varios_finish_position_avg" ? variosFinishPositionAvg
     : recordMode === "varios_position_gain_avg" ? variosPositionGainAvg
@@ -716,7 +714,6 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
           case "varios_seasons": return "Temporadas";
           case "varios_season_streak": return "Temporadas consecutivas";
           case "varios_hat_tricks": return "Hat tricks";
-          case "varios_grand_slams": return "Grand slams";
           case "varios_front_row_starts": return "Primera fila";
           case "varios_front_row_duos": return "Dúo frecuente";
           case "varios_front_row_youngest": return "Edad";
@@ -729,14 +726,11 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
           case "varios_no_dnf_streak": return "Racha sin DNF";
           case "varios_dnfs": return "Abandonos";
           case "varios_dnf_streak": return "DNFs consecutivos";
-          case "varios_first_lap_dnfs": return "DNFs en 1ª vuelta";
           case "varios_on_leader_lap": return "En vuelta del líder";
           case "varios_finish_position_avg": return "Posición media final";
           case "varios_position_gain_avg": return "Posiciones ganadas";
           case "varios_debut_grid": return "Parrilla en debut";
-          case "varios_debut_qualifying": return "Quali en debut";
           case "varios_last_qualifying": return "Última quali";
-          case "varios_never_qualified": return "GPs disputados";
           case "varios_disqualifications": return "Descalificaciones";
 
 
@@ -925,7 +919,6 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
                     <option value="varios_seasons">Temporadas disputadas</option>
                     <option value="varios_season_streak">Racha de temporadas consecutivas</option>
                     <option value="varios_hat_tricks">Hat tricks</option>
-                    <option value="varios_grand_slams">Grand slams</option>
                     <option value="varios_front_row_starts">Salidas en primera fila</option>
                     <option value="varios_front_row_duos">Dúos en primera fila</option>
                     <option value="varios_front_row_youngest">Más jóvenes en 1ª fila</option>
@@ -938,14 +931,11 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
                     <option value="varios_no_dnf_streak">Racha sin DNF</option>
                     <option value="varios_dnfs">Abandonos (DNF)</option>
                     <option value="varios_dnf_streak">Racha de DNF</option>
-                    <option value="varios_first_lap_dnfs">Abandono 1ª vuelta</option>
                     <option value="varios_on_leader_lap">En vuelta del líder</option>
                     <option value="varios_finish_position_avg">Media de posición final</option>
                     <option value="varios_position_gain_avg">Posiciones ganadas promedio</option>
                     <option value="varios_debut_grid">Parrilla en debut</option>
-                    <option value="varios_debut_qualifying">Quali en debut</option>
                     <option value="varios_last_qualifying">Última quali</option>
-                    <option value="varios_never_qualified">Nunca calificado</option>
                     <option value="varios_disqualifications">Descalificaciones</option>
                   </optgroup>
                 )}
