@@ -622,10 +622,10 @@ const mostConsecutiveSeasons = useSelector(statisticsSelectors.getMostConsecutiv
           case "gp_most_engines": return "Motores distintos";
           case "gp_same_teammate": return "GPs con mismo compañero";
           case "gp_age_chronology": return "Edad en GP";
-          case "gp_age_nationality": return "Edad por nacionalidad";
+          case "gp_age_nationality": return "Edad por nacionalidad";s
           case "gp_oldest": return "Mayor edad en GP";
           case "gp_avg_age": return "Edad media por GP";
-          case "gp_no_win": return "GPs sin victoria";
+          case "gp_no_win": return "GPs sin victoria";s
           case "gp_no_pole": return "GPs sin pole";
           case "gp_no_fastest_lap": return "GPs sin VR";
           case "gp_no_points": return "GPs sin puntos";

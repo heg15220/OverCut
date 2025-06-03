@@ -115,24 +115,18 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<ConstructorStandingDTO> getConstructorStandings(int year) {
         String sql = """
-        SELECT c.constructorRef, c.name, SUM(all_points.points) AS totalPoints
-        FROM (
-            SELECT r.constructorId, r.points
-            FROM results r
-            JOIN races ra ON r.raceId = ra.raceId
-            WHERE ra.year = :year
-
-            UNION ALL
-
-            SELECT sr.constructorId, sr.points
-            FROM sprintresults sr
-            JOIN races ra ON sr.raceId = ra.raceId
-            WHERE ra.year = :year
-        ) AS all_points
-        JOIN constructors c ON all_points.constructorId = c.constructorId
-        GROUP BY c.constructorId
-        ORDER BY totalPoints DESC
-        """;
+        SELECT c.constructorRef, c.name, cs.points
+        FROM constructorstandings cs
+        JOIN constructors c ON cs.constructorId = c.constructorId
+        JOIN races r ON cs.raceId = r.raceId
+        WHERE r.year = :year
+          AND r.round = (
+            SELECT MAX(r2.round)
+            FROM races r2
+            WHERE r2.year = :year
+          )
+        ORDER BY cs.position ASC
+    """;
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("year", year);
@@ -143,14 +137,15 @@ public class StatisticsServiceImpl implements StatisticsService {
         for (Object[] row : rows) {
             String constructorRef = (String) row[0];
             String name = (String) row[1];
-            double totalPoints = ((Number) row[2]).doubleValue();
+            double points = ((Number) row[2]).doubleValue();
             String teamColor = getTeamColor(constructorRef);
 
-            result.add(new ConstructorStandingDTO(name, totalPoints, teamColor));
+            result.add(new ConstructorStandingDTO(name, points, teamColor));
         }
 
         return result;
     }
+
 
 
     @Override
