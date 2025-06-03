@@ -3331,7 +3331,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         SELECT d.driverId, d.forename, d.surname, d.nationality,
                MAX(r.date) AS last_race,
                (
-                   SELECT MAX(r2.date)
+                   SELECT MAX(r2r.date)
                    FROM results r2
                    JOIN races r2r ON r2.raceId = r2r.raceId
                    WHERE r2.driverId = d.driverId AND r2.positionOrder <= 3
@@ -3340,7 +3340,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         JOIN races r ON res.raceId = r.raceId
         JOIN drivers d ON res.driverId = d.driverId
         GROUP BY d.driverId
-    """;
+        """;
+
 
         Query query = entityManager.createNativeQuery(sql);
         List<Object[]> rows = query.getResultList();
