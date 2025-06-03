@@ -149,6 +149,32 @@ const mostConsecutiveSeasons = useSelector(statisticsSelectors.getMostConsecutiv
 
 
 
+const variosSeasons = useSelector(statisticsSelectors.getVariosSeasons);
+const variosSeasonStreak = useSelector(statisticsSelectors.getVariosSeasonStreak);
+const variosHatTricks = useSelector(statisticsSelectors.getVariosHatTricks);
+const variosGrandSlams = useSelector(statisticsSelectors.getVariosGrandSlams);
+const variosFrontRowStarts = useSelector(statisticsSelectors.getVariosFrontRowStarts);
+const variosFrontRowDuos = useSelector(statisticsSelectors.getVariosFrontRowDuos);
+const variosFrontRowYoungest = useSelector(statisticsSelectors.getVariosFrontRowYoungest);
+const variosFrontRowStreaks = useSelector(statisticsSelectors.getVariosFrontRowStreaks);
+const variosGridAverage = useSelector(statisticsSelectors.getVariosGridAverage);
+const variosQualifyingFastest = useSelector(statisticsSelectors.getVariosQualifyingFastest);
+const variosFinishes = useSelector(statisticsSelectors.getVariosFinishes);
+const variosFinishStreak = useSelector(statisticsSelectors.getVariosFinishStreak);
+const variosClassified = useSelector(statisticsSelectors.getVariosClassified);
+const variosNoDnfStreak = useSelector(statisticsSelectors.getVariosNoDnfStreak);
+const variosDnfs = useSelector(statisticsSelectors.getVariosDnfs);
+const variosDnfStreak = useSelector(statisticsSelectors.getVariosDnfStreak);
+const variosFirstLapDnfs = useSelector(statisticsSelectors.getVariosFirstLapDnfs);
+const variosOnLeaderLap = useSelector(statisticsSelectors.getVariosOnLeaderLap);
+const variosFinishPositionAvg = useSelector(statisticsSelectors.getVariosFinishPositionAvg);
+const variosPositionGainAvg = useSelector(statisticsSelectors.getVariosPositionGainAvg);
+const variosDebutGrid = useSelector(statisticsSelectors.getVariosDebutGrid);
+const variosDebutQualifying = useSelector(statisticsSelectors.getVariosDebutQualifying);
+const variosLastQualifying = useSelector(statisticsSelectors.getVariosLastQualifying);
+const variosNeverQualified = useSelector(statisticsSelectors.getVariosNeverQualified);
+const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqualifications);
+
 
 
 
@@ -379,6 +405,32 @@ const mostConsecutiveSeasons = useSelector(statisticsSelectors.getMostConsecutiv
           dispatch(statisticsActions.fetchMostConsecutiveSeasons());
           break;
 
+        case "varios_seasons": dispatch(statisticsActions.fetchDriverSeasonCount()); break;
+        case "varios_season_streak": dispatch(statisticsActions.fetchDriverSeasonParticipationStreaks()); break;
+        case "varios_hat_tricks": dispatch(statisticsActions.fetchDriverHatTrickCount()); break;
+        case "varios_grand_slams": dispatch(statisticsActions.fetchDriverGrandSlamCount()); break;
+        case "varios_front_row_starts": dispatch(statisticsActions.fetchDriverFrontRowStarts()); break;
+        case "varios_front_row_duos": dispatch(statisticsActions.fetchMostFrequentFrontRowDuos()); break;
+        case "varios_front_row_youngest": dispatch(statisticsActions.fetchYoungestDriversAtFrontRow()); break;
+        case "varios_front_row_streaks": dispatch(statisticsActions.fetchLongestFrontRowStreaks()); break;
+        case "varios_grid_average": dispatch(statisticsActions.fetchAverageGridPosition()); break;
+        case "varios_qualifying_fastest": dispatch(statisticsActions.fetchFastestQualifyingLaps()); break;
+        case "varios_finishes": dispatch(statisticsActions.fetchRaceFinishesCount()); break;
+        case "varios_finish_streak": dispatch(statisticsActions.fetchConsecutiveRaceFinishes()); break;
+        case "varios_classified": dispatch(statisticsActions.fetchClassifiedFinishesCount()); break;
+        case "varios_no_dnf_streak": dispatch(statisticsActions.fetchLongestStreakWithoutDNF()); break;
+        case "varios_dnfs": dispatch(statisticsActions.fetchDNFCount()); break;
+        case "varios_dnf_streak": dispatch(statisticsActions.fetchConsecutiveDNFs()); break;
+        case "varios_first_lap_dnfs": dispatch(statisticsActions.fetchFirstLapDNFs()); break;
+        case "varios_on_leader_lap": dispatch(statisticsActions.fetchDriversOnLeaderLapMostOften()); break;
+        case "varios_finish_position_avg": dispatch(statisticsActions.fetchAverageFinishPosition()); break;
+        case "varios_position_gain_avg": dispatch(statisticsActions.fetchBestAveragePositionGains()); break;
+        case "varios_debut_grid": dispatch(statisticsActions.fetchStartingGridAtDebut()); break;
+        case "varios_debut_qualifying": dispatch(statisticsActions.fetchQualifyingAtDebut()); break;
+        case "varios_last_qualifying": dispatch(statisticsActions.fetchQualifyingAtLastRace()); break;
+        case "varios_never_qualified": dispatch(statisticsActions.fetchDriversNeverQualified()); break;
+        case "varios_disqualifications": dispatch(statisticsActions.fetchDisqualificationCount()); break;
+
 
 
         default: break;
@@ -497,6 +549,32 @@ const mostConsecutiveSeasons = useSelector(statisticsSelectors.getMostConsecutiv
     : recordMode === "gp_no_win_pole_fastest" ? gpsNoWinPoleFastest
     : recordMode === "gp_seasons_total" ? mostSeasons
     : recordMode === "gp_seasons_consecutive" ? mostConsecutiveSeasons
+    : recordMode === "varios_seasons" ? variosSeasons
+    : recordMode === "varios_season_streak" ? variosSeasonStreak
+    : recordMode === "varios_hat_tricks" ? variosHatTricks
+    : recordMode === "varios_grand_slams" ? variosGrandSlams
+    : recordMode === "varios_front_row_starts" ? variosFrontRowStarts
+    : recordMode === "varios_front_row_duos" ? variosFrontRowDuos
+    : recordMode === "varios_front_row_youngest" ? variosFrontRowYoungest
+    : recordMode === "varios_front_row_streaks" ? variosFrontRowStreaks
+    : recordMode === "varios_grid_average" ? variosGridAverage
+    : recordMode === "varios_qualifying_fastest" ? variosQualifyingFastest
+    : recordMode === "varios_finishes" ? variosFinishes
+    : recordMode === "varios_finish_streak" ? variosFinishStreak
+    : recordMode === "varios_classified" ? variosClassified
+    : recordMode === "varios_no_dnf_streak" ? variosNoDnfStreak
+    : recordMode === "varios_dnfs" ? variosDnfs
+    : recordMode === "varios_dnf_streak" ? variosDnfStreak
+    : recordMode === "varios_first_lap_dnfs" ? variosFirstLapDnfs
+    : recordMode === "varios_on_leader_lap" ? variosOnLeaderLap
+    : recordMode === "varios_finish_position_avg" ? variosFinishPositionAvg
+    : recordMode === "varios_position_gain_avg" ? variosPositionGainAvg
+    : recordMode === "varios_debut_grid" ? variosDebutGrid
+    : recordMode === "varios_debut_qualifying" ? variosDebutQualifying
+    : recordMode === "varios_last_qualifying" ? variosLastQualifying
+    : recordMode === "varios_never_qualified" ? variosNeverQualified
+    : recordMode === "varios_disqualifications" ? variosDisqualifications
+
 
 
 
@@ -634,6 +712,33 @@ const mostConsecutiveSeasons = useSelector(statisticsSelectors.getMostConsecutiv
           case "gp_no_win_pole_fastest": return "GPs sin victoria, pole ni VR";
           case "gp_seasons_total": return "Temporadas";
           case "gp_seasons_consecutive": return "Temporadas consecutivas";
+          // 🧩 Varios
+          case "varios_seasons": return "Temporadas";
+          case "varios_season_streak": return "Temporadas consecutivas";
+          case "varios_hat_tricks": return "Hat tricks";
+          case "varios_grand_slams": return "Grand slams";
+          case "varios_front_row_starts": return "Primera fila";
+          case "varios_front_row_duos": return "Dúo frecuente";
+          case "varios_front_row_youngest": return "Edad";
+          case "varios_front_row_streaks": return "Racha 1ª fila";
+          case "varios_grid_average": return "Media de parrilla";
+          case "varios_qualifying_fastest": return "Vuelta rápida (ms)";
+          case "varios_finishes": return "Finalizaciones";
+          case "varios_finish_streak": return "Racha sin abandono";
+          case "varios_classified": return "Clasificaciones";
+          case "varios_no_dnf_streak": return "Racha sin DNF";
+          case "varios_dnfs": return "Abandonos";
+          case "varios_dnf_streak": return "DNFs consecutivos";
+          case "varios_first_lap_dnfs": return "DNFs en 1ª vuelta";
+          case "varios_on_leader_lap": return "En vuelta del líder";
+          case "varios_finish_position_avg": return "Posición media final";
+          case "varios_position_gain_avg": return "Posiciones ganadas";
+          case "varios_debut_grid": return "Parrilla en debut";
+          case "varios_debut_qualifying": return "Quali en debut";
+          case "varios_last_qualifying": return "Última quali";
+          case "varios_never_qualified": return "GPs disputados";
+          case "varios_disqualifications": return "Descalificaciones";
+
 
 
           default: return "Valor";
@@ -675,6 +780,7 @@ const mostConsecutiveSeasons = useSelector(statisticsSelectors.getMostConsecutiv
                   <option value="podiums">🥈 Pódiums</option>
                   <option value="points">📊 Puntos</option>
                   <option value="grands_prix">📍 Grandes Premios</option>
+                  <option value="varios">🧩 Varios</option>
                 </select>
 
                 <select value={recordMode} onChange={e => setRecordMode(e.target.value)}>
@@ -811,6 +917,36 @@ const mostConsecutiveSeasons = useSelector(statisticsSelectors.getMostConsecutiv
                     <option value="gp_no_win_pole_fastest">GPs sin victoria, pole ni VR</option>
                     <option value="gp_seasons_total">Temporadas totales</option>
                     <option value="gp_seasons_consecutive">Temporadas consecutivas</option>
+                  </optgroup>
+                )}
+
+                {recordCategory === "varios" && (
+                  <optgroup label="🧩 Varios">
+                    <option value="varios_seasons">Temporadas disputadas</option>
+                    <option value="varios_season_streak">Racha de temporadas consecutivas</option>
+                    <option value="varios_hat_tricks">Hat tricks</option>
+                    <option value="varios_grand_slams">Grand slams</option>
+                    <option value="varios_front_row_starts">Salidas en primera fila</option>
+                    <option value="varios_front_row_duos">Dúos en primera fila</option>
+                    <option value="varios_front_row_youngest">Más jóvenes en 1ª fila</option>
+                    <option value="varios_front_row_streaks">Racha 1ª fila</option>
+                    <option value="varios_grid_average">Media de parrilla</option>
+                    <option value="varios_qualifying_fastest">Vuelta rápida en quali</option>
+                    <option value="varios_finishes">Carreras finalizadas</option>
+                    <option value="varios_finish_streak">Racha de finalizaciones</option>
+                    <option value="varios_classified">Carreras clasificadas</option>
+                    <option value="varios_no_dnf_streak">Racha sin DNF</option>
+                    <option value="varios_dnfs">Abandonos (DNF)</option>
+                    <option value="varios_dnf_streak">Racha de DNF</option>
+                    <option value="varios_first_lap_dnfs">Abandono 1ª vuelta</option>
+                    <option value="varios_on_leader_lap">En vuelta del líder</option>
+                    <option value="varios_finish_position_avg">Media de posición final</option>
+                    <option value="varios_position_gain_avg">Posiciones ganadas promedio</option>
+                    <option value="varios_debut_grid">Parrilla en debut</option>
+                    <option value="varios_debut_qualifying">Quali en debut</option>
+                    <option value="varios_last_qualifying">Última quali</option>
+                    <option value="varios_never_qualified">Nunca calificado</option>
+                    <option value="varios_disqualifications">Descalificaciones</option>
                   </optgroup>
                 )}
 

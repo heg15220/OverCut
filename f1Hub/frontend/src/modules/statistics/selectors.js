@@ -129,3 +129,32 @@ export const getGpsNoWinPoleFastest = state => getModuleState(state).gpsNoWinPol
 export const getMostSeasons = state => getModuleState(state).mostSeasons;
 export const getMostConsecutiveSeasons = state => getModuleState(state).mostConsecutiveSeasons;
 
+
+
+
+
+export const getVariosSeasons = state => getModuleState(state).seasons;
+export const getVariosSeasonStreak = state => getModuleState(state).seasonStreak;
+export const getVariosHatTricks = state => getModuleState(state).hatTricks;
+export const getVariosGrandSlams = state => getModuleState(state).grandSlams;
+export const getVariosFrontRowStarts = state => getModuleState(state).frontRowStarts;
+export const getVariosFrontRowDuos = state => getModuleState(state).frontRowDuos;
+export const getVariosFrontRowYoungest = state => getModuleState(state).frontRowYoungest;
+export const getVariosFrontRowStreaks = state => getModuleState(state).frontRowStreaks;
+export const getVariosGridAverage = state => getModuleState(state).gridAverage;
+export const getVariosQualifyingFastest = state => getModuleState(state).qualifyingFastest;
+export const getVariosFinishes = state => getModuleState(state).finishes;
+export const getVariosFinishStreak = state => getModuleState(state).finishStreak;
+export const getVariosClassified = state => getModuleState(state).classified;
+export const getVariosNoDnfStreak = state => getModuleState(state).noDnfStreak;
+export const getVariosDnfs = state => getModuleState(state).dnfs;
+export const getVariosDnfStreak = state => getModuleState(state).dnfStreak;
+export const getVariosFirstLapDnfs = state => getModuleState(state).firstLapDnfs;
+export const getVariosOnLeaderLap = state => getModuleState(state).onLeaderLap;
+export const getVariosFinishPositionAvg = state => getModuleState(state).finishPositionAvg;
+export const getVariosPositionGainAvg = state => getModuleState(state).positionGainAvg;
+export const getVariosDebutGrid = state => getModuleState(state).debutGrid;
+export const getVariosDebutQualifying = state => getModuleState(state).debutQualifying;
+export const getVariosLastQualifying = state => getModuleState(state).lastQualifying;
+export const getVariosNeverQualified = state => getModuleState(state).neverQualified;
+export const getVariosDisqualifications = state => getModuleState(state).disqualifications;

@@ -122,7 +122,32 @@ const initialState = {
   gpsNoLeadLap: [],
   gpsNoWinPoleFastest: [],
   mostSeasons: [],
-  mostConsecutiveSeasons: []
+  mostConsecutiveSeasons: [],
+  seasons: [],
+    seasonStreak: [],
+    hatTricks: [],
+    grandSlams: [],
+    frontRowStarts: [],
+    frontRowDuos: [],
+    frontRowYoungest: [],
+    frontRowStreaks: [],
+    gridAverage: [],
+    qualifyingFastest: [],
+    finishes: [],
+    finishStreak: [],
+    classified: [],
+    noDnfStreak: [],
+    dnfs: [],
+    dnfStreak: [],
+    firstLapDnfs: [],
+    onLeaderLap: [],
+    finishPositionAvg: [],
+    positionGainAvg: [],
+    debutGrid: [],
+    debutQualifying: [],
+    lastQualifying: [],
+    neverQualified: [],
+    disqualifications: []
 
 
 };
@@ -385,6 +410,80 @@ export default function reducer(state = initialState, action) {
     case actionTypes.FETCH_MOST_CONSECUTIVE_SEASONS_COMPLETED:
       return { ...state, mostConsecutiveSeasons: action.data };
 
+    case actionTypes.FETCH_VARIOS_SEASONS_COMPLETED:
+          return { ...state, seasons: action.data };
+
+    case actionTypes.FETCH_VARIOS_SEASON_STREAK_COMPLETED:
+      return { ...state, seasonStreak: action.data };
+
+    case actionTypes.FETCH_VARIOS_HAT_TRICKS_COMPLETED:
+      return { ...state, hatTricks: action.data };
+
+    case actionTypes.FETCH_VARIOS_GRAND_SLAMS_COMPLETED:
+      return { ...state, grandSlams: action.data };
+
+    case actionTypes.FETCH_VARIOS_FRONT_ROW_STARTS_COMPLETED:
+      return { ...state, frontRowStarts: action.data };
+
+    case actionTypes.FETCH_VARIOS_FRONT_ROW_DUOS_COMPLETED:
+      return { ...state, frontRowDuos: action.data };
+
+    case actionTypes.FETCH_VARIOS_FRONT_ROW_YOUNGEST_COMPLETED:
+      return { ...state, frontRowYoungest: action.data };
+
+    case actionTypes.FETCH_VARIOS_FRONT_ROW_STREAKS_COMPLETED:
+      return { ...state, frontRowStreaks: action.data };
+
+    case actionTypes.FETCH_VARIOS_GRID_AVERAGE_COMPLETED:
+      return { ...state, gridAverage: action.data };
+
+    case actionTypes.FETCH_VARIOS_QUALI_FASTEST_COMPLETED:
+      return { ...state, qualifyingFastest: action.data };
+
+    case actionTypes.FETCH_VARIOS_FINISHES_COMPLETED:
+      return { ...state, finishes: action.data };
+
+    case actionTypes.FETCH_VARIOS_FINISH_STREAK_COMPLETED:
+      return { ...state, finishStreak: action.data };
+
+    case actionTypes.FETCH_VARIOS_CLASSIFIED_COMPLETED:
+      return { ...state, classified: action.data };
+
+    case actionTypes.FETCH_VARIOS_NO_DNF_STREAK_COMPLETED:
+      return { ...state, noDnfStreak: action.data };
+
+    case actionTypes.FETCH_VARIOS_DNFS_COMPLETED:
+      return { ...state, dnfs: action.data };
+
+    case actionTypes.FETCH_VARIOS_DNF_STREAK_COMPLETED:
+      return { ...state, dnfStreak: action.data };
+
+    case actionTypes.FETCH_VARIOS_FIRST_LAP_DNFS_COMPLETED:
+      return { ...state, firstLapDnfs: action.data };
+
+    case actionTypes.FETCH_VARIOS_ON_LEADER_LAP_COMPLETED:
+      return { ...state, onLeaderLap: action.data };
+
+    case actionTypes.FETCH_VARIOS_FINISH_POSITION_AVG_COMPLETED:
+      return { ...state, finishPositionAvg: action.data };
+
+    case actionTypes.FETCH_VARIOS_POSITION_GAIN_AVG_COMPLETED:
+      return { ...state, positionGainAvg: action.data };
+
+    case actionTypes.FETCH_VARIOS_DEBUT_GRID_COMPLETED:
+      return { ...state, debutGrid: action.data };
+
+    case actionTypes.FETCH_VARIOS_DEBUT_QUALIFYING_COMPLETED:
+      return { ...state, debutQualifying: action.data };
+
+    case actionTypes.FETCH_VARIOS_LAST_QUALIFYING_COMPLETED:
+      return { ...state, lastQualifying: action.data };
+
+    case actionTypes.FETCH_VARIOS_NEVER_QUALIFIED_COMPLETED:
+      return { ...state, neverQualified: action.data };
+
+    case actionTypes.FETCH_VARIOS_DISQUALIFICATIONS_COMPLETED:
+      return { ...state, disqualifications: action.data };
 
 
     default:

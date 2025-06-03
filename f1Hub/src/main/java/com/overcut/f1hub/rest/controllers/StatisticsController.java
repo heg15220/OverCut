@@ -635,6 +635,132 @@ public class StatisticsController {
     }
 
 
+    @GetMapping("/varios/seasons")
+    public List<DriverRankingDTO> getDriverSeasonCount() {
+        return statisticsService.getDriverSeasonCount();
+    }
+
+    @GetMapping("/varios/seasons-streak")
+    public List<DriverRankingDTO> getDriverSeasonParticipationStreaks() {
+        return statisticsService.getDriverSeasonParticipationStreaks();
+    }
+
+    @GetMapping("/varios/hat-tricks")
+    public List<DriverRankingDTO> getDriverHatTrickCount() {
+        return statisticsService.getDriverHatTrickCount();
+    }
+
+    @GetMapping("/varios/grand-slams")
+    public List<DriverRankingDTO> getDriverGrandSlamCount() {
+        return statisticsService.getDriverGrandSlamCount();
+    }
+
+    @GetMapping("/varios/front-row-starts")
+    public List<DriverRankingDTO> getDriverFrontRowStarts() {
+        return statisticsService.getDriverFrontRowStarts();
+    }
+
+    @GetMapping("/varios/front-row-duos")
+    public List<DriverRankingDTO> getMostFrequentFrontRowDuos() {
+        return statisticsService.getMostFrequentFrontRowDuos();
+    }
+
+    @GetMapping("/varios/front-row-youngest")
+    public List<DriverRankingDTO> getYoungestDriversAtFrontRow() {
+        return statisticsService.getYoungestDriversAtFrontRow();
+    }
+
+    @GetMapping("/varios/front-row-streaks")
+    public List<DriverRankingDTO> getLongestFrontRowStreaks() {
+        return statisticsService.getLongestFrontRowStreaks();
+    }
+
+    @GetMapping("/varios/grid-average")
+    public List<DriverRankingDTO> getAverageGridPosition() {
+        return statisticsService.getAverageGridPosition();
+    }
+
+    @GetMapping("/varios/qualifying-fastest")
+    public List<DriverRankingDTO> getFastestQualifyingLaps() {
+        return statisticsService.getFastestQualifyingLaps();
+    }
+
+    @GetMapping("/varios/finishes")
+    public List<DriverRankingDTO> getRaceFinishesCount() {
+        return statisticsService.getRaceFinishesCount();
+    }
+
+    @GetMapping("/varios/finishes-streak")
+    public List<DriverRankingDTO> getConsecutiveRaceFinishes() {
+        return statisticsService.getConsecutiveRaceFinishes();
+    }
+
+    @GetMapping("/varios/classified")
+    public List<DriverRankingDTO> getClassifiedFinishesCount() {
+        return statisticsService.getClassifiedFinishesCount();
+    }
+
+    @GetMapping("/varios/longest-without-dnf")
+    public List<DriverRankingDTO> getLongestStreakWithoutDNF() {
+        return statisticsService.getLongestStreakWithoutDNF();
+    }
+
+    @GetMapping("/varios/dnfs")
+    public List<DriverRankingDTO> getDNFCount() {
+        return statisticsService.getDNFCount();
+    }
+
+    @GetMapping("/varios/dnfs-streak")
+    public List<DriverRankingDTO> getConsecutiveDNFs() {
+        return statisticsService.getConsecutiveDNFs();
+    }
+
+    @GetMapping("/varios/first-lap-dnfs")
+    public List<DriverRankingDTO> getFirstLapDNFs() {
+        return statisticsService.getFirstLapDNFs();
+    }
+
+    @GetMapping("/varios/on-leader-lap")
+    public List<DriverRankingDTO> getDriversOnLeaderLapMostOften() {
+        return statisticsService.getDriversOnLeaderLapMostOften();
+    }
+
+    @GetMapping("/varios/finish-position-average")
+    public List<DriverRankingDTO> getAverageFinishPosition() {
+        return statisticsService.getAverageFinishPosition();
+    }
+
+    @GetMapping("/varios/position-gains-average")
+    public List<DriverRankingDTO> getBestAveragePositionGains() {
+        return statisticsService.getBestAveragePositionGains();
+    }
+
+    @GetMapping("/varios/debut-grid")
+    public List<DriverRankingDTO> getStartingGridAtDebut() {
+        return statisticsService.getStartingGridAtDebut();
+    }
+
+    @GetMapping("/varios/debut-qualifying")
+    public List<DriverRankingDTO> getQualifyingAtDebut() {
+        return statisticsService.getQualifyingAtDebut();
+    }
+
+    @GetMapping("/varios/last-qualifying")
+    public List<DriverRankingDTO> getQualifyingAtLastRace() {
+        return statisticsService.getQualifyingAtLastRace();
+    }
+
+    @GetMapping("/varios/never-qualified")
+    public List<DriverRankingDTO> getDriversNeverQualified() {
+        return statisticsService.getDriversNeverQualified();
+    }
+
+    @GetMapping("/varios/disqualifications")
+    public List<DriverRankingDTO> getDisqualificationCount() {
+        return statisticsService.getDisqualificationCount();
+    }
+
+
 
 
 

@@ -160,4 +160,37 @@ public interface StatisticsService {
     // Temporadas
     List<DriverRankingDTO> getDriversWithMostSeasons();
     List<DriverRankingDTO> getDriversWithMostConsecutiveSeasons();
+
+
+
+
+
+    List<DriverRankingDTO> getDriverSeasonCount();
+    List<DriverRankingDTO> getDriverSeasonParticipationStreaks();
+    List<DriverRankingDTO> getDriverHatTrickCount();
+    List<DriverRankingDTO> getDriverGrandSlamCount();
+    List<DriverRankingDTO> getDriverFrontRowStarts();
+    List<DriverRankingDTO> getMostFrequentFrontRowDuos();
+    List<DriverRankingDTO> getYoungestDriversAtFrontRow();
+    List<DriverRankingDTO> getLongestFrontRowStreaks();
+    List<DriverRankingDTO> getAverageGridPosition();
+    List<DriverRankingDTO> getFastestQualifyingLaps();
+    List<DriverRankingDTO> getRaceFinishesCount();
+    List<DriverRankingDTO> getConsecutiveRaceFinishes();
+    List<DriverRankingDTO> getClassifiedFinishesCount();
+    List<DriverRankingDTO> getLongestStreakWithoutDNF();
+    List<DriverRankingDTO> getDNFCount();
+    List<DriverRankingDTO> getConsecutiveDNFs();
+    List<DriverRankingDTO> getFirstLapDNFs();
+    List<DriverRankingDTO> getDriversOnLeaderLapMostOften();
+    List<DriverRankingDTO> getAverageFinishPosition();
+    List<DriverRankingDTO> getBestAveragePositionGains();
+    List<DriverRankingDTO> getStartingGridAtDebut();
+    List<DriverRankingDTO> getQualifyingAtDebut();
+    List<DriverRankingDTO> getQualifyingAtLastRace();
+    List<DriverRankingDTO> getDriversNeverQualified();
+    List<DriverRankingDTO> getDisqualificationCount();
+
+
+
 }

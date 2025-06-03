@@ -3568,6 +3568,868 @@ public class StatisticsServiceImpl implements StatisticsService {
         return result;
     }
 
+    @Override
+    public List<DriverRankingDTO> getDriverSeasonCount() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, COUNT(DISTINCT r.year) AS seasons
+        FROM results res
+        JOIN drivers d ON res.driverId = d.driverId
+        JOIN races r ON res.raceId = r.raceId
+        GROUP BY d.driverId
+        ORDER BY seasons DESC
+    """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int seasons = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, seasons, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getDriverSeasonParticipationStreaks() {
+        String sql = """
+        SELECT d.driverId, d.forename, d.surname, d.nationality, r.year
+        FROM results res
+        JOIN drivers d ON res.driverId = d.driverId
+        JOIN races r ON res.raceId = r.raceId
+        GROUP BY d.driverId, r.year
+        ORDER BY d.driverId, r.year
+    """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+
+        Map<Long, List<Integer>> driverYears = new HashMap<>();
+        Map<Long, String> names = new HashMap<>();
+        Map<Long, String> nationalities = new HashMap<>();
+
+        for (Object[] row : rows) {
+            Long driverId = ((Number) row[0]).longValue();
+            String forename = (String) row[1];
+            String surname = (String) row[2];
+            String nationality = (String) row[3];
+            Integer year = ((Number) row[4]).intValue();
+
+            driverYears.computeIfAbsent(driverId, k -> new ArrayList<>()).add(year);
+            names.put(driverId, forename + " " + surname);
+            nationalities.put(driverId, nationality);
+        }
+
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Map.Entry<Long, List<Integer>> entry : driverYears.entrySet()) {
+            Long driverId = entry.getKey();
+            List<Integer> years = entry.getValue();
+            Collections.sort(years);
+
+            int maxStreak = 1, currentStreak = 1;
+            for (int i = 1; i < years.size(); i++) {
+                if (years.get(i) == years.get(i - 1) + 1) {
+                    currentStreak++;
+                    maxStreak = Math.max(maxStreak, currentStreak);
+                } else {
+                    currentStreak = 1;
+                }
+            }
+
+            result.add(new DriverRankingDTO(
+                    names.get(driverId),
+                    nationalities.get(driverId),
+                    maxStreak,
+                    getFlagUrl(nationalities.get(driverId))
+            ));
+        }
+
+        result.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getDriverHatTrickCount() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) AS hat_tricks
+        FROM (
+            SELECT r.raceId, r.driverId
+            FROM results r
+            JOIN qualifying q ON r.raceId = q.raceId AND r.driverId = q.driverId
+            JOIN laptimes l ON r.raceId = l.raceId AND r.driverId = l.driverId
+            WHERE r.positionOrder = 1
+              AND q.position = 1
+              AND r.fastestLap = (
+                  SELECT MIN(r2.fastestLap)
+                  FROM results r2
+                  WHERE r2.raceId = r.raceId AND r2.fastestLap IS NOT NULL
+              )
+            GROUP BY r.raceId, r.driverId
+        ) hat
+        JOIN drivers d ON hat.driverId = d.driverId
+        GROUP BY d.driverId, d.forename, d.surname, d.nationality
+        ORDER BY hat_tricks DESC
+    """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getDriverGrandSlamCount() {
+        String sql = """
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) AS grand_slams
+        FROM (
+            SELECT r.raceId, r.driverId
+            FROM results r
+            JOIN qualifying q ON r.raceId = q.raceId AND r.driverId = q.driverId
+            JOIN laptimes l ON r.raceId = l.raceId AND r.driverId = l.driverId
+            WHERE r.positionOrder = 1
+              AND q.position = 1
+              AND r.fastestLap = (
+                  SELECT MIN(r2.fastestLap)
+                  FROM results r2
+                  WHERE r2.raceId = r.raceId AND r2.fastestLap IS NOT NULL
+              )
+              AND r.laps = (
+                  SELECT MAX(l2.lap)
+                  FROM laptimes l2
+                  WHERE l2.raceId = r.raceId AND l2.driverId = r.driverId
+              )
+            GROUP BY r.raceId, r.driverId
+        ) gs
+        JOIN drivers d ON gs.driverId = d.driverId
+        GROUP BY d.driverId, d.forename, d.surname, d.nationality
+        ORDER BY grand_slams DESC
+    """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getDriverFrontRowStarts() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS front_rows
+            FROM qualifying q
+            JOIN drivers d ON q.driverId = d.driverId
+            WHERE q.position IN (1, 2)
+            GROUP BY d.driverId, d.forename, d.surname, d.nationality
+            ORDER BY front_rows DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getMostFrequentFrontRowDuos() {
+        String sql = """
+        SELECT 
+            LEAST(d1.driverId, d2.driverId) AS driver1Id,
+            GREATEST(d1.driverId, d2.driverId) AS driver2Id,
+            CONCAT(LEAST(d1.forename, d2.forename), ' ', LEAST(d1.surname, d2.surname)) AS driver1Name,
+            CONCAT(GREATEST(d1.forename, d2.forename), ' ', GREATEST(d1.surname, d2.surname)) AS driver2Name,
+            LEAST(d1.nationality, d2.nationality) AS nationality1,
+            COUNT(*) AS front_row_count
+        FROM qualifying q1
+        JOIN qualifying q2 ON q1.raceId = q2.raceId AND q1.driverId <> q2.driverId
+        JOIN drivers d1 ON q1.driverId = d1.driverId
+        JOIN drivers d2 ON q2.driverId = d2.driverId
+        WHERE q1.position IN (1, 2) AND q2.position IN (1, 2)
+        GROUP BY driver1Id, driver2Id
+        HAVING COUNT(*) > 0
+        ORDER BY front_row_count DESC
+    """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String driver1 = (String) row[2];
+            String driver2 = (String) row[3];
+            String nationality = (String) row[4];
+            int count = ((Number) row[5]).intValue();
+            result.add(new DriverRankingDTO(driver1, nationality, count, getFlagUrl(nationality), driver2));
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getYoungestDriversAtFrontRow() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, MIN(TIMESTAMPDIFF(YEAR, d.dob, r.date)) AS age
+            FROM qualifying q
+            JOIN races r ON q.raceId = r.raceId
+            JOIN drivers d ON q.driverId = d.driverId
+            WHERE q.position IN (1, 2)
+            GROUP BY d.driverId
+            ORDER BY age ASC
+            LIMIT 30
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int age = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, age, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getLongestFrontRowStreaks() {
+        String sql = """
+            SELECT q.driverId, d.forename, d.surname, d.nationality, r.year, r.round
+            FROM qualifying q
+            JOIN races r ON q.raceId = r.raceId
+            JOIN drivers d ON q.driverId = d.driverId
+            WHERE q.position IN (1, 2)
+            ORDER BY q.driverId, r.year, r.round
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+
+        Map<Long, List<String>> appearances = new HashMap<>();
+        Map<Long, String> names = new HashMap<>();
+        Map<Long, String> nationalities = new HashMap<>();
+
+        for (Object[] row : rows) {
+            Long driverId = ((Number) row[0]).longValue();
+            String fullName = row[1] + " " + row[2];
+            String nationality = (String) row[3];
+            String raceKey = row[4] + ":" + row[5];
+
+            appearances.computeIfAbsent(driverId, k -> new ArrayList<>()).add(raceKey);
+            names.put(driverId, fullName);
+            nationalities.put(driverId, nationality);
+        }
+
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Map.Entry<Long, List<String>> entry : appearances.entrySet()) {
+            Long driverId = entry.getKey();
+            List<String> races = entry.getValue();
+            int maxStreak = 1, currentStreak = 1;
+
+            for (int i = 1; i < races.size(); i++) {
+                String[] prev = races.get(i - 1).split(":"), curr = races.get(i).split(":");
+                int prevYear = Integer.parseInt(prev[0]), prevRound = Integer.parseInt(prev[1]);
+                int currYear = Integer.parseInt(curr[0]), currRound = Integer.parseInt(curr[1]);
+
+                if ((currYear == prevYear && currRound == prevRound + 1) ||
+                        (currYear == prevYear + 1 && prevRound >= 15 && currRound == 1)) {
+                    currentStreak++;
+                    maxStreak = Math.max(maxStreak, currentStreak);
+                } else {
+                    currentStreak = 1;
+                }
+            }
+
+            result.add(new DriverRankingDTO(
+                    names.get(driverId),
+                    nationalities.get(driverId),
+                    maxStreak,
+                    getFlagUrl(nationalities.get(driverId))
+            ));
+        }
+
+        result.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getAverageGridPosition() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, AVG(q.grid) AS avg_grid
+            FROM qualifying q
+            JOIN drivers d ON q.driverId = d.driverId
+            WHERE q.grid > 0
+            GROUP BY d.driverId
+            HAVING COUNT(*) >= 10
+            ORDER BY avg_grid ASC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            double avg = ((Number) row[3]).doubleValue();
+            result.add(new DriverRankingDTO(name, nationality, (int) Math.round(avg), getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getFastestQualifyingLaps() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, MIN(q.milliseconds) AS best_lap
+            FROM qualifying q
+            JOIN drivers d ON q.driverId = d.driverId
+            WHERE q.milliseconds IS NOT NULL
+            GROUP BY d.driverId
+            ORDER BY best_lap ASC
+            LIMIT 30
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int ms = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, ms, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getRaceFinishesCount() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS finishes
+            FROM results r
+            JOIN drivers d ON r.driverId = d.driverId
+            WHERE r.positionOrder IS NOT NULL AND r.statusId NOT IN ("Ret", "Dis")
+            GROUP BY d.driverId
+            ORDER BY finishes DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getConsecutiveRaceFinishes() {
+        String sql = """
+            SELECT r.driverId, d.forename, d.surname, d.nationality, ra.year, ra.round
+            FROM results r
+            JOIN races ra ON r.raceId = ra.raceId
+            JOIN drivers d ON r.driverId = d.driverId
+            WHERE r.positionOrder IS NOT NULL AND r.statusId NOT IN ("Ret", "Dis")
+            ORDER BY r.driverId, ra.year, ra.round
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+
+        Map<Long, List<String>> finishes = new HashMap<>();
+        Map<Long, String> names = new HashMap<>();
+        Map<Long, String> nationalities = new HashMap<>();
+
+        for (Object[] row : rows) {
+            Long driverId = ((Number) row[0]).longValue();
+            String fullName = row[1] + " " + row[2];
+            String nationality = (String) row[3];
+            String raceKey = row[4] + ":" + row[5];
+
+            finishes.computeIfAbsent(driverId, k -> new ArrayList<>()).add(raceKey);
+            names.put(driverId, fullName);
+            nationalities.put(driverId, nationality);
+        }
+
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Map.Entry<Long, List<String>> entry : finishes.entrySet()) {
+            Long driverId = entry.getKey();
+            List<String> races = entry.getValue();
+            int maxStreak = 1, currentStreak = 1;
+
+            for (int i = 1; i < races.size(); i++) {
+                String[] prev = races.get(i - 1).split(":"), curr = races.get(i).split(":");
+                int prevYear = Integer.parseInt(prev[0]), prevRound = Integer.parseInt(prev[1]);
+                int currYear = Integer.parseInt(curr[0]), currRound = Integer.parseInt(curr[1]);
+
+                if ((currYear == prevYear && currRound == prevRound + 1) ||
+                        (currYear == prevYear + 1 && prevRound >= 15 && currRound == 1)) {
+                    currentStreak++;
+                    maxStreak = Math.max(maxStreak, currentStreak);
+                } else {
+                    currentStreak = 1;
+                }
+            }
+
+            result.add(new DriverRankingDTO(
+                    names.get(driverId),
+                    nationalities.get(driverId),
+                    maxStreak,
+                    getFlagUrl(nationalities.get(driverId))
+            ));
+        }
+
+        result.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getClassifiedFinishesCount() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS classified_count
+            FROM results r
+            JOIN drivers d ON r.driverId = d.driverId
+            JOIN status s ON r.statusId = s.statusId
+            WHERE s.status LIKE 'Finished%' OR s.status REGEXP '^(+d+ laps|d+ laps)' 
+            GROUP BY d.driverId
+            ORDER BY classified_count DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getLongestStreakWithoutDNF() {
+        String sql = """
+            SELECT r.driverId, d.forename, d.surname, d.nationality, ra.year, ra.round, s.status
+            FROM results r
+            JOIN races ra ON r.raceId = ra.raceId
+            JOIN drivers d ON r.driverId = d.driverId
+            JOIN status s ON r.statusId = s.statusId
+            ORDER BY r.driverId, ra.year, ra.round
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+
+        Map<Long, Integer> maxStreaks = new HashMap<>();
+        Map<Long, Integer> currentStreaks = new HashMap<>();
+        Map<Long, String> names = new HashMap<>();
+        Map<Long, String> nationalities = new HashMap<>();
+
+        for (Object[] row : rows) {
+            Long driverId = ((Number) row[0]).longValue();
+            String fullName = row[1] + " " + row[2];
+            String nationality = (String) row[3];
+            String status = ((String) row[6]).toLowerCase();
+
+            names.put(driverId, fullName);
+            nationalities.put(driverId, nationality);
+
+            if (!status.contains("ret") && !status.contains("disq") && !status.contains("dis")) {
+                currentStreaks.put(driverId, currentStreaks.getOrDefault(driverId, 0) + 1);
+                maxStreaks.put(driverId, Math.max(maxStreaks.getOrDefault(driverId, 0), currentStreaks.get(driverId)));
+            } else {
+                currentStreaks.put(driverId, 0);
+            }
+        }
+
+        List<DriverRankingDTO> result = new ArrayList<>();
+        for (Long driverId : maxStreaks.keySet()) {
+            result.add(new DriverRankingDTO(
+                    names.get(driverId),
+                    nationalities.get(driverId),
+                    maxStreaks.get(driverId),
+                    getFlagUrl(nationalities.get(driverId))
+            ));
+        }
+
+        result.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getDNFCount() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS dnfs
+            FROM results r
+            JOIN drivers d ON r.driverId = d.driverId
+            JOIN status s ON r.statusId = s.statusId
+            WHERE LOWER(s.status) LIKE '%ret%' OR LOWER(s.status) LIKE '%dis%' OR LOWER(s.status) LIKE '%disq%'
+            GROUP BY d.driverId
+            ORDER BY dnfs DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getConsecutiveDNFs() {
+        String sql = """
+            SELECT r.driverId, d.forename, d.surname, d.nationality, ra.year, ra.round, s.status
+            FROM results r
+            JOIN races ra ON r.raceId = ra.raceId
+            JOIN drivers d ON r.driverId = d.driverId
+            JOIN status s ON r.statusId = s.statusId
+            ORDER BY r.driverId, ra.year, ra.round
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+
+        Map<Long, Integer> maxStreaks = new HashMap<>();
+        Map<Long, Integer> currentStreaks = new HashMap<>();
+        Map<Long, String> names = new HashMap<>();
+        Map<Long, String> nationalities = new HashMap<>();
+
+        for (Object[] row : rows) {
+            Long driverId = ((Number) row[0]).longValue();
+            String fullName = row[1] + " " + row[2];
+            String nationality = (String) row[3];
+            String status = ((String) row[6]).toLowerCase();
+
+            names.put(driverId, fullName);
+            nationalities.put(driverId, nationality);
+
+            if (status.contains("ret") || status.contains("disq") || status.contains("dis")) {
+                currentStreaks.put(driverId, currentStreaks.getOrDefault(driverId, 0) + 1);
+                maxStreaks.put(driverId, Math.max(maxStreaks.getOrDefault(driverId, 0), currentStreaks.get(driverId)));
+            } else {
+                currentStreaks.put(driverId, 0);
+            }
+        }
+
+        List<DriverRankingDTO> result = new ArrayList<>();
+        for (Long driverId : maxStreaks.keySet()) {
+            result.add(new DriverRankingDTO(
+                    names.get(driverId),
+                    nationalities.get(driverId),
+                    maxStreaks.get(driverId),
+                    getFlagUrl(nationalities.get(driverId))
+            ));
+        }
+
+        result.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getFirstLapDNFs() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS dnf_first_lap
+            FROM results r
+            JOIN drivers d ON r.driverId = d.driverId
+            JOIN status s ON r.statusId = s.statusId
+            WHERE (LOWER(s.status) LIKE '%ret%' OR LOWER(s.status) LIKE '%dis%' OR LOWER(s.status) LIKE '%disq%')
+              AND r.lap = 1
+            GROUP BY d.driverId
+            ORDER BY dnf_first_lap DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getDriversOnLeaderLapMostOften() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS on_lead_lap
+            FROM results r
+            JOIN races ra ON r.raceId = ra.raceId
+            JOIN drivers d ON r.driverId = d.driverId
+            WHERE r.laps = ra.laps
+            GROUP BY d.driverId
+            ORDER BY on_lead_lap DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getAverageFinishPosition() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, AVG(r.positionOrder) AS avg_finish
+            FROM results r
+            JOIN drivers d ON r.driverId = d.driverId
+            WHERE r.positionOrder IS NOT NULL
+            GROUP BY d.driverId
+            HAVING COUNT(*) >= 10
+            ORDER BY avg_finish ASC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            double avg = ((Number) row[3]).doubleValue();
+            result.add(new DriverRankingDTO(name, nationality, (int) Math.round(avg), getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getBestAveragePositionGains() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, AVG(r.grid - r.positionOrder) AS avg_gain
+            FROM results r
+            JOIN drivers d ON r.driverId = d.driverId
+            WHERE r.grid IS NOT NULL AND r.grid > 0 AND r.positionOrder IS NOT NULL
+            GROUP BY d.driverId
+            HAVING COUNT(*) >= 10
+            ORDER BY avg_gain DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            double avg = ((Number) row[3]).doubleValue();
+            result.add(new DriverRankingDTO(name, nationality, (int) Math.round(avg), getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getStartingGridAtDebut() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, r.grid
+            FROM results r
+            JOIN drivers d ON r.driverId = d.driverId
+            JOIN races ra ON r.raceId = ra.raceId
+            WHERE (r.driverId, ra.date) IN (
+                SELECT r2.driverId, MIN(r2a.date)
+                FROM results r2
+                JOIN races r2a ON r2.raceId = r2a.raceId
+                WHERE r2.grid IS NOT NULL
+                GROUP BY r2.driverId
+            )
+            ORDER BY r.grid ASC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int grid = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, grid, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getQualifyingAtDebut() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, q.position
+            FROM qualifying q
+            JOIN drivers d ON q.driverId = d.driverId
+            JOIN races r ON q.raceId = r.raceId
+            WHERE (q.driverId, r.date) IN (
+                SELECT q2.driverId, MIN(r2.date)
+                FROM qualifying q2
+                JOIN races r2 ON q2.raceId = r2.raceId
+                WHERE q2.position IS NOT NULL
+                GROUP BY q2.driverId
+            )
+            ORDER BY q.position ASC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int position = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, position, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<DriverRankingDTO> getQualifyingAtLastRace() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, q.position
+            FROM qualifying q
+            JOIN drivers d ON q.driverId = d.driverId
+            JOIN races r ON q.raceId = r.raceId
+            WHERE (q.driverId, r.date) IN (
+                SELECT q2.driverId, MAX(r2.date)
+                FROM qualifying q2
+                JOIN races r2 ON q2.raceId = r2.raceId
+                WHERE q2.position IS NOT NULL
+                GROUP BY q2.driverId
+            )
+            ORDER BY q.position ASC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int position = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, position, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getDriversNeverQualified() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS entries
+            FROM drivers d
+            JOIN results r ON d.driverId = r.driverId
+            WHERE d.driverId NOT IN (
+                SELECT DISTINCT q.driverId FROM qualifying q
+            )
+            GROUP BY d.driverId
+            ORDER BY entries DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<DriverRankingDTO> getDisqualificationCount() {
+        String sql = """
+            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS disq_count
+            FROM results r
+            JOIN drivers d ON r.driverId = d.driverId
+            JOIN status s ON r.statusId = s.statusId
+            WHERE LOWER(s.status) LIKE '%disq%' OR LOWER(s.status) LIKE '%dis%'
+            GROUP BY d.driverId
+            ORDER BY disq_count DESC
+        """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> rows = query.getResultList();
+        List<DriverRankingDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            String name = row[0] + " " + row[1];
+            String nationality = (String) row[2];
+            int count = ((Number) row[3]).intValue();
+            result.add(new DriverRankingDTO(name, nationality, count, getFlagUrl(nationality)));
+        }
+
+        return result;
+    }
+
+
 
 
 

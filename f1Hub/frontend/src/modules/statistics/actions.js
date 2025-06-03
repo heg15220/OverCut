@@ -724,3 +724,104 @@ export const fetchDriversWithGpsWithoutWinPoleOrFastestLap = () => dispatch =>
     data => dispatch({ type: actionTypes.FETCH_GPS_NO_WIN_POLE_FASTEST_COMPLETED, data }),
     () => {}
   );
+
+
+export const fetchDriverSeasonCount = () => dispatch =>
+  backend.statisticsService.getDriverSeasonCount(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_SEASONS_COMPLETED, data }), () => {});
+
+export const fetchDriverSeasonParticipationStreaks = () => dispatch =>
+  backend.statisticsService.getDriverSeasonParticipationStreaks(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_SEASON_STREAK_COMPLETED, data }), () => {});
+
+export const fetchDriverHatTrickCount = () => dispatch =>
+  backend.statisticsService.getDriverHatTrickCount(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_HAT_TRICKS_COMPLETED, data }), () => {});
+
+export const fetchDriverGrandSlamCount = () => dispatch =>
+  backend.statisticsService.getDriverGrandSlamCount(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_GRAND_SLAMS_COMPLETED, data }), () => {});
+
+export const fetchDriverFrontRowStarts = () => dispatch =>
+  backend.statisticsService.getDriverFrontRowStarts(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_FRONT_ROW_STARTS_COMPLETED, data }), () => {});
+
+export const fetchMostFrequentFrontRowDuos = () => dispatch =>
+  backend.statisticsService.getMostFrequentFrontRowDuos(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_FRONT_ROW_DUOS_COMPLETED, data }), () => {});
+
+export const fetchYoungestDriversAtFrontRow = () => dispatch =>
+  backend.statisticsService.getYoungestDriversAtFrontRow(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_FRONT_ROW_YOUNGEST_COMPLETED, data }), () => {});
+
+export const fetchLongestFrontRowStreaks = () => dispatch =>
+  backend.statisticsService.getLongestFrontRowStreaks(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_FRONT_ROW_STREAKS_COMPLETED, data }), () => {});
+
+export const fetchAverageGridPosition = () => dispatch =>
+  backend.statisticsService.getAverageGridPosition(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_GRID_AVERAGE_COMPLETED, data }), () => {});
+
+export const fetchFastestQualifyingLaps = () => dispatch =>
+  backend.statisticsService.getFastestQualifyingLaps(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_QUALI_FASTEST_COMPLETED, data }), () => {});
+
+export const fetchRaceFinishesCount = () => dispatch =>
+  backend.statisticsService.getRaceFinishesCount(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_FINISHES_COMPLETED, data }), () => {});
+
+export const fetchConsecutiveRaceFinishes = () => dispatch =>
+  backend.statisticsService.getConsecutiveRaceFinishes(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_FINISH_STREAK_COMPLETED, data }), () => {});
+
+export const fetchClassifiedFinishesCount = () => dispatch =>
+  backend.statisticsService.getClassifiedFinishesCount(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_CLASSIFIED_COMPLETED, data }), () => {});
+
+export const fetchLongestStreakWithoutDNF = () => dispatch =>
+  backend.statisticsService.getLongestStreakWithoutDNF(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_NO_DNF_STREAK_COMPLETED, data }), () => {});
+
+export const fetchDNFCount = () => dispatch =>
+  backend.statisticsService.getDNFCount(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_DNFS_COMPLETED, data }), () => {});
+
+export const fetchConsecutiveDNFs = () => dispatch =>
+  backend.statisticsService.getConsecutiveDNFs(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_DNF_STREAK_COMPLETED, data }), () => {});
+
+export const fetchFirstLapDNFs = () => dispatch =>
+  backend.statisticsService.getFirstLapDNFs(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_FIRST_LAP_DNFS_COMPLETED, data }), () => {});
+
+export const fetchDriversOnLeaderLapMostOften = () => dispatch =>
+  backend.statisticsService.getDriversOnLeaderLapMostOften(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_ON_LEADER_LAP_COMPLETED, data }), () => {});
+
+export const fetchAverageFinishPosition = () => dispatch =>
+  backend.statisticsService.getAverageFinishPosition(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_FINISH_POSITION_AVG_COMPLETED, data }), () => {});
+
+export const fetchBestAveragePositionGains = () => dispatch =>
+  backend.statisticsService.getBestAveragePositionGains(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_POSITION_GAIN_AVG_COMPLETED, data }), () => {});
+
+export const fetchStartingGridAtDebut = () => dispatch =>
+  backend.statisticsService.getStartingGridAtDebut(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_DEBUT_GRID_COMPLETED, data }), () => {});
+
+export const fetchQualifyingAtDebut = () => dispatch =>
+  backend.statisticsService.getQualifyingAtDebut(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_DEBUT_QUALIFYING_COMPLETED, data }), () => {});
+
+export const fetchQualifyingAtLastRace = () => dispatch =>
+  backend.statisticsService.getQualifyingAtLastRace(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_LAST_QUALIFYING_COMPLETED, data }), () => {});
+
+export const fetchDriversNeverQualified = () => dispatch =>
+  backend.statisticsService.getDriversNeverQualified(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_NEVER_QUALIFIED_COMPLETED, data }), () => {});
+
+export const fetchDisqualificationCount = () => dispatch =>
+  backend.statisticsService.getDisqualificationCount(data =>
+    dispatch({ type: actionTypes.FETCH_VARIOS_DISQUALIFICATIONS_COMPLETED, data }), () => {});

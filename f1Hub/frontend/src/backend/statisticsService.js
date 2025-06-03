@@ -368,3 +368,83 @@ export const getDriversWithMostSeasons = (onSuccess, onError) =>
 
 export const getDriversWithMostConsecutiveSeasons = (onSuccess, onError) =>
   appFetch("/statistics/grands-prix/seasons/consecutive", fetchConfig("GET"), onSuccess, onError);
+
+
+
+// Sección: Varios
+export const getDriverSeasonCount = (onSuccess, onError) =>
+  appFetch("/statistics/varios/seasons", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriverSeasonParticipationStreaks = (onSuccess, onError) =>
+  appFetch("/statistics/varios/seasons-streak", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriverHatTrickCount = (onSuccess, onError) =>
+  appFetch("/statistics/varios/hat-tricks", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriverGrandSlamCount = (onSuccess, onError) =>
+  appFetch("/statistics/varios/grand-slams", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriverFrontRowStarts = (onSuccess, onError) =>
+  appFetch("/statistics/varios/front-row-starts", fetchConfig("GET"), onSuccess, onError);
+
+export const getMostFrequentFrontRowDuos = (onSuccess, onError) =>
+  appFetch("/statistics/varios/front-row-duos", fetchConfig("GET"), onSuccess, onError);
+
+export const getYoungestDriversAtFrontRow = (onSuccess, onError) =>
+  appFetch("/statistics/varios/front-row-youngest", fetchConfig("GET"), onSuccess, onError);
+
+export const getLongestFrontRowStreaks = (onSuccess, onError) =>
+  appFetch("/statistics/varios/front-row-streaks", fetchConfig("GET"), onSuccess, onError);
+
+export const getAverageGridPosition = (onSuccess, onError) =>
+  appFetch("/statistics/varios/grid-average", fetchConfig("GET"), onSuccess, onError);
+
+export const getFastestQualifyingLaps = (onSuccess, onError) =>
+  appFetch("/statistics/varios/qualifying-fastest", fetchConfig("GET"), onSuccess, onError);
+
+export const getRaceFinishesCount = (onSuccess, onError) =>
+  appFetch("/statistics/varios/finishes", fetchConfig("GET"), onSuccess, onError);
+
+export const getConsecutiveRaceFinishes = (onSuccess, onError) =>
+  appFetch("/statistics/varios/finishes-streak", fetchConfig("GET"), onSuccess, onError);
+
+export const getClassifiedFinishesCount = (onSuccess, onError) =>
+  appFetch("/statistics/varios/classified", fetchConfig("GET"), onSuccess, onError);
+
+export const getLongestStreakWithoutDNF = (onSuccess, onError) =>
+  appFetch("/statistics/varios/longest-without-dnf", fetchConfig("GET"), onSuccess, onError);
+
+export const getDNFCount = (onSuccess, onError) =>
+  appFetch("/statistics/varios/dnfs", fetchConfig("GET"), onSuccess, onError);
+
+export const getConsecutiveDNFs = (onSuccess, onError) =>
+  appFetch("/statistics/varios/dnfs-streak", fetchConfig("GET"), onSuccess, onError);
+
+export const getFirstLapDNFs = (onSuccess, onError) =>
+  appFetch("/statistics/varios/first-lap-dnfs", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversOnLeaderLapMostOften = (onSuccess, onError) =>
+  appFetch("/statistics/varios/on-leader-lap", fetchConfig("GET"), onSuccess, onError);
+
+export const getAverageFinishPosition = (onSuccess, onError) =>
+  appFetch("/statistics/varios/finish-position-average", fetchConfig("GET"), onSuccess, onError);
+
+export const getBestAveragePositionGains = (onSuccess, onError) =>
+  appFetch("/statistics/varios/position-gains-average", fetchConfig("GET"), onSuccess, onError);
+
+export const getStartingGridAtDebut = (onSuccess, onError) =>
+  appFetch("/statistics/varios/debut-grid", fetchConfig("GET"), onSuccess, onError);
+
+export const getQualifyingAtDebut = (onSuccess, onError) =>
+  appFetch("/statistics/varios/debut-qualifying", fetchConfig("GET"), onSuccess, onError);
+
+export const getQualifyingAtLastRace = (onSuccess, onError) =>
+  appFetch("/statistics/varios/last-qualifying", fetchConfig("GET"), onSuccess, onError);
+
+export const getDriversNeverQualified = (onSuccess, onError) =>
+  appFetch("/statistics/varios/never-qualified", fetchConfig("GET"), onSuccess, onError);
+
+export const getDisqualificationCount = (onSuccess, onError) =>
+  appFetch("/statistics/varios/disqualifications", fetchConfig("GET"), onSuccess, onError);
+
+
