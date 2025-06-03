@@ -51,32 +51,38 @@ public class StatisticsServiceImpl implements StatisticsService {
     public List<DriverStandingDTO> getDriverStandings(int year) {
         String sql = """
         SELECT d.driverId, d.forename, d.surname, d.nationality,
-               c.constructorRef, c.name, SUM(p.points) AS totalPoints
-        FROM (
-            SELECT r.driverId, r.constructorId, r.points, r.raceId
-            FROM results r
-            JOIN races ra ON r.raceId = ra.raceId
-            WHERE ra.year = :year
-
-            UNION ALL
-
-            SELECT sr.driverId, sr.constructorId, sr.points, sr.raceId
-            FROM sprintresults sr
-            JOIN races ra ON sr.raceId = ra.raceId
-            WHERE ra.year = :year
-        ) p
-        JOIN drivers d ON d.driverId = p.driverId
-        JOIN constructors c ON c.constructorId = p.constructorId
-        GROUP BY d.driverId, c.constructorId
-        ORDER BY d.driverId, totalPoints DESC
-        """;
+               (
+                   SELECT c.constructorRef
+                   FROM results r2
+                   JOIN constructors c ON r2.constructorId = c.constructorId
+                   WHERE r2.driverId = d.driverId AND r2.raceId = r.raceId AND r2.constructorId IS NOT NULL
+                   LIMIT 1
+               ) AS constructorRef,
+               (
+                   SELECT c.name
+                   FROM results r2
+                   JOIN constructors c ON r2.constructorId = c.constructorId
+                   WHERE r2.driverId = d.driverId AND r2.raceId = r.raceId AND r2.constructorId IS NOT NULL
+                   LIMIT 1
+               ) AS constructorName,
+               ds.points
+        FROM driverstandings ds
+        JOIN drivers d ON ds.driverId = d.driverId
+        JOIN races r ON ds.raceId = r.raceId
+        WHERE r.year = :year
+          AND r.round = (
+              SELECT MAX(r2.round)
+              FROM races r2
+              WHERE r2.year = :year
+          )
+        ORDER BY ds.position ASC
+    """;
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("year", year);
 
         List<Object[]> rows = query.getResultList();
         List<DriverStandingDTO> result = new ArrayList<>();
-        List<Long> includedDriverIds = new ArrayList<>();
 
         for (Object[] row : rows) {
             Long driverId = ((Number) row[0]).longValue();
@@ -87,27 +93,29 @@ public class StatisticsServiceImpl implements StatisticsService {
             String constructorName = (String) row[5];
             double totalPoints = ((Number) row[6]).doubleValue();
 
-            if (!includedDriverIds.contains(driverId)) {
-                includedDriverIds.add(driverId);
-                String fullName = forename + " " + surname;
-                String flagUrl = getFlagUrl(nationality);
-                String teamColor = getTeamColor(constructorRef);
+            String fullName = forename + " " + surname;
+            String flagUrl = getFlagUrl(nationality);
 
-                result.add(new DriverStandingDTO(
-                        fullName,
-                        nationality,
-                        constructorName,
-                        teamColor,
-                        totalPoints,
-                        flagUrl
-                ));
-            }
+            // Fallbacks seguros
+            String safeConstructorName = constructorName != null ? constructorName : "—";
+            String teamColor = constructorRef != null ? getTeamColor(constructorRef) : "#999999";
+
+            result.add(new DriverStandingDTO(
+                    fullName,
+                    nationality,
+                    safeConstructorName,
+                    teamColor,
+                    totalPoints,
+                    flagUrl
+            ));
         }
 
-        // Ordenar finalmente por puntos descendente
-        result.sort((a, b) -> Double.compare(b.getTotalPoints(), a.getTotalPoints()));
         return result;
     }
+
+
+
+
 
 
 
