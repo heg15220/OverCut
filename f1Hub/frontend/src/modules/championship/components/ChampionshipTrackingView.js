@@ -4,6 +4,7 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import * as raceSelectorActions from "../../raceSelector/actions";
 import * as raceSelectorSelectors from "../../raceSelector/selectors";
+import translations from "../../../i18n/translations";
 import "./ChampionshipTrackingView.css";
 
 const ChampionshipTrackingView = () => {
@@ -16,6 +17,8 @@ const ChampionshipTrackingView = () => {
   const bottomScrollRef = useRef(null);
   const tableScrollRef = useRef(null);
 
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+  const t = translations[lang];
 
   useEffect(() => {
     dispatch(raceSelectorActions.fetchYears());
@@ -111,11 +114,11 @@ const getRaceClass = (racePoints, year) => {
 
   return (
     <div className="championship-tracking">
-      <h2 className="championship-title">Seguimiento del Campeonato</h2>
+      <h2 className="championship-title">{t.championshipTracking}</h2>
 
       <div className="stat-controls">
         <select onChange={e => setYear(Number(e.target.value))} value={year || ""}>
-          <option value="">Selecciona un año</option>
+          <option value="">{t.selectYear}</option>
           {years.map(y => (
             <option key={y} value={y}>{y}</option>
           ))}
@@ -129,7 +132,7 @@ const getRaceClass = (racePoints, year) => {
             <table className="result-table">
               <thead>
                 <tr>
-                  <th className="pilot-col">Piloto</th>
+                  <th className="pilot-col">{t.driver}</th>
                   {races.map(getRaceHeader)}
                 </tr>
               </thead>

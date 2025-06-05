@@ -13,7 +13,6 @@ const TableView = () => {
 
   return (
     <div>
-      <h2 style={{ textAlign: "center", color: "#ffcc00" }}>Visualización de Resultados</h2>
 
       <RaceSelector onRaceSelected={handleSelection} />
 

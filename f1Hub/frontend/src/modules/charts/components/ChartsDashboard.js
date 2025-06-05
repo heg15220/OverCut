@@ -6,6 +6,7 @@ import ChartCardColored from "./ChartCardColored";
 import ChartCardScatter from "./ChartCardScatter";
 import ChartCardPie from "./ChartCardPie";
 import metadata from "../metadata";
+import translations from "../../../i18n/translations";
 import "./ChartStyles.css";
 
 const ChartsDashboard = () => {
@@ -22,6 +23,7 @@ const ChartsDashboard = () => {
   const [decade, setDecade] = useState("");
   const [circuitRef, setCircuitRef] = useState("");
   const lang = navigator.language.startsWith("es") ? "es" : "en";
+  const t = translations[lang];
 
   useEffect(() => {
     dispatch(charts.actions.fetchChartCategories());
@@ -82,7 +84,7 @@ const ChartsDashboard = () => {
 
   return (
     <div className="chart-selector-container">
-      <h2 className="chart-selector-title">📊 Gráficas por Categoría</h2>
+      <h2 className="chart-selector-title">{t.chartsByCategory}</h2>
 
       <div className="flex gap-3 flex-wrap justify-center mb-4">
         {Object.keys(categories || {}).map(cat => (
@@ -116,12 +118,12 @@ const ChartsDashboard = () => {
               value={decade}
               onChange={e => setDecade(e.target.value)}
             >
-              <option value="">Seleccione década</option>
-              <option value="1980s">Década de 1980</option>
-              <option value="1990s">Década de 1990</option>
-              <option value="2000s">Década de 2000</option>
-              <option value="2010s">Década de 2010</option>
-              <option value="2020s">Década de 2020</option>
+              <option value="">{t.selectDecade}</option>
+              <option value="1980s">1980s</option>
+              <option value="1990s">1990s</option>
+              <option value="2000s">2000s</option>
+              <option value="2010s">2010s</option>
+              <option value="2020s">2020s</option>
             </select>
           )}
 
@@ -131,7 +133,7 @@ const ChartsDashboard = () => {
               value={circuitRef}
               onChange={e => setCircuitRef(e.target.value)}
             >
-              <option value="">Seleccione circuito</option>
+              <option value="">{t.selectCircuit}</option>
               {(filters?.circuitOptions || []).map(opt => (
                 <option key={opt.circuitRef} value={opt.circuitRef}>
                   {opt.name}
@@ -152,7 +154,7 @@ const ChartsDashboard = () => {
                 (currentParam === "circuitOptions" && !circuitRef)
               }
             >
-              Mostrar
+              {t.show}
             </button>
           )}
         </div>
@@ -171,9 +173,9 @@ const ChartsDashboard = () => {
           <ChartCard chart={chart} />
         )
       ) : selectedChart ? (
-        <div className="chart-empty text-center">Cargue los filtros para ver el gráfico.</div>
+        <div className="chart-empty text-center">{t.loadFilters}</div>
       ) : (
-        <div className="chart-empty text-center">Seleccione una categoría y gráfica.</div>
+        <div className="chart-empty text-center">{t.selectChart}</div>
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as statisticsActions from "../actions";
 import * as statisticsSelectors from "../selectors";
+import translations from "../../../i18n/translations";
 import "./StatisticsTable.css";
 
 const RankingsView = () => {
@@ -12,6 +13,10 @@ const RankingsView = () => {
   const [team, setTeam] = useState("");
   const [recordMode, setRecordMode] = useState("titles_by_count");
   const [recordCategory, setRecordCategory] = useState("champions");
+
+
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+  const t = translations[lang];
 
   const constructors = useSelector(statisticsSelectors.getConstructors);
 
@@ -586,175 +591,170 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
     : mode === "podiums_team" ? podiumsByTeam
     : polesByTeam;
 
-    const getLabel = () => {
-      if (section === "records") {
-        switch (recordMode) {
-          // Campeonatos
-          case "titles_by_count": return "Títulos";
-          case "titles_chronological": return "Año";
-          case "titles_by_age": return "Edad";
-          case "titles_consecutive": return "Títulos consecutivos";
-          case "titles_gap": return "Años de diferencia";
-          case "titles_gp_before": return "GPs antes del título";
-          case "titles_by_constructors": return "Constructores distintos";
+     const getLabel = () => {
+       if (section === "records") {
+         switch (recordMode) {
+           // Campeones
+           case "titles_by_count": return t.labelTitles;
+           case "titles_chronological": return t.labelYear;
+           case "titles_by_age": return t.labelAge;
+           case "titles_consecutive": return t.labelConsecutiveTitles;
+           case "titles_gap": return t.labelTitleGap;
+           case "titles_gp_before": return t.labelGpBeforeTitle;
+           case "titles_by_constructors": return t.labelConstructorsVariety;
 
-          // Victorias
-          case "wins_chronological": return "Año";
-          case "wins_team_chronological": return "Año";
-          case "wins_youngest": return "Edad";
-          case "wins_oldest": return "Edad";
-          case "wins_on_birthday": return "Año";
-          case "wins_consecutive": return "Victorias consecutivas";
-          case "wins_season_start": return "Racha inicial";
-          case "wins_last": return "Última victoria";
-          case "wins_biggest_gap": return "Días entre victorias";
-          case "wins_first_last_gap": return "Años entre primera y última";
-          case "wins_in_single_year": return "Victorias en un año";
-          case "wins_years_with": return "Años con victorias";
-          case "wins_years_consecutive": return "Años consecutivos con victoria";
-          case "wins_gp_before": return "GPs antes de la primera victoria";
-          case "wins_most_same_constructor": return "Victorias con mismo constructor";
-          case "wins_most_constructors": return "Constructores distintos con victoria";
-          case "wins_by_gp": return "Victorias por GP";
-          case "wins_consecutive_by_gp": return "Victorias consecutivas en GP";
-          case "wins_most_different_gps": return "GPs diferentes ganados";
-          case "wins_most_circuit": return "Victorias en mismo circuito";
-          case "wins_most_different_circuits": return "Circuitos diferentes ganados";
-          case "wins_by_grid_position": return "Posición de salida";
-          case "wins_most_grid_positions": return "Posiciones de parrilla con victorias";
-          case "wins_home_gp": return "Victorias en GP local";
-          case "wins_no_laps_led": return "Victorias sin liderar";
-          case "wins_without_pole": return "Victorias sin pole";
-          case "wins_with_fastest_lap": return "Victorias con vuelta rápida";
+           // Victorias
+           case "wins_chronological":
+           case "wins_team_chronological": return t.labelYear;
+           case "wins_youngest":
+           case "wins_oldest": return t.labelAge;
+           case "wins_on_birthday": return t.labelYear;
+           case "wins_consecutive": return t.labelConsecutiveWins;
+           case "wins_season_start": return t.labelSeasonStartStreak;
+           case "wins_last": return t.labelLastWin;
+           case "wins_biggest_gap": return t.labelWinGapDays;
+           case "wins_first_last_gap": return t.labelWinGapYears;
+           case "wins_in_single_year": return t.labelWinsInYear;
+           case "wins_years_with": return t.labelWinSeasons;
+           case "wins_years_consecutive": return t.labelConsecutiveWinSeasons;
+           case "wins_gp_before": return t.labelGpBeforeWin;
+           case "wins_most_same_constructor": return t.labelSameConstructorWins;
+           case "wins_most_constructors": return t.labelConstructorsWithWins;
+           case "wins_by_gp": return t.labelWinsByGp;
+           case "wins_consecutive_by_gp": return t.labelConsecutiveGpWins;
+           case "wins_most_different_gps": return t.labelGpVarietyWins;
+           case "wins_most_circuit": return t.labelCircuitWins;
+           case "wins_most_different_circuits": return t.labelCircuitVarietyWins;
+           case "wins_by_grid_position": return t.labelGridPositionWins;
+           case "wins_most_grid_positions": return t.labelGridVarietyWins;
+           case "wins_home_gp": return t.labelHomeGpWins;
+           case "wins_no_laps_led": return t.labelNoLeadWins;
+           case "wins_without_pole": return t.labelNoPoleWins;
+           case "wins_with_fastest_lap": return t.labelWithFastestLapWins;
 
-          // Pódiums
-          case "podiums_second_place": return "Pódiums en 2ª";
-          case "podiums_third_place": return "Pódiums en 3ª";
-          case "podiums_second_and_third": return "Pódiums (2ª o 3ª)";
-          case "podiums_chronology": return "Año";
-          case "podiums_team_chronology": return "Año";
-          case "podiums_youngest": return "Edad";
-          case "podiums_on_birthday": return "Año";
-          case "podiums_oldest_by_nationality": return "Edad";
-          case "podiums_streaks": return "Racha de pódiums";
-          case "podiums_streaks_season": return "Racha inicial";
-          case "podiums_last": return "Último podio";
-          case "podiums_gap": return "Días entre pódiums";
-          case "podiums_gap_first_last": return "Años entre primero y último";
-          case "podiums_single_year": return "Pódiums en un año";
-          case "podiums_years_count": return "Años con pódiums";
-          case "podiums_consecutive_years": return "Años consecutivos con pódium";
-          case "podiums_gp_before": return "GPs antes del primer podio";
-          case "podiums_before_win": return "Pódiums antes de la primera victoria";
-          case "podiums_single_constructor": return "Con un solo constructor";
-          case "podiums_no_wins": return "Pódiums sin victorias";
-          case "podiums_most_constructors": return "Constructores con pódiums";
-          case "podiums_by_gp": return "Pódiums por GP";
-          case "podiums_most_different_gps": return "GPs diferentes con podio";
-          case "podiums_most_different_circuits": return "Circuitos diferentes con podio";
-          case "podiums_home_gp": return "Pódiums en GP local";
-          case "podiums_identical_repeats": return "Veces repetido";
-          case "podiums_trios": return "Veces juntos";
-          case "podiums_pairs": return "Veces juntos";
-          case "podiums_first_second": return "Veces (1º y 2º)";
+           // Pódiums
+           case "podiums_second_place": return t.labelSecondPlacePodiums;
+           case "podiums_third_place": return t.labelThirdPlacePodiums;
+           case "podiums_second_and_third": return t.labelSecondThirdPlacePodiums;
+           case "podiums_chronology":
+           case "podiums_team_chronology": return t.labelYear;
+           case "podiums_youngest":
+           case "podiums_oldest_by_nationality": return t.labelAge;
+           case "podiums_on_birthday": return t.labelYear;
+           case "podiums_streaks": return t.labelPodiumSeasons;
+           case "podiums_streaks_season": return t.labelPodiumSeasonsStreaks;
+           case "podiums_last": return t.labelLastPodium;
+           case "podiums_gap": return t.labelPodiumGapDays;
+           case "podiums_gap_first_last": return t.labelPodiumGapYears;
+           case "podiums_single_year": return t.labelPodiumsInYear;
+           case "podiums_years_count": return t.labelPodiumSeasons;
+           case "podiums_consecutive_years": return t.labelConsecutivePodiumSeasons;
+           case "podiums_gp_before": return t.labelGpBeforePodium;
+           case "podiums_before_win": return t.labelPodiumsBeforeWin;
+           case "podiums_single_constructor": return t.labelSingleConstructorPodiums;
+           case "podiums_no_wins": return t.labelNoWinPodiums;
+           case "podiums_most_constructors": return t.labelConstructorsWithWins;
+           case "podiums_by_gp": return t.labelPodiumsByGp;
+           case "podiums_most_different_gps": return t.labelGpVarietyPodiums;
+           case "podiums_most_different_circuits": return t.labelCircuitVarietyPodiums;
+           case "podiums_home_gp": return t.labelHomeGpPodiums;
+           case "podiums_identical_repeats": return t.labelRepeatedPodiums;
+           case "podiums_trios": return t.labelFrequentTrios;
+           case "podiums_pairs": return t.labelFrequentPairs;
+           case "podiums_first_second": return t.labelFirstSecondPairs;
 
-        //Puntos
-          // Puntos
-          case "points_total": return "Puntos";
-          case "points_chronology": return "Año";
-          case "points_last": return "Últimos puntos";
-          case "points_youngest": return "Edad";
-          case "points_oldest": return "Edad";
-          case "points_youngest_nationality": return "Edad";
-          case "points_oldest_nationality": return "Edad";
-          case "points_streaks": return "Racha de puntos";
-          case "points_streaks_no_sprints": return "Racha (sin sprint)";
-          case "points_gap": return "Días entre puntos";
-          case "points_gap_first_last": return "Años entre primero y último";
-          case "points_most_single_year": return "Puntos en un año";
-          case "points_years": return "Años con puntos";
-          case "points_years_consecutive": return "Años consecutivos con puntos";
-          case "points_no_wins": return "Sin victorias";
-          case "points_no_podiums": return "Sin pódiums";
-          case "points_most_constructors": return "Constructores distintos";
-          case "points_gp_before": return "GPs antes de puntuar";
-          case "points_gp_scored": return "GPs con puntos";
+           // Puntos
+           case "points_total": return t.labelPoints;
+           case "points_chronology": return t.labelYearPointsChronology;
+           case "points_last": return t.labelLastPoints;
+           case "points_youngest": return t.labelPointsAgeYoungest;
+           case "points_oldest": return t.labelPointsAgeOldest;
+           case "points_youngest_nationality":
+           case "points_oldest_nationality": return t.labelAge;
+           case "points_streaks": return t.labelPointsStreak;
+           case "points_streaks_no_sprints": return t.labelNoSprintStreak;
+           case "points_gap": return t.labelPointsGapDays;
+           case "points_gap_first_last": return t.labelPointsGapYears;
+           case "points_most_single_year": return t.labelPointsInYear;
+           case "points_years": return t.labelPointsSeasons;
+           case "points_years_consecutive": return t.labelConsecutivePointSeasons;
+           case "points_no_wins": return t.labelPointsNoWin;
+           case "points_no_podiums": return t.labelPointsNoPodium;
+           case "points_most_constructors": return t.labelPointsByConstructors;
+           case "points_gp_before": return t.labelGpBeforePoints;
+           case "points_gp_scored": return t.labelGpWithPoints;
+
+           // GP
+           case "most_grands_prix": return t.labelGrandsPrix;
+           case "gp_debut_chronology":
+           case "gp_debut_by_constructor": return t.labelDebutYear;
+           case "gp_streaks": return t.labelGpStreak;
+           case "gp_gap_days": return t.labelGpGapDays;
+           case "gp_gap_years": return t.labelGpGapYears;
+           case "gp_laps": return t.labelLapsCompleted;
+           case "gp_with_champions": return t.labelGpsWithChampions;
+           case "gp_with_winners": return t.labelGpsWithWinners;
+           case "gp_same_constructor": return t.labelSameConstructorGp;
+           case "gp_most_constructors": return t.labelMostConstructorsGp;
+           case "gp_same_engine": return t.labelSameEngineGp;
+           case "gp_most_engines": return t.labelMostEnginesGp;
+           case "gp_same_teammate": return t.labelSameTeammateGp;
+           case "gp_age_nationality": return t.labelAgeByNationalityGp;
+           case "gp_oldest": return t.labelOldestGp;
+           case "gp_avg_age": return t.labelAvgAgeGp;
+           case "gp_no_win": return t.labelGpNoWin;
+           case "gp_no_pole": return t.labelGpNoPole;
+           case "gp_no_fastest_lap": return t.labelGpNoFastest;
+           case "gp_no_points": return t.labelGpNoPoints;
+           case "gp_no_podium": return t.labelGpNoPodium;
+           case "gp_no_win_pole_fastest": return t.labelGpNoTriple;
+           case "gp_seasons_consecutive": return t.labelConsecutiveSeasons;
+
+           // Varios
+           case "varios_seasons": return t.labelSeasons;
+           case "varios_season_streak": return t.labelConsecutiveSeasons;
+           case "varios_hat_tricks": return t.labelHatTricks;
+           case "varios_front_row_starts": return t.labelFrontRow;
+           case "varios_front_row_youngest": return t.labelAge;
+           case "varios_front_row_streaks": return t.labelFrontRowStreaks;
+           case "varios_finishes": return t.labelFinishes;
+           case "varios_finish_streak": return t.labelFinishStreak;
+           case "varios_no_dnf_streak": return t.labelNoDnfStreak;
+           case "varios_dnfs": return t.labelDnfs;
+           case "varios_dnf_streak": return t.labelDnfStreak;
+           case "varios_on_leader_lap": return t.labelLeaderLap;
+           case "varios_finish_position_avg": return t.labelFinishAvg;
+           case "varios_position_gain_avg": return t.labelGainAvg;
+           case "varios_debut_grid": return t.labelDebutGrid;
+           case "varios_disqualifications": return t.labelDisqualifications;
+
+           default: return recordMode.replace(/_/g, " ");
+         }
+       }
+
+       // Rankings
+       if (mode === "wins") return t.labelWinsRanking;
+       if (mode === "podiums") return t.labelPodiumsRanking;
+       if (mode === "poles") return t.labelPolesRanking;
+       if (mode === "grand_chelems") return t.labelGrandChelemsRanking;
+       if (mode === "wins_team") return t.labelTeamWins;
+       if (mode === "podiums_team") return t.labelTeamPodiums;
+       if (mode === "poles_team") return t.labelTeamPoles;
+
+       return recordMode;
+     };
 
 
-         //Grandes Premios
-          case "most_grands_prix": return "Grandes Premios";
-          case "gp_debut_chronology": return "Año de debut";
-          case "gp_debut_by_constructor": return "Año de debut";
-          case "gp_streaks": return "Racha de GPs";
-          case "gp_gap_days": return "Días entre GPs";
-          case "gp_gap_years": return "Años entre primero y último";
-          case "gp_laps": return "Vueltas completadas";
-          case "gp_kilometers": return "Km completados";
-          case "gp_with_champions": return "GPs con campeones";
-          case "gp_with_winners": return "GPs con ganadores";
-          case "gp_same_constructor": return "GPs con mismo constructor";
-          case "gp_most_constructors": return "Constructores distintos";
-          case "gp_same_engine": return "GPs con mismo motor";
-          case "gp_most_engines": return "Motores distintos";
-          case "gp_same_teammate": return "GPs con mismo compañero";
-          case "gp_age_chronology": return "Edad en GP";
-          case "gp_age_nationality": return "Edad por nacionalidad";s
-          case "gp_oldest": return "Mayor edad en GP";
-          case "gp_avg_age": return "Edad media por GP";
-          case "gp_no_win": return "GPs sin victoria";s
-          case "gp_no_pole": return "GPs sin pole";
-          case "gp_no_fastest_lap": return "GPs sin VR";
-          case "gp_no_points": return "GPs sin puntos";
-          case "gp_no_podium": return "GPs sin podio";
-          case "gp_no_lead_lap": return "GPs sin liderar";
-          case "gp_no_win_pole_fastest": return "GPs sin victoria, pole ni VR";
-          case "gp_seasons_total": return "Temporadas";
-          case "gp_seasons_consecutive": return "Temporadas consecutivas";
-          // 🧩 Varios
-          case "varios_seasons": return "Temporadas";
-          case "varios_season_streak": return "Temporadas consecutivas";
-          case "varios_hat_tricks": return "Hat tricks";
-          case "varios_front_row_starts": return "Primera fila";
-          case "varios_front_row_duos": return "Dúo frecuente";
-          case "varios_front_row_youngest": return "Edad";
-          case "varios_front_row_streaks": return "Racha 1ª fila";
-          case "varios_grid_average": return "Media de parrilla";
-          case "varios_qualifying_fastest": return "Vuelta rápida (ms)";
-          case "varios_finishes": return "Finalizaciones";
-          case "varios_finish_streak": return "Racha sin abandono";
-          case "varios_classified": return "Clasificaciones";
-          case "varios_no_dnf_streak": return "Racha sin DNF";
-          case "varios_dnfs": return "Abandonos";
-          case "varios_dnf_streak": return "DNFs consecutivos";
-          case "varios_on_leader_lap": return "En vuelta del líder";
-          case "varios_finish_position_avg": return "Posición media final";
-          case "varios_position_gain_avg": return "Posiciones ganadas";
-          case "varios_debut_grid": return "Parrilla en debut";
-          case "varios_last_qualifying": return "Última quali";
-          case "varios_disqualifications": return "Descalificaciones";
-
-
-
-          default: return "Valor";
-        }
-      }
-
-      if (mode.includes("wins")) return "Victorias";
-      if (mode.includes("podiums")) return "Podios";
-      if (mode.includes("poles")) return "Poles";
-      if (mode.includes("grand_chelems")) return "Grand Chelems";
-      return "Valor";
-    };
 
 
   return (
     <div className="race-result-table">
-      <h2 className="race-result-title">📈 Rankings y Récords</h2>
+      <h2 className="race-result-title">{t.rankings}</h2>
 
       <div className="tab-selector">
-        <button onClick={() => setSection("rankings")} className={section === "rankings" ? "active" : ""}>Rankings</button>
-        <button onClick={() => setSection("team_rankings")} className={section === "team_rankings" ? "active" : ""}>Rankings por Equipo</button>
-        <button onClick={() => setSection("records")} className={section === "records" ? "active" : ""}>Récords</button>
+        <button onClick={() => setSection("rankings")} className={section === "rankings" ? "active" : ""}>{t.driverRankings}</button>
+        <button onClick={() => setSection("team_rankings")} className={section === "team_rankings" ? "active" : ""}>{t.teamRankings}</button>
+        <button onClick={() => setSection("records")} className={section === "records" ? "active" : ""}>{t.records}</button>
       </div>
 
       {section === "records" && (
@@ -769,178 +769,155 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
                   setRecordMode(newMode);
 
                 }}>
-                  <option value="champions">🏆 Campeones del Mundo</option>
-                  <option value="victories">🥇 Victorias</option>
-                  <option value="podiums">🥈 Pódiums</option>
-                  <option value="points">📊 Puntos</option>
-                  <option value="grands_prix">📍 Grandes Premios</option>
-                  <option value="varios">🧩 Varios</option>
+                   <option value="champions">{t.championsCategory}</option>
+                   <option value="victories">{t.victoriesCategory}</option>
+                   <option value="podiums">{t.podiumsCategory}</option>
+                   <option value="points">{t.pointsCategory}</option>
+                   <option value="grands_prix">{t.grandsPrixCategory}</option>
+                   <option value="varios">{t.variosCategory}</option>
                 </select>
 
                 <select value={recordMode} onChange={e => setRecordMode(e.target.value)}>
                   {recordCategory === "champions" && (
-                    <optgroup label="🏆 Campeones del Mundo">
-                      <option value="titles_by_count">Por número de títulos</option>
-                      <option value="titles_chronological">Orden cronológico</option>
-                      <option value="titles_by_age">Por edad</option>
-                      <option value="titles_consecutive">Títulos consecutivos</option>
-                      <option value="titles_gap">Mayor intervalo entre títulos</option>
-                      <option value="titles_gp_before">GPs antes del primer título</option>
-                      <option value="titles_by_constructors">Por número de constructores</option>
+                    <optgroup label={t.championsCategory}>
+                      <option value="titles_by_count">{t.labelTitles}</option>
+                      <option value="titles_chronological">{t.labelYear}</option>
+                      <option value="titles_by_age">{t.labelAge}</option>
+                      <option value="titles_consecutive">{t.labelConsecutiveTitles}</option>
+                      <option value="titles_gap">{t.labelTitleGap}</option>
+                      <option value="titles_gp_before">{t.labelGpBeforeTitle}</option>
+                      <option value="titles_by_constructors">{t.labelConstructorsVariety}</option>
                     </optgroup>
                   )}
                   {recordCategory === "victories" && (
-                    <optgroup label="🥇 Victorias">
-                      <option value="wins_chronological">Primera victoria de cada piloto</option>
-                      <option value="wins_team_chronological">Primera victoria por constructor</option>
-                      <option value="wins_youngest">Más jóvenes al ganar</option>
-                      <option value="wins_oldest">Más veteranos al ganar</option>
-                      <option value="wins_on_birthday">Victorias en cumpleaños</option>
-                      <option value="wins_consecutive">Racha de victorias consecutivas</option>
-                      <option value="wins_season_start">Racha al comienzo de temporada</option>
-                      <option value="wins_last">Última victoria de cada piloto</option>
-                      <option value="wins_biggest_gap">Mayor intervalo entre victorias</option>
-                      <option value="wins_first_last_gap">Años entre primera y última victoria</option>
-                      <option value="wins_in_single_year">Más victorias en un solo año</option>
-                      <option value="wins_years_with">Años distintos con victoria</option>
-                      <option value="wins_years_consecutive">Años consecutivos con victoria</option>
-                      <option value="wins_gp_before">GPs antes de la primera victoria</option>
-                      <option value="wins_most_same_constructor">Más victorias con mismo constructor</option>
-                      <option value="wins_most_constructors">Más constructores distintos con victorias</option>
-                      <option value="wins_by_gp">Victorias por Gran Premio</option>
-                      <option value="wins_consecutive_by_gp">Victorias consecutivas en un GP</option>
-                      <option value="wins_most_different_gps">GPs diferentes ganados</option>
-                      <option value="wins_most_circuit">Más victorias en un mismo circuito</option>
-                      <option value="wins_most_different_circuits">Circuitos diferentes ganados</option>
-                      <option value="wins_by_grid_position">Victorias por posición de salida</option>
-                      <option value="wins_most_grid_positions">Parrillas diferentes con victorias</option>
-                      <option value="wins_home_gp">Victorias en GP local</option>
-                      <option value="wins_no_laps_led">Victorias sin liderar ninguna vuelta</option>
-                      <option value="wins_without_pole">Victorias sin pole position</option>
-                      <option value="wins_with_fastest_lap">Victorias con vuelta rápida</option>
+                    <optgroup label={t.victoriesCategory}>
+                      <option value="wins_chronological">{t.labelYear}</option>
+                      <option value="wins_team_chronological">{t.labelDebutYearWin}</option>
+                      <option value="wins_youngest">{t.labelAgeWins}</option>
+                      <option value="wins_oldest">{t.labelOldestGp}</option>
+                      <option value="wins_on_birthday">{t.labelBirthdayWin}</option>
+                      <option value="wins_consecutive">{t.labelConsecutiveWins}</option>
+                      <option value="wins_season_start">{t.labelSeasonStartStreak}</option>
+                      <option value="wins_last">{t.labelLastWin}</option>
+                      <option value="wins_biggest_gap">{t.labelWinGapDays}</option>
+                      <option value="wins_first_last_gap">{t.labelWinGapYears}</option>
+                      <option value="wins_in_single_year">{t.labelWinsInYear}</option>
+                      <option value="wins_years_with">{t.labelWinSeasons}</option>
+                      <option value="wins_years_consecutive">{t.labelConsecutiveWinSeasons}</option>
+                      <option value="wins_gp_before">{t.labelGpBeforeWin}</option>
+                      <option value="wins_most_same_constructor">{t.labelSameConstructorWins}</option>
+                      <option value="wins_most_constructors">{t.labelConstructorsWithWins}</option>
+                      <option value="wins_by_gp">{t.labelWinsByGp}</option>
+                      <option value="wins_consecutive_by_gp">{t.labelConsecutiveGpWins}</option>
+                      <option value="wins_most_different_gps">{t.labelGpVarietyWins}</option>
+                      <option value="wins_most_circuit">{t.labelCircuitWins}</option>
+                      <option value="wins_most_different_circuits">{t.labelCircuitVarietyWins}</option>
+                      <option value="wins_by_grid_position">{t.labelGridPositionWins}</option>
+                      <option value="wins_most_grid_positions">{t.labelGridVarietyWins}</option>
+                      <option value="wins_without_pole">{t.labelNoPoleWins}</option>
                     </optgroup>
                   )}
-
                   {recordCategory === "podiums" && (
-                    <optgroup label="🥈 Pódiums">
-                      <option value="podiums_second_place">Pódiums en 2ª posición</option>
-                      <option value="podiums_third_place">Pódiums en 3ª posición</option>
-                      <option value="podiums_second_and_third">Pódiums en 2ª y 3ª posición</option>
-                      <option value="podiums_chronology">Primera aparición en el podio</option>
-                      <option value="podiums_team_chronology">Primer podio por equipo</option>
-                      <option value="podiums_youngest">Pilotos más jóvenes en el podio</option>
-                      <option value="podiums_on_birthday">Pódiums en el cumpleaños</option>
-                      <option value="podiums_oldest_by_nationality">Mayores en podio por país</option>
-                        <option value="podiums_streaks">Racha más larga de pódiums</option>
-                        <option value="podiums_streaks_season">Racha inicial de temporada</option>
-                        <option value="podiums_last">Último podio</option>
-                        <option value="podiums_gap_first_last">Años entre primer y último podio</option>
-                        <option value="podiums_single_year">Más podios en un año</option>
-                        <option value="podiums_years_count">Años diferentes con podios</option>
-                        <option value="podiums_consecutive_years">Años consecutivos con podios</option>
-                        <option value="podiums_gp_before">GPs antes del primer podio</option>
-                        <option value="podiums_before_win">Pódiums antes de la primera victoria</option>
-                        <option value="podiums_single_constructor">Pódiums con un solo constructor</option>
-                        <option value="podiums_no_wins">Pódiums sin victorias</option>
-                        <option value="podiums_most_constructors">Más constructores con pódiums</option>
-                        <option value="podiums_by_gp">Pódiums por GP</option>
-                        <option value="podiums_most_different_gps">GPs diferentes con podio</option>
-                        <option value="podiums_most_different_circuits">Circuitos diferentes con podio</option>
-                        <option value="podiums_home_gp">Pódiums en GP local</option>
-                        <option value="podiums_identical_repeats">Pódiums idénticos repetidos</option>
-                        <option value="podiums_trios">Tríos más frecuentes en el podio</option>
-                        <option value="podiums_pairs">Dúos más frecuentes en el podio</option>
-                        <option value="podiums_first_second">Parejas más frecuentes 1º-2º</option>
-
+                    <optgroup label={t.podiumsCategory}>
+                      <option value="podiums_second_place">{t.labelSecondPlacePodiums}</option>
+                      <option value="podiums_third_place">{t.labelThirdPlacePodiums}</option>
+                      <option value="podiums_second_and_third">{t.labelSecondThirdPlacePodiums}</option>
+                      <option value="podiums_chronology">{t.labelYearChronology}</option>
+                      <option value="podiums_team_chronology">{t.labelDebutYear}</option>
+                      <option value="podiums_on_birthday">{t.labelPodiumsBirthday}</option>
+                      <option value="podiums_oldest_by_nationality">{t.labelOldestGp}</option>
+                      <option value="podiums_streaks">{t.labelPodiumSeasons}</option>
+                      <option value="podiums_streaks_season">{t.labelConsecutivePodiumSeasons}</option>
+                      <option value="podiums_last">{t.labelLastPodium}</option>
+                      <option value="podiums_single_year">{t.labelPodiumsInYear}</option>
+                      <option value="podiums_years_count">{t.labelPodiumSeasons}</option>
+                      <option value="podiums_consecutive_years">{t.labelConsecutivePodiumSeasons}</option>
+                      <option value="podiums_gp_before">{t.labelGpBeforePodium}</option>
+                      <option value="podiums_before_win">{t.labelPodiumsBeforeWin}</option>
+                      <option value="podiums_single_constructor">{t.labelSingleConstructorPodiums}</option>
+                      <option value="podiums_no_wins">{t.labelNoWinPodiums}</option>
+                      <option value="podiums_most_constructors">{t.labelConstructorsWithWins}</option>
+                      <option value="podiums_by_gp">{t.labelPodiumsByGp}</option>
+                      <option value="podiums_most_different_gps">{t.labelGpVarietyPodiums}</option>
+                      <option value="podiums_most_different_circuits">{t.labelCircuitVarietyPodiums}</option>
+                      <option value="podiums_home_gp">{t.labelHomeGpPodiums}</option>
+                      <option value="podiums_identical_repeats">{t.labelRepeatedPodiums}</option>
+                      <option value="podiums_trios">{t.labelFrequentTrios}</option>
+                      <option value="podiums_pairs">{t.labelFrequentPairs}</option>
+                      <option value="podiums_first_second">{t.labelFirstSecondPairs}</option>
                     </optgroup>
                   )}
-
                   {recordCategory === "points" && (
-                    <optgroup label="📊 Puntos">
-                      <option value="points_total">Pilotos con más puntos</option>
-                      <option value="points_chronology">Primeros puntos</option>
-                      <option value="points_last">Últimos puntos</option>
-                      <option value="points_youngest">Más jóvenes al puntuar</option>
-                      <option value="points_oldest">Más veteranos al puntuar</option>
-                      <option value="points_youngest_nationality">Más jóvenes por nacionalidad</option>
-                      <option value="points_oldest_nationality">Más veteranos por nacionalidad</option>
-                      <option value="points_streaks">Rachas consecutivas</option>
-                      <option value="points_streaks_no_sprints">Rachas sin sprint</option>
-                      <option value="points_gap">Mayor intervalo</option>
-                      <option value="points_gap_first_last">Entre primeros y últimos</option>
-                      <option value="points_most_single_year">Más puntos en un año</option>
-                      <option value="points_all_sessions_year">Más puntos (todas sesiones)</option>
-                      <option value="points_years">Años distintos puntuando</option>
-                      <option value="points_years_consecutive">Años consecutivos</option>
-                      <option value="points_avg_per_race">Promedio por carrera</option>
-                      <option value="points_avg_per_season">Promedio por temporada</option>
-                      <option value="points_no_wins">Puntos sin victorias</option>
-                      <option value="points_no_podiums">Puntos sin podios</option>
-                      <option value="points_most_constructors">Más constructores distintos</option>
-                      <option value="points_gp_before">GPs antes de puntuar</option>
-                      <option value="points_gp_scored">GPs puntuados</option>
+                    <optgroup label={t.pointsCategory}>
+                      <option value="points_total">{t.labelPoints}</option>
+                      <option value="points_chronology">{t.labelYearPointsChronology}</option>
+                      <option value="points_last">{t.labelLastPoints}</option>
+                      <option value="points_youngest">{t.labelPointsAgeYoungest}</option>
+                      <option value="points_oldest">{t.labelPointsAgeOldest}</option>
+                      <option value="points_youngest_nationality">{t.labelAgeByNationalityGp}</option>
+                      <option value="points_oldest_nationality">{t.labelOldestGp}</option>
+                      <option value="points_streaks">{t.labelPointsStreak}</option>
+                      <option value="points_streaks_no_sprints">{t.labelNoSprintStreak}</option>
+                      <option value="points_gap">{t.labelPointsGapDays}</option>
+                      <option value="points_gap_first_last">{t.labelPointsGapYears}</option>
+                      <option value="points_most_single_year">{t.labelPointsInYear}</option>
+                      <option value="points_years">{t.labelPointsSeasons}</option>
+                      <option value="points_years_consecutive">{t.labelConsecutivePointSeasons}</option>
+                      <option value="points_no_wins">{t.labelPointsNoWin}</option>
+                      <option value="points_no_podiums">{t.labelPointsNoPodium}</option>
+                      <option value="points_most_constructors">{t.labelPointsByConstructors}</option>
+                      <option value="points_gp_before">{t.labelGpBeforePoints}</option>
+                      <option value="points_gp_scored">{t.labelGpWithPoints}</option>
                     </optgroup>
                   )}
-
-                {recordCategory === "grands_prix" && (
-                  <optgroup label="📍 Grandes Premios">
-                    <option value="most_grands_prix">Más grandes premios disputados</option>
-                    <option value="gp_debut_chronology">Debut cronológico</option>
-                    <option value="gp_debut_by_constructor">Debut por constructor</option>
-                    <option value="gp_streaks">Rachas consecutivas</option>
-                    <option value="gp_gap_days">Mayor intervalo en días</option>
-                    <option value="gp_gap_years">Mayor intervalo entre primero y último</option>
-                    <option value="gp_laps">Más vueltas completadas</option>
-                    <option value="gp_kilometers">Más km recorridos</option>
-                    <option value="gp_with_champions">GPs con campeones</option>
-                    <option value="gp_with_winners">GPs con ganadores</option>
-                    <option value="gp_same_constructor">Más GPs con mismo constructor</option>
-                    <option value="gp_most_constructors">Más constructores distintos</option>
-                    <option value="gp_same_engine">Más GPs con mismo motor</option>
-                    <option value="gp_most_engines">Más motores distintos</option>
-                    <option value="gp_same_teammate">Más GPs con mismo compañero</option>
-                    <option value="gp_age_nationality">Edad por nacionalidad</option>
-                    <option value="gp_oldest">Pilotos más veteranos</option>
-                    <option value="gp_avg_age">Edad media por GP</option>
-                    <option value="gp_no_win">GPs sin victoria</option>
-                    <option value="gp_no_pole">GPs sin pole</option>
-                    <option value="gp_no_fastest_lap">GPs sin vuelta rápida</option>
-                    <option value="gp_no_points">GPs sin puntos</option>
-                    <option value="gp_no_podium">GPs sin podio</option>
-                    <option value="gp_no_lead_lap">GPs sin liderar vuelta</option>
-                    <option value="gp_no_win_pole_fastest">GPs sin victoria, pole ni VR</option>
-                    <option value="gp_seasons_total">Temporadas totales</option>
-                    <option value="gp_seasons_consecutive">Temporadas consecutivas</option>
-                  </optgroup>
-                )}
-
-                {recordCategory === "varios" && (
-                  <optgroup label="🧩 Varios">
-                    <option value="varios_seasons">Temporadas disputadas</option>
-                    <option value="varios_season_streak">Racha de temporadas consecutivas</option>
-                    <option value="varios_hat_tricks">Hat tricks</option>
-                    <option value="varios_front_row_starts">Salidas en primera fila</option>
-                    <option value="varios_front_row_duos">Dúos en primera fila</option>
-                    <option value="varios_front_row_youngest">Más jóvenes en 1ª fila</option>
-                    <option value="varios_front_row_streaks">Racha 1ª fila</option>
-                    <option value="varios_grid_average">Media de parrilla</option>
-                    <option value="varios_qualifying_fastest">Vuelta rápida en quali</option>
-                    <option value="varios_finishes">Carreras finalizadas</option>
-                    <option value="varios_finish_streak">Racha de finalizaciones</option>
-                    <option value="varios_classified">Carreras clasificadas</option>
-                    <option value="varios_no_dnf_streak">Racha sin DNF</option>
-                    <option value="varios_dnfs">Abandonos (DNF)</option>
-                    <option value="varios_dnf_streak">Racha de DNF</option>
-                    <option value="varios_on_leader_lap">En vuelta del líder</option>
-                    <option value="varios_finish_position_avg">Media de posición final</option>
-                    <option value="varios_position_gain_avg">Posiciones ganadas promedio</option>
-                    <option value="varios_debut_grid">Parrilla en debut</option>
-                    <option value="varios_last_qualifying">Última quali</option>
-                    <option value="varios_disqualifications">Descalificaciones</option>
-                  </optgroup>
-                )}
-
+                  {recordCategory === "grands_prix" && (
+                    <optgroup label={t.grandsPrixCategory}>
+                      <option value="most_grands_prix">{t.labelGrandsPrix}</option>
+                      <option value="gp_debut_chronology">{t.labelYearDebut}</option>
+                      <option value="gp_debut_by_constructor">{t.labelDebutYearConstructor}</option>
+                      <option value="gp_streaks">{t.labelGpStreak}</option>
+                      <option value="gp_gap_days">{t.labelGpGapDays}</option>
+                      <option value="gp_gap_years">{t.labelGpGapYears}</option>
+                      <option value="gp_laps">{t.labelLapsCompleted}</option>
+                      <option value="gp_with_champions">{t.labelGpsWithChampions}</option>
+                      <option value="gp_with_winners">{t.labelGpsWithWinners}</option>
+                      <option value="gp_same_constructor">{t.labelSameConstructorGp}</option>
+                      <option value="gp_most_constructors">{t.labelMostConstructorsGp}</option>
+                      <option value="gp_same_teammate">{t.labelSameTeammateGp}</option>
+                      <option value="gp_age_nationality">{t.labelAgeByNationalityGp}</option>
+                      <option value="gp_oldest">{t.labelOldestGp}</option>
+                      <option value="gp_avg_age">{t.labelAvgAgeGp}</option>
+                      <option value="gp_no_win">{t.labelGpNoWin}</option>
+                      <option value="gp_no_pole">{t.labelGpNoPole}</option>
+                      <option value="gp_no_fastest_lap">{t.labelGpNoFastest}</option>
+                      <option value="gp_no_points">{t.labelGpNoPoints}</option>
+                      <option value="gp_no_podium">{t.labelGpNoPodium}</option>
+                      <option value="gp_no_win_pole_fastest">{t.labelGpNoTriple}</option>
+                      <option value="gp_seasons_consecutive">{t.labelConsecutiveSeasons}</option>
+                    </optgroup>
+                  )}
+                  {recordCategory === "varios" && (
+                    <optgroup label={t.variosCategory}>
+                      <option value="varios_seasons">{t.labelSeasons}</option>
+                      <option value="varios_season_streak">{t.labelConsecutiveSeasons}</option>
+                      <option value="varios_hat_tricks">{t.labelHatTricks}</option>
+                      <option value="varios_front_row_starts">{t.labelFrontRow}</option>
+                      <option value="varios_front_row_youngest">{t.labelAgeFrontRow}</option>
+                      <option value="varios_front_row_streaks">{t.labelFrontRowStreaks}</option>
+                      <option value="varios_finishes">{t.labelFinishes}</option>
+                      <option value="varios_finish_streak">{t.labelFinishStreak}</option>
+                      <option value="varios_no_dnf_streak">{t.labelNoDnfStreak}</option>
+                      <option value="varios_dnfs">{t.labelDnfs}</option>
+                      <option value="varios_dnf_streak">{t.labelDnfStreak}</option>
+                      <option value="varios_on_leader_lap">{t.labelLeaderLap}</option>
+                      <option value="varios_finish_position_avg">{t.labelFinishAvg}</option>
+                      <option value="varios_position_gain_avg">{t.labelGainAvg}</option>
+                      <option value="varios_debut_grid">{t.labelDebutGrid}</option>
+                      <option value="varios_disqualifications">{t.labelDisqualifications}</option>
+                    </optgroup>
+                  )}
                 </select>
+
               </div>
             )}
 
@@ -948,25 +925,25 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
         <div className="stat-controls">
           <select value={mode} onChange={(e) => { setMode(e.target.value); setTeam(""); }}>
             {section === "rankings" && (
-              <>
-                <option value="wins">Pilotos con más Victorias</option>
-                <option value="podiums">Pilotos con más Podios</option>
-                <option value="poles">Pilotos con más Poles (desde 2003)</option>
-                <option value="grand_chelems">Pilotos con más Grand Chelems</option>
-              </>
-            )}
-            {section === "team_rankings" && (
-              <>
-                <option value="wins_team">Victorias por Equipo</option>
-                <option value="podiums_team">Podios por Equipo</option>
-                <option value="poles_team">Poles por Equipo (desde 2003)</option>
-              </>
-            )}
-          </select>
+                    <>
+                      <option value="wins">{t.labelWinsRanking}</option>
+                      <option value="podiums">{t.labelPodiumsRanking}</option>
+                      <option value="poles">{t.labelPolesRanking}</option>
+                      <option value="grand_chelems">{t.labelGrandChelemsRanking}</option>
+                    </>
+                  )}
+                  {section === "team_rankings" && (
+                    <>
+                      <option value="wins_team">{t.labelTeamWins}</option>
+                      <option value="podiums_team">{t.labelTeamPodiums}</option>
+                      <option value="poles_team">{t.labelTeamPoles}</option>
+                    </>
+                  )}
+                </select>
 
           {showTeamSelector && (
             <select value={team} onChange={(e) => setTeam(e.target.value)}>
-              <option value="">Selecciona equipo</option>
+              <option value="">{t.selectTeam}</option>
               {constructors.map((c) => (
                 <option key={c.constructorId} value={c.name}>{c.name}</option>
               ))}
@@ -979,12 +956,13 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
         <table className="result-table">
           <thead>
             <tr>
-              <th>Pos</th>
-              <th>Piloto</th>
+              <th>{t.position}</th>
+              <th>{t.driver}</th>
               <th>{getLabel()}</th>
-              {recordMode === "titles_by_constructors" && <th>Constructores</th>}
+              {recordMode === "titles_by_constructors" && <th>{t.constructors}</th>}
             </tr>
           </thead>
+
           <tbody>
             {(data || []).map((item, index) => (
               <tr key={index}>

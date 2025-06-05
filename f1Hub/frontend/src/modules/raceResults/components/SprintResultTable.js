@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import raceResults from "../index";
 import backend from "../../../backend";
+import translations from "../../../i18n/translations";
 import "./RaceResultTable.css";
 
 const SprintResultTable = ({ raceId }) => {
   const dispatch = useDispatch();
   const results = useSelector(raceResults.selectors.getSprintResults);
   const [raceInfo, setRaceInfo] = useState(null);
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+  const t = translations[lang];
 
   useEffect(() => {
     if (raceId) {
@@ -24,24 +27,24 @@ const SprintResultTable = ({ raceId }) => {
             {raceInfo.name} <img src={`https://flagcdn.com/h24/${raceInfo.circuitCountryCode}.png`} alt={raceInfo.circuitCountry} className="flag" /> {raceInfo.round > 0 ? `(${raceInfo.round})` : ""} — {raceInfo.year}
           </>
         ) : (
-          <>Resultados del Sprint #{raceId}</>
+          <>{t.sprintResults} #{raceId}</>
         )}
       </h2>
 
       <div className="table-container">
         <table className="result-table">
           <thead>
-            <tr>
-              <th>Pos</th>
-              <th>Piloto</th>
-              <th>Equipo</th>
-              <th>Grid</th>
-              <th>Vueltas</th>
-              <th>Tiempo</th>
-              <th>Puntos</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
+          <tr>
+            <th>{t.position}</th>
+            <th>{t.driver}</th>
+            <th>{t.team}</th>
+            <th>{t.grid}</th>
+            <th>{t.laps}</th>
+            <th>{t.time}</th>
+            <th>{t.points}</th>
+            <th>{t.status}</th>
+          </tr>
+        </thead>
           <tbody>
             {Array.isArray(results) && results.map((r, i) => (
               <tr key={i}>

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -202,10 +203,15 @@ public class ChartController {
     }
 
     @GetMapping("/by-category")
-    public Map<String, List<String>> getChartEndpointsByCategory() {
-        Map<String, List<String>> categories = new HashMap<>();
+    public Map<String, List<String>> getChartEndpointsByCategory(@RequestParam(defaultValue = "en") String lang) {
+        Map<String, List<String>> categories = new LinkedHashMap<>();
 
-        categories.put("Pilotos", List.of(
+        String drivers = lang.equals("es") ? "Pilotos" : "Drivers";
+        String teams = lang.equals("es") ? "Constructores" : "Constructors";
+        String races = lang.equals("es") ? "Carreras" : "Races";
+        String circuits = lang.equals("es") ? "Circuitos" : "Circuits";
+
+        categories.put(drivers, List.of(
                 "podium-percentage-vs-teammate",
                 "avg-positions-gained-by-season",
                 "avg-positions-gained-first-laps",
@@ -215,14 +221,14 @@ public class ChartController {
                 "distinct-grid-positions-winning"
         ));
 
-        categories.put("Constructores", List.of(
+        categories.put(teams, List.of(
                 "team-comebacks-by-season",
                 "avg-team-points-by-season",
                 "most-team-points",
                 "wins-no-front-row"
         ));
 
-        categories.put("Carreras", List.of(
+        categories.put(races, List.of(
                 "wins-from-3rd-or-worse",
                 "podiums-from-3rd-or-worse",
                 "average-accidents-by-season",
@@ -235,13 +241,14 @@ public class ChartController {
                 "front-row-wins-rate"
         ));
 
-        categories.put("Circuitos", List.of(
+        categories.put(circuits, List.of(
                 "wins-percentage-driver-circuit",
                 "pole-win-rate-circuit"
         ));
 
         return categories;
     }
+
 
     @GetMapping("/drivers")
     public List<AdvancedStatsService.DriverOption> getAllDrivers() {

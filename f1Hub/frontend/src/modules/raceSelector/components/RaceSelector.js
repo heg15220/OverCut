@@ -3,12 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import * as actions from '../actions';
 import * as selectors from '../selectors';
 import "./RaceSelector.css";
+import translations from '../../../i18n/translations';
+
 
 const RaceSelector = ({ onRaceSelected }) => {
   const dispatch = useDispatch();
   const years = useSelector(selectors.getYears);
   const grandsPrix = useSelector(selectors.getGrandsPrix);
   const sessions = useSelector(selectors.getSessions);
+
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+  const t = translations[lang];
 
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedRaceId, setSelectedRaceId] = useState(null);
@@ -47,14 +52,14 @@ const RaceSelector = ({ onRaceSelected }) => {
   return (
     <div className="race-selector">
       <select onChange={handleYearChange} value={selectedYear || ""} className={selectedYear ? "selected" : ""}>
-        <option value="">Selecciona un año</option>
+        <option value="">{t.selectYear}</option>
         {years.map(y => (
           <option key={y} value={y}>{y}</option>
         ))}
       </select>
 
       <select onChange={handleGrandPrixChange} value={selectedRaceId || ""} disabled={!selectedYear} className={selectedRaceId ? "selected" : ""}>
-        <option value="">Selecciona GP</option>
+        <option value="">{t.selectGrandPrix}</option>
         {grandsPrix.map(gp => (
           <option key={gp.raceId} value={gp.raceId}>
             {gp.name} — {gp.circuitName} ({gp.circuitCountry})
@@ -63,7 +68,7 @@ const RaceSelector = ({ onRaceSelected }) => {
       </select>
 
       <select onChange={handleSessionChange} value={selectedSession || ""} disabled={!selectedRaceId} className={selectedSession ? "selected" : ""}>
-        <option value="">Selecciona sesión</option>
+        <option value="">{t.selectSession}</option>
         {sessions.map(session => (
           <option key={session} value={session}>{session}</option>
         ))}
@@ -73,7 +78,7 @@ const RaceSelector = ({ onRaceSelected }) => {
         onClick={handleSubmit}
         disabled={!selectedYear || !selectedRaceId || !selectedSession}
       >
-        Ver resultados
+        {t.viewResults}
       </button>
     </div>
   );

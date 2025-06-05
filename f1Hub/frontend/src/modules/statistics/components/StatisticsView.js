@@ -4,6 +4,7 @@ import * as statisticsActions from "../actions";
 import * as statisticsSelectors from "../selectors";
 import * as raceSelectorActions from "../../raceSelector/actions";
 import * as raceSelectorSelectors from "../../raceSelector/selectors";
+import translations from "../../../i18n/translations";
 import "./StatisticsTable.css";
 
 const StatisticsView = () => {
@@ -12,6 +13,9 @@ const StatisticsView = () => {
 
   const [year, setYear] = useState(null);
   const [mode, setMode] = useState("drivers");
+
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+  const t = translations[lang];
 
   const driverStandings = useSelector(statisticsSelectors.getDriverStandings);
   const constructorStandings = useSelector(statisticsSelectors.getConstructorStandings);
@@ -32,16 +36,16 @@ const StatisticsView = () => {
 
   return (
     <div className="race-result-table">
-      <h2 className="race-result-title">Estadísticas F1</h2>
+      <h2 className="race-result-title">{t.rankings}</h2>
 
       <div className="stat-controls">
         <select value={mode} onChange={e => setMode(e.target.value)}>
-          <option value="drivers">Clasificación Pilotos</option>
-          <option value="constructors">Clasificación Constructores</option>
+          <option value="drivers">{t.driverStandings}</option>
+          <option value="constructors">{t.constructorStandings}</option>
         </select>
 
         <select onChange={e => setYear(Number(e.target.value))} value={year || ""}>
-          <option value="">Selecciona un año</option>
+          <option value="">{t.selectYear}</option>
           {years.map(y => (
             <option key={y} value={y}>{y}</option>
           ))}
@@ -52,9 +56,9 @@ const StatisticsView = () => {
         <table className="result-table">
           <thead>
             <tr>
-              <th>Pos</th>
-              <th>{mode === "constructors" ? "Equipo" : "Piloto"}</th>
-              <th>Puntos</th>
+              <th>{t.position}</th>
+              <th>{mode === "constructors" ? t.team : t.driver}</th>
+              <th>{t.points}</th>
             </tr>
           </thead>
           <tbody>

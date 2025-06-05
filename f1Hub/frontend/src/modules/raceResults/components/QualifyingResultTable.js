@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import raceResults from "../index";
 import backend from "../../../backend";
+import translations from "../../../i18n/translations";
 import "./RaceResultTable.css";
 
 const QualifyingResultTable = ({ raceId }) => {
   const dispatch = useDispatch();
   const results = useSelector(raceResults.selectors.getQualifyingResults);
   const [raceInfo, setRaceInfo] = useState(null);
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+  const t = translations[lang];
 
   useEffect(() => {
     if (raceId) {
@@ -26,7 +29,7 @@ const QualifyingResultTable = ({ raceId }) => {
             {raceInfo.name} <img src={`https://flagcdn.com/h24/${raceInfo.circuitCountryCode}.png`} alt={raceInfo.circuitCountry} className="flag" /> {raceInfo.round > 0 ? `(${raceInfo.round})` : ""} — {raceInfo.year}
           </>
         ) : (
-          <>Resultados de Clasificación #{raceId}</>
+          <>{t.qualifyingResults} #{raceId}</>
         )}
       </h2>
 
@@ -34,12 +37,12 @@ const QualifyingResultTable = ({ raceId }) => {
         <table className="result-table">
           <thead>
             <tr>
-              <th>Pos</th>
-              <th>Piloto</th>
-              <th>Equipo</th>
-              <th>Q1</th>
-              <th>Q2</th>
-              <th>Q3</th>
+              <th>{t.position}</th>
+              <th>{t.driver}</th>
+              <th>{t.team}</th>
+              <th>{t.q1}</th>
+              <th>{t.q2}</th>
+              <th>{t.q3}</th>
             </tr>
           </thead>
           <tbody>
