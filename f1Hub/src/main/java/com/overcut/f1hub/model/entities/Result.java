@@ -43,6 +43,9 @@ public class Result {
     @Column(name = "milliseconds")
     private Integer milliseconds;
 
+    @Column(name = "fastestLapSpeed")
+    private Double fastestLapSpeed;
+
     public Result() {
     }
 
@@ -73,6 +76,22 @@ public class Result {
         this.time = time;
         this.points = points;
         this.milliseconds = milliseconds;
+    }
+
+    public Result(Race race, Driver driver, Constructor constructor, Status status, Integer number, Integer grid,
+                  Integer positionOrder, Integer laps, String time, Double points, Integer milliseconds, Double fastestLapSpeed) {
+        this.race = race;
+        this.driver = driver;
+        this.constructor = constructor;
+        this.status = status;
+        this.number = number;
+        this.grid = grid;
+        this.positionOrder = positionOrder;
+        this.laps = laps;
+        this.time = time;
+        this.points = points;
+        this.milliseconds = milliseconds;
+        this.fastestLapSpeed = fastestLapSpeed;
     }
 
     public Long getResultId() {
@@ -173,6 +192,14 @@ public class Result {
 
     public void setMilliseconds(Integer milliseconds) {
         this.milliseconds = milliseconds;
+    }
+
+    public Double getFastestLapSpeed() {
+        return fastestLapSpeed;
+    }
+
+    public void setFastestLapSpeed(Double fastestLapSpeed) {
+        this.fastestLapSpeed = fastestLapSpeed;
     }
 }
 

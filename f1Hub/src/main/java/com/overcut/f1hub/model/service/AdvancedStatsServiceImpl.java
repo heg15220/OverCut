@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +51,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Autowired
     private ChartI18nService chartI18n;
+
+    @Autowired
+    private SprintResultDao sprintResultDao;
 
     public List<DriverOption> getAllDrivers() {
         return driverDao.findAll().stream()
@@ -2424,5 +2428,472 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         int index = Math.abs(driverId.hashCode()) % colors.length;
         return colors[index];
     }
+
+    @Override
+    public ChartDataDTO getFinishPositionDistribution(String lang) {
+        Map<Long, String> driverNames = driverDao.findAll().stream()
+                .collect(Collectors.toMap(Driver::getDriverId, d -> d.getForename() + " " + d.getSurname()));
+
+        // Map<position, Map<driverId, count>>
+        Map<Integer, Map<Long, Integer>> histogram = new TreeMap<>();
+
+        for (Result r : resultDao.findAll()) {
+            if (r.getPositionOrder() == null) continue;
+            int position = r.getPositionOrder();
+            long driverId = r.getDriver().getDriverId();
+
+            histogram.computeIfAbsent(position, k -> new HashMap<>())
+                    .merge(driverId, 1, Integer::sum);
+        }
+
+        List<String> labels = histogram.keySet().stream().map(String::valueOf).toList();
+        Map<Long, List<Double>> seriesMap = new HashMap<>();
+
+        for (Map.Entry<Integer, Map<Long, Integer>> entry : histogram.entrySet()) {
+            int pos = entry.getKey();
+            for (Map.Entry<Long, Integer> e : entry.getValue().entrySet()) {
+                seriesMap.computeIfAbsent(e.getKey(), k -> new ArrayList<>());
+            }
+        }
+
+        for (Long driverId : seriesMap.keySet()) {
+            for (Integer pos : histogram.keySet()) {
+                int count = histogram.get(pos).getOrDefault(driverId, 0);
+                seriesMap.get(driverId).add((double) count);
+            }
+        }
+
+        AtomicInteger index = new AtomicInteger(0);
+        List<ChartSeriesDTO> datasets = seriesMap.entrySet().stream()
+                .map(e -> {
+                    String name = driverNames.getOrDefault(e.getKey(), "Driver " + e.getKey());
+                    String color = getColorForIndex(index.getAndIncrement());
+                    return new ChartSeriesDTO(name, color, e.getValue());
+                }).toList();
+
+        return new ChartDataDTO(chartI18n.get("finishPositionDistribution", lang), "bar", labels, datasets);
+    }
+
+
+    @Override
+    public ChartDataDTO getFinishVsDNFRatio(String lang) {
+        List<Driver> drivers = driverDao.findAll();
+        Map<Long, String> driverNames = drivers.stream()
+                .collect(Collectors.toMap(Driver::getDriverId, d -> d.getForename() + " " + d.getSurname()));
+
+        Set<String> finishStatus = Set.of("finished", "classified");
+
+        Map<Long, int[]> stats = new HashMap<>(); // [0] = finishes, [1] = dnfs
+
+        for (Result r : resultDao.findAll()) {
+            Long driverId = r.getDriver().getDriverId();
+            String status = r.getStatus().getStatus().toLowerCase();
+            boolean finished = status.contains("finished") || status.contains("classified");
+
+            int[] arr = stats.computeIfAbsent(driverId, k -> new int[2]);
+            if (finished) arr[0]++;
+            else arr[1]++;
+        }
+
+        List<String> labels = List.of("Finished", "DNF");
+
+        AtomicInteger index = new AtomicInteger(0);
+        List<ChartSeriesDTO> dataset = stats.entrySet().stream()
+                .map(e -> {
+                    String name = driverNames.getOrDefault(e.getKey(), "Driver " + e.getKey());
+                    int[] val = e.getValue();
+                    double total = val[0] + val[1];
+                    String color = getColorForIndex(index.getAndIncrement());
+                    return new ChartSeriesDTO(name, color, List.of(
+                            (100.0 * val[0]) / total,
+                            (100.0 * val[1]) / total
+                    ));
+                }).toList();
+
+
+        return new ChartDataDTO(chartI18n.get("finishVsDNFRatio", lang), "bar", labels, dataset);
+    }
+
+
+    @Override
+    public ChartDataDTO getSprintVsRacePointsEvolution(String driverIdStr, String lang) {
+        Long driverId = Long.parseLong(driverIdStr);
+
+        Map<Integer, Double> racePoints = new HashMap<>();
+        Map<Integer, Double> sprintPoints = new HashMap<>();
+
+        for (Result r : resultDao.findAll()) {
+            if (!r.getDriver().getDriverId().equals(driverId)) continue;
+            int year = r.getRace().getYear();
+            racePoints.merge(year, r.getPoints(), Double::sum);
+        }
+
+        for (SprintResult sr : sprintResultDao.findAll()) {
+            if (!sr.getDriver().getDriverId().equals(driverId)) continue;
+            int year = sr.getRace().getYear();
+            sprintPoints.merge(year, sr.getPoints(), Double::sum);
+        }
+
+        Set<Integer> allYears = new TreeSet<>();
+        allYears.addAll(racePoints.keySet());
+        allYears.addAll(sprintPoints.keySet());
+
+        List<String> labels = allYears.stream().map(String::valueOf).toList();
+        List<Double> raceData = allYears.stream().map(y -> racePoints.getOrDefault(y, 0.0)).toList();
+        List<Double> sprintData = allYears.stream().map(y -> sprintPoints.getOrDefault(y, 0.0)).toList();
+
+        Driver d = driverDao.findById(driverId).orElse(null);
+        String name = (d != null) ? d.getForename() + " " + d.getSurname() : "Driver " + driverId;
+
+        return new ChartDataDTO(chartI18n.get("sprintVsRacePointsEvolution", lang) + name, "line", labels, List.of(
+                new ChartSeriesDTO("Race Points", "#0088FE", raceData),
+                new ChartSeriesDTO("Sprint Points", "#FFBB28", sprintData)
+        ));
+    }
+
+
+
+    @Override
+    public ChartDataDTO getGridVsResultDeltaByConstructor(String lang) {
+        Map<Long, String> constructorNames = constructorDao.findAll().stream()
+                .collect(Collectors.toMap(Constructor::getConstructorId, Constructor::getName));
+
+        Map<Long, List<Integer>> deltas = new HashMap<>();
+
+        for (Result r : resultDao.findAll()) {
+            if (r.getGrid() == null || r.getPositionOrder() == null) continue;
+            int delta = r.getGrid() - r.getPositionOrder();
+            Long constructorId = r.getConstructor().getConstructorId();
+            deltas.computeIfAbsent(constructorId, k -> new ArrayList<>()).add(delta);
+        }
+
+        AtomicInteger idx = new AtomicInteger();
+        List<ChartSeriesDTO> dataset = deltas.entrySet().stream()
+                .map(e -> {
+                    double avg = e.getValue().stream().mapToInt(i -> i).average().orElse(0);
+                    String name = constructorNames.getOrDefault(e.getKey(), "Team " + e.getKey());
+                    String color = getColorForIndex(idx.getAndIncrement());
+                    return new ChartSeriesDTO(name, color, List.of(avg));
+                }).toList();
+
+
+        return new ChartDataDTO(chartI18n.get("gridToResultDeltaByConstructor", lang), "bar",
+                List.of("Avg Δ (grid - finish)"), dataset);
+    }
+
+    @Override
+    public ChartDataDTO getReliabilityBySeason(String lang) {
+        Set<String> nonFinishStatuses = Set.of("accident", "collision", "engine", "gearbox", "hydraulics", "electrical",
+                "spun off", "fuel", "oil", "fire", "wheel", "brakes", "exhaust", "overheating");
+
+        Map<Long, String> constructorNames = constructorDao.findAll().stream()
+                .collect(Collectors.toMap(Constructor::getConstructorId, Constructor::getName));
+
+        Map<Long, Map<Integer, int[]>> data = new HashMap<>(); // constructor → year → [participaciones, abandonos]
+
+        for (Result r : resultDao.findAll()) {
+            if (r.getConstructor() == null || r.getStatus() == null) continue;
+            int year = r.getRace().getYear();
+            String status = r.getStatus().getStatus().toLowerCase();
+            Long constructorId = r.getConstructor().getConstructorId();
+
+            boolean dnf = nonFinishStatuses.stream().anyMatch(status::contains);
+
+            data.computeIfAbsent(constructorId, k -> new HashMap<>())
+                    .computeIfAbsent(year, y -> new int[2]);
+
+            int[] arr = data.get(constructorId).get(year);
+            arr[0]++; // participación
+            if (dnf) arr[1]++; // abandono
+        }
+
+        Set<Integer> allYears = data.values().stream()
+                .flatMap(m -> m.keySet().stream())
+                .collect(Collectors.toCollection(TreeSet::new));
+        List<String> labels = allYears.stream().map(String::valueOf).toList();
+
+        List<ChartSeriesDTO> datasets = new ArrayList<>();
+
+        for (Map.Entry<Long, Map<Integer, int[]>> entry : data.entrySet()) {
+            String label = constructorNames.getOrDefault(entry.getKey(), "Team " + entry.getKey());
+            List<Double> values = new ArrayList<>();
+            for (Integer year : allYears) {
+                int[] arr = entry.getValue().getOrDefault(year, new int[]{0, 0});
+                double ratio = (arr[0] == 0) ? Double.NaN : 100.0 * (arr[0] - arr[1]) / arr[0];
+                values.add(ratio);
+            }
+            datasets.add(new ChartSeriesDTO(label, "#8884d8", values));
+        }
+
+        return new ChartDataDTO(chartI18n.get("reliabilityBySeason", lang), "line", labels, datasets);
+    }
+
+    @Override
+    public ChartDataDTO getAverageRaceDurationPerSeason(String lang) {
+        Map<Integer, List<Long>> seasonDurations = new HashMap<>();
+
+        for (Result r : resultDao.findAll()) {
+            if (r.getPositionOrder() != null && r.getPositionOrder() == 1 && r.getMilliseconds() != null) {
+                int year = r.getRace().getYear();
+                seasonDurations.computeIfAbsent(year, k -> new ArrayList<>())
+                        .add(r.getMilliseconds().longValue());
+            }
+        }
+
+        List<Integer> years = new ArrayList<>(seasonDurations.keySet());
+        Collections.sort(years);
+        List<String> labels = years.stream().map(String::valueOf).toList();
+
+        List<Double> values = years.stream()
+                .map(y -> seasonDurations.get(y).stream().mapToLong(l -> l).average().orElse(0) / 60000.0) // ← conversión a minutos
+                .toList();
+
+        return new ChartDataDTO(
+                chartI18n.get("avgRaceDurationPerSeason", lang),
+                "line",
+                labels,
+                List.of(new ChartSeriesDTO("Duration (min)", "#8884d8", values))
+        );
+    }
+
+
+
+    @Override
+    public ChartDataDTO getAvgFastestPitStopPerRace(String lang) {
+        Map<Long, List<PitStop>> pitStopsByRace = pitStopDao.findAll().stream()
+                .collect(Collectors.groupingBy(PitStop::getRaceId));
+
+        Map<Long, Double> minPitStopTimeByRace = new HashMap<>();
+        for (Map.Entry<Long, List<PitStop>> e : pitStopsByRace.entrySet()) {
+            List<PitStop> stops = e.getValue().stream()
+                    .filter(p -> p.getMilliseconds() != null)
+                    .toList();
+            if (!stops.isEmpty()) {
+                long min = stops.stream().mapToLong(PitStop::getMilliseconds).min().orElse(0);
+                minPitStopTimeByRace.put(e.getKey(), (double) min);
+            }
+        }
+
+        List<Race> races = raceDao.findAllOrderByYearAndRound();
+        List<String> labels = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+
+        for (Race r : races) {
+            if (minPitStopTimeByRace.containsKey(r.getRaceId())) {
+                labels.add(r.getYear() + " - " + r.getName());
+                values.add(minPitStopTimeByRace.get(r.getRaceId()));
+            }
+        }
+
+        return new ChartDataDTO(chartI18n.get("avgFastestPitStopPerRace", lang), "bar", labels,
+                List.of(new ChartSeriesDTO("Min Pit Stop (ms)", "#FFBB28", values)));
+    }
+
+    @Override
+    public ChartDataDTO getRaceLeadersPerGrandPrix(String lang) {
+        Map<Long, Set<Long>> leadersPerRace = new HashMap<>();
+
+        for (LapTime lt : lapTimeDao.findAll()) {
+            if (lt.getPosition() != null && lt.getPosition() == 1) {
+                leadersPerRace.computeIfAbsent(lt.getRaceId(), k -> new HashSet<>()).add(lt.getDriverId());
+            }
+        }
+
+        List<Race> races = raceDao.findAllOrderByYearAndRound();
+        List<String> labels = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+
+        for (Race r : races) {
+            labels.add(r.getYear() + " - " + r.getName());
+            values.add((double) leadersPerRace.getOrDefault(r.getRaceId(), Set.of()).size());
+        }
+
+        return new ChartDataDTO(chartI18n.get("raceLeadersCountPerGP", lang), "bar", labels,
+                List.of(new ChartSeriesDTO("Distinct leaders", "#00C49F", values)));
+    }
+
+    @Override
+    public ChartDataDTO getAvgQ1Q3DeltaBySeason(String lang) {
+        Map<Integer, List<Long>> deltas = new HashMap<>();
+
+        for (Qualifying q : qualifyingDao.findAll()) {
+            int year = q.getRace().getYear();
+            if (year < 2006) continue; // ignorar pre 2006
+
+            Long t1 = parseTimeToMilliseconds(q.getQ1());
+            Long t3 = parseTimeToMilliseconds(q.getQ3());
+            if (t1 != null && t3 != null) {
+                deltas.computeIfAbsent(year, k -> new ArrayList<>()).add(t1 - t3);
+            }
+        }
+
+        List<Integer> years = deltas.keySet().stream().sorted().toList();
+        List<String> labels = years.stream().map(String::valueOf).toList();
+        List<Double> values = years.stream()
+                .map(y -> deltas.get(y).stream().mapToLong(l -> l).average().orElse(0))
+                .toList();
+
+        return new ChartDataDTO(chartI18n.get("avgQ1Q3DeltaPerSeason", lang), "line", labels,
+                List.of(new ChartSeriesDTO("Q1 - Q3 (ms)", "#FF8042", values)));
+    }
+
+    @Override
+    public ChartDataDTO getAvgQualiImprovement(String lang) {
+        Map<Long, List<Long>> q1Map = new HashMap<>();
+        Map<Long, List<Long>> q2Map = new HashMap<>();
+        Map<Long, List<Long>> q3Map = new HashMap<>();
+
+        for (Qualifying q : qualifyingDao.findAll()) {
+            Long driverId = q.getDriver().getDriverId();
+            if (driverId == null) continue;
+
+            Long t1 = parseTimeToMilliseconds(q.getQ1());
+            Long t2 = parseTimeToMilliseconds(q.getQ2());
+            Long t3 = parseTimeToMilliseconds(q.getQ3());
+
+            if (t1 != null) q1Map.computeIfAbsent(driverId, k -> new ArrayList<>()).add(t1);
+            if (t2 != null) q2Map.computeIfAbsent(driverId, k -> new ArrayList<>()).add(t2);
+            if (t3 != null) q3Map.computeIfAbsent(driverId, k -> new ArrayList<>()).add(t3);
+        }
+
+        AtomicInteger index = new AtomicInteger(0);
+        List<ChartSeriesDTO> dataset = q1Map.keySet().stream()
+                .map(driverId -> {
+                    String name = driverDao.findById(driverId).map(d -> d.getForename() + " " + d.getSurname())
+                            .orElse("Driver " + driverId);
+                    double q1 = q1Map.get(driverId).stream().mapToLong(l -> l).average().orElse(0);
+                    double q2 = q2Map.getOrDefault(driverId, List.of()).stream().mapToLong(l -> l).average().orElse(0);
+                    double q3 = q3Map.getOrDefault(driverId, List.of()).stream().mapToLong(l -> l).average().orElse(0);
+                    String color = getColorForIndex(index.getAndIncrement());
+                    return new ChartSeriesDTO(name, color, List.of(q1, q2, q3));
+                })
+                .toList();
+
+
+        return new ChartDataDTO(chartI18n.get("avgQualiImprovement", lang), "bar", List.of("Q1", "Q2", "Q3"), dataset);
+    }
+
+
+    @Override
+    public ChartDataDTO getPointsStreaksPerDriver(String lang) {
+        Map<Long, List<Double>> pointsByDriver = new HashMap<>();
+
+        resultDao.findAll().stream()
+                .sorted(Comparator.comparing(r -> r.getRace().getDate()))
+                .forEach(r -> {
+                    Long driverId = r.getDriver().getDriverId();
+                    pointsByDriver.computeIfAbsent(driverId, k -> new ArrayList<>()).add(r.getPoints() != null ? r.getPoints() : 0.0);
+                });
+
+        AtomicInteger index = new AtomicInteger(0);
+        List<ChartSeriesDTO> dataset = pointsByDriver.entrySet().stream()
+                .map(e -> {
+                    int maxStreak = 0, current = 0;
+                    for (Double pts : e.getValue()) {
+                        if (pts > 0) current++;
+                        else current = 0;
+                        maxStreak = Math.max(maxStreak, current);
+                    }
+                    String name = driverDao.findById(e.getKey()).map(d -> d.getForename() + " " + d.getSurname()).orElse("Driver " + e.getKey());
+                    String color = getColorForIndex(index.getAndIncrement());
+                    return new ChartSeriesDTO(name, color, List.of((double) maxStreak));
+                }).toList();
+
+
+        return new ChartDataDTO(chartI18n.get("pointsStreaksPerDriver", lang), "bar", List.of("Streak"), dataset);
+    }
+
+
+    @Override
+    public ChartDataDTO getPerformanceInCrazyRaces(String lang) {
+        Set<Long> wetRaceIds = resultDao.findAll().stream()
+                .collect(Collectors.groupingBy(r -> r.getRace().getRaceId()))
+                .entrySet().stream()
+                .filter(e -> {
+                    long total = e.getValue().size();
+                    long retirements = e.getValue().stream().filter(r -> {
+                        String status = r.getStatus().getStatus().toLowerCase();
+                        return status.contains("accident") || status.contains("collision") || status.contains("engine");
+                    }).count();
+                    return retirements > total * 0.4; // heurística lluvia
+                }).map(Map.Entry::getKey).collect(Collectors.toSet());
+
+        Map<Long, Integer> points = new HashMap<>();
+        for (Result r : resultDao.findAll()) {
+            if (wetRaceIds.contains(r.getRace().getRaceId())) {
+                Long driverId = r.getDriver().getDriverId();
+                points.merge(driverId, r.getPoints() != null ? r.getPoints().intValue() : 0, Integer::sum);
+            }
+        }
+
+        List<ChartSeriesDTO> dataset = points.entrySet().stream()
+                .map(e -> {
+                    String name = driverDao.findById(e.getKey()).map(d -> d.getForename() + " " + d.getSurname()).orElse("Driver " + e.getKey());
+                    return new ChartSeriesDTO(name, "#3399ff", List.of((double) e.getValue()));
+                }).toList();
+
+        return new ChartDataDTO(chartI18n.get("crazyRacePerformance", lang), "bar", List.of("Points in caotic races"), dataset);
+    }
+
+    @Override
+    public ChartDataDTO getAvgFastestLapSpeedPerSeason(String lang) {
+        Map<Integer, List<Double>> speeds = new HashMap<>();
+
+        for (Result r : resultDao.findAll()) {
+            if (r.getFastestLapSpeed() != null) {
+                speeds.computeIfAbsent(r.getRace().getYear(), k -> new ArrayList<>())
+                        .add(r.getFastestLapSpeed());
+            }
+        }
+
+        List<Integer> years = new ArrayList<>(speeds.keySet());
+        Collections.sort(years);
+
+        List<String> labels = years.stream().map(String::valueOf).toList();
+        List<Double> values = years.stream()
+                .map(y -> speeds.get(y).stream().mapToDouble(d -> d).average().orElse(0))
+                .toList();
+
+        return new ChartDataDTO(chartI18n.get("avgFastestLapSpeedPerSeason", lang), "line", labels,
+                List.of(new ChartSeriesDTO("Avg km/h", "#00C49F", values)));
+    }
+
+
+    @Override
+    public ChartDataDTO getTopOvertakingRaces(String lang) {
+        ChartDataDTO base = getAvgOvertakesPerSeason(lang); // ya implementado
+        List<String> labels = base.getLabels();
+        List<Double> values = base.getDatasets().get(0).getData();
+
+        List<Map.Entry<String, Double>> sorted = new ArrayList<>();
+        for (int i = 0; i < labels.size(); i++) {
+            sorted.add(Map.entry(labels.get(i), values.get(i)));
+        }
+
+        sorted.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
+        sorted = sorted.subList(0, Math.min(20, sorted.size()));
+
+        List<String> topLabels = sorted.stream().map(Map.Entry::getKey).toList();
+        List<Double> topValues = sorted.stream().map(Map.Entry::getValue).toList();
+
+        return new ChartDataDTO(chartI18n.get("topOvertakingRaces", lang), "bar", topLabels,
+                List.of(new ChartSeriesDTO("Overtakes", "#ff6f61", topValues)));
+    }
+
+
+
+
+    private String getColorForIndex(int index) {
+        String[] palette = {
+                "#E10600", "#1B9CFC", "#F97F51", "#B33771", "#3B3B98", "#55E6C1", "#F8EFBA", "#25CCF7",
+                "#FD7272", "#9AECDB", "#D6A2E8", "#33d9b2", "#218c74", "#40407a", "#ffb142", "#706fd3",
+                "#ff5252", "#2C3A47", "#34ace0", "#ffb8b8", "#3ae374", "#ffa801", "#cd84f1", "#7efff5",
+                "#c56cf0", "#ff3838", "#70a1ff", "#2ed573", "#5352ed", "#ff6b81", "#1e90ff", "#ffeaa7"
+        };
+        return palette[index % palette.length];
+    }
+
+
+
 
 }

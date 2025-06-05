@@ -77,7 +77,50 @@ const metadata = {
   "pole-win-rate-circuit": {
     label: { es: "Victorias desde la pole vs otras posiciones", en: "Wins from Pole vs Others at Circuit" },
     param: "circuitOptions"
-  }
+  },
+    "finish-position-distribution": {
+      label: { es: "Distribución de Posiciones Finales", en: "Finish Position Distribution" }
+    },
+    "finish-vs-dnf-ratio": {
+      label: { es: "Ratio Finalizadas vs Abandonos", en: "Finish vs DNF Ratio" }
+    },
+    "sprint-vs-race-points": {
+      label: { es: "Evolución Puntos Sprint vs Carrera", en: "Sprint vs Race Points Evolution" },
+      param: "driverId"
+    },
+    "points-streaks": {
+      label: { es: "Rachas de GPs Puntuando", en: "Points Streaks per Driver" }
+    },
+    "grid-vs-result-delta": {
+      label: { es: "Diferencia Parrilla vs Resultado", en: "Grid vs Result Delta (Constructors)" }
+    },
+    "reliability-by-season": {
+      label: { es: "Fiabilidad por Temporada", en: "Reliability by Season" }
+    },
+    "avg-race-duration": {
+      label: { es: "Duración Promedio de Carrera", en: "Average Race Duration" }
+    },
+    "fastest-pitstop-per-race": {
+      label: { es: "Pit Stop Más Rápido por GP", en: "Fastest Pit Stop per GP" }
+    },
+    "race-leaders-per-gp": {
+      label: { es: "Número de Líderes por GP", en: "Race Leaders Count per GP" }
+    },
+    "q1-q3-delta-per-season": {
+      label: { es: "Diferencia Q1 vs Q3 por Temporada", en: "Q1 vs Q3 Delta per Season" }
+    },
+    "qualifying-improvement": {
+      label: { es: "Mejora en Clasificación (Q1-Q3)", en: "Avg Qualifying Improvement" }
+    },
+    "caotic-race-performance": {
+      label: { es: "Rendimiento en Carreras Caóticas", en: "Performance on Caotic Races" }
+    },
+    "avg-fastest-lap-speed": {
+      label: { es: "Velocidad Promedio en Vuelta Rápida", en: "Avg Fastest Lap Speed" }
+    },
+    "top-overtaking-races": {
+      label: { es: "Temporadas con Más Adelantamientos", en: "Top Overtaking Seasons" }
+    }
 };
 
 export default metadata;

@@ -5,6 +5,7 @@ import ChartCard from "./ChartCard";
 import ChartCardColored from "./ChartCardColored";
 import ChartCardScatter from "./ChartCardScatter";
 import ChartCardPie from "./ChartCardPie";
+import ChartCardBarColored from "./ChartCardBarColored";
 import metadata from "../metadata";
 import translations from "../../../i18n/translations";
 import "./ChartStyles.css";
@@ -165,8 +166,23 @@ const ChartsDashboard = () => {
           <ChartCardPie chart={chart} />
         ) : ["avg-positions-gained-first-laps", "total-podium-percentage-vs-all-teammates", "distinct-grid-positions-winning"].includes(selectedChart) ? (
           <ChartCardScatter chart={chart} />
-        ) : ["wins-from-3rd-or-worse", "podiums-from-3rd-or-worse", "team-comebacks-by-season",
-            "avg-team-points-by-season", "most-team-points", "podium-percentage-vs-teammate"
+        ) : [
+            "grid-vs-result-delta",
+            "wins-from-3rd-or-worse",
+            "podiums-from-3rd-or-worse",
+            "finish-position-distribution",
+            "finish-vs-dnf-ratio",
+            "points-streaks",
+            "qualifying-improvement"
+          ].includes(selectedChart) ? (
+          <ChartCardBarColored chart={chart} />
+        ) : [
+            "team-comebacks-by-season",
+            "avg-team-points-by-season",
+            "most-team-points",
+            "podium-percentage-vs-teammate",
+            "reliability-by-season",
+            "caotic-race-performance"
           ].includes(selectedChart) ? (
           <ChartCardColored chart={chart} />
         ) : (
@@ -177,6 +193,7 @@ const ChartsDashboard = () => {
       ) : (
         <div className="chart-empty text-center">{t.selectChart}</div>
       )}
+
     </div>
   );
 };

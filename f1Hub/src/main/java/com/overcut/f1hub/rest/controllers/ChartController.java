@@ -202,6 +202,78 @@ public class ChartController {
         return advancedStatsService.getChampionshipProgressTop2Drivers(season,lang);
     }
 
+    @GetMapping("/finish-position-distribution")
+    public ChartDataDTO getFinishPositionDistribution(@RequestParam String lang) {
+        return advancedStatsService.getFinishPositionDistribution(lang);
+    }
+
+    @GetMapping("/finish-vs-dnf-ratio")
+    public ChartDataDTO getFinishVsDNFRatio(@RequestParam String lang) {
+        return advancedStatsService.getFinishVsDNFRatio(lang);
+    }
+
+    @GetMapping("/sprint-vs-race-points")
+    public ChartDataDTO getSprintVsRacePointsEvolution(@RequestParam String driverId, @RequestParam String lang) {
+        return advancedStatsService.getSprintVsRacePointsEvolution(driverId, lang);
+    }
+
+    @GetMapping("/points-streaks")
+    public ChartDataDTO getPointsStreaksPerDriver(@RequestParam String lang) {
+        return advancedStatsService.getPointsStreaksPerDriver(lang);
+    }
+
+
+    @GetMapping("/grid-vs-result-delta")
+    public ChartDataDTO getGridVsResultDeltaByConstructor(@RequestParam String lang) {
+        return advancedStatsService.getGridVsResultDeltaByConstructor(lang);
+    }
+
+    @GetMapping("/reliability-by-season")
+    public ChartDataDTO getReliabilityBySeason(@RequestParam String lang) {
+        return advancedStatsService.getReliabilityBySeason(lang);
+    }
+
+    @GetMapping("/avg-race-duration")
+    public ChartDataDTO getAverageRaceDurationPerSeason(@RequestParam String lang) {
+        return advancedStatsService.getAverageRaceDurationPerSeason(lang);
+    }
+
+    @GetMapping("/fastest-pitstop-per-race")
+    public ChartDataDTO getAvgFastestPitStopPerRace(@RequestParam String lang) {
+        return advancedStatsService.getAvgFastestPitStopPerRace(lang);
+    }
+
+    @GetMapping("/race-leaders-per-gp")
+    public ChartDataDTO getRaceLeadersPerGrandPrix(@RequestParam String lang) {
+        return advancedStatsService.getRaceLeadersPerGrandPrix(lang);
+    }
+
+    @GetMapping("/q1-q3-delta-per-season")
+    public ChartDataDTO getAvgQ1Q3DeltaBySeason(@RequestParam String lang) {
+        return advancedStatsService.getAvgQ1Q3DeltaBySeason(lang);
+    }
+
+    @GetMapping("/qualifying-improvement")
+    public ChartDataDTO getAvgQualiImprovement(@RequestParam String lang) {
+        return advancedStatsService.getAvgQualiImprovement(lang);
+    }
+
+    @GetMapping("/caotic-race-performance")
+    public ChartDataDTO getPerformanceInCrazyRaces(@RequestParam String lang) {
+        return advancedStatsService.getPerformanceInCrazyRaces(lang); // Alias lógico
+    }
+
+    @GetMapping("/avg-fastest-lap-speed")
+    public ChartDataDTO getAvgFastestLapSpeedPerSeason(@RequestParam String lang) {
+        return advancedStatsService.getAvgFastestLapSpeedPerSeason(lang);
+    }
+
+    @GetMapping("/top-overtaking-races")
+    public ChartDataDTO getTopOvertakingRaces(@RequestParam String lang) {
+        return advancedStatsService.getTopOvertakingRaces(lang);
+    }
+
+
     @GetMapping("/by-category")
     public Map<String, List<String>> getChartEndpointsByCategory(@RequestParam(defaultValue = "en") String lang) {
         Map<String, List<String>> categories = new LinkedHashMap<>();
@@ -218,14 +290,21 @@ public class ChartController {
                 "most-common-finish-position",
                 "driver-vs-team-championship-finish",
                 "total-podium-percentage-vs-all-teammates",
-                "distinct-grid-positions-winning"
+                "distinct-grid-positions-winning",
+                "finish-position-distribution",
+                "finish-vs-dnf-ratio",
+                "sprint-vs-race-points",
+                "points-streaks",
+                "qualifying-improvement"
         ));
 
         categories.put(teams, List.of(
                 "team-comebacks-by-season",
                 "avg-team-points-by-season",
                 "most-team-points",
-                "wins-no-front-row"
+                "wins-no-front-row",
+                "grid-vs-result-delta",
+                "reliability-by-season"
         ));
 
         categories.put(races, List.of(
@@ -238,7 +317,14 @@ public class ChartController {
                 "quali-gap-1st-to-2nd-average",
                 "quali-gap-1st-to-10th-average",
                 "race-gap-1st-to-2nd-average",
-                "front-row-wins-rate"
+                "front-row-wins-rate",
+                "avg-race-duration",
+                "fastest-pitstop-per-race",
+                "race-leaders-per-gp",
+                "q1-q3-delta-per-season",
+                "caotic-race-performance",
+                "avg-fastest-lap-speed",
+                "top-overtaking-races"
         ));
 
         categories.put(circuits, List.of(

@@ -144,9 +144,68 @@ public class ChartI18nService {
             Map.entry("championshipProgressTop2", Map.of(
                     "es", "Progreso del campeonato (top 2) ",
                     "en", "Championship progress (top 2) "
+            )),
+            Map.entry("finishPositionDistribution", Map.of(
+                    "es", "Distribución de posiciones finales por piloto",
+                    "en", "Finish position distribution by driver"
+            )),
+            Map.entry("finishVsDNFRatio", Map.of(
+                    "es", "Ratio de finalizaciones vs abandonos por piloto",
+                    "en", "Finish vs DNF ratio by driver"
+            )),
+            Map.entry("sprintVsRacePointsEvolution", Map.of(
+                    "es", "Evolución de puntos en Sprint y Carrera para ",
+                    "en", "Sprint vs Race points evolution for "
+            )),
+            Map.entry("pointsStreaksPerDriver", Map.of(
+                    "es", "Racha más larga de puntos consecutivos por piloto",
+                    "en", "Longest points streak per driver"
+            )),
+            Map.entry("gridToResultDeltaByConstructor", Map.of(
+                    "es", "Diferencia promedio entre parrilla y resultado final por constructor",
+                    "en", "Average grid vs finish delta by constructor"
+            )),
+            Map.entry("reliabilityBySeason", Map.of(
+                    "es", "Fiabilidad por temporada (% de carreras terminadas)",
+                    "en", "Reliability by season (% races finished)"
+            )),
+
+            Map.entry("avgRaceDurationPerSeason", Map.of(
+                    "es", "Duración promedio de carrera por temporada",
+                    "en", "Average race duration per season"
+            )),
+            Map.entry("avgFastestPitStopPerRace", Map.of(
+                    "es", "Pit stop más rápido por carrera",
+                    "en", "Fastest pit stop per race"
+            )),
+            Map.entry("raceLeadersCountPerGP", Map.of(
+                    "es", "Cantidad de líderes por Gran Premio",
+                    "en", "Number of race leaders per Grand Prix"
+            )),
+
+            Map.entry("avgQ1Q3DeltaPerSeason", Map.of(
+                    "es", "Diferencia promedio entre Q1 y Q3 por temporada",
+                    "en", "Average Q1–Q3 delta per season"
+            )),
+            Map.entry("avgQualiImprovement", Map.of(
+                    "es", "Promedio de mejora entre Q1, Q2 y Q3 por piloto",
+                    "en", "Average improvement across Q1–Q3 per driver"
+            )),
+
+            Map.entry("crazyRacePerformance", Map.of(
+                    "es", "Rendimiento en carreras caóticas (lluvia o muchos abandonos)",
+                    "en", "Performance in chaotic races (wet or high attrition)"
+            )),
+            Map.entry("avgFastestLapSpeedPerSeason", Map.of(
+                    "es", "Velocidad promedio en vuelta rápida por temporada",
+                    "en", "Average fastest lap speed per season"
+            )),
+            Map.entry("topOvertakingRaces", Map.of(
+                    "es", "Temporadas con más adelantamientos",
+                    "en", "Top overtaking Seasons"
             ))
 
-    );
+            );
 
     public String get(String key, String lang) {
         return translations.getOrDefault(key, Map.of()).getOrDefault(lang, translations.getOrDefault(key, Map.of()).get("en"));
