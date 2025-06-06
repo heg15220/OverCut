@@ -114,6 +114,72 @@ const metadata = {
     },
     "top-overtaking-races": {
       label: { es: "Temporadas con Más Adelantamientos", en: "Top Overtaking Seasons" }
+    },
+    "quali-consistency": {
+      label: {
+        es: "Consistencia en Clasificación (Varianza)",
+        en: "Qualifying Consistency (Variance)"
+      }
+    },
+    "poles-without-win": {
+      label: {
+        es: "Poles sin Victoria",
+        en: "Poles without Win"
+      }
+    },
+    "teammate-wins-delta": {
+      label: {
+        es: "Δ Victorias entre Compañeros",
+        en: "Teammate Win Delta"
+      }
+    },
+    "teammate-podium-delta": {
+      label: {
+        es: "Δ Podios entre Compañeros",
+        en: "Teammate Podium Delta"
+      }
+    },
+    "efficiency-rating": {
+      label: {
+        es: "Índice de Eficiencia del Piloto",
+        en: "Driver Efficiency Rating"
+      }
+    },
+    "technical-failures": {
+      label: {
+        es: "Fallos Técnicos por Equipo",
+        en: "Technical Failures by Constructor"
+      }
+    },
+    "pole-conversion-rate": {
+      label: {
+        es: "Ratio de Conversión desde la Pole",
+        en: "Pole Conversion Rate"
+      }
+    },
+    "podiums-from-outside-top10": {
+      label: {
+        es: "Podios desde Fuera del Top 10",
+        en: "Podiums from Outside Top 10"
+      }
+    },
+    "retirement-cause-by-season": {
+      label: {
+        es: "Causa de Abandono Más Común por Temporada",
+        en: "Most Common Retirement Cause by Season"
+      }
+    },
+    "quali-race-delta-histogram": {
+      label: {
+        es: "Histograma Clasificación vs Carrera",
+        en: "Quali vs Race Position Delta (Histogram)"
+      }
+    },
+    "championships-decided-early": {
+      label: {
+        es: "Campeonatos Decididos antes de la Última Carrera",
+        en: "Championships Decided Before Final GP"
+      }
     }
 };
 

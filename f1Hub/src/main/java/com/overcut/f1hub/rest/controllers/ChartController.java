@@ -273,6 +273,99 @@ public class ChartController {
         return advancedStatsService.getTopOvertakingRaces(lang);
     }
 
+    // 📈 Posiciones medias
+    @GetMapping("/average-start-position")
+    public ChartDataDTO getAverageStartPosition(@RequestParam String decade, @RequestParam String lang) {
+        return advancedStatsService.getAverageStartPositionByDriver(decade, lang);
+    }
+
+    @GetMapping("/average-finish-position")
+    public ChartDataDTO getAverageFinishPosition(@RequestParam String decade, @RequestParam String lang) {
+        return advancedStatsService.getAverageFinishPositionByDriver(decade, lang);
+    }
+
+    @GetMapping("/performance-trajectory")
+    public ChartDataDTO getDriverPerformanceTrajectory(@RequestParam String driverId, @RequestParam String lang) {
+        return advancedStatsService.getDriverPerformanceTrajectory(driverId, lang);
+    }
+
+    // 🥇 Clasificación vs Carrera
+    @GetMapping("/quali-race-delta-histogram")
+    public ChartDataDTO getQualiToRaceDeltaHistogram(@RequestParam String lang) {
+        return advancedStatsService.getQualiToRacePositionDeltaHistogram(lang);
+    }
+
+    @GetMapping("/quali-consistency")
+    public ChartDataDTO getQualiConsistency(@RequestParam String lang) {
+        return advancedStatsService.getQualiConsistencyScorePerDriver(lang);
+    }
+
+    @GetMapping("/poles-without-win")
+    public ChartDataDTO getPolesWithoutWin(@RequestParam String lang) {
+        return advancedStatsService.getDriversWithMostPolesWithoutWin(lang);
+    }
+
+    // 🔧 Fiabilidad
+    @GetMapping("/technical-failures")
+    public ChartDataDTO getTechnicalFailures(@RequestParam String lang) {
+        return advancedStatsService.getTechnicalFailuresPerConstructor(lang);
+    }
+
+    @GetMapping("/retirement-cause-by-season")
+    public ChartDataDTO getRetirementCauseBySeason(@RequestParam String lang) {
+        return advancedStatsService.getMostCommonRetirementCauseBySeason(lang);
+    }
+
+    // 🏁 Pole / remontadas
+    @GetMapping("/pole-conversion-rate")
+    public ChartDataDTO getPoleConversionRate(@RequestParam String lang) {
+        return advancedStatsService.getPerformanceWhenStartingOnPole(lang);
+    }
+
+    @GetMapping("/podiums-from-outside-top10")
+    public ChartDataDTO getPodiumsOutsideTop10(@RequestParam String lang) {
+        return advancedStatsService.getPodiumsFromOutsideTop10Start(lang);
+    }
+
+    // 🏟️ Circuitos
+    @GetMapping("/best-drivers-per-circuit")
+    public ChartDataDTO getBestDriversPerCircuit(@RequestParam String circuitRef, @RequestParam String lang) {
+        return advancedStatsService.getBestDriversPerCircuit(circuitRef, lang);
+    }
+
+    @GetMapping("/constructor-dominance-circuit")
+    public ChartDataDTO getConstructorDominanceByCircuit(@RequestParam String circuitRef, @RequestParam String lang) {
+        return advancedStatsService.getConstructorDominanceByCircuit(circuitRef, lang);
+    }
+
+    // 📊 Mejora y decisiones de campeonato
+    @GetMapping("/most-improved-drivers")
+    public ChartDataDTO getMostImprovedDrivers(@RequestParam String decade, @RequestParam String lang) {
+        return advancedStatsService.getMostImprovedDriversByDecade(decade, lang);
+    }
+
+    @GetMapping("/championships-decided-early")
+    public ChartDataDTO getChampionshipsDecidedEarly(@RequestParam String lang) {
+        return advancedStatsService.getChampionshipsDecidedBeforeLastGP(lang);
+    }
+
+    // 🧑‍🤝‍🧑 Comparativas de equipo
+    @GetMapping("/teammate-wins-delta")
+    public ChartDataDTO getTeammateWinsDelta(@RequestParam String lang) {
+        return advancedStatsService.getTeammateWinsDelta(lang);
+    }
+
+    @GetMapping("/teammate-podium-delta")
+    public ChartDataDTO getTeammatePodiumDelta(@RequestParam String lang) {
+        return advancedStatsService.getTeammatePodiumDelta(lang);
+    }
+
+    // 🧮 Eficiencia
+    @GetMapping("/efficiency-rating")
+    public ChartDataDTO getDriverEfficiencyRating(@RequestParam String lang) {
+        return advancedStatsService.getDriverEfficiencyRating(lang);
+    }
+
 
     @GetMapping("/by-category")
     public Map<String, List<String>> getChartEndpointsByCategory(@RequestParam(defaultValue = "en") String lang) {
@@ -295,7 +388,12 @@ public class ChartController {
                 "finish-vs-dnf-ratio",
                 "sprint-vs-race-points",
                 "points-streaks",
-                "qualifying-improvement"
+                "qualifying-improvement",
+                "quali-consistency",
+                "poles-without-win",
+                "teammate-wins-delta",
+                "teammate-podium-delta",
+                "efficiency-rating"
         ));
 
         categories.put(teams, List.of(
@@ -304,7 +402,8 @@ public class ChartController {
                 "most-team-points",
                 "wins-no-front-row",
                 "grid-vs-result-delta",
-                "reliability-by-season"
+                "reliability-by-season",
+                "technical-failures"
         ));
 
         categories.put(races, List.of(
@@ -322,7 +421,12 @@ public class ChartController {
                 "q1-q3-delta-per-season",
                 "caotic-race-performance",
                 "avg-fastest-lap-speed",
-                "top-overtaking-races"
+                "top-overtaking-races",
+                "pole-conversion-rate",
+                "podiums-from-outside-top10",
+                "retirement-cause-by-season",
+                "quali-race-delta-histogram",
+                "championships-decided-early"
         ));
 
         categories.put(circuits, List.of(

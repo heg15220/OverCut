@@ -105,4 +105,39 @@ public interface AdvancedStatsService {
     ChartDataDTO getAvgFastestLapSpeedPerSeason(String lang);
     ChartDataDTO getTopOvertakingRaces(String lang);
 
+    // 📈 Posiciones medias
+    ChartDataDTO getAverageStartPositionByDriver(String decade, String lang);
+    ChartDataDTO getAverageFinishPositionByDriver(String decade, String lang);
+    ChartDataDTO getDriverPerformanceTrajectory(String driverId, String lang); // índice compuesto por temporada
+
+    // 🥇 Clasificación vs Carrera
+    ChartDataDTO getQualiToRacePositionDeltaHistogram(String lang);
+    ChartDataDTO getQualiConsistencyScorePerDriver(String lang);
+    ChartDataDTO getDriversWithMostPolesWithoutWin(String lang);
+
+    // 🔧 Fiabilidad
+    ChartDataDTO getTechnicalFailuresPerConstructor(String lang);
+    ChartDataDTO getMostCommonRetirementCauseBySeason(String lang);
+
+    // 🏁 Efectividad desde la pole o fuera del top 10
+    ChartDataDTO getPerformanceWhenStartingOnPole(String lang);
+    ChartDataDTO getPodiumsFromOutsideTop10Start(String lang);
+
+    // 🏟️ Circuitos
+    ChartDataDTO getBestDriversPerCircuit(String circuitRef, String lang);
+    ChartDataDTO getConstructorDominanceByCircuit(String circuitRef, String lang);
+
+    // 📊 Mejora y decisiones de campeonato
+    ChartDataDTO getMostImprovedDriversByDecade(String decade, String lang);
+    ChartDataDTO getChampionshipsDecidedBeforeLastGP(String lang);
+
+    // 🧑‍🤝‍🧑 Comparativas de equipo
+    ChartDataDTO getTeammateWinsDelta(String lang);
+    ChartDataDTO getTeammatePodiumDelta(String lang);
+
+    // 🧮 Eficiencia
+    ChartDataDTO getDriverEfficiencyRating(String lang);
+
+
+
 }

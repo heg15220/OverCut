@@ -162,29 +162,55 @@ const ChartsDashboard = () => {
       )}
 
       {chart ? (
+        // 🥧 Pie
         ["wins-percentage-driver-circuit"].includes(selectedChart) ? (
           <ChartCardPie chart={chart} />
-        ) : ["avg-positions-gained-first-laps", "total-podium-percentage-vs-all-teammates", "distinct-grid-positions-winning"].includes(selectedChart) ? (
+
+        // 🟡 Scatter
+        ) : [
+          "avg-positions-gained-first-laps",
+          "total-podium-percentage-vs-all-teammates",
+          "distinct-grid-positions-winning"
+        ].includes(selectedChart) ? (
           <ChartCardScatter chart={chart} />
+
+        // 🎨 Bar con colores por categoría
         ) : [
-            "grid-vs-result-delta",
-            "wins-from-3rd-or-worse",
-            "podiums-from-3rd-or-worse",
-            "finish-position-distribution",
-            "finish-vs-dnf-ratio",
-            "points-streaks",
-            "qualifying-improvement"
-          ].includes(selectedChart) ? (
+          "grid-vs-result-delta",
+          "wins-from-3rd-or-worse",
+          "podiums-from-3rd-or-worse",
+          "finish-position-distribution",
+          "finish-vs-dnf-ratio",
+          "points-streaks",
+          "qualifying-improvement",
+          // nuevos
+          "quali-race-delta-histogram",
+          "technical-failures",
+          "retirement-cause-by-season",
+          "efficiency-rating",
+          "poles-without-win",
+          "pole-conversion-rate",
+          "podiums-from-outside-top10",
+          "teammate-wins-delta",
+          "teammate-podium-delta"
+        ].includes(selectedChart) ? (
           <ChartCardBarColored chart={chart} />
+
+        // 🟩 Colored line/bar charts
         ) : [
-            "team-comebacks-by-season",
-            "avg-team-points-by-season",
-            "most-team-points",
-            "podium-percentage-vs-teammate",
-            "reliability-by-season",
-            "caotic-race-performance"
-          ].includes(selectedChart) ? (
+          "team-comebacks-by-season",
+          "avg-team-points-by-season",
+          "most-team-points",
+          "podium-percentage-vs-teammate",
+          "reliability-by-season",
+          "caotic-race-performance",
+          // nuevos
+          "quali-consistency",
+          "championships-decided-early"
+        ].includes(selectedChart) ? (
           <ChartCardColored chart={chart} />
+
+        // 🔷 Default
         ) : (
           <ChartCard chart={chart} />
         )
@@ -193,6 +219,7 @@ const ChartsDashboard = () => {
       ) : (
         <div className="chart-empty text-center">{t.selectChart}</div>
       )}
+
 
     </div>
   );

@@ -203,9 +203,76 @@ public class ChartI18nService {
             Map.entry("topOvertakingRaces", Map.of(
                     "es", "Temporadas con más adelantamientos",
                     "en", "Top overtaking Seasons"
+            )),
+            Map.entry("avgStartPosition", Map.of(
+                    "es", "Posición media de salida por piloto en la década ",
+                    "en", "Average start position by driver in decade "
+            )),
+            Map.entry("avgFinishPosition", Map.of(
+                    "es", "Posición media de llegada por piloto en la década ",
+                    "en", "Average finish position by driver in decade "
+            )),
+            Map.entry("performanceTrajectory", Map.of(
+                    "es", "Trayectoria de rendimiento de ",
+                    "en", "Performance trajectory of "
+            )),
+            Map.entry("qualiToRaceDeltaHistogram", Map.of(
+                    "es", "Histograma de diferencias entre clasificación y resultado final",
+                    "en", "Histogram of quali-to-race position deltas"
+            )),
+            Map.entry("qualiConsistency", Map.of(
+                    "es", "Varianza en clasificación por piloto",
+                    "en", "Qualifying consistency (variance) by driver"
+            )),
+            Map.entry("polesWithoutWin", Map.of(
+                    "es", "Poles sin victoria por piloto",
+                    "en", "Pole positions without a win"
+            )),
+            Map.entry("technicalFailuresByTeam", Map.of(
+                    "es", "Fallos técnicos por equipo",
+                    "en", "Technical failures by constructor"
+            )),
+            Map.entry("retirementCausePerSeason", Map.of(
+                    "es", "Causa más común de abandono por temporada",
+                    "en", "Most common retirement cause per season"
+            )),
+            Map.entry("performanceFromPole", Map.of(
+                    "es", "Ratio de victorias saliendo desde la pole",
+                    "en", "Win rate when starting on pole"
+            )),
+            Map.entry("podiumsFromOutsideTop10", Map.of(
+                    "es", "Pódiums saliendo desde fuera del top 10",
+                    "en", "Podiums from outside top 10"
+            )),
+            Map.entry("bestDriversPerCircuit", Map.of(
+                    "es", "Pilotos con más victorias en ",
+                    "en", "Drivers with most wins at "
+            )),
+            Map.entry("constructorDominanceAtCircuit", Map.of(
+                    "es", "Dominio de constructores en ",
+                    "en", "Constructor dominance at "
+            )),
+            Map.entry("mostImprovedDriversByDecade", Map.of(
+                    "es", "Pilotos que más mejoraron en la década ",
+                    "en", "Most improved drivers in decade "
+            )),
+            Map.entry("championshipsDecidedEarly", Map.of(
+                    "es", "Campeonatos decididos antes de la última carrera",
+                    "en", "Championships decided before last race"
+            )),
+            Map.entry("teammateWinsDelta", Map.of(
+                    "es", "Diferencia de victorias entre compañeros",
+                    "en", "Teammate win delta"
+            )),
+            Map.entry("teammatePodiumDelta", Map.of(
+                    "es", "Diferencia de pódiums entre compañeros",
+                    "en", "Teammate podium delta"
+            )),
+            Map.entry("driverEfficiencyRating", Map.of(
+                    "es", "Índice de eficiencia del piloto",
+                    "en", "Driver efficiency rating"
             ))
-
-            );
+    );
 
     public String get(String key, String lang) {
         return translations.getOrDefault(key, Map.of()).getOrDefault(lang, translations.getOrDefault(key, Map.of()).get("en"));

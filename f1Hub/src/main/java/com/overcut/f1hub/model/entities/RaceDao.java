@@ -20,5 +20,9 @@ public interface RaceDao extends JpaRepository<Race, Long> {
 
     @Query("SELECT COUNT(r) FROM Race r WHERE r.year BETWEEN :startYear AND :endYear")
     long countRacesInDecade(@Param("startYear") int startYear, @Param("endYear") int endYear);
+
+    @Query("SELECT r FROM Race r WHERE r.circuit.circuitRef = :circuitRef")
+    List<Race> findByCircuitRef(@Param("circuitRef") String circuitRef);
+
 }
 

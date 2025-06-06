@@ -36,7 +36,8 @@ const ChartSelector = () => {
     categories: {
       Pilotos: lang === "es" ? "Pilotos" : "Drivers",
       Constructores: lang === "es" ? "Constructores" : "Constructors",
-      Carreras: lang === "es" ? "Carreras" : "Races"
+      Carreras: lang === "es" ? "Carreras" : "Races",
+      Circutos: lang === "es" ? "Circuitos": "Circuits"
     },
     selectDriver: {
       es: "Seleccione piloto",
@@ -106,7 +107,11 @@ const ChartSelector = () => {
       { endpoint: "most-common-quali-position", label: { es: "Posición de Clasificación Más Frecuente", en: "Most Common Quali Position" }},
       { endpoint: "quali-vs-teammate-comparison", label: { es: "Rendimiento en Clasificación vs Compañero", en: "Quali Performance vs Teammate" }, param: "driverId"},
       { endpoint: "race-vs-teammate-comparison", label: { es: "Rendimiento en Carrera vs Compañero", en: "Race Performance vs Teammate" }, param: "driverId"},
-      { endpoint: "championship-progress-top2", label: { es: "Seguimiento Top 2 Campeonato", en: "Championship progress top 2"}, param: "season"}
+      { endpoint: "championship-progress-top2", label: { es: "Seguimiento Top 2 Campeonato", en: "Championship progress top 2"}, param: "season"},
+      { endpoint: "average-start-position", label: { es: "Posición Media de Salida", en: "Average Start Position" }, param: "decade", chartType: "bar" },
+      { endpoint: "average-finish-position", label: { es: "Posición Media de Llegada", en: "Average Finish Position" }, param: "decade", chartType: "bar" },
+      { endpoint: "performance-trajectory", label: { es: "Trayectoria de Rendimiento", en: "Performance Trajectory" }, param: "driverId", chartType: "line" },
+      { endpoint: "most-improved-drivers", label: { es: "Pilotos Más Mejorados en Década", en: "Most Improved Drivers by Decade" }, param: "decade", chartType: "bar" }
     ],
     Constructores: [
       { endpoint: "avg-team-points-by-season", label: { es: "Puntos por Equipo", en: "Team Points per Season" }, param: "constructorId", chartType: "bar" }
@@ -116,6 +121,10 @@ const ChartSelector = () => {
       { endpoint: "overtakes-per-race", label: { es: "Cambios de Posición por Carrera", en: "Overtakes per Race" }, param: "season", chartType: "bar" },
       { endpoint: "fastest-pitstop-per-race", label: { es: "Pitstop Más Rápido por Carrera", en: "Fastest Pitstop per Race" }, param: "season", chartType: "bar" },
       { endpoint: "race-leaders-per-gp", label: { es: "Líderes por Gran Premio", en: "Leaders per Grand Prix" }, param: "season", chartType: "bar" }
+    ],
+    Circuitos: [
+      { endpoint: "best-drivers-per-circuit", label: { es: "Mejores Pilotos por Circuito", en: "Best Drivers per Circuit" }, param: "circuitRef", chartType: "bar" },
+      { endpoint: "constructor-dominance-circuit", label: { es: "Dominio de Constructores", en: "Constructor Dominance" }, param: "circuitRef", chartType: "bar" }
     ]
   };
 
@@ -209,6 +218,16 @@ const ChartSelector = () => {
               ))}
             </select>
           )}
+
+          {selected.param === "circuitRef" && (
+            <select value={constructorId} onChange={e => setConstructorId(e.target.value)}>
+              <option value="">{lang === "es" ? "Seleccione circuito" : "Select circuit"}</option>
+              {filters.circuits?.map(c => (
+                <option key={c.circuitRef} value={c.circuitRef}>{c.name}</option>
+              ))}
+            </select>
+          )}
+
 
           <input
             type="number"
