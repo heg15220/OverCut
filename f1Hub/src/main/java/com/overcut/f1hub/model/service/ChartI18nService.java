@@ -271,6 +271,10 @@ public class ChartI18nService {
             Map.entry("driverEfficiencyRating", Map.of(
                     "es", "Índice de eficiencia del piloto",
                     "en", "Driver efficiency rating"
+            )),
+            Map.entry("constructorPerformanceTrajectory", Map.of(
+                    "es", "Trayectoria de rendimiento del equipo ",
+                    "en", "Team performance trajectory of "
             ))
     );
 

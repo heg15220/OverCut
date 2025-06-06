@@ -367,6 +367,14 @@ public class ChartController {
     }
 
 
+    @GetMapping("/constructor-performance-trajectory")
+    public ChartDataDTO getConstructorPerformanceTrajectory(
+            @RequestParam String constructorId,
+            @RequestParam(defaultValue = "en") String lang
+    ) {
+        return advancedStatsService.getConstructorPerformanceTrajectory(constructorId, lang);
+    }
+
     @GetMapping("/by-category")
     public Map<String, List<String>> getChartEndpointsByCategory(@RequestParam(defaultValue = "en") String lang) {
         Map<String, List<String>> categories = new LinkedHashMap<>();

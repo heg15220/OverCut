@@ -138,6 +138,8 @@ public interface AdvancedStatsService {
     // 🧮 Eficiencia
     ChartDataDTO getDriverEfficiencyRating(String lang);
 
+    ChartDataDTO getConstructorPerformanceTrajectory(String constructorIdStr, String lang);
+
 
 
 }

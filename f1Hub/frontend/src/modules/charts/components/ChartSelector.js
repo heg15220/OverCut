@@ -114,7 +114,16 @@ const ChartSelector = () => {
       { endpoint: "most-improved-drivers", label: { es: "Pilotos Más Mejorados en Década", en: "Most Improved Drivers by Decade" }, param: "decade", chartType: "bar" }
     ],
     Constructores: [
-      { endpoint: "avg-team-points-by-season", label: { es: "Puntos por Equipo", en: "Team Points per Season" }, param: "constructorId", chartType: "bar" }
+      { endpoint: "avg-team-points-by-season", label: { es: "Puntos por Equipo", en: "Team Points per Season" }, param: "constructorId", chartType: "bar" },
+      {
+        endpoint: "constructor-performance-trajectory",
+        label: {
+          es: "Trayectoria de Rendimiento por Equipo",
+          en: "Team Performance Trajectory"
+        },
+        param: "constructorId",
+        chartType: "line"
+      }
     ],
     Carreras: [
       { endpoint: "pitstops-per-race", label: { es: "Pitstops por Carrera", en: "Pitstops per Race" }, param: "season", chartType: "line" },
