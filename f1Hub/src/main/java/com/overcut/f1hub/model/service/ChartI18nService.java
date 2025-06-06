@@ -217,8 +217,8 @@ public class ChartI18nService {
                     "en", "Performance trajectory of "
             )),
             Map.entry("qualiToRaceDeltaHistogram", Map.of(
-                    "es", "Histograma de diferencias entre clasificación y resultado final",
-                    "en", "Histogram of quali-to-race position deltas"
+                    "es", "Histograma de diferencias entre clasificación y resultado final. Eje Y número pilotos, eje X delta grid - posición final",
+                    "en", "Histogram of quali-to-race position deltas. Y Axis number of drivers, X Axis delta grid - final position"
             )),
             Map.entry("qualiConsistency", Map.of(
                     "es", "Varianza en clasificación por piloto",

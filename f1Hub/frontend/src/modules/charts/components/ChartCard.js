@@ -2,6 +2,8 @@ import React from "react";
 import ReactECharts from "echarts-for-react";
 import "./ChartStyles.css";
 
+const lang = navigator.language.startsWith("es") ? "es" : "en";
+
 const ChartCard = ({ chart }) => {
   if (
     !chart ||
@@ -96,9 +98,22 @@ const ChartCard = ({ chart }) => {
 
   return (
     <div className="chart-card">
+      {title.includes("Trayectoria de rendimiento") && (
+        <p className="chart-description">
+          {title.includes("equipo") || title.includes("team")
+            ? lang === "es"
+              ? "Este índice combina la consistencia del equipo, su porcentaje de puntos logrados, y su posición final en el campeonato de constructores."
+              : "This index combines team consistency, percentage of points earned, and final position in the Constructors’ Championship."
+            : lang === "es"
+              ? "Este índice combina la consistencia del piloto, su rendimiento frente al compañero, y su contribución al equipo en puntos y resultados."
+              : "This index combines driver consistency, performance against teammate, and contribution to team results."}
+        </p>
+      )}
+
       <ReactECharts option={option} style={{ height: 400, width: "100%" }} />
     </div>
   );
+
 };
 
 export default ChartCard;

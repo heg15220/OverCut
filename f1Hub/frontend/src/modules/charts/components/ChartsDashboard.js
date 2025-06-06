@@ -192,7 +192,8 @@ const ChartsDashboard = () => {
           "pole-conversion-rate",
           "podiums-from-outside-top10",
           "teammate-wins-delta",
-          "teammate-podium-delta"
+          "teammate-podium-delta",
+          "championships-decided-early"
         ].includes(selectedChart) ? (
           <ChartCardBarColored chart={chart} />
 
@@ -205,8 +206,7 @@ const ChartsDashboard = () => {
           "reliability-by-season",
           "caotic-race-performance",
           // nuevos
-          "quali-consistency",
-          "championships-decided-early"
+          "quali-consistency"
         ].includes(selectedChart) ? (
           <ChartCardColored chart={chart} />
 

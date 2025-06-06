@@ -5,6 +5,7 @@ import ChartCardPie from "./ChartCardPie";
 import ChartCard from "./ChartCard";
 import ChartCardColored from "./ChartCardColored";
 import ChartCardScatter from "./ChartCardScatter";
+import ChartCardBarColored from "./ChartCardBarColored";
 import "./ChartStyles.css";
 import { buildChartKey } from "../utils/chartKey";
 
@@ -17,10 +18,12 @@ const ChartSelector = () => {
   const [season, setSeason] = useState("");
   const [limit, setLimit] = useState(10);
   const [decade, setDecade] = useState("");
+  const [circuitRef, setCircuitRef] = useState("");
+
 
   const filters = useSelector(charts.selectors.getChartFilters);
   const chartKey = selected
-    ? buildChartKey(selected.endpoint, { driverId, constructorId, season, limit })
+    ? buildChartKey(selected.endpoint, { driverId, constructorId, season, limit, circuitRef, decade })
     : null;
   const chart = useSelector(state =>
     chartKey ? charts.selectors.getChartByEndpoint(state, chartKey) : null
@@ -37,7 +40,7 @@ const ChartSelector = () => {
       Pilotos: lang === "es" ? "Pilotos" : "Drivers",
       Constructores: lang === "es" ? "Constructores" : "Constructors",
       Carreras: lang === "es" ? "Carreras" : "Races",
-      Circutos: lang === "es" ? "Circuitos": "Circuits"
+      Circuitos: lang === "es" ? "Circuitos": "Circuits"
     },
     selectDriver: {
       es: "Seleccione piloto",
@@ -91,6 +94,7 @@ const ChartSelector = () => {
     if (selected.param === "driverId" && driverId) params.driverId = driverId;
     if (selected.param === "constructorId" && constructorId) params.constructorId = constructorId;
     if (selected.param === "season" && season) params.season = season;
+    if (selected.param === "circuitRef" && circuitRef) params.circuitRef = circuitRef;
     if (decade) params.decade = decade;
 
     const key = buildChartKey(selected.endpoint, params);
@@ -146,7 +150,9 @@ const ChartSelector = () => {
     "avg-team-points-by-season": ChartCard,
     "pitstops-per-race": ChartCard,
     "overtakes-per-race": ChartCard,
-    "most-common-quali-position": ChartCardColored
+    "most-common-quali-position": ChartCardColored,
+    "average-finish-position": ChartCardBarColored,
+    "average-start-position": ChartCardBarColored
   };
 
   const getChartComponent = (endpoint, chartType) => {
@@ -229,13 +235,14 @@ const ChartSelector = () => {
           )}
 
           {selected.param === "circuitRef" && (
-            <select value={constructorId} onChange={e => setConstructorId(e.target.value)}>
+            <select value={circuitRef} onChange={e => setCircuitRef(e.target.value)}>
               <option value="">{lang === "es" ? "Seleccione circuito" : "Select circuit"}</option>
-              {filters.circuits?.map(c => (
+              {filters.circuitOptions?.map(c => (
                 <option key={c.circuitRef} value={c.circuitRef}>{c.name}</option>
               ))}
             </select>
           )}
+
 
 
           <input
