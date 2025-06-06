@@ -96,8 +96,8 @@ public interface AdvancedStatsService {
     ChartDataDTO getGridVsResultDeltaByConstructor(String lang);
     ChartDataDTO getReliabilityBySeason(String lang);
     ChartDataDTO getAverageRaceDurationPerSeason(String lang);
-    ChartDataDTO getAvgFastestPitStopPerRace(String lang);
-    ChartDataDTO getRaceLeadersPerGrandPrix(String lang);
+    ChartDataDTO getAvgFastestPitStopPerRace(String lang, String season);
+    ChartDataDTO getRaceLeadersPerGrandPrix(String lang, String season);
     ChartDataDTO getAvgQ1Q3DeltaBySeason(String lang);
     ChartDataDTO getAvgQualiImprovement(String lang);
     ChartDataDTO getPointsStreaksPerDriver(String lang);

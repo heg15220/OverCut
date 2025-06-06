@@ -113,7 +113,9 @@ const ChartSelector = () => {
     ],
     Carreras: [
       { endpoint: "pitstops-per-race", label: { es: "Pitstops por Carrera", en: "Pitstops per Race" }, param: "season", chartType: "line" },
-      { endpoint: "overtakes-per-race", label: { es: "Cambios de Posición por Carrera", en: "Overtakes per Race" }, param: "season", chartType: "bar" }
+      { endpoint: "overtakes-per-race", label: { es: "Cambios de Posición por Carrera", en: "Overtakes per Race" }, param: "season", chartType: "bar" },
+      { endpoint: "fastest-pitstop-per-race", label: { es: "Pitstop Más Rápido por Carrera", en: "Fastest Pitstop per Race" }, param: "season", chartType: "bar" },
+      { endpoint: "race-leaders-per-gp", label: { es: "Líderes por Gran Premio", en: "Leaders per Grand Prix" }, param: "season", chartType: "bar" }
     ]
   };
 

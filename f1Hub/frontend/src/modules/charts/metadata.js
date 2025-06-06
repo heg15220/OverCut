@@ -100,12 +100,6 @@ const metadata = {
     "avg-race-duration": {
       label: { es: "Duración Promedio de Carrera", en: "Average Race Duration" }
     },
-    "fastest-pitstop-per-race": {
-      label: { es: "Pit Stop Más Rápido por GP", en: "Fastest Pit Stop per GP" }
-    },
-    "race-leaders-per-gp": {
-      label: { es: "Número de Líderes por GP", en: "Race Leaders Count per GP" }
-    },
     "q1-q3-delta-per-season": {
       label: { es: "Diferencia Q1 vs Q3 por Temporada", en: "Q1 vs Q3 Delta per Season" }
     },

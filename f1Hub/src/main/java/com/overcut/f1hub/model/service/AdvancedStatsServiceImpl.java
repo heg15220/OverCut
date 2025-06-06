@@ -2659,7 +2659,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getAvgFastestPitStopPerRace(String lang) {
+    public ChartDataDTO getAvgFastestPitStopPerRace(String lang, String season) {
         Map<Long, List<PitStop>> pitStopsByRace = pitStopDao.findAll().stream()
                 .collect(Collectors.groupingBy(PitStop::getRaceId));
 
@@ -2679,7 +2679,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         List<Double> values = new ArrayList<>();
 
         for (Race r : races) {
-            if (minPitStopTimeByRace.containsKey(r.getRaceId())) {
+            boolean matchesSeason = (season == null || String.valueOf(r.getYear()).equals(season));
+            if (matchesSeason && minPitStopTimeByRace.containsKey(r.getRaceId())) {
                 labels.add(r.getYear() + " - " + r.getName());
                 values.add(minPitStopTimeByRace.get(r.getRaceId()));
             }
@@ -2689,8 +2690,10 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 List.of(new ChartSeriesDTO("Min Pit Stop (ms)", "#FFBB28", values)));
     }
 
+
+
     @Override
-    public ChartDataDTO getRaceLeadersPerGrandPrix(String lang) {
+    public ChartDataDTO getRaceLeadersPerGrandPrix(String lang, String season) {
         Map<Long, Set<Long>> leadersPerRace = new HashMap<>();
 
         for (LapTime lt : lapTimeDao.findAll()) {
@@ -2704,13 +2707,18 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         List<Double> values = new ArrayList<>();
 
         for (Race r : races) {
-            labels.add(r.getYear() + " - " + r.getName());
-            values.add((double) leadersPerRace.getOrDefault(r.getRaceId(), Set.of()).size());
+            boolean matchesSeason = (season == null || String.valueOf(r.getYear()).equals(season));
+            if (matchesSeason) {
+                labels.add(r.getYear() + " - " + r.getName());
+                values.add((double) leadersPerRace.getOrDefault(r.getRaceId(), Set.of()).size());
+            }
         }
 
         return new ChartDataDTO(chartI18n.get("raceLeadersCountPerGP", lang), "bar", labels,
                 List.of(new ChartSeriesDTO("Distinct leaders", "#00C49F", values)));
     }
+
+
 
     @Override
     public ChartDataDTO getAvgQ1Q3DeltaBySeason(String lang) {

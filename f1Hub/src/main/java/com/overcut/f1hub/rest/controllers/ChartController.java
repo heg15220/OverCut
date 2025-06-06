@@ -239,13 +239,13 @@ public class ChartController {
     }
 
     @GetMapping("/fastest-pitstop-per-race")
-    public ChartDataDTO getAvgFastestPitStopPerRace(@RequestParam String lang) {
-        return advancedStatsService.getAvgFastestPitStopPerRace(lang);
+    public ChartDataDTO getAvgFastestPitStopPerRace(@RequestParam String lang, @RequestParam("season") String season) {
+        return advancedStatsService.getAvgFastestPitStopPerRace(lang, season);
     }
 
     @GetMapping("/race-leaders-per-gp")
-    public ChartDataDTO getRaceLeadersPerGrandPrix(@RequestParam String lang) {
-        return advancedStatsService.getRaceLeadersPerGrandPrix(lang);
+    public ChartDataDTO getRaceLeadersPerGrandPrix(@RequestParam String lang, @RequestParam("season") String season) {
+        return advancedStatsService.getRaceLeadersPerGrandPrix(lang, season);
     }
 
     @GetMapping("/q1-q3-delta-per-season")
@@ -319,8 +319,6 @@ public class ChartController {
                 "race-gap-1st-to-2nd-average",
                 "front-row-wins-rate",
                 "avg-race-duration",
-                "fastest-pitstop-per-race",
-                "race-leaders-per-gp",
                 "q1-q3-delta-per-season",
                 "caotic-race-performance",
                 "avg-fastest-lap-speed",
