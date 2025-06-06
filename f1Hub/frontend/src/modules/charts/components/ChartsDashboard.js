@@ -172,7 +172,7 @@ const ChartsDashboard = () => {
           "total-podium-percentage-vs-all-teammates",
           "distinct-grid-positions-winning"
         ].includes(selectedChart) ? (
-          <ChartCardScatter chart={chart} />
+          <ChartCardScatter chart={chart} chartKey={selectedChart} />
 
         // 🎨 Bar con colores por categoría
         ) : [
@@ -191,7 +191,6 @@ const ChartsDashboard = () => {
           "poles-without-win",
           "pole-conversion-rate",
           "podiums-from-outside-top10",
-          "teammate-wins-delta",
           "teammate-podium-delta",
           "championships-decided-early"
         ].includes(selectedChart) ? (

@@ -3649,6 +3649,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             if (races.size() < 2) continue;
 
             Race penultimateRace = races.get(races.size() - 2);
+            Race lastRace = races.get(races.size() - 1);
             Long penultimateRaceId = penultimateRace.getRaceId();
 
             List<DriverStanding> standings = driverStandingDao.findByRaceIdOrderByPositionAsc(penultimateRaceId);
@@ -3657,16 +3658,18 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             double topPoints = standings.get(0).getPoints();
             double secondPoints = standings.get(1).getPoints();
 
-            boolean decided = (topPoints - secondPoints) > 25.0;
+            // Máximo de puntos posibles en la última carrera
+            double maxPossiblePoints = getMaxPointsInSingleRace(year);
+
+            boolean decided = (topPoints - secondPoints) > maxPossiblePoints;
 
             labels.add(String.valueOf(year));
-            values.add(1.0); // Todas las barras tienen altura 1
+            values.add(decided ? 1.0 : 0.0); // Todas las barras tienen altura 1
             colors.add(decided ? "#2ECC71" : "#E74C3C"); // Verde si decidido, rojo si no
         }
 
-        // Crear dataset con colores personalizados por barra
-        ChartSeriesDTO series = new ChartSeriesDTO("Campeonato decidido", "#000", values);
-        series.setColors(colors); // <--- Método nuevo que debes tener en ChartSeriesDTO
+        ChartSeriesDTO series = new ChartSeriesDTO("Campeonato decidido", "#27AE60", values);
+        series.setColors(colors); // Necesario que este método exista en ChartSeriesDTO
 
         return new ChartDataDTO(
                 chartI18n.get("championshipsDecidedEarly", lang),
@@ -3677,47 +3680,96 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
+
     @Override
-    public ChartDataDTO getTeammateWinsDelta(String lang) {
-        // Map<year + team, Map<driverId, wins>>
-        Map<String, Map<Long, Integer>> teamWins = new HashMap<>();
+    public ChartDataDTO getTeammateWinsDelta(String driverIdStr, String lang) {
+        Long targetDriverId;
+        try {
+            targetDriverId = Long.parseLong(driverIdStr);
+        } catch (NumberFormatException e) {
+            return new ChartDataDTO(chartI18n.get("invalidDriverId", lang), "bar", List.of(), List.of());
+        }
+
+        Map<String, Map<Long, Integer>> winsPerTeamSeason = new LinkedHashMap<>();
 
         for (Result r : resultDao.findAll()) {
-            if (r.getConstructor() == null || r.getDriver() == null) continue;
+            if (r.getConstructor() == null || r.getDriver() == null || r.getRace() == null)
+                continue;
+
             int year = r.getRace().getYear();
-            String key = year + "-" + r.getConstructor().getConstructorId();
+            Long constructorId = r.getConstructor().getConstructorId();
             Long driverId = r.getDriver().getDriverId();
+
+            String key = year + "-" + constructorId;
+            winsPerTeamSeason.computeIfAbsent(key, k -> new HashMap<>());
+
             if (r.getPositionOrder() != null && r.getPositionOrder() == 1) {
-                teamWins.computeIfAbsent(key, k -> new HashMap<>())
-                        .merge(driverId, 1, Integer::sum);
+                winsPerTeamSeason.get(key).merge(driverId, 1, Integer::sum);
             } else {
-                teamWins.computeIfAbsent(key, k -> new HashMap<>())
-                        .putIfAbsent(driverId, 0);
+                winsPerTeamSeason.get(key).putIfAbsent(driverId, 0);
             }
         }
 
-        List<ChartSeriesDTO> deltas = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        List<Double> targetData = new ArrayList<>();
+        List<Double> teammateData = new ArrayList<>();
 
-        AtomicInteger idx = new AtomicInteger(0);
-        for (Map<Long, Integer> drivers : teamWins.values()) {
-            if (drivers.size() == 2) {
-                List<Map.Entry<Long, Integer>> list = new ArrayList<>(drivers.entrySet());
-                list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+        String targetName = driverDao.findById(targetDriverId)
+                .map(d -> d.getForename() + " " + d.getSurname())
+                .orElse("Driver " + driverIdStr);
 
-                long d1 = list.get(0).getKey();
-                long d2 = list.get(1).getKey();
-                int delta = list.get(0).getValue() - list.get(1).getValue();
+        for (Map.Entry<String, Map<Long, Integer>> entry : winsPerTeamSeason.entrySet()) {
+            String key = entry.getKey(); // Ej: "2006-9"
+            String[] parts = key.split("-");
+            int year = Integer.parseInt(parts[0]);
 
-                String name1 = driverDao.findById(d1).map(d -> d.getForename() + " " + d.getSurname()).orElse("Driver " + d1);
-                String name2 = driverDao.findById(d2).map(d -> d.getForename() + " " + d.getSurname()).orElse("Driver " + d2);
-                String label = name1 + " → " + name2 + " (+" + delta + ")";
+            Map<Long, Integer> driverMap = entry.getValue();
+            if (driverMap.size() != 2 || !driverMap.containsKey(targetDriverId)) continue;
 
-                deltas.add(new ChartSeriesDTO(label, getColorForIndex(idx.getAndIncrement()), List.of((double) delta)));
-            }
+            List<Long> ids = new ArrayList<>(driverMap.keySet());
+            Long teammateId = ids.get(0).equals(targetDriverId) ? ids.get(1) : ids.get(0);
+
+            int targetWins = driverMap.getOrDefault(targetDriverId, 0);
+            int teammateWins = driverMap.getOrDefault(teammateId, 0);
+
+            String teammateName = driverDao.findById(teammateId)
+                    .map(d -> d.getForename() + " " + d.getSurname())
+                    .orElse("Teammate");
+
+            // Etiqueta única por año y duelo
+            String duelLabel = year + ": " + targetName + " vs " + teammateName;
+            labels.add(duelLabel);
+
+            targetData.add((double) targetWins);
+            teammateData.add((double) teammateWins);
         }
 
-        return new ChartDataDTO(chartI18n.get("teammateWinsDelta", lang), "bar", List.of("Δ Wins"), deltas);
+        List<ChartSeriesDTO> seriesList = new ArrayList<>();
+        seriesList.add(new ChartSeriesDTO(targetName, "#3498DB", targetData));
+        seriesList.add(new ChartSeriesDTO(chartI18n.get("teammate", lang), "#E67E22", teammateData));
+
+        return new ChartDataDTO(
+                chartI18n.get("teammateWinsDelta", lang),
+                "bar",
+                labels,
+                seriesList
+        );
     }
+
+
+
+
+
+
+    // Utilidad para inicializar una lista con N valores null
+    private List<Double> initWithNulls(int size) {
+        List<Double> list = new ArrayList<>(Collections.nCopies(size, null));
+        return list;
+    }
+
+
+
+
 
     @Override
     public ChartDataDTO getTeammatePodiumDelta(String lang) {
@@ -3761,35 +3813,40 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getDriverEfficiencyRating(String lang) {
-        Map<Long, Double> totalPoints = new HashMap<>();
         Map<Long, List<Integer>> gridPositions = new HashMap<>();
+        Map<Long, List<Double>> pointsPerRace = new HashMap<>();
 
         for (Result r : resultDao.findAll()) {
             if (r.getDriver() == null || r.getGrid() == null || r.getGrid() <= 0) continue;
             Long driverId = r.getDriver().getDriverId();
 
             gridPositions.computeIfAbsent(driverId, k -> new ArrayList<>()).add(r.getGrid());
-            totalPoints.merge(driverId, r.getPoints() != null ? r.getPoints() : 0.0, Double::sum);
+            pointsPerRace.computeIfAbsent(driverId, k -> new ArrayList<>()).add(r.getPoints() != null ? r.getPoints() : 0.0);
         }
 
-        // Calcular eficiencia cruda = puntos totales / posición media en parrilla
-        Map<Long, Double> rawEfficiency = new HashMap<>();
-        for (Map.Entry<Long, Double> entry : totalPoints.entrySet()) {
-            Long driverId = entry.getKey();
+        Map<Long, Double> efficiencyByDriver = new HashMap<>();
+
+        for (Long driverId : pointsPerRace.keySet()) {
+            List<Double> points = pointsPerRace.get(driverId);
             List<Integer> grids = gridPositions.get(driverId);
-            if (grids == null || grids.size() < 30) continue;
 
-            double avgGrid = grids.stream().mapToInt(i -> i).average().orElse(1);
-            double efficiency = entry.getValue() / avgGrid;
-            rawEfficiency.put(driverId, efficiency);
+            if (points.size() < 30 || grids == null || grids.size() != points.size()) continue;
+
+            double avgPoints = points.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+            double avgGrid = grids.stream().mapToInt(Integer::intValue).average().orElse(1.0);
+
+            if (avgGrid > 0) {
+                double efficiency = avgPoints / avgGrid;
+                efficiencyByDriver.put(driverId, efficiency);
+            }
         }
 
-        // Normalizar entre 0 y 100
-        double max = rawEfficiency.values().stream().mapToDouble(Double::doubleValue).max().orElse(1);
-        double min = rawEfficiency.values().stream().mapToDouble(Double::doubleValue).min().orElse(0);
+        // Normalizar 0–100
+        double max = efficiencyByDriver.values().stream().mapToDouble(Double::doubleValue).max().orElse(1);
+        double min = efficiencyByDriver.values().stream().mapToDouble(Double::doubleValue).min().orElse(0);
 
         AtomicInteger index = new AtomicInteger(0);
-        List<ChartSeriesDTO> dataset = rawEfficiency.entrySet().stream()
+        List<ChartSeriesDTO> dataset = efficiencyByDriver.entrySet().stream()
                 .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
                 .map(e -> {
                     double norm = max != min ? (e.getValue() - min) / (max - min) * 100.0 : 100.0;
@@ -3804,12 +3861,29 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         return new ChartDataDTO(
                 chartI18n.get("driverEfficiencyRating", lang),
                 "bar",
-                List.of("Efficiency (0–100) total points / avg grid position"),
+                List.of("Efficiency Score (normalized) = avg pts / avg grid"),
                 dataset
         );
     }
 
 
+
+    private double getMaxPointsInSingleRace(int year) {
+        // Considerar casos especiales como sprint + victoria + vuelta rápida
+        if ((year >= 2019) && (year <= 2024)) {
+            return 25 + 1; // Victoria + vuelta rápida
+        } else if(year >= 2010) {
+            return 25;
+        }else if (year >= 2003) {
+            return 10; // Solo victoria, no había vuelta rápida
+        } else if (year >= 1991) {
+            return 10; // Igual, sistema antiguo
+        } else if (year >= 1961){
+            return 9; // Sistema anterior a 1991
+        } else{
+            return 8;
+        }
+    }
 
 
 

@@ -13,9 +13,6 @@ const metadata = {
   "avg-positions-gained-first-laps": {
     label: { es: "Posiciones Ganadas en Primeras Vueltas", en: "Positions Gained on First Laps" }
   },
-  "most-common-finish-position": {
-    label: { es: "Posición Final Más Frecuente", en: "Most Common Finish Position" }
-  },
   "driver-vs-team-championship-finish": {
     label: { es: "Resultado Piloto vs Equipo en el Campeonato", en: "Driver vs Team Championship Finish" },
     param: "decade"
@@ -84,10 +81,6 @@ const metadata = {
     "finish-vs-dnf-ratio": {
       label: { es: "Ratio Finalizadas vs Abandonos", en: "Finish vs DNF Ratio" }
     },
-    "sprint-vs-race-points": {
-      label: { es: "Evolución Puntos Sprint vs Carrera", en: "Sprint vs Race Points Evolution" },
-      param: "driverId"
-    },
     "points-streaks": {
       label: { es: "Rachas de GPs Puntuando", en: "Points Streaks per Driver" }
     },
@@ -127,22 +120,10 @@ const metadata = {
         en: "Poles without Win"
       }
     },
-    "teammate-wins-delta": {
-      label: {
-        es: "Δ Victorias entre Compañeros",
-        en: "Teammate Win Delta"
-      }
-    },
-    "teammate-podium-delta": {
-      label: {
-        es: "Δ Podios entre Compañeros",
-        en: "Teammate Podium Delta"
-      }
-    },
     "efficiency-rating": {
       label: {
-        es: "Índice de Eficiencia del Piloto",
-        en: "Driver Efficiency Rating"
+        "es": "Índice de Eficiencia del Piloto",
+        "en": "Driver Efficiency Rating"
       }
     },
     "technical-failures": {

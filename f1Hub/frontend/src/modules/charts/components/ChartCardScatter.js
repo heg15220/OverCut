@@ -9,7 +9,10 @@ const defaultColorPalette = [
   "#c56cf0", "#ff3838", "#70a1ff", "#2ed573", "#5352ed", "#ff6b81", "#1e90ff", "#ffeaa7"
 ];
 
-const ChartCardScatter = ({ chart }) => {
+const lang = navigator.language.startsWith("es") ? "es" : "en";
+
+
+const ChartCardScatter = ({ chart, chartKey }) => {
   if (!chart || !chart.datasets || chart.datasets.length === 0) {
     return (
       <div className="chart-card shadow rounded-xl text-center chart-empty">
@@ -20,14 +23,41 @@ const ChartCardScatter = ({ chart }) => {
 
   const { title, datasets } = chart;
 
-  const filteredDatasets = datasets.filter(ds =>
-    ds.data && ds.data.length === 2 && ds.data.every(v => v !== null && v !== undefined)
+  const filteredDatasets = datasets.filter(
+    ds => ds.data && ds.data.length === 2 && ds.data.every(v => v !== null && v !== undefined)
   );
 
   const selected = {};
   filteredDatasets.forEach((ds, idx) => {
     selected[ds.label] = idx === 0;
   });
+
+  // 🎯 Textos dinámicos por tipo de gráfico
+  const yAxisName = (() => {
+    switch (chartKey) {
+      case "distinct-grid-positions-winning":
+        return lang === "es" ? "Posición de parrilla" : "Grid position";
+      case "total-podium-percentage-vs-all-teammates":
+        return lang === "es" ? "% Pódiums vs equipo" : "% Podiums vs team";
+      case "avg-positions-gained-first-laps":
+        return lang === "es" ? "Posiciones ganadas (1ª vuelta)" : "Positions gained (1st lap)";
+      default:
+        return lang === "es" ? "Valor" : "Value";
+    }
+  })();
+
+  const tooltipLabel = (() => {
+    switch (chartKey) {
+      case "distinct-grid-positions-winning":
+        return lang === "es" ? "posición de parrilla" : "grid position";
+      case "total-podium-percentage-vs-all-teammates":
+        return lang === "es" ? "% de pódiums vs equipo" : "% podiums vs team";
+      case "avg-positions-gained-first-laps":
+        return lang === "es" ? "posiciones ganadas" : "positions gained";
+      default:
+        return lang === "es" ? "valor" : "value";
+    }
+  })();
 
   const series = filteredDatasets.map((ds, index) => {
     const fallbackColor = defaultColorPalette[index % defaultColorPalette.length];
@@ -37,11 +67,9 @@ const ChartCardScatter = ({ chart }) => {
     return {
       name: ds.label,
       type: "scatter",
-      data: [ds.data], // ← data viene como [x, y]
+      data: [ds.data],
       symbolSize: 18,
-      itemStyle: {
-        color
-      },
+      itemStyle: { color },
       label: {
         show: true,
         position: "top",
@@ -68,8 +96,7 @@ const ChartCardScatter = ({ chart }) => {
       backgroundColor: "#1e1e1e",
       borderColor: "#444",
       borderWidth: 1,
-      formatter: params =>
-        `${params.seriesName}: ${params.data[1]} posiciones ganadas`,
+      formatter: params => `${params.seriesName}: ${params.data[1]} ${tooltipLabel}`,
       textStyle: {
         color: "#fff"
       }
@@ -78,16 +105,12 @@ const ChartCardScatter = ({ chart }) => {
       type: "scroll",
       top: 50,
       orient: "horizontal",
-      textStyle: {
-        color: "#ccc"
-      },
+      textStyle: { color: "#ccc" },
       data: filteredDatasets.map(ds => ds.label),
       selected,
       selectedMode: "multiple",
       pageIconColor: "#ffcc00",
-      pageTextStyle: {
-        color: "#ccc"
-      }
+      pageTextStyle: { color: "#ccc" }
     },
     grid: {
       top: 120,
@@ -98,41 +121,17 @@ const ChartCardScatter = ({ chart }) => {
     },
     xAxis: {
       type: "value",
-      name: "Separación horizontal (visual)",
-      axisLine: {
-        lineStyle: {
-          color: "#777"
-        }
-      },
-      axisLabel: {
-        color: "#ccc",
-        fontSize: 12
-      },
-      splitLine: {
-        lineStyle: {
-          color: "#444",
-          type: "dashed"
-        }
-      }
+      name: lang === "es" ? "Distribución horizontal" : "Horizontal spread",
+      axisLine: { lineStyle: { color: "#777" } },
+      axisLabel: { color: "#ccc", fontSize: 12 },
+      splitLine: { lineStyle: { color: "#444", type: "dashed" } }
     },
     yAxis: {
       type: "value",
-      name: "Posiciones ganadas (promedio)",
-      axisLine: {
-        lineStyle: {
-          color: "#777"
-        }
-      },
-      axisLabel: {
-        color: "#ccc",
-        fontSize: 12
-      },
-      splitLine: {
-        lineStyle: {
-          color: "#444",
-          type: "dashed"
-        }
-      }
+      name: yAxisName,
+      axisLine: { lineStyle: { color: "#777" } },
+      axisLabel: { color: "#ccc", fontSize: 12 },
+      splitLine: { lineStyle: { color: "#444", type: "dashed" } }
     },
     series
   };
@@ -145,3 +144,4 @@ const ChartCardScatter = ({ chart }) => {
 };
 
 export default ChartCardScatter;
+

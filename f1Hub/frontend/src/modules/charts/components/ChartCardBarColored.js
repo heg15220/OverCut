@@ -9,6 +9,9 @@ const defaultColorPalette = [
   "#c56cf0", "#ff3838", "#70a1ff", "#2ed573", "#5352ed", "#ff6b81", "#1e90ff", "#ffeaa7"
 ];
 
+const lang = navigator.language.startsWith("es") ? "es" : "en";
+
+
 const ChartCardBarColored = ({ chart }) => {
   if (!chart || !chart.labels || !chart.datasets || chart.labels.length === 0 || chart.datasets.length === 0) {
     return (
@@ -128,11 +131,18 @@ const ChartCardBarColored = ({ chart }) => {
     series
   };
 
-  return (
-    <div className="chart-card">
-      <ReactECharts option={option} style={{ height: 400, width: "100%" }} />
-    </div>
-  );
+    return (
+      <div className="chart-card">
+        {(title.includes("Driver efficiency") || title.includes("Índice de eficiencia")) && (
+          <p className="chart-description">
+            {lang === "es"
+              ? "Este índice compara el rendimiento de los pilotos en función de los puntos obtenidos por carrera y su posición media de salida. Una puntuación más alta indica mayor capacidad para maximizar resultados saliendo desde las primeras posiciones de la parrilla"
+              : "This index compares drivers based on the points they score per race relative to their average starting position. A higher score indicates better ability to maximize results from the front of the grid."}
+          </p>
+        )}
+        <ReactECharts option={option} style={{ height: 400, width: "100%" }} />
+      </div>
+    );
 };
 
 export default ChartCardBarColored;

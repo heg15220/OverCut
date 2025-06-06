@@ -132,7 +132,7 @@ public interface AdvancedStatsService {
     ChartDataDTO getChampionshipsDecidedBeforeLastGP(String lang);
 
     // 🧑‍🤝‍🧑 Comparativas de equipo
-    ChartDataDTO getTeammateWinsDelta(String lang);
+    ChartDataDTO getTeammateWinsDelta(String driverIdStr, String lang);
     ChartDataDTO getTeammatePodiumDelta(String lang);
 
     // 🧮 Eficiencia

@@ -351,8 +351,8 @@ public class ChartController {
 
     // 🧑‍🤝‍🧑 Comparativas de equipo
     @GetMapping("/teammate-wins-delta")
-    public ChartDataDTO getTeammateWinsDelta(@RequestParam String lang) {
-        return advancedStatsService.getTeammateWinsDelta(lang);
+    public ChartDataDTO getTeammateWinsDelta(@RequestParam String driverId, @RequestParam String lang) {
+        return advancedStatsService.getTeammateWinsDelta(driverId, lang);
     }
 
     @GetMapping("/teammate-podium-delta")
@@ -388,19 +388,15 @@ public class ChartController {
                 "podium-percentage-vs-teammate",
                 "avg-positions-gained-by-season",
                 "avg-positions-gained-first-laps",
-                "most-common-finish-position",
                 "driver-vs-team-championship-finish",
                 "total-podium-percentage-vs-all-teammates",
                 "distinct-grid-positions-winning",
                 "finish-position-distribution",
                 "finish-vs-dnf-ratio",
-                "sprint-vs-race-points",
                 "points-streaks",
                 "qualifying-improvement",
                 "quali-consistency",
                 "poles-without-win",
-                "teammate-wins-delta",
-                "teammate-podium-delta",
                 "efficiency-rating"
         ));
 
