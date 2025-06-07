@@ -150,7 +150,7 @@ const ChartSelector = () => {
     "avg-team-points-by-season": ChartCard,
     "pitstops-per-race": ChartCard,
     "overtakes-per-race": ChartCard,
-    "most-common-quali-position": ChartCardColored,
+    "most-common-quali-position": ChartCardBarColored,
     "average-finish-position": ChartCardBarColored,
     "average-start-position": ChartCardBarColored
   };

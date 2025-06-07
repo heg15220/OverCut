@@ -2987,9 +2987,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         Map<Integer, Double> points = new HashMap<>();
         for (Result r : driverResults) {
             int year = r.getRace().getYear();
-            if (r.getPositionOrder() != null) {
-                positions.computeIfAbsent(year, k -> new ArrayList<>()).add((double) r.getPositionOrder());
-            }
+            Double pos = r.getPositionOrder() != null ? r.getPositionOrder().doubleValue() : 30.0; // penaliza DNFs
+            positions.computeIfAbsent(year, k -> new ArrayList<>()).add(pos);
+
             if (r.getPoints() != null) {
                 points.merge(year, r.getPoints(), Double::sum);
             }
@@ -2998,11 +2998,11 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         Set<Integer> years = new TreeSet<>(positions.keySet());
         List<String> labels = years.stream().map(String::valueOf).toList();
 
-        // Cálculo de puntos del constructor por año
-        Map<Integer, Double> constructorPointsByYear = allResults.stream()
+        // Cálculo de puntos del constructor por año y constructorId
+        Map<List<Object>, Double> constructorPointsByYear = allResults.stream()
                 .filter(r -> r.getConstructor() != null && r.getRace() != null && r.getPoints() != null)
                 .collect(Collectors.groupingBy(
-                        r -> r.getRace().getYear(),
+                        r -> List.of(r.getRace().getYear(), r.getConstructor().getConstructorId()),
                         Collectors.summingDouble(Result::getPoints)
                 ));
 
@@ -3066,8 +3066,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     .map(ConstructorStanding::getPosition)
                     .findFirst().orElse(null);
 
-            if (driverPos != null && teamPos != null && driverPos <= teamPos) {
-                beatTeamInWdc.put(year, true);
+            if (driverPos != null && teamPos != null && driverPos <= teamPos + 1) {
+                beatTeamInWdc.put(year, true); // criterio suavizado
             }
         }
 
@@ -3085,15 +3085,16 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     double maxPointsSeason = raceCount * maxPointsPerRace;
                     double normalizedPoints = maxPointsSeason > 0 ? (rawPoints / maxPointsSeason) * 100 : 0;
 
-                    double teamPoints = constructorPointsByYear.getOrDefault(y, 0.0);
+                    Long constructorId = constructorPerYear.get(y);
+                    double teamPoints = constructorId != null ? constructorPointsByYear.getOrDefault(List.of(y, constructorId), 0.0) : 0.0;
                     double pilotShare = teamPoints > 0 ? (rawPoints / teamPoints) : 0.0;
                     double weightMultiplier;
                     if (pilotShare >= 0.69) {
-                        weightMultiplier = 0.40; // caso excepcional
+                        weightMultiplier = 0.40;
                     } else if (pilotShare >= 0.65) {
-                        weightMultiplier = 0.25; // buen rendimiento
+                        weightMultiplier = 0.25;
                     } else {
-                        weightMultiplier = 0.15; // contribución normal o baja
+                        weightMultiplier = 0.15;
                     }
 
                     double pointsScore = normalizedPoints * weightMultiplier;
@@ -3105,23 +3106,17 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                         int losses = battleData[1] - battleData[0];
                         int total = battleData[1];
 
-                        double winRatio = (double) wins / total; // precisión
+                        double winRatio = (double) wins / total;
                         int diff = wins - losses;
-
-                        // Cuanto mayor la diferencia, más se potencia el impacto (de 0 a 1.5)
-                        double diffFactor = Math.tanh(diff / 5.0); // sigmoide suave (crece con la diferencia)
-
-                        // Score final ponderado: hasta 20 puntos posibles
-                        teammateScore = (winRatio * 10 + diffFactor * 10); // máx 20
+                        double diffFactor = Math.tanh(diff / 5.0);
+                        teammateScore = (winRatio * 10 + diffFactor * 10);
                     }
 
-
-                    double consistencyScore = consistency * 100 * 0.60; // hasta 60 puntos, factor dominante
+                    double consistencyScore = consistency * 100 * 0.60;
 
                     double teamRankingBonus = beatTeamInWdc.getOrDefault(y, false) ? 20.0 : 0.0;
 
                     return pointsScore + consistencyScore + teammateScore + teamRankingBonus;
-
                 }).toList();
 
         String name = driverDao.findById(driverId)
@@ -3132,6 +3127,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 "line", labels,
                 List.of(new ChartSeriesDTO("Performance Index", getDriverColor(driverId), values)));
     }
+
 
     @Override
     public ChartDataDTO getConstructorPerformanceTrajectory(String constructorIdStr, String lang) {
@@ -3219,8 +3215,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 labels,
                 List.of(new ChartSeriesDTO(
                         lang.equals("es")
-                                ? "Índice de rendimiento del equipo (0–100)"
-                                : "Team Performance Index (0–100)",
+                                ? "Índice de rendimiento del equipo (0–60)"
+                                : "Team Performance Index (0–60)",
                         getTeamColor(constructorRef),
                         values
                 ))
