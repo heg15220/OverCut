@@ -8,22 +8,26 @@
 
 .wordsearch-grid {
   display: grid;
-  grid-template-columns: repeat(21, 25px);
-  gap: 2px;
+  grid-template-columns: repeat(21, 30px); /* antes 25px */
+  gap: 4px; /* ligeramente más espacio entre celdas */
   justify-content: center;
   margin-bottom: 1rem;
 }
 
+
 .wordsearch-cell {
-  width: 25px;
-  height: 25px;
+  width: 30px;          /* antes 25px */
+  height: 30px;         /* antes 25px */
   background: #222;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  font-size: 1.2rem;     /* más grande para mayor legibilidad */
+  letter-spacing: 1px;  /* mantiene separación entre letras */
   border: 1px solid #444;
 }
+
 
 .wordsearch-input {
   padding: 0.5rem;
