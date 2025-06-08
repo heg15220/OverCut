@@ -1,0 +1,46 @@
+.loading-screen {
+  background: linear-gradient(to bottom right, #0a1a2f, #050f1e 85%);
+  color: #fbc02d;
+  font-family: 'F1 Bold', sans-serif;
+  font-size: 2rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.loading-text {
+  text-shadow: 0 0 10px rgba(251, 192, 45, 0.5);
+  font-size: 1.8rem;
+}
+
+.progress-bar {
+  position: relative;
+  width: 300px;
+  height: 16px;
+  background: #333;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 8px rgba(251, 192, 45, 0.3);
+}
+
+.progress-car {
+  position: absolute;
+  top: -26px; /* ajusta para colocar el coche sobre la barra */
+  left: 0;
+  animation: moveCar 2s infinite linear;
+  font-size: 2rem;
+  filter: drop-shadow(0 0 4px #fbc02d);
+}
+
+@keyframes moveCar {
+  0% { left: 0%; }
+  100% { left: 100%; }
+}

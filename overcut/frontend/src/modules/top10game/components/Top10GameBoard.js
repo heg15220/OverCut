@@ -5,7 +5,8 @@ import Top10Slot from "./Top10Slot";
 import SearchPilotInput from "./SearchPilotInput";
 import { top10Translations } from "../../../i18n/top10game/translations";
 import { Link } from "react-router-dom";
-import "./Top10Game.css"; // reutiliza estilos globales
+import "./Top10Game.css";
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 const Top10GameBoard = () => {
   const board = useSelector(getTop10Board);
@@ -14,7 +15,7 @@ const Top10GameBoard = () => {
   const lang = navigator.language.startsWith("es") ? "es" : "en";
   const t = top10Translations[lang];
 
-  if (!board) return <div className="grid-loading">{t.loading}</div>;
+  if (!board) return <LoadingScreen lang={lang} text={t.loading} />;
 
   return (
     <div className="grid-ranking-container">

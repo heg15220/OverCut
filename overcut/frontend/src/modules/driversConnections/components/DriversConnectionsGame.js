@@ -5,6 +5,7 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import { useMemo } from "react";
 import "./DriversConnectionsGame.css";
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 const categoryColors = [
   "#1e88e5", // Blue
@@ -130,7 +131,8 @@ const DriversConnectionsGame = () => {
       .sort(() => Math.random() - 0.5);
   }, [game, solvedGroups]);
 
-  if (!game) return <div className="drivers-connections-container">{t.loading}</div>;
+  if (!game) return <LoadingScreen lang={lang} text={t.loading} />;
+
 
 
 

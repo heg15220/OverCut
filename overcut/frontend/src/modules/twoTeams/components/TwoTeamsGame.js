@@ -5,6 +5,8 @@ import * as selectors from '../selectors';
 import TeamLogo from './TeamLogo';
 import { useNavigate } from 'react-router-dom';
 import './TwoTeamsGame.css';
+import LoadingScreen from '../../common/components/LoadingScreen';
+
 
 const TwoTeamsGame = () => {
   const dispatch = useDispatch();
@@ -87,7 +89,7 @@ const TwoTeamsGame = () => {
     dispatch(actions.clearDriverSuggestions());
   };
 
-  if (!game) return <div className="two-teams-game">{translations.loading[lang]}</div>;
+  if (!game) return <LoadingScreen lang={lang} />;
 
   const current = game.pairs[game.currentPairIndex];
   const showResult = current.guessedCorrectly !== null;

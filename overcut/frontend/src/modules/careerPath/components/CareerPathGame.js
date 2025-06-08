@@ -5,6 +5,7 @@ import * as selectors from '../selectors';
 import './CareerPathGame.css';
 import TeamLogo from './TeamLogo';
 import { useNavigate } from 'react-router-dom';
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 
 const CareerPathGame = () => {
@@ -81,7 +82,8 @@ const CareerPathGame = () => {
     setHighlightedIndex(-1);
   };
 
-  if (!game) return <div className="career-path-container">{translations.loading[lang]}</div>;
+  if (!game) return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+
 
   return (
     <div className="career-path-container">

@@ -10,6 +10,7 @@ import { sourceImages } from "../../../helpers/sourceImages";
 import CrosswordBoard from "./CrosswordBoard";
 import CrosswordClues from "./CrosswordClues";
 import { useNavigate } from "react-router-dom";
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 const DEFAULT_ROWS = 10;
 const DEFAULT_COLS = 10;
@@ -44,8 +45,9 @@ const Crossword = () => {
 
 
     if (!game || !cells || !words) {
-        return <Box mt={8}><Typography variant="h5" align="center">Cargando crucigrama...</Typography></Box>
+        return <LoadingScreen lang={language} text={language === 'es' ? 'Cargando crucigrama...' : 'Loading crossword...'} />;
     }
+
 
     return (
         <Box

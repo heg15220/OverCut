@@ -9,6 +9,8 @@ import { sourceImages } from '../../../helpers/sourceImages';
 import { gridGameTranslations } from "../../../i18n/gamegrid/translations";
 import "./GridGame.css";
 import SearchPilotInput from "./SearchPilotInput";
+import LoadingScreen from '../../common/components/LoadingScreen';
+
 
 const GridGameBoard = () => {
     const board = useSelector(getGridBoard);
@@ -30,7 +32,8 @@ const GridGameBoard = () => {
         }
     }, [board, validated]);
 
-    if (!board) return <div className="grid-loading">{t.loading}</div>;
+    if (!board) return <LoadingScreen lang={lang} text={t.loading} />;
+
 
    const numColumns = board.grid.length > 29 ? 5 : board.grid.length > 21 ? 4 : 3;
 

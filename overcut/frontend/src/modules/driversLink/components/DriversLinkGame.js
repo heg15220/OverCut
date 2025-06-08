@@ -4,6 +4,7 @@ import * as actions from '../actions';
 import * as selectors from '../selectors';
 import { useNavigate } from 'react-router-dom';
 import './DriversLinkGame.css';
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 const DriversLinkGame = () => {
   const dispatch = useDispatch();
@@ -80,7 +81,8 @@ const DriversLinkGame = () => {
     setHighlightedIndex(-1);
   };
 
-  if (!game) return <div className="drivers-link-container">{translations.loading[lang]}</div>;
+  if (!game) return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+
 
   return (
     <div className="drivers-link-container">

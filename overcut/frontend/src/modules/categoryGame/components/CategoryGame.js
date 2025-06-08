@@ -4,6 +4,7 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import { useNavigate } from "react-router-dom";
 import "./CategoryGame.css";
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 const CategoryGame = () => {
   const dispatch = useDispatch();
@@ -36,7 +37,7 @@ const CategoryGame = () => {
     }
   }, [game]);
 
-  if (!game) return <div className="category-game-loading">Loading...</div>;
+  if (!game) return <LoadingScreen lang={lang} text={lang === 'es' ? 'Cargando juego...' : 'Loading game...'} />;
 
   return (
     <div className="category-page">

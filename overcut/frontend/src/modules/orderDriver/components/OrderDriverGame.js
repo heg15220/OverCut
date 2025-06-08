@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./OrderDriverGame.css";
+import LoadingScreen from '../../common/components/LoadingScreen';
+
 
 const OrderDriverGame = () => {
   const dispatch = useDispatch();
@@ -138,7 +140,7 @@ const OrderDriverGame = () => {
     return correctSlot?.driverId;
   };
 
-  if (!game) return <div className="order-driver-container">{t("loading")}</div>;
+  if (!game) return <LoadingScreen lang={navigator.language.startsWith("es") ? "es" : "en"} text={t("loading")} />;
 
   return (
     <div className="order-driver-page">

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import * as actions from '../actions';
 import * as selectors from '../selectors';
 import './WordleGame.css';
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 const WordleGame = () => {
   const dispatch = useDispatch();
@@ -34,7 +35,8 @@ const WordleGame = () => {
     }
   };
 
-  if (!game) return <div className="wordle-container">{t.loading[lang]}</div>;
+  if (!game) return <LoadingScreen lang={lang} text={t.loading[lang]} />;
+
 
   return (
     <div className="wordle-container">

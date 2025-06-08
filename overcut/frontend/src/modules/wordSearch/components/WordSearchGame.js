@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./WordSearchGame.css";
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 // ...importaciones y setup iguales...
 
@@ -65,8 +66,9 @@ const WordSearchGame = () => {
     setIsDragging(false);
   };
 
+
+  if (!game) return <LoadingScreen lang={lang} text={t("loading")} />;
   const handleValidate = () => {
-    if (!game) return;
 
     const letters = selectedCells.map(key => {
       const [r, c] = key.split(",").map(Number);

@@ -5,6 +5,8 @@ import * as selectors from '../selectors';
 import TeamLogo from './TeamLogo';
 import { useNavigate } from 'react-router-dom';
 import './TeamGuessGame.css';
+import LoadingScreen from '../../common/components/LoadingScreen';
+
 
 const TeamGuessGame = () => {
   const dispatch = useDispatch();
@@ -52,7 +54,7 @@ const TeamGuessGame = () => {
     setHighlightedIndex(-1);
   };
 
-  if (!game) return <div className="team-guess-container">{translations.loading[lang]}</div>;
+  if (!game) return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
 
   return (
     <div className="team-guess-container">

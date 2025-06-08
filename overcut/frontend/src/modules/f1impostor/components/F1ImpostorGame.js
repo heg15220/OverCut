@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./F1ImpostorGame.css";
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 const F1ImpostorGame = () => {
   const dispatch = useDispatch();
@@ -47,7 +48,8 @@ const F1ImpostorGame = () => {
     dispatch(actions.startF1ImpostorGame());
   }, [dispatch]);
 
-  if (!game) return <div className="f1impostor-loading">{translations.loading[lang]}</div>;
+  if (!game) return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+
 
   const toggleSelect = (name) => {
     if (game.finished) return;

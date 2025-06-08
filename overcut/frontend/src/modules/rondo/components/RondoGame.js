@@ -4,6 +4,8 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import { useNavigate } from "react-router-dom";
 import "./RondoGame.css";
+import LoadingScreen from '../../common/components/LoadingScreen';
+
 
 const translations = {
   es: {
@@ -74,7 +76,7 @@ const RondoGame = () => {
     letters.filter((l) => l.status.toLowerCase() === status).length;
 
   if (!game || letters.length === 0)
-    return <div className="rondo-container">{t.loading}</div>;
+    return <LoadingScreen lang={lang} text={t.loading} />;
 
   const currentLetter = letters[currentIndex];
 

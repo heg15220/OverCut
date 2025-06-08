@@ -7,6 +7,8 @@ import "./Guessdriver.css";
 import { useNavigate } from "react-router-dom";
 
 import { sourceImages } from '../../../helpers/sourceImages';
+import LoadingScreen from '../../common/components/LoadingScreen';
+
 
 const GuessDriverGame = () => {
   const dispatch = useDispatch();
@@ -38,7 +40,8 @@ const GuessDriverGame = () => {
     askedQuestions: { es: "Preguntas realizadas", en: "Questions asked" },
     backToHome: { es: "Volver al inicio", en: "Back to Home" },
     selectDecade: { es: "Selecciona una década", en: "Select a decade" },
-    inputValueFor: { es: "Introduce valor para", en: "Enter value for" }
+    inputValueFor: { es: "Introduce valor para", en: "Enter value for" },
+    loading: { es: "Cargando juego...", en: "Loading game..." }
   };
 
 
@@ -90,7 +93,9 @@ const GuessDriverGame = () => {
     dispatch(clearPilotSuggestions());
   };
 
-  if (!game) return <div className="grid-game-body">Cargando juego...</div>;
+  if (!game) return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+
+
 
   return (
     <div className="grid-game-container">
