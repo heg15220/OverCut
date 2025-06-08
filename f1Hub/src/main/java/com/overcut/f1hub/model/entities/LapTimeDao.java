@@ -19,5 +19,9 @@ public interface LapTimeDao extends JpaRepository<LapTime, LapTimeId> {
     """)
     List<LapTime> findLeadersBySeason(@Param("season") Integer season);
 
+    @Query("SELECT lt FROM LapTime lt WHERE lt.position = 1 AND lt.raceId IN :raceIds")
+    List<LapTime> findByRaceIdInAndPositionOne(@Param("raceIds") Set<Long> raceIds);
+
+
 
 }

@@ -118,7 +118,6 @@ const ChartSelector = () => {
       { endpoint: "most-improved-drivers", label: { es: "Pilotos Más Mejorados en Década", en: "Most Improved Drivers by Decade" }, param: "decade", chartType: "bar" },
     ],
     Constructores: [
-      { endpoint: "avg-team-points-by-season", label: { es: "Puntos por Equipo", en: "Team Points per Season" }, param: "constructorId", chartType: "bar" },
       {
         endpoint: "constructor-performance-trajectory",
         label: {
@@ -152,7 +151,9 @@ const ChartSelector = () => {
     "overtakes-per-race": ChartCard,
     "most-common-quali-position": ChartCardBarColored,
     "average-finish-position": ChartCardBarColored,
-    "average-start-position": ChartCardBarColored
+    "average-start-position": ChartCardBarColored,
+    "race-leaders-per-gp": ChartCardColored
+
   };
 
   const getChartComponent = (endpoint, chartType) => {
@@ -244,16 +245,6 @@ const ChartSelector = () => {
           )}
 
 
-
-          <input
-            type="number"
-            min="1"
-            max="50"
-            value={limit}
-            onChange={e => setLimit(e.target.value)}
-            className="chart-input w-24"
-            placeholder={i18n.topNPlaceholder[lang]}
-          />
 
           <button onClick={handleFetch} disabled={!selected}>
             {i18n.showButton[lang]}

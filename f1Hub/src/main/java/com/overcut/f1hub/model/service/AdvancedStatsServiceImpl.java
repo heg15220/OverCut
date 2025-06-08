@@ -102,34 +102,18 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                         Race::getYear
                 ));
 
-        // Map<DriverId, Map<Year, TotalPoints>>
+        // Map<DriverId, Map<Year, List of Points>>
         Map<Long, Map<Integer, List<Double>>> driverYearPoints = new HashMap<>();
 
-        // Filtrar por década si se ha pasado el parámetro
-        int startYear = 0;
-        int endYear = 0;
+        // Filtro de década
+        int startYear = 0, endYear = 0;
         if (decade != null) {
             switch (decade) {
-                case "1980s":
-                    startYear = 1980;
-                    endYear = 1989;
-                    break;
-                case "1990s":
-                    startYear = 1990;
-                    endYear = 1999;
-                    break;
-                case "2000s":
-                    startYear = 2000;
-                    endYear = 2009;
-                    break;
-                case "2010s":
-                    startYear = 2010;
-                    endYear = 2019;
-                    break;
-                case "2020s":
-                    startYear = 2020;
-                    endYear = 2029;
-                    break;
+                case "1980s" -> { startYear = 1980; endYear = 1989; }
+                case "1990s" -> { startYear = 1990; endYear = 1999; }
+                case "2000s" -> { startYear = 2000; endYear = 2009; }
+                case "2010s" -> { startYear = 2010; endYear = 2019; }
+                case "2020s" -> { startYear = 2020; endYear = 2029; }
             }
         }
 
@@ -139,8 +123,6 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             Double points = r.getPoints();
 
             if (year == null || points == null) continue;
-
-            // Filtrar por la década
             if (year < startYear || year > endYear) continue;
 
             driverYearPoints
@@ -154,31 +136,33 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         List<String> yearLabels = allYears.stream().map(String::valueOf).toList();
 
         List<ChartSeriesDTO> datasets = new ArrayList<>();
+
         for (Map.Entry<Long, Map<Integer, List<Double>>> entry : driverYearPoints.entrySet()) {
             Long driverId = entry.getKey();
             String label = driverNames.getOrDefault(driverId, "Driver " + driverId);
             List<Double> data = new ArrayList<>();
 
-            // Variable para comprobar si el piloto tiene puntos en alguna temporada
-            boolean hasPoints = false;
+            boolean hasNonZeroAverage = false;
 
             for (Integer year : allYears) {
                 List<Double> pts = entry.getValue().getOrDefault(year, Collections.emptyList());
                 if (pts.isEmpty()) {
-                    data.add(null); // null → ECharts no dibuja nada, evita falsas líneas
+                    data.add(null);
                 } else {
-                    double averagePoints = pts.stream().mapToDouble(d -> d).average().orElse(0.0);
-                    data.add(averagePoints);
+                    double avg = pts.stream().mapToDouble(d -> d).average().orElse(0.0);
+                    data.add(avg);
+                    if (avg > 0.0) hasNonZeroAverage = true;
                 }
             }
 
-
-            datasets.add(new ChartSeriesDTO(label, "#8884d8", data)); // Puedes reemplazar el color por nacionalidad
+            if (hasNonZeroAverage) {
+                datasets.add(new ChartSeriesDTO(label, "#8884d8", data));
+            }
         }
 
         return new ChartDataDTO(chartI18n.get("averagePointsPerSeason", lang), "line", yearLabels, datasets);
-
     }
+
 
 
     //Is called getVictoryPercentageByDriverPerSeason but refers to wins percentage by DECADE, not season
@@ -1535,10 +1519,14 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             totalPoints.merge(constructorId, r.getPoints(), Double::sum);
         }
 
+        AtomicInteger index = new AtomicInteger(0);
         List<ChartSeriesDTO> dataset = totalPoints.entrySet().stream()
+                .sorted((e1, e2) -> Double.compare(e2.getValue(), e1.getValue())) // opcional: ordenar de mayor a menor
                 .map(e -> {
-                    String label = constructorMap.getOrDefault(e.getKey(), new Constructor()).getName();
-                    return new ChartSeriesDTO(label, "#82ca9d", List.of(e.getValue()));
+                    Constructor constructor = constructorMap.get(e.getKey());
+                    String label = constructor != null ? constructor.getName() : "Unknown";
+                    String color = getColorForIndex(index.getAndIncrement()); // función que genera color por índice
+                    return new ChartSeriesDTO(label, color, List.of(e.getValue()));
                 })
                 .toList();
 
@@ -1549,6 +1537,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 dataset
         );
     }
+
 
 
     @Override
@@ -1654,29 +1643,44 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getAvgPitStopsPerSeason(String lang) {
+        // Mapa: raceId → year
         Map<Long, Integer> raceYears = raceDao.findAll().stream()
                 .collect(Collectors.toMap(Race::getRaceId, Race::getYear));
 
-        Map<Integer, Integer> yearCounts = new HashMap<>();
-        Map<Integer, Integer> yearPits = new HashMap<>();
+        // Conteo de carreras por año
+        Map<Integer, Set<Long>> yearToRaceIds = new HashMap<>();
+        for (Map.Entry<Long, Integer> entry : raceYears.entrySet()) {
+            yearToRaceIds.computeIfAbsent(entry.getValue(), k -> new HashSet<>()).add(entry.getKey());
+        }
 
+        // Conteo de pit stops por año
+        Map<Integer, Integer> yearPits = new HashMap<>();
         for (PitStop p : pitStopDao.findAll()) {
             Integer year = raceYears.get(p.getRaceId());
             if (year != null) {
-                yearCounts.merge(year, 1, Integer::sum);
                 yearPits.merge(year, 1, Integer::sum);
             }
         }
 
+        // Construcción de gráfico
         List<Integer> years = yearPits.keySet().stream().sorted().toList();
         List<String> labels = years.stream().map(String::valueOf).toList();
         List<Double> values = years.stream()
-                .map(y -> yearPits.get(y) / (double) yearCounts.getOrDefault(y, 1))
+                .map(y -> {
+                    int pits = yearPits.getOrDefault(y, 0);
+                    int races = yearToRaceIds.getOrDefault(y, Set.of()).size();
+                    return races == 0 ? 0.0 : (double) pits / races;
+                })
                 .toList();
 
-        return new ChartDataDTO(chartI18n.get("avgPitStopsPerSeason", lang), "line", labels,
-                List.of(new ChartSeriesDTO("Pit stops promedio", "#8884d8", values)));
+        return new ChartDataDTO(
+                chartI18n.get("avgPitStopsPerSeason", lang),
+                "line",
+                labels,
+                List.of(new ChartSeriesDTO("Pit stops promedio por carrera", "#8884d8", values))
+        );
     }
+
 
 
     @Override
@@ -2706,8 +2710,18 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     @Override
     public ChartDataDTO getRaceLeadersPerGrandPrix(String lang, String seasonStr) {
         Integer season = (seasonStr == null || seasonStr.isEmpty()) ? null : Integer.parseInt(seasonStr);
-        List<LapTime> leaders = lapTimeDao.findLeadersBySeason(season);
 
+        // Obtener carreras por año o todas
+        List<Race> races = (season == null)
+                ? raceDao.findAllOrderByYearAndRound()
+                : raceDao.findByYearOrderByRoundAsc(season);
+
+        Set<Long> raceIds = races.stream().map(Race::getRaceId).collect(Collectors.toSet());
+
+        // Obtener todos los laptimes con posición 1 en esas carreras
+        List<LapTime> leaders = lapTimeDao.findByRaceIdInAndPositionOne(raceIds);
+
+        // Agrupar por carrera los pilotos líderes
         Map<Long, Set<Long>> leadersPerRace = new HashMap<>();
         for (LapTime lt : leaders) {
             leadersPerRace
@@ -2715,15 +2729,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     .add(lt.getDriverId());
         }
 
-        List<Race> races = raceDao.findAllOrderByYearAndRound();
+        // Crear gráfico
         List<String> labels = new ArrayList<>();
         List<Double> values = new ArrayList<>();
 
         for (Race r : races) {
-            if (season == null || r.getYear() == season) {
-                labels.add(r.getYear() + " - " + r.getName());
-                values.add((double) leadersPerRace.getOrDefault(r.getRaceId(), Set.of()).size());
-            }
+            labels.add(r.getYear() + " - " + r.getName());
+            values.add((double) leadersPerRace.getOrDefault(r.getRaceId(), Set.of()).size());
         }
 
         return new ChartDataDTO(
@@ -2733,6 +2745,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 List.of(new ChartSeriesDTO("Distinct leaders", "#00C49F", values))
         );
     }
+
 
 
 
@@ -3125,7 +3138,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         return new ChartDataDTO(chartI18n.get("performanceTrajectory", lang) + " " + name,
                 "line", labels,
-                List.of(new ChartSeriesDTO("Performance Index", getDriverColor(driverId), values)));
+                List.of(new ChartSeriesDTO("Performance Index (0-100)", getDriverColor(driverId), values)));
     }
 
 

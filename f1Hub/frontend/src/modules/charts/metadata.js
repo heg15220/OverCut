@@ -6,10 +6,6 @@ const metadata = {
   "total-podium-percentage-vs-all-teammates": {
     label: { es: "Porcentaje Total Podios vs Compañeros", en: "Total Podium % vs Teammates" }
   },
-  "avg-positions-gained-by-season": {
-    label: { es: "Posiciones Ganadas por Temporada", en: "Positions Gained by Season" },
-    param: "driverId"
-  },
   "avg-positions-gained-first-laps": {
     label: { es: "Posiciones Ganadas en Primeras Vueltas", en: "Positions Gained on First Laps" }
   },
@@ -98,9 +94,6 @@ const metadata = {
     },
     "qualifying-improvement": {
       label: { es: "Mejora en Clasificación (Q1-Q3)", en: "Avg Qualifying Improvement" }
-    },
-    "caotic-race-performance": {
-      label: { es: "Rendimiento en Carreras Caóticas", en: "Performance on Caotic Races" }
     },
     "avg-fastest-lap-speed": {
       label: { es: "Velocidad Promedio en Vuelta Rápida", en: "Avg Fastest Lap Speed" }

@@ -192,7 +192,9 @@ const ChartsDashboard = () => {
           "pole-conversion-rate",
           "podiums-from-outside-top10",
           "teammate-podium-delta",
-          "championships-decided-early"
+          "championships-decided-early",
+          "quali-consistency",
+          "most-team-points"
         ].includes(selectedChart) ? (
           <ChartCardBarColored chart={chart} />
 
@@ -200,12 +202,9 @@ const ChartsDashboard = () => {
         ) : [
           "team-comebacks-by-season",
           "avg-team-points-by-season",
-          "most-team-points",
           "podium-percentage-vs-teammate",
           "reliability-by-season",
           "caotic-race-performance",
-          // nuevos
-          "quali-consistency"
         ].includes(selectedChart) ? (
           <ChartCardColored chart={chart} />
 

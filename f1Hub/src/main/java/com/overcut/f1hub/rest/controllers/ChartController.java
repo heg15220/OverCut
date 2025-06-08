@@ -386,7 +386,6 @@ public class ChartController {
 
         categories.put(drivers, List.of(
                 "podium-percentage-vs-teammate",
-                "avg-positions-gained-by-season",
                 "avg-positions-gained-first-laps",
                 "driver-vs-team-championship-finish",
                 "total-podium-percentage-vs-all-teammates",
@@ -423,7 +422,6 @@ public class ChartController {
                 "front-row-wins-rate",
                 "avg-race-duration",
                 "q1-q3-delta-per-season",
-                "caotic-race-performance",
                 "avg-fastest-lap-speed",
                 "top-overtaking-races",
                 "pole-conversion-rate",
