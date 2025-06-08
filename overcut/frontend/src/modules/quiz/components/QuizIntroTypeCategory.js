@@ -24,6 +24,17 @@ const QuizIntroTypeCategory = ({ quizType, quizCategory, onContinue }) => {
         };
     }, [onContinue]);
 
+    if (!quizType || !quizCategory) {
+      return (
+        <div className="quiz-container">
+          <div className="loading-spinner" style={{ textAlign: 'center', paddingTop: '6rem' }}>
+            <div className="spinner-wheel" />
+            <p style={{ marginTop: '1rem', color: 'white', fontSize: '1.2rem' }}>Cargando...</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
         <div className="quiz-container">
             <motion.div
