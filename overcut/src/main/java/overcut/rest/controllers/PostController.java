@@ -122,19 +122,28 @@ public class PostController {
      * Modify post.
      *
      * @param userId the user id
-     * @param postId the post id
+     * @param id the post id
      * @param params the params
      * @throws InstanceNotFoundException the instance not found exception
      * @throws PermissionException       the permission exception
      */
     @PutMapping("/{id}")
-    public void modifyPost(@RequestAttribute Long userId, @PathVariable("id") Long postId,
-                           @Validated @RequestBody PostParamsDto params)
-            throws InstanceNotFoundException, PermissionException, PostException {
+    public PostDto modifyPost(@PathVariable Long id,
+                              @RequestAttribute Long userId,
+                              @RequestBody PostParamsDto params)
+            throws Exception {
 
-        postService.modifyPost(postId, params.getTitle(), params.getSubtitle(), params.getArticle(),
-                userId,params.getCategoryId());
+        byte[] decodedImage = null;
+        if (params.getImage() != null && !params.getImage().isEmpty()) {
+            decodedImage = Base64.getDecoder().decode(params.getImage());
+        }
+
+        Post post = postService.modifyPost(id, params.getTitle(), params.getSubtitle(),
+                params.getArticle(), userId, params.getCategoryId(), decodedImage);
+
+        return PostConversor.toPostDto(post);
     }
+
 
     /**
      * Get all categories.

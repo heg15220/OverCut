@@ -134,30 +134,32 @@ public class PostServiceImpl implements PostService{
      * @throws PostException             the post exception
      */
     @Override
-    public void modifyPost(Long postId, String title, String subtitle, String article, Long userId, Long categoryId)
-            throws InstanceNotFoundException, PermissionException, PostException{
-        Post existingPost = postDao.findById(postId).orElseThrow(() -> new InstanceNotFoundException("Post", postId));
+    public Post modifyPost(Long postId, String title, String subtitle, String article, Long userId,
+                           Long categoryId, byte[] image)
+            throws InstanceNotFoundException, Exception, PostException {
 
-        if (!existingPost.getUser().getId().equals(userId)) {
-            throw new PermissionException();
+        Post post = postDao.findById(postId)
+                .orElseThrow(() -> new InstanceNotFoundException("Post not found", postId));
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new Exception("User does not have permission to modify this post");
         }
 
-        Optional<Category> categoryOptional = categoryDao.findById(categoryId);
-        if (!categoryOptional.isPresent()) {
-            throw new InstanceNotFoundException("project.entities.category", categoryId);
+        Category category = categoryDao.findById(categoryId)
+                .orElseThrow(() -> new InstanceNotFoundException("Category not found", categoryId));
+
+        post.setTitle(title);
+        post.setSubtitle(subtitle);
+        post.setArticle(article);
+        post.setCategory(category);
+
+        if (image != null) {
+            post.setImage(image);
         }
 
-        existingPost.setTitle(title);
-        existingPost.setSubtitle(subtitle);
-        existingPost.setCategory(categoryOptional.get());
-        existingPost.setArticle(article);
-
-        LocalDateTime updatingDate = LocalDateTime.now();
-
-        existingPost.setCreationDate(updatingDate);
-
-        postDao.save(existingPost);
+        return postDao.save(post);
     }
+
 
     /**
      * Add image.

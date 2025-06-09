@@ -75,10 +75,11 @@ public interface PostService {
      * @throws InstanceNotFoundException the instance not found exception
      * @throws PostException             the post exception
      */
-    public void modifyPost(Long postId,String title, String subtitle, String article, Long userId, Long categoryId)
-            throws InstanceNotFoundException, PermissionException, PostException;
+    Post modifyPost(Long postId, String title, String subtitle, String article, Long userId, Long categoryId, byte[] image)
+            throws InstanceNotFoundException, Exception, PostException;
 
-    /**
+
+ /**
      * Add image.
      *
      * @param postId the post id

@@ -94,7 +94,7 @@ const PostSectionEditor = () => {
           sectionOrder: idx
         }));
         dispatch(actions.addPostSections(postId, dtoSections, () => {
-          navigate(`/posts/${postId}`);
+          navigate('/');
         }));
       },
       (errors) => {

@@ -227,7 +227,7 @@ class PostServiceTest {
      * @throws PostException             the post exception
      */
     @Test
-    void testModifyPost() throws InstanceNotFoundException, PermissionException, PostException {
+    void testModifyPost() throws Exception {
 
         User user = createUser();
         Category category = createCategory();
@@ -240,13 +240,17 @@ class PostServiceTest {
         userDao.save(user);
         postDao.save(post);
 
+        byte[] dummyImage = java.util.Base64.getDecoder().decode(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
+        );
+
         postService.modifyPost( post.getId(),"motoGP", "la moto que acabó en perfecto estado",
                 "prueba a`s9fijsoigvjreoidnbsr`p´bmjzde´ps`tjh0y0tpjke+ç'dxzk,v´<'jfqpowrjwrekh+'tnh0k`zdoskbvp<siuhfuer9ouhbn " +
                         "como por ejemplo Contenido aquí, contenido aquí. Estos textos hacen parecerlo un español que se puede leer." +
                         " Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsq" +
                         "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                         "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito",
-                user.getId(),category.getId());
+                user.getId(),category.getId(), dummyImage);
 
         Post modifiedPost = postDao.findById(post.getId()).orElse(null);
         assertNotNull(modifiedPost);
@@ -283,6 +287,10 @@ class PostServiceTest {
         userDao.save(user);
         postDao.save(post);
 
+        byte[] dummyImage = java.util.Base64.getDecoder().decode(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
+        );
+
         assertThrows(PermissionException.class,
                 () -> postService.modifyPost(post.getId(), "motoGP",
                         "vendo moto en miniatura perfecto estado","prueba a`s9fijsoigvjreoidnbsr`p´bmjzde´ps`tjh0y0tpjke+ç'dxzk,v´<'jfqpowrjwrekh+'tnh0k`zdoskbvp<siuhfuer9ouhbn " +
@@ -290,7 +298,7 @@ class PostServiceTest {
                                 " Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsq" +
                                 "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                                 "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito"
-                        ,(long) -1, category.getId()));
+                        ,(long) -1, category.getId(), dummyImage));
 
 
         assertThrows(InstanceNotFoundException.class,
@@ -300,7 +308,7 @@ class PostServiceTest {
                                 " Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsq" +
                                 "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                                 "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito",
-                        user.getId(),(long) -1));
+                        user.getId(),(long) -1, dummyImage));
     }
 
     /**
@@ -369,9 +377,13 @@ class PostServiceTest {
         userDao.save(user2);
         postDao.save(post);
 
+        byte[] dummyImage = java.util.Base64.getDecoder().decode(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
+        );
+
         assertThrows(PermissionException.class,
                 () -> postService.modifyPost(post.getId(), "Modified Title", "Modified Description","prueba",
-                        user2.getId(),category.getId()));
+                        user2.getId(),category.getId(), dummyImage));
         categoryDao.save(category);
         userDao.save(user1);
         userDao.save(user2);
