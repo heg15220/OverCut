@@ -11,6 +11,7 @@ const initialState = {
     newPosts: null, // Añade esta línea
     lastGetPost: Date.now(),
     postUser: null,
+    sections: [],
 };
 
 const post = (state = initialState.post, action) => {
@@ -96,6 +97,19 @@ const postUser = (state = initialState.postUser, action) => {
     }
 }
 
+const sections = (state = initialState.sections, action) => {
+    switch (action.type) {
+        case actionTypes.GET_POST_SECTIONS_COMPLETED:
+        case actionTypes.ADD_POST_SECTIONS_COMPLETED:
+            return action.sections;
+        case actionTypes.DELETE_POST_SECTIONS_COMPLETED:
+            return [];
+        default:
+            return state;
+    }
+};
+
+
 const reducer = combineReducers({
     post,
     posts,
@@ -104,5 +118,6 @@ const reducer = combineReducers({
     comments,
     lastGetPost,
     postUser,
+    sections,
 });
 export default reducer;

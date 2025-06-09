@@ -19,6 +19,7 @@ import overcut.rest.dtos.PostDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,7 +55,7 @@ class PostControllerTest {
 
         // Create a PostDto instance
         PostDto postDto = new PostDto(
-                523L, "PostDtoTest", "descriptionTest", image, "articleTest",
+                523L, "PostDtoTest", "descriptionTest", Base64.getEncoder().encodeToString("test".getBytes()), "articleTest",
                 creationDate, 1L, "userNameTest", 1L, "Category1"
         );
 
@@ -62,7 +63,7 @@ class PostControllerTest {
         assertEquals(523L, postDto.getId());
         assertEquals("PostDtoTest", postDto.getTitle());
         assertEquals("descriptionTest", postDto.getSubtitle());
-        assertEquals(image, postDto.getImage());
+        assertEquals(Base64.getEncoder().encodeToString("test".getBytes()), postDto.getImage());
         assertEquals("articleTest", postDto.getArticle());
         assertEquals(creationDate, postDto.getCreationDate());
         assertEquals(1L, postDto.getUserId());
@@ -74,7 +75,7 @@ class PostControllerTest {
         postDto.setId(602L);
         postDto.setTitle("test");
         postDto.setSubtitle("description");
-        postDto.setImage(image);
+        postDto.setImage(Base64.getEncoder().encodeToString("test".getBytes()));
         postDto.setArticle("articleTest");
         postDto.setCreationDate(creationDate);
         postDto.setUserId(2L);

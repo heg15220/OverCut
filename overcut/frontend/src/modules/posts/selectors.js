@@ -27,5 +27,7 @@ export const getLastGetPost = state =>
 export const getUserPost = state =>
     getModuleState(state).postUser;
 
+export const getPostSections = state =>
+    getModuleState(state).sections;
 
 

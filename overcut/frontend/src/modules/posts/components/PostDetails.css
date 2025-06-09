@@ -1,28 +1,30 @@
-/* Estilos generales para el componente */
-.post-details {
-    font-size: 1em; /* Aumenta el tamaño de la fuente */
-    letter-spacing: 0.15em; /* Ajusta el espaciado entre letras */
-    line-height: 2; /* Ajusta el espaciado entre líneas */
+.post-section-image {
+  display: block;
+  margin: 1rem 0; /* antes: auto → ahora margen solo arriba y abajo */
+  border-radius: 6px;
+  box-shadow: 0 0 4px rgba(255, 204, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  height: auto;
 }
 
-
-
-/* Estilos específicos para el apartado de article */
-.post-details .article {
-    font-size: 1.5em; /* Ajusta el tamaño de la fuente para el article */
-    margin-bottom: 20px; /* Añade espacio debajo del article */
+/* Mobile */
+@media (max-width: 600px) {
+  .post-section-image {
+    max-width: 85%;
+  }
 }
 
-.container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Asegura que el contenedor ocupe al menos la altura de la ventana */
-    overflow: clip; /* Permite el desbordamiento con barra de desplazamiento */
-    overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+.tweet-container {
+  transform: scale(0.9);
+  transform-origin: top left; /* antes era center */
+  max-width: 420px;
+  margin: 1rem 0; /* quita centrado horizontal */
+  overflow: hidden;
+  text-align: left; /* asegura alineación del contenido */
 }
 
-.article-container {
-    overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
-    max-height: calc(100vh - 200px); /* Ajusta según sea necesario, considerando el espacio ocupado por el header y el footer */
+.twitter-tweet {
+  margin: 0; /* elimina auto centrado */
+  text-align: left;
 }
-

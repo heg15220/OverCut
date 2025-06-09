@@ -117,10 +117,11 @@ const Header = () => {
                                         <FormattedMessage id="project.users.ChangePassword.title" />
                                     </Link>
                                     {user.journalist &&
-                                    <Link className="dropdown-item" to="/post/createPost" id="createPost" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
+                                      <Link className="dropdown-item" to="/create-post" id="createPost" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
                                         <FormattedMessage id="project.users.CreatePost.title" />
-                                    </Link>
+                                      </Link>
                                     }
+
 
                                     {user.journalist &&
                                     <Link className="dropdown-item" to="/post/my" id="myPosts" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>

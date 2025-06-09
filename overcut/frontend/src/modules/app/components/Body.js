@@ -47,7 +47,7 @@ import CategoryGame from "../../categoryGame/components/CategoryGame";
 import WordSearchGame from '../../wordSearch/components/WordSearchGame';
 
 
-import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList } from "../../posts";
+import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList, PostSectionEditor } from "../../posts";
 import {
     Circuits,
     CircuitDetailsModal,
@@ -87,6 +87,7 @@ const Body = () => {
                     {loggedIn && <Route path="/users/change-password" element={<ChangePassword/>}/>}
                     <Route path="/post/post-details/:id" element={<PostDetails />} />
                     {loggedIn && <Route path="/post/createPost" element={<CreatePost/>}/>}
+                    {loggedIn && <Route path="/create-post" element={<PostSectionEditor />} />}
                     {loggedIn && <Route path="/post/my" element={<UserPostList/>}/>}
                     {loggedIn && <Route path="/posts/:id" element={<ModifyPost/>}/>}
                     {loggedIn && <Route path="/posts/:id/add-image" element={<AddImage/>}/>}

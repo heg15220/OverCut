@@ -2,6 +2,7 @@ package overcut.rest.dtos;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class PostDto {
     /** The id. */
@@ -13,7 +14,7 @@ public class PostDto {
     /** The description. */
     private String subtitle;
 
-    private byte[] image;
+    private String image;
 
     private String article;
 
@@ -30,8 +31,10 @@ public class PostDto {
 
     private String categoryName;
 
-    public PostDto(Long id, String title, String subtitle, byte[] image, String article,
-                   LocalDateTime creationDate, Long userId, String userName, Long categoryId, String categoryName) {
+    private List<PostSectionDto> sections;
+
+    public PostDto(Long id, String title, String subtitle, String image, String article,
+                   LocalDateTime creationDate, Long userId, String userName, Long categoryId, String categoryName)  {
         this.id = id;
         this.title = title;
         this.subtitle = subtitle;
@@ -68,11 +71,11 @@ public class PostDto {
         this.subtitle = subtitle;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -122,5 +125,13 @@ public class PostDto {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public List<PostSectionDto> getSections() {
+        return sections;
+    }
+
+    public void setSections(List<PostSectionDto> sections) {
+        this.sections = sections;
     }
 }

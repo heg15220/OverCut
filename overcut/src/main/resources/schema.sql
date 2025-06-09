@@ -138,6 +138,26 @@ CREATE TABLE Post(
     CONSTRAINT CategoryIdFK FOREIGN KEY (categoryId) REFERENCES Category (id)
 );
 
+CREATE TABLE PostSection (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    postId BIGINT NOT NULL,
+    sectionOrder INT NOT NULL,
+    title VARCHAR(255),
+    FOREIGN KEY (postId) REFERENCES Post(id) ON DELETE CASCADE
+);
+
+-- Tabla de bloques de contenido dentro de cada sección
+CREATE TABLE PostBlock (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    sectionId BIGINT NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    content TEXT,
+    image LONGBLOB,
+    blockOrder INT,
+    FOREIGN KEY (sectionId) REFERENCES postSection(id) ON DELETE CASCADE
+);
+
+
 CREATE TABLE Comment(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     content LONGTEXT NOT NULL,

@@ -3,6 +3,7 @@ package overcut.model.services;
 import overcut.model.common.exceptions.InstanceNotFoundException;
 import overcut.model.entities.Category;
 import overcut.model.entities.Post;
+import overcut.model.entities.PostSection;
 import overcut.model.entities.User;
 import overcut.model.services.exceptions.PermissionException;
 import overcut.model.services.exceptions.PostException;
@@ -60,7 +61,7 @@ public interface PostService {
      * @throws InstanceNotFoundException the instance not found exception
      * @throws PostException             the post exception
      */
-    Post createPost(String title, String subtitle, String article, Long userId, Long categoryId) throws InstanceNotFoundException, PostException;
+    Post createPost(String title, String subtitle, String article, Long userId, Long categoryId, byte[] image) throws InstanceNotFoundException, PostException;
 
     /**
      * Modify post.
@@ -108,5 +109,14 @@ public interface PostService {
 
 
     User getUserPost(Long postId) throws InstanceNotFoundException;
+
+    // Añadir secciones enriquecidas a un post
+    void addPostSections(Long postId, List<PostSection> sections) throws InstanceNotFoundException;
+
+    // Obtener secciones enriquecidas de un post
+    List<PostSection> getPostSections(Long postId) throws InstanceNotFoundException;
+
+    // Eliminar todas las secciones de un post (por si se quiere regenerar)
+    void deletePostSections(Long postId) throws InstanceNotFoundException;
 
 }

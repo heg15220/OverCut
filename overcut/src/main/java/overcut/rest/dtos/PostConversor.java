@@ -5,6 +5,7 @@ import overcut.model.entities.Post;
 import overcut.model.entities.User;
 import overcut.model.services.PostDetails;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,9 +27,15 @@ public class PostConversor {
         User user = post.getUser();
         Category category = post.getCategory();
 
-        return new PostDto(post.getId(), post.getTitle(), post.getSubtitle(),post.getImage(),post.getArticle(),
-                post.getCreationDate(),user.getId(),user.getUserName(),
-                category.getId(), category.getName());
+        String encodedImage = post.getImage() != null
+                ? Base64.getEncoder().encodeToString(post.getImage())
+                : null;
+
+        return new PostDto(post.getId(), post.getTitle(), post.getSubtitle(),
+                encodedImage, // ✅ base64 string
+                post.getArticle(), post.getCreationDate(),
+                user.getId(), user.getUserName(), category.getId(), category.getName());
+
 
     }
 
@@ -37,13 +44,22 @@ public class PostConversor {
         User user = post.getUser();
         Category category = post.getCategory();
 
+        String encodedImage = post.getImage() != null
+                ? Base64.getEncoder().encodeToString(post.getImage())
+                : null;
 
-
-            return new PostDto(post.getId(), post.getTitle(), post.getSubtitle(),post.getImage(),post.getArticle(),
-                post.getCreationDate(),user.getId(),user.getUserName(),
+        PostDto dto = new PostDto(post.getId(), post.getTitle(), post.getSubtitle(), encodedImage, post.getArticle(),
+                post.getCreationDate(), user.getId(), user.getUserName(),
                 category.getId(), category.getName());
 
+        // Agregar secciones enriquecidas al DTO
+        dto.setSections(PostSectionConversor.toPostSectionDtos(
+                postDetails.getPostSections() // 👈 asegúrate de tener esto en PostDetails
+        ));
+
+        return dto;
     }
+
 
 
     /**

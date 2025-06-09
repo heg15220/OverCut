@@ -10,7 +10,7 @@ import { FormattedMessage } from 'react-intl';
 import WebFont from 'webfontloader';
 import CommentList from './CommentList';
 import TextField from "@mui/material/TextField";
-
+import './PostDetails.css'; // o como se llame tu archivo de estilos
 
 
 const PostDetails = () => {
@@ -40,6 +40,22 @@ const PostDetails = () => {
         });
     }, []);
 
+    useEffect(() => {
+      // Timeout evita conflictos con render reactivo y remoción anticipada
+      const timeout = setTimeout(() => {
+        if (window.twttr && window.twttr.widgets) {
+          try {
+            window.twttr.widgets.load();
+          } catch (e) {
+            console.warn("Error al cargar widgets de Twitter:", e);
+          }
+        }
+      }, 100); // Espera breve para evitar conflictos con el DOM
+
+      return () => clearTimeout(timeout); // Evita efectos secundarios si se desmonta
+    }, [post?.sections]);
+
+
     const handleSubmitDelete = event => {
         event.preventDefault();
         dispatch(actions.deletePost(
@@ -49,24 +65,18 @@ const PostDetails = () => {
     }
 
     if (!post) {
-        return null;
+      return <div>Cargando...</div>;
     }
 
-    const srcImage = post.image ? "data:image/jpg;base64," + post.image : image;
 
-    let userImageSrc = image; // Imagen predeterminada
-    if (postUser && postUser.id === post.userId) {
-        userImageSrc = postUser.image ? "data:image/jpg;base64," + postUser.image : image;
-    }
+    const srcImage = post?.image ? `data:image/jpg;base64,${post.image}` : image;
+    const userImageSrc = postUser?.image ? `data:image/jpg;base64,${postUser.image}` : image;
+    const userName = postUser?.userName ?? 'Usuario desconocido';
 
-    let userName = 'Usuario desconocido'; // Nombre predeterminado
-    if (postUser && postUser.id === post.userId) {
-        userName = postUser.userName ? postUser.userName : 'Usuario desconocido';
-    }
 
     return (
-        <Container sx={{ marginTop: 0 }}> {/* Reduce el margen superior del Container */}
-            <Box my={0}> {/* Reduce el margen superior del Box */}
+        <Container sx={{ marginTop: 0 }}>
+            <Box my={0}>
                 {backendErrors && (
                     <Alert severity="error" onClose={() => setBackendErrors(null)}>
                         <AlertTitle>Error</AlertTitle>
@@ -81,61 +91,41 @@ const PostDetails = () => {
                 )}
                 <Card>
                     <CardContent>
-                        <Typography variant="subtitle1" color="text.secondary" sx={{
-                            backgroundColor: '#000000', // Tono gris de fondo
-                            color: 'white', // Letras blancas
-                            padding: '5px', // Espaciado interno
-                            borderRadius: '5px', // Bordes redondeados
-                            fontSize: '1.4rem', // Tamaño de letra más grande
-                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
-                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
-                            display: 'inline-block', // Hace que el componente se ajuste al contenido
-                            marginX: 'auto', // Centra horizontalmente el componente
+                        <Typography variant="subtitle1" sx={{
+                            backgroundColor: '#000', color: 'white', padding: '5px',
+                            borderRadius: '5px', fontSize: '1.4rem', marginBottom: '10px',
+                            display: 'inline-block', marginX: 'auto'
                         }}>
                             {post.categoryName}
                         </Typography>
 
                         <Typography variant="h5" component="div" sx={{
-                            fontSize: '2rem', // Ajusta el tamaño de la fuente
-                            fontWeight: 'bold', // Hace el texto en negrita
-                            textTransform: 'uppercase', // Convierte el texto a mayúsculas
-                            color: 'text.primary', // Asume que quieres el color primario del tema, ajusta según sea necesario
-                            marginTop: '1rem', // Añade un margen superior
-                            marginBottom: '1rem', // Añade un margen inferior
+                            fontSize: '2rem', fontWeight: 'bold', textTransform: 'uppercase',
+                            color: 'text.primary', marginY: '1rem'
                         }}>
                             {post.title}
                         </Typography>
 
-                        <Typography variant="body2" color="text.secondary" sx={{
-                            fontSize: '1.2rem', // Ajusta el tamaño de la fuente
-                            fontStyle: 'italic', // Aplica estilo cursiva
-                            fontWeight: 'bold', // Aplica negrita
-                            color: '#333333', // Color de texto blanco
-                            padding: '5px', // Espaciado interno
-                            borderRadius: '5px', // Bordes redondeados
-                            marginBottom: '10px', // Espacio debajo para separar del siguiente elemento
-                            maxWidth: 'auto', // Permite que el ancho se adapte al contenido
-                            display: 'inline-block', // Hace que el componente se ajuste al contenido
-                            marginX: 'auto', // Centra horizontalmente el componente
+                        <Typography variant="body2" sx={{
+                            fontSize: '1.2rem', fontStyle: 'italic', fontWeight: 'bold',
+                            color: '#333', padding: '5px', borderRadius: '5px',
+                            marginBottom: '10px', display: 'inline-block', marginX: 'auto'
                         }}>
                             {post.subtitle}
                         </Typography>
-
 
                         <CardMedia
                             component="img"
                             image={srcImage}
                             alt="Post Image"
                             sx={{
-                                maxHeight: '500px', // Ajusta el tamaño máximo de la imagen
-                                maxWidth: '60%', // Asegura que la imagen no exceda el ancho del contenedor
-                                objectFit: 'cover', // Ajusta cómo se redimensiona la imagen
-                                marginTop: 2, // Añade un margen en la parte superior para separar la imagen del subtítulo
+                                maxHeight: '500px',
+                                maxWidth: '60%',
+                                objectFit: 'cover',
+                                marginTop: 2,
                             }}
                         />
 
-
-                        {/* Información del usuario */}
                         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
                             <img src={userImageSrc} alt="User Avatar" style={{ maxHeight: '50px', maxWidth: '50px', borderRadius: '50%' }} />
                             <Box sx={{ marginLeft: 2 }}>
@@ -147,24 +137,72 @@ const PostDetails = () => {
                         <Typography variant="body1" sx={{
                             whiteSpace: 'pre-wrap',
                             marginBottom: 2,
-                            fontFamily: 'Poppins', // Aplica la fuente Poppins
+                            fontFamily: 'Poppins',
                         }}>
                             {post.article}
                         </Typography>
 
-                        {post.url && (
-                            <Typography variant="body2" color="text.secondary">
-                                <a href={post.url} style={{ color: '#9900FF', textDecoration: 'underline' }}> {post.url} </a>
-                            </Typography>
+                        {/* SECCIONES DINÁMICAS */}
+                        {post.sections && post.sections.length > 0 && (
+                          <div className="post-sections-container">
+                            {post.sections
+                              .sort((a, b) => a.sectionOrder - b.sectionOrder)
+                              .map((section, index) => (
+                                <div key={index} className="post-section" style={{ marginBottom: '2rem' }}>
+                                  {section.title && <h3 className="post-section-title">{section.title}</h3>}
+
+                                  {section.blocks &&
+                                    section.blocks
+                                      .sort((a, b) => a.blockOrder - b.blockOrder)
+                                      .map((block, idx) => {
+                                        if (block.type === "text") {
+                                          return (
+                                            <p key={idx} className="post-section-text">
+                                              {block.content}
+                                            </p>
+                                          );
+                                        }
+                                        if (block.type === "image" && block.image) {
+                                          return (
+                                            <img
+                                              key={idx}
+                                              src={`data:image/jpeg;base64,${block.image}`}
+                                              alt="Imagen del artículo"
+                                              className="post-section-image"
+                                            />
+                                          );
+                                        }
+                                        if (block.type === "tweet") {
+                                          return (
+                                            <div key={idx} className="tweet-container">
+                                              <blockquote className="twitter-tweet">
+                                                <a
+                                                  href={block.content.replace('x.com', 'twitter.com')}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                >
+                                                  {block.content}
+                                                </a>
+                                              </blockquote>
+                                            </div>
+                                          );
+                                        }
+                                        return null;
+                                      })}
+                                </div>
+                              ))}
+                          </div>
                         )}
+
+
                         {user && user.id === post.userId && (
                             <Box display="flex" justifyContent="space-between" alignItems="center">
                                 <Button variant="contained" color="primary" component={Link} to={`/posts/${post.id}`}>
-                                    <FormattedMessage id="project.entities.Post.Modify"></FormattedMessage>
+                                    <FormattedMessage id="project.entities.Post.Modify" />
                                 </Button>
                                 <form ref={formRef} onSubmit={handleSubmitDelete}>
                                     <Button variant="contained" color="secondary" type="submit">
-                                        <FormattedMessage id="project.entities.Post.Delete"></FormattedMessage>
+                                        <FormattedMessage id="project.entities.Post.Delete" />
                                     </Button>
                                 </form>
                             </Box>
@@ -174,9 +212,6 @@ const PostDetails = () => {
                 <div className="d-flex flex-column align-items-start ms-auto">
                     <CommentList postId={post.id} />
                 </div>
-
-
-
             </Box>
         </Container>
     );

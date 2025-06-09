@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -78,9 +79,19 @@ public class PostController {
     @PostMapping("/")
     public Long createPost(@RequestAttribute Long userId, @Validated @RequestBody PostParamsDto params)
             throws InstanceNotFoundException, PostException {
+        byte[] decodedImage = null;
+        if (params.getImage() != null && !params.getImage().isEmpty()) {
+            decodedImage = Base64.getDecoder().decode(params.getImage());
+        }
 
-        return postService.createPost(params.getTitle(), params.getSubtitle(), params.getArticle(),userId, params.getCategoryId())
-                .getId();
+        return postService.createPost(
+                params.getTitle(),
+                params.getSubtitle(),
+                params.getArticle(),
+                userId,
+                params.getCategoryId(),
+                decodedImage
+        ).getId();
     }
 
     /**
@@ -250,5 +261,25 @@ public class PostController {
     public UserDto getUserPost(@PathVariable("id") Long postId) throws InstanceNotFoundException{
         return UserConversor.toUserDto(postService.getUserPost(postId));
     }
+
+    @PostMapping("/{id}/sections")
+    public void addPostSections(@PathVariable("id") Long postId,
+                                @Validated @RequestBody List<PostSectionDto> sections)
+            throws InstanceNotFoundException {
+        postService.addPostSections(postId, PostSectionConversor.toPostSections(sections));
+    }
+
+    @GetMapping("/{id}/sections")
+    public List<PostSectionDto> getPostSections(@PathVariable("id") Long postId)
+            throws InstanceNotFoundException {
+        return PostSectionConversor.toPostSectionDtos(postService.getPostSections(postId));
+    }
+
+    @DeleteMapping("/{id}/sections")
+    public void deletePostSections(@PathVariable("id") Long postId)
+            throws InstanceNotFoundException {
+        postService.deletePostSections(postId);
+    }
+
 
 }

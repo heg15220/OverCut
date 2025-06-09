@@ -1,0 +1,37 @@
+.section-editor {
+  margin-top: 2rem;
+  background: #111;
+  padding: 1.5rem;
+  border-radius: 10px;
+  color: white;
+}
+
+.section-block {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+}
+
+.section-block textarea, .section-block input, .section-block select {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #666;
+  background-color: #2a2a2a;
+  color: white;
+}
+
+.section-controls {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.section-preview {
+  margin-top: 0.8rem;
+  max-width: 100%;
+  border-radius: 8px;
+}

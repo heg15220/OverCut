@@ -189,3 +189,30 @@ export const getUserPost = (id, onSuccess) => dispatch =>
             dispatch(getUserPostCompleted(postUser));
             onSuccess(postUser);
         });
+
+const getPostSectionsCompleted = (sections) => ({
+    type: actionTypes.GET_POST_SECTIONS_COMPLETED,
+    sections
+});
+
+export const getPostSections = (postId) => dispatch =>
+    backend.postService.getPostSections(postId, sections => {
+        dispatch(getPostSectionsCompleted(sections));
+    });
+
+const addPostSectionsCompleted = (sections) => ({
+    type: actionTypes.ADD_POST_SECTIONS_COMPLETED,
+    sections
+});
+
+export const addPostSections = (postId, sections, onSuccess, onErrors) => dispatch =>
+    backend.postService.addPostSections(postId, sections, result => {
+        dispatch(addPostSectionsCompleted(result));
+        if (onSuccess) onSuccess(result);
+    }, onErrors);
+
+export const deletePostSections = (postId, onSuccess, onErrors) => dispatch =>
+    backend.postService.deletePostSections(postId, () => {
+        dispatch({ type: actionTypes.DELETE_POST_SECTIONS_COMPLETED });
+        if (onSuccess) onSuccess();
+    }, onErrors);

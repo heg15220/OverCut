@@ -38,6 +38,10 @@ public class PostServiceImpl implements PostService{
     @Autowired
     private PostDao postDao;
 
+    @Autowired
+    private PostSectionDao postSectionDao;
+
+
     /**
      * Delete post.
      *
@@ -96,7 +100,7 @@ public class PostServiceImpl implements PostService{
      * @throws PostException             the post exception
      */
     @Override
-    public Post createPost(String title, String subtitle, String article,Long userId, Long categoryId)
+    public Post createPost(String title, String subtitle, String article,Long userId, Long categoryId, byte[] image)
             throws InstanceNotFoundException, PostException {
         User user = permissionChecker.checkUser(userId);
         Category category = categoryDao.findCategoryById(categoryId);
@@ -110,7 +114,7 @@ public class PostServiceImpl implements PostService{
         LocalDateTime creationDate = LocalDateTime.now();
 
 
-        Post post = new Post(title, subtitle, null, article, creationDate, user, category);
+        Post post = new Post(title, subtitle, image, article, creationDate, user, category);
 
         postDao.save(post);
 
@@ -197,20 +201,24 @@ public class PostServiceImpl implements PostService{
     @Override
     public PostDetails getPostDetails(Long userId, Long postId) throws InstanceNotFoundException {
         Optional<Post> postOptional = postDao.findById(postId);
-        if (!postOptional.isPresent()) {
+        if (postOptional.isEmpty()) {
             throw new InstanceNotFoundException("project.entities.post", postId);
         }
 
+        Post post = postOptional.get();
+        List<PostSection> sections = postSectionDao.findByPostIdOrderBySectionOrder(postId);
+        PostDetails details = new PostDetails(post, sections);
+
         if (userId != null) {
             Optional<User> userOptional = userDao.findById(userId);
-            if (userOptional.isPresent()) {
-                return new PostDetails(postOptional.get());
-            } else {
+            if (userOptional.isEmpty()) {
                 throw new InstanceNotFoundException("project.entities.user", userId);
             }
         }
-        return new PostDetails(postOptional.get());
+
+        return details;
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -232,6 +240,33 @@ public class PostServiceImpl implements PostService{
         return user;
 
     }
+
+    @Override
+    public void addPostSections(Long postId, List<PostSection> sections) throws InstanceNotFoundException {
+        Post post = postDao.findById(postId)
+                .orElseThrow(() -> new InstanceNotFoundException("post", postId));
+
+        for (PostSection section : sections) {
+            section.setPost(post);
+            for (PostBlock block : section.getBlocks()) {
+                block.setSection(section);
+            }
+        }
+        postSectionDao.saveAll(sections);
+    }
+
+    @Override
+    public List<PostSection> getPostSections(Long postId) throws InstanceNotFoundException {
+        if (!postDao.existsById(postId)) throw new InstanceNotFoundException("post", postId);
+        return postSectionDao.findByPostIdOrderBySectionOrder(postId);
+    }
+
+    @Override
+    public void deletePostSections(Long postId) throws InstanceNotFoundException {
+        if (!postDao.existsById(postId)) throw new InstanceNotFoundException("post", postId);
+        postSectionDao.deleteByPostId(postId);
+    }
+
 
 
 }

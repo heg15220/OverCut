@@ -137,3 +137,12 @@ export const getUserPost = (id, onSuccess) => {
         onSuccess,
     );
 };
+
+export const getPostSections = (postId, onSuccess) =>
+    appFetch(`/posts/${postId}/sections`, fetchConfig("GET"), onSuccess);
+
+export const addPostSections = (postId, sections, onSuccess, onErrors) =>
+    appFetch(`/posts/${postId}/sections`, fetchConfig("POST", sections), onSuccess, onErrors);
+
+export const deletePostSections = (postId, onSuccess, onErrors) =>
+    appFetch(`/posts/${postId}/sections`, fetchConfig("DELETE"), onSuccess, onErrors);

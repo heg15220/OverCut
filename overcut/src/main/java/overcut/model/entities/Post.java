@@ -35,6 +35,7 @@ public class Post {
     /** The list of comments. */
     private List<Comment> comments;
 
+    private List<PostSection> sections;
 
 
     /**
@@ -66,6 +67,8 @@ public class Post {
         this.user = user;
         this.category = category;
     }
+
+
 
     /**
      * Gets the id.
@@ -220,5 +223,16 @@ public class Post {
      */
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sectionOrder ASC")
+    public List<PostSection> getSections() {
+        return sections;
+    }
+
+    public void setSections(List<PostSection> sections) {
+        this.sections = sections;
     }
 }

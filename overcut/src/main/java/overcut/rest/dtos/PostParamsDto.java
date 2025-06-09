@@ -17,8 +17,7 @@ public class PostParamsDto {
     private Long categoryId;
 
     /** The image. */
-    @Lob
-    private byte[] image;
+    private String image;
 
     private LocalDateTime creationDate;
 
@@ -38,11 +37,12 @@ public class PostParamsDto {
         this.categoryId = categoryId;
     }
 
-    public byte[] getImage() {
+
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
