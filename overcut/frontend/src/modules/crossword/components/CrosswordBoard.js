@@ -4,6 +4,10 @@ import { Paper, Grid, Box } from "@mui/material";
 import CrosswordCell from "./CrosswordCell";
 import "./CrosswordBoard.css";
 
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
+
 const CrosswordBoard = ({ rows, cols, cells, words, language }) => {
   const board = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => null)
@@ -35,6 +39,7 @@ const CrosswordBoard = ({ rows, cols, cells, words, language }) => {
 
   return (
     <Paper elevation={6} className="crossword-container">
+        <AdFloatingBottom />
       <Grid container spacing={0} columns={cols}>
         {board.map((rowCells, i) =>
           rowCells.map((cell, j) => (

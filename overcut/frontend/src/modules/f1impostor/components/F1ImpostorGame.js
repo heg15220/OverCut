@@ -5,6 +5,8 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./F1ImpostorGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
 
 const F1ImpostorGame = () => {
   const dispatch = useDispatch();
@@ -83,6 +85,9 @@ const F1ImpostorGame = () => {
 
   return (
     <div className="f1impostor-container">
+        <AdPlaceholder position="left" />
+          <AdPlaceholder position="right" />
+          <AdFloatingBottom />
       <h1 className="f1impostor-title">{translations.title[lang]}</h1>
       <h2>{game.themeDescription}</h2>
       <div className="f1impostor-rondo">

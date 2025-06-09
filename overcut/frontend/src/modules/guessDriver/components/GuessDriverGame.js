@@ -10,6 +10,10 @@ import { sourceImages } from '../../../helpers/sourceImages';
 import LoadingScreen from '../../common/components/LoadingScreen';
 
 
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
+
 const GuessDriverGame = () => {
   const dispatch = useDispatch();
   const game = useSelector(selectors.getGuessDriverGame);
@@ -99,6 +103,9 @@ const GuessDriverGame = () => {
 
   return (
     <div className="grid-game-container">
+          <AdPlaceholder position="left" />
+            <AdPlaceholder position="right" />
+            <AdFloatingBottom />
       <div className="grid-game-overlay">
         <div className="card-container">
           <div className={`card-inner ${game.finished ? "flipped" : ""}`}>

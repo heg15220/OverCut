@@ -8,6 +8,9 @@ import { Link } from "react-router-dom";
 import "./Top10Game.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
 const Top10GameBoard = () => {
   const board = useSelector(getTop10Board);
   const validated = useSelector(getTop10Validated);
@@ -19,6 +22,9 @@ const Top10GameBoard = () => {
 
   return (
     <div className="grid-ranking-container">
+            <AdPlaceholder position="left" />
+              <AdPlaceholder position="right" />
+              <AdFloatingBottom />
       <h2 className="grid-ranking-title">
         <span className="grid-title-main">{t.title}</span>{" "}
         {board?.seasonYear && board?.raceName && (

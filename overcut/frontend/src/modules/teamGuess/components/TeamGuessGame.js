@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import './TeamGuessGame.css';
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
 
 const TeamGuessGame = () => {
   const dispatch = useDispatch();
@@ -58,6 +61,9 @@ const TeamGuessGame = () => {
 
   return (
     <div className="team-guess-container">
+      <AdPlaceholder position="left" />
+        <AdPlaceholder position="right" />
+        <AdFloatingBottom />
       <div className="team-guess-overlay">
         <h2 className="team-guess-title">{translations.title[lang]}</h2>
 

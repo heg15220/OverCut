@@ -6,6 +6,9 @@ import * as selectors from "../selectors";
 import "./OrderDriverGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
 
 const OrderDriverGame = () => {
   const dispatch = useDispatch();
@@ -145,6 +148,9 @@ const OrderDriverGame = () => {
   return (
     <div className="order-driver-page">
       <div className={`order-driver-container ${surrendered ? "surrendered-mode" : ""}`}>
+          <AdPlaceholder position="left" />
+            <AdPlaceholder position="right" />
+            <AdFloatingBottom />
         <h2 className="order-driver-title">{game.topic}</h2>
 
         <div className={`order-layout ${surrendered ? "centered" : ""}`}>

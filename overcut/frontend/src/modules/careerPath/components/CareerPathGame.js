@@ -6,6 +6,8 @@ import './CareerPathGame.css';
 import TeamLogo from './TeamLogo';
 import { useNavigate } from 'react-router-dom';
 import LoadingScreen from '../../common/components/LoadingScreen';
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
 
 
 const CareerPathGame = () => {
@@ -87,6 +89,9 @@ const CareerPathGame = () => {
 
   return (
     <div className="career-path-container">
+        <AdPlaceholder position="left" />
+        <AdPlaceholder position="right" />
+        <AdFloatingBottom />
       <div className="career-path-overlay">
         <h2 className="career-path-title">{translations.title[lang]}</h2>
 

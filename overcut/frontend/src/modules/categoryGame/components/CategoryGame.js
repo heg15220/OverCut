@@ -5,6 +5,8 @@ import * as selectors from "../selectors";
 import { useNavigate } from "react-router-dom";
 import "./CategoryGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
 
 const CategoryGame = () => {
   const dispatch = useDispatch();
@@ -42,6 +44,9 @@ const CategoryGame = () => {
   return (
     <div className="category-page">
       <div className="category-game-container">
+            <AdPlaceholder position="left" />
+              <AdPlaceholder position="right" />
+              <AdFloatingBottom />
         <h2 className="category-title">
           {lang === "es" ? "🎯 Categorías con la letra" : "🎯 Categories with letter"} {game.letter}
         </h2>

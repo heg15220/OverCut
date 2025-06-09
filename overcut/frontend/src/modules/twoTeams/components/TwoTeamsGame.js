@@ -7,6 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import './TwoTeamsGame.css';
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
+
+
 
 const TwoTeamsGame = () => {
   const dispatch = useDispatch();
@@ -96,6 +101,9 @@ const TwoTeamsGame = () => {
 
   return (
     <div className="two-teams-game">
+        <AdPlaceholder position="left" />
+          <AdPlaceholder position="right" />
+          <AdFloatingBottom />
       <h2 className="two-teams-title">{translations.title[lang]}</h2>
 
       <div className="teams-pair">

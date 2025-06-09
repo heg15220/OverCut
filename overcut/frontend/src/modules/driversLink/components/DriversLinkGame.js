@@ -5,6 +5,9 @@ import * as selectors from '../selectors';
 import { useNavigate } from 'react-router-dom';
 import './DriversLinkGame.css';
 import LoadingScreen from '../../common/components/LoadingScreen';
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
 
 const DriversLinkGame = () => {
   const dispatch = useDispatch();
@@ -86,6 +89,9 @@ const DriversLinkGame = () => {
 
   return (
     <div className="drivers-link-container">
+        <AdPlaceholder position="left" />
+        <AdPlaceholder position="right" />
+        <AdFloatingBottom />
       <div className="drivers-link-overlay">
         <h2 className="drivers-link-title">{translations.title[lang]}</h2>
 

@@ -6,6 +6,11 @@ import * as selectors from '../selectors';
 import './WordleGame.css';
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
+
 const WordleGame = () => {
   const dispatch = useDispatch();
   const game = useSelector(selectors.getF1WordleGame);
@@ -40,6 +45,9 @@ const WordleGame = () => {
 
   return (
     <div className="wordle-container">
+      <AdPlaceholder position="left" />
+        <AdPlaceholder position="right" />
+        <AdFloatingBottom />
       <h2 className="wordle-title">{t.title[lang]}</h2>
       <div className="wordle-grid">
         {Array.from({ length: 6 }).map((_, rowIndex) => {

@@ -6,6 +6,9 @@ import { useNavigate } from "react-router-dom";
 import "./RondoGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
 
 const translations = {
   es: {
@@ -82,6 +85,9 @@ const RondoGame = () => {
 
   return (
     <div className="rondo-container">
+      <AdPlaceholder position="left" />
+        <AdPlaceholder position="right" />
+        <AdFloatingBottom />
       <div className="rondo-circle">
         {letters.map((l, idx) => (
           <div

@@ -6,6 +6,8 @@ import * as selectors from "../selectors";
 import { useMemo } from "react";
 import "./DriversConnectionsGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
 
 const categoryColors = [
   "#1e88e5", // Blue
@@ -142,6 +144,9 @@ const DriversConnectionsGame = () => {
 
   return (
     <div className="drivers-connections-container">
+        <AdPlaceholder position="left" />
+        <AdPlaceholder position="right" />
+        <AdFloatingBottom />
       <h2 className="connections-title">🏎️ {t.title} 🏎️</h2>
 
       {!gameFinished && solvedGroups.length > 0 && (

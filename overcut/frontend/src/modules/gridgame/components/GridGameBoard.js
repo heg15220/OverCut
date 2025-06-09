@@ -11,6 +11,9 @@ import "./GridGame.css";
 import SearchPilotInput from "./SearchPilotInput";
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
 
 const GridGameBoard = () => {
     const board = useSelector(getGridBoard);
@@ -58,6 +61,7 @@ const GridGameBoard = () => {
 
      return (
         <div className="grid-ranking-container">
+               <AdFloatingBottom />
           <h2 className="grid-ranking-title">
             <span className="grid-title-main">{t.title}</span>{" "}
             {board?.seasonYear && (

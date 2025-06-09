@@ -11,6 +11,11 @@ import './GameBoard.css';
 import './CriteriaBox.css';
 import { useParams, useNavigate } from 'react-router-dom';
 
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
+
+
 const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -115,6 +120,9 @@ const confirmDraw = (mode) => {
 
   return (
     <div className="game-container">
+        <AdPlaceholder position="left" />
+          <AdPlaceholder position="right" />
+          <AdFloatingBottom />
       <div className="game-grid-wrapper">
         <div className="turn-indicator-wrapper">
           <TurnIndicator

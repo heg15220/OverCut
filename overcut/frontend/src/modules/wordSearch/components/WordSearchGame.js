@@ -6,6 +6,11 @@ import * as selectors from "../selectors";
 import "./WordSearchGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+
+import AdPlaceholder from '../../common/components/AdPlaceholder';
+import AdFloatingBottom from '../../common/components/AdFloatingBottom';
+
+
 // ...importaciones y setup iguales...
 
 // Traducciones embebidas
@@ -113,6 +118,9 @@ const WordSearchGame = () => {
 
   return (
     <div className="wordsearch-container" onMouseLeave={handleMouseUp}>
+      <AdPlaceholder position="left" />
+        <AdPlaceholder position="right" />
+        <AdFloatingBottom />
       <h2 className="wordsearch-title">{t("title")}</h2>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem' }}>
