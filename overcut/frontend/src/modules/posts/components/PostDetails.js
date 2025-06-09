@@ -209,9 +209,7 @@ const PostDetails = () => {
                         )}
                     </CardContent>
                 </Card>
-                <div className="d-flex flex-column align-items-start ms-auto">
-                    <CommentList postId={post.id} />
-                </div>
+                <CommentList postId={post.id} />
             </Box>
         </Container>
     );

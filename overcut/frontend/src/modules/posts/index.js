@@ -14,6 +14,7 @@ export { default as AddImage } from './components/AddImage';
 export { default as CommentList } from './components/CommentList';
 export { default as CommentListItem } from './components/CommentListItem';
 export { default as PostSectionEditor } from './components/PostSectionEditor';
+export { default as PostSectionModifier } from './components/PostSectionModifier';
 
 
 

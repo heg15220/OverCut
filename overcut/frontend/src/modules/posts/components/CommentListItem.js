@@ -1,66 +1,87 @@
-import { useDispatch, useSelector } from "react-redux";
+// Componente profesionalizado para renderizar un comentario individual con diseño moderno y animación
+
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Box, Card, CardContent, Typography, Avatar, IconButton, Stack, Tooltip, Fade } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 import { getComments } from "../selectors";
+import { getUser } from "../../users/selectors";
+import * as actions from "../actions";
 import AddAnswer from "./AddAnswer";
 import ModifyComment from "./ModifyComment";
-import { getUser } from "../../users/selectors";
-import * as actions from "../actions"
 
-const CommentListItem = ({ key, comment, level }) => {
-    let user = useSelector(getUser)
-    let comments = useSelector(getComments)
-    let dispatch = useDispatch()
+const CommentListItem = ({ comment, level }) => {
+  const user = useSelector(getUser);
+  const comments = useSelector(getComments);
+  const dispatch = useDispatch();
 
-    const handleDelete = (e) => {
-        dispatch(actions.deleteComment(
-            comment.id,
-            () => {
-                dispatch(actions.getComments({
-                    postId: comment.postId,
-                    page: 0
-                }));
-            })
-        )
+  const handleDelete = () => {
+    dispatch(actions.deleteComment(comment.id, () => {
+      dispatch(actions.getComments({ postId: comment.postId, page: 0 }));
+    }));
+  };
+
+  const marginLeft = `${level * 32}px`;
+
+  let timestamp = "";
+  let shortDate = "";
+  try {
+    const parsed = new Date(comment.createdAt);
+    if (!isNaN(parsed.getTime())) {
+      timestamp = parsed.toLocaleString();
+      shortDate = parsed.toLocaleDateString();
     }
+  } catch (_) {
+    timestamp = "";
+    shortDate = "";
+  }
 
-    const Spacer = ({ size }) => <div style={{ width: size, height: size }} />;
+  return (
+    <Fade in timeout={400}>
+      <Box sx={{ ml: level > 1 ? 3 : 0, mb: 2 }}>
+        <Card elevation={2} sx={{ backgroundColor: '#fff', borderRadius: 2, ml: marginLeft }}>
+          <CardContent>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Avatar src={`data:image/jpg;base64,${comment.userImage}`} alt={comment.userName} />
+              <Box>
+                <Typography variant="subtitle2" fontWeight="bold">{comment.userName}</Typography>
+                {shortDate && (
+                  <Tooltip title={timestamp} arrow placement="right">
+                    <Typography variant="caption" color="text.secondary">
+                      {shortDate}
+                    </Typography>
+                  </Tooltip>
+                )}
+              </Box>
+            </Stack>
 
-    // Aumenta el factor de multiplicación para el margen izquierdo de las respuestas
-    const responseMarginLeft = `${40 * level}px`; // Ajusta este valor según tus necesidades
+            <Typography variant="body1" sx={{ mt: 2, whiteSpace: 'pre-line' }}>{comment.content}</Typography>
 
-    return (
-        <div>
-            <div className="card my-2 overflow-visible text-start" style={{ maxWidth: '100%', marginLeft: responseMarginLeft, marginRight: '10px', position: 'relative' }}>
-                <div className="d-flex">
-                    &nbsp;&nbsp;&nbsp;
-                    {comment.userImage && <img src={"data:image/jpg;base64," + comment.userImage} class="rounded-circle my-2" width="35px" height="35px" alt="Avatar" />}
-                    <text className="card-body" style={{ marginBottom: 14, fontFamily: 'Poppins', color: '#00000F' }} >{comment.userName}</text>
-                </div>
+            {user && (
+              <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                <AddAnswer comment={comment} />
+                {user.id === comment.authorId && <ModifyComment comment={comment} />}
+                {user.id === comment.authorId && (
+                  <Tooltip title="Eliminar comentario" arrow>
+                    <IconButton onClick={handleDelete} color="error">
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Stack>
+            )}
+          </CardContent>
+        </Card>
 
-                <text className="card-body" style={{ marginBottom: 20, fontFamily: 'Poppins' }}>{comment.content}</text>
-                {user &&
-                    <div className="d-flex" style={{ position: 'relative', right: '100', bottom: '0', paddingBottom: '10px' }}> {/* Añadido paddingBottom */}
-                        <AddAnswer comment={comment} />
-                        <Spacer size="10px" />
-                        {user.id === comment.authorId && <ModifyComment comment={comment} />}
-                        <Spacer size="10px" />
-                        {user.id === comment.authorId && <button onClick={() => handleDelete()} className="btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" color="red" height="14" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                            </svg>
-                        </button>}
-                    </div>}
-
-
-            </div>
-            {comments &&
-                comments.result.items
-                    .filter(filteringComment =>
-                        filteringComment.parentCommentId === comment.id)
-                    .map(comment =>
-                        <CommentListItem key={comment.id} comment={comment} level={level + 1} />
-                    )}
-        </div>
-    )
-}
+        {/* Renderiza respuestas */}
+        {comments?.result?.items
+          .filter(child => child.parentCommentId === comment.id)
+          .map(child => (
+            <CommentListItem key={child.id} comment={child} level={level + 1} />
+          ))}
+      </Box>
+    </Fade>
+  );
+};
 
 export default CommentListItem;
