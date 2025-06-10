@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import overcut.model.services.exceptions.InvalidEmailException;
+import overcut.utils.EmailService;
 import overcut.utils.EmailSyntaxValidator;
 
 import java.io.IOException;
@@ -49,6 +50,10 @@ public class UserServiceImpl implements UserService{
 
 
 
+    @Autowired
+    private EmailService emailService;
+
+
 
     /**
      * Sign up.
@@ -78,6 +83,14 @@ public class UserServiceImpl implements UserService{
 
 
         userDao.save(user);
+
+        try {
+            emailService.sendConfirmationEmail(user.getEmail(), user.getUserName());
+            System.out.println("✉️ Correo de confirmación enviado a " + user.getEmail());
+        } catch (Exception e) {
+            System.out.println("⚠️ No se pudo enviar el correo de confirmación: " + e.getMessage());
+        }
+
     }
 
     /**

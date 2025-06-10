@@ -21,14 +21,14 @@ public class InitialUserLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!userDao.existsByEmail("hugoeg2002@gmail.com")) {
+        if (!userDao.existsByEmail("hugo.e@gmx.com")) {
             try {
                 User admin = new User();
                 admin.setUserName("admin1");
                 admin.setFirstName("Admin");
                 admin.setLastName("User");
                 admin.setPassword("#EspaGarcia_02");
-                admin.setEmail("hugoeg2002@gmail.com");
+                admin.setEmail("hugo.e@gmx.com");
                 admin.setJournalist(true);
                 admin.setAdmin(true);
                 admin.setPoints(0);

@@ -42,6 +42,21 @@ spring:
       charset: UTF-8
       enabled: true
       force: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: overcutf1web@gmail.com
+    password: TU_CONTRASEÑA_DE_APP
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  profiles:
+    active: prod
+
 server:
   servlet:
     context-path: '@project.contextPath@'
@@ -49,3 +64,4 @@ project:
   jwt:
     signKey: WzROun12eUiDvko3UrJ74gNeJz2TWEWPMTh6DxyE8HWXIf4hETUrkM4IUGqqHq66PuVS
     expirationMinutes: 1440
+

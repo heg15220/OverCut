@@ -9,7 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class EmailSyntaxValidator {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final int MAX_RETRIES = 3;
+    private static final int MAX_RETRIES = 5;
     private static final int RETRY_DELAY_MS = 500;
 
     public boolean isEmailValid(String email) {
