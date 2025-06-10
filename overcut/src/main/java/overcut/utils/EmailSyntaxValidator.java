@@ -38,6 +38,4 @@ public class EmailSyntaxValidator {
             return false;
         }
     }
-
 }
-
