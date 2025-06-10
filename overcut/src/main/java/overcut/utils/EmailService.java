@@ -18,13 +18,15 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
         helper.setTo(toEmail);
-        helper.setSubject("✅ Registro exitoso en OverCut");
-        helper.setText(
-                "<h2>¡Bienvenido a OverCut, " + userName + "!</h2>" +
-                        "<p>Tu cuenta ha sido registrada correctamente. ¡Esperamos que disfrutes la experiencia en nuestra aplicación!</p>",
-                true
-        );
+        helper.setSubject("✅ Registro exitoso en OverCut / Successful Registration at OverCut");
 
+        String content = "<h2>¡Bienvenido a OverCut, " + userName + "!</h2>" +
+                "<p>Tu cuenta ha sido registrada correctamente. ¡Esperamos que disfrutes la experiencia en nuestra aplicación!</p>" +
+                "<hr>" +
+                "<h2>Welcome to OverCut, " + userName + "!</h2>" +
+                "<p>Your account has been successfully registered. We hope you enjoy the experience with our application!</p>";
+
+        helper.setText(content, true);
         mailSender.send(message);
     }
 }

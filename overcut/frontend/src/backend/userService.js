@@ -93,3 +93,7 @@ export const getUserPoints = (userId, onSuccess, onErrors) => {
         onErrors
     );
 };
+
+export const createJournalist = (user, onSuccess, onErrors) =>
+    appFetch("/users/admin/createJournalist", fetchConfig("POST", user), onSuccess, onErrors);
+

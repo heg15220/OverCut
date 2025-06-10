@@ -79,3 +79,9 @@ export const getUserPoints = (userId, onSuccess, onErrors) => dispatch =>
         onSuccess(points);
     },
         onErrors);
+
+export const createJournalist = (user, onSuccess, onErrors) => dispatch =>
+    backend.userService.createJournalist(user, createdUser => {
+        // Si deseas almacenar el periodista recién creado en el estado, puedes hacerlo aquí
+        onSuccess(createdUser);
+    }, onErrors);

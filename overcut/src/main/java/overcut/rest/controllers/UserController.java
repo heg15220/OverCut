@@ -244,4 +244,26 @@ public class UserController {
         return message;
     }
 
+    @PostMapping("/admin/createJournalist")
+    public ResponseEntity<UserDto> createJournalist(
+            @RequestAttribute Long userId,
+            @Validated({ UserDto.AllValidations.class }) @RequestBody UserDto userDto)
+            throws InstanceNotFoundException, DuplicateInstanceException, InvalidEmailException, PermissionException {
+
+        User admin = userService.loginFromId(userId);
+
+        if (!admin.isAdmin()) {
+            throw new PermissionException();
+        }
+
+        User journalist = UserConversor.toUser(userDto);
+        journalist.setJournalist(true); // asegurarse
+        journalist.setAdmin(false);     // por seguridad
+
+        userService.signUp(journalist);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserConversor.toUserDto(journalist));
+    }
+
+
 }

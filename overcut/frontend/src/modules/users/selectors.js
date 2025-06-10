@@ -14,7 +14,7 @@ export const getUserById = (state, userId) => state.users[userId];
 export const getUserPoints = state => getUser(state).points;
 
 export const isAdmin = state =>
-    getUser(state)?.isAdmin ?? false;
+    getUser(state)?.admin ?? false;
 
 export const isJournalist = state =>
     getUser(state)?.isJournalist ?? false;

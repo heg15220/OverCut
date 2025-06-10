@@ -127,6 +127,7 @@ const en = {
     'quiz.result.total': 'Total achieved:',
     'quiz.result.point': 'points',
     'quiz.result.back': 'Return to home',
+    'project.users.CreateJournalist.title': 'Register Journalist',
 
 }
 export default en;

@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import Notifications from "./Notifications";
 import './App.css';
+import CreateJournalistButton from '../../users/components/CreateJournalistButton'; // ajusta ruta si cambia
+
 import {
     Archive,
     Book,
@@ -25,6 +27,8 @@ const Header = () => {
     const isLogged = useSelector(users.selectors.isLoggedIn);
     const userName = useSelector(users.selectors.getUserName);
     const user = useSelector(users.selectors.getUser);
+
+    console.log("🛠️ user.admin:", user?.admin);
 
     return (
         <header>
@@ -131,6 +135,10 @@ const Header = () => {
                                     <Link className="dropdown-item" to="/user/awards" id="myAwards" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
                                         <FormattedMessage id="project.users.MyAwards.title" />
                                     </Link>
+                                    {user.admin &&
+                                        <CreateJournalistButton />
+                                    }
+
                                     <div className="dropdown-divider"></div>
                                     <Link className="dropdown-item" to="/users/logout" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
                                         <FormattedMessage id="project.app.Header.logout" />

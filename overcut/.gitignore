@@ -37,6 +37,7 @@ build/
 ### Mac OS ###
 .DS_Store
 
+
 .idea/sonarlint/issuestore/*
 
 # Ignorar configuración sensible de producción

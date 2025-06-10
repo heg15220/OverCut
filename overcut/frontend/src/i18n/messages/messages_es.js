@@ -126,6 +126,7 @@ const es = {
     'quiz.result.total': 'Total conseguido:',
     'quiz.result.point': 'puntos',
     'quiz.result.back': 'Volver al inicio',
+    'project.users.CreateJournalist.title': 'Registrar Periodista',
 
 }
 export default es;
