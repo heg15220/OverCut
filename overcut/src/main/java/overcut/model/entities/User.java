@@ -40,6 +40,10 @@ public class User {
 
     private int points;
 
+    @Column(name = "admin")
+    private boolean isAdmin;
+
+
     private List<Post> posts;
 
     /** The list of comments to posts */
@@ -291,5 +295,13 @@ public class User {
 
     public void setUserNotifications(List<UserNotification> userNotifications) {
         this.userNotifications = userNotifications;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

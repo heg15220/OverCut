@@ -25,8 +25,8 @@ const loginCompleted = authenticatedUser => ({
     authenticatedUser
 });
 
-export const login = (userName, password, onSuccess, onErrors, reauthenticationCallback) => dispatch =>
-    backend.userService.login(userName, password,
+export const login = (email, password, onSuccess, onErrors, reauthenticationCallback) => dispatch =>
+    backend.userService.login(email, password,
         authenticatedUser => {
             dispatch(loginCompleted(authenticatedUser));
             onSuccess();
@@ -34,6 +34,7 @@ export const login = (userName, password, onSuccess, onErrors, reauthenticationC
         onErrors,
         reauthenticationCallback
     );
+
 
 export const logout = () => {
 

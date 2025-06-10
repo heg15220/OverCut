@@ -54,7 +54,7 @@ export const modifyPost = (id, post, onSuccess, onErrors) => {
 };
 
 export const getPosts = ({ title, categoryId, page, size, criteria, order }, onSuccess, onErrors) => {
-    let url = `/posts/?page=${page}&size=${size}`;
+    let url = `/posts/getPosts?page=${page}&size=${size}`;
 
     if (title) {
         url += `&title=${title}`;

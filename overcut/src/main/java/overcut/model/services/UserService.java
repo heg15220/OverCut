@@ -6,6 +6,7 @@ import overcut.model.entities.User;
 import overcut.model.services.exceptions.IncorrectLoginException;
 import overcut.model.services.exceptions.IncorrectPasswordException;
 import org.springframework.web.multipart.MultipartFile;
+import overcut.model.services.exceptions.InvalidEmailException;
 
 import java.io.IOException;
 
@@ -19,7 +20,7 @@ public interface UserService {
      * @param user the user
      * @throws DuplicateInstanceException the duplicate instance exception
      */
-    void signUp(User user) throws DuplicateInstanceException;
+    void signUp(User user) throws DuplicateInstanceException, InvalidEmailException;
 
     /**
      * Login.

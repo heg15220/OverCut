@@ -22,21 +22,14 @@ import java.util.Set;
  */
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-    /** The jwt generator. */
+
     @Autowired
     private JwtGenerator jwtGenerator;
 
-    /**
-     * Do filter internal.
-     *
-     * @param request the request
-     * @param response the response
-     * @param filterChain the filter chain
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
 
         String authHeaderValue = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -47,19 +40,24 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         try {
-
             String serviceToken = authHeaderValue.replace("Bearer ", "");
             JwtInfo jwtInfo = jwtGenerator.getInfo(serviceToken);
 
             request.setAttribute("serviceToken", serviceToken);
             request.setAttribute("userId", jwtInfo.getUserId());
+            request.setAttribute("isAdmin", jwtInfo.isAdmin());
+            request.setAttribute("isJournalist", jwtInfo.isRole());
 
+            // Determinar rol
             String role;
-            if(jwtInfo.isRole()) {
-                role= "JOURNALIST";
-            }else{
+            if (jwtInfo.isAdmin()) {
+                role = "ADMIN";
+            } else if (jwtInfo.isRole()) {
+                role = "JOURNALIST";
+            } else {
                 role = "USER";
             }
+
             configureSecurityContext(jwtInfo.getEmail(), role);
 
         } catch (Exception e) {
@@ -68,23 +66,12 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-
     }
 
-    /**
-     * Configure security context.
-     *
-     * @param userName the user name
-     * @param role the role
-     */
     private void configureSecurityContext(String userName, String role) {
-
         Set<GrantedAuthority> authorities = new HashSet<>();
-
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(userName, null, authorities));
-
     }
 }

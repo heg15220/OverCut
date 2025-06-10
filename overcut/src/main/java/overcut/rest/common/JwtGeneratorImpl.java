@@ -37,6 +37,7 @@ public class JwtGeneratorImpl implements JwtGenerator{
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000));
         claims.put("userId", info.getUserId());
         claims.put("role", info.isRole());
+        claims.put("admin", info.isAdmin());
 
         return Jwts.builder().setClaims(claims).signWith(Keys.hmacShaKeyFor(signKey.getBytes()), SignatureAlgorithm.HS512).compact();
 
@@ -53,8 +54,10 @@ public class JwtGeneratorImpl implements JwtGenerator{
 
         Claims claims = Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(signKey.getBytes())).build().parseClaimsJws(token).getBody();
 
+        boolean admin = (boolean) claims.get("admin");
+
         return new JwtInfo(((Integer) claims.get("userId")).longValue(), claims.getSubject(),
-                (boolean) claims.get("role"));
+                (boolean) claims.get("role"), admin);
 
     }
 }

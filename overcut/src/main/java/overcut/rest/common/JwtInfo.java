@@ -13,19 +13,21 @@ public class JwtInfo {
     /** The role. */
     private boolean role; // journalist if it is true
 
+    private boolean admin;
+
     /**
      * Instantiates a new jwt info.
      *
      * @param userId   the user id
      * @param email the user email
-     * @param role     the role
+     * @param journalist     the role
      */
-    public JwtInfo(Long userId, String email, boolean role) {
 
+    public JwtInfo(Long userId, String email, boolean journalist, boolean admin) {
         this.userId = userId;
         this.email = email;
-        this.role = role;
-
+        this.role = journalist;
+        this.admin = admin;
     }
 
     /**
@@ -85,8 +87,11 @@ public class JwtInfo {
     }
 
 
+    public boolean isAdmin() {
+        return admin;
+    }
 
-
-
-
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
 }

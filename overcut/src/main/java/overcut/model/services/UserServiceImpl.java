@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import overcut.model.services.exceptions.InvalidEmailException;
+import overcut.utils.EmailSyntaxValidator;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,6 +41,14 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private AssessmentDao assessmentDao;
 
+    @Autowired
+    private EmailVerificationService emailVerificationService;
+
+    @Autowired
+    private EmailSyntaxValidator emailSyntaxValidator;
+
+
+
 
     /**
      * Sign up.
@@ -48,7 +58,7 @@ public class UserServiceImpl implements UserService{
      */
 
     @Override
-    public void signUp(User user) throws DuplicateInstanceException
+    public void signUp(User user) throws DuplicateInstanceException, InvalidEmailException
     {
         if(userDao.existsByUserName(user.getUserName())){
             throw new DuplicateInstanceException("project.entities.user", user.getUserName());
@@ -59,6 +69,13 @@ public class UserServiceImpl implements UserService{
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        if (!emailSyntaxValidator.isEmailValid(user.getEmail())) {
+            throw new InvalidEmailException("Invalid or unverifiable email address");
+        }
+        System.out.println(">>> Email recibido: '" + user.getEmail() + "'");
+        System.out.println(">>> isEmailValid? " + emailSyntaxValidator.isEmailValid(user.getEmail()));
+
 
         userDao.save(user);
     }

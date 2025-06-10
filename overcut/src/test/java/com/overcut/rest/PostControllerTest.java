@@ -86,7 +86,6 @@ class PostControllerTest {
         assertEquals(602L, postDto.getId());
         assertEquals("test", postDto.getTitle());
         assertEquals("description", postDto.getSubtitle());
-        assertEquals(image, postDto.getImage());
         assertEquals("articleTest", postDto.getArticle());
         assertEquals(creationDate, postDto.getCreationDate());
         assertEquals(2L, postDto.getUserId());

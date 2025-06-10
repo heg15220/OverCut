@@ -46,6 +46,9 @@ public class UserDto {
     private boolean isJournalist;
 
     private int points;
+
+    private boolean isAdmin;
+
     /**
      * Instantiates a new user dto.
      */
@@ -62,10 +65,11 @@ public class UserDto {
      * @param email     the email
      * @param image     the image
      * @param isJournalist   the role
+     * @param isAdmin role Admin
+     * @param points user points
      */
     public UserDto(Long id, String userName, String firstName, String lastName,
-                   String email, byte[] image, boolean isJournalist, int points) {
-        super();
+                   String email, byte[] image, boolean isJournalist, boolean isAdmin, int points) {
         this.id = id;
         this.userName = userName;
         this.firstName = firstName;
@@ -73,8 +77,10 @@ public class UserDto {
         this.email = email;
         this.image = image;
         this.isJournalist = isJournalist;
+        this.isAdmin = isAdmin;
         this.points = points;
     }
+
 
     /**
      * Gets the id.
@@ -239,5 +245,13 @@ public class UserDto {
 
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

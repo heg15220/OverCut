@@ -105,7 +105,7 @@ public class PostController {
      * @return the list with the posts
      * @throws InstanceNotFoundException the instance not found exception
      */
-    @GetMapping("/")
+    @GetMapping("/getPosts")
     public BlockDto<PostDto> getPosts(@Validated @RequestParam(required = false) String title,
                                       @Validated @RequestParam(required = false) Long categoryId,
                                       @RequestParam(defaultValue = "0") int page,

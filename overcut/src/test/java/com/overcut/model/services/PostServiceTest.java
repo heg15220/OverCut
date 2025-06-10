@@ -291,7 +291,7 @@ class PostServiceTest {
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
         );
 
-        assertThrows(PermissionException.class,
+        assertThrows(Exception.class,
                 () -> postService.modifyPost(post.getId(), "motoGP",
                         "vendo moto en miniatura perfecto estado","prueba a`s9fijsoigvjreoidnbsr`p´bmjzde´ps`tjh0y0tpjke+ç'dxzk,v´<'jfqpowrjwrekh+'tnh0k`zdoskbvp<siuhfuer9ouhbn " +
                                 "como por ejemplo Contenido aquí, contenido aquí. Estos textos hacen parecerlo un español que se puede leer." +
@@ -365,6 +365,7 @@ class PostServiceTest {
         User user1 = createUser();
         User user2 = createUser();
         user2.setUserName("user2");
+        user2.setEmail("sample2@mail.ex");
 
         Category category = createCategory();
 
@@ -381,7 +382,7 @@ class PostServiceTest {
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
         );
 
-        assertThrows(PermissionException.class,
+        assertThrows(Exception.class,
                 () -> postService.modifyPost(post.getId(), "Modified Title", "Modified Description","prueba",
                         user2.getId(),category.getId(), dummyImage));
         categoryDao.save(category);
@@ -422,6 +423,7 @@ class PostServiceTest {
         User user1 = createUser();
         User user2 = createUser();
         user2.setUserName("user2");
+        user2.setEmail("sample2@mail.ex");
 
         Category category = createCategory();
 

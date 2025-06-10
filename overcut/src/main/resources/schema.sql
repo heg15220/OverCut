@@ -49,6 +49,8 @@ DROP TABLE IF EXISTS Comment;
 DROP TABLE IF EXISTS UserNotification;
 DROP TABLE IF EXISTS Notification;
 DROP TABLE IF EXISTS Event;
+DROP TABLE IF EXISTS PostBlock;
+DROP TABLE IF EXISTS PostSection;
 DROP TABLE IF EXISTS Post;
 DROP TABLE IF EXISTS Podium;
 DROP TABLE IF EXISTS Circuit;
@@ -67,12 +69,20 @@ CREATE TABLE Users (
     userName VARCHAR(60) NOT NULL,
     firstName VARCHAR(60) NOT NULL,
     lastName VARCHAR(60),
-    password VARCHAR(60) NOT NULL,
+    password VARCHAR(150) NOT NULL,
     email VARCHAR(60) NOT NULL,
     journalist BOOLEAN DEFAULT FALSE,
     image BLOB,
-    points BIGINT
+    points BIGINT,
+    admin BOOLEAN DEFAULT FALSE
 );
+
+ALTER TABLE Users ADD CONSTRAINT UniqueEmail UNIQUE (email);
+
+ALTER TABLE Users ADD CONSTRAINT UniqueUserName UNIQUE (userName);
+
+
+
 
 
 CREATE TABLE QuizType (

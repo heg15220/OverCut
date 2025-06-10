@@ -2,6 +2,8 @@ package overcut.rest.controllers;
 
 import overcut.model.common.exceptions.DuplicateInstanceException;
 import overcut.model.common.exceptions.InstanceNotFoundException;
+import overcut.model.services.EmailVerificationService;
+import overcut.model.services.exceptions.InvalidEmailException;
 import overcut.rest.common.ErrorsDto;
 import overcut.rest.common.JwtGenerator;
 import overcut.rest.common.JwtInfo;
@@ -52,6 +54,10 @@ public class UserController {
     @Autowired
     private QuizService quizService;
 
+
+    @Autowired
+    private EmailVerificationService emailVerificationService;
+
     /**
      * Handle incorrect login exception.
      *
@@ -96,9 +102,9 @@ public class UserController {
      * @throws DuplicateInstanceException the duplicate instance exception
      */
     @PostMapping("/signUp")
-    public ResponseEntity<AuthenticatedUserDto> signUp(
+    public ResponseEntity<AuthenticatedUserDto> signUp (
             @Validated({ UserDto.AllValidations.class }) @RequestBody UserDto userDto)
-            throws DuplicateInstanceException {
+            throws DuplicateInstanceException, InvalidEmailException {
 
         User user = UserConversor.toUser(userDto);
 
@@ -196,7 +202,7 @@ public class UserController {
      */
     private String generateServiceToken(User user) {
 
-        JwtInfo jwtInfo = new JwtInfo(user.getId(), user.getEmail(), user.isJournalist());
+        JwtInfo jwtInfo = new JwtInfo(user.getId(), user.getEmail(), user.isJournalist(), user.isAdmin());
 
         return jwtGenerator.generate(jwtInfo);
 
@@ -231,4 +237,11 @@ public class UserController {
     public int getUserPoints(@PathVariable("userId") Long userId){
         return quizService.getUserPoints(userId);
     }
+
+    @GetMapping("/verify-email")
+    public String verifyEmail(@RequestParam String token) throws InstanceNotFoundException {
+        String message = emailVerificationService.verifyEmail(token);
+        return message;
+    }
+
 }

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import * as userSelectors from '../selectors';
 import { FormattedMessage } from 'react-intl';
 import { Errors } from '../../common';
 import * as actions from '../actions';
@@ -32,6 +34,8 @@ const SignUp = () => {
     const [backendErrors, setBackendErrors] = useState(null);
     const [passwordsDoNotMatch, setPasswordsDoNotMatch] = useState(false);
     const [journalist, setJournalist] = useState(false);
+    const isAdmin = useSelector(userSelectors.isAdmin);
+
 
     const handleSubmit = event => {
         event.preventDefault();
@@ -158,12 +162,14 @@ const SignUp = () => {
                                     onChange={e => setEmail(e.target.value)}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
-                                <FormControlLabel
-                                    control={<Checkbox checked={journalist} onChange={(e) => setJournalist(e.target.checked)} />}
-                                    label=<FormattedMessage id="project.entities.SignUp.Journalist" />
-                                />
-                            </Grid>
+                            {isAdmin && (
+                                <Grid item xs={12}>
+                                    <FormControlLabel
+                                        control={<Checkbox checked={journalist} onChange={(e) => setJournalist(e.target.checked)} />}
+                                        label={<FormattedMessage id="project.entities.SignUp.Journalist" />}
+                                    />
+                                </Grid>
+                            )}
                         </Grid>
                         <Button
                             type="submit"

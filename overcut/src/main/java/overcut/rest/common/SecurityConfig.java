@@ -39,41 +39,51 @@ public class SecurityConfig {
      */
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        // @formatter:off
         http.cors(cors -> cors.disable()).csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+
+                        // 📌 Accesos públicos
                         .requestMatchers(antMatcher("/*")).permitAll()
                         .requestMatchers(antMatcher("/static/**")).permitAll()
                         .requestMatchers(antMatcher("/assets/**")).permitAll()
                         .requestMatchers(antMatcher("/api/users/signUp")).permitAll()
                         .requestMatchers(antMatcher("/api/users/login")).permitAll()
                         .requestMatchers(antMatcher("/api/users/loginFromServiceToken")).permitAll()
-                        .requestMatchers(antMatcher("/api/posts/*")).permitAll()
-                        .requestMatchers(antMatcher("/api/posts/postDetails/*")).permitAll()
-                        .requestMatchers(antMatcher("/api/posts/*/comments")).permitAll()
-                        .requestMatchers(antMatcher("/api/historic/{id}/circuits")).permitAll()
-                        .requestMatchers(antMatcher("/api/historic/circuit/{id}/podiums")).permitAll()
-                        .requestMatchers(antMatcher("/api/historic/circuits/circuit/{id}")).permitAll()
-                        .requestMatchers(antMatcher("/api/historic/circuit/podiums/podium/{id}")).permitAll()
-                        .requestMatchers(antMatcher("/api/events/*")).permitAll()
-                        .requestMatchers(antMatcher("/api/events/*/notifications")).permitAll()
-                        .requestMatchers(antMatcher("/api/events/event/*")).permitAll()
-                        .requestMatchers(antMatcher("/api/historic/teams/victories/count")).permitAll()
-                        .requestMatchers(antMatcher("/api/historic/circuits/victories/count")).permitAll()
-                        .requestMatchers(antMatcher("/api/historic/circuits/{name}/teams/victories")).permitAll()
-                        .requestMatchers(antMatcher("/api/historic/circuits/{id}/drivers/victories")).permitAll() // Agrega esta línea
-                        .requestMatchers(antMatcher("/api/quiz/{quizId}/quizType")).permitAll() // Agrega esta línea
-                        .requestMatchers(antMatcher("/api/quiz/{quizId}/quizCategory")).permitAll() // Agrega esta línea
+
+                        // 📌 Endpoints de lectura de posts, comentarios, categorías
+                        .requestMatchers(antMatcher("/api/posts/getPosts")).permitAll()
+                        .requestMatchers(antMatcher("/api/posts/{id}")).permitAll()
+                        .requestMatchers(antMatcher("/api/posts/{id}/comments")).permitAll()
+                        .requestMatchers(antMatcher("/api/posts/categories")).permitAll()
+                        .requestMatchers(antMatcher("/api/posts/new")).permitAll()
+
+                        // 📌 🔐 Endpoints protegidos: solo periodistas pueden crear o editar posts
+                        .requestMatchers(antMatcher("/api/posts/")).hasRole("JOURNALIST") // POST (crear)
+                        .requestMatchers(antMatcher("/api/posts/{id}")).hasRole("JOURNALIST") // PUT (editar)
+                        .requestMatchers(antMatcher("/api/posts/addImage/{id}")).hasRole("JOURNALIST")
+                        .requestMatchers(antMatcher("/api/posts/{id}/sections")).hasRole("JOURNALIST") // POST/GET/DELETE se usan para secciones
+                        .requestMatchers(antMatcher("/api/posts/user")).hasRole("JOURNALIST")
+                        .requestMatchers(antMatcher("/api/posts/{id}/user")).permitAll()
+
+                        // 📌 Comentarios: solo autenticados pueden crear/modificar
+                        .requestMatchers(antMatcher("/api/posts/{id}/comment")).authenticated()
+                        .requestMatchers(antMatcher("/api/posts/comment/{id}")).authenticated()
+                        .requestMatchers(antMatcher("/api/posts/comment/{id}/answer")).authenticated()
+
+                        // 📌 Eventos, histórico y quizzes públicos
+                        .requestMatchers(antMatcher("/api/events/**")).permitAll()
+                        .requestMatchers(antMatcher("/api/historic/**")).permitAll()
+                        .requestMatchers(antMatcher("/api/quiz/**")).permitAll()
+
+                        // 📌 Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated()
                 )
-
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
-        // @formatter:on
 
         return http.build();
     }
+
 
     /**
      * Authentication manager.
