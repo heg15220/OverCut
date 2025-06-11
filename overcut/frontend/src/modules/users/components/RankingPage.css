@@ -43,6 +43,7 @@
   border-radius: 8px;
   align-items: center;
   transition: background 0.3s ease;
+  gap: 1rem;
 }
 
 .user-card:hover {
@@ -73,9 +74,51 @@
 }
 
 .user-points {
-  font-weight: bold;
-  color: #f0f0f0;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0.25rem 0.6rem;
+  background-color: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #00eaff;
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
 }
+/* F1 - Legend */
+.rank-f1-points {
+  background-color: rgba(255, 215, 0, 0.1);
+  border: 1px solid gold;
+  color: gold;
+}
+
+/* F2 - Pro */
+.rank-f2-points {
+  background-color: rgba(192, 192, 192, 0.1);
+  border: 1px solid silver;
+  color: silver;
+}
+
+/* F3 - Semi-Pro */
+.rank-f3-points {
+  background-color: rgba(205, 127, 50, 0.1);
+  border: 1px solid #cd7f32;
+  color: #cd7f32;
+}
+
+/* F4 - Rookie (se mantiene el diseño actual) */
+.rank-f4-points {
+  background-color: #222;
+  border: 1px solid #444;
+  color: #00eaff;
+}
+
+/* Hover style (opcional, más elegante si es común a todos) */
+.user-card:hover .user-points {
+  background-color: #333;
+  border-color: #666;
+  filter: brightness(1.2);
+}
+
 
 .empty-rank-hint {
   background-color: #1a1a1a;
@@ -92,4 +135,26 @@
   color: #f5c518;
   font-weight: bold;
   margin-top: 0.5rem;
+}
+
+.user-name-wrapper {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #f5f5f5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+@media (max-width: 600px) {
+  .user-name {
+    max-width: 120px;
+    font-size: 0.95rem;
+  }
 }

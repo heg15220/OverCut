@@ -4,6 +4,8 @@ import { useIntl } from "react-intl";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./RankingPage.css";
+import UserAvatar from "./UserAvatar";
+
 
 const rankThresholds = {
   F4: 0,
@@ -75,8 +77,13 @@ const RankingPage = () => {
                       <span className={`rank-position ${idx < 3 ? "top-" + (idx + 1) : ""}`}>
                         #{idx + 1}
                       </span>
-                      <span className="user-name">{user.userName}</span>
-                      <span className="user-points">{user.points} pts</span>
+                      <UserAvatar image={user.image} userName={user.userName} size={40} />
+                      <div className="user-name-wrapper">
+                        <span className="user-name">{user.userName}</span>
+                      </div>
+                      <span className={`user-points rank-${rank.toLowerCase()}-points`}>
+                        {user.points} pts
+                      </span>
                     </div>
                   ))}
               </div>

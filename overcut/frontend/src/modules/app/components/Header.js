@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import Notifications from "./Notifications";
 import './App.css';
+import UserAvatar from "../../users/components/UserAvatar";
 import CreateJournalistButton from '../../users/components/CreateJournalistButton'; // ajusta ruta si cambia
 
 import {
@@ -106,54 +107,55 @@ const Header = () => {
                         }
 
                         {isLogged &&
-                            <li className="nav-item dropstart">
+                          <li className="nav-item dropstart">
+                            <a
+                              className="dropdown-toggle nav-link d-flex align-items-center"
+                              href="/"
+                              id="userAvatarDropdown"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                              <UserAvatar image={user.image} userName={user.userName} size={42} />
+                            </a>
 
-                                <a id="loginName" className="dropdown-toggle nav-link" href="/"
-                                   data-bs-toggle="dropdown" style={{ color: 'white' }}>
-                                    <span className="fa-solid fa-user"></span>&nbsp;
-                                    {userName}
-                                </a>
-                                <div className="dropdown-menu" >
-                                    <UserDetailsLink id={user.id} name={userName} />
-                                    <Link className="dropdown-item" to="/users/update-profile" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }} >
-                                        <FormattedMessage id="project.users.UpdateProfile.title" />
-                                    </Link>
-                                    <Link className="dropdown-item" to="/users/change-password" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
-                                        <FormattedMessage id="project.users.ChangePassword.title" />
-                                    </Link>
-                                    {user.journalist &&
-                                      <Link className="dropdown-item" to="/create-post" id="createPost" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
-                                        <FormattedMessage id="project.users.CreatePost.title" />
-                                      </Link>
-                                    }
+                            <div className="dropdown-menu dropdown-menu-end" aria-labelledby="userAvatarDropdown">
+                              <UserDetailsLink id={user.id} name={userName} />
+                              <Link className="dropdown-item" to="/users/update-profile" style={{ backgroundColor: '#00000F', color: '#ffffff' }} >
+                                <FormattedMessage id="project.users.UpdateProfile.title" />
+                              </Link>
+                              <Link className="dropdown-item" to="/users/change-password" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
+                                <FormattedMessage id="project.users.ChangePassword.title" />
+                              </Link>
 
+                              {user.journalist &&
+                                <Link className="dropdown-item" to="/create-post" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
+                                  <FormattedMessage id="project.users.CreatePost.title" />
+                                </Link>
+                              }
 
-                                    {user.journalist &&
-                                    <Link className="dropdown-item" to="/post/my" id="myPosts" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
-                                        <FormattedMessage id="project.users.MyPosts.title" />
-                                    </Link>
-                                    }
-                                    <Link className="dropdown-item" to="/user/awards" id="myAwards" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
-                                        <FormattedMessage id="project.users.MyAwards.title" />
-                                    </Link>
-                                    {user.admin &&
-                                        <CreateJournalistButton />
-                                    }
+                              {user.journalist &&
+                                <Link className="dropdown-item" to="/post/my" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
+                                  <FormattedMessage id="project.users.MyPosts.title" />
+                                </Link>
+                              }
 
-                                    <div className="dropdown-divider"></div>
-                                    <Link className="dropdown-item" to="/users/logout" style={{ backgroundColor: '#00000F', borderColor: '#00000F', color: '#ffffff' }}>
-                                        <FormattedMessage id="project.app.Header.logout" />
-                                    </Link>
-                                </div>
+                              <Link className="dropdown-item" to="/user/awards" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
+                                <FormattedMessage id="project.users.MyAwards.title" />
+                              </Link>
 
-                            </li>
+                              {user.admin &&
+                                <CreateJournalistButton />
+                              }
+
+                              <div className="dropdown-divider"></div>
+
+                              <Link className="dropdown-item" to="/users/logout" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
+                                <FormattedMessage id="project.app.Header.logout" />
+                              </Link>
+                            </div>
+                          </li>
                         }
 
-                        {isLogged &&
-                            <li className="nav-item dropstart">
-                                {user.image && <img src={"data:image/jpg;base64," + user.image} className="rounded-circle" width="42px" height="42px" alt="Avatar" />}
-                                &nbsp;&nbsp;&nbsp;
-                            </li>}
                         {!isLogged &&
                             <li className="nav-item">
                                 <Link className="nav-link" color="purple" to="/users/login" id="login" data-testid="login-button" style={{ color: 'white' }}>
