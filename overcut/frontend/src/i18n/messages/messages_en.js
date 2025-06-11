@@ -128,6 +128,7 @@ const en = {
     'quiz.result.point': 'points',
     'quiz.result.back': 'Return to home',
     'project.users.CreateJournalist.title': 'Register Journalist',
+    'project.app.Header.ranking': 'Ranking',
 
 }
 export default en;

@@ -4,3 +4,4 @@ export const LOGOUT = "project/users/logout";
 export const UPDATE_PROFILE_COMPLETED = "project/users/updateProfileCompleted";
 export const ADD_IMAGE_COMPLETED = "project/users/addImageCompleted";
 export const GET_USER_POINTS_COMPLETED = "project/users/getUserPointsCompleted";
+export const GET_USER_RANKING_COMPLETED = "project/users/GET_USER_RANKING_COMPLETED";

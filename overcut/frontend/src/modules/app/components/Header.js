@@ -98,12 +98,13 @@ const Header = () => {
 
                         {isLogged &&
                         <li className="nav-item">
-                            <Link className="nav-link" to={`/user/awards-user`} style={{ color: 'white' }}>
-                                <FormattedMessage id="project.app.Header.Awards" />
+                            <Link className="nav-link" to="/users/ranking" style={{ color: 'white' }}>
+                                <FormattedMessage id="project.app.Header.ranking" defaultMessage="Ranking" />
                                 <Trophy className="ms-1" size={16} color="#FFFFFF" />
                             </Link>
                         </li>
                         }
+
                         {isLogged &&
                             <li className="nav-item dropstart">
 

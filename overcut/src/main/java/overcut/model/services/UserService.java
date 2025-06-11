@@ -7,8 +7,12 @@ import overcut.model.services.exceptions.IncorrectLoginException;
 import overcut.model.services.exceptions.IncorrectPasswordException;
 import org.springframework.web.multipart.MultipartFile;
 import overcut.model.services.exceptions.InvalidEmailException;
+import overcut.rest.dtos.RankedUserDto;
+import overcut.utils.UserRank;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Interface UserService.
@@ -76,6 +80,8 @@ public interface UserService {
     User updateProfile(Long id, String firstName, String lastName, String email) throws InstanceNotFoundException;
 
     int getAmountOfPointsInAllQuiz(Long userId) throws InstanceNotFoundException;
+    Map<UserRank, List<RankedUserDto>> getAllUsersGroupedByRank();
+
 
 
 }

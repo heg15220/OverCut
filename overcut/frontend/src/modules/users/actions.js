@@ -85,3 +85,19 @@ export const createJournalist = (user, onSuccess, onErrors) => dispatch =>
         // Si deseas almacenar el periodista recién creado en el estado, puedes hacerlo aquí
         onSuccess(createdUser);
     }, onErrors);
+
+const getUserRankingCompleted = (ranking) => ({
+    type: actionTypes.GET_USER_RANKING_COMPLETED,
+    ranking
+});
+
+export const getUserRanking = (onSuccess, onErrors) => dispatch =>
+    backend.userService.getUserRanking(
+        (ranking) => {
+            dispatch(getUserRankingCompleted(ranking));
+            if (onSuccess) onSuccess(ranking);
+        },
+        (errors) => {
+            if (onErrors) onErrors(errors);
+        }
+    );

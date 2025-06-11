@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import './App.css'
 
 import users, { Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout } from '../../users';
+import RankingPage from '../../users/components/RankingPage';
 import Home from "./Home";
 import {Quiz} from "../../quiz";
 import QuizList from "../../quiz/components/QuizList";
@@ -83,6 +84,7 @@ const Body = () => {
                     <Route path="/users/signUp" element={<SignUp />} />
                     <Route path="/users/login" element={<Login />} />
                     <Route path="/users/logout" element={<Logout />} />
+                    {loggedIn && <Route path="/users/ranking" element={<RankingPage />} />}
                     {loggedIn && <Route path="/user/user-details/:id" element={<UserDetails />} />}
                     {loggedIn && <Route path="/users/update-profile" element={<UpdateProfile />} />}
                     {loggedIn && <Route path="/users/change-password" element={<ChangePassword/>}/>}

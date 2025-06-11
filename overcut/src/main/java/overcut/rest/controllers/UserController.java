@@ -22,10 +22,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import overcut.utils.UserRank;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * The Class UserController.
@@ -263,6 +266,11 @@ public class UserController {
         userService.signUp(journalist);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(UserConversor.toUserDto(journalist));
+    }
+
+    @GetMapping("/ranking")
+    public Map<UserRank, List<RankedUserDto>> getUserRanking() {
+        return userService.getAllUsersGroupedByRank();
     }
 
 

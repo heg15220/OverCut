@@ -18,3 +18,6 @@ export const isAdmin = state =>
 
 export const isJournalist = state =>
     getUser(state)?.isJournalist ?? false;
+
+export const getUserRanking = state =>
+    getModuleState(state).ranking;

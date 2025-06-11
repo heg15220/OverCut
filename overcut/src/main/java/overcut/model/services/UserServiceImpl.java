@@ -14,12 +14,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import overcut.model.services.exceptions.InvalidEmailException;
+import overcut.rest.dtos.RankedUserDto;
 import overcut.utils.EmailService;
 import overcut.utils.EmailSyntaxValidator;
+import overcut.utils.UserRank;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * The Class UserServiceImpl.
@@ -217,5 +222,17 @@ public class UserServiceImpl implements UserService{
 
         return totalPoints;
     }
+
+    @Override
+    public Map<UserRank, List<RankedUserDto>> getAllUsersGroupedByRank() {
+        List<User> allUsers = userDao.findAll();
+
+        return allUsers.stream()
+                .filter(u -> u.getPoints() > 0)
+                .map(u -> new RankedUserDto(u.getUserName(), u.getPoints(), UserRank.fromPoints(u.getPoints()).name()))
+                .collect(Collectors.groupingBy(dto -> UserRank.valueOf(dto.getRank()),
+                        TreeMap::new, Collectors.toList()));
+    }
+
 
 }

@@ -97,3 +97,7 @@ export const getUserPoints = (userId, onSuccess, onErrors) => {
 export const createJournalist = (user, onSuccess, onErrors) =>
     appFetch("/users/admin/createJournalist", fetchConfig("POST", user), onSuccess, onErrors);
 
+
+export const getUserRanking = (onSuccess, onErrors) => {
+  appFetch("/users/ranking", fetchConfig("GET"), onSuccess, onErrors);
+};

@@ -127,6 +127,7 @@ const es = {
     'quiz.result.point': 'puntos',
     'quiz.result.back': 'Volver al inicio',
     'project.users.CreateJournalist.title': 'Registrar Periodista',
+    'project.app.Header.ranking': 'Ranking',
 
 }
 export default es;
