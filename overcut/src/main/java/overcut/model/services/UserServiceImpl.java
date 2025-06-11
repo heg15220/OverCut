@@ -229,7 +229,12 @@ public class UserServiceImpl implements UserService{
 
         return allUsers.stream()
                 .filter(u -> u.getPoints() > 0)
-                .map(u -> new RankedUserDto(u.getUserName(), u.getPoints(), UserRank.fromPoints(u.getPoints()).name()))
+                .map(u -> new RankedUserDto(
+                        u.getUserName(),
+                        u.getPoints(),
+                        UserRank.fromPoints(u.getPoints()).name(),
+                        u.getImage() // <- añade imagen
+                ))
                 .collect(Collectors.groupingBy(dto -> UserRank.valueOf(dto.getRank()),
                         TreeMap::new, Collectors.toList()));
     }

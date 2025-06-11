@@ -2,8 +2,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: overcutf1web@gmail.com
-    password: hezivclnvcjtnyvf
+    username: overcutwebf1@gmail.com
+    password: ixbtqhsujpkqyyzx
     properties:
       mail:
         smtp:

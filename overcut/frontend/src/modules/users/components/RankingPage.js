@@ -45,6 +45,8 @@ const RankingPage = () => {
   const locale = navigator.language.startsWith('es') ? 'es' : 'en';
   const t = translations[locale];
 
+  const currentUser = useSelector(selectors.getUser);
+
   const rankLabels = {
     F1: `🏆 ${t.legend}`,
     F2: `🥈 ${t.pro}`,
