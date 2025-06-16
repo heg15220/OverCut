@@ -135,6 +135,7 @@ const en = {
     'project.users.Login.rememberMe': 'Remember me',
     'project.global.buttons.login': 'Sign In',
     'project.users.Login.signUpPrompt': 'Do not have an account? Sign Up',
+    'project.exceptions.IncorrectLoginException': 'Incorrect Login',
 
 }
 export default en;

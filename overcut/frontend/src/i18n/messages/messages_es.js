@@ -136,6 +136,7 @@ const es = {
     'project.users.Login.signUpPrompt': '¿No tienes una cuenta? Regístrate',
     'project.users.UpdateProfile.title': 'Actualizar Perfil',
     'project.user.addImage': 'Añadir Imagen',
+    'project.exceptions.IncorrectLoginException': 'Inicio sesión incorrecto',
 
 }
 export default es;

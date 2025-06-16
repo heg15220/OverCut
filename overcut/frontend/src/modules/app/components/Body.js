@@ -3,10 +3,13 @@ import { Route, Routes } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import './App.css'
 
-import users, { Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout} from '../../users';
+import users, { Login, SignUp, UpdateProfile, ChangePassword, Logout} from '../../users';
 import RankingPage from '../../users/components/RankingPage';
 import EmailVerificationPage from '../../users/components/EmailVerificationPage';
 import EmailConfirmationPending from '../../users/components/EmailConfirmationPending';
+import UserDetails from '../../users/components/UserDetails';
+import UserDetailsLink from '../../users/components/UserDetailsLink';
+
 import Home from "./Home";
 import {Quiz} from "../../quiz";
 import QuizList from "../../quiz/components/QuizList";
@@ -87,7 +90,7 @@ const Body = () => {
                     <Route path="/users/login" element={<Login />} />
                     <Route path="/users/logout" element={<Logout />} />
                     {loggedIn && <Route path="/users/ranking" element={<RankingPage />} />}
-                    {loggedIn && <Route path="/user/user-details/:id" element={<UserDetails />} />}
+                    {loggedIn && <Route path="/user/user-details/:id" element={<UserDetailsLink />} />}
                     {loggedIn && <Route path="/users/update-profile" element={<UpdateProfile />} />}
                     {loggedIn && <Route path="/users/change-password" element={<ChangePassword/>}/>}
                     <Route path="/post/post-details/:id" element={<PostDetails />} />
@@ -137,6 +140,7 @@ const Body = () => {
                     <Route path="/minigames/wordSearch" element={<WordSearchGame />} />
                     <Route path="/verify-email" element={<EmailVerificationPage />} />
                     <Route path="/email-confirmation" element={<EmailConfirmationPending />} />
+                    {loggedIn && <Route path="/users/profile" element={<UserDetails />} />}
 
                 </Route>
             </Routes>

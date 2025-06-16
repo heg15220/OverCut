@@ -4,7 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Avatar, Typography, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import * as userSelectors from '../../users/selectors';
-const UserDetails = () => {
+const UserDetailsLink = () => {
   const user = useSelector(userSelectors.getUser);
 
   if (!user) return null;
@@ -41,4 +41,4 @@ const UserDetails = () => {
 
 };
 
-export default UserDetails;
+export default UserDetailsLink;

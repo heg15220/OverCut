@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import * as userSelectors from '../../users/selectors';
 import { Link } from 'react-router-dom';
 import './UserDetails.css';
+import UserAvatar from '../../users/components/UserAvatar';
 
 const UserDetails = () => {
   const user = useSelector(userSelectors.getUser);
@@ -18,22 +19,12 @@ const UserDetails = () => {
           <p><span><FormattedMessage id="project.global.fields.lastName" />:</span> {user.lastName}</p>
           <p><span><FormattedMessage id="project.global.fields.email" />:</span> {user.email}</p>
           <p><span><FormattedMessage id="project.global.fields.points" />:</span> {user.points}</p>
-          <p>
-            <span><FormattedMessage id="project.global.fields.journalist" />:</span>
-            {user.journalist
-              ? <FormattedMessage id="project.global.yes" defaultMessage="Sí" />
-              : <FormattedMessage id="project.global.no" defaultMessage="No" />}
-          </p>
+
         </div>
 
-        {user.image && (
-          <div className="user-avatar">
-            <img
-              src={`data:image/jpg;base64,${user.image}`}
-              alt="Avatar"
-            />
-          </div>
-        )}
+        <div className="user-avatar">
+          <UserAvatar image={user.image} userName={user.userName} size={150} />
+        </div>
       </div>
 
       <div className="user-card-footer">
