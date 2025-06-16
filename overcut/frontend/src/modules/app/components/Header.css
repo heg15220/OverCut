@@ -71,3 +71,4 @@
     0%, 100% { transform: scale(1); } /* Comienza y termina sin cambio */
     50% { transform: scale(1.05); } /* En medio de la animación, aumenta la escala */
 }
+

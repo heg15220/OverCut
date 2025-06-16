@@ -185,3 +185,26 @@
 }
 
 
+.dropdown-custom {
+    background-color: #00000F;
+    border-radius: 12px;
+    min-width: 240px;
+    padding: 0.5rem 0;
+    border: none;
+}
+
+.dropdown-custom .dropdown-item {
+    color: #ffffff;
+    padding: 0.5rem 1.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-custom .dropdown-item:hover {
+    background-color: #1a1a2e;
+    color: #e6e6e6;
+}
+
+.dropdown-custom .dropdown-divider {
+    border-top: 1px solid #444;
+    margin: 0.4rem 0;
+}

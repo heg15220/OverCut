@@ -118,7 +118,7 @@ const Header = () => {
                               <UserAvatar image={user.image} userName={user.userName} size={42} />
                             </a>
 
-                            <div className="dropdown-menu dropdown-menu-end" aria-labelledby="userAvatarDropdown">
+                            <div className="dropdown-menu dropdown-menu-end dropdown-custom shadow" aria-labelledby="userAvatarDropdown">
                               <UserDetailsLink id={user.id} name={userName} />
                               <Link className="dropdown-item" to="/users/update-profile" style={{ backgroundColor: '#00000F', color: '#ffffff' }} >
                                 <FormattedMessage id="project.users.UpdateProfile.title" />
@@ -138,10 +138,6 @@ const Header = () => {
                                   <FormattedMessage id="project.users.MyPosts.title" />
                                 </Link>
                               }
-
-                              <Link className="dropdown-item" to="/user/awards" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
-                                <FormattedMessage id="project.users.MyAwards.title" />
-                              </Link>
 
                               {user.admin &&
                                 <CreateJournalistButton />

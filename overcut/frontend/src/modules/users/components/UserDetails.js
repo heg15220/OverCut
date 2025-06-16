@@ -1,81 +1,48 @@
-import { FormattedMessage} from 'react-intl';
-import { useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
+import { FormattedMessage } from 'react-intl';
 import * as userSelectors from '../../users/selectors';
 import { Link } from 'react-router-dom';
-
-
+import './UserDetails.css';
 
 const UserDetails = () => {
-    const user = useSelector(userSelectors.getUser);
+  const user = useSelector(userSelectors.getUser);
 
+  if (!user) return null;
 
-
-    if (!user) {
-        return null;
-    }
-
-    return (
-        <div className="card " >
-            <div className="card-header">
-                <h5 className="card-title text-center  bg-light" id="titulo">
-                    <FormattedMessage id="project.users.Profile.title" />
-                </h5>
-            </div>
-
-            <div className="card-body d-flex">
-                <div className="p-2 text-start ms-2 ">
-                    <div className="justform-group row">
-                        <label htmlFor="userName" className="col-md- col-form-label">
-                            <FormattedMessage id="project.global.fields.userName" /> : {user.userName}
-                        </label>
-
-                    </div>
-
-                    <div className="form-group row">
-                        <label htmlFor="description" className="col-md- col-form-label">
-                            <FormattedMessage id="project.global.fields.firstName" /> : {user.firstName}
-                        </label>
-                    </div>
-                    <div className="col-md-12 form-group">
-                        <label htmlFor="description" className="col-md- col-form-label">
-                            <FormattedMessage id="project.global.fields.lastName" /> : {user.lastName}
-                        </label>
-                    </div>
-
-                    <div className="form-group row">
-                        <label htmlFor="price" className="col-md- col-form-label">
-                            <FormattedMessage id='project.global.fields.email' /> : {user.email}
-                        </label>
-                    </div>
-
-                    <div className="form-group row">
-                        <label htmlFor="description" className="col-md- col-form-label">
-                            <FormattedMessage id='project.global.fields.points' /> : {user.points}
-                        </label>
-                    </div>
-
-                    <div className="form-group row">
-                        <label htmlFor="journalist" className="col-md- col-form-label">
-                            <FormattedMessage id='project.global.fields.journalist' /> : {user.journalist}
-                        </label>
-                    </div>
-
-                </div>
-
-                {user.image && <div className="vr ms-4"></div>}
-                <div className="ms-4">
-                    {user.image && <img src={"data:image/jpg;base64," + user.image} className="rounded-circle m-2" width="250px" height="250px" alt="Avatar" />}
-
-                </div>
-            </div>
-            <div className='text-center'>
-                <button type="submit p-2" className="btn btn-primary my-2" id="modify post" style={{ backgroundColor: '#9900FF', borderColor: '#9900FF' }}>
-                    <Link className="dropdown-item" to="/users/update-profile">
-                        <FormattedMessage id="project.users.UpdateProfile.title" />
-                    </Link>
-                </button>
-            </div>
+  return (
+    <div className="user-card">
+      <div className="user-card-body">
+        <div className="user-info">
+          <p><span><FormattedMessage id="project.global.fields.userName" />:</span> {user.userName}</p>
+          <p><span><FormattedMessage id="project.global.fields.firstName" />:</span> {user.firstName}</p>
+          <p><span><FormattedMessage id="project.global.fields.lastName" />:</span> {user.lastName}</p>
+          <p><span><FormattedMessage id="project.global.fields.email" />:</span> {user.email}</p>
+          <p><span><FormattedMessage id="project.global.fields.points" />:</span> {user.points}</p>
+          <p>
+            <span><FormattedMessage id="project.global.fields.journalist" />:</span>
+            {user.journalist
+              ? <FormattedMessage id="project.global.yes" defaultMessage="Sí" />
+              : <FormattedMessage id="project.global.no" defaultMessage="No" />}
+          </p>
         </div>
-    );
+
+        {user.image && (
+          <div className="user-avatar">
+            <img
+              src={`data:image/jpg;base64,${user.image}`}
+              alt="Avatar"
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="user-card-footer">
+        <Link to="/users/update-profile" className="edit-profile-button">
+          <FormattedMessage id="project.users.UpdateProfile.title" />
+        </Link>
+      </div>
+    </div>
+  );
 };
+
 export default UserDetails;
