@@ -1,62 +1,44 @@
-import { FormattedMessage} from 'react-intl';
-import { useSelector} from 'react-redux';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { Link as RouterLink } from 'react-router-dom';
+import { Avatar, Typography, Box } from '@mui/material';
+import { FormattedMessage } from 'react-intl';
 import * as userSelectors from '../../users/selectors';
-import { Link } from 'react-router-dom';
-
-
-
 const UserDetails = () => {
-    const user = useSelector(userSelectors.getUser);
+  const user = useSelector(userSelectors.getUser);
 
+  if (!user) return null;
 
-
-    if (!user) {
-        return null;
-    }
-
-    return (
-        <div className="card " >
-            <div className="card-header">
-                <h5 className="card-title text-center  bg-light" id="titulo">
-                    <FormattedMessage id="project.users.Profile.title" />
-                </h5>
-            </div>
-
-            <div className="card-body d-flex">
-                <div className="p-2 text-start ms-2 ">
-                    <div className="justform-group row">
-                        <label htmlFor="userName" className="col-md- col-form-label">
-                            <FormattedMessage id="project.global.fields.userName" /> : {user.userName}
-                        </label>
-
-                    </div>
-
-                    <div className="form-group row">
-                        <label htmlFor="description" className="col-md- col-form-label">
-                            <FormattedMessage id="project.global.fields.firstName" /> : {user.firstName}
-                        </label>
-                    </div>
-                    <div className="col-md-12 form-group">
-                        <label htmlFor="description" className="col-md- col-form-label">
-                            <FormattedMessage id="project.global.fields.lastName" /> : {user.lastName}
-                        </label>
-                    </div>
-
-                    <div className="form-group row">
-                        <label htmlFor="price" className="col-md- col-form-label">
-                            <FormattedMessage id='project.global.fields.email' /> : {user.email}
-                        </label>
-                    </div>
-
-                </div>
-
-                {user.image && <div className="vr ms-4"></div>}
-                <div className="ms-4">
-                    {user.image && <img src={"data:image/jpg;base64," + user.image} className="rounded-circle m-2" width="250px" height="250px" alt="Avatar" />}
-
-                </div>
-            </div>
-        </div>
+  return (
+      <RouterLink
+        to="/users/profile"
+        style={{
+          textDecoration: 'none',
+          color: 'inherit',
+          display: 'block',
+          padding: '12px 16px',
+          borderBottom: '1px solid #ccc',
+          backgroundColor: '#f8f8f8'
+        }}
+      >
+        <Box display="flex" alignItems="center">
+          <Avatar
+            src={user.image ? `data:image/jpg;base64,${user.image}` : null}
+            alt={user.userName}
+            sx={{ width: 46, height: 46, mr: 2 }}
+          />
+          <Box>
+            <Typography variant="subtitle1" fontWeight={600} color="#000">
+              {user.userName}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {user.email}
+            </Typography>
+          </Box>
+        </Box>
+      </RouterLink>
     );
+
 };
+
 export default UserDetails;
