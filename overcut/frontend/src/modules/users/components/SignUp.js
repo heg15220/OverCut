@@ -54,13 +54,22 @@ const SignUp = () => {
                 email: email.trim(),
                 journalist: journalist
             },
-            () => navigate('/'),
+            () => {
+                if (!isAdmin && !journalist) {
+                    // Usuario normal, mostrar mensaje de confirmación
+                    navigate('/email-confirmation');
+                } else {
+                    // Admin o periodista: vuelve al inicio o a donde corresponda
+                    navigate('/');
+                }
+            },
             errors => setBackendErrors(errors),
             () => {
                 navigate('/');
                 dispatch(actions.logout());
             }
         ));
+
     }
 
     return (

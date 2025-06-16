@@ -55,7 +55,9 @@ export const updateProfile = (user, onSuccess, onErrors) => dispatch =>
             dispatch(updateProfileCompleted(user));
             onSuccess();
         },
-        onErrors);
+        onErrors
+    );
+
 
 const addUserImageCompleted = (user) => ({
     type: actionTypes.ADD_IMAGE_COMPLETED,

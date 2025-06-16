@@ -129,6 +129,12 @@ const en = {
     'quiz.result.back': 'Return to home',
     'project.users.CreateJournalist.title': 'Register Journalist',
     'project.app.Header.ranking': 'Ranking',
+    'project.users.EmailConfirmationPending.title': 'Registration Complete!',
+    'project.users.EmailConfirmationPending.message': 'Check your email and activate your account from the received link before logging in.',
+    'project.users.Login.title': 'Sign In',
+    'project.users.Login.rememberMe': 'Remember me',
+    'project.global.buttons.login': 'Sign In',
+    'project.users.Login.signUpPrompt': 'Do not have an account? Sign Up',
 
 }
 export default en;

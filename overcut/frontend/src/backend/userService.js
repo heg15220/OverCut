@@ -65,7 +65,13 @@ export const signUp = (user, onSuccess, onErrors, reauthenticationCallback) => {
 export const logout = () => removeServiceToken();
 
 export const updateProfile = (user, onSuccess, onErrors) =>
-    appFetch(`/users/${user.id}`, fetchConfig("PUT", user), onSuccess, onErrors);
+    appFetch(`/users/${user.id}`, fetchConfig("PUT", {
+        id: user.id,
+        userName: user.userName,
+        firstName: user.firstName,
+        lastName: user.lastName
+    }), onSuccess, onErrors);
+
 
 export const uploadUserImage = (user, file, onSuccess) =>
     appFetch(`/users/addImage/${user.id}`, fetchConfig("PUT", file), onSuccess);

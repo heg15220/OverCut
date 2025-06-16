@@ -22,9 +22,9 @@ const UpdateProfile = () => {
         dispatch(actions.updateProfile(
             {
                 id: user.id,
+                userName: data.userName.trim(),
                 firstName: data.firstName.trim(),
-                lastName: data.lastName.trim(),
-                email: data.email.trim(),
+                lastName: data.lastName.trim()
             },
             () => navigate('/'),
             errors => setBackendErrors(errors)
@@ -76,14 +76,15 @@ const UpdateProfile = () => {
                             helperText={errors.lastName && <FormattedMessage id='project.global.validator.required' />}
                         />
                         <TextField
-                            {...register("email", { required: true })}
-                            label={<FormattedMessage id="project.global.fields.email" />}
+                            {...register("userName", { required: true })}
+                            label={<FormattedMessage id="project.global.fields.userName" />}
                             variant="outlined"
                             fullWidth
                             margin="normal"
-                            error={errors.email}
-                            helperText={errors.email && <FormattedMessage id='project.global.validator.email' />}
+                            error={errors.userName}
+                            helperText={errors.userName && <FormattedMessage id='project.global.validator.required' />}
                         />
+
                         <Button type="submit" variant="contained" color="primary" sx={{ marginTop: 2 }}>
                             <FormattedMessage id="project.global.buttons.UpdateProfile" />
                         </Button>
@@ -97,7 +98,7 @@ const UpdateProfile = () => {
                             <FormattedMessage id="project.global.buttons.save" />
                         </Button>
                     </form>
-                    {backendErrors && (
+                    {Array.isArray(backendErrors) && (
                         <Alert severity="error" onClose={() => setBackendErrors(null)}>
                             <AlertTitle><FormattedMessage id="project.global.errors.title" /></AlertTitle>
                             {backendErrors.map((error, index) => (
@@ -105,6 +106,7 @@ const UpdateProfile = () => {
                             ))}
                         </Alert>
                     )}
+
                     {completedImage && (
                         <Alert severity="success" onClose={() => setCompletedImage(null)}>
                             <FormattedMessage id="project.user.addImage" />

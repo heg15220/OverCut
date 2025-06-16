@@ -196,19 +196,19 @@ public class UserServiceImpl implements UserService{
      * @param id        the id
      * @param firstName the first name
      * @param lastName  the last name
-     * @param email     the email
+     * @param userName  the userName
      * @return the user
      * @throws InstanceNotFoundException the instance not found exception
      */
     @Override
-    public User updateProfile(Long id, String firstName, String lastName, String email)
+    public User updateProfile(Long id, String userName, String firstName, String lastName)
             throws InstanceNotFoundException {
 
         User user = permissionChecker.checkUser(id);
 
+        user.setUserName(userName);
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setEmail(email);
 
         return user;
 

@@ -73,11 +73,11 @@ public interface UserService {
      * @param id the id
      * @param firstName the first name
      * @param lastName the last name
-     * @param email the email
+     * @param userName the userName
      * @return the user
      * @throws InstanceNotFoundException the instance not found exception
      */
-    User updateProfile(Long id, String firstName, String lastName, String email) throws InstanceNotFoundException;
+    User updateProfile(Long id, String userName, String firstName, String lastName) throws InstanceNotFoundException;
 
     int getAmountOfPointsInAllQuiz(Long userId) throws InstanceNotFoundException;
     Map<UserRank, List<RankedUserDto>> getAllUsersGroupedByRank();

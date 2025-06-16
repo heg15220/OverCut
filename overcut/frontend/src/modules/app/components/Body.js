@@ -6,6 +6,7 @@ import './App.css'
 import users, { Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout} from '../../users';
 import RankingPage from '../../users/components/RankingPage';
 import EmailVerificationPage from '../../users/components/EmailVerificationPage';
+import EmailConfirmationPending from '../../users/components/EmailConfirmationPending';
 import Home from "./Home";
 import {Quiz} from "../../quiz";
 import QuizList from "../../quiz/components/QuizList";
@@ -135,6 +136,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/categoryGame" element={<CategoryGame />} />}
                     <Route path="/minigames/wordSearch" element={<WordSearchGame />} />
                     <Route path="/verify-email" element={<EmailVerificationPage />} />
+                    <Route path="/email-confirmation" element={<EmailConfirmationPending />} />
 
                 </Route>
             </Routes>

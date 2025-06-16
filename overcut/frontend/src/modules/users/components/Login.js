@@ -10,26 +10,12 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-function Copyright(props) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
 
 const defaultTheme = createTheme();
 
@@ -76,7 +62,7 @@ const Login = () => {
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Login
+                        <FormattedMessage id="project.users.Login.title" defaultMessage="Iniciar sesión" />
                     </Typography>
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                         <TextField
@@ -84,7 +70,7 @@ const Login = () => {
                             required
                             fullWidth
                             id="email"
-                            label="Email Address"
+                            label={<FormattedMessage id="project.global.fields.email" defaultMessage="Correo electrónico" />}
                             name="email"
                             autoComplete="email"
                             autoFocus
@@ -96,7 +82,7 @@ const Login = () => {
                             required
                             fullWidth
                             name="password"
-                            label="Password"
+                            label={<FormattedMessage id="project.global.fields.password" defaultMessage="Contraseña" />}
                             type="password"
                             id="password"
                             autoComplete="current-password"
@@ -105,7 +91,7 @@ const Login = () => {
                         />
                         <FormControlLabel
                             control={<Checkbox value="remember" color="primary" />}
-                            label="Remember me"
+                            label={<FormattedMessage id="project.users.Login.rememberMe" defaultMessage="Recuérdame" />}
                         />
                         <Button
                             type="submit"
@@ -113,30 +99,25 @@ const Login = () => {
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Sign In
+                            <FormattedMessage id="project.global.buttons.login" defaultMessage="Iniciar sesión" />
                         </Button>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link className="dropdown-item" to="/users/login#/users/change-password">
-                                    <FormattedMessage id="project.users.ChangePassword.title" />
-                                </Link>
-                            </Grid>
+
+                        <Grid container justifyContent="center">
                             <Grid item>
-                                <Link to="/#/users/signUp" variant="body2" className="btn btn-link">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link to="/users/login#/users/signUp" variant="body2" className="btn btn-link">
-                                    {"Want to change your profile? UpdateProfile"}
-                                </Link>
+                                <Button
+                                    onClick={() => navigate('/users/signUp')}
+                                    sx={{ textTransform: 'none' }}
+                                >
+                                    <FormattedMessage
+                                        id="project.users.Login.signUpPrompt"
+                                        defaultMessage="¿No tienes una cuenta? Regístrate"
+                                    />
+                                </Button>
                             </Grid>
                         </Grid>
-
-
+                        {backendErrors && <Errors errors={backendErrors} />}
                     </Box>
                 </Box>
-                <Copyright sx={{ mt: 8, mb: 4 }} />
             </Container>
         </ThemeProvider>
     );

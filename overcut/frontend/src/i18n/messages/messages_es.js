@@ -128,6 +128,14 @@ const es = {
     'quiz.result.back': 'Volver al inicio',
     'project.users.CreateJournalist.title': 'Registrar Periodista',
     'project.app.Header.ranking': 'Ranking',
+    'project.users.EmailConfirmationPending.title': '¡Registro completado!',
+    'project.users.EmailConfirmationPending.message': 'Revisa tu correo electrónico y activa tu cuenta desde el enlace recibido para poder iniciar sesión.',
+    'project.users.Login.title': 'Iniciar sesión',
+    'project.users.Login.rememberMe': 'Recuérdame',
+    'project.global.buttons.login': 'Iniciar sesión',
+    'project.users.Login.signUpPrompt': '¿No tienes una cuenta? Regístrate',
+    'project.users.UpdateProfile.title': 'Actualizar Perfil',
+    'project.user.addImage': 'Añadir Imagen',
 
 }
 export default es;
