@@ -142,6 +142,11 @@ const es = {
     "validation.password.number": "Al menos un número",
     "validation.password.special": "Al menos un carácter especial",
     "project.global.validator.passwordsDoNotMatch": "Contraseña no válida",
+    "project.emailVerification.loading": "Verificando tu cuenta...",
+    "project.emailVerification.success": "¡Tu cuenta ha sido activada correctamente!",
+    "project.emailVerification.loginButton": "Iniciar sesión",
+    "project.emailVerification.invalidOrExpired": "Enlace de verificación no válido o expirado",
+    "project.emailVerification.goBack": "Volver a la página principal",
 
 }
 export default es;

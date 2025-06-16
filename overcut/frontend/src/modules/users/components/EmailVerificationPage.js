@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
+import { FormattedMessage } from "react-intl";
 
 const EmailVerificationPage = () => {
   const [status, setStatus] = useState("loading"); // loading | success | error
@@ -48,7 +49,12 @@ const EmailVerificationPage = () => {
       return (
         <>
           <CircularProgress sx={{ mb: 2 }} />
-          <Typography variant="h6">Verificando tu cuenta...</Typography>
+          <Typography variant="h6">
+            <FormattedMessage
+              id="project.emailVerification.loading"
+              defaultMessage="Verificando tu cuenta..."
+            />
+          </Typography>
         </>
       );
     }
@@ -58,7 +64,10 @@ const EmailVerificationPage = () => {
         <>
           <CheckCircleIcon sx={{ fontSize: 60, color: "green", mb: 2 }} />
           <Typography variant="h5" fontWeight="bold">
-            ¡Tu cuenta ha sido activada correctamente!
+            <FormattedMessage
+              id="project.emailVerification.success"
+              defaultMessage="¡Tu cuenta ha sido activada correctamente!"
+            />
           </Typography>
           <Button
             variant="contained"
@@ -66,7 +75,10 @@ const EmailVerificationPage = () => {
             sx={{ mt: 3 }}
             onClick={() => navigate("/users/login")}
           >
-            Iniciar sesión
+            <FormattedMessage
+              id="project.emailVerification.loginButton"
+              defaultMessage="Iniciar sesión"
+            />
           </Button>
         </>
       );
@@ -77,7 +89,10 @@ const EmailVerificationPage = () => {
         <>
           <ErrorIcon sx={{ fontSize: 60, color: "red", mb: 2 }} />
           <Typography variant="h5" fontWeight="bold">
-            Enlace de verificación no válido o expirado
+            <FormattedMessage
+              id="project.emailVerification.invalidOrExpired"
+              defaultMessage="Enlace de verificación no válido o expirado"
+            />
           </Typography>
           <Button
             variant="outlined"
@@ -85,7 +100,10 @@ const EmailVerificationPage = () => {
             sx={{ mt: 3 }}
             onClick={() => navigate("/")}
           >
-            Volver a la página principal
+            <FormattedMessage
+              id="project.emailVerification.goBack"
+              defaultMessage="Volver a la página principal"
+            />
           </Button>
         </>
       );

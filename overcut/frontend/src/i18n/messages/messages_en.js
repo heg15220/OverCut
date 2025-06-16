@@ -141,6 +141,11 @@ const en = {
     "validation.password.number": "At least one number",
     "validation.password.special": "At least one special character",
     "project.global.validator.passwordsDoNotMatch": "Password does not match",
+    "project.emailVerification.loading": "Verifying your account...",
+    "project.emailVerification.success": "Your account has been successfully activated!",
+    "project.emailVerification.loginButton": "Log in",
+    "project.emailVerification.invalidOrExpired": "Verification link is invalid or expired",
+    "project.emailVerification.goBack": "Return to homepage",
 
 }
 export default en;
