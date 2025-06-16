@@ -281,5 +281,11 @@ public class UserController {
         return userService.getAllUsersGroupedByRank();
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorsDto handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ErrorsDto(e.getMessage());
+    }
+
 
 }

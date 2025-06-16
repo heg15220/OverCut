@@ -60,6 +60,20 @@ public class UserServiceImpl implements UserService{
     private UserTransactionalHelper transactionalHelper;
 
 
+
+    private void validatePasswordStrength(String password) {
+        boolean hasUppercase = password.matches(".*[A-Z].*");
+        boolean hasNumber = password.matches(".*\\d.*");
+        boolean hasSpecial = password.matches(".*[!@#$%^&*(),.?\":{}|<>].*");
+        boolean hasLength = password.length() >= 8;
+
+        if (!(hasUppercase && hasNumber && hasSpecial && hasLength)) {
+            throw new IllegalArgumentException("Password must contain at least 8 characters, one uppercase letter, one number and one special character.");
+        }
+    }
+
+
+
     /**
      * Sign up.
      *
@@ -81,6 +95,8 @@ public class UserServiceImpl implements UserService{
         if (!emailSyntaxValidator.isEmailValid(user.getEmail())) {
             throw new InvalidEmailException("Invalid or unverifiable email address");
         }
+
+        validatePasswordStrength(user.getPassword());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setEmailVerified(false);

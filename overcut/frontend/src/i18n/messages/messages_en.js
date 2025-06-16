@@ -136,6 +136,11 @@ const en = {
     'project.global.buttons.login': 'Sign In',
     'project.users.Login.signUpPrompt': 'Do not have an account? Sign Up',
     'project.exceptions.IncorrectLoginException': 'Incorrect Login',
+    "validation.password.length": "At least 8 characters",
+    "validation.password.uppercase": "At least one uppercase letter",
+    "validation.password.number": "At least one number",
+    "validation.password.special": "At least one special character",
+    "project.global.validator.passwordsDoNotMatch": "Password does not match",
 
 }
 export default en;

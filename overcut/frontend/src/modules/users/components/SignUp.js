@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import * as userSelectors from '../selectors';
 import { FormattedMessage } from 'react-intl';
 import { Errors } from '../../common';
@@ -12,7 +11,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -21,6 +19,21 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const defaultTheme = createTheme();
+
+const validatePassword = (password) => {
+    const lengthCheck = password.length >= 8;
+    const uppercaseCheck = /[A-Z]/.test(password);
+    const numberCheck = /\d/.test(password);
+    const specialCharCheck = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    return {
+        valid: lengthCheck && uppercaseCheck && numberCheck && specialCharCheck,
+        lengthCheck,
+        uppercaseCheck,
+        numberCheck,
+        specialCharCheck
+    };
+};
 
 const SignUp = () => {
     const dispatch = useDispatch();
@@ -33,12 +46,24 @@ const SignUp = () => {
     const [email, setEmail] = useState('');
     const [backendErrors, setBackendErrors] = useState(null);
     const [passwordsDoNotMatch, setPasswordsDoNotMatch] = useState(false);
+    const [passwordValidation, setPasswordValidation] = useState({
+        valid: true,
+        lengthCheck: true,
+        uppercaseCheck: true,
+        numberCheck: true,
+        specialCharCheck: true
+    });
     const [journalist, setJournalist] = useState(false);
     const isAdmin = useSelector(userSelectors.isAdmin);
 
-
     const handleSubmit = event => {
         event.preventDefault();
+
+        const validation = validatePassword(password);
+        if (!validation.valid) {
+            setPasswordValidation(validation);
+            return;
+        }
 
         if (password !== confirmPassword) {
             setPasswordsDoNotMatch(true);
@@ -56,10 +81,8 @@ const SignUp = () => {
             },
             () => {
                 if (!isAdmin && !journalist) {
-                    // Usuario normal, mostrar mensaje de confirmación
                     navigate('/email-confirmation');
                 } else {
-                    // Admin o periodista: vuelve al inicio o a donde corresponda
                     navigate('/');
                 }
             },
@@ -69,8 +92,7 @@ const SignUp = () => {
                 dispatch(actions.logout());
             }
         ));
-
-    }
+    };
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -115,7 +137,26 @@ const SignUp = () => {
                                     id="password"
                                     autoComplete="new-password"
                                     value={password}
-                                    onChange={e => setPassword(e.target.value)}
+                                    onChange={e => {
+                                        const newPass = e.target.value;
+                                        setPassword(newPass);
+                                        setPasswordValidation(validatePassword(newPass));
+                                    }}
+                                    error={!passwordValidation.valid}
+                                    helperText={
+                                        !passwordValidation.valid && (
+                                            <ul style={{ margin: 0, paddingLeft: '20px', color: 'red' }}>
+                                                {!passwordValidation.lengthCheck &&
+                                                  <li><FormattedMessage id="validation.password.length" defaultMessage="Al menos 8 caracteres" /></li>}
+                                                {!passwordValidation.uppercaseCheck &&
+                                                  <li><FormattedMessage id="validation.password.uppercase" defaultMessage="Al menos una mayúscula" /></li>}
+                                                {!passwordValidation.numberCheck &&
+                                                  <li><FormattedMessage id="validation.password.number" defaultMessage="Al menos un número" /></li>}
+                                                {!passwordValidation.specialCharCheck &&
+                                                  <li><FormattedMessage id="validation.password.special" defaultMessage="Al menos un carácter especial" /></li>}
+                                            </ul>
+                                        )
+                                    }
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -188,11 +229,12 @@ const SignUp = () => {
                         >
                             <FormattedMessage id="project.global.buttons.save" />
                         </Button>
+                        {backendErrors && <Errors errors={backendErrors} />}
                     </Box>
                 </Box>
             </Container>
         </ThemeProvider>
     );
-}
+};
 
 export default SignUp;

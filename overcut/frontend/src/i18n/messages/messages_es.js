@@ -137,6 +137,11 @@ const es = {
     'project.users.UpdateProfile.title': 'Actualizar Perfil',
     'project.user.addImage': 'Añadir Imagen',
     'project.exceptions.IncorrectLoginException': 'Inicio sesión incorrecto',
+    "validation.password.length": "Al menos 8 caracteres",
+    "validation.password.uppercase": "Al menos una mayúscula",
+    "validation.password.number": "Al menos un número",
+    "validation.password.special": "Al menos un carácter especial",
+    "project.global.validator.passwordsDoNotMatch": "Contraseña no válida",
 
 }
 export default es;
