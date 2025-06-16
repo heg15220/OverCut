@@ -59,6 +59,7 @@ DROP TABLE IF EXISTS QuizCategory;
 DROP TABLE IF EXISTS QuizTypeTranslation;
 DROP TABLE IF EXISTS QuizType;
 DROP TABLE IF EXISTS Category;
+DROP TABLE IF EXISTS EmailVerificationToken;
 DROP TABLE IF EXISTS Users;
 
 
@@ -81,6 +82,15 @@ ALTER TABLE Users ADD CONSTRAINT UniqueEmail UNIQUE (email);
 
 ALTER TABLE Users ADD CONSTRAINT UniqueUserName UNIQUE (userName);
 
+ALTER TABLE Users ADD COLUMN emailVerified BOOLEAN DEFAULT FALSE;
+
+CREATE TABLE EmailVerificationToken (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    token VARCHAR(255) NOT NULL,
+    expiration TIMESTAMP NOT NULL,
+    userId BIGINT,
+    CONSTRAINT FK_User_EmailToken FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
+);
 
 
 

@@ -242,10 +242,18 @@ public class UserController {
     }
 
     @GetMapping("/verify-email")
-    public String verifyEmail(@RequestParam String token) throws InstanceNotFoundException {
-        String message = emailVerificationService.verifyEmail(token);
-        return message;
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
+        try {
+            String result = emailVerificationService.verifyEmail(token);
+            return ResponseEntity.ok(result);
+        } catch (InstanceNotFoundException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
+
+
+
 
     @PostMapping("/admin/createJournalist")
     public ResponseEntity<UserDto> createJournalist(

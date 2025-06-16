@@ -8,5 +8,9 @@ public interface EmailVerificationService {
 
     String verifyEmail(String token) throws InstanceNotFoundException;
 
+    String createTokenForUser(User user);
+    String getTokenByUser(User user);
+
+
 
 }

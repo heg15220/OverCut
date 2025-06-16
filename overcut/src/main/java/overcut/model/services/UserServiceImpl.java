@@ -53,11 +53,11 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private EmailSyntaxValidator emailSyntaxValidator;
 
-
-
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private UserTransactionalHelper transactionalHelper;
 
 
     /**
@@ -68,34 +68,40 @@ public class UserServiceImpl implements UserService{
      */
 
     @Override
-    public void signUp(User user) throws DuplicateInstanceException, InvalidEmailException
-    {
-        if(userDao.existsByUserName(user.getUserName())){
+    public void signUp(User user) throws DuplicateInstanceException, InvalidEmailException {
+
+        if (userDao.existsByUserName(user.getUserName())) {
             throw new DuplicateInstanceException("project.entities.user", user.getUserName());
         }
 
-        if(userDao.existsByEmail(user.getEmail())){
+        if (userDao.existsByEmail(user.getEmail())) {
             throw new DuplicateInstanceException("project.entities.user", user.getEmail());
         }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         if (!emailSyntaxValidator.isEmailValid(user.getEmail())) {
             throw new InvalidEmailException("Invalid or unverifiable email address");
         }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setEmailVerified(false);
+
         System.out.println(">>> Email recibido: '" + user.getEmail() + "'");
         System.out.println(">>> isEmailValid? " + emailSyntaxValidator.isEmailValid(user.getEmail()));
 
+        // 🧩 Se delega la transacción a otra clase
+        transactionalHelper.persistUserAndToken(user);
 
-        userDao.save(user);
-
-        try {
-            emailService.sendConfirmationEmail(user.getEmail(), user.getUserName());
-            System.out.println("✉️ Correo de confirmación enviado a " + user.getEmail());
-        } catch (Exception e) {
-            System.out.println("⚠️ No se pudo enviar el correo de confirmación: " + e.getMessage());
+        if (!user.isAdmin()) {
+            try {
+                String token = emailVerificationService.getTokenByUser(user); // ya guardado
+                emailService.sendConfirmationEmail(user.getEmail(), user.getUserName(), token);
+                System.out.println("✉️ Correo de confirmación enviado a " + user.getEmail());
+            } catch (Exception e) {
+                System.out.println("⚠️ No se pudo enviar el correo de confirmación: " + e.getMessage());
+            }
+        } else {
+            System.out.println("✅ Usuario admin activado automáticamente.");
         }
-
     }
 
     /**
@@ -112,6 +118,10 @@ public class UserServiceImpl implements UserService{
     public User login(String email, String password) throws IncorrectLoginException
     {
         Optional<User> user = userDao.findByEmail(email);
+
+        if (!user.get().isEmailVerified()) {
+            throw new IncorrectLoginException("Email not verified.", "email");
+        }
 
         if(user.isEmpty()){
             throw new IncorrectLoginException(email,password);

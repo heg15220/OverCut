@@ -32,6 +32,14 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        if (path.equals("/api/users/verify-email")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
         String authHeaderValue = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeaderValue == null || !authHeaderValue.startsWith("Bearer ")) {

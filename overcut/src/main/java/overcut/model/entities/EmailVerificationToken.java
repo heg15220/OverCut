@@ -44,8 +44,8 @@ public class EmailVerificationToken {
         this.token = token;
     }
 
-    @OneToOne
-    @JoinColumn(name = "userId", unique = true)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "userId", referencedColumnName = "id")
     public User getUser() {
         return user;
     }

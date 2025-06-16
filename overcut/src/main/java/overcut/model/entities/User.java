@@ -43,6 +43,9 @@ public class User {
     @Column(name = "admin")
     private boolean isAdmin;
 
+    @Column(name = "emailVerified")
+    private boolean emailVerified;
+
 
     private List<Post> posts;
 
@@ -55,6 +58,9 @@ public class User {
     private List<Award> awards;
 
     private List<UserNotification> userNotifications;
+
+    private List<EmailVerificationToken> emailTokens;
+
 
 
     /**
@@ -303,5 +309,22 @@ public class User {
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    @OneToMany(mappedBy = "user")
+    public List<EmailVerificationToken> getEmailTokens() {
+        return emailTokens;
+    }
+
+    public void setEmailTokens(List<EmailVerificationToken> emailTokens) {
+        this.emailTokens = emailTokens;
     }
 }

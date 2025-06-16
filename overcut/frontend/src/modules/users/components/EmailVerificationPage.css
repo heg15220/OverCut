@@ -1,0 +1,25 @@
+.email-verification-page {
+  padding: 2rem;
+  text-align: center;
+}
+
+.email-verification-page .success,
+.email-verification-page .error {
+  background-color: #f4f4f4;
+  padding: 2rem;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.email-verification-page h2 {
+  margin-bottom: 1rem;
+}
+
+.email-verification-page button {
+  padding: 0.7rem 1.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

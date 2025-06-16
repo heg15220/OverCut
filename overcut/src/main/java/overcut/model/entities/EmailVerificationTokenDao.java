@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface EmailVerificationTokenDao extends JpaRepository<EmailVerificationToken, Long> {
     Optional<EmailVerificationToken> findByToken(String token);
+    Optional<EmailVerificationToken> findByUserId(Long userId);
+
 }

@@ -3,8 +3,9 @@ import { Route, Routes } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import './App.css'
 
-import users, { Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout } from '../../users';
+import users, { Login, SignUp, UpdateProfile, ChangePassword, UserDetails, Logout} from '../../users';
 import RankingPage from '../../users/components/RankingPage';
+import EmailVerificationPage from '../../users/components/EmailVerificationPage';
 import Home from "./Home";
 import {Quiz} from "../../quiz";
 import QuizList from "../../quiz/components/QuizList";
@@ -133,6 +134,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/orderDrivers" element={<OrderDriverGame />} />}
                     {loggedIn && <Route path="/minigames/categoryGame" element={<CategoryGame />} />}
                     <Route path="/minigames/wordSearch" element={<WordSearchGame />} />
+                    <Route path="/verify-email" element={<EmailVerificationPage />} />
 
                 </Route>
             </Routes>

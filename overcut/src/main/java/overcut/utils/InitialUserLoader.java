@@ -3,6 +3,8 @@ package overcut.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import overcut.model.entities.User;
 import overcut.model.entities.UserDao;
@@ -11,6 +13,7 @@ import overcut.model.common.exceptions.DuplicateInstanceException;
 import overcut.model.services.exceptions.InvalidEmailException;
 
 @Component
+@Profile("!test")
 public class InitialUserLoader implements CommandLineRunner {
 
     @Autowired
