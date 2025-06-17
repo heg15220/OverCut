@@ -103,3 +103,18 @@ export const getUserRanking = (onSuccess, onErrors) => dispatch =>
             if (onErrors) onErrors(errors);
         }
     );
+
+export const requestPasswordChange = (
+    id,
+    oldPassword,
+    newPassword,
+    onSuccess,
+    onErrors
+) => dispatch =>
+    backend.userService.requestPasswordChange(
+        id,
+        oldPassword,
+        newPassword,
+        onSuccess,
+        onErrors
+    );

@@ -39,4 +39,28 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    public void sendPasswordChangeEmail(String toEmail, String userName, String token) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(toEmail);
+        helper.setSubject("🔐 Confirmación de cambio de contraseña / Password Change Confirmation");
+
+        String confirmationUrl = "http://localhost:3000/#/confirm-password-change?token=" + token;
+
+        String content = "<h2>Hola, " + userName + "</h2>" +
+                "<p>Has solicitado cambiar tu contraseña en OverCut. Para confirmar y aplicar el cambio, haz clic en el siguiente botón:</p>" +
+                "<a href=\"" + confirmationUrl + "\" " +
+                "style=\"display: inline-block; padding: 10px 20px; background-color: #FFC107; color: black; " +
+                "text-decoration: none; border-radius: 5px;\">Confirmar nueva contraseña</a>" +
+                "<hr>" +
+                "<h2>Hello, " + userName + "</h2>" +
+                "<p>You have requested to change your password on OverCut. To confirm and apply the change, click the button below:</p>" +
+                "<a href=\"" + confirmationUrl + "\" " +
+                "style=\"display: inline-block; padding: 10px 20px; background-color: #17A2B8; color: white; " +
+                "text-decoration: none; border-radius: 5px;\">Confirm new password</a>";
+
+        helper.setText(content, true);
+        mailSender.send(message);
+    }
 }

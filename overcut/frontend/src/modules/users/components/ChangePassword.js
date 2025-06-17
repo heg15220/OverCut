@@ -74,13 +74,15 @@ const ChangePassword = () => {
     }
 
     dispatch(
-      actions.changePassword(
+      actions.requestPasswordChange(
         user.id,
         oldPassword,
         newPassword,
-        () => navigate('/'),
+        () => {
+          // Mostrar mensaje de éxito o redirigir
+          navigate('/password-change-confirmation');
+        },
         errors => {
-          // Si es string único (por ejemplo, devuelto por ErrorsDto), conviértelo en array para .map()
           const errorList = Array.isArray(errors) ? errors : [errors];
 
           setBackendErrors(errorList);
@@ -93,9 +95,9 @@ const ChangePassword = () => {
 
           setIncorrectOldPassword(hasIncorrectPassword);
         }
-
       )
     );
+
 
   };
 

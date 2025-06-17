@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // ✅ Accesos públicos
                         .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/users/verify-email")).permitAll()
+                        .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/users/confirm-password-change")).permitAll()
                         .requestMatchers(mvc.pattern("/api/users/signUp")).permitAll()
                         .requestMatchers(mvc.pattern("/api/users/login")).permitAll()
                         .requestMatchers(mvc.pattern("/api/users/loginFromServiceToken")).permitAll()

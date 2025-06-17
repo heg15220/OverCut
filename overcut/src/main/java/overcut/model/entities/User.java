@@ -61,6 +61,8 @@ public class User {
 
     private List<EmailVerificationToken> emailTokens;
 
+    private List<PasswordChangeToken> passwordChangeTokens;
+
 
 
     /**
@@ -327,4 +329,14 @@ public class User {
     public void setEmailTokens(List<EmailVerificationToken> emailTokens) {
         this.emailTokens = emailTokens;
     }
+
+    @OneToMany(mappedBy = "user")
+    public List<PasswordChangeToken> getPasswordChangeTokens() {
+        return passwordChangeTokens;
+    }
+
+    public void setPasswordChangeTokens(List<PasswordChangeToken> passwordChangeTokens) {
+        this.passwordChangeTokens = passwordChangeTokens;
+    }
+
 }

@@ -1,11 +1,9 @@
 package overcut.model.services;
 
+import jakarta.mail.MessagingException;
 import overcut.model.common.exceptions.DuplicateInstanceException;
 import overcut.model.common.exceptions.InstanceNotFoundException;
-import overcut.model.entities.Assessment;
-import overcut.model.entities.AssessmentDao;
-import overcut.model.entities.User;
-import overcut.model.entities.UserDao;
+import overcut.model.entities.*;
 import overcut.model.services.exceptions.IncorrectLoginException;
 import overcut.model.services.exceptions.IncorrectPasswordException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +18,14 @@ import overcut.utils.EmailSyntaxValidator;
 import overcut.utils.UserRank;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.UUID;
+
 
 /**
  * The Class UserServiceImpl.
@@ -58,6 +59,9 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private UserTransactionalHelper transactionalHelper;
+
+    @Autowired
+    private PasswordChangeTokenDao passwordChangeTokenDao;
 
 
 
@@ -265,5 +269,50 @@ public class UserServiceImpl implements UserService{
                         TreeMap::new, Collectors.toList()));
     }
 
+    @Override
+    public void generatePasswordChangeRequest(Long userId, String oldPassword, String newPassword)
+            throws InstanceNotFoundException, IncorrectPasswordException, MessagingException {
+
+        User user = permissionChecker.checkUser(userId);
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new IncorrectPasswordException();
+        }
+
+        String token = UUID.randomUUID().toString();
+        PasswordChangeToken entity = new PasswordChangeToken();
+        entity.setToken(token);
+        entity.setUser(user);
+        entity.setExpiration(LocalDateTime.now().plusHours(1));
+        entity.setNewPassword(passwordEncoder.encode(newPassword));
+        entity.setUsed(false);
+
+        passwordChangeTokenDao.save(entity);
+        emailService.sendPasswordChangeEmail(user.getEmail(), user.getUserName(), token);
+    }
+
+
+    @Override
+    public void confirmPasswordChange(String token) throws InstanceNotFoundException {
+        System.out.println("✅ Entrando a confirmPasswordChange");
+        System.out.println("🔑 Token recibido: " + token);
+
+        PasswordChangeToken pct = passwordChangeTokenDao.findByToken(token)
+                .orElseThrow(() -> new InstanceNotFoundException("Token not found", token));
+
+        System.out.println("🔐 Token encontrado. isUsed: " + pct.isUsed() + ", expiration: " + pct.getExpiration());
+        System.out.println("🕒 Hora actual: " + LocalDateTime.now());
+
+        if (pct.isUsed() || pct.getExpiration().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token invalid or expired");
+        }
+
+        User user = pct.getUser();
+        user.setPassword(pct.getNewPassword());
+        pct.setUsed(true);
+
+        userDao.save(user);
+        passwordChangeTokenDao.save(pct);
+    }
 
 }

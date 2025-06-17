@@ -9,6 +9,9 @@ import EmailVerificationPage from '../../users/components/EmailVerificationPage'
 import EmailConfirmationPending from '../../users/components/EmailConfirmationPending';
 import UserDetails from '../../users/components/UserDetails';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
+import ConfirmPasswordChangePage from '../../users/components/ConfirmPasswordChangePage';
+import PasswordChangeConfirmationPage from '../../users/components/PasswordChangeConfirmationPage';
+
 
 import Home from "./Home";
 import {Quiz} from "../../quiz";
@@ -141,7 +144,8 @@ const Body = () => {
                     <Route path="/verify-email" element={<EmailVerificationPage />} />
                     <Route path="/email-confirmation" element={<EmailConfirmationPending />} />
                     {loggedIn && <Route path="/users/profile" element={<UserDetails />} />}
-
+                    {loggedIn && <Route path="/confirm-password-change" element={<ConfirmPasswordChangePage />} />}
+                    {loggedIn && <Route path="/password-change-confirmation" element={<PasswordChangeConfirmationPage />} />}
                 </Route>
             </Routes>
         </div>

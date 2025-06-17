@@ -38,6 +38,10 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        if (path.equals("/api/users/confirm-password-change")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
 
         String authHeaderValue = request.getHeader(HttpHeaders.AUTHORIZATION);

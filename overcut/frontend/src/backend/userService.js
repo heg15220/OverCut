@@ -107,3 +107,17 @@ export const createJournalist = (user, onSuccess, onErrors) =>
 export const getUserRanking = (onSuccess, onErrors) => {
   appFetch("/users/ranking", fetchConfig("GET"), onSuccess, onErrors);
 };
+
+export const requestPasswordChange = (
+    id,
+    oldPassword,
+    newPassword,
+    onSuccess,
+    onErrors
+) =>
+    appFetch(
+        `/users/${id}/request-password-change`,
+        fetchConfig("POST", { oldPassword, newPassword }),
+        onSuccess,
+        onErrors
+    );

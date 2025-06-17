@@ -1,5 +1,6 @@
 package overcut.model.services;
 
+import jakarta.mail.MessagingException;
 import overcut.model.common.exceptions.DuplicateInstanceException;
 import overcut.model.common.exceptions.InstanceNotFoundException;
 import overcut.model.entities.User;
@@ -81,6 +82,11 @@ public interface UserService {
 
     int getAmountOfPointsInAllQuiz(Long userId) throws InstanceNotFoundException;
     Map<UserRank, List<RankedUserDto>> getAllUsersGroupedByRank();
+
+    void generatePasswordChangeRequest(Long userId, String oldPassword, String newPassword) throws
+            InstanceNotFoundException, IncorrectPasswordException,MessagingException;
+
+    void confirmPasswordChange(String token) throws InstanceNotFoundException;
 
 
 

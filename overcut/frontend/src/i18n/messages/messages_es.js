@@ -148,6 +148,10 @@ const es = {
     "project.emailVerification.invalidOrExpired": "Enlace de verificación no válido o expirado",
     "project.emailVerification.goBack": "Volver a la página principal",
     "project.global.errors.title": "Contraseña antigua incorrecta",
+    'project.users.confirmPasswordChange.success': '✅ Contraseña actualizada correctamente',
+    'project.users.confirmPasswordChange.error': '❌ Token inválido o expirado',
+    'project.global.buttons.backHome': 'Volver al inicio',
+    'project.users.passwordChangeRequested': 'Hemos enviado un correo de confirmación para aplicar el cambio de contraseña.',
 
 }
 export default es;

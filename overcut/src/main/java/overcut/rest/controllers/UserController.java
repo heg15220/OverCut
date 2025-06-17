@@ -1,5 +1,6 @@
 package overcut.rest.controllers;
 
+import jakarta.mail.MessagingException;
 import overcut.model.common.exceptions.DuplicateInstanceException;
 import overcut.model.common.exceptions.InstanceNotFoundException;
 import overcut.model.services.EmailVerificationService;
@@ -286,6 +287,35 @@ public class UserController {
     public ErrorsDto handleIllegalArgumentException(IllegalArgumentException e) {
         return new ErrorsDto(e.getMessage());
     }
+
+    @PostMapping("/{id}/request-password-change")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void requestPasswordChange(@RequestAttribute Long userId,
+                                      @PathVariable Long id,
+                                      @Validated @RequestBody ChangePasswordParamsDto params)
+            throws PermissionException, InstanceNotFoundException, IncorrectPasswordException, MessagingException {
+
+        if (!userId.equals(id)) {
+            throw new PermissionException();
+        }
+
+        userService.generatePasswordChangeRequest(id, params.getOldPassword(), params.getNewPassword());
+    }
+
+    @GetMapping("/confirm-password-change")
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<String> confirmPasswordChange(@RequestParam String token) {
+        try {
+            userService.confirmPasswordChange(token);
+            return ResponseEntity.ok("Password updated successfully.");
+        } catch (InstanceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token not found.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token.");
+        }
+    }
+
+
 
 
 }
