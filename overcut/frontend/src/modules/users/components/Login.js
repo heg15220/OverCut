@@ -48,78 +48,82 @@ const Login = () => {
 
     return (
         <ThemeProvider theme={defaultTheme}>
-            <Container component="main" maxWidth="xs">
-                <CssBaseline />
-                <Box
-                    sx={{
-                        marginTop: 8,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <LockOutlinedIcon />
-                    </Avatar>
-                    <Typography component="h1" variant="h5">
-                        <FormattedMessage id="project.users.Login.title" defaultMessage="Iniciar sesión" />
-                    </Typography>
-                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="email"
-                            label={<FormattedMessage id="project.global.fields.email" defaultMessage="Correo electrónico" />}
-                            name="email"
-                            autoComplete="email"
-                            autoFocus
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                        />
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            name="password"
-                            label={<FormattedMessage id="project.global.fields.password" defaultMessage="Contraseña" />}
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                        />
-                        <FormControlLabel
-                            control={<Checkbox value="remember" color="primary" />}
-                            label={<FormattedMessage id="project.users.Login.rememberMe" defaultMessage="Recuérdame" />}
-                        />
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2 }}
-                        >
-                            <FormattedMessage id="project.global.buttons.login" defaultMessage="Iniciar sesión" />
-                        </Button>
+          <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <Container component="main" maxWidth="xs" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CssBaseline />
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  width: '100%'
+                }}
+              >
+                <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                  <LockOutlinedIcon />
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                  <FormattedMessage id="project.users.Login.title" defaultMessage="Iniciar sesión" />
+                </Typography>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="email"
+                    label={<FormattedMessage id="project.global.fields.email" defaultMessage="Correo electrónico" />}
+                    name="email"
+                    autoComplete="email"
+                    autoFocus
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                  />
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label={<FormattedMessage id="project.global.fields.password" defaultMessage="Contraseña" />}
+                    type="password"
+                    id="password"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                  />
+                  <FormControlLabel
+                    control={<Checkbox value="remember" color="primary" />}
+                    label={<FormattedMessage id="project.users.Login.rememberMe" defaultMessage="Recuérdame" />}
+                  />
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2 }}
+                  >
+                    <FormattedMessage id="project.global.buttons.login" defaultMessage="Iniciar sesión" />
+                  </Button>
 
-                        <Grid container justifyContent="center">
-                            <Grid item>
-                                <Button
-                                    onClick={() => navigate('/users/signUp')}
-                                    sx={{ textTransform: 'none' }}
-                                >
-                                    <FormattedMessage
-                                        id="project.users.Login.signUpPrompt"
-                                        defaultMessage="¿No tienes una cuenta? Regístrate"
-                                    />
-                                </Button>
-                            </Grid>
-                        </Grid>
-                        {backendErrors && <Errors errors={backendErrors} />}
-                    </Box>
+                  <Grid container justifyContent="center">
+                    <Grid item>
+                      <Button
+                        onClick={() => navigate('/users/signUp')}
+                        sx={{ textTransform: 'none' }}
+                      >
+                        <FormattedMessage
+                          id="project.users.Login.signUpPrompt"
+                          defaultMessage="¿No tienes una cuenta? Regístrate"
+                        />
+                      </Button>
+                    </Grid>
+                  </Grid>
+
+                  {backendErrors && <Errors errors={backendErrors} />}
                 </Box>
+              </Box>
             </Container>
+          </Box>
         </ThemeProvider>
+
     );
 }
 

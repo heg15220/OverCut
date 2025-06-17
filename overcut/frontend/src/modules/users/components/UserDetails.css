@@ -1,13 +1,18 @@
 .user-card {
-  max-width: 900px;
-  margin: 2rem auto;
+  width: 100%;
+  max-width: 1100px;         /* antes 900px */
+  margin: 3rem auto;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   background-color: #fff;
   overflow: hidden;
   font-family: 'Segoe UI', sans-serif;
   color: #222;
+  min-height: 70vh;          /* añade esto para que se extienda verticalmente */
+  display: flex;
+  flex-direction: column;
 }
+
 
 .user-card-header {
   background-color: #9900FF;
@@ -21,17 +26,21 @@
 
 .user-card-body {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
   justify-content: space-between;
-  padding: 2rem;
-  gap: 1.5rem;
+  align-items: center;       /* ✨ alinea verticalmente ambos */
+  padding: 3rem;
+  gap: 2rem;
+  flex: 1;
 }
 
+
+
 .user-info {
-  flex: 1;
-  min-width: 250px;
+  flex: 1 1 50%;
+  min-width: 0;
   font-size: 1rem;
-  color: #f2f2f2; /* Texto general claro */
+  color: #f2f2f2;
 }
 
 .user-info p {
@@ -99,10 +108,14 @@
     width: 100%;
   }
 }
+
+
 .user-avatar {
+  flex: 1 1 50%;
+  min-width: 0;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
 
 .user-avatar img,
@@ -118,4 +131,12 @@
 .user-avatar img:hover,
 .user-avatar .user-avatar-placeholder:hover {
   transform: scale(1.05); /* Zoom suave al pasar el ratón */
+}
+
+.user-details-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centrar horizontalmente */
+  padding-top: 3rem;    /* mantener el contenido arriba */
 }

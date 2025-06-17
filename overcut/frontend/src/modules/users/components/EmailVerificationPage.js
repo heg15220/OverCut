@@ -111,12 +111,15 @@ const EmailVerificationPage = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={4} sx={{ mt: 10, p: 4, textAlign: "center", borderRadius: 3 }}>
-        {renderContent()}
-      </Paper>
-    </Container>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Container maxWidth="sm" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Paper elevation={4} sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
+          {renderContent()}
+        </Paper>
+      </Container>
+    </Box>
   );
+
 };
 
 export default EmailVerificationPage;
