@@ -55,12 +55,8 @@ public class EmailVerificationServiceImpl implements EmailVerificationService{
         user.setEmailVerified(true);
         userDao.save(user);
 
-        System.out.println("🔍 Token recibido: " + token);
-        System.out.println("🧪 Usuario verificado? " + user.isEmailVerified());
-        System.out.println("📆 Token expira: " + verificationToken.getExpiration());
 
         // ❌ No eliminamos el token, para permitir reusarlo (idempotencia)
-        // tokenDao.delete(verificationToken);
 
         return "Email verified.";
     }

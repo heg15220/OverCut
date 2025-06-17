@@ -147,6 +147,7 @@ const es = {
     "project.emailVerification.loginButton": "Iniciar sesión",
     "project.emailVerification.invalidOrExpired": "Enlace de verificación no válido o expirado",
     "project.emailVerification.goBack": "Volver a la página principal",
+    "project.global.errors.title": "Contraseña antigua incorrecta",
 
 }
 export default es;

@@ -146,6 +146,7 @@ const en = {
     "project.emailVerification.loginButton": "Log in",
     "project.emailVerification.invalidOrExpired": "Verification link is invalid or expired",
     "project.emailVerification.goBack": "Return to homepage",
+    "project.global.errors.title": "Incorrect old password",
 
 }
 export default en;
