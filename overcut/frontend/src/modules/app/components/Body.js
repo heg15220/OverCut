@@ -12,6 +12,7 @@ import UserDetailsLink from '../../users/components/UserDetailsLink';
 import ConfirmPasswordChangePage from '../../users/components/ConfirmPasswordChangePage';
 import PasswordChangeConfirmationPage from '../../users/components/PasswordChangeConfirmationPage';
 
+import AboutOvercut from './AboutOvercut';
 
 import Home from "./Home";
 import {Quiz} from "../../quiz";
@@ -146,6 +147,7 @@ const Body = () => {
                     {loggedIn && <Route path="/users/profile" element={<UserDetails />} />}
                     {loggedIn && <Route path="/confirm-password-change" element={<ConfirmPasswordChangePage />} />}
                     {loggedIn && <Route path="/password-change-confirmation" element={<PasswordChangeConfirmationPage />} />}
+                    <Route path="/about_us" element={<AboutOvercut />} />
                 </Route>
             </Routes>
         </div>

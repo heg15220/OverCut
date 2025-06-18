@@ -1,0 +1,84 @@
+.about-overcut-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0c0f1a, #1a2238);
+  color: #f1f1f1;
+  font-family: 'Segoe UI', sans-serif;
+  line-height: 1.7;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.about-title {
+  font-size: 2.4rem;
+  margin-bottom: 1.5rem;
+  color: #e10600;
+  text-align: center;
+}
+
+.about-paragraph {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: #e0e0e0;
+}
+
+/* Secciones principales */
+.about-overcut-container h3 {
+  font-size: 1.6rem;
+  color: #e10600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-left: 6px solid #e10600;
+  padding-left: 0.6rem;
+}
+
+/* Subtítulos */
+.about-overcut-container h4 {
+  font-size: 1.25rem;
+  color: #ffd700;
+  margin-top: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Listas de ejemplos */
+.about-overcut-container ul {
+  list-style: none;
+  padding-left: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.about-overcut-container ul li {
+  position: relative;
+  margin-bottom: 0.6rem;
+  padding-left: 1.2rem;
+  font-size: 1rem;
+  color: #f1f1f1;
+}
+
+.about-overcut-container ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #e10600;
+  font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-overcut-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .about-title {
+    font-size: 1.8rem;
+  }
+
+  .about-overcut-container h3 {
+    font-size: 1.4rem;
+  }
+
+  .about-overcut-container h4 {
+    font-size: 1.1rem;
+  }
+}
