@@ -18,10 +18,10 @@ VALUES ('Example Post Title', 'Example Post Subtitle', 'This is an example artic
 INSERT INTO Comment (content, userId,parent_comment, postId)
 VALUES ('This is a comment.', 1, NULL, 1);
 
-INSERT INTO QuizType (code,imagePath) VALUES ('Stats', 'f1-2013-11-bel-parrilla-trasera.jpg');
+INSERT INTO QuizType (code,imagePath) VALUES ('Stats', 'f1-2013-11-bel-parrilla-trasera.png');
 INSERT INTO QuizType (code,imagePath) VALUES ('Regulations', 'fia.jpg');
 INSERT INTO QuizType (code,imagePath) VALUES ('Pictures', 'coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg');
-INSERT INTO QuizType (code,imagePath) VALUES ('Strategy', 'parada-boxes-coche-carreras-formula-tripulacion-accion_771335-69432.jpg');
+INSERT INTO QuizType (code,imagePath) VALUES ('Strategy', 'parada-boxes-coche-carreras-formula-tripulacion-accion_771335-69432.png');
 INSERT INTO QuizType (code, imagePath) VALUES ('Physics', null);
 
 
@@ -148,7 +148,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Williams', false, 1);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('Which team did Nico Hulkenberg never race for?',
-'oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg', 2, 'en');
+null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Toro Rosso', true, 2);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Sauber', false, 2);
@@ -200,7 +200,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Williams', false, 7);
 -- Pregunta 2
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('¿Para qué equipo nunca corrió Nico Hulkenberg?',
-'oficial-hulkenberg-sustituye-a-vettel-para-el-gp-de-barein-2cafb8d1-1c37-4975-92e4-eb7e08504aed.jpg', 2, 'es');
+null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId) VALUES ('Toro Rosso', true, 8);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Sauber', false, 8);
