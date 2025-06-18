@@ -9,9 +9,9 @@ import { motion } from 'framer-motion';
 import { sourceImages } from '../../../helpers/sourceImages';
 
 const backgroundImages = [
-    './f1-2013-11-bel-parrilla-trasera.jpg',
-    './salida-gp-bahrein-2024-f1.jpg',
-    './mundial-f1.jpg'
+    './f1-2013-11-bel-parrilla-trasera.png',
+    './salida-gp-bahrein-2024-f1.png',
+    './mundial-f1.png'
 ];
 
 const Quiz = () => {
