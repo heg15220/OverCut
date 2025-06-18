@@ -5,7 +5,9 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./OrderDriverGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
-
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
 const OrderDriverGame = () => {
   const dispatch = useDispatch();
@@ -18,6 +20,10 @@ const OrderDriverGame = () => {
   const [correctSlots, setCorrectSlots] = useState([]);
   const [finished, setFinished] = useState(false);
 
+  const [showTutorial, setShowTutorial] = useState(true);
+  const lang = navigator.language.startsWith('es') ? 'es' : 'en';
+
+  const tutorial = tutorialTexts["/minigames/orderDrivers"][lang];
 
 
   const translations = {
@@ -62,6 +68,20 @@ const OrderDriverGame = () => {
       setCorrectSlots(Array(game.slots.length).fill(false));
     }
   }, [game]);
+
+
+      if (showTutorial) {
+              return (
+                <MinigameTutorial
+                  title={tutorial.title}
+                  description={tutorial.description}
+                  image={sourceImages("./OrderDriversGame.png")}
+                  onStart={() => setShowTutorial(false)}
+                  lang={lang}
+                />
+              );
+            }
+
 
 
   const usedDriverIds = ranking.filter(Boolean).map(driver => driver.driverId);

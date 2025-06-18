@@ -5,6 +5,9 @@ import * as selectors from '../selectors';
 import { useNavigate } from 'react-router-dom';
 import './DriversLinkGame.css';
 import LoadingScreen from '../../common/components/LoadingScreen';
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
 const DriversLinkGame = () => {
   const dispatch = useDispatch();
@@ -16,6 +19,10 @@ const DriversLinkGame = () => {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const suggestionsRef = useRef([]);
   const lang = navigator.language.startsWith('es') ? 'es' : 'en';
+
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/driverslink"][lang];
 
   const translations = {
     title: {
@@ -72,6 +79,18 @@ const DriversLinkGame = () => {
       });
     }
   }, [highlightedIndex]);
+
+      if (showTutorial) {
+        return (
+          <MinigameTutorial
+            title={tutorial.title}
+            description={tutorial.description}
+            image={sourceImages("./DriversLink.png")}
+            onStart={() => setShowTutorial(false)}
+            lang={lang}
+          />
+        );
+      }
 
   const handleGuess = () => {
     if (!guessInput.trim()) return;

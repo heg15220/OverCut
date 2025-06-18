@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import "./Top10Game.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+
 const Top10GameBoard = () => {
   const board = useSelector(getTop10Board);
   const validated = useSelector(getTop10Validated);

@@ -6,8 +6,12 @@ import * as selectors from "../selectors";
 import "./Guessdriver.css";
 import { useNavigate } from "react-router-dom";
 
-import { sourceImages } from '../../../helpers/sourceImages';
 import LoadingScreen from '../../common/components/LoadingScreen';
+
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+
 
 
 const GuessDriverGame = () => {
@@ -44,6 +48,9 @@ const GuessDriverGame = () => {
     loading: { es: "Cargando juego...", en: "Loading game..." }
   };
 
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/guessdriver"][lang];
 
   useEffect(() => {
     dispatch(actions.startGuessDriverGame());
@@ -81,6 +88,18 @@ const GuessDriverGame = () => {
   const visibleRecommendations = recommendations.filter(r =>
     r.toLowerCase().includes(value.toLowerCase())
   );
+
+   if (showTutorial) {
+    return (
+      <MinigameTutorial
+        title={tutorial.title}
+        description={tutorial.description}
+        image={sourceImages("./GuessDriver.png")}
+        onStart={() => setShowTutorial(false)}
+        lang={lang}
+      />
+    );
+  }
 
   const handleAskQuestion = () => {
     dispatch(actions.askQuestion({ gameId: game.id, category, value, lang }));

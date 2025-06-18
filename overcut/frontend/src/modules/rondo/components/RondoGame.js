@@ -5,6 +5,9 @@ import * as selectors from "../selectors";
 import { useNavigate } from "react-router-dom";
 import "./RondoGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
 
 const translations = {
@@ -50,6 +53,10 @@ const RondoGame = () => {
   const [answer, setAnswer] = useState("");
   const [isFinished, setIsFinished] = useState(false);
 
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/rondo"][lang];
+
   useEffect(() => {
     dispatch(actions.startRondoGame());
   }, [dispatch]);
@@ -66,6 +73,18 @@ const RondoGame = () => {
     setAnswer("");
     setCurrentIndex((currentIndex + 1) % letters.length);
   };
+
+      if (showTutorial) {
+              return (
+                <MinigameTutorial
+                  title={tutorial.title}
+                  description={tutorial.description}
+                  image={sourceImages("./Rondo.png")}
+                  onStart={() => setShowTutorial(false)}
+                  lang={lang}
+                />
+              );
+            }
 
   const handleFinish = () => {
     dispatch(actions.completeRondoGame(game.id));

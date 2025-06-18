@@ -1,0 +1,52 @@
+.tutorial-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0c0f1a, #1a2238);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* ⬅️ cambia esto */
+  padding: 3rem 1rem 2rem;      /* ⬅️ reduce margen superior e inferior */
+  color: #fff;
+  text-align: center;
+  animation: fadeIn 0.8s ease-in;
+}
+
+
+
+.tutorial-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #e10600;
+}
+
+.tutorial-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tutorial-image {
+  max-width: 75%;         /* entre el anterior 90% y 60% */
+  max-height: 440px;      /* altura controlada sin ser tan limitada */
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  object-fit: contain;
+}
+
+
+.tutorial-description {
+  font-size: 1.1rem;
+  max-width: 700px;
+}
+
+.start-button {
+  margin-top: 1.5rem;
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  background-color: #ffd700;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}

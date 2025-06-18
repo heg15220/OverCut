@@ -5,12 +5,16 @@ import * as actions from '../actions';
 import * as selectors from '../selectors';
 import './WordleGame.css';
 import LoadingScreen from '../../common/components/LoadingScreen';
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
 const WordleGame = () => {
   const dispatch = useDispatch();
   const game = useSelector(selectors.getF1WordleGame);
   const [guess, setGuess] = useState('');
   const navigate = useNavigate();
+
 
   const lang = navigator.language.startsWith('es') ? 'es' : 'en';
   const t = {
@@ -23,10 +27,25 @@ const WordleGame = () => {
   };
 
   const inputRefs = useRef([]);
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/wordle"][lang];
 
   useEffect(() => {
     dispatch(actions.startWordleGame());
   }, [dispatch]);
+
+  if (showTutorial) {
+        return (
+          <MinigameTutorial
+            title={tutorial.title}
+            description={tutorial.description}
+            image={sourceImages("./F1Wordle.png")}
+            onStart={() => setShowTutorial(false)}
+            lang={lang}
+          />
+        );
+      }
 
   const handleGuess = () => {
     if (guess.trim()) {

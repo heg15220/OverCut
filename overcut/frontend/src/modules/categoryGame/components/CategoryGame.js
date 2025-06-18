@@ -5,6 +5,10 @@ import * as selectors from "../selectors";
 import { useNavigate } from "react-router-dom";
 import "./CategoryGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+
 
 const CategoryGame = () => {
   const dispatch = useDispatch();
@@ -12,6 +16,10 @@ const CategoryGame = () => {
   const [answers, setAnswers] = useState({});
   const navigate = useNavigate();
   const lang = navigator.language.startsWith("es") ? "es" : "en";
+
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/categoryGame"][lang];
 
   useEffect(() => {
     dispatch(actions.startGame(lang));
@@ -36,6 +44,19 @@ const CategoryGame = () => {
       setAnswers(updatedAnswers);
     }
   }, [game]);
+
+
+    if (showTutorial) {
+        return (
+          <MinigameTutorial
+            title={tutorial.title}
+            description={tutorial.description}
+            image={sourceImages("./CategoryGame.png")}
+            onStart={() => setShowTutorial(false)}
+            lang={lang}
+          />
+        );
+      }
 
   if (!game) return <LoadingScreen lang={lang} text={lang === 'es' ? 'Cargando juego...' : 'Loading game...'} />;
 

@@ -5,6 +5,9 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./F1ImpostorGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
 const F1ImpostorGame = () => {
   const dispatch = useDispatch();
@@ -12,6 +15,10 @@ const F1ImpostorGame = () => {
   const game = useSelector(selectors.getGame);
   const [selected, setSelected] = useState([]);
   const lang = navigator.language.startsWith("es") ? "es" : "en";
+
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/f1Impostor"][lang];
 
   const translations = {
     title: {
@@ -47,6 +54,18 @@ const F1ImpostorGame = () => {
   useEffect(() => {
     dispatch(actions.startF1ImpostorGame());
   }, [dispatch]);
+
+    if (showTutorial) {
+      return (
+        <MinigameTutorial
+          title={tutorial.title}
+          description={tutorial.description}
+          image={sourceImages("./F1Impostors.png")}
+          onStart={() => setShowTutorial(false)}
+          lang={lang}
+        />
+      );
+    }
 
   if (!game) return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
 

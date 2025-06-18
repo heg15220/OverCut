@@ -6,6 +6,9 @@ import TeamLogo from './TeamLogo';
 import { useNavigate } from 'react-router-dom';
 import './TeamGuessGame.css';
 import LoadingScreen from '../../common/components/LoadingScreen';
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
 
 const TeamGuessGame = () => {
@@ -17,6 +20,10 @@ const TeamGuessGame = () => {
   const suggestionsRef = useRef([]);
   const navigate = useNavigate();
   const lang = navigator.language.startsWith('es') ? 'es' : 'en';
+
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/teamGuess"][lang];
 
   const translations = {
     title: { es: '🏁 Adivina el equipo', en: '🏁 Guess the Team' },
@@ -45,6 +52,19 @@ const TeamGuessGame = () => {
       suggestionsRef.current[highlightedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [highlightedIndex]);
+
+
+    if (showTutorial) {
+            return (
+              <MinigameTutorial
+                title={tutorial.title}
+                description={tutorial.description}
+                image={sourceImages("./GuessTeam.png")}
+                onStart={() => setShowTutorial(false)}
+                lang={lang}
+              />
+            );
+          }
 
   const handleGuess = () => {
     if (!guessInput.trim()) return;

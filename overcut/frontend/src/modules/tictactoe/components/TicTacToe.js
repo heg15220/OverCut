@@ -6,6 +6,9 @@ import { Container, Typography, Button, Stack } from '@mui/material';
 import { motion } from 'framer-motion';
 import { translations } from '../../../i18n/tictactoe/translations';
 import './TicTacToe.css';
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
 const TicTacToe = () => {
   const navigate = useNavigate();
@@ -16,6 +19,10 @@ const TicTacToe = () => {
 
   const [step, setStep] = useState(1);
   const [selectedMode, setSelectedMode] = useState(null);
+
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/tictactoe"][lang];
 
   const handleModeSelect = (mode) => {
     setSelectedMode(mode);
@@ -44,6 +51,18 @@ const TicTacToe = () => {
       () => alert('Error creando partida')
     ));
   };
+
+  if (showTutorial) {
+          return (
+            <MinigameTutorial
+              title={tutorial.title}
+              description={tutorial.description}
+              image={sourceImages("./tictactoe.png")}
+              onStart={() => setShowTutorial(false)}
+              lang={lang}
+            />
+          );
+        }
 
   return (
     <Container maxWidth="sm" className="tictactoe-container">

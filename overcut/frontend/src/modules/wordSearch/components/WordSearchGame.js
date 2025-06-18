@@ -5,6 +5,9 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./WordSearchGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
 // ...importaciones y setup iguales...
 
@@ -43,10 +46,26 @@ const WordSearchGame = () => {
   const [revealed, setRevealed] = useState(false);
   const gridRef = useRef(null);
 
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/wordSearch"][lang];
+
   useEffect(() => {
     dispatch(actions.startWordSearchGame());
     dispatch({ type: "wordSearch/resetFoundWords" });
   }, [dispatch]);
+
+    if (showTutorial) {
+      return (
+        <MinigameTutorial
+          title={tutorial.title}
+          description={tutorial.description}
+          image={sourceImages("./searchGame.png")}
+          onStart={() => setShowTutorial(false)}
+          lang={lang}
+        />
+      );
+    }
 
   const keyFor = (row, col) => `${row},${col}`;
 

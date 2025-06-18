@@ -7,6 +7,10 @@ import { useNavigate } from 'react-router-dom';
 import './TwoTeamsGame.css';
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+
 
 const TwoTeamsGame = () => {
   const dispatch = useDispatch();
@@ -52,6 +56,10 @@ const TwoTeamsGame = () => {
     }
   };
 
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/twoTeams"][lang];
+
   useEffect(() => {
     dispatch(actions.startTwoTeamsGame());
   }, [dispatch]);
@@ -72,6 +80,18 @@ const TwoTeamsGame = () => {
     const timer = setTimeout(() => setAnimateFlip(true), 50); // breve pausa para reiniciar la animación
     return () => clearTimeout(timer);
   }, [game?.currentPairIndex]);
+
+    if (showTutorial) {
+            return (
+              <MinigameTutorial
+                title={tutorial.title}
+                description={tutorial.description}
+                image={sourceImages("./TwoTeams.png")}
+                onStart={() => setShowTutorial(false)}
+                lang={lang}
+              />
+            );
+          }
 
 
   const handleGuess = () => {

@@ -6,6 +6,10 @@ import * as selectors from "../selectors";
 import { useMemo } from "react";
 import "./DriversConnectionsGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+
 
 const categoryColors = [
   "#1e88e5", // Blue
@@ -55,9 +59,15 @@ const DriversConnectionsGame = () => {
   const t = translations[lang];
 
 
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  const tutorial = tutorialTexts["/minigames/driversConnections"][lang];
+
   useEffect(() => {
     dispatch(actions.startConnectionsGame());
   }, [dispatch]);
+
+
 
   const toggleDriver = (name) => {
     if (selectedDrivers.includes(name)) {
@@ -130,6 +140,18 @@ const DriversConnectionsGame = () => {
       .filter(d => !solvedGroups.some(cat => cat.pilots.some(p => p.driverName === d.driverName)))
       .sort(() => Math.random() - 0.5);
   }, [game, solvedGroups]);
+
+    if (showTutorial) {
+        return (
+          <MinigameTutorial
+            title={tutorial.title}
+            description={tutorial.description}
+            image={sourceImages("./DriversConnection.png")}
+            onStart={() => setShowTutorial(false)}
+            lang={lang}
+          />
+        );
+      }
 
   if (!game) return <LoadingScreen lang={lang} text={t.loading} />;
 

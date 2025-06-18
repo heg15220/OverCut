@@ -6,11 +6,14 @@ import { FormattedMessage } from 'react-intl';
 import { Button, Grid, Typography, Paper, Box } from "@mui/material";
 import { motion } from "framer-motion";
 import "./Crossword.css";
-import { sourceImages } from "../../../helpers/sourceImages";
 import CrosswordBoard from "./CrosswordBoard";
 import CrosswordClues from "./CrosswordClues";
 import { useNavigate } from "react-router-dom";
 import LoadingScreen from '../../common/components/LoadingScreen';
+
+import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
 const DEFAULT_ROWS = 10;
 const DEFAULT_COLS = 10;
@@ -23,6 +26,13 @@ const Crossword = () => {
     const browserLang = navigator.language.startsWith("es") ? "es" : "en";
     const [language, setLanguage] = useState(browserLang);
     const navigate = useNavigate();
+
+    const lang = navigator.language.startsWith("es") ? "es" : "en";
+
+   const [showTutorial, setShowTutorial] = useState(true);
+
+   const tutorial = tutorialTexts["/minigames/crossword"][lang];
+
 
 
     // Crear nueva partida al entrar
@@ -43,6 +53,17 @@ const Crossword = () => {
     }, [dispatch]);
 
 
+    if (showTutorial) {
+        return (
+          <MinigameTutorial
+            title={tutorial.title}
+            description={tutorial.description}
+            image={sourceImages("./crossword.png")}
+            onStart={() => setShowTutorial(false)}
+            lang={lang}
+          />
+        );
+      }
 
     if (!game || !cells || !words) {
         return <LoadingScreen lang={language} text={language === 'es' ? 'Cargando crucigrama...' : 'Loading crossword...'} />;
