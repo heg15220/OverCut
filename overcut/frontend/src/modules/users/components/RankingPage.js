@@ -59,6 +59,7 @@ const RankingPage = () => {
   }, [dispatch]);
 
   return (
+    <div className="ranking-wrapper">
     <div className="ranking-container">
       <h2 className="ranking-title">{t.title}</h2>
       {rankOrder.map((rank) => {
@@ -99,6 +100,7 @@ const RankingPage = () => {
           </div>
         );
       })}
+    </div>
     </div>
   );
 };

@@ -109,7 +109,7 @@ const es = {
     'project.entities.Quiz.Result': 'Resultados',
     'project.entities.Award.Result.Achieved': '¡Enhorabuena! ¡Has canjeado la recompensa!',
     'project.entities.Award.Result.ButtonHome': 'Ir a mi lista de recompensas canjeadas',
-    'project.app.Header.minigames': 'Minijuegos',
+    'project.app.Header.minigames': 'OverCutGames',
     'crossword.title': 'Crucigrama de Fórmula 1',
     'crossword.subtitle': 'Rellena todas las palabras y demuestra que conoces la historia de la F1',
     'crossword.reset': 'Reiniciar crucigrama',

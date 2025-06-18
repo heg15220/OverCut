@@ -110,7 +110,7 @@ const en = {
     'project.entities.Quiz.Result': 'Results',
     'project.entities.Award.Result.Achieved': 'Well done! You achieved the award!',
     'project.entities.Award.Result.ButtonHome': 'Go to my awards list',
-    'project.app.Header.minigames': 'MiniGames',
+    'project.app.Header.minigames': 'OverCutGames',
     'crossword.title': 'Formula 1 Crossword',
     'crossword.subtitle': 'Fill in all the words and prove you know F1 history',
     'crossword.reset': 'Reset crossword',

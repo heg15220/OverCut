@@ -8,6 +8,9 @@ import { useNavigate } from "react-router-dom";
 
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+import helmetSilhouette from '../../../assets/images/helmet_silhouette.png';
+
+
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
@@ -124,7 +127,7 @@ const GuessDriverGame = () => {
             <div className="helmet-reveal-container">
               <div className={`helmet-flip ${game.finished ? "reveal" : ""}`}>
                 <img
-                  src={sourceImages(`./helmet_silhouette.png`)}
+                  src={helmetSilhouette}
                   alt="Casco"
                   className="guessPlayerImage"
                 />
