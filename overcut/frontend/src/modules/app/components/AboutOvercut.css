@@ -1,39 +1,55 @@
 .about-overcut-container {
+  width: 100%;
   max-width: 1000px;
-  margin: 2rem auto;
+  margin-top: 0;
   padding: 2rem;
   border-radius: 16px;
-  background: linear-gradient(135deg, #0c0f1a, #1a2238);
+  background: linear-gradient(135deg, #101d3f, #1c2b4d);
   color: #f1f1f1;
   font-family: 'Segoe UI', sans-serif;
   line-height: 1.7;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
+
+.about-overcut-wrapper {
+  background: linear-gradient(135deg, #101d3f, #1c2b4d);
+  min-height: 100vh;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+
 
 .about-title {
   font-size: 2.4rem;
   margin-bottom: 1.5rem;
-  color: #e10600;
+  color: #ffffff;
   text-align: center;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
 
+/* Párrafos introductorios */
 .about-paragraph {
   font-size: 1.1rem;
   margin-bottom: 2rem;
   color: #e0e0e0;
 }
 
-/* Secciones principales */
+/* Títulos de sección */
 .about-overcut-container h3 {
   font-size: 1.6rem;
-  color: #e10600;
+  color: #ffffff;
   margin-top: 2rem;
   margin-bottom: 1rem;
   border-left: 6px solid #e10600;
   padding-left: 0.6rem;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
 }
 
-/* Subtítulos */
+/* Subtítulos (categorías dentro de secciones) */
 .about-overcut-container h4 {
   font-size: 1.25rem;
   color: #ffd700;
@@ -41,7 +57,7 @@
   margin-bottom: 0.5rem;
 }
 
-/* Listas de ejemplos */
+/* Listas */
 .about-overcut-container ul {
   list-style: none;
   padding-left: 1rem;

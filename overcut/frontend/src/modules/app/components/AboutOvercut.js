@@ -165,6 +165,7 @@ const AboutOvercut = () => {
   const t = translations[lang].about;
 
   return (
+  <div className="about-overcut-wrapper">
     <div className="about-overcut-container">
       <h2 className="about-title">{t.title}</h2>
       <p className="about-paragraph">{t.intro}</p>
@@ -233,6 +234,7 @@ const AboutOvercut = () => {
         <li>{t.f1hub.chartExamples4}</li>
         <li>{t.f1hub.chartExamples5}</li>
       </ul>
+    </div>
     </div>
   );
 };
