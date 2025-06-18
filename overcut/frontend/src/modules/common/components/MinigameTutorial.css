@@ -12,12 +12,13 @@
 }
 
 
-
 .tutorial-title {
   font-size: 2rem;
   margin-bottom: 1rem;
-  color: #e10600;
+  color: #ffffff; /* mismo color que .highlight */
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
 }
+
 
 .tutorial-content {
   display: flex;
