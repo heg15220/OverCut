@@ -38,7 +38,9 @@ public class TikiTakaGameBoardDtoConversor {
                 game.getStatus(),
                 cellsDtos,
                 rowCriteriaDtos,
-                columnCriteriaDtos
+                columnCriteriaDtos,
+                game.isGridMode()
         );
+
     }
 }

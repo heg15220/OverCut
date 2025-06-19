@@ -24,7 +24,8 @@ public class TikiTakaCriteriaDtoConversor {
                 game.getStatus(),
                 TikiTakaCellDtoConversor.toTikiTakaCellDtos(game.getCells()),
                 TikiTakaCriteriaDtoConversor.toTikiTakaCriteriaDtos(rowCriteria),
-                TikiTakaCriteriaDtoConversor.toTikiTakaCriteriaDtos(columnCriteria)
+                TikiTakaCriteriaDtoConversor.toTikiTakaCriteriaDtos(columnCriteria),
+                game.isGridMode()
         );
     }
     public static List<TikiTakaCriteriaDto> toTikiTakaCriteriaDtos(List<TikiTakaCriteria> criteria) {

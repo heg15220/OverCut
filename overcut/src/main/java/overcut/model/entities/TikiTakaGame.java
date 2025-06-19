@@ -20,6 +20,8 @@ public class TikiTakaGame {
     private Integer sinceYear;
     private Integer endYear;
 
+    private boolean gridMode;
+
     private List<TikiTakaCell> cells;
 
     public TikiTakaGame() {
@@ -120,5 +122,13 @@ public class TikiTakaGame {
 
     public void setCells(List<TikiTakaCell> cells) {
         this.cells = cells;
+    }
+
+    public boolean isGridMode() {
+        return gridMode;
+    }
+
+    public void setGridMode(boolean gridMode) {
+        this.gridMode = gridMode;
     }
 }

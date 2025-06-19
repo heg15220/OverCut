@@ -300,7 +300,8 @@ CREATE TABLE TikiTakaGame (
     status VARCHAR(20),
     createdAt TIMESTAMP,
     sinceYear INT NULL,
-    endYear INT NULL
+    endYear INT NULL,
+    gridMode BOOLEAN
 );
 
 CREATE TABLE TikiTakaCell (

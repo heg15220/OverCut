@@ -11,6 +11,8 @@ const TurnIndicator = ({ currentTurn, onSwitch, onDraw }) => {
 
   const gameData = useSelector(selectors.getGame); // <== Accedemos al game actual
 
+  if (gameData?.gridMode) return null;
+
   return (
     <div className="turn-indicator">
       <p>

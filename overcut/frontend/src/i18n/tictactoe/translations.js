@@ -10,7 +10,8 @@ export const translations = {
     mode2000: "Modo 2000+",
     historic: "Histórico 1980–1999",
     whoPlay: "¿Contra quién quieres jugar?",
-    back: "← Volver atrás"
+    back: "← Volver atrás",
+    playGrid: "Modo libre (solo jugador X)"
   },
   en: {
     selectMode: "Select criteria mode",
@@ -21,6 +22,7 @@ export const translations = {
     mode2000: "Mode 2000+",
     historic: "Historic 1980–1999",
     whoPlay: "Who do you want to play against?",
-    back: "← Go back"
+    back: "← Go back",
+    playGrid: "Grid Mode",
   }
 };

@@ -29,7 +29,7 @@ const TicTacToe = () => {
     setStep(2);
   };
 
-  const startGame = (vsBot) => {
+  const startGame = (vsBot, gridMode = false) => {
     const baseRequest = {
       playerX: "Jugador X",
       playerO: vsBot ? "BOT" : "Jugador O",
@@ -37,7 +37,8 @@ const TicTacToe = () => {
       randomCriteria: false,
       useDynamicCriteria: false,
       modo2000Plus: false,
-      historicRangeMode: false
+      historicRangeMode: false,
+      gridMode
     };
 
     if (selectedMode === 'classic') baseRequest.randomCriteria = true;
@@ -45,12 +46,20 @@ const TicTacToe = () => {
     if (selectedMode === '2000') baseRequest.modo2000Plus = true;
     if (selectedMode === 'historic') baseRequest.historicRangeMode = true;
 
+    if (gridMode) {
+      baseRequest.playerO = "";
+      baseRequest.vsBot = false;
+    }
+
     dispatch(actions.createGame(
       baseRequest,
       (gameId) => navigate(`/minigames/tictactoe/game/${gameId}`),
       () => alert('Error creando partida')
     ));
   };
+
+
+
 
   if (showTutorial) {
           return (
@@ -77,9 +86,6 @@ const TicTacToe = () => {
               {t.selectMode}
             </Typography>
             <Stack spacing={3} direction="column" alignItems="center">
-              <Button variant="contained" color="error" onClick={() => handleModeSelect("classic")}>
-                {t.classic}
-              </Button>
               <Button variant="contained" color="error" onClick={() => handleModeSelect("dynamic")}>
                 {t.dynamic}
               </Button>
@@ -105,12 +111,16 @@ const TicTacToe = () => {
               <Button variant="contained" color="info" onClick={() => startGame(true)}>
                 {t.playBot}
               </Button>
+              <Button variant="contained" color="secondary" onClick={() => startGame(false, true)}>
+                {t.playGrid}
+              </Button>
               <Button variant="text" color="secondary" onClick={() => setStep(1)}>
                 {t.back}
               </Button>
             </Stack>
           </>
         )}
+
       </motion.div>
     </Container>
   );

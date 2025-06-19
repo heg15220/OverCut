@@ -251,6 +251,10 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
             game.setPlayerO("BOT");
         }
 
+        if(request.isGridMode()){
+            game.setGridMode(request.isGridMode());
+        }
+
         if(request.isUseDynamicCriteria()){
             game.setSinceYear(1980);
         }
@@ -327,50 +331,43 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
                 .filter(c -> c.getPositionGame() == request.getColumn())
                 .findFirst().get().getCode();
 
-
-
-
         boolean valid = validationService.validatePilot(gameId, rowCriteria, columnCriteria, request.getPiloto());
 
         if (!valid) {
-            // Cambiar turno aunque la jugada sea inválida
-            game.setCurrentTurn(game.getCurrentTurn().equals("X") ? "O" : "X");
-            gameDao.save(game);
+            // En grid mode no hay turnos, así que no se cambia
+            if (!game.isGridMode()) {
+                game.setCurrentTurn(game.getCurrentTurn().equals("X") ? "O" : "X");
+                gameDao.save(game);
+            }
             return new ValidationResponseTikTak(false, "Invalid pilot for selected cell");
         }
 
-
-        cell.setFilledBy(game.getCurrentTurn());
+        cell.setFilledBy("X");  // siempre jugador X
         cell.setPiloto(request.getPiloto());
         cell.setValid(true);
         cellDao.save(cell);
 
-        // Check winner or draw
-        String newStatus = checkWinnerOrDraw(game);
-        game.setStatus(newStatus);
+        if (!game.isGridMode()) {
+            // Solo en modos normales comprobamos victoria/empate
+            String newStatus = checkWinnerOrDraw(game);
+            game.setStatus(newStatus);
 
-        // Switch turn
-        if (newStatus.equals("IN_PROGRESS")) {
-            game.setCurrentTurn(game.getCurrentTurn().equals("X") ? "O" : "X");
+            if ("IN_PROGRESS".equals(newStatus)) {
+                game.setCurrentTurn("O");
+            }
+
+            gameDao.save(game);
+
+            if ("O".equals(game.getCurrentTurn()) && "BOT".equals(game.getPlayerO())) {
+                botPlayerService.playAsBot(game);
+            }
+        } else {
+            gameDao.save(game); // no hay turnos ni final
         }
-
-        gameDao.save(game);
-
-        if ("IN_PROGRESS".equals(game.getStatus())
-                && "O".equals(game.getCurrentTurn())
-                && "BOT".equals(game.getPlayerO())) {
-
-            TikiTakaGame g = gameDao.findById(game.getId()).orElse(null);
-            if (g != null) botPlayerService.playAsBot(g);
-
-
-        }
-
-
-
 
         return new ValidationResponseTikTak(true, "Correct move");
     }
+
 
     @Override
     public List<TikiTakaCriteria> getAllCriteria() {

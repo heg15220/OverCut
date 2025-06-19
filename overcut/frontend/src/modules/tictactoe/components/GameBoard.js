@@ -24,6 +24,9 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
   const [showInvalidPilot, setShowInvalidPilot] = useState(false);
   const f1CarImage = sourceTictactoeImages(`./car_game.png`);
 
+  const [gridCompleted, setGridCompleted] = useState(false);
+
+
   useEffect(() => {
     if (!statusEvaluated && (gameData.status === 'X_WINS' || gameData.status === 'O_WINS' || gameData.status === 'DRAW')) {
       setStatusEvaluated(true);
@@ -87,6 +90,16 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
     ));
   };
 
+  useEffect(() => {
+    if (gameData.gridMode) {
+      const allFilled = gameData.cells.every(cell => cell.valid);
+      if (allFilled) {
+        setGridCompleted(true);
+      }
+    }
+  }, [gameData.cells, gameData.gridMode]);
+
+
 
 
   const renderCellContent = (cell) => {
@@ -116,13 +129,15 @@ const confirmDraw = (mode) => {
   return (
     <div className="game-container">
       <div className="game-grid-wrapper">
-        <div className="turn-indicator-wrapper">
-          <TurnIndicator
-            currentTurn={gameData.currentTurn}
-            onSwitch={onSwitchTurn}
-            onDraw={handleDrawRequest}
-          />
-        </div>
+        {!gameData.gridMode && (
+          <div className="turn-indicator-wrapper">
+            <TurnIndicator
+              currentTurn={gameData.currentTurn}
+              onSwitch={onSwitchTurn}
+              onDraw={handleDrawRequest}
+            />
+          </div>
+        )}
       </div>
 
 
@@ -201,6 +216,14 @@ const confirmDraw = (mode) => {
           <Button onClick={() => navigate('/minigames/tictactoe')}>Nueva partida</Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={gridCompleted} onClose={() => setGridCompleted(false)}>
+        <DialogTitle className="dialog-title">✅ ¡Has completado el tablero!</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => navigate("/minigames")}>Volver al inicio</Button>
+        </DialogActions>
+      </Dialog>
+
 
       {/* Snackbar de error */}
       <Snackbar

@@ -13,9 +13,12 @@ public class TikiTakaGameBoardDto {
     private List<TikiTakaCriteriaDto> rowCriteria;     // Criterios filas
     private List<TikiTakaCriteriaDto> columnCriteria;  // Criterios columnas
 
+    private boolean gridMode;
+
+
     public TikiTakaGameBoardDto(Long id, String playerX, String playerO, String currentTurn, String status,
                                 List<TikiTakaCellDto> cells, List<TikiTakaCriteriaDto> rowCriteria,
-                                List<TikiTakaCriteriaDto> columnCriteria) {
+                                List<TikiTakaCriteriaDto> columnCriteria, boolean gridMode) {
         this.id = id;
         this.playerX = playerX;
         this.playerO = playerO;
@@ -24,7 +27,9 @@ public class TikiTakaGameBoardDto {
         this.cells = cells;
         this.rowCriteria = rowCriteria;
         this.columnCriteria = columnCriteria;
+        this.gridMode = gridMode;
     }
+
 
     // Getters y Setters ↓↓↓
 
@@ -58,5 +63,13 @@ public class TikiTakaGameBoardDto {
 
     public List<TikiTakaCriteriaDto> getColumnCriteria() {
         return columnCriteria;
+    }
+
+    public boolean isGridMode() {
+        return gridMode;
+    }
+
+    public void setGridMode(boolean gridMode) {
+        this.gridMode = gridMode;
     }
 }

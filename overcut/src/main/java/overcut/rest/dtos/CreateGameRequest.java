@@ -8,6 +8,11 @@ public class CreateGameRequest {
     private boolean modo2000Plus;       // true → dinámico desde 2000 en adelante
     private boolean historicRangeMode;       // true → filtrar sólo entre 1980–1999
     private boolean vsBot;
+    private boolean gridMode;
+
+
+    public CreateGameRequest() {
+    }
 
     public CreateGameRequest(String playerX, String playerO, boolean randomCriteria, boolean useDynamicCriteria,
                              boolean modo2000Plus, boolean historicRangeMode, boolean vsBot) {
@@ -70,5 +75,13 @@ public class CreateGameRequest {
 
     public void setVsBot(boolean vsBot) {
         this.vsBot = vsBot;
+    }
+
+    public boolean isGridMode() {
+        return gridMode;
+    }
+
+    public void setGridMode(boolean gridMode) {
+        this.gridMode = gridMode;
     }
 }
