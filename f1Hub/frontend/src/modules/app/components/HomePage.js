@@ -14,6 +14,10 @@ const HomePage = () => (
     <div className="f1hub-actions">
       <Link to="/tables" className="f1hub-button">{t.viewTables}</Link>
       <Link to="/graphs" className="f1hub-button">{t.viewGraphs}</Link>
+      <a href="http://localhost:3000/" className="f1hub-button">
+        {t.goToOvercut}
+      </a>
+
     </div>
   </div>
 );

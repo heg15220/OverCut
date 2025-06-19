@@ -152,6 +152,7 @@ const es = {
     'project.users.confirmPasswordChange.error': '❌ Token inválido o expirado',
     'project.global.buttons.backHome': 'Volver al inicio',
     'project.users.passwordChangeRequested': 'Hemos enviado un correo de confirmación para aplicar el cambio de contraseña.',
+    "project.app.Header.f1hub": "F1Hub",
 
 }
 export default es;

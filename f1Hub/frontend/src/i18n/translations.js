@@ -9,6 +9,7 @@ const translations = {
     viewGraphs: "📈 Ver Gráficas",
     selectTableType: "Selecciona tipo de tabla",
     grandsPrix: "🏁 Grandes Premios",
+    goToOvercut: "Ir a OverCut",
     championships: "🏆 Campeonatos",
     championshipTracking: "📊 Seguimiento Campeonato",
     rankings: "📈 Rankings y Récords",
@@ -184,6 +185,7 @@ const translations = {
     selectGrandPrix: "Selecciona GP",
     selectSession: "Selecciona sesión",
     viewResults: "Ver resultados",
+    headerOvercut: "OverCut",
 
   },
   en: {
@@ -196,6 +198,8 @@ const translations = {
     viewGraphs: "📈 View Charts",
     selectTableType: "Select table type",
     grandsPrix: "🏁 Grands Prix",
+    headerOvercut: "OverCut",
+    goToOvercut: "Go to OverCut",
     championships: "🏆 Championships",
     championshipTracking: "📊 Championship Tracking",
     rankings: "📈 Rankings & Records",

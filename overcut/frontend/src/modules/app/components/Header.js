@@ -64,6 +64,13 @@ const Header = () => {
                         </li>
                         }
 
+                        <a className="nav-link" href="http://localhost:8083/" style={{ color: 'white' }}>
+                          <FormattedMessage id="project.app.Header.f1hub" defaultMessage="F1Hub" />
+                          <GraphUp className="ms-1" size={16} color="#FFFFFF" />
+                        </a>
+
+
+
                         <li className="nav-item">
                         <Link className="nav-link" to={`/circuits/category/3`} style={{ color: 'white' }}>
                                 <FormattedMessage id="project.app.Header.historic" />

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import './Header.css';
 import translations from '../../../i18n/translations';
 
-
 const lang = navigator.language.startsWith('es') ? 'es' : 'en';
 const t = translations[lang];
 
@@ -15,6 +14,7 @@ const Header = () => {
         <Link to="/">{t.headerHome}</Link>
         <Link to="/tables">{t.headerTables}</Link>
         <Link to="/graphs">{t.headerCharts}</Link>
+        <a href="http://localhost:3000/">{t.headerOvercut}</a> {/* 🔗 Aquí el acceso a OverCut */}
       </nav>
     </header>
   );
