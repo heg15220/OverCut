@@ -7,12 +7,14 @@ import {
   Box, Button, Card, CardContent, TextField, MenuItem, Typography, IconButton
 } from '@mui/material';
 import { Add, Delete, ArrowUpward, ArrowDownward } from '@mui/icons-material';
+import { useIntl } from 'react-intl';
 
 const PostSectionModifier = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const intl = useIntl();
   const post = useSelector(selectors.getPost);
   const sectionsFromRedux = useSelector(selectors.getPostSections);
   const categories = useSelector(selectors.findAllCategories);
