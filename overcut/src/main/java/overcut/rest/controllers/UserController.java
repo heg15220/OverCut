@@ -117,7 +117,7 @@ public class UserController {
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(user.getId())
                 .toUri();
 
-        return ResponseEntity.created(location).body(UserConversor.toAuthenticatedUserDto(generateServiceToken(user), user));
+        return ResponseEntity.created(location).build(); // o .body(null)
 
     }
 

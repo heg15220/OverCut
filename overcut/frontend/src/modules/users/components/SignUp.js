@@ -86,12 +86,9 @@ const SignUp = () => {
                     navigate('/');
                 }
             },
-            errors => setBackendErrors(errors),
-            () => {
-                navigate('/');
-                dispatch(actions.logout());
-            }
+            errors => setBackendErrors(errors)
         ));
+
     };
 
     return (

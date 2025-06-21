@@ -50,17 +50,15 @@ export const tryLoginFromServiceToken = (
     );
 };
 
-export const signUp = (user, onSuccess, onErrors, reauthenticationCallback) => {
+export const signUp = (user, onSuccess, onErrors) => {
     appFetch(
         "/users/signUp",
         fetchConfig("POST", user),
-        (authenticatedUser) => {
-            processLoginSignUp(authenticatedUser, reauthenticationCallback);
-            onSuccess(authenticatedUser)
-        },
+        () => onSuccess(), // ✅ no se pasa ningún parámetro
         onErrors
     );
 };
+
 
 export const logout = () => removeServiceToken();
 

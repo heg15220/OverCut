@@ -24,9 +24,9 @@ SessionLocal    = sessionmaker(bind=engine)
 
 # RANGOS y objetivo de configuraciones
 RANGES = [
-    (2000, None, 100),
-    (1980, None, 100),
-    (1980, 1999, 100),
+    (2000, None, 600),
+    (1980, None, 600),
+    (1980, 1999, 600),
 ]
 
 ISO_MAPPING = {
@@ -348,45 +348,45 @@ def build_for_range(args):
     for t in valores['team']:
         criteria.append({
           'type': 'team', 'value': t,
-          'code': f"team_{t}", 'description': f"Corrió para {t}",
+          'code': f"team_{t}", 'description': f"{t}",
           'imageUrl': get_logo_url('team', t)
         })
     for n in valores['nationality']:
         criteria.append({
           'type': 'nationality', 'value': n,
-          'code': f"nationality_{n}", 'description': f"Piloto {n}",
+          'code': f"nationality_{n}", 'description': f"",
           'imageUrl': get_logo_url('nationality', n)
         })
     for d in sorted({yr for yrs in nat_to_deb.values() for yr in yrs}):
         criteria.append({
           'type': 'debut', 'value': d,
-          'code': f"debut_{d}", 'description': f"Debut en {d}",
+          'code': f"debut_{d}", 'description': f"Debut in {d}",
           'imageUrl': get_logo_url('debut', d)
         })
     for wins in [1, 2, 3]:
         criteria.append({
             'type': 'min_wins', 'value': wins,
-            'code': f"min_{wins}_wins", 'description': f"Piloto con al menos {wins} victorias",
+            'code': f"min_{wins}_wins", 'description': f"Driver with at least {wins} wins",
             'imageUrl': get_logo_url('min_wins', None)
         })
     for pods in [3, 5, 7]:
         criteria.append({
             'type': 'min_podiums', 'value': pods,
-            'code': f"min_{pods}_podiums", 'description': f"Piloto con al menos {pods} podios",
+            'code': f"min_{pods}_podiums", 'description': f"Driver with at least {pods} podiums",
             'imageUrl': get_logo_url('min_podiums', None)
         })
     for circ in sorted(circuits):
         slug = _normalize_team(circ)
         criteria.append({
             'type': 'circuit_wins', 'value': 1, 'circuit': circ,
-            'code': f"circuit_wins_{slug}", 'description': f"Piloto con al menos 1 victoria en {circ}",
+            'code': f"circuit_wins_{slug}", 'description': f"Driver with at least 1 win at {circ}",
             'imageUrl': get_logo_url('circuit_wins', None)
         })
     for circ in sorted(circuits):
         slug = _normalize_team(circ)
         criteria.append({
             'type': 'circuit_podiums', 'value': 1, 'circuit': circ,
-            'code': f"circuit_podiums_{slug}", 'description': f"Piloto con al menos 1 podio en {circ}",
+            'code': f"circuit_podiums_{slug}", 'description': f"Driver with at least 1 podium at {circ}",
             'imageUrl': get_logo_url('circuit_podiums', None)
         })
 
@@ -405,7 +405,7 @@ def build_for_range(args):
         slug = _normalize_team(c_name)
         criteria.append({
             'type': 'teammate', 'value': c_name, 'code': f"teammate_{slug}",
-            'description': f"Compañero de equipo de {c_name}",
+            'description': f"Teammate of {c_name}",
             'imageUrl': "", 'driverId': drv_id, 'nationality': c_nat
         })
 

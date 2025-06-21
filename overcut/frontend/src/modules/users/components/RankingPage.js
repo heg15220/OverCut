@@ -45,8 +45,6 @@ const RankingPage = () => {
   const locale = navigator.language.startsWith('es') ? 'es' : 'en';
   const t = translations[locale];
 
-  const currentUser = useSelector(selectors.getUser);
-
   const rankLabels = {
     F1: `🏆 ${t.legend}`,
     F2: `🥈 ${t.pro}`,
@@ -59,7 +57,6 @@ const RankingPage = () => {
   }, [dispatch]);
 
   return (
-    <div className="ranking-wrapper">
     <div className="ranking-container">
       <h2 className="ranking-title">{t.title}</h2>
       {rankOrder.map((rank) => {
@@ -100,7 +97,6 @@ const RankingPage = () => {
           </div>
         );
       })}
-    </div>
     </div>
   );
 };

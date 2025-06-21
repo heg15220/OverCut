@@ -13,12 +13,12 @@ const getUserPointsCompleted = (points) => ({
 
 export const signUp = (user, onSuccess, onErrors, reauthenticationCallback) => dispatch =>
     backend.userService.signUp(user,
-        authenticatedUser => {
-            dispatch(signUpCompleted(authenticatedUser));
+        () => {
             onSuccess();
         },
         onErrors,
         reauthenticationCallback);
+
 
 const loginCompleted = authenticatedUser => ({
     type: actionTypes.LOGIN_COMPLETED,
