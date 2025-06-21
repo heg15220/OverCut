@@ -32,6 +32,8 @@ public class Post {
     /** The category. */
     private Category category;
 
+    private String imageCaption;
+
     /** The list of comments. */
     private List<Comment> comments;
 
@@ -234,5 +236,13 @@ public class Post {
 
     public void setSections(List<PostSection> sections) {
         this.sections = sections;
+    }
+
+    public String getImageCaption() {
+        return imageCaption;
+    }
+
+    public void setImageCaption(String imageCaption) {
+        this.imageCaption = imageCaption;
     }
 }

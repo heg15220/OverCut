@@ -127,6 +127,12 @@ const PostDetails = () => {
                                 marginTop: 2,
                             }}
                         />
+                        {post.imageCaption && (
+                          <Typography variant="caption" sx={{ fontStyle: 'italic', display: 'block', mt: 1 }}>
+                            <FormattedMessage id="post.caption.mainImage" defaultMessage="Caption:" /> {post.imageCaption}
+                          </Typography>
+                        )}
+
 
                         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
                             <UserAvatar image={postUser?.image} userName={userName} size={50} />
@@ -153,33 +159,41 @@ const PostDetails = () => {
                                 <div key={index} className="post-section" style={{ marginBottom: '2rem' }}>
                                   {section.title && <h3 className="post-section-title">{section.title}</h3>}
 
-                                  {section.blocks &&
-                                    section.blocks
-                                      .sort((a, b) => a.blockOrder - b.blockOrder)
-                                      .map((block, idx) => {
-                                        if (block.type === "text") {
-                                          return (
-                                            <p key={idx} className="post-section-text">
-                                              {block.content}
-                                            </p>
-                                          );
-                                        }
-                                        if (block.type === "image" && block.image) {
-                                          return (
+                                  {section.blocks
+                                    .sort((a, b) => a.blockOrder - b.blockOrder)
+                                    .map((block, idx) => {
+                                      if (block.type === "text") {
+                                        return (
+                                          <p key={idx} className="post-section-text">
+                                            {block.content}
+                                          </p>
+                                        );
+                                      }
+
+                                      if (block.type === "image" && block.image) {
+                                        return (
+                                          <React.Fragment key={idx}>
                                             <img
-                                              key={idx}
                                               src={`data:image/jpeg;base64,${block.image}`}
                                               alt="Imagen del artículo"
                                               className="post-section-image"
                                             />
-                                          );
-                                        }
-                                        if (block.type === "tweet") {
-                                          return (
-                                            <div key={idx} className="tweet-container">
+                                            {block.caption && (
+                                              <p className="image-caption">
+                                                <FormattedMessage id="post.caption.image" defaultMessage="Caption:" /> {block.caption}
+                                              </p>
+                                            )}
+                                          </React.Fragment>
+                                        );
+                                      }
+
+                                      if (block.type === "tweet") {
+                                        return (
+                                          <React.Fragment key={idx}>
+                                            <div className="tweet-container">
                                               <blockquote className="twitter-tweet">
                                                 <a
-                                                  href={block.content.replace('x.com', 'twitter.com')}
+                                                  href={block.content.replace("x.com", "twitter.com")}
                                                   target="_blank"
                                                   rel="noopener noreferrer"
                                                 >
@@ -187,10 +201,18 @@ const PostDetails = () => {
                                                 </a>
                                               </blockquote>
                                             </div>
-                                          );
-                                        }
-                                        return null;
-                                      })}
+                                            {block.caption && (
+                                              <p className="tweet-caption">
+                                                <FormattedMessage id="post.caption.tweet" defaultMessage="Tweet note:" /> {block.caption}
+                                              </p>
+                                            )}
+                                          </React.Fragment>
+                                        );
+                                      }
+
+                                      return null;
+                                    })}
+
                                 </div>
                               ))}
                           </div>

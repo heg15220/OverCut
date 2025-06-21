@@ -21,6 +21,8 @@ public class PostParamsDto {
 
     private LocalDateTime creationDate;
 
+    private String imageCaption;
+
     public String getTitle() {
         return title;
     }
@@ -68,5 +70,13 @@ public class PostParamsDto {
 
     public void setArticle(String article) {
         this.article = article;
+    }
+
+    public String getImageCaption() {
+        return imageCaption;
+    }
+
+    public void setImageCaption(String imageCaption) {
+        this.imageCaption = imageCaption;
     }
 }

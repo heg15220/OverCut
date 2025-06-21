@@ -31,10 +31,12 @@ public class PostDto {
 
     private String categoryName;
 
+    private String imageCaption;
+
     private List<PostSectionDto> sections;
 
-    public PostDto(Long id, String title, String subtitle, String image, String article,
-                   LocalDateTime creationDate, Long userId, String userName, Long categoryId, String categoryName)  {
+    public PostDto(Long id, String title, String subtitle, String image, String article, LocalDateTime creationDate,
+                   Long userId, String userName, Long categoryId, String categoryName, String imageCaption) {
         this.id = id;
         this.title = title;
         this.subtitle = subtitle;
@@ -45,6 +47,7 @@ public class PostDto {
         this.userName = userName;
         this.categoryId = categoryId;
         this.categoryName = categoryName;
+        this.imageCaption = imageCaption;
     }
 
     public Long getId() {
@@ -133,5 +136,13 @@ public class PostDto {
 
     public void setSections(List<PostSectionDto> sections) {
         this.sections = sections;
+    }
+
+    public String getImageCaption() {
+        return imageCaption;
+    }
+
+    public void setImageCaption(String imageCaption) {
+        this.imageCaption = imageCaption;
     }
 }

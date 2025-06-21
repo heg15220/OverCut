@@ -23,6 +23,7 @@ public class PostSectionConversor {
                 block.setBlockOrder(blockDto.getBlockOrder());
                 if (blockDto.getImage() != null)
                     block.setImage(Base64.getDecoder().decode(blockDto.getImage()));
+                block.setCaption(blockDto.getCaption());
                 blocks.add(block);
             }
             section.setBlocks(blocks);
@@ -43,6 +44,7 @@ public class PostSectionConversor {
                 blockDto.setType(block.getType());
                 blockDto.setContent(block.getContent());
                 blockDto.setBlockOrder(block.getBlockOrder());
+                blockDto.setCaption(block.getCaption());
                 if (block.getImage() != null)
                     blockDto.setImage(Base64.getEncoder().encodeToString(block.getImage()));
                 blocks.add(blockDto);

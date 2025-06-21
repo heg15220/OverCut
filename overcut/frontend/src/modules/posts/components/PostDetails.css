@@ -28,3 +28,13 @@
   margin: 0; /* elimina auto centrado */
   text-align: left;
 }
+
+
+.image-caption, .tweet-caption {
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #666;
+  margin-top: 0.3rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}

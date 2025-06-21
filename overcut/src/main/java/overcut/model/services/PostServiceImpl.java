@@ -100,7 +100,8 @@ public class PostServiceImpl implements PostService{
      * @throws PostException             the post exception
      */
     @Override
-    public Post createPost(String title, String subtitle, String article,Long userId, Long categoryId, byte[] image)
+    public Post createPost(String title, String subtitle, String article,Long userId, Long categoryId, byte[] image,
+                           String imageCaption)
             throws InstanceNotFoundException, PostException {
         User user = permissionChecker.checkUser(userId);
         Category category = categoryDao.findCategoryById(categoryId);
@@ -115,6 +116,9 @@ public class PostServiceImpl implements PostService{
 
 
         Post post = new Post(title, subtitle, image, article, creationDate, user, category);
+
+        post.setImageCaption(imageCaption);
+
 
         postDao.save(post);
 
@@ -135,7 +139,7 @@ public class PostServiceImpl implements PostService{
      */
     @Override
     public Post modifyPost(Long postId, String title, String subtitle, String article, Long userId,
-                           Long categoryId, byte[] image)
+                           Long categoryId, byte[] image, String imageCaption)
             throws InstanceNotFoundException, Exception, PostException {
 
         Post post = postDao.findById(postId)
@@ -152,6 +156,9 @@ public class PostServiceImpl implements PostService{
         post.setSubtitle(subtitle);
         post.setArticle(article);
         post.setCategory(category);
+
+        post.setImageCaption(imageCaption);
+
 
         if (image != null) {
             post.setImage(image);

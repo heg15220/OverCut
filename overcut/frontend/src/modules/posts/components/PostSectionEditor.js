@@ -16,6 +16,8 @@ const PostSectionEditor = () => {
   const [categoryId, setCategoryId] = useState(() => 1); // aseguras tipo number
   const [mainImage, setMainImage] = useState(null);
   const [sections, setSections] = useState([]);
+  const [mainImageCaption, setMainImageCaption] = useState('');
+
   const intl = useIntl();
 
   const handleMainImageChange = (e) => {
@@ -82,7 +84,7 @@ const PostSectionEditor = () => {
 
   const handleSubmit = () => {
     dispatch(actions.createPost(
-      { title, subtitle, article: '', categoryId, image: mainImage },
+      { title, subtitle, article: '', categoryId, image: mainImage, imageCaption: mainImageCaption },
       (postId) => {
         const dtoSections = sections.map((s, idx) => ({
           ...s,
@@ -139,6 +141,15 @@ const PostSectionEditor = () => {
       </Typography>
       <input type="file" accept="image/*" onChange={handleMainImageChange} />
 
+      <TextField
+        fullWidth
+        label={intl.formatMessage({ id: 'postEditor.mainImageCaption', defaultMessage: 'Pie de imagen principal' })}
+        margin="dense"
+        value={mainImageCaption}
+        onChange={e => setMainImageCaption(e.target.value)}
+      />
+
+
       <Box my={2}>
         <Button onClick={handleAddSection} startIcon={<Add />}>
           <FormattedMessage id="postEditor.addSection" defaultMessage="Añadir subsección" />
@@ -192,16 +203,36 @@ const PostSectionEditor = () => {
                   />
                 )}
                 {block.type === 'image' && (
-                  <input type="file" accept="image/*" onChange={e => handleImageBlockUpload(section.id, idx, e)} />
+                  <>
+                    <input type="file" accept="image/*" onChange={e => handleImageBlockUpload(section.id, idx, e)} />
+                    <TextField
+                      label={intl.formatMessage({ id: 'postEditor.imageCaption', defaultMessage: 'Pie de foto' })}
+                      fullWidth
+                      margin="dense"
+                      value={block.caption}
+                      onChange={e => handleBlockChange(section.id, idx, 'caption', e.target.value)}
+                    />
+                  </>
                 )}
+
                 {block.type === 'tweet' && (
-                  <TextField
-                    label={`${intl.formatMessage({ id: 'postEditor.tweetBlock', defaultMessage: 'URL del tweet' })} ${idx + 1}`}
-                    fullWidth
-                    value={block.content}
-                    onChange={e => handleBlockChange(section.id, idx, 'content', e.target.value)}
-                  />
+                  <>
+                    <TextField
+                      label={intl.formatMessage({ id: 'postEditor.tweetBlock', defaultMessage: 'URL del tweet' })}
+                      fullWidth
+                      value={block.content}
+                      onChange={e => handleBlockChange(section.id, idx, 'content', e.target.value)}
+                    />
+                    <TextField
+                      label={intl.formatMessage({ id: 'postEditor.tweetCaption', defaultMessage: 'Comentario sobre el tweet' })}
+                      fullWidth
+                      margin="dense"
+                      value={block.caption}
+                      onChange={e => handleBlockChange(section.id, idx, 'caption', e.target.value)}
+                    />
+                  </>
                 )}
+
               </Box>
             ))}
           </CardContent>

@@ -90,7 +90,8 @@ public class PostController {
                 params.getArticle(),
                 userId,
                 params.getCategoryId(),
-                decodedImage
+                decodedImage,
+                params.getImageCaption()
         ).getId();
     }
 
@@ -139,7 +140,7 @@ public class PostController {
         }
 
         Post post = postService.modifyPost(id, params.getTitle(), params.getSubtitle(),
-                params.getArticle(), userId, params.getCategoryId(), decodedImage);
+                params.getArticle(), userId, params.getCategoryId(), decodedImage, params.getImageCaption());
 
         return PostConversor.toPostDto(post);
     }

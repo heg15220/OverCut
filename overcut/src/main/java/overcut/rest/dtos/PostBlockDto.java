@@ -1,10 +1,14 @@
 package overcut.rest.dtos;
 
+import jakarta.persistence.Column;
+
 public class PostBlockDto {
     private String type;
     private String content;
     private String image; // Base64
     private Integer blockOrder;
+    private String caption;
+
 
     public PostBlockDto() {
     }
@@ -46,5 +50,13 @@ public class PostBlockDto {
 
     public void setBlockOrder(Integer blockOrder) {
         this.blockOrder = blockOrder;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
     }
 }

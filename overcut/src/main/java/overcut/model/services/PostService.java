@@ -61,7 +61,8 @@ public interface PostService {
      * @throws InstanceNotFoundException the instance not found exception
      * @throws PostException             the post exception
      */
-    Post createPost(String title, String subtitle, String article, Long userId, Long categoryId, byte[] image) throws InstanceNotFoundException, PostException;
+    Post createPost(String title, String subtitle, String article, Long userId, Long categoryId,
+                    byte[] image, String imageCaption) throws InstanceNotFoundException, PostException;
 
     /**
      * Modify post.
@@ -75,7 +76,8 @@ public interface PostService {
      * @throws InstanceNotFoundException the instance not found exception
      * @throws PostException             the post exception
      */
-    Post modifyPost(Long postId, String title, String subtitle, String article, Long userId, Long categoryId, byte[] image)
+    Post modifyPost(Long postId, String title, String subtitle, String article, Long userId, Long categoryId,
+                    byte[] image, String imageCaption)
             throws InstanceNotFoundException, Exception, PostException;
 
 

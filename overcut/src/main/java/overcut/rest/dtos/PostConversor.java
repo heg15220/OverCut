@@ -34,7 +34,7 @@ public class PostConversor {
         return new PostDto(post.getId(), post.getTitle(), post.getSubtitle(),
                 encodedImage, // ✅ base64 string
                 post.getArticle(), post.getCreationDate(),
-                user.getId(), user.getUserName(), category.getId(), category.getName());
+                user.getId(), user.getUserName(), category.getId(), category.getName(), post.getImageCaption());
 
 
     }
@@ -50,7 +50,7 @@ public class PostConversor {
 
         PostDto dto = new PostDto(post.getId(), post.getTitle(), post.getSubtitle(), encodedImage, post.getArticle(),
                 post.getCreationDate(), user.getId(), user.getUserName(),
-                category.getId(), category.getName());
+                category.getId(), category.getName(), post.getImageCaption());
 
         // Agregar secciones enriquecidas al DTO
         dto.setSections(PostSectionConversor.toPostSectionDtos(

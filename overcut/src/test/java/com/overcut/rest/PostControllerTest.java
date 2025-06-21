@@ -56,7 +56,7 @@ class PostControllerTest {
         // Create a PostDto instance
         PostDto postDto = new PostDto(
                 523L, "PostDtoTest", "descriptionTest", Base64.getEncoder().encodeToString("test".getBytes()), "articleTest",
-                creationDate, 1L, "userNameTest", 1L, "Category1"
+                creationDate, 1L, "userNameTest", 1L, "Category1", null
         );
 
         // Assert that the getters return the expected values

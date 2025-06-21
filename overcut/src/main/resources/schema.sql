@@ -166,6 +166,7 @@ CREATE TABLE Post(
     creationDate DATETIME,
     userId BIGINT NOT NULL,
     categoryId BIGINT NOT NULL,
+    imageCaption LONGTEXT,
 
     CONSTRAINT UserIdFK FOREIGN KEY (userId) REFERENCES Users (id),
     CONSTRAINT CategoryIdFK FOREIGN KEY (categoryId) REFERENCES Category (id)
@@ -187,6 +188,7 @@ CREATE TABLE PostBlock (
     content TEXT,
     image LONGBLOB,
     blockOrder INT,
+    caption TEXT,
     FOREIGN KEY (sectionId) REFERENCES postSection(id) ON DELETE CASCADE
 );
 

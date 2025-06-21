@@ -17,6 +17,9 @@ public class PostBlock {
 
     private Integer blockOrder;
 
+    private String caption;
+
+
     public PostBlock() {
     }
 
@@ -82,5 +85,13 @@ public class PostBlock {
 
     public void setBlockOrder(Integer blockOrder) {
         this.blockOrder = blockOrder;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
     }
 }

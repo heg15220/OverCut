@@ -166,7 +166,11 @@ const es = {
     "postEditor.addTweet": "+ Tweet",
     "postEditor.textBlock": "Texto",
     "postEditor.tweetBlock": "URL del tweet",
-    "postEditor.publish": "Publicar post"
+    "postEditor.publish": "Publicar post",
+    "post.caption.image": "Pie de foto:",
+    "post.caption.tweet": "Comentario sobre el tweet:",
+    "postEditor.mainImageCaption": "Pie de imagen principal",
+    "post.caption.mainImage": "Pie:",
 
 
 }

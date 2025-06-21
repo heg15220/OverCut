@@ -184,7 +184,7 @@ class PostServiceTest {
                 " Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsq" +
                 "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                 "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito",
-                user.getId(),category.getId(), dummyImage);
+                user.getId(),category.getId(), dummyImage, null);
 
         assertNotNull(expectedPost);
         assertEquals("cocheF1", expectedPost.getTitle());
@@ -204,7 +204,7 @@ class PostServiceTest {
                         " Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsq" +
                         "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                         "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito",user.getId(),
-                category.getId(),dummyImage);
+                category.getId(),dummyImage, null);
 
         assertNotNull(post_2);
         assertEquals("cocheF2", post_2.getTitle());
@@ -250,7 +250,7 @@ class PostServiceTest {
                         " Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsq" +
                         "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                         "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito",
-                user.getId(),category.getId(), dummyImage);
+                user.getId(),category.getId(), dummyImage, null);
 
         Post modifiedPost = postDao.findById(post.getId()).orElse(null);
         assertNotNull(modifiedPost);
@@ -298,7 +298,7 @@ class PostServiceTest {
                                 " Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsq" +
                                 "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                                 "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito"
-                        ,(long) -1, category.getId(), dummyImage));
+                        ,(long) -1, category.getId(), dummyImage, null));
 
 
         assertThrows(InstanceNotFoundException.class,
@@ -308,7 +308,7 @@ class PostServiceTest {
                                 " Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsq" +
                                 "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                                 "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito",
-                        user.getId(),(long) -1, dummyImage));
+                        user.getId(),(long) -1, dummyImage, null));
     }
 
     /**
@@ -333,7 +333,7 @@ class PostServiceTest {
                         "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                         "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito",
                 user1.getId(),
-                category.getId(), dummyImage));
+                category.getId(), dummyImage, null));
     }
 
     /**
@@ -353,7 +353,7 @@ class PostServiceTest {
                         " Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsq" +
                         "ueda de Lorem Ipsum va a dar por resultado muchos sitios web que usan este texto si se encue"+ "tran en estado de desarrollo. Muchas ve" +
                         "rsiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito",
-                user1.getId(), (long) -1, dummyImage));
+                user1.getId(), (long) -1, dummyImage, null));
     }
 
     /**
@@ -384,7 +384,7 @@ class PostServiceTest {
 
         assertThrows(Exception.class,
                 () -> postService.modifyPost(post.getId(), "Modified Title", "Modified Description","prueba",
-                        user2.getId(),category.getId(), dummyImage));
+                        user2.getId(),category.getId(), dummyImage, null));
         categoryDao.save(category);
         userDao.save(user1);
         userDao.save(user2);
@@ -512,7 +512,7 @@ class PostServiceTest {
         );
 
         Post post = postService.createPost("cocheF1", "vendo ferrari en miniatura perfecto estado", "prueba",user1.getId(),
-                category.getId(), dummyImage);
+                category.getId(), dummyImage, null);
 
         assertThrows(InstanceNotFoundException.class, () -> postService.addImage(post.getId(), null));
     }

@@ -165,7 +165,11 @@ const en = {
     "postEditor.addTweet": "+ Tweet",
     "postEditor.textBlock": "Text",
     "postEditor.tweetBlock": "Tweet URL",
-    "postEditor.publish": "Publish post"
+    "postEditor.publish": "Publish post",
+    "post.caption.image": "Caption:",
+    "post.caption.tweet": "Tweet note:",
+    "postEditor.mainImageCaption": "Main image caption",
+    "post.caption.mainImage": "Caption: ",
 
 }
 export default en;

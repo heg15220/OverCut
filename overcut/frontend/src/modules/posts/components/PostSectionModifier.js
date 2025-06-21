@@ -22,6 +22,8 @@ const PostSectionModifier = () => {
   const [categoryId, setCategoryId] = useState(1);
   const [mainImage, setMainImage] = useState(null);
   const [sections, setSections] = useState([]);
+  const [mainImageCaption, setMainImageCaption] = useState('');
+
 
   useEffect(() => {
     dispatch(actions.getAllCategories(() => {}));
@@ -35,6 +37,8 @@ const PostSectionModifier = () => {
       setSubtitle(post.subtitle);
       setCategoryId(post.category?.categoryId ?? 1);
       setMainImage(post.image);
+      setMainImageCaption(post.imageCaption ?? '');
+
     }
   }, [post]);
 
@@ -117,7 +121,8 @@ const PostSectionModifier = () => {
       subtitle,
       article: '',
       categoryId,
-      image: mainImage
+      image: mainImage,
+      imageCaption: mainImageCaption
     }, () => {
       dispatch(actions.deletePostSections(id, () => {
         const dtoSections = sections.map((s, idx) => ({
@@ -152,6 +157,15 @@ const PostSectionModifier = () => {
 
       <Typography variant="subtitle1">Imagen principal del post</Typography>
       <input type="file" accept="image/*" onChange={handleMainImageChange} />
+
+      <TextField
+        fullWidth
+        label={intl.formatMessage({ id: 'postEditor.mainImageCaption', defaultMessage: 'Pie de imagen principal' })}
+        margin="dense"
+        value={mainImageCaption}
+        onChange={e => setMainImageCaption(e.target.value)}
+      />
+
 
       <Box my={2}>
         <Button onClick={handleAddSection} startIcon={<Add />}>Añadir subsección</Button>
