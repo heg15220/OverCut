@@ -153,6 +153,21 @@ const es = {
     'project.global.buttons.backHome': 'Volver al inicio',
     'project.users.passwordChangeRequested': 'Hemos enviado un correo de confirmación para aplicar el cambio de contraseña.',
     "project.app.Header.f1hub": "F1Hub",
+    "postEditor.newPost": "Nuevo Post",
+    "postEditor.title": "Título",
+    "postEditor.subtitle": "Subtítulo",
+    "postEditor.category": "Categoría",
+    "postEditor.mainImage": "Imagen principal del post",
+    "postEditor.addSection": "Añadir subsección",
+    "postEditor.section": "Sección",
+    "postEditor.sectionTitle": "Título de sección",
+    "postEditor.addText": "+ Texto",
+    "postEditor.addImage": "+ Imagen",
+    "postEditor.addTweet": "+ Tweet",
+    "postEditor.textBlock": "Texto",
+    "postEditor.tweetBlock": "URL del tweet",
+    "postEditor.publish": "Publicar post"
+
 
 }
 export default es;

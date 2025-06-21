@@ -11,6 +11,8 @@ import WebFont from 'webfontloader';
 import CommentList from './CommentList';
 import TextField from "@mui/material/TextField";
 import './PostDetails.css'; // o como se llame tu archivo de estilos
+import UserAvatar from '../../users/components/UserAvatar';
+
 
 
 const PostDetails = () => {
@@ -127,7 +129,7 @@ const PostDetails = () => {
                         />
 
                         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
-                            <img src={userImageSrc} alt="User Avatar" style={{ maxHeight: '50px', maxWidth: '50px', borderRadius: '50%' }} />
+                            <UserAvatar image={postUser?.image} userName={userName} size={50} />
                             <Box sx={{ marginLeft: 2 }}>
                                 <Typography variant="subtitle1">{userName}</Typography>
                                 <Typography variant="body2" color="text.secondary">{new Date(post.creationDate).toLocaleDateString()}</Typography>

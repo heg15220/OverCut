@@ -71,9 +71,12 @@ const AllPostList = () => {
                                 label="Category"
                             >
                                 <MenuItem value=""><FormattedMessage id="project.global.dropdown.allCategories" /></MenuItem>
-                                {categories && categories.map(category =>
+                                {categories && categories
+                                  .filter(category => category.name === 'News' || category.name === 'Analysis')
+                                  .map(category =>
                                     <MenuItem key={category.categoryId} value={category.categoryId}>{category.name}</MenuItem>
                                 )}
+
                             </Select>
                         </FormControl>
                     </Grid>

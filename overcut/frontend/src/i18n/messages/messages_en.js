@@ -152,6 +152,20 @@ const en = {
     'project.global.buttons.backHome': 'Back to home',
     'project.users.passwordChangeRequested': 'We’ve sent a confirmation email to apply your password change.',
     "project.app.Header.f1hub": "F1Hub",
+    "postEditor.newPost": "New Post",
+    "postEditor.title": "Title",
+    "postEditor.subtitle": "Subtitle",
+    "postEditor.category": "Category",
+    "postEditor.mainImage": "Main post image",
+    "postEditor.addSection": "Add subsection",
+    "postEditor.section": "Section",
+    "postEditor.sectionTitle": "Section title",
+    "postEditor.addText": "+ Text",
+    "postEditor.addImage": "+ Image",
+    "postEditor.addTweet": "+ Tweet",
+    "postEditor.textBlock": "Text",
+    "postEditor.tweetBlock": "Tweet URL",
+    "postEditor.publish": "Publish post"
 
 }
 export default en;
