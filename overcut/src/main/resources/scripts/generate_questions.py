@@ -863,6 +863,469 @@ def pregunta_duelo_vettel_canada_2019():
         "language": LANG
     }
 
+def pregunta_duelo_schumacher_alonso_2005():
+    circuito = "Imola"
+    if LANG == "es":
+        pregunta = "¿En qué circuito tuvo lugar el famoso duelo entre Schumacher y Alonso en 2005, donde Fernando aguantó vuelta tras vuelta?"
+        opciones = ["Monza", "Silverstone", "Suzuka", circuito]
+    else:
+        pregunta = "At which circuit did the famous 2005 duel between Schumacher and Alonso take place, with Alonso defending lap after lap?"
+        opciones = ["Monza", "Silverstone", "Suzuka", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+def pregunta_duelo_piquet_mansell_silverstone_1987():
+    piloto = "Nigel Mansell"
+    if LANG == "es":
+        pregunta = "¿Qué piloto adelantó a Nelson Piquet en Silverstone 1987 tras una intensa persecución con neumáticos desgastados?"
+        opciones = ["Alain Prost", "Ayrton Senna", "Gerhard Berger", piloto]
+    else:
+        pregunta = "Which driver overtook Nelson Piquet at Silverstone 1987 after a relentless chase on worn tires?"
+        opciones = ["Alain Prost", "Ayrton Senna", "Gerhard Berger", piloto]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": piloto,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_gilles_arnoux_dijon():
+    year = "1979"
+    if LANG == "es":
+        pregunta = "¿En qué año tuvo lugar el legendario duelo entre Gilles Villeneuve y René Arnoux en el GP de Francia en Dijon?"
+        opciones = ["1977", "1978", "1980", year]
+    else:
+        pregunta = "In which year did the legendary duel between Gilles Villeneuve and René Arnoux at the French GP in Dijon take place?"
+        opciones = ["1977", "1978", "1980", year]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_alonso_vettel_silverstone_2014():
+    circuito = "Silverstone"
+    if LANG == "es":
+        pregunta = "¿En qué circuito se dio el tenso duelo entre Alonso y Vettel en 2014, con maniobras límite que incluyeron quejas por radio?"
+        opciones = ["Spa", "Montreal", "Bahréin", circuito]
+    else:
+        pregunta = "Which circuit saw the tense 2014 battle between Alonso and Vettel, full of radio complaints and borderline moves?"
+        opciones = ["Spa", "Montreal", "Bahrain", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_hamilton_verstappen_monza_2021():
+    year = "2021"
+    if LANG == "es":
+        pregunta = "¿En qué temporada colisionaron Lewis Hamilton y Max Verstappen en Monza, quedando el Red Bull encima del Mercedes?"
+        opciones = ["2019", "2020", "2022", year]
+    else:
+        pregunta = "In which season did Lewis Hamilton and Max Verstappen collide in Monza, with the Red Bull ending up on top of the Mercedes?"
+        opciones = ["2019", "2020", "2022", year]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_button_hamilton_canada_2011():
+    circuito = "Montreal"
+    if LANG == "es":
+        pregunta = "¿En qué circuito colisionaron Jenson Button y Lewis Hamilton en una épica carrera bajo la lluvia en 2011?"
+        opciones = ["Mónaco", "Suzuka", "Melbourne", circuito]
+    else:
+        pregunta = "At which circuit did Jenson Button and Lewis Hamilton collide during an epic rain-affected race in 2011?"
+        opciones = ["Monaco", "Suzuka", "Melbourne", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_verstappen_leclerc_jedda_2022():
+    circuito = "Yeda"
+    if LANG == "es":
+        pregunta = "¿En qué circuito tuvo lugar el vibrante duelo con múltiples adelantamientos entre Leclerc y Verstappen en 2022?"
+        opciones = ["Bakú", "Miami", "Silverstone", circuito]
+    else:
+        pregunta = "At which circuit did the thrilling 2022 battle between Leclerc and Verstappen with multiple DRS passes occur?"
+        opciones = ["Baku", "Miami", "Silverstone", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+
+def pregunta_duelo_villeneuve_pironi_1982():
+    circuito = "Imola"
+    if LANG == "es":
+        pregunta = "¿En qué circuito ocurrió el conflicto entre Gilles Villeneuve y Didier Pironi en 1982, tras no respetar órdenes de equipo?"
+        opciones = ["Zandvoort", "Mónaco", "Hockenheim", circuito]
+    else:
+        pregunta = "At which circuit did Gilles Villeneuve and Didier Pironi clash in 1982 after team orders were ignored?"
+        opciones = ["Zandvoort", "Monaco", "Hockenheim", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_prost_senna_suzuka_1989():
+    año = "1989"
+    if LANG == "es":
+        pregunta = "¿En qué año chocaron Ayrton Senna y Alain Prost en Suzuka, decidiendo así el campeonato?"
+        opciones = ["1988", "1990", "1991", año]
+    else:
+        pregunta = "In which year did Ayrton Senna and Alain Prost crash at Suzuka, deciding the championship?"
+        opciones = ["1988", "1990", "1991", año]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": año,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+def pregunta_duelo_hamilton_alonso_hungria_2007():
+    year = "2007"
+    if LANG == "es":
+        pregunta = "¿En qué temporada se produjo el famoso duelo interno entre Alonso y Hamilton en McLaren, con polémica en Hungría?"
+        opciones = ["2006", "2008", "2009", year]
+    else:
+        pregunta = "In which season did the infamous intra-team battle between Alonso and Hamilton at McLaren happen, including controversy in Hungary?"
+        opciones = ["2006", "2008", "2009", year]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_battle_malaysia_2013():
+    piloto = "Sebastian Vettel"
+    if LANG == "es":
+        pregunta = "¿Qué piloto desobedeció órdenes de equipo y adelantó a su compañero en el famoso 'Multi-21' en Malasia 2013?"
+        opciones = ["Mark Webber", "Lewis Hamilton", "Kimi Räikkönen", piloto]
+    else:
+        pregunta = "Which driver ignored team orders and overtook his teammate in the infamous 'Multi-21' incident at Malaysia 2013?"
+        opciones = ["Mark Webber", "Lewis Hamilton", "Kimi Räikkönen", piloto]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": piloto,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_alesi_senna_phoenix_1990():
+    circuito = "Phoenix"
+    if LANG == "es":
+        pregunta = "¿En qué circuito Jean Alesi sorprendió a Ayrton Senna con un inesperado duelo rueda a rueda en 1990?"
+        opciones = ["Adelaida", "Detroit", "Interlagos", circuito]
+    else:
+        pregunta = "At which circuit did Jean Alesi challenge Ayrton Senna in a surprise wheel-to-wheel duel in 1990?"
+        opciones = ["Adelaide", "Detroit", "Interlagos", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_mansell_berger_mexico_1990():
+    circuito = "Hermanos Rodríguez"
+    if LANG == "es":
+        pregunta = "¿En qué circuito realizó Nigel Mansell un adelantamiento memorable por el exterior a Gerhard Berger en 1990?"
+        opciones = ["Imola", "Estoril", "Suzuka", circuito]
+    else:
+        pregunta = "At which circuit did Nigel Mansell pull off a memorable outside overtake on Gerhard Berger in 1990?"
+        opciones = ["Imola", "Estoril", "Suzuka", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_leclerc_hamilton_monza_2019():
+    year = "2019"
+    if LANG == "es":
+        pregunta = "¿En qué año Charles Leclerc defendió agresivamente su posición contra Hamilton en Monza para lograr su primera victoria con Ferrari en casa?"
+        opciones = ["2018", "2020", "2021", year]
+    else:
+        pregunta = "In which year did Charles Leclerc defend hard against Hamilton at Monza to win his first race for Ferrari at home?"
+        opciones = ["2018", "2020", "2021", year]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_verstappen_perez_baku_2023():
+    piloto = "Sergio Pérez"
+    if LANG == "es":
+        pregunta = "¿Qué piloto venció a Verstappen en un intenso duelo estratégico en Bakú 2023?"
+        opciones = ["Charles Leclerc", "Fernando Alonso", "Lewis Hamilton", piloto]
+    else:
+        pregunta = "Which driver defeated Verstappen in a strategic battle at Baku 2023?"
+        opciones = ["Charles Leclerc", "Fernando Alonso", "Lewis Hamilton", piloto]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": piloto,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_senna_mansell_spa_1992():
+    circuito = "Spa-Francorchamps"
+    if LANG == "es":
+        pregunta = "¿En qué circuito se vivió un célebre duelo entre Ayrton Senna y Nigel Mansell en la lluvia en 1992?"
+        opciones = ["Hungaroring", "Estoril", "Monza", circuito]
+    else:
+        pregunta = "At which circuit did Ayrton Senna and Nigel Mansell have a memorable wet battle in 1992?"
+        opciones = ["Hungaroring", "Estoril", "Monza", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_schumacher_damonhill_adelaida_1994():
+    piloto = "Michael Schumacher"
+    if LANG == "es":
+        pregunta = "¿Qué piloto chocó con Damon Hill en Adelaida 1994, asegurando así el campeonato?"
+        opciones = ["Jacques Villeneuve", "Jean Alesi", "Mika Häkkinen", piloto]
+    else:
+        pregunta = "Which driver collided with Damon Hill at Adelaide 1994, securing the championship?"
+        opciones = ["Jacques Villeneuve", "Jean Alesi", "Mika Häkkinen", piloto]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": piloto,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_ricciardo_verstappen_baku_2018():
+    year = "2018"
+    if LANG == "es":
+        pregunta = "¿En qué año colisionaron los dos Red Bull, Ricciardo y Verstappen, durante una intensa batalla en Bakú?"
+        opciones = ["2017", "2019", "2020", year]
+    else:
+        pregunta = "In which year did Red Bull teammates Ricciardo and Verstappen crash during a fierce battle in Baku?"
+        opciones = ["2017", "2019", "2020", year]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_hamilton_nico_abudhabi_2016():
+    piloto = "Nico Rosberg"
+    if LANG == "es":
+        pregunta = "¿Qué piloto se coronó campeón del mundo en 2016 tras resistir la presión de Hamilton en Abu Dabi?"
+        opciones = ["Sebastian Vettel", "Kimi Räikkönen", "Jenson Button", piloto]
+    else:
+        pregunta = "Which driver won the 2016 world title after withstanding Hamilton's pressure in Abu Dhabi?"
+        opciones = ["Sebastian Vettel", "Kimi Räikkönen", "Jenson Button", piloto]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": piloto,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_gasly_sainz_monza_2020():
+    year = "2020"
+    if LANG == "es":
+        pregunta = "¿En qué año Pierre Gasly aguantó a Carlos Sainz hasta la última vuelta para ganar en Monza?"
+        opciones = ["2019", "2021", "2022", year]
+    else:
+        pregunta = "In which year did Pierre Gasly hold off Carlos Sainz to win in Monza?"
+        opciones = ["2019", "2021", "2022", year]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 1,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_schumacher_villeneuve_1997():
+    circuito = "Jerez"
+    if LANG == "es":
+        pregunta = "¿En qué circuito chocó Schumacher con Jacques Villeneuve en 1997 intentando defender el campeonato?"
+        opciones = ["Montmeló", "Adelaida", "Nürburgring", circuito]
+    else:
+        pregunta = "At which circuit did Schumacher collide with Jacques Villeneuve in 1997 trying to defend his title?"
+        opciones = ["Barcelona", "Adelaide", "Nürburgring", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_kimi_fisichella_belgica_2009():
+    circuito = "Spa-Francorchamps"
+    if LANG == "es":
+        pregunta = "¿En qué circuito se enfrentaron Kimi Räikkönen y Fisichella por la victoria en 2009 con un Force India peleando por el triunfo?"
+        opciones = ["Sepang", "Suzuka", "Valencia", circuito]
+    else:
+        pregunta = "At which circuit did Kimi Räikkönen battle Fisichella for the win in 2009, with Force India fighting for victory?"
+        opciones = ["Sepang", "Suzuka", "Valencia", circuito]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": circuito,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+def pregunta_duelo_fangio_hawthorn_nurburgring_1957():
+    year = "1957"
+    if LANG == "es":
+        pregunta = "¿En qué año protagonizó Juan Manuel Fangio un legendario duelo en Nürburgring, remontando con récords de vuelta frente a los Ferrari?"
+        opciones = ["1955", "1956", "1958", year]
+    else:
+        pregunta = "In which year did Juan Manuel Fangio stage a legendary comeback at Nürburgring with lap records against Ferrari?"
+        opciones = ["1955", "1956", "1958", year]
+
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 3,
+        "category": "Duels",
+        "language": LANG
+    }
+
+
+
+
+
+
 
 #------------------------------------------------------------------------------------------------------
 
@@ -1329,6 +1792,601 @@ def pregunta_piloto_mas_puntos_sin_ganar_temporada():
     finally:
             cursor.close()
             conn.close()
+
+
+def pregunta_peor_escuderia_2010():
+    constructor = "HRT"
+    if LANG == "es":
+        pregunta = "¿Qué escudería fue la peor clasificada en el campeonato de constructores de 2010?"
+        opciones = ["Lotus", "Virgin", "Toro Rosso", constructor]
+    else:
+        pregunta = "Which team was the worst classified in the 2010 constructors' championship?"
+        opciones = ["Lotus", "Virgin", "Toro Rosso", constructor]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": constructor,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+
+def pregunta_temporada_maximos_ganadores():
+    year = "2012"
+    if LANG == "es":
+        pregunta = "¿En qué temporada hubo el mayor número de ganadores diferentes en las primeras 7 carreras?"
+        opciones = ["2010", "2011", "2013", year]
+    else:
+        pregunta = "In which season were there the most different winners in the first 7 races?"
+        opciones = ["2010", "2011", "2013", year]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+
+def pregunta_dominio_1988():
+    respuesta = "15 de 16"
+    if LANG == "es":
+        pregunta = "¿Cuántas carreras ganó McLaren durante la temporada 1988?"
+        opciones = ["13 de 16", "14 de 16", "12 de 16", respuesta]
+    else:
+        pregunta = "How many races did McLaren win during the 1988 season?"
+        opciones = ["13 of 16", "14 of 16", "12 of 16", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+
+def pregunta_unico_campeonato_button():
+    year = "2009"
+    if LANG == "es":
+        pregunta = "¿En qué temporada ganó Jenson Button su único campeonato del mundo?"
+        opciones = ["2008", "2010", "2011", year]
+    else:
+        pregunta = "In which season did Jenson Button win his only world championship?"
+        opciones = ["2008", "2010", "2011", year]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+
+def pregunta_pelea_fernando_lewis_2007():
+    respuesta = "Igualdad de puntos entre ambos"
+    if LANG == "es":
+        pregunta = "¿Cómo terminó la histórica rivalidad entre Fernando Alonso y Lewis Hamilton en 2007?"
+        opciones = ["Hamilton fue subcampeón", "Alonso fue subcampeón", "Ganó Alonso", respuesta]
+    else:
+        pregunta = "How did the historic rivalry between Fernando Alonso and Lewis Hamilton end in 2007?"
+        opciones = ["Hamilton was runner-up", "Alonso was runner-up", "Alonso won", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_dominio_schumacher_2004():
+    respuesta = "13 de 18"
+    if LANG == "es":
+        pregunta = "¿Cuántas carreras ganó Michael Schumacher durante la temporada 2004?"
+        opciones = ["11 de 18", "12 de 18", "14 de 18", respuesta]
+    else:
+        pregunta = "How many races did Michael Schumacher win during the 2004 season?"
+        opciones = ["11 of 18", "12 of 18", "14 of 18", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_sorpresa_brawn_2009():
+    respuesta = "Brawn GP"
+    if LANG == "es":
+        pregunta = "¿Qué equipo sorprendió al ganar el campeonato de constructores en 2009?"
+        opciones = ["Red Bull", "Ferrari", "McLaren", respuesta]
+    else:
+        pregunta = "Which team surprised everyone by winning the constructors championship in 2009?"
+        opciones = ["Red Bull", "Ferrari", "McLaren", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_gp_final_2021():
+    respuesta = "GP de Abu Dhabi"
+    if LANG == "es":
+        pregunta = "¿En qué Gran Premio se decidió el polémico campeonato de 2021 entre Verstappen y Hamilton?"
+        opciones = ["GP de Arabia Saudí", "GP de Brasil", "GP de Qatar", respuesta]
+    else:
+        pregunta = "In which Grand Prix was the controversial 2021 title between Verstappen and Hamilton decided?"
+        opciones = ["Saudi Arabian GP", "Brazilian GP", "Qatar GP", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_sorpresa_vettel_2010():
+    respuesta = "Sebastian Vettel"
+    if LANG == "es":
+        pregunta = "¿Qué piloto ganó su primer campeonato del mundo en la última carrera de 2010?"
+        opciones = ["Fernando Alonso", "Mark Webber", "Lewis Hamilton", respuesta]
+    else:
+        pregunta = "Which driver won his first world championship in the final race of 2010?"
+        opciones = ["Fernando Alonso", "Mark Webber", "Lewis Hamilton", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_dominio_mercedes_2016():
+    respuesta = "10 de 21"
+    if LANG == "es":
+        pregunta = "¿Cuántas victorias logró Nico Rosberg en su temporada de campeonato 2016?"
+        opciones = ["8 de 21", "9 de 21", "11 de 21", respuesta]
+    else:
+        pregunta = "How many races did Nico Rosberg win during his 2016 championship season?"
+        opciones = ["8 of 21", "9 of 21", "11 of 21", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_debut_alonso():
+    respuesta = "2001"
+    if LANG == "es":
+        pregunta = "¿En qué temporada debutó Fernando Alonso en la Fórmula 1?"
+        opciones = ["2000", "2002", "2003", respuesta]
+    else:
+        pregunta = "In which season did Fernando Alonso make his Formula 1 debut?"
+        opciones = ["2000", "2002", "2003", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 1,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_escuderia_sorpresa_2020():
+    respuesta = "Racing Point"
+    if LANG == "es":
+        pregunta = "¿Qué equipo sorprendió al ganar un Gran Premio en 2020 con Sergio Pérez?"
+        opciones = ["AlphaTauri", "Renault", "McLaren", respuesta]
+    else:
+        pregunta = "Which team surprised by winning a Grand Prix in 2020 with Sergio Pérez?"
+        opciones = ["AlphaTauri", "Renault", "McLaren", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_mas_victorias_una_temporada():
+    respuesta = "19"
+    if LANG == "es":
+        pregunta = "¿Cuántas victorias logró Max Verstappen en su histórica temporada 2023?"
+        opciones = ["17", "18", "20", respuesta]
+    else:
+        pregunta = "How many wins did Max Verstappen achieve in his historic 2023 season?"
+        opciones = ["17", "18", "20", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_retiro_massa():
+    respuesta = "2017"
+    if LANG == "es":
+        pregunta = "¿En qué temporada se retiró finalmente Felipe Massa de la Fórmula 1?"
+        opciones = ["2015", "2016", "2018", respuesta]
+    else:
+        pregunta = "In which season did Felipe Massa finally retire from Formula 1?"
+        opciones = ["2015", "2016", "2018", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_renacimiento_ferrari_2022():
+    respuesta = "Charles Leclerc"
+    if LANG == "es":
+        pregunta = "¿Qué piloto ganó la primera carrera de 2022, marcando el renacer de Ferrari?"
+        opciones = ["Carlos Sainz", "Lewis Hamilton", "George Russell", respuesta]
+    else:
+        pregunta = "Which driver won the first race of 2022, marking Ferrari’s comeback?"
+        opciones = ["Carlos Sainz", "Lewis Hamilton", "George Russell", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_circuito_final_2008():
+    respuesta = "Interlagos"
+    if LANG == "es":
+        pregunta = "¿En qué circuito se disputó la carrera final del campeonato de 2008?"
+        opciones = ["Suzuka", "Monza", "Abu Dhabi", respuesta]
+    else:
+        pregunta = "In which circuit was the final race of the 2008 championship held?"
+        opciones = ["Suzuka", "Monza", "Abu Dhabi", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_anio_dominante_button():
+    respuesta = "6"
+    if LANG == "es":
+        pregunta = "¿Cuántas de las primeras 7 carreras ganó Jenson Button en 2009?"
+        opciones = ["5", "4", "7", respuesta]
+    else:
+        pregunta = "How many of the first 7 races did Jenson Button win in 2009?"
+        opciones = ["5", "4", "7", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+
+
+def pregunta_mayor_diferencia_puntos_una_temporada():
+    respuesta = "155"
+    if LANG == "es":
+        pregunta = "¿Cuál fue la diferencia de puntos entre el campeón y el subcampeón en la temporada 2023?"
+        opciones = ["110", "125", "140", respuesta]
+    else:
+        pregunta = "What was the points gap between the champion and runner-up in the 2023 season?"
+        opciones = ["110", "125", "140", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_temporada_ross_brawn():
+    respuesta = "2009"
+    if LANG == "es":
+        pregunta = "¿En qué temporada ganó el campeonato de constructores el equipo Brawn GP?"
+        opciones = ["2008", "2010", "2011", respuesta]
+    else:
+        pregunta = "In which season did Brawn GP win the constructors championship?"
+        opciones = ["2008", "2010", "2011", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_titulo_sorpresa_villeneuve():
+    respuesta = "1997"
+    if LANG == "es":
+        pregunta = "¿En qué temporada ganó el campeonato Jacques Villeneuve?"
+        opciones = ["1996", "1998", "1999", respuesta]
+    else:
+        pregunta = "In which season did Jacques Villeneuve win the championship?"
+        opciones = ["1996", "1998", "1999", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_temporada_dominante_ferrari():
+    respuesta = "2004"
+    if LANG == "es":
+        pregunta = "¿Qué temporada dominó Ferrari con 15 victorias en 18 carreras?"
+        opciones = ["2002", "2003", "2005", respuesta]
+    else:
+        pregunta = "Which season did Ferrari dominate with 15 wins out of 18 races?"
+        opciones = ["2002", "2003", "2005", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_piloto_debutante_gana_gp_2008():
+    respuesta = "Sebastian Vettel"
+    if LANG == "es":
+        pregunta = "¿Qué joven piloto logró su primera victoria en el GP de Italia 2008?"
+        opciones = ["Lewis Hamilton", "Robert Kubica", "Heikki Kovalainen", respuesta]
+    else:
+        pregunta = "Which young driver got his first win at the 2008 Italian GP?"
+        opciones = ["Lewis Hamilton", "Robert Kubica", "Heikki Kovalainen", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_temporada_debut_alonso_renault():
+    respuesta = "2003"
+    if LANG == "es":
+        pregunta = "¿En qué temporada debutó Alonso como piloto titular en Renault?"
+        opciones = ["2002", "2004", "2005", respuesta]
+    else:
+        pregunta = "Which season did Alonso debut as a full-time Renault driver?"
+        opciones = ["2002", "2004", "2005", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_duelo_final_2021():
+    respuesta = "Max Verstappen"
+    if LANG == "es":
+        pregunta = "¿Quién ganó el campeonato 2021 en la última vuelta del GP final?"
+        opciones = ["Lewis Hamilton", "Sergio Pérez", "Valtteri Bottas", respuesta]
+    else:
+        pregunta = "Who won the 2021 championship in the final lap of the final GP?"
+        opciones = ["Lewis Hamilton", "Sergio Pérez", "Valtteri Bottas", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_gran_chelem_senna_1988():
+    respuesta = "Gran Premio de Gran Bretaña"
+    if LANG == "es":
+        pregunta = "¿Dónde logró Ayrton Senna un Grand Chelem durante la temporada 1988?"
+        opciones = ["Mónaco", "Suzuka", "Hockenheim", respuesta]
+    else:
+        pregunta = "Where did Ayrton Senna achieve a Grand Chelem in the 1988 season?"
+        opciones = ["Monaco", "Suzuka", "Hockenheim", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_mayor_numero_gp_temporada():
+    respuesta = "23"
+    if LANG == "es":
+        pregunta = "¿Cuántos Grandes Premios tuvo la temporada con más carreras de la historia (hasta 2023)?"
+        opciones = ["21", "22", "24", respuesta]
+    else:
+        pregunta = "How many races had the longest F1 season in history (until 2023)?"
+        opciones = ["21", "22", "24", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 2,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_piloto_suplente_gana_2020():
+    respuesta = "George Russell"
+    if LANG == "es":
+        pregunta = "¿Qué piloto casi gana el GP de Sakhir 2020 reemplazando a Hamilton?"
+        opciones = ["Stoffel Vandoorne", "Nico Hülkenberg", "Esteban Ocon", respuesta]
+    else:
+        pregunta = "Which driver almost won the 2020 Sakhir GP replacing Hamilton?"
+        opciones = ["Stoffel Vandoorne", "Nico Hülkenberg", "Esteban Ocon", respuesta]
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": respuesta,
+        "knowledgeLevel": 3,
+        "category": "LegendarySeason",
+        "language": LANG
+    }
+
+def pregunta_total_victorias_escuderia():
+    conn, cursor = crear_cursor_local()
+    try:
+        while cursor.nextset():
+            pass
+
+        cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+        row = cursor.fetchone()
+        if not row:
+            return None
+        escuderia = row[0]
+
+        while cursor.nextset():
+            pass
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM results r
+            JOIN constructors c ON r.constructorId = c.constructorId
+            WHERE r.position = 1 AND c.name = %s
+        """, (escuderia,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        total = row[0]
+
+        if LANG == "es":
+            pregunta = f"¿Cuántas victorias totales tiene la escudería {escuderia} en F1?"
+        else:
+            pregunta = f"How many total victories does the team {escuderia} have in F1?"
+        opciones = get_respuestas_incorrectas(str(total), [str(i) for i in range(0, 300)])
+        opciones.append(str(total))
+        random.shuffle(opciones)
+
+        return {
+            "question": pregunta,
+            "answers": opciones,
+            "correctAnswer": str(total),
+            "knowledgeLevel": 2,
+            "category": "Team",
+            "language": LANG
+        }
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def pregunta_escuderia_mas_podios_temporada():
+    conn, cursor = crear_cursor_local()
+    try:
+        while cursor.nextset():
+            pass
+
+        cursor.execute("SELECT name FROM constructors ORDER BY RAND() LIMIT 1")
+        row = cursor.fetchone()
+        if not row:
+            return None
+        escuderia = row[0]
+
+        while cursor.nextset():
+            pass
+
+        cursor.execute("""
+            SELECT ra.year, COUNT(*) as podios
+            FROM results r
+            JOIN races ra ON r.raceId = ra.raceId
+            JOIN constructors c ON r.constructorId = c.constructorId
+            WHERE c.name = %s AND r.position <= 3
+            GROUP BY ra.year
+            ORDER BY podios DESC
+            LIMIT 1
+        """, (escuderia,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        year = row[0]
+
+        if LANG == "es":
+            pregunta = f"¿En qué temporada consiguió más podios la escudería {escuderia}?"
+        else:
+            pregunta = f"In which season did {escuderia} get the most podiums?"
+        opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(1950, 2024)])
+        opciones.append(str(year))
+        random.shuffle(opciones)
+
+        return {
+            "question": pregunta,
+            "answers": opciones,
+            "correctAnswer": str(year),
+            "knowledgeLevel": 2,
+            "category": "Team",
+            "language": LANG
+        }
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+
+
 
 
 #------------------------------------------------------------------------------------------------------------------
@@ -5129,7 +6187,16 @@ generadores_por_categoria = {
         pregunta_anio_mas_cambios_lider,
         pregunta_anio_mas_abandonos_circuito,
         pregunta_piloto_pole_y_vuelta_rapida_misma_edicion,
-        pregunta_anio_velocidad_promedio_mas_alta
+        pregunta_anio_velocidad_promedio_mas_alta,
+        pregunta_pais_circuito,
+        pregunta_anio_cancelado_del_calendario,
+        pregunta_piloto_fue_campeon_en_ese_circuito,
+        pregunta_gp_con_mas_campeones_en_circuito,
+        pregunta_piloto_mas_victorias_circuito,
+        pregunta_constructor_mas_poles_circuito,
+        pregunta_ano_mas_abandonos_circuito,
+        pregunta_numero_gp_en_circuito,
+        pregunta_anio_vuelta_rapida_circuito
     ],
     "LegendarySeason": [
         pregunta_piloto_campeon_temporada,
@@ -5141,14 +6208,64 @@ generadores_por_categoria = {
         pregunta_circuito_mas_vueltas_temporada,
         pregunta_escuderia_mas_abandonos_temporada,
         pregunta_cuantos_pilotos_ganaron_temporada,
-        pregunta_piloto_mas_puntos_sin_ganar_temporada
+        pregunta_piloto_mas_puntos_sin_ganar_temporada,
+        pregunta_peor_escuderia_2010,
+        pregunta_temporada_maximos_ganadores,
+        pregunta_dominio_1988,
+        pregunta_unico_campeonato_button,
+        pregunta_pelea_fernando_lewis_2007,
+        pregunta_dominio_schumacher_2004,
+        pregunta_sorpresa_brawn_2009,
+        pregunta_gp_final_2021,
+        pregunta_sorpresa_vettel_2010,
+        pregunta_dominio_mercedes_2016,
+        pregunta_debut_alonso,
+        pregunta_escuderia_sorpresa_2020,
+        pregunta_mas_victorias_una_temporada,
+        pregunta_retiro_massa,
+        pregunta_renacimiento_ferrari_2022,
+        pregunta_circuito_final_2008,
+        pregunta_anio_dominante_button,
+        pregunta_mayor_diferencia_puntos_una_temporada,
+        pregunta_temporada_ross_brawn,
+        pregunta_titulo_sorpresa_villeneuve,
+        pregunta_temporada_dominante_ferrari,
+        pregunta_piloto_debutante_gana_gp_2008,
+        pregunta_temporada_debut_alonso_renault,
+        pregunta_duelo_final_2021,
+        pregunta_gran_chelem_senna_1988,
+        pregunta_mayor_numero_gp_temporada,
+        pregunta_piloto_suplente_gana_2020
     ],
     "Duels": [
         pregunta_rival_de_senna_en_mclaren,
         pregunta_piloto_perdio_titulo_en_ultima_curva_2008,
         pregunta_rival_schumacher_2000,
         pregunta_ano_choque_hamilton_rosberg_espana,
-        pregunta_duelo_vettel_canada_2019
+        pregunta_duelo_vettel_canada_2019,
+        pregunta_duelo_schumacher_alonso_2005,
+        pregunta_duelo_piquet_mansell_silverstone_1987,
+        pregunta_duelo_gilles_arnoux_dijon,
+        pregunta_duelo_alonso_vettel_silverstone_2014,
+        pregunta_duelo_hamilton_verstappen_monza_2021,
+        pregunta_duelo_button_hamilton_canada_2011,
+        pregunta_duelo_verstappen_leclerc_jedda_2022,
+        pregunta_duelo_villeneuve_pironi_1982,
+        pregunta_duelo_prost_senna_suzuka_1989,
+        pregunta_duelo_hamilton_alonso_hungria_2007,
+        pregunta_duelo_battle_malaysia_2013,
+        pregunta_duelo_alesi_senna_phoenix_1990,
+        pregunta_duelo_mansell_berger_mexico_1990,
+        pregunta_duelo_leclerc_hamilton_monza_2019,
+        pregunta_duelo_verstappen_perez_baku_2023,
+        pregunta_duelo_senna_mansell_spa_1992,
+        pregunta_duelo_schumacher_damonhill_adelaida_1994,
+        pregunta_duelo_ricciardo_verstappen_baku_2018,
+        pregunta_duelo_hamilton_nico_abudhabi_2016,
+        pregunta_duelo_gasly_sainz_monza_2020,
+        pregunta_duelo_schumacher_villeneuve_1997,
+        pregunta_duelo_kimi_fisichella_belgica_2009,
+        pregunta_duelo_fangio_hawthorn_nurburgring_1957
     ],
     "Team": [
         pregunta_piloto_mas_victorias_escuderia,
@@ -5157,7 +6274,9 @@ generadores_por_categoria = {
         pregunta_circuito_mas_victorias_escuderia,
         pregunta_campeonatos_constructores_escuderia,
         pregunta_piloto_mas_abandonos_escuderia,
-        pregunta_peor_temporada_puntos_escuderia
+        pregunta_peor_temporada_puntos_escuderia,
+        pregunta_total_victorias_escuderia,
+        pregunta_escuderia_mas_podios_temporada
     ],
     "Driver": [
         pregunta_circuito_mas_abandonos_piloto,
