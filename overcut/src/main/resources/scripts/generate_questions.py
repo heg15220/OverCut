@@ -7,20 +7,26 @@ import random
 import json
 import argparse  # <- AÑADE ESTO AQUÍ
 import concurrent.futures
-from mysql.connector import pooling
-# --- Connection Pool Setup ---
-connection_pool = pooling.MySQLConnectionPool(
-    pool_name="f1db_pool",
-    pool_size=32,
-    host='localhost',
-    port=3306,
-    user='root',
-    password='root',
-    database='f1db'
+
+from sqlalchemy import create_engine
+import pymysql
+
+
+# pymysql no necesita cambiar plugin
+pymysql.install_as_MySQLdb()
+
+engine = create_engine(
+    "mysql+pymysql://root:root@localhost:3306/f1db",
+    pool_size=32,           # máximo de conexiones activas
+    max_overflow=15,        # conexiones adicionales temporales
+    pool_pre_ping=True,     # verifica que la conexión esté viva
+    pool_recycle=1800       # recicla conexiones cada 30 minutos
 )
 
+connection = engine.raw_connection()
+
 def crear_cursor_local():
-    conn = connection_pool.get_connection()
+    conn = engine.raw_connection()
     return conn, conn.cursor()
 
 _pilotos_cache = None
@@ -759,186 +765,104 @@ def generar_pregunta_piloto_mas_victorias_en_circuito():
 
 # **Duelos Legendarios**
 def pregunta_rival_de_senna_en_mclaren():
-    conn, cursor = crear_cursor_local()
-    try:
+    piloto = "Alain Prost"
+    if LANG == "es":
+        pregunta = "¿Quién fue el gran rival de Ayrton Senna durante su etapa en McLaren?"
+        opciones = ["Nigel Mansell", "Nelson Piquet", "Gerhard Berger", piloto]
+    else:
+        pregunta = "Who was Ayrton Senna's biggest rival in the McLaren days?"
+        opciones = ["Nigel Mansell", "Nelson Piquet", "Gerhard Berger", piloto]
 
-        # Limpieza del cursor por seguridad
-        while cursor.nextset():
-            pass
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": piloto,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
 
-        piloto = "Alain Prost"
-        if LANG == "es":
-            pregunta = "¿Quién fue el gran rival de Ayrton Senna durante su etapa en McLaren?"
-        elif LANG == "en":
-            pregunta = "Who was Ayrton Senna`s biggest rival in the McLaren days?"
-        incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
-        opciones = incorrectas + [piloto]
-        random.shuffle(opciones)
-        return {
-                "question": pregunta,
-                "answers": opciones,               # <- "answers" en lugar de "options"
-                "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-                "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels",
-                "language": LANG
-            }
-    finally:
-            cursor.close()
-            conn.close()
 
 def pregunta_piloto_perdio_titulo_en_ultima_curva_2008():
-    conn, cursor = crear_cursor_local()
-    try:
+    piloto = "Felipe Massa"
+    if LANG == "es":
+        pregunta = "¿Qué piloto perdió el campeonato del mundo en la última curva del último GP de 2008?"
+        opciones = ["Robert Kubica", "Lewis Hamilton", "Fernando Alonso", piloto]
+    else:
+        pregunta = "Which driver lost the 2008 F1 championship at the last corner of the last GP?"
+        opciones = ["Robert Kubica", "Lewis Hamilton", "Fernando Alonso", piloto]
 
-        # Limpieza del cursor por seguridad
-        while cursor.nextset():
-            pass
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": piloto,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
 
-        cursor.execute("""
-            SELECT d.forename, d.surname
-            FROM driverStandings ds
-            JOIN races ra ON ds.raceId = ra.raceId
-            JOIN drivers d ON ds.driverId = d.driverId
-            WHERE ra.year = 2008 AND ra.round = (
-                SELECT MAX(round) FROM races WHERE year = 2008
-            ) AND ds.position = 2
-        """)
-        row = cursor.fetchone()
-        if not row:
-            return None
-        piloto = f"{row[0]} {row[1]}"
-        if LANG == "es":
-            pregunta = "¿Qué piloto perdió el campeonato del mundo en la última curva del último GP de 2008?"
-        elif LANG == "en":
-            pregunta = "Which driver lost the 2008 F1 championship at the last corner of the last gp?"
-        incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
-        opciones = incorrectas + [piloto]
-        random.shuffle(opciones)
-        return {
-                "question": pregunta,
-                "answers": opciones,               # <- "answers" en lugar de "options"
-                "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-                "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels",
-                "language": LANG
-            }
-    finally:
-            cursor.close()
-            conn.close()
 
 def pregunta_rival_schumacher_2000():
-    conn, cursor = crear_cursor_local()
-    try:
+    piloto = "Mika Häkkinen"
+    if LANG == "es":
+        pregunta = "¿Quién fue el principal rival de Michael Schumacher durante su primer título con Ferrari en 2000?"
+        opciones = ["David Coulthard", "Rubens Barrichello", "Jacques Villeneuve", piloto]
+    else:
+        pregunta = "Who was Michael Schumacher's biggest rival during his first title with Ferrari in 2000?"
+        opciones = ["David Coulthard", "Rubens Barrichello", "Jacques Villeneuve", piloto]
 
-        # Limpieza del cursor por seguridad
-        while cursor.nextset():
-            pass
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": piloto,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
 
-        cursor.execute("""
-            SELECT d.forename, d.surname
-            FROM driverStandings ds
-            JOIN races ra ON ds.raceId = ra.raceId
-            JOIN drivers d ON ds.driverId = d.driverId
-            WHERE ra.year = 2000 AND ds.position = 2
-            ORDER BY ra.round DESC
-            LIMIT 1
-        """)
-        row = cursor.fetchone()
-        if not row:
-            return None
-        piloto = f"{row[0]} {row[1]}"
-        if LANG == "es":
-            pregunta = "¿Quién fue el principal rival de Michael Schumacher durante su primer título con Ferrari en 2000?"
-        elif LANG == "en":
-            pregunta = "Who was Michael Schumacher`s biggest rival during his first title with Ferrari in 2000?"
-        incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
-        opciones = incorrectas + [piloto]
-        random.shuffle(opciones)
-        return {
-                "question": pregunta,
-                "answers": opciones,               # <- "answers" en lugar de "options"
-                "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-                "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels",
-                "language": LANG
-            }
-    finally:
-            cursor.close()
-            conn.close()
 
 def pregunta_ano_choque_hamilton_rosberg_espana():
-    conn, cursor = crear_cursor_local()
-    try:
+    year = "2016"
+    if LANG == "es":
+        pregunta = "¿En qué temporada ocurrió el choque entre Hamilton y Rosberg en el GP de España?"
+        opciones = ["2015", "2014", "2017", year]
+    else:
+        pregunta = "In which season did Hamilton and Rosberg crash at the Spanish GP?"
+        opciones = ["2015", "2014", "2017", year]
 
-        # Limpieza del cursor por seguridad
-        while cursor.nextset():
-            pass
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": year,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
 
-        cursor.execute("""
-            SELECT ra.year
-            FROM races ra
-            JOIN circuits c ON ra.circuitId = c.circuitId
-            WHERE c.name LIKE '%Barcelona%' OR c.name LIKE '%Catalunya%'
-            ORDER BY ra.year
-        """)
-        years = [row[0] for row in cursor.fetchall()]
-        year = 2016 if 2016 in years else max(years)
-        if LANG == "es":
-            pregunta = "¿En qué temporada ocurrió el choque entre Hamilton y Rosberg en el GP de España?"
-        elif LANG == "en":
-            pregunta = "In which season happened Hamilton and Rosberg crash at the Spanish GP?"
-        opciones = get_respuestas_incorrectas(str(year), [str(y) for y in range(2010, 2021)])
-        opciones.append(str(year))
-        random.shuffle(opciones)
-        return {
-                "question": pregunta,
-                "answers": opciones,               # <- "answers" en lugar de "options"
-                "correctAnswer": str(year),           # <- "correctAnswer" en lugar de "answer"
-                "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels",
-                "language": LANG
-            }
-    finally:
-            cursor.close()
-            conn.close()
 
 def pregunta_duelo_vettel_canada_2019():
-    conn, cursor = crear_cursor_local()
-    try:
+    piloto = "Lewis Hamilton"
+    if LANG == "es":
+        pregunta = "¿Quién ganó el polémico duelo con Sebastian Vettel en Canadá 2019 debido a una penalización?"
+        opciones = ["Charles Leclerc", "Valtteri Bottas", "Max Verstappen", piloto]
+    else:
+        pregunta = "Who won the controversial duel with Sebastian Vettel at the 2019 Canadian GP?"
+        opciones = ["Charles Leclerc", "Valtteri Bottas", "Max Verstappen", piloto]
 
-        # Limpieza del cursor por seguridad
-        while cursor.nextset():
-            pass
+    random.shuffle(opciones)
+    return {
+        "question": pregunta,
+        "answers": opciones,
+        "correctAnswer": piloto,
+        "knowledgeLevel": 2,
+        "category": "Duels",
+        "language": LANG
+    }
 
-        cursor.execute("""
-            SELECT d.forename, d.surname
-            FROM races ra
-            JOIN results r ON ra.raceId = r.raceId
-            JOIN drivers d ON r.driverId = d.driverId
-            WHERE ra.year = 2019 AND ra.name LIKE '%Canada%' AND r.position = 1
-        """)
-        row = cursor.fetchone()
-        if not row:
-            return None
-        piloto = f"{row[0]} {row[1]}"
-        if LANG == "es":
-            pregunta = "¿Quién ganó el polémico duelo con Sebastian Vettel en Canadá 2019 debido a una penalización?"
-        elif LANG == "en":
-            pregunta = "Who won the controversial duel with Sebastian Vettel at the 2019 Canadian GP?"
-        incorrectas = get_respuestas_incorrectas(piloto, get_pilotos_cache())
-        opciones = incorrectas + [piloto]
-        random.shuffle(opciones)
-        return {
-                "question": pregunta,
-                "answers": opciones,               # <- "answers" en lugar de "options"
-                "correctAnswer": piloto,           # <- "correctAnswer" en lugar de "answer"
-                "knowledgeLevel": 2,                # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "Duels",
-                "language": LANG
-            }
-    finally:
-            cursor.close()
-            conn.close()
 
 #------------------------------------------------------------------------------------------------------
 
