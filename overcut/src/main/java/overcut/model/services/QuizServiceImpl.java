@@ -167,6 +167,8 @@ public class QuizServiceImpl implements QuizService {
             aiQuestions = questionLLMService.generateStrategyQuestions(language,quizCategory.getCode().name());
         } else if(quizType.getCode().equals(QuizTypeCode.Physics)){
             aiQuestions = questionLLMService.generatePhysicsQuestions(language,quizCategory.getCode().name());
+        } else if (quizType.getCode().equals(QuizTypeCode.TeamRadios)) {
+            aiQuestions = questionLLMService.generateTeamRadioQuestions(language, quizCategory.getCode().name());
         }
 
         if (dbQuestions.isEmpty() && (aiQuestions == null || aiQuestions.isEmpty())) {
@@ -351,7 +353,7 @@ public class QuizServiceImpl implements QuizService {
         }
 
         QuizType quizType = chooseQuizType();
-        //QuizType quizType = getStatsType(QuizTypeCode.Physics);
+        //QuizType quizType = getStatsType(QuizTypeCode.TeamRadios);
         QuizCategory quizCategory = chooseQuizCategory(quizType);
         //QuizCategory quizCategory = getQuizCategoryType();
         List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType, quizCategory, language);

@@ -23,6 +23,8 @@ INSERT INTO QuizType (code,imagePath) VALUES ('Regulations', 'fia.jpg');
 INSERT INTO QuizType (code,imagePath) VALUES ('Pictures', 'coches-alta-velocidad-compiten-circuito-carreras-formula-concept-car-racing-formula-deportes-alta-velocidad-conductores-competitivos-circuitos-carreras_918839-378206.jpg');
 INSERT INTO QuizType (code,imagePath) VALUES ('Strategy', 'parada-boxes-coche-carreras-formula-tripulacion-accion_771335-69432.png');
 INSERT INTO QuizType (code, imagePath) VALUES ('Physics', null);
+INSERT INTO QuizType (code, imagePath) VALUES ('TeamRadios', null);
+
 
 
 -- Traducciones al español (es)
@@ -31,6 +33,8 @@ INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (2, 'es', 'R
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (3, 'es', 'Imágenes');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (4, 'es', 'Estrategia');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (5, 'es', 'Física');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (6, 'es', 'Radios');
+
 
 
 -- Traducciones al inglés (en)
@@ -39,6 +43,7 @@ INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (2, 'en', 'R
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (3, 'en', 'Pictures');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (4, 'en', 'Strategy');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (5, 'en', 'Physics');
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (6, 'en', 'TeamRadios');
 
 
 
@@ -65,6 +70,8 @@ INSERT INTO QuizCategory (code, quizTypeId) VALUES ('PracticalCase', 2);
 INSERT INTO QuizCategory (code, quizTypeId) VALUES ('DescriptiveImages', 3);
 INSERT INTO QuizCategory (code, quizTypeId) VALUES ('RaceStrategy', 4);
 INSERT INTO QuizCategory (code, quizTypeId) VALUES ('F1Physics', 5);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('LegendaryTeamRadios', 6);
+
 
 
 
@@ -91,6 +98,7 @@ INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (19,
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (20, 'es', 'Imágenes Descriptivas');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (21, 'es', 'Estrategias de carrera');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (22, 'es', 'Física en la F1');
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (23, 'es', 'Radios legendarias de la F1');
 
 
 
@@ -117,7 +125,7 @@ INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (19,
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (20, 'en', 'Descriptive Images');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (21, 'en', 'Race Strategy');
 INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (22, 'en', 'F1 Physics');
-
+INSERT INTO QuizCategoryTranslation (quizCategoryId, language, name) VALUES (23, 'en', 'Legendary F1 TeamRadios');
 
 
 

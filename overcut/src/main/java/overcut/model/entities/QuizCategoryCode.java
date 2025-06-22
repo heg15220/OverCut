@@ -22,5 +22,6 @@ public enum QuizCategoryCode {
     PracticalCase,
     DescriptiveImages,
     RaceStrategy,
-    F1Physics
+    F1Physics,
+    LegendaryTeamRadios
 }
