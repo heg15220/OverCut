@@ -64,5 +64,73 @@ public interface ResultDao extends JpaRepository<Result, Long> {
     List<Object[]> getAveragePointsPerSeasonByDriver(@Param("startYear") int startYear, @Param("endYear") int endYear);
 
 
+    @Query("""
+    SELECT r FROM Result r
+    JOIN FETCH r.race ra
+    JOIN FETCH r.constructor c
+    WHERE r.driver.driverId = :driverId
+    ORDER BY ra.year ASC, ra.round ASC
+""")
+    List<Result> findAllByDriverIdWithRaceAndConstructor(@Param("driverId") Long driverId);
+
+    @Query("""
+    SELECT r FROM Result r
+    JOIN FETCH r.race ra
+    JOIN FETCH r.constructor c
+    WHERE r.points IS NOT NULL
+""")
+    List<Result> findConstructorPointsAndRaces();
+
+    @Query("""
+    SELECT r FROM Result r
+    JOIN FETCH r.race ra
+    JOIN FETCH r.constructor c
+    JOIN FETCH r.driver d
+""")
+    List<Result> findConstructorAndDriverForRaces();
+
+
+    @Query(value = """
+    SELECT 
+        r.driverId AS driverId,
+        r.constructorId AS constructorId,
+        ra.raceId AS raceId,
+        ra.year AS year,
+        r.positionOrder AS positionOrder,
+        r.points AS points
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.driverId = :driverId
+    ORDER BY ra.year, ra.round
+""", nativeQuery = true)
+    List<DriverRaceStatView> findDriverStatsOptimized(@Param("driverId") Long driverId);
+
+    @Query(value = """
+    SELECT ra.year AS year,
+           r.constructorId AS constructorId,
+           SUM(r.points) AS points
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.points IS NOT NULL
+    GROUP BY ra.year, r.constructorId
+""", nativeQuery = true)
+    List<ConstructorPointsByYearView> getConstructorPointsByYear();
+
+
+    @Query(value = """
+    SELECT ra.raceId AS raceId,
+           r.driverId AS driverId,
+           r.constructorId AS constructorId,
+           ra.year AS year,
+           r.positionOrder AS positionOrder
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.constructorId IS NOT NULL AND r.driverId IS NOT NULL AND r.positionOrder IS NOT NULL
+""", nativeQuery = true)
+    List<RaceResultLiteView> getAllRaceResultsLite();
+
+
+
+
 
 }
