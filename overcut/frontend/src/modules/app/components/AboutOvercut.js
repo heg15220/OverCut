@@ -15,7 +15,7 @@ const translations = {
 
       quiz: {
         title: "🧠 Quiz",
-        desc: "Los quiz son cuestionarios de preguntas y respuestas sobre diferentes temáticas de la Fórmula 1. Al iniciar una partida, se escoge una categoría como temática. Cada partida consta de 10 preguntas diferentes. En el modo de juego, encontramos 5 tipos de categorías: Estadísticas, Reglamento, Imágenes, Estrategia y Física en la F1.",
+        desc: "Los quiz son cuestionarios de preguntas y respuestas sobre diferentes temáticas de la Fórmula 1. Al iniciar una partida, se escoge una categoría como temática. En el modo de juego, encontramos 6 tipos de categorías: Estadísticas, Reglamento, Imágenes, Estrategia, Física en la F1 y Radios.",
 
         statsTitle: "📊 Estadísticas",
         statsDesc: "En esta categoría, las preguntas se centran en datos y estadísticas de la F1. Se incluyen subcategorías como estadísticas genéricas (a nivel de campeonato), estadísticas de pilotos y estadísticas de equipos, cubriendo logros, récords y comparaciones históricas.",
@@ -30,7 +30,11 @@ const translations = {
         physicsDesc: "Preguntas que exploran la física detrás del rendimiento de los monoplazas de F1: aerodinámica, fuerzas G, transferencia de peso, adherencia, frenado, y otros conceptos aplicados a las carreras.",
 
         imagesTitle: "🖼️ Imágenes",
-        imagesDesc: "En esta categoría visual, se presentan imágenes para identificar pilotos, escuderías, circuitos o momentos icónicos de la historia de la Fórmula 1. El objetivo es poner a prueba el conocimiento visual del usuario."
+        imagesDesc: "En esta categoría visual, se presentan imágenes para identificar pilotos, escuderías, circuitos o momentos icónicos de la historia de la Fórmula 1. El objetivo es poner a prueba el conocimiento visual del usuario.",
+
+        teamRadiosTitle: "🎙️ Radios",
+        teamRadiosDesc: "Esta categoría incluye mensajes de radio reales que marcaron momentos inolvidables en la historia de la Fórmula 1. Desde polémicas órdenes de equipo hasta celebraciones icónicas, las preguntas pondrán a prueba tu memoria auditiva y tu conocimiento histórico.",
+
       },
 
       ranking: {
@@ -92,7 +96,7 @@ const translations = {
 
       quiz: {
         title: "🧠 Quiz",
-        desc: "Quizzes are question-based games across various F1-related themes. Each game consists of 10 questions. You can choose from five categories: Statistics, Regulations, Images, Strategy and Physics.",
+        desc: "Quizzes are question-based games across various F1-related themes. You can choose from six categories: Statistics, Regulations, Images, Strategy, Physics and TeamRadios.",
 
         statsTitle: "📊 Statistics",
         statsDesc: "Focuses on F1 data and records. Subcategories include general stats, driver-based and team-based achievements, comparisons and milestones from the history of the championship.",
@@ -107,7 +111,11 @@ const translations = {
         physicsDesc: "Covers physical concepts behind F1 car performance: aerodynamics, grip, braking, weight transfer, G-forces and more.",
 
         imagesTitle: "🖼️ Images",
-        imagesDesc: "This visual category challenges users to identify drivers, teams, circuits or iconic F1 moments through images."
+        imagesDesc: "This visual category challenges users to identify drivers, teams, circuits or iconic F1 moments through images.",
+
+        teamRadiosTitle: "🎙️ Team Radios",
+        teamRadiosDesc: "This category features real team radio messages that defined unforgettable moments in Formula 1 history. From controversial team orders to iconic celebrations, these questions test your auditory memory and historical F1 knowledge.",
+
       },
 
       ranking: {
@@ -192,6 +200,9 @@ const AboutOvercut = () => {
 
       <h4>{t.quiz.imagesTitle}</h4>
       <p>{t.quiz.imagesDesc}</p>
+
+      <h4>{t.quiz.teamRadiosTitle}</h4>
+      <p>{t.quiz.teamRadiosDesc}</p>
 
       {/* RANKING */}
       <h3>{t.ranking.title}</h3>

@@ -1098,7 +1098,7 @@ def pregunta_alonso_space():
 def pregunta_hamilton_turquia():
     if LANG == "es":
         return {
-            "question": "Qué piloto dijo esto por la radio: 'To all the kids out there who dream the impossible. You can do it too man!'",
+            "question": "Qué piloto dijo esto por la radio: 'That´s for all the kids out there who dream the impossible. You can do it too man!'",
             "answers": [
                 "Lewis Hamilton",
                 "Sebastian Vettel",
@@ -1112,7 +1112,7 @@ def pregunta_hamilton_turquia():
         }
     if LANG == "en":
         return {
-            "question": "Which driver said this on the radio: 'To all the kids out there who dream the impossible. You can do it too man!'?",
+            "question": "Which driver said this on the radio: 'That´s for all the kids out there who dream the impossible. You can do it too man!'?",
             "answers": [
                 "Lewis Hamilton",
                 "Sebastian Vettel",
@@ -1463,6 +1463,437 @@ def pregunta_box_box():
             "language": LANG
         }
 
+def pregunta_alonso_abu_dhabi():
+    if LANG == "es":
+        return {
+            "question": "A qué piloto se le dijo esto por la radio: 'Use the best of your talent. We know how big it is, use it.'",
+            "answers": [
+                "Lewis Hamilton",
+                "Michael Schumacher",
+                "Sebastian Vettel",
+                "Fernando Alonso"
+            ],
+            "correctAnswer": "Fernando Alonso",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    if LANG == "en":
+        return {
+            "question": "Which driver was told on the radio: 'Use the best of your talent. We know how big it is, use it.'",
+            "answers": [
+                "Lewis Hamilton",
+                "Michael Schumacher",
+                "Sebastian Vettel",
+                "Fernando Alonso"
+            ],
+            "correctAnswer": "Fernando Alonso",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+def pregunta_raikkonen_brazil():
+    if LANG == "es":
+        return {
+            "question": "A qué piloto se le dijo esto por la radio: 'Its over, its over, Hamilton 7th. By my calculations we win the championship by 1 point!'",
+            "answers": [
+                "Nico Rosberg",
+                "Kimi Raikkonen",
+                "Sebastian Vettel",
+                "Fernando Alonso"
+            ],
+            "correctAnswer": "Kimi Raikkonen",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    if LANG == "en":
+        return {
+            "question": "Which driver was told on the radio: 'It's over, it's over, Hamilton 7th. By my calculations we win the championship by 1 point!'",
+            "answers": [
+                "Nico Rosberg",
+                "Kimi Raikkonen",
+                "Sebastian Vettel",
+                "Fernando Alonso"
+            ],
+            "correctAnswer": "Kimi Raikkonen",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+
+def pregunta_raikkonen_brazil():
+    if LANG == "es":
+        return {
+            "question": "A qué piloto se le dijo esto por la radio: 'Its over, its over, Hamilton 7th. By my calculations we win the championship by 1 point!'",
+            "answers": [
+                "Nico Rosberg",
+                "Kimi Raikkonen",
+                "Sebastian Vettel",
+                "Fernando Alonso"
+            ],
+            "correctAnswer": "Kimi Raikkonen",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    if LANG == "en":
+        return {
+            "question": "Which driver was told on the radio: 'It's over, it's over, Hamilton 7th. By my calculations we win the championship by 1 point!'",
+            "answers": [
+                "Nico Rosberg",
+                "Kimi Raikkonen",
+                "Sebastian Vettel",
+                "Fernando Alonso"
+            ],
+            "correctAnswer": "Kimi Raikkonen",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_vettel_abuDhabi():
+    if LANG == "es":
+        return {
+            "question": "En qué carrera se dijo esto por la radio: 'You just wait sunshine, you just wait. Kubica P5. DU BIST WELTMEISTER!'",
+            "answers": [
+                "Abu Dhabi 2010",
+                "Abu Dhabi 2021",
+                "Brasil 2012",
+                "Japón 2003"
+            ],
+            "correctAnswer": "Abu Dhabi 2010",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    if LANG == "en":
+        return {
+            "question": "In which race was this radio message said: 'You just wait sunshine, you just wait. Kubica P5. DU BIST WELTMEISTER!'",
+            "answers": [
+                "Abu Dhabi 2010",
+                "Abu Dhabi 2021",
+                "Brazil 2012",
+                "Japan 2003"
+            ],
+            "correctAnswer": "Abu Dhabi 2010",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_verstappen_spain():
+    if LANG == "es":
+        return {
+            "question": "En qué carrera se dijo esto por la radio: 'Max Verstappen, you are a race winner! Fantastic, what a debut!'",
+            "answers": [
+                "Malasia 2017",
+                "Brasil 2016",
+                "Mexico 2017",
+                "España 2016"
+            ],
+            "correctAnswer": "España 2016",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    if LANG == "en":
+        return {
+            "question": "In which race was this radio message said: 'Max Verstappen, you are a race winner! Fantastic, what a debut!'",
+            "answers": [
+                "Malaysia 2017",
+                "Brazil 2016",
+                "Mexico 2017",
+                "Spain 2016"
+            ],
+            "correctAnswer": "Spain 2016",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+def pregunta_verstappen_monza():
+    if LANG == "es":
+        return {
+            "question": "En qué carrera se dijo esto por la radio: 'That´s what you get when you don´t leave the space! *****!'",
+            "answers": [
+                "Gran Bretaña 2021",
+                "Brasil 2022",
+                "Brasil 2021",
+                "Italia 2021"
+            ],
+            "correctAnswer": "Italia 2021",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    if LANG == "en":
+        return {
+            "question": "In which race was this radio message said: 'That's what you get when you don't leave the space! *****!'",
+            "answers": [
+                "Great Britain 2021",
+                "Brazil 2022",
+                "Brazil 2021",
+                "Italy 2021"
+            ],
+            "correctAnswer": "Italy 2021",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+def pregunta_sainz_stop_inventing():
+    if LANG == "es":
+        return {
+            "question": "¿Qué piloto respondió por radio con un tajante 'Stop inventing!' al recibir instrucciones estratégicas?",
+            "answers": [
+                "Fernando Alonso",
+                "Charles Leclerc",
+                "Carlos Sainz",
+                "Sebastian Vettel"
+            ],
+            "correctAnswer": "Carlos Sainz",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "Which driver replied on the radio with a sharp 'Stop inventing!' after receiving strategy instructions?",
+            "answers": [
+                "Fernando Alonso",
+                "Charles Leclerc",
+                "Carlos Sainz",
+                "Sebastian Vettel"
+            ],
+            "correctAnswer": "Carlos Sainz",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_bonnington_get_in_there():
+    if LANG == "es":
+        return {
+            "question": "¿Qué ingeniero popularizó la frase: 'Get in there, Lewis!' tras cada victoria?",
+            "answers": [
+                "Peter Bonnington",
+                "Gianpiero Lambiase",
+                "Riccardo Adami",
+                "Tom Stallard"
+            ],
+            "correctAnswer": "Peter Bonnington",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "Which race engineer popularized the phrase: 'Get in there, Lewis!' after every win?",
+            "answers": [
+                "Peter Bonnington",
+                "Gianpiero Lambiase",
+                "Riccardo Adami",
+                "Tom Stallard"
+            ],
+            "correctAnswer": "Peter Bonnington",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_toto_mikey_abudhabi():
+    if LANG == "es":
+        return {
+            "question": "¿Quién dijo por radio: 'No Mikey, no, no Mikey! That was so not right!' en Abu Dhabi 2021?",
+            "answers": [
+                "Lewis Hamilton",
+                "Toto Wolff",
+                "Christian Horner",
+                "Peter Bonnington"
+            ],
+            "correctAnswer": "Toto Wolff",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "Who said on the radio: 'No Mikey, no, no Mikey! That was so not right!' in Abu Dhabi 2021?",
+            "answers": [
+                "Lewis Hamilton",
+                "Toto Wolff",
+                "Christian Horner",
+                "Peter Bonnington"
+            ],
+            "correctAnswer": "Toto Wolff",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+
+def pregunta_alonso_now_we_can_fight():
+    if LANG == "es":
+        return {
+            "question": "¿Qué piloto dijo 'Now we can fight!' por radio tras terminar la carrera de Australia 2018?",
+            "answers": [
+                "Fernando Alonso",
+                "Carlos Sainz",
+                "Esteban Ocon",
+                "Lando Norris"
+            ],
+            "correctAnswer": "Fernando Alonso",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "Which driver said 'Now we can fight!' on the radio after overtaking with McLaren-Renault after finishing Australia 2018 race?",
+            "answers": [
+                "Fernando Alonso",
+                "Carlos Sainz",
+                "Esteban Ocon",
+                "Lando Norris"
+            ],
+            "correctAnswer": "Fernando Alonso",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+def pregunta_masi_motor_race():
+    if LANG == "es":
+        return {
+            "question": "¿Quién dijo por radio: 'It’s called a motor race, Toto. We went car racing.' en Abu Dhabi 2021?",
+            "answers": [
+                "Michael Masi",
+                "Toto Wolff",
+                "Christian Horner",
+                "Lewis Hamilton"
+            ],
+            "correctAnswer": "Michael Masi",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "Who said on the radio: 'It’s called a motor race, Toto. We went car racing.' in Abu Dhabi 2021?",
+            "answers": [
+                "Michael Masi",
+                "Toto Wolff",
+                "Christian Horner",
+                "Lewis Hamilton"
+            ],
+            "correctAnswer": "Michael Masi",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_kimi_toilet():
+    if LANG == "es":
+        return {
+            "question": "¿Qué piloto justificó su ausencia en el podio diciendo: 'I was having a s***'?",
+            "answers": [
+                "Mark Webber",
+                "Lewis Hamilton",
+                "Kimi Räikkönen",
+                "Sebastian Vettel"
+            ],
+            "correctAnswer": "Kimi Räikkönen",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "Which driver explained missing the podium by saying: 'I was having a s***'?",
+            "answers": [
+                "Mark Webber",
+                "Lewis Hamilton",
+                "Kimi Räikkönen",
+                "Sebastian Vettel"
+            ],
+            "correctAnswer": "Kimi Räikkönen",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+def pregunta_masi_motor_race():
+    if LANG == "es":
+        return {
+            "question": "Quién dijo por radio: 'It’s friday theeen. Saturday, Sunday what?.'",
+            "answers": [
+                "Carlos Sainz",
+                "Toto Wolff",
+                "Christian Horner",
+                "Lewis Hamilton"
+            ],
+            "correctAnswer": "Michael Masi",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "Who said on the radio: 'It’s called a motor race, Toto. We went car racing.' in Abu Dhabi 2021?",
+            "answers": [
+                "Michael Masi",
+                "Toto Wolff",
+                "Christian Horner",
+                "Lewis Hamilton"
+            ],
+            "correctAnswer": "Michael Masi",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+def pregunta_vettel_brazil_2012():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dijo Vettel tras el contacto con Senna en la primera vuelta de Brasil 2012?",
+            "answers": [
+                "'I think my car is damaged!'",
+                "'Someone hit me!'",
+                "'I’ve been spun, car is okay!'",
+                "'Check the car! I got hit!'"
+            ],
+            "correctAnswer": "'I think my car is damaged!'",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Vettel say after contact with Senna in the opening lap of Brazil 2012?",
+            "answers": [
+                "'I think my car is damaged!'",
+                "'Someone hit me!'",
+                "'I’ve been spun, car is okay!'",
+                "'Check the car! I got hit!'"
+            ],
+            "correctAnswer": "'I think my car is damaged!'",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
 
 # Lista de generadores de preguntas
 generadores_radios = [
@@ -1485,7 +1916,6 @@ generadores_radios = [
     pregunta_leclerc_baku,
     pregunta_bottas_australia,
     pregunta_ricciardo_monaco,
-    pregunta_alonso_now_we_can_fight,
     pregunta_montoya_raikkonen,
     pregunta_lotus_raikkonen,
     pregunta_bottas_james,
@@ -1513,7 +1943,18 @@ generadores_radios = [
     pregunta_use_strat_5,
     pregunta_lift_and_coast,
     pregunta_fail_84_fail,
-    pregunta_box_box
+    pregunta_box_box,
+    pregunta_alonso_abu_dhabi,
+    pregunta_vettel_abuDhabi,
+    pregunta_verstappen_spain,
+    pregunta_verstappen_monza,
+    pregunta_sainz_stop_inventing,
+    pregunta_bonnington_get_in_there,
+    pregunta_toto_mikey_abudhabi,
+    pregunta_alonso_now_we_can_fight,
+    pregunta_masi_motor_race,
+    pregunta_kimi_toilet,
+    pregunta_vettel_brazil_2012
 ]
 
 # Barajar respuestas si es necesario (mantiene la correcta)
