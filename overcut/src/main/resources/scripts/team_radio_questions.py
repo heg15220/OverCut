@@ -1893,6 +1893,698 @@ def pregunta_vettel_brazil_2012():
             "language": LANG
         }
 
+def pregunta_vettel_celebracion_ferrari():
+    if LANG == "es":
+        return {
+            "question": "¿Qué frase solía repetir Sebastian Vettel por radio para celebrar una victoria con Ferrari?",
+            "answers": [
+                "Grazie ragazzi",
+                "Avanti",
+                "Andiamo!",
+                "Yes baby!"
+            ],
+            "correctAnswer": "Grazie ragazzi",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What phrase did Sebastian Vettel often repeat on the radio to celebrate a win with Ferrari?",
+            "answers": [
+                "Grazie ragazzi",
+                "Avanti",
+                "Andiamo!",
+                "Yes baby!"
+            ],
+            "correctAnswer": "Grazie ragazzi",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_significado_strat_mode():
+    if LANG == "es":
+        return {
+            "question": "¿Qué indica normalmente el mensaje de radio 'Strat mode 5'?",
+            "answers": [
+                "Cambiar el mapa del motor a uno más agresivo o defensivo",
+                "Entrar inmediatamente a boxes",
+                "Activar el DRS manualmente",
+                "Reducir el uso de batería al mínimo"
+            ],
+            "correctAnswer": "Cambiar el mapa del motor a uno más agresivo o defensivo",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What does the radio message 'Strat mode 5' usually indicate?",
+            "answers": [
+                "Change the engine mode to a more aggressive or defensive setting",
+                "Pit immediately",
+                "Manually activate DRS",
+                "Minimize battery deployment"
+            ],
+            "correctAnswer": "Change the engine mode to a more aggressive or defensive setting",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+def pregunta_significado_cool_the_car():
+    if LANG == "es":
+        return {
+            "question": "¿Qué significa 'Cool the car' en un mensaje de radio en F1?",
+            "answers": [
+                "Reducir la velocidad o levantar para bajar la temperatura del coche",
+                "Apagar el motor de inmediato",
+                "Poner el aire acondicionado en modo máximo",
+                "Encender el ventilador del cockpit"
+            ],
+            "correctAnswer": "Reducir la velocidad o levantar para bajar la temperatura del coche",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What does 'Cool the car' mean in a radio message in F1?",
+            "answers": [
+                "Slow down or lift to reduce the car's temperature",
+                "Shut the engine off immediately",
+                "Turn on cockpit air conditioning",
+                "Activate fan cooling in the cockpit"
+            ],
+            "correctAnswer": "Slow down or lift to reduce the car's temperature",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+def pregunta_significado_brake_magic():
+    if LANG == "es":
+        return {
+            "question": "¿Qué activa normalmente el modo 'Brake Magic' en un coche de F1 como el de Mercedes?",
+            "answers": [
+                "Un reparto de frenada especial para calentar los frenos delanteros",
+                "Una función que activa el DRS automáticamente",
+                "Modo para frenar el coche automáticamente en lluvia",
+                "Un sistema para ahorrar combustible frenando"
+            ],
+            "correctAnswer": "Un reparto de frenada especial para calentar los frenos delanteros",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What does 'Brake Magic' typically activate in a car like Mercedes' F1 car?",
+            "answers": [
+                "A special brake balance setting to heat up front brakes",
+                "A function that auto-enables DRS",
+                "An automatic braking mode for wet races",
+                "A system to save fuel through braking"
+            ],
+            "correctAnswer": "A special brake balance setting to heat up front brakes",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_significado_plan_b():
+    if LANG == "es":
+        return {
+            "question": "¿Qué significa cuando por radio se dice 'Vamos a Plan B'?",
+            "answers": [
+                "Cambio de estrategia de carrera respecto a la original",
+                "Aviso de coche de seguridad en pista",
+                "Preparación para una penalización",
+                "Cambio inmediato de neumáticos de lluvia"
+            ],
+            "correctAnswer": "Cambio de estrategia de carrera respecto a la original",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What does it mean when the radio says 'We’re switching to Plan B'?",
+            "answers": [
+                "A change in race strategy from the original plan",
+                "A safety car is on track",
+                "Prepare for a penalty",
+                "Immediate switch to wet tyres"
+            ],
+            "correctAnswer": "A change in race strategy from the original plan",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_significado_tyre_deg():
+    if LANG == "es":
+        return {
+            "question": "¿Qué significa cuando el ingeniero dice 'Tyre deg is high'?",
+            "answers": [
+                "Que los neumáticos se están degradando rápidamente",
+                "Que se deben calentar los neumáticos",
+                "Que hay que cambiar la presión de las ruedas",
+                "Que el piloto debe apretar más"
+            ],
+            "correctAnswer": "Que los neumáticos se están degradando rápidamente",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What does 'Tyre deg is high' mean when said over the radio?",
+            "answers": [
+                "That the tyres are degrading quickly",
+                "That the tyres need warming up",
+                "That tyre pressures must be changed",
+                "That the driver must push harder"
+            ],
+            "correctAnswer": "That the tyres are degrading quickly",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_significado_looking_into_it():
+    if LANG == "es":
+        return {
+            "question": "¿Qué implica el mensaje de radio 'We are looking into it'?",
+            "answers": [
+                "Que el equipo está analizando el problema reportado",
+                "Que el piloto debe entrar a boxes ya",
+                "Que se ha activado el coche de seguridad",
+                "Que hay una bandera negra en pista"
+            ],
+            "correctAnswer": "Que el equipo está analizando el problema reportado",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What does the message 'We are looking into it' imply?",
+            "answers": [
+                "That the team is analyzing the issue reported",
+                "That the driver must pit immediately",
+                "That a safety car has been deployed",
+                "That a black flag is on track"
+            ],
+            "correctAnswer": "That the team is analyzing the issue reported",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_significado_mclaren_2024_hungria():
+    if LANG == "es":
+        return {
+            "question": "En qué carrera se dijo esto:'The way to win the championship is not by yourself. You´re gonna need Oscar and you´re gonna need the team.'",
+            "answers": [
+                "Brasil 2024",
+                "Hungría 2024",
+                "Italia 2024",
+                "Bahrein 2024"
+            ],
+            "correctAnswer": "Hungría 2024",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    if LANG == "en":
+        return {
+            "question": "In which race was this said: 'The way to win the championship is not by yourself. You’re gonna need Oscar and you’re gonna need the team.'",
+            "answers": [
+                "Brazil 2024",
+                "Hungary 2024",
+                "Italy 2024",
+                "Bahrain 2024"
+            ],
+            "correctAnswer": "Hungary 2024",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_brake_magic_hamilton_baku():
+    if LANG == "es":
+        return {
+            "question": "¿Qué error cometió Lewis Hamilton en la resalida del GP de Azerbaiyán 2021 por un ajuste de radio?",
+            "answers": [
+                "Activó el modo 'Brake Magic' por accidente y se fue largo",
+                "Se saltó la chicane de boxes",
+                "Olvidó activar el DRS",
+                "No escuchó la llamada para cambiar neumáticos"
+            ],
+            "correctAnswer": "Activó el modo 'Brake Magic' por accidente y se fue largo",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What mistake did Lewis Hamilton make at the 2021 Azerbaijan GP restart due to a radio setting?",
+            "answers": [
+                "He accidentally activated 'Brake Magic' and went off track",
+                "He skipped the pit lane chicane",
+                "He forgot to activate DRS",
+                "He missed the call to change tyres"
+            ],
+            "correctAnswer": "He accidentally activated 'Brake Magic' and went off track",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_multi_21_orden():
+    if LANG == "es":
+        return {
+            "question": "¿Qué piloto desobedeció la orden 'Multi 21' en Red Bull durante el GP de Malasia 2013?",
+            "answers": [
+                "Sebastian Vettel",
+                "Mark Webber",
+                "Daniel Ricciardo",
+                "Sergio Pérez"
+            ],
+            "correctAnswer": "Sebastian Vettel",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "Which driver disobeyed the 'Multi 21' team order at the 2013 Malaysian GP with Red Bull?",
+            "answers": [
+                "Sebastian Vettel",
+                "Mark Webber",
+                "Daniel Ricciardo",
+                "Sergio Pérez"
+            ],
+            "correctAnswer": "Sebastian Vettel",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_perez_barcelona_2022():
+    if LANG == "es":
+        return {
+            "question": "¿Qué reclamó Sergio Pérez por radio en el GP de España 2022 tras una orden del equipo?",
+            "answers": [
+                "Dijo 'That’s very unfair, but okay' tras dejar pasar a Verstappen",
+                "Exigió entrar a boxes una vuelta antes",
+                "Pidió un modo motor diferente al compañero",
+                "Se negó a ceder la posición en la última vuelta"
+            ],
+            "correctAnswer": "Dijo 'That’s very unfair, but okay' tras dejar pasar a Verstappen",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Sergio Pérez say on the radio during the 2022 Spanish GP after a team order?",
+            "answers": [
+                "'That’s very unfair, but okay' after letting Verstappen by",
+                "He demanded to pit one lap earlier",
+                "He requested a different engine mode",
+                "He refused to give position on the final lap"
+            ],
+            "correctAnswer": "'That’s very unfair, but okay' after letting Verstappen by",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_raikkonen_baku_guantes():
+    if LANG == "es":
+        return {
+            "question": "¿Qué reclamó Kimi Räikkönen por radio durante la bandera roja del GP de Azerbaiyán 2017?",
+            "answers": [
+                "Que le trajeran los guantes y el volante",
+                "Que le cambiaran el alerón delantero",
+                "Que su asiento estaba suelto",
+                "Que el coche no encendía"
+            ],
+            "correctAnswer": "Que le trajeran los guantes y el volante",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Kimi Räikkönen demand on the radio during the red flag at the 2017 Azerbaijan GP?",
+            "answers": [
+                "That someone bring him the gloves and steering wheel",
+                "That they change the front wing",
+                "That his seat was loose",
+                "That the car wouldn’t start"
+            ],
+            "correctAnswer": "That someone bring him the gloves and steering wheel",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_raikkonen_bebida_hungria():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dijo Kimi Räikkönen por radio en el GP de Hungría 2018 al detectar un fallo en su sistema?",
+            "answers": [
+                "Por qué no funciona la bebida",
+                "Me estoy deshidratando",
+                "Me olvidé de beber",
+                "No puedo cambiar el mapa motor"
+            ],
+            "correctAnswer": "Por qué no funciona la bebida",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Kimi Räikkönen say on the radio during the 2018 Hungarian GP when his drink system failed?",
+            "answers": [
+                "Why does not work the drink?",
+                "I’m getting dehydrated",
+                "I forgot to drink",
+                "I can’t change engine mode"
+            ],
+            "correctAnswer": "Why does not work the drink?",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_alonso_karma_monza():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dijo Fernando Alonso por radio tras la retirada de Palmer en Monza 2017?",
+            "answers": [
+                "Karma",
+                "Bye my friend",
+                "That’s what you get for not playing fair",
+                "Thanks, good job"
+            ],
+            "correctAnswer": "Karma",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Fernando Alonso say on the radio after Jolyon Palmer retired at Monza 2017?",
+            "answers": [
+                "Karma",
+                "Bye bye, my friend",
+                "That’s what you get for not playing fair",
+                "Thanks, good job"
+            ],
+            "correctAnswer": "Karma",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_hulkenberg_williams_japon():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dijo Nico Hülkenberg por radio tras adelantar a un Williams en el GP de Japón 2016?",
+            "answers": [
+                "See you later!",
+                "I love passing a Williams",
+                "Easy, like the old days",
+                "Just like taking candy from a baby"
+            ],
+            "correctAnswer": "See you later!",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Nico Hülkenberg say on the radio after overtaking a Williams at the 2016 Japanese GP?",
+            "answers": [
+                "Just like taking candy from a baby",
+                "See you later!",
+                "I love passing a Williams",
+                "Easy, like the old days"
+            ],
+            "correctAnswer": "See you later!",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_button_monaco_2017():
+    if LANG == "es":
+        return {
+            "question": "¿Qué le dijo Jenson Button a Fernando Alonso por radio antes de reemplazarlo en Mónaco 2017?",
+            "answers": [
+                "I’m gonna pee in your seat!",
+                "Good luck in Indy. I’ll take care of it.",
+                "You won’t recognize it when I’m back.",
+                "You race ovals, I do glamour."
+            ],
+            "correctAnswer": "I’m gonna pee in your seat!",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Jenson Button say to Fernando Alonso over the radio before replacing him at Monaco 2017?",
+            "answers": [
+                "I’m gonna pee in your seat!",
+                "Good luck in Indy. I’ll take care of it.",
+                "You won’t recognize it when I’m back.",
+                "You race ovals, I do glamour."
+            ],
+            "correctAnswer": "I’m gonna pee in your seat!",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_ricciardo_monaco_2016_post():
+    if LANG == "es":
+        return {
+            "question": "¿Qué expresó Daniel Ricciardo por radio tras perder la victoria en Mónaco 2016 por error del equipo?",
+            "answers": [
+                "Nothing you can say can make it any better. Just save it.",
+                "They stole the race from me. Never again.",
+                "I don’t want to talk. No excuses.",
+                "It was my best drive... for nothing."
+            ],
+            "correctAnswer": "Nothing you can say can make it any better. Just save it.",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Daniel Ricciardo say on the radio after losing the 2016 Monaco GP due to a team error?",
+            "answers": [
+                "Nothing you can say can make it any better. Just save it.",
+                "They stole the race from me. Never again.",
+                "I don’t want to talk. No excuses.",
+                "It was my best drive... for nothing."
+            ],
+            "correctAnswer": "Nothing you can say can make it any better. Just save it.",
+            "knowledgeLevel": 2,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_massa_brasil_2008():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dijo Felipe Massa por radio tras perder el título mundial en la última curva de Brasil 2008?",
+            "answers": [
+                "It would have been unbelievable if we win the championship. But anyway, thank you.",
+                "We lost, but we fought like champions.",
+                "Thank you all. This hurts, but I’ll be back.",
+                "I'm devastated. It wasn't our day."
+            ],
+            "correctAnswer": "It would have been unbelievable if we win the championship. But anyway, thank you.",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Felipe Massa say on the radio after losing the world title in the final corner at Brazil 2008?",
+            "answers": [
+                "It would have been unbelievable if we win the championship. But anyway, thank you.",
+                "We lost, but we fought like champions.",
+                "Thank you all. This hurts, but I’ll be back.",
+                "I'm devastated. It wasn't our day."
+            ],
+            "correctAnswer": "It would have been unbelievable if we win the championship. But anyway, thank you.",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_alonso_brasil_2006():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dijo Fernando Alonso por radio al ganar su segundo título en el GP de Brasil 2006?",
+            "answers": [
+                "Thank you for all these years. It´s been a pleasure for me, to work with you!",
+                "I’m the youngest double world champion!",
+                "This is the best team in the world!",
+                "Unbelievable! We did it again!"
+            ],
+            "correctAnswer": "Thank you for all these years. It´s been a pleasure for me, to work with you!",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Fernando Alonso say on the radio after winning his second title at Brazil 2006?",
+            "answers": [
+                "Thank you for all these years. It´s been a pleasure for me, to work with you!",
+                "I’m the youngest double world champion!",
+                "This is the best team in the world!",
+                "Unbelievable! We did it again!"
+            ],
+            "correctAnswer": "Thank you for all these years. It´s been a pleasure for me, to work with you!",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_schumacher_japon_2000():
+    if LANG == "es":
+        return {
+            "question": "¿Qué expresó Michael Schumacher por radio al ganar su primer título con Ferrari en 2000?",
+            "answers": [
+                "You are great Ross. Oh my god. We did it, we did it!",
+                "This is for everyone in Maranello!",
+                "We made history together!",
+                "Thank you Ferrari, this is for you!"
+            ],
+            "correctAnswer": "You are great Ross. Oh my god. We did it, we did it!",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Michael Schumacher say on the radio after winning his first title with Ferrari in 2000?",
+            "answers": [
+                "You are great Ross. Oh my god. We did it, we did it!",
+                "This is for everyone in Maranello!",
+                "We made history together!",
+                "Thank you Ferrari, this is for you!"
+            ],
+            "correctAnswer": "You are great Ross. Oh my god. We did it, we did it!",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+
+def pregunta_rosberg_abu_dhabi_2016():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dijo Nico Rosberg por radio tras consagrarse campeón del mundo en Abu Dabi 2016?",
+            "answers": [
+                "Nappy, we did it! Nappy, we did it!!!!",
+                "Thanks guys, world champions!",
+                "This is for my father!",
+                "I can’t believe it, I’m champion!"
+            ],
+            "correctAnswer": "Nappy, we did it! Nappy, we did it!!!!",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Nico Rosberg say on the radio after becoming world champion in Abu Dhabi 2016?",
+            "answers": [
+                "Nappy, we did it! Nappy, we did it!!!!",
+                "Thanks guys, world champions!",
+                "This is for my father!",
+                "I can’t believe it, I’m champion!"
+            ],
+            "correctAnswer": "Oh my God, we did it!",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_hamilton_abu_dhabi_2014():
+    if LANG == "es":
+        return {
+            "question": "¿Qué gritó Lewis Hamilton por radio tras ganar su segundo título mundial en Abu Dabi 2014?",
+            "answers": [
+                "Woohoo! World champions, guys. World champions!",
+                "Thank you Mercedes, we’re the best!",
+                "Unbelievable, unbelievable! I dreamt this since I was a kid!",
+                "Let’s go! We did it!"
+            ],
+            "correctAnswer": "Woohoo! World champions, guys. World champions!",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Lewis Hamilton shout on the radio after winning his second world title in Abu Dhabi 2014?",
+            "answers": [
+                "Woohoo! World champions, guys. World champions!",
+                "Thank you Mercedes, we’re the best!",
+                "Unbelievable, unbelievable! I dreamt this since I was a kid!",
+                "Let’s go! We did it!"
+            ],
+            "correctAnswer": "Woohoo! World champions, guys. World champions!",
+            "knowledgeLevel": 3,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+
+def pregunta_ricciardo_monza_2021():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dijo Daniel Ricciardo por radio tras ganar el GP de Italia 2021 con McLaren?",
+            "answers": [
+                "For anyone who thought I left, I never left. Just moved to side for a while.",
+                "Yes! Take that!",
+                "I won in Monza, baby!",
+                "It’s a 1–2, baby! McLaren is back!"
+            ],
+            "correctAnswer": "For anyone who thought I left, I never left. Just moved to side for a while.",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
+    else:
+        return {
+            "question": "What did Daniel Ricciardo say on the radio after winning the 2021 Italian GP with McLaren?",
+            "answers": [
+                "For anyone who thought I left, I never left. Just moved to side for a while.",
+                "Yes! Take that!",
+                "I won in Monza, baby!",
+                "It’s a 1–2, baby! McLaren is back!"
+            ],
+            "correctAnswer": "For anyone who thought I left, I never left. Just moved to side for a while.",
+            "knowledgeLevel": 1,
+            "category": "LegendaryTeamRadios",
+            "language": LANG
+        }
 
 
 # Lista de generadores de preguntas
@@ -1954,7 +2646,30 @@ generadores_radios = [
     pregunta_alonso_now_we_can_fight,
     pregunta_masi_motor_race,
     pregunta_kimi_toilet,
-    pregunta_vettel_brazil_2012
+    pregunta_vettel_brazil_2012,
+    pregunta_vettel_celebracion_ferrari,
+    pregunta_significado_strat_mode,
+    pregunta_significado_cool_the_car,
+    pregunta_significado_brake_magic,
+    pregunta_significado_plan_b,
+    pregunta_significado_tyre_deg,
+    pregunta_significado_looking_into_it,
+    pregunta_significado_mclaren_2024_hungria,
+    pregunta_brake_magic_hamilton_baku,
+    pregunta_multi_21_orden,
+    pregunta_perez_barcelona_2022,
+    pregunta_raikkonen_baku_guantes,
+    pregunta_raikkonen_bebida_hungria,
+    pregunta_alonso_karma_monza,
+    pregunta_hulkenberg_williams_japon,
+    pregunta_button_monaco_2017,
+    pregunta_ricciardo_monaco_2016_post,
+    pregunta_massa_brasil_2008,
+    pregunta_alonso_brasil_2006,
+    pregunta_schumacher_japon_2000,
+    pregunta_rosberg_abu_dhabi_2016,
+    pregunta_hamilton_abu_dhabi_2014,
+    pregunta_ricciardo_monza_2021
 ]
 
 # Barajar respuestas si es necesario (mantiene la correcta)
