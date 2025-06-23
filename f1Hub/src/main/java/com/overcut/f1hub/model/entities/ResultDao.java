@@ -130,6 +130,17 @@ public interface ResultDao extends JpaRepository<Result, Long> {
     List<RaceResultLiteView> getAllRaceResultsLite();
 
 
+    @Query(value = """
+    SELECT ra.year AS year,
+           r.positionOrder AS positionOrder,
+           r.points AS points
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.constructorId = :constructorId
+    ORDER BY ra.year
+""", nativeQuery = true)
+    List<ConstructorRaceStatView> findConstructorStatsOptimized(@Param("constructorId") Long constructorId);
+
 
 
 

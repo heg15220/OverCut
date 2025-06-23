@@ -3111,61 +3111,48 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     public ChartDataDTO getConstructorPerformanceTrajectory(String constructorIdStr, String lang) {
         Long constructorId = Long.parseLong(constructorIdStr);
         String constructorRef = constructorDao.findById(constructorId)
-                .map(c -> c.getConstructorRef())
+                .map(Constructor::getConstructorRef)
                 .orElse("constructor");
 
-        List<Result> allResults = resultDao.findAll();
-        List<Race> allRaces = raceDao.findAllOrderByYearAndRound();
+        List<ConstructorRaceStatView> stats = resultDao.findConstructorStatsOptimized(constructorId);
 
-        // Filtramos todos los resultados del constructor
-        List<Result> teamResults = allResults.stream()
-                .filter(r -> r.getConstructor() != null && r.getConstructor().getConstructorId().equals(constructorId))
-                .toList();
-
-        // Agrupamos por año
         Map<Integer, List<Integer>> positionsByYear = new HashMap<>();
         Map<Integer, Double> pointsByYear = new HashMap<>();
-        for (Result r : teamResults) {
-            int year = r.getRace().getYear();
-            if (r.getPositionOrder() != null) {
-                positionsByYear.computeIfAbsent(year, k -> new ArrayList<>()).add(r.getPositionOrder());
-            }
-            if (r.getPoints() != null) {
-                pointsByYear.merge(year, r.getPoints(), Double::sum);
-            }
+
+        for (ConstructorRaceStatView stat : stats) {
+            int year = stat.getYear();
+            if (stat.getPositionOrder() != null)
+                positionsByYear.computeIfAbsent(year, k -> new ArrayList<>()).add(stat.getPositionOrder());
+            if (stat.getPoints() != null)
+                pointsByYear.merge(year, stat.getPoints(), Double::sum);
         }
 
         Set<Integer> years = new TreeSet<>(positionsByYear.keySet());
         List<String> labels = years.stream().map(String::valueOf).toList();
 
-        // Posición final del equipo en el campeonato de constructores por año
+        // Última carrera por año solo si necesario
+        Map<Integer, Race> lastRaceByYear = raceDao.findAllOrderByYearAndRound().stream()
+                .collect(Collectors.toMap(Race::getYear, Function.identity(), (v1, v2) -> v2));
+
         Map<Integer, Integer> constructorsChampPos = new HashMap<>();
-        Map<Integer, Race> lastRaceByYear = allRaces.stream()
-                .collect(Collectors.toMap(
-                        Race::getYear,
-                        Function.identity(),
-                        (oldV, newV) -> newV
-                ));
         for (Map.Entry<Integer, Race> entry : lastRaceByYear.entrySet()) {
             int year = entry.getKey();
             Long raceId = entry.getValue().getRaceId();
 
-            List<ConstructorStanding> csList = constructorStandingDao.findByRaceIdOrderByPositionAsc(raceId);
-            csList.stream()
+            constructorStandingDao.findByRaceIdOrderByPositionAsc(raceId).stream()
                     .filter(cs -> cs.getConstructorId().equals(constructorId))
-                    .map(ConstructorStanding::getPosition)
                     .findFirst()
+                    .map(ConstructorStanding::getPosition)
                     .ifPresent(pos -> constructorsChampPos.put(year, pos));
         }
 
-        // Cálculo final del índice por año
         List<Double> values = years.stream()
                 .map(y -> {
                     List<Integer> posList = positionsByYear.getOrDefault(y, List.of());
                     double avgPos = posList.stream().mapToInt(p -> p).average().orElse(20.0);
                     double stdDev = Math.sqrt(posList.stream().mapToDouble(p -> Math.pow(p - avgPos, 2)).average().orElse(0));
-                    double consistency = 1 / (1 + stdDev); // hasta 1
-                    double consistencyScore = consistency * 100 * 0.35; // hasta 35 puntos
+                    double consistency = 1 / (1 + stdDev);
+                    double consistencyScore = consistency * 100 * 0.35;
 
                     double rawPoints = pointsByYear.getOrDefault(y, 0.0);
                     long raceCount = posList.size();
@@ -3180,11 +3167,10 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                             : 0.0;
 
                     return pointsScore + consistencyScore + championshipBonus;
-                })
-                .toList();
+                }).toList();
 
         String name = constructorDao.findById(constructorId)
-                .map(c -> c.getName())
+                .map(Constructor::getName)
                 .orElse("Constructor " + constructorId);
 
         return new ChartDataDTO(
@@ -3198,9 +3184,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                         getTeamColor(constructorRef),
                         values
                 ))
-
         );
     }
+
 
 
 
