@@ -100,6 +100,9 @@ public class ChartController {
         return advancedStatsService.getAvgPointsPerTeamPerSeason(decade, lang);
     }
 
+    //------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------------
+    //HAY QUE SEGUIR AQUÍ
     @GetMapping("/wins-no-front-row")
     public ChartDataDTO getWinsWithoutTop2(@RequestParam String lang) {
         return advancedStatsService.getWinsWithoutTop2(lang);

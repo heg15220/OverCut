@@ -71,4 +71,34 @@ public interface QualifyingDao extends JpaRepository<Qualifying, Long> {
                                         @Param("year") int year);
 
 
+    @Query("""
+    SELECT q FROM Qualifying q
+    JOIN FETCH q.race r
+    JOIN FETCH q.constructor c
+    WHERE q.driver.driverId = :driverId
+      AND r.year IS NOT NULL
+""")
+    List<Qualifying> findByDriverWithConstructorAndRace(@Param("driverId") Long driverId);
+
+    @Query(value = """
+    SELECT q.raceId AS raceId,
+           ra.year AS year,
+           q.constructorId AS constructorId,
+           q.driverId AS driverId,
+           q.position AS position
+    FROM qualifying q
+    JOIN races ra ON q.raceId = ra.raceId
+    WHERE q.position IS NOT NULL
+""", nativeQuery = true)
+    List<QualiResultLiteView> findAllQualifyingLite();
+
+
+    @Query(value = """
+    SELECT q.driverId AS driverId, q.position AS position, COUNT(*) AS count
+    FROM qualifying q
+    WHERE q.position IS NOT NULL
+    GROUP BY q.driverId, q.position
+""", nativeQuery = true)
+    List<MostCommonQualiView> getAllQualiPositionFrequencies();
+
 }
