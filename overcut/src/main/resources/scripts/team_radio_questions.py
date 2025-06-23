@@ -2692,10 +2692,13 @@ if __name__ == "__main__":
     LANG = args.lang.lower()
 
     preguntas = []
-    generadores_seleccionados = random.sample(generadores_radios, min(5, len(generadores_radios)))
+    # ✅ Asegurar que siempre se seleccionen exactamente 5 preguntas
+    generadores_seleccionados = random.sample(generadores_radios, 5)
+
     for gen in generadores_seleccionados:
         p = gen()
         p = barajar_respuestas(p)
         preguntas.append(p)
 
     print(json.dumps(preguntas, ensure_ascii=False))
+
