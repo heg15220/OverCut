@@ -88,25 +88,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
 
-    @Override
     public ChartDataDTO getAveragePointsPerSeasonByDriver(String decade, String lang) {
-        Map<Long, String> driverNames = driverDao.findAll().stream()
-                .collect(Collectors.toMap(
-                        Driver::getDriverId,
-                        d -> d.getForename() + " " + d.getSurname()
-                ));
-
-        Map<Long, Integer> raceYearMap = raceDao.findAll().stream()
-                .collect(Collectors.toMap(
-                        Race::getRaceId,
-                        Race::getYear
-                ));
-
-        // Map<DriverId, Map<Year, List of Points>>
-        Map<Long, Map<Integer, List<Double>>> driverYearPoints = new HashMap<>();
-
-        // Filtro de década
-        int startYear = 0, endYear = 0;
+        int startYear = 1950, endYear = 2050;
         if (decade != null) {
             switch (decade) {
                 case "1980s" -> { startYear = 1980; endYear = 1989; }
@@ -117,51 +100,46 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             }
         }
 
-        for (Result r : resultDao.findAll()) {
-            Long driverId = r.getDriver().getDriverId();
-            Integer year = raceYearMap.get(r.getRace().getRaceId());
-            Double points = r.getPoints();
+        List<Object[]> results = resultDao.getAveragePointsPerSeasonByDriver(startYear, endYear);
 
-            if (year == null || points == null) continue;
-            if (year < startYear || year > endYear) continue;
+        Map<Long, String> driverNames = driverDao.findAll().stream()
+                .collect(Collectors.toMap(d -> d.getDriverId(), d -> d.getForename() + " " + d.getSurname()));
 
-            driverYearPoints
-                    .computeIfAbsent(driverId, k -> new HashMap<>())
-                    .computeIfAbsent(year, y -> new ArrayList<>())
-                    .add(points);
+        Map<Integer, Boolean> allYears = new TreeMap<>();
+        Map<Long, Map<Integer, Double>> dataMap = new HashMap<>();
+
+        for (Object[] row : results) {
+            Long driverId = (Long) row[0];
+            Integer year = (Integer) row[1];
+            Double avgPoints = (Double) row[2];
+
+            allYears.put(year, true);
+            dataMap.computeIfAbsent(driverId, k -> new HashMap<>()).put(year, avgPoints);
         }
 
-        Set<Integer> allYears = new TreeSet<>();
-        driverYearPoints.values().forEach(map -> allYears.addAll(map.keySet()));
-        List<String> yearLabels = allYears.stream().map(String::valueOf).toList();
-
+        List<String> yearLabels = allYears.keySet().stream().map(String::valueOf).toList();
         List<ChartSeriesDTO> datasets = new ArrayList<>();
 
-        for (Map.Entry<Long, Map<Integer, List<Double>>> entry : driverYearPoints.entrySet()) {
+        for (Map.Entry<Long, Map<Integer, Double>> entry : dataMap.entrySet()) {
             Long driverId = entry.getKey();
             String label = driverNames.getOrDefault(driverId, "Driver " + driverId);
             List<Double> data = new ArrayList<>();
 
-            boolean hasNonZeroAverage = false;
-
-            for (Integer year : allYears) {
-                List<Double> pts = entry.getValue().getOrDefault(year, Collections.emptyList());
-                if (pts.isEmpty()) {
-                    data.add(null);
-                } else {
-                    double avg = pts.stream().mapToDouble(d -> d).average().orElse(0.0);
-                    data.add(avg);
-                    if (avg > 0.0) hasNonZeroAverage = true;
-                }
+            boolean hasNonZero = false;
+            for (Integer y : allYears.keySet()) {
+                Double val = entry.getValue().get(y);
+                data.add(val);
+                if (val != null && val > 0) hasNonZero = true;
             }
 
-            if (hasNonZeroAverage) {
+            if (hasNonZero) {
                 datasets.add(new ChartSeriesDTO(label, "#8884d8", data));
             }
         }
 
         return new ChartDataDTO(chartI18n.get("averagePointsPerSeason", lang), "line", yearLabels, datasets);
     }
+
 
 
 

@@ -54,4 +54,15 @@ public interface ResultDao extends JpaRepository<Result, Long> {
     long countPodiumsByConstructorInYear(@Param("constructorRef") String constructorRef,
                                          @Param("year") int year);
 
+
+    @Query("""
+    SELECT r.driver.driverId, r.race.year, AVG(r.points)
+    FROM Result r
+    WHERE r.race.year BETWEEN :startYear AND :endYear
+    GROUP BY r.driver.driverId, r.race.year
+""")
+    List<Object[]> getAveragePointsPerSeasonByDriver(@Param("startYear") int startYear, @Param("endYear") int endYear);
+
+
+
 }
