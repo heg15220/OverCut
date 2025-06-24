@@ -82,15 +82,39 @@ public interface QualifyingDao extends JpaRepository<Qualifying, Long> {
 
     @Query(value = """
     SELECT q.raceId AS raceId,
-           ra.year AS year,
-           q.constructorId AS constructorId,
            q.driverId AS driverId,
-           q.position AS position
+           q.constructorId AS constructorId,
+           q.position AS position,
+           ra.year AS year
     FROM qualifying q
     JOIN races ra ON q.raceId = ra.raceId
     WHERE q.position IS NOT NULL
+      AND q.constructorId IS NOT NULL
 """, nativeQuery = true)
     List<QualiResultLiteView> findAllQualifyingLite();
+
+
+    @Query(value = """
+    SELECT q.raceId AS raceId,
+           q.driverId AS driverId,
+           q.constructorId AS constructorId,
+           q.position AS position,
+           ra.year AS year
+    FROM qualifying q
+    JOIN races ra ON q.raceId = ra.raceId
+    WHERE q.position IS NOT NULL
+      AND q.constructorId IS NOT NULL
+      AND q.driverId IS NOT NULL
+      AND EXISTS (
+        SELECT 1 FROM qualifying q2
+        WHERE q2.raceId = q.raceId
+          AND q2.constructorId = q.constructorId
+          AND q2.driverId = :driverId
+      )
+""", nativeQuery = true)
+    List<QualiResultLiteView> getQualifyingWithDriverAndTeammates(@Param("driverId") Long driverId);
+
+
 
 
     @Query(value = """
@@ -100,6 +124,7 @@ public interface QualifyingDao extends JpaRepository<Qualifying, Long> {
     GROUP BY q.driverId, q.position
 """, nativeQuery = true)
     List<MostCommonQualiView> getAllQualiPositionFrequencies();
+
 
 
     @Query(value = """
@@ -212,6 +237,13 @@ public interface QualifyingDao extends JpaRepository<Qualifying, Long> {
     @Query("SELECT q.driver.driverId AS driverId FROM Qualifying q WHERE q.position = 1")
     List<PolePositionView> findAllPoles();
 
+    @Query(value = """
+    SELECT q.driverId AS driverId, COUNT(*) AS poleCount
+    FROM qualifying q
+    WHERE q.position = 1
+    GROUP BY q.driverId
+""", nativeQuery = true)
+    List<DriverPoleCountView> getPoleCountsForAllDrivers();
 
 
 

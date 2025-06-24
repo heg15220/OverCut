@@ -302,7 +302,10 @@ public class ChartController {
     public ChartDataDTO getQualiConsistency(@RequestParam String lang) {
         return advancedStatsService.getQualiConsistencyScorePerDriver(lang);
     }
+//-----------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 
+//SEGUIR AQUÍ
     @GetMapping("/poles-without-win")
     public ChartDataDTO getPolesWithoutWin(@RequestParam String lang) {
         return advancedStatsService.getDriversWithMostPolesWithoutWin(lang);

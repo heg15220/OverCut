@@ -172,16 +172,16 @@ public interface ResultDao extends JpaRepository<Result, Long> {
 
 
     @Query(value = """
-    SELECT ra.year AS year,
-           r.grid AS grid,
-           r.positionOrder AS positionOrder
+    SELECT r.grid AS grid, r.positionOrder AS positionOrder, ra.year AS year
     FROM results r
     JOIN races ra ON r.raceId = ra.raceId
     WHERE r.driverId = :driverId
       AND r.grid IS NOT NULL
+      AND r.grid > 0
       AND r.positionOrder IS NOT NULL
 """, nativeQuery = true)
     List<ResultDeltaView> findGridDeltasByDriver(@Param("driverId") Long driverId);
+
 
 
     @Query(value = """
@@ -199,17 +199,19 @@ public interface ResultDao extends JpaRepository<Result, Long> {
 
     @Query(value = """
     SELECT r.raceId AS raceId,
-           r.constructorId AS constructorId,
            r.driverId AS driverId,
-           ra.year AS year,
-           r.positionOrder AS positionOrder
+           r.constructorId AS constructorId,
+           r.positionOrder AS positionOrder,
+           ra.year AS year
     FROM results r
     JOIN races ra ON r.raceId = ra.raceId
-    WHERE r.constructorId IS NOT NULL
+    WHERE r.positionOrder IS NOT NULL
+      AND r.constructorId IS NOT NULL
       AND r.driverId IS NOT NULL
-      AND r.positionOrder IS NOT NULL
+      AND ra.year BETWEEN 1950 AND 2025
 """, nativeQuery = true)
     List<RaceComparisonLiteView> getAllResultsForRaceTeammateComparison();
+
 
 
     @Query(value = """
@@ -509,21 +511,150 @@ public interface ResultDao extends JpaRepository<Result, Long> {
     List<PolePerformanceView> getPolePerformance();
 
 
-    @Query(value = """
-    SELECT r.driverId AS driverId, COUNT(*) AS podiums
-    FROM results r
-    WHERE r.grid > 10 AND r.positionOrder IN (1, 2, 3)
-    GROUP BY r.driverId
-    ORDER BY podiums DESC
-    LIMIT 15
-""", nativeQuery = true)
-    List<PodiumOutsideTop10View> getPodiumsFromOutsideTop10();
-
 
     @Query("SELECT DISTINCT r.driver.driverId FROM Result r WHERE r.positionOrder = 1")
     Set<Long> findAllWinners();
 
 
+    @Query(value = """
+    SELECT DISTINCT r.driverId
+    FROM results r
+    WHERE r.positionOrder = 1
+""", nativeQuery = true)
+    List<Long> getAllWinningDriverIds();
 
+
+    @Query(value = """
+    SELECT r.constructorId AS constructorId, COUNT(*) AS failureCount
+    FROM results r
+    JOIN status s ON r.statusId = s.statusId
+    WHERE LOWER(s.status) IN (:techFailures)
+    GROUP BY r.constructorId
+""", nativeQuery = true)
+    List<ConstructorFailureCountView> getTechnicalFailuresPerConstructor(@Param("techFailures") Set<String> techFailures);
+
+
+    @Query(value = """
+    SELECT ra.year AS year, LOWER(s.status) AS status, COUNT(*) AS count
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    JOIN status s ON r.statusId = s.statusId
+    WHERE LOWER(s.status) IN (:validCauses)
+    GROUP BY ra.year, LOWER(s.status)
+""", nativeQuery = true)
+    List<RetirementCausePerYearView> getRetirementCausesPerYear(@Param("validCauses") Set<String> validCauses);
+
+    @Query(value = """
+    SELECT r.driverId AS driverId, r.grid AS grid, r.positionOrder AS positionOrder
+    FROM results r
+    WHERE r.grid = 1 AND r.positionOrder IS NOT NULL
+""", nativeQuery = true)
+    List<PolePerformanceView> getPolePerformanceStats();
+
+    @Query(value = """
+    SELECT r.driverId AS driverId
+    FROM results r
+    WHERE r.grid > 10 AND r.positionOrder IS NOT NULL AND r.positionOrder <= 3
+""", nativeQuery = true)
+    List<OutsideTop10PodiumView> getPodiumsFromOutsideTop10();
+
+
+    @Query(value = """
+    SELECT r.driverId AS driverId, COUNT(*) AS wins
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE ra.circuitId = (SELECT c.circuitId FROM circuits c WHERE c.circuitRef = :circuitRef)
+      AND r.positionOrder = 1
+    GROUP BY r.driverId
+""", nativeQuery = true)
+    List<CircuitWinByDriverView> getWinsByDriverAtCircuit(@Param("circuitRef") String circuitRef);
+
+
+    @Query(value = """
+    SELECT r.constructorId AS constructorId, COUNT(*) AS wins
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE ra.circuitId = (SELECT c.circuitId FROM circuits c WHERE c.circuitRef = :circuitRef)
+      AND r.positionOrder = 1
+    GROUP BY r.constructorId
+""", nativeQuery = true)
+    List<CircuitWinByConstructorView> getWinsByConstructorAtCircuit(@Param("circuitRef") String circuitRef);
+
+
+    @Query(value = """
+    SELECT r.driverId AS driverId,
+           r.constructorId AS constructorId,
+           ra.year AS year,
+           (r.positionOrder = 1) AS won
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.constructorId IS NOT NULL AND r.driverId IS NOT NULL AND r.positionOrder IS NOT NULL
+""", nativeQuery = true)
+    List<DriverWinByTeamSeasonView> getAllDriverWinsByTeamAndSeason();
+
+    @Query(value = """
+    SELECT r.driverId AS driverId, r.grid AS grid, r.points AS points
+    FROM results r
+    WHERE r.grid IS NOT NULL AND r.grid > 0 AND r.driverId IS NOT NULL
+""", nativeQuery = true)
+    List<EfficiencyRawDataView> getEfficiencyRawData();
+
+    @Query(value = """
+    SELECT r.driverId AS driverId, COUNT(*) AS winCount
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.positionOrder = 1
+      AND ra.year BETWEEN :startYear AND :endYear
+    GROUP BY r.driverId
+""", nativeQuery = true)
+    List<DriverWinsInDecadeView> getDriverWinsInDecade(
+            @Param("startYear") int startYear,
+            @Param("endYear") int endYear
+    );
+
+    @Query(value = """
+    SELECT COUNT(*) FROM races WHERE year BETWEEN :startYear AND :endYear
+""", nativeQuery = true)
+    long countTotalRacesInDecade(@Param("startYear") int startYear, @Param("endYear") int endYear);
+
+
+    @Query(value = """
+    SELECT
+      r1.driverId AS driverId,
+      (r1.points - r2.points) AS delta
+    FROM results r1
+    JOIN results r2 ON r1.raceId = r2.raceId AND r1.constructorId = r2.constructorId
+    JOIN races ra ON r1.raceId = ra.raceId
+    WHERE ra.year = :season
+      AND r1.driverId <> r2.driverId
+      AND r1.points IS NOT NULL
+      AND r2.points IS NOT NULL
+      AND r1.constructorId IS NOT NULL
+      AND r1.driverId IS NOT NULL
+      AND r2.driverId IS NOT NULL
+""", nativeQuery = true)
+    List<TeammatePointsDeltaView> getTeammatePointsDeltas(@Param("season") int season);
+
+
+    @Query(value = """
+    SELECT r.raceId AS raceId,
+           r.driverId AS driverId,
+           r.constructorId AS constructorId,
+           r.positionOrder AS positionOrder,
+           ra.year AS year
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.positionOrder IS NOT NULL
+      AND r.constructorId IS NOT NULL
+      AND r.driverId IS NOT NULL
+      AND ra.year BETWEEN 1950 AND 2025
+      AND EXISTS (
+        SELECT 1 FROM results r2
+        WHERE r2.raceId = r.raceId
+          AND r2.constructorId = r.constructorId
+          AND r2.driverId = :driverId
+      )
+""", nativeQuery = true)
+    List<RaceComparisonLiteView> getRaceResultsWithDriverAndTeammates(@Param("driverId") Long driverId);
 
 }

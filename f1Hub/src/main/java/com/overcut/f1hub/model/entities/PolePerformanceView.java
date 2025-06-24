@@ -5,4 +5,5 @@ public interface PolePerformanceView {
     Long getTotalPoles();
     Long getWinsFromPole();
     Integer getPositionOrder();
+    Integer getGrid();
 }
