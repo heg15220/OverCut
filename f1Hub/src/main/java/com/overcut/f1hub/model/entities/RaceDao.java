@@ -30,5 +30,14 @@ public interface RaceDao extends JpaRepository<Race, Long> {
             nativeQuery = true)
     List<YearCountView> getRaceCountByYear();
 
+
+    @Query("""
+    SELECT r FROM Race r
+    WHERE r.round = (
+        SELECT MAX(r2.round) FROM Race r2 WHERE r2.year = r.year
+    )
+""")
+    List<Race> getLastRacePerYear();
+
 }
 

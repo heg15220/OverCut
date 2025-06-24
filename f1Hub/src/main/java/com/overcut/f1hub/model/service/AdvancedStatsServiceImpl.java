@@ -2394,7 +2394,12 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     public ChartDataDTO getDriverPerformanceTrajectory(String driverIdStr, String lang) {
         Long driverId = Long.parseLong(driverIdStr);
 
-        // 1. Stats del piloto (ligero, optimizado)
+        // 1. Obtener nombre del piloto
+        String name = driverDao.findById(driverId)
+                .map(d -> d.getForename() + " " + d.getSurname())
+                .orElse("Driver " + driverId);
+
+        // 2. Estadísticas básicas del piloto por carrera (ya optimizadas)
         List<DriverRaceStatView> stats = resultDao.findDriverStatsOptimized(driverId);
 
         Map<Integer, List<Double>> positions = new HashMap<>();
@@ -2416,18 +2421,25 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         Set<Integer> years = new TreeSet<>(positions.keySet());
         List<String> labels = years.stream().map(String::valueOf).toList();
 
-        // 2. Puntos por constructor y año (ya precalculado)
+        // Precálculo de puntos máximos por año
+        Map<Integer, Integer> maxPointsPerRace = years.stream()
+                .collect(Collectors.toMap(y -> y, this::getMaxPointsPerRace));
+
+        // 3. Precargar puntos del equipo por año
         Map<List<Object>, Double> constructorPointsByYear = resultDao.getConstructorPointsByYear().stream()
+                .filter(p -> years.contains(p.getYear()))
                 .collect(Collectors.toMap(
                         p -> List.of(p.getYear(), p.getConstructorId()),
                         ConstructorPointsByYearView::getPoints
                 ));
 
-        // 3. Duelos con compañeros (lite version)
-        Map<Long, List<RaceResultLiteView>> resultsByRace = resultDao.getAllRaceResultsLite().stream()
+        // 4. Precargar resultados ligeros con compañeros
+        List<RaceResultLiteView> allResults = resultDao.getRaceResultsForYears(years);
+        Map<Long, List<RaceResultLiteView>> resultsByRace = allResults.stream()
                 .collect(Collectors.groupingBy(RaceResultLiteView::getRaceId));
 
         Map<Integer, int[]> teammateBattleStats = new HashMap<>();
+
         for (List<RaceResultLiteView> raceResults : resultsByRace.values()) {
             RaceResultLiteView main = raceResults.stream()
                     .filter(r -> r.getDriverId().equals(driverId))
@@ -2440,18 +2452,14 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             int year = main.getYear();
             int pos = main.getPositionOrder();
 
-            long wins = raceResults.stream()
-                    .filter(r -> !r.getDriverId().equals(driverId))
-                    .filter(r -> r.getConstructorId().equals(constructorId))
-                    .filter(r -> r.getPositionOrder() != null)
-                    .filter(r -> pos < r.getPositionOrder())
-                    .count();
+            var teammates = raceResults.stream()
+                    .filter(r -> !r.getDriverId().equals(driverId)
+                            && r.getConstructorId().equals(constructorId)
+                            && r.getPositionOrder() != null)
+                    .toList();
 
-            long total = raceResults.stream()
-                    .filter(r -> !r.getDriverId().equals(driverId))
-                    .filter(r -> r.getConstructorId().equals(constructorId))
-                    .filter(r -> r.getPositionOrder() != null)
-                    .count();
+            long wins = teammates.stream().filter(r -> pos < r.getPositionOrder()).count();
+            long total = teammates.size();
 
             if (total > 0) {
                 int[] arr = teammateBattleStats.computeIfAbsent(year, k -> new int[2]);
@@ -2460,53 +2468,53 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             }
         }
 
-        // 4. Posición final en el campeonato vs equipo
-        Map<Integer, Race> lastRaceByYear = raceDao.findAllOrderByYearAndRound().stream()
-                .collect(Collectors.toMap(Race::getYear, Function.identity(), (a, b) -> b));
+        // 5. Precargar standings finales
+        Map<Integer, Integer> driverPosByYear = driverStandingDao.getFinalDriverStandingsPerYear(driverId).stream()
+                .collect(Collectors.toMap(
+                        DriverStandingFinalView::getYear,
+                        DriverStandingFinalView::getPosition
+                ));
+
+        Map<Integer, Integer> teamPosByYear = constructorStandingDao.getFinalTeamStandingPerYear().stream()
+                .filter(e -> constructorPerYear.containsKey(e.getYear()) &&
+                        e.getConstructorId().equals(constructorPerYear.get(e.getYear())))
+                .collect(Collectors.toMap(
+                        ConstructorStandingFinalView::getYear,
+                        ConstructorStandingFinalView::getPosition
+                ));
 
         Map<Integer, Boolean> beatTeamInWdc = new HashMap<>();
-        for (var entry : lastRaceByYear.entrySet()) {
-            int year = entry.getKey();
-            Long raceId = entry.getValue().getRaceId();
-
-            List<DriverStanding> dsList = driverStandingDao.findByRaceIdOrderByPositionAsc(raceId);
-            List<ConstructorStanding> csList = constructorStandingDao.findByRaceIdOrderByPositionAsc(raceId);
-
-            Integer driverPos = dsList.stream()
-                    .filter(d -> d.getDriverId().equals(driverId))
-                    .map(DriverStanding::getPosition)
-                    .findFirst().orElse(null);
-
-            Long constructorId = constructorPerYear.get(year);
-            if (constructorId == null) continue;
-
-            Integer teamPos = csList.stream()
-                    .filter(c -> c.getConstructorId().equals(constructorId))
-                    .map(ConstructorStanding::getPosition)
-                    .findFirst().orElse(null);
-
-            if (driverPos != null && teamPos != null && driverPos <= teamPos + 1) {
+        for (Integer year : years) {
+            Integer dp = driverPosByYear.get(year);
+            Integer tp = teamPosByYear.get(year);
+            if (dp != null && tp != null && dp <= tp + 1) {
                 beatTeamInWdc.put(year, true);
             }
         }
 
-        // 5. Cálculo del índice por año
-        List<Double> values = years.stream()
+        // 6. Calcular índice anual
+        List<Double> values = years.parallelStream()
                 .map(year -> {
-                    List<Double> yearPositions = positions.getOrDefault(year, List.of());
+                    List<Double> yearPositions = positions.get(year);
+                    if (yearPositions == null || yearPositions.isEmpty()) return 0.0;
+
                     double avgPos = yearPositions.stream().mapToDouble(d -> d).average().orElse(25.0);
                     double stdDev = Math.sqrt(yearPositions.stream().mapToDouble(p -> Math.pow(p - avgPos, 2)).average().orElse(0));
                     double consistency = 1 / (1 + stdDev);
 
                     double rawPoints = points.getOrDefault(year, 0.0);
                     int raceCount = yearPositions.size();
-                    int maxPoints = raceCount * getMaxPointsPerRace(year);
-                    double normalizedPoints = maxPoints > 0 ? (rawPoints / maxPoints) * 100 : 0.0;
+                    int maxPoints = maxPointsPerRace.getOrDefault(year, 25);
+                    double normalizedPoints = maxPoints > 0 ? (rawPoints / (raceCount * maxPoints)) * 100 : 0.0;
 
                     Long constructorId = constructorPerYear.get(year);
                     double teamPoints = constructorPointsByYear.getOrDefault(List.of(year, constructorId), 0.0);
-                    double pilotShare = teamPoints > 0 ? rawPoints / teamPoints : 0.0;
-                    double weight = pilotShare >= 0.69 ? 0.40 : pilotShare >= 0.65 ? 0.25 : 0.15;
+                    double pilotShare = 0.0;
+                    double weight = 0.15;
+                    if (teamPoints > 0.0) {
+                        pilotShare = rawPoints / teamPoints;
+                        weight = pilotShare >= 0.69 ? 0.40 : pilotShare >= 0.65 ? 0.25 : 0.15;
+                    }
 
                     double pointsScore = normalizedPoints * weight;
 
@@ -2526,14 +2534,15 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                     return pointsScore + consistencyScore + teammateScore + bonus;
                 }).toList();
 
-        String name = driverDao.findById(driverId)
-                .map(d -> d.getForename() + " " + d.getSurname())
-                .orElse("Driver " + driverId);
-
-        return new ChartDataDTO(chartI18n.get("performanceTrajectory", lang) + " " + name,
-                "line", labels,
-                List.of(new ChartSeriesDTO("Performance Index (0-100)", getDriverColor(driverId), values)));
+        return new ChartDataDTO(
+                chartI18n.get("performanceTrajectory", lang) + " " + name,
+                "line",
+                labels,
+                List.of(new ChartSeriesDTO("Performance Index (0-100)", getDriverColor(driverId), values))
+        );
     }
+
+
 
 
 

@@ -47,5 +47,18 @@ public interface DriverStandingDao extends JpaRepository<DriverStanding, Long> {
 """, nativeQuery = true)
     List<RaceStandingView> getTop2StandingsByRaceIds(@Param("raceIds") Set<Long> raceIds);
 
+
+    @Query(value = """
+    SELECT ds.driverId AS driverId, ds.position AS position,
+           ra.year AS year, ra.raceId AS raceId
+    FROM driverstandings ds
+    JOIN races ra ON ds.raceId = ra.raceId
+    WHERE ra.year BETWEEN 1950 AND 2025
+      AND ra.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = ra.year)
+      AND ds.driverId = :driverId
+""", nativeQuery = true)
+    List<DriverStandingFinalView> getFinalDriverStandingsPerYear(@Param("driverId") Long driverId);
+
+
 }
 
