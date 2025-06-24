@@ -101,4 +101,118 @@ public interface QualifyingDao extends JpaRepository<Qualifying, Long> {
 """, nativeQuery = true)
     List<MostCommonQualiView> getAllQualiPositionFrequencies();
 
+
+    @Query(value = """
+    SELECT ra.year AS year,
+           AVG(GREATEST(
+               (
+                   LEAST(
+                       IF(p2.q1 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$', TIME_TO_SEC(STR_TO_DATE(p2.q1, '%i:%s.%f')), NULL),
+                       IF(p2.q2 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$', TIME_TO_SEC(STR_TO_DATE(p2.q2, '%i:%s.%f')), NULL),
+                       IF(p2.q3 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$', TIME_TO_SEC(STR_TO_DATE(p2.q3, '%i:%s.%f')), NULL)
+                   ) -
+                   LEAST(
+                       IF(p1.q1 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$', TIME_TO_SEC(STR_TO_DATE(p1.q1, '%i:%s.%f')), NULL),
+                       IF(p1.q2 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$', TIME_TO_SEC(STR_TO_DATE(p1.q2, '%i:%s.%f')), NULL),
+                       IF(p1.q3 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$', TIME_TO_SEC(STR_TO_DATE(p1.q3, '%i:%s.%f')), NULL)
+                   )
+               ) * 1000,
+               0
+           )) AS diff
+    FROM qualifying p1
+    JOIN qualifying p2 ON p1.raceId = p2.raceId AND p1.position = 1 AND p2.position = 2
+    JOIN races ra ON p1.raceId = ra.raceId
+    WHERE (
+        (p1.q1 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' OR
+         p1.q2 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' OR
+         p1.q3 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$')
+    )
+    AND (
+        (p2.q1 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' OR
+         p2.q2 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' OR
+         p2.q3 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$')
+    )
+    GROUP BY ra.year
+    ORDER BY ra.year
+    """, nativeQuery = true)
+    List<QualiGapView> getAvgGapBetweenP1AndP2PerSeason();
+
+
+    @Query(value = """
+    SELECT ra.year AS year,
+           AVG(
+               (
+                   LEAST(
+                       CASE WHEN p10.q1 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$'
+                           THEN TIME_TO_SEC(STR_TO_DATE(p10.q1, '%i:%s.%f')) ELSE 999999 END,
+                       CASE WHEN p10.q2 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$'
+                           THEN TIME_TO_SEC(STR_TO_DATE(p10.q2, '%i:%s.%f')) ELSE 999999 END,
+                       CASE WHEN p10.q3 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$'
+                           THEN TIME_TO_SEC(STR_TO_DATE(p10.q3, '%i:%s.%f')) ELSE 999999 END
+                   ) -
+                   LEAST(
+                       CASE WHEN p1.q1 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$'
+                           THEN TIME_TO_SEC(STR_TO_DATE(p1.q1, '%i:%s.%f')) ELSE 999999 END,
+                       CASE WHEN p1.q2 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$'
+                           THEN TIME_TO_SEC(STR_TO_DATE(p1.q2, '%i:%s.%f')) ELSE 999999 END,
+                       CASE WHEN p1.q3 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$'
+                           THEN TIME_TO_SEC(STR_TO_DATE(p1.q3, '%i:%s.%f')) ELSE 999999 END
+                   )
+               ) * 1000
+           ) AS diff
+    FROM qualifying p1
+    JOIN qualifying p10 ON p1.raceId = p10.raceId AND p1.position = 1 AND p10.position = 10
+    JOIN races ra ON p1.raceId = ra.raceId
+    GROUP BY ra.year
+""", nativeQuery = true)
+    List<QualiGapP10PoleView> getAvgGapBetweenP10AndPolePerSeason();
+
+    @Query(value = """
+    SELECT ra.year AS year,
+           q.q1 AS q1,
+           q.q3 AS q3
+    FROM qualifying q
+    JOIN races ra ON q.raceId = ra.raceId
+    WHERE ra.year >= 2006
+      AND q.q1 IS NOT NULL AND q.q3 IS NOT NULL
+""", nativeQuery = true)
+    List<Q1Q3DeltaView> getQ1Q3TimesSince2006();
+
+
+    @Query(value = """
+    SELECT q.driverId AS driverId, q.q1 AS q1, q.q2 AS q2, q.q3 AS q3
+    FROM qualifying q
+    WHERE q.q1 IS NOT NULL OR q.q2 IS NOT NULL OR q.q3 IS NOT NULL
+""", nativeQuery = true)
+    List<QualiProgressView> getAllQualiTimesGroupedByDriver();
+
+    @Query(value = """
+    SELECT q.driverId AS driverId, q.position AS position
+    FROM qualifying q
+    WHERE q.position IS NOT NULL
+""", nativeQuery = true)
+    List<QualiPositionView> getAllQualiPositions();
+
+    @Query(value = """
+    SELECT q.driverId AS driverId, COUNT(*) AS count
+    FROM qualifying q
+    WHERE q.position = 1
+      AND q.driverId NOT IN (
+          SELECT DISTINCT r.driverId
+          FROM results r
+          WHERE r.positionOrder = 1
+      )
+    GROUP BY q.driverId
+    ORDER BY count DESC
+    LIMIT 15
+""", nativeQuery = true)
+    List<PolesWithoutWinView> getPolesWithoutWin();
+
+
+    @Query("SELECT q.driver.driverId AS driverId FROM Qualifying q WHERE q.position = 1")
+    List<PolePositionView> findAllPoles();
+
+
+
+
 }

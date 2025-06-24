@@ -24,5 +24,11 @@ public interface RaceDao extends JpaRepository<Race, Long> {
     @Query("SELECT r FROM Race r WHERE r.circuit.circuitRef = :circuitRef")
     List<Race> findByCircuitRef(@Param("circuitRef") String circuitRef);
 
+    @Query(value = "SELECT ra.year AS year, COUNT(DISTINCT ra.raceId) AS count " +
+            "FROM races ra " +
+            "GROUP BY ra.year",
+            nativeQuery = true)
+    List<YearCountView> getRaceCountByYear();
+
 }
 
