@@ -21,12 +21,13 @@ def get_random_driver():
         driver_id, forename, surname = result
         full_name = f"{forename} {surname}"
 
-        print(json.dumps({
+        return {
             "driverId": driver_id,
             "name": full_name
-        }))
+        }
     finally:
         session.close()
+
 
 if __name__ == "__main__":
     get_random_driver()

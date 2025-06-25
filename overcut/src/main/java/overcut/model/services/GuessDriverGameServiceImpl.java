@@ -1,5 +1,6 @@
 package overcut.model.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,10 @@ import overcut.model.entities.GuessDriverGameDao;
 import overcut.model.entities.GuessDriverQuestion;
 import overcut.model.entities.GuessDriverQuestionDao;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.*;
 
 @Service
@@ -23,35 +26,35 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
     @Autowired
     private GuessDriverQuestionDao questionDao;
 
+    private final HttpClient client = HttpClient.newHttpClient();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public GuessDriverGame startGame() {
         try {
-            List<String> command = List.of(
-                    "python", "src/main/resources/scripts/select_random_driver.py"
-            );
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8000/generate-guess-driver"))
+                    .GET()
+                    .build();
 
-            ProcessBuilder pb = new ProcessBuilder(command);
-
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line);
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
             }
-            process.waitFor();
 
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> result = mapper.readValue(output.toString(), Map.class);
+            JsonNode root = mapper.readTree(response.body());
 
-            Long driverId = ((Number) result.get("driverId")).longValue();
-            String driverName = (String) result.get("name");
+            if (!root.has("driverId") || !root.has("name")) {
+                throw new RuntimeException("Respuesta inválida de FastAPI: " + response.body());
+            }
+
+            Long driverId = root.get("driverId").asLong();
+            String driverName = root.get("name").asText();
+
 
             GuessDriverGame game = new GuessDriverGame();
             game.setDriverId(driverId);
             game.setDriverName(driverName);
-            // game.setDriverName(driverName); // si quieres guardar también el nombre
             return gameDao.save(game);
 
         } catch (Exception e) {
@@ -69,32 +72,25 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
         }
 
         try {
-            List<String> command = new ArrayList<>();
-            command.add("python");
-            command.add("src/main/resources/scripts/validate_guess_driver_question.py");
-            command.add(String.valueOf(game.getDriverId()));
-            command.add(category);
-            if (value != null) {
-                command.add(value);
+            String url = String.format("http://localhost:8000/validate-guess-question?driverId=%d&category=%s%s&lang=%s",
+                    game.getDriverId(),
+                    category,
+                    value != null ? "&value=" + value : "",
+                    lang);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
             }
 
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.environment().put("LANG", lang);
-
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line);
-            }
-            process.waitFor();
-
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> result = mapper.readValue(output.toString(), Map.class);
-
-            boolean isCorrect = (Boolean) result.get("isCorrect");
-            String questionText = (String) result.get("question");
+            JsonNode root = mapper.readTree(response.body());
+            boolean isCorrect = root.get("isCorrect").asBoolean();
+            String questionText = root.get("question").asText();
 
             GuessDriverQuestion question = new GuessDriverQuestion();
             question.setGame(game);
@@ -113,34 +109,29 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
             }
 
             gameDao.save(game);
-
             return question;
 
         } catch (Exception e) {
-            throw new RuntimeException("Error al validar pregunta con script Python", e);
+            throw new RuntimeException("Error al validar pregunta con FastAPI", e);
         }
     }
-
 
     @Override
     public GuessDriverGame guessPilot(Long gameId, String guessedName) {
         GuessDriverGame game = gameDao.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found"));
 
-        // ✅ Permitir adivinar incluso si está finished, pero solo si aún no ha acertado
-        if (game.isFinished() && game.getSuccessful() != null && game.getSuccessful()) {
+        if (game.isFinished() && Boolean.TRUE.equals(game.getSuccessful())) {
             throw new IllegalStateException("Game is already finished and successful");
         }
 
-        String realName = game.getDriverName();
-        boolean isSuccess = guessedName.trim().equalsIgnoreCase(realName.trim());
+        boolean isSuccess = guessedName.trim().equalsIgnoreCase(game.getDriverName().trim());
 
         game.setFinished(true);
         game.setSuccessful(isSuccess);
 
         return gameDao.save(game);
     }
-
 
     @Override
     public GuessDriverGame getGameStatus(Long gameId) {
@@ -149,31 +140,17 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
     }
 
     @Override
-    public List<String> getRecommendations(String category, String lang)
-    {
+    public List<String> getRecommendations(String category, String lang) {
         try {
-            List<String> command = List.of(
-                    "python",
-                    "src/main/resources/scripts/get_recommendations.py",
-                    "--category", category
-            );
+            String url = String.format("http://localhost:8000/recommend-guess-values?category=%s&lang=%s", category, lang);
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
 
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            pb.environment().put("LANG", lang); // ← añadir esta línea
-            Process process = pb.start();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line);
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
             }
-            process.waitFor();
 
-            ObjectMapper mapper = new ObjectMapper();
-            return Arrays.asList(mapper.readValue(output.toString(), String[].class));
-
+            return Arrays.asList(mapper.readValue(response.body(), String[].class));
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener recomendaciones para categoría: " + category, e);
         }
@@ -182,27 +159,17 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
     @Override
     public List<String> autocompletePilotNames(String partial) {
         try {
-            ProcessBuilder pb = new ProcessBuilder(
-                    "python",
-                    "src/main/resources/scripts/recommend_pilots.py",
-                    "--partial", partial
-            );
-            Process process = pb.start();
+            String url = String.format("http://localhost:8000/autocomplete-pilot?partial=%s", partial);
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder jsonBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jsonBuilder.append(line);
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
             }
-            process.waitFor();
 
-            ObjectMapper mapper = new ObjectMapper();
-            return Arrays.asList(mapper.readValue(jsonBuilder.toString(), String[].class));
+            return Arrays.asList(mapper.readValue(response.body(), String[].class));
         } catch (Exception e) {
             throw new RuntimeException("Error en recomendación de pilotos: " + e.getMessage(), e);
         }
     }
-
-
 }

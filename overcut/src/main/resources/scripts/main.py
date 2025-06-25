@@ -17,6 +17,11 @@ from autocomplete_grid_pilot import autocomplete_pilots
 from generate_top10_game import get_random_race_and_top10
 from validate_top10_pilot import validate_pilot_in_top10
 from generate_order_drivers import generate_order_game
+from select_random_driver import get_random_driver
+from validate_guess_driver_question import main as validate_question_main
+from get_recommendations import get_recommendations
+from recommend_pilots import recommend_pilots
+
 
 import sys
 import io
@@ -162,6 +167,60 @@ def validate_top10_pilot(pilot: str, raceId: int):
 def generate_order_game_endpoint(lang: str = Query("es", enum=["es", "en"])):
     try:
         result = generate_order_game(lang)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/generate-guess-driver")
+def generate_guess_driver():
+    try:
+        result = get_random_driver()
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/validate-guess-question")
+def validate_guess_question(driverId: int, category: str, value: str = None, lang: str = Query("es", enum=["es", "en"])):
+    try:
+        # Simula llamada por línea de comandos
+        import sys, io
+        sys.argv = ["validate_guess_driver_question.py", str(driverId), category]
+        if value:
+            sys.argv.append(value)
+
+        import os
+        os.environ["LANG"] = lang
+
+        stdout_backup = sys.stdout
+        sys.stdout = io.StringIO()
+
+        validate_question_main()
+
+        sys.stdout.seek(0)
+        output = sys.stdout.read()
+        sys.stdout = stdout_backup
+
+        return JSONResponse(content=json.loads(output))
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/recommend-guess-values")
+def recommend_guess_values(category: str, lang: str = Query("es", enum=["es", "en"])):
+    try:
+        import os
+        os.environ["LANG"] = lang
+        result = get_recommendations(category)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/autocomplete-pilot")
+def autocomplete_pilot(partial: str):
+    try:
+        result = recommend_pilots(partial)
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
