@@ -295,7 +295,7 @@ def get_all_pilots(session):
     query = text("SELECT CONCAT(forename, ' ', surname) FROM drivers")
     return [row[0] for row in session.execute(query).fetchall()]
 
-def generate_game(lang):
+def generate_f1_impostor_game(lang):
     session = Session()
     try:
         categories = list(CATEGORIES.keys())
@@ -317,19 +317,19 @@ def generate_game(lang):
                         "valid": p in valid
                     })
 
-                print(json.dumps({
+                return {
                     "category": category,
                     "themeDescription": CATEGORIES[category][lang],
                     "pilots": result
-                }, ensure_ascii=False))
-                return
+                }
 
-        print(json.dumps({"error": "No valid category with enough data"}))
+        return {"error": "No valid category with enough data"}
     finally:
         session.close()
 
 if __name__ == "__main__":
+    import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--lang", choices=["es", "en"], default="es")
     args = parser.parse_args()
-    generate_game(lang=args.lang)
+    print(json.dumps(generate_f1_impostor_game(args.lang)))

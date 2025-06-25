@@ -1,19 +1,22 @@
 package overcut.model.services;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import overcut.rest.dtos.OrderSubmissionDto;
+import jakarta.transaction.Transactional;
 import overcut.model.entities.OrderDriverGame;
 import overcut.model.entities.OrderDriverGameDao;
 import overcut.model.entities.OrderDriverSlot;
 import overcut.model.entities.OrderDriverSlotDao;
-import jakarta.transaction.Transactional;
+import overcut.rest.dtos.OrderSubmissionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,20 +31,25 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
     private OrderDriverSlotDao slotDao;
 
     private static final ObjectMapper mapper = new ObjectMapper();
+    private static final HttpClient client = HttpClient.newHttpClient();
 
     @Override
     public OrderDriverGame startGame(String lang) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python",
-                    "src/main/resources/scripts/generate_order_drivers.py",
-                    "--lang", lang);
-            Process process = pb.start();
+            String url = "http://localhost:8000/generate-order-game?lang=" +
+                    URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String jsonOutput = reader.lines().collect(Collectors.joining());
-            process.waitFor();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
 
-            JsonNode root = mapper.readTree(jsonOutput);
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Error desde FastAPI: " + response.body());
+            }
+
+            JsonNode root = mapper.readTree(response.body());
 
             OrderDriverGame game = new OrderDriverGame();
             game.setTopic(root.get("topic").asText());
@@ -64,12 +72,10 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
         }
     }
 
-
     @Override
     public OrderDriverGame validateSubmission(OrderSubmissionDto submission) {
         OrderDriverGame game = gameDao.findById(submission.getGameId()).orElseThrow();
 
-        // Obtener mapa: driverId -> correctOrder
         Map<Long, Integer> correctOrderMap = game.getSlots().stream()
                 .collect(Collectors.toMap(OrderDriverSlot::getDriverId, OrderDriverSlot::getCorrectOrder));
 

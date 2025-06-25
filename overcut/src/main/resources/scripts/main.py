@@ -5,6 +5,18 @@ import uvicorn
 from generate_drivers_connections import generate_game as generate_drivers_game
 from generate_crossword import main as generate_crossword_main
 from validate_crossword_word import validate_word_and_clue
+from select_driver_teams import generate_career_path_game
+from autocomplete_grid_pilot import autocomplete_pilots
+from select_driver_teammates import generate_drivers_link_game
+from generate_f1_impostor import generate_f1_impostor_game
+from select_wordle_driver import generate_f1_wordle_game
+from get_drivers_for_season import get_drivers_for_season
+from validate_grid_game import pilot_exists_for_season
+from get_pilot_nationality import get_nationality
+from autocomplete_grid_pilot import autocomplete_pilots
+from generate_top10_game import get_random_race_and_top10
+from validate_top10_pilot import validate_pilot_in_top10
+from generate_order_drivers import generate_order_game
 
 import sys
 import io
@@ -48,6 +60,109 @@ def validate_crossword_word(word: str, clue: str, lang: str = Query("es", enum=[
     try:
         result = validate_word_and_clue(word, clue, lang)
         return result
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/generate-career-path")
+def generate_career_path():
+    try:
+        result = generate_career_path_game()
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/autocomplete-career-pilot")
+def autocomplete_career_pilot(partial: str):
+    try:
+        suggestions = autocomplete_pilots(partial)
+        return JSONResponse(content=suggestions)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+
+@app.get("/generate-drivers-link")
+def generate_drivers_link():
+    try:
+        result = generate_drivers_link_game()
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-f1-impostor")
+def generate_f1_impostor(lang: str = Query("es", enum=["es", "en"])):
+    try:
+        result = generate_f1_impostor_game(lang)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-f1-wordle")
+def generate_f1_wordle():
+    try:
+        result = generate_f1_wordle_game()
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/get-drivers-for-season")
+def get_drivers(season: int):
+    try:
+        result = get_drivers_for_season(season)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/validate-grid-pilot")
+def validate_grid_pilot(pilot: str, season: int):
+    try:
+        valid = pilot_exists_for_season(pilot, season)
+        return JSONResponse(content={"valid": valid})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/get-pilot-nationality")
+def get_pilot_nationality(pilot: str, season: int):
+    try:
+        nationality = get_nationality(pilot, season)
+        return JSONResponse(content={"nationality": nationality})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/autocomplete-grid-pilot")
+def autocomplete_grid_pilot(partial: str):
+    try:
+        result = autocomplete_pilots(partial)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-top10-game")
+def generate_top10_game(lang: str = Query("es", enum=["es", "en"])):
+    try:
+        global LANG
+        LANG = lang
+        result = get_random_race_and_top10()
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/validate-top10-pilot")
+def validate_top10_pilot(pilot: str, raceId: int):
+    try:
+        result = validate_pilot_in_top10(pilot, raceId)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-order-game")
+def generate_order_game_endpoint(lang: str = Query("es", enum=["es", "en"])):
+    try:
+        result = generate_order_game(lang)
+        return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 

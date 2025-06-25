@@ -11,9 +11,12 @@ import overcut.model.entities.F1ImpostorPilotDao;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.net.URI;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,15 +34,19 @@ public class F1ImpostorGameServiceImpl implements F1ImpostorGameService {
     @Override
     public F1ImpostorGame startGame(String lang) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python", "src/main/resources/scripts/generate_f1_impostor.py", "--lang", lang);
-            Process process = pb.start();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8000/generate-f1-impostor?lang=" + lang))
+                    .GET()
+                    .build();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String jsonOutput = reader.lines().collect(Collectors.joining());
-            process.waitFor();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
+            }
 
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(jsonOutput);
+            JsonNode root = mapper.readTree(response.body());
 
             if (root.has("error")) {
                 throw new RuntimeException("Script error: " + root.get("error").asText());
@@ -62,11 +69,11 @@ public class F1ImpostorGameServiceImpl implements F1ImpostorGameService {
             }
 
             return gameDao.save(game);
-
         } catch (Exception e) {
-            throw new RuntimeException("Error al iniciar F1 Impostor Game", e);
+            throw new RuntimeException("Error calling FastAPI F1Impostor generator", e);
         }
     }
+
 
     @Override
     public F1ImpostorGame validateSelection(Long gameId, List<String> selectedPilotNames) {

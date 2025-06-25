@@ -345,7 +345,7 @@ def generate_order_game(lang):
             "correctOrder": i
         })
 
-    print(json.dumps(output, ensure_ascii=False))
+    return output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

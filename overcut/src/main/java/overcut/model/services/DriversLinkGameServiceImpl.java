@@ -8,11 +8,15 @@ import overcut.model.entities.DriversLinkClueDao;
 import overcut.model.entities.DriversLinkGame;
 import overcut.model.entities.DriversLinkGameDao;
 import jakarta.transaction.Transactional;
+import java.net.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,15 +32,19 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
     @Override
     public DriversLinkGame startGame() {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python",
-                    "src/main/resources/scripts/select_driver_teammates.py");
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String jsonOutput = reader.lines().collect(Collectors.joining());
-            process.waitFor();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8000/generate-drivers-link"))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
+            }
 
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode result = mapper.readTree(jsonOutput);
+            JsonNode result = mapper.readTree(response.body());
 
             DriversLinkGame game = new DriversLinkGame();
             game.setDriverId(result.get("driverId").asLong());
@@ -58,6 +66,7 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
             throw new RuntimeException("Error iniciando DriversLinkGame", e);
         }
     }
+
 
     @Override
     public DriversLinkGame guessDriver(Long gameId, String driverGuess) {
@@ -82,18 +91,25 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
     @Override
     public List<String> autocompletePilotNames(String partial) {
         try {
-            ProcessBuilder pb = new ProcessBuilder(
-                    "python",
-                    "src/main/resources/scripts/autocomplete_grid_pilot.py", "--partial", partial);
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String jsonOutput = reader.lines().collect(Collectors.joining());
-            process.waitFor();
-            return new ObjectMapper().readValue(jsonOutput, new TypeReference<>() {});
+            HttpClient client = HttpClient.newHttpClient();
+            String encoded = java.net.URLEncoder.encode(partial, java.nio.charset.StandardCharsets.UTF_8);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8000/autocomplete-career-pilot?partial=" + encoded))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(response.body(), new TypeReference<List<String>>() {});
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error calling FastAPI autocomplete", e);
         }
     }
+
 
     @Override
     public DriversLinkGame skipClue(Long gameId) {

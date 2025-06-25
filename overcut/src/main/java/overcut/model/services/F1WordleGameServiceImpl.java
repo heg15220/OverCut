@@ -9,12 +9,12 @@ import overcut.model.entities.F1WordleGameDao;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -29,15 +29,20 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
     @Override
     public F1WordleGame startGame() {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python",
-                    "src/main/resources/scripts/select_wordle_driver.py");
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String jsonOutput = reader.lines().collect(Collectors.joining());
-            process.waitFor();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8000/generate-f1-wordle"))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
+            }
 
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode result = mapper.readTree(jsonOutput);
+            JsonNode result = mapper.readTree(response.body());
 
             F1WordleGame game = new F1WordleGame();
             game.setDriverId(result.get("driverId").asLong());
@@ -48,6 +53,7 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
             throw new RuntimeException("Error iniciando F1WordleGame", e);
         }
     }
+
 
 
     @Override

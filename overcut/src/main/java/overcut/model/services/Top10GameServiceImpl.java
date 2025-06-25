@@ -10,12 +10,13 @@ import overcut.rest.dtos.GridValidationResultDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,24 +28,24 @@ public class Top10GameServiceImpl implements Top10GameService {
     @Autowired
     private Top10SlotDao top10SlotDao;
 
+    private final HttpClient client = HttpClient.newHttpClient();
+    private final ObjectMapper mapper = new ObjectMapper();
+
     @Override
     public Top10Game createGame(String lang) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python", "src/main/resources/scripts/generate_top10_game.py");
-            pb.redirectErrorStream(true);
+            String url = "http://localhost:8000/generate-top10-game?lang=" + URLEncoder.encode(lang, StandardCharsets.UTF_8);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
 
-            // ⬅️ Pasar el idioma al entorno del script
-            pb.environment().put("LANG", lang);
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
+            }
 
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder json = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) json.append(line);
-
-            process.waitFor();
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> data = mapper.readValue(json.toString(), Map.class);
+            Map<String, Object> data = mapper.readValue(response.body(), Map.class);
 
             Top10Game game = new Top10Game();
             game.setSeasonYear((Integer) data.get("seasonYear"));
@@ -72,13 +73,10 @@ public class Top10GameServiceImpl implements Top10GameService {
         }
     }
 
-
-
     @Override
     public List<Top10Slot> getGrid(Long gameId) {
         return top10SlotDao.findByGameId(gameId);
     }
-
 
     @Override
     public GridValidationResultDto validatePilot(Long gameId, String pilotName) {
@@ -86,22 +84,17 @@ public class Top10GameServiceImpl implements Top10GameService {
                 .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
 
         try {
-            ProcessBuilder pb = new ProcessBuilder(
-                    "python", "src/main/resources/scripts/validate_top10_pilot.py",
-                    "--pilot", pilotName,
-                    "--raceId", String.valueOf(game.getRaceId())
-            );
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
+            String url = String.format("http://localhost:8000/validate-top10-pilot?pilot=%s&raceId=%d",
+                    URLEncoder.encode(pilotName, StandardCharsets.UTF_8),
+                    game.getRaceId());
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder json = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) json.append(line);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
 
-            process.waitFor();
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> result = mapper.readValue(json.toString(), Map.class);
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            Map<String, Object> result = mapper.readValue(response.body(), Map.class);
 
             boolean valid = Boolean.TRUE.equals(result.get("valid"));
             Integer position = (Integer) result.get("position");
@@ -119,7 +112,7 @@ public class Top10GameServiceImpl implements Top10GameService {
                 return new GridValidationResultDto(
                         true,
                         pilotName,
-                        slot.getNationalityCode(), // ✅ ahora sí se devuelve la nacionalidad correcta
+                        slot.getNationalityCode(),
                         List.of(position)
                 );
             } else {
@@ -130,7 +123,6 @@ public class Top10GameServiceImpl implements Top10GameService {
             throw new RuntimeException("Error validando piloto", e);
         }
     }
-
 
     @Override
     public List<GridSlotReveal> revealAllAnswers(Long gameId) {
@@ -155,33 +147,17 @@ public class Top10GameServiceImpl implements Top10GameService {
     @Override
     public List<String> autocompletePilots(Long gameId, String query) {
         try {
-            List<String> command = List.of(
-                    "python",
-                    "src/main/resources/scripts/autocomplete_grid_pilot.py",
-                    "--partial", query
-            );
+            String url = "http://localhost:8000/autocomplete-grid-pilot?partial=" +
+                    URLEncoder.encode(query, StandardCharsets.UTF_8);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
 
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line);
-            }
-
-            process.waitFor();
-
-            ObjectMapper mapper = new ObjectMapper();
-            return Arrays.asList(mapper.readValue(output.toString(), String[].class));
-
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return Arrays.asList(mapper.readValue(response.body(), String[].class));
         } catch (Exception e) {
-            throw new RuntimeException("Error al ejecutar script de autocompletado", e);
+            throw new RuntimeException("Error al ejecutar autocomplete", e);
         }
     }
-
-
-
 }
