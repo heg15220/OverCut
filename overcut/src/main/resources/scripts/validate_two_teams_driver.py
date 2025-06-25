@@ -27,9 +27,10 @@ def validate_driver(driver_name, team_a, team_b):
         }).fetchall()
 
         teams = [row[0] for row in result]
-        print(json.dumps({"valid": len(set(teams)) == 2}))
+        return len(set(teams)) == 2
     finally:
         session.close()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

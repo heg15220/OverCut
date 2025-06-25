@@ -12,6 +12,12 @@ import overcut.model.entities.TwoTeamsOneDriverPairDao;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,19 +31,21 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
     @Autowired
     private TwoTeamsOneDriverPairDao pairDao;
 
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final String PYTHON_API_BASE = "http://localhost:8000";
+
     @Override
     public TwoTeamsOneDriverGame startGame() {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python", "src/main/resources/scripts/select_teams_pilot.py");
-            Process process = pb.start();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(PYTHON_API_BASE + "/generate-two-teams-one-driver"))
+                    .GET()
+                    .build();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String jsonOutput = reader.lines().collect(Collectors.joining());
-            process.waitFor();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(jsonOutput);
-
+            JsonNode root = mapper.readTree(response.body());
             TwoTeamsOneDriverGame game = new TwoTeamsOneDriverGame();
 
             for (JsonNode pairNode : root) {
@@ -47,18 +55,17 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
                 pair.setTeamB(pairNode.get("teamB").asText());
                 pair.setPairOrder(pairNode.get("pairOrder").asInt());
 
-                // Lista de pilotos válidos que se almacenará como string (unido por ; para validación)
                 List<String> validDrivers = new ArrayList<>();
                 for (JsonNode driverNode : pairNode.get("validDrivers")) {
                     validDrivers.add(driverNode.asText().toLowerCase());
                 }
-                pair.setGuessedDriverName(null); // usuario aún no ha respondido
-                pair.setGuessedCorrectly(null); // aún sin adivinar
+
+                pair.setGuessedDriverName(null);
+                pair.setGuessedCorrectly(null);
                 game.getPairs().add(pair);
             }
 
             return gameDao.save(game);
-
         } catch (Exception e) {
             throw new RuntimeException("Error al iniciar TwoTeamsOneDriverGame", e);
         }
@@ -66,24 +73,24 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
 
     private boolean hasDrivenForBothTeams(String driverGuess, String teamA, String teamB) {
         try {
-            ProcessBuilder pb = new ProcessBuilder(
-                    "python", "src/main/resources/scripts/validate_two_teams_driver.py",
-                    "--driver", driverGuess,
-                    "--teamA", teamA,
-                    "--teamB", teamB
-            );
+            String url = String.format("%s/validate-two-teams-driver?driver=%s&teamA=%s&teamB=%s",
+                    PYTHON_API_BASE,
+                    URLEncoder.encode(driverGuess, StandardCharsets.UTF_8),
+                    URLEncoder.encode(teamA, StandardCharsets.UTF_8),
+                    URLEncoder.encode(teamB, StandardCharsets.UTF_8));
 
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String output = reader.lines().collect(Collectors.joining());
-            process.waitFor();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
 
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode json = mapper.readTree(output);
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            JsonNode json = mapper.readTree(response.body());
             return json.get("valid").asBoolean();
-
         } catch (Exception e) {
-            throw new RuntimeException("Error al validar piloto con script Python", e);
+            throw new RuntimeException("Error al validar piloto con backend Python", e);
         }
     }
 
@@ -152,19 +159,25 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
     @Override
     public List<String> autocompletePilotNames(String partial) {
         try {
-            ProcessBuilder pb = new ProcessBuilder(
-                    "python",
-                    "src/main/resources/scripts/autocomplete_grid_pilot.py", "--partial", partial);
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String jsonOutput = reader.lines().collect(Collectors.joining());
-            process.waitFor();
+            String url = String.format("http://localhost:8000/autocomplete-grid-pilot?partial=%s",
+                    URLEncoder.encode(partial, StandardCharsets.UTF_8));
 
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonOutput, mapper.getTypeFactory().constructCollectionType(List.class, String.class));
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            return mapper.readValue(
+                    response.body(),
+                    mapper.getTypeFactory().constructCollectionType(List.class, String.class)
+            );
         } catch (Exception e) {
-            throw new RuntimeException("Error en autocompletado", e);
+            throw new RuntimeException("Error en autocompletado de pilotos", e);
         }
     }
+
 }
 

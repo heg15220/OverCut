@@ -1,6 +1,5 @@
 package overcut.model.services;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import overcut.model.entities.TeamGuessGame;
@@ -11,8 +10,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,18 +28,22 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
     private TeamGuessClueDao clueDao;
 
     private static final ObjectMapper mapper = new ObjectMapper();
+    private final HttpClient client = HttpClient.newHttpClient();
 
     @Override
     public TeamGuessGame startGame() {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python",
-                    "src/main/resources/scripts/select_team_and_podium_drivers.py");
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String jsonOutput = reader.lines().collect(Collectors.joining());
-            process.waitFor();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8000/generate-team-guess"))
+                    .GET()
+                    .build();
 
-            JsonNode result = mapper.readTree(jsonOutput);
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
+            }
+
+            JsonNode result = mapper.readTree(response.body());
 
             TeamGuessGame game = new TeamGuessGame();
             game.setTeamId(result.get("teamId").asLong());
@@ -79,13 +84,20 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
     @Override
     public List<String> autocompleteTeamNames(String partial) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python",
-                    "src/main/resources/scripts/autocomplete_teams.py", "--partial", partial);
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String json = reader.lines().collect(Collectors.joining());
-            process.waitFor();
-            return mapper.readValue(json, List.class);
+            String url = String.format("http://localhost:8000/autocomplete-team?partial=%s", java.net.URLEncoder.encode(partial, "UTF-8"));
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
+            }
+
+            return mapper.readValue(response.body(), List.class);
+
         } catch (Exception e) {
             throw new RuntimeException("Error al autocompletar nombres de equipos", e);
         }

@@ -53,7 +53,8 @@ def get_team_pairs_with_common_drivers(limit=10):
                 "validDrivers": drivers
             })
 
-        print(json.dumps(result, ensure_ascii=False))
+        return result
+
     finally:
         session.close()
 

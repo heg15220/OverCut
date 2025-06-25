@@ -11,8 +11,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,13 +29,16 @@ public class WordSearchServiceImpl implements WordSearchService {
     @Override
     public WordSearchGame startGame() {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python", "src/main/resources/scripts/generate_wordsearch.py");
-            Process process = pb.start();
-            String json = new BufferedReader(new InputStreamReader(process.getInputStream()))
-                    .lines().collect(Collectors.joining());
-            process.waitFor();
+            String url = "http://localhost:8000/generate-wordsearch";
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
 
-            JsonNode node = new ObjectMapper().readTree(json);
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            JsonNode node = new ObjectMapper().readTree(response.body());
             WordSearchGame game = new WordSearchGame();
             game.setTheme(node.get("theme").asText());
 
@@ -61,8 +66,8 @@ public class WordSearchServiceImpl implements WordSearchService {
         } catch (Exception e) {
             throw new RuntimeException("Error al iniciar WordSearch", e);
         }
-
     }
+
     @Override
     public WordSearchGame getGame(Long gameId) {
         return gameDao.findById(gameId).orElseThrow(() -> new EntityNotFoundException("Game not found"));

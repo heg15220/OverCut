@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 import uvicorn
+import os
+
 
 from generate_drivers_connections import generate_game as generate_drivers_game
 from generate_crossword import main as generate_crossword_main
@@ -21,7 +23,14 @@ from select_random_driver import get_random_driver
 from validate_guess_driver_question import main as validate_question_main
 from get_recommendations import get_recommendations
 from recommend_pilots import recommend_pilots
-
+from generate_rondo import generar_rosco
+from validate_rondo_answer import validate_answer
+from generate_rondo import cargar_cache
+from select_team_and_podium_drivers import generate_team_guess_data
+from autocomplete_teams import autocomplete_teams
+from select_teams_pilot import get_team_pairs_with_common_drivers
+from validate_two_teams_driver import validate_driver
+from generate_wordsearch import generate_wordsearch_grid
 
 import sys
 import io
@@ -224,6 +233,67 @@ def autocomplete_pilot(partial: str):
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/generate-rondo")
+def generate_rondo(lang: str = Query("es", enum=["es", "en"])):
+    try:
+        rosco = generar_rosco(lang)
+        return JSONResponse(content=rosco)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/validate-rondo-answer")
+def validate_rondo_answer(letter: str, question: str, answer: str):
+    try:
+        valid = validate_answer(letter, question, answer)
+        return {"valid": valid}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-team-guess")
+def generate_team_guess():
+    try:
+        result = generate_team_guess_data()
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/autocomplete-team")
+def autocomplete_team(partial: str):
+    try:
+        result = autocomplete_teams(partial)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/generate-two-teams-one-driver")
+def generate_two_teams_one_driver():
+    try:
+        result = get_team_pairs_with_common_drivers()
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/validate-two-teams-driver")
+def validate_two_teams_driver(driver: str, teamA: str, teamB: str):
+    try:
+        valid = validate_driver(driver, teamA, teamB)
+        return JSONResponse(content={"valid": valid})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-wordsearch")
+def generate_wordsearch():
+    try:
+        result = generate_wordsearch_grid()
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
 # === Main app ===
 if __name__ == "__main__":

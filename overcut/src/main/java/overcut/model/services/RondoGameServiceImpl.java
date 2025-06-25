@@ -10,12 +10,17 @@ import overcut.model.entities.RondoLetterDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class RondoGameServiceImpl implements RondoGameService {
@@ -25,6 +30,9 @@ public class RondoGameServiceImpl implements RondoGameService {
 
     @Autowired
     private RondoLetterDao letterDao;
+
+    private final HttpClient client = HttpClient.newHttpClient();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private static final String SCRIPT_PATH = "src/main/resources/scripts/generate_rondo.py";
 
@@ -110,8 +118,6 @@ public class RondoGameServiceImpl implements RondoGameService {
     }
 
 
-
-
     @Override
     public RondoGame getGame(Long gameId) throws InstanceNotFoundException {
         RondoGame game = gameDao.findById(gameId)
@@ -131,43 +137,42 @@ public class RondoGameServiceImpl implements RondoGameService {
             return letterEntity;
         }
 
-        // Ejecutar script Python de validación dinámica
-        String scriptPath = "src/main/resources/scripts/validate_rondo_answer.py";
-        String result;
         try {
-            ProcessBuilder pb = new ProcessBuilder("python", scriptPath,
-                    "--letter", String.valueOf(letter),
-                    "--question", letterEntity.getQuestion(),
-                    "--answer", userAnswer);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
+            String question = letterEntity.getQuestion();
+            String url = String.format("http://localhost:8000/validate-rondo-answer?letter=%s&question=%s&answer=%s",
+                    URLEncoder.encode(String.valueOf(letter), "UTF-8"),
+                    URLEncoder.encode(question, "UTF-8"),
+                    URLEncoder.encode(userAnswer, "UTF-8"));
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                result = reader.readLine();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI validation error: " + response.body());
             }
 
-            int exitCode = process.waitFor();
-            if (exitCode != 0 || result == null) {
-                throw new RuntimeException("Validation script failed or returned null");
+            Map<String, Object> result = mapper.readValue(response.body(), new TypeReference<>() {});
+            boolean isCorrect = (Boolean) result.get("valid");
+
+            if (isCorrect) {
+                letterEntity.setStatus("CORRECT");
+                RondoGame game = letterEntity.getGame();
+                game.setScore(game.getScore() + 1);
+                gameDao.save(game);
+            } else {
+                letterEntity.setStatus("WRONG");
             }
+
+            letterDao.save(letterEntity);
+            return letterEntity;
 
         } catch (Exception e) {
-            throw new RuntimeException("Error executing validation script", e);
+            throw new RuntimeException("Error validating Rondo answer via FastAPI", e);
         }
-
-        if (result.trim().equalsIgnoreCase("true")) {
-            letterEntity.setStatus("CORRECT");
-            RondoGame game = letterEntity.getGame();
-            game.setScore(game.getScore() + 1);
-            gameDao.save(game);
-        } else {
-            letterEntity.setStatus("WRONG");
-        }
-
-        letterDao.save(letterEntity);
-        return letterEntity;
     }
-
 
     @Override
     public void skipLetter(Long gameId, char letter) throws InstanceNotFoundException {

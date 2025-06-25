@@ -2,6 +2,7 @@ import random
 import json
 import argparse
 import unicodedata
+import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
