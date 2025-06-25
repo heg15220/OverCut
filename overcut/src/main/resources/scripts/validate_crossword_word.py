@@ -141,39 +141,32 @@ def validate_race(connection, word, clue):
         print(f"[ERROR RACE] {e}", file=sys.stderr)
         return False
 
-def main():
-    if len(sys.argv) != 4:
-        print("[ERROR] Invalid arguments", file=sys.stderr)
-        sys.exit(1)
 
-    word = sys.argv[1]
-    clue = sys.argv[2]
-    language = sys.argv[3]
-
+def validate_word_and_clue(word: str, clue: str, lang: str) -> bool:
     session = Session()
     try:
         if validate_driver(session, word, clue):
-            print("true")
-            sys.exit(0)
+            return True
         if validate_constructor(session, word, clue):
-            print("true")
-            sys.exit(0)
+            return True
         if validate_circuit(session, word, clue):
-            print("true")
-            sys.exit(0)
+            return True
         if validate_race(session, word, clue):
-            print("true")
-            sys.exit(0)
-
-        print("false")
-        sys.exit(0)
-
-    except Exception as e:
-        print(f"[ERROR MAIN] {e}", file=sys.stderr)
-        sys.exit(1)
-
+            return True
+        return False
     finally:
         session.close()
+
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        print("[ERROR] Invalid arguments", file=sys.stderr)
+        sys.exit(1)
+    word, clue, lang = sys.argv[1], sys.argv[2], sys.argv[3]
+    result = validate_word_and_clue(word, clue, lang)
+    print("true" if result else "false")
+
 
 if __name__ == "__main__":
     main()

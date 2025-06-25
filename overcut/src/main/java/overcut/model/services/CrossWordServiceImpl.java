@@ -40,91 +40,86 @@ public class CrossWordServiceImpl implements CrosswordService{
         game.setCols(cols);
         game = gameDao.save(game);
 
-        try {
-            List<CrosswordGeneratorPythonAdapter.CrosswordWordData> wordsData =
-                    crosswordGenerator.generateCrossword(rows, cols, language);
+        List<CrosswordGeneratorPythonAdapter.CrosswordWordData> wordsData =
+                crosswordGenerator.generateCrossword(rows, cols, language);
 
-            Map<String, CrosswordCell> cellMap = new HashMap<>(); // clave: "row-col"
-            List<CrosswordWord> words = new ArrayList<>();
-            List<CrosswordCell> allCells = new ArrayList<>();
-            List<CrosswordCellWordLink> allLinks = new ArrayList<>();
+        Map<String, CrosswordCell> cellMap = new HashMap<>(); // clave: "row-col"
+        List<CrosswordWord> words = new ArrayList<>();
+        List<CrosswordCell> allCells = new ArrayList<>();
+        List<CrosswordCellWordLink> allLinks = new ArrayList<>();
 
-            for (CrosswordGeneratorPythonAdapter.CrosswordWordData data : wordsData) {
-                if (data.direction == null || data.direction.trim().isEmpty()) {
-                    throw new IllegalArgumentException("Direction nulo o vacío para palabra: " + data.word);
-                }
-
-                String directionValue = data.direction.trim().toUpperCase();
-                if (!directionValue.equals("HORIZONTAL") && !directionValue.equals("VERTICAL")) {
-                    throw new IllegalArgumentException("Valor inválido de direction: " + data.direction + " para palabra: " + data.word);
-                }
-
-                CrosswordWord word = new CrosswordWord();
-                word.setGame(game);
-                word.setWord(data.word);
-                word.setClue(data.clue);
-                word.setRowIndex(data.row);
-                word.setCol(data.col);
-                word.setDirection(Direction.valueOf(directionValue));
-
-                List<CrosswordCellWordLink> cellLinks = new ArrayList<>();
-
-                for (int i = 0; i < data.word.length(); i++) {
-                    int row = data.row + (directionValue.equals("VERTICAL") ? i : 0);
-                    int col = data.col + (directionValue.equals("HORIZONTAL") ? i : 0);
-                    String key = row + "-" + col;
-
-                    CrosswordCell cell;
-                    if (cellMap.containsKey(key)) {
-                        cell = cellMap.get(key);
-                    } else {
-                        cell = new CrosswordCell();
-                        cell.setLetter(data.word.charAt(i));
-                        cell.setFilled(false);
-                        cell.setUserInput(null);
-                        cell.setModifiedByUser(false);
-                        cellMap.put(key, cell);
-                        allCells.add(cell);
-                    }
-
-                    // ⚠️ Por ahora no añadimos los links aquí
-                    // Ya los haremos después de guardar las celdas
-                }
-
-                words.add(word);
+        for (CrosswordGeneratorPythonAdapter.CrosswordWordData data : wordsData) {
+            if (data.direction == null || data.direction.trim().isEmpty()) {
+                throw new IllegalArgumentException("Direction nulo o vacío para palabra: " + data.word);
             }
 
-            game.setWords(words);
-            gameDao.save(game); // guarda game y palabras
-
-            // 🟢 Ahora sí: guardamos las celdas y ya tienen IDs válidos
-            cellDao.saveAll(allCells);
-
-            // 🔄 Crear los links ahora, usando celdas y palabras ya persistidas
-            for (CrosswordWord word : words) {
-                String directionValue = word.getDirection().name();
-                List<CrosswordCellWordLink> cellLinks = new ArrayList<>();
-
-                for (int i = 0; i < word.getWord().length(); i++) {
-                    int row = word.getRowIndex() + (directionValue.equals("VERTICAL") ? i : 0);
-                    int col = word.getCol() + (directionValue.equals("HORIZONTAL") ? i : 0);
-                    String key = row + "-" + col;
-
-                    CrosswordCell cell = cellMap.get(key); // ya guardada
-                    CrosswordCellWordLink link = new CrosswordCellWordLink(cell, word, i);
-                    cellLinks.add(link);
-                    allLinks.add(link);
-                }
-
-                word.setCellLinks(cellLinks);
+            String directionValue = data.direction.trim().toUpperCase();
+            if (!directionValue.equals("HORIZONTAL") && !directionValue.equals("VERTICAL")) {
+                throw new IllegalArgumentException("Valor inválido de direction: " + data.direction + " para palabra: " + data.word);
             }
 
-            // 🔐 Guardar los links ahora que todo tiene ID
-            cellWordLinkDao.saveAll(allLinks);
+            CrosswordWord word = new CrosswordWord();
+            word.setGame(game);
+            word.setWord(data.word);
+            word.setClue(data.clue);
+            word.setRowIndex(data.row);
+            word.setCol(data.col);
+            word.setDirection(Direction.valueOf(directionValue));
 
-        } catch (IOException e) {
-            throw new RuntimeException("No se pudo generar el crucigrama: " + e.getMessage(), e);
+            List<CrosswordCellWordLink> cellLinks = new ArrayList<>();
+
+            for (int i = 0; i < data.word.length(); i++) {
+                int row = data.row + (directionValue.equals("VERTICAL") ? i : 0);
+                int col = data.col + (directionValue.equals("HORIZONTAL") ? i : 0);
+                String key = row + "-" + col;
+
+                CrosswordCell cell;
+                if (cellMap.containsKey(key)) {
+                    cell = cellMap.get(key);
+                } else {
+                    cell = new CrosswordCell();
+                    cell.setLetter(data.word.charAt(i));
+                    cell.setFilled(false);
+                    cell.setUserInput(null);
+                    cell.setModifiedByUser(false);
+                    cellMap.put(key, cell);
+                    allCells.add(cell);
+                }
+
+                // ⚠️ Por ahora no añadimos los links aquí
+                // Ya los haremos después de guardar las celdas
+            }
+
+            words.add(word);
         }
+
+        game.setWords(words);
+        gameDao.save(game); // guarda game y palabras
+
+        // 🟢 Ahora sí: guardamos las celdas y ya tienen IDs válidos
+        cellDao.saveAll(allCells);
+
+        // 🔄 Crear los links ahora, usando celdas y palabras ya persistidas
+        for (CrosswordWord word : words) {
+            String directionValue = word.getDirection().name();
+            List<CrosswordCellWordLink> cellLinks = new ArrayList<>();
+
+            for (int i = 0; i < word.getWord().length(); i++) {
+                int row = word.getRowIndex() + (directionValue.equals("VERTICAL") ? i : 0);
+                int col = word.getCol() + (directionValue.equals("HORIZONTAL") ? i : 0);
+                String key = row + "-" + col;
+
+                CrosswordCell cell = cellMap.get(key); // ya guardada
+                CrosswordCellWordLink link = new CrosswordCellWordLink(cell, word, i);
+                cellLinks.add(link);
+                allLinks.add(link);
+            }
+
+            word.setCellLinks(cellLinks);
+        }
+
+        // 🔐 Guardar los links ahora que todo tiene ID
+        cellWordLinkDao.saveAll(allLinks);
 
         return game.getId();
     }
@@ -239,7 +234,7 @@ public class CrossWordServiceImpl implements CrosswordService{
             cellDao.save(cell);
         }
 
-        return crosswordGenerator.validateUserAnswerWithDatabase(userInput, word.getClue(), language);
+        return crosswordGenerator.validateUserAnswer(userInput, word.getClue(), language);
     }
 
 

@@ -4,107 +4,65 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.util.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class CrosswordGeneratorPythonAdapter {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    /**
-     * Ejecuta el script Python y devuelve la estructura de datos generada.
-     * @param rows filas del crucigrama
-     * @param cols columnas del crucigrama
-     * @param language idioma ("es" o "en")
-     * @return lista de palabras con posiciones, pistas y sentido
-     */
-    public List<CrosswordWordData> generateCrossword(int rows, int cols, String language) throws IOException {
-        String scriptPath = "src/main/resources/scripts/generate_crossword.py";
-        ProcessBuilder pb = new ProcessBuilder("python", scriptPath, String.valueOf(rows), String.valueOf(cols), language);
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
-
-        StringBuilder output = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line);
-            }
-        }
-
+    public List<CrosswordWordData> generateCrossword(int rows, int cols, String language) {
         try {
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new IOException("Script Python terminó con error, código: " + exitCode);
-            }
-        } catch (InterruptedException e) {
-            throw new IOException("Error esperando al script Python", e);
-        }
+            HttpClient client = HttpClient.newHttpClient();
+            URI uri = URI.create("http://localhost:8000/generate-crossword?rows=" + rows + "&cols=" + cols + "&lang=" + language);
+            HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
 
-        List<CrosswordWordData> result = new ArrayList<>();
-        JsonNode root = objectMapper.readTree(output.toString());
-        for (JsonNode wordNode : root.get("words")) {
-            CrosswordWordData wordData = new CrosswordWordData();
-            wordData.word = wordNode.get("word").asText();
-            wordData.clue = wordNode.get("clue").asText();
-            wordData.row = wordNode.get("row").asInt();
-            wordData.col = wordNode.get("col").asInt();
-            wordData.direction = wordNode.get("direction").asText();
-            result.add(wordData);
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI error: " + response.body());
+            }
+
+            JsonNode root = mapper.readTree(response.body());
+            List<CrosswordWordData> result = new ArrayList<>();
+            for (JsonNode node : root.get("words")) {
+                CrosswordWordData data = new CrosswordWordData();
+                data.word = node.get("word").asText();
+                data.clue = node.get("clue").asText();
+                data.row = node.get("row").asInt();
+                data.col = node.get("col").asInt();
+                data.direction = node.get("direction").asText();
+                result.add(data);
+            }
+            return result;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error calling FastAPI for crossword generation", e);
         }
-        return result;
     }
 
-    /**
-     * Valida que la palabra y la pista estén relacionadas de forma básica.
-     */
-    public boolean validateWordClueRelation(String word, String clue) {
-        if (word == null || clue == null) return false;
-        String sanitizedWord = word.trim().toLowerCase();
-        String sanitizedClue = clue.trim().toLowerCase();
-        if (sanitizedClue.contains(sanitizedWord)) return true;
-        if (sanitizedWord.length() <= 3) return true;
-        String partialWord = sanitizedWord.substring(0, Math.min(3, sanitizedWord.length()));
-        return sanitizedClue.contains(partialWord);
-    }
-
-    /**
-     * Valida palabra y pista usando script Python (llamado solo cuando el usuario valida una palabra).
-     * @param userInput palabra escrita por el usuario
-     * @param clue pista que se quiere verificar
-     * @param language idioma "es" o "en"
-     * @return true si es válida según datos reales
-     */
-    public boolean validateUserAnswerWithDatabase(String userInput, String clue, String language) throws IOException {
-        String scriptPath = "src/main/resources/scripts/validate_crossword_word.py";
-        ProcessBuilder pb = new ProcessBuilder("python", scriptPath, userInput, clue, language);
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
-
-        StringBuilder output = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line);
-            }
-        }
-
+    public boolean validateUserAnswer(String word, String clue, String language) {
         try {
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new IOException("Script Python terminó con error, código: " + exitCode);
-            }
-        } catch (InterruptedException e) {
-            throw new IOException("Error esperando al script Python", e);
-        }
+            HttpClient client = HttpClient.newHttpClient();
+            String uri = String.format("http://localhost:8000/validate-crossword-word?word=%s&clue=%s&lang=%s",
+                    java.net.URLEncoder.encode(word, java.nio.charset.StandardCharsets.UTF_8),
+                    java.net.URLEncoder.encode(clue, java.nio.charset.StandardCharsets.UTF_8),
+                    language);
 
-        return output.toString().trim().equalsIgnoreCase("true");
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(uri)).GET().build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) return false;
+            return response.body().trim().equalsIgnoreCase("true");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    // Clase interna para transferir los datos
     public static class CrosswordWordData {
         public String word;
         public String clue;

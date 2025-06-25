@@ -7,9 +7,13 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
+import java.net.URI;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,21 +33,20 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
     @Override
     public DriversConnectionsGame startGame(String lang) {
         try {
-            ProcessBuilder pb = new ProcessBuilder(
-                    "python",
-                    "src/main/resources/scripts/generate_drivers_connections.py",
-                    "--lang", lang
-            );
-            Process process = pb.start();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:8000/generate?lang=" + lang))
+                    .GET()
+                    .build();
 
-            String jsonOutput;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                jsonOutput = reader.lines().collect(Collectors.joining());
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("FastAPI server error: " + response.body());
             }
-            process.waitFor();
 
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(jsonOutput);
+            JsonNode root = mapper.readTree(response.body());
 
             DriversConnectionsGame game = new DriversConnectionsGame();
             game.setFinished(false);
@@ -67,10 +70,12 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
             }
 
             return gameDao.save(game);
+
         } catch (Exception e) {
-            throw new RuntimeException("Error starting DriversConnectionsGame", e);
+            throw new RuntimeException("Error calling FastAPI game generator", e);
         }
     }
+
 
 
     @Override
