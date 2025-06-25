@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS GameCooldown;
 DROP TABLE IF EXISTS WordSearchCell;
 DROP TABLE IF EXISTS WordSearchWord;
 DROP TABLE IF EXISTS WordSearchGame;
@@ -717,4 +718,14 @@ CREATE TABLE WordSearchCell (
     letter CHAR(1) NOT NULL,
     revealed BOOLEAN,
     FOREIGN KEY (gameId) REFERENCES WordSearchGame(id) ON DELETE CASCADE
+);
+
+CREATE TABLE GameCooldown (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    userId BIGINT NOT NULL,
+    gameType VARCHAR(50) NOT NULL,
+    lastPlayed DATETIME NOT NULL,
+
+    CONSTRAINT fk_cooldown_user FOREIGN KEY (userId) REFERENCES Users(id),
+    CONSTRAINT uq_user_game UNIQUE (userId, gameType)
 );

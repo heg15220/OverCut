@@ -1,8 +1,8 @@
 import backend from "../../backend";
 import * as actionTypes from "./actionTypes";
 
-export const startCareerPathGame = () => dispatch =>
-  backend.careerPathService.startGame(game =>
+export const startCareerPathGame = (user) => dispatch =>
+  backend.careerPathService.startGame(user, game =>
     dispatch({ type: actionTypes.START_CAREER_PATH_GAME_COMPLETED, game })
   );
 

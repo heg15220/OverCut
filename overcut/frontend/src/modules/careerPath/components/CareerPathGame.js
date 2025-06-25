@@ -9,12 +9,20 @@ import LoadingScreen from '../../common/components/LoadingScreen';
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getUser } from "../../users/selectors";
+
 
 const CareerPathGame = () => {
   const dispatch = useDispatch();
+  const { canPlay, secondsRemaining } = useSelector(state =>
+      getCooldownForGame(state, "CareerPath")
+    );
   const game = useSelector(selectors.getCareerPathGame);
   const suggestions = useSelector(selectors.getDriverSuggestions);
-
+  const user = useSelector(getUser);
   const navigate = useNavigate();
   const [guessInput, setGuessInput] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -57,8 +65,15 @@ const CareerPathGame = () => {
   };
 
   useEffect(() => {
-    dispatch(actions.startCareerPathGame());
-  }, [dispatch]);
+      dispatch(fetchCooldown("CareerPath"));
+    }, [dispatch]);
+
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startCareerPathGame(user.id));
+    }
+  }, [canPlay, dispatch, user.id]);
+
 
   useEffect(() => {
     if (guessInput.trim().length > 1) {
@@ -80,6 +95,10 @@ const CareerPathGame = () => {
     }
   }, [highlightedIndex]);
 
+
+  if (!canPlay) {
+    return <CooldownScreen seconds={secondsRemaining} onBack={() => navigate("/minigames")} />;
+  }
 
     if (showTutorial) {
         return (

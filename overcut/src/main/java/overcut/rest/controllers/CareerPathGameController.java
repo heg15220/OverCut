@@ -18,10 +18,11 @@ public class CareerPathGameController {
     private CareerPathGameService careerPathGameService;
 
     @PostMapping("/start")
-    public CareerPathGameDto startGame() {
-        CareerPathGame game = careerPathGameService.startGame();
+    public CareerPathGameDto startGame(@RequestAttribute("userId") Long userId) {
+        CareerPathGame game = careerPathGameService.startGame(userId);
         return CareerPathGameConversor.toDto(game);
     }
+
 
     @PostMapping("/guess")
     public CareerPathGameDto guessDriver(@RequestBody GuessDriverRequestDto request) {

@@ -10,6 +10,7 @@ import overcut.model.entities.CareerPathClueDao;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import overcut.model.services.exceptions.CooldownException;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -25,8 +26,18 @@ public class CareerPathGameServiceImpl implements CareerPathGameService {
     @Autowired
     private CareerPathClueDao clueDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
     @Override
-    public CareerPathGame startGame() {
+    public CareerPathGame startGame(Long userId) {
+
+        if (!cooldownService.canPlay("CareerPath", userId)) {
+            long wait = cooldownService.secondsUntilNextPlay("CareerPath", userId);
+            throw new CooldownException("WAIT", wait);
+        }
+
+        cooldownService.registerPlay("CareerPath", userId);
         try {
             ProcessBuilder pb = new ProcessBuilder("python",
                     "src/main/resources/scripts/select_driver_teams.py");

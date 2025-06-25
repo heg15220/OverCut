@@ -63,6 +63,7 @@ public class User {
 
     private List<PasswordChangeToken> passwordChangeTokens;
 
+    private List<GameCooldown> cooldowns;
 
 
     /**
@@ -339,4 +340,12 @@ public class User {
         this.passwordChangeTokens = passwordChangeTokens;
     }
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    public List<GameCooldown> getCooldowns() {
+        return cooldowns;
+    }
+
+    public void setCooldowns(List<GameCooldown> cooldowns) {
+        this.cooldowns = cooldowns;
+    }
 }
