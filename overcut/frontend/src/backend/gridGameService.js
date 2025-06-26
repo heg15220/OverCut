@@ -1,13 +1,14 @@
 import { fetchConfig, appFetch } from "./appFetch";
 
-export const createGridGame = (onSuccess, onErrors) => {
+export const createGridGame = (user, onSuccess, onErrors) => {
     appFetch(
         `/gridGame/start`,
-        fetchConfig("POST"),
+        fetchConfig("POST", user), // user con userId
         onSuccess,
         onErrors
     );
 };
+
 
 export const getGridGame = (gameId, onSuccess, onErrors) => {
     appFetch(

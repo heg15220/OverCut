@@ -2,13 +2,12 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import overcut.model.entities.F1WordleAttempt;
-import overcut.model.entities.F1WordleAttemptDao;
-import overcut.model.entities.F1WordleGame;
-import overcut.model.entities.F1WordleGameDao;
+import overcut.model.entities.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import overcut.model.services.exceptions.CooldownException;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -26,9 +25,22 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
     @Autowired
     private F1WordleAttemptDao attemptDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
+
     @Override
-    public F1WordleGame startGame() {
+    public F1WordleGame startGame(Long userId) {
         try {
+            if (!cooldownService.canPlay("F1Wordle", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("F1Wordle", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+            cooldownService.registerPlay("F1Wordle", userId);
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-f1-wordle"))

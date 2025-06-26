@@ -1,11 +1,9 @@
 package overcut.model.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import overcut.model.entities.*;
+import overcut.model.services.exceptions.CooldownException;
 import overcut.utils.NationalityIsoMapper;
-import overcut.model.entities.GridGame;
-import overcut.model.entities.GridGameDao;
-import overcut.model.entities.GridSlot;
-import overcut.model.entities.GridSlotDao;
 import overcut.rest.dtos.DriverInfo;
 import overcut.rest.dtos.GridSlotReveal;
 import overcut.rest.dtos.GridValidationResultDto;
@@ -30,6 +28,13 @@ public class GridGameServiceImpl implements GridGameService{
 
     @Autowired
     private GridSlotDao gridSlotDao;
+
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
 
     private final Map<Integer, List<DriverInfo>> seasonCache = new HashMap<>();
 
@@ -91,7 +96,14 @@ public class GridGameServiceImpl implements GridGameService{
     }
 
     @Override
-    public GridGame createRandomGame() {
+    public GridGame createRandomGame(Long userId) {
+
+        if (!cooldownService.canPlay("GridGame", userId)) {
+            long wait = cooldownService.secondsUntilNextPlay("GridGame", userId);
+            throw new CooldownException("WAIT", wait);
+        }
+        cooldownService.registerPlay("GridGame", userId);
+
         int randomSeason = getRandomSeasonYear();
         GridGame game = new GridGame(randomSeason);
 

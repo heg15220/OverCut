@@ -4,13 +4,12 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import overcut.model.entities.F1ImpostorGame;
-import overcut.model.entities.F1ImpostorPilot;
-import overcut.model.entities.F1ImpostorGameDao;
-import overcut.model.entities.F1ImpostorPilotDao;
+import overcut.model.entities.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import overcut.model.services.exceptions.CooldownException;
+
 import java.net.URI;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -31,9 +30,22 @@ public class F1ImpostorGameServiceImpl implements F1ImpostorGameService {
     @Autowired
     private F1ImpostorPilotDao pilotDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
+
     @Override
-    public F1ImpostorGame startGame(String lang) {
+    public F1ImpostorGame startGame(String lang, Long userId) {
         try {
+            if (!cooldownService.canPlay("F1Impostor", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("F1Impostor", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+            cooldownService.registerPlay("F1Impostor", userId);
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-f1-impostor?lang=" + lang))

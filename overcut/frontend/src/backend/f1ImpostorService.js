@@ -1,7 +1,8 @@
 import { fetchConfig, appFetch } from "./appFetch";
 
-export const startGame = (lang, onSuccess, onErrors) =>
-  appFetch(`/f1Impostor/start?lang=${lang}`, fetchConfig("POST"), onSuccess, onErrors);
+export const startGame = (lang, user, onSuccess, onErrors) =>
+  appFetch(`/f1Impostor/start?lang=${lang}`, fetchConfig("POST", user), onSuccess, onErrors);
+
 
 
 

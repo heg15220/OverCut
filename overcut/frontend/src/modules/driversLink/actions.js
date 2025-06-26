@@ -1,10 +1,11 @@
 import backend from "../../backend";
 import * as actionTypes from "./actionTypes";
 
-export const startDriversLinkGame = () => dispatch =>
-  backend.driversLinkService.startGame(game =>
+export const startDriversLinkGame = (user) => dispatch =>
+  backend.driversLinkService.startGame(user, game =>
     dispatch({ type: actionTypes.START_DRIVERS_LINK_GAME_COMPLETED, game })
   );
+
 
 export const guessDriver = (request) => dispatch =>
   backend.driversLinkService.guessDriver(request, game =>

@@ -2,9 +2,14 @@ import backend from "../../backend";
 import {appFetch, fetchConfig} from "../../backend/appFetch";
 import * as actionTypes from './actionTypes'
 
-export const createGridGame = (onSuccess, onErrors) => dispatch => {
-    dispatch({ type: "RESET_GRID_GAME_STATE" }); // 🧹 Limpieza aquí
-    backend.gridGameService.createGridGame(game => {
+import { getUser } from "../users/selectors";
+import { fetchCooldown } from "../cooldown/actions";
+import { getCooldownForGame } from "../cooldown/selectors";
+
+export const createGridGame = (onSuccess, onErrors) => (dispatch, getState) => {
+    const user = getUser(getState());
+    dispatch({ type: "RESET_GRID_GAME_STATE" });
+    backend.gridGameService.createGridGame(user.id, game => {
         dispatch({ type: actionTypes.CREATE_GRID_GAME_COMPLETED, gameId: game.id });
         onSuccess(game.id);
     }, onErrors);

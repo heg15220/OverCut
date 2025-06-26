@@ -5,19 +5,47 @@ import GridGameBoard from "./GridGameBoard";
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getUser } from "../../users/selectors";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 
 const GridGamePage = () => {
     const dispatch = useDispatch();
     const [lang] = useState(navigator.language.startsWith("es") ? "es" : "en");
     const [showTutorial, setShowTutorial] = useState(true);
-
+    const navigate = useNavigate();
     const tutorial = tutorialTexts["/minigames/gridgame"][lang];
+    const { canPlay, secondsRemaining } = useSelector(state =>
+      getCooldownForGame(state, "GridGame")
+    );
+    const user = useSelector(getUser);
+
 
     useEffect(() => {
-        dispatch(createGridGame(gameId => {
-            dispatch(getGridGameBoard(gameId, () => {}, () => {}));
-        }, () => {}));
+      dispatch(fetchCooldown("GridGame"));
     }, [dispatch]);
+
+    useEffect(() => {
+      if (canPlay) {
+        dispatch(createGridGame(gameId => {
+          dispatch(getGridGameBoard(gameId, () => {}, () => {}));
+        }, () => {}));
+      }
+    }, [canPlay, dispatch]);
+
+
+    if (!canPlay) {
+      return (
+        <CooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/minigames")}
+        />
+      );
+    }
 
     if (showTutorial) {
       return (

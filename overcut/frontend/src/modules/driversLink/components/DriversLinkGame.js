@@ -8,6 +8,12 @@ import LoadingScreen from '../../common/components/LoadingScreen';
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getUser } from "../../users/selectors";
+
+
 
 const DriversLinkGame = () => {
   const dispatch = useDispatch();
@@ -23,6 +29,12 @@ const DriversLinkGame = () => {
   const [showTutorial, setShowTutorial] = useState(true);
 
   const tutorial = tutorialTexts["/minigames/driverslink"][lang];
+
+  const { canPlay, secondsRemaining } = useSelector(state =>
+    getCooldownForGame(state, "DriversLink")
+  );
+  const user = useSelector(getUser);
+
 
   const translations = {
     title: {
@@ -55,10 +67,17 @@ const DriversLinkGame = () => {
     },
   };
 
+  useEffect(() => {
+    dispatch(fetchCooldown("DriversLink"));
+  }, [dispatch]);
+
 
   useEffect(() => {
-    dispatch(actions.startDriversLinkGame());
-  }, [dispatch]);
+    if (canPlay) {
+      dispatch(actions.startDriversLinkGame(user.id));
+    }
+  }, [canPlay, dispatch, user]);
+
 
   useEffect(() => {
     if (guessInput.trim().length > 1) {
@@ -80,6 +99,16 @@ const DriversLinkGame = () => {
     }
   }, [highlightedIndex]);
 
+     if (!canPlay) {
+           return (
+             <CooldownScreen
+               seconds={secondsRemaining}
+               onBack={() => navigate("/minigames")}
+             />
+           );
+         }
+
+
       if (showTutorial) {
         return (
           <MinigameTutorial
@@ -91,6 +120,7 @@ const DriversLinkGame = () => {
           />
         );
       }
+
 
   const handleGuess = () => {
     if (!guessInput.trim()) return;

@@ -8,6 +8,11 @@ import LoadingScreen from '../../common/components/LoadingScreen';
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getUser } from "../../users/selectors";
+
 
 const F1ImpostorGame = () => {
   const dispatch = useDispatch();
@@ -19,6 +24,12 @@ const F1ImpostorGame = () => {
   const [showTutorial, setShowTutorial] = useState(true);
 
   const tutorial = tutorialTexts["/minigames/f1Impostor"][lang];
+
+  const { canPlay, secondsRemaining } = useSelector(state =>
+    getCooldownForGame(state, "F1Impostor")
+  );
+  const user = useSelector(getUser);
+
 
   const translations = {
     title: {
@@ -52,8 +63,23 @@ const F1ImpostorGame = () => {
   };
 
   useEffect(() => {
-    dispatch(actions.startF1ImpostorGame());
+    dispatch(fetchCooldown("F1Impostor"));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startF1ImpostorGame());
+    }
+  }, [canPlay, dispatch]);
+
+    if (!canPlay) {
+      return (
+        <CooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/minigames")}
+        />
+      );
+    }
 
     if (showTutorial) {
       return (

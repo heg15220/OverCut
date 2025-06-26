@@ -1,10 +1,15 @@
 import * as actionTypes from "./actionTypes";
 import backend from "../../backend";
 
-export const startWordleGame = () => dispatch =>
-  backend.wordleService.startF1WordleGame(game =>
+import { getUser } from "../users/selectors";
+
+export const startWordleGame = () => (dispatch, getState) => {
+  const user = getUser(getState());
+  backend.wordleService.startF1WordleGame(user.id, game =>
     dispatch({ type: actionTypes.START_WORDLE_GAME_COMPLETED, game })
   );
+};
+
 
 export const guessWordle = request => dispatch =>
   backend.wordleService.guessF1Wordle(request, game =>

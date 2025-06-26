@@ -19,10 +19,11 @@ public class GridGameController {
     private GridGameService gridGameService;
 
     @PostMapping("/start")
-    public GridGameDto startGame() {
-        GridGame game = gridGameService.createRandomGame();
+    public GridGameDto startGame(@RequestAttribute("userId") Long userId) {
+        GridGame game = gridGameService.createRandomGame(userId);
         return GridGameDtoConversor.toGridGameDto(game);
     }
+
 
     @GetMapping("/{gameId}/grid")
     public GridGameBoardDto getGrid(@PathVariable Long gameId) {

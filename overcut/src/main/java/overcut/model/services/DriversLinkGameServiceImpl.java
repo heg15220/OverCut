@@ -3,14 +3,12 @@ package overcut.model.services;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import overcut.model.entities.DriversLinkClue;
-import overcut.model.entities.DriversLinkClueDao;
-import overcut.model.entities.DriversLinkGame;
-import overcut.model.entities.DriversLinkGameDao;
+import overcut.model.entities.*;
 import jakarta.transaction.Transactional;
 import java.net.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import overcut.model.services.exceptions.CooldownException;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,9 +27,22 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
     @Autowired
     private DriversLinkClueDao clueDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
+
     @Override
-    public DriversLinkGame startGame() {
+    public DriversLinkGame startGame(Long userId) {
         try {
+            if (!cooldownService.canPlay("DriversLink", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("DriversLink", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+            cooldownService.registerPlay("DriversLink", userId);
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-drivers-link"))

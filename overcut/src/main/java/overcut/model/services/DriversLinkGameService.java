@@ -5,7 +5,7 @@ import overcut.model.entities.DriversLinkGame;
 import java.util.List;
 
 public interface DriversLinkGameService {
-    DriversLinkGame startGame();
+    DriversLinkGame startGame(Long userId);
     DriversLinkGame guessDriver(Long gameId, String driverGuess);
     DriversLinkGame getGameStatus(Long gameId);
     List<String> autocompletePilotNames(String partial);

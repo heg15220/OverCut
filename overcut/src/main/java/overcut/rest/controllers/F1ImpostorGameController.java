@@ -16,9 +16,11 @@ public class F1ImpostorGameController {
     private F1ImpostorGameService service;
 
     @PostMapping("/start")
-    public F1ImpostorGameDto startGame(@RequestParam(defaultValue = "es") String lang) {
-        return F1ImpostorGameConversor.toDto(service.startGame(lang));
+    public F1ImpostorGameDto startGame(@RequestParam(defaultValue = "es") String lang,
+                                       @RequestAttribute("userId") Long userId) {
+        return F1ImpostorGameConversor.toDto(service.startGame(lang, userId));
     }
+
 
 
     @PostMapping("/validate")

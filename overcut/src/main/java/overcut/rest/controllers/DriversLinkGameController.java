@@ -18,10 +18,11 @@ public class DriversLinkGameController {
     private DriversLinkGameService driversLinkGameService;
 
     @PostMapping("/start")
-    public DriversLinkGameDto startGame() {
-        DriversLinkGame game = driversLinkGameService.startGame();
+    public DriversLinkGameDto startGame(@RequestAttribute("userId") Long userId) {
+        DriversLinkGame game = driversLinkGameService.startGame(userId);
         return DriversLinkGameConversor.toDto(game);
     }
+
 
     @PostMapping("/guess")
     public DriversLinkGameDto guessDriver(@RequestBody GuessDriverRequestDto request) {

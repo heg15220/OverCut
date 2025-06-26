@@ -15,9 +15,10 @@ public class F1WordleGameController {
     private F1WordleGameService gameService;
 
     @PostMapping("/start")
-    public F1WordleGameDto startGame() {
-        return F1WordleGameConversor.toDto(gameService.startGame());
+    public F1WordleGameDto startGame(@RequestAttribute("userId") Long userId) {
+        return F1WordleGameConversor.toDto(gameService.startGame(userId));
     }
+
 
     @PostMapping("/guess")
     public F1WordleGameDto makeGuess(@RequestBody GuessDriverRequestDto request) {
