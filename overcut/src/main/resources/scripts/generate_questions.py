@@ -116,46 +116,61 @@ preguntas = []
 def generar_pregunta_piloto_primera_victoria_reciente():
     conn, cursor = crear_cursor_local()
     try:
-
-        # Limpieza del cursor por seguridad
+        # Asegúrate de limpiar el cursor
         while cursor.nextset():
             pass
 
         cursor.execute("""
-            SELECT r.year, r.name, d.forename, d.surname
-            FROM results res
-            JOIN races r ON res.raceId = r.raceId
-            JOIN drivers d ON res.driverId = d.driverId
-            WHERE res.positionOrder = 1 AND r.year >= 2020
-            AND res.driverId NOT IN (
-                SELECT res2.driverId
-                FROM results res2
-                JOIN races r2 ON res2.raceId = r2.raceId
-                WHERE res2.positionOrder = 1 AND r2.year < r.year
-            )
+            SELECT outer_q.year, outer_q.gp, outer_q.forename, outer_q.surname
+            FROM (
+                SELECT
+                    r.year,
+                    r.name AS gp,
+                    d.driverId,
+                    d.forename,
+                    d.surname,
+                    r.date,
+                    ROW_NUMBER() OVER (PARTITION BY d.driverId ORDER BY r.date ASC) as rn
+                FROM results res
+                JOIN races r ON res.raceId = r.raceId
+                JOIN drivers d ON res.driverId = d.driverId
+                WHERE res.positionOrder = 1
+            ) AS outer_q
+            WHERE outer_q.rn = 1 AND outer_q.year >= 2020
             ORDER BY RAND()
             LIMIT 1
         """)
-        year, gp, nombre, apellido = cursor.fetchone()
+        row = cursor.fetchone()
+        if not row:
+            return None
+
+        year, gp, nombre, apellido = row
         correcta = f"{nombre} {apellido}"
-        if LANG == "es":
-            pregunta = f"¿Qué piloto logró su primera victoria en el GP de {gp} en {year}?"
-        elif LANG == "en":
-            pregunta = f"Which driver achieved their first victory at the {gp} Grand Prix in {year}?"
+
+        # Opciones incorrectas
         contemporaneos = obtener_pilotos_entre_anios(year - 2, year + 2, correcta)
         opciones = random.sample(contemporaneos, min(3, len(contemporaneos))) + [correcta]
         random.shuffle(opciones)
+
+        pregunta = (
+            f"¿Qué piloto logró su primera victoria en el GP de {gp} en {year}?"
+            if LANG == "es"
+            else f"Which driver achieved their first victory at the {gp} Grand Prix in {year}?"
+        )
+
         return {
-                "question": pregunta,
-                "answers": opciones,               # <- "answers" en lugar de "options"
-                "correctAnswer": correcta,           # <- "correctAnswer" en lugar de "answer"
-                "knowledgeLevel": 2,            # nivel conocimiento arbitrario (ejemplo: 2)
-                "category": "GenericStats",
-                "language": LANG
-            }
+            "question": pregunta,
+            "answers": opciones,
+            "correctAnswer": correcta,
+            "knowledgeLevel": 2,
+            "category": "GenericStats",
+            "language": LANG
+        }
+
     finally:
-            cursor.close()
-            conn.close()
+        cursor.close()
+        conn.close()
+
 
 def generar_pregunta_piloto_mas_podios_totales():
     conn, cursor = crear_cursor_local()
@@ -6670,12 +6685,13 @@ generadores_por_categoria = {
     ]
 }
 
-def generar_preguntas_concurrentemente_por_categoria(categoria, max_workers=10):
+def generar_preguntas_concurrentemente_por_categoria(categoria, max_workers=4):
     if categoria not in generadores_por_categoria:
         raise ValueError(f"La categoría '{categoria}' no está definida.")
 
     preguntas = []
-    funciones = generadores_por_categoria[categoria]
+    funciones = random.sample(generadores_por_categoria[categoria], k=min(10, len(generadores_por_categoria[categoria])))
+
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         futuros = {executor.submit(funcion): funcion for funcion in funciones}
@@ -6704,6 +6720,14 @@ def main():
     preguntas_generadas = preguntas_generadas[:10]
 
     print(json.dumps(preguntas_generadas, ensure_ascii=False, indent=2))
+
+def generar_preguntas_desde_main(lang: str = "es", categoria: str = None):
+    global LANG
+    LANG = lang
+    categoria_objetivo = categoria.strip() if categoria else None
+    preguntas_generadas = generar_preguntas_concurrentemente_por_categoria(categoria_objetivo)
+    return preguntas_generadas[:10]
+
 
 
 if __name__ == "__main__":

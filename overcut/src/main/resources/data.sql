@@ -2286,7 +2286,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('1998', true, 2
 
 -- Pregunta 127
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuándo fue la última vez que McLaren ganó el campeonato hasta la fecha?', 'f1-mclarens-india-inline.jpg', 2, 'es');
+VALUES ('Antes del 2024, ¿Cuándo fue la última vez que McLaren ganó el campeonato hasta la fecha?', 'f1-mclarens-india-inline.jpg', 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2007', false, 255, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2008', false, 255, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1999', false, 255, 'es');

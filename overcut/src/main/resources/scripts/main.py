@@ -38,7 +38,7 @@ from validate_two_teams_driver import validate_driver
 from generate_wordsearch import generate_wordsearch_grid
 from validate_pilot import validate_pilot
 from autocomplete_pilot import buscar_pilotos
-
+from generate_questions import generar_preguntas_desde_main
 
 import sys
 import io
@@ -381,6 +381,19 @@ def autocomplete_pilot(partial: str):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+
+# === Quiz ===
+
+@app.get("/generate-quiz-questions")
+def generate_quiz_questions(
+    lang: str = Query("es", enum=["es", "en"]),
+    category: Optional[str] = Query(None)
+):
+    try:
+        questions = generar_preguntas_desde_main(lang=lang, categoria=category)
+        return JSONResponse(content=questions)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 # === Main app ===
 if __name__ == "__main__":
