@@ -39,6 +39,11 @@ from generate_wordsearch import generate_wordsearch_grid
 from validate_pilot import validate_pilot
 from autocomplete_pilot import buscar_pilotos
 from generate_questions import generar_preguntas_desde_main
+from regulation_questions import generar_preguntas_reglamento_desde_main
+from strategy_questions import generar_preguntas_estrategia_desde_main
+from physics_questions import generar_preguntas_fisica_desde_main
+
+
 
 import sys
 import io
@@ -394,6 +399,33 @@ def generate_quiz_questions(
         return JSONResponse(content=questions)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-quiz-regulation")
+def generate_quiz_regulation(lang: str = Query("es"), category: Optional[str] = Query(None)):
+    try:
+        preguntas = generar_preguntas_reglamento_desde_main(lang=lang, category=category)
+        return JSONResponse(content=preguntas)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/generate-quiz-strategy")
+def generate_quiz_strategy(lang: str = Query("es"), category: Optional[str] = Query(None)):
+    try:
+        preguntas = generar_preguntas_estrategia_desde_main(lang=lang, category=category)
+        return JSONResponse(content=preguntas)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/generate-quiz-physics")
+def generate_quiz_physics(lang: str = Query("es"), category: Optional[str] = Query(None)):
+    try:
+        preguntas = generar_preguntas_fisica_desde_main(lang=lang, category=category)
+        return JSONResponse(content=preguntas)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
 # === Main app ===
 if __name__ == "__main__":

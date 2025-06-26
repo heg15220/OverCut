@@ -3635,6 +3635,14 @@ def generar_preguntas_filtradas(categoria):
                 preguntas.append(p)
     return preguntas
 
+def generar_preguntas_fisica_desde_main(lang='es', category=None):
+    global LANG
+    LANG = lang
+    categoria = category.lower() if category else None
+    return generar_preguntas_filtradas(categoria=categoria) if categoria else generar_preguntas_reglamento()
+
+
+
 if __name__ == "__main__":
     global LANG  # ✅ Esto hace que se modifique la variable global y no una local
     parser = argparse.ArgumentParser()

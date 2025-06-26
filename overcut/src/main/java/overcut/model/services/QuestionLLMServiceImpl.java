@@ -94,57 +94,39 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
         return questions;
     }
 
-
-    @Override
-    public List<QuestionAI> generateRegulationQuestions(String language, String category) {
+    private List<QuestionAI> fetchQuestionsFromEndpoint(String baseUrl, String language, String category) {
         List<QuestionAI> questions = new ArrayList<>();
 
         try {
-            // Construcción del comando
-            List<String> command = new ArrayList<>();
-            command.add("python"); // Cambia por "python" si estás en Windows o usa variable @Value
-            String scriptPath = Paths.get("src/main/resources/scripts/regulation_questions.py")
-                    .toAbsolutePath().toString();
-            command.add(scriptPath);
-
+            String urlStr = baseUrl + "?lang=" + java.net.URLEncoder.encode(language, "UTF-8");
             if (category != null && !category.isEmpty()) {
-                command.add("--category=" + category);
-            }
-            if (language != null && !language.isEmpty()) {
-                command.add("--lang=" + language);
+                urlStr += "&category=" + java.net.URLEncoder.encode(category, "UTF-8");
             }
 
+            URL url = new URL(urlStr);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
 
-            // Preparación del proceso
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-
-            // Leer la salida del script
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder jsonOutput = new StringBuilder();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder json = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                jsonOutput.append(line);
+                json.append(line);
             }
+            reader.close();
 
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                ObjectMapper mapper = new ObjectMapper();
-                List<Map<String, Object>> rawQuestions = mapper.readValue(jsonOutput.toString(), List.class);
+            ObjectMapper mapper = new ObjectMapper();
+            List<Map<String, Object>> rawQuestions = mapper.readValue(json.toString(), List.class);
 
-                for (Map<String, Object> raw : rawQuestions) {
-                    String q = (String) raw.get("question");
-                    List<String> answers = (List<String>) raw.get("answers");
-                    String correct = (String) raw.get("correctAnswer");
-                    int levelVal = (Integer) raw.get("knowledgeLevel");
-                    String cat = (String) raw.get("category");
-                    String lang = (String) raw.get("language");
-                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
-                }
-            } else {
-                throw new RuntimeException("Error ejecutando el script regulation_questions.py: código " + exitCode);
+            for (Map<String, Object> raw : rawQuestions) {
+                String q = (String) raw.get("question");
+                List<String> answers = (List<String>) raw.get("answers");
+                String correct = (String) raw.get("correctAnswer");
+                int levelVal = (Integer) raw.get("knowledgeLevel");
+                String cat = (String) raw.get("category");
+                String lang = (String) raw.get("language");
+                QuizCategoryCode categoryCode = getEnumForCategory(cat);
+                questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
             }
 
         } catch (Exception e) {
@@ -152,125 +134,25 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
         }
 
         return questions;
+    }
+
+
+    @Override
+    public List<QuestionAI> generateRegulationQuestions(String language, String category) {
+        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-regulation", language, category);
     }
 
     @Override
     public List<QuestionAI> generateStrategyQuestions(String language, String category) {
-        List<QuestionAI> questions = new ArrayList<>();
-
-        try {
-            // Construcción del comando
-            List<String> command = new ArrayList<>();
-            command.add("python"); // Cambia por "python" si estás en Windows o usa variable @Value
-            String scriptPath = Paths.get("src/main/resources/scripts/strategy_questions.py")
-                    .toAbsolutePath().toString();
-            command.add(scriptPath);
-
-            if (category != null && !category.isEmpty()) {
-                command.add("--category=" + category);
-            }
-            if (language != null && !language.isEmpty()) {
-                command.add("--lang=" + language);
-            }
-
-
-            // Preparación del proceso
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-
-            // Leer la salida del script
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder jsonOutput = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jsonOutput.append(line);
-            }
-
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                ObjectMapper mapper = new ObjectMapper();
-                List<Map<String, Object>> rawQuestions = mapper.readValue(jsonOutput.toString(), List.class);
-
-                for (Map<String, Object> raw : rawQuestions) {
-                    String q = (String) raw.get("question");
-                    List<String> answers = (List<String>) raw.get("answers");
-                    String correct = (String) raw.get("correctAnswer");
-                    int levelVal = (Integer) raw.get("knowledgeLevel");
-                    String cat = (String) raw.get("category");
-                    String lang = (String) raw.get("language");
-                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
-                }
-            } else {
-                throw new RuntimeException("Error ejecutando el script regulation_questions.py: código " + exitCode);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return questions;
+        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-strategy", language, category);
     }
 
     @Override
     public List<QuestionAI> generatePhysicsQuestions(String language, String category) {
-        List<QuestionAI> questions = new ArrayList<>();
-
-        try {
-            // Construcción del comando
-            List<String> command = new ArrayList<>();
-            command.add("python"); // Cambia por "python" si estás en Windows o usa variable @Value
-            String scriptPath = Paths.get("src/main/resources/scripts/physics_questions.py")
-                    .toAbsolutePath().toString();
-            command.add(scriptPath);
-
-            if (category != null && !category.isEmpty()) {
-                command.add("--category=" + category);
-            }
-            if (language != null && !language.isEmpty()) {
-                command.add("--lang=" + language);
-            }
-
-
-            // Preparación del proceso
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-
-            // Leer la salida del script
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder jsonOutput = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jsonOutput.append(line);
-            }
-
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                ObjectMapper mapper = new ObjectMapper();
-                List<Map<String, Object>> rawQuestions = mapper.readValue(jsonOutput.toString(), List.class);
-
-                for (Map<String, Object> raw : rawQuestions) {
-                    String q = (String) raw.get("question");
-                    List<String> answers = (List<String>) raw.get("answers");
-                    String correct = (String) raw.get("correctAnswer");
-                    int levelVal = (Integer) raw.get("knowledgeLevel");
-                    String cat = (String) raw.get("category");
-                    String lang = (String) raw.get("language");
-                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
-                }
-            } else {
-                throw new RuntimeException("Error ejecutando el script regulation_questions.py: código " + exitCode);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return questions;
+        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-physics", language, category);
     }
+
+
 
 
     @Override
