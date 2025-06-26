@@ -12,38 +12,59 @@ Session = sessionmaker(bind=engine)
 def get_team_pairs_with_common_drivers(limit=10):
     session = Session()
     try:
-        # Obtener piloto + constructor (único) desde 1985
+        # 1. Consulta optimizada: solo pilotos con más de un constructor desde 1985
         query = text("""
-            SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, c.name AS teamName
-            FROM results r
-            JOIN races ra ON r.raceId = ra.raceId
+            SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, c.name AS teamName
+            FROM (
+                SELECT r.driverId
+                FROM results r
+                JOIN races ra ON r.raceId = ra.raceId
+                WHERE ra.year >= 1985
+                GROUP BY r.driverId
+                HAVING COUNT(DISTINCT r.constructorId) > 1
+            ) sub
+            JOIN results r ON r.driverId = sub.driverId
+            JOIN races ra ON r.raceId = ra.raceId AND ra.year >= 1985
             JOIN drivers d ON r.driverId = d.driverId
             JOIN constructors c ON r.constructorId = c.constructorId
-            WHERE ra.year >= 1985
         """)
         rows = session.execute(query).fetchall()
 
-        # Agrupar equipos por piloto
+        # 2. Agrupar equipos por piloto
         driver_to_teams = defaultdict(set)
         for driver_id, driver_name, team in rows:
             driver_to_teams[(driver_id, driver_name)].add(team)
 
-        # Generar pares únicos de equipos con pilotos válidos
+        # 3. Generar solo algunos pares por piloto (evita O(n²))
         pair_to_drivers = defaultdict(set)
         for (driver_id, driver_name), teams in driver_to_teams.items():
             team_list = list(teams)
-            for i in range(len(team_list)):
-                for j in range(i + 1, len(team_list)):
-                    teamA, teamB = sorted([team_list[i], team_list[j]])
-                    pair_to_drivers[(teamA, teamB)].add(driver_name)
+            if len(team_list) < 2:
+                continue
 
-        # Filtrar pares con al menos 1 piloto válido
-        valid_pairs = [(teams, list(pilots)) for teams, pilots in pair_to_drivers.items() if len(pilots) >= 1]
+            max_pairs = min(3, len(team_list) * (len(team_list) - 1) // 2)
+            sampled_pairs = random.sample(
+                [(a, b) for i, a in enumerate(team_list) for b in team_list[i+1:]],
+                k=max_pairs
+            )
 
-        # Seleccionar aleatoriamente
-        selected = random.sample(valid_pairs, min(limit, len(valid_pairs)))
+            for teamA, teamB in sampled_pairs:
+                sorted_pair = tuple(sorted([teamA, teamB]))
+                pair_to_drivers[sorted_pair].add(driver_name)
 
-        # Formatear resultado
+        # 4. Filtrar y seleccionar aleatoriamente los pares válidos
+        valid_pairs = [(teams, list(pilots)) for teams, pilots in pair_to_drivers.items() if pilots]
+        selected = []
+        used = set()
+        while len(selected) < limit and len(used) < len(valid_pairs):
+            candidate = random.choice(valid_pairs)
+            key = (candidate[0][0], candidate[0][1])
+            if key not in used:
+                selected.append(candidate)
+                used.add(key)
+
+
+        # 5. Formatear resultado
         result = []
         for i, ((teamA, teamB), drivers) in enumerate(selected):
             result.append({
@@ -57,6 +78,7 @@ def get_team_pairs_with_common_drivers(limit=10):
 
     finally:
         session.close()
+
 
 if __name__ == "__main__":
     get_team_pairs_with_common_drivers()
