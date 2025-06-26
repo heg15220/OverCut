@@ -19,10 +19,11 @@ public class TeamGuessGameController {
     private TeamGuessGameService teamGuessGameService;
 
     @PostMapping("/start")
-    public TeamGuessGameDto startGame() {
-        TeamGuessGame game = teamGuessGameService.startGame();
+    public TeamGuessGameDto startGame(@RequestAttribute("userId") Long userId) {
+        TeamGuessGame game = teamGuessGameService.startGame(userId);
         return TeamGuessGameConversor.toDto(game);
     }
+
 
     @PostMapping("/guess")
     public TeamGuessGameDto guessTeam(@RequestBody GuessTeamRequestDto request) {

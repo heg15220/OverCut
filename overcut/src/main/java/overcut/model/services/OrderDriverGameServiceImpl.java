@@ -3,10 +3,8 @@ package overcut.model.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import overcut.model.entities.OrderDriverGame;
-import overcut.model.entities.OrderDriverGameDao;
-import overcut.model.entities.OrderDriverSlot;
-import overcut.model.entities.OrderDriverSlotDao;
+import overcut.model.entities.*;
+import overcut.model.services.exceptions.CooldownException;
 import overcut.rest.dtos.OrderSubmissionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,12 +28,25 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
     @Autowired
     private OrderDriverSlotDao slotDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
+
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final HttpClient client = HttpClient.newHttpClient();
 
     @Override
-    public OrderDriverGame startGame(String lang) {
+    public OrderDriverGame startGame(String lang, Long userId) {
         try {
+            if (!cooldownService.canPlay("OrderDriver", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("OrderDriver", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+            cooldownService.registerPlay("OrderDriver", userId);
+
             String url = "http://localhost:8000/generate-order-game?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 

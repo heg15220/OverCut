@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import overcut.model.entities.GuessDriverGame;
-import overcut.model.entities.GuessDriverGameDao;
-import overcut.model.entities.GuessDriverQuestion;
-import overcut.model.entities.GuessDriverQuestionDao;
+import overcut.model.entities.*;
+import overcut.model.services.exceptions.CooldownException;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,12 +24,25 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
     @Autowired
     private GuessDriverQuestionDao questionDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
+
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public GuessDriverGame startGame() {
+    public GuessDriverGame startGame(Long userId) {
         try {
+            if (!cooldownService.canPlay("GuessDriver", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("GuessDriver", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+            cooldownService.registerPlay("GuessDriver", userId);
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-guess-driver"))
                     .GET()

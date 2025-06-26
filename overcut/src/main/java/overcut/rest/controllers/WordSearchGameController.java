@@ -14,10 +14,11 @@ public class WordSearchGameController {
     private WordSearchService wordSearchService;
 
     @PostMapping("/start")
-    public WordSearchGameDto startGame() {
-        WordSearchGame game = wordSearchService.startGame();
+    public WordSearchGameDto startGame(@RequestAttribute("userId") Long userId) {
+        WordSearchGame game = wordSearchService.startGame(userId);
         return WordSearchConversor.toDto(game);
     }
+
 
     @GetMapping("/{gameId}")
     public WordSearchGameDto getGame(@PathVariable Long gameId) {

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface GuessDriverGameService {
 
-    GuessDriverGame startGame();
+    GuessDriverGame startGame(Long userId);
 
     GuessDriverQuestion askQuestion(Long gameId, String category, String value, String lang);
 

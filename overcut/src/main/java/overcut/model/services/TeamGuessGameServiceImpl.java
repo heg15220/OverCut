@@ -2,13 +2,11 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import overcut.model.entities.TeamGuessGame;
-import overcut.model.entities.TeamGuessClue;
-import overcut.model.entities.TeamGuessGameDao;
-import overcut.model.entities.TeamGuessClueDao;
+import overcut.model.entities.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import overcut.model.services.exceptions.CooldownException;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -27,12 +25,25 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
     @Autowired
     private TeamGuessClueDao clueDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
+
     private static final ObjectMapper mapper = new ObjectMapper();
     private final HttpClient client = HttpClient.newHttpClient();
 
     @Override
-    public TeamGuessGame startGame() {
+    public TeamGuessGame startGame(Long userId) {
         try {
+            if (!cooldownService.canPlay("TeamGuess", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("TeamGuess", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+            cooldownService.registerPlay("TeamGuess", userId);
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-team-guess"))
                     .GET()

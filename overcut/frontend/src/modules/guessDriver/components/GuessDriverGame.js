@@ -15,6 +15,11 @@ import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuev
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getUser } from "../../users/selectors";
+
 
 
 const GuessDriverGame = () => {
@@ -36,6 +41,11 @@ const GuessDriverGame = () => {
 
   const pilotSuggestions = useSelector(selectors.getGuessDriverPilotSuggestions);
 
+  const { canPlay, secondsRemaining } = useSelector(state =>
+    getCooldownForGame(state, "GuessDriver")
+  );
+  const user = useSelector(getUser);
+
   const decadeOptions = [
     "1950s", "1960s", "1970s", "1980s", "1990s",
     "2000s", "2010s", "2020s"
@@ -56,8 +66,16 @@ const GuessDriverGame = () => {
   const tutorial = tutorialTexts["/minigames/guessdriver"][lang];
 
   useEffect(() => {
-    dispatch(actions.startGuessDriverGame());
+    dispatch(fetchCooldown("GuessDriver"));
   }, [dispatch]);
+
+
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startGuessDriverGame());
+    }
+  }, [canPlay, dispatch]);
+
 
   useEffect(() => {
     if (category !== "current" && category !== "retired" && category !== "champion") {
@@ -91,6 +109,15 @@ const GuessDriverGame = () => {
   const visibleRecommendations = recommendations.filter(r =>
     r.toLowerCase().includes(value.toLowerCase())
   );
+
+   if (!canPlay) {
+     return (
+       <CooldownScreen
+         seconds={secondsRemaining}
+         onBack={() => navigate("/minigames")}
+       />
+     );
+   }
 
    if (showTutorial) {
     return (

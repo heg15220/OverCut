@@ -17,8 +17,8 @@ public class TwoTeamsOneDriverGameController {
     private TwoTeamsOneDriverGameService service;
 
     @PostMapping("/start")
-    public TwoTeamsOneDriverGameDto startGame() {
-        return TwoTeamsOneDriverGameConversor.toDto(service.startGame());
+    public TwoTeamsOneDriverGameDto startGame(@RequestAttribute("userId") Long userId) {
+        return TwoTeamsOneDriverGameConversor.toDto(service.startGame(userId));
     }
 
     @PostMapping("/guess")

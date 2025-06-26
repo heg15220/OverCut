@@ -1,8 +1,9 @@
 
 import { fetchConfig, appFetch } from "./appFetch";
 
-export const startGame = (onSuccess, onErrors) =>
-  appFetch("/wordSearch/start", fetchConfig("POST"), onSuccess, onErrors);
+export const startGame = (user, onSuccess, onErrors) =>
+  appFetch("/wordSearch/start", fetchConfig("POST", user), onSuccess, onErrors);
+
 
 export const getGame = (gameId, onSuccess, onErrors) =>
   appFetch(`/wordSearch/${gameId}`, fetchConfig("GET"), onSuccess, onErrors);

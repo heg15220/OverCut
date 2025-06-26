@@ -1,12 +1,17 @@
 import * as actionTypes from "./actionTypes";
 import * as service from "../../backend/orderDriverService";
 
-export const startOrderGame = () => dispatch => {
+import { getUser } from "../users/selectors";
+
+export const startOrderGame = () => (dispatch, getState) => {
   const lang = navigator.language.startsWith("es") ? "es" : "en";
-  service.startOrderGame(lang, game =>
+  const user = getUser(getState());
+
+  service.startOrderGame(lang, user.id, game =>
     dispatch({ type: actionTypes.START_ORDER_GAME_COMPLETED, game })
   );
 };
+
 
 
 

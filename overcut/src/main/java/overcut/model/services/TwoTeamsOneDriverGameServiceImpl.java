@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import overcut.model.entities.TwoTeamsOneDriverGame;
-import overcut.model.entities.TwoTeamsOneDriverGameDao;
-import overcut.model.entities.TwoTeamsOneDriverPair;
-import overcut.model.entities.TwoTeamsOneDriverPairDao;
+import overcut.model.entities.*;
+import overcut.model.services.exceptions.CooldownException;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -31,12 +29,25 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
     @Autowired
     private TwoTeamsOneDriverPairDao pairDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
+
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String PYTHON_API_BASE = "http://localhost:8000";
 
     @Override
-    public TwoTeamsOneDriverGame startGame() {
+    public TwoTeamsOneDriverGame startGame(Long userId) {
         try {
+            if (!cooldownService.canPlay("TwoTeams", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("TwoTeams", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+            cooldownService.registerPlay("TwoTeams", userId);
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(PYTHON_API_BASE + "/generate-two-teams-one-driver"))
                     .GET()

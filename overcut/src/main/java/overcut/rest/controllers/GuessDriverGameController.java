@@ -17,10 +17,11 @@ public class GuessDriverGameController {
     private GuessDriverGameService guessDriverGameService;
 
     @PostMapping("/start")
-    public GuessDriverGameDto startGame() {
-        GuessDriverGame game = guessDriverGameService.startGame();
+    public GuessDriverGameDto startGame(@RequestAttribute("userId") Long userId) {
+        GuessDriverGame game = guessDriverGameService.startGame(userId);
         return GuessDriverGameConversor.toDto(game);
     }
+
 
     @PostMapping("/ask")
     public GuessDriverQuestionDto askQuestion(@RequestBody AskQuestionRequestDto request) {

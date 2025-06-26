@@ -1,10 +1,15 @@
 import * as actionTypes from "./actionTypes";
 import * as service from "../../backend/wordSearchService";
 
-export const startWordSearchGame = () => dispatch =>
-  service.startGame(game =>
-    dispatch({ type: actionTypes.START_WORDSEARCH_GAME_COMPLETED, game })
-  );
+import { getUser } from "../users/selectors";
+
+export const startWordSearchGame = () => (dispatch, getState) => {
+  const user = getUser(getState());
+  service.startGame(user.id, game => {
+    dispatch({ type: actionTypes.START_WORDSEARCH_GAME_COMPLETED, game });
+  });
+};
+
 
 export const getWordSearchGame = (gameId) => dispatch =>
   service.getGame(gameId, game =>

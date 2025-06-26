@@ -9,7 +9,12 @@ import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuev
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
-// ...importaciones y setup iguales...
+import { fetchCooldown } from "../../cooldown/actions";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getUser } from "../../users/selectors";
+
+
 
 // Traducciones embebidas
 const translations = {
@@ -50,10 +55,31 @@ const WordSearchGame = () => {
 
   const tutorial = tutorialTexts["/minigames/wordSearch"][lang];
 
+  const { canPlay, secondsRemaining } = useSelector(state =>
+    getCooldownForGame(state, "WordSearch")
+  );
+  const user = useSelector(getUser);
+
   useEffect(() => {
-    dispatch(actions.startWordSearchGame());
-    dispatch({ type: "wordSearch/resetFoundWords" });
+    dispatch(fetchCooldown("WordSearch"));
   }, [dispatch]);
+
+
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startWordSearchGame());
+      dispatch({ type: "wordSearch/resetFoundWords" });
+    }
+  }, [dispatch, canPlay]);
+
+    if (!canPlay) {
+      return (
+        <CooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/minigames")}
+        />
+      );
+    }
 
     if (showTutorial) {
       return (

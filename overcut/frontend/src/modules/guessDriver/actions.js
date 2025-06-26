@@ -1,10 +1,15 @@
 import * as actionTypes from "./actionTypes";
 import backend from "../../backend";
 
-export const startGuessDriverGame = () => dispatch =>
-  backend.guessDriverService.startGuessDriverGame(game => {
+import { getUser } from "../users/selectors";
+
+export const startGuessDriverGame = () => (dispatch, getState) => {
+  const user = getUser(getState());
+  backend.guessDriverService.startGuessDriverGame(user.id, game => {
     dispatch({ type: actionTypes.CREATE_GUESS_DRIVER_GAME_COMPLETED, game });
   });
+};
+
 
 export const askQuestion = (request) => dispatch =>
   backend.guessDriverService.askGuessDriverQuestion(request, question => {

@@ -9,6 +9,10 @@ import LoadingScreen from '../../common/components/LoadingScreen';
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { getUser } from "../../users/selectors";
 
 
 const TeamGuessGame = () => {
@@ -25,6 +29,12 @@ const TeamGuessGame = () => {
 
   const tutorial = tutorialTexts["/minigames/teamGuess"][lang];
 
+  const { canPlay, secondsRemaining } = useSelector(state =>
+    getCooldownForGame(state, "TeamGuess")
+  );
+  const user = useSelector(getUser);
+
+
   const translations = {
     title: { es: '🏁 Adivina el equipo', en: '🏁 Guess the Team' },
     placeholder: { es: 'Nombre del equipo', en: 'Team name' },
@@ -34,7 +44,16 @@ const TeamGuessGame = () => {
     lose: { es: 'Era', en: 'It was' },
   };
 
-  useEffect(() => { dispatch(actions.startTeamGuessGame()); }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchCooldown("TeamGuess"));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startTeamGuessGame());
+    }
+  }, [canPlay, dispatch]);
+
 
   useEffect(() => {
     if (guessInput.trim().length > 1) {
@@ -52,6 +71,15 @@ const TeamGuessGame = () => {
       suggestionsRef.current[highlightedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [highlightedIndex]);
+
+    if (!canPlay) {
+      return (
+        <CooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/minigames")}
+        />
+      );
+    }
 
 
     if (showTutorial) {

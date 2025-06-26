@@ -1,10 +1,15 @@
 import * as actionTypes from "./actionTypes";
 import * as service from "../../backend/teamGuessService";
 
-export const startTeamGuessGame = () => dispatch =>
-  service.startGame(game =>
+import { getUser } from "../users/selectors";
+
+export const startTeamGuessGame = () => (dispatch, getState) => {
+  const user = getUser(getState());
+  service.startGame(user.id, game =>
     dispatch({ type: actionTypes.START_TEAM_GUESS_GAME_COMPLETED, game })
   );
+};
+
 
 export const guessTeam = (request) => dispatch =>
   service.guessTeam(request, game =>

@@ -5,7 +5,7 @@ import overcut.model.entities.WordSearchGame;
 import java.util.List;
 
 public interface WordSearchService {
-    WordSearchGame startGame();
+    WordSearchGame startGame(Long userId);
 
     WordSearchGame getGame(Long gameId);
 

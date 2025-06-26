@@ -11,6 +11,11 @@ import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuev
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
+import { fetchCooldown } from "../../cooldown/actions";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getUser } from "../../users/selectors";
+
 
 const TwoTeamsGame = () => {
   const dispatch = useDispatch();
@@ -60,9 +65,22 @@ const TwoTeamsGame = () => {
 
   const tutorial = tutorialTexts["/minigames/twoTeams"][lang];
 
+  const { canPlay, secondsRemaining } = useSelector(state =>
+    getCooldownForGame(state, "TwoTeams")
+  );
+  const user = useSelector(getUser);
+
+
   useEffect(() => {
-    dispatch(actions.startTwoTeamsGame());
+    dispatch(fetchCooldown("TwoTeams"));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startTwoTeamsGame());
+    }
+  }, [dispatch, canPlay]);
+
 
   useEffect(() => {
     if (guessInput.length > 1) {
@@ -80,6 +98,16 @@ const TwoTeamsGame = () => {
     const timer = setTimeout(() => setAnimateFlip(true), 50); // breve pausa para reiniciar la animación
     return () => clearTimeout(timer);
   }, [game?.currentPairIndex]);
+
+    if (!canPlay) {
+      return (
+        <CooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/minigames")}
+        />
+      );
+    }
+
 
     if (showTutorial) {
             return (

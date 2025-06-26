@@ -2,14 +2,12 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import overcut.model.entities.WordSearchCell;
-import overcut.model.entities.WordSearchGame;
-import overcut.model.entities.WordSearchGameDao;
-import overcut.model.entities.WordSearchWord;
+import overcut.model.entities.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import overcut.model.services.exceptions.CooldownException;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,9 +24,22 @@ public class WordSearchServiceImpl implements WordSearchService {
     @Autowired
     private WordSearchGameDao gameDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
+
     @Override
-    public WordSearchGame startGame() {
+    public WordSearchGame startGame(Long userId) {
         try {
+            if (!cooldownService.canPlay("WordSearch", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("WordSearch", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+            cooldownService.registerPlay("WordSearch", userId);
+
             String url = "http://localhost:8000/generate-wordsearch";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))

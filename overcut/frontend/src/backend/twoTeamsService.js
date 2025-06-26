@@ -1,7 +1,8 @@
 import { fetchConfig, appFetch } from "./appFetch";
 
-export const startGame = (onSuccess, onErrors) =>
-  appFetch("/twoTeamsGame/start", fetchConfig("POST"), onSuccess, onErrors);
+export const startGame = (user, onSuccess, onErrors) =>
+  appFetch("/twoTeamsGame/start", fetchConfig("POST", user), onSuccess, onErrors);
+
 
 export const guessDriver = (request, onSuccess, onErrors) =>
   appFetch("/twoTeamsGame/guess", fetchConfig("POST", request), onSuccess, onErrors);

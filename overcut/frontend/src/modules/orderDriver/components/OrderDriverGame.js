@@ -8,6 +8,12 @@ import LoadingScreen from '../../common/components/LoadingScreen';
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getUser } from "../../users/selectors";
+
+
 
 const OrderDriverGame = () => {
   const dispatch = useDispatch();
@@ -24,6 +30,11 @@ const OrderDriverGame = () => {
   const lang = navigator.language.startsWith('es') ? 'es' : 'en';
 
   const tutorial = tutorialTexts["/minigames/orderDrivers"][lang];
+
+  const { canPlay, secondsRemaining } = useSelector(state =>
+    getCooldownForGame(state, "OrderDriver")
+  );
+  const user = useSelector(getUser);
 
 
   const translations = {
@@ -56,9 +67,17 @@ const OrderDriverGame = () => {
     return translations[lang][key] || key;
   };
 
-  useEffect(() => {
-    dispatch(actions.startOrderGame());
-  }, [dispatch]);
+
+    useEffect(() => {
+      dispatch(fetchCooldown("OrderDriver"));
+    }, [dispatch]);
+
+    useEffect(() => {
+      if (canPlay) {
+        dispatch(actions.startOrderGame());
+      }
+    }, [canPlay, dispatch]);
+
 
   useEffect(() => {
     if (game) {
@@ -68,6 +87,15 @@ const OrderDriverGame = () => {
       setCorrectSlots(Array(game.slots.length).fill(false));
     }
   }, [game]);
+
+    if (!canPlay) {
+      return (
+        <CooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/minigames")}
+        />
+      );
+    }
 
 
       if (showTutorial) {
