@@ -726,6 +726,5 @@ CREATE TABLE GameCooldown (
     gameType VARCHAR(50) NOT NULL,
     lastPlayed DATETIME NOT NULL,
 
-    CONSTRAINT fk_cooldown_user FOREIGN KEY (userId) REFERENCES Users(id),
-    CONSTRAINT uq_user_game UNIQUE (userId, gameType)
+    CONSTRAINT fk_cooldown_user FOREIGN KEY (userId) REFERENCES Users(id)
 );

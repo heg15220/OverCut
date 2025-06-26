@@ -16,10 +16,12 @@ public class CategoryGameController {
     private CategoryGameService categoryGameService;
 
     @PostMapping("/start")
-    public CategoryGameDto startGame(@RequestParam(defaultValue = "es") String lang) {
-        CategoryGame game = categoryGameService.startGame(lang);
+    public CategoryGameDto startGame(@RequestAttribute("userId") Long userId,
+                                     @RequestParam(defaultValue = "es") String lang) {
+        CategoryGame game = categoryGameService.startGame(lang, userId);
         return CategoryGameConversor.toDto(game);
     }
+
 
 
     @PostMapping("/submit")

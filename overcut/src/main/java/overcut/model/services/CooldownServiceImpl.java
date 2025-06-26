@@ -10,6 +10,7 @@ import overcut.model.entities.UserDao;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -22,28 +23,30 @@ public class CooldownServiceImpl implements CooldownService {
 
     @Override
     public boolean canPlay(String gameType, Long userId) {
-        return cooldownDao.findByUserIdAndGameType(userId, gameType)
-                .map(cd -> Duration.between(cd.getLastPlayed(), LocalDateTime.now()).compareTo(COOLDOWN) >= 0)
-                .orElse(true);
+        List<GameCooldown> cooldowns = cooldownDao.findByUserIdAndGameTypeOrderByLastPlayedDesc(userId, gameType);
+        if (cooldowns.isEmpty()) return true;
+
+        GameCooldown last = cooldowns.get(0);
+        Duration elapsed = Duration.between(last.getLastPlayed(), LocalDateTime.now());
+        return elapsed.compareTo(COOLDOWN) >= 0;
     }
 
     @Override
     public void registerPlay(String gameType, Long userId) {
-        GameCooldown cooldown = cooldownDao.findByUserIdAndGameType(userId, gameType)
-                .orElseGet(() -> {
-                    User user = userDao.findById(userId).orElseThrow();
-                    return new GameCooldown(user, gameType);
-                });
+        User user = userDao.findById(userId).orElseThrow();
+        GameCooldown cooldown = new GameCooldown(user, gameType);
         cooldown.setLastPlayed(LocalDateTime.now());
         cooldownDao.save(cooldown);
     }
 
     @Override
     public long secondsUntilNextPlay(String gameType, Long userId) {
-        return cooldownDao.findByUserIdAndGameType(userId, gameType)
-                .map(cd -> {
-                    long passed = Duration.between(cd.getLastPlayed(), LocalDateTime.now()).getSeconds();
-                    return Math.max(0, COOLDOWN.getSeconds() - passed);
-                }).orElse(0L);
+        List<GameCooldown> cooldowns = cooldownDao.findByUserIdAndGameTypeOrderByLastPlayedDesc(userId, gameType);
+        if (cooldowns.isEmpty()) return 0L;
+
+        GameCooldown last = cooldowns.get(0);
+        long passed = Duration.between(last.getLastPlayed(), LocalDateTime.now()).getSeconds();
+        return Math.max(0, COOLDOWN.getSeconds() - passed);
     }
+
 }

@@ -39,6 +39,7 @@ public class CareerPathGameServiceImpl implements CareerPathGameService {
             long wait = cooldownService.secondsUntilNextPlay("CareerPath", userId);
             throw new CooldownException("WAIT", wait);
         }
+
         cooldownService.registerPlay("CareerPath", userId);
 
         try {
