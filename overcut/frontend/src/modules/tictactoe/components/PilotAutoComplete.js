@@ -9,6 +9,12 @@ const PilotAutocomplete = ({ onSelect }) => {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dispatch = useDispatch();
   const suggestions = useSelector(selectors.selectSuggestions);
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+  const placeholderText = {
+    es: "Escribe el nombre del piloto",
+    en: "Type the driver's name"
+  }[lang];
+
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -46,14 +52,15 @@ const PilotAutocomplete = ({ onSelect }) => {
     <div className="autocomplete-container active">
       <input
         className="autocomplete-input"
-        placeholder="Escribe el nombre del piloto"
+        placeholder={placeholderText}
         value={input}
         onChange={(e) => {
           setInput(e.target.value);
-          setHighlightedIndex(-1); // Reset al cambiar texto
+          setHighlightedIndex(-1);
         }}
         onKeyDown={handleKeyDown}
       />
+
       {suggestions && suggestions.length > 0 && (
         <ul className="suggestions-list">
           {suggestions.map((name, idx) => (

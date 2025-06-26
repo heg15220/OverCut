@@ -22,6 +22,20 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
     const [timeLeft, setTimeLeft] = useState(60);
     const timerRef = useRef(null);
     const [answered, setAnswered] = useState(false);
+    const lang = navigator.language.startsWith("es") ? "es" : "en";
+
+    const t = {
+      es: {
+        correctAnswer: "La respuesta correcta era:",
+        unknown: "Desconocida"
+      },
+      en: {
+        correctAnswer: "The correct answer was:",
+        unknown: "Unknown"
+      }
+    }[lang];
+
+
 
     useEffect(() => {
         const questionId = Number(question.id);
@@ -175,7 +189,7 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
                                     wordBreak: 'break-word',
                                 }}
                             >
-                                La respuesta correcta era: {answers.find((a) => a.correct)?.name || 'Desconocida'}
+                                {t.correctAnswer} {answers.find((a) => a.correct)?.name || t.unknown}
                             </motion.div>
                         )}
 

@@ -19,12 +19,16 @@ const gameId = (state = initialState.gameId, action) => {
 }
 
 const game = (state = initialState.game, action) => {
-    if (action.type === actionTypes.GET_GAME_COMPLETED) {
-        return action.game;
-    } else {
-        return state;
+    switch (action.type) {
+        case actionTypes.CREATE_GAME_COMPLETED:
+            return null; // limpiamos el estado de la partida anterior
+        case actionTypes.GET_GAME_COMPLETED:
+            return action.game;
+        default:
+            return state;
     }
-}
+};
+
 
 const checkDriver = (state = initialState.checkDriver, action) => {
     if (action.type === actionTypes.PLAY_MOVE_COMPLETED) {

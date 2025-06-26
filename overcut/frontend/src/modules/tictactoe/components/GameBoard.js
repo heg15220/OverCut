@@ -23,22 +23,72 @@ const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
   const [statusEvaluated, setStatusEvaluated] = useState(false);
   const [showInvalidPilot, setShowInvalidPilot] = useState(false);
   const f1CarImage = sourceTictactoeImages(`./car_game.png`);
-
+  const [evaluatedGameId, setEvaluatedGameId] = useState(null);
   const [gridCompleted, setGridCompleted] = useState(false);
 
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+
+  const t = {
+    es: {
+      selectPilot: "Selecciona un piloto",
+      cancel: "Cancelar",
+      draw: "Empate",
+      requestDraw: "Solicitar empate",
+      newGame: "Nueva partida",
+      backHome: "Volver al inicio",
+      victory: (winner) => `🎉 ¡${winner} ha ganado la partida!`,
+      autoDraw: "🤝 ¡La partida ha terminado en empate!",
+      gridComplete: "✅ ¡Has completado el tablero!",
+      invalid: "Piloto incorrecto para esta celda. ¡Turno perdido!",
+    },
+    en: {
+      selectPilot: "Select a driver",
+      cancel: "Cancel",
+      draw: "Draw",
+      requestDraw: "Request draw",
+      newGame: "New game",
+      backHome: "Back to home",
+      victory: (winner) => `🎉 ${winner} has won the game!`,
+      autoDraw: "🤝 The game has ended in a draw!",
+      gridComplete: "✅ You completed the board!",
+      invalid: "Invalid driver for this cell. Turn lost!",
+    }
+  }[lang];
 
   useEffect(() => {
-    if (!statusEvaluated && (gameData.status === 'X_WINS' || gameData.status === 'O_WINS' || gameData.status === 'DRAW')) {
+    if (!gameData || !gameData.id) return;
+
+    const isNewGame = gameData.status === 'IN_PROGRESS';
+    const isAlreadyEvaluated = evaluatedGameId === gameData.id;
+
+    if (isNewGame) {
+      setWinner(null);
+      setIsDraw(false);
+      setStatusEvaluated(false);
+      setEvaluatedGameId(null);
+      return;
+    }
+
+    if (!statusEvaluated && !isAlreadyEvaluated) {
+      setEvaluatedGameId(gameData.id);
       setStatusEvaluated(true);
+
       setTimeout(() => {
         if (gameData.status === 'X_WINS' || gameData.status === 'O_WINS') {
-          setWinner(gameData.status.startsWith('X') ? 'Jugador X' : 'Jugador O');
+          const winnerLabel = gameData.status.startsWith('X')
+            ? (lang === 'es' ? 'Jugador X' : 'Player X')
+            : (lang === 'es' ? 'Jugador O' : 'Player O');
+          setWinner(winnerLabel);
         } else if (gameData.status === 'DRAW') {
           setIsDraw(true);
         }
-      }, 2000);
+      }, 500); // tiempo reducido para UX fluida
     }
-  }, [gameData.status, statusEvaluated]);
+  }, [gameData, statusEvaluated, evaluatedGameId, lang]);
+
+
+
+
 
   useEffect(() => {
     setWinner(null);
@@ -176,54 +226,51 @@ const confirmDraw = (mode) => {
       {showDialog && (
         <div className="pilot-input-panel">
           <div className="pilot-input-content">
-            <h3 className="pilot-input-title">Selecciona un piloto</h3>
+            <h3 className="pilot-input-title">{t.selectPilot}</h3>
             <PilotAutocomplete onSelect={handlePilotSelect} />
             <div className="pilot-input-actions">
               <Button variant="outlined" color="error" onClick={() => setShowDialog(false)}>
-                Cancelar
+                {t.cancel}
               </Button>
             </div>
           </div>
         </div>
       )}
 
-
-
-      {/* Modal de empate */}
+      {/* Modal de empate solicitado */}
       <Dialog open={drawConfirm} onClose={() => setDrawConfirm(false)}>
-        <DialogTitle className="dialog-title">Empate</DialogTitle>
+        <DialogTitle className="dialog-title">🤝 {t.draw}</DialogTitle>
         <DialogActions>
-          <Button onClick={() => confirmDraw('new')}>Nueva partida</Button>
-          <Button onClick={() => confirmDraw('home')}>Volver al inicio</Button>
+          <Button onClick={() => confirmDraw('new')}>{t.newGame}</Button>
+          <Button onClick={() => confirmDraw('home')}>{t.backHome}</Button>
         </DialogActions>
       </Dialog>
 
-
       {/* Modal de victoria */}
       <Dialog open={!!winner} onClose={() => setWinner(null)}>
-        <DialogTitle className="dialog-title">🎉 ¡{winner} ha ganado la partida!</DialogTitle>
+        <DialogTitle className="dialog-title">{t.victory(winner)}</DialogTitle>
         <DialogActions>
-          <Button onClick={() => navigate('/minigames')}>Volver al inicio</Button>
-          <Button onClick={() => navigate('/minigames/tictactoe')}>Nueva partida</Button>
+          <Button onClick={() => navigate('/minigames')}>{t.backHome}</Button>
+          <Button onClick={() => navigate('/minigames/tictactoe')}>{t.newGame}</Button>
         </DialogActions>
       </Dialog>
 
       {/* Modal de empate automático */}
       <Dialog open={isDraw} onClose={() => setIsDraw(false)}>
-        <DialogTitle className="dialog-title">🤝 ¡La partida ha terminado en empate!</DialogTitle>
+        <DialogTitle className="dialog-title">{t.autoDraw}</DialogTitle>
         <DialogActions>
-          <Button onClick={() => navigate('/minigames')}>Volver al inicio</Button>
-          <Button onClick={() => navigate('/minigames/tictactoe')}>Nueva partida</Button>
+          <Button onClick={() => navigate('/minigames')}>{t.backHome}</Button>
+          <Button onClick={() => navigate('/minigames/tictactoe')}>{t.newGame}</Button>
         </DialogActions>
       </Dialog>
 
+      {/* Modal al completar tablero */}
       <Dialog open={gridCompleted} onClose={() => setGridCompleted(false)}>
-        <DialogTitle className="dialog-title">✅ ¡Has completado el tablero!</DialogTitle>
+        <DialogTitle className="dialog-title">{t.gridComplete}</DialogTitle>
         <DialogActions>
-          <Button onClick={() => navigate("/minigames")}>Volver al inicio</Button>
+          <Button onClick={() => navigate("/minigames")}>{t.backHome}</Button>
         </DialogActions>
       </Dialog>
-
 
       {/* Snackbar de error */}
       <Snackbar
@@ -233,9 +280,10 @@ const confirmDraw = (mode) => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert severity="error" onClose={() => setShowInvalidPilot(false)}>
-          Piloto incorrecto para esta celda. ¡Turno perdido!
+          {t.invalid}
         </Alert>
       </Snackbar>
+
     </div>
   );
 };
