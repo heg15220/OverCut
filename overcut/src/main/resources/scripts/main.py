@@ -427,14 +427,13 @@ def generate_quiz_physics(lang: str = Query("es"), category: Optional[str] = Que
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 @app.get("/generate-quiz-teamradios")
-def generate_quiz_teamradios(lang: str = Query("es", enum=["es", "en"])):
-    global LANG
-    LANG = lang
+def generate_quiz_teamradios(lang: str = Query("es")):
     try:
         preguntas = generar_preguntas_teamradios(lang=lang)
         return JSONResponse(content=preguntas)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
 
 

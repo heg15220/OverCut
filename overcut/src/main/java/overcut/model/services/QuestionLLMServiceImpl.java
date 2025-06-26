@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -197,7 +198,42 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
     @Override
     public List<QuestionAI> generateTeamRadioQuestions(String language, String category) {
-        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-teamradios", language, category);
+        List<QuestionAI> questions = new ArrayList<>();
+        try {
+            String urlStr = "http://localhost:8000/generate-quiz-teamradios?lang=" +
+                    java.net.URLEncoder.encode(language, "UTF-8");
+
+            URL url = new URL(urlStr);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder json = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                json.append(line);
+            }
+            reader.close();
+
+            ObjectMapper mapper = new ObjectMapper();
+            List<Map<String, Object>> rawQuestions = mapper.readValue(json.toString(), List.class);
+
+            for (Map<String, Object> raw : rawQuestions) {
+                String q = (String) raw.get("question");
+                List<String> answers = (List<String>) raw.get("answers");
+                String correct = (String) raw.get("correctAnswer");
+                int levelVal = (Integer) raw.get("knowledgeLevel");
+                String cat = (String) raw.get("category");
+                String lang = (String) raw.get("language");
+                QuizCategoryCode categoryCode = getEnumForCategory(cat);
+                questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return questions;
     }
 
 }

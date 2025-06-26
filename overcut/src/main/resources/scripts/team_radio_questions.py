@@ -20,7 +20,7 @@ def pregunta_radio_faster_than_you():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Who received the famous radio message: 'Fernando is faster than you'?",
             "answers": [
@@ -50,7 +50,7 @@ def pregunta_leave_me_alone():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which driver said on the radio: 'Leave me alone, I know what I’m doing'?",
             "answers": [
@@ -80,7 +80,7 @@ def pregunta_multi_21():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which radio message caused tension between Vettel and Webber in Malaysia 2013?",
             "answers": [
@@ -110,7 +110,7 @@ def pregunta_no_mikey():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Who said on the radio: 'No, Mikey! No, no, Mikey! That was so not right!'?",
             "answers": [
@@ -140,7 +140,7 @@ def pregunta_engine_engine():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which driver said on the radio: 'GP2 engine, GP2!'?",
             "answers": [
@@ -200,7 +200,7 @@ def pregunta_baku_2021_tyres():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which driver shouted 'F***ing tyre!' after a blowout in Baku 2021?",
             "answers": [
@@ -232,7 +232,7 @@ def pregunta_radio_seb_blue_flags():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which driver repeatedly shouted 'Blue flags! Blue flags!' on the radio in 2016?",
             "answers": [
@@ -262,7 +262,7 @@ def pregunta_hamilton_abudhabi2021():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Hamilton say on the radio after losing the 2021 title in Abu Dhabi?",
             "answers": [
@@ -322,7 +322,7 @@ def pregunta_silverstone_british_flag():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Vettel say on the radio after colliding with Hamilton in Azerbaiyan 2017?",
             "answers": [
@@ -1663,7 +1663,7 @@ def pregunta_sainz_stop_inventing():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which driver replied on the radio with a sharp 'Stop inventing!' after receiving strategy instructions?",
             "answers": [
@@ -1693,7 +1693,7 @@ def pregunta_bonnington_get_in_there():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which race engineer popularized the phrase: 'Get in there, Lewis!' after every win?",
             "answers": [
@@ -1723,7 +1723,7 @@ def pregunta_toto_mikey_abudhabi():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Who said on the radio: 'No Mikey, no, no Mikey! That was so not right!' in Abu Dhabi 2021?",
             "answers": [
@@ -1755,7 +1755,7 @@ def pregunta_alonso_now_we_can_fight():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which driver said 'Now we can fight!' on the radio after overtaking with McLaren-Renault after finishing Australia 2018 race?",
             "answers": [
@@ -1786,7 +1786,7 @@ def pregunta_masi_motor_race():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Who said on the radio: 'It’s called a motor race, Toto. We went car racing.' in Abu Dhabi 2021?",
             "answers": [
@@ -1816,7 +1816,7 @@ def pregunta_kimi_toilet():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which driver explained missing the podium by saying: 'I was having a s***'?",
             "answers": [
@@ -1847,7 +1847,7 @@ def pregunta_masi_motor_race():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Who said on the radio: 'It’s called a motor race, Toto. We went car racing.' in Abu Dhabi 2021?",
             "answers": [
@@ -1878,7 +1878,7 @@ def pregunta_vettel_brazil_2012():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Vettel say after contact with Senna in the opening lap of Brazil 2012?",
             "answers": [
@@ -1908,7 +1908,7 @@ def pregunta_vettel_celebracion_ferrari():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What phrase did Sebastian Vettel often repeat on the radio to celebrate a win with Ferrari?",
             "answers": [
@@ -1938,7 +1938,7 @@ def pregunta_significado_strat_mode():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What does the radio message 'Strat mode 5' usually indicate?",
             "answers": [
@@ -1969,7 +1969,7 @@ def pregunta_significado_cool_the_car():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What does 'Cool the car' mean in a radio message in F1?",
             "answers": [
@@ -2000,7 +2000,7 @@ def pregunta_significado_brake_magic():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What does 'Brake Magic' typically activate in a car like Mercedes' F1 car?",
             "answers": [
@@ -2030,7 +2030,7 @@ def pregunta_significado_plan_b():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What does it mean when the radio says 'We’re switching to Plan B'?",
             "answers": [
@@ -2060,7 +2060,7 @@ def pregunta_significado_tyre_deg():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What does 'Tyre deg is high' mean when said over the radio?",
             "answers": [
@@ -2090,7 +2090,7 @@ def pregunta_significado_looking_into_it():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What does the message 'We are looking into it' imply?",
             "answers": [
@@ -2150,7 +2150,7 @@ def pregunta_brake_magic_hamilton_baku():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What mistake did Lewis Hamilton make at the 2021 Azerbaijan GP restart due to a radio setting?",
             "answers": [
@@ -2180,7 +2180,7 @@ def pregunta_multi_21_orden():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "Which driver disobeyed the 'Multi 21' team order at the 2013 Malaysian GP with Red Bull?",
             "answers": [
@@ -2210,7 +2210,7 @@ def pregunta_perez_barcelona_2022():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Sergio Pérez say on the radio during the 2022 Spanish GP after a team order?",
             "answers": [
@@ -2240,7 +2240,7 @@ def pregunta_raikkonen_baku_guantes():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Kimi Räikkönen demand on the radio during the red flag at the 2017 Azerbaijan GP?",
             "answers": [
@@ -2270,7 +2270,7 @@ def pregunta_raikkonen_bebida_hungria():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Kimi Räikkönen say on the radio during the 2018 Hungarian GP when his drink system failed?",
             "answers": [
@@ -2300,7 +2300,7 @@ def pregunta_alonso_karma_monza():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Fernando Alonso say on the radio after Jolyon Palmer retired at Monza 2017?",
             "answers": [
@@ -2330,7 +2330,7 @@ def pregunta_hulkenberg_williams_japon():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Nico Hülkenberg say on the radio after overtaking a Williams at the 2016 Japanese GP?",
             "answers": [
@@ -2360,7 +2360,7 @@ def pregunta_button_monaco_2017():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Jenson Button say to Fernando Alonso over the radio before replacing him at Monaco 2017?",
             "answers": [
@@ -2390,7 +2390,7 @@ def pregunta_ricciardo_monaco_2016_post():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Daniel Ricciardo say on the radio after losing the 2016 Monaco GP due to a team error?",
             "answers": [
@@ -2420,7 +2420,7 @@ def pregunta_massa_brasil_2008():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Felipe Massa say on the radio after losing the world title in the final corner at Brazil 2008?",
             "answers": [
@@ -2450,7 +2450,7 @@ def pregunta_alonso_brasil_2006():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Fernando Alonso say on the radio after winning his second title at Brazil 2006?",
             "answers": [
@@ -2480,7 +2480,7 @@ def pregunta_schumacher_japon_2000():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Michael Schumacher say on the radio after winning his first title with Ferrari in 2000?",
             "answers": [
@@ -2511,7 +2511,7 @@ def pregunta_rosberg_abu_dhabi_2016():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Nico Rosberg say on the radio after becoming world champion in Abu Dhabi 2016?",
             "answers": [
@@ -2541,7 +2541,7 @@ def pregunta_hamilton_abu_dhabi_2014():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Lewis Hamilton shout on the radio after winning his second world title in Abu Dhabi 2014?",
             "answers": [
@@ -2571,7 +2571,7 @@ def pregunta_ricciardo_monza_2021():
             "category": "LegendaryTeamRadios",
             "language": LANG
         }
-    else:
+    if LANG == "en":
         return {
             "question": "What did Daniel Ricciardo say on the radio after winning the 2021 Italian GP with McLaren?",
             "answers": [
@@ -2683,8 +2683,10 @@ def barajar_respuestas(pregunta):
     return pregunta
 
 
-def generar_preguntas_teamradios(lang= lang):
+def generar_preguntas_teamradios(lang='es'):
     preguntas = []
+    global LANG
+    LANG = lang
     seleccionados = random.sample(generadores_radios, 5)
     for gen in seleccionados:
         p = gen()
@@ -2692,6 +2694,8 @@ def generar_preguntas_teamradios(lang= lang):
         p["language"] = lang if lang in {"es", "en"} else "es"
         preguntas.append(p)
     return preguntas
+
+
 # Ejecutar
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -2711,4 +2715,3 @@ if __name__ == "__main__":
         preguntas.append(p)
 
     print(json.dumps(preguntas, ensure_ascii=False))
-
