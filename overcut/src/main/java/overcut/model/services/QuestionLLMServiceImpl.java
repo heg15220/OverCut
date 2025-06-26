@@ -194,65 +194,10 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
         }
     }
 
+
     @Override
     public List<QuestionAI> generateTeamRadioQuestions(String language, String category) {
-        List<QuestionAI> questions = new ArrayList<>();
-
-        try {
-            // Comando y script
-            List<String> command = new ArrayList<>();
-            command.add("python"); // o configura según tu entorno
-            String scriptPath = Paths.get("src/main/resources/scripts/team_radio_questions.py")
-                    .toAbsolutePath().toString();
-            command.add(scriptPath);
-
-            if (category != null && !category.isEmpty()) {
-                command.add("--category=" + category);
-            }
-            if (language != null && !language.isEmpty()) {
-                command.add("--lang=" + language);
-            }
-
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-
-            // Leer la salida del script
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder jsonOutput = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jsonOutput.append(line);
-            }
-
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                ObjectMapper mapper = new ObjectMapper();
-                List<Map<String, Object>> rawQuestions = mapper.readValue(jsonOutput.toString(), List.class);
-                for (Map<String, Object> raw : rawQuestions) {
-                    String q = (String) raw.get("question");
-                    List<String> answers = (List<String>) raw.get("answers");
-                    String correct = (String) raw.get("correctAnswer");
-                    int levelVal = (Integer) raw.get("knowledgeLevel");
-                    String cat = (String) raw.get("category");
-                    String lang = (String) raw.get("language");
-                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
-                }
-            } else {
-                throw new RuntimeException("Error ejecutando el script team_radio_questions.py: código " + exitCode);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return questions;
+        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-teamradios", language, category);
     }
-
-
-
-
-
 
 }

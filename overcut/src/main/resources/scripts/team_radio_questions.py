@@ -2682,6 +2682,16 @@ def barajar_respuestas(pregunta):
     pregunta["answers"] = respuestas
     return pregunta
 
+
+def generar_preguntas_teamradios(lang= lang):
+    preguntas = []
+    seleccionados = random.sample(generadores_radios, 5)
+    for gen in seleccionados:
+        p = gen()
+        p = barajar_respuestas(p)
+        p["language"] = lang if lang in {"es", "en"} else "es"
+        preguntas.append(p)
+    return preguntas
 # Ejecutar
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

@@ -42,7 +42,7 @@ from generate_questions import generar_preguntas_desde_main
 from regulation_questions import generar_preguntas_reglamento_desde_main
 from strategy_questions import generar_preguntas_estrategia_desde_main
 from physics_questions import generar_preguntas_fisica_desde_main
-
+from team_radio_questions import generar_preguntas_teamradios
 
 
 import sys
@@ -99,7 +99,7 @@ def generate_tikitaka_criteria(
     return JSONResponse(content=random.choice(configs))
 
 
-# === /generate ===
+# === OverCutGames ===
 @app.get("/generate")
 def generate_drivers_connections(lang: str = Query("es", enum=["es", "en"])):
     try:
@@ -425,6 +425,17 @@ def generate_quiz_physics(lang: str = Query("es"), category: Optional[str] = Que
         return JSONResponse(content=preguntas)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-quiz-teamradios")
+def generate_quiz_teamradios(lang: str = Query("es", enum=["es", "en"])):
+    global LANG
+    LANG = lang
+    try:
+        preguntas = generar_preguntas_teamradios(lang=lang)
+        return JSONResponse(content=preguntas)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
 
 # === Main app ===
