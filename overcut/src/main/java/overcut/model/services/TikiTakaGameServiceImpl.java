@@ -342,18 +342,25 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
             return new ValidationResponseTikTak(false, "Invalid pilot for selected cell");
         }
 
-        cell.setFilledBy("X");  // siempre jugador X
-        cell.setPiloto(request.getPiloto());
-        cell.setValid(true);
-        cellDao.save(cell);
-
+        if(game.isGridMode()){
+            cell.setFilledBy("X");  // siempre jugador X
+            cell.setPiloto(request.getPiloto());
+            cell.setValid(true);
+            cellDao.save(cell);
+        }
         if (!game.isGridMode()) {
             // Solo en modos normales comprobamos victoria/empate
+
+            cell.setFilledBy(game.getCurrentTurn());
+            cell.setPiloto(request.getPiloto());
+            cell.setValid(true);
+            cellDao.save(cell);
+
             String newStatus = checkWinnerOrDraw(game);
             game.setStatus(newStatus);
 
             if ("IN_PROGRESS".equals(newStatus)) {
-                game.setCurrentTurn("O");
+                game.setCurrentTurn(game.getCurrentTurn().equals("X") ? "O" : "X");
             }
 
             gameDao.save(game);
