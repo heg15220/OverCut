@@ -43,6 +43,7 @@ from regulation_questions import generar_preguntas_reglamento_desde_main
 from strategy_questions import generar_preguntas_estrategia_desde_main
 from physics_questions import generar_preguntas_fisica_desde_main
 from team_radio_questions import generar_preguntas_teamradios
+from validate_category_answer import validate_category_answer
 
 
 import sys
@@ -69,6 +70,11 @@ CACHED_RANGES = [
 
 CONFIGS_CACHE: dict[tuple[int, Optional[int]], list] = {}
 
+CATEGORY_CACHE: dict[str, dict[str, dict[str, bool]]] = {
+    "es": {},
+    "en": {}
+}
+
 def cache_file_for(since_year: int, end_year: Optional[int]):
     suffix = f"{since_year}_{end_year if end_year is not None else 'plus'}"
     return CACHE_DIR / f"configs_cache_{suffix}.pkl"
@@ -82,6 +88,24 @@ def load_criteria_cache():
             continue
         CONFIGS_CACHE[(since, end)] = pickle.loads(path.read_bytes())
     print(f"[startup] Caché de criterios TikiTaka cargado: {list(CONFIGS_CACHE.keys())}")
+
+@app.on_event("startup")
+def load_category_letter_cache():
+    script_dir = Path(__file__).resolve().parent / "resources" / "scripts"
+
+    for lang in ["es", "en"]:
+        file = script_dir / f"category_letter_cache{'_en' if lang == 'en' else ''}.json"
+        if not file.exists():
+            print(f"[WARN] No se encontró el archivo de caché de letras: {file}")
+            continue
+        try:
+            with file.open(encoding="utf-8") as f:
+                CATEGORY_CACHE[lang] = json.load(f)
+            print(f"[startup] Caché de letras cargada para {lang.upper()}")
+        except Exception as e:
+            print(f"[ERROR] Cargando caché {lang}: {e}")
+
+
 
 # === Nuevo endpoint ===
 @app.get("/generate-tikitaka-criteria")
@@ -434,7 +458,22 @@ def generate_quiz_teamradios(lang: str = Query("es")):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+@app.get("/validate-category")
+def validate_category_endpoint(
+    category: str = Query(...),
+    answer: str = Query(...),
+    letter: str = Query(...),
+    lang: str = Query("es", enum=["es", "en"])
+):
+    try:
+        result = validate_category_answer(category, answer, letter, lang)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"valid": False, "error": str(e)}, status_code=500)
 
+@app.get("/category-letter-cache")
+def get_category_letter_cache(lang: str = Query("es", enum=["es", "en"])):
+    return JSONResponse(content=CATEGORY_CACHE.get(lang, {}))
 
 
 # === Main app ===

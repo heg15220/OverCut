@@ -337,5 +337,44 @@ def main():
 
     print(json.dumps({"valid": valid}))
 
+def validate_category_answer(category: str, answer: str, letter: str, lang: str = "es") -> dict:
+    answer = answer.strip()
+    letter = letter.upper()
+    internal_type = CATEGORY_MAP.get(lang, {}).get(category)
+
+    if not internal_type:
+        return {"valid": False, "error": "Unknown category"}
+
+    engine = create_engine(DB_URI)
+    with engine.connect() as session:
+        if internal_type == "driver":
+            valid = validate_driver(session, answer, letter)
+        elif internal_type == "constructor":
+            valid = validate_constructor(session, answer, letter)
+        elif internal_type == "circuit":
+            valid = validate_circuit(session, answer, letter)
+        elif internal_type == "driver_champion":
+            valid = validate_champion(session, answer, letter)
+        elif internal_type == "city":
+            valid = validate_city(session, answer, letter)
+        elif internal_type == "nationality":
+            valid = validate_nationality(session, answer, letter)
+        elif internal_type == "defunct_team":
+            valid = validate_defunct_team(session, answer, letter)
+        elif internal_type == "rookie":
+            valid = validate_rookie(session, answer, letter)
+        elif internal_type == "engine":
+            valid = validate_engine(session, answer, letter)
+        elif internal_type == "tyres":
+            valid = validate_tyres(answer, letter)
+        elif internal_type == "team_principal":
+            valid = validate_team_principal(session, answer, letter)
+        else:
+            valid = answer.lower().startswith(letter.lower())
+
+    return {"valid": valid}
+
+
+
 if __name__ == "__main__":
     main()

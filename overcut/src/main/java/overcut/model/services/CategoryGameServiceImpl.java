@@ -15,6 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -92,22 +96,25 @@ public class CategoryGameServiceImpl implements CategoryGameService {
             }
 
             try {
-                ProcessBuilder pb = new ProcessBuilder("python",
-                        "src/main/resources/scripts/validate_category_answer.py",
-                        "--category", category,
-                        "--answer", userAnswer,
-                        "--letter", String.valueOf(letter),
-                        "--lang", lang
+                String baseUrl = "http://localhost:8000/validate-category";
+                String query = String.format(
+                        "%s?category=%s&answer=%s&letter=%s&lang=%s",
+                        baseUrl,
+                        URLEncoder.encode(category, StandardCharsets.UTF_8),
+                        URLEncoder.encode(userAnswer, StandardCharsets.UTF_8),
+                        URLEncoder.encode(String.valueOf(letter), StandardCharsets.UTF_8),
+                        URLEncoder.encode(lang, StandardCharsets.UTF_8)
                 );
 
-                Process process = pb.start();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String jsonOutput = reader.lines().collect(Collectors.joining());
-                process.waitFor();
+                HttpURLConnection connection = (HttpURLConnection) new URL(query).openConnection();
+                connection.setRequestMethod("GET");
 
-                JsonNode result = mapper.readTree(jsonOutput);
-                boolean isValid = result.get("valid").asBoolean(false);
-                slot.setValid(isValid);
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    String json = in.lines().collect(Collectors.joining());
+                    JsonNode result = mapper.readTree(json);
+                    boolean isValid = result.get("valid").asBoolean(false);
+                    slot.setValid(isValid);
+                }
 
             } catch (Exception e) {
                 slot.setValid(false); // fallback
@@ -116,11 +123,11 @@ public class CategoryGameServiceImpl implements CategoryGameService {
             }
         }
 
-        // 💡 Forzar persistencia y recarga de los datos actualizados
         categoryGameDao.save(game);
-        categorySlotDao.flush(); // Forzar escritura en DB
-        return categoryGameDao.findById(gameId).orElseThrow(); // Volver a cargar
+        categorySlotDao.flush();
+        return categoryGameDao.findById(gameId).orElseThrow();
     }
+
 
 
     @Override
