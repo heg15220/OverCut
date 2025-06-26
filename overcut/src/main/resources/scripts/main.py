@@ -2,6 +2,11 @@ from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 import uvicorn
 import os
+from typing import Optional
+import pickle
+import random
+from pathlib import Path
+import subprocess
 
 
 from generate_drivers_connections import generate_game as generate_drivers_game
@@ -31,12 +36,63 @@ from autocomplete_teams import autocomplete_teams
 from select_teams_pilot import get_team_pairs_with_common_drivers
 from validate_two_teams_driver import validate_driver
 from generate_wordsearch import generate_wordsearch_grid
+from validate_pilot import validate_pilot
+from autocomplete_pilot import buscar_pilotos
+
 
 import sys
 import io
 import json
 
 app = FastAPI()
+
+
+
+# === Carga de caché de criterios TikiTaka ===
+HERE = Path(__file__).resolve().parent
+PROJECT_ROOT = HERE.parents[3]
+
+# que apunte a …\OverCut\src\main donde están tus cachés
+CACHE_DIR = HERE.parents[1]
+      # sube hasta .../src/main
+
+CACHED_RANGES = [
+    (2000, None),
+    (1980, None),
+    (1980, 1999),
+]
+
+CONFIGS_CACHE: dict[tuple[int, Optional[int]], list] = {}
+
+def cache_file_for(since_year: int, end_year: Optional[int]):
+    suffix = f"{since_year}_{end_year if end_year is not None else 'plus'}"
+    return CACHE_DIR / f"configs_cache_{suffix}.pkl"
+
+@app.on_event("startup")
+def load_criteria_cache():
+    for since, end in CACHED_RANGES:
+        path = cache_file_for(since, end)
+        if not path.exists():
+            print(f"[WARN] Falta caché para rango {since}-{end}: {path}")
+            continue
+        CONFIGS_CACHE[(since, end)] = pickle.loads(path.read_bytes())
+    print(f"[startup] Caché de criterios TikiTaka cargado: {list(CONFIGS_CACHE.keys())}")
+
+# === Nuevo endpoint ===
+@app.get("/generate-tikitaka-criteria")
+def generate_tikitaka_criteria(
+    sinceYear: int = Query(2000),
+    endYear: Optional[int] = Query(None)
+):
+    key = (sinceYear, endYear)
+    configs = CONFIGS_CACHE.get(key)
+    if not configs:
+        return JSONResponse(
+            content={"error": f"No hay configuraciones precargadas para rango {sinceYear}-{endYear}"},
+            status_code=400
+        )
+    return JSONResponse(content=random.choice(configs))
+
 
 # === /generate ===
 @app.get("/generate")
@@ -291,6 +347,37 @@ def generate_wordsearch():
     try:
         result = generate_wordsearch_grid()
         return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/validate-tikitaka-pilot")
+def validate_tikitaka_pilot(
+    row: str = Query(...),
+    col: str = Query(...),
+    piloto: str = Query(...),
+    sinceYear: Optional[int] = Query(None),
+    endYear: Optional[int] = Query(None)
+):
+    try:
+        result = validate_pilot(
+            row_criteria_code=row,
+            column_criteria_code=col,
+            piloto=piloto,
+            since_year=sinceYear,
+            end_year=endYear
+        )
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"is_valid": False, "reason": str(e)}
+        )
+
+@app.get("/autocomplete-pilot-tictactoe")
+def autocomplete_pilot(partial: str):
+    try:
+        results = buscar_pilotos(partial)
+        return JSONResponse(content=results)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 

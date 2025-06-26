@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import java.net.URI;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;

@@ -26,15 +26,20 @@ def load_driver_data(session, piloto):
                MAX(ra.year) AS lastYear,
                SUM(IF(r.positionOrder=1,1,0)) AS wins,
                SUM(IF(r.positionOrder<=3,1,0)) AS podiums,
-               GROUP_CONCAT(DISTINCT c.name) AS teams
+               GROUP_CONCAT(DISTINCT c.name) AS teams,
+               CONCAT(d.forename, ' ', d.surname) AS full_name
           FROM drivers d
           LEFT JOIN results r       ON d.driverId      = r.driverId
-          LEFT JOIN races ra         ON r.raceId        = ra.raceId
-          LEFT JOIN constructors c   ON r.constructorId = c.constructorId
-         WHERE CONCAT(d.forename, ' ', d.surname) = :pilot
+          LEFT JOIN races ra        ON r.raceId        = ra.raceId
+          LEFT JOIN constructors c  ON r.constructorId = c.constructorId
+         WHERE LOWER(CONCAT(d.forename, ' ', d.surname)) LIKE :name
          GROUP BY d.driverId
     """)
-    return session.execute(sql, {'pilot': piloto}).mappings().first()
+
+    pilot_normalized = piloto.lower()
+    result = session.execute(sql, {'name': pilot_normalized}).mappings().first()
+    return result
+
 
 
 def validate_criteria(driver, criteria_code, session, since_year=None, end_year=None):

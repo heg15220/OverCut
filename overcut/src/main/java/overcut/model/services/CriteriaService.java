@@ -8,7 +8,7 @@ import java.net.http.HttpResponse;
 public class CriteriaService {
 
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
-    private static final String ENDPOINT = "http://127.0.0.1:8000/generate";
+    private static final String ENDPOINT = "http://127.0.0.1:8000/generate-tikitaka-criteria";
 
     /**
      * Llama al servidor FastAPI y devuelve el JSON de criterios,

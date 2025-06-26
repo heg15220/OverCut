@@ -6,10 +6,12 @@ import overcut.model.entities.TikiTakaGame;
 import overcut.model.entities.TikiTakaGameDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 @Service
 public class ValidationGameServiceImpl implements ValidationGameService{
 
@@ -22,35 +24,33 @@ public class ValidationGameServiceImpl implements ValidationGameService{
             TikiTakaGame game = gameDao.findById(gameId)
                     .orElseThrow(() -> new RuntimeException("Game not found"));
 
-            List<String> command = new ArrayList<>(List.of(
-                    "python", "src/main/resources/scripts/validate_pilot.py",
-                    "--row", rowCriteria,
-                    "--col", colCriteria,
-                    "--pilot", piloto
-            ));
+            StringBuilder url = new StringBuilder("http://127.0.0.1:8000/validate-tikitaka-pilot");
+            url.append("?row=").append(URLEncoder.encode(rowCriteria, StandardCharsets.UTF_8));
+            url.append("&col=").append(URLEncoder.encode(colCriteria, StandardCharsets.UTF_8));
+            url.append("&piloto=").append(URLEncoder.encode(piloto, StandardCharsets.UTF_8));
 
             if (game.getSinceYear() != null) {
-                command.add("--since");
-                command.add(String.valueOf(game.getSinceYear()));
+                url.append("&sinceYear=").append(game.getSinceYear());
             }
             if (game.getEndYear() != null) {
-                command.add("--until");
-                command.add(String.valueOf(game.getEndYear()));
+                url.append("&endYear=").append(game.getEndYear());
             }
 
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url.toString()))
+                    .GET()
+                    .build();
 
-            String output = new String(process.getInputStream().readAllBytes());
-            int exitCode = process.waitFor();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            if (exitCode != 0) {
+            if (response.statusCode() != 200) {
+                System.err.println("FastAPI error: " + response.body());
                 return false;
             }
 
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode result = mapper.readTree(output);
+            JsonNode result = mapper.readTree(response.body());
 
             return result.get("is_valid").asBoolean();
 
@@ -59,6 +59,7 @@ public class ValidationGameServiceImpl implements ValidationGameService{
             return false;
         }
     }
+
 
 
 

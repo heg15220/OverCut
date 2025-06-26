@@ -24,12 +24,9 @@ def buscar_pilotos(nombre):
         """)
 
         resultados = session.execute(sql, {'name': nombre_like}).fetchall()
-        nombres = [r[0] for r in resultados]
-
-        print(json.dumps(nombres, ensure_ascii=False))
+        return [r[0] for r in resultados]
     except Exception as e:
-        print(json.dumps({"error": str(e)}), file=sys.stderr)
-        sys.exit(1)
+        raise RuntimeError(f"Error en buscar_pilotos: {e}")
     finally:
         session.close()
 
@@ -39,7 +36,8 @@ def main():
     parser.add_argument('--name', required=True, help='Nombre parcial del piloto')
     args = parser.parse_args()
 
-    buscar_pilotos(args.name)
+    print(json.dumps(buscar_pilotos(args.name), ensure_ascii=False))  # <- Solo print en CLI
+
 
 
 if __name__ == '__main__':
