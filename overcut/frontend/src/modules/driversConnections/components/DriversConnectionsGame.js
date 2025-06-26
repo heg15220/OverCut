@@ -9,7 +9,10 @@ import LoadingScreen from '../../common/components/LoadingScreen';
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
-
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getUser } from "../../users/selectors";
 
 const categoryColors = [
   "#1e88e5", // Blue
@@ -31,6 +34,10 @@ const DriversConnectionsGame = () => {
   const [lastValidatedGroup, setLastValidatedGroup] = useState(null);
   const [partialMatchCount, setPartialMatchCount] = useState(null);
   const [retainSelection, setRetainSelection] = useState(false);
+  const { canPlay, secondsRemaining } = useSelector(state =>
+    getCooldownForGame(state, "DriversConnections")
+  );
+  const user = useSelector(getUser);
 
   const translations = {
     es: {
@@ -63,10 +70,16 @@ const DriversConnectionsGame = () => {
 
   const tutorial = tutorialTexts["/minigames/driversConnections"][lang];
 
+
   useEffect(() => {
-    dispatch(actions.startConnectionsGame());
+    dispatch(fetchCooldown("DriversConnections"));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startConnectionsGame());
+    }
+  }, [canPlay, dispatch]);
 
 
   const toggleDriver = (name) => {
@@ -140,6 +153,16 @@ const DriversConnectionsGame = () => {
       .filter(d => !solvedGroups.some(cat => cat.pilots.some(p => p.driverName === d.driverName)))
       .sort(() => Math.random() - 0.5);
   }, [game, solvedGroups]);
+
+    if (!canPlay) {
+      return (
+        <CooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/minigames")}
+        />
+      );
+    }
+
 
     if (showTutorial) {
         return (

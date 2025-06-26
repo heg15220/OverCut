@@ -16,9 +16,11 @@ public class DriversConnectionsGameController {
     private DriversConnectionsGameService service;
 
     @PostMapping("/start")
-    public DriversConnectionsGameDto startGame(@RequestParam(name = "lang", defaultValue = "es") String language) {
-        return DriversConnectionsGameConversor.toDto(service.startGame(language));
+    public DriversConnectionsGameDto startGame(@RequestParam(name = "lang", defaultValue = "es") String language,
+                                               @RequestAttribute("userId") Long userId) {
+        return DriversConnectionsGameConversor.toDto(service.startGame(language, userId));
     }
+
 
 
     @PostMapping("/validate")

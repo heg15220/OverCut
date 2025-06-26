@@ -7,6 +7,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
+import overcut.model.services.exceptions.CooldownException;
+
 import java.net.URI;
 
 import java.net.http.HttpClient;
@@ -28,9 +30,23 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
     @Autowired
     private DriversConnectionsPilotDao pilotDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao;
+
+
     @Override
-    public DriversConnectionsGame startGame(String lang) {
+    public DriversConnectionsGame startGame(String lang, Long userId) {
         try {
+
+            if (!cooldownService.canPlay("DriversConnections", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("DriversConnections", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+            cooldownService.registerPlay("DriversConnections", userId);
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate?lang=" + lang))

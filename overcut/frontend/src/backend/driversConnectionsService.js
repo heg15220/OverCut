@@ -1,7 +1,8 @@
 import { appFetch, fetchConfig } from "./appFetch";
 
-export const startConnectionsGame = (lang, onSuccess, onErrors) =>
-  appFetch(`/driversConnections/start?lang=${lang}`, fetchConfig("POST"), onSuccess, onErrors);
+export const startConnectionsGame = (lang, userId, onSuccess, onErrors) =>
+  appFetch(`/driversConnections/start?lang=${lang}`, fetchConfig("POST", userId), onSuccess, onErrors);
+
 
 export const validateConnectionsGroup = (request, onSuccess, onErrors) =>
   appFetch("/driversConnections/validate", fetchConfig("POST", request), onSuccess, onErrors);
