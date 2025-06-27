@@ -81,9 +81,8 @@ public class CategoryGameServiceImpl implements CategoryGameService {
                     game.getSlots().add(slot);
                 }
 
-                CategoryGame categoryGame =  categoryGameDao.save(game);
                 cooldownService.registerPlay("CategoryGame", userId);
-                return categoryGame;
+                return game;
             }
         }
 

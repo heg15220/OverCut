@@ -9,6 +9,7 @@ import overcut.model.entities.RondoLetter;
 import overcut.model.entities.RondoLetterDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import overcut.model.services.exceptions.CooldownException;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -30,6 +31,9 @@ public class RondoGameServiceImpl implements RondoGameService {
 
     @Autowired
     private RondoLetterDao letterDao;
+
+    @Autowired
+    private CooldownService cooldownService;
 
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
@@ -69,8 +73,12 @@ public class RondoGameServiceImpl implements RondoGameService {
         }
     }
     @Override
-    public RondoGame createGame(String language) {
+    public RondoGame createGame(Long userId, String language) {
         try {
+            if (!cooldownService.canPlay("RondoGame", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("RondoGame", userId);
+                throw new CooldownException("WAIT", wait);
+            }
             // Leer archivo de caché con roscos pre-generados
             String cachePath = "src/main/resources/scripts/rosco_cache_" + language + ".json";
             ObjectMapper mapper = new ObjectMapper();
@@ -109,7 +117,7 @@ public class RondoGameServiceImpl implements RondoGameService {
 
             letterDao.saveAll(letters);
             game.setPasaPalabraLetterList(letters);
-
+            cooldownService.registerPlay("RondoGame", userId);
             return game;
 
         } catch (IOException e) {

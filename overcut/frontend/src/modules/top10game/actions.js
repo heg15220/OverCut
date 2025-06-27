@@ -1,9 +1,12 @@
 import backend from "../../backend";
 import * as actionTypes from "./actionTypes";
 
-export const createTop10Game = (lang, onSuccess, onErrors) => dispatch => {
+import { getUser } from "../users/selectors";
+
+export const createTop10Game = (lang, onSuccess, onErrors) => (dispatch, getState) => {
+  const user = getUser(getState());
   dispatch({ type: "RESET_TOP10_STATE" });
-  backend.top10Service.createGame(lang, game => {
+  backend.top10Service.createGame(user.id, lang, game => {
     dispatch({ type: actionTypes.CREATE_TOP10_GAME_COMPLETED, gameId: game.id });
     onSuccess(game.id);
   }, onErrors);

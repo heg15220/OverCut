@@ -17,8 +17,10 @@ public class Top10GameController {
     private Top10GameService top10GameService;
 
     @PostMapping("/start")
-    public Top10GameDto startGame(@RequestParam(defaultValue = "es") String lang) {
-        Top10Game game = top10GameService.createGame(lang);
+    public Top10GameDto startGame(
+            @RequestAttribute("userId") Long userId,
+            @RequestParam(defaultValue = "es") String lang) {
+        Top10Game game = top10GameService.createGame(userId, lang);
         return new Top10GameDto(game.getId(), game.getSeasonYear(), game.getRaceName());
     }
 

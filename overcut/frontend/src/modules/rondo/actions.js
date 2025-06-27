@@ -1,12 +1,16 @@
 import * as actionTypes from "./actionTypes";
 import * as rondoService from "../../backend/rondoService";
 
-export const startRondoGame = () => dispatch => {
+import { getUser } from "../users/selectors";
+
+export const startRondoGame = () => (dispatch, getState) => {
+  const user = getUser(getState());
   const lang = navigator.language.startsWith("es") ? "es" : "en";
-  rondoService.startRondoGame(lang, game => {
+  rondoService.startRondoGame(user, lang, game => {
     dispatch({ type: actionTypes.CREATE_RONDO_GAME_COMPLETED, game });
   });
 };
+
 
 
 export const getRondoGame = gameId => dispatch =>

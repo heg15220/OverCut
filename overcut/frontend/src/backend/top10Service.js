@@ -1,9 +1,9 @@
 import { fetchConfig, appFetch } from "./appFetch";
 
-export const createGame = (lang, onSuccess, onErrors) => {
+export const createGame = (user, lang, onSuccess, onErrors) => {
   appFetch(
-    `/top10/start?lang=${lang}`, // ⬅️ nuevo parámetro
-    fetchConfig("POST"),
+    `/top10/start?lang=${lang}`,
+    fetchConfig("POST", user), // user con userId
     onSuccess,
     onErrors
   );

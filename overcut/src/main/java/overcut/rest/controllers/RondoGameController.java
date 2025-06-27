@@ -18,8 +18,10 @@ public class RondoGameController {
     private RondoGameService gameService;
 
     @PostMapping("/start")
-    public RondoGameDto startGame(@RequestParam String language) {
-        RondoGame game = gameService.createGame(language);
+    public RondoGameDto startGame(
+            @RequestAttribute("userId") Long userId,
+            @RequestParam String language) {
+        RondoGame game = gameService.createGame(userId, language);
         return RondoLetterDtoConversor.toDto(game);
     }
 

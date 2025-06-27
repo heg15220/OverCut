@@ -1,7 +1,8 @@
 import { fetchConfig, appFetch } from "./appFetch";
 
-export const startRondoGame = (lang = "es", onSuccess, onErrors) =>
-  appFetch(`/rondo/start?language=${lang}`, fetchConfig("POST"), onSuccess, onErrors);
+export const startRondoGame = (user, lang = "es", onSuccess, onErrors) =>
+  appFetch(`/rondo/start?language=${lang}`, fetchConfig("POST", user), onSuccess, onErrors);
+
 
 
 export const getRondoGame = (gameId, onSuccess, onErrors) =>

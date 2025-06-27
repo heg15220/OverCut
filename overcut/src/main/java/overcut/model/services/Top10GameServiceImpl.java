@@ -5,6 +5,7 @@ import overcut.model.entities.Top10Game;
 import overcut.model.entities.Top10GameDao;
 import overcut.model.entities.Top10Slot;
 import overcut.model.entities.Top10SlotDao;
+import overcut.model.services.exceptions.CooldownException;
 import overcut.rest.dtos.GridSlotReveal;
 import overcut.rest.dtos.GridValidationResultDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,20 @@ public class Top10GameServiceImpl implements Top10GameService {
     @Autowired
     private Top10SlotDao top10SlotDao;
 
+    @Autowired
+    private CooldownService cooldownService;
+
+
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public Top10Game createGame(String lang) {
+    public Top10Game createGame(Long userId, String lang) {
         try {
+            if (!cooldownService.canPlay("Top10Game", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("Top10Game", userId);
+                throw new CooldownException("WAIT", wait);
+            }
             String url = "http://localhost:8000/generate-top10-game?lang=" + URLEncoder.encode(lang, StandardCharsets.UTF_8);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -66,7 +75,9 @@ public class Top10GameServiceImpl implements Top10GameService {
             }
 
             game.setSlots(slots);
-            return top10GameDao.save(game);
+            Top10Game saved = top10GameDao.save(game);
+            cooldownService.registerPlay("Top10Game", userId);
+            return saved;
 
         } catch (Exception e) {
             throw new RuntimeException("Error al generar juego Top10", e);

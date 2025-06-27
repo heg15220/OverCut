@@ -8,6 +8,9 @@ import LoadingScreen from '../../common/components/LoadingScreen';
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
 
 
 const translations = {
@@ -57,9 +60,21 @@ const RondoGame = () => {
 
   const tutorial = tutorialTexts["/minigames/rondo"][lang];
 
+  const { canPlay, secondsRemaining } = useSelector(state =>
+    getCooldownForGame(state, "RondoGame")
+  );
+
   useEffect(() => {
-    dispatch(actions.startRondoGame());
+    dispatch(fetchCooldown("RondoGame"));
   }, [dispatch]);
+
+
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startRondoGame());
+    }
+  }, [canPlay, dispatch]);
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -73,6 +88,15 @@ const RondoGame = () => {
     setAnswer("");
     setCurrentIndex((currentIndex + 1) % letters.length);
   };
+
+      if (!canPlay) {
+        return (
+          <CooldownScreen
+            seconds={secondsRemaining}
+            onBack={() => navigate("/minigames")}
+          />
+        );
+      }
 
       if (showTutorial) {
               return (
