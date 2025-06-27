@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getTop10Board, getTop10Validated, getTop10Revealed } from "../selectors";
 import Top10Slot from "./Top10Slot";
@@ -15,6 +15,18 @@ const Top10GameBoard = () => {
   const revealed = useSelector(getTop10Revealed);
   const lang = navigator.language.startsWith("es") ? "es" : "en";
   const t = top10Translations[lang];
+
+  const [gameCompleted, setGameCompleted] = useState(false);
+
+  useEffect(() => {
+    if (!board) return;
+    const filledCount = board.grid.filter(slot =>
+      validated[slot.position] || slot.filledByPilotId
+    ).length;
+    if (filledCount === board.grid.length) {
+      setGameCompleted(true);
+    }
+  }, [board, validated]);
 
   if (!board) return <LoadingScreen lang={lang} text={t.loading} />;
 
@@ -43,12 +55,12 @@ const Top10GameBoard = () => {
         })}
       </div>
 
-      {Object.keys(revealed).length === 0 ? (
-        <SearchPilotInput />
-      ) : (
+      {gameCompleted || Object.keys(revealed).length > 0 ? (
         <Link to="/minigames">
           <button className="back-button">{t.back}</button>
         </Link>
+      ) : (
+        <SearchPilotInput />
       )}
     </div>
   );

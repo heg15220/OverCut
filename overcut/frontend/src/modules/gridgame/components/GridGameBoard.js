@@ -87,7 +87,13 @@ const GridGameBoard = () => {
 
 
 
-          <SearchPilotInput />
+          {gameCompleted || Object.keys(revealed).length > 0 ? (
+            <button className="back-button" onClick={() => navigate("/minigames")}>
+              {t.back}
+            </button>
+          ) : (
+            <SearchPilotInput />
+          )}
 
         </div>
       );
