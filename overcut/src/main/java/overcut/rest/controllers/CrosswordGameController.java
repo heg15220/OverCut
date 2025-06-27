@@ -21,14 +21,18 @@ public class CrosswordGameController {
 
     // 1. Crear nueva partida de crucigrama
     @PostMapping("/create")
-    public Long createGame(@RequestBody CreateCrossWordGameRequest request) {
-            Long gameId = crosswordService.createGame(
+    public Long createGame(
+            @RequestAttribute("userId") Long userId,
+            @RequestBody CreateCrossWordGameRequest request
+    ) {
+        return crosswordService.createGame(
+                userId,
                 request.getRows(),
                 request.getCols(),
                 request.getLanguage()
         );
-        return gameId;
     }
+
 
     // 2. Obtener partida por id
     @GetMapping("/{gameId}")

@@ -52,6 +52,8 @@ public class CategoryGameServiceImpl implements CategoryGameService {
             throw new CooldownException("WAIT", wait);
         }
 
+        cooldownService.registerPlay("CategoryGame", userId);
+
 
         Map<String, Map<String, Boolean>> cache = cacheLoader.getCache(lang);
         List<String> letters = new ArrayList<>(cache.keySet());
@@ -81,8 +83,7 @@ public class CategoryGameServiceImpl implements CategoryGameService {
                     game.getSlots().add(slot);
                 }
 
-                cooldownService.registerPlay("CategoryGame", userId);
-                return game;
+                return categoryGameDao.save(game);
             }
         }
 

@@ -3,6 +3,7 @@ package overcut.model.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
+import overcut.model.services.exceptions.CooldownException;
 
 import java.io.IOException;
 import java.util.*;
@@ -26,14 +27,22 @@ public class CrossWordServiceImpl implements CrosswordService{
     @Autowired
     private CrosswordGeneratorPythonAdapter crosswordGenerator;
 
+    @Autowired
+    private CooldownService cooldownService;
+
 
 
     // 1. Crear partida (llama al script Python, parsea, guarda entidades)
     @Override
-    public Long createGame(int rows, int cols, String language) {
+    public Long createGame(Long userId, int rows, int cols, String language) {
         if (!language.equals("es") && !language.equals("en")) {
             throw new IllegalArgumentException("Unsupported language: " + language);
         }
+        if (!cooldownService.canPlay("Crossword", userId)) {
+            long wait = cooldownService.secondsUntilNextPlay("Crossword", userId);
+            throw new CooldownException("WAIT", wait);
+        }
+
 
         CrosswordGame game = new CrosswordGame();
         game.setRows(rows);
@@ -121,6 +130,7 @@ public class CrossWordServiceImpl implements CrosswordService{
         // 🔐 Guardar los links ahora que todo tiene ID
         cellWordLinkDao.saveAll(allLinks);
 
+        cooldownService.registerPlay("Crossword", userId);
         return game.getId();
     }
 

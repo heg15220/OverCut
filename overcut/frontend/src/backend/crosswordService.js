@@ -1,14 +1,10 @@
 // api/crossword.js
 import { fetchConfig, appFetch } from "./appFetch";
 
-export const createCrosswordGame = (request, onSuccess, onErrors) => {
-    appFetch(
-        `/crossword/create`,
-        fetchConfig("POST", request),
-        onSuccess,
-        onErrors
-    );
+export const createCrosswordGame = (user, request, onSuccess, onErrors) => {
+    appFetch(`/crossword/create`, fetchConfig("POST", { ...request, ...user }), onSuccess, onErrors);
 };
+
 
 export const getCrosswordGame = (gameId, onSuccess, onErrors) => {
     appFetch(

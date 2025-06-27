@@ -1,6 +1,7 @@
 import backend from "../../backend";
 import {appFetch, fetchConfig} from "../../backend/appFetch";
 import * as actionTypes from './actionTypes';
+import { getUser } from "../users/selectors";
 
 const createCrosswordGameCompleted = (gameId) => ({
     type: actionTypes.CREATE_CROSSWORD_GAME_COMPLETED,
@@ -83,12 +84,13 @@ export const resetSingleWordValidation = (wordId) => ({
 
 
 
-export const createCrosswordGame = (request, onSuccess, onErrors ) => dispatch =>
-    backend.crosswordService.createCrosswordGame(request, gameId => {
-            dispatch(createCrosswordGameCompleted(gameId));
-            onSuccess(gameId);
-        },
-        onErrors);
+export const createCrosswordGame = (request, onSuccess, onErrors ) => (dispatch, getState) => {
+    const user = getUser(getState());
+    backend.crosswordService.createCrosswordGame(user.id, request, gameId => {
+        dispatch(createCrosswordGameCompleted(gameId));
+        onSuccess(gameId);
+    }, onErrors);
+};
 
 export const getCrosswordGame = (gameId, onSuccess, onErrors ) => dispatch =>
     backend.crosswordService.getCrosswordGame(gameId, game => {

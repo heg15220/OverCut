@@ -15,6 +15,11 @@ import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuev
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
 
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getUser } from "../../users/selectors";
+
 const DEFAULT_ROWS = 10;
 const DEFAULT_COLS = 10;
 
@@ -33,24 +38,42 @@ const Crossword = () => {
 
    const tutorial = tutorialTexts["/minigames/crossword"][lang];
 
+   const { canPlay, secondsRemaining } = useSelector(state =>
+     getCooldownForGame(state, "Crossword")
+   );
+   const user = useSelector(getUser);
 
+   useEffect(() => {
+     dispatch(fetchCooldown("Crossword"));
+   }, [dispatch]);
 
     // Crear nueva partida al entrar
     useEffect(() => {
-      const browserLang = navigator.language.startsWith("es") ? "es" : "en";
-      setLanguage(browserLang); // actualiza el estado
-      dispatch(actions.resetWordValidation());
-      dispatch(actions.createCrosswordGame({
-        rows: DEFAULT_ROWS,
-        cols: DEFAULT_COLS,
-        language: browserLang, // <- idioma enviado al backend
-      }, (id) => {
-        dispatch(actions.getCrosswordGame(id, () => {
-          dispatch(actions.getCrosswordCells(id, () => {}));
-          dispatch(actions.getCrosswordWords(id, () => {}));
+      if (canPlay) {
+        const browserLang = navigator.language.startsWith("es") ? "es" : "en";
+        setLanguage(browserLang);
+        dispatch(actions.resetWordValidation());
+        dispatch(actions.createCrosswordGame({
+          rows: DEFAULT_ROWS,
+          cols: DEFAULT_COLS,
+          language: browserLang,
+        }, (id) => {
+          dispatch(actions.getCrosswordGame(id, () => {
+            dispatch(actions.getCrosswordCells(id, () => {}));
+            dispatch(actions.getCrosswordWords(id, () => {}));
+          }));
         }));
-      }));
-    }, [dispatch]);
+      }
+    }, [canPlay, dispatch]);
+
+    if (!canPlay) {
+      return (
+        <CooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/minigames")}
+        />
+      );
+    }
 
 
     if (showTutorial) {

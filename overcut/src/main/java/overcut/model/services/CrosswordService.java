@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface CrosswordService {
 
-    Long createGame(int rows, int cols, String language);
+    Long createGame(Long userId, int rows, int cols, String language);
 
     CrosswordGame getGame(Long gameId);
 
