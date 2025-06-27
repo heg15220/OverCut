@@ -7,6 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import './quizStyles.css';
 import { motion } from 'framer-motion';
 import { sourceImages } from '../../../helpers/sourceImages';
+import GameCooldownScreen from '../../cooldown/components/GameCooldownScreen';
+import { fetchCooldown } from "../../cooldown/actions";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { getUser } from "../../users/selectors";
+import QuizLoadingScreen from '../../common/components/QuizLoadingScreen';
 
 const backgroundImages = [
     './f1-2013-11-bel-parrilla-trasera.png',
@@ -21,6 +26,13 @@ const Quiz = () => {
     const [loading, setLoading] = useState(false);
     const [bgIndex, setBgIndex] = useState(0);
     const [prevBgIndex, setPrevBgIndex] = useState(null);
+    const [quizCooldown, setQuizCooldown] = useState(null);
+    const lang = navigator.language.startsWith('es') ? 'es' : 'en';
+    const { canPlay, secondsRemaining, loading: cooldownLoading  } = useSelector(state =>
+      getCooldownForGame(state, "Quiz")
+    );
+
+
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -31,7 +43,12 @@ const Quiz = () => {
         return () => clearInterval(interval);
     }, [bgIndex]);
 
+    useEffect(() => {
+      dispatch(fetchCooldown("Quiz"));
+    }, [dispatch]);
+
     const handleStart = () => {
+        if (!canPlay || cooldownLoading) return;
         if (user.id) {
             const rawLang = navigator.language || navigator.userLanguage;
             const normalizedLang = rawLang.toLowerCase().startsWith('es') ? 'es' : 'en';
@@ -41,10 +58,44 @@ const Quiz = () => {
                 userId: user.id,
                 lang: normalizedLang,
                 onSuccess: (quizId) => navigate(`/quiz/quiz-list/${quizId}`),
+                onCooldown: (secondsRemaining) => {
+                    setLoading(false);
+                    setQuizCooldown(secondsRemaining);
+                },
                 onErrors: () => setLoading(false)
             }));
+
         }
     };
+
+
+    if (cooldownLoading) {
+      return <QuizLoadingScreen lang={lang} />;
+    }
+
+
+
+    if (!canPlay) {
+      return (
+        <GameCooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/")}
+        />
+      );
+    }
+
+
+    if (quizCooldown !== null) {
+      return (
+        <GameCooldownScreen
+          seconds={quizCooldown}
+          loading={loading}
+          onBack={() => navigate("/")}
+        />
+      );
+    }
+
+
 
     return (
         <div className="quiz-container">

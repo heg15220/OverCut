@@ -3,14 +3,21 @@ import {
     appFetch,
 } from "./appFetch";
 
-export const createQuiz = (userId, lang, onSuccess, onErrors) => {
+export const createQuiz = (userId, lang, onSuccess, onCooldown, onErrors) => {
     appFetch(
         `/quiz/create?lang=${lang}`,
         fetchConfig("POST", userId),
         onSuccess,
-        onErrors
+        (err) => {
+            if (err && err.error === "WAIT" && err.secondsRemaining !== undefined) {
+                onCooldown?.(err.secondsRemaining);
+            } else {
+                onErrors?.(err);
+            }
+        }
     );
 };
+
 
 export const getQuizQuestionsType = (quizId,lang, onSuccess, onErrors) => {
 

@@ -1,6 +1,8 @@
 package overcut.rest.controllers;
 
 import overcut.model.entities.*;
+import overcut.model.services.CooldownService;
+import overcut.model.services.exceptions.CooldownException;
 import overcut.rest.dtos.*;
 import overcut.model.common.exceptions.InstanceNotFoundException;
 import overcut.model.services.Block;
@@ -26,11 +28,22 @@ public class QuizController {
 
 
 
+    @Autowired
+    private CooldownService cooldownService;
+
     @PostMapping("/create")
     public Long createQuiz(@RequestAttribute Long userId, @RequestParam(defaultValue = "es") String lang)
             throws InstanceNotFoundException {
-        return quizService.createQuiz(userId, lang).getId();
+        if (!cooldownService.canPlay("Quiz", userId)) {
+            long wait = cooldownService.secondsUntilNextPlay("Quiz", userId);
+            throw new CooldownException("WAIT", wait);
+        }
+
+        Quiz quiz = quizService.createQuiz(userId, lang);
+        cooldownService.registerPlay("Quiz", userId);
+        return quiz.getId();
     }
+
 
 
 
