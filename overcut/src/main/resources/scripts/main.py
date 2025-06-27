@@ -7,6 +7,7 @@ import pickle
 import random
 from pathlib import Path
 import subprocess
+from contextlib import asynccontextmanager
 
 
 from generate_drivers_connections import generate_game as generate_drivers_game
@@ -50,7 +51,6 @@ import sys
 import io
 import json
 
-app = FastAPI()
 
 
 
@@ -79,7 +79,6 @@ def cache_file_for(since_year: int, end_year: Optional[int]):
     suffix = f"{since_year}_{end_year if end_year is not None else 'plus'}"
     return CACHE_DIR / f"configs_cache_{suffix}.pkl"
 
-@app.on_event("startup")
 def load_criteria_cache():
     for since, end in CACHED_RANGES:
         path = cache_file_for(since, end)
@@ -89,7 +88,6 @@ def load_criteria_cache():
         CONFIGS_CACHE[(since, end)] = pickle.loads(path.read_bytes())
     print(f"[startup] Caché de criterios TikiTaka cargado: {list(CONFIGS_CACHE.keys())}")
 
-@app.on_event("startup")
 def load_category_letter_cache():
     script_dir = Path(__file__).resolve().parent / "resources" / "scripts"
 
@@ -104,6 +102,16 @@ def load_category_letter_cache():
             print(f"[startup] Caché de letras cargada para {lang.upper()}")
         except Exception as e:
             print(f"[ERROR] Cargando caché {lang}: {e}")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_criteria_cache()
+    load_category_letter_cache()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 
