@@ -1,160 +1,230 @@
-.ranking-container {
-  padding: 2rem;
-  max-width: 800px;
-  margin: auto;
-  background-color: #0e0e0e;
+.ranking-wrapper {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #121212;
   border-radius: 12px;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
-  color: #f8f8f8;
+  color: #e0e0e0;
 }
 
-.ranking-title {
+.ranking-header {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.2rem;
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid #444;
+  color: #f5c518;
+  border-bottom: 2px solid #f5c518;
   padding-bottom: 0.5rem;
 }
 
-.rank-title {
-  font-size: 1.4rem;
-  margin-top: 2.5rem;
-  margin-bottom: 1rem;
-  border-left: 5px solid;
-  padding-left: 0.5rem;
-}
-
-.rank-f1 { border-color: gold; color: gold; }
-.rank-f2 { border-color: silver; color: silver; }
-.rank-f3 { border-color: #cd7f32; color: #cd7f32; }
-.rank-f4 { border-color: #888; color: #ccc; }
-
-.user-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.user-card {
-  display: flex;
-  justify-content: space-between;
-  background-color: #1c1c1c;
-  padding: 0.75rem 1rem;
+.ranking-legend {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #1e1e1e;
   border-radius: 8px;
-  align-items: center;
-  transition: background 0.3s ease;
+}
+
+.ranking-legend h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+  color: #f5c518;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
-.user-card:hover {
-  background-color: #2a2a2a;
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.rank-position {
-  font-weight: bold;
-  color: #bbb;
-  margin-right: 1rem;
-  width: 50px;
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid #f5c518;
 }
 
-.rank-position.top-1 {
-  color: gold;
-}
-.rank-position.top-2 {
-  color: silver;
-}
-.rank-position.top-3 {
-  color: #cd7f32;
-}
+.legend-f1 .legend-color { background-color: gold; }
+.legend-f2 .legend-color { background-color: silver; }
+.legend-f3 .legend-color { background-color: #cd7f32; }
+.legend-f4 .legend-color { background-color: #555; }
 
-.user-name {
-  flex-grow: 1;
-  font-weight: 500;
+.legend-label {
   font-size: 1rem;
+  color: #ddd;
 }
 
-.user-points {
-  font-weight: 700;
-  font-size: 1.05rem;
-  padding: 0.25rem 0.6rem;
-  background-color: #222;
-  border: 1px solid #444;
-  border-radius: 6px;
-  color: #00eaff;
-  white-space: nowrap;
-  transition: background-color 0.3s ease;
-}
-/* F1 - Legend */
-.rank-f1-points {
-  background-color: rgba(255, 215, 0, 0.1);
-  border: 1px solid gold;
-  color: gold;
+.ranking-rank-section {
+  margin-top: 2rem;
 }
 
-/* F2 - Pro */
-.rank-f2-points {
-  background-color: rgba(192, 192, 192, 0.1);
-  border: 1px solid silver;
-  color: silver;
+.rank-header {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  border-bottom: 2px solid #444;
+  padding-bottom: 0.3rem;
 }
 
-/* F3 - Semi-Pro */
-.rank-f3-points {
-  background-color: rgba(205, 127, 50, 0.1);
-  border: 1px solid #cd7f32;
-  color: #cd7f32;
+.rank-f1 { color: gold; }
+.rank-f2 { color: silver; }
+.rank-f3 { color: #cd7f32; }
+.rank-f4 { color: #999; }
+
+.ranking-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
 
-/* F4 - Rookie (se mantiene el diseño actual) */
-.rank-f4-points {
-  background-color: #222;
-  border: 1px solid #444;
-  color: #00eaff;
-}
-
-/* Hover style (opcional, más elegante si es común a todos) */
-.user-card:hover .user-points {
-  background-color: #333;
-  border-color: #666;
-  filter: brightness(1.2);
-}
-
-
-.empty-rank-hint {
+.ranking-card {
   background-color: #1a1a1a;
-  color: #ccc;
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.3s, background-color 0.3s;
+  box-shadow: 0 0 8px rgba(0,0,0,0.6);
+}
+
+.ranking-card:hover {
+  transform: translateY(-5px);
+  background-color: #222;
+}
+
+.rank-f1 {
+  border: 2px solid gold;
+}
+.rank-f2 {
+  border: 2px solid silver;
+}
+.rank-f3 {
+  border: 2px solid #cd7f32;
+}
+.rank-f4 {
+  border: 2px solid #555;
+}
+
+.ranking-position {
+  font-weight: bold;
+  color: #f5c518;
+  margin-bottom: 0.5rem;
+}
+
+.ranking-username {
+  margin-top: 0.5rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #eee;
+  word-break: break-word;
+}
+
+.ranking-points {
+  margin-top: 0.25rem;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: #222;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #444;
+  display: inline-block;
+}
+
+.ranking-empty {
+  text-align: center;
+  margin-top: 1rem;
+  background-color: #1a1a1a;
   padding: 1rem;
   border-radius: 8px;
   border: 1px dashed #555;
-  margin-top: 0.5rem;
-  font-style: italic;
+  color: #aaa;
+}
+
+.ranking-goal {
+  margin-top: 0.75rem;
   text-align: center;
-}
-
-.hint-points {
-  color: #f5c518;
   font-weight: bold;
-  margin-top: 0.5rem;
-}
-
-.user-name-wrapper {
-  flex-grow: 1;
-  overflow: hidden;
-}
-
-.user-name {
-  font-weight: 600;
-  font-size: 1.05rem;
-  color: #f5f5f5;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 180px;
+  color: #f5c518;
 }
 
 @media (max-width: 600px) {
-  .user-name {
-    max-width: 120px;
-    font-size: 0.95rem;
+  .ranking-header {
+    font-size: 1.8rem;
+  }
+  .rank-header {
+    font-size: 1.3rem;
   }
 }
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  border-left: 5px solid;
+  transition: background-color 0.3s;
+}
+
+.ranking-row:hover {
+  background-color: #222;
+}
+
+.rank-f1 { border-color: gold; }
+.rank-f2 { border-color: silver; }
+.rank-f3 { border-color: #cd7f32; }
+.rank-f4 { border-color: #555; }
+
+.ranking-pos {
+  font-weight: bold;
+  color: #f5c518;
+  width: 40px;
+  text-align: center;
+}
+
+.ranking-name {
+  flex-grow: 1;
+  margin-left: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #eee;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-points {
+  font-weight: bold;
+  font-size: 1rem;
+  background-color: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  color: #00eaff;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .ranking-name {
+    margin-left: 0.5rem;
+    font-size: 0.95rem;
+  }
+  .ranking-points {
+    font-size: 0.95rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
+
+

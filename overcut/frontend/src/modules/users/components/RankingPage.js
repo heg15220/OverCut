@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useIntl } from "react-intl";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./RankingPage.css";
 import UserAvatar from "./UserAvatar";
-
 
 const rankThresholds = {
   F4: 0,
@@ -16,84 +14,85 @@ const rankThresholds = {
 
 const rankOrder = ["F1", "F2", "F3", "F4"];
 
-// Traducciones embebidas por idioma
 const translations = {
   es: {
     title: "🏁 Ranking Global",
-    legend: "Leyenda",
-    pro: "Profesional",
-    semiPro: "Semi-Pro",
-    rookie: "Principiante",
-    empty: "🚧 Aún no hay usuarios en este rango.",
-    goal: (points) => `🎯 Objetivo: alcanzar ${points} puntos para llegar a este rango.`
+    legendTitle: "Leyenda de Rangos",
+    empty: "🚧 No hay usuarios en este rango.",
+    goal: (points) => `🎯 Objetivo: ${points} puntos.`
   },
   en: {
     title: "🏁 Global Ranking",
-    legend: "Legend",
-    pro: "Pro",
-    semiPro: "Semi-Pro",
-    rookie: "Rookie",
+    legendTitle: "Rank Legend",
     empty: "🚧 No users in this rank yet.",
-    goal: (points) => `🎯 Goal: reach ${points} points to enter this rank.`
+    goal: (points) => `🎯 Goal: ${points} points.`
+  }
+};
+
+const rankDescriptions = {
+  es: {
+    F1: "Legendario",
+    F2: "Profesional",
+    F3: "Competidor",
+    F4: "Novato"
+  },
+  en: {
+    F1: "Legend",
+    F2: "Pro",
+    F3: "Competitor",
+    F4: "Rookie"
   }
 };
 
 const RankingPage = () => {
   const dispatch = useDispatch();
   const ranking = useSelector(selectors.getUserRanking);
-  const intl = useIntl();
-  const locale = navigator.language.startsWith('es') ? 'es' : 'en';
+  const locale = navigator.language.startsWith("es") ? "es" : "en";
   const t = translations[locale];
-
-  const rankLabels = {
-    F1: `🏆 ${t.legend}`,
-    F2: `🥈 ${t.pro}`,
-    F3: `🥉 ${t.semiPro}`,
-    F4: `🎓 ${t.rookie}`
-  };
+  const d = rankDescriptions[locale];
 
   useEffect(() => {
     dispatch(actions.getUserRanking());
   }, [dispatch]);
 
   return (
-    <div className="ranking-container">
-      <h2 className="ranking-title">{t.title}</h2>
-      {rankOrder.map((rank) => {
-        const users = ranking[rank] || [];
+    <div className="ranking-wrapper">
+      <h2 className="ranking-header">{t.title}</h2>
 
+      <div className="ranking-legend">
+        <h3>{t.legendTitle}</h3>
+        <div className="legend-items">
+          {rankOrder.map(rank => (
+            <div key={rank} className={`legend-item legend-${rank.toLowerCase()}`}>
+              <span className="legend-color"></span>
+              <span className="legend-label">{rank} - {d[rank]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {rankOrder.map(rank => {
+        const users = [...(ranking[rank] || [])].sort((a, b) => b.points - a.points);
         return (
-          <div key={rank} className="ranking-section">
-            <h3 className={`rank-title rank-${rank.toLowerCase()}`}>
-              {rankLabels[rank]} ({rank})
+          <div key={rank} className="ranking-rank-section">
+            <h3 className={`rank-header rank-${rank.toLowerCase()}`}>
+              {rank} - {d[rank]}
             </h3>
-
             {users.length > 0 ? (
-              <div className="user-list">
-                {users
-                  .sort((a, b) => b.points - a.points)
-                  .map((user, idx) => (
-                    <div key={idx} className="user-card">
-                      <span className={`rank-position ${idx < 3 ? "top-" + (idx + 1) : ""}`}>
-                        #{idx + 1}
-                      </span>
-                      <UserAvatar image={user.image} userName={user.userName} size={40} />
-                      <div className="user-name-wrapper">
-                        <span className="user-name">{user.userName}</span>
-                      </div>
-                      <span className={`user-points rank-${rank.toLowerCase()}-points`}>
-                        {user.points} pts
-                      </span>
-                    </div>
-                  ))}
+              <div className="ranking-list">
+                {users.map((user, idx) => (
+                  <div key={idx} className={`ranking-row rank-${rank.toLowerCase()}`}>
+                    <div className="ranking-pos">#{idx + 1}</div>
+                    <UserAvatar image={user.image} userName={user.userName} size={40} />
+                    <div className="ranking-name">{user.userName}</div>
+                    <div className="ranking-points">{user.points} pts</div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="empty-rank-hint">
-                <p>{t.empty}</p>
-              </div>
+              <div className="ranking-empty">{t.empty}</div>
             )}
-
-            <p className="hint-points">{t.goal(rankThresholds[rank])}</p>
+            <p className="ranking-goal">{t.goal(rankThresholds[rank])}</p>
           </div>
         );
       })}
