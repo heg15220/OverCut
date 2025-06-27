@@ -65,9 +65,10 @@ const TwoTeamsGame = () => {
 
   const tutorial = tutorialTexts["/minigames/twoTeams"][lang];
 
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "TwoTeams")
   );
+
   const user = useSelector(getUser);
 
 
@@ -99,6 +100,10 @@ const TwoTeamsGame = () => {
     return () => clearTimeout(timer);
   }, [game?.currentPairIndex]);
 
+    if (loading) {
+      return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+    }
+
     if (!canPlay) {
       return (
         <CooldownScreen
@@ -107,6 +112,7 @@ const TwoTeamsGame = () => {
         />
       );
     }
+
 
 
     if (showTutorial) {

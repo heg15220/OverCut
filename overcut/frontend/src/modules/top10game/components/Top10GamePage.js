@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import CooldownScreen from "../../cooldown/components/CooldownScreen";
 import { getUser } from "../../users/selectors";
 import { useNavigate } from "react-router-dom";
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 const Top10GamePage = () => {
     const dispatch = useDispatch();
@@ -20,9 +21,10 @@ const Top10GamePage = () => {
 
     const tutorial = tutorialTexts["/minigames/top10"][lang];
 
-    const { canPlay, secondsRemaining } = useSelector(state =>
+    const { canPlay, secondsRemaining, loading } = useSelector(state =>
       getCooldownForGame(state, "Top10Game")
     );
+
     const user = useSelector(getUser);
     const navigate = useNavigate();
 
@@ -38,6 +40,10 @@ const Top10GamePage = () => {
       }
     }, [canPlay, dispatch, lang]);
 
+      if (loading) {
+        return <LoadingScreen lang={lang} text={lang === 'es' ? 'Cargando...' : 'Loading...'} />;
+      }
+
       if (!canPlay) {
         return (
           <CooldownScreen
@@ -46,6 +52,7 @@ const Top10GamePage = () => {
           />
         );
       }
+
 
       if (showTutorial) {
             return (

@@ -11,6 +11,7 @@ import { fetchCooldown } from "../../cooldown/actions";
 import { getUser } from "../../users/selectors";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import LoadingScreen from '../../common/components/LoadingScreen';
 
 
 const GridGamePage = () => {
@@ -19,9 +20,10 @@ const GridGamePage = () => {
     const [showTutorial, setShowTutorial] = useState(true);
     const navigate = useNavigate();
     const tutorial = tutorialTexts["/minigames/gridgame"][lang];
-    const { canPlay, secondsRemaining } = useSelector(state =>
+    const { canPlay, secondsRemaining, loading } = useSelector(state =>
       getCooldownForGame(state, "GridGame")
     );
+
     const user = useSelector(getUser);
 
 
@@ -37,6 +39,10 @@ const GridGamePage = () => {
       }
     }, [canPlay, dispatch]);
 
+
+    if (loading) {
+      return <LoadingScreen lang={lang} text={lang === 'es' ? 'Cargando...' : 'Loading...'} />;
+    }
 
     if (!canPlay) {
       return (

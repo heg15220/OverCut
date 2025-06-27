@@ -29,9 +29,10 @@ const TeamGuessGame = () => {
 
   const tutorial = tutorialTexts["/minigames/teamGuess"][lang];
 
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "TeamGuess")
   );
+
   const user = useSelector(getUser);
 
 
@@ -72,6 +73,10 @@ const TeamGuessGame = () => {
     }
   }, [highlightedIndex]);
 
+    if (loading) {
+      return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+    }
+
     if (!canPlay) {
       return (
         <CooldownScreen
@@ -80,6 +85,7 @@ const TeamGuessGame = () => {
         />
       );
     }
+
 
 
     if (showTutorial) {

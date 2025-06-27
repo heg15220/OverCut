@@ -34,9 +34,10 @@ const DriversConnectionsGame = () => {
   const [lastValidatedGroup, setLastValidatedGroup] = useState(null);
   const [partialMatchCount, setPartialMatchCount] = useState(null);
   const [retainSelection, setRetainSelection] = useState(false);
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "DriversConnections")
   );
+
   const user = useSelector(getUser);
 
   const translations = {
@@ -154,6 +155,10 @@ const DriversConnectionsGame = () => {
       .sort(() => Math.random() - 0.5);
   }, [game, solvedGroups]);
 
+    if (loading) {
+      return <LoadingScreen lang={lang} text={t.loading} />;
+    }
+
     if (!canPlay) {
       return (
         <CooldownScreen
@@ -162,6 +167,7 @@ const DriversConnectionsGame = () => {
         />
       );
     }
+
 
 
     if (showTutorial) {

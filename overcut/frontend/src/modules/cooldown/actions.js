@@ -8,3 +8,5 @@ export const fetchCooldown = (gameType) => dispatch => {
     err => dispatch({ type: actionTypes.FETCH_COOLDOWN_FAILURE, gameType, error: err })
   );
 };
+
+

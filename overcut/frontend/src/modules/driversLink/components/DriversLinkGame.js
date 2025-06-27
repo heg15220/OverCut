@@ -30,9 +30,10 @@ const DriversLinkGame = () => {
 
   const tutorial = tutorialTexts["/minigames/driverslink"][lang];
 
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "DriversLink")
   );
+
   const user = useSelector(getUser);
 
 
@@ -99,14 +100,19 @@ const DriversLinkGame = () => {
     }
   }, [highlightedIndex]);
 
+     if (loading) {
+       return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+     }
+
      if (!canPlay) {
-           return (
-             <CooldownScreen
-               seconds={secondsRemaining}
-               onBack={() => navigate("/minigames")}
-             />
-           );
-         }
+       return (
+         <CooldownScreen
+           seconds={secondsRemaining}
+           onBack={() => navigate("/minigames")}
+         />
+       );
+     }
+
 
 
       if (showTutorial) {

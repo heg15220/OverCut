@@ -17,9 +17,10 @@ import { getUser } from "../../users/selectors";
 
 const CareerPathGame = () => {
   const dispatch = useDispatch();
-  const { canPlay, secondsRemaining } = useSelector(state =>
-      getCooldownForGame(state, "CareerPath")
-    );
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
+    getCooldownForGame(state, "CareerPath")
+  );
+
   const game = useSelector(selectors.getCareerPathGame);
   const suggestions = useSelector(selectors.getDriverSuggestions);
   const user = useSelector(getUser);
@@ -95,6 +96,10 @@ const CareerPathGame = () => {
     }
   }, [highlightedIndex]);
 
+
+  if (loading) {
+    return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+  }
 
   if (!canPlay) {
     return <CooldownScreen seconds={secondsRemaining} onBack={() => navigate("/minigames")} />;

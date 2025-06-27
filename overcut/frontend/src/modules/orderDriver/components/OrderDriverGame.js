@@ -31,9 +31,10 @@ const OrderDriverGame = () => {
 
   const tutorial = tutorialTexts["/minigames/orderDrivers"][lang];
 
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "OrderDriver")
   );
+
   const user = useSelector(getUser);
 
 
@@ -88,6 +89,10 @@ const OrderDriverGame = () => {
     }
   }, [game]);
 
+    if (loading) {
+      return <LoadingScreen lang={navigator.language.startsWith("es") ? "es" : "en"} text={t("loading")} />;
+    }
+
     if (!canPlay) {
       return (
         <CooldownScreen
@@ -96,6 +101,7 @@ const OrderDriverGame = () => {
         />
       );
     }
+
 
 
       if (showTutorial) {

@@ -41,9 +41,10 @@ const GuessDriverGame = () => {
 
   const pilotSuggestions = useSelector(selectors.getGuessDriverPilotSuggestions);
 
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "GuessDriver")
   );
+
   const user = useSelector(getUser);
 
   const decadeOptions = [
@@ -109,6 +110,10 @@ const GuessDriverGame = () => {
   const visibleRecommendations = recommendations.filter(r =>
     r.toLowerCase().includes(value.toLowerCase())
   );
+
+   if (loading) {
+     return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+   }
 
    if (!canPlay) {
      return (

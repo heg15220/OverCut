@@ -25,9 +25,10 @@ const F1ImpostorGame = () => {
 
   const tutorial = tutorialTexts["/minigames/f1Impostor"][lang];
 
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "F1Impostor")
   );
+
   const user = useSelector(getUser);
 
 
@@ -72,6 +73,11 @@ const F1ImpostorGame = () => {
     }
   }, [canPlay, dispatch]);
 
+
+    if (loading) {
+      return <LoadingScreen lang={lang} text={translations.loading[lang]} />;
+    }
+
     if (!canPlay) {
       return (
         <CooldownScreen
@@ -80,6 +86,7 @@ const F1ImpostorGame = () => {
         />
       );
     }
+
 
     if (showTutorial) {
       return (

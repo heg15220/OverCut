@@ -38,9 +38,10 @@ const Crossword = () => {
 
    const tutorial = tutorialTexts["/minigames/crossword"][lang];
 
-   const { canPlay, secondsRemaining } = useSelector(state =>
+   const { canPlay, secondsRemaining, loading } = useSelector(state =>
      getCooldownForGame(state, "Crossword")
    );
+
    const user = useSelector(getUser);
 
    useEffect(() => {
@@ -66,6 +67,10 @@ const Crossword = () => {
       }
     }, [canPlay, dispatch]);
 
+    if (loading) {
+      return <LoadingScreen lang={language} text={language === 'es' ? 'Cargando crucigrama...' : 'Loading crossword...'} />;
+    }
+
     if (!canPlay) {
       return (
         <CooldownScreen
@@ -74,6 +79,7 @@ const Crossword = () => {
         />
       );
     }
+
 
 
     if (showTutorial) {

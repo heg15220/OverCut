@@ -21,9 +21,10 @@ const WordleGame = () => {
   const [guess, setGuess] = useState('');
   const navigate = useNavigate();
 
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "F1Wordle")
   );
+
   const user = useSelector(getUser);
 
 
@@ -54,6 +55,10 @@ const WordleGame = () => {
   }, [canPlay, dispatch]);
 
 
+  if (loading) {
+    return <LoadingScreen lang={lang} text={t.loading[lang]} />;
+  }
+
   if (!canPlay) {
     return (
       <CooldownScreen
@@ -62,6 +67,7 @@ const WordleGame = () => {
       />
     );
   }
+
 
   if (showTutorial) {
         return (

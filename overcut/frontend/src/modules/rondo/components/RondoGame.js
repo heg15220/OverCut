@@ -60,7 +60,7 @@ const RondoGame = () => {
 
   const tutorial = tutorialTexts["/minigames/rondo"][lang];
 
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "RondoGame")
   );
 
@@ -89,6 +89,10 @@ const RondoGame = () => {
     setCurrentIndex((currentIndex + 1) % letters.length);
   };
 
+      if (loading) {
+        return <LoadingScreen lang={lang} text={t.loading} />;
+      }
+
       if (!canPlay) {
         return (
           <CooldownScreen
@@ -97,6 +101,7 @@ const RondoGame = () => {
           />
         );
       }
+
 
       if (showTutorial) {
               return (

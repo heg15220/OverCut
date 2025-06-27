@@ -55,9 +55,10 @@ const WordSearchGame = () => {
 
   const tutorial = tutorialTexts["/minigames/wordSearch"][lang];
 
-  const { canPlay, secondsRemaining } = useSelector(state =>
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "WordSearch")
   );
+
   const user = useSelector(getUser);
 
   useEffect(() => {
@@ -72,6 +73,10 @@ const WordSearchGame = () => {
     }
   }, [dispatch, canPlay]);
 
+    if (loading) {
+      return <LoadingScreen lang={lang} text={t("loading")} />;
+    }
+
     if (!canPlay) {
       return (
         <CooldownScreen
@@ -80,6 +85,7 @@ const WordSearchGame = () => {
         />
       );
     }
+
 
     if (showTutorial) {
       return (
