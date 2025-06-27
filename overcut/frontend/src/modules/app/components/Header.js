@@ -69,6 +69,12 @@ const Header = () => {
                           <GraphUp className="ms-1" size={16} color="#FFFFFF" />
                         </a>
 
+                        <li className="nav-item">
+                          <Link className="nav-link" to="/about" style={{ color: 'white' }}>
+                            <FormattedMessage id="project.app.Header.about" defaultMessage="¿Qué es OverCut?" />
+                            <Book className="ms-1" size={16} color="#FFFFFF" />
+                          </Link>
+                        </li>
 
 
                         <li className="nav-item">

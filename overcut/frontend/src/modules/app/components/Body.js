@@ -13,6 +13,7 @@ import ConfirmPasswordChangePage from '../../users/components/ConfirmPasswordCha
 import PasswordChangeConfirmationPage from '../../users/components/PasswordChangeConfirmationPage';
 
 import AboutOvercut from './AboutOvercut';
+import Overcut from './Overcut';
 
 import Home from "./Home";
 import {Quiz} from "../../quiz";
@@ -148,6 +149,8 @@ const Body = () => {
                     {loggedIn && <Route path="/confirm-password-change" element={<ConfirmPasswordChangePage />} />}
                     {loggedIn && <Route path="/password-change-confirmation" element={<PasswordChangeConfirmationPage />} />}
                     <Route path="/about_us" element={<AboutOvercut />} />
+                    <Route path="/about" element={<Overcut />} />
+
                 </Route>
             </Routes>
         </div>
