@@ -39,3 +39,9 @@
 .cooldown-back-button:hover {
   background-color: #f5c400;
 }
+.cooldown-timer {
+  font-size: 2.5rem;         /* 🔥 más grande */
+  font-weight: bold;
+  margin: 0.5rem 0 1.5rem;   /* 🔥 más pegado al texto explicativo arriba, pero con aire abajo */
+  color: #FFD700;            /* amarillo dorado */
+}
