@@ -102,7 +102,6 @@ public class GridGameServiceImpl implements GridGameService{
             long wait = cooldownService.secondsUntilNextPlay("GridGame", userId);
             throw new CooldownException("WAIT", wait);
         }
-        cooldownService.registerPlay("GridGame", userId);
 
         int randomSeason = getRandomSeasonYear();
         GridGame game = new GridGame(randomSeason);
@@ -123,7 +122,9 @@ public class GridGameServiceImpl implements GridGameService{
         }
 
         game.setGridSlots(slots);
-        return gridGameDao.save(game);
+        GridGame gridGameSaved = gridGameDao.save(game);
+        cooldownService.registerPlay("GridGame", userId);
+        return gridGameSaved;
     }
 
     @Override
