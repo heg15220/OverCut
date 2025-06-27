@@ -46,7 +46,6 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
                 long wait = cooldownService.secondsUntilNextPlay("TwoTeams", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            cooldownService.registerPlay("TwoTeams", userId);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(PYTHON_API_BASE + "/generate-two-teams-one-driver"))
@@ -76,7 +75,10 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
                 game.getPairs().add(pair);
             }
 
-            return gameDao.save(game);
+            TwoTeamsOneDriverGame twoTeamsOneDriverGame = gameDao.save(game);
+            cooldownService.registerPlay("TwoTeams", userId);
+            return twoTeamsOneDriverGame;
+
         } catch (Exception e) {
             throw new RuntimeException("Error al iniciar TwoTeamsOneDriverGame", e);
         }

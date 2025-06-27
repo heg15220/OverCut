@@ -44,7 +44,6 @@ public class F1ImpostorGameServiceImpl implements F1ImpostorGameService {
                 long wait = cooldownService.secondsUntilNextPlay("F1Impostor", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            cooldownService.registerPlay("F1Impostor", userId);
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -80,7 +79,10 @@ public class F1ImpostorGameServiceImpl implements F1ImpostorGameService {
                 game.getPilots().add(pilot);
             }
 
-            return gameDao.save(game);
+            F1ImpostorGame f1ImpostorGame = gameDao.save(game);
+            cooldownService.registerPlay("F1Impostor", userId);
+            return f1ImpostorGame;
+
         } catch (Exception e) {
             throw new RuntimeException("Error calling FastAPI F1Impostor generator", e);
         }

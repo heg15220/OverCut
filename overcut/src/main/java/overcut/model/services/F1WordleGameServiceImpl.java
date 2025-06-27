@@ -39,7 +39,6 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
                 long wait = cooldownService.secondsUntilNextPlay("F1Wordle", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            cooldownService.registerPlay("F1Wordle", userId);
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -60,7 +59,10 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
             game.setDriverId(result.get("driverId").asLong());
             game.setSurname(result.get("surname").asText());
 
-            return gameDao.save(game);
+            F1WordleGame f1WordleGame = gameDao.save(game);
+            cooldownService.registerPlay("F1Wordle", userId);
+            return f1WordleGame;
+
         } catch (Exception e) {
             throw new RuntimeException("Error iniciando F1WordleGame", e);
         }

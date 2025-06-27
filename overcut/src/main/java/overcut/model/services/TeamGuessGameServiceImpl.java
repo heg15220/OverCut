@@ -42,7 +42,6 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
                 long wait = cooldownService.secondsUntilNextPlay("TeamGuess", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            cooldownService.registerPlay("TeamGuess", userId);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-team-guess"))
@@ -70,7 +69,10 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
                 game.getClues().add(clue);
             }
 
-            return gameDao.save(game);
+            TeamGuessGame teamGuessGame = gameDao.save(game);
+            cooldownService.registerPlay("TeamGuess", userId);
+            return teamGuessGame;
+
         } catch (Exception e) {
             throw new RuntimeException("Error al iniciar TeamGuessGame", e);
         }

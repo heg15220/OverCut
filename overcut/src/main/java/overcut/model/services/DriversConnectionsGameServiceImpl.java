@@ -45,7 +45,6 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
                 long wait = cooldownService.secondsUntilNextPlay("DriversConnections", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            cooldownService.registerPlay("DriversConnections", userId);
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -83,7 +82,10 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
                 game.getCategories().add(category);
             }
 
-            return gameDao.save(game);
+            DriversConnectionsGame driversConnectionsGame =  gameDao.save(game);
+
+            cooldownService.registerPlay("DriversConnections", userId);
+            return driversConnectionsGame;
 
         } catch (Exception e) {
             throw new RuntimeException("Error calling FastAPI game generator", e);

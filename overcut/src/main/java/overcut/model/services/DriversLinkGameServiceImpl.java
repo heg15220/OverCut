@@ -41,7 +41,6 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
                 long wait = cooldownService.secondsUntilNextPlay("DriversLink", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            cooldownService.registerPlay("DriversLink", userId);
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -72,7 +71,12 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
                 game.getClues().add(clue);
             }
 
-            return gameDao.save(game);
+            DriversLinkGame driversLinkGame = gameDao.save(game);
+
+            cooldownService.registerPlay("DriversLink", userId);
+
+            return  driversLinkGame;
+
         } catch (Exception e) {
             throw new RuntimeException("Error iniciando DriversLinkGame", e);
         }

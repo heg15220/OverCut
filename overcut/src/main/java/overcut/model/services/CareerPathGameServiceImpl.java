@@ -40,7 +40,6 @@ public class CareerPathGameServiceImpl implements CareerPathGameService {
             throw new CooldownException("WAIT", wait);
         }
 
-        cooldownService.registerPlay("CareerPath", userId);
 
         try {
             HttpClient client = HttpClient.newHttpClient();
@@ -71,7 +70,10 @@ public class CareerPathGameServiceImpl implements CareerPathGameService {
                 game.getClues().add(clue);
             }
 
-            return gameDao.save(game);
+            CareerPathGame careerPathGame =  gameDao.save(game);
+            cooldownService.registerPlay("CareerPath", userId);
+            return careerPathGame;
+
         } catch (Exception e) {
             throw new RuntimeException("Error iniciando CareerPathGame", e);
         }

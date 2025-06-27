@@ -41,7 +41,6 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
                 long wait = cooldownService.secondsUntilNextPlay("GuessDriver", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            cooldownService.registerPlay("GuessDriver", userId);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-guess-driver"))
@@ -66,7 +65,10 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
             GuessDriverGame game = new GuessDriverGame();
             game.setDriverId(driverId);
             game.setDriverName(driverName);
-            return gameDao.save(game);
+
+            GuessDriverGame guessDriverGame = gameDao.save(game);
+            cooldownService.registerPlay("GuessDriver", userId);
+            return guessDriverGame;
 
         } catch (Exception e) {
             throw new RuntimeException("Error al iniciar partida Guess the Driver", e);

@@ -45,7 +45,6 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
                 long wait = cooldownService.secondsUntilNextPlay("OrderDriver", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            cooldownService.registerPlay("OrderDriver", userId);
 
             String url = "http://localhost:8000/generate-order-game?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
@@ -76,7 +75,9 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
             }
 
             game.setSlots(slots);
-            return gameDao.save(game);
+            OrderDriverGame orderDriverGame = gameDao.save(game);
+            cooldownService.registerPlay("OrderDriver", userId);
+            return orderDriverGame;
 
         } catch (Exception e) {
             throw new RuntimeException("Error al iniciar juego de orden de pilotos", e);

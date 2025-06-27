@@ -38,7 +38,6 @@ public class WordSearchServiceImpl implements WordSearchService {
                 long wait = cooldownService.secondsUntilNextPlay("WordSearch", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            cooldownService.registerPlay("WordSearch", userId);
 
             String url = "http://localhost:8000/generate-wordsearch";
             HttpRequest request = HttpRequest.newBuilder()
@@ -73,7 +72,10 @@ public class WordSearchServiceImpl implements WordSearchService {
                 game.getWords().add(w);
             }
 
-            return gameDao.save(game);
+            WordSearchGame wordSearchGame = gameDao.save(game);
+            cooldownService.registerPlay("WordSearch", userId);
+            return wordSearchGame;
+
         } catch (Exception e) {
             throw new RuntimeException("Error al iniciar WordSearch", e);
         }
