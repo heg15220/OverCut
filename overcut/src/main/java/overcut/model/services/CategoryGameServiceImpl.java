@@ -3,11 +3,9 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import overcut.model.entities.CategorySlotDao;
-import overcut.model.entities.CategoryGame;
-import overcut.model.entities.CategoryGameDao;
-import overcut.model.entities.CategorySlot;
+import overcut.model.entities.*;
 import overcut.model.services.exceptions.CategoryGameGenerationException;
+import overcut.model.services.exceptions.CooldownException;
 import overcut.utils.CategoryLetterCacheLoader;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +37,23 @@ public class CategoryGameServiceImpl implements CategoryGameService {
     private CategoryLetterCacheLoader cacheLoader;
 
 
+    @Autowired
+    private CooldownService cooldownService;
+
+    @Autowired
+    private UserDao userDao; // si aún no está
+
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public CategoryGame startGame(String lang) {
+    public CategoryGame startGame(String lang, Long userId) {
+        if (!cooldownService.canPlay("CategoryGame", userId)) {
+            long wait = cooldownService.secondsUntilNextPlay("CategoryGame", userId);
+            throw new CooldownException("WAIT", wait);
+        }
+
+
+
         Map<String, Map<String, Boolean>> cache = cacheLoader.getCache(lang);
         List<String> letters = new ArrayList<>(cache.keySet());
         Collections.shuffle(letters);
@@ -71,7 +82,9 @@ public class CategoryGameServiceImpl implements CategoryGameService {
                     game.getSlots().add(slot);
                 }
 
-                return categoryGameDao.save(game);
+                CategoryGame categoryGame = categoryGameDao.save(game);
+                cooldownService.registerPlay("CategoryGame", userId);
+                return categoryGame;
             }
         }
 

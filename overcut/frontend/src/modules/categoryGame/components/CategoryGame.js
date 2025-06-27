@@ -8,7 +8,10 @@ import LoadingScreen from '../../common/components/LoadingScreen';
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
-
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { getCooldownForGame } from "../../cooldown/selectors";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getUser } from "../../users/selectors";
 
 const CategoryGame = () => {
   const dispatch = useDispatch();
@@ -20,6 +23,22 @@ const CategoryGame = () => {
   const [showTutorial, setShowTutorial] = useState(true);
 
   const tutorial = tutorialTexts["/minigames/categoryGame"][lang];
+
+  const { canPlay, secondsRemaining, loading } = useSelector(state =>
+    getCooldownForGame(state, "CategoryGame")
+  );
+
+  const user = useSelector(getUser);
+
+  useEffect(() => {
+    dispatch(fetchCooldown("CategoryGame"));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startGame(lang, user.id));
+    }
+  }, [canPlay, dispatch, lang, user.id]);
 
   useEffect(() => {
     dispatch(actions.startGame(lang));
@@ -45,6 +64,19 @@ const CategoryGame = () => {
     }
   }, [game]);
 
+
+    if (loading) {
+      return <LoadingScreen lang={lang} text={lang === 'es' ? 'Cargando...' : 'Loading...'} />;
+    }
+
+    if (!canPlay) {
+      return (
+        <CooldownScreen
+          seconds={secondsRemaining}
+          onBack={() => navigate("/minigames")}
+        />
+      );
+    }
 
     if (showTutorial) {
         return (
