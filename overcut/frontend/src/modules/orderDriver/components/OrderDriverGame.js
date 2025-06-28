@@ -5,15 +5,13 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./OrderDriverGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
-import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
-import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
-import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
+import MinigameTutorial from "../../common/components/MinigameTutorial";
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages";
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts";
 import CooldownScreen from "../../cooldown/components/CooldownScreen";
 import { getCooldownForGame } from "../../cooldown/selectors";
 import { fetchCooldown } from "../../cooldown/actions";
 import { getUser } from "../../users/selectors";
-
-
 
 const OrderDriverGame = () => {
   const dispatch = useDispatch();
@@ -25,6 +23,8 @@ const OrderDriverGame = () => {
   const [surrendered, setSurrendered] = useState(false);
   const [correctSlots, setCorrectSlots] = useState([]);
   const [finished, setFinished] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [draggedIndex, setDraggedIndex] = useState(null);
 
   const [showTutorial, setShowTutorial] = useState(true);
   const lang = navigator.language.startsWith('es') ? 'es' : 'en';
@@ -36,7 +36,6 @@ const OrderDriverGame = () => {
   );
 
   const user = useSelector(getUser);
-
 
   const translations = {
     es: {
@@ -63,22 +62,17 @@ const OrderDriverGame = () => {
     }
   };
 
-  const t = (key) => {
-    const lang = navigator.language.startsWith("es") ? "es" : "en";
-    return translations[lang][key] || key;
-  };
+  const t = (key) => translations[lang][key] || key;
 
+  useEffect(() => {
+    dispatch(fetchCooldown("OrderDriver"));
+  }, [dispatch]);
 
-    useEffect(() => {
-      dispatch(fetchCooldown("OrderDriver"));
-    }, [dispatch]);
-
-    useEffect(() => {
-      if (canPlay) {
-        dispatch(actions.startOrderGame());
-      }
-    }, [canPlay, dispatch]);
-
+  useEffect(() => {
+    if (canPlay) {
+      dispatch(actions.startOrderGame());
+    }
+  }, [canPlay, dispatch]);
 
   useEffect(() => {
     if (game) {
@@ -89,35 +83,6 @@ const OrderDriverGame = () => {
     }
   }, [game]);
 
-    if (loading) {
-      return <LoadingScreen lang={navigator.language.startsWith("es") ? "es" : "en"} text={t("loading")} />;
-    }
-
-    if (!canPlay) {
-      return (
-        <CooldownScreen
-          seconds={secondsRemaining}
-          onBack={() => navigate("/minigames")}
-        />
-      );
-    }
-
-
-
-      if (showTutorial) {
-              return (
-                <MinigameTutorial
-                  title={tutorial.title}
-                  description={tutorial.description}
-                  image={sourceImages("./OrderDriversGame.png")}
-                  onStart={() => setShowTutorial(false)}
-                  lang={lang}
-                />
-              );
-            }
-
-
-
   const usedDriverIds = ranking.filter(Boolean).map(driver => driver.driverId);
   const availableCandidates = allCandidates.filter(driver => !usedDriverIds.includes(driver.driverId));
 
@@ -126,7 +91,7 @@ const OrderDriverGame = () => {
   };
 
   const handleSlotClick = (index) => {
-    if (!selected || correctSlots[index]) return;
+    if (!selected || correctSlots[index] || surrendered || finished) return;
 
     const alreadyUsed = ranking.find(slot => slot?.driverId === selected.driverId);
     if (alreadyUsed) return;
@@ -136,52 +101,42 @@ const OrderDriverGame = () => {
 
     setRanking(newRanking);
     setSelected(null);
+    setErrorMessage("");
   };
 
+  const handleSwap = (targetIndex) => {
+    if (draggedIndex === null || draggedIndex === targetIndex) return;
 
+    const newRanking = [...ranking];
+    const temp = newRanking[draggedIndex];
+    newRanking[draggedIndex] = newRanking[targetIndex];
+    newRanking[targetIndex] = temp;
+
+    setRanking(newRanking);
+    setDraggedIndex(null);
+  };
 
   const onSubmit = () => {
+    if (ranking.some(slot => slot === null)) {
+      setErrorMessage(t("incomplete"));
+      return;
+    }
+
     const newCorrectSlots = ranking.map((driver, index) => {
       const correctId = getCorrectDriverIdAt(index);
       return driver?.driverId === correctId;
     });
 
     setCorrectSlots(newCorrectSlots);
-
-    // Separar los que están bien y los que no
-    const updatedRanking = ranking.map((driver, index) => {
-      return newCorrectSlots[index] ? driver : null;
-    });
-
-    const incorrectDrivers = ranking
-      .map((driver, index) => (!newCorrectSlots[index] && driver ? driver : null))
-      .filter(Boolean);
-
-    // Devolver los incorrectos a la lista
-    const updatedCandidates = [...allCandidates, ...incorrectDrivers];
-    const deduplicatedCandidates = updatedCandidates.filter(
-      (driver, index, self) =>
-        self.findIndex(d => d.driverId === driver.driverId) === index
-    );
-
-    setRanking(updatedRanking);
-    setAllCandidates(deduplicatedCandidates);
+    setFinished(true);
 
     const allCorrect = newCorrectSlots.every(val => val);
-    const allFilled = updatedRanking.every(slot => slot !== null);
 
-    if (allCorrect && allFilled) {
-      const orderedIds = updatedRanking.map(s => s.driverId);
+    if (allCorrect) {
+      const orderedIds = ranking.map(s => s.driverId);
       dispatch(actions.submitDriverOrder(game.id, orderedIds));
     }
-
-    if (allFilled) {
-      setFinished(true);
-    }
-
   };
-
-
 
   const onSurrender = () => {
     const ordered = [...game.slots].sort((a, b) => a.correctOrder - b.correctOrder);
@@ -194,12 +149,39 @@ const OrderDriverGame = () => {
     return correctSlot?.driverId;
   };
 
-  if (!game) return <LoadingScreen lang={navigator.language.startsWith("es") ? "es" : "en"} text={t("loading")} />;
+  if (loading) {
+    return <LoadingScreen lang={lang} text={t("loading")} />;
+  }
+
+  if (!canPlay) {
+    return (
+      <CooldownScreen
+        seconds={secondsRemaining}
+        onBack={() => navigate("/minigames")}
+      />
+    );
+  }
+
+  if (showTutorial) {
+    return (
+      <MinigameTutorial
+        title={tutorial.title}
+        description={tutorial.description}
+        image={sourceImages("./OrderDriversGame.png")}
+        onStart={() => setShowTutorial(false)}
+        lang={lang}
+      />
+    );
+  }
+
+  if (!game) return <LoadingScreen lang={lang} text={t("loading")} />;
 
   return (
     <div className="order-driver-page">
       <div className={`order-driver-container ${surrendered ? "surrendered-mode" : ""}`}>
         <h2 className="order-driver-title">{game.topic}</h2>
+
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
 
         <div className={`order-layout ${surrendered ? "centered" : ""}`}>
           {!surrendered && (
@@ -221,16 +203,16 @@ const OrderDriverGame = () => {
               <div
                 key={index}
                 className={`ranking-slot ${
-                  surrendered || finished
-                    ? slot?.driverId === getCorrectDriverIdAt(index)
-                      ? 'success'
-                      : 'fail'
-                    : correctSlots[index]
-                      ? 'success'
-                      : ''
+                  surrendered
+                    ? (slot?.driverId === getCorrectDriverIdAt(index) ? 'success' : 'fail')
+                    : (finished
+                        ? (correctSlots[index] ? 'success' : 'fail')
+                        : '')
                 }`}
-
-
+                draggable={!surrendered && !finished && slot !== null}
+                onDragStart={() => setDraggedIndex(index)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => handleSwap(index)}
                 onClick={() => handleSlotClick(index)}
               >
                 <span className="position-number">{index + 1}</span>
@@ -239,7 +221,6 @@ const OrderDriverGame = () => {
                 ) : (
                   <div className="placeholder">{t("empty")}</div>
                 )}
-
               </div>
             ))}
           </div>
@@ -253,7 +234,6 @@ const OrderDriverGame = () => {
             <button className="surrender-btn" onClick={onSurrender}>{t("surrender")}</button>
           </div>
         )}
-
 
         {game.finished && (
           <div className={`order-result ${game.successful ? "success" : "fail"}`}>
@@ -272,7 +252,6 @@ const OrderDriverGame = () => {
             </button>
           </div>
         )}
-
       </div>
     </div>
   );

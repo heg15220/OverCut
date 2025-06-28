@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.text.Normalizer;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -68,6 +69,11 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
         }
     }
 
+    private String normalize(String s) {
+        return Normalizer.normalize(s, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase();
+    }
 
 
     @Override
@@ -75,8 +81,8 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
         F1WordleGame game = gameDao.findById(gameId).orElseThrow();
         if (game.isFinished()) return game;
 
-        String actual = game.getSurname().toLowerCase();
-        String input = guess.toLowerCase();
+        String actual = normalize(game.getSurname());
+        String input = normalize(guess);
 
         StringBuilder feedback = new StringBuilder();
         Set<Integer> matchedIndices = new HashSet<>();

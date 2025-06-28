@@ -130,7 +130,7 @@ def generate_themes(conn, lang):
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder <= 3 AND co.name LIKE '%{team}%'
                 GROUP BY r.driverId
-                ORDER BY podiums DESC
+                ORDER BY COUNT(*) DESC, RAND()
                 LIMIT 50
             """
         },
@@ -148,7 +148,7 @@ def generate_themes(conn, lang):
                       WHERE r2.year = r.year
                   )
                 GROUP BY d.driverId
-                ORDER BY titles DESC
+                ORDER BY COUNT(*) DESC, RAND()
                 LIMIT 10
             """
         },
@@ -160,7 +160,7 @@ def generate_themes(conn, lang):
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder = 1
                 GROUP BY r.driverId
-                ORDER BY wins DESC
+                ORDER BY COUNT(*) DESC, RAND()
                 LIMIT 50
             """
         },
@@ -172,7 +172,7 @@ def generate_themes(conn, lang):
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder <= 3
                 GROUP BY r.driverId
-                ORDER BY podiums DESC
+                ORDER BY COUNT(*) DESC, RAND()
                 LIMIT 50
             """
         },
@@ -185,7 +185,7 @@ def generate_themes(conn, lang):
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE co.name LIKE '%{team2}%'
                 GROUP BY d.driverId
-                ORDER BY starts DESC
+                ORDER BY COUNT(*) DESC, RAND()
                 LIMIT 50
             """
         },
@@ -197,34 +197,7 @@ def generate_themes(conn, lang):
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.rank = 1
                 GROUP BY r.driverId
-                ORDER BY fastlaps DESC
-                LIMIT 50
-            """
-        },
-        {
-            "topic": "Pole Positions" if lang == "es" else "Pole Positions",
-            "query": """
-                SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS poles
-                FROM qualifying q
-                JOIN drivers d ON q.driverId = d.driverId
-                WHERE q.position = 1
-                GROUP BY q.driverId
-                ORDER BY poles DESC
-                LIMIT 50
-            """
-        },
-        {
-            "topic": f"Pilotos con más poles con {team}" if lang == "es" else f"Drivers with most poles with {team}",
-            "query": f"""
-                SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS poles
-                FROM qualifying q
-                JOIN races ra ON q.raceId = ra.raceId
-                JOIN results r ON q.driverId = r.driverId AND q.raceId = r.raceId
-                JOIN constructors co ON r.constructorId = co.constructorId
-                JOIN drivers d ON q.driverId = d.driverId
-                WHERE q.position = 1 AND co.name LIKE '%{team}%'
-                GROUP BY q.driverId
-                ORDER BY poles DESC
+                ORDER BY COUNT(*) DESC, RAND()
                 LIMIT 50
             """
         },
@@ -237,12 +210,27 @@ def generate_themes(conn, lang):
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder = 1 AND co.name LIKE '%{team}%'
                 GROUP BY r.driverId
-                ORDER BY wins DESC
+                ORDER BY COUNT(*) DESC, RAND()
+                LIMIT 50
+            """
+        },
+        # NUEVAS PREGUNTAS SOBRE CIRCUITO
+        {
+            "topic": f"Carreras disputadas en {circuit}" if lang == "es" else f"Races contested at {circuit}",
+            "query": f"""
+                SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS starts
+                FROM results r
+                JOIN races ra ON r.raceId = ra.raceId
+                JOIN circuits c ON ra.circuitId = c.circuitId
+                JOIN drivers d ON r.driverId = d.driverId
+                WHERE c.circuitRef = '{circuit}'
+                GROUP BY d.driverId
+                ORDER BY COUNT(*) DESC, RAND()
                 LIMIT 50
             """
         },
         {
-             "topic": f"Pilotos con más victorias en {circuit}" if lang == "es" else f"Drivers with most wins at {circuit}",
+            "topic": f"Victorias en {circuit}" if lang == "es" else f"Wins at {circuit}",
             "query": f"""
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS wins
                 FROM results r
@@ -250,13 +238,13 @@ def generate_themes(conn, lang):
                 JOIN circuits c ON ra.circuitId = c.circuitId
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder = 1 AND c.circuitRef = '{circuit}'
-                GROUP BY r.driverId
-                ORDER BY wins DESC
-                LIMIT 10
+                GROUP BY d.driverId
+                ORDER BY COUNT(*) DESC, RAND()
+                LIMIT 50
             """
         },
         {
-            "topic": f"Pilotos con más podios en {circuit}" if lang == "es" else f"Drivers with most podiums at {circuit}",
+            "topic": f"Podios en {circuit}" if lang == "es" else f"Podiums at {circuit}",
             "query": f"""
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS podiums
                 FROM results r
@@ -265,8 +253,8 @@ def generate_themes(conn, lang):
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder <= 3 AND c.circuitRef = '{circuit}'
                 GROUP BY r.driverId
-                ORDER BY podiums DESC
-                LIMIT 10
+                ORDER BY COUNT(*) DESC, RAND()
+                LIMIT 50
             """
         },
         {
@@ -277,8 +265,8 @@ def generate_themes(conn, lang):
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder = 1 AND d.nationality = '{nat_wins_t}'
                 GROUP BY r.driverId
-                ORDER BY wins DESC
-                LIMIT 10
+                ORDER BY COUNT(*) DESC, RAND()
+                LIMIT 50
             """
         },
         {
@@ -289,35 +277,12 @@ def generate_themes(conn, lang):
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder <= 3 AND d.nationality = '{nat_wins_t}'
                 GROUP BY r.driverId
-                ORDER BY podiums DESC
-                LIMIT 10
-            """
-        },
-        {
-            "topic": f"{nat_wins_t} con más poles" if lang == "es" else f"{nat_wins_t} with most poles",
-            "query": f"""
-                SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS poles
-                FROM qualifying q
-                JOIN drivers d ON q.driverId = d.driverId
-                WHERE q.position = 1 AND d.nationality = '{nat_wins_t}'
-                GROUP BY q.driverId
-                ORDER BY poles DESC
-                LIMIT 10
-            """
-        },
-        {
-            "topic": f"{nat_wins_t} con más puntos totales" if lang == "es" else f"{nat_wins_t} with most career points",
-            "query": f"""
-                SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, SUM(ds.points) AS points
-                FROM driverStandings ds
-                JOIN drivers d ON ds.driverId = d.driverId
-                WHERE d.nationality = '{nat_wins_t}'
-                GROUP BY ds.driverId
-                ORDER BY points DESC
-                LIMIT 10
+                ORDER BY COUNT(*) DESC, RAND()
+                LIMIT 50
             """
         }
     ]
+
 
 def generate_order_game(lang):
     with engine.connect() as conn:
