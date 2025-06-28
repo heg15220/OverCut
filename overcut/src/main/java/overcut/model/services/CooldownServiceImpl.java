@@ -16,7 +16,7 @@ import java.util.List;
 @Transactional
 public class CooldownServiceImpl implements CooldownService {
 
-    private static final Duration COOLDOWN = Duration.ofHours(1);
+    private static final Duration COOLDOWN = Duration.ofHours(12);
 
     @Autowired private GameCooldownDao cooldownDao;
     @Autowired private UserDao userDao;

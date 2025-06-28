@@ -26,6 +26,10 @@ const CooldownScreen = ({ seconds, onBack, gameName }) => {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    setTimeLeft(seconds);
+  }, [seconds]);
+
   const formatTime = (secs) => {
     const hours = Math.floor(secs / 3600);
     const minutes = Math.floor((secs % 3600) / 60);

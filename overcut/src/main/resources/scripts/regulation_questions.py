@@ -2476,7 +2476,7 @@ def pregunta_dia_sprint_shootout():
         return {
             "question": "¿Qué día se celebra la Sprint Shootout durante un fin de semana con formato sprint?",
             "answers": ["Sábado", "Domingo", "Viernes", "Depende del circuito"],
-            "correctAnswer": "Sábado",
+            "correctAnswer": "Viernes",
             "knowledgeLevel": 1,
             "category": "Sprint",
             "language": LANG
@@ -2485,7 +2485,7 @@ def pregunta_dia_sprint_shootout():
         return {
             "question": "On what day is the Sprint Shootout held during a sprint weekend?",
             "answers": ["Saturday", "Sunday", "Friday", "Depends on the circuit"],
-            "correctAnswer": "Saturday",
+            "correctAnswer": "Friday",
             "knowledgeLevel": 1,
             "category": "Sprint",
             "language": LANG
@@ -2570,12 +2570,12 @@ def pregunta_parrilla_gp():
         return {
             "question": "¿Cómo se define la parrilla del Gran Premio en fin de semana Sprint?",
             "answers": [
-                "Según la clasificación del viernes",
+                "Según la clasificación del sábado",
                 "Según el resultado de la Sprint",
                 "Por orden inverso a la Sprint",
                 "Por puntos en el campeonato"
             ],
-            "correctAnswer": "Según la clasificación del viernes",
+            "correctAnswer": "Según la clasificación del sábado",
             "knowledgeLevel": 2,
             "category": "Sprint",
             "language": LANG
@@ -2584,12 +2584,12 @@ def pregunta_parrilla_gp():
         return {
             "question": "How is the Grand Prix grid determined during a Sprint weekend?",
             "answers": [
-                "Based on Friday's qualifying",
+                "Based on Saturday's qualifying",
                 "Based on the Sprint result",
                 "Reverse order of the Sprint",
                 "Championship points standings"
             ],
-            "correctAnswer": "Based on Friday's qualifying",
+            "correctAnswer": "Based on Saturday's qualifying",
             "knowledgeLevel": 2,
             "category": "Sprint",
             "language": LANG
