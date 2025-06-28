@@ -41,18 +41,12 @@ public class CategoryGameServiceImpl implements CategoryGameService {
     private CooldownService cooldownService;
 
     @Autowired
-    private UserDao userDao; // si aún no está
+    private UserDao userDao;
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public CategoryGame startGame(String lang, Long userId) {
-        if (!cooldownService.canPlay("CategoryGame", userId)) {
-            long wait = cooldownService.secondsUntilNextPlay("CategoryGame", userId);
-            throw new CooldownException("WAIT", wait);
-        }
-
-
+    public CategoryGame startGame(String lang) {
 
         Map<String, Map<String, Boolean>> cache = cacheLoader.getCache(lang);
         List<String> letters = new ArrayList<>(cache.keySet());
@@ -83,7 +77,6 @@ public class CategoryGameServiceImpl implements CategoryGameService {
                 }
 
                 CategoryGame categoryGame = categoryGameDao.save(game);
-                cooldownService.registerPlay("CategoryGame", userId);
                 return categoryGame;
             }
         }

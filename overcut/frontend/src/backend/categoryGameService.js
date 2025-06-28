@@ -1,7 +1,7 @@
 import { fetchConfig, appFetch } from "./appFetch";
 
-export const startCategoryGame = (lang, userId, onSuccess, onErrors) =>
-  appFetch(`/categoryGame/start?lang=${lang}`, fetchConfig("POST", userId), onSuccess, onErrors);
+export const startCategoryGame = (lang, onSuccess, onErrors) =>
+  appFetch(`/categoryGame/start?lang=${lang}`, fetchConfig("POST"), onSuccess, onErrors);
 
 
 export const submitCategoryAnswers = (data, onSuccess, onErrors) =>

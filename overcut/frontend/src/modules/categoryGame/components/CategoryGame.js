@@ -36,7 +36,7 @@ const CategoryGame = () => {
 
   useEffect(() => {
     if (canPlay) {
-      dispatch(actions.startGame(lang, user.id));
+      dispatch(actions.startGame(lang));
     }
   }, [canPlay, dispatch, lang, user.id]);
 
