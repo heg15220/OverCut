@@ -1,0 +1,2642 @@
+[
+  [
+    {
+      "letter": "A",
+      "question": "Team with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for team Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Connaught, Ferrari, Gordini, HWM, Maserati, Simca, Talbot-Lago",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for team Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team with nationality Belgian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team Maki",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: BRM, Brabham, Brabham-Climax, Brabham-Repco, Eagle-Climax, Eagle-Weslake, Ferrari, Lotus-BRM, McLaren-Ford, Porsche",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Team that debuted in 1951",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for team Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for team ERA",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for teams: Ensign, Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Team that debuted in 1950",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Team that debuted in 1951",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for teams: Amon, BRM, Boro, Brabham-Alfa Romeo, Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for team Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "What is the surname of the driver named Ray",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for team Arrows",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "What is the surname of the driver named Toranosuke",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver with nationality Uruguayan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for teams: Spyker",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for team HRT",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Team that debuted in 1985",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for teams: Toro Rosso",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for team Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Alta",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for teams: Lotus-BRM, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Driver who raced for team BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for teams: Sauber",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for team Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for teams: Kurtis Kraft, Olson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "F1 circuit starting with I",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for teams: BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for teams: Team Lotus, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for team Wolf",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for team Toyota",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver who raced for teams: Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Session that determines starting order",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver with nationality Mexican",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver with nationality Finnish",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver with nationality New Zealander",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for team Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for teams: Kurtis Kraft, Meskowski, Moore, Phillips",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Team with 1 constructor title(s)",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for team Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver with nationality Chinese",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for team Ligier",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for teams: Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Marussia",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for teams: Cooper-OSCA, Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Driver who raced for teams: Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team Brabham",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: AlphaTauri, Alpine F1 Team, Red Bull, Toro Rosso",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver with nationality New Zealander",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for teams: BRM, BRP, Lotus-BRM, Lotus-Climax, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who won the championship with: Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "What is the surname of the driver named Karl",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for team Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for teams: Benetton, Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver who raced for team Shadow",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Point system applied to drivers' licences for infringements",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver with nationality Austrian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver with nationality Italian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver with nationality Austrian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for team Lesovsky",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for teams: BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for team Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for team Porsche",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver with nationality Malaysian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Team with nationality German",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Team that debuted in 1992",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for teams: Brabham, Brabham-Climax, Brabham-Ford, Brabham-Repco, Cooper, Cooper-Climax, Lotus-Climax, Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Team that debuted in 1962",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team with nationality Belgian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for teams: HWM, Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: Jordan, Leyton House, March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Fast lap attempt during quali",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for team Shadow",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Team that debuted in 1976",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "What is the surname of the driver named Lamberto",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Team that debuted in 2012",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver with nationality French",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for teams: Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for teams: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver with at least 5 wins whose surname starts with R",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Team that debuted in 1966",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Team with nationality French",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for team BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Team with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for team Pawl",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver with nationality Malaysian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Tyre-warming manoeuvre",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Team with nationality Italian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for teams: Coloni",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Fondmetal",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for team Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team that debuted in 1959",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "F1 World Champion whose surname starts with F",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: BRM, Lola, McLaren, McLaren-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for teams: Aston Martin, Force India, Haas F1 Team, Racing Point, Renault, Sauber, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for team Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Team that debuted in 2000",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for team Alta",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for teams: Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: Lotus-Climax, Porsche",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team McLaren",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver who raced for team Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for teams: Shadow, Shadow-Ford, Token",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver with nationality Austrian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Team that debuted in 2024",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for team Aston Martin",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Team with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver with nationality German",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for team Arrows",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for team Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for teams: Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Team that debuted in 1985",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Team with nationality French",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for team Kuzma",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for team Lancia",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Device that reduces aerodynamic drag on straights",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Driver who raced for team Stevens",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Team that debuted in 1950",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: Minardi, Simtek",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for teams: Epperly, Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for teams: Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for teams: AGS, Ferrari, Footwork, Ligier, McLaren, Onyx, Shadow, Spirit, Toleman, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver with nationality Swiss",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Team that debuted in 1965",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver with nationality Belgian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver who raced for teams: Simca",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for team Jaguar",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for teams: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for teams: BRM, Ensign, Ferrari, Shadow, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "What is the surname of the driver named Siegfried",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver with nationality Italian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for team BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for team Lambo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for team Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver with nationality Japanese",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for teams: Shadow, Williams",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Team that had world champions like: Juan Fangio, Nino Farina",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for teams: Toro Rosso",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for team HRT",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for team Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team that debuted in 1956",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team Shadow",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: Cooper-Climax, Cooper-Maserati, Gilby, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Team that debuted in 1951",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for team Cooper-Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for teams: Kurtis Kraft, Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for team BMW Sauber",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Team with nationality Italian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for team Hall",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver who raced for teams: Simca",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver with nationality Argentine",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for team Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for teams: Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Team with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for teams: Christensen, Kurtis Kraft, Lesovsky",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for team Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for team Trevis",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for teams: Jaguar, Minardi, Red Bull, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for team HRT",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Team that debuted in 1985",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for team Hesketh",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver with nationality Danish",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: HRT, Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver with nationality Argentine",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Driver who raced for teams: BRM, Brabham-Ford, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for team Behra-Porsche",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for team Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver with nationality Belgian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for team BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for team Mercedes",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for team Connaught",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Team with nationality Australian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team Ensign",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver with nationality Belgian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for teams: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for team Wolf",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for team Jordan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for teams: Arrows, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver with nationality German",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Team with 3 constructor title(s)",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for teams: Brabham, Lotus-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for team Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for team Brabham",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Team that debuted in 1959",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for team Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Cooper-Climax, Emeryson, Lola, Lotus-BRM, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for team Cisitalia",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Driver who raced for team Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team Footwork",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: Haas F1 Team, Sauber",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Team that debuted in 1974",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Team that debuted in 1973",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "What is the surname of the driver named Jean-Pierre",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for team Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for teams: Adams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver with nationality Italian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver with nationality New Zealander",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Team that debuted in 1989",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for teams: Connaught, Emeryson, Ferrari, Gordini, Lotus-Climax, Scirocco, Talbot-Lago",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Session that determines starting order",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver with nationality Argentine",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for teams: Kurtis Kraft, Lesovsky, Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for team Connaught",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for teams: BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for team Trevis",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for team Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for teams: HRT, Spyker, Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver with nationality Brazilian",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Part of the car that channels air at the front",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for teams: BAR, Benetton, Brawn, Honda, McLaren, Renault, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Talbot-Lago",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for teams: Ewing, Kurtis Kraft, Pawl",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "What is the surname of the driver named Ed",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for teams: Maki",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for teams: HWM, Talbot-Lago",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for teams: Iso Marlboro, Ligier, Renault, Surtees, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for team Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for teams: Cooper-Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for team Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for teams: Ensign",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver who raced for team Simca",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for teams: Footwork",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver with nationality Austrian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for teams: Kurtis Kraft, Kuzma, Lesovsky, Maserati, Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for team BAR",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for team RAM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver with nationality Uruguayan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for team Lambo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for teams: March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for teams: HRT, Spyker, Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for team Jordan",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for teams: BRM, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for team OSCA",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for team Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team that debuted in 1975",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team Jordan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for team Ligier",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for teams: Kurtis Kraft, Olson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for team McLaren",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "What is the surname of the driver named Jean-Pierre",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for teams: Caterham, Sauber, Toyota",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Team that debuted in 1977",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: Bellasi, Brabham-Ford, Brabham-Repco, Cooper-ATS",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver with nationality Swedish",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver with nationality French",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for team Shadow",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for teams: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for teams: Shadow",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for teams: HRT, Renault, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for teams: Ensign, Ferrari, Ligier, Lola, McLaren, Renault, Surtees, Theodore",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for teams: BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver with nationality German",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver with nationality Australian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver with nationality Japanese",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for team Alfa Romeo",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for team Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for team Life",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for teams: BAR, Minardi, Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team AFM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: BRM, Cooper-Maserati, Eagle-Climax, Ferrari, Honda, Scarab",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Team with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for team Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for teams: Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver with nationality Russian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for team Caterham",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: BRM, Connaught, Cooper, Cooper-Climax, ERA, Ferguson, HWM, Lotus-Climax, Maserati, Mercedes, Team Lotus, Vanwall",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for teams: Team Lotus, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Team with nationality Italian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Team that debuted in 1972",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for team Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "F1 World Champion whose surname starts with R",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for teams: Lotus-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver with nationality Italian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for teams: Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for teams: Caterham",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for teams: Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for team Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for team Shadow",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Team with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for teams: Stebro",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver with nationality South African",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver with nationality Australian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Driver who raced for team BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for teams: AGS",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for teams: Cooper-Alfa Romeo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for team Jordan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver with nationality Spanish",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver with nationality Rhodesian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Team with nationality Japanese",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for teams: AFM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Team with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for team RAM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for team Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for team Wolf",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Team that debuted in 1951",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for teams: Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for teams: Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver with nationality Belgian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for teams: Brabham, McLaren, Penske, Surtees, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for teams: HRT, Spyker, Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for team Sauber",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for team Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "F1 World Champion whose surname starts with B",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: McLaren, Red Bull, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for team Pacific",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team that debuted in 1955",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for teams: Osella",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: Jordan, Marussia, Toyota, Virgin",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for teams: Klenk, Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for teams: Brabham-Ford, Cooper-Maserati, Ensign, Ferrari, Iso Marlboro, Ligier, Matra, McLaren, Team Lotus, Wolf",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Team that debuted in 1959",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for team BMW",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for teams: Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver with nationality Belgian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for teams: Brabham-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for team Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for teams: RE",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for team Force India",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for teams: Arrows, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for teams: BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for team Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for team Moore",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for teams: Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for team Williams",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for team Lotus-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Team that had world champions like: Michael Schumacher",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Larrousse, Ligier",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for team Force India",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Driver who raced for team Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver with nationality Dutch",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for team Talbot-Lago",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "F1 circuit starting with H",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for teams: BRM, Brabham-Climax, Lotus-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Team with nationality Irish",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for teams: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Team with nationality Malaysian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: Cooper, Cooper-Climax, Eagle-Weslake, McLaren, McLaren-BRM, McLaren-Ford, McLaren-Serenissima",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver who raced for team Penske",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for teams: Ferrari, Fry",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Session that determines starting order",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for team Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who won the championship with: Matra-Ford, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for teams: Christensen, Kurtis Kraft, Lesovsky",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver with nationality German",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for teams: Toro Rosso",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver with nationality Canadian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for team Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for team Tyrrell",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for team Epperly",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who won the championship with: Brawn",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for team Brabham-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for team Cisitalia",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team that debuted in 1956",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team Shadow",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: Cooper-Climax, Emeryson, Ferrari, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for team Vanwall",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "F1 circuit starting with I",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for teams: Benetton, Dallara, Onyx, Sauber",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Old energy recovery system in F1 used at the beginning of 2010s",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for teams: Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for team Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for teams: Sauber",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Team that debuted in 1951",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for team March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for team Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for team Cooper-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for teams: Kurtis Kraft, Kuzma, Marchese, Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for teams: Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for teams: Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for teams: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for teams: AGS",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver with nationality Malaysian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Team that debuted in 1985",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for team Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for teams: Ferrari, Forti, Lola, Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: ATS, Merzario",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for team Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team that debuted in 1962",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver with nationality East German",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for team Stevens",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver with nationality Belgian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for teams: ATS, Ligier, March, March-Ford, Osella, Penske, Shadow, Shadow-Ford, Shadow-Matra, Team Lotus, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Team that debuted in 1950",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver with nationality Argentine",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: Epperly, Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Team with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for team Connaught",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver with nationality Austrian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Team that had world champions like: Fernando Alonso",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for teams: Arrows, Brabham, Brabham-Alfa Romeo, Embassy Hill, Hesketh, Lola, March, Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver with nationality Rhodesian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver who raced for teams: Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "F1 circuit starting with V",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for teams: Bromme, Kurtis Kraft, Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "F1 circuit starting with Y",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for team Shadow",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver who raced for teams: Alfa Romeo, Ferrari, Lotus-Ford, March, Parnelli, Team Lotus, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Team with nationality Swiss",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Connaught, Ferrari, Gordini, HWM, Maserati, Simca, Talbot-Lago",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for teams: Brabham, Ferrari, March-Alfa Romeo, McLaren-Alfa Romeo, Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Driver who raced for teams: Connaught, Emeryson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "What is the surname of the driver named Gerino",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for teams: Brabham-Ford, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver with at least 5 wins whose surname starts with I",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for teams: March-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for team March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for team Pacific",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: Dallara, Ferrari, Footwork, Minardi, Sauber",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver with nationality Japanese",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Team that debuted in 1989",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for teams: Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Driver who raced for team Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for teams: Maserati, OSCA",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for teams: Ferrari, Gordini, Maserati, Mercedes, Simca",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for teams: Brabham-BRM, Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver with nationality Uruguayan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for teams: Kurtis Kraft, Meskowski, Moore, Phillips",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for team Brabham",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "F1 circuit starting with Y",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for teams: Brabham, Brabham-Ford, Tyrrell",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Restricted aerodynamic testing protocol",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Driver who raced for team Kuzma",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Brabham, Brabham-Climax, Brabham-Repco, Lotus-Ford, McLaren, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver with nationality German",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team that debuted in 1973",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for team Lotus-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for teams: Ensign, Theodore",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Driver who raced for team Shadow",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "F1 circuit starting with I",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Driver who raced for teams: Arrows, Embassy Hill, Hesketh, Lola, Shadow, Surtees, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver with nationality Polish",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for teams: Euro Brun",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: ATS, Arrows, March, McLaren, Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team Lotus-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Driver who raced for teams: Alpine F1 Team, Force India, Manor Marussia, Renault",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for team Brabham-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Session that determines starting order",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for teams: Fittipaldi, Hesketh, March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Team that debuted in 1975",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for team Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for teams: McLaren",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for team Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver with nationality Malaysian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for team Tyrrell",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Driver with nationality American",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Team that had world champions like: Nelson Piquet",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Driver who raced for teams: Alta",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Driver who raced for team Alpine F1 Team",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Team with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Driver who raced for teams: BRM, Connaught, Cooper, Cooper-Climax, Maserati, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Driver who raced for team Hesketh",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Team that debuted in 1951",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Driver who raced for team BRP",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Team with nationality British",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Driver who raced for teams: Alta",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Driver who raced for team Vanwall",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Driver who raced for teams: Toyota",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Driver who raced for team Ensign",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Team that debuted in 1951",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Driver who raced for team Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Session that determines starting order",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Driver who raced for team Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Driver who raced for team Osella",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Driver who raced for team Cooper-Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Driver with nationality Uruguayan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Driver who raced for teams: McLaren",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Driver who raced for team Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Driver who raced for teams: Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Driver who raced for teams: Williams",
+      "hasValidAnswer": true
+    }
+  ]
+]

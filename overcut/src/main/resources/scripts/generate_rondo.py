@@ -19,7 +19,7 @@ Session = sessionmaker(bind=engine)
 
 LETTERS = [chr(i) for i in range(ord('A'), ord('Z') + 1)]
 CACHE_FILE_TEMPLATE = "rosco_cache_{lang}.json"
-CACHE_SIZE = 20
+CACHE_SIZE = 100
 cache = []
 cache_lock = Lock()
 

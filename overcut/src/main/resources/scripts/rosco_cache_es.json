@@ -1,0 +1,2642 @@
+[
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para el equipo Lotus-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para el equipo Theodore",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto de nacionalidad Monegasco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para el equipo March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Equipo que debutó en el año 1988",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para los equipos: Footwork, Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: Alfa Romeo, Life, McLaren, Toleman",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: Fittipaldi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Escudería de nacionalidad Irlandés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto de nacionalidad Británico",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para los equipos: Cooper-Castellotti, Lotus-Ford, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto que ha corrido para el equipo McLaren",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para los equipos: Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Equipo que debutó en el año 1980",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para los equipos: Alfa Romeo, Maserati, Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Sesión para determinar el orden de salida",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Escudería de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para los equipos: Lotus-Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Escudería de nacionalidad Japonés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para los equipos: Ensign",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto de nacionalidad Malasio",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Circuito de F1 cuyo nombre empieza por Z",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para el equipo Aston Butterworth",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para el equipo Kuzma",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft, Kuzma",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto de nacionalidad Neerlandés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para los equipos: Maserati, Talbot-Lago",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para el equipo Benetton",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto de nacionalidad Francés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Equipo que debutó en el año 2010",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto de nacionalidad Sudafricano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para el equipo Hesketh",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto de nacionalidad Canadiense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto que ha corrido para el equipo Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto de nacionalidad Sudafricano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Orden dada por el equipo a un piloto para favorecer a su compañero",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para los equipos: Jordan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para el equipo Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto de nacionalidad Austriaco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para el equipo Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Escudería de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para el equipo BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para el equipo Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto de nacionalidad Malasio",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Zonas con sensores de activación DRS",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para el equipo Aston Martin",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto de nacionalidad Monegasco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto que ha corrido para los equipos: Cooper, Frazer Nash",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para los equipos: Force India, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Circuito de F1 cuyo nombre empieza por E",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para los equipos: Jordan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: Cooper, Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para el equipo ERA",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto de nacionalidad Belga",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Equipo que debutó en el año 1991",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto campeón del mundo cuyo apellido empieza por L",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto que ha corrido para los equipos: AGS, Andrea Moda, Benetton, Coloni, Euro Brun, Forti, Jordan, Minardi, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para el equipo March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto que ha corrido para el equipo Simca",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para el equipo Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto de nacionalidad Austriaco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto de nacionalidad Finlandés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para el equipo Caterham",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto de nacionalidad Estadounidense-Italiano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Componente que ha sido utilizado previamente",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: Caterham",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para los equipos: Bromme, Kurtis Kraft, Kuzma, Lesovsky, Lotus-BRM, Pawl, Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto de nacionalidad Japonés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto que ha corrido para los equipos: Shadow, Williams",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para los equipos: Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Equipo con 29 título(s) de constructores",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto que ha corrido para el equipo Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para los equipos: March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Equipo que debutó en el año 1966",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Escudería de nacionalidad Brasileño",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: Haas F1 Team, Lotus F1, Renault",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para el equipo Lotus-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para los equipos: Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto que ha corrido para el equipo Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para el equipo Larrousse",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Equipo por el que han pasado campeones del mundo como: Jim Clark",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Equipo con 145 título(s) de constructores",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft, Turner",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto que ha corrido para el equipo Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto de nacionalidad Sudafricano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para los equipos: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto que ha corrido para los equipos: BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para los equipos: McLaren, Team Lotus, Toleman, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para el equipo Lotus-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto de nacionalidad Alemán",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: Arrows, Benetton, Footwork, Minardi, Simtek, Stewart, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para los equipos: AGS",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Circuito de F1 cuyo nombre empieza por Y",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto de nacionalidad Argentino",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para el equipo Aston Butterworth",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para los equipos: Theodore",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Equipo que debutó en el año 1966",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para los equipos: Brabham, Shadow, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto de nacionalidad Canadiense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft, Kuzma, Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para el equipo Alfa Romeo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para el equipo Kojima",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto de nacionalidad Belga",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "¿Cuál es el apellido del piloto llamado Juan?",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para los equipos: Apollon, Brabham-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para el equipo Cooper-Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Equipo con 173 título(s) de constructores",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto de nacionalidad Japonés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto que ha corrido para el equipo Manor Marussia",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para el equipo Osella",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto de nacionalidad Austriaco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto que ha corrido para el equipo BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para los equipos: Haas F1 Team",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para el equipo LDS",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para el equipo Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para el equipo RAM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto de nacionalidad Británico",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para los equipos: Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto de nacionalidad Italiano",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para los equipos: BRM, Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para los equipos: Benetton, Brabham, Jordan, Ligier, McLaren, Tyrrell, Williams, Zakspeed",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Equipo con 1 título(s) de constructores",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para el equipo Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para los equipos: De Tomaso, Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para los equipos: BRM, Connaught, Cooper, Cooper-Climax, Cooper-Maserati, Ferguson, HWM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para el equipo Osella",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: Toro Rosso",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto de nacionalidad Sueco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para el equipo Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para los equipos: De Tomaso-Ferrari, De Tomaso-Osca",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto que ha corrido para los equipos: Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para el equipo Jordan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto que ha corrido para el equipo Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para los equipos: Jaguar, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para los equipos: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Equipo de nacionalidad Rhodesian",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para el equipo Iso Marlboro",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para los equipos: Ensign, Ferrari, Ligier, Lola, McLaren, Renault, Surtees, Theodore",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para el equipo BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto de nacionalidad Italiano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para el equipo Cooper-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto que ha corrido para los equipos: Williams",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para los equipos: Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Escudería de nacionalidad Neerlandés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto de nacionalidad Venezolano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para los equipos: Ewing, Kurtis Kraft, Pawl",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para los equipos: BRM, Hesketh, Lola",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para los equipos: Shadow",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Victoria sin oposición de principio a fin, vuelta rápida, consiguiendo la pole y liderando todas las vueltas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: Coloni",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo Footwork",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Equipo que debutó en el año 2000",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para el equipo McLaren",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Equipo que debutó en el año 1967",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para el equipo Lyncar",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto que ha corrido para los equipos: Ensign, Penske, Shadow",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para el equipo Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Sesión para determinar el orden de salida",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto que ha corrido para los equipos: Brabham, Iso Marlboro",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Sistema de puntos en la licencia del piloto por infracciones",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para los equipos: Cooper-Climax, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Componente que ha sido utilizado previamente",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Modalidad de coche de seguridad controlado electrónicamente",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para los equipos: Lotus-Pratt &amp; Whitney, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto de nacionalidad Chino",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para el equipo Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para el equipo Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto que ha corrido para el equipo Simca",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para el equipo Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para el equipo Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Equipo con 234 título(s) de constructores",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: BRM, Brabham, Brabham-Climax, Brabham-Repco, Eagle-Climax, Eagle-Weslake, Ferrari, Lotus-BRM, McLaren-Ford, Porsche",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: Aston Martin, Force India, Haas F1 Team, Racing Point, Renault, Sauber, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para los equipos: Footwork, Simtek",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto que ha corrido para los equipos: Benetton, Dallara, Onyx, Sauber",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "¿Cuál es el apellido del piloto llamado Karl?",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Equipo que debutó en el año 1950",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Escudería de nacionalidad Australiano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para los equipos: Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto de nacionalidad Británico",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Equipo que debutó en el año 1967",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para los equipos: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Circuito de F1 cuyo nombre empieza por R",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para los equipos: Caterham, Manor Marussia",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto de nacionalidad Británico",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto de nacionalidad Alemán",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para el equipo Caterham",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para el equipo Epperly",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto que ha corrido para los equipos: Alfa Romeo, Sauber",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para los equipos: Jordan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Equipo con 14 título(s) de constructores",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Circuito de F1 cuyo nombre empieza por C",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para el equipo Cooper-OSCA",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto de nacionalidad Checo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para los equipos: Alfa Romeo, Ferrari, Maserati, Mercedes",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: Coloni, Jordan, Larrousse, Onyx, Pacific, Rial",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: BRM, Cooper, Ferrari, Maserati, Vanwall",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo Iso Marlboro",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto que ha corrido para los equipos: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Equipo que debutó en el año 1954",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto de nacionalidad Francés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Equipo por el que han pasado campeones del mundo como: Alain Prost, Ayrton Senna, Emerson Fittipaldi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para el equipo AFM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto que ha corrido para el equipo Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para el equipo Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para los equipos: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Equipo con 124 título(s) de constructores",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para los equipos: ERA, Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Estructura trasera del coche que ofrece protección",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para los equipos: Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para el equipo AFM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft, Moore",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Escudería de nacionalidad Alemán",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que fue campeón del mundo con: Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto de nacionalidad Australiano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Escudería de nacionalidad Italiano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Escudería de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para el equipo Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: Jordan, Marussia, Toyota, Virgin",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Escudería de nacionalidad Español",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo Jaguar",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto con al menos 5 victorias cuyo apellido empieza por J",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para los equipos: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Equipo por el que han pasado campeones del mundo como: Jim Clark",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto que ha corrido para el equipo Toyota",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para el equipo March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto que ha corrido para el equipo Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para el equipo BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para los equipos: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto de nacionalidad Francés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para los equipos: Hesketh, March, Team Lotus, Tyrrell, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para los equipos: Cooper-Climax, Cooper-Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para el equipo Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para los equipos: Alta",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para los equipos: HRT, Spyker, Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto que ha corrido para los equipos: BAR, Jordan, Toyota",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para el equipo Aston Butterworth",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto de nacionalidad Monegasco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Escudería de nacionalidad Malasio",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para el equipo Schroeder",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para los equipos: ATS, Ensign, Hesketh",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto de nacionalidad Alemán Oriental",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: Ensign",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que fue campeón del mundo con: Brabham-Repco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto de nacionalidad Británico",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto de nacionalidad Brasileño",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Equipo que debutó en el año 2015",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para los equipos: Brabham-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto de nacionalidad Francés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para el equipo Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Sesión para determinar el orden de salida",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Documento oficial que permite a un piloto participar en la F1",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para los equipos: Cooper-Climax, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Componente que ha sido utilizado previamente",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para el equipo Ensign",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para los equipos: Benetton, McLaren, Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto de nacionalidad Malasio",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto de nacionalidad Brasileño",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para los equipos: Alpine F1 Team, Aston Martin, Ferrari, McLaren, Minardi, Renault",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para el equipo Connaught",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto de nacionalidad Argentino",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para el equipo Simca",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para el equipo Sauber",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto de nacionalidad Uruguayo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: BRM, Lola, McLaren, McLaren-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: BRM, Cooper-Maserati, Maserati, Mercedes, Porsche, Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para los equipos: Ferrari, Jaguar, Jordan",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto que ha corrido para el equipo March-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Equipo que debutó en el año 1950",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para el equipo Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto que ha corrido para los equipos: HWM, Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para los equipos: Benetton, Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Equipo que debutó en el año 1950",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para el equipo Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para el equipo Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Equipo que debutó en el año 1988",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Equipo que debutó en el año 1963",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Escudería de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para el equipo Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto de nacionalidad Sudafricano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para el equipo Epperly",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto de nacionalidad Chino",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para el equipo ATS",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para los equipos: Brabham-Ford, March, McLaren",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para los equipos: Prost",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para el equipo Kuzma",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para el equipo Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para el equipo Cooper-Alfa Romeo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto con al menos 5 victorias cuyo apellido empieza por I",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "¿Cuál es el apellido del piloto llamado Joe?",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para el equipo Connaught",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Equipo por el que han pasado campeones del mundo como: Jim Clark",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto que ha corrido para los equipos: MBM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft, Turner",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Equipo que debutó en el año 1951",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para los equipos: RAM, Tyrrell, Williams, Zakspeed",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Sesión para determinar el orden de salida",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto que ha corrido para los equipos: BRM, Cooper-BRM, Cooper-Maserati, De Tomaso, McLaren, Shadow, Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para el equipo Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para los equipos: Del Roy, Kurtis Kraft, Kuzma, Lesovsky, Nichels",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para los equipos: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: HWM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto de nacionalidad Neerlandés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para los equipos: Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto de nacionalidad Argentino",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft, Kuzma, Lesovsky",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para los equipos: BRM, Cooper-Maserati, Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto que ha corrido para el equipo Lotus-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Equipo que debutó en el año 1957",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para el equipo Sauber",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para el equipo AGS",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para el equipo Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto de nacionalidad Argentino",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "¿Cuál es el apellido del piloto llamado John?",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto de nacionalidad Irlandés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para los equipos: Ligier",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Equipo que debutó en el año 1978",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Escudería de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Escudería de nacionalidad Británico",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto de nacionalidad Mexicano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para los equipos: Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "¿Cuál es el apellido del piloto llamado Ricardo?",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para el equipo Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Equipo que debutó en el año 1972",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para el equipo Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: Brabham, Fondmetal, Lambo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para el equipo Jaguar",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto de nacionalidad Japonés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto que ha corrido para el equipo Team Lotus",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para el equipo Brabham",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para el equipo Simca",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Equipo que debutó en el año 1950",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para los equipos: Alfa Romeo, Brabham, Brabham-Repco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para los equipos: BRM, Brabham-Ford, Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para los equipos: BRM, Connaught, Cooper, Cooper-Climax, Cooper-Maserati, Ferguson, HWM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: BRM, Brabham, Brabham-Climax, Brabham-Repco, Eagle-Climax, Eagle-Weslake, Ferrari, Lotus-BRM, McLaren-Ford, Porsche",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: Manor Marussia",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Escudería de nacionalidad Británico",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto que fue campeón del mundo con: Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Escudería de nacionalidad Alemán",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Escudería de nacionalidad Británico",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto de nacionalidad Italiano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Equipo que debutó en el año 1950",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Equipo que debutó en el año 1989",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para los equipos: Ferrari, Ligier, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Sesión para determinar el orden de salida",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto que ha corrido para los equipos: Cooper-Ford",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto de nacionalidad Suizo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Equipo que debutó en el año 1974",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para el equipo Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: Arrows, RAM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para los equipos: Jaguar, Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto de nacionalidad Japonés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto que ha corrido para los equipos: Brabham, Brabham-Ford, Tyrrell",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para los equipos: BRM, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para los equipos: Jaguar, Prost",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto que ha corrido para los equipos: Theodore, Toleman",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto de nacionalidad Sudafricano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Circuito de F1 cuyo nombre empieza por E",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para los equipos: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para los equipos: Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para el equipo Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Equipo que debutó en el año 1959",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para el equipo Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para el equipo Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto que ha corrido para los equipos: Haas F1 Team",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para el equipo Larrousse",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Escudería de nacionalidad Italiano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para el equipo Osella",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto de nacionalidad Austriaco",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto campeón del mundo cuyo apellido empieza por R",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Escudería de nacionalidad Neerlandés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para el equipo Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Componente que ha sido utilizado previamente",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Escudería de nacionalidad Alemán",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para el equipo ERA",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para el equipo Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto que ha corrido para los equipos: Brabham, Brabham-Ford, Tyrrell",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto campeón del mundo cuyo apellido empieza por A",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para el equipo Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto que ha corrido para el equipo Team Lotus",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Equipo que debutó en el año 1957",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Piloto que ha corrido para el equipo Prost",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para el equipo Lotus-BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto de nacionalidad Neozelandés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: Coloni",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft, Watson",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto de nacionalidad Danés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para el equipo Penske",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto campeón del mundo cuyo apellido empieza por M",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto de nacionalidad Belga",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Equipo que debutó en el año 1951",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para el equipo Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para el equipo Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto que ha corrido para el equipo De Tomaso",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para los equipos: Alfa Romeo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para el equipo Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para el equipo Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Modalidad de coche de seguridad controlado electrónicamente",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para los equipos: BRM, Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para los equipos: Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto que ha corrido para los equipos: BAR, Jordan, Toyota",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para el equipo March",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para los equipos: BRM, Cooper-BRM, Cooper-Climax, ENB, Emeryson, Lola, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto que ha corrido para los equipos: Cooper-Climax, Emeryson, Lola, Lotus-BRM, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Escudería de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Equipo que debutó en el año 1988",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: Kojima",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo Footwork",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto que ha corrido para los equipos: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto de nacionalidad Alemán Oriental",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto de nacionalidad Colombiano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Equipo con 11 título(s) de constructores",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Equipo que debutó en el año 1980",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para los equipos: Cooper-Climax, Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para el equipo Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Equipo que debutó en el año 1965",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para el equipo Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para los equipos: Arrows, RAM, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto de nacionalidad Uruguayo",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para el equipo Lotus-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Equipo con 114 título(s) de constructores",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto que ha corrido para los equipos: Shadow, Williams",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Piloto que ha corrido para el equipo Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Equipo que debutó en el año 1966",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Piloto que ha corrido para los equipos: Fondmetal",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para los equipos: Alfa Romeo, Ligier, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Equipo que debutó en el año 1955",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Equipo que debutó en el año 1950",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para el equipo Rial",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Equipo que debutó en el año 1964",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto que ha corrido para el equipo Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Piloto que ha corrido para los equipos: Cooper-Climax",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para el equipo Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Equipo que debutó en el año 1970",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto que ha corrido para el equipo BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto que ha corrido para los equipos: Alfa Romeo, BRM, Cooper, Ferrari, Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Piloto que ha corrido para el equipo Surtees",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto que ha corrido para el equipo Spirit",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que fue campeón del mundo con: Matra-Ford, Tyrrell",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Piloto que ha corrido para el equipo McLaren",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto de nacionalidad Estadounidense",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: Maserati",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto que ha corrido para el equipo Spyker",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para los equipos: HRT, Spyker, Super Aguri",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Piloto de nacionalidad Chino",
+      "hasValidAnswer": true
+    }
+  ],
+  [
+    {
+      "letter": "A",
+      "question": "Término para pruebas de desarrollo aerodinámico con restricciones",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "B",
+      "question": "Piloto que ha corrido para los equipos: Gordini, OSCA",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "C",
+      "question": "Equipo que debutó en el año 1962",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "D",
+      "question": "Piloto que ha corrido para el equipo Scarab",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "E",
+      "question": "Equipo que debutó en el año 1956",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "F",
+      "question": "Piloto que ha corrido para el equipo Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "G",
+      "question": "Piloto que ha corrido para el equipo Kuzma",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "H",
+      "question": "Piloto que ha corrido para los equipos: Ferrari, Veritas",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "I",
+      "question": "Piloto con al menos 5 victorias cuyo apellido empieza por I",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "J",
+      "question": "Escudería de nacionalidad Irlandés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "K",
+      "question": "Piloto que ha corrido para el equipo BMW",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "L",
+      "question": "Piloto que ha corrido para los equipos: BRM, Connaught, Cooper",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "M",
+      "question": "Piloto que ha corrido para el equipo Williams",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "N",
+      "question": "Piloto de nacionalidad Japonés",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "O",
+      "question": "Piloto que ha corrido para los equipos: Kurtis Kraft",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "P",
+      "question": "Piloto de nacionalidad Británico",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Q",
+      "question": "Sesión para determinar el orden de salida",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "R",
+      "question": "Piloto que ha corrido para los equipos: Simtek",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "S",
+      "question": "Piloto que ha corrido para el equipo Gordini",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "T",
+      "question": "Escudería de nacionalidad Italiano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "U",
+      "question": "Piloto que ha corrido para el equipo BRM",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "V",
+      "question": "Piloto que ha corrido para los equipos: AFM, Ferrari",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "W",
+      "question": "Piloto de nacionalidad Sudafricano",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "X",
+      "question": "No hay pregunta para X",
+      "hasValidAnswer": false
+    },
+    {
+      "letter": "Y",
+      "question": "Piloto que ha corrido para el equipo Minardi",
+      "hasValidAnswer": true
+    },
+    {
+      "letter": "Z",
+      "question": "Equipo que debutó en el año 1985",
+      "hasValidAnswer": true
+    }
+  ]
+]

@@ -104,8 +104,9 @@ def validate_answer(letter, question, user_answer):
         for driver, teams in team_map.items():
             if not driver.startswith(letter): continue
             q_clean = strip_accents(question.lower())
-            if all(team.lower() in q_clean for team in teams):
+            if any(team.lower() in q_clean for team in teams):
                 possible_answers.add(driver)
+
 
         # Circuitos
         for (ref,) in session.execute(text("SELECT circuitRef FROM circuits")):
