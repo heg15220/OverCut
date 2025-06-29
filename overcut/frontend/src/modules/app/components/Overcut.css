@@ -1,102 +1,128 @@
-.about-overcut {
-  max-width: 1400px;
-  margin: 2rem auto;
-  padding: 2.5rem 3rem;
-  background-color: #111;
-  color: #f0f0f0;
+:root {
+  --background: #111;
+  --background-section: #1b1b1b;
+  --text-color: #f0f0f0;
+  --text-muted: #ccc;
+  --highlight: gold;
+  --shadow: 0 6px 24px rgba(0,0,0,0.4);
+}
+
+.overcut {
+  max-width: 1300px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: var(--background);
+  color: var(--text-color);
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-.about-header {
+.overcut__header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
-.about-header h1 {
+.overcut__title {
   font-size: 3rem;
-  color: gold;
+  color: var(--highlight);
   margin-bottom: 0.5rem;
-  border-bottom: 2px solid gold;
+  border-bottom: 2px solid var(--highlight);
   padding-bottom: 0.5rem;
 }
 
-.about-header p {
+.overcut__intro {
   max-width: 800px;
   margin: 0 auto;
-  font-size: 1.2rem;
-  line-height: 1.6;
-  color: #ccc;
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: var(--text-muted);
 }
 
-.about-section {
+.overcut__section {
   display: flex;
   flex-wrap: wrap;
-  background-color: #1b1b1b;
+  background-color: var(--background-section);
   border-radius: 16px;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow);
   overflow: hidden;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.about-section:hover {
-  transform: scale(1.02);
+.overcut__section:hover {
+  transform: scale(1.015);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 }
 
-.about-image {
-  flex: 1 1 300px;
+.overcut__section--with-image {
+  align-items: center;
+}
+
+.overcut__image {
+  flex: 1 1 320px;
   max-width: 600px;
   width: 100%;
   height: auto;
   object-fit: contain;
-  border-radius: 0;
   display: block;
-  margin: 0 auto;
 }
 
-
-.about-content {
-  flex: 1 1 300px;
+.overcut__content {
+  flex: 1 1 320px;
   padding: 2rem;
 }
 
-.about-content h2 {
+.overcut__subtitle {
   font-size: 2rem;
   margin-bottom: 1rem;
-  color: gold;
+  color: var(--highlight);
   border-bottom: 1px solid #444;
   padding-bottom: 0.5rem;
 }
 
-.about-content p {
+.overcut__content p {
   font-size: 1.15rem;
   line-height: 1.7;
   color: #ddd;
   margin-bottom: 1rem;
 }
 
-.about-content ul {
+.overcut__list {
   margin-top: 1rem;
   padding-left: 1.5rem;
 }
 
-.about-content li {
+.overcut__list li {
   margin-bottom: 0.5rem;
   font-size: 1.1rem;
 }
 
-.about-subimage {
+.overcut__subimage {
   margin-top: 1.5rem;
   max-width: 400px;
   width: 100%;
   border-radius: 16px;
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
-  transition: transform 0.3s ease;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: block;
   margin-left: auto;
   margin-right: auto;
 }
 
-.about-subimage:hover {
+.overcut__subimage:hover {
   transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+@media (max-width: 768px) {
+  .overcut__title {
+    font-size: 2.4rem;
+  }
+
+  .overcut__subtitle {
+    font-size: 1.6rem;
+  }
+
+  .overcut__content {
+    padding: 1.5rem;
+  }
 }
