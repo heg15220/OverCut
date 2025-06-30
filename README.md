@@ -1,3 +1,4 @@
+Comando ejecutar server para OverCutGames + Quiz: py main.py
 Comando SERVER PythonCriterios: uvicorn generate_criteria_server:app --host 127.0.0.1 --port 8000
 
 Comando generar partidas TicTacToe caché: py generate_all_caches.py
