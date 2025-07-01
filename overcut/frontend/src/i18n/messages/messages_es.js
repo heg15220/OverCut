@@ -171,6 +171,7 @@ const es = {
     "post.caption.tweet": "Comentario sobre el tweet:",
     "postEditor.mainImageCaption": "Pie de imagen principal",
     "post.caption.mainImage": "Pie:",
+    "project.app.Header.about": "¿Qué es OverCut?",
 
 
 }

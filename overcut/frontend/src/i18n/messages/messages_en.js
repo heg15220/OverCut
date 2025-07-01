@@ -170,6 +170,7 @@ const en = {
     "post.caption.tweet": "Tweet note:",
     "postEditor.mainImageCaption": "Main image caption",
     "post.caption.mainImage": "Caption: ",
+    "project.app.Header.about": "What is OverCut?",
 
 }
 export default en;

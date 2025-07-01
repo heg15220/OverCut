@@ -67,7 +67,7 @@ const PostDetails = () => {
     }
 
     if (!post) {
-      return <div>Cargando...</div>;
+      return <div>Loading...</div>;
     }
 
 

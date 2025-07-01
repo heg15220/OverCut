@@ -77,39 +77,6 @@ const Header = () => {
                         </li>
 
 
-                        <li className="nav-item">
-                        <Link className="nav-link" to={`/circuits/category/3`} style={{ color: 'white' }}>
-                                <FormattedMessage id="project.app.Header.historic" />
-                            <Archive className="ms-1" size={16} color="#FFFFFF" />
-                            </Link>
-                        </li>
-                        <li className="nav-item">
-                        <Link className="nav-link" to="/historic/stats" style={{ color: 'white' }}>
-                            <FormattedMessage id="project.modules.historic.stats" />
-                            <GraphUp className="ms-1" size={16} color="#FFFFFF" />
-                        </Link>
-                        </li>
-                        {isLogged &&
-                            <Notifications />
-                        }
-                        {isLogged &&
-                        <li className="nav-item">
-                            <Link className="nav-link" to={`/events/event-list`} style={{ color: 'white' }}>
-                                <FormattedMessage id="project.events.events" />
-                                <CalendarCheck className="ms-1" size={16} color="#FFFFFF" />
-                            </Link>
-                        </li>
-                        }
-
-                        {isLogged &&
-                            <li className="nav-item">
-                                <Link className="nav-link" to={`/calendar`} style={{ color: 'white' }}>
-                                    <FormattedMessage id="project.app.Header.calendar" />
-                                    <Calendar className="ms-1" size={16} color="#FFFFFF" />
-                                </Link>
-                            </li>
-                        }
-
                         {isLogged &&
                         <li className="nav-item">
                             <Link className="nav-link" to="/users/ranking" style={{ color: 'white' }}>
