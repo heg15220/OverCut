@@ -309,7 +309,8 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public QuizType chooseQuizType() {
-        List<QuizType> quizTypes = quizTypeDao.findAll();
+        List<QuizType> quizTypes = quizTypeDao.findAllExcludingCode(QuizTypeCode.Pictures);
+
 
         if (quizTypes.isEmpty()) {
             throw new RuntimeException("No quiz types available in the system.");

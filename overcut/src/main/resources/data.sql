@@ -333,7 +333,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Battery', fals
 
 -- Pregunta 16
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Ferrari is the biggest team in F1 history. But, when was the last time they won the world championship?', 'carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg', 2, 'en');
+VALUES ('Ferrari is the biggest team in F1 history. But, when was the last time they won the world championship?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2010', false, 22, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2006', false, 22, 'en');
@@ -459,7 +459,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Batería', fal
 
 -- Pregunta 16
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Ferrari es el equipo más grande en la historia de la F1. Pero, ¿cuándo fue la última vez que ganaron el campeonato del mundo?', 'carlos-sainz_1h2hvmfieomji1fks4uq8ylzup.jpg', 2, 'es');
+VALUES ('Ferrari es el equipo más grande en la historia de la F1. Pero, ¿Cuándo fue la última vez que ganaron el campeonato del mundo?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2010', false, 36, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2006', false, 36, 'es');
@@ -486,7 +486,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('2003', false, 
 
 -- Pregunta 19
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('De los equipos que están actualmente en la parrilla, ¿cuál lleva menos tiempo?', null, 2, 'es');
+VALUES ('De los equipos que están actualmente en la parrilla, ¿Cuál lleva menos tiempo?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Racing Bulls', false, 39, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sauber', false, 39, 'es');
@@ -504,7 +504,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('1998', false, 
 
 -- Pregunta 21
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What is Alonso''s last win to date in F1?', null, 2, 'en');
+VALUES ('What is Alonso´s last win to date in F1?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Spain 2013', true, 41, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('China 2013', false, 41, 'en');
@@ -531,7 +531,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Zaandvort', fa
 
 -- Pregunta 24
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Mclaren did a 1-2 in the Hungarian GP in 2024. When was the last time Mclaren achieved that?', '4007762-81292888-2560-1440.jpg', 2, 'en');
+VALUES ('Mclaren did a 1-2 in the Hungarian GP in 2024. When was the last time Mclaren achieved that?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brazil 2012', false, 44, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Italy 2021', true, 44, 'en');
@@ -540,7 +540,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Canada 2010', 
 
 -- Pregunta 25
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('In which country did the 2020 season start?', '15938651546549.jpg', 1, 'en');
+VALUES ('In which country did the 2020 season start?', null, 1, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia', false, 45, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Imola', false, 45, 'en');
@@ -549,7 +549,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Austria', true
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('How many days does a Gran Prix last ', '15938651546549.jpg', 1, 'en');
+VALUES ('How many days does a Gran Prix last ', null, 1, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1', false, 46, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2', false, 46, 'en');
@@ -557,7 +557,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('3', true, 46, 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('4', false, 46, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Which is the team with the most starts in F1? ', '58.jpg', 1, 'en');
+VALUES ('Which is the team with the most starts in F1? ', null, 1, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mclaren', false, 47, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Williams', false, 47, 'en');
@@ -573,7 +573,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Spanish GP 200
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('German GP 2009', false, 48, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Who holds the record for the most Formula 1 race wins?', 'article-1377757-0BAA374500000578-340_634x432.jpg', 2, 'en');
+VALUES ('Who holds the record for the most Formula 1 race wins?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Lewis Hamilton', true, 49, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ayrton Senna', false, 49, 'en');
@@ -617,7 +617,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Zandvoort', fa
 
 -- Pregunta 24
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('McLaren hizo un 1-2 en el GP de Hungría 2024. ¿Cuándo fue la última vez que lograron eso?', '4007762-81292888-2560-1440.jpg', 2, 'es');
+VALUES ('McLaren hizo un 1-2 en el GP de Hungría 2024. ¿Cuándo fue la última vez que lograron eso?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brasil 2012', false, 54, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Italia 2021', true, 54, 'es');
@@ -626,7 +626,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Canadá 2010',
 
 -- Pregunta 25
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿En qué país comenzó la temporada 2020?', '15938651546549.jpg', 1, 'es');
+VALUES ('¿En qué país comenzó la temporada 2020?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia', false, 55, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Imola', false, 55, 'es');
@@ -635,7 +635,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Austria', true
 
 -- Pregunta 26
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuántos días dura un Gran Premio?', '15938651546549.jpg', 1, 'es');
+VALUES ('¿Cuántos días dura un Gran Premio?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1', false, 56, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2', false, 56, 'es');
@@ -644,7 +644,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('4', false, 56,
 
 -- Pregunta 27
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuál es el equipo con más participaciones en F1?', '58.jpg', 1, 'es');
+VALUES ('¿Cuál es el equipo con más participaciones en F1?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('McLaren', false, 57, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Williams', false, 57, 'es');
@@ -662,7 +662,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('GP de Alemania
 
 -- Pregunta 29
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Quién tiene el récord de más victorias en F1?', 'article-1377757-0BAA374500000578-340_634x432.jpg', 2, 'es');
+VALUES ('¿Quién tiene el récord de más victorias en F1?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Lewis Hamilton', true, 59, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ayrton Senna', false, 59, 'es');
@@ -720,7 +720,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('1992', false, 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1993', false, 65, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('How do wind effects influence a F1 car''s performance?', 'images17.jpg', 3, 'en');
+VALUES ('How do wind effects influence a F1 car''s performance?', null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Wind effects can alter the balance of the car, especially in fast corners.', true, 66, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Wind can cause lateral slides if not handled correctly.', false, 66, 'en');
@@ -728,7 +728,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Wind affects e
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Wind influences the direction of the car during overtaking maneuvers.', false, 66, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What is the key difference between Q1, Q2, and Q3 classification systems in F1?', 'pierre-gasly-alphatauri-at02-i.jpg', 1, 'en');
+VALUES ('What is the key difference between Q1, Q2, and Q3 classification systems in F1?', null, 1, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Q1 determines who advances to the next round of qualification.', true, 67, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Q2 decides the final positions in the starting grid.', false, 67, 'en');
@@ -736,7 +736,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Q3 sets the in
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Q1 and Q2 define the drivers who participate in the race.', false, 67, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Why is overtaking so difficult in F1?', '15289134275279.jpg', 3, 'en');
+VALUES ('Why is overtaking so difficult in F1?', null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Due to the dirty air ejected by the car being chased.', true, 68, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Thanks to the team strategy to stay ahead.', false, 68, 'en');
@@ -744,7 +744,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Thanks to the 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Because there are few clear opportunities to overtake on most tracks.', false, 68, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What was the first country outside Europe to host a Formula 1 race?', NULL, 3, 'en');
+VALUES ('What was the first country outside Europe to host a Formula 1 race?', null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brazil', false, 69, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('South Africa', false, 69, 'en');
@@ -752,7 +752,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia', tr
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('United States', false, 69, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Who won the Spanish Grand Prix in 1966, marking the first victory for a British constructor since the introduction of free engine regulations?', NULL, 3, 'en');
+VALUES ('Who won the Spanish Grand Prix in 1966, marking the first victory for a British constructor since the introduction of free engine regulations?', null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Jim Clark', true, 70, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Jackie Stewart', false, 70, 'en');
@@ -760,7 +760,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('John Surtees',
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Graham Hill', false, 70, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Which constructor has won the Formula 1 Constructors World Championship in the minimum number of seasons since its debut?', '360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg', 3, 'en');
+VALUES ('Which constructor has won the Formula 1 Constructors World Championship in the minimum number of seasons since its debut?', null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mclaren', false, 71, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Red Bull Racing', true, 71, 'en');
@@ -768,7 +768,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mercedes', fal
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Scuderia Ferrari', false, 71, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Which of these statements about tires in F1 is true?', 'Cuatro-neumaticos-Pirelli-de-carreras.jpg', 3, 'en');
+VALUES ('Which of these statements about tyres in F1 is true?', null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hard tires always offer more durability than soft tires.', false, 72, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Soft tires always offer more grip than hard tires.', false, 72, 'en');
@@ -822,7 +822,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('1993', false, 
 
 -- Pregunta 36
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cómo influyen los efectos del viento en el rendimiento de un coche de F1?', 'images17.jpg', 3, 'es');
+VALUES ('¿Cómo influyen los efectos del viento en el rendimiento de un coche de F1?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Los efectos del viento pueden alterar el equilibrio del coche, especialmente en curvas rápidas.', true, 78, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('El viento puede causar deslizamientos laterales si no se maneja bien.', false, 78, 'es');
@@ -831,7 +831,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('El viento infl
 
 -- Pregunta 37
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuál es la diferencia clave entre los sistemas de clasificación Q1, Q2 y Q3 en F1?', 'pierre-gasly-alphatauri-at02-i.jpg', 1, 'es');
+VALUES ('¿Cuál es la diferencia clave entre los sistemas de clasificación Q1, Q2 y Q3 en F1?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Q1 determina quién avanza a la siguiente ronda de clasificación.', true, 79, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Q2 decide las posiciones finales de la parrilla.', false, 79, 'es');
@@ -840,7 +840,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Q1 y Q2 define
 
 -- Pregunta 38
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Por qué es tan difícil adelantar en F1?', '15289134275279.jpg', 3, 'es');
+VALUES ('¿Por qué es tan difícil adelantar en F1?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Por el aire sucio que expulsa el coche que va delante.', true, 80, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Por la estrategia del equipo para mantenerse al frente.', false, 80, 'es');
@@ -849,7 +849,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Porque hay poc
 
 -- Pregunta 39
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuál fue el primer país fuera de Europa en albergar una carrera de Fórmula 1?', NULL, 3, 'es');
+VALUES ('¿Cuál fue el primer país fuera de Europa en albergar una carrera de Fórmula 1?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brasil', false, 81, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sudáfrica', false, 81, 'es');
@@ -858,7 +858,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Estados Unidos
 
 -- Pregunta 40
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Quién ganó el Gran Premio de España en 1966, marcando la primera victoria de un constructor británico bajo las nuevas regulaciones de motores?', NULL, 3, 'es');
+VALUES ('¿Quién ganó el Gran Premio de España en 1966, marcando la primera victoria de un constructor británico bajo las nuevas regulaciones de motores?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Jim Clark', true, 82, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Jackie Stewart', false, 82, 'es');
@@ -867,7 +867,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Graham Hill', 
 
 -- Pregunta 41
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué constructor ganó el Campeonato de Constructores de F1 en el menor número de temporadas desde su debut?', '360_F_471722307_raSMYjGlXua2GMuZoEHDEVNYSTLBOlni.jpg', 3, 'es');
+VALUES ('¿Qué constructor ganó el Campeonato de Constructores de F1 en el menor número de temporadas desde su debut?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('McLaren', false, 83, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Red Bull Racing', true, 83, 'es');
@@ -876,7 +876,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Scuderia Ferra
 
 -- Pregunta 42
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuál de estas afirmaciones sobre neumáticos en F1 es verdadera?', 'Cuatro-neumaticos-Pirelli-de-carreras.jpg', 3, 'es');
+VALUES ('¿Cuál de estas afirmaciones sobre neumáticos en F1 es verdadera?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Los neumáticos duros siempre ofrecen más durabilidad que los blandos.', false, 84, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Los neumáticos blandos siempre ofrecen más agarre que los duros.', false, 84, 'es');
@@ -885,7 +885,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Todos los coch
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Who holds the record for the most pole positions in a single season?', 'fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg', 2, 'en');
+VALUES ('Who holds the record for the most pole positions in a single season?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Lewis Hamilton', false, 85, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sebastian Vettel', true, 85, 'en');
@@ -893,7 +893,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schuma
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Max Verstappen', false, 85, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Which team has won the Constructors World Championship the most times?', 'desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg', 1, 'en');
+VALUES ('Which team has won the Constructors World Championship the most times?', null, 1, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mclaren', false, 86, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ferrari', true, 86, 'en');
@@ -901,7 +901,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mercedes', fal
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Red Bull', false, 86, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('The Spanish Grand Prix is currently hold in Montmelo. Who was the first driver to win there?', 'fotos-gp-espana-f1-202287138-1653075223_6.jpg', 2, 'en');
+VALUES ('Until 2025, the Spanish Grand Prix is currently hold in Montmelo. Who was the first driver to win there?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Fernando Alonso', false, 87, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schumacher', false, 87, 'en');
@@ -909,7 +909,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ayrton Senna',
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nigel Mansell', true, 87, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('In what year did the current points system for F1 racing get introduced?', '450_1000.jpg', 2, 'en');
+VALUES ('In what year did the current points system for F1 racing get introduced?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1989', false, 88, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1995', false, 88, 'en');
@@ -941,7 +941,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Silverstone', 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Suzuka', false, 91, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('In 1998 F1 stopped using slick tyres. When were slick tires introduced to F1 racing back again?', 'f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg', 2, 'en');
+VALUES ('In 1998 F1 stopped using slick tyres. When were slick tires introduced to F1 racing back again?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2008', false, 92, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2013', false, 92, 'en');
@@ -950,7 +950,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('2016', false, 
 
 -- Pregunta 43
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Quién tiene el récord de más poles en una sola temporada?', 'fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_1.jpg', 2, 'es');
+VALUES ('¿Quién tiene el récord de más poles en una sola temporada?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Lewis Hamilton', false, 93, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sebastian Vettel', true, 93, 'es');
@@ -959,7 +959,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Max Verstappen
 
 -- Pregunta 44
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué equipo ha ganado más veces el Campeonato de Constructores?', 'desktop-wallpaper-f1-team-logos-formula1-f1-2021-teams.jpg', 1, 'es');
+VALUES ('¿Qué equipo ha ganado más veces el Campeonato de Constructores?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('McLaren', false, 94, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ferrari', true, 94, 'es');
@@ -968,7 +968,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Red Bull', fal
 
 -- Pregunta 45
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('El GP de España se celebra actualmente en Montmeló. ¿Quién fue el primer piloto en ganar allí?', 'fotos-gp-espana-f1-202287138-1653075223_6.jpg', 2, 'es');
+VALUES ('El GP de España se celebra actualmente en Montmeló. ¿Quién fue el primer piloto en ganar allí?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Fernando Alonso', false, 95, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schumacher', false, 95, 'es');
@@ -977,7 +977,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nigel Mansell'
 
 -- Pregunta 46
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿En qué año se introdujo el actual sistema de puntuación de F1?', '450_1000.jpg', 2, 'es');
+VALUES ('¿En qué año se introdujo el actual sistema de puntuación de F1?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1989', false, 96, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1995', false, 96, 'es');
@@ -1013,7 +1013,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Suzuka', false
 
 -- Pregunta 50
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('En 1998, la F1 dejó de usar neumáticos lisos. ¿Cuándo se volvieron a introducir?', 'f4b6d415-a39e-4797-a0b7-4806d5c9f923_source-aspect-ratio_default_0.jpg', 2, 'es');
+VALUES ('En 1998, la F1 dejó de usar neumáticos lisos. ¿Cuándo se volvieron a introducir?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2008', false, 100, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2013', false, 100, 'es');
@@ -1023,7 +1023,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('2016', false, 
 
 -- Pregunta 51
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Which city hosted the first night race ever held in Formula One?', 'gettyimages-499135626-612x612.jpg', 1, 'en');
+VALUES ('Which city hosted the first night race ever held in Formula One?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Singapore', true, 101, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Abu Dhabi', false, 101, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Shanghai', false, 101, 'en');
@@ -1039,7 +1039,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Japanese Grand
 
 -- Pregunta 53
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('How many times has the Scuderia Ferrari team won the Italian Grand Prix?', 'ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg', 1, 'en');
+VALUES ('How many times has the Scuderia Ferrari team won the Italian Grand Prix?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('14 times', false, 103, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('21 times', false, 103, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('19 times', true, 103, 'en');
@@ -1055,7 +1055,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('11 times', fal
 
 -- Pregunta 55
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What year were air brake systems introduced in F1?', 'upmac1f.jpg', 3, 'en');
+VALUES ('What year were air brake systems introduced in F1?', null, 3, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2014', false, 105, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2005', false, 105, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2009', false, 105, 'en');
@@ -1071,7 +1071,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('12 times', fal
 
 -- Pregunta 57
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What was the first year in which the brake caliper system was used?', 'upmac1f.jpg', 3, 'en');
+VALUES ('What was the first year in which the brake caliper system was used?', null, 3, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1983', false, 107, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1976', true, 107, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1990', false, 107, 'en');
@@ -1079,7 +1079,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('1968', false, 
 
 -- Pregunta 58
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What was the first Formula 1 Grand Prix in which the use of lead-free fuels was allowed?', '1366_2000.jpeg', 3, 'en');
+VALUES ('What was the first Formula 1 Grand Prix in which the use of lead-free fuels was allowed?', null, 3, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('South Africa 1992', true, 108, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brazil 1987', false, 108, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 1999', false, 108, 'en');
@@ -1087,7 +1087,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2002
 
 -- Pregunta 59
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What was the first Formula 1 Grand Prix in which the use of KERS (Kinetic Energy Recovery System) was allowed?', 'salida-alemania.jpg', 2, 'en');
+VALUES ('What was the first Formula 1 Grand Prix in which the use of KERS (Kinetic Energy Recovery System) was allowed?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Bahrein 2010', false, 109, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Silverstone 2011', false, 109, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2012', false, 109, 'en');
@@ -1103,7 +1103,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('To promote sus
 
 -- Pregunta 61
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What was the result of the technical transition in F1 in 1998?', 'gp-australia-1998-hakkinen-coulthard-soymotor.jpg', 3, 'en');
+VALUES ('What was the result of the technical transition in F1 in 1998?', null, 3, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('An increase in competitiveness among teams', true, 111, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Less safety cars', false, 111, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('The introduction of new materials in the chassis of cars', false, 111, 'en');
@@ -1111,7 +1111,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('The eliminatio
 
 -- Pregunta 62
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What was the main objective behind the introduction of the brake-by-wire system in F1?', 'brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg', 3, 'en');
+VALUES ('What was the main objective behind the introduction of the brake-by-wire system in F1?', null, 3, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To reduce the weight of the cars', false, 112, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To improve energy efficiency', false, 112, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To increase braking capacity under high temperature conditions', true, 112, 'en');
@@ -1128,7 +1128,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Fernando Alons
 
 -- Pregunta 64
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What percentage of races have been won by Mercedes since their entry into Formula 1 in 2010?', 'Schumacher_Mercedes_Jerez_(cropped).jpg', 2, 'en');
+VALUES ('What percentage of races have been won by Mercedes since their entry into Formula 1 in 2010?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Less than 20%', false, 114, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Between 20% and 40%', false, 114, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Between 40% and 60%', true, 114, 'en');
@@ -1152,7 +1152,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schuma
 
 -- Pregunta 67
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('How many teams participate in Formula 1?', 'f1-australia-salida1_hd_32675.jpg', 1, 'en');
+VALUES ('How many teams participate in Formula 1?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('10 teams', true, 117, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('7 teams', false, 117, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('8 teams', false, 117, 'en');
@@ -1184,7 +1184,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('FIA', true, 12
 
 -- Pregunta 71
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('In Formula 1, what is the primary goal of a pit stop strategy during a race?', 'sergio-perez-red-bull-racing-r.jpg', 2, 'en');
+VALUES ('In Formula 1, what is the primary goal of a pit stop strategy during a race?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To minimize the time spent in the pits', true, 121, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To maximize the number of stops', false, 121, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To maintain the current position in the race', false, 121, 'en');
@@ -1192,7 +1192,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('To gain positi
 
 -- Pregunta 72
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What is the significance of choosing the right tire compound during a pit stop strategy?', '006_small.jpg', 1, 'en');
+VALUES ('What is the significance of choosing the right tire compound during a pit stop strategy?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('It affects the cars handling', false, 122, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('It determines the number of stops needed', false, 122, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('It influences the cars speed', false, 122, 'en');
@@ -1200,7 +1200,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('All of the abo
 
 -- Pregunta 73
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What factors influence the decision to adopt a one-stop, two-stop, or three-stop strategy in Formula 1?', '5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg', 1, 'en');
+VALUES ('What factors influence the decision to adopt a one-stop, two-stop, or three-stop strategy in Formula 1?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Tire degradation rates', false, 123, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Track conditions', false, 123, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Car setup', false, 123, 'en');
@@ -1208,7 +1208,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('All of the abo
 
 -- Pregunta 51
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué ciudad organizó la primera carrera nocturna de la Fórmula 1?', 'gettyimages-499135626-612x612.jpg', 1, 'es');
+VALUES ('¿Qué ciudad organizó la primera carrera nocturna de la Fórmula 1?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Singapur', true, 124, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Abu Dabi', false, 124, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Shanghái', false, 124, 'es');
@@ -1224,7 +1224,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('GP de Japón (
 
 -- Pregunta 53
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuántas veces ha ganado el equipo Ferrari el Gran Premio de Italia?', 'ferrari-sonrie-monza-sancion-carlos-sainz-incluida-todo-funciona-bien-202289708-1662749006_1.jpg', 1, 'es');
+VALUES ('¿Cuántas veces ha ganado el equipo Ferrari el Gran Premio de Italia?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('14 veces', false, 126, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('21 veces', false, 126, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('19 veces', true, 126, 'es');
@@ -1240,7 +1240,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('11 veces', fal
 
 -- Pregunta 55
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿En qué año se introdujeron los sistemas de freno por aire en la F1?', 'upmac1f.jpg', 3, 'es');
+VALUES ('¿En qué año se introdujeron los sistemas de freno por aire en la F1?', null, 3, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2014', false, 128, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2005', false, 128, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2009', false, 128, 'es');
@@ -1256,7 +1256,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('12 veces', fal
 
 -- Pregunta 57
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿En qué año se utilizó por primera vez el sistema de pinzas de freno?', 'upmac1f.jpg', 3, 'es');
+VALUES ('¿En qué año se utilizó por primera vez el sistema de pinzas de freno?', null, 3, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1983', false, 130, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1976', true, 130, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1990', false, 130, 'es');
@@ -1264,7 +1264,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('1968', false, 
 
 -- Pregunta 58
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿En qué Gran Premio se permitió por primera vez el uso de combustibles sin plomo en la F1?', '1366_2000.jpeg', 3, 'es');
+VALUES ('¿En qué Gran Premio se permitió por primera vez el uso de combustibles sin plomo en la F1?', null, 3, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sudáfrica 1992', true, 131, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brasil 1987', false, 131, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 1999', false, 131, 'es');
@@ -1272,7 +1272,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2002
 
 -- Pregunta 59
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿En qué Gran Premio se permitió por primera vez el uso del sistema KERS?', 'salida-alemania.jpg', 2, 'es');
+VALUES ('¿En qué Gran Premio se permitió por primera vez el uso del sistema KERS?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Baréin 2010', false, 132, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Silverstone 2011', false, 132, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2012', false, 132, 'es');
@@ -1288,7 +1288,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Promover la so
 
 -- Pregunta 61
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuál fue el resultado de la transición técnica de la F1 en 1998?', 'gp-australia-1998-hakkinen-coulthard-soymotor.jpg', 3, 'es');
+VALUES ('¿Cuál fue el resultado de la transición técnica de la F1 en 1998?', null, 3, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Un aumento de la competitividad entre equipos', true, 134, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Menos coches de seguridad', false, 134, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Introducción de nuevos materiales en el chasis', false, 134, 'es');
@@ -1296,7 +1296,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Eliminación d
 
 -- Pregunta 62
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuál fue el objetivo principal del sistema brake-by-wire en la F1?', 'brake-by-wire-el-ultimo-rompecabezas-de-la-f1-201521101_3.jpg', 3, 'es');
+VALUES ('¿Cuál fue el objetivo principal del sistema brake-by-wire en la F1?', null, 3, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Reducir el peso de los coches', false, 135, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mejorar la eficiencia energética', false, 135, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Aumentar la capacidad de frenado a altas temperaturas', true, 135, 'es');
@@ -1312,7 +1312,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Fernando Alons
 
 -- Pregunta 64
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué porcentaje de carreras ha ganado Mercedes desde su entrada en la F1 en 2010?', 'Schumacher_Mercedes_Jerez_(cropped).jpg', 2, 'es');
+VALUES ('¿Qué porcentaje de carreras ha ganado Mercedes desde su entrada en la F1 en 2010?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Menos del 20%', false, 137, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Entre el 20% y 40%', false, 137, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Entre el 40% y 60%', true, 137, 'es');
@@ -1336,7 +1336,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schuma
 
 -- Pregunta 67
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuántos equipos participan en la Fórmula 1?', 'f1-australia-salida1_hd_32675.jpg', 1, 'es');
+VALUES ('¿Cuántos equipos participan en la Fórmula 1?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('10 equipos', true, 140, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('7 equipos', false, 140, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('8 equipos', false, 140, 'es');
@@ -1368,7 +1368,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('FIA', true, 14
 
 -- Pregunta 71
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuál es el objetivo principal de una estrategia de parada en boxes durante una carrera de F1?', 'sergio-perez-red-bull-racing-r.jpg', 2, 'es');
+VALUES ('¿Cuál es el objetivo principal de una estrategia de parada en boxes durante una carrera de F1?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Minimizar el tiempo en boxes', true, 144, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Maximizar el número de paradas', false, 144, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mantener la posición en pista', false, 144, 'es');
@@ -1376,7 +1376,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ganar posicion
 
 -- Pregunta 72
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué importancia tiene elegir el compuesto de neumático correcto durante una parada en boxes?', '006_small.jpg', 1, 'es');
+VALUES ('¿Qué importancia tiene elegir el compuesto de neumático correcto durante una parada en boxes?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Afecta el manejo del coche', false, 145, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Determina el número de paradas necesarias', false, 145, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Influye en la velocidad del coche', false, 145, 'es');
@@ -1384,7 +1384,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Todas las ante
 
 -- Pregunta 73
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué factores influyen en adoptar una estrategia de una, dos o tres paradas en F1?', '5d2c1cab0ce69448248b4d2b-f1-2019-gp-gran-bretana-victoria-una-sola-parada-boxes.jpeg', 1, 'es');
+VALUES ('¿Qué factores influyen en adoptar una estrategia de una, dos o tres paradas en F1?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Tasa de degradación de neumáticos', false, 146, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Condiciones de pista', false, 146, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Configuración del coche', false, 146, 'es');
@@ -1393,7 +1393,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Todas las ante
 
 -- Pregunta 74
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('In a two-stop strategy, why might a team choose to start on the medium tire compound instead of the soft?', 'starting-grid-1.jpg', 2, 'en');
+VALUES ('In a two-stop strategy, why might a team choose to start on the medium tire compound instead of the soft?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Medium tires offer better grip in the beginning of the race', false, 147, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Starting on medium tires allows for a more flexible first stint', false, 147, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Starting on medium tires allows for a more flexible strategy', true, 147, 'en');
@@ -1410,7 +1410,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('It ensures a c
 
 -- Pregunta 76
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Consider a Formula 1 race where the weather forecast predicts heavy rain towards the latter stages of the race. In the given scenario, what would be the optimal pit stop strategy for maximizing the chances of winning the Formula 1 race, considering the dynamic weather conditions, tyre selection, car performance, safety risks, and competitor strategies?', 'analisis-gp-brasil-f1-2023-soymotor.jpg', 3, 'en');
+VALUES ('Consider a Formula 1 race where the weather forecast predicts heavy rain towards the latter stages of the race. In the given scenario, what would be the optimal pit stop strategy for maximizing the chances of winning the Formula 1 race, considering the dynamic weather conditions, tyre selection, car performance, safety risks, and competitor strategies?', null, 3, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Stick to the initial plan of starting on intermediate tyres and hope for the best, minimizing pit stops to save time', false, 149, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Switch to extreme wet tyres as soon as light rain starts, prioritizing performance in wet conditions despite the risk of early tyre degradation', false, 149, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Delay the switch to extreme wet tyres until the very end of the race, hoping to maintain speed in the dry conditions and then capitalize on the performance boost in the heavy rain', true, 149, 'en');
@@ -1418,7 +1418,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Continuously m
 
 -- Pregunta 77
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('In a Formula 1 race, drivers find themselves in a unique situation where the race is being held in extremely hot conditions, causing the asphalt to heat up significantly. This leads to increased tire degradation and reduced grip. Given this scenario, how would you strategize pit stops for the drivers considering all started on softs?', 'captura-4643897367.jpg', 3, 'en');
+VALUES ('In a Formula 1 race, drivers find themselves in a unique situation where the race is being held in extremely hot conditions, causing the asphalt to heat up significantly. This leads to increased tire degradation and reduced grip. Given this scenario, how would you strategize pit stops for the drivers considering all started on softs?', null, 3, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Stick rigidly to the hard compound tyres throughout the entire race, relying on the durability of these tyres to maintain a steady pace', false, 150, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Make an early switch to medium compound tyres to benefit from improved grip and performance, despite the potential for faster tire degradation.', true, 150, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Delay the switch to medium compound tyres until the very end of the race, attempting to preserve the hard compound tires for as long as possible to avoid unnecessary pit stops', false, 150, 'en');
@@ -1426,7 +1426,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Trying to use 
 
 -- Pregunta 78
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Overtake Under Yellow Flags During a race, there is an accident on the track, and yellow flags are deployed. A driver attempts to make a pass while the yellow flags are out. How is the sporting regulations applied in this situation?', 'a-marshal-holds-a-yellow-flag-1.jpg', 2, 'en');
+VALUES ('Overtake Under Yellow Flags During a race, there is an accident on the track, and yellow flags are deployed. A driver attempts to make a pass while the yellow flags are out. How is the sporting regulations applied in this situation?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES
 ('Passing is allowed as long as the other car goes very slow and it does not put the driver being passed at risk', true, 151, 'en'),
@@ -1436,7 +1436,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES
 
 -- Pregunta 74
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('En una estrategia a dos paradas, ¿por qué un equipo podría elegir comenzar con el compuesto medio en lugar del blando?', 'starting-grid-1.jpg', 2, 'es');
+VALUES ('En una estrategia a dos paradas, ¿por qué un equipo podría elegir comenzar con el compuesto medio en lugar del blando?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Los neumáticos medios ofrecen mejor agarre al inicio de la carrera', false, 152, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Comenzar con neumáticos medios permite un primer stint más flexible', false, 152, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Comenzar con neumáticos medios permite una estrategia más flexible', true, 152, 'es');
@@ -1453,7 +1453,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Asegura un rit
 
 -- Pregunta 76
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('En una carrera de Fórmula 1 donde se pronostica lluvia intensa en las etapas finales, ¿cuál sería la estrategia óptima de paradas en boxes para maximizar las posibilidades de victoria considerando clima, neumáticos, rendimiento, riesgos y estrategias de rivales?', 'analisis-gp-brasil-f1-2023-soymotor.jpg', 3, 'es');
+VALUES ('En una carrera de Fórmula 1 donde se pronostica lluvia intensa en las etapas finales, ¿cuál sería la estrategia óptima de paradas en boxes para maximizar las posibilidades de victoria considerando clima, neumáticos, rendimiento, riesgos y estrategias de rivales?', null, 3, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Seguir con el plan inicial de arrancar con intermedios y esperar lo mejor, minimizando las paradas', false, 154, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Cambiar a neumáticos de lluvia extrema tan pronto comience la llovizna', false, 154, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Retrasar el cambio a neumáticos de lluvia extrema hasta el final de la carrera para aprovechar el rendimiento en seco', true, 154, 'es');
@@ -1461,7 +1461,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monitorear con
 
 -- Pregunta 77
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('En una carrera de F1 con condiciones extremadamente calurosas que aumentan la degradación y reducen el agarre, ¿cómo planificarías las paradas si todos comienzan con blandos?', 'captura-4643897367.jpg', 3, 'es');
+VALUES ('En una carrera de F1 con condiciones extremadamente calurosas que aumentan la degradación y reducen el agarre, ¿cómo planificarías las paradas si todos comienzan con blandos?', null, 3, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Usar exclusivamente neumáticos duros para toda la carrera confiando en su durabilidad', false, 155, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hacer un cambio temprano a neumáticos medios para beneficiarse del mejor agarre', true, 155, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Retrasar el cambio a medios hasta el final para conservar los duros lo más posible', false, 155, 'es');
@@ -1469,7 +1469,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Usar los duros
 
 -- Pregunta 78
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Adelantamiento bajo banderas amarillas: durante una carrera hay un accidente y se ondean banderas amarillas. Un piloto intenta adelantar. ¿Cómo se aplica el reglamento deportivo?', 'a-marshal-holds-a-yellow-flag-1.jpg', 2, 'es');
+VALUES ('Adelantamiento bajo banderas amarillas: durante una carrera hay un accidente y se ondean banderas amarillas. Un piloto intenta adelantar. ¿Cómo se aplica el reglamento deportivo?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Se permite adelantar si el coche adelantado va muy lento y no hay riesgo', true, 156, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Adelantar bajo amarilla está prohibido para evitar riesgos', false, 156, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Se permite adelantar pero se debe ceder la posición en la siguiente curva', false, 156, 'es');
@@ -1478,7 +1478,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Se permite ade
 
 -- Pregunta 79
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Collision While Racing Two drivers collide during a race but manage to continue racing. What action should the stewards take regarding this incident?', 'el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg', 2, 'en');
+VALUES ('Collision While Racing Two drivers collide during a race but manage to continue racing. What action should the stewards take regarding this incident?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES
 ('No action, as both drivers continued racing', false, 157, 'en'),
@@ -1488,7 +1488,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES
 
 -- Pregunta 80
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Driver Forced Off Track forces another off the track during a close battle. What is the appropriate response from the stewards?', 'images22.jpg', 2, 'en');
+VALUES ('Driver Forced Off Track forces another off the track during a close battle. What is the appropriate response from the stewards?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES
 ('No action, as it was part of the racing', false, 158, 'en'),
@@ -1497,7 +1497,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES
 ('Disqualify the driver who forced the other off track', false, 158, 'en');
 
 
-INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('Defensive Driving During Braking A driver defends against an attack by moving during braking, which leads to contact with another driver. What is the correct course of action by the stewards?', 'verstappen-norris-635x358.jpg', 2, 'en');
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('Defensive Driving During Braking A driver defends against an attack by moving during braking, which leads to contact with another driver. What is the correct course of action by the stewards?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Disqualify the driver who moved under braking', false, 159, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Put a several penalty to the driver who moved under breaking', true, 159, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Put just a reprimand for that action', false, 159, 'en');
@@ -1515,7 +1515,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mercedes', fal
 
 -- Pregunta 79
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Colisión en carrera: dos pilotos colisionan pero logran continuar. ¿Qué deben hacer los comisarios?', 'el-red-bull-de-max-verstappen-vuela-tras-el-toque-DMCHB3HIH5HSZOMSUQAMPNPYXQ.jpg', 2, 'es');
+VALUES ('Colisión en carrera: dos pilotos colisionan pero logran continuar. ¿Qué deben hacer los comisarios?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('No hacer nada, ya que ambos continuaron', false, 162, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Advertir a ambos pilotos sobre incidentes futuros', false, 162, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Investigar por posible conducción peligrosa', true, 162, 'es');
@@ -1523,7 +1523,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Descalificar a
 
 -- Pregunta 80
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Conductor empuja fuera de pista a otro durante una batalla cerrada. ¿Cuál es la respuesta adecuada de los comisarios?', 'images22.jpg', 2, 'es');
+VALUES ('Conductor empuja fuera de pista a otro durante una batalla cerrada. ¿Cuál es la respuesta adecuada de los comisarios?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('No hacer nada, fue parte de la carrera', false, 163, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Investigar al piloto que empujó y reprender al que fue sacado de pista', false, 163, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Investigar posibles sanciones por sacar a otro de pista en ambos casos', true, 163, 'es');
@@ -1531,7 +1531,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Descalificar a
 
 -- Pregunta 81
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Conducción defensiva bajo frenada: un piloto se mueve mientras frena y causa contacto. ¿Qué deben hacer los comisarios?', 'verstappen-norris-635x358.jpg', 2, 'es');
+VALUES ('Conducción defensiva bajo frenada: un piloto se mueve mientras frena y causa contacto. ¿Qué deben hacer los comisarios?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Descalificar al piloto que se movió frenando', false, 164, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Imponer una penalización severa al piloto que se movió bajo frenada', true, 164, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Solo una reprimenda por esa acción', false, 164, 'es');
@@ -1569,12 +1569,12 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Lando Norris',
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Romain Grosjean', false, 169, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nick Heidfeld', true, 169, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sergio Perez', false, 169, 'en');
-INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('What is the primary difference between the deployment of the Safety Car and the Red Flag during Formula 1 races?', '16474210250936.jpg', 1, 'en');
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('What is the primary difference between the deployment of the Safety Car and the Red Flag during Formula 1 races?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('The Safety Car is used when there are adverse weather conditions, while the Red Flag indicates a temporary halt in the race due to track hazards', false, 170, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('The Red Flag means the race has been completely stopped, whereas the Safety Car slows down the cars but allows the race to continue', true, 170, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('The Safety Car is activated for significant accidents on the track, while the Red Flag is shown at the end of the race to signal the official conclusion', false, 170, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Both serve to indicate the same type of situation; only the colors change', false, 170, 'en');
-INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('Which driver has the biggest amount of pole positions in F1 history?', 'fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg', 1, 'en');
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('Which driver has the biggest amount of pole positions in F1 history?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ayrton Senna', false, 171, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schumacher', false, 171, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Max Verstappen', false, 171, 'en');
@@ -1606,7 +1606,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sergio Pérez'
 
 -- Pregunta 87
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuál es la diferencia principal entre el Safety Car y la Bandera Roja en Fórmula 1?', '16474210250936.jpg', 1, 'es');
+VALUES ('¿Cuál es la diferencia principal entre el Safety Car y la Bandera Roja en Fórmula 1?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('El Safety Car se usa con lluvia, mientras la Bandera Roja detiene la carrera por peligros en pista', false, 175, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('La Bandera Roja significa carrera detenida, el Safety Car ralentiza pero permite continuar', true, 175, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('El Safety Car se usa en accidentes grandes, la Bandera Roja al final de la carrera', false, 175, 'es');
@@ -1614,14 +1614,14 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ambos indican 
 
 -- Pregunta 88
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué piloto tiene la mayor cantidad de poles en la historia de F1?', 'fia-estudia-problemas-visibilidad-semaforo-gp-australia-f1-201955766_2.jpg', 1, 'es');
+VALUES ('¿Qué piloto tiene la mayor cantidad de poles en la historia de F1?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ayrton Senna', false, 176, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schumacher', false, 176, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Max Verstappen', false, 176, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Lewis Hamilton', true, 176, 'es');
 
 
-INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('Which driver has the biggest amount of podiums in F1 history?', '38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg', 1, 'en');
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('Which driver has the biggest amount of podiums in F1 history?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Alain Prost', false, 177, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schumacher', false, 177, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Max Verstappen', false, 177, 'en');
@@ -1641,7 +1641,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Honda', true, 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Super Aguri', false, 180, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Williams', false, 180, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Jordan', false, 180, 'en');
-INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('Since Ferrari won their last championship to date, which driver has taken the biggest amount of wins for the scuderia?', '1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg', 2, 'en');
+INSERT INTO Question (name, imagePath, knowledgequestionlevel, language) VALUES ('Since Ferrari won their last championship to date, which driver has taken the biggest amount of wins for the scuderia?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sebastian Vettel', true, 181, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Charles Leclerc', false, 181, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Fernando Alonso', false, 181, 'en');
@@ -1649,7 +1649,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Kimi Raikkonen
 
 -- Pregunta 89
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué piloto tiene la mayor cantidad de podios en la historia de la F1?', '38fb463a6228ca4c1a6724f0eb3b04590518d237.jpg', 1, 'es');
+VALUES ('¿Qué piloto tiene la mayor cantidad de podios en la historia de la F1?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Alain Prost', false, 182, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schumacher', false, 182, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Max Verstappen', false, 182, 'es');
@@ -1681,7 +1681,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Jordan', false
 
 -- Pregunta 93
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Desde que Ferrari ganó su último campeonato hasta hoy, ¿qué piloto ha conseguido más victorias para la Scuderia?', '1200px-Kimi_Raikkonen_won_2007_Brazil_GP.jpg', 2, 'es');
+VALUES ('Desde que Ferrari ganó su último campeonato hasta hoy, ¿qué piloto ha conseguido más victorias para la Scuderia?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sebastian Vettel', true, 186, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Charles Leclerc', false, 186, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Fernando Alonso', false, 186, 'es');
@@ -1781,7 +1781,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Monza', false,
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hockenheim', true, 198, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('In which year F1 started to put color on tyres to distinguish the different compounds?', 'ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg', 2, 'en');
+VALUES ('In which year F1 started to put color on tyres to distinguish the different compounds?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2009', false, 199, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2005', false, 199, 'en');
@@ -1805,7 +1805,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('India 2013', t
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brazil 2012', false, 201, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('During a Formula 1 race, a major accident occurs that results in significant debris scattered across the track, posing a substantial risk to the drivers. The driver who had the accident is okay. The race director needs to decide on the appropriate action. Which of the following options accurately reflects the correct procedure according to the FIA Sporting Regulations?', 'asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg', 2, 'en');
+VALUES ('During a Formula 1 race, a major accident occurs that results in significant debris scattered across the track, posing a substantial risk to the drivers. The driver who had the accident is okay. The race director needs to decide on the appropriate action. Which of the following options accurately reflects the correct procedure according to the FIA Sporting Regulations?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES ('Deploy the Safety Car to slow down the field and allow marshals to clear the debris', true, 202, 'en');
@@ -1834,7 +1834,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hockenheim', t
 
 -- Pregunta 101
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿En qué año la F1 comenzó a usar colores en los neumáticos para distinguir los compuestos?', 'ede47cd9-7902-4751-8c24-46e2a3b7a386_source-aspect-ratio_default_0.jpg', 2, 'es');
+VALUES ('¿En qué año la F1 comenzó a usar colores en los neumáticos para distinguir los compuestos?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2009', false, 205, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2005', false, 205, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2011', false, 205, 'es');
@@ -1858,7 +1858,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brasil 2012', 
 
 -- Pregunta 104
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Durante una carrera de F1 ocurre un accidente que deja muchos restos en pista. El piloto está bien, pero hay riesgo para los demás. Según el reglamento deportivo FIA, ¿cuál es la acción correcta del director de carrera?', 'asi-fue-el-accidente-de-carlos-V6JX6ICWVVCLTE44QGHEEUIUQQ.jpg', 2, 'es');
+VALUES ('Durante una carrera de F1 ocurre un accidente que deja muchos restos en pista. El piloto está bien, pero hay riesgo para los demás. Según el reglamento deportivo FIA, ¿cuál es la acción correcta del director de carrera?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES ('Desplegar el Safety Car para ralentizar el pelotón y permitir limpiar la pista', true, 208, 'es');
 INSERT INTO Answer (name, correct, questionId, language)
@@ -1870,7 +1870,7 @@ VALUES ('Permitir que los pilotos decidan si reducir la velocidad o no', false, 
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Heavy rain continues to fall during a Formula 1 race, making the track unsafe for racing. The race director must determine the correct course of action. Which of the following options aligns with the FIA Sporting Regulations?', 'images24.jpg', 2, 'en');
+VALUES ('Heavy rain continues to fall during a Formula 1 race, making the track unsafe for racing. The race director must determine the correct course of action. Which of the following options aligns with the FIA Sporting Regulations?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES ('Deploy the Safety Car to slow down the field and wait for the rain to subside', false, 209, 'en');
@@ -1901,7 +1901,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Suzuka', false
 
 -- Pregunta 108
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('How many times has the Spanish Grand Prix been the host of the inaugural race of a new Formula 1 championship?', 'formula-1-european-gp-1997-jac-2.jpg', 2, 'en');
+VALUES ('How many times has the Spanish Grand Prix been the host of the inaugural race of a new Formula 1 championship?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1', true, 212, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2', false, 212, 'en');
@@ -1919,11 +1919,11 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sebastian Vett
 
 -- Pregunta 110
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('How many times has Fernando Alonso raced the Australian GP?', 'fernando-alonso-aston-martin-a-3.jpg', 3, 'en');
+VALUES ('How many times has Fernando Alonso raced the Australian GP?', null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('19 times', false, 214, 'en');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('21 times', false, 214, 'en');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('20 times', true, 214, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('21 times', true, 214, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('20 times', false, 214, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('17 times', false, 214, 'en');
 
 -- Pregunta 111
@@ -1946,7 +1946,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('No F1 driver',
 
 -- Pregunta 105
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Lluvia intensa continúa cayendo durante una carrera de Fórmula 1, haciendo que la pista sea insegura para competir. El director de carrera debe determinar el curso de acción correcto. ¿Cuál de las siguientes opciones se ajusta al Reglamento Deportivo de la FIA?', 'images24.jpg', 2, 'es');
+VALUES ('Lluvia intensa continúa cayendo durante una carrera de Fórmula 1, haciendo que la pista sea insegura para competir. El director de carrera debe determinar el curso de acción correcto. ¿Cuál de las siguientes opciones se ajusta al Reglamento Deportivo de la FIA?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES ('Desplegar el coche de seguridad para ralentizar el grupo y esperar que la lluvia disminuya', false, 217, 'es');
@@ -1977,7 +1977,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Suzuka', false
 
 -- Pregunta 108
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuántas veces ha sido el Gran Premio de España la carrera inaugural de una temporada de Fórmula 1?', 'formula-1-european-gp-1997-jac-2.jpg', 2, 'es');
+VALUES ('¿Cuántas veces ha sido el Gran Premio de España la carrera inaugural de una temporada de Fórmula 1?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1', true, 220, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2', false, 220, 'es');
@@ -1995,11 +1995,11 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sebastian Vett
 
 -- Pregunta 110
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuántas veces ha competido Fernando Alonso en el GP de Australia?', 'fernando-alonso-aston-martin-a-3.jpg', 3, 'es');
+VALUES ('¿Cuántas veces ha competido Fernando Alonso en el GP de Australia?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('19 veces', false, 222, 'es');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('21 veces', false, 222, 'es');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('20 veces', true, 222, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('21 veces', true, 222, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('20 veces', false, 222, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('17 veces', false, 222, 'es');
 
 -- Pregunta 111
@@ -2023,7 +2023,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('No es un pilot
 
 -- Pregunta 113
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('F1 left USA in 2007. When was the first United States Grand Prix held after its reintroduction to the Formula 1 calendar?', 'USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg', 2, 'en');
+VALUES ('F1 left USA in 2007. When was the first United States Grand Prix held after its reintroduction to the Formula 1 calendar?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2010', false, 225, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2009', false, 225, 'en');
@@ -2087,7 +2087,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Toleman', fals
 
 -- Pregunta 120
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('If the circuit is in wet conditions for the whole race and the drivers start with intermediate tyres, they need to do a pit stop?', '14885385788381.jpg', 2, 'en');
+VALUES ('If the circuit is in wet conditions for the whole race and the drivers start with intermediate tyres, they need to do a pit stop?', null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES ('Yes, as the rules say that every car must do one pit stop during a race at least', false, 232, 'en');
@@ -2108,7 +2108,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Canada 2010', 
 
 -- Pregunta 113
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('La F1 salió de EE. UU. en 2007. ¿Cuándo fue el primer Gran Premio de Estados Unidos tras su reintroducción al calendario de F1?', 'USGP_F1_COTA_3_US_Grand_Prix_Formula_1_at_COTA_2d7014fd-e1cb-4c62-89d0-1e468ab9929c.jpg', 2, 'es');
+VALUES ('La F1 salió de EE. UU. en 2007. ¿Cuándo fue el primer Gran Premio de Estados Unidos tras su reintroducción al calendario de F1?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2010', false, 234, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2009', false, 234, 'es');
@@ -2171,7 +2171,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Toleman', fals
 
 -- Pregunta 120
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Si el circuito está en condiciones de lluvia durante toda la carrera y los pilotos comienzan con neumáticos intermedios, ¿deben hacer una parada en boxes?', '14885385788381.jpg', 2, 'es');
+VALUES ('Si el circuito está en condiciones de lluvia durante toda la carrera y los pilotos comienzan con neumáticos intermedios, ¿deben hacer una parada en boxes?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES ('Sí, porque el reglamento dice que cada coche debe hacer al menos una parada en carrera', false, 241, 'es');
@@ -2224,14 +2224,14 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Prost GP', false, 246);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Williams', true, 246);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Before 2024, when was the last time Mclaren won the championship?', 'f1-mclarens-india-inline.jpg', 2, 'en');
+VALUES ('Before 2024, when was the last time Mclaren won the championship?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId) VALUES ('2007', false, 247);
 INSERT INTO Answer (name, correct, questionId) VALUES ('2008', false, 247);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1999', false, 247);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1998', true, 247);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('When was the last time Mclaren won the championship to date?', 'f1-mclarens-india-inline.jpg', 2, 'en');
+VALUES ('When was the last time Mclaren won the championship to date?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId) VALUES ('2007', false, 248);
 INSERT INTO Answer (name, correct, questionId) VALUES ('2008', false, 248);
 INSERT INTO Answer (name, correct, questionId) VALUES ('1999', false, 248);
@@ -2278,7 +2278,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Williams', tru
 
 -- Pregunta 126
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Antes de 2024, ¿cuándo fue la última vez que McLaren ganó el campeonato?', 'f1-mclarens-india-inline.jpg', 2, 'es');
+VALUES ('Antes de 2024, ¿cuándo fue la última vez que McLaren ganó el campeonato?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2007', false, 254, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2008', false, 254, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1999', false, 254, 'es');
@@ -2286,7 +2286,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('1998', true, 2
 
 -- Pregunta 127
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Antes del 2024, ¿Cuándo fue la última vez que McLaren ganó el campeonato hasta la fecha?', 'f1-mclarens-india-inline.jpg', 2, 'es');
+VALUES ('Antes del 2024, ¿Cuándo fue la última vez que McLaren ganó el campeonato hasta la fecha?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2007', false, 255, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2008', false, 255, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('1999', false, 255, 'es');
@@ -2309,21 +2309,21 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Ferrari', true, 257);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Renault', false, 257);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Which driver holds the record for the most wins at the Monaco Grand Prix?', 'gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg', 1, 'en');
+VALUES ('Which driver holds the record for the most wins at the Monaco Grand Prix?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId) VALUES ('Ayrton Senna', true, 258);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Michael Schumacher', false, 258);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Lewis Hamilton', false, 258);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Alain Prost', false, 258);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Name the driver who did NOT win a grand prix in the 2012 season', 'f0777c49a212574fd31ea18b515392a9.jpg', 2, 'en');
+VALUES ('Name the driver who did NOT win a grand prix in the 2012 season', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId) VALUES ('Pastor Maldonado', false, 259);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Kimi Raikkonen', false, 259);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Nico Rosberg', false, 259);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Romain Grosjean', true, 259);
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Which driver won the last Malaysian GP in F1?', 'SalidaGPMalasia2009.jpg', 2, 'en');
+VALUES ('Which driver won the last Malaysian GP in F1?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId) VALUES ('Sebastian Vettel', false, 260);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Lewis Hamilton', false, 260);
 INSERT INTO Answer (name, correct, questionId) VALUES ('Nico Rosberg', false, 260);
@@ -2367,7 +2367,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Renault', fals
 
 -- Pregunta 130
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué piloto tiene el récord de más victorias en el Gran Premio de Mónaco?', 'gp-monaco-1996-carrera-mas-caotica-historia-f1.jpg', 1, 'es');
+VALUES ('¿Qué piloto tiene el récord de más victorias en el Gran Premio de Mónaco?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Ayrton Senna', true, 266, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Michael Schumacher', false, 266, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Lewis Hamilton', false, 266, 'es');
@@ -2375,7 +2375,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Alain Prost', 
 
 -- Pregunta 131
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué piloto NO ganó un Gran Premio en la temporada 2012?', 'f0777c49a212574fd31ea18b515392a9.jpg', 2, 'es');
+VALUES ('¿Qué piloto NO ganó un Gran Premio en la temporada 2012?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Pastor Maldonado', false, 267, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Kimi Raikkonen', false, 267, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nico Rosberg', false, 267, 'es');
@@ -2383,7 +2383,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Romain Grosjea
 
 -- Pregunta 132
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué piloto ganó el último Gran Premio de Malasia en la F1?', 'SalidaGPMalasia2009.jpg', 2, 'es');
+VALUES ('¿Qué piloto ganó el último Gran Premio de Malasia en la F1?', null, 2, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sebastian Vettel', false, 268, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Lewis Hamilton', false, 268, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Nico Rosberg', false, 268, 'es');
@@ -2438,35 +2438,35 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Kimi Raikkonen', false, 
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Which drink is sprayed by winning drivers at the end of a Formula One race?', 'podio_japon_2017_soy_motor.jpg', 1, 'en');
+VALUES ('Which drink is sprayed by winning drivers at the end of a Formula One race?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Champagne', true, 275, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Water', false, 275, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Milk', false, 275, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Other drink', false, 275, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What is the significance of the yellow and red striped flag in Formula 1?', '1_foDYHEmOHMtHrSZgpP5q3A.jpg', 1, 'en');
+VALUES ('What is the significance of the yellow and red striped flag in Formula 1?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Caution required', true, 276, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Pit lane closed', false, 276, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Danger ahead', false, 276, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('End of the race', false, 276, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What is the meaning of this flag?', '15929284269004.jpg', 1, 'en');
+VALUES ('What is the meaning of this flag?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Caution required', false, 277, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Pit lane closed', false, 277, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Danger ahead', false, 277, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('End of the race', true, 277, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What is the meaning of this flag?', 'comisarios-bandera-amarilla-2021-soymotor.jpg', 278, 'en');
+VALUES ('What is the meaning of this flag?', null, 278, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Caution required', false, 278, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Pit lane closed', false, 278, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Danger ahead', true, 278, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('End of the race', false, 278, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What does performing an "undercut" mean in a Formula 1 race?', 'Undercut-F1.jpg', 1, 'en');
+VALUES ('What does performing an "undercut" mean in a Formula 1 race?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Changing tires earlier than the other car to try to pass him', true, 279, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Waiting until the very last lap to change tires', false, 279, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Performing a pit stop after the leader to capitalize on their lead', false, 279, 'en');
@@ -2490,7 +2490,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Kimi Raikkonen
 
 -- Pregunta 139
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué bebida se rocía por los pilotos ganadores al final de una carrera de Fórmula 1?', 'podio_japon_2017_soy_motor.jpg', 1, 'es');
+VALUES ('¿Qué bebida se rocía por los pilotos ganadores al final de una carrera de Fórmula 1?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Champán', true, 282, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Agua', false, 282, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Leche', false, 282, 'es');
@@ -2498,7 +2498,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Otra bebida', 
 
 -- Pregunta 140
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué significa la bandera de rayas rojas y amarillas en la Fórmula 1?', '1_foDYHEmOHMtHrSZgpP5q3A.jpg', 1, 'es');
+VALUES ('¿Qué significa la bandera de rayas rojas y amarillas en la Fórmula 1?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Precaución requerida', true, 283, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Cierre del pit lane', false, 283, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Peligro por delante', false, 283, 'es');
@@ -2506,7 +2506,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Fin de la carr
 
 -- Pregunta 141
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué significa esta bandera?', '15929284269004.jpg', 1, 'es');
+VALUES ('¿Qué significa esta bandera?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Precaución requerida', false, 284, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Cierre del pit lane', false, 284, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Peligro por delante', false, 284, 'es');
@@ -2514,7 +2514,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Fin de la carr
 
 -- Pregunta 142
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué significa esta bandera?', 'comisarios-bandera-amarilla-2021-soymotor.jpg', 1, 'es');
+VALUES ('¿Qué significa esta bandera?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Precaución requerida', false, 285, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Cierre del pit lane', false, 285, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Peligro por delante', true, 285, 'es');
@@ -2522,7 +2522,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Fin de la carr
 
 -- Pregunta 143
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué significa hacer un "undercut" en una carrera de Fórmula 1?', 'Undercut-F1.jpg', 1, 'es');
+VALUES ('¿Qué significa hacer un "undercut" en una carrera de Fórmula 1?', null, 1, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Cambiar neumáticos antes que el otro coche para intentar adelantarlo', true, 286, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Esperar hasta la última vuelta para cambiar neumáticos', false, 286, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Hacer la parada en boxes después del líder para aprovechar su ventaja', false, 286, 'es');
@@ -2530,14 +2530,14 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('No cambiar neu
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What does performing an "overcut" mean in a Formula 1 race?', 'screenshot-2018-04-03-13-56-50.jpg', 1, 'en');
+VALUES ('What does performing an "overcut" mean in a Formula 1 race?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Changing tyres after the other car to try to do the overtake', true, 287, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Waiting until the very last lap to change tyres', false, 287, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Performing a pit stop before the leader to capitalize on their lead', false, 287, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Not changing tires at all during the race', false, 287, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué hace performing an "overcut" significa en una carrera de Fórmula 1?', 'screenshot-2018-04-03-13-56-50.jpg', 1, 'es');
+VALUES ('¿Qué hace performing an "overcut" significa en una carrera de Fórmula 1?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Cambiar neumáticos después que el otro coche para intentar adelantarlo', true, 288, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Esperar hasta la última vuelta para cambiar neumáticos', false, 288, 'es');
@@ -2546,14 +2546,14 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('No cambiar neu
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('What is the primary function of the Virtual Safety Car (VSC) in Formula 1?', 'virtual-safety-car-3432279.jpg', 1, 'en');
+VALUES ('What is the primary function of the Virtual Safety Car (VSC) in Formula 1?', null, 1, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To bring all cars to a complete stop', false, 289, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To reduce the speed of all cars equally to allow for safe recovery of incidents or debris', true, 289, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To enforce a mandatory pit stop for all drivers', false, 289, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('To introduce a temporary caution period without slowing down the cars', false, 289, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuál es la función principal del Virtual Safety Car (VSC) en la Fórmula 1?', 'virtual-safety-car-3432279.jpg', 1, 'es');
+VALUES ('¿Cuál es la función principal del Virtual Safety Car (VSC) en la Fórmula 1?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Detener por completo todos los coches', false, 290, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Reducir la velocidad de todos los coches por igual para permitir una recuperación segura de incidentes o escombros', true, 290, 'es');
@@ -2591,7 +2591,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Germany 2014',
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Ferrari achieved a 1-2 finish at the 2024 Australian GP. When was the last time they did that?', 'carlos-sainz-ferrari-sf-24-2.jpg', 2, 'en');
+VALUES ('Ferrari achieved a 1-2 finish at the 2024 Australian GP. When was the last time they did it before that?', null, 2, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Bahrein 2022', true, 295, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2022', false, 295, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Singapore 2019', false, 295, 'en');
@@ -2635,7 +2635,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Alemania 2014'
 
 -- Pregunta 150
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Ferrari logró un 1-2 en el GP de Australia 2024. ¿Cuándo fue la última vez que lo consiguió antes de eso?', 'carlos-sainz-ferrari-sf-24-2.jpg', 2, 'es');
+VALUES ('Ferrari logró un 1-2 en el GP de Australia 2024. ¿Cuándo fue la última vez que lo consiguió antes de eso?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Baréin 2022', true, 300, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia 2022', false, 300, 'es');
@@ -2755,7 +2755,7 @@ INSERT INTO Answer (name, correct, questionId) VALUES ('Jenson Button', true, 31
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('Verstappen overtook Hamilton for the 2021 championship on the last lap. But can you remember in which corner of the Abu Dhabi track was the overtake done?',
-        '7vsxuxdpdc5a1.jpg', 2, 'en');
+        null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES ('7', false, 315);
@@ -2801,7 +2801,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Jenson Button'
 
 -- Pregunta 160
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Verstappen adelantó a Hamilton por el campeonato de 2021 en la última vuelta. ¿Recuerdas en qué curva del circuito de Abu Dabi se hizo el adelantamiento?', '7vsxuxdpdc5a1.jpg', 2, 'es');
+VALUES ('Verstappen adelantó a Hamilton por el campeonato de 2021 en la última vuelta. ¿Recuerdas en qué curva del circuito de Abu Dabi se hizo el adelantamiento?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('7', false, 320, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('9', false, 320, 'es');
@@ -2810,7 +2810,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('12', false, 32
 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('In 2010, Mclaren put on their car the F-Duct. What was it used for?', '1200px-hamilton_canadian_gp_2010_with_f-duct.jpg', 3, 'en');
+VALUES ('In 2010, Mclaren put on their car the F-Duct. What was it used for?', null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES
@@ -2821,7 +2821,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('To reduce drag
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('Brawn GP used in 2009 a double diffuser on their car. What was it used for?',
-        'Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg', 3, 'en');
+        null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId,language)
 VALUES
@@ -2832,7 +2832,7 @@ INSERT INTO Answer (name, correct, questionId,language) VALUES ('To improve the 
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('Renault used a sistem called mass damper in their 2006 F1 car. What was it used for?',
-        'Screenshot-2021-11-02-at-16.57.04.jpg', 3, 'en');
+        null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES
@@ -2843,7 +2843,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('To store energ
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('What does understeer refer to in the context of Formula 1 car dynamics?',
-        'GS7PpavXoAEFq3Z.jpg', 2, 'en');
+        null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES
@@ -2875,7 +2875,7 @@ VALUES
 
 -- Pregunta 161
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('En 2010, McLaren incorporó el F-Duct en su coche. ¿Para qué se utilizaba?', '1200px-hamilton_canadian_gp_2010_with_f-duct.jpg', 3, 'es');
+VALUES ('En 2010, McLaren incorporó el F-Duct en su coche. ¿Para qué se utilizaba?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Para generar mayor carga aerodinámica al frenar', false, 326, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Para gestionar el equilibrio del coche en curvas rápidas', false, 326, 'es');
@@ -2884,7 +2884,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Para reducir l
 
 -- Pregunta 162
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Brawn GP utilizó un doble difusor en 2009. ¿Para qué servía?', 'Brawn-GP-raised-eyebrows-in-2009-with-their-double-diffuser-3921320.jpg', 3, 'es');
+VALUES ('Brawn GP utilizó un doble difusor en 2009. ¿Para qué servía?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Para aumentar la velocidad punta del coche', false, 327, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Para generar más carga aerodinámica en la parte trasera', false, 327, 'es');
@@ -2893,7 +2893,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Para mejorar e
 
 -- Pregunta 163
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('Renault utilizó un sistema llamado "mass damper" en su coche de F1 en 2006. ¿Para qué se utilizaba?', 'Screenshot-2021-11-02-at-16.57.04.jpg', 3, 'es');
+VALUES ('Renault utilizó un sistema llamado "mass damper" en su coche de F1 en 2006. ¿Para qué se utilizaba?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Para absorber la energía de la suspensión durante vibraciones de alta frecuencia', true, 328, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Para ajustar dinámicamente la altura del coche', false, 328, 'es');
@@ -2902,7 +2902,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Para almacenar
 
 -- Pregunta 164
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿A qué se refiere el término "subviraje" en la dinámica de un coche de Fórmula 1?', 'GS7PpavXoAEFq3Z.jpg', 2, 'es');
+VALUES ('¿A qué se refiere el término "subviraje" en la dinámica de un coche de Fórmula 1?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('El coche gira más de lo deseado', false, 329, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('El coche gira menos de lo deseado', true, 329, 'es');
@@ -2921,7 +2921,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Todas las ante
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('What does oversteer refer to in the context of Formula 1 car dynamics?',
-        'images27.jpg', 2, 'en');
+        null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES
@@ -3026,7 +3026,7 @@ VALUES
 
 -- Pregunta 166
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿A qué se refiere el término "sobreviraje" en la dinámica de un coche de Fórmula 1?', 'images27.jpg', 2, 'es');
+VALUES ('¿A qué se refiere el término "sobreviraje" en la dinámica de un coche de Fórmula 1?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('El coche gira más de lo deseado', true, 336, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('El coche gira menos de lo deseado', false, 336, 'es');
@@ -3375,7 +3375,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Un periodo del
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('What is the Parc Fermé in Formula 1 and why is it used?',
-        'the-cars-in-parc-ferme-after-t.jpg', 2, 'en');
+        null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES
@@ -3396,7 +3396,7 @@ VALUES
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('What happens during the Q1 session?',
-        'c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg', 3, 'en');
+        null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES
@@ -3438,7 +3438,7 @@ VALUES
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('Which driver holds the record for the biggest amount of races until he got his first F1 win?',
-        '65c504f09bce1cad3dcbba833d8ee852.jpg', 2, 'en');
+        null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
@@ -3480,7 +3480,7 @@ VALUES
 
 -- Pregunta 181
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué es el Parc Fermé en la Fórmula 1 y por qué se utiliza?', 'the-cars-in-parc-ferme-after-t.jpg', 2, 'es');
+VALUES ('¿Qué es el Parc Fermé en la Fórmula 1 y por qué se utiliza?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Una norma que requiere que todos los coches mantengan la misma velocidad durante la carrera', false, 366, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Una regulación que limita el número de paradas en boxes durante una carrera', false, 366, 'es');
@@ -3489,7 +3489,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Una regulació
 
 -- Pregunta 182
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué ocurre durante la sesión de clasificación Q1?', 'c1c6dad8-aea4-425d-b9a2-c369f73c27b5_16-9-discover-aspect-ratio_default_0.jpg', 3, 'es');
+VALUES ('¿Qué ocurre durante la sesión de clasificación Q1?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Los 15 coches más rápidos pasan a la siguiente sesión', false, 367, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Los últimos 5 coches quedan eliminados de la siguiente sesión', false, 367, 'es');
@@ -3507,7 +3507,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Cuando un pilo
 
 -- Pregunta 184
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué piloto tiene el récord del mayor número de carreras antes de conseguir su primera victoria en F1?', '65c504f09bce1cad3dcbba833d8ee852.jpg', 2, 'es');
+VALUES ('¿Qué piloto tiene el récord del mayor número de carreras antes de conseguir su primera victoria en F1?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Carlos Sainz', false, 369, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Jenson Button', false, 369, 'es');
@@ -3526,7 +3526,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Canadá 2011',
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('How many laps does the Monaco GP have?',
-        '15274979049260.jpg', 1, 'en');
+        null, 1, 'en');
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
@@ -3546,7 +3546,7 @@ VALUES
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('At the 2024 Monaco GP we had 0 overtakes during the race. When was the other time that this happened?',
-        'XPB_1282060_HiRes.jpg', 2, 'en');
+        null, 2, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES
@@ -3626,7 +3626,7 @@ VALUES
 
 -- Pregunta 186
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuántas vueltas tiene el GP de Mónaco?', '15274979049260.jpg', 1, 'es');
+VALUES ('¿Cuántas vueltas tiene el GP de Mónaco?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('71', false, 376, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('80', false, 376, 'es');
@@ -3635,7 +3635,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('72', false, 37
 
 -- Pregunta 187
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('En el GP de Mónaco 2024 no hubo adelantamientos durante la carrera. ¿Cuándo fue la otra vez que esto ocurrió?', 'XPB_1282060_HiRes.jpg', 2, 'es');
+VALUES ('En el GP de Mónaco 2024 no hubo adelantamientos durante la carrera. ¿Cuándo fue la otra vez que esto ocurrió?', null, 2, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Valencia 2009', true, 377, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Dallas 1984', false, 377, 'es');
@@ -3839,7 +3839,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('5', false, 391
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('How many different compounds are in F1?',
-        'images29.jpg', 1, 'en');
+        null, 1, 'en');
 
 INSERT INTO Answer (name, correct, questionId)
 VALUES
@@ -3860,7 +3860,7 @@ VALUES
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('What does the pole position give?',
-        'F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg', 1, 'en');
+        null, 1, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language)
 VALUES
@@ -3880,7 +3880,7 @@ VALUES
 
 -- Pregunta 196
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Cuántos compuestos diferentes hay en la F1?', 'images29.jpg', 1, 'es');
+VALUES ('¿Cuántos compuestos diferentes hay en la F1?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('3', false, 394, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('2', false, 394, 'es');
@@ -3889,7 +3889,7 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('6', true, 394,
 
 -- Pregunta 197
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
-VALUES ('¿Qué otorga la pole position?', 'F1-poleposition-Max-Verstappen-Red-Bull-Racing-parc-ferme-Bahrain-Grand-Prix-2023.jpg', 1, 'es');
+VALUES ('¿Qué otorga la pole position?', null, 1, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('El tiempo más rápido', false, 395, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Primera posición en la parrilla de salida', false, 395, 'es');
@@ -4046,10 +4046,10 @@ INSERT INTO Answer (name, correct, questionId, language) VALUES ('Mónaco 2007',
 
 
 UPDATE Question SET quizCategoryId = 20 WHERE id IN (
- 1, 5, 6, 7, 11, 12, 43, 53,160,165,180,185,187,188,189,190,191,192,193,194,195,196,197,198,200,201,203,204,206,207,215,
-   216, 223, 224, 230, 239, 233, 242, 243, 250, 244, 251, 274, 293,294, 298, 299, 302, 307, 303, 308,
+ 1, 5, 6, 7, 43, 53,180,185,187,188,189,190,191,192,193,194,195,196,197,198,200,201,203,204,206,207,215,
+   216, 223, 224, 230, 231, 239, 233, 240, 242, 243, 250, 244, 245, 246, 251,252,253, 264, 272, 273, 274,280, 281, 293,294, 298, 299, 302, 307, 303, 308,
        304, 309, 305, 310, 311, 316, 312, 313, 317, 318, 333, 334,335,338, 339, 340, 341, 342, 346,347,
-       374, 375, 376, 377, 378,379, 380, 381, 382, 384, 385, 387, 388, 390, 397, 398, 399, 400, 401, 402, 403);
+       374, 375, 376, 377, 379, 380, 381, 382, 384, 385, 387, 388, 390, 397, 398, 399, 400, 401, 402, 403);
 
 
 UPDATE Question SET quizCategoryId = 18 WHERE id IN (
@@ -4080,15 +4080,15 @@ UPDATE Question SET quizCategoryId = 7 WHERE id IN (61, 62, 63,
 81, 90, 91, 98, 99, 101, 102,124,125,210,211,212,218,219,220,225);
 
 -- GenericStats
-UPDATE Question SET quizCategoryId = 8 WHERE id IN (15, 17, 18, 19, 23, 29, 31, 32, 33, 37, 47, 49, 50, 57, 59, 60,
-89, 97, 120,140,141,143, 229, 237, 238, 236, 235, 256, 249, 257, 265, 261, 269, 262, 270, 263, 271,275, 282, 314,
-371, 372, 373, 364, 369, 365, 370, 354, 359, 343, 348, 391, 386, 392, 394, 393, 395);
+UPDATE Question SET quizCategoryId = 8 WHERE id IN (11, 12, 15, 17, 18, 19, 23, 29, 31, 32, 33, 37, 47, 49, 50, 57, 59, 60,
+89, 97, 120,140,141,143, 160, 165, 229, 237, 238, 236, 235, 256, 249, 257, 265, 261, 269, 262, 270, 263, 271,275, 282, 314,
+371, 372, 373, 364, 369, 365, 370, 354, 359, 343, 348, 378, 391, 386, 392, 394, 393, 395);
 
 -- Driver
 UPDATE Question SET quizCategoryId = 3 WHERE id IN (
  2, 8, 13, 14, 26, 27, 28, 40, 41, 48, 51, 58, 65, 70, 77,82, 85, 87, 93, 95, 113, 116, 136,139,161,166,167,168,
  169,171,172,173,174,176,177,178,179,181,182,183,184,186,213,214,221,222,226,227,228,
- 258, 266, 267, 260, 268, 281, 291, 296, 292, 297, 301, 306, 351,
+ 258, 266, 267, 260, 268, 291, 296, 292, 297, 301, 306, 351,
  352,356, 357, 344, 349, 345, 350);
 -- Technical
 UPDATE Question SET quizCategoryId = 10 WHERE id IN (20, 21, 34, 35, 42, 52);
@@ -4104,8 +4104,8 @@ UPDATE Question SET quizCategoryId = 1 WHERE id IN (
 -- Team
 UPDATE Question SET quizCategoryId = 4 WHERE id IN (
 3, 4, 9, 10,16, 22, 24, 25, 30, 36, 38, 39, 44, 54, 64, 71, 75, 76,
-83, 86, 94, 103, 104, 106, 114, 115, 117,126,127,129,137,138,186,231, 240, 245, 252, 246, 253, 247, 254, 248, 255,
-264, 272, 273, 280, 295, 300);
+83, 86, 94, 103, 104, 106, 114, 115, 117,126,127,129,137,138,186, 247, 254, 248, 255,
+295, 300);
 
 -- LegendarySeason
 UPDATE Question SET quizCategoryId = 5 WHERE id IN (45, 55,259,363, 368);
