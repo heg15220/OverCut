@@ -73,7 +73,10 @@ const PostDetails = () => {
 
     const srcImage = post?.image ? `data:image/jpg;base64,${post.image}` : image;
     const userImageSrc = postUser?.image ? `data:image/jpg;base64,${postUser.image}` : image;
-    const userName = postUser?.userName ?? 'Usuario desconocido';
+    const userName = postUser
+      ? `${postUser.firstName ?? ''} ${postUser.lastName ?? ''}`.trim() || postUser.userName
+      : 'Usuario desconocido';
+
 
 
     return (

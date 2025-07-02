@@ -17,7 +17,7 @@ const QuizLoadingScreen = ({ lang = 'en', text }) => {
     const interval = setInterval(() => {
       setPrevBgIndex(bgIndex);
       setBgIndex(prev => (prev + 1) % backgroundImages.length);
-    }, 15000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [bgIndex]);

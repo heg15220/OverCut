@@ -29,9 +29,6 @@ const translations = {
         physicsTitle: "🧪 Física",
         physicsDesc: "Preguntas que exploran la física detrás del rendimiento de los monoplazas de F1: aerodinámica, fuerzas G, transferencia de peso, adherencia, frenado, y otros conceptos aplicados a las carreras.",
 
-        imagesTitle: "🖼️ Imágenes",
-        imagesDesc: "En esta categoría visual, se presentan imágenes para identificar pilotos, escuderías, circuitos o momentos icónicos de la historia de la Fórmula 1. El objetivo es poner a prueba el conocimiento visual del usuario.",
-
         teamRadiosTitle: "🎙️ Radios",
         teamRadiosDesc: "Esta categoría incluye mensajes de radio reales que marcaron momentos inolvidables en la historia de la Fórmula 1. Desde polémicas órdenes de equipo hasta celebraciones icónicas, las preguntas pondrán a prueba tu memoria auditiva y tu conocimiento histórico.",
 
@@ -197,9 +194,6 @@ const AboutOvercut = () => {
 
       <h4>{t.quiz.physicsTitle}</h4>
       <p>{t.quiz.physicsDesc}</p>
-
-      <h4>{t.quiz.imagesTitle}</h4>
-      <p>{t.quiz.imagesDesc}</p>
 
       <h4>{t.quiz.teamRadiosTitle}</h4>
       <p>{t.quiz.teamRadiosDesc}</p>

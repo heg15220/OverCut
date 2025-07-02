@@ -43,7 +43,7 @@ const QuizIntroTypeCategory = ({ quizType, quizCategory, onContinue }) => {
                 animate={{ opacity: 1, filter: 'brightness(1.25) saturate(1.3)' }}
                 transition={{ duration: 1.5, ease: "easeOut" }}
                 style={{
-                    backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0,0,0,0.5)), url(${backgroundImage})`
+                    backgroundImage: `url(${backgroundImage})`
                 }}
             />
 

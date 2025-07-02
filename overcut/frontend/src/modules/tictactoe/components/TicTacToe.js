@@ -108,10 +108,10 @@ const TicTacToe = () => {
               <Button variant="contained" color="success" onClick={() => startGame(false)}>
                 {t.playLocal}
               </Button>
-              <Button variant="contained" color="secondary" onClick={() => startGame(false, true)}>
+              <Button variant="contained" color="primary" onClick={() => startGame(false, true)}>
                 {t.playGrid}
               </Button>
-              <Button variant="text" color="secondary" onClick={() => setStep(1)}>
+              <Button variant="text" color="primary" onClick={() => setStep(1)}>
                 {t.back}
               </Button>
             </Stack>

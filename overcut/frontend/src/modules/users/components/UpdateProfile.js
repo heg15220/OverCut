@@ -94,7 +94,7 @@ const UpdateProfile = () => {
                     </Box>
                     <form ref={formImageRef} encType="multipart/form-data" onSubmit={uploadUserImage} style={{ marginTop: 2 }}>
                         <input type="file" name="file" accept="image/jpeg" id="userPhoto" required />
-                        <Button type="submit" variant="contained" color="secondary" sx={{ marginTop: 2 }}>
+                        <Button type="submit" variant="contained" color="primary" sx={{ marginTop: 2 }}>
                             <FormattedMessage id="project.global.buttons.save" />
                         </Button>
                     </form>

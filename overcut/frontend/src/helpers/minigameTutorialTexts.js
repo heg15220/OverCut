@@ -2,11 +2,11 @@ export const tutorialTexts = {
   "/minigames/tictactoe": {
     es: {
       title: "Tic Tac Toe F1",
-      description: "Consigue 3 en raya adivinando correctamente pilotos que cumplan con las categorías mostradas en cada casilla. ¡Piensa con estrategia!"
+      description: "Consigue 3 en raya adivinando correctamente pilotos que cumplan con las categorías de cada casilla. También puedes probar el modo Libre, donde debes llenar todas las casillas eligiendo pilotos válidos. ¡Piensa con estrategia!"
     },
     en: {
       title: "Tic Tac Toe F1",
-      description: "Get 3 in a row by correctly guessing drivers that match the category in each square. Think strategically!"
+      description: "Get 3 in a row by correctly guessing drivers that match each square's category. You can also try 'Grid' mode, where you need to fill all the squares with valid drivers. Think strategically!"
     }
   },
   "/minigames/crossword": {

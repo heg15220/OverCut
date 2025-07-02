@@ -38,7 +38,7 @@ const Quiz = () => {
         const interval = setInterval(() => {
             setPrevBgIndex(bgIndex);
             setBgIndex((prev) => (prev + 1) % backgroundImages.length);
-        }, 15000);
+        }, 8000);
 
         return () => clearInterval(interval);
     }, [bgIndex]);
@@ -108,7 +108,7 @@ const Quiz = () => {
                         animate={{ opacity: 0 }}
                         transition={{ opacity: { duration: 2.5 } }}
                         style={{
-                            backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0,0,0,0.3)), url(${sourceImages(backgroundImages[prevBgIndex])})`,
+                            backgroundImage: `url(${sourceImages(backgroundImages[prevBgIndex])})`,
                             zIndex: 0
                         }}
                     />
@@ -125,7 +125,7 @@ const Quiz = () => {
                         scale: { duration: 15, ease: "easeInOut" }
                     }}
                     style={{
-                        backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0,0,0,0.2)), url(${sourceImages(backgroundImages[bgIndex])})`,
+                        backgroundImage: `url(${sourceImages(backgroundImages[bgIndex])})`,
                         zIndex: 1
                     }}
                 />
