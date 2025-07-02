@@ -126,3 +126,9 @@
     padding: 1.5rem;
   }
 }
+
+.overcut__logo-title {
+  height: 180px;         /* o el tamaño que quieras */
+  vertical-align: middle;
+  margin: 0 8px;
+}

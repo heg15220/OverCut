@@ -20,7 +20,7 @@ import {
     Trophy
 } from 'react-bootstrap-icons';
 import { Puzzle } from 'react-bootstrap-icons';
-import image from './Resources/dibujo-para-colorear-coche-de-carreras-de-formula-1-dl27177.jpg';
+import image from './Resources/LogoOverCut.png';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
@@ -36,7 +36,7 @@ const Header = () => {
             <div className="header">
                 <nav className="navbar navbar-dark bg-dark ml-auto">
                     <a className="navbar-brand d-inline-block align-top" href="/">
-                        <img className="App-logo mx-3" src={image} alt="App Logo" height="70" width="130"></img>
+                        <img className="App-logo mx-3" src={image} alt="App Logo" height="90" width="90"></img>
 
                         <Link className="text-light h4 overcut-text overcut-text-animation" style={{ textDecoration: 'none' }} to="/#/overcut/">
                             OverCut

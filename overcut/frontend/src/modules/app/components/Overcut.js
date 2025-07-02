@@ -2,6 +2,8 @@ import React from "react";
 import "./Overcut.css";
 import { getAboutOvercutImage } from "../../../helpers/sourceAboutOvercutImages";
 import { translations } from "./translations";
+import logoImage from './Resources/LogoOverCut.png';
+
 
 const Overcut = () => {
   const lang = navigator.language.startsWith("es") ? "es" : "en";
@@ -28,7 +30,11 @@ const Overcut = () => {
   return (
     <div className="overcut">
       <header className="overcut__header">
-        <h1 className="overcut__title">{t.title}</h1>
+        <h1 className="overcut__title">
+          {lang === "es" ? "¿Qué es " : "What is "}
+          <img src={logoImage} alt="OverCut Logo" className="overcut__logo-title" />
+          ?
+        </h1>
         <p className="overcut__intro">{t.intro}</p>
       </header>
 
