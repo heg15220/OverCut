@@ -6,157 +6,145 @@ import { FormattedMessage } from 'react-intl';
 import Notifications from "./Notifications";
 import './App.css';
 import UserAvatar from "../../users/components/UserAvatar";
-import CreateJournalistButton from '../../users/components/CreateJournalistButton'; // ajusta ruta si cambia
-
+import CreateJournalistButton from '../../users/components/CreateJournalistButton';
 import {
-    Archive,
-    Book,
-    BookHalf,
-    Calendar,
-    CalendarCheck,
-    File,
-    GraphUp,
-    Lightbulb,
-    Trophy
+  Lightbulb,
+  Puzzle,
+  GraphUp,
+  Book,
+  Trophy
 } from 'react-bootstrap-icons';
-import { Puzzle } from 'react-bootstrap-icons';
 import image from './Resources/LogoOverCut.png';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const Header = () => {
-    const isLogged = useSelector(users.selectors.isLoggedIn);
-    const userName = useSelector(users.selectors.getUserName);
-    const user = useSelector(users.selectors.getUser);
+  const isLogged = useSelector(users.selectors.isLoggedIn);
+  const userName = useSelector(users.selectors.getUserName);
+  const user = useSelector(users.selectors.getUser);
 
-    console.log("🛠️ user.admin:", user?.admin);
+  return (
+    <header className="header">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div className="container-fluid">
 
-    return (
-        <header>
-            <div className="header">
-                <nav className="navbar navbar-dark bg-dark ml-auto">
-                    <a className="navbar-brand d-inline-block align-top" href="/">
-                        <img className="App-logo mx-3" src={image} alt="App Logo" height="90" width="90"></img>
+          {/* Brand center-aligned */}
+          <Link className="navbar-brand mx-auto d-lg-none text-center" to="/">
+            <img src={image} alt="OverCut Logo" height="90" className="d-inline-block align-top" />
+            <span className="ms-2 overcut-text overcut-text-animation">OverCut</span>
+          </Link>
 
-                        <Link className="text-light h4 overcut-text overcut-text-animation" style={{ textDecoration: 'none' }} to="/#/overcut/">
-                            OverCut
+          {/* Hamburger button */}
+          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+
+          {/* Brand for desktop */}
+          <Link className="navbar-brand d-none d-lg-flex align-items-center" to="/">
+            <img src={image} alt="OverCut Logo" height="60" className="d-inline-block align-top" />
+            <span className="ms-2 overcut-text overcut-text-animation">OverCut</span>
+          </Link>
+
+          <div className="collapse navbar-collapse" id="navbarContent">
+            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+
+              {isLogged && (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/category/2">
+                      <FormattedMessage id="project.app.Header.quiz" /> <Lightbulb size={16} />
+                    </Link>
+                  </li>
+
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/minigames">
+                      <FormattedMessage id="project.app.Header.minigames" /> <Puzzle size={16} />
+                    </Link>
+                  </li>
+                </>
+              )}
+
+              <li className="nav-item">
+                <a className="nav-link" href="http://localhost:8083/">
+                  <FormattedMessage id="project.app.Header.f1hub" defaultMessage="F1Hub" /> <GraphUp size={16} />
+                </a>
+              </li>
+
+              <li className="nav-item">
+                <Link className="nav-link" to="/about">
+                  <FormattedMessage id="project.app.Header.about" defaultMessage="¿Qué es OverCut?" /> <Book size={16} />
+                </Link>
+              </li>
+
+              {isLogged && (
+                <li className="nav-item">
+                  <Link className="nav-link" to="/users/ranking">
+                    <FormattedMessage id="project.app.Header.ranking" /> <Trophy size={16} />
+                  </Link>
+                </li>
+              )}
+
+              {isLogged && (
+                <li className="nav-item dropdown">
+                  <a
+                    className="nav-link dropdown-toggle d-flex align-items-center"
+                    href="#"
+                    id="userMenu"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <UserAvatar image={user.image} userName={user.userName} size={42} />
+                  </a>
+                  <ul className="dropdown-menu dropdown-menu-end dropdown-custom shadow" aria-labelledby="userMenu">
+                    <UserDetailsLink id={user.id} name={userName} />
+                    <Link className="dropdown-item" to="/users/update-profile">
+                      <FormattedMessage id="project.users.UpdateProfile.title" />
+                    </Link>
+                    <Link className="dropdown-item" to="/users/change-password">
+                      <FormattedMessage id="project.users.ChangePassword.title" />
+                    </Link>
+
+                    {user.journalist && (
+                      <>
+                        <Link className="dropdown-item" to="/create-post">
+                          <FormattedMessage id="project.users.CreatePost.title" />
                         </Link>
+                        <Link className="dropdown-item" to="/post/my">
+                          <FormattedMessage id="project.users.MyPosts.title" />
+                        </Link>
+                      </>
+                    )}
 
+                    {user.admin && <CreateJournalistButton />}
 
-                    </a>
+                    <li><hr className="dropdown-divider" /></li>
+                    <Link className="dropdown-item" to="/users/logout">
+                      <FormattedMessage id="project.app.Header.logout" />
+                    </Link>
+                  </ul>
+                </li>
+              )}
 
-                    <ul className="nav pull-xs-right">
-                        {isLogged &&
-                        <li className="nav-item">
-                            <Link className="nav-link" to={`/category/2`} style={{ color: 'white' }}>
-                                <FormattedMessage id="project.app.Header.quiz" />
-                                <Lightbulb className="ms-1" size={16} color="#FFFFFF" />
-                            </Link>
-                        </li>
-                        }
-
-                        {isLogged &&
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/minigames" style={{ color: 'white' }}>
-                                <FormattedMessage id="project.app.Header.minigames" />
-                                <Puzzle className="ms-1" size={16} color="#FFFFFF" />
-                            </Link>
-                        </li>
-                        }
-
-                        <a className="nav-link" href="http://localhost:8083/" style={{ color: 'white' }}>
-                          <FormattedMessage id="project.app.Header.f1hub" defaultMessage="F1Hub" />
-                          <GraphUp className="ms-1" size={16} color="#FFFFFF" />
-                        </a>
-
-                        <li className="nav-item">
-                          <Link className="nav-link" to="/about" style={{ color: 'white' }}>
-                            <FormattedMessage id="project.app.Header.about" defaultMessage="¿Qué es OverCut?" />
-                            <Book className="ms-1" size={16} color="#FFFFFF" />
-                          </Link>
-                        </li>
-
-
-                        {isLogged &&
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/users/ranking" style={{ color: 'white' }}>
-                                <FormattedMessage id="project.app.Header.ranking" defaultMessage="Ranking" />
-                                <Trophy className="ms-1" size={16} color="#FFFFFF" />
-                            </Link>
-                        </li>
-                        }
-
-                        {isLogged &&
-                          <li className="nav-item dropstart">
-                            <a
-                              className="dropdown-toggle nav-link d-flex align-items-center"
-                              href="/"
-                              id="userAvatarDropdown"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            >
-                              <UserAvatar image={user.image} userName={user.userName} size={42} />
-                            </a>
-
-                            <div className="dropdown-menu dropdown-menu-end dropdown-custom shadow" aria-labelledby="userAvatarDropdown">
-                              <UserDetailsLink id={user.id} name={userName} />
-                              <Link className="dropdown-item" to="/users/update-profile" style={{ backgroundColor: '#00000F', color: '#ffffff' }} >
-                                <FormattedMessage id="project.users.UpdateProfile.title" />
-                              </Link>
-                              <Link className="dropdown-item" to="/users/change-password" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
-                                <FormattedMessage id="project.users.ChangePassword.title" />
-                              </Link>
-
-                              {user.journalist &&
-                                <Link className="dropdown-item" to="/create-post" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
-                                  <FormattedMessage id="project.users.CreatePost.title" />
-                                </Link>
-                              }
-
-                              {user.journalist &&
-                                <Link className="dropdown-item" to="/post/my" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
-                                  <FormattedMessage id="project.users.MyPosts.title" />
-                                </Link>
-                              }
-
-                              {user.admin &&
-                                <CreateJournalistButton />
-                              }
-
-                              <div className="dropdown-divider"></div>
-
-                              <Link className="dropdown-item" to="/users/logout" style={{ backgroundColor: '#00000F', color: '#ffffff' }}>
-                                <FormattedMessage id="project.app.Header.logout" />
-                              </Link>
-                            </div>
-                          </li>
-                        }
-
-                        {!isLogged &&
-                            <li className="nav-item">
-                                <Link className="nav-link" color="purple" to="/users/login" id="login" data-testid="login-button" style={{ color: 'white' }}>
-                                    <font color="#FFFFF0">
-                                        <FormattedMessage id="project.app.Header.login" />
-                                    </font>
-                                </Link>
-
-                            </li>
-                        }
-                        {!isLogged &&
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/users/signUp" id="singUp" style={{ color: 'white' }}>
-                                    <font color="#FFFFF0"><FormattedMessage id="project.users.SignUp.title" /></font>
-                                </Link >
-                            </li>
-
-                        }
-
-
-                    </ul >
-                </nav >
-            </div>
-        </header>
-    );
+              {!isLogged && (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/users/login">
+                      <FormattedMessage id="project.app.Header.login" />
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/users/signUp">
+                      <FormattedMessage id="project.users.SignUp.title" />
+                    </Link>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+  );
 };
 
 export default Header;
