@@ -11,6 +11,8 @@ from contextlib import asynccontextmanager
 
 
 from generate_drivers_connections import generate_game as generate_drivers_game
+from generate_drivers_connections import precache_static_categories
+from generate_drivers_connections import precache_dynamic_lists
 from generate_crossword import main as generate_crossword_main
 from validate_crossword_word import validate_word_and_clue
 from select_driver_teams import generate_career_path_game
@@ -108,6 +110,8 @@ def load_category_letter_cache():
 async def lifespan(app: FastAPI):
     load_criteria_cache()
     load_category_letter_cache()
+    precache_static_categories()
+    precache_dynamic_lists()
     yield
 
 
@@ -137,7 +141,7 @@ def generate_drivers_connections(lang: str = Query("es", enum=["es", "en"])):
     try:
         global LANG
         LANG = lang
-        result = generate_drivers_game()
+        result = generate_drivers_game(lang)
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)

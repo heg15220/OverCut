@@ -6,11 +6,10 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--lang", choices=["es", "en"], default="es")
 args = parser.parse_args()
-LANG = args.lang  # ✅ Este es el que se debe usar
+DEFAULT_LANG = args.lang
 
 # Configura conexión
 engine = create_engine("mysql+pymysql://root:root@localhost:3306/f1db")
-
 
 translations = {
     "champions": {
@@ -81,18 +80,93 @@ NATIONALITY_TRANSLATIONS = {
     "Venezuelan": {"es": "venezolana", "en": "Venezuelan"}
 }
 
-def translate(code, extra=""):
-    base = translations.get(code, {}).get(LANG, code)
+TEAM_DESCRIPTION_CACHE = {"es": {}, "en": {}}
+COUNTRY_DESCRIPTION_CACHE = {"es": {}, "en": {}}
+STATIC_CATEGORIES_CACHE = {"es": [], "en": []}
+TEAM_CACHE = []
+COUNTRY_CACHE = []
+CIRCUIT_CACHE = []
+TEAMMATE_DRIVER_CACHE = []
+
+
+
+def translate(code, lang, extra=""):
+    base = translations.get(code, {}).get(lang, code)
     return f"{base} {extra}".strip()
+
+def translate_team(lang, team_name):
+    if team_name in TEAM_DESCRIPTION_CACHE[lang]:
+        return TEAM_DESCRIPTION_CACHE[lang][team_name]
+    result = translate("team", lang, team_name)
+    TEAM_DESCRIPTION_CACHE[lang][team_name] = result
+    return result
+
+def translate_country(lang, nationality):
+    if nationality in COUNTRY_DESCRIPTION_CACHE[lang]:
+        return COUNTRY_DESCRIPTION_CACHE[lang][nationality]
+    result = translate("country", lang, nationality)
+    COUNTRY_DESCRIPTION_CACHE[lang][nationality] = result
+    return result
+
+
 
 def get_all_drivers_matching_query(conn, query, param_dict):
     result = conn.execute(text(query), param_dict).fetchall()
     return [{"driverId": row[0], "driverName": row[1]} for row in result]
 
-def get_champions_category():
+def precache_dynamic_lists():
+    with engine.connect() as conn:
+        TEAM_CACHE.clear()
+        teams = conn.execute(text("""
+            SELECT c.constructorId, c.name
+            FROM constructors c
+            JOIN results r ON c.constructorId = r.constructorId
+            WHERE r.positionOrder = 1
+            GROUP BY c.constructorId
+            HAVING COUNT(*) > 5
+        """)).fetchall()
+        TEAM_CACHE.extend(teams)
+
+        COUNTRY_CACHE.clear()
+        countries = conn.execute(text("""
+            SELECT nationality
+            FROM drivers
+            GROUP BY nationality
+            HAVING COUNT(*) >= 4
+        """)).fetchall()
+        COUNTRY_CACHE.extend([n[0] for n in countries])
+
+        CIRCUIT_CACHE.clear()
+        circuits = conn.execute(text("""
+            SELECT DISTINCT c.circuitRef
+            FROM circuits c
+            JOIN races r ON c.circuitId = r.circuitId
+            JOIN results res ON res.raceId = r.raceId
+            WHERE res.positionOrder = 1
+            GROUP BY c.circuitRef
+            HAVING COUNT(*) >= 5
+        """)).fetchall()
+        CIRCUIT_CACHE.extend([c[0] for c in circuits])
+
+        TEAMMATE_DRIVER_CACHE.clear()
+        rows = conn.execute(text("""
+            SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
+            FROM drivers d
+            JOIN results r1 ON d.driverId = r1.driverId
+            JOIN results r2 ON r1.raceId = r2.raceId AND r1.constructorId = r2.constructorId
+            WHERE r1.driverId != r2.driverId
+            AND EXISTS (
+                SELECT 1 FROM races ra WHERE ra.raceId = r1.raceId AND ra.year >= 1980
+            )
+        """)).fetchall()
+        TEAMMATE_DRIVER_CACHE.extend(rows)
+
+
+
+def get_champions_category(lang):
     return {
         "code": "champions",
-        "description": translate("champions"),
+        "description": translate("champions", lang),
         "query": """
             SELECT d.driverId, CONCAT(d.forename, ' ', d.surname)
             FROM drivers d
@@ -108,16 +182,8 @@ def get_champions_category():
         """
     }
 
-def get_team_categories(conn, used_teams):
-    teams = conn.execute(text("""
-        SELECT c.constructorId, c.name
-        FROM constructors c
-        JOIN results r ON c.constructorId = r.constructorId
-        WHERE r.positionOrder = 1
-        GROUP BY c.constructorId
-        HAVING COUNT(*) > 5
-    """)).fetchall()
-
+def get_team_categories(conn, used_teams, lang):
+    teams = list(TEAM_CACHE)
     random.shuffle(teams)
     categories = []
     for constructor_id, team_name in teams:
@@ -126,7 +192,7 @@ def get_team_categories(conn, used_teams):
         used_teams.add(team_name)
         categories.append({
             "code": f"team_{team_name.lower().replace(' ', '_')}",
-            "description": translate("team", team_name),
+            "description": translate_team(lang, team_name),
             "query": """
                 SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
                 FROM drivers d
@@ -139,24 +205,19 @@ def get_team_categories(conn, used_teams):
             break
     return categories
 
-def get_country_categories(conn, used_countries):
-    countries = conn.execute(text("""
-        SELECT nationality
-        FROM drivers
-        GROUP BY nationality
-        HAVING COUNT(*) >= 4
-    """)).fetchall()
-
+def get_country_categories(conn, used_countries, lang):
+    countries = [(n,) for n in COUNTRY_CACHE]
     random.shuffle(countries)
+
     categories = []
     for (nationality,) in countries:
         if nationality in used_countries:
             continue
         used_countries.add(nationality)
-        nat_trans = NATIONALITY_TRANSLATIONS.get(nationality, {"es": nationality, "en": nationality})[LANG]
+        nat_trans = NATIONALITY_TRANSLATIONS.get(nationality, {"es": nationality, "en": nationality})[lang]
         categories.append({
             "code": f"country_{nationality.lower().replace(' ', '_')}",
-            "description": translate("country", nat_trans),
+            "description": translate_country(lang, nat_trans),
             "query": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname)
                 FROM drivers d
@@ -168,10 +229,10 @@ def get_country_categories(conn, used_countries):
             break
     return categories
 
-def get_race_winner_category():
+def get_race_winner_category(lang):
     return {
         "code": "race_winners",
-        "description": translate("race_winners"),
+        "description": translate("race_winners", lang),
         "query": """
             SELECT d.driverId, CONCAT(d.forename, ' ', d.surname)
             FROM drivers d
@@ -182,10 +243,10 @@ def get_race_winner_category():
         """
     }
 
-def get_experienced_category():
+def get_experienced_category(lang):
     return {
         "code": "fifty_gp",
-        "description": translate("fifty_gp"),
+        "description": translate("fifty_gp", lang),
         "query": """
             SELECT d.driverId, CONCAT(d.forename, ' ', d.surname)
             FROM drivers d
@@ -195,26 +256,23 @@ def get_experienced_category():
         """
     }
 
-def get_circuit_winner_categories(conn, used_circuits):
-    circuits = conn.execute(text("""
-        SELECT DISTINCT c.circuitRef
-        FROM circuits c
-        JOIN races r ON c.circuitId = r.circuitId
-        JOIN results res ON res.raceId = r.raceId
-        WHERE res.positionOrder = 1
-        GROUP BY c.circuitRef
-        HAVING COUNT(*) >= 5
-    """)).fetchall()
-
+def get_circuit_winner_categories(conn, used_circuits, lang):
+    circuits = [(c,) for c in CIRCUIT_CACHE]
     random.shuffle(circuits)
+
     categories = []
     for (circuitRef,) in circuits:
         if circuitRef in used_circuits:
             continue
         used_circuits.add(circuitRef)
+        description = (
+            f"Pilotos que han ganado en {circuitRef}"
+            if lang == "es" else
+            f"Drivers who won at {circuitRef}"
+        )
         categories.append({
             "code": f"circuit_{circuitRef.lower()}",
-            "description": f"{'Pilotos que han ganado en' if LANG == 'es' else 'Drivers who won at'} {circuitRef}",
+            "description": description,
             "query": """
                 SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
                 FROM drivers d
@@ -229,7 +287,7 @@ def get_circuit_winner_categories(conn, used_circuits):
             break
     return categories
 
-def get_decade_categories():
+def get_decade_categories(lang):
     decades = [
         {"code": "1980s", "start": 1980, "end": 1989},
         {"code": "1990s", "start": 1990, "end": 1999},
@@ -240,9 +298,14 @@ def get_decade_categories():
 
     categories = []
     for dec in decades:
+        description = (
+            f"Pilotos que han corrido en los {dec['code']}"
+            if lang == "es" else
+            f"Drivers who raced in the {dec['code']}"
+        )
         categories.append({
             "code": f"decade_{dec['code']}",
-            "description": f"{'Pilotos que han corrido en los' if LANG == 'es' else 'Drivers who raced in the'} {dec['code']}",
+            "description": description,
             "query": """
                 SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
                 FROM drivers d
@@ -254,22 +317,18 @@ def get_decade_categories():
         })
     return categories
 
-def get_teammates_categories(conn):
+def get_teammates_categories(conn, lang):
     categories = []
 
-    # Elige pilotos aleatorios que tengan resultados (para asegurar que tengan compañeros)
-    random_drivers = conn.execute(text("""
-        SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
-        FROM drivers d
-        JOIN results r ON d.driverId = r.driverId
-        ORDER BY RAND()
-        LIMIT 3
-    """)).fetchall()
+    random_drivers = list(TEAMMATE_DRIVER_CACHE)
+    random.shuffle(random_drivers)
+    random_drivers = random_drivers[:3]
+
 
     for driver_id, full_name in random_drivers:
         description = (
             f"Compañeros de equipo de {full_name}"
-            if LANG == "es" else
+            if lang == "es" else
             f"Teammates of {full_name}"
         )
 
@@ -293,27 +352,38 @@ def get_teammates_categories(conn):
     return categories
 
 
+def precache_static_categories():
+    for lang in ["es", "en"]:
+        categories = [
+            get_champions_category(lang),
+            get_race_winner_category(lang),
+            get_experienced_category(lang)
+        ]
+        categories += get_decade_categories(lang)
+        STATIC_CATEGORIES_CACHE[lang] = categories
 
 
-def generate_game():
+def generate_game(lang=DEFAULT_LANG):
     with engine.connect() as conn:
         selected_categories = []
         used_driver_ids = set()
         used_teams = set()
         used_countries = set()
 
-        base_categories = [
-            get_champions_category(),
-            get_race_winner_category(),
-            get_experienced_category()
-        ]
+        base_categories = list(STATIC_CATEGORIES_CACHE[lang])
+
+        team_cats = get_team_categories(conn, used_teams, lang)
+        country_cats = get_country_categories(conn, used_countries, lang)
+        circuit_cats = get_circuit_winner_categories(conn, set(), lang)
+        decade_cats = get_decade_categories(lang)
+        teammate_cats = get_teammates_categories(conn, lang)
 
         dynamic_categories = (
-            get_team_categories(conn, used_teams)
-            + get_country_categories(conn, used_countries)
-            + get_circuit_winner_categories(conn, set())
-            + get_decade_categories()
-            + get_teammates_categories(conn)
+            random.sample(team_cats, min(2, len(team_cats)))
+            + random.sample(country_cats, min(2, len(country_cats)))
+            + random.sample(circuit_cats, min(2, len(circuit_cats)))
+            + random.sample(decade_cats, min(2, len(decade_cats)))
+            + random.sample(teammate_cats, min(2, len(teammate_cats)))
         )
 
         random.shuffle(dynamic_categories)
