@@ -40,7 +40,7 @@ public class QuizController {
         }
 
         Quiz quiz = quizService.createQuiz(userId, lang);
-        cooldownService.registerPlay("Quiz", userId);
+        //cooldownService.registerPlay("Quiz", userId);
         return quiz.getId();
     }
 

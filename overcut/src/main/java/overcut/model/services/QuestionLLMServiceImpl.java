@@ -53,6 +53,8 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
     @Override
     public List<QuestionAI> generateQuestionsAI(String language, String category) {
+
+        
         List<QuestionAI> questions = new ArrayList<>();
         try {
             String urlStr = "http://localhost:8000/generate-quiz-questions?lang=" +
@@ -235,5 +237,11 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
         return questions;
     }
+
+    @Override
+    public List<QuestionAI> generateGenericStatsQuestions(String language) {
+        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-genericstats", language, null);
+    }
+
 
 }

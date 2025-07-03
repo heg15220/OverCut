@@ -55,6 +55,7 @@ from strategy_questions import generar_preguntas_estrategia_desde_main
 from physics_questions import generar_preguntas_fisica_desde_main
 from team_radio_questions import generar_preguntas_teamradios
 from validate_category_answer import validate_category_answer
+from generic_stats_service import load_generic_stats_cache, generate_genericstats_questions
 
 
 import sys
@@ -84,6 +85,10 @@ CATEGORY_CACHE: dict[str, dict[str, dict[str, bool]]] = {
     "es": {},
     "en": {}
 }
+
+GENERIC_STATS_CACHE = {}
+PRECOMPUTED_TOPS = {}
+INDEXES = {}
 
 def cache_file_for(since_year: int, end_year: Optional[int]):
     suffix = f"{since_year}_{end_year if end_year is not None else 'plus'}"
@@ -137,6 +142,7 @@ def precache_order_nationalities():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global GENERIC_STATS_CACHE
     load_criteria_cache()
     load_category_letter_cache()
     precache_static_categories()
@@ -144,6 +150,7 @@ async def lifespan(app: FastAPI):
     precache_order_teams()
     precache_order_circuits()
     precache_order_nationalities()
+    load_generic_stats_cache("generic_stats_data.json")
     yield
 
 
@@ -522,6 +529,13 @@ def validate_category_endpoint(
 def get_category_letter_cache(lang: str = Query("es", enum=["es", "en"])):
     return JSONResponse(content=CATEGORY_CACHE.get(lang, {}))
 
+
+@app.get("/generate-quiz-genericstats")
+def generate_quiz_genericstats(lang: str = Query("es", enum=["es", "en"])):
+    global LANG
+    LANG = lang
+    preguntas = generate_genericstats_questions()
+    return JSONResponse(content=preguntas)
 
 # === Main app ===
 if __name__ == "__main__":

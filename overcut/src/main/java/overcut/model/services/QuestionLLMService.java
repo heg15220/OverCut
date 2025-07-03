@@ -11,6 +11,8 @@ public interface QuestionLLMService {
     List<QuestionAI> generatePhysicsQuestions(String language, String category);
     String validateQuestion(String question, List<String> answers);
     List<QuestionAI> generateTeamRadioQuestions(String language, String category);
+    List<QuestionAI> generateGenericStatsQuestions(String language);
+
 
 
 }
