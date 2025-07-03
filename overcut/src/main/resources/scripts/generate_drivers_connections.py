@@ -195,6 +195,67 @@ def get_experienced_category():
         """
     }
 
+def get_circuit_winner_categories(conn, used_circuits):
+    circuits = conn.execute(text("""
+        SELECT DISTINCT c.circuitRef
+        FROM circuits c
+        JOIN races r ON c.circuitId = r.circuitId
+        JOIN results res ON res.raceId = r.raceId
+        WHERE res.positionOrder = 1
+        GROUP BY c.circuitRef
+        HAVING COUNT(*) >= 5
+    """)).fetchall()
+
+    random.shuffle(circuits)
+    categories = []
+    for (circuitRef,) in circuits:
+        if circuitRef in used_circuits:
+            continue
+        used_circuits.add(circuitRef)
+        categories.append({
+            "code": f"circuit_{circuitRef.lower()}",
+            "description": f"{'Pilotos que han ganado en' if LANG == 'es' else 'Drivers who won at'} {circuitRef}",
+            "query": """
+                SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
+                FROM drivers d
+                JOIN results r ON d.driverId = r.driverId
+                JOIN races ra ON r.raceId = ra.raceId
+                JOIN circuits ci ON ra.circuitId = ci.circuitId
+                WHERE r.positionOrder = 1 AND ci.circuitRef = :circuitRef
+            """,
+            "params": {"circuitRef": circuitRef}
+        })
+        if len(categories) >= 2:
+            break
+    return categories
+
+def get_decade_categories():
+    decades = [
+        {"code": "1980s", "start": 1980, "end": 1989},
+        {"code": "1990s", "start": 1990, "end": 1999},
+        {"code": "2000s", "start": 2000, "end": 2009},
+        {"code": "2010s", "start": 2010, "end": 2019},
+        {"code": "2020s", "start": 2020, "end": 2029}
+    ]
+
+    categories = []
+    for dec in decades:
+        categories.append({
+            "code": f"decade_{dec['code']}",
+            "description": f"{'Pilotos que han corrido en los' if LANG == 'es' else 'Drivers who raced in the'} {dec['code']}",
+            "query": """
+                SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
+                FROM drivers d
+                JOIN results r ON d.driverId = r.driverId
+                JOIN races ra ON r.raceId = ra.raceId
+                WHERE ra.year BETWEEN :startYear AND :endYear
+            """,
+            "params": {"startYear": dec["start"], "endYear": dec["end"]}
+        })
+    return categories
+
+
+
 def generate_game():
     with engine.connect() as conn:
         selected_categories = []
@@ -208,7 +269,13 @@ def generate_game():
             get_experienced_category()
         ]
 
-        dynamic_categories = get_team_categories(conn, used_teams) + get_country_categories(conn, used_countries)
+        dynamic_categories = (
+            get_team_categories(conn, used_teams)
+            + get_country_categories(conn, used_countries)
+            + get_circuit_winner_categories(conn, set())
+            + get_decade_categories()
+        )
+
         random.shuffle(dynamic_categories)
         all_categories = base_categories + dynamic_categories
         random.shuffle(all_categories)
