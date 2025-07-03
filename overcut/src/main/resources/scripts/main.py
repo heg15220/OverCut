@@ -27,6 +27,14 @@ from autocomplete_grid_pilot import autocomplete_pilots
 from generate_top10_game import get_random_race_and_top10
 from validate_top10_pilot import validate_pilot_in_top10
 from generate_order_drivers import generate_order_game
+from generate_order_drivers import load_teams_with_min_wins
+from generate_order_drivers import load_teams_with_enough_races_or_wins
+from generate_order_drivers import load_valid_circuits
+from generate_order_drivers import load_valid_nationalities
+from generate_order_drivers import engine
+from generate_order_drivers import ensure_order_caches_ready
+
+
 from select_random_driver import get_random_driver
 from validate_guess_driver_question import main as validate_question_main
 from get_recommendations import get_recommendations
@@ -105,6 +113,27 @@ def load_category_letter_cache():
         except Exception as e:
             print(f"[ERROR] Cargando caché {lang}: {e}")
 
+def precache_order_teams():
+    global ORDER_TEAM_CACHE_MIN_WINS, ORDER_TEAM_CACHE_LONG_CAREER
+    with engine.connect() as conn:
+        ORDER_TEAM_CACHE_MIN_WINS = load_teams_with_min_wins(conn)
+        ORDER_TEAM_CACHE_LONG_CAREER = load_teams_with_enough_races_or_wins(conn)
+    print(f"[startup] Teams with wins >=5: {len(ORDER_TEAM_CACHE_MIN_WINS)}")
+    print(f"[startup] Teams with 100 races or >=5 wins: {len(ORDER_TEAM_CACHE_LONG_CAREER)}")
+
+def precache_order_circuits():
+    global ORDER_CIRCUIT_CACHE
+    with engine.connect() as conn:
+        ORDER_CIRCUIT_CACHE = load_valid_circuits(conn)
+    print(f"[startup] Circuits with >=5 distinct drivers: {len(ORDER_CIRCUIT_CACHE)}")
+
+def precache_order_nationalities():
+    global ORDER_NATIONALITY_CACHE
+    with engine.connect() as conn:
+        ORDER_NATIONALITY_CACHE = load_valid_nationalities(conn)
+    print(f"[startup] Nationalities with >=5 winning drivers: {len(ORDER_NATIONALITY_CACHE)}")
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -112,6 +141,9 @@ async def lifespan(app: FastAPI):
     load_category_letter_cache()
     precache_static_categories()
     precache_dynamic_lists()
+    precache_order_teams()
+    precache_order_circuits()
+    precache_order_nationalities()
     yield
 
 
@@ -269,13 +301,16 @@ def validate_top10_pilot(pilot: str, raceId: int):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+
 @app.get("/generate-order-game")
 def generate_order_game_endpoint(lang: str = Query("es", enum=["es", "en"])):
     try:
+        ensure_order_caches_ready()
         result = generate_order_game(lang)
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
 
 @app.get("/generate-guess-driver")

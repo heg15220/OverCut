@@ -57,10 +57,66 @@ NATIONALITY_TRANSLATIONS = {
     "en": {}  # Identidad, ya que los nombres vienen ya en inglés
 }
 
+ORDER_THEMES_CACHE = []
+ORDER_TEAM_CACHE_MIN_WINS = []
+ORDER_TEAM_CACHE_LONG_CAREER = []
+ORDER_CIRCUIT_CACHE = []
+ORDER_NATIONALITY_CACHE = []
+
+
 def translate_nationality(nat, lang):
     if lang == "es":
         return NATIONALITY_TRANSLATIONS["es"].get(nat.strip(), nat)
     return nat
+
+
+def load_teams_with_min_wins(conn, min_wins=5):
+    result = conn.execute(text("""
+        SELECT DISTINCT co.name
+        FROM results r
+        JOIN constructors co ON r.constructorId = co.constructorId
+        WHERE r.positionOrder = 1
+        GROUP BY co.constructorId
+        HAVING COUNT(*) >= :min_wins
+    """), {"min_wins": min_wins})
+    return [row[0] for row in result.fetchall()]
+
+def load_teams_with_enough_races_or_wins(conn):
+    result = conn.execute(text("""
+        SELECT DISTINCT co.name
+        FROM results r
+        JOIN constructors co ON r.constructorId = co.constructorId
+        GROUP BY co.constructorId
+        HAVING COUNT(*) >= 100 OR SUM(r.positionOrder = 1) >= 5
+    """))
+    return [row[0] for row in result.fetchall()]
+
+def load_valid_circuits(conn):
+    result = conn.execute(text("""
+        SELECT DISTINCT c.circuitRef
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN circuits c ON ra.circuitId = c.circuitId
+        GROUP BY c.circuitId
+        HAVING COUNT(DISTINCT r.driverId) >= 5
+    """))
+    return [row[0] for row in result.fetchall()]
+
+
+def load_valid_nationalities(conn):
+    result = conn.execute(text("""
+        SELECT d.nationality
+        FROM results r
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE r.positionOrder = 1
+        GROUP BY d.nationality
+        HAVING COUNT(DISTINCT d.driverId) >= 5
+    """))
+    return [row[0] for row in result.fetchall()]
+
+
+
+
 
 def get_random_team_with_min_wins(conn, min_wins=5):
     result = conn.execute(text("""
@@ -111,32 +167,40 @@ def get_valid_nationality_for_wins(conn):
     nationalities = [row[0] for row in result.fetchall()]
     return random.choice(nationalities) if nationalities else None
 
+def get_random_cached_value(cache_list, name):
+    if not cache_list:
+        raise Exception(f"Cache vacía para {name}")
+    return random.choice(cache_list)
+
 
 def generate_themes(conn, lang):
-    team = get_random_team_with_min_wins(conn)
-    team2 = get_random_team_by_wins_or_races(conn)
-    circuit = get_random_circuit_with_min_pilots(conn)
-    nationality = get_valid_nationality_for_wins(conn)
+    team = get_random_cached_value(ORDER_TEAM_CACHE_MIN_WINS, "teams with min wins")
+    team2 = get_random_cached_value(ORDER_TEAM_CACHE_LONG_CAREER, "teams with long career")
+    circuit = get_random_cached_value(ORDER_CIRCUIT_CACHE, "circuits")
+    nationality = get_random_cached_value(ORDER_NATIONALITY_CACHE, "nationalities")
+
+
 
     nat_wins_t = translate_nationality(nationality, lang)
 
     return [
         {
-            "topic": f"Podios con {team}" if lang == "es" else f"Podiums with {team}",
-            "query": f"""
+            "topic_template": "Podios con {team}" if lang == "es" else "Podiums with {team}",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS podiums
                 FROM results r
                 JOIN constructors co ON r.constructorId = co.constructorId
                 JOIN drivers d ON r.driverId = d.driverId
-                WHERE r.positionOrder <= 3 AND co.name LIKE '%{team}%'
+                WHERE r.positionOrder <= 3 AND co.name LIKE :team
                 GROUP BY r.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY podiums DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {"team": f"%{team}%"}
         },
         {
-            "topic": "Campeones del mundo" if lang == "es" else "World Champions",
-            "query": """
+            "topic_template": "Campeones del mundo" if lang == "es" else "World Champions",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS titles
                 FROM drivers d
                 JOIN driverStandings ds ON d.driverId = ds.driverId
@@ -148,152 +212,170 @@ def generate_themes(conn, lang):
                       WHERE r2.year = r.year
                   )
                 GROUP BY d.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY titles DESC, RAND()
                 LIMIT 10
-            """
+            """,
+            "params": {}
         },
         {
-            "topic": "Ganadores de Grandes Premios" if lang == "es" else "Grand Prix Winners",
-            "query": """
+            "topic_template": "Ganadores de Grandes Premios" if lang == "es" else "Grand Prix Winners",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS wins
                 FROM results r
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder = 1
                 GROUP BY r.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY wins DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {}
         },
         {
-            "topic": "Podios" if lang == "es" else "Podiums",
-            "query": """
+            "topic_template": "Podios" if lang == "es" else "Podiums",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS podiums
                 FROM results r
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.positionOrder <= 3
                 GROUP BY r.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY podiums DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {}
         },
         {
-            "topic": f"Carreras disputadas con {team2}" if lang == "es" else f"Races contested with {team2}",
-            "query": f"""
+            "topic_template": "Carreras disputadas con {team}" if lang == "es" else "Races contested with {team}",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS starts
                 FROM results r
                 JOIN constructors co ON r.constructorId = co.constructorId
                 JOIN drivers d ON r.driverId = d.driverId
-                WHERE co.name LIKE '%{team2}%'
+                WHERE co.name LIKE :team
                 GROUP BY d.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY starts DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {"team": f"%{team2}%"}
         },
         {
-            "topic": "Vueltas Rápidas" if lang == "es" else "Fastest Laps",
-            "query": """
+            "topic_template": "Vueltas Rápidas" if lang == "es" else "Fastest Laps",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS fastlaps
                 FROM results r
                 JOIN drivers d ON r.driverId = d.driverId
                 WHERE r.rank = 1
                 GROUP BY r.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY fastlaps DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {}
         },
         {
-            "topic": f"Pilotos con más victorias con {team}" if lang == "es" else f"Drivers with most wins with {team}",
-            "query": f"""
+            "topic_template": "Pilotos con más victorias con {team}" if lang == "es" else "Drivers with most wins with {team}",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS wins
                 FROM results r
                 JOIN constructors co ON r.constructorId = co.constructorId
                 JOIN drivers d ON r.driverId = d.driverId
-                WHERE r.positionOrder = 1 AND co.name LIKE '%{team}%'
+                WHERE r.positionOrder = 1 AND co.name LIKE :team
                 GROUP BY r.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY wins DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {"team": f"{team}"}
         },
-        # NUEVAS PREGUNTAS SOBRE CIRCUITO
         {
-            "topic": f"Carreras disputadas en {circuit}" if lang == "es" else f"Races contested at {circuit}",
-            "query": f"""
+            "topic_template": "Carreras disputadas en {circuit}" if lang == "es" else "Races contested at {circuit}",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS starts
                 FROM results r
                 JOIN races ra ON r.raceId = ra.raceId
                 JOIN circuits c ON ra.circuitId = c.circuitId
                 JOIN drivers d ON r.driverId = d.driverId
-                WHERE c.circuitRef = '{circuit}'
+                WHERE c.circuitRef = :circuit
                 GROUP BY d.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY starts DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {"circuit": circuit}
         },
         {
-            "topic": f"Victorias en {circuit}" if lang == "es" else f"Wins at {circuit}",
-            "query": f"""
+            "topic_template": "Victorias en {circuit}" if lang == "es" else "Wins at {circuit}",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS wins
                 FROM results r
                 JOIN races ra ON r.raceId = ra.raceId
                 JOIN circuits c ON ra.circuitId = c.circuitId
                 JOIN drivers d ON r.driverId = d.driverId
-                WHERE r.positionOrder = 1 AND c.circuitRef = '{circuit}'
+                WHERE r.positionOrder = 1 AND c.circuitRef = :circuit
                 GROUP BY d.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY wins DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {"circuit": circuit}
         },
         {
-            "topic": f"Podios en {circuit}" if lang == "es" else f"Podiums at {circuit}",
-            "query": f"""
+            "topic_template": "Podios en {circuit}" if lang == "es" else "Podiums at {circuit}",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS podiums
                 FROM results r
                 JOIN races ra ON r.raceId = ra.raceId
                 JOIN circuits c ON ra.circuitId = c.circuitId
                 JOIN drivers d ON r.driverId = d.driverId
-                WHERE r.positionOrder <= 3 AND c.circuitRef = '{circuit}'
+                WHERE r.positionOrder <= 3 AND c.circuitRef = :circuit
                 GROUP BY r.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY podiums DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {"circuit": circuit}
         },
         {
-            "topic": f"{nat_wins_t} con más victorias" if lang == "es" else f"{nat_wins_t} with most wins",
-            "query": f"""
+            "topic_template": "{nationality} con más victorias" if lang == "es" else "{nationality} with most wins",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS wins
                 FROM results r
                 JOIN drivers d ON r.driverId = d.driverId
-                WHERE r.positionOrder = 1 AND d.nationality = '{nat_wins_t}'
+                WHERE r.positionOrder = 1 AND d.nationality = :nationality
                 GROUP BY r.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY wins DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {"nationality": nat_wins_t}
         },
         {
-            "topic": f"{nat_wins_t} con más podios" if lang == "es" else f"{nat_wins_t} with most podiums",
-            "query": f"""
+            "topic_template": "{nationality} con más podios" if lang == "es" else "{nationality} with most podiums",
+            "query_template": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname) AS driverName, COUNT(*) AS podiums
                 FROM results r
                 JOIN drivers d ON r.driverId = d.driverId
-                WHERE r.positionOrder <= 3 AND d.nationality = '{nat_wins_t}'
+                WHERE r.positionOrder <= 3 AND d.nationality = :nationality
                 GROUP BY r.driverId
-                ORDER BY COUNT(*) DESC, RAND()
+                ORDER BY podiums DESC, RAND()
                 LIMIT 50
-            """
+            """,
+            "params": {"nationality": nat_wins_t}
         }
     ]
+
 
 
 def generate_order_game(lang):
     with engine.connect() as conn:
         themes = generate_themes(conn, lang)
         theme = random.choice(themes)
-        topic = theme["topic"]
-        query = theme["query"]
 
-        result = conn.execute(text(query))
+        topic_template = theme["topic_template"]
+        query_template = theme["query_template"]
+        params = theme["params"]
+
+        # Renderizar texto del topic con sus parámetros
+        topic = topic_template.format(**params)
+
+        # Ejecutar la query con parámetros
+        result = conn.execute(text(query_template), params)
         drivers = result.fetchall()
 
+    # Mezclar y recortar resultados
     random.shuffle(drivers)
     drivers = drivers[:10]
     drivers.sort(key=lambda r: r[2] if len(r) > 2 else 0, reverse=True)
@@ -311,6 +393,25 @@ def generate_order_game(lang):
         })
 
     return output
+
+def ensure_order_caches_ready():
+    global ORDER_TEAM_CACHE_MIN_WINS, ORDER_TEAM_CACHE_LONG_CAREER
+    global ORDER_CIRCUIT_CACHE, ORDER_NATIONALITY_CACHE
+
+    with engine.connect() as conn:
+        if not ORDER_TEAM_CACHE_MIN_WINS or not ORDER_TEAM_CACHE_LONG_CAREER:
+            ORDER_TEAM_CACHE_MIN_WINS = load_teams_with_min_wins(conn)
+            ORDER_TEAM_CACHE_LONG_CAREER = load_teams_with_enough_races_or_wins(conn)
+            print("[on-demand] Precargadas teams caches.")
+
+        if not ORDER_CIRCUIT_CACHE:
+            ORDER_CIRCUIT_CACHE = load_valid_circuits(conn)
+            print("[on-demand] Precargada circuits cache.")
+
+        if not ORDER_NATIONALITY_CACHE:
+            ORDER_NATIONALITY_CACHE = load_valid_nationalities(conn)
+            print("[on-demand] Precargada nationalities cache.")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

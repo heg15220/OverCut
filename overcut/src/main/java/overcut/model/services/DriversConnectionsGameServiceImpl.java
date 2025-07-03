@@ -84,7 +84,7 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
 
             DriversConnectionsGame driversConnectionsGame =  gameDao.save(game);
 
-            //cooldownService.registerPlay("DriversConnections", userId);
+            cooldownService.registerPlay("DriversConnections", userId);
             return driversConnectionsGame;
 
         } catch (Exception e) {
