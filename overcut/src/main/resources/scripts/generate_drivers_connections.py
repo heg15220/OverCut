@@ -254,6 +254,45 @@ def get_decade_categories():
         })
     return categories
 
+def get_teammates_categories(conn):
+    categories = []
+
+    # Elige pilotos aleatorios que tengan resultados (para asegurar que tengan compañeros)
+    random_drivers = conn.execute(text("""
+        SELECT DISTINCT d.driverId, CONCAT(d.forename, ' ', d.surname)
+        FROM drivers d
+        JOIN results r ON d.driverId = r.driverId
+        ORDER BY RAND()
+        LIMIT 3
+    """)).fetchall()
+
+    for driver_id, full_name in random_drivers:
+        description = (
+            f"Compañeros de equipo de {full_name}"
+            if LANG == "es" else
+            f"Teammates of {full_name}"
+        )
+
+        categories.append({
+            "code": f"teammates_{driver_id}",
+            "description": description,
+            "query": """
+                SELECT DISTINCT d2.driverId, CONCAT(d2.forename, ' ', d2.surname)
+                FROM results r1
+                JOIN results r2 ON r1.raceId = r2.raceId AND r1.constructorId = r2.constructorId
+                JOIN drivers d2 ON r2.driverId = d2.driverId
+                WHERE r1.driverId = :driverId
+                  AND r2.driverId != :driverId
+            """,
+            "params": {"driverId": driver_id}
+        })
+
+        if len(categories) >= 2:
+            break
+
+    return categories
+
+
 
 
 def generate_game():
@@ -274,6 +313,7 @@ def generate_game():
             + get_country_categories(conn, used_countries)
             + get_circuit_winner_categories(conn, set())
             + get_decade_categories()
+            + get_teammates_categories(conn)
         )
 
         random.shuffle(dynamic_categories)
