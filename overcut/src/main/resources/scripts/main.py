@@ -56,7 +56,7 @@ from physics_questions import generar_preguntas_fisica_desde_main
 from team_radio_questions import generar_preguntas_teamradios
 from validate_category_answer import validate_category_answer
 from generic_stats_service import load_generic_stats_cache, generate_genericstats_questions
-
+from generic_stats_service import generar_preguntas_genericstats_desde_main
 
 import sys
 import io
@@ -532,10 +532,9 @@ def get_category_letter_cache(lang: str = Query("es", enum=["es", "en"])):
 
 @app.get("/generate-quiz-genericstats")
 def generate_quiz_genericstats(lang: str = Query("es", enum=["es", "en"])):
-    global LANG
-    LANG = lang
-    preguntas = generate_genericstats_questions()
+    preguntas = generar_preguntas_genericstats_desde_main(lang=lang)
     return JSONResponse(content=preguntas)
+
 
 # === Main app ===
 if __name__ == "__main__":

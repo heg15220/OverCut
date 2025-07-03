@@ -161,7 +161,7 @@ public class QuizServiceImpl implements QuizService {
         List<QuestionAI> aiQuestions = new ArrayList<>();
         if (quizType.getCode().equals(QuizTypeCode.Regulations)) {
             aiQuestions = questionLLMService.generateRegulationQuestions(language, quizCategory.getCode().name());
-        } else if (quizCategory.getCode().equals(QuizCategoryCode.GenericStats)) {
+        } else if (quizType.getCode().equals(QuizTypeCode.Stats) && quizCategory.getCode().equals(QuizCategoryCode.GenericStats)) {
             aiQuestions = questionLLMService.generateGenericStatsQuestions(language);
         } else if(quizType.getCode().equals(QuizTypeCode.Stats)) {
             aiQuestions = questionLLMService.generateQuestionsAI(language, quizCategory.getCode().name());

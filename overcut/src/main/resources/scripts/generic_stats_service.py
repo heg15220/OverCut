@@ -18,8 +18,7 @@ def get_random_incorrect(correct, pool, k=3):
     return random.sample(pool, k=min(k, len(pool)))
 
 
-def make_question(question_es, question_en, correct, pool, category="GenericStats", level=1):
-    global LANG
+def make_question(question_es, question_en, correct, pool, category="GenericStats", level=2):
     question_text = question_es if LANG == "es" else question_en
     options = get_random_incorrect(correct, pool) + [correct]
     random.shuffle(options)
@@ -33,9 +32,11 @@ def make_question(question_es, question_en, correct, pool, category="GenericStat
     }
 
 
+
+
 # ==== 3️⃣ Generadores de preguntas usando el JSON ====
 
-def pregunta_piloto_mas_podios():
+def pregunta_piloto_mas_podios(lang="es"):
     pool = [p["nombre"] for p in GENERIC_STATS_CACHE["pilotos_podios"]]
     correct = PRECOMPUTED_TOPS["piloto_mas_podios"]
     return make_question(
@@ -467,3 +468,8 @@ def generate_genericstats_questions(n=10):
     random.shuffle(preguntas)
     return preguntas[:n]
 
+def generar_preguntas_genericstats_desde_main(lang: str = "es"):
+    global LANG
+    LANG = lang
+    preguntas_generadas = generate_genericstats_questions()
+    return preguntas_generadas[:10]
