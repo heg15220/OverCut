@@ -57,6 +57,8 @@ from team_radio_questions import generar_preguntas_teamradios
 from validate_category_answer import validate_category_answer
 from generic_stats_service import load_generic_stats_cache, generate_genericstats_questions
 from generic_stats_service import generar_preguntas_genericstats_desde_main
+from validate_guess_driver_question import NATIONALITY_TRANSLATIONS_EN, NATIONALITY_TRANSLATIONS
+
 
 import sys
 import io
@@ -333,12 +335,12 @@ def validate_guess_question(driverId: int, category: str, value: str = None, lan
     try:
         # Simula llamada por línea de comandos
         import sys, io
+        import os
+        os.environ["LANG"] = lang
         sys.argv = ["validate_guess_driver_question.py", str(driverId), category]
         if value:
             sys.argv.append(value)
 
-        import os
-        os.environ["LANG"] = lang
 
         stdout_backup = sys.stdout
         sys.stdout = io.StringIO()
@@ -356,13 +358,19 @@ def validate_guess_question(driverId: int, category: str, value: str = None, lan
 
 @app.get("/recommend-guess-values")
 def recommend_guess_values(category: str, lang: str = Query("es", enum=["es", "en"])):
-    try:
-        import os
-        os.environ["LANG"] = lang
-        result = get_recommendations(category)
-        return JSONResponse(content=result)
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+    import os
+    os.environ["LANG"] = lang
+    result = get_recommendations(category)
+
+    if category == "nationality":
+        if lang == "en":
+            # Convertir nacionalidades en español ➜ inglés
+            result = [NATIONALITY_TRANSLATIONS_EN.get(n, n) for n in result]
+        elif lang == "es":
+            # Asegurar traducción al español
+            result = [NATIONALITY_TRANSLATIONS.get(n, n) for n in result]
+
+    return JSONResponse(content=result)
 
 
 @app.get("/autocomplete-pilot")

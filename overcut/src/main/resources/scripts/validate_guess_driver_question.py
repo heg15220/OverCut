@@ -4,7 +4,9 @@ import sys
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-LANG = os.getenv("LANG", "es")
+def get_lang():
+    return os.getenv("LANG", "es")
+
 DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
 
 engine = create_engine(DB_URI)
@@ -57,11 +59,14 @@ NATIONALITY_TRANSLATIONS = {
     "Venezuelan": "Venezolano"
 }
 
+NATIONALITY_TRANSLATIONS_EN = {v: k for k, v in NATIONALITY_TRANSLATIONS.items()}
+
 def traducir_nacionalidad(nacionalidad):
     nacionalidad = nacionalidad.strip()
-    if LANG == "es":
+    if get_lang() == "es":
         return NATIONALITY_TRANSLATIONS.get(nacionalidad, nacionalidad)
     return nacionalidad
+
 
 def pregunta_actual(session, driver_id):
     return session.execute(text("""
@@ -93,7 +98,7 @@ def pregunta_nacionalidad(session, driver_id, nationality_input):
     base_value = result.strip().lower()
 
     # Comparamos traducido si el idioma es español
-    if LANG == "es":
+    if get_lang() == "es":
         translated = NATIONALITY_TRANSLATIONS.get(result.strip(), result.strip())
         return translated.strip().lower() == nationality_input.strip().lower()
     else:
@@ -145,12 +150,19 @@ def pregunta_decada(session, driver_id, decade):
     return result > 0
 
 def generar_pregunta(category, value):
-    if LANG == "es":
+    if category == "nationality":
+        if get_lang() == "es":
+            translated = NATIONALITY_TRANSLATIONS.get(value, value)
+            return f"¿Es de nacionalidad {translated}?"
+        else:
+            translated = NATIONALITY_TRANSLATIONS_EN.get(value, value)
+            return f"Is he {translated}?"
+
+    if get_lang() == "es":
         preguntas = {
             "current": "¿Está compitiendo actualmente?",
             "retired": "¿Está retirado?",
             "team": f"¿Corrió para el equipo {value}?",
-            "nationality": f"¿Es de nacionalidad {NATIONALITY_TRANSLATIONS.get(value, value)}?",
             "circuit": f"¿Corrió en el circuito de {value}?",
             "champion": "¿Ganó algún campeonato del mundo?",
             "gpwinner": "¿Ganó alguna carrera de F1?",
@@ -163,7 +175,6 @@ def generar_pregunta(category, value):
             "current": "Is he currently competing?",
             "retired": "Is he retired?",
             "team": f"Did he race for {value}?",
-            "nationality": f"Is he {value}?",
             "circuit": f"Did he race at {value}?",
             "champion": "Has he won a world championship?",
             "gpwinner": "Did he win a Formula 1 race?",
@@ -172,6 +183,7 @@ def generar_pregunta(category, value):
             "decade": f"Did he compete in the {value}?"
         }
     return preguntas.get(category, "")
+
 
 def main():
     driver_id = int(sys.argv[1])
