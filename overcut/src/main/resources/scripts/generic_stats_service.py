@@ -4,11 +4,37 @@ import random
 LANG = "es"
 
 
+def index_cache():
+    global GENERIC_STATS_CACHE
+
+    # Indexar pilotos por circuito
+    pilotos_por_circuito = {}
+    for entry in GENERIC_STATS_CACHE.get("pilotos_victorias_en_circuito", []):
+        pilotos_por_circuito.setdefault(entry["circuito"], []).append(entry)
+    GENERIC_STATS_CACHE["pilotos_por_circuito"] = pilotos_por_circuito
+    GENERIC_STATS_CACHE["circuitos_piloto_keys"] = list(pilotos_por_circuito.keys())
+
+    # Indexar constructores por circuito
+    constructores_por_circuito = {}
+    for entry in GENERIC_STATS_CACHE.get("constructores_victorias_en_circuito", []):
+        constructores_por_circuito.setdefault(entry["circuito"], []).append(entry)
+    GENERIC_STATS_CACHE["constructores_por_circuito"] = constructores_por_circuito
+    GENERIC_STATS_CACHE["circuitos_constructor_keys"] = list(constructores_por_circuito.keys())
+
+    # Indexar constructores por país
+    constructores_por_pais = {}
+    for entry in GENERIC_STATS_CACHE.get("constructores_victorias_en_pais", []):
+        constructores_por_pais.setdefault(entry["pais"], []).append(entry)
+    GENERIC_STATS_CACHE["constructores_por_pais_index"] = constructores_por_pais
+    GENERIC_STATS_CACHE["paises_constructor_keys"] = list(constructores_por_pais.keys())
+
+
 def load_generic_stats_cache(path="generic_stats_data.json"):
     global GENERIC_STATS_CACHE
     with open(path, encoding="utf-8") as f:
         GENERIC_STATS_CACHE = json.load(f)
-    print(f"[OK] GenericStats cache cargada desde {path}.")
+    index_cache()
+    print(f"[OK] GenericStats cache cargada e indexada desde {path}.")
 
 
 
@@ -37,8 +63,10 @@ def make_question(question_es, question_en, correct, pool, category="GenericStat
 # ==== 3️⃣ Generadores de preguntas usando el JSON ====
 
 def pregunta_piloto_mas_podios():
-    pool = [p["nombre"] for p in GENERIC_STATS_CACHE["pilotos_podios"]]
-    correct = GENERIC_STATS_CACHE["pilotos_podios"]
+    candidates = random.sample(GENERIC_STATS_CACHE["pilotos_podios"], k=4)
+    correct_entry = max(candidates, key=lambda x: x["podios"])
+    correct = correct_entry["nombre"]
+    pool = [c["nombre"] for c in candidates]
     return make_question(
         "¿Qué piloto tiene más podios en su carrera?",
         "Which driver has the most podiums in their career?",
@@ -46,15 +74,19 @@ def pregunta_piloto_mas_podios():
         pool
     )
 
+
 def pregunta_constructor_mas_titulos():
-    pool = [c["nombre"] for c in GENERIC_STATS_CACHE["constructores_titulos"]]
-    correct = max(GENERIC_STATS_CACHE["constructores_titulos"], key=lambda x: x["titulos"])["nombre"]
+    candidates = random.sample(GENERIC_STATS_CACHE["constructores_titulos"], k=4)
+    correct_entry = max(candidates, key=lambda x: x["titulos"])
+    correct = correct_entry["nombre"]
+    pool = [c["nombre"] for c in candidates]
     return make_question(
         "¿Qué escudería ha ganado más títulos de constructores en F1?",
         "Which team has won the most F1 constructors championships?",
         correct,
         pool
     )
+
 
 def pregunta_pais_mas_gp():
     pool = [p["pais"] for p in GENERIC_STATS_CACHE["gp_por_pais"]]
@@ -67,14 +99,24 @@ def pregunta_pais_mas_gp():
     )
 
 def pregunta_circuito_mas_usado():
-    pool = [c["nombre"] for c in GENERIC_STATS_CACHE["circuitos_con_carreras"]]
-    correct = max(GENERIC_STATS_CACHE["circuitos_con_carreras"], key=lambda x: x["count"])["nombre"]
+    stats = GENERIC_STATS_CACHE["circuitos_con_carreras"]
+
+    if len(stats) < 4:
+        return None
+
+    # Elegir 4 circuitos distintos al azar
+    sample = random.sample(stats, k=4)
+    correct_entry = max(sample, key=lambda x: x["count"])
+    correct = correct_entry["nombre"]
+    pool = [x["nombre"] for x in sample]
+
     return make_question(
         "¿Qué circuito ha sido usado más veces en la historia de la F1?",
         "Which track has been used more times in F1 history?",
         correct,
         pool
     )
+
 
 def pregunta_piloto_random():
     pool = GENERIC_STATS_CACHE["pilotos"]
@@ -135,14 +177,17 @@ def pregunta_campeon_constructor_anio():
     )
 
 def pregunta_piloto_gano_en_mas_paises():
-    pool = [p["nombre"] for p in GENERIC_STATS_CACHE["pilotos_mas_paises"]]
-    correct = max(GENERIC_STATS_CACHE["pilotos_mas_paises"], key=lambda x: x["count"])["nombre"]
+    candidates = random.sample(GENERIC_STATS_CACHE["pilotos_mas_paises"], k=4)
+    correct_entry = max(candidates, key=lambda x: x["count"])
+    correct = correct_entry["nombre"]
+    pool = [p["nombre"] for p in candidates]
     return make_question(
         "¿Qué piloto ganó en más países diferentes?",
         "Which driver won in more different countries?",
         correct,
         pool
     )
+
 
 def pregunta_circuito_campeones_distintos():
     pool = [c["nombre"] for c in GENERIC_STATS_CACHE["circuitos_campeones_distintos"]]
@@ -174,8 +219,8 @@ def generar_pregunta_segundo_gp():
     correct = entry["piloto"]
     pool = GENERIC_STATS_CACHE.get("pilotos_por_periodo", {}).get(str(year), GENERIC_STATS_CACHE["pilotos"])
     return make_question(
-        f"¿Quién quedó segundo en el GP {gp} en {year}?",
-        f"Who finished second in the {gp} GP in {year}?",
+        f"¿Quién quedó segundo en el {gp} en {year}?",
+        f"Who finished second in the {gp} in {year}?",
         correct,
         pool
     )
@@ -217,8 +262,10 @@ def pregunta_piloto_primera_victoria_joven():
     )
 
 def pregunta_escuderia_mas_dobletes():
-    correct = max(GENERIC_STATS_CACHE["constructores_dobletes"], key=lambda x: x["dobletes"])["nombre"]
-    pool = GENERIC_STATS_CACHE["constructores"]
+    candidates = random.sample(GENERIC_STATS_CACHE["constructores_dobletes"], k=4)
+    correct_entry = max(candidates, key=lambda x: x["dobletes"])
+    correct = correct_entry["nombre"]
+    pool = [c["nombre"] for c in candidates]
     return make_question(
         "¿Qué escudería logró más dobletes (1º y 2º) en F1?",
         "Which team achieved more 1-2 finishes in F1?",
@@ -226,9 +273,12 @@ def pregunta_escuderia_mas_dobletes():
         pool
     )
 
+
 def pregunta_piloto_mas_temporadas_consecutivas():
-    correct = max(GENERIC_STATS_CACHE["pilotos_temporadas"], key=lambda x: x["temporadas"])["nombre"]
-    pool = GENERIC_STATS_CACHE["pilotos"]
+    candidates = random.sample(GENERIC_STATS_CACHE["pilotos_temporadas"], k=4)
+    correct_entry = max(candidates, key=lambda x: x["temporadas"])
+    correct = correct_entry["nombre"]
+    pool = [p["nombre"] for p in candidates]
     return make_question(
         "¿Qué piloto ha disputado más temporadas?",
         "Which driver has raced in the most seasons?",
@@ -237,9 +287,12 @@ def pregunta_piloto_mas_temporadas_consecutivas():
     )
 
 
+
 def pregunta_piloto_mas_victorias_temporada():
-    correct = max(GENERIC_STATS_CACHE["pilotos_victorias_por_temporada"], key=lambda x: x["victorias"])["nombre"]
-    pool = GENERIC_STATS_CACHE["pilotos"]
+    candidates = random.sample(GENERIC_STATS_CACHE["pilotos_victorias_por_temporada"], k=4)
+    correct_entry = max(candidates, key=lambda x: x["victorias"])
+    correct = correct_entry["nombre"]
+    pool = [p["nombre"] for p in candidates]
     return make_question(
         "¿Qué piloto logró más victorias en una sola temporada?",
         "Which driver won the most races in a single season?",
@@ -247,9 +300,12 @@ def pregunta_piloto_mas_victorias_temporada():
         pool
     )
 
+
 def pregunta_piloto_mas_carreras_sin_victoria():
-    correct = max(GENERIC_STATS_CACHE["pilotos_carreras_sin_victoria"], key=lambda x: x["carreras"])["nombre"]
-    pool = GENERIC_STATS_CACHE["pilotos"]
+    candidates = random.sample(GENERIC_STATS_CACHE["pilotos_carreras_sin_victoria"], k=4)
+    correct_entry = max(candidates, key=lambda x: x["carreras"])
+    correct = correct_entry["nombre"]
+    pool = [p["nombre"] for p in candidates]
     return make_question(
         "¿Qué piloto corrió más carreras sin victoria?",
         "Which driver raced more times without a win?",
@@ -257,9 +313,12 @@ def pregunta_piloto_mas_carreras_sin_victoria():
         pool
     )
 
+
 def pregunta_constructor_mas_podios_temporada():
-    correct = max(GENERIC_STATS_CACHE["constructores_podios_por_temporada"], key=lambda x: x["podios"])["nombre"]
-    pool = GENERIC_STATS_CACHE["constructores"]
+    candidates = random.sample(GENERIC_STATS_CACHE["constructores_podios_por_temporada"], k=4)
+    correct_entry = max(candidates, key=lambda x: x["podios"])
+    correct = correct_entry["nombre"]
+    pool = [c["nombre"] for c in candidates]
     return make_question(
         "¿Qué constructor logró más podios en una temporada?",
         "Which team got the most podiums in a season?",
@@ -268,16 +327,24 @@ def pregunta_constructor_mas_podios_temporada():
     )
 
 
+
 def pregunta_piloto_mas_participaciones_escuderia():
-    correct_entry = max(GENERIC_STATS_CACHE["pilotos_participaciones_escuderia"], key=lambda x: x["participaciones"])
+    # Elegir aleatoriamente 4 piloto-escudería distintos
+    candidates = random.sample(GENERIC_STATS_CACHE["pilotos_participaciones_escuderia"], k=4)
+
+    # Encontrar entre esos 4 el que más participaciones tiene
+    correct_entry = max(candidates, key=lambda x: x["participaciones"])
+
     correct = f"{correct_entry['piloto']} ({correct_entry['escuderia']})"
-    pool = [f"{x['piloto']} ({x['escuderia']})" for x in GENERIC_STATS_CACHE["pilotos_participaciones_escuderia"]]
+    pool = [f"{x['piloto']} ({x['escuderia']})" for x in candidates]
+
     return make_question(
         "¿Qué piloto tuvo más participaciones en una misma escudería?",
         "Which driver had the most races with a single team?",
         correct,
         pool
     )
+
 
 def pregunta_gp_mas_antiguo():
     entry = GENERIC_STATS_CACHE.get("gp_mas_antiguo")
@@ -342,15 +409,24 @@ def pregunta_piloto_debut_victoria():
 
 
 def pregunta_piloto_mas_victorias_en_circuito():
-    correct_entry = max(GENERIC_STATS_CACHE["pilotos_victorias_en_circuito"], key=lambda x: x["victorias"])
-    correct = correct_entry["piloto"]
-    pool = GENERIC_STATS_CACHE["pilotos"]
-    return make_question(
-        f"¿Qué piloto logró más victorias en el circuito {correct_entry['circuito']}?",
-        f"Which driver achieved the most wins at {correct_entry['circuito']}?",
-        correct,
-        pool
-    )
+    circuitos = GENERIC_STATS_CACHE["circuitos_piloto_keys"]
+    for _ in range(10):
+        circuito = random.choice(circuitos)
+        pilotos_en_circuito = GENERIC_STATS_CACHE["pilotos_por_circuito"].get(circuito, [])
+        if len(pilotos_en_circuito) >= 4:
+            sample = random.sample(pilotos_en_circuito, k=4)
+            correct_entry = max(sample, key=lambda x: x["victorias"])
+            correct = correct_entry["piloto"]
+            pool = [x["piloto"] for x in sample]
+            return make_question(
+                f"¿Qué piloto logró más victorias en el circuito {circuito}?",
+                f"Which driver achieved the most wins at {circuito}?",
+                correct,
+                pool
+            )
+    return None
+
+
 
 
 def pregunta_piloto_sin_pole_subio_podio():
@@ -366,15 +442,23 @@ def pregunta_piloto_sin_pole_subio_podio():
 
 
 def pregunta_pais_mas_constructores():
-    correct_entry = max(GENERIC_STATS_CACHE["constructores_por_pais"], key=lambda x: x["count"])
+    stats = GENERIC_STATS_CACHE["constructores_por_pais"]
+
+    if len(stats) < 4:
+        return None
+
+    sample = random.sample(stats, k=4)
+    correct_entry = max(sample, key=lambda x: x["count"])
     correct = correct_entry["pais"]
-    pool = GENERIC_STATS_CACHE["paises"]
+    pool = [x["pais"] for x in sample]
+
     return make_question(
         "¿Qué país ha tenido más constructores en la historia de la F1?",
         "Which country has had the most F1 teams in history?",
         correct,
         pool
     )
+
 
 def pregunta_piloto_mas_poles_en_circuito():
     correct_entry = max(GENERIC_STATS_CACHE["pilotos_poles_en_circuito"], key=lambda x: x["poles"])
@@ -390,27 +474,53 @@ def pregunta_piloto_mas_poles_en_circuito():
 
 
 def pregunta_constructor_mas_victorias_en_circuito():
-    correct_entry = max(GENERIC_STATS_CACHE["constructores_victorias_en_circuito"], key=lambda x: x["victorias"])
-    correct = correct_entry["constructor"]
-    pool = GENERIC_STATS_CACHE["constructores"]
-    return make_question(
-        f"¿Qué constructor logró más victorias en el circuito {correct_entry['circuito']}?",
-        f"Which constructor achieved the most wins at {correct_entry['circuito']}?",
-        correct,
-        pool
-    )
+    circuitos = GENERIC_STATS_CACHE["circuitos_constructor_keys"]
+    for _ in range(10):
+        circuito = random.choice(circuitos)
+        constructores_en_circuito = GENERIC_STATS_CACHE["constructores_victorias_en_circuito"]
+        if len(constructores_en_circuito) >= 4:
+            sample = random.sample(constructores_en_circuito, k=4)
+            correct_entry = max(sample, key=lambda x: x["victorias"])
+            correct = correct_entry["constructor"]
+            pool = [x["constructor"] for x in sample]
+            return make_question(
+                f"¿Qué constructor logró más victorias en el circuito {circuito}?",
+                f"Which constructor achieved the most wins at {circuito}?",
+                correct,
+                pool
+            )
+    return None
+
+
 
 
 def pregunta_constructor_mas_victorias_en_pais():
-    correct_entry = max(GENERIC_STATS_CACHE["constructores_victorias_en_pais"], key=lambda x: x["victorias"])
-    correct = correct_entry["constructor"]
-    pool = GENERIC_STATS_CACHE["constructores"]
-    return make_question(
-        f"¿Qué constructor logró más victorias en {correct_entry['pais']}?",
-        f"Which constructor achieved the most wins in {correct_entry['pais']}?",
-        correct,
-        pool
-    )
+    # Obtener todos los países disponibles
+    paises = GENERIC_STATS_CACHE["paises_constructor_keys"]
+
+    # Intentar hasta encontrar un país con suficientes constructores
+    for _ in range(10):
+        pais = random.choice(paises)
+        constructores_en_pais = [
+            entry for entry in GENERIC_STATS_CACHE["constructores_victorias_en_pais"]
+            if entry["pais"] == pais
+        ]
+
+        if len(constructores_en_pais) >= 4:
+            sample = random.sample(constructores_en_pais, k=4)
+            correct_entry = max(sample, key=lambda x: x["victorias"])
+            correct = correct_entry["constructor"]
+            pool = [x["constructor"] for x in sample]
+
+            return make_question(
+                f"¿Qué constructor logró más victorias en {pais}?",
+                f"Which constructor achieved the most wins in {pais}?",
+                correct,
+                pool
+            )
+
+    return None  # No se encontró país con 4 constructores distintos
+
 
 
 
@@ -422,7 +532,6 @@ ALL_GENERATORS = [
     pregunta_constructor_mas_titulos,
     pregunta_pais_mas_gp,
     pregunta_circuito_mas_usado,
-    pregunta_pais_random,
     pregunta_campeon_piloto_anio,
     pregunta_campeon_constructor_anio,
     pregunta_piloto_gano_en_mas_paises,
@@ -439,10 +548,7 @@ ALL_GENERATORS = [
     pregunta_constructor_mas_podios_temporada,
     pregunta_piloto_mas_participaciones_escuderia,
     pregunta_gp_mas_antiguo,
-    pregunta_escuderia_debut_victoria,
     pregunta_piloto_sin_podio_largo,
-    pregunta_primer_gp_fuera_europa,
-    pregunta_piloto_debut_victoria,
     pregunta_piloto_mas_victorias_en_circuito,
     pregunta_piloto_sin_pole_subio_podio,
     pregunta_pais_mas_constructores,
