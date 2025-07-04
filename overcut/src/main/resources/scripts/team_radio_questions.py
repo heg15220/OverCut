@@ -892,7 +892,7 @@ def pregunta_sainz_radio():
                 "Max Verstappen",
                 "Sergio Perez"
             ],
-            "correctAnswer": "Nico Hulkenberg",
+            "correctAnswer": "Carlos Sainz",
             "knowledgeLevel": 2,
             "category": "LegendaryTeamRadios",
             "language": LANG
@@ -906,7 +906,7 @@ def pregunta_sainz_radio():
                 "Max Verstappen",
                 "Sergio Perez"
             ],
-            "correctAnswer": "Nico Hulkenberg",
+            "correctAnswer": "Carlos Sainz",
             "knowledgeLevel": 2,
             "category": "LegendaryTeamRadios",
             "language": LANG
@@ -1838,11 +1838,11 @@ def pregunta_masi_motor_race():
             "question": "Quién dijo por radio: 'It’s friday theeen. Saturday, Sunday what?.'",
             "answers": [
                 "Carlos Sainz",
-                "Toto Wolff",
+                "Lando Norris",
                 "Christian Horner",
                 "Lewis Hamilton"
             ],
-            "correctAnswer": "Michael Masi",
+            "correctAnswer": "Lando Norris",
             "knowledgeLevel": 3,
             "category": "LegendaryTeamRadios",
             "language": LANG
@@ -1852,11 +1852,11 @@ def pregunta_masi_motor_race():
             "question": "Who said on the radio: 'It’s called a motor race, Toto. We went car racing.' in Abu Dhabi 2021?",
             "answers": [
                 "Michael Masi",
-                "Toto Wolff",
+                "Lando Norris",
                 "Christian Horner",
                 "Lewis Hamilton"
             ],
-            "correctAnswer": "Michael Masi",
+            "correctAnswer": "Lando Norris",
             "knowledgeLevel": 3,
             "category": "LegendaryTeamRadios",
             "language": LANG

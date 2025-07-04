@@ -202,7 +202,15 @@ public class QuizServiceImpl implements QuizService {
         List<Question> result = new ArrayList<>();
         SecureRandom random = new SecureRandom();
 
-            while (result.size() < 10 && (!dbQuestions.isEmpty() || !aiConverted.isEmpty())) {
+        int targetTotal =
+                (quizType.getCode().equals(QuizTypeCode.Strategy) ||
+                        quizType.getCode().equals(QuizTypeCode.TeamRadios) ||
+                        quizType.getCode().equals(QuizTypeCode.Regulations) ||
+                        quizType.getCode().equals(QuizTypeCode.Physics))
+                        ? 5
+                        : 10;
+
+        while (result.size() < targetTotal && (!dbQuestions.isEmpty() || !aiConverted.isEmpty())) {
             if (!dbQuestions.isEmpty() && (aiConverted.isEmpty() || random.nextBoolean())) {
                 result.add(dbQuestions.remove(random.nextInt(dbQuestions.size())));
             } else if (!aiConverted.isEmpty()) {
@@ -355,10 +363,10 @@ public class QuizServiceImpl implements QuizService {
             throw new InstanceNotFoundException("User not found here", userId);
         }
 
-        //QuizType quizType = chooseQuizType();
-        QuizType quizType = getStatsType(QuizTypeCode.Stats);
-        //QuizCategory quizCategory = chooseQuizCategory(quizType);
-        QuizCategory quizCategory = getQuizCategoryType();
+        QuizType quizType = chooseQuizType();
+        //QuizType quizType = getStatsType(QuizTypeCode.Stats);
+        QuizCategory quizCategory = chooseQuizCategory(quizType);
+        //QuizCategory quizCategory = getQuizCategoryType();
         List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType, quizCategory, language);
 
 

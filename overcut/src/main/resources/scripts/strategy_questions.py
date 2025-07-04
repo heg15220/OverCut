@@ -3736,7 +3736,7 @@ def generar_preguntas_filtradas(categoria):
 
     if categoria_real:
         generadores = generadores_por_categoria[categoria_real]
-        generadores_seleccionados = random.sample(generadores, min(10, len(generadores)))
+        generadores_seleccionados = random.sample(generadores, 5)
         for gen in generadores_seleccionados:
             p = gen()
             if p:
