@@ -108,25 +108,58 @@ def fetch_all_data():
         constructores_por_anio.setdefault(str(year), []).append(name)
     data["constructores_por_anio"] = constructores_por_anio
 
+
+    # 1️⃣ Crear pilotos_por_periodo (±2 años)
+    pilotos_por_periodo = {}
+    for year in pilotos_por_anio.keys():
+        pool = set()
+        for y in range(int(year) - 2, int(year) + 3):
+            pool.update(pilotos_por_anio.get(str(y), []))
+        pilotos_por_periodo[year] = list(pool)
+
+    data["pilotos_por_periodo"] = pilotos_por_periodo
+
+    # 2️⃣ Crear constructores_por_periodo (±2 años)
+    constructores_por_periodo = {}
+    for year in constructores_por_anio.keys():
+        pool = set()
+        for y in range(int(year) - 2, int(year) + 3):
+            pool.update(constructores_por_anio.get(str(y), []))
+        constructores_por_periodo[year] = list(pool)
+
+    data["constructores_por_periodo"] = constructores_por_periodo
+
+
     # Campeones pilotos por año
     cursor.execute("""
-        SELECT DISTINCT r.year, CONCAT(d.forename, ' ', d.surname)
+        SELECT r.year, CONCAT(d.forename, ' ', d.surname)
         FROM driverStandings ds
         JOIN drivers d ON ds.driverId = d.driverId
         JOIN races r ON ds.raceId = r.raceId
         WHERE ds.position = 1
+        AND r.raceId = (
+            SELECT MAX(r2.raceId)
+            FROM races r2
+            WHERE r2.year = r.year
+        )
     """)
     data["campeones_pilotos_por_anio"] = [{"year": row[0], "piloto": row[1]} for row in cursor.fetchall()]
 
     # Campeones constructores por año
     cursor.execute("""
-        SELECT DISTINCT r.year, c.name
+        SELECT r.year, c.name
         FROM constructorStandings cs
         JOIN constructors c ON cs.constructorId = c.constructorId
         JOIN races r ON cs.raceId = r.raceId
         WHERE cs.position = 1
+        AND r.raceId = (
+            SELECT MAX(r2.raceId)
+            FROM races r2
+            WHERE r2.year = r.year
+        )
     """)
     data["campeones_constructores_por_anio"] = [{"year": row[0], "constructor": row[1]} for row in cursor.fetchall()]
+
 
     # Pilotos con más países diferentes donde han ganado
     cursor.execute("""

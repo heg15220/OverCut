@@ -36,9 +36,9 @@ def make_question(question_es, question_en, correct, pool, category="GenericStat
 
 # ==== 3️⃣ Generadores de preguntas usando el JSON ====
 
-def pregunta_piloto_mas_podios(lang="es"):
+def pregunta_piloto_mas_podios():
     pool = [p["nombre"] for p in GENERIC_STATS_CACHE["pilotos_podios"]]
-    correct = PRECOMPUTED_TOPS["piloto_mas_podios"]
+    correct = GENERIC_STATS_CACHE["pilotos_podios"]
     return make_question(
         "¿Qué piloto tiene más podios en su carrera?",
         "Which driver has the most podiums in their career?",
@@ -112,7 +112,7 @@ def pregunta_campeon_piloto_anio():
     champ = random.choice(GENERIC_STATS_CACHE["campeones_pilotos_por_anio"])
     anio = champ["year"]
     correct = champ["piloto"]
-    pool = GENERIC_STATS_CACHE["pilotos_por_anio"].get(str(anio), GENERIC_STATS_CACHE["pilotos"])
+    pool = GENERIC_STATS_CACHE.get("pilotos_por_periodo", {}).get(str(anio), GENERIC_STATS_CACHE["pilotos"])
     return make_question(
         f"¿Quién ganó el campeonato de pilotos en {anio}?",
         f"Who won the drivers' championship in {anio}?",
@@ -126,7 +126,7 @@ def pregunta_campeon_constructor_anio():
     champ = random.choice(GENERIC_STATS_CACHE["campeones_constructores_por_anio"])
     anio = champ["year"]
     correct = champ["constructor"]
-    pool = GENERIC_STATS_CACHE["constructores_por_anio"].get(str(anio), GENERIC_STATS_CACHE["constructores"])
+    pool = GENERIC_STATS_CACHE.get("constructores_por_periodo", {}).get(str(anio), GENERIC_STATS_CACHE["constructores"])
     return make_question(
         f"¿Qué constructor ganó el campeonato de constructores en {anio}?",
         f"Which team won the constructors' championship in {anio}?",
@@ -159,7 +159,7 @@ def generar_pregunta_ganador_gp():
     year = entry["year"]
     gp = entry["gp"]
     correct = entry["piloto"]
-    pool = GENERIC_STATS_CACHE["pilotos"]
+    pool = GENERIC_STATS_CACHE.get("pilotos_por_periodo", {}).get(str(year), GENERIC_STATS_CACHE["pilotos"])
     return make_question(
         f"¿Quién ganó el GP {gp} en {year}?",
         f"Who won the {gp} GP in {year}?",
@@ -172,7 +172,7 @@ def generar_pregunta_segundo_gp():
     year = entry["year"]
     gp = entry["gp"]
     correct = entry["piloto"]
-    pool = GENERIC_STATS_CACHE["pilotos"]
+    pool = GENERIC_STATS_CACHE.get("pilotos_por_periodo", {}).get(str(year), GENERIC_STATS_CACHE["pilotos"])
     return make_question(
         f"¿Quién quedó segundo en el GP {gp} en {year}?",
         f"Who finished second in the {gp} GP in {year}?",
@@ -185,7 +185,7 @@ def generar_pregunta_tercero_gp():
     year = entry["year"]
     gp = entry["gp"]
     correct = entry["piloto"]
-    pool = GENERIC_STATS_CACHE["pilotos"]
+    pool = GENERIC_STATS_CACHE.get("pilotos_por_periodo", {}).get(str(year), GENERIC_STATS_CACHE["pilotos"])
     return make_question(
         f"¿Quién quedó tercero en el GP {gp} en {year}?",
         f"Who finished third in the {gp} GP in {year}?",
@@ -198,7 +198,7 @@ def generar_pregunta_escuderia_ganadora():
     year = entry["year"]
     gp = entry["gp"]
     correct = entry["escuderia"]
-    pool = GENERIC_STATS_CACHE["constructores"]
+    pool = GENERIC_STATS_CACHE.get("constructores_por_periodo", {}).get(str(year), GENERIC_STATS_CACHE["constructores"])
     return make_question(
         f"¿Qué escudería ganó el GP {gp} en {year}?",
         f"Which team won the {gp} GP in {year}?",
@@ -236,6 +236,7 @@ def pregunta_piloto_mas_temporadas_consecutivas():
         pool
     )
 
+
 def pregunta_piloto_mas_victorias_temporada():
     correct = max(GENERIC_STATS_CACHE["pilotos_victorias_por_temporada"], key=lambda x: x["victorias"])["nombre"]
     pool = GENERIC_STATS_CACHE["pilotos"]
@@ -265,6 +266,7 @@ def pregunta_constructor_mas_podios_temporada():
         correct,
         pool
     )
+
 
 def pregunta_piloto_mas_participaciones_escuderia():
     correct_entry = max(GENERIC_STATS_CACHE["pilotos_participaciones_escuderia"], key=lambda x: x["participaciones"])
@@ -386,6 +388,7 @@ def pregunta_piloto_mas_poles_en_circuito():
     )
 
 
+
 def pregunta_constructor_mas_victorias_en_circuito():
     correct_entry = max(GENERIC_STATS_CACHE["constructores_victorias_en_circuito"], key=lambda x: x["victorias"])
     correct = correct_entry["constructor"]
@@ -419,8 +422,6 @@ ALL_GENERATORS = [
     pregunta_constructor_mas_titulos,
     pregunta_pais_mas_gp,
     pregunta_circuito_mas_usado,
-    pregunta_piloto_random,
-    pregunta_constructor_random,
     pregunta_pais_random,
     pregunta_campeon_piloto_anio,
     pregunta_campeon_constructor_anio,
