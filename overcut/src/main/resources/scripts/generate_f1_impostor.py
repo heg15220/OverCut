@@ -121,15 +121,15 @@ for circuit in circuit_refs:
     label = circuit.replace('_', ' ').title()
     CATEGORIES[f"win_{circuit}"] = {
         "es": f"Pilotos que han ganado en {label}",
-        "en": f"Drivers who have won in {label}"
+        "en": f"Drivers who have won at {label}"
     }
     CATEGORIES[f"podium_{circuit}"] = {
         "es": f"Pilotos que han hecho podio en {label}",
-        "en": f"Drivers who have finished on the podium in {label}"
+        "en": f"Drivers who have finished on the podium at {label}"
     }
     CATEGORIES[f"pole_{circuit}"] = {
         "es": f"Pilotos con pole position en {label}",
-        "en": f"Drivers with a pole position in {label}"
+        "en": f"Drivers with a pole position at {label}"
     }
 
 for team in team_names:
@@ -159,6 +159,15 @@ for nationality in nationalities:
     }
 
 
+for decade in range(1950, 2030, 10):
+    code = f"decade_{decade}s"
+    CATEGORIES[code] = {
+        "es": f"Pilotos que corrieron en la década de los {decade}s",
+        "en": f"Drivers who raced in the {decade}s"
+    }
+
+
+
 def get_valid_pilots(category, session):
     queries = {
         "pole_position": """
@@ -169,9 +178,14 @@ def get_valid_pilots(category, session):
         """,
         "world_champion": """
             SELECT DISTINCT CONCAT(d.forename, ' ', d.surname)
-            FROM driver_standings ds
+            FROM driverstandings ds
             JOIN races r ON ds.raceId = r.raceId
             JOIN drivers d ON ds.driverId = d.driverId
+            JOIN (
+                SELECT year, MAX(round) AS last_round
+                FROM races
+                GROUP BY year
+            ) last_races ON r.year = last_races.year AND r.round = last_races.last_round
             WHERE ds.position = 1
         """,
         "more_10_wins": """
@@ -284,6 +298,16 @@ def get_valid_pilots(category, session):
             SELECT DISTINCT CONCAT(forename, ' ', surname)
             FROM drivers
             WHERE nationality = '{nationality}'
+        """
+
+    for decade in range(1950, 2030, 10):
+        code = f"decade_{decade}s"
+        queries[code] = f"""
+            SELECT DISTINCT CONCAT(d.forename, ' ', d.surname)
+            FROM results r
+            JOIN races ra ON r.raceId = ra.raceId
+            JOIN drivers d ON r.driverId = d.driverId
+            WHERE YEAR(ra.date) BETWEEN {decade} AND {decade + 9}
         """
 
     if category not in queries:
