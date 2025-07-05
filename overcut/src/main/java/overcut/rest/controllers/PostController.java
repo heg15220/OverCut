@@ -107,16 +107,20 @@ public class PostController {
      * @throws InstanceNotFoundException the instance not found exception
      */
     @GetMapping("/getPosts")
-    public BlockDto<PostDto> getPosts(@Validated @RequestParam(required = false) String title,
-                                      @Validated @RequestParam(required = false) Long categoryId,
-                                      @RequestParam(defaultValue = "0") int page,
-                                      @Validated @RequestParam(required = false) Short criteria,
-                                      @Validated @RequestParam(required = false, defaultValue = "false") Boolean order) throws InstanceNotFoundException {
+    public BlockDto<PostDto> getPosts(
+            @Validated @RequestParam(required = false) String title,
+            @Validated @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @Validated @RequestParam(required = false) Short criteria,
+            @Validated @RequestParam(required = false, defaultValue = "false") Boolean order,
+            @RequestParam(required = false) String language
+    ) throws InstanceNotFoundException {
 
-        Block<Post> foundPost = postService.getPosts(title, categoryId, page,400, criteria, order);
+        Block<Post> foundPost = postService.getPosts(title, categoryId, page, 400, criteria, order, language);
 
         return new BlockDto<>(PostConversor.toPostDtos(foundPost.getItems()), foundPost.getExistMoreItems());
     }
+
 
 
     /**

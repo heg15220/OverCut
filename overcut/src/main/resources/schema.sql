@@ -169,6 +169,7 @@ CREATE TABLE Post(
     userId BIGINT NOT NULL,
     categoryId BIGINT NOT NULL,
     imageCaption LONGTEXT,
+    language VARCHAR(5),
 
     CONSTRAINT UserIdFK FOREIGN KEY (userId) REFERENCES Users (id),
     CONSTRAINT CategoryIdFK FOREIGN KEY (categoryId) REFERENCES Category (id)

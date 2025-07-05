@@ -42,6 +42,14 @@ public class PostServiceImpl implements PostService{
     private PostSectionDao postSectionDao;
 
 
+
+
+    private String detectLanguage(String text) {
+        if (text == null) return "en";
+        if (text.matches(".*[áéíóúñüÁÉÍÓÚÑÜ].*")) return "es";
+        return "en";
+    }
+
     /**
      * Delete post.
      *
@@ -118,6 +126,9 @@ public class PostServiceImpl implements PostService{
         Post post = new Post(title, subtitle, image, article, creationDate, user, category);
 
         post.setImageCaption(imageCaption);
+
+        String detectedLanguage = detectLanguage(title + " " + subtitle + " " + article);
+        post.setLanguage(detectedLanguage);
 
 
         postDao.save(post);
@@ -231,11 +242,11 @@ public class PostServiceImpl implements PostService{
 
     @Override
     @Transactional(readOnly = true)
-    public Block<Post> getPosts(String title, Long categoryId, int page, int size, Short criteria, boolean order) {
-        Slice<Post> post = postDao.findFilterPost(title, categoryId, criteria, order, page, size);
-
+    public Block<Post> getPosts(String title, Long categoryId, int page, int size, Short criteria, boolean order, String language) {
+        Slice<Post> post = postDao.findFilterPost(title, categoryId, criteria, order, language, page, size);
         return new Block<>(post.getContent(), post.hasNext());
     }
+
 
     @Override
     public boolean newPosts(LocalDateTime referenceDate) {

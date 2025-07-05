@@ -12,5 +12,6 @@ public interface CustomizedPostDao {
      * @param size       the size
      * @return the slice post
      */
-    Slice<Post> findFilterPost(String title, Long categoryId, Short criteria, boolean order, int page, int size);
+    Slice<Post> findFilterPost(String title, Long categoryId, Short criteria, boolean order, String language, int page, int size);
+
 }

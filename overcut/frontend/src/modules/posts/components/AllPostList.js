@@ -8,6 +8,10 @@ import { FormattedMessage } from 'react-intl';
 import {TextField, Select, MenuItem, Button, Box, FormControl, InputLabel, Paper} from '@mui/material';
 import Grid from "@mui/material/Grid";
 
+const getDefaultLanguage = () => {
+    return navigator.language.startsWith('es') ? 'es' : 'en';
+};
+
 const AllPostList = () => {
     const dispatch = useDispatch();
     const posts = useSelector(selectors.getPosts);
@@ -17,6 +21,9 @@ const AllPostList = () => {
     const [criteria, setCriteria] = useState(null);
     const [order, setOrder] = useState(false);
     const formRef = useRef(null);
+    const [language, setLanguage] = useState(getDefaultLanguage());
+
+
 
     const handleSubmit = event => {
         event.preventDefault();
@@ -28,6 +35,7 @@ const AllPostList = () => {
                     page: 0,
                     criteria: criteria,
                     order: order,
+                    language: language
                 },
                 () => { },
                 () => { },
@@ -35,7 +43,8 @@ const AllPostList = () => {
         } else {
             formRef.current?.classList.add('was-validated');
         }
-    }
+    };
+
 
     useEffect(() => {
         dispatch(actions.getPosts({
@@ -43,10 +52,12 @@ const AllPostList = () => {
             categoryId: categoryId,
             page: 0,
             criteria: criteria,
-            order:order,
+            order: order,
+            language: language
         }));
         dispatch(actions.getAllCategories(() => { }))
-    }, [dispatch, categoryId, title, criteria, order]);
+    }, [dispatch, categoryId, title, criteria, order, language]);
+
 
     return (
         <Paper sx={{ padding: 2, margin: 'auto', maxWidth: 2500 }}>
@@ -105,6 +116,22 @@ const AllPostList = () => {
                             </Select>
                         </FormControl>
                     </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <FormControl variant="outlined" fullWidth>
+                            <InputLabel id="language-label">Language</InputLabel>
+                            <Select
+                                labelId="language-label"
+                                value={language}
+                                onChange={e => setLanguage(e.target.value)}
+                                label="Language"
+                            >
+                                <MenuItem value="es">Español</MenuItem>
+                                <MenuItem value="en">English</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+
                 </Grid>
                 <Box sx={{ width: '100%', p: 5 }}>
                     <PostList posts={posts} />

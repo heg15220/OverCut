@@ -33,10 +33,10 @@ public class CustomizedPostDaoImpl implements CustomizedPostDao {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Slice<Post> findFilterPost(String title, Long categoryId, Short criteria, boolean order, int page, int size) {
-        String query = buildQuery(title, categoryId, criteria, order);
+    public Slice<Post> findFilterPost(String title, Long categoryId, Short criteria, boolean order, String language, int page, int size) {
+        String query = buildQuery(title, categoryId, criteria, order, language);
         Query querySentence = entityManager.createQuery(query).setFirstResult(page * size).setMaxResults(size + 1);
-        setParameters(querySentence, title, categoryId);
+        setParameters(querySentence, title, categoryId, language);
 
         List<Post> posts = querySentence.getResultList();
         boolean hasNextPost = posts.size() == (size + 1);
@@ -48,35 +48,47 @@ public class CustomizedPostDaoImpl implements CustomizedPostDao {
         return new SliceImpl<>(posts, PageRequest.of(page, size), hasNextPost);
     }
 
-    private String buildQuery(String title, Long categoryId, Short criteria, boolean order) {
-        StringBuilder query = new StringBuilder("SELECT p FROM Post p ");
+    private String buildQuery(String title, Long categoryId, Short criteria, boolean order, String language) {
+        StringBuilder query = new StringBuilder("SELECT p FROM Post p");
 
-        if (title != null || categoryId != null) {
+        boolean hasCondition = false;
+
+        if (title != null || categoryId != null || language != null) {
             query.append(" WHERE ");
         }
 
         if (title != null) {
             query.append("UPPER(p.title) LIKE UPPER(:title)");
-        }
-        if (categoryId != null) {
-            if (title != null) {
-                query.append(" AND ");
-            }
-            query.append("p.category.id = :categoryId");
+            hasCondition = true;
         }
 
-        // Modificación principal: ordenamiento por defecto en ASC
+        if (categoryId != null) {
+            if (hasCondition) query.append(" AND ");
+            query.append("p.category.id = :categoryId");
+            hasCondition = true;
+        }
+
+        if (language != null) {
+            if (hasCondition) query.append(" AND ");
+            query.append("p.language = :language");
+        }
+
         query.append(order ? " ORDER BY p.creationDate ASC" : " ORDER BY p.creationDate DESC");
 
         return query.toString();
     }
 
-    private void setParameters(Query querySentence, String title, Long categoryId) {
+
+    private void setParameters(Query querySentence, String title, Long categoryId, String language) {
         if (title != null) {
             querySentence.setParameter("title", "%" + title + "%");
         }
         if (categoryId != null) {
             querySentence.setParameter("categoryId", categoryId);
         }
+        if (language != null) {
+            querySentence.setParameter("language", language);
+        }
     }
+
 }

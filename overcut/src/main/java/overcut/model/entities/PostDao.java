@@ -61,4 +61,6 @@ public interface PostDao extends CrudRepository<Post, Long>, CustomizedPostDao {
      */
     boolean existsByCreationDateAfter(LocalDateTime referenceDate);
 
+
+
 }

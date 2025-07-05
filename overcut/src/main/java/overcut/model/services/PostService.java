@@ -34,9 +34,10 @@ public interface PostService {
      * @param categoryId the category id
      * @param page       the page
      * @param size       the size
+     * @param language the language
      * @return the list of posts
      */
-   Block<Post> getPosts(String title, Long categoryId, int page, int size, Short criteria, boolean order);
+    Block<Post> getPosts(String title, Long categoryId, int page, int size, Short criteria, boolean order, String language);
 
     /**
      * Visualize all the user posts.

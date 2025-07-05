@@ -53,24 +53,14 @@ export const modifyPost = (id, post, onSuccess, onErrors) => {
     );
 };
 
-export const getPosts = ({ title, categoryId, page, size, criteria, order }, onSuccess, onErrors) => {
+export const getPosts = ({ title, categoryId, page, size, criteria, order, language }, onSuccess, onErrors) => {
     let url = `/posts/getPosts?page=${page}&size=${size}`;
 
-    if (title) {
-        url += `&title=${title}`;
-    }
-
-    if (categoryId) {
-        url += `&categoryId=${categoryId}`;
-    }
-
-    if (criteria) {
-        url += `&criteria=${criteria}`;
-    }
-
-    if (order !== undefined) {
-        url += `&order=${order}`;
-    }
+    if (title) url += `&title=${title}`;
+    if (categoryId) url += `&categoryId=${categoryId}`;
+    if (criteria) url += `&criteria=${criteria}`;
+    if (order !== undefined) url += `&order=${order}`;
+    if (language) url += `&language=${language}`;
 
     appFetch(
         url,
@@ -79,6 +69,7 @@ export const getPosts = ({ title, categoryId, page, size, criteria, order }, onS
         onErrors
     );
 };
+
 
 export const newPosts = (timestamp, onSuccess) => {
     appFetch(

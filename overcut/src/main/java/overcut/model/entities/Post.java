@@ -34,6 +34,10 @@ public class Post {
 
     private String imageCaption;
 
+    @Column(length = 5)
+    private String language;
+
+
     /** The list of comments. */
     private List<Comment> comments;
 
@@ -244,5 +248,13 @@ public class Post {
 
     public void setImageCaption(String imageCaption) {
         this.imageCaption = imageCaption;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }
