@@ -170,6 +170,10 @@ public class PostServiceImpl implements PostService{
 
         post.setImageCaption(imageCaption);
 
+        String detectedLanguage = detectLanguage(title + " " + subtitle + " " + article);
+        post.setLanguage(detectedLanguage);
+
+
 
         if (image != null) {
             post.setImage(image);

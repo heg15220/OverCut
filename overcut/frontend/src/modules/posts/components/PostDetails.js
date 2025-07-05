@@ -12,63 +12,98 @@ import CommentList from './CommentList';
 import TextField from "@mui/material/TextField";
 import './PostDetails.css'; // o como se llame tu archivo de estilos
 import UserAvatar from '../../users/components/UserAvatar';
-
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 const PostDetails = () => {
-    const { id } = useParams();
-    const post = useSelector(selectors.getPost);
-    const user = useSelector(userSelectors.getUser);
-    const postUser = useSelector(selectors.getUserPost);
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const [backendErrors, setBackendErrors] = useState(null);
-    const [success, setSuccess] = useState(null);
-    const formRef = useRef(null);
+  const { id } = useParams();
+  const postFromStore = useSelector(selectors.getPost);
+  const postId = Number(id);
+  const user = useSelector(userSelectors.getUser);
+  const postUser = useSelector(selectors.getUserPost);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    useEffect(() => {
-        const postId = Number(id);
-        if (!Number.isNaN(postId)) {
-            dispatch(actions.findPostById(postId));
-            dispatch(actions.getUserPost(postId, () => {}));
-        }
-    }, [id, user, dispatch]);
+  const [backendErrors, setBackendErrors] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const formRef = useRef(null);
 
-    useEffect(() => {
-        WebFont.load({
-            google: {
-                families: ['Poppins:300,400,500,600,700']
-            }
-        });
-    }, []);
+  // Nuevo estado local para cachear el último post válido
+  const [post, setPost] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
 
-    useEffect(() => {
-      // Timeout evita conflictos con render reactivo y remoción anticipada
-      const timeout = setTimeout(() => {
-        if (window.twttr && window.twttr.widgets) {
-          try {
-            window.twttr.widgets.load();
-          } catch (e) {
-            console.warn("Error al cargar widgets de Twitter:", e);
-          }
-        }
-      }, 100); // Espera breve para evitar conflictos con el DOM
-
-      return () => clearTimeout(timeout); // Evita efectos secundarios si se desmonta
-    }, [post?.sections]);
-
-
-    const handleSubmitDelete = event => {
-        event.preventDefault();
-        dispatch(actions.deletePost(
-            post, () => navigate("/"),
-            errors => setBackendErrors(errors),
-        ));
+  // Escucha cambios en el store
+  useEffect(() => {
+    if (postFromStore && postFromStore.id === postId) {
+      setPost(postFromStore);
+      setIsFetching(false);
     }
+  }, [postFromStore, postId]);
 
-    if (!post) {
-      return <div>Loading...</div>;
+  // Cuando cambia el ID del post, dispara fetch
+  useEffect(() => {
+    if (!postFromStore || postFromStore.id !== postId) {
+      setIsFetching(true);
+      dispatch(actions.findPostById(postId));
+      dispatch(actions.getUserPost(postId, () => {}));
     }
+  }, [postId, dispatch]);
+
+  useEffect(() => {
+    WebFont.load({
+      google: {
+        families: ['Poppins:300,400,500,600,700']
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (window.twttr && window.twttr.widgets) {
+        try {
+          window.twttr.widgets.load();
+        } catch (e) {
+          console.warn("Error al cargar widgets de Twitter:", e);
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, [post?.sections]);
+
+
+  const handleSubmitDelete = event => {
+    event.preventDefault();
+    dispatch(actions.deletePost(
+      post,
+      () => navigate("/"),
+      errors => setBackendErrors(errors),
+    ));
+  }
+
+  if (!post && isFetching) {
+    // Primera carga o sin datos en store
+    return (
+      <Container sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <CircularProgress color="primary" size={60} thickness={5} />
+        <Typography variant="h6" sx={{ marginTop: 2, textAlign: 'center' }}>
+          <FormattedMessage id="post.loading" defaultMessage="Loading post details..." />
+        </Typography>
+      </Container>
+    );
+  }
+
+  if (!post) {
+    return (
+      <Container sx={{ p: 4, textAlign: 'center' }}>
+        <Typography variant="h6" color="error">
+          <FormattedMessage id="post.notFound" defaultMessage="Post not found." />
+        </Typography>
+      </Container>
+    );
+  }
+
+
 
 
     const srcImage = post?.image ? `data:image/jpg;base64,${post.image}` : image;
