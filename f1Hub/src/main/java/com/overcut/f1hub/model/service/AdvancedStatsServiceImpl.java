@@ -2433,40 +2433,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                         ConstructorPointsByYearView::getPoints
                 ));
 
-        // 4. Precargar resultados ligeros con compañeros
-        List<RaceResultLiteView> allResults = resultDao.getRaceResultsForYears(years);
-        Map<Long, List<RaceResultLiteView>> resultsByRace = allResults.stream()
-                .collect(Collectors.groupingBy(RaceResultLiteView::getRaceId));
-
-        Map<Integer, int[]> teammateBattleStats = new HashMap<>();
-
-        for (List<RaceResultLiteView> raceResults : resultsByRace.values()) {
-            RaceResultLiteView main = raceResults.stream()
-                    .filter(r -> r.getDriverId().equals(driverId))
-                    .findFirst()
-                    .orElse(null);
-
-            if (main == null || main.getPositionOrder() == null) continue;
-
-            Long constructorId = main.getConstructorId();
-            int year = main.getYear();
-            int pos = main.getPositionOrder();
-
-            var teammates = raceResults.stream()
-                    .filter(r -> !r.getDriverId().equals(driverId)
-                            && r.getConstructorId().equals(constructorId)
-                            && r.getPositionOrder() != null)
-                    .toList();
-
-            long wins = teammates.stream().filter(r -> pos < r.getPositionOrder()).count();
-            long total = teammates.size();
-
-            if (total > 0) {
-                int[] arr = teammateBattleStats.computeIfAbsent(year, k -> new int[2]);
-                arr[0] += (wins == total ? 1 : 0);
-                arr[1]++;
-            }
-        }
+        // 4. Precargar estadísticas de teammate battles directamente desde SQL
+        List<TeammateBattleStatView> battleStats = resultDao.getTeammateBattleStats(driverId, years);
+        Map<Integer, int[]> teammateBattleStats = battleStats.stream()
+                .collect(Collectors.toMap(
+                        TeammateBattleStatView::getYear,
+                        b -> new int[]{ b.getTeammateWins().intValue(), b.getTeammateBattles().intValue() }
+                ));
 
         // 5. Precargar standings finales
         Map<Integer, Integer> driverPosByYear = driverStandingDao.getFinalDriverStandingsPerYear(driverId).stream()

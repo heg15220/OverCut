@@ -682,5 +682,28 @@ public interface ResultDao extends JpaRepository<Result, Long> {
 """, nativeQuery = true)
     List<RaceResultLiteView> getRaceResultsForYears(@Param("years") Set<Integer> years);
 
+    @Query(value = """
+    SELECT
+        ra.year AS year,
+        r1.driverId AS driverId,
+        SUM(CASE WHEN r1.positionOrder < r2.positionOrder THEN 1 ELSE 0 END) AS teammateWins,
+        COUNT(*) AS teammateBattles
+    FROM results r1
+    JOIN results r2 ON r1.raceId = r2.raceId
+      AND r1.constructorId = r2.constructorId
+      AND r1.driverId <> r2.driverId
+    JOIN races ra ON r1.raceId = ra.raceId
+    WHERE ra.year IN :years
+      AND r1.driverId = :driverId
+      AND r1.positionOrder IS NOT NULL
+      AND r2.positionOrder IS NOT NULL
+    GROUP BY ra.year, r1.driverId
+""", nativeQuery = true)
+    List<TeammateBattleStatView> getTeammateBattleStats(
+            @Param("driverId") Long driverId,
+            @Param("years") Set<Integer> years
+    );
+
+
 
 }
