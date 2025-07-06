@@ -705,5 +705,572 @@ public interface ResultDao extends JpaRepository<Result, Long> {
     );
 
 
+    @Query(value = """
+    SELECT driverId, COUNT(*)
+    FROM results
+    WHERE positionOrder IN (:positions)
+    GROUP BY driverId
+""", nativeQuery = true)
+    List<Object[]> countPodiumsByPositions(@Param("positions") Set<Integer> positions);
+
+    @Query(value = """
+    SELECT driverId, MIN(race.date), MIN(race.year)
+    FROM results
+    WHERE positionOrder <= 3
+    GROUP BY driverId
+""", nativeQuery = true)
+    List<Object[]> getFirstPodiumPerDriver();
+
+    @Query(value = """
+    SELECT constructorId, MIN(race.date), MIN(race.year)
+    FROM results
+    WHERE positionOrder <= 3
+    GROUP BY constructorId
+""", nativeQuery = true)
+    List<Object[]> getFirstPodiumPerConstructor();
+
+    @Query(value = """
+    SELECT driverId, MIN(DATEDIFF(race.date, dob)) AS ageDays
+    FROM results
+    JOIN drivers USING(driverId)
+    JOIN races USING(raceId)
+    WHERE positionOrder <= 3
+      AND dob IS NOT NULL
+      AND race.date IS NOT NULL
+    GROUP BY driverId
+""", nativeQuery = true)
+    List<Object[]> getYoungestPodiumDrivers();
+
+    @Query(value = """
+    SELECT res.driverId, COUNT(*) AS birthdayPodiums
+    FROM results res
+    JOIN drivers d ON res.driverId = d.driverId
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+      AND DAY(d.dob) = DAY(r.date)
+      AND MONTH(d.dob) = MONTH(r.date)
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> countPodiumsOnBirthday();
+
+    @Query(value = """
+    SELECT d.driverId, DATEDIFF(MAX(r.date), d.dob) AS ageDays
+    FROM results res
+    JOIN drivers d ON res.driverId = d.driverId
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+      AND d.dob IS NOT NULL
+      AND r.date IS NOT NULL
+    GROUP BY d.driverId
+""", nativeQuery = true)
+    List<Object[]> getOldestPodiumDrivers();
+
+    @Query(value = """
+    WITH ordered_podiums AS (
+        SELECT
+            res.driverId,
+            r.date AS raceDate,
+            LAG(r.date) OVER (PARTITION BY res.driverId ORDER BY r.date) AS prevDate
+        FROM results res
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder <= 3
+    ),
+    streak_flags AS (
+        SELECT
+            driverId,
+            raceDate,
+            CASE WHEN prevDate IS NULL OR DATEDIFF(raceDate, prevDate) > 21 THEN 1 ELSE 0 END AS is_new_streak
+        FROM ordered_podiums
+    ),
+    streak_groups AS (
+        SELECT
+            driverId,
+            raceDate,
+            SUM(is_new_streak) OVER (PARTITION BY driverId ORDER BY raceDate) AS streak_group
+        FROM streak_flags
+    ),
+    streak_counts AS (
+        SELECT driverId, streak_group, COUNT(*) AS streakLength
+        FROM streak_groups
+        GROUP BY driverId, streak_group
+    )
+    SELECT driverId, MAX(streakLength) AS maxStreak
+    FROM streak_counts
+    GROUP BY driverId
+    """, nativeQuery = true)
+    List<Object[]> getLongestPodiumStreaks();
+
+    @Query(value = """
+    WITH ordered_rounds AS (
+        SELECT
+            res.driverId,
+            r.year,
+            r.round,
+            ROW_NUMBER() OVER (PARTITION BY res.driverId, r.year ORDER BY r.round) AS seq
+        FROM results res
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder <= 3
+    ),
+    start_matches AS (
+        SELECT driverId, year, round, seq
+        FROM ordered_rounds
+        WHERE round = seq
+    ),
+    streak_counts AS (
+        SELECT driverId, year, COUNT(*) AS seasonStartStreak
+        FROM start_matches
+        GROUP BY driverId, year
+    )
+    SELECT driverId, MAX(seasonStartStreak) AS maxStreak
+    FROM streak_counts
+    GROUP BY driverId
+    """, nativeQuery = true)
+    List<Object[]> getSeasonStartPodiumStreaks();
+
+    @Query(value = """
+    SELECT res.driverId, MAX(r.year)
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> getLastPodiumYearPerDriver();
+
+    @Query(value = """
+    WITH podiums AS (
+        SELECT res.driverId, r.date AS raceDate
+        FROM results res
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder <= 3
+    ),
+    ordered AS (
+        SELECT
+            driverId,
+            raceDate,
+            LAG(raceDate) OVER (PARTITION BY driverId ORDER BY raceDate) AS prevDate
+        FROM podiums
+    ),
+    gaps AS (
+        SELECT driverId, DATEDIFF(raceDate, prevDate) AS gap
+        FROM ordered
+        WHERE prevDate IS NOT NULL
+    )
+    SELECT driverId, MAX(gap) AS maxGap
+    FROM gaps
+    GROUP BY driverId
+""", nativeQuery = true)
+    List<Object[]> getBiggestGapBetweenPodiums();
+
+    @Query(value = """
+    SELECT res.driverId, DATEDIFF(MAX(r.date), MIN(r.date)) AS daysGap
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+    GROUP BY res.driverId
+    HAVING COUNT(*) >= 2
+""", nativeQuery = true)
+    List<Object[]> getGapBetweenFirstAndLastPodium();
+
+    @Query(value = """
+    SELECT res.driverId, r.year, COUNT(*) AS podiums
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+    GROUP BY res.driverId, r.year
+    HAVING podiums >= 11
+""", nativeQuery = true)
+    List<Object[]> getMostPodiumsInSingleYear();
+
+    @Query(value = """
+    SELECT res.driverId, COUNT(DISTINCT r.year) AS podiumYears
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> getPodiumYearsCount();
+
+    @Query(value = """
+    WITH driver_years AS (
+        SELECT DISTINCT res.driverId, r.year
+        FROM results res
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder <= 3
+    ),
+    numbered AS (
+        SELECT 
+            driverId, 
+            year,
+            ROW_NUMBER() OVER (PARTITION BY driverId ORDER BY year) AS seq
+        FROM driver_years
+    ),
+    grouped AS (
+        SELECT 
+            driverId, 
+            (year - seq) AS grp
+        FROM numbered
+    ),
+    streaks AS (
+        SELECT driverId, COUNT(*) AS streak
+        FROM grouped
+        GROUP BY driverId, grp
+    )
+    SELECT driverId, MAX(streak) AS maxStreak
+    FROM streaks
+    GROUP BY driverId
+""", nativeQuery = true)
+    List<Object[]> getConsecutivePodiumYears();
+
+    @Query(value = """
+    WITH first_podium AS (
+        SELECT res.driverId, MIN(r.date) AS firstPodiumDate
+        FROM results res
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder <= 3
+        GROUP BY res.driverId
+    )
+    SELECT res.driverId, COUNT(*) AS gpCount
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    JOIN first_podium fp ON res.driverId = fp.driverId
+    WHERE r.date < fp.firstPodiumDate
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> getGpCountBeforeFirstPodium();
+
+
+    @Query(value = """
+    WITH first_win AS (
+        SELECT res.driverId, MIN(r.date) AS firstWinDate
+        FROM results res
+        JOIN races r ON res.raceId = r.raceId
+        WHERE res.positionOrder = 1
+        GROUP BY res.driverId
+    )
+    SELECT res.driverId, COUNT(*) AS podiumsBeforeWin
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    JOIN first_win fw ON res.driverId = fw.driverId
+    WHERE r.date < fw.firstWinDate
+      AND res.positionOrder <= 3
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> getPodiumsBeforeFirstWin();
+
+
+    @Query(value = """
+    SELECT res.driverId
+    FROM results res
+    WHERE res.positionOrder <= 3
+    GROUP BY res.driverId
+    HAVING COUNT(DISTINCT res.constructorId) = 1
+""", nativeQuery = true)
+    List<Long> getDriversWithSingleConstructorPodiums();
+
+    @Query(value = """
+    SELECT res.driverId, COUNT(*) AS podiums
+    FROM results res
+    WHERE res.positionOrder <= 3
+      AND res.driverId NOT IN (
+        SELECT DISTINCT driverId FROM results WHERE positionOrder = 1
+      )
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> getPodiumsWithNoWins();
+
+    @Query(value = """
+    SELECT res.driverId, COUNT(DISTINCT res.constructorId) AS constructorCount
+    FROM results res
+    WHERE res.positionOrder <= 3
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> getPodiumsWithMostConstructors();
+
+    @Query(value = """
+    SELECT r.name, COUNT(*) AS podiums
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+    GROUP BY r.name
+""", nativeQuery = true)
+    List<Object[]> getPodiumsByGrandPrix();
+
+    @Query(value = """
+    SELECT res.driverId, COUNT(DISTINCT r.name) AS differentGPs
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> getDriversWithMostDifferentGPsWithPodium();
+
+    @Query(value = """
+    SELECT res.driverId, COUNT(DISTINCT r.circuitId) AS differentCircuits
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> getDriversWithMostDifferentCircuitsWithPodium();
+
+    @Query(value = """
+    SELECT res.driverId, COUNT(*) AS homePodiums
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    JOIN circuits c ON r.circuitId = c.circuitId
+    JOIN drivers d ON res.driverId = d.driverId
+    WHERE res.positionOrder <= 3
+      AND d.nationality = c.country
+    GROUP BY res.driverId
+""", nativeQuery = true)
+    List<Object[]> getPodiumsAtHomeGP();
+
+    @Query(value = """
+    SELECT podiumCombo, COUNT(*) AS repeats
+    FROM (
+        SELECT
+            res.raceId,
+            GROUP_CONCAT(LOWER(d.surname) ORDER BY res.positionOrder SEPARATOR ' - ') AS podiumCombo
+        FROM results res
+        JOIN drivers d ON res.driverId = d.driverId
+        WHERE res.positionOrder <= 3
+        GROUP BY res.raceId
+        HAVING COUNT(*) = 3
+    ) AS combos
+    GROUP BY podiumCombo
+    HAVING repeats >= 2
+    ORDER BY repeats DESC
+""", nativeQuery = true)
+    List<Object[]> getRepeatedIdenticalPodiums();
+
+    @Query(value = """
+    SELECT trioCombo, COUNT(*) AS times
+    FROM (
+        SELECT 
+            res.raceId,
+            GROUP_CONCAT(LOWER(d.surname) ORDER BY d.surname SEPARATOR ' - ') AS trioCombo
+        FROM results res
+        JOIN drivers d ON res.driverId = d.driverId
+        WHERE res.positionOrder <= 3
+        GROUP BY res.raceId
+        HAVING COUNT(DISTINCT res.driverId) = 3
+    ) AS trios
+    GROUP BY trioCombo
+    ORDER BY times DESC
+""", nativeQuery = true)
+    List<Object[]> getMostFrequentPodiumTrios();
+
+    @Query(value = """
+    SELECT CONCAT(LOWER(d1.surname), ' - ', LOWER(d2.surname)) AS pairCombo, COUNT(*) AS times
+    FROM results res1
+    JOIN results res2 ON res1.raceId = res2.raceId
+    JOIN drivers d1 ON res1.driverId = d1.driverId
+    JOIN drivers d2 ON res2.driverId = d2.driverId
+    WHERE res1.positionOrder <= 3
+      AND res2.positionOrder <= 3
+      AND res1.driverId < res2.driverId
+    GROUP BY pairCombo
+    ORDER BY times DESC
+""", nativeQuery = true)
+    List<Object[]> getMostFrequentPodiumPairs();
+
+    @Query(value = """
+    SELECT CONCAT(LOWER(d1.surname), ' - ', LOWER(d2.surname)) AS pairCombo, COUNT(*) AS times
+    FROM results res1
+    JOIN results res2 ON res1.raceId = res2.raceId
+    JOIN drivers d1 ON res1.driverId = d1.driverId
+    JOIN drivers d2 ON res2.driverId = d2.driverId
+    WHERE res1.positionOrder = 1
+      AND res2.positionOrder = 2
+    GROUP BY pairCombo
+    ORDER BY times DESC
+""", nativeQuery = true)
+    List<Object[]> getMostCommonFirstSecondPairs();
+
+    @Query(value = """
+WITH all_points AS (
+    SELECT driverId, raceId, points FROM results
+    UNION ALL
+    SELECT driverId, raceId, points FROM sprintresults
+),
+points_only AS (
+    SELECT ap.driverId, r.date, IF(ap.points > 0, 1, 0) AS scored
+    FROM all_points ap
+    JOIN races r ON ap.raceId = r.raceId
+),
+ordered AS (
+    SELECT
+        driverId,
+        date,
+        scored,
+        LAG(scored) OVER (PARTITION BY driverId ORDER BY date) AS prev_scored
+    FROM points_only
+),
+flags AS (
+    SELECT
+        driverId,
+        date,
+        scored,
+        CASE
+            WHEN scored = 1 AND (prev_scored IS NULL OR prev_scored = 0) THEN 1
+            ELSE 0
+        END AS is_new_streak
+    FROM ordered
+),
+groups_cte AS (
+    SELECT
+        driverId,
+        date,
+        scored,
+        SUM(is_new_streak) OVER (PARTITION BY driverId ORDER BY date) AS streak_group
+    FROM flags
+    WHERE scored = 1
+),
+streak_lengths AS (
+    SELECT driverId, streak_group, COUNT(*) AS streak_length
+    FROM groups_cte
+    GROUP BY driverId, streak_group
+)
+SELECT driverId, MAX(streak_length) AS max_streak
+FROM streak_lengths
+GROUP BY driverId
+ORDER BY max_streak DESC
+""", nativeQuery = true)
+    List<Object[]> getLongestConsecutivePointsStreaks();
+
+
+    @Query(value = """
+WITH points_only AS (
+    SELECT r.driverId, ra.date, IF(r.points > 0, 1, 0) AS scored
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+),
+ordered AS (
+    SELECT
+        driverId,
+        date,
+        scored,
+        LAG(scored) OVER (PARTITION BY driverId ORDER BY date) AS prev_scored
+    FROM points_only
+),
+flags AS (
+    SELECT
+        driverId,
+        date,
+        scored,
+        CASE
+            WHEN scored = 1 AND (prev_scored IS NULL OR prev_scored = 0) THEN 1
+            ELSE 0
+        END AS is_new_streak
+    FROM ordered
+),
+groups_cte AS (
+    SELECT
+        driverId,
+        date,
+        scored,
+        SUM(is_new_streak) OVER (PARTITION BY driverId ORDER BY date) AS streak_group
+    FROM flags
+    WHERE scored = 1
+),
+streak_lengths AS (
+    SELECT driverId, streak_group, COUNT(*) AS streak_length
+    FROM groups_cte
+    GROUP BY driverId, streak_group
+)
+SELECT driverId, MAX(streak_length) AS max_streak
+FROM streak_lengths
+GROUP BY driverId
+ORDER BY max_streak DESC
+""", nativeQuery = true)
+    List<Object[]> getLongestConsecutivePointsStreaksWithoutSprints();
+
+
+    @Query(value = """
+WITH all_points AS (
+    SELECT driverId, raceId FROM results WHERE points > 0
+    UNION ALL
+    SELECT driverId, raceId FROM sprintresults WHERE points > 0
+),
+dates AS (
+    SELECT ap.driverId, r.date
+    FROM all_points ap
+    JOIN races r ON ap.raceId = r.raceId
+),
+ordered AS (
+    SELECT
+        driverId,
+        date,
+        LAG(date) OVER (PARTITION BY driverId ORDER BY date) AS prev_date
+    FROM dates
+),
+gaps AS (
+    SELECT
+        driverId,
+        DATEDIFF(date, prev_date) AS gap
+    FROM ordered
+    WHERE prev_date IS NOT NULL
+)
+SELECT driverId, MAX(gap) AS max_gap
+FROM gaps
+GROUP BY driverId
+ORDER BY max_gap DESC
+""", nativeQuery = true)
+    List<Object[]> getLongestGapBetweenPoints();
+
+    @Query(value = """
+WITH all_points AS (
+    SELECT driverId, raceId FROM results WHERE points > 0
+    UNION ALL
+    SELECT driverId, raceId FROM sprintresults WHERE points > 0
+),
+dates AS (
+    SELECT ap.driverId, r.date
+    FROM all_points ap
+    JOIN races r ON ap.raceId = r.raceId
+)
+SELECT driverId, DATEDIFF(MAX(date), MIN(date)) AS daysGap
+FROM dates
+GROUP BY driverId
+HAVING COUNT(*) >= 2
+ORDER BY daysGap DESC
+""", nativeQuery = true)
+    List<Object[]> getGapBetweenFirstAndLastPoints();
+
+    @Query(value = """
+WITH all_points AS (
+    SELECT driverId, raceId FROM results WHERE points > 0
+    UNION ALL
+    SELECT driverId, raceId FROM sprintresults WHERE points > 0
+),
+years AS (
+    SELECT DISTINCT ap.driverId, r.year
+    FROM all_points ap
+    JOIN races r ON ap.raceId = r.raceId
+),
+numbered AS (
+    SELECT 
+        driverId, 
+        year,
+        ROW_NUMBER() OVER (PARTITION BY driverId ORDER BY year) AS seq
+    FROM years
+),
+grouped AS (
+    SELECT 
+        driverId, 
+        (year - seq) AS grp
+    FROM numbered
+),
+streaks AS (
+    SELECT driverId, COUNT(*) AS streak
+    FROM grouped
+    GROUP BY driverId, grp
+)
+SELECT driverId, MAX(streak) AS max_streak
+FROM streaks
+GROUP BY driverId
+ORDER BY max_streak DESC
+""", nativeQuery = true)
+    List<Object[]> getMostConsecutiveSeasonsWithPoints();
 
 }
