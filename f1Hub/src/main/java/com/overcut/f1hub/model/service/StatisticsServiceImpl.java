@@ -2294,8 +2294,8 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 
     @Override
-    public List<DriverRankingDTO> getDriversToScorePointsChronologically() {
-        String sql = """
+        public List<DriverRankingDTO> getDriversToScorePointsChronologically() {
+            String sql = """
         SELECT p.driverId, MIN(r.date) AS firstDate
         FROM (
             SELECT driverId, raceId FROM results WHERE points > 0
@@ -2307,36 +2307,36 @@ public class StatisticsServiceImpl implements StatisticsService {
         ORDER BY firstDate
     """;
 
-        List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
+            List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
 
-        List<Long> driverIds = rows.stream()
-                .map(r -> ((Number) r[0]).longValue())
-                .toList();
+            List<Long> driverIds = rows.stream()
+                    .map(r -> ((Number) r[0]).longValue())
+                    .toList();
 
-        Map<Long, Driver> driverMap = driverDao.findByDriverIds(driverIds)
-                .stream()
-                .collect(Collectors.toMap(Driver::getDriverId, d -> d));
+            Map<Long, Driver> driverMap = driverDao.findByDriverIds(driverIds)
+                    .stream()
+                    .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
-        return rows.stream()
-                .map(row -> {
-                    Long driverId = ((Number) row[0]).longValue();
-                    Date date = (Date) row[1];
-                    LocalDate localDate = date.toLocalDate();
-                    Driver d = driverMap.get(driverId);
-                    if (d == null) return null;
-                    String name = d.getForename() + " " + d.getSurname();
-                    String nationality = d.getNationality();
-                    int year = localDate.getYear();
-                    return new DriverRankingDTO(
-                            name,
-                            nationality,
-                            year,
-                            getFlagUrl(nationality),
-                            localDate.toString()
-                    );
-                })
-                .filter(Objects::nonNull)
-                .toList();
+            return rows.stream()
+                    .map(row -> {
+                        Long driverId = ((Number) row[0]).longValue();
+                        Date date = (Date) row[1];
+                        LocalDate localDate = date.toLocalDate();
+                        Driver d = driverMap.get(driverId);
+                        if (d == null) return null;
+                        String name = d.getForename() + " " + d.getSurname();
+                        String nationality = d.getNationality();
+                        int year = localDate.getYear();
+                        return new DriverRankingDTO(
+                                name,
+                                nationality,
+                                year,
+                                getFlagUrl(nationality),
+                                localDate.toString()
+                        );
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
     }
 
 
@@ -3157,15 +3157,21 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getBiggestGapBetweenGrandsPrix() {
         String sql = """
-        SELECT d.forename, d.surname, d.nationality,
-               DATEDIFF(MAX(r.date), MIN(r.date)) AS gap_days
-        FROM results res
-        JOIN races r ON res.raceId = r.raceId
-        JOIN drivers d ON res.driverId = d.driverId
-        GROUP BY d.driverId
-        HAVING gap_days > 0
-        ORDER BY gap_days DESC
-    """;
+            SELECT
+                    d.forename,
+                    d.surname,
+                    d.nationality,
+                    DATEDIFF(t.last_date, t.first_date) AS gap_days
+                FROM (
+                    SELECT res.driverId, MIN(r.date) AS first_date, MAX(r.date) AS last_date
+                    FROM results res
+                    JOIN races r ON res.raceId = r.raceId
+                    GROUP BY res.driverId
+                    HAVING first_date IS NOT NULL AND last_date IS NOT NULL AND first_date <> last_date
+                ) t
+                JOIN drivers d ON t.driverId = d.driverId
+                ORDER BY gap_days DESC                    
+                """;
         Query query = entityManager.createNativeQuery(sql);
         List<Object[]> rows = query.getResultList();
         List<DriverRankingDTO> result = new ArrayList<>();
@@ -3539,17 +3545,36 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriversWithMostGpsWithSameTeammate() {
         String sql = """
-            SELECT teammates.driverId, MAX(teammate_count) AS max_teammate_gp
-             FROM (
-                 SELECT r1.driverId, r2.driverId AS teammateId, COUNT(*) AS teammate_count
-                 FROM results r1
-                 JOIN results r2 ON r1.raceId = r2.raceId
-                     AND r1.constructorId = r2.constructorId
-                     AND r1.driverId <> r2.driverId
-                 GROUP BY r1.driverId, r2.driverId
-             ) AS teammates
-             GROUP BY teammates.driverId
-             ORDER BY max_teammate_gp DESC
+                SELECT driverId, MAX(gp_count) AS max_teammate_gp
+                FROM (
+                    SELECT driverA AS driverId, COUNT(*) AS gp_count
+                    FROM (
+                        SELECT LEAST(r1.driverId, r2.driverId) AS driverA,
+                               GREATEST(r1.driverId, r2.driverId) AS driverB
+                        FROM results r1
+                        JOIN results r2
+                          ON r1.raceId = r2.raceId
+                         AND r1.constructorId = r2.constructorId
+                         AND r1.driverId < r2.driverId
+                    ) AS pairs
+                    GROUP BY driverA, driverB
+                            
+                    UNION ALL
+                            
+                    SELECT driverB AS driverId, COUNT(*) AS gp_count
+                    FROM (
+                        SELECT LEAST(r1.driverId, r2.driverId) AS driverA,
+                               GREATEST(r1.driverId, r2.driverId) AS driverB
+                        FROM results r1
+                        JOIN results r2
+                          ON r1.raceId = r2.raceId
+                         AND r1.constructorId = r2.constructorId
+                         AND r1.driverId < r2.driverId
+                    ) AS pairs
+                    GROUP BY driverA, driverB
+                ) AS all_counts
+                GROUP BY driverId
+                ORDER BY max_teammate_gp DESC
                                                          
                 """;
 
@@ -3586,22 +3611,21 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriversGpAgeByNationality() {
         String sql = """
-        WITH ranked AS (
             SELECT
-                res.driverId,
-                d.dob,
-                r.date,
-                ROW_NUMBER() OVER (PARTITION BY res.driverId ORDER BY r.date ASC) AS rn
-            FROM results res
-            JOIN drivers d ON res.driverId = d.driverId
-            JOIN races r ON res.raceId = r.raceId
-            WHERE r.date IS NOT NULL AND d.dob IS NOT NULL
-        )
-        SELECT driverId, TIMESTAMPDIFF(YEAR, dob, date) AS age
-        FROM ranked
-        WHERE rn = 1
-        ORDER BY age
-    """;
+                t.driverId,
+                TIMESTAMPDIFF(YEAR, d.dob, t.first_race_date) AS age
+            FROM (
+                SELECT res.driverId, MIN(r.date) AS first_race_date
+                FROM results res
+                JOIN races r ON res.raceId = r.raceId
+                WHERE r.date IS NOT NULL
+                GROUP BY res.driverId
+            ) AS t
+            JOIN drivers d ON t.driverId = d.driverId
+            WHERE d.dob IS NOT NULL
+            ORDER BY age
+        """;
+
 
         List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
 
@@ -3637,20 +3661,17 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getOldestDriversAtGp() {
         String sql = """
-        WITH ages AS (
-            SELECT
-                res.driverId,
-                TIMESTAMPDIFF(YEAR, d.dob, r.date) AS age
-            FROM results res
-            JOIN drivers d ON res.driverId = d.driverId
-            JOIN races r ON res.raceId = r.raceId
-            WHERE r.date IS NOT NULL AND d.dob IS NOT NULL
-        )
-        SELECT driverId, MAX(age) AS max_age
-        FROM ages
-        GROUP BY driverId
+        SELECT
+            res.driverId,
+            TIMESTAMPDIFF(YEAR, d.dob, MAX(r.date)) AS max_age
+        FROM results res
+        JOIN races r ON res.raceId = r.raceId
+        JOIN drivers d ON res.driverId = d.driverId
+        WHERE r.date IS NOT NULL AND d.dob IS NOT NULL
+        GROUP BY res.driverId
         ORDER BY max_age DESC
     """;
+
 
         List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
 
@@ -3735,23 +3756,46 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriversWithMostGpsWithoutWin() {
         String sql = """
-        WITH last_win AS (
-            SELECT res.driverId, MAX(r.date) AS win_date
+         WITH
+          debut AS (
+            SELECT res.driverId, MIN(r.date) AS debut_date
             FROM results res
             JOIN races r ON res.raceId = r.raceId
-            WHERE res.positionOrder = 1
             GROUP BY res.driverId
-        ),
-        last_race AS (
+          ),
+          last_race AS (
             SELECT res.driverId, MAX(r.date) AS last_race_date
             FROM results res
             JOIN races r ON res.raceId = r.raceId
             GROUP BY res.driverId
-        )
-        SELECT lr.driverId, lr.last_race_date, lw.win_date
-        FROM last_race lr
-        LEFT JOIN last_win lw ON lr.driverId = lw.driverId
-    """;
+          ),
+          last_win AS (
+            SELECT res.driverId, MAX(r.date) AS last_win_date
+            FROM results res
+            JOIN races r ON res.raceId = r.raceId
+            WHERE res.positionOrder = 1
+            GROUP BY res.driverId
+          ),
+          reference AS (
+            SELECT
+              lr.driverId,
+              lr.last_race_date,
+              COALESCE(lw.last_win_date, d.debut_date) AS reference_date
+            FROM last_race lr
+            JOIN debut d ON lr.driverId = d.driverId
+            LEFT JOIN last_win lw ON lr.driverId = lw.driverId
+          )
+        SELECT
+          ref.driverId,
+          COUNT(DISTINCT res.raceId) AS drought_count
+        FROM reference ref
+        JOIN results res ON res.driverId = ref.driverId
+        JOIN races r ON res.raceId = r.raceId
+        WHERE r.date BETWEEN ref.reference_date AND ref.last_race_date
+        GROUP BY ref.driverId
+        ORDER BY drought_count DESC
+
+                """;
 
         List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
 
@@ -3767,20 +3811,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         for (Object[] row : rows) {
             Long driverId = ((Number) row[0]).longValue();
-            Date lastRaceDateObj = (Date) row[1];
-            Date lastWinDateObj = (Date) row[2];
-
-            if (lastRaceDateObj == null) continue;
-            LocalDate lastRace = lastRaceDateObj.toLocalDate();
+            int droughtCount = ((Number) row[1]).intValue();
 
             Driver d = driverMap.get(driverId);
             if (d == null) continue;
-
-            LocalDate referenceDate = lastWinDateObj != null
-                    ? lastWinDateObj.toLocalDate()
-                    : getDebutDate(driverId);
-
-            int droughtCount = countGpsBetweenDates(driverId, referenceDate, lastRace);
 
             result.add(new DriverRankingDTO(
                     d.getForename() + " " + d.getSurname(),
@@ -3789,6 +3823,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     getFlagUrl(d.getNationality())
             ));
         }
+
 
         result.sort(Comparator.comparingInt(DriverRankingDTO::getValue).reversed());
         return result.stream().limit(30).toList();
@@ -3800,23 +3835,46 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriversWithMostGpsWithoutPole() {
         String sql = """
-        WITH last_pole AS (
-            SELECT q.driverId, MAX(r2.date) AS last_pole_date
-            FROM qualifying q
-            JOIN races r2 ON q.raceId = r2.raceId
-            WHERE q.position = 1
-            GROUP BY q.driverId
-        ),
-        last_race AS (
-            SELECT res.driverId, MAX(r.date) AS last_race_date
-            FROM results res
-            JOIN races r ON res.raceId = r.raceId
-            GROUP BY res.driverId
-        )
-        SELECT lr.driverId, lr.last_race_date, lp.last_pole_date
-        FROM last_race lr
-        LEFT JOIN last_pole lp ON lr.driverId = lp.driverId
-    """;
+                    WITH
+                     debut AS (
+                       SELECT res.driverId, MIN(r.date) AS debut_date
+                       FROM results res
+                       JOIN races r ON res.raceId = r.raceId
+                       GROUP BY res.driverId
+                     ),
+                     last_race AS (
+                       SELECT res.driverId, MAX(r.date) AS last_race_date
+                       FROM results res
+                       JOIN races r ON res.raceId = r.raceId
+                       GROUP BY res.driverId
+                     ),
+                     last_pole AS (
+                       SELECT q.driverId, MAX(r.date) AS last_pole_date
+                       FROM qualifying q
+                       JOIN races r ON q.raceId = r.raceId
+                       WHERE q.position = 1
+                       GROUP BY q.driverId
+                     ),
+                     reference AS (
+                       SELECT
+                         lr.driverId,
+                         lr.last_race_date,
+                         COALESCE(lp.last_pole_date, d.debut_date) AS reference_date
+                       FROM last_race lr
+                       JOIN debut d ON lr.driverId = d.driverId
+                       LEFT JOIN last_pole lp ON lr.driverId = lp.driverId
+                     )
+                   SELECT
+                     ref.driverId,
+                     COUNT(DISTINCT res.raceId) AS drought_count
+                   FROM reference ref
+                   JOIN results res ON res.driverId = ref.driverId
+                   JOIN races r ON res.raceId = r.raceId
+                   WHERE r.date BETWEEN ref.reference_date AND ref.last_race_date
+                   GROUP BY ref.driverId
+                   ORDER BY drought_count DESC
+                   
+                """;
 
         List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
 
@@ -3832,20 +3890,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         for (Object[] row : rows) {
             Long driverId = ((Number) row[0]).longValue();
-            Date lastRaceDateObj = (Date) row[1];
-            Date lastPoleDateObj = (Date) row[2];
-
-            if (lastRaceDateObj == null) continue;
-            LocalDate lastRace = lastRaceDateObj.toLocalDate();
+            int droughtCount = ((Number) row[1]).intValue();
 
             Driver d = driverMap.get(driverId);
             if (d == null) continue;
-
-            LocalDate referenceDate = lastPoleDateObj != null
-                    ? lastPoleDateObj.toLocalDate()
-                    : getDebutDate(driverId);
-
-            int droughtCount = countGpsBetweenDates(driverId, referenceDate, lastRace);
 
             result.add(new DriverRankingDTO(
                     d.getForename() + " " + d.getSurname(),
@@ -3854,6 +3902,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     getFlagUrl(d.getNationality())
             ));
         }
+
 
         result.sort(Comparator.comparingInt(DriverRankingDTO::getValue).reversed());
         return result.stream().limit(30).toList();
@@ -3865,61 +3914,80 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriversWithMostGpsWithoutFastestLap() {
         String sql = """
-        WITH fastest_lap_winners AS (
-            SELECT r2.driverId, ra2.date AS race_date
-            FROM results r2
-            JOIN races ra2 ON r2.raceId = ra2.raceId
-            WHERE r2.fastestLapTime IS NOT NULL
-              AND r2.fastestLapTime = (
-                  SELECT MIN(r3.fastestLapTime)
-                  FROM results r3
-                  WHERE r3.raceId = r2.raceId AND r3.fastestLapTime IS NOT NULL
-              )
-        ),
-        last_fastest AS (
-            SELECT driverId, MAX(race_date) AS last_fastest_date
-            FROM fastest_lap_winners
-            GROUP BY driverId
-        ),
-        last_race AS (
-            SELECT res.driverId, MAX(r.date) AS last_race_date
-            FROM results res
-            JOIN races r ON res.raceId = r.raceId
-            GROUP BY res.driverId
-        )
-        SELECT lr.driverId, lr.last_race_date, lf.last_fastest_date
-        FROM last_race lr
-        LEFT JOIN last_fastest lf ON lr.driverId = lf.driverId
-    """;
+                WITH
+                  debut AS (
+                    SELECT res.driverId, MIN(r.date) AS debut_date
+                    FROM results res
+                    JOIN races r ON res.raceId = r.raceId
+                    GROUP BY res.driverId
+                  ),
+                  last_race AS (
+                    SELECT res.driverId, MAX(r.date) AS last_race_date
+                    FROM results res
+                    JOIN races r ON res.raceId = r.raceId
+                    GROUP BY res.driverId
+                  ),
+                  fastest_lap_winners AS (
+                    SELECT driverId, raceId, race_date FROM (
+                        SELECT
+                            res.driverId,
+                            res.raceId,
+                            ra.date AS race_date,
+                            ROW_NUMBER() OVER (PARTITION BY res.raceId ORDER BY res.fastestLapTime ASC) AS rn
+                        FROM results res
+                        JOIN races ra ON res.raceId = ra.raceId
+                        WHERE res.fastestLapTime IS NOT NULL
+                    ) ranked
+                    WHERE ranked.rn = 1
+                  ),
+                         
+                  last_fastest AS (
+                    SELECT driverId, MAX(race_date) AS last_fastest_date
+                    FROM fastest_lap_winners
+                    GROUP BY driverId
+                  ),
+                  reference AS (
+                    SELECT
+                      lr.driverId,
+                      COALESCE(lf.last_fastest_date, d.debut_date) AS reference_date,
+                      lr.last_race_date
+                    FROM last_race lr
+                    JOIN debut d ON lr.driverId = d.driverId
+                    LEFT JOIN last_fastest lf ON lr.driverId = lf.driverId
+                  )
+                SELECT
+                  ref.driverId,
+                  COUNT(DISTINCT res.raceId) AS drought_count
+                FROM reference ref
+                JOIN results res ON res.driverId = ref.driverId
+                JOIN races r ON res.raceId = r.raceId
+                WHERE r.date BETWEEN ref.reference_date AND ref.last_race_date
+                GROUP BY ref.driverId
+                ORDER BY drought_count DESC
+                """;
 
+        // Ejecutar la consulta
         List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
 
+        // Obtener los IDs de pilotos
         List<Long> driverIds = rows.stream()
                 .map(r -> ((Number) r[0]).longValue())
                 .toList();
 
+        // Mapear los Driver desde la base
         Map<Long, Driver> driverMap = driverDao.findByDriverIds(driverIds)
                 .stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
+        // Generar el resultado
         List<DriverRankingDTO> result = new ArrayList<>();
 
         for (Object[] row : rows) {
             Long driverId = ((Number) row[0]).longValue();
-            Date lastRaceDateObj = (Date) row[1];
-            Date lastFastestDateObj = (Date) row[2];
-
-            if (lastRaceDateObj == null) continue;
-            LocalDate lastRace = lastRaceDateObj.toLocalDate();
+            int droughtCount = ((Number) row[1]).intValue();
 
             Driver d = driverMap.get(driverId);
             if (d == null) continue;
-
-            LocalDate referenceDate = lastFastestDateObj != null
-                    ? lastFastestDateObj.toLocalDate()
-                    : getDebutDate(driverId);
-
-            int droughtCount = countGpsBetweenDates(driverId, referenceDate, lastRace);
 
             result.add(new DriverRankingDTO(
                     d.getForename() + " " + d.getSurname(),
@@ -3929,9 +3997,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             ));
         }
 
-        result.sort(Comparator.comparingInt(DriverRankingDTO::getValue).reversed());
-        return result.stream().limit(30).toList();
+        return result.stream()
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .limit(30)
+                .toList();
     }
+
 
 
 
@@ -4010,52 +4081,68 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriversWithMostGpsWithoutPodium() {
         String sql = """
-        WITH last_podium AS (
-            SELECT res.driverId, MAX(r.date) AS last_podium_date
-            FROM results res
-            JOIN races r ON res.raceId = r.raceId
-            WHERE res.positionOrder <= 3
-            GROUP BY res.driverId
-        ),
-        last_race AS (
-            SELECT res.driverId, MAX(r.date) AS last_race_date
-            FROM results res
-            JOIN races r ON res.raceId = r.raceId
-            GROUP BY res.driverId
-        )
-        SELECT lr.driverId, lr.last_race_date, lp.last_podium_date
-        FROM last_race lr
-        LEFT JOIN last_podium lp ON lr.driverId = lp.driverId
-    """;
+        WITH
+            debut AS (
+                SELECT res.driverId, MIN(r.date) AS debut_date
+                FROM results res
+                JOIN races r ON res.raceId = r.raceId
+                GROUP BY res.driverId
+            ),
+            last_race AS (
+                SELECT res.driverId, MAX(r.date) AS last_race_date
+                FROM results res
+                JOIN races r ON res.raceId = r.raceId
+                GROUP BY res.driverId
+            ),
+            last_podium AS (
+                SELECT res.driverId, MAX(r.date) AS last_podium_date
+                FROM results res
+                JOIN races r ON res.raceId = r.raceId
+                WHERE res.positionOrder <= 3
+                GROUP BY res.driverId
+            ),
+            reference AS (
+                SELECT
+                    lr.driverId,
+                    COALESCE(lp.last_podium_date, d.debut_date) AS reference_date,
+                    lr.last_race_date
+                FROM last_race lr
+                JOIN debut d ON lr.driverId = d.driverId
+                LEFT JOIN last_podium lp ON lr.driverId = lp.driverId
+            )
+        SELECT
+            ref.driverId,
+            COUNT(DISTINCT res.raceId) AS drought_count
+        FROM reference ref
+        JOIN results res ON res.driverId = ref.driverId
+        JOIN races r ON res.raceId = r.raceId
+        WHERE r.date BETWEEN ref.reference_date AND ref.last_race_date
+        GROUP BY ref.driverId
+        ORDER BY drought_count DESC
+        """;
 
+        // Ejecutar la consulta
         List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
 
+        // Obtener todos los IDs de pilotos
         List<Long> driverIds = rows.stream()
                 .map(r -> ((Number) r[0]).longValue())
                 .toList();
 
+        // Traer los Driver completos en un solo query
         Map<Long, Driver> driverMap = driverDao.findByDriverIds(driverIds)
                 .stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
+        // Mapear resultados a DTOs
         List<DriverRankingDTO> result = new ArrayList<>();
 
         for (Object[] row : rows) {
             Long driverId = ((Number) row[0]).longValue();
-            Date lastRaceDateObj = (Date) row[1];
-            Date lastPodiumDateObj = (Date) row[2];
-
-            if (lastRaceDateObj == null) continue;
-            LocalDate lastRace = lastRaceDateObj.toLocalDate();
+            int droughtCount = ((Number) row[1]).intValue();
 
             Driver d = driverMap.get(driverId);
             if (d == null) continue;
-
-            LocalDate referenceDate = lastPodiumDateObj != null
-                    ? lastPodiumDateObj.toLocalDate()
-                    : getDebutDate(driverId);
-
-            int droughtCount = countGpsBetweenDates(driverId, referenceDate, lastRace);
 
             result.add(new DriverRankingDTO(
                     d.getForename() + " " + d.getSurname(),
@@ -4065,9 +4152,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             ));
         }
 
-        result.sort(Comparator.comparingInt(DriverRankingDTO::getValue).reversed());
-        return result.stream().limit(30).toList();
+        return result.stream()
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .limit(30)
+                .toList();
     }
+
 
 
 
@@ -4075,23 +4165,45 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriversWithMostGpsWithoutLeadingLap() {
         String sql = """
-        WITH last_race AS (
+        WITH
+          debut AS (
+            SELECT res.driverId, MIN(r.date) AS debut_date
+            FROM results res
+            JOIN races r ON res.raceId = r.raceId
+            GROUP BY res.driverId
+          ),
+          last_race AS (
             SELECT res.driverId, MAX(r.date) AS last_race_date
             FROM results res
             JOIN races r ON res.raceId = r.raceId
             GROUP BY res.driverId
-        ),
-        last_led_lap AS (
+          ),
+          last_led_lap AS (
             SELECT lt.driverId, MAX(r2.date) AS last_led_lap_date
             FROM laptimes lt
             JOIN races r2 ON lt.raceId = r2.raceId
             WHERE lt.position = 1
             GROUP BY lt.driverId
-        )
-        SELECT lr.driverId, lr.last_race_date, ll.last_led_lap_date
-        FROM last_race lr
-        LEFT JOIN last_led_lap ll ON lr.driverId = ll.driverId
-    """;
+          ),
+          reference AS (
+            SELECT
+              lr.driverId,
+              COALESCE(ll.last_led_lap_date, d.debut_date) AS reference_date,
+              lr.last_race_date
+            FROM last_race lr
+            JOIN debut d ON lr.driverId = d.driverId
+            LEFT JOIN last_led_lap ll ON lr.driverId = ll.driverId
+          )
+        SELECT
+          ref.driverId,
+          COUNT(DISTINCT res.raceId) AS drought_count
+        FROM reference ref
+        JOIN results res ON res.driverId = ref.driverId
+        JOIN races r ON res.raceId = r.raceId
+        WHERE r.date BETWEEN ref.reference_date AND ref.last_race_date
+        GROUP BY ref.driverId
+        ORDER BY drought_count DESC
+        """;
 
         List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
 
@@ -4107,20 +4219,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         for (Object[] row : rows) {
             Long driverId = ((Number) row[0]).longValue();
-            Date lastRaceDateObj = (Date) row[1];
-            Date lastLedLapDateObj = (Date) row[2];
-
-            if (lastRaceDateObj == null) continue;
-            LocalDate lastRace = lastRaceDateObj.toLocalDate();
+            int droughtCount = ((Number) row[1]).intValue();
 
             Driver d = driverMap.get(driverId);
             if (d == null) continue;
-
-            LocalDate referenceDate = lastLedLapDateObj != null
-                    ? lastLedLapDateObj.toLocalDate()
-                    : getDebutDate(driverId);
-
-            int droughtCount = countGpsBetweenDates(driverId, referenceDate, lastRace);
 
             result.add(new DriverRankingDTO(
                     d.getForename() + " " + d.getSurname(),
@@ -4130,9 +4232,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             ));
         }
 
-        result.sort(Comparator.comparingInt(DriverRankingDTO::getValue).reversed());
-        return result.stream().limit(30).toList();
+        return result.stream()
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .limit(30)
+                .toList();
     }
+
 
 
 
@@ -4140,56 +4245,80 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriversWithGpsWithoutWinPoleOrFastestLap() {
         String sql = """
-        WITH last_race AS (
-            SELECT res.driverId, MAX(r.date) AS last_race_date
-            FROM results res
-            JOIN races r ON res.raceId = r.raceId
-            GROUP BY res.driverId
-        ),
-        last_win AS (
-            SELECT res.driverId, MAX(r.date) AS last_win_date
-            FROM results res
-            JOIN races r ON res.raceId = r.raceId
-            WHERE res.positionOrder = 1
-            GROUP BY res.driverId
-        ),
-        last_pole AS (
-            SELECT q.driverId, MAX(r.date) AS last_pole_date
-            FROM qualifying q
-            JOIN races r ON q.raceId = r.raceId
-            WHERE q.position = 1
-            GROUP BY q.driverId
-        ),
-        fastest_lap_winners AS (
-            SELECT r2.driverId, ra2.date AS race_date
-            FROM results r2
-            JOIN races ra2 ON r2.raceId = ra2.raceId
-            WHERE r2.fastestLapTime IS NOT NULL
-              AND r2.fastestLapTime = (
-                  SELECT MIN(r3.fastestLapTime)
-                  FROM results r3
-                  WHERE r3.raceId = r2.raceId AND r3.fastestLapTime IS NOT NULL
-              )
-        ),
-        last_fastest AS (
-            SELECT driverId, MAX(race_date) AS last_fastest_date
-            FROM fastest_lap_winners
-            GROUP BY driverId
-        ),
-        last_achievement AS (
-            SELECT lw.driverId, GREATEST(
-                COALESCE(lw.last_win_date, '1000-01-01'),
-                COALESCE(lp.last_pole_date, '1000-01-01'),
-                COALESCE(lf.last_fastest_date, '1000-01-01')
-            ) AS last_achievement_date
-            FROM last_win lw
-            LEFT JOIN last_pole lp ON lw.driverId = lp.driverId
-            LEFT JOIN last_fastest lf ON lw.driverId = lf.driverId
-        )
-        SELECT lr.driverId, lr.last_race_date, la.last_achievement_date
-        FROM last_race lr
-        LEFT JOIN last_achievement la ON lr.driverId = la.driverId
-    """;
+                WITH
+                  debut AS (
+                    SELECT res.driverId, MIN(r.date) AS debut_date
+                    FROM results res
+                    JOIN races r ON res.raceId = r.raceId
+                    GROUP BY res.driverId
+                  ),
+                  last_race AS (
+                    SELECT res.driverId, MAX(r.date) AS last_race_date
+                    FROM results res
+                    JOIN races r ON res.raceId = r.raceId
+                    GROUP BY res.driverId
+                  ),
+                  last_win AS (
+                    SELECT res.driverId, MAX(r.date) AS last_win_date
+                    FROM results res
+                    JOIN races r ON res.raceId = r.raceId
+                    WHERE res.positionOrder = 1
+                    GROUP BY res.driverId
+                  ),
+                  last_pole AS (
+                    SELECT q.driverId, MAX(r.date) AS last_pole_date
+                    FROM qualifying q
+                    JOIN races r ON q.raceId = r.raceId
+                    WHERE q.position = 1
+                    GROUP BY q.driverId
+                  ),
+                  fastest_lap_winners AS (
+                    SELECT driverId, raceId, race_date FROM (
+                        SELECT
+                            res.driverId,
+                            res.raceId,
+                            ra.date AS race_date,
+                            ROW_NUMBER() OVER (PARTITION BY res.raceId ORDER BY res.fastestLapTime ASC) AS rn
+                        FROM results res
+                        JOIN races ra ON res.raceId = ra.raceId
+                        WHERE res.fastestLapTime IS NOT NULL
+                    ) ranked
+                    WHERE ranked.rn = 1
+                  ),
+                  last_fastest AS (
+                    SELECT driverId, MAX(race_date) AS last_fastest_date
+                    FROM fastest_lap_winners
+                    GROUP BY driverId
+                  ),
+                  last_achievement AS (
+                    SELECT lw.driverId, GREATEST(
+                        COALESCE(lw.last_win_date, '1000-01-01'),
+                        COALESCE(lp.last_pole_date, '1000-01-01'),
+                        COALESCE(lf.last_fastest_date, '1000-01-01')
+                    ) AS last_achievement_date
+                    FROM last_win lw
+                    LEFT JOIN last_pole lp ON lw.driverId = lp.driverId
+                    LEFT JOIN last_fastest lf ON lw.driverId = lf.driverId
+                  ),
+                  reference AS (
+                    SELECT
+                      lr.driverId,
+                      COALESCE(la.last_achievement_date, d.debut_date) AS reference_date,
+                      lr.last_race_date
+                    FROM last_race lr
+                    JOIN debut d ON lr.driverId = d.driverId
+                    LEFT JOIN last_achievement la ON lr.driverId = la.driverId
+                  )
+                SELECT
+                  ref.driverId,
+                  COUNT(DISTINCT res.raceId) AS drought_count
+                FROM reference ref
+                JOIN results res ON res.driverId = ref.driverId
+                JOIN races r ON res.raceId = r.raceId
+                WHERE r.date BETWEEN ref.reference_date AND ref.last_race_date
+                GROUP BY ref.driverId
+                ORDER BY drought_count DESC
+                """;
 
         List<Object[]> rows = entityManager.createNativeQuery(sql).getResultList();
 
@@ -4205,20 +4334,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         for (Object[] row : rows) {
             Long driverId = ((Number) row[0]).longValue();
-            Date lastRaceDateObj = (Date) row[1];
-            Date lastAchievementDateObj = (Date) row[2];
-
-            if (lastRaceDateObj == null) continue;
-            LocalDate lastRace = lastRaceDateObj.toLocalDate();
+            int droughtCount = ((Number) row[1]).intValue();
 
             Driver d = driverMap.get(driverId);
             if (d == null) continue;
-
-            LocalDate referenceDate = lastAchievementDateObj != null
-                    ? lastAchievementDateObj.toLocalDate()
-                    : getDebutDate(driverId);
-
-            int droughtCount = countGpsBetweenDates(driverId, referenceDate, lastRace);
 
             result.add(new DriverRankingDTO(
                     d.getForename() + " " + d.getSurname(),
@@ -4228,9 +4347,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             ));
         }
 
-        result.sort(Comparator.comparingInt(DriverRankingDTO::getValue).reversed());
-        return result.stream().limit(30).toList();
+        return result.stream()
+                .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
+                .limit(30)
+                .toList();
     }
+
 
 
 

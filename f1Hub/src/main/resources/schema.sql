@@ -203,3 +203,9 @@ CREATE TABLE seasons (
     year INT PRIMARY KEY,
     url VARCHAR(255)
 );
+
+CREATE INDEX idx_results_driverId_raceId ON results(driverId, raceId);
+CREATE INDEX idx_races_raceId_date ON races(raceId, date);
+CREATE INDEX idx_qualifying_driverId_raceId_position ON qualifying(driverId, raceId, position);
+CREATE INDEX idx_laptimes_driverId_raceId_position ON laptimes(driverId, raceId, position);
+

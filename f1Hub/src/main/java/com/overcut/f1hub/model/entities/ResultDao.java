@@ -1089,12 +1089,12 @@ public interface ResultDao extends JpaRepository<Result, Long> {
 
     @Query(value = """
 WITH all_points AS (
-    SELECT driverId, raceId, points FROM results
+    SELECT driverId, raceId, points FROM results WHERE points > 0
     UNION ALL
-    SELECT driverId, raceId, points FROM sprintresults
+    SELECT driverId, raceId, points FROM sprintresults WHERE points > 0
 ),
-points_only AS (
-    SELECT ap.driverId, r.date, IF(ap.points > 0, 1, 0) AS scored
+points_dates AS (
+    SELECT ap.driverId, r.date
     FROM all_points ap
     JOIN races r ON ap.raceId = r.raceId
 ),
@@ -1102,86 +1102,61 @@ ordered AS (
     SELECT
         driverId,
         date,
-        scored,
-        LAG(scored) OVER (PARTITION BY driverId ORDER BY date) AS prev_scored
-    FROM points_only
+        ROW_NUMBER() OVER (PARTITION BY driverId ORDER BY date) AS rn
+    FROM points_dates
 ),
-flags AS (
+grouped AS (
     SELECT
         driverId,
-        date,
-        scored,
-        CASE
-            WHEN scored = 1 AND (prev_scored IS NULL OR prev_scored = 0) THEN 1
-            ELSE 0
-        END AS is_new_streak
+        DATE_SUB(date, INTERVAL rn DAY) AS grp
     FROM ordered
 ),
-groups_cte AS (
-    SELECT
-        driverId,
-        date,
-        scored,
-        SUM(is_new_streak) OVER (PARTITION BY driverId ORDER BY date) AS streak_group
-    FROM flags
-    WHERE scored = 1
-),
-streak_lengths AS (
-    SELECT driverId, streak_group, COUNT(*) AS streak_length
-    FROM groups_cte
-    GROUP BY driverId, streak_group
+streaks AS (
+    SELECT driverId, COUNT(*) AS streak_length
+    FROM grouped
+    GROUP BY driverId, grp
 )
 SELECT driverId, MAX(streak_length) AS max_streak
-FROM streak_lengths
+FROM streaks
 GROUP BY driverId
 ORDER BY max_streak DESC
+
 """, nativeQuery = true)
     List<Object[]> getLongestConsecutivePointsStreaks();
 
 
     @Query(value = """
 WITH points_only AS (
-    SELECT r.driverId, ra.date, IF(r.points > 0, 1, 0) AS scored
+    SELECT r.driverId, ra.date
     FROM results r
     JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.points > 0
 ),
-ordered AS (
+numbered AS (
     SELECT
         driverId,
         date,
-        scored,
-        LAG(scored) OVER (PARTITION BY driverId ORDER BY date) AS prev_scored
+        ROW_NUMBER() OVER (PARTITION BY driverId ORDER BY date) AS rn
     FROM points_only
 ),
-flags AS (
+grouped AS (
     SELECT
         driverId,
-        date,
-        scored,
-        CASE
-            WHEN scored = 1 AND (prev_scored IS NULL OR prev_scored = 0) THEN 1
-            ELSE 0
-        END AS is_new_streak
-    FROM ordered
+        DATE_SUB(date, INTERVAL rn DAY) AS grp
+    FROM numbered
 ),
-groups_cte AS (
+streaks AS (
     SELECT
         driverId,
-        date,
-        scored,
-        SUM(is_new_streak) OVER (PARTITION BY driverId ORDER BY date) AS streak_group
-    FROM flags
-    WHERE scored = 1
-),
-streak_lengths AS (
-    SELECT driverId, streak_group, COUNT(*) AS streak_length
-    FROM groups_cte
-    GROUP BY driverId, streak_group
+        COUNT(*) AS streak_length
+    FROM grouped
+    GROUP BY driverId, grp
 )
 SELECT driverId, MAX(streak_length) AS max_streak
-FROM streak_lengths
+FROM streaks
 GROUP BY driverId
 ORDER BY max_streak DESC
+
 """, nativeQuery = true)
     List<Object[]> getLongestConsecutivePointsStreaksWithoutSprints();
 
