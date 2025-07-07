@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ChampionshipTrackingServiceImpl implements ChampionshipTrackingService {
@@ -36,20 +37,28 @@ public class ChampionshipTrackingServiceImpl implements ChampionshipTrackingServ
         Map<Long, ChampionshipTrackingDTO> driverMap = new LinkedHashMap<>();
 
         // Mapa auxiliar para sprint points
+        List<SprintResult> allSprintResults = sprintResultDao.findByRaceYearWithDriver(year);
+        Map<Long, List<SprintResult>> sprintResultsByRaceId = allSprintResults.stream()
+                .collect(Collectors.groupingBy(sr -> sr.getRace().getRaceId()));
+
         Map<String, Double> sprintPoints = new HashMap<>();
-        for (Race race : races) {
-            List<SprintResult> sprints = sprintResultDao.findByRaceRaceIdOrderByPositionOrderAsc(race.getRaceId());
-            for (SprintResult sr : sprints) {
-                String key = sr.getDriver().getDriverId() + "-" + race.getRaceId();
-                sprintPoints.put(key, sr.getPoints() != null ? sr.getPoints() : 0.0);
-            }
+        for (SprintResult sr : allSprintResults) {
+            String key = sr.getDriver().getDriverId() + "-" + sr.getRace().getRaceId();
+            sprintPoints.put(key, sr.getPoints() != null ? sr.getPoints() : 0.0);
         }
+
+
+        List<Result> allResults = resultDao.findByRaceYearWithDriverAndStatus(year);
+        Map<Long, List<Result>> resultsByRaceId = allResults.stream()
+                .collect(Collectors.groupingBy(r -> r.getRace().getRaceId()));
+
 
         for (Race race : races) {
             int round = race.getRound();
             long raceId = race.getRaceId();
 
-            List<Result> results = resultDao.findByRaceRaceIdOrderByPositionOrderAsc(raceId);
+            // ✅ Ya NO llamas al DAO aquí
+            List<Result> results = resultsByRaceId.getOrDefault(raceId, Collections.emptyList());
             Set<Long> participatingDrivers = new HashSet<>();
 
             for (Result result : results) {
@@ -81,17 +90,16 @@ public class ChampionshipTrackingServiceImpl implements ChampionshipTrackingServ
 
                 // ✅ Guardar status real, sprint y carrera por separado
                 dto.getRoundPoints().put(round, new RoundPoints(sprintPts, racePoints, raceStatus, positionOrder));
-
             }
 
-            // Marcar DNS para pilotos que no están en la carrera
+            // ✅ Marcar DNS para los que no participaron
             for (ChampionshipTrackingDTO dto : driverMap.values()) {
                 if (!dto.getRoundPoints().containsKey(round)) {
                     dto.getRoundPoints().put(round, new RoundPoints(0.0, 0.0, "DNS", 999));
-
                 }
             }
         }
+
 
         List<ChampionshipTrackingDTO> sorted = driverMap.values().stream()
                 .sorted((a, b) -> {

@@ -1248,4 +1248,13 @@ ORDER BY max_streak DESC
 """, nativeQuery = true)
     List<Object[]> getMostConsecutiveSeasonsWithPoints();
 
+    @Query("""
+    SELECT r FROM Result r
+    JOIN FETCH r.driver
+    JOIN FETCH r.status
+    JOIN FETCH r.race ra
+    WHERE ra.year = :year
+""")
+    List<Result> findByRaceYearWithDriverAndStatus(@Param("year") int year);
+
 }
