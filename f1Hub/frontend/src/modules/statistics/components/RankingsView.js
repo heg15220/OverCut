@@ -838,7 +838,6 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
                       <option value="podiums_by_gp">{t.labelPodiumsByGp}</option>
                       <option value="podiums_most_different_gps">{t.labelGpVarietyPodiums}</option>
                       <option value="podiums_most_different_circuits">{t.labelCircuitVarietyPodiums}</option>
-                      <option value="podiums_home_gp">{t.labelHomeGpPodiums}</option>
                       <option value="podiums_identical_repeats">{t.labelRepeatedPodiums}</option>
                       <option value="podiums_trios">{t.labelFrequentTrios}</option>
                       <option value="podiums_pairs">{t.labelFrequentPairs}</option>

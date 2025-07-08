@@ -714,20 +714,24 @@ public interface ResultDao extends JpaRepository<Result, Long> {
     List<Object[]> countPodiumsByPositions(@Param("positions") Set<Integer> positions);
 
     @Query(value = """
-    SELECT driverId, MIN(race.date), MIN(race.year)
-    FROM results
-    WHERE positionOrder <= 3
-    GROUP BY driverId
+    SELECT res.driverId, MIN(r.date) AS firstPodiumDate, MIN(r.year) AS firstPodiumYear
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+    GROUP BY res.driverId
 """, nativeQuery = true)
     List<Object[]> getFirstPodiumPerDriver();
 
+
     @Query(value = """
-    SELECT constructorId, MIN(race.date), MIN(race.year)
-    FROM results
-    WHERE positionOrder <= 3
-    GROUP BY constructorId
+    SELECT res.constructorId, MIN(r.date) AS firstPodiumDate, MIN(r.year) AS firstPodiumYear
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+    GROUP BY res.constructorId
 """, nativeQuery = true)
     List<Object[]> getFirstPodiumPerConstructor();
+
 
     @Query(value = """
     SELECT driverId, MIN(DATEDIFF(race.date, dob)) AS ageDays
@@ -766,39 +770,42 @@ public interface ResultDao extends JpaRepository<Result, Long> {
     List<Object[]> getOldestPodiumDrivers();
 
     @Query(value = """
-    WITH ordered_podiums AS (
-        SELECT
-            res.driverId,
-            r.date AS raceDate,
-            LAG(r.date) OVER (PARTITION BY res.driverId ORDER BY r.date) AS prevDate
-        FROM results res
-        JOIN races r ON res.raceId = r.raceId
-        WHERE res.positionOrder <= 3
-    ),
-    streak_flags AS (
-        SELECT
-            driverId,
-            raceDate,
-            CASE WHEN prevDate IS NULL OR DATEDIFF(raceDate, prevDate) > 21 THEN 1 ELSE 0 END AS is_new_streak
-        FROM ordered_podiums
-    ),
-    streak_groups AS (
-        SELECT
-            driverId,
-            raceDate,
-            SUM(is_new_streak) OVER (PARTITION BY driverId ORDER BY raceDate) AS streak_group
-        FROM streak_flags
-    ),
-    streak_counts AS (
-        SELECT driverId, streak_group, COUNT(*) AS streakLength
-        FROM streak_groups
-        GROUP BY driverId, streak_group
-    )
-    SELECT driverId, MAX(streakLength) AS maxStreak
-    FROM streak_counts
-    GROUP BY driverId
-    """, nativeQuery = true)
+WITH all_races AS (
+    SELECT res.driverId, r.date,
+           ROW_NUMBER() OVER (PARTITION BY res.driverId ORDER BY r.date) AS seq_all
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+),
+
+podium_races AS (
+    SELECT res.driverId, r.date,
+           ROW_NUMBER() OVER (PARTITION BY res.driverId ORDER BY r.date) AS seq_podium
+    FROM results res
+    JOIN races r ON res.raceId = r.raceId
+    WHERE res.positionOrder <= 3
+),
+
+joined AS (
+    SELECT
+        p.driverId,
+        (a.seq_all - p.seq_podium) AS grp
+    FROM podium_races p
+    JOIN all_races a ON a.driverId = p.driverId AND a.date = p.date
+),
+
+streaks AS (
+    SELECT driverId, grp, COUNT(*) AS streak_length
+    FROM joined
+    GROUP BY driverId, grp
+)
+
+SELECT driverId, MAX(streak_length) AS max_streak
+FROM streaks
+GROUP BY driverId
+ORDER BY max_streak DESC
+""", nativeQuery = true)
     List<Object[]> getLongestPodiumStreaks();
+
 
     @Query(value = """
     WITH ordered_rounds AS (
@@ -1256,5 +1263,16 @@ ORDER BY max_streak DESC
     WHERE ra.year = :year
 """)
     List<Result> findByRaceYearWithDriverAndStatus(@Param("year") int year);
+
+
+    @Query(value = """
+    SELECT r.driverId AS driverId, ra.name AS raceName, ra.year AS year
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.positionOrder = 1
+    ORDER BY r.driverId, ra.name, ra.year
+    """, nativeQuery = true)
+    List<DriverGpWinView> getAllDriverGpWins();
+
 
 }

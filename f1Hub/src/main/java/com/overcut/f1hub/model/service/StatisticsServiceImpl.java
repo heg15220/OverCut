@@ -1221,39 +1221,64 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public List<DriverRankingDTO> getConsecutiveWinsByGrandPrix() {
-        List<Result> wins = resultDao.findAll().stream()
-                .filter(r -> r.getPositionOrder() != null && r.getPositionOrder() == 1)
-                .sorted(Comparator.comparing((Result r) -> r.getDriver().getDriverId())
-                        .thenComparing(r -> r.getRace().getYear()))
-                .toList();
+        List<DriverGpWinView> wins = resultDao.getAllDriverGpWins();
 
         Map<String, Integer> maxStreaks = new HashMap<>();
+        Map<String, Integer> currentStreaks = new HashMap<>();
 
-        for (Result win : wins) {
-            String key = win.getDriver().getDriverId() + "-" + win.getRace().getName();
-            int streak = maxStreaks.getOrDefault(key, 0) + 1;
+        String prevKey = null;
+        Long prevDriverId = null;
+        String prevRaceName = null;
+        int prevYear = -1;
 
-            if (!key.equals(maxStreaks.keySet().stream().filter(k -> k.startsWith(win.getDriver().getDriverId() + "-")).findFirst().orElse(""))) {
-                streak = 1;
+        for (DriverGpWinView win : wins) {
+            String key = win.getDriverId() + "-" + win.getRaceName();
+
+            if (key.equals(prevKey) && win.getYear() == prevYear + 1) {
+                // Continua la racha
+                int streak = currentStreaks.getOrDefault(key, 1) + 1;
+                currentStreaks.put(key, streak);
+                maxStreaks.put(key, Math.max(maxStreaks.getOrDefault(key, 1), streak));
+            } else {
+                // Nueva racha
+                currentStreaks.put(key, 1);
+                maxStreaks.put(key, Math.max(maxStreaks.getOrDefault(key, 1), 1));
             }
 
-            maxStreaks.put(key, streak);
+            prevKey = key;
+            prevYear = win.getYear();
         }
+
+        // Cargar pilotos en batch
+        Set<Long> driverIds = maxStreaks.keySet().stream()
+                .map(k -> Long.parseLong(k.split("-", 2)[0]))
+                .collect(Collectors.toSet());
+
+        Map<Long, Driver> drivers = driverDao.findByDriverIds(driverIds).stream()
+                .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
         return maxStreaks.entrySet().stream()
                 .map(entry -> {
                     String[] parts = entry.getKey().split("-", 2);
                     Long driverId = Long.parseLong(parts[0]);
                     String gpName = parts[1];
-                    Driver driver = driverDao.findById(driverId).orElse(null);
+
+                    Driver driver = drivers.get(driverId);
                     if (driver == null) return null;
+
                     String name = driver.getForename() + " " + driver.getSurname();
-                    return new DriverRankingDTO(name + " - " + gpName, driver.getNationality(), entry.getValue(), getFlagUrl(driver.getNationality()));
+                    return new DriverRankingDTO(
+                            name + " - " + gpName,
+                            driver.getNationality(),
+                            entry.getValue(),
+                            getFlagUrl(driver.getNationality())
+                    );
                 })
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparingInt(DriverRankingDTO::getValue).reversed())
                 .toList();
     }
+
 
 
     @Override
