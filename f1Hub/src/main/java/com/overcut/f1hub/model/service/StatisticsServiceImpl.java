@@ -4472,10 +4472,14 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriverSeasonCount() {
         String sql = """
-        SELECT d.forename, d.surname, d.nationality, COUNT(DISTINCT r.year) AS seasons
-        FROM results res
-        JOIN drivers d ON res.driverId = d.driverId
-        JOIN races r ON res.raceId = r.raceId
+        WITH driver_years AS (
+            SELECT DISTINCT res.driverId, r.year
+            FROM results res
+            JOIN races r ON res.raceId = r.raceId
+        )
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) AS seasons
+        FROM driver_years dy
+        JOIN drivers d ON dy.driverId = d.driverId
         GROUP BY d.driverId
         ORDER BY seasons DESC
     """;
@@ -4498,12 +4502,15 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriverSeasonParticipationStreaks() {
         String sql = """
-        SELECT d.driverId, d.forename, d.surname, d.nationality, r.year
-        FROM results res
-        JOIN drivers d ON res.driverId = d.driverId
-        JOIN races r ON res.raceId = r.raceId
-        GROUP BY d.driverId, r.year
-        ORDER BY d.driverId, r.year
+        WITH driver_years AS (
+            SELECT DISTINCT res.driverId, r.year
+            FROM results res
+            JOIN races r ON res.raceId = r.raceId
+        )
+        SELECT d.driverId, d.forename, d.surname, d.nationality, dy.year
+        FROM driver_years dy
+        JOIN drivers d ON dy.driverId = d.driverId
+        ORDER BY d.driverId, dy.year
     """;
 
         Query query = entityManager.createNativeQuery(sql);
@@ -4873,12 +4880,15 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getConsecutiveRaceFinishes() {
         String sql = """
-            SELECT r.driverId, d.forename, d.surname, d.nationality, ra.year, ra.round
-            FROM results r
-            JOIN races ra ON r.raceId = ra.raceId
-            JOIN drivers d ON r.driverId = d.driverId
-            WHERE r.positionOrder IS NOT NULL AND r.statusId NOT IN ("Ret", "Dis")
-            ORDER BY r.driverId, ra.year, ra.round
+        SELECT r.driverId, d.forename, d.surname, d.nationality, ra.year, ra.round
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN drivers d ON r.driverId = d.driverId
+        JOIN status s ON r.statusId = s.statusId
+        WHERE LOWER(s.status) NOT LIKE 'ret%'
+          AND LOWER(s.status) NOT LIKE 'dis%'
+          AND r.positionOrder IS NOT NULL
+        ORDER BY r.driverId, ra.year, ra.round
         """;
 
         Query query = entityManager.createNativeQuery(sql);
@@ -4966,6 +4976,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             JOIN races ra ON r.raceId = ra.raceId
             JOIN drivers d ON r.driverId = d.driverId
             JOIN status s ON r.statusId = s.statusId
+            WHERE s.status IS NOT NULL
             ORDER BY r.driverId, ra.year, ra.round
         """;
 
@@ -5012,15 +5023,19 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDNFCount() {
         String sql = """
-            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS dnfs
-            FROM results r
-            JOIN drivers d ON r.driverId = d.driverId
-            JOIN status s ON r.statusId = s.statusId
-            WHERE LOWER(s.status) NOT LIKE 'finished'
-              AND LOWER(s.status) NOT REGEXP '^\\+[0-9]+ laps$'
-            GROUP BY d.driverId
-            ORDER BY dnfs DESC
-            """;
+                WITH filtered_status AS (
+                  SELECT statusId
+                  FROM status
+                  WHERE LOWER(status) NOT LIKE 'finished'
+                    AND NOT (status REGEXP '^\\\\+[0-9]+ laps$')
+                )
+                SELECT d.forename, d.surname, d.nationality, COUNT(*) AS dnfs
+                FROM results r
+                JOIN drivers d ON r.driverId = d.driverId
+                JOIN filtered_status fs ON r.statusId = fs.statusId
+                GROUP BY d.driverId
+                ORDER BY dnfs DESC
+                                """;
 
 
         Query query = entityManager.createNativeQuery(sql);
@@ -5040,13 +5055,20 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getConsecutiveDNFs() {
         String sql = """
-            SELECT r.driverId, d.forename, d.surname, d.nationality, ra.year, ra.round, s.status
-            FROM results r
-            JOIN races ra ON r.raceId = ra.raceId
-            JOIN drivers d ON r.driverId = d.driverId
-            JOIN status s ON r.statusId = s.statusId
-            ORDER BY r.driverId, ra.year, ra.round
-        """;
+                WITH dnf_status AS (
+                  SELECT statusId
+                  FROM status
+                  WHERE LOWER(status) NOT LIKE 'finished'
+                    AND NOT (status REGEXP '^\\\\+[0-9]+ laps$')
+                )
+                SELECT r.driverId, d.forename, d.surname, d.nationality, ra.year, ra.round
+                FROM results r
+                JOIN races ra ON r.raceId = ra.raceId
+                JOIN drivers d ON r.driverId = d.driverId
+                LEFT JOIN dnf_status ds ON r.statusId = ds.statusId
+                WHERE ds.statusId IS NOT NULL
+                ORDER BY r.driverId, ra.year, ra.round
+                        """;
 
         Query query = entityManager.createNativeQuery(sql);
         List<Object[]> rows = query.getResultList();
@@ -5060,19 +5082,21 @@ public class StatisticsServiceImpl implements StatisticsService {
             Long driverId = ((Number) row[0]).longValue();
             String fullName = row[1] + " " + row[2];
             String nationality = (String) row[3];
-            String status = ((String) row[6]).toLowerCase();
 
+            int year = ((Number) row[4]).intValue();
+            int round = ((Number) row[5]).intValue();
+
+            String raceKey = year + ":" + round;
+
+            // Guardar info del piloto
             names.put(driverId, fullName);
             nationalities.put(driverId, nationality);
 
-            if (!(status.equals("finished") || status.matches("\\+\\d+ laps"))) {
-                currentStreaks.put(driverId, currentStreaks.getOrDefault(driverId, 0) + 1);
-                maxStreaks.put(driverId, Math.max(maxStreaks.getOrDefault(driverId, 0), currentStreaks.get(driverId)));
-            } else {
-                currentStreaks.put(driverId, 0);
-            }
-
+            // Todas estas rows ya son DNF
+            currentStreaks.put(driverId, currentStreaks.getOrDefault(driverId, 0) + 1);
+            maxStreaks.put(driverId, Math.max(maxStreaks.getOrDefault(driverId, 0), currentStreaks.get(driverId)));
         }
+
 
         List<DriverRankingDTO> result = new ArrayList<>();
         for (Long driverId : maxStreaks.keySet()) {
@@ -5092,16 +5116,20 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getFirstLapDNFs() {
         String sql = """
-            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS dnf_first_lap
-            FROM results r
-            JOIN drivers d ON r.driverId = d.driverId
-            JOIN status s ON r.statusId = s.statusId
-            WHERE LOWER(s.status) NOT LIKE 'finished'
-              AND LOWER(s.status) NOT REGEXP '^ +[0-9]+ laps$'
-              AND r.lap = 1
-            GROUP BY d.driverId
-            ORDER BY dnf_first_lap DESC
-        """;
+                WITH dnf_status AS (
+                  SELECT statusId
+                  FROM status
+                  WHERE LOWER(status) NOT LIKE 'finished'
+                    AND NOT (status REGEXP '^\\\\+[0-9]+ laps$')
+                )
+                SELECT d.forename, d.surname, d.nationality, COUNT(*) AS dnf_first_lap
+                FROM results r
+                JOIN drivers d ON r.driverId = d.driverId
+                JOIN dnf_status ds ON r.statusId = ds.statusId
+                WHERE r.lap = 1
+                GROUP BY d.driverId
+                ORDER BY dnf_first_lap DESC
+                        """;
 
 
         Query query = entityManager.createNativeQuery(sql);
@@ -5121,17 +5149,18 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDriversOnLeaderLapMostOften() {
         String sql = """
-            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS on_lead_lap
-            FROM results r
-            JOIN drivers d ON r.driverId = d.driverId
-            JOIN (
-                SELECT raceId, MAX(laps) AS leader_laps
-                FROM results
-                GROUP BY raceId
-            ) leaders ON r.raceId = leaders.raceId
-            WHERE r.laps = leaders.leader_laps
-            GROUP BY d.driverId
-            ORDER BY on_lead_lap DESC
+        WITH leader_laps AS (
+          SELECT r1.raceId, MAX(r1.laps) AS leader_laps
+          FROM results r1
+          GROUP BY r1.raceId
+        )
+        SELECT d.forename, d.surname, d.nationality, COUNT(*) AS on_lead_lap
+        FROM results r
+        JOIN leader_laps l ON r.raceId = l.raceId AND r.laps = l.leader_laps
+        JOIN drivers d ON r.driverId = d.driverId
+        GROUP BY d.driverId
+        ORDER BY on_lead_lap DESC
+
         """;
 
 
@@ -5205,18 +5234,19 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getStartingGridAtDebut() {
         String sql = """
-            SELECT d.forename, d.surname, d.nationality, r.grid
-            FROM results r
-            JOIN drivers d ON r.driverId = d.driverId
-            JOIN races ra ON r.raceId = ra.raceId
-            WHERE (r.driverId, ra.date) IN (
-                SELECT r2.driverId, MIN(r2a.date)
-                FROM results r2
-                JOIN races r2a ON r2.raceId = r2a.raceId
-                WHERE r2.grid IS NOT NULL
-                GROUP BY r2.driverId
-            )
-            ORDER BY r.grid ASC
+        WITH debut_dates AS (
+            SELECT r2.driverId, MIN(r2a.date) AS debut_date
+            FROM results r2
+            JOIN races r2a ON r2.raceId = r2a.raceId
+            WHERE r2.grid IS NOT NULL
+            GROUP BY r2.driverId
+        )
+        SELECT d.forename, d.surname, d.nationality, r.grid
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN drivers d ON r.driverId = d.driverId
+        JOIN debut_dates dd ON r.driverId = dd.driverId AND ra.date = dd.debut_date
+        ORDER BY r.grid ASC
         """;
 
         Query query = entityManager.createNativeQuery(sql);
@@ -5326,14 +5356,14 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<DriverRankingDTO> getDisqualificationCount() {
         String sql = """
-            SELECT d.forename, d.surname, d.nationality, COUNT(*) AS disq_count
-            FROM results r
-            JOIN drivers d ON r.driverId = d.driverId
-            JOIN status s ON r.statusId = s.statusId
-            WHERE LOWER(s.status) LIKE '%disq%' OR LOWER(s.status) LIKE '%dis%'
-            GROUP BY d.driverId
-            ORDER BY disq_count DESC
-        """;
+                SELECT d.forename, d.surname, d.nationality, COUNT(*) AS disq_count
+                FROM results r
+                JOIN drivers d ON r.driverId = d.driverId
+                JOIN status s ON r.statusId = s.statusId
+                WHERE LOWER(s.status) LIKE '%disq%' OR LOWER(s.status) LIKE '%dis%'                                                                                               
+                GROUP BY d.driverId
+                ORDER BY disq_count DESC
+                """;
 
         Query query = entityManager.createNativeQuery(sql);
         List<Object[]> rows = query.getResultList();

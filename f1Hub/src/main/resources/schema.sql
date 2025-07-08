@@ -209,3 +209,19 @@ CREATE INDEX idx_races_raceId_date ON races(raceId, date);
 CREATE INDEX idx_qualifying_driverId_raceId_position ON qualifying(driverId, raceId, position);
 CREATE INDEX idx_laptimes_driverId_raceId_position ON laptimes(driverId, raceId, position);
 
+-- INDEX para results: optimiza joins y filtros sobre driver, carrera, grid, posiciones y estado
+CREATE INDEX idx_results_driver_race_pos_grid_laps_status
+    ON results(driverId, raceId, positionOrder, grid, laps, statusId);
+
+-- INDEX para races: optimiza búsquedas por id, año y fecha
+CREATE INDEX idx_races_id_year_date
+    ON races(raceId, year, date);
+
+-- INDEX para status: optimiza búsquedas por id y descripción de estado
+CREATE INDEX idx_status_id_status
+    ON status(statusId, status);
+
+CREATE INDEX idx_status_statusId_status ON status(statusId, status);
+
+CREATE INDEX idx_results_statusId ON results(statusId);
+CREATE INDEX idx_results_driverId_raceId_statusId ON results(driverId, raceId, statusId);

@@ -572,7 +572,6 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
     : recordMode === "varios_on_leader_lap" ? variosOnLeaderLap
     : recordMode === "varios_finish_position_avg" ? variosFinishPositionAvg
     : recordMode === "varios_position_gain_avg" ? variosPositionGainAvg
-    : recordMode === "varios_debut_grid" ? variosDebutGrid
     : recordMode === "varios_debut_qualifying" ? variosDebutQualifying
     : recordMode === "varios_last_qualifying" ? variosLastQualifying
     : recordMode === "varios_never_qualified" ? variosNeverQualified
@@ -725,7 +724,6 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
            case "varios_on_leader_lap": return t.labelLeaderLap;
            case "varios_finish_position_avg": return t.labelFinishAvg;
            case "varios_position_gain_avg": return t.labelGainAvg;
-           case "varios_debut_grid": return t.labelDebutGrid;
            case "varios_disqualifications": return t.labelDisqualifications;
 
            default: return recordMode.replace(/_/g, " ");
@@ -905,14 +903,10 @@ const variosDisqualifications = useSelector(statisticsSelectors.getVariosDisqual
                       <option value="varios_front_row_youngest">{t.labelAgeFrontRow}</option>
                       <option value="varios_front_row_streaks">{t.labelFrontRowStreaks}</option>
                       <option value="varios_finishes">{t.labelFinishes}</option>
-                      <option value="varios_finish_streak">{t.labelFinishStreak}</option>
                       <option value="varios_no_dnf_streak">{t.labelNoDnfStreak}</option>
                       <option value="varios_dnfs">{t.labelDnfs}</option>
-                      <option value="varios_dnf_streak">{t.labelDnfStreak}</option>
                       <option value="varios_on_leader_lap">{t.labelLeaderLap}</option>
                       <option value="varios_finish_position_avg">{t.labelFinishAvg}</option>
-                      <option value="varios_position_gain_avg">{t.labelGainAvg}</option>
-                      <option value="varios_debut_grid">{t.labelDebutGrid}</option>
                       <option value="varios_disqualifications">{t.labelDisqualifications}</option>
                     </optgroup>
                   )}
