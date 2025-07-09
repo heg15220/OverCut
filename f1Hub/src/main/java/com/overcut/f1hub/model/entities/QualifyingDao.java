@@ -245,6 +245,73 @@ public interface QualifyingDao extends JpaRepository<Qualifying, Long> {
 """, nativeQuery = true)
     List<DriverPoleCountView> getPoleCountsForAllDrivers();
 
+    @Query("""
+    SELECT r.year AS year, d.driverId AS driverId, c.constructorRef AS constructorRef, COUNT(q.q1) AS qCount
+    FROM Qualifying q
+    JOIN q.race r
+    JOIN q.driver d
+    JOIN q.constructor c
+    WHERE r.year < 2006 AND q.q1 IS NOT NULL
+    GROUP BY r.year, d.driverId, c.constructorRef
+""")
+    List<QualiCountByYearAndTeamView> getQ1CountsByYearAndTeam();
+
+    @Query("""
+    SELECT r.year AS year, d.driverId AS driverId, c.constructorRef AS constructorRef, COUNT(q.q3) AS qCount
+    FROM Qualifying q
+    JOIN q.race r
+    JOIN q.driver d
+    JOIN q.constructor c
+    WHERE r.year >= 2006 AND q.q3 IS NOT NULL
+    GROUP BY r.year, d.driverId, c.constructorRef
+""")
+    List<QualiCountByYearAndTeamView> getQ3CountsByYearAndTeam();
+
+    @Query("""
+    SELECT DISTINCT r.year AS year, c.constructorRef AS constructorRef
+    FROM Qualifying q
+    JOIN q.race r
+    JOIN q.constructor c
+    WHERE q.driver.driverId = :driverId
+""")
+    List<PilotSeasonTeamView> getSeasonsAndTeamsByDriver(@Param("driverId") Long driverId);
+
+    @Query("""
+    SELECT r.year AS year, d.driverId AS driverId, c.constructorRef AS constructorRef, COUNT(q.q1) AS qCount
+    FROM Qualifying q
+    JOIN q.race r
+    JOIN q.driver d
+    JOIN q.constructor c
+    WHERE r.year < 2006
+      AND q.q1 IS NOT NULL
+      AND r.year IN :years
+      AND c.constructorRef IN :constructorRefs
+    GROUP BY r.year, d.driverId, c.constructorRef
+""")
+    List<QualiCountByYearAndTeamView> getQ1CountsFiltered(
+            @Param("constructorRefs") List<String> constructorRefs,
+            @Param("years") List<Integer> years
+    );
+
+    @Query("""
+    SELECT r.year AS year, d.driverId AS driverId, c.constructorRef AS constructorRef, COUNT(q.q3) AS qCount
+    FROM Qualifying q
+    JOIN q.race r
+    JOIN q.driver d
+    JOIN q.constructor c
+    WHERE r.year >= 2006
+      AND q.q3 IS NOT NULL
+      AND r.year IN :years
+      AND c.constructorRef IN :constructorRefs
+    GROUP BY r.year, d.driverId, c.constructorRef
+""")
+    List<QualiCountByYearAndTeamView> getQ3CountsFiltered(
+            @Param("constructorRefs") List<String> constructorRefs,
+            @Param("years") List<Integer> years
+    );
+
+
+
 
 
 }

@@ -599,18 +599,6 @@ public interface ResultDao extends JpaRepository<Result, Long> {
 """, nativeQuery = true)
     List<EfficiencyRawDataView> getEfficiencyRawData();
 
-    @Query(value = """
-    SELECT r.driverId AS driverId, COUNT(*) AS winCount
-    FROM results r
-    JOIN races ra ON r.raceId = ra.raceId
-    WHERE r.positionOrder = 1
-      AND ra.year BETWEEN :startYear AND :endYear
-    GROUP BY r.driverId
-""", nativeQuery = true)
-    List<DriverWinsInDecadeView> getDriverWinsInDecade(
-            @Param("startYear") int startYear,
-            @Param("endYear") int endYear
-    );
 
     @Query(value = """
     SELECT COUNT(*) FROM races WHERE year BETWEEN :startYear AND :endYear
@@ -1273,6 +1261,96 @@ ORDER BY max_streak DESC
     ORDER BY r.driverId, ra.name, ra.year
     """, nativeQuery = true)
     List<DriverGpWinView> getAllDriverGpWins();
+
+
+    @Query(value = """
+    SELECT
+        ra.year AS year,
+        AVG(r.grid - r.positionOrder) AS avgDelta
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE
+        r.driverId = :driverId
+        AND r.grid IS NOT NULL AND r.grid > 0
+        AND r.positionOrder IS NOT NULL AND r.positionOrder > 0 AND r.positionOrder <= 30
+    GROUP BY ra.year
+    ORDER BY ra.year
+""", nativeQuery = true)
+    List<AvgPositionDeltaPerSeasonView> findAvgPositionDeltaByDriver(@Param("driverId") Long driverId);
+
+    @Query(value = """
+    SELECT
+        r.driverId AS driverId,
+        d.forename AS forename,
+        d.surname AS surname,
+        COUNT(*) AS winCount,
+        (SELECT COUNT(*) FROM races WHERE year BETWEEN :startYear AND :endYear) AS totalRaces
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    JOIN drivers d ON r.driverId = d.driverId
+    WHERE r.positionOrder = 1
+      AND ra.year BETWEEN :startYear AND :endYear
+    GROUP BY r.driverId, d.forename, d.surname
+    ORDER BY winCount DESC
+""", nativeQuery = true)
+    List<DriverVictoryPercentageView> getVictoryPercentagesInDecade(
+            @Param("startYear") int startYear,
+            @Param("endYear") int endYear
+    );
+
+    @Query(value = """
+    SELECT
+        r.driverId AS driverId,
+        d.forename AS forename,
+        d.surname AS surname,
+        COUNT(*) AS winCount
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    JOIN drivers d ON r.driverId = d.driverId
+    WHERE r.positionOrder = 1
+      AND ra.year BETWEEN :startYear AND :endYear
+    GROUP BY r.driverId, d.forename, d.surname
+    ORDER BY winCount DESC
+""", nativeQuery = true)
+    List<DriverWinsView> getDriverWinsInDecade(
+            @Param("startYear") int startYear,
+            @Param("endYear") int endYear
+    );
+
+    @Query(value = """
+    SELECT COUNT(*) FROM races WHERE year BETWEEN :startYear AND :endYear
+""", nativeQuery = true)
+    long getTotalRacesInDecade(@Param("startYear") int startYear, @Param("endYear") int endYear);
+
+
+    @Query(value = """
+    SELECT DISTINCT ra.year AS year, c.constructorRef AS constructorRef
+    FROM results res
+    JOIN races ra ON res.raceId = ra.raceId
+    JOIN constructors c ON res.constructorId = c.constructorId
+    WHERE res.driverId = :driverId
+    """, nativeQuery = true)
+    List<PilotSeasonTeamView> getSeasonsAndTeamsFromResults(@Param("driverId") Long driverId);
+
+
+    @Query(value = """
+    SELECT ra.year AS year,
+           COUNT(CASE
+                     WHEN LOWER(s.status) NOT IN (
+                         'finished', 'classified', 'not classified', 'excluded', 'disqualified',
+                         'did not qualify', 'did not prequalify', 'did not start', 'withdrew', '107% rule')
+                     AND LOWER(s.status) NOT REGEXP '\\\\+\\\\d+\\\\s+laps?'
+                     THEN 1
+                     ELSE NULL
+                 END) AS retirements,
+           COUNT(DISTINCT ra.raceId) AS totalRaces
+    FROM races ra
+    LEFT JOIN results r ON ra.raceId = r.raceId
+    LEFT JOIN status s ON r.statusId = s.statusId
+    GROUP BY ra.year
+    ORDER BY ra.year
+""", nativeQuery = true)
+    List<RetirementRatioPerYearView> getRetirementRatioPerSeason();
 
 
 }
