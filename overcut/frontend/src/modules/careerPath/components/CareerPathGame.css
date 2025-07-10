@@ -394,3 +394,218 @@
   background: #ffd54f;
   color: #000;
 }
+
+@media (max-width: 768px) {
+  .career-path-container {
+    padding: 0 0.5rem 2rem 0.5rem;
+  }
+
+  .career-path-overlay {
+    padding: 1.5rem;
+    border-radius: 16px;
+    max-width: 100%;
+  }
+
+  .career-path-title {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .clues-row {
+    gap: 8px;
+    margin-bottom: 1.2rem;
+  }
+
+  .clue-block {
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    min-width: 90px;
+  }
+
+  .team-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .driver-input {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  .guess-btn,
+  .skip-btn {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .action-buttons {
+    gap: 10px;
+  }
+
+  .pilot-suggestion-list {
+    max-height: 160px;
+    border-radius: 8px;
+    padding: 0.25rem;
+  }
+
+  .suggestion-item {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .game-result {
+    font-size: 1.5rem;
+    margin-top: 1.2rem;
+  }
+
+  .driver-reveal-card-wrapper {
+    width: 120px;
+    height: 160px;
+  }
+
+  .driver-reveal-card-face {
+    font-size: 2rem;
+  }
+
+  .driver-reveal-card-face.back {
+    font-size: 1.1rem;
+    padding: 0 0.8rem;
+  }
+
+  .team-card-wrapper {
+    width: 90px;
+    height: 115px;
+    margin: 0.35rem;
+  }
+
+  .team-card-inner {
+    padding: 0.5rem;
+  }
+
+  .team-card-inner img.team-logo {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .team-card-inner .team-name {
+    font-size: 0.95rem;
+  }
+
+  .back-to-home-btn {
+    padding: 9px 18px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 500px) {
+  .career-path-container {
+    padding: 0 0.4rem 1.5rem 0.4rem;
+  }
+
+  .career-path-overlay {
+    padding: 1.2rem;
+    border-radius: 14px;
+  }
+
+  .career-path-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .clues-row {
+    gap: 6px;
+    margin-bottom: 1rem;
+  }
+
+  .clue-block {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    min-width: 80px;
+  }
+
+  .team-logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .driver-input {
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    border-radius: 7px;
+  }
+
+  .guess-btn,
+  .skip-btn {
+    padding: 9px;
+    font-size: 0.95rem;
+    border-radius: 7px;
+  }
+
+  .action-buttons {
+    gap: 8px;
+  }
+
+  .pilot-suggestion-list {
+    max-height: 150px;
+    border-radius: 7px;
+    padding: 0.2rem;
+  }
+
+  .suggestion-item {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .game-result {
+    font-size: 1.3rem;
+    margin-top: 1rem;
+  }
+
+  .driver-reveal-card-wrapper {
+    width: 110px;
+    height: 150px;
+  }
+
+  .driver-reveal-card-face {
+    font-size: 1.8rem;
+  }
+
+  .driver-reveal-card-face.back {
+    font-size: 1rem;
+    padding: 0 0.6rem;
+  }
+
+  .team-card-wrapper {
+    width: 80px;
+    height: 105px;
+    margin: 0.3rem;
+  }
+
+  .team-card-inner {
+    padding: 0.4rem;
+  }
+
+  .team-card-inner img.team-logo {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 0.4rem;
+    border-radius: 7px;
+  }
+
+  .team-card-inner .team-name {
+    font-size: 0.9rem;
+  }
+
+  .back-to-home-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border-radius: 7px;
+  }
+}

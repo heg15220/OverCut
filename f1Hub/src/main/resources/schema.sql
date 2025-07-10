@@ -225,3 +225,129 @@ CREATE INDEX idx_status_statusId_status ON status(statusId, status);
 
 CREATE INDEX idx_results_statusId ON results(statusId);
 CREATE INDEX idx_results_driverId_raceId_statusId ON results(driverId, raceId, statusId);
+
+
+-- índice para búsquedas por carrera
+CREATE INDEX idx_results_raceId ON results(raceId);
+
+-- índice para búsquedas por piloto
+CREATE INDEX idx_results_driverId ON results(driverId);
+
+-- índice para búsquedas por constructor
+CREATE INDEX idx_results_constructorId ON results(constructorId);
+
+-- índice para búsquedas por status
+CREATE INDEX idx_results_statusId ON results(statusId);
+
+-- índice para WHERE positionOrder, grid
+CREATE INDEX idx_results_positionOrder_grid ON results(positionOrder, grid);
+
+-- índice para rangos de año (vía join con races)
+CREATE INDEX idx_results_raceId_positionOrder ON results(raceId, positionOrder);
+
+-- índice para filtrado por piloto y posición
+CREATE INDEX idx_results_driverId_positionOrder ON results(driverId, positionOrder);
+
+-- índice para filtrado por constructor y posición
+CREATE INDEX idx_results_constructorId_positionOrder ON results(constructorId, positionOrder);
+
+-- índice para filtrado por piloto y grid
+CREATE INDEX idx_results_driverId_grid ON results(driverId, grid);
+
+-- índice para joins por piloto/carrera/constructor
+CREATE INDEX idx_results_driver_race_constructor ON results(driverId, raceId, constructorId);
+
+-- índice para puntos
+CREATE INDEX idx_results_points ON results(points);
+
+-- índice para grid vs posición
+CREATE INDEX idx_results_grid_positionOrder ON results(grid, positionOrder);
+
+-- índice para tiempo en milisegundos (para gaps de carrera)
+CREATE INDEX idx_results_milliseconds ON results(milliseconds);
+
+-- índice para fastest lap speed
+CREATE INDEX idx_results_fastestLapSpeed ON results(fastestLapSpeed);
+
+-- índice combinado para COUNTs y GROUP BY más usados
+CREATE INDEX idx_results_driver_constructor_positionOrder ON results(driverId, constructorId, positionOrder);
+
+
+-- para joins por id
+CREATE INDEX idx_races_raceId ON races(raceId);
+
+-- para joins con filtros de año
+CREATE INDEX idx_races_year ON races(year);
+
+-- para filtros de año + round
+CREATE INDEX idx_races_year_round ON races(year, round);
+
+-- para filtros por circuito
+CREATE INDEX idx_races_circuitId ON races(circuitId);
+
+-- para ORDER BY por fecha
+CREATE INDEX idx_races_date ON races(date);
+
+-- para JOIN frecuente con status de resultados
+CREATE INDEX idx_races_raceId_year_date ON races(raceId, year, date);
+
+
+-- búsqueda por id
+CREATE INDEX idx_status_statusId ON status(statusId);
+
+-- búsqueda por texto de status (para causas)
+CREATE INDEX idx_status_status ON status(status);
+
+
+-- búsqueda por id
+CREATE INDEX idx_drivers_driverId ON drivers(driverId);
+
+-- para forename + surname (para los counts por nombre completo)
+CREATE INDEX idx_drivers_forename_surname ON drivers(forename, surname);
+
+-- para JOIN con nacionalidad (home GP)
+CREATE INDEX idx_drivers_nationality ON drivers(nationality);
+
+
+-- búsqueda por id
+CREATE INDEX idx_constructors_constructorId ON constructors(constructorId);
+
+-- búsqueda por ref (para queries de constructorRef)
+CREATE INDEX idx_constructors_constructorRef ON constructors(constructorRef);
+
+
+-- búsqueda por carrera, piloto, lap
+CREATE INDEX idx_laptimes_race_driver_lap ON laptimes(raceId, driverId, lap);
+
+-- búsqueda por posición
+CREATE INDEX idx_laptimes_position ON laptimes(position);
+
+
+-- para joins por carrera y piloto/constructor
+CREATE INDEX idx_driverstandings_race_driver ON driverstandings(raceId, driverId);
+CREATE INDEX idx_constructorstandings_race_constructor ON constructorstandings(raceId, constructorId);
+
+-- para posición en el campeonato
+CREATE INDEX idx_driverstandings_position ON driverstandings(position);
+CREATE INDEX idx_constructorstandings_position ON constructorstandings(position);
+
+
+-- búsqueda por carrera
+CREATE INDEX idx_qualifying_raceId ON qualifying(raceId);
+
+-- búsqueda por piloto
+CREATE INDEX idx_qualifying_driverId ON qualifying(driverId);
+
+-- búsqueda por constructor
+CREATE INDEX idx_qualifying_constructorId ON qualifying(constructorId);
+
+-- búsqueda por posición
+CREATE INDEX idx_qualifying_position ON qualifying(position);
+
+-- búsqueda combinada para JOIN frecuentes
+CREATE INDEX idx_qualifying_race_driver_constructor ON qualifying(raceId, driverId, constructorId);
+
+-- búsqueda por tiempos Q1/Q2/Q3
+CREATE INDEX idx_qualifying_q1_q2_q3 ON qualifying(q1, q2, q3);
+
+

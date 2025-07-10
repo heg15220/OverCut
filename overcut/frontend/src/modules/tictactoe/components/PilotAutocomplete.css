@@ -116,3 +116,60 @@
   opacity: 1;
   transform: translateX(4px);
 }
+
+@media (max-width: 768px) {
+  .autocomplete-container {
+    max-width: 95%;
+    margin: 0.75rem auto;
+    padding: 0.75rem 0;
+  }
+
+  .autocomplete-input {
+    font-size: 1rem;
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  .suggestions-list {
+    max-height: 200px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .suggestions-list li {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+
+  .suggestions-list li::before {
+    left: 6px;
+  }
+}
+
+@media (max-width: 500px) {
+  .autocomplete-container {
+    max-width: 95%;
+    padding: 0.5rem 0;
+    margin: 0.5rem auto;
+  }
+
+  .autocomplete-input {
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+
+  .suggestions-list {
+    max-height: 180px;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .suggestions-list li {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .suggestions-list li::before {
+    left: 5px;
+  }
+}
+

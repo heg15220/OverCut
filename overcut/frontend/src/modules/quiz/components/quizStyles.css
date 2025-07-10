@@ -266,3 +266,161 @@
     text-shadow: 1px 1px 4px black;
     font-weight: 500;
 }
+
+@media (max-width: 768px) {
+  .quiz-container {
+    padding: 1rem;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  .quiz-content {
+    padding: 2rem 1rem;
+    max-width: 95%;
+  }
+
+  .question-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .question-image {
+    width: 95%;
+  }
+
+  .quiz-answer-btn,
+  .custom-answer-btn {
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+
+  .answer-icon {
+    font-size: 1.3rem;
+    margin-left: 6px;
+  }
+
+  .score-popup {
+    font-size: 1.6rem;
+    margin-top: 1.5rem;
+  }
+
+  .loading-spinner {
+    min-height: 150px;
+  }
+
+  .spinner-wheel {
+    width: 60px;
+    height: 60px;
+    border-width: 6px;
+    margin-top: 1.5rem;
+  }
+
+  .loading-text {
+    font-size: 1rem;
+    width: 160px;
+  }
+
+  .intro-card {
+    padding: 1rem;
+  }
+
+  .f1-car {
+    height: 60px;
+    bottom: 30px;
+  }
+
+  .f1-car-trail {
+    width: 150px;
+    height: 16px;
+    bottom: 45px;
+  }
+
+  .f1-car-wrapper {
+    bottom: 40px;
+    gap: 8px;
+  }
+
+  .wheel {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 500px) {
+  .quiz-container {
+    padding: 0.8rem;
+  }
+
+  .quiz-content {
+    padding: 1.5rem 0.8rem;
+    max-width: 100%;
+  }
+
+  .question-title {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .question-image {
+    width: 100%;
+  }
+
+  .quiz-answer-btn,
+  .custom-answer-btn {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  .answer-icon {
+    font-size: 1.2rem;
+    margin-left: 5px;
+  }
+
+  .score-popup {
+    font-size: 1.4rem;
+    margin-top: 1.2rem;
+  }
+
+  .loading-spinner {
+    min-height: 130px;
+  }
+
+  .spinner-wheel {
+    width: 50px;
+    height: 50px;
+    border-width: 5px;
+    margin-top: 1.2rem;
+  }
+
+  .loading-text {
+    font-size: 0.95rem;
+    width: 140px;
+  }
+
+  .intro-card {
+    padding: 0.8rem;
+  }
+
+  .f1-car {
+    height: 50px;
+    bottom: 25px;
+  }
+
+  .f1-car-trail {
+    width: 120px;
+    height: 14px;
+    bottom: 38px;
+  }
+
+  .f1-car-wrapper {
+    bottom: 35px;
+    gap: 6px;
+  }
+
+  .wheel {
+    width: 14px;
+    height: 14px;
+  }
+}

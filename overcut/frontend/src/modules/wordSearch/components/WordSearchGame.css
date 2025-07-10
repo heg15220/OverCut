@@ -137,3 +137,134 @@
 .wordsearch-list-item.tofind {
   color: #fff;
 }
+
+@media (max-width: 768px) {
+  .wordsearch-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .wordsearch-title {
+    font-size: 2rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .wordsearch-grid {
+    grid-template-columns: repeat(21, 26px);
+    gap: 3px;
+    margin-bottom: 0.8rem;
+  }
+
+  .wordsearch-cell {
+    width: 26px;
+    height: 26px;
+    font-size: 1.05rem;
+    letter-spacing: 0.8px;
+    border-radius: 6px;
+  }
+
+  .wordsearch-input {
+    padding: 0.45rem;
+    font-size: 0.95rem;
+    border-radius: 7px;
+    margin-top: 0.8rem;
+  }
+
+  .wordsearch-validate-btn,
+  .wordsearch-reveal-btn {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.95rem;
+    border-radius: 7px;
+  }
+
+  .wordsearch-list-box {
+    padding: 0.8rem;
+    margin-top: 1.2rem;
+    border-radius: 10px;
+  }
+
+  .wordsearch-list-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .wordsearch-list-item {
+    font-size: 0.95rem;
+    padding: 0.2rem 0;
+  }
+
+  .wordsearch-loading {
+    padding: 2rem;
+    font-size: 1.3rem;
+  }
+
+  .wordsearch-found {
+    margin-top: 0.8rem;
+    font-size: 0.95rem;
+  }
+}
+
+
+@media (max-width: 500px) {
+  .wordsearch-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .wordsearch-title {
+    font-size: 1.7rem;
+    margin-bottom: 1rem;
+  }
+
+  .wordsearch-grid {
+    grid-template-columns: repeat(21, 22px);
+    gap: 2px;
+    margin-bottom: 0.6rem;
+  }
+
+  .wordsearch-cell {
+    width: 22px;
+    height: 22px;
+    font-size: 0.95rem;
+    letter-spacing: 0.7px;
+    border-radius: 5px;
+  }
+
+  .wordsearch-input {
+    padding: 0.4rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    margin-top: 0.6rem;
+  }
+
+  .wordsearch-validate-btn,
+  .wordsearch-reveal-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
+
+  .wordsearch-list-box {
+    padding: 0.6rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+  }
+
+  .wordsearch-list-title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .wordsearch-list-item {
+    font-size: 0.9rem;
+    padding: 0.15rem 0;
+  }
+
+  .wordsearch-loading {
+    padding: 1.5rem;
+    font-size: 1.2rem;
+  }
+
+  .wordsearch-found {
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+  }
+}

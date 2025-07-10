@@ -166,3 +166,52 @@
     100% { transform: translateX(-20px); }
 }
 
+@media (max-width: 768px) {
+  .game-container {
+    padding: 2rem 0.5rem;
+  }
+
+  .tictactoe-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tictactoe-result {
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+  }
+
+  .game-layout {
+    gap: 1.5rem;
+  }
+
+  .criteria-top {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .criteria-left {
+    gap: 1rem;
+  }
+
+  .board {
+    grid-template-columns: repeat(3, 80px);
+    gap: 12px;
+  }
+
+  .cell {
+    padding: 1.2rem;
+    font-size: 1.4rem;
+  }
+
+  .criteria-cell {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .car-f1 {
+    width: 140px;
+    bottom: 15px;
+    right: 15px;
+  }
+}

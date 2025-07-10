@@ -146,3 +146,53 @@
 .animate__fadeIn {
   animation-name: fadeIn;
 }
+
+@media (max-width: 768px) {
+  .minigames-page {
+    padding: 2rem 0.5rem 1rem;
+  }
+
+  .minigames-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .minigames-title {
+    font-size: 2rem;
+  }
+
+  .minigames-subtitle {
+    font-size: 1rem;
+  }
+
+  .games {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 1rem;
+  }
+
+  .gameThumbnailLink {
+    width: 140px;
+    height: 220px;
+  }
+
+  .cardDiv .gameImage {
+    height: 65%;
+  }
+
+  .playLabel {
+    font-size: 12px;
+  }
+
+  .gameTitle {
+    font-size: 14px;
+  }
+
+  .text {
+    padding: 10px 0;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 2px 5px;
+  }
+}

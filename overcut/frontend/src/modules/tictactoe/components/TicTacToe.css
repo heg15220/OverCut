@@ -2,3 +2,9 @@
     padding: 4rem 1rem;
     text-align: center;
 }
+
+@media (max-width: 768px) {
+  .tictactoe-container {
+    padding: 2rem 0.5rem;
+  }
+}

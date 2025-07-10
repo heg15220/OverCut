@@ -443,3 +443,179 @@
   background-color: #264861;
   color: #ffd700;
 }
+
+@media (max-width: 768px) {
+  .grid-game-container {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .grid-game-overlay {
+    max-width: 95%;
+    padding: 1rem;
+    border-radius: 14px;
+  }
+
+  .questionsLeft {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .questionDiv {
+    width: 100%;
+    max-width: 95%;
+    height: auto;
+    padding: 8px 5px;
+    margin: 15px auto;
+  }
+
+  .generalLabel {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .extraClassButton {
+    padding: 7px 12px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  .searchPlayerInput,
+  .reveal-all-button,
+  .category-selector {
+    max-width: 100%;
+    font-size: 0.9rem;
+    padding: 9px 12px;
+    border-radius: 10px;
+  }
+
+  .reveal-all-button {
+    font-size: 1.1rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .grid-slot {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+
+  .grid-slot-position {
+    font-size: 1.2rem;
+  }
+
+  .scrollable-questions-wrapper {
+    max-height: 50vh;
+  }
+
+  .individual-question-view {
+    font-size: 13px;
+    padding: 0 0.6rem;
+  }
+
+  .questionText {
+    font-size: 0.95rem;
+    padding-right: 0.5rem;
+  }
+
+  .correctAnswer,
+  .wrongAnswer {
+    font-size: 0.9rem;
+    padding: 4px 8px;
+  }
+
+  .guessPlayerImage,
+  .card__face {
+    width: 85px;
+    height: auto;
+  }
+
+  .input-wrapper {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 500px) {
+  .grid-game-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .grid-game-overlay {
+    padding: 0.8rem;
+    border-radius: 12px;
+  }
+
+  .questionsLeft {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  .questionDiv {
+    padding: 6px 4px;
+    margin: 12px auto;
+  }
+
+  .generalLabel {
+    font-size: 11px;
+    padding: 3px 7px;
+  }
+
+  .extraClassButton {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    border-radius: 7px;
+  }
+
+  .searchPlayerInput,
+  .reveal-all-button,
+  .category-selector {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+
+  .reveal-all-button {
+    font-size: 1rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+  }
+
+  .grid-slot {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .grid-slot-position {
+    font-size: 1.1rem;
+  }
+
+  .scrollable-questions-wrapper {
+    max-height: 55vh;
+  }
+
+  .individual-question-view {
+    font-size: 12.5px;
+    padding: 0 0.5rem;
+  }
+
+  .questionText {
+    font-size: 0.9rem;
+    padding-right: 0.4rem;
+  }
+
+  .correctAnswer,
+  .wrongAnswer {
+    font-size: 0.85rem;
+    padding: 3px 7px;
+  }
+
+  .guessPlayerImage,
+  .card__face {
+    width: 75px;
+    height: auto;
+  }
+
+  .input-wrapper {
+    max-width: 100%;
+  }
+}

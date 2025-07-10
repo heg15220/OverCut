@@ -365,3 +365,185 @@
   background: linear-gradient(to right, #42a5f5, #90caf9);
 }
 
+@media (max-width: 768px) {
+  .drivers-link-container {
+    padding: 2rem 0.75rem;
+  }
+
+  .drivers-link-overlay {
+    padding: 1.5rem;
+    border-radius: 16px;
+    max-width: 95%;
+  }
+
+  .drivers-link-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .clues-row {
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .clue-block {
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    min-width: 90px;
+  }
+
+  .driver-input {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    margin-bottom: 0.7rem;
+  }
+
+  .guess-btn {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .action-buttons {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .skip-btn {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .game-result {
+    font-size: 1.5rem;
+    margin-top: 1.2rem;
+  }
+
+  .driver-reveal-card {
+    width: 100px;
+    height: 140px;
+    font-size: 2rem;
+  }
+
+  .card-question-mark {
+    font-size: 2.6rem;
+  }
+
+  .card-driver-name {
+    font-size: 1.1rem;
+    padding: 0 8px;
+  }
+
+  .driver-reveal-card-wrapper {
+    width: 120px;
+    height: 160px;
+    margin-bottom: 1.5rem;
+  }
+
+  .driver-reveal-card-face {
+    font-size: 2rem;
+    padding: 0 0.8rem;
+  }
+
+  .back-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 8px;
+    margin-top: 0.8rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .drivers-link-container {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .drivers-link-overlay {
+    padding: 1rem;
+    border-radius: 14px;
+    max-width: 100%;
+  }
+
+  .drivers-link-title {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .clues-row {
+    gap: 6px;
+    margin-bottom: 1.2rem;
+  }
+
+  .clue-block {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    min-width: 80px;
+  }
+
+  .driver-input {
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    border-radius: 7px;
+    margin-bottom: 0.6rem;
+  }
+
+  .guess-btn {
+    padding: 9px;
+    font-size: 0.95rem;
+    border-radius: 7px;
+  }
+
+  .action-buttons {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .skip-btn {
+    padding: 9px;
+    font-size: 0.95rem;
+    border-radius: 7px;
+  }
+
+  .game-result {
+    font-size: 1.4rem;
+    margin-top: 1rem;
+  }
+
+  .driver-reveal-card {
+    width: 90px;
+    height: 120px;
+    font-size: 1.8rem;
+  }
+
+  .card-question-mark {
+    font-size: 2.4rem;
+  }
+
+  .card-driver-name {
+    font-size: 1rem;
+    padding: 0 6px;
+  }
+
+  .driver-reveal-card-wrapper {
+    width: 100px;
+    height: 140px;
+    margin-bottom: 1.2rem;
+  }
+
+  .driver-reveal-card-face {
+    font-size: 1.8rem;
+    padding: 0 0.6rem;
+  }
+
+  .back-btn {
+    padding: 9px 18px;
+    font-size: 0.95rem;
+    border-radius: 7px;
+    margin-top: 0.6rem;
+  }
+}
+

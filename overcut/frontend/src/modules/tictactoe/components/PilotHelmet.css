@@ -47,3 +47,35 @@
 .helmet-o .helmet-image {
   transform: scale(1.14); /* Puedes ajustar 1.05 o 1.15 según lo necesites */
 }
+
+@media (max-width: 768px) {
+  .pilot-helmet {
+    gap: 4px;
+  }
+
+  .helmet-image {
+    max-width: 48px;
+    width: 75%;
+  }
+
+  .pilot-name {
+    font-size: 0.8rem;
+    letter-spacing: 0.4px;
+  }
+}
+
+@media (max-width: 500px) {
+  .pilot-helmet {
+    gap: 3px;
+  }
+
+  .helmet-image {
+    max-width: 40px;
+    width: 70%;
+  }
+
+  .pilot-name {
+    font-size: 0.75rem;
+    letter-spacing: 0.35px;
+  }
+}

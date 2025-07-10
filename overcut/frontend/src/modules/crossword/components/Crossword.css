@@ -5,3 +5,16 @@
   min-height: 100vh;
   padding-top: 2rem;
 }
+
+@media (max-width: 768px) {
+  .crossword-background {
+    padding-top: 1rem;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 500px) {
+  .crossword-background {
+    padding-top: 0.5rem;
+  }
+}

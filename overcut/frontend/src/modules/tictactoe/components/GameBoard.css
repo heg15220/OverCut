@@ -311,3 +311,166 @@
   font-size: 1.1rem;
 }
 
+@media (max-width: 768px) {
+  .game-container {
+    padding: 2rem 0.5rem;
+  }
+
+  .game-header {
+    margin-top: -1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .turn-indicator {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .turn-indicator button {
+    padding: 5px 12px;
+    font-size: 0.9rem;
+    margin-left: 0;
+  }
+
+  .game-grid-wrapper {
+    margin-top: 1rem;
+  }
+
+  .game-layout-grid {
+    grid-template-columns: repeat(4, 85px);
+    grid-template-rows: repeat(4, 85px);
+    gap: 12px;
+    margin-top: 1.5rem;
+  }
+
+  .empty-cell {
+    width: 85px;
+    height: 85px;
+  }
+
+  .cell {
+    width: 85px;
+    height: 85px;
+    font-size: 1.2rem;
+  }
+
+  .criteria-top {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .criteria-left {
+    gap: 1rem;
+  }
+
+  .criteria-cell {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.75rem;
+  }
+
+  .car-f1 {
+    width: 130px;
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .pilot-input-panel {
+    width: 95%;
+    padding: 1rem 0.75rem;
+  }
+
+  .pilot-input-content {
+    max-width: 100%;
+  }
+
+  .board-frame {
+    padding: 20px;
+  }
+
+  .logo-cell {
+    width: 85px;
+    height: 85px;
+    transform: scale(1.1);
+  }
+
+  .f1-car-logo {
+    width: 110px;
+    height: 65px;
+  }
+
+  .bot-info {
+    font-size: 0.85rem;
+    gap: 4px;
+  }
+
+  .bot-info::before {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .game-layout-grid {
+    grid-template-columns: repeat(4, 70px);
+    grid-template-rows: repeat(4, 70px);
+    gap: 8px;
+    margin-top: 1rem;
+  }
+
+  .empty-cell {
+    width: 70px;
+    height: 70px;
+  }
+
+  .cell {
+    width: 70px;
+    height: 70px;
+    font-size: 1rem;
+  }
+
+  .criteria-top,
+  .criteria-left {
+    gap: 0.8rem;
+  }
+
+  .logo-cell {
+    width: 70px;
+    height: 70px;
+    transform: scale(1);
+  }
+
+  .pilot-input-panel {
+    padding: 0.8rem 0.5rem;
+  }
+
+  .pilot-input-content {
+    max-width: 100%;
+  }
+
+  .board-frame {
+    padding: 16px;
+  }
+
+  .turn-indicator {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .turn-indicator button {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+  }
+
+  .car-f1 {
+    width: 100px;
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .f1-car-logo {
+    width: 90px;
+    height: 55px;
+  }
+}

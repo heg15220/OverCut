@@ -681,3 +681,289 @@
   pointer-events: none;
   user-select: none;
 }
+
+@media (max-width: 768px) {
+  .grid-game-body {
+    padding-top: 2rem;
+  }
+
+  .grid-game-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.8rem;
+    padding: 1rem;
+  }
+
+  .grid-slot {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.95rem;
+    min-width: 240px;
+    max-width: 100%;
+  }
+
+  .grid-slot-position {
+    font-size: 1rem;
+    margin-right: 0.6rem;
+  }
+
+  .grid-slot-flag {
+    width: 24px;
+    height: 16px;
+    margin-right: 0.3rem;
+  }
+
+  .grid-slot-name {
+    font-size: 0.95rem;
+  }
+
+  .grid-game-title {
+    top: 1.5rem;
+    font-size: 2rem;
+    padding: 0.4rem 1rem;
+  }
+
+  .grid-game-overlay {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .completed-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  .game-completed-content {
+    font-size: 1.6rem;
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .autosuggest-input {
+    padding: 0.4rem;
+    margin-top: 0.4rem;
+  }
+
+  .suggestion-list {
+    max-height: 180px;
+  }
+
+  .suggestion-list li {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .car-image.colorized {
+    max-height: 40px;
+  }
+
+  .reveal-all-button {
+    font-size: 1.2rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0 10px 10px 0;
+  }
+
+  .searchPlayerInput {
+    width: 90%;
+    font-size: 0.95rem;
+    padding: 8px 12px;
+    border-radius: 10px 0 0 10px;
+  }
+
+  .input-suggestion-wrapper {
+    width: 90%;
+  }
+
+  .revealed-name-under {
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .revealed-name-under.user-success,
+  .revealed-name-under.system-reveal {
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+  }
+
+  .reveal-icon {
+    font-size: 1.8rem;
+    top: 16px;
+  }
+
+  .helmet-image {
+    width: 120px;
+  }
+
+  .helmet-reveal-container {
+    width: 160px;
+    height: 160px;
+  }
+
+  .card-container {
+    width: 160px;
+  }
+
+  .revealed-name {
+    font-size: 1.2rem;
+  }
+
+  .back-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    margin: 1rem auto;
+  }
+
+  .completed-buttons {
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .grid-game-body {
+    padding-top: 1.5rem;
+  }
+
+  .grid-game-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.6rem;
+    padding: 0.8rem;
+  }
+
+  .grid-slot {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    min-width: 200px;
+  }
+
+  .grid-slot-position {
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+  }
+
+  .grid-slot-flag {
+    width: 20px;
+    height: 14px;
+    margin-right: 0.25rem;
+  }
+
+  .grid-slot-name {
+    font-size: 0.9rem;
+  }
+
+  .grid-game-title {
+    top: 1.2rem;
+    font-size: 1.8rem;
+    padding: 0.3rem 0.8rem;
+  }
+
+  .grid-game-overlay {
+    padding: 0.8rem;
+    border-radius: 10px;
+  }
+
+  .completed-btn {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
+    border-radius: 7px;
+  }
+
+  .game-completed-content {
+    font-size: 1.4rem;
+    padding: 1.2rem;
+    border-radius: 14px;
+  }
+
+  .autosuggest-input {
+    padding: 0.35rem;
+    margin-top: 0.35rem;
+  }
+
+  .suggestion-list {
+    max-height: 160px;
+  }
+
+  .suggestion-list li {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .car-image.colorized {
+    max-height: 35px;
+  }
+
+  .reveal-all-button {
+    font-size: 1.1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .searchPlayerInput {
+    width: 95%;
+    font-size: 0.9rem;
+    padding: 7px 10px;
+    border-radius: 8px 0 0 8px;
+  }
+
+  .input-suggestion-wrapper {
+    width: 95%;
+  }
+
+  .revealed-name-under {
+    font-size: 1.1rem;
+    padding: 0.45rem 0.9rem;
+  }
+
+  .revealed-name-under.user-success,
+  .revealed-name-under.system-reveal {
+    font-size: 1.1rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 9px;
+  }
+
+  .reveal-icon {
+    font-size: 1.6rem;
+    top: 14px;
+  }
+
+  .helmet-image {
+    width: 100px;
+  }
+
+  .helmet-reveal-container {
+    width: 140px;
+    height: 140px;
+  }
+
+  .card-container {
+    width: 140px;
+  }
+
+  .revealed-name {
+    font-size: 1.1rem;
+  }
+
+  .back-button {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
+    margin: 0.8rem auto;
+  }
+
+  .completed-buttons {
+    gap: 0.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-game-body {
+    background: linear-gradient(to bottom, #0a1a2f 0%, #050f1e 100%);
+    padding-top: 2rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .grid-game-body {
+    background: linear-gradient(to bottom, #0a1a2f 0%, #050f1e 100%);
+    padding-top: 1.5rem;
+  }
+}

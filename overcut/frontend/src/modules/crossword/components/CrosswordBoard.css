@@ -23,3 +23,40 @@
   font-size: 1rem;
   margin-bottom: 2rem;
 }
+
+@media (max-width: 768px) {
+  .crossword-container {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .crossword-title {
+    font-size: 1.6rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .crossword-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .crossword-container {
+    margin-top: 0.8rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .crossword-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .crossword-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1.2rem;
+  }
+}
+

@@ -268,3 +268,153 @@
   transform: scale(1.05);
   background: linear-gradient(to right, #42a5f5, #90caf9);
 }
+
+@media (max-width: 768px) {
+  .team-guess-container {
+    padding: 2rem 0.75rem;
+  }
+
+  .team-guess-overlay {
+    padding: 1.5rem;
+    border-radius: 16px;
+    max-width: 95%;
+  }
+
+  .team-guess-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .clues-row {
+    gap: 8px;
+    margin-bottom: 1.2rem;
+  }
+
+  .clue-block {
+    padding: 0.55rem 0.9rem;
+    font-size: 0.9rem;
+    border-radius: 9px;
+    min-width: 85px;
+  }
+
+  .team-input {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    border-radius: 9px;
+    margin-bottom: 0.7rem;
+  }
+
+  .guess-btn {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 9px;
+    margin-top: 0.4rem;
+  }
+
+  .game-result {
+    font-size: 1.5rem;
+    margin-top: 1.2rem;
+  }
+
+  .team-logo {
+    width: 80px;
+    margin-bottom: 0.8rem;
+  }
+
+  .team-reveal-card-wrapper {
+    width: 120px;
+    height: 160px;
+    margin-bottom: 1.5rem;
+  }
+
+  .team-reveal-card-face.front {
+    font-size: 2.5rem;
+  }
+
+  .team-name-reveal {
+    font-size: 0.95rem;
+    margin-top: 0.6rem;
+  }
+
+  .back-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 9px;
+    margin-top: 0.8rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .team-guess-container {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .team-guess-overlay {
+    padding: 1rem;
+    border-radius: 14px;
+    max-width: 100%;
+  }
+
+  .team-guess-title {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .clues-row {
+    gap: 6px;
+    margin-bottom: 1rem;
+  }
+
+  .clue-block {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    min-width: 80px;
+  }
+
+  .team-input {
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
+  }
+
+  .guess-btn {
+    padding: 9px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    margin-top: 0.3rem;
+  }
+
+  .game-result {
+    font-size: 1.4rem;
+    margin-top: 1rem;
+  }
+
+  .team-logo {
+    width: 70px;
+    margin-bottom: 0.6rem;
+  }
+
+  .team-reveal-card-wrapper {
+    width: 100px;
+    height: 140px;
+    margin-bottom: 1.2rem;
+  }
+
+  .team-reveal-card-face.front {
+    font-size: 2.2rem;
+  }
+
+  .team-name-reveal {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  .back-btn {
+    padding: 9px 18px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    margin-top: 0.6rem;
+  }
+}
