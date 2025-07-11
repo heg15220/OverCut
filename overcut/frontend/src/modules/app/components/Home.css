@@ -1,0 +1,57 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 2vh;
+  width: 100%;
+  border: none;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.home-button-wrapper {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.home-refresh-button {
+  background-color: #ffcc00;
+  color: #111;
+  font-weight: bold;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.home-refresh-button:hover {
+  background-color: #e6b800;
+}
+
+.home-postlist-wrapper {
+  width: 100%;
+  border: none;
+}
+
+@media (max-width: 798px) {
+  .home-container {
+    padding: 1rem;
+  }
+
+  .home-refresh-button {
+    font-size: 0.95rem;
+    padding: 0.6rem 1.2rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .home-container {
+    padding: 0.5rem;
+  }
+
+  .home-refresh-button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+}

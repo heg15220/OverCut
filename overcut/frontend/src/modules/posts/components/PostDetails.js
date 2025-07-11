@@ -155,16 +155,22 @@ const PostDetails = () => {
                         </Typography>
 
                         <CardMedia
-                            component="img"
-                            image={srcImage}
-                            alt="Post Image"
-                            sx={{
-                                maxHeight: '500px',
-                                maxWidth: '60%',
-                                objectFit: 'cover',
-                                marginTop: 2,
-                            }}
+                          component="img"
+                          image={srcImage}
+                          alt="Post Image"
+                          sx={{
+                            maxHeight: '500px',
+                            maxWidth: {
+                              xs: '95%',   // <600px (mobile)
+                              sm: '85%',   // ≥600px
+                              md: '75%',   // ≥900px
+                              lg: '60%'    // ≥1200px
+                            },
+                            objectFit: 'cover',
+                            marginTop: 2,
+                          }}
                         />
+
                         {post.imageCaption && (
                           <Typography variant="caption" sx={{ fontStyle: 'italic', display: 'block', mt: 1 }}>
                             <FormattedMessage id="post.caption.mainImage" defaultMessage="Caption:" /> {post.imageCaption}

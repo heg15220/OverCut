@@ -1,0 +1,41 @@
+.all-post-container {
+  padding: 2rem;
+  margin: auto;
+  max-width: 1600px;
+  box-sizing: border-box;
+}
+
+.all-post-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.all-post-form {
+  width: 100%;
+}
+
+.all-post-grid .MuiFormControl-root,
+.all-post-grid .MuiTextField-root {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .all-post-container {
+    padding: 1rem;
+  }
+
+  .all-post-grid .MuiInputBase-input {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .all-post-container {
+    padding: 0.5rem;
+  }
+
+  .all-post-grid .MuiInputBase-input {
+    font-size: 0.9rem;
+  }
+}

@@ -1,36 +1,83 @@
 .post-section-image {
   display: block;
-  margin: 1rem 0; /* antes: auto → ahora margen solo arriba y abajo */
+  margin: 1rem auto;
   border-radius: 6px;
   box-shadow: 0 0 4px rgba(255, 204, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
   height: auto;
 }
 
-/* Mobile */
-@media (max-width: 600px) {
+/* Tablet responsive */
+@media (max-width: 798px) {
+  .post-section-image {
+    max-width: 90%;
+  }
+
+  .post-section-title {
+    font-size: 1.25rem;
+    padding-left: 0.5rem;
+  }
+
+  .post-section-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .image-caption,
+  .tweet-caption {
+    font-size: 0.9rem;
+  }
+
+  .tweet-container {
+    transform: scale(0.92);
+    max-width: 95%;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 500px) {
   .post-section-image {
     max-width: 85%;
+  }
+
+  .post-section-title {
+    font-size: 1.1rem;
+    padding-left: 0.4rem;
+  }
+
+  .post-section-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .image-caption,
+  .tweet-caption {
+    font-size: 0.85rem;
+  }
+
+  .tweet-container {
+    transform: scale(0.88);
+    max-width: 100%;
   }
 }
 
 .tweet-container {
   transform: scale(0.9);
-  transform-origin: top left; /* antes era center */
+  transform-origin: top left;
   max-width: 420px;
-  margin: 1rem 0; /* quita centrado horizontal */
+  margin: 1rem 0;
   overflow: hidden;
-  text-align: left; /* asegura alineación del contenido */
-}
-
-.twitter-tweet {
-  margin: 0; /* elimina auto centrado */
   text-align: left;
 }
 
+.twitter-tweet {
+  margin: 0;
+  text-align: left;
+}
 
-.image-caption, .tweet-caption {
+.image-caption,
+.tweet-caption {
   font-style: italic;
   font-size: 0.95rem;
   color: #666;

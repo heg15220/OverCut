@@ -67,7 +67,8 @@ module.exports = (env, argv) => {
       port: 8083,
       hot: !isProduction,
       historyApiFallback: true,
-      open: true // ← 🔥 ESTO hace que abra el navegador automáticamente
+      open: true, // ← 🔥 ESTO hace que abra el navegador automáticamente
+      allowedHosts: 'all',
     },
     mode: isProduction ? 'production' : 'development',
   };
