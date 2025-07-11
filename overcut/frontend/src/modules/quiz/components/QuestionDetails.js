@@ -11,15 +11,14 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import './quizStyles.css';
 
-/* Hook para detectar tamaño de ventana */
-const useWindowWidth = () => {
-  const [width, setWidth] = useState(window.innerWidth);
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
   }, []);
-  return width;
+  return isMobile;
 };
 
 const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTotalScore, score, totalScore }) => {
@@ -32,11 +31,9 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
   const [timeLeft, setTimeLeft] = useState(60);
   const timerRef = useRef(null);
   const [answered, setAnswered] = useState(false);
+  const isMobile = useIsMobile();
+
   const lang = navigator.language.startsWith("es") ? "es" : "en";
-
-  const windowWidth = useWindowWidth();
-  const isMobile = windowWidth < 768;
-
   const t = {
     es: {
       correctAnswer: "La respuesta correcta era:",
@@ -59,9 +56,7 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
   useEffect(() => {
     setTimeLeft(60);
     setAnswered(false);
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
+    timerRef.current = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     return () => clearInterval(timerRef.current);
   }, [question]);
 
@@ -115,12 +110,7 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
       <Typography
         variant="h4"
         className="question-title"
-        sx={{
-          whiteSpace: 'pre-line',
-          wordBreak: 'break-word',
-          maxWidth: '100%',
-          fontSize: { xs: '1.3rem', sm: '1.6rem', md: '2rem' }
-        }}
+        sx={{ whiteSpace: 'pre-line', wordBreak: 'break-word', maxWidth: '100%', fontSize: { xs: '1.3rem', sm: '1.6rem', md: '2rem' } }}
       >
         {question.name}
       </Typography>
@@ -150,8 +140,8 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
           animate={{ scale: 1 }}
           transition={{ duration: 0.5 }}
           style={{
-            width: isMobile ? 30 : 80,
-            height: isMobile ? 20 : 80,
+            width: isMobile ? 60 : 80,
+            height: isMobile ? 60 : 80,
             borderRadius: '50%',
             border: isMobile ? '4px solid #ffcc00' : '5px solid #ffcc00',
             display: 'flex',
@@ -168,6 +158,7 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
           {timeLeft}s
         </motion.div>
 
+        {/* Contenedor de animaciones */}
         {(answered || scoreEffect) && (
           <Box
             sx={{
@@ -181,7 +172,6 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
               position: 'relative',
             }}
           >
-            {/* Respuesta correcta */}
             {answered && scoreEffect === '-0' && (
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
@@ -190,7 +180,7 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
                 style={{
                   fontWeight: 'bold',
                   color: '#ffcc00',
-                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  fontSize: isMobile ? '0.6rem' : '1rem',
                   backgroundColor: 'rgba(0,0,0,0.7)',
                   padding: isMobile ? '8px 12px' : '10px 14px',
                   borderRadius: '12px',
@@ -206,7 +196,6 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
 
             <div style={{ flex: 1 }}></div>
 
-            {/* Puntos obtenidos */}
             {scoreEffect && (
               <motion.div
                 key={scoreEffect}
@@ -239,12 +228,17 @@ const QuestionDetails = ({ question, onAnswerSubmit, quizType, setScore, setTota
           const isCorrect = responseState[answer.id]?.isCorrect;
 
           return (
-            <Grid item xs={6} sm={6} md={6} key={answer.id}>
+            <Grid item xs={12} md={6} key={answer.id}>
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleSelectAnswer(answer)}
                 className={`custom-answer-btn ${selected ? (isCorrect ? 'correct' : 'incorrect') : ''}`}
+                style={{
+                  padding: isMobile ? '0.8rem 1rem' : '1rem 1.5rem',
+                  fontSize: isMobile ? '0.8rem' : '1.1rem',
+                  borderRadius: isMobile ? '10px' : '14px'
+                }}
               >
                 <span className="answer-text">{answer.name}</span>
                 {selected && (

@@ -166,7 +166,7 @@ const WordSearchGame = () => {
     <div className="wordsearch-container" onMouseLeave={handleMouseUp}>
       <h2 className="wordsearch-title">{t("title")}</h2>
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem' }}>
+      <div className="wordsearch-main-layout">
         <div>
           <div
             className="wordsearch-grid"

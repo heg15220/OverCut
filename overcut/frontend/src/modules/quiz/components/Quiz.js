@@ -13,17 +13,6 @@ import { getCooldownForGame } from "../../cooldown/selectors";
 import { getUser } from "../../users/selectors";
 import QuizLoadingScreen from '../../common/components/QuizLoadingScreen';
 
-const useWindowWidth = () => {
-  const [width, setWidth] = useState(window.innerWidth);
-  useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  return width;
-};
-
-
 const backgroundImages = [
     './f1-2013-11-bel-parrilla-trasera.png',
     './salida-gp-bahrein-2024-f1.png',
@@ -42,9 +31,6 @@ const Quiz = () => {
     const { canPlay, secondsRemaining, loading: cooldownLoading  } = useSelector(state =>
       getCooldownForGame(state, "Quiz")
     );
-
-    const windowWidth = useWindowWidth();
-    const isMobile = windowWidth < 768;
 
 
 
@@ -166,27 +152,25 @@ const Quiz = () => {
                     </motion.div>
                 ) : (
                     <motion.div
-                      key="intro"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 1 }}
-                      className={`intro-card ${isMobile ? 'intro-card-mobile' : ''}`}
+                        key="intro"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1 }}
+                        className="intro-card"
                     >
-                      <h1 className={`question-title ${isMobile ? 'question-title-mobile' : ''}`}>
-                        <FormattedMessage id="quiz.intro.title" />
-                      </h1>
-                      <p className={`intro-subtitle ${isMobile ? 'intro-subtitle-mobile' : ''}`}>
-                        <FormattedMessage id="quiz.intro.subtitle" />
-                      </p>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`quiz-answer-btn ${isMobile ? 'quiz-answer-btn-mobile' : ''}`}
-                        onClick={handleStart}
-                      >
-                        <FormattedMessage id="quiz.intro.play" />
-                      </motion.button>
+                        <h1 className="question-title"><FormattedMessage id="quiz.intro.title" /></h1>
+                        <p style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '2rem' }}>
+                            <FormattedMessage id="quiz.intro.subtitle" />
+                        </p>
+                        <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="quiz-answer-btn"
+                            onClick={handleStart}
+                        >
+                            <FormattedMessage id="quiz.intro.play" />
+                        </motion.button>
                     </motion.div>
                 )}
             </div>

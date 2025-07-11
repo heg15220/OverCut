@@ -261,7 +261,7 @@
   }
 
   .top10-game-body {
-    background: linear-gradient(135deg, #0c0f1a, #1a2238);
+    background: linear-gradient(to bottom, #0a1a2f, #050f1e);
     padding-top: 2rem;
   }
 
@@ -354,7 +354,7 @@
   }
 
   .top10-game-body {
-    background: linear-gradient(135deg, #0c0f1a, #1a2238);
+    background: linear-gradient(to bottom, #0a1a2f, #050f1e);
     padding-top: 1.5rem;
   }
 

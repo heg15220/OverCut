@@ -26,6 +26,7 @@ import MinigamesHome from "../../tictactoe/components/MinigamesHome";
 import TicTacToe from "../../tictactoe/components/TicTacToe";
 import TicTacToeGame from "../../tictactoe/components/TicTacToeGame";
 import GridGamePage from "../../gridgame/components/GridGamePage";
+import QuizWrapper from "../../quiz/components/Quiz";
 
 import Crossword from "../../crossword/components/Crossword";
 
@@ -104,7 +105,7 @@ const Body = () => {
                     {loggedIn && <Route path="/post/my" element={<UserPostList/>}/>}
                     {loggedIn && <Route path="/posts/:id" element={<PostSectionModifier/>}/>}
                     {loggedIn && <Route path="/posts/:id/add-image" element={<AddImage/>}/>}
-                    {loggedIn && <Route path="/category/2" element={<Quiz />} />}
+                    {loggedIn && <Route path="/category/2" element={<QuizWrapper />} />}
                     {loggedIn && <Route path="/quiz/quiz-list/:id" element={<QuizList />} />}
                     {loggedIn && <Route path="/question/question-details/:id" element={<QuestionDetails />} />}
                     {loggedIn && <Route path="/user/awards-user" element={<AwardsList />} />}

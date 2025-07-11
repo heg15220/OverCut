@@ -29,27 +29,3 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
-@media (max-width: 768px) {
-  .quiz-container {
-    padding: 1rem 0.5rem;
-    min-height: auto;
-    flex-direction: column;
-  }
-
-  .quiz-content {
-    padding: 1rem 0.5rem;
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 500px) {
-  .quiz-container {
-    padding: 0.8rem 0.4rem;
-  }
-
-  .quiz-content {
-    padding: 0.8rem 0.4rem;
-    max-width: 100%;
-  }
-}

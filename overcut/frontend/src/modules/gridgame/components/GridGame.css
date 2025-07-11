@@ -287,7 +287,7 @@
 
 @media (max-width: 600px) {
   .grid-ranking-container {
-    background-color: #000000; /* Fondo negro sólido */
+    background: linear-gradient(to bottom, #0a1a2f 0%, #050f1e 100%);
     padding: 2rem;
     border-radius: 16px;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
@@ -824,6 +824,7 @@
     padding-top: 1.5rem;
   }
 
+
   .grid-game-grid {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 0.6rem;
@@ -970,6 +971,10 @@
 
 /* ✅ Mobile grid replacement for GridGame */
 @media (max-width: 767px) {
+  .grid-game-container {
+    background-color : linear-gradient(to bottom, #0a1a2f 0%, #050f1e 100%);
+  }
+
   .grid-columns {
     display: none !important;
   }
