@@ -3,9 +3,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { sourceImages } from '../../../helpers/sourceImages';
 import './quizStyles.css';
 
+const useWindowWidth = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return width;
+};
+
+
+
 const QuizIntroTypeCategory = ({ quizType, quizCategory, onContinue }) => {
     const backgroundImage = quizType?.imagePath ? sourceImages(`./${quizType.imagePath}`) : '';
     const [showCar, setShowCar] = useState(false);
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768;
 
 
 
@@ -63,7 +77,7 @@ const QuizIntroTypeCategory = ({ quizType, quizCategory, onContinue }) => {
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 1, ease: 'easeOut' }}
                         style={{
-                            fontSize: '3.5rem',
+                            fontSize: isMobile ? '2rem' : '3.5rem',
                             color: '#ffcc00',
                             marginBottom: '1.2rem',
                             textShadow: '3px 3px 6px rgba(0,0,0,0.8)',
@@ -80,7 +94,7 @@ const QuizIntroTypeCategory = ({ quizType, quizCategory, onContinue }) => {
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 1, delay: 0.4, ease: 'easeOut' }}
                         style={{
-                            fontSize: '2.5rem',
+                            fontSize: isMobile ? '1.5rem' : '2.5rem',
                             color: '#ffffff',
                             marginBottom: '2rem',
                             textShadow: '2px 2px 4px rgba(0,0,0,0.7)',

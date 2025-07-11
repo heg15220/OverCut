@@ -27,7 +27,6 @@
     z-index: 3;
 }
 
-
 .question-title {
     font-size: 2.2rem;
     font-weight: 700;
@@ -41,7 +40,6 @@
     padding: 0 1rem;
     box-sizing: border-box;
 }
-
 
 .question-image {
     width: 60%;
@@ -66,9 +64,6 @@
     pointer-events: none;
     filter: brightness(2.20) contrast(1.15);
 }
-
-
-
 
 .quiz-answer-btn {
     font-family: 'Orbitron', sans-serif;
@@ -123,6 +118,7 @@
     50% { transform: translateX(5px); }
     75% { transform: translateX(-5px); }
 }
+
 .loading-spinner {
     display: flex;
     flex-direction: column;
@@ -139,6 +135,7 @@
     border-radius: 50%;
     margin-top: 2rem;
 }
+
 .custom-answer-btn {
     width: 100%;
     padding: 1rem 1.5rem;
@@ -190,107 +187,35 @@
     padding: 2rem;
 }
 
-.f1-car {
-    position: absolute;
-    bottom: 40px;
-    left: 0;
-    height: 80px;
-    z-index: 6;
-    pointer-events: none;
-}
-
-.f1-car-trail {
-    position: absolute;
-    bottom: 55px;
-    left: 0;
-    width: 200px;
-    height: 20px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.4), transparent);
-    filter: blur(10px);
-    z-index: 5;
-    pointer-events: none;
-    border-radius: 10px;
-}
-
-.f1-car-wrapper {
-    position: absolute;
-    bottom: 50px;
-    left: 10vw;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    z-index: 10;
-}
-
-.f1-car-static {
-    height: 80px;
-    pointer-events: none;
-    z-index: 11;
-}
-
-/* Ruedas animadas */
-.wheel {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: radial-gradient(#444, #000);
-    box-shadow: inset 0 0 4px #000;
-    animation: spin 1.2s linear infinite;
-    z-index: 9;
-}
-
-.wheel-left {
-    position: absolute;
-    left: 20px;
-    bottom: 5px;
-}
-
-.wheel-right {
-    position: absolute;
-    left: 80px;
-    bottom: 5px;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-}
-
-.loading-text {
-    position: absolute;
-    bottom: -25px;
-    left: 0;
-    width: 200px;
-    font-size: 1.2rem;
-    color: white;
-    text-shadow: 1px 1px 4px black;
-    font-weight: 500;
-}
+/* --- Responsive --- */
 
 @media (max-width: 768px) {
   .quiz-container {
     padding: 1rem;
-    min-height: 100vh;
     flex-direction: column;
   }
 
   .quiz-content {
     padding: 2rem 1rem;
-    max-width: 95%;
+    max-width: 100%;
   }
 
   .question-title {
-    font-size: 1.8rem;
-    margin-bottom: 1.2rem;
+    font-size: 1.7rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
   }
 
   .question-image {
-    width: 95%;
+    width: 90%;
+    max-width: 400px;
+    height: auto;
   }
 
   .quiz-answer-btn,
   .custom-answer-btn {
-    padding: 0.8rem 1rem;
+    width: 100%;
+    padding: 0.9rem 1rem;
     font-size: 1rem;
     border-radius: 10px;
   }
@@ -305,6 +230,10 @@
     margin-top: 1.5rem;
   }
 
+  .intro-card {
+    padding: 1.5rem;
+  }
+
   .loading-spinner {
     min-height: 150px;
   }
@@ -315,36 +244,6 @@
     border-width: 6px;
     margin-top: 1.5rem;
   }
-
-  .loading-text {
-    font-size: 1rem;
-    width: 160px;
-  }
-
-  .intro-card {
-    padding: 1rem;
-  }
-
-  .f1-car {
-    height: 60px;
-    bottom: 30px;
-  }
-
-  .f1-car-trail {
-    width: 150px;
-    height: 16px;
-    bottom: 45px;
-  }
-
-  .f1-car-wrapper {
-    bottom: 40px;
-    gap: 8px;
-  }
-
-  .wheel {
-    width: 16px;
-    height: 16px;
-  }
 }
 
 @media (max-width: 500px) {
@@ -353,21 +252,25 @@
   }
 
   .quiz-content {
-    padding: 1.5rem 0.8rem;
-    max-width: 100%;
+    padding: 1.2rem 0.8rem;
   }
 
   .question-title {
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
   }
 
   .question-image {
     width: 100%;
+    max-width: 320px;
+    height: auto;
+    border-radius: 8px;
   }
 
   .quiz-answer-btn,
   .custom-answer-btn {
+    width: 100%;
     padding: 0.7rem 0.9rem;
     font-size: 0.95rem;
     border-radius: 8px;
@@ -383,6 +286,10 @@
     margin-top: 1.2rem;
   }
 
+  .intro-card {
+    padding: 1rem;
+  }
+
   .loading-spinner {
     min-height: 130px;
   }
@@ -393,34 +300,190 @@
     border-width: 5px;
     margin-top: 1.2rem;
   }
+}
 
-  .loading-text {
-    font-size: 0.95rem;
-    width: 140px;
+/* ---------------------------------------------
+✅ MOBILE OPTIMIZED LAYOUT (max-width: 767px)
+---------------------------------------------- */
+@media (max-width: 767px) {
+  .quiz-container {
+    padding: 1rem;
+    flex-direction: column;
+  }
+
+  .quiz-content {
+    padding: 2rem 1rem;
+    max-width: 100%;
+  }
+
+  .question-title {
+    font-size: 1.7rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+
+  .question-image {
+    width: 90%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+  }
+
+  .quiz-answer-btn,
+  .custom-answer-btn {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+
+  .answer-icon {
+    font-size: 1.3rem;
+    margin-left: 6px;
+  }
+
+  .score-popup {
+    font-size: 1.6rem;
+    margin-top: 1.5rem;
   }
 
   .intro-card {
+    padding: 1.5rem;
+  }
+
+  .loading-spinner {
+    min-height: 150px;
+  }
+
+  .spinner-wheel {
+    width: 60px;
+    height: 60px;
+    border-width: 6px;
+    margin-top: 1.5rem;
+  }
+}
+
+/* ---------------------------------------------
+✅ SMALL MOBILE OPTIMIZED LAYOUT (max-width: 500px)
+---------------------------------------------- */
+@media (max-width: 500px) {
+  .quiz-container {
     padding: 0.8rem;
   }
 
-  .f1-car {
+  .quiz-content {
+    padding: 1.2rem 0.8rem;
+  }
+
+  .question-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .question-image {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .quiz-answer-btn,
+  .custom-answer-btn {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  .answer-icon {
+    font-size: 1.2rem;
+    margin-left: 5px;
+  }
+
+  .score-popup {
+    font-size: 1.4rem;
+    margin-top: 1.2rem;
+  }
+
+  .intro-card {
+    padding: 1rem;
+  }
+
+  .loading-spinner {
+    min-height: 130px;
+  }
+
+  .spinner-wheel {
+    width: 50px;
     height: 50px;
-    bottom: 25px;
+    border-width: 5px;
+    margin-top: 1.2rem;
+  }
+}
+
+/* ✅ Mobile overrides for intro page */
+
+@media (max-width: 767px) {
+  .intro-card-mobile {
+    padding: 1rem;
   }
 
-  .f1-car-trail {
-    width: 120px;
-    height: 14px;
-    bottom: 38px;
+  .question-title-mobile {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
   }
 
-  .f1-car-wrapper {
-    bottom: 35px;
-    gap: 6px;
+  .intro-subtitle-mobile {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
   }
 
-  .wheel {
-    width: 14px;
-    height: 14px;
+  .quiz-answer-btn-mobile {
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    width: 100%;
+  }
+}
+
+/* ✅ Ajustes específicos para el cronómetro y score-effect en móvil */
+@media (max-width: 768px) {
+  .question-box .timer-circle {
+    width: 60px;
+    height: 60px;
+    font-size: 1.2rem;
+    border-width: 4px;
+  }
+
+  .score-effect {
+    font-size: 1.1rem;
+    padding: 8px 14px;
+  }
+
+  .correct-answer-box {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 500px) {
+  .question-box .timer-circle {
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+    border-width: 3px;
+  }
+
+  .score-effect {
+    font-size: 1rem;
+    padding: 7px 12px;
+  }
+
+  .correct-answer-box {
+    font-size: 0.85rem;
+    padding: 7px 10px;
   }
 }

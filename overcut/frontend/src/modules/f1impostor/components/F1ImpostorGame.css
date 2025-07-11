@@ -117,144 +117,126 @@
 }
 
 
+@media (max-width: 500px) {
+  .f1impostor-title {
+    font-size: 2rem;
+  }
 
-@media (max-width: 768px) {
+  .f1impostor-subtitle {
+    font-size: 1rem;
+  }
+
+  .pilot-name {
+    font-size: 0.95rem;
+  }
+
+  .result-icon {
+    font-size: 1.1rem;
+  }
+
+  .f1impostor-validate-btn {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .f1impostor-result {
+    font-size: 1.2rem;
+  }
+}
+
+/* En móvil (<768px): ocultar el rondo y mostrar el grid adaptado */
+@media (max-width: 767px) {
+  /* Mobile container tweaks (optional, can be skipped if you want) */
   .f1impostor-container {
     padding: 1.5rem 1rem;
   }
 
   .f1impostor-title {
     font-size: 2.2rem;
-    margin-bottom: 0.4rem;
-    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    color: #b71c1c; /* rojo oscuro */
+    text-shadow: 0 0 4px rgba(183, 28, 28, 0.2); /* sombra mucho más tenue */
+    text-transform: uppercase;
   }
 
+  /* Mobile grid layout */
   .f1impostor-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 0.8rem;
-    margin-top: 1.5rem;
-  }
-
-  .f1impostor-card {
-    padding: 0.8rem;
-    border-radius: 10px;
-    font-size: 0.95rem;
-  }
-
-  .f1impostor-validate-btn {
-    margin-top: 1.5rem;
-    padding: 0.7rem 1.2rem;
-    font-size: 0.95rem;
-    border-radius: 8px;
-  }
-
-  .f1impostor-result {
-    margin-top: 1.5rem;
-    font-size: 1.3rem;
-  }
-
-  .f1impostor-loading {
-    padding: 3rem 1rem;
-  }
-
-  .f1impostor-rondo {
-    width: 22rem;
-    height: 22rem;
-    margin: 2rem auto;
-  }
-
-  .f1impostor-card {
-    width: 100px;
-    height: 50px;
-  }
-
-  .center-button {
-    padding: 0.8rem 1.2rem;
-    font-size: 0.95rem;
-    border-radius: 40px;
-  }
-}
-
-@media (max-width: 500px) {
-  .f1impostor-container {
-    padding: 1rem 0.5rem;
-  }
-
-  .f1impostor-title {
-    font-size: 1.8rem;
-    margin-bottom: 0.3rem;
-    letter-spacing: 0.8px;
-  }
-
-  .f1impostor-grid {
+    display: grid !important;
+    width: 100%;
+    max-width: 600px;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.6rem;
-    margin-top: 1.2rem;
+    gap: 1rem;
+    margin: 1rem auto;
+    padding: 0 1rem;
   }
 
   .f1impostor-card {
-    padding: 0.6rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    position: static;
+    width: auto;
+    height: auto;
+    background: #222;
+    padding: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    text-align: center;
+    transition: transform 0.2s ease, border-color 0.2s ease;
   }
 
-  .f1impostor-validate-btn {
-    margin-top: 1.2rem;
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 7px;
+  .f1impostor-card:hover {
+    transform: scale(1.03);
   }
 
-  .f1impostor-result {
-    margin-top: 1.2rem;
+  .pilot-name {
+    font-weight: bold;
+  }
+
+  .result-icon {
+    margin-top: 0.5rem;
     font-size: 1.2rem;
   }
 
-  .f1impostor-loading {
-    padding: 2rem 0.5rem;
+  .f1impostor-validate-btn {
+    background: #fbc02d;
+    border: none;
+    border-radius: 8px;
+    color: black;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 0.8rem 2rem;
+    cursor: pointer;
+    margin: 1rem auto;
+  }
+
+  .f1impostor-result {
+    margin: 1rem auto;
+    font-size: 1.4rem;
+    color: #fbc02d;
+    text-align: center;
   }
 
   .f1impostor-rondo {
-    width: 18rem;
-    height: 18rem;
-    margin: 1.5rem auto;
-  }
-
-  .f1impostor-card {
-    width: 85px;
-    height: 42px;
+    display: none !important;
   }
 
   .center-button {
-    padding: 0.7rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 35px;
+    display: none !important;
   }
-}
-@media (max-width: 768px) {
-  .f1impostor-container {
-    padding: 1.5rem 1rem;
+
+  .mobile-button {
+    display: inline-block;
+    margin-top: 1rem;
   }
 }
 
-@media (max-width: 500px) {
-  .f1impostor-container {
-    padding: 1rem 0.5rem;
-  }
-}
 
-@media (max-width: 768px) {
-  .f1impostor-rondo {
-    width: 18rem;
-    height: 18rem;
-    margin: 1rem auto 0.5rem auto; /* menos margen arriba */
+/* En desktop (>=768px): ocultar la grid y mostrar el rondo original */
+@media (min-width: 768px) {
+  .f1impostor-grid {
+    display: none !important;
   }
-}
 
-@media (max-width: 500px) {
-  .f1impostor-rondo {
-    width: 14rem;
-    height: 14rem;
-    margin: 0.5rem auto 0.25rem auto; /* aún menos margen arriba */
+  .mobile-button {
+    display: none !important;
   }
 }

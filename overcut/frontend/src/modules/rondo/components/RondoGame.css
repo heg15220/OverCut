@@ -130,15 +130,19 @@
 .rondo-home-button:hover {
   background-color: #1565c0;
 }
-
 @media (max-width: 768px) {
   .rondo-container {
     padding: 1rem;
+    align-items: center;
+    height: auto;
+    min-height: 100vh;
   }
 
   .rondo-circle {
-    width: 18rem;
-    height: 18rem;
+    position: relative;
+    max-height: 35vh;
+    width: auto;
+    height: auto;
     margin-bottom: 1.5rem;
   }
 
@@ -150,6 +154,7 @@
   }
 
   .rondo-center {
+    margin-top: 1rem;
     max-width: 95%;
   }
 
@@ -172,12 +177,17 @@
 @media (max-width: 500px) {
   .rondo-container {
     padding: 0.75rem;
+    align-items: center;
+    height: auto;
+    min-height: 100vh;
   }
 
   .rondo-circle {
-    width: 14rem;
-    height: 14rem;
-    margin-bottom: 1.2rem;
+    position: relative;
+    max-height: 30vh;
+    width: auto;
+    height: auto;
+    margin-bottom: 1rem;
   }
 
   .rondo-letter {
@@ -188,6 +198,7 @@
   }
 
   .rondo-center {
+    margin-top: 1rem;
     max-width: 100%;
   }
 
@@ -209,5 +220,41 @@
 
   .rondo-home-button {
     padding: 0.6rem 1.2rem;
+  }
+}
+
+/* Mobile grid replacement */
+@media (max-width: 767px) {
+  .rondo-circle {
+    display: none !important;
+  }
+
+  .rondo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 500px;
+    margin: 1rem auto;
+    padding: 0 1rem;
+  }
+
+  .rondo-letter {
+    position: static;
+    transform: none !important;
+    width: 2.5rem;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    font-size: 1rem;
+    text-align: center;
+    background-color: #222;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .rondo-letter.current {
+    border: 2px solid #f1c40f;
+    transform: scale(1.1);
   }
 }

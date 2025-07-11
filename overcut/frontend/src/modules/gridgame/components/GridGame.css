@@ -967,3 +967,30 @@
     padding-top: 1.5rem;
   }
 }
+
+/* ✅ Mobile grid replacement for GridGame */
+@media (max-width: 767px) {
+  .grid-columns {
+    display: none !important;
+  }
+
+  .grid-game-grid-mobile {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.8rem;
+    padding: 1rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .grid-slot {
+    position: static;
+    min-width: unset;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+  }
+}

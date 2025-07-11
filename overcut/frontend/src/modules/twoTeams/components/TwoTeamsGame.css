@@ -163,16 +163,15 @@
   }
 
   .teams-pair {
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
   }
 
   .team-box {
-    width: 100%;
-    padding: 1.2rem;
-    border-radius: 14px;
-    min-height: 140px;
+    width: 45%;
+    min-width: 140px;
+    padding: 1rem;
   }
 
   .driver-input {
@@ -221,14 +220,15 @@
   }
 
   .teams-pair {
-    gap: 0.8rem;
-    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
   }
 
   .team-box {
-    padding: 1rem;
-    border-radius: 12px;
-    min-height: 120px;
+    width: 48%;
+    min-width: 120px;
+    padding: 0.9rem;
   }
 
   .driver-input {

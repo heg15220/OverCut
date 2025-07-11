@@ -238,13 +238,6 @@
     margin-bottom: 1.2rem;
   }
 
-  .grid-4x4 {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    max-width: 100%;
-    margin-bottom: 1.2rem;
-  }
-
   .grid-cell {
     padding: 0.8rem;
     font-size: 0.95rem;

@@ -278,17 +278,17 @@
     margin-bottom: 1.5rem;
   }
 
-  .order-layout {
-    flex-direction: column;
-    gap: 1.2rem;
+  .side-candidates {
+      width: 25%;
   }
 
-  .side-candidates,
-  .ranking-slots,
-  .button-row {
-    width: 100%;
-    max-width: 100%;
+  .ranking-slots {
+      width: 50%;
   }
+  .order-layout {
+    gap: 1rem;
+  }
+
 
   .ranking-slots {
     padding: 0.6rem;
@@ -354,12 +354,19 @@
     margin-bottom: 1.2rem;
   }
 
+  .side-candidates {
+    width: 25%;
+  }
+
   .order-layout {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
     gap: 1rem;
   }
 
   .ranking-slots {
+    width: 50%;
     padding: 0.5rem;
     border-radius: 8px;
   }

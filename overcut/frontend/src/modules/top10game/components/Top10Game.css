@@ -261,6 +261,7 @@
   }
 
   .top10-game-body {
+    background: linear-gradient(135deg, #0c0f1a, #1a2238);
     padding-top: 2rem;
   }
 
@@ -334,6 +335,7 @@
     margin: 1rem auto;
     border-radius: 8px;
   }
+
 }
 
 @media (max-width: 500px) {
@@ -349,6 +351,11 @@
   .top10-title {
     font-size: 1.7rem;
     margin-bottom: 1.2rem;
+  }
+
+  .top10-game-body {
+    background: linear-gradient(135deg, #0c0f1a, #1a2238);
+    padding-top: 1.5rem;
   }
 
   .top10-row {
@@ -413,17 +420,4 @@
   }
 }
 
-@media (max-width: 768px) {
-  .top10-game-body {
-    background: linear-gradient(to bottom, #0a1a2f, #050f1e);
-    padding-top: 2rem;
-  }
-}
-
-@media (max-width: 500px) {
-  .top10-game-body {
-    background: linear-gradient(to bottom, #0a1a2f, #050f1e);
-    padding-top: 1.5rem;
-  }
-}
 

@@ -8,6 +8,17 @@ import {Pager} from "../../common";
 import QuizQuestions from "./QuizQuestions";
 import QuizIntroTypeCategory from './QuizIntroTypeCategory';
 
+const useWindowWidth = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return width;
+};
+
+
 const QuizList = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -17,6 +28,9 @@ const QuizList = () => {
     const quizCategory = useSelector(selectors.getQuizQuestionsCategory);
     const questions = useSelector(selectors.getQuizQuestions);
     const quiz = useSelector(selectors.findQuiz);
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768;
+
 
     useEffect(() => {
         if (quiz) {
@@ -45,19 +59,20 @@ const QuizList = () => {
     };
 
     return (
-        <Grid container spacing={2} justifyContent="center" alignItems="center">
-            <Grid item xs={12} sx={{ mt: -8 }}>
-                {showIntro ? (
-                    <QuizIntroTypeCategory
-                        quizType={quizType}
-                        quizCategory={quizCategory}
-                        onContinue={handleContinue}
-                    />
-                ) : (
-                    <QuizQuestions questions={questions} quizType={quizType} />
-                )}
-            </Grid>
+      <Grid container spacing={2} justifyContent="center" alignItems="center">
+        <Grid item xs={12} sm={10} md={8} lg={6} sx={{ mt: isMobile ? -4 : -8 }}>
+          {showIntro ? (
+            <QuizIntroTypeCategory
+              quizType={quizType}
+              quizCategory={quizCategory}
+              onContinue={handleContinue}
+            />
+          ) : (
+            <QuizQuestions questions={questions} quizType={quizType} />
+          )}
         </Grid>
+      </Grid>
     );
+;
 };
 export default QuizList;

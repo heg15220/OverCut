@@ -13,6 +13,15 @@ import { getCooldownForGame } from "../../cooldown/selectors";
 import { fetchCooldown } from "../../cooldown/actions";
 import { getUser } from "../../users/selectors";
 
+  const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+      const handleResize = () => setWidth(window.innerWidth);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return width;
+  };
 
 const F1ImpostorGame = () => {
   const dispatch = useDispatch();
@@ -31,6 +40,8 @@ const F1ImpostorGame = () => {
 
   const user = useSelector(getUser);
 
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth < 768;
 
   const translations = {
     title: {
@@ -62,6 +73,7 @@ const F1ImpostorGame = () => {
       en: "⬅️ Back to home"
     }
   };
+
 
   useEffect(() => {
     dispatch(fetchCooldown("F1Impostor"));
@@ -133,10 +145,49 @@ const F1ImpostorGame = () => {
     finalMessage = translations.lose_missing[lang];
   }
 
-  return (
-    <div className="f1impostor-container">
-      <h1 className="f1impostor-title">{translations.title[lang]}</h1>
-      <h2>{game.themeDescription}</h2>
+return (
+  <div className="f1impostor-container">
+    <h1 className="f1impostor-title">{translations.title[lang]}</h1>
+    <h2>{game.themeDescription}</h2>
+
+    {isMobile ? (
+      <div className="f1impostor-grid">
+        {game.pilots.map((p, i) => {
+          const isSelected = selected.includes(p.pilotName);
+          const isCorrect = game.finished && p.valid && p.selectedByUser;
+          const isMissedValid = game.finished && p.valid && !p.selectedByUser;
+          const isWrong = game.finished && !p.valid && p.selectedByUser;
+          const isImpostorAvoided = game.finished && !p.valid && !p.selectedByUser;
+
+          const className = `
+            f1impostor-card
+            ${isSelected ? "selected" : ""}
+            ${isCorrect ? "correct" : ""}
+            ${isWrong ? "wrong" : ""}
+            ${isMissedValid ? "missed-valid" : ""}
+            ${isImpostorAvoided ? "avoided" : ""}
+          `;
+
+          return (
+            <div
+              key={i}
+              className={className.trim()}
+              onClick={() => toggleSelect(p.pilotName)}
+            >
+              <span className="pilot-name">{p.pilotName}</span>
+              {game.finished && (
+                <div className="result-icon">
+                  {isCorrect && "✅"}
+                  {isWrong && "❌"}
+                  {isMissedValid && "⚠️"}
+                  {isImpostorAvoided && "🕵️"}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    ) : (
       <div className="f1impostor-rondo">
         {game.pilots.map((p, i) => {
           const isSelected = selected.includes(p.pilotName);
@@ -186,14 +237,28 @@ const F1ImpostorGame = () => {
           </button>
         )}
       </div>
+    )}
 
-      {game.finished && (
-        <div className="f1impostor-result">
-          {finalMessage}
-        </div>
-      )}
-    </div>
-  );
+    {game.finished && (
+      <div className="f1impostor-result">
+        {finalMessage}
+      </div>
+    )}
+
+    {isMobile && !game.finished && (
+      <button className="f1impostor-validate-btn mobile-button" onClick={handleValidate}>
+        {translations.check[lang]}
+      </button>
+    )}
+
+    {isMobile && game.finished && (
+      <button className="f1impostor-validate-btn mobile-button" onClick={handleBack}>
+        {translations.back[lang]}
+      </button>
+    )}
+  </div>
+);
+
 };
 
 export default F1ImpostorGame;

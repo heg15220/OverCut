@@ -12,6 +12,16 @@ import { getCooldownForGame } from "../../cooldown/selectors";
 import { fetchCooldown } from "../../cooldown/actions";
 import CooldownScreen from "../../cooldown/components/CooldownScreen";
 
+const useWindowWidth = () => {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return width;
+};
+
 
 const translations = {
   es: {
@@ -47,6 +57,7 @@ const RondoGame = () => {
   const lang = getLang();
   const t = translations[lang];
 
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const game = useSelector(selectors.getRondoGame);
@@ -57,6 +68,9 @@ const RondoGame = () => {
   const [isFinished, setIsFinished] = useState(false);
 
   const [showTutorial, setShowTutorial] = useState(true);
+
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth < 768;
 
   const tutorial = tutorialTexts["/minigames/rondo"][lang];
 
@@ -130,17 +144,30 @@ const RondoGame = () => {
 
   return (
     <div className="rondo-container">
-      <div className="rondo-circle">
-        {letters.map((l, idx) => (
-          <div
-            key={l.letter}
-            className={`rondo-letter ${l.status.toLowerCase()} ${idx === currentIndex ? "current" : ""}`}
-            style={{ transform: `rotate(${(360 / letters.length) * idx}deg) translate(0, -11rem)` }}
-          >
-            {l.letter}
-          </div>
-        ))}
-      </div>
+      {isMobile ? (
+        <div className="rondo-grid">
+          {letters.map((l, idx) => (
+            <div
+              key={l.letter}
+              className={`rondo-letter ${l.status.toLowerCase()} ${idx === currentIndex ? "current" : ""}`}
+            >
+              {l.letter}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="rondo-circle">
+          {letters.map((l, idx) => (
+            <div
+              key={l.letter}
+              className={`rondo-letter ${l.status.toLowerCase()} ${idx === currentIndex ? "current" : ""}`}
+              style={{ transform: `rotate(${(360 / letters.length) * idx}deg) translate(0, -11rem)` }}
+            >
+              {l.letter}
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="rondo-center">
         {isFinished ? (
