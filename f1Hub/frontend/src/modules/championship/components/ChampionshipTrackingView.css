@@ -231,3 +231,93 @@
   font-weight: 700;
 }
 
+
+/* === Ajustes responsive adicionales === */
+@media (max-width: 768px) {
+  .championship-tracking {
+    padding: 1.5rem 1rem;
+  }
+
+  .championship-title {
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-controls select {
+    padding: 0.45rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .result-table {
+    font-size: 0.85rem;
+    min-width: unset;
+  }
+
+  .result-table th,
+  .result-table td {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .pilot-name {
+    font-size: 0.85rem;
+  }
+
+  .race-abbr {
+    font-size: 0.7rem;
+  }
+
+  .flag {
+    height: 18px;
+  }
+}
+
+@media (max-width: 500px) {
+  .championship-tracking {
+    padding: 1rem 0.5rem;
+  }
+
+  .championship-title {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-controls select {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .result-table {
+    font-size: 0.8rem;
+  }
+
+  .result-table th,
+  .result-table td {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.8rem;
+  }
+
+  .pilot-name {
+    font-size: 0.8rem;
+  }
+
+  .race-abbr {
+    font-size: 0.65rem;
+  }
+
+  .flag {
+    height: 16px;
+  }
+
+  .pilot-cell {
+    gap: 0.4rem;
+    padding-left: 0.3rem;
+  }
+
+  .scroll-top,
+  .scroll-bottom {
+    height: 10px;
+  }
+}

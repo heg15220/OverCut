@@ -71,17 +71,6 @@
   font-weight: 500;
 }
 
-@media (max-width: 768px) {
-  .race-result-title {
-    font-size: 1.5rem;
-  }
-
-  .result-table th,
-  .result-table td {
-    padding: 0.7rem;
-    font-size: 0.9rem;
-  }
-}
 .inline-flag {
   vertical-align: middle;
   margin: 0 0.3rem;
@@ -90,3 +79,71 @@
   box-shadow: 0 0 2px rgba(0,0,0,0.5);
 }
 
+
+/* ✅ Tablets / móviles grandes */
+@media (max-width: 768px) {
+  .race-result-table {
+    padding: 1.5rem 1rem;
+    margin: 1.5rem auto;
+  }
+
+  .race-result-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .result-table {
+    min-width: 700px;
+  }
+
+  .result-table th,
+  .result-table td {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+  }
+
+  .pilot-bar,
+  .team-bar {
+    height: 20px;
+  }
+
+  .inline-flag {
+    height: 24px;
+  }
+}
+
+/* ✅ Móviles pequeños */
+@media (max-width: 500px) {
+  .race-result-table {
+    padding: 1rem 0.5rem;
+    margin: 1rem auto;
+  }
+
+  .race-result-title {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .result-table {
+    min-width: 600px;
+  }
+
+  .result-table th,
+  .result-table td {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .pilot-bar,
+  .team-bar {
+    height: 18px;
+  }
+
+  .inline-flag {
+    height: 20px;
+  }
+
+  .pilot-name {
+    font-size: 0.9rem;
+  }
+}

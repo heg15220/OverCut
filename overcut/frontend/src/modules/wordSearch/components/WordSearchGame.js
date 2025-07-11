@@ -5,18 +5,14 @@ import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./WordSearchGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
-import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
-import { sourceImages } from "../../../helpers/sourceMiniGamesImages"; // ya lo usas en MinigamesHome
-import { tutorialTexts } from "../../../helpers/minigameTutorialTexts"; // explicaciones por minijuego
-
+import MinigameTutorial from "../../common/components/MinigameTutorial";
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages";
+import { tutorialTexts } from "../../../helpers/minigameTutorialTexts";
 import { fetchCooldown } from "../../cooldown/actions";
 import { getCooldownForGame } from "../../cooldown/selectors";
 import CooldownScreen from "../../cooldown/components/CooldownScreen";
 import { getUser } from "../../users/selectors";
 
-
-
-// Traducciones embebidas
 const translations = {
   es: {
     title: "Sopa de Letras",
@@ -50,11 +46,9 @@ const WordSearchGame = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const gridRef = useRef(null);
-
   const [showTutorial, setShowTutorial] = useState(true);
 
   const tutorial = tutorialTexts["/minigames/wordSearch"][lang];
-
   const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "WordSearch")
   );
@@ -65,7 +59,6 @@ const WordSearchGame = () => {
     dispatch(fetchCooldown("WordSearch"));
   }, [dispatch]);
 
-
   useEffect(() => {
     if (canPlay) {
       dispatch(actions.startWordSearchGame());
@@ -73,42 +66,79 @@ const WordSearchGame = () => {
     }
   }, [dispatch, canPlay]);
 
-    if (loading) {
-      return <LoadingScreen lang={lang} text={t("loading")} />;
-    }
+  if (loading) {
+    return <LoadingScreen lang={lang} text={t("loading")} />;
+  }
 
-    if (!canPlay) {
-      return (
-        <CooldownScreen
-          seconds={secondsRemaining}
-          onBack={() => navigate("/minigames")}
-        />
-      );
-    }
+  if (!canPlay) {
+    return (
+      <CooldownScreen
+        seconds={secondsRemaining}
+        onBack={() => navigate("/minigames")}
+      />
+    );
+  }
 
-
-    if (showTutorial) {
-      return (
-        <MinigameTutorial
-          title={tutorial.title}
-          description={tutorial.description}
-          image={sourceImages("./searchGame.png")}
-          onStart={() => setShowTutorial(false)}
-          lang={lang}
-        />
-      );
-    }
+  if (showTutorial) {
+    return (
+      <MinigameTutorial
+        title={tutorial.title}
+        description={tutorial.description}
+        image={sourceImages("./searchGame.png")}
+        onStart={() => setShowTutorial(false)}
+        lang={lang}
+      />
+    );
+  }
 
   const keyFor = (row, col) => `${row},${col}`;
 
-  const handleMouseDown = (row, col) => {
-    setIsDragging(true);
-    setSelectedCells([keyFor(row, col)]);
+  /** Tamaño de la celda y gap (ajusta si cambias el CSS) */
+  const CELL_SIZE = 30;
+  const GAP_SIZE = 4;
+
+  /** Traduce coordenadas absolutas a celda de la grilla */
+    /** Traduce coordenadas absolutas a celda de la grilla considerando scroll */
+  /** Traduce coordenadas absolutas a celda de la grilla */
+  const getCellFromCoords = (clientX, clientY, isTouch = false) => {
+    if (!gridRef.current) return null;
+
+    const grid = gridRef.current;
+    const rect = grid.getBoundingClientRect();
+
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
+
+    if (isTouch) {
+      // Ajuste para scroll solo en touch
+      const wrapper = grid.parentElement;
+      const scrollLeft = wrapper ? wrapper.scrollLeft : 0;
+      const scrollTop = wrapper ? wrapper.scrollTop : 0;
+      x += scrollLeft;
+      y += scrollTop;
+    }
+
+    const col = Math.floor(x / (CELL_SIZE + GAP_SIZE));
+    const row = Math.floor(y / (CELL_SIZE + GAP_SIZE));
+
+    if (col < 0 || row < 0 || col >= 21 || row >= 21) return null;
+    return keyFor(row, col);
   };
 
-  const handleMouseEnter = (row, col) => {
-    if (isDragging) {
-      const key = keyFor(row, col);
+
+  /** Mouse */
+  const handleMouseDown = (e) => {
+    const key = getCellFromCoords(e.clientX, e.clientY);
+    if (key) {
+      setIsDragging(true);
+      setSelectedCells([key]);
+    }
+  };
+
+  const handleMouseEnter = (e) => {
+    if (!isDragging) return;
+    const key = getCellFromCoords(e.clientX, e.clientY);
+    if (key) {
       setSelectedCells(prev => (prev.includes(key) ? prev : [...prev, key]));
     }
   };
@@ -117,24 +147,45 @@ const WordSearchGame = () => {
     setIsDragging(false);
   };
 
+  /** Touch */
+  const handleTouchStart = (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const key = getCellFromCoords(touch.clientX, touch.clientY, true);
+    if (key) {
+      setIsDragging(true);
+      setSelectedCells([key]);
+    }
+  };
 
-  if (!game) return <LoadingScreen lang={lang} text={t("loading")} />;
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    const key = getCellFromCoords(touch.clientX, touch.clientY, true);
+    if (key) {
+      setSelectedCells(prev => (prev.includes(key) ? prev : [...prev, key]));
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  /** Validar palabra */
   const handleValidate = () => {
-
     const letters = selectedCells.map(key => {
       const [r, c] = key.split(",").map(Number);
       const cell = game.grid.find(cell => cell.rowIndex === r && cell.colIndex === c);
       return cell ? cell.letter : "";
     });
-
     const word = letters.join("");
     if (word) {
       dispatch(actions.validateWord({ gameId: game.id, attemptedSurname: word }, (result) => {
         if (result?.valid) {
           dispatch(actions.getWordSearchGame(game.id));
           const normalized = word.toUpperCase();
-          const alreadyAdded = foundWords.some(w => w.toUpperCase() === normalized);
-          if (!alreadyAdded) {
+          if (!foundWords.some(w => w.toUpperCase() === normalized)) {
             dispatch(actions.addFoundWord(word));
           }
         }
@@ -154,7 +205,7 @@ const WordSearchGame = () => {
     navigate("/minigames");
   };
 
-  if (!game) return <div className="wordsearch-loading">{t("loading")}</div>;
+  if (!game) return <LoadingScreen lang={lang} text={t("loading")} />;
 
   const remainingWords = game.words.filter(w =>
     !foundWords.some(fw => fw.toUpperCase() === w.surname.toUpperCase())
@@ -169,25 +220,47 @@ const WordSearchGame = () => {
       <div className="wordsearch-main-layout">
         <div>
           <div
-            className="wordsearch-grid"
-            onMouseUp={handleMouseUp}
-            ref={gridRef}
+            className="wordsearch-grid-wrapper"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{ touchAction: "none" }}
           >
-            {game.grid.map((cell, idx) => {
-              const key = keyFor(cell.rowIndex, cell.colIndex);
-              const selected = selectedCells.includes(key);
-              return (
-                <div
-                  key={idx}
-                  className={`wordsearch-cell ${cell.revealed ? "revealed" : ""} ${selected ? "selected" : ""}`}
-                  onMouseDown={() => handleMouseDown(cell.rowIndex, cell.colIndex)}
-                  onMouseEnter={() => handleMouseEnter(cell.rowIndex, cell.colIndex)}
-                  style={{ userSelect: "none", cursor: "pointer" }}
-                >
-                  {cell.letter}
-                </div>
-              );
-            })}
+            <div
+              className="wordsearch-grid"
+              onMouseDown={handleMouseDown}
+              onMouseEnter={handleMouseEnter}
+              onMouseUp={handleMouseUp}
+              ref={gridRef}
+            >
+              {game.grid.map((cell, idx) => {
+                const key = keyFor(cell.rowIndex, cell.colIndex);
+                const selected = selectedCells.includes(key);
+                return (
+                  <div
+                    key={idx}
+                    data-row={cell.rowIndex}
+                    data-col={cell.colIndex}
+                    className={`wordsearch-cell ${cell.revealed ? "revealed" : ""} ${selected ? "selected" : ""}`}
+                    onMouseDown={() => {
+                      setIsDragging(true);
+                      setSelectedCells([key]);
+                    }}
+                    onMouseEnter={() => {
+                      if (isDragging) {
+                        setSelectedCells(prev =>
+                          prev.includes(key) ? prev : [...prev, key]
+                        );
+                      }
+                    }}
+                    style={{ userSelect: "none", cursor: "pointer" }}
+                  >
+                    {cell.letter}
+                  </div>
+                );
+              })}
+
+            </div>
           </div>
 
           {!isGameOver && (
@@ -195,7 +268,6 @@ const WordSearchGame = () => {
               <button className="wordsearch-validate-btn" onClick={handleValidate}>
                 {t("validate")}
               </button>
-
               <button className="wordsearch-reveal-btn" onClick={handleReveal}>
                 {t("giveUp")}
               </button>

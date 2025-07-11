@@ -15,11 +15,14 @@
   font-size: 2rem;
   color: #ffcc00;
   margin-bottom: 2rem;
+  text-align: center;
 }
 
 .table-menu-options {
   display: flex;
   gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .table-menu-options button {
@@ -37,4 +40,50 @@
 .table-menu-options button:hover {
   background-color: #e6b800;
   transform: scale(1.05);
+}
+
+/* ✅ Tablets / móviles grandes */
+@media (max-width: 798px) {
+  .table-menu {
+    padding: 2rem 1rem;
+    margin: 2rem auto;
+  }
+
+  .table-menu-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .table-menu-options {
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: center;
+  }
+
+  .table-menu-options button {
+    width: 80%;
+    max-width: 300px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+  }
+}
+
+/* ✅ Móviles pequeños */
+@media (max-width: 500px) {
+  .table-menu {
+    padding: 1.5rem 0.5rem;
+    margin: 1.5rem auto;
+  }
+
+  .table-menu-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .table-menu-options button {
+    width: 100%;
+    max-width: 280px;
+    padding: 0.7rem 1.2rem;
+    font-size: 1rem;
+  }
 }
