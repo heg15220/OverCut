@@ -511,13 +511,13 @@
 
 @media (max-width: 768px) {
   .Body {
-    border-top: 95px solid transparent; /* More generous on tablet */
+    border-top: 70px solid transparent; /* More generous on tablet */
   }
 }
 
 @media (max-width: 500px) {
   .Body {
-    border-top: 95px solid transparent; /* More generous on mobile */
+    border-top: 60px solid transparent; /* More generous on mobile */
   }
 }
 

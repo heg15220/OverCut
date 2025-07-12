@@ -1,0 +1,146 @@
+/* MobileHeader.css */
+
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #000;
+  padding: 0.5rem 1rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.hamburger-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-header-logo img {
+  height: 48px;
+  object-fit: contain;
+}
+
+/* Overlay menu full screen */
+.mobile-header-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #00000F;
+  color: #fff;
+  z-index: 1500;
+  padding-top: 4rem;
+  animation: slideDown 0.3s ease;
+}
+
+.mobile-header-menu nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.mobile-header-menu nav ul li a,
+.mobile-header-menu nav ul li a:visited {
+  color: #fff;
+  font-size: 1.2rem;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-header-menu nav ul li a:hover {
+  background-color: #1a1a2e;
+  color: #00d4ff;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 1600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  color: #ff4c4c;
+}
+
+.mobile-menu-divider {
+  border-top: 1px solid #333;
+  margin: 1rem 2rem;
+}
+
+.user-section {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-section li {
+  color: #fff;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-section li a {
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.user-section li a:hover {
+  background-color: #1a1a2e;
+  color: #00d4ff;
+}
+
+.user-greeting {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  text-align: center;
+}

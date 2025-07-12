@@ -50,32 +50,32 @@
 
 @media (max-width: 768px) {
   .pilot-helmet {
-    gap: 4px;
+    gap: 3px;
   }
 
   .helmet-image {
-    max-width: 48px;
-    width: 75%;
+    max-width: 40px;    /* antes 44px */
+    width: 65%;         /* antes 70% */
   }
 
   .pilot-name {
-    font-size: 0.8rem;
-    letter-spacing: 0.4px;
+    font-size: 0.75rem;  /* antes 0.8rem */
+    letter-spacing: 0.35px;
   }
 }
 
 @media (max-width: 500px) {
   .pilot-helmet {
-    gap: 3px;
+    gap: 2px;
   }
 
   .helmet-image {
-    max-width: 40px;
-    width: 70%;
+    max-width: 32px;    /* antes 36px */
+    width: 60%;         /* antes 65% */
   }
 
   .pilot-name {
-    font-size: 0.75rem;
-    letter-spacing: 0.35px;
+    font-size: 0.6rem;   /* antes 0.75rem */
+    letter-spacing: 0.3px;
   }
 }
