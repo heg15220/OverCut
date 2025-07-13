@@ -77,14 +77,8 @@ const metadata = {
     "finish-vs-dnf-ratio": {
       label: { es: "Ratio Finalizadas vs Abandonos", en: "Finish vs DNF Ratio" }
     },
-    "points-streaks": {
-      label: { es: "Rachas de GPs Puntuando", en: "Points Streaks per Driver" }
-    },
     "grid-vs-result-delta": {
       label: { es: "Diferencia Parrilla vs Resultado", en: "Grid vs Result Delta (Constructors)" }
-    },
-    "reliability-by-season": {
-      label: { es: "Fiabilidad por Temporada", en: "Reliability by Season" }
     },
     "avg-race-duration": {
       label: { es: "Duración Promedio de Carrera", en: "Average Race Duration" }
@@ -111,12 +105,6 @@ const metadata = {
       label: {
         es: "Poles sin Victoria",
         en: "Poles without Win"
-      }
-    },
-    "efficiency-rating": {
-      label: {
-        "es": "Índice de Eficiencia del Piloto",
-        "en": "Driver Efficiency Rating"
       }
     },
     "technical-failures": {

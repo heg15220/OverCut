@@ -1352,5 +1352,118 @@ ORDER BY max_streak DESC
 """, nativeQuery = true)
     List<RetirementRatioPerYearView> getRetirementRatioPerSeason();
 
+    @Query(value = """
+    SELECT r.driverId AS driverId,
+           ROUND(AVG(r.grid - l.position), 1) AS avgGain
+    FROM results r
+    JOIN laptimes l ON r.raceId = l.raceId AND r.driverId = l.driverId
+    WHERE l.lap = 2
+      AND r.grid IS NOT NULL AND r.grid != 0
+      AND l.position IS NOT NULL
+    GROUP BY r.driverId
+""", nativeQuery = true)
+    List<DriverAvgGainView> getAvgGainAfterLap2();
+
+    @Query(value = """
+    SELECT
+        d.driverId AS driverId,
+        d.forename AS forename,
+        d.surname AS surname,
+        SUM(CASE
+            WHEN LOWER(s.status) LIKE '%finished%' OR LOWER(s.status) LIKE '%classified%' THEN 1 ELSE 0
+        END) AS finishes,
+        SUM(CASE
+            WHEN NOT (LOWER(s.status) LIKE '%finished%' OR LOWER(s.status) LIKE '%classified%') THEN 1 ELSE 0
+        END) AS dnfs
+    FROM results r
+    JOIN drivers d ON r.driverId = d.driverId
+    JOIN status s ON r.statusId = s.statusId
+    GROUP BY d.driverId, d.forename, d.surname
+""", nativeQuery = true)
+    List<FinishVsDnfRatioView> getFinishVsDnfRatio();
+
+    @Query(value = """
+WITH all_points AS (
+    SELECT driverId, raceId
+    FROM results
+    WHERE points > 0
+    UNION ALL
+    SELECT driverId, raceId
+    FROM sprintresults
+    WHERE points > 0
+),
+points_dates AS (
+    SELECT ap.driverId, r.date
+    FROM all_points ap
+    JOIN races r ON ap.raceId = r.raceId
+),
+ordered AS (
+    SELECT
+        driverId,
+        date,
+        ROW_NUMBER() OVER (PARTITION BY driverId ORDER BY date) AS rn
+    FROM points_dates
+),
+grouped AS (
+    SELECT
+        driverId,
+        DATE_SUB(date, INTERVAL rn DAY) AS grp
+    FROM ordered
+),
+streaks AS (
+    SELECT
+        driverId,
+        COUNT(*) AS streak_length
+    FROM grouped
+    GROUP BY driverId, grp
+)
+SELECT driverId, MAX(streak_length) AS max_streak
+FROM streaks
+GROUP BY driverId
+ORDER BY max_streak DESC
+""", nativeQuery = true)
+    List<Object[]> getPointsStreaksPerDriver();
+
+
+    @Query(value = """
+    SELECT
+      r.constructorId AS constructorId,
+      ra.year AS year,
+      COUNT(*) AS totalCount,
+      SUM(CASE
+          WHEN LOWER(s.status) IN (:dnfCauses) THEN 1 ELSE 0
+      END) AS dnfCount
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    JOIN status s ON r.statusId = s.statusId
+    WHERE r.constructorId IS NOT NULL
+    GROUP BY r.constructorId, ra.year
+""", nativeQuery = true)
+    List<ConstructorReliabilityAggView> getConstructorReliabilityAggregated(
+            @Param("dnfCauses") Set<String> dnfCauses
+    );
+
+    @Query(value = """
+    SELECT
+      r.constructorId AS constructorId,
+      ra.year AS year,
+      COUNT(*) AS totalCount,
+      SUM(CASE
+          WHEN LOWER(s.status) IN (:dnfCauses) THEN 1 ELSE 0
+      END) AS dnfCount
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    JOIN status s ON r.statusId = s.statusId
+    WHERE r.constructorId IS NOT NULL
+      AND ra.year BETWEEN :startYear AND :endYear
+    GROUP BY r.constructorId, ra.year
+""", nativeQuery = true)
+    List<ConstructorReliabilityAggView> getConstructorReliabilityAggregatedForPeriod(
+            @Param("dnfCauses") Set<String> dnfCauses,
+            @Param("startYear") int startYear,
+            @Param("endYear") int endYear
+    );
+
+
 
 }

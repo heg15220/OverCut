@@ -39,5 +39,18 @@ public interface RaceDao extends JpaRepository<Race, Long> {
 """)
     List<Race> getLastRacePerYear();
 
+    @Query(value = """
+    SELECT r.raceId AS raceId,
+           r.name AS raceName,
+           r.year AS year,
+           COUNT(DISTINCT lt.driverId) AS distinctLeaderCount
+    FROM races r
+    LEFT JOIN laptimes lt ON lt.raceId = r.raceId AND lt.position = 1
+    WHERE (:season IS NULL OR r.year = :season)
+    GROUP BY r.raceId, r.name, r.year
+    ORDER BY r.year, r.round
+""", nativeQuery = true)
+    List<RaceLeaderCountView> getDistinctLeadersPerRace(@Param("season") Integer season);
+
 }
 

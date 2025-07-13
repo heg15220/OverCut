@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -571,17 +572,20 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getAvgPositionsGainedFirstLaps(String lang) {
-        List<Lap2GainView> lapGains = resultDao.getLap2GainsLite();
-        Map<Long, Driver> driverMap = driverDao.findAll().stream()
+
+        // 1️⃣ Obtener los promedios ya calculados desde SQL
+        List<DriverAvgGainView> avgGains = resultDao.getAvgGainAfterLap2();
+
+        // 2️⃣ Extraer IDs necesarios
+        Set<Long> driverIdsNeeded = avgGains.stream()
+                .map(DriverAvgGainView::getDriverId)
+                .collect(Collectors.toSet());
+
+        // 3️⃣ Obtener solo esos pilotos
+        Map<Long, Driver> driverMap = driverDao.findByDriverIds(driverIdsNeeded).stream()
                 .collect(Collectors.toMap(Driver::getDriverId, d -> d));
 
-        Map<Long, List<Integer>> gains = new HashMap<>();
-        for (Lap2GainView g : lapGains) {
-            int delta = g.getGrid() - g.getLap2Position();
-            gains.computeIfAbsent(g.getDriverId(), k -> new ArrayList<>()).add(delta);
-        }
-
-        // Paleta de colores
+        // 4️⃣ Preparar paleta de colores
         String[] colorPalette = {
                 "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0",
                 "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8",
@@ -589,24 +593,30 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 "#000000", "#ff7f00", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c"
         };
 
+        List<Long> driverIds = avgGains.stream()
+                .map(DriverAvgGainView::getDriverId)
+                .sorted()
+                .collect(Collectors.toList());
+
         Map<Long, String> colorMap = new HashMap<>();
-        List<Long> driverIds = new ArrayList<>(gains.keySet());
-        Collections.sort(driverIds);
         for (int i = 0; i < driverIds.size(); i++) {
             colorMap.put(driverIds.get(i), colorPalette[i % colorPalette.length]);
         }
 
-        // Agrupar por valor Y (promedio redondeado)
+        // 5️⃣ Agrupar ya por promedio Y
         Map<Double, List<ChartSeriesDTO>> groupedByY = new HashMap<>();
-        for (Long driverId : driverIds) {
-            List<Integer> deltas = gains.get(driverId);
-            double avgGain = Math.round(deltas.stream().mapToDouble(i -> i).average().orElse(0.0) * 10.0) / 10.0;
+        for (DriverAvgGainView view : avgGains) {
+            Long driverId = view.getDriverId();
+            Double avgGain = view.getAvgGain();
 
             Driver d = driverMap.get(driverId);
             if (d == null) continue;
 
             String label = d.getForename() + " " + d.getSurname();
-            String abbr = d.getSurname().replaceAll("[^A-Za-z]", "").toUpperCase().substring(0, Math.min(3, d.getSurname().length()));
+            String abbr = d.getSurname()
+                    .replaceAll("[^A-Za-z]", "")
+                    .toUpperCase()
+                    .substring(0, Math.min(3, d.getSurname().length()));
             String color = colorMap.getOrDefault(driverId, "#cccccc");
 
             ChartSeriesDTO dto = new ChartSeriesDTO(label, color, new ArrayList<>());
@@ -615,7 +625,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             groupedByY.computeIfAbsent(avgGain, k -> new ArrayList<>()).add(dto);
         }
 
-        // Asignar coordenadas [X, Y]
+        // 6️⃣ Asignar coordenadas [X, Y]
         List<ChartSeriesDTO> dataset = new ArrayList<>();
         for (Map.Entry<Double, List<ChartSeriesDTO>> entry : groupedByY.entrySet()) {
             double y = entry.getKey();
@@ -637,6 +647,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 dataset
         );
     }
+
 
 
 
@@ -1912,21 +1923,39 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getFinishPositionDistribution(String lang) {
+        // 1️⃣ Obtener el histograma
         List<FinishPositionCountView> data = resultDao.getFinishPositionHistogram();
-        Map<Long, String> driverNames = driverDao.findAll().stream()
-                .collect(Collectors.toMap(Driver::getDriverId, d -> d.getForename() + " " + d.getSurname()));
 
-        Set<Integer> allPositions = data.stream().map(FinishPositionCountView::getPositionOrder).collect(Collectors.toSet());
+        // 2️⃣ Identificar solo los drivers necesarios
+        Set<Long> driverIdsNeeded = data.stream()
+                .map(FinishPositionCountView::getDriverId)
+                .collect(Collectors.toSet());
+
+        // 3️⃣ Traer solo esos pilotos
+        Map<Long, String> driverNames = driverDao.findByDriverIds(driverIdsNeeded).stream()
+                .collect(Collectors.toMap(
+                        Driver::getDriverId,
+                        d -> d.getForename() + " " + d.getSurname()
+                ));
+
+        // 4️⃣ Obtener todas las posiciones distintas y ordenarlas
+        Set<Integer> allPositions = data.stream()
+                .map(FinishPositionCountView::getPositionOrder)
+                .collect(Collectors.toSet());
         List<Integer> sortedPositions = new ArrayList<>(allPositions);
         Collections.sort(sortedPositions);
-        List<String> labels = sortedPositions.stream().map(String::valueOf).toList();
+        List<String> labels = sortedPositions.stream()
+                .map(String::valueOf)
+                .toList();
 
+        // 5️⃣ Agrupar datos por driver
         Map<Long, Map<Integer, Long>> counts = new HashMap<>();
         for (FinishPositionCountView row : data) {
             counts.computeIfAbsent(row.getDriverId(), k -> new HashMap<>())
                     .put(row.getPositionOrder(), row.getCount());
         }
 
+        // 6️⃣ Armar series
         AtomicInteger index = new AtomicInteger(0);
         List<ChartSeriesDTO> series = counts.entrySet().stream()
                 .map(e -> {
@@ -1936,45 +1965,49 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                             .map(pos -> e.getValue().getOrDefault(pos, 0L).doubleValue())
                             .toList();
                     return new ChartSeriesDTO(name, color, values);
-                }).toList();
+                })
+                .toList();
 
-        return new ChartDataDTO(chartI18n.get("finishPositionDistribution", lang), "bar", labels, series);
+        return new ChartDataDTO(
+                chartI18n.get("finishPositionDistribution", lang),
+                "bar",
+                labels,
+                series
+        );
     }
+
 
 
 
     @Override
     public ChartDataDTO getFinishVsDNFRatio(String lang) {
-        List<FinishDnfView> stats = resultDao.getAllDriverStatus();
-        Map<Long, String> driverNames = driverDao.findAll().stream()
-                .collect(Collectors.toMap(Driver::getDriverId, d -> d.getForename() + " " + d.getSurname()));
-
-        Map<Long, int[]> counters = new HashMap<>(); // [0] = finishes, [1] = dnfs
-        for (FinishDnfView row : stats) {
-            Long driverId = row.getDriverId();
-            String status = row.getStatus();
-            boolean finished = status.contains("finished") || status.contains("classified");
-
-            int[] arr = counters.computeIfAbsent(driverId, k -> new int[2]);
-            if (finished) arr[0]++;
-            else arr[1]++;
-        }
+        List<FinishVsDnfRatioView> data = resultDao.getFinishVsDnfRatio();
 
         AtomicInteger index = new AtomicInteger(0);
-        List<ChartSeriesDTO> series = counters.entrySet().stream()
-                .map(e -> {
-                    String name = driverNames.getOrDefault(e.getKey(), "Driver " + e.getKey());
-                    int[] val = e.getValue();
-                    double total = val[0] + val[1];
+        List<ChartSeriesDTO> series = data.stream()
+                .filter(d -> (d.getFinishes() + d.getDnfs()) > 0)
+                .map(d -> {
+                    double total = d.getFinishes() + d.getDnfs();
                     String color = getColorForIndex(index.getAndIncrement());
-                    return new ChartSeriesDTO(name, color, List.of(
-                            (100.0 * val[0]) / total,
-                            (100.0 * val[1]) / total
-                    ));
-                }).toList();
+                    return new ChartSeriesDTO(
+                            d.getForename() + " " + d.getSurname(),
+                            color,
+                            List.of(
+                                    (100.0 * d.getFinishes()) / total,
+                                    (100.0 * d.getDnfs()) / total
+                            )
+                    );
+                })
+                .toList();
 
-        return new ChartDataDTO(chartI18n.get("finishVsDNFRatio", lang), "bar", List.of("Finished", "DNF"), series);
+        return new ChartDataDTO(
+                chartI18n.get("finishVsDNFRatio", lang),
+                "bar",
+                List.of("Finished", "DNF"),
+                series
+        );
     }
+
 
 
 
@@ -2045,10 +2078,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
-    public ChartDataDTO getReliabilityBySeason(String lang) {
-        List<ConstructorReliabilityView> data = resultDao.getConstructorReliabilityStats();
+    @Override
+    public ChartDataDTO getReliabilityBySeason(String decade, String lang) {
+        // Decade string: e.g. "1990s" -> startYear = 1990, endYear = 1999
+        int startYear = Integer.parseInt(decade.substring(0, 4));
+        int endYear = startYear + 9;
 
-        Set<String> nonFinishStatuses = Set.of(
+        Set<String> dnfStatuses = Set.of(
                 "accident", "collision", "collision damage", "engine", "gearbox", "hydraulics", "electrical",
                 "suspension", "brakes", "fuel", "puncture", "tyre", "wheel", "steering", "transmission",
                 "overheating", "driveshaft", "clutch", "chassis", "mechanical", "exhaust", "radiator",
@@ -2056,45 +2092,50 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 "water pump", "brake duct", "electrics", "differential", "drivetrain"
         );
 
-        Map<Long, Map<Integer, int[]>> stats = new HashMap<>();
-        for (ConstructorReliabilityView row : data) {
-            Long cid = row.getConstructorId();
-            Integer year = row.getYear();
-            String status = row.getStatus().toLowerCase();
+        List<ConstructorReliabilityAggView> data = resultDao.getConstructorReliabilityAggregatedForPeriod(
+                dnfStatuses, startYear, endYear
+        );
 
-            boolean dnf = nonFinishStatuses.stream().anyMatch(status::contains);
+        // Agrupar en Map<ConstructorId, Map<Year, Ratio>>
+        Map<Long, Map<Integer, Double>> stats = new HashMap<>();
+        Set<Integer> allYears = new TreeSet<>();
 
-            stats.computeIfAbsent(cid, k -> new HashMap<>())
-                    .computeIfAbsent(year, y -> new int[2]);
-
-            int[] arr = stats.get(cid).get(year);
-            arr[0]++;
-            if (dnf) arr[1]++;
+        for (var row : data) {
+            allYears.add(row.getYear());
+            stats.computeIfAbsent(row.getConstructorId(), k -> new HashMap<>())
+                    .put(row.getYear(),
+                            row.getTotalCount() == 0
+                                    ? Double.NaN
+                                    : 100.0 * (row.getTotalCount() - row.getDnfCount()) / row.getTotalCount());
         }
-
-        Set<Integer> allYears = stats.values().stream()
-                .flatMap(map -> map.keySet().stream())
-                .collect(Collectors.toCollection(TreeSet::new));
 
         List<String> labels = allYears.stream().map(String::valueOf).toList();
 
-        Map<Long, String> constructorNames = constructorDao.findAll().stream()
+        Map<Long, String> constructorNames = constructorDao.findAllById(stats.keySet())
+                .stream()
                 .collect(Collectors.toMap(Constructor::getConstructorId, Constructor::getName));
 
         List<ChartSeriesDTO> dataset = new ArrayList<>();
-        for (Map.Entry<Long, Map<Integer, int[]>> entry : stats.entrySet()) {
+        for (var entry : stats.entrySet()) {
             List<Double> values = new ArrayList<>();
             for (Integer year : allYears) {
-                int[] arr = entry.getValue().getOrDefault(year, new int[]{0, 0});
-                double ratio = (arr[0] == 0) ? Double.NaN : 100.0 * (arr[0] - arr[1]) / arr[0];
-                values.add(ratio);
+                values.add(entry.getValue().getOrDefault(year, Double.NaN));
             }
             String name = constructorNames.getOrDefault(entry.getKey(), "Team " + entry.getKey());
             dataset.add(new ChartSeriesDTO(name, "#8884d8", values));
         }
 
-        return new ChartDataDTO(chartI18n.get("reliabilityBySeason", lang), "line", labels, dataset);
+        return new ChartDataDTO(
+                chartI18n.get("reliabilityBySeason", lang) + " " + decade,
+                "line",
+                labels,
+                dataset
+        );
     }
+
+
+
+
 
 
     public ChartDataDTO getAverageRaceDurationPerSeason(String lang) {
@@ -2154,31 +2195,14 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     public ChartDataDTO getRaceLeadersPerGrandPrix(String lang, String seasonStr) {
         Integer season = (seasonStr == null || seasonStr.isEmpty()) ? null : Integer.parseInt(seasonStr);
 
-        // Obtener carreras por año o todas
-        List<Race> races = (season == null)
-                ? raceDao.findAllOrderByYearAndRound()
-                : raceDao.findByYearOrderByRoundAsc(season);
+        List<RaceLeaderCountView> rows = raceDao.getDistinctLeadersPerRace(season);
 
-        Set<Long> raceIds = races.stream().map(Race::getRaceId).collect(Collectors.toSet());
-
-        // Obtener todos los laptimes con posición 1 en esas carreras
-        List<LapTime> leaders = lapTimeDao.findByRaceIdInAndPositionOne(raceIds);
-
-        // Agrupar por carrera los pilotos líderes
-        Map<Long, Set<Long>> leadersPerRace = new HashMap<>();
-        for (LapTime lt : leaders) {
-            leadersPerRace
-                    .computeIfAbsent(lt.getRaceId(), k -> new HashSet<>())
-                    .add(lt.getDriverId());
-        }
-
-        // Crear gráfico
         List<String> labels = new ArrayList<>();
         List<Double> values = new ArrayList<>();
 
-        for (Race r : races) {
-            labels.add(r.getYear() + " - " + r.getName());
-            values.add((double) leadersPerRace.getOrDefault(r.getRaceId(), Set.of()).size());
+        for (RaceLeaderCountView row : rows) {
+            labels.add(row.getYear() + " - " + row.getRaceName());
+            values.add(row.getDistinctLeaderCount().doubleValue());
         }
 
         return new ChartDataDTO(
@@ -2188,6 +2212,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 List.of(new ChartSeriesDTO("Distinct leaders", "#00C49F", values))
         );
     }
+
 
 
 
@@ -2670,8 +2695,10 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Override
     public ChartDataDTO getQualiConsistencyScorePerDriver(String lang) {
+        // 1️⃣ Obtener TODAS las posiciones de clasificación
         List<QualiPositionView> rows = qualifyingDao.getAllQualiPositions();
 
+        // 2️⃣ Agrupar posiciones por driverId
         Map<Long, List<Integer>> qualiPositions = new HashMap<>();
         for (QualiPositionView q : rows) {
             if (q.getPosition() != null) {
@@ -2679,18 +2706,36 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             }
         }
 
+        // 3️⃣ Filtrar los pilotos con al menos 5 clasificaciones
+        Set<Long> qualifyingDriverIds = qualiPositions.entrySet().stream()
+                .filter(e -> e.getValue().size() >= 5)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
+        // 4️⃣ Obtener TODOS los nombres de pilotos de una sola vez
+        Map<Long, String> driverNames = driverDao.findByDriverIds(qualifyingDriverIds).stream()
+                .collect(Collectors.toMap(
+                        Driver::getDriverId,
+                        d -> d.getForename() + " " + d.getSurname()
+                ));
+
+        // 5️⃣ Calcular desviación estándar y preparar DTOs
         AtomicInteger index = new AtomicInteger(0);
         List<ChartSeriesDTO> dataset = qualiPositions.entrySet().stream()
                 .filter(e -> e.getValue().size() >= 5)
                 .map(e -> {
-                    double avg = e.getValue().stream().mapToInt(i -> i).average().orElse(0);
-                    double variance = e.getValue().stream().mapToDouble(i -> Math.pow(i - avg, 2)).average().orElse(0.0);
+                    List<Integer> positions = e.getValue();
+                    double avg = positions.stream().mapToInt(i -> i).average().orElse(0);
+                    double variance = positions.stream().mapToDouble(i -> Math.pow(i - avg, 2)).average().orElse(0.0);
                     double stdDev = Math.sqrt(variance);
-                    String name = driverDao.findById(e.getKey()).map(d -> d.getForename() + " " + d.getSurname()).orElse("Driver " + e.getKey());
+
+                    String name = driverNames.getOrDefault(e.getKey(), "Driver " + e.getKey());
                     String color = getColorForIndex(index.getAndIncrement());
                     return new ChartSeriesDTO(name, color, List.of(stdDev));
-                }).toList();
+                })
+                .toList();
 
+        // 6️⃣ Crear y devolver el DTO
         return new ChartDataDTO(
                 chartI18n.get("qualiConsistency", lang),
                 "bar",
@@ -2698,6 +2743,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 dataset
         );
     }
+
 
 
 

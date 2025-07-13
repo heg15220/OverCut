@@ -94,7 +94,7 @@ public interface AdvancedStatsService {
     ChartDataDTO getFinishVsDNFRatio(String lang);
     ChartDataDTO getSprintVsRacePointsEvolution(String driverIdStr, String lang);
     ChartDataDTO getGridVsResultDeltaByConstructor(String lang);
-    ChartDataDTO getReliabilityBySeason(String lang);
+    ChartDataDTO getReliabilityBySeason(String decade, String lang);
     ChartDataDTO getAverageRaceDurationPerSeason(String lang);
     ChartDataDTO getAvgFastestPitStopPerRace(String lang, String season);
     ChartDataDTO getRaceLeadersPerGrandPrix(String lang, String season);

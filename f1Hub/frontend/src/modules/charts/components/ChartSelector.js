@@ -126,6 +126,15 @@ const ChartSelector = () => {
         },
         param: "constructorId",
         chartType: "line"
+      },
+      {
+        endpoint: "reliability-by-season",
+        label: {
+            es: "Fiabilidad por Temporada",
+            en: "Reliability by Season"
+        },
+        param: "decade",
+        chartType: "line"
       }
     ],
     Carreras: [
@@ -152,7 +161,8 @@ const ChartSelector = () => {
     "most-common-quali-position": ChartCardBarColored,
     "average-finish-position": ChartCardBarColored,
     "average-start-position": ChartCardBarColored,
-    "race-leaders-per-gp": ChartCardColored
+    "race-leaders-per-gp": ChartCardColored,
+    "reliability-by-season": ChartCardColored
 
   };
 

@@ -232,8 +232,8 @@ public class ChartController {
     }
 
     @GetMapping("/reliability-by-season")
-    public ChartDataDTO getReliabilityBySeason(@RequestParam String lang) {
-        return advancedStatsService.getReliabilityBySeason(lang);
+    public ChartDataDTO getReliabilityBySeason(@RequestParam String decade, @RequestParam String lang) {
+        return advancedStatsService.getReliabilityBySeason(decade, lang);
     }
 
     @GetMapping("/avg-race-duration")
@@ -398,11 +398,9 @@ public class ChartController {
                 "distinct-grid-positions-winning",
                 "finish-position-distribution",
                 "finish-vs-dnf-ratio",
-                "points-streaks",
                 "qualifying-improvement",
                 "quali-consistency",
-                "poles-without-win",
-                "efficiency-rating"
+                "poles-without-win"
         ));
 
         categories.put(teams, List.of(
@@ -411,7 +409,6 @@ public class ChartController {
                 "most-team-points",
                 "wins-no-front-row",
                 "grid-vs-result-delta",
-                "reliability-by-season",
                 "technical-failures"
         ));
 
