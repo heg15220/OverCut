@@ -92,7 +92,7 @@ public interface ResultDao extends JpaRepository<Result, Long> {
 
 
     @Query(value = """
-    SELECT 
+    SELECT
         r.driverId AS driverId,
         r.constructorId AS constructorId,
         ra.raceId AS raceId,
@@ -1464,6 +1464,153 @@ ORDER BY max_streak DESC
             @Param("endYear") int endYear
     );
 
+
+    @Query(value = """
+    WITH driver_stats AS (
+        SELECT
+            ra.year,
+            r.driverId,
+            d.forename,
+            d.surname,
+            AVG(r.positionOrder) AS avgPosition,
+            STDDEV_POP(r.positionOrder) AS stddevPosition,
+            SUM(r.points) AS totalPoints,
+            COUNT(*) AS raceCount,
+            CASE
+                WHEN ra.year >= 2010 THEN 25
+                WHEN ra.year >= 2003 THEN 10
+                WHEN ra.year >= 1991 THEN 10
+                WHEN ra.year >= 1960 THEN 9
+                ELSE 8
+            END AS maxPointsPerRace,
+            r.constructorId
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        JOIN drivers d ON r.driverId = d.driverId
+        WHERE r.driverId = :driverId
+        GROUP BY ra.year, r.driverId, r.constructorId
+    ),
+    team_points AS (
+        SELECT
+            ra.year,
+            r.constructorId,
+            SUM(r.points) AS teamPoints
+        FROM results r
+        JOIN races ra ON r.raceId = ra.raceId
+        WHERE r.points IS NOT NULL
+        GROUP BY ra.year, r.constructorId
+    ),
+    teammate_battles AS (
+        SELECT
+            ra.year,
+            r1.driverId,
+            SUM(CASE WHEN r1.positionOrder < r2.positionOrder THEN 1 ELSE 0 END) AS teammateWins,
+            COUNT(*) AS teammateBattles
+        FROM results r1
+        JOIN results r2 ON r1.raceId = r2.raceId
+          AND r1.constructorId = r2.constructorId
+          AND r1.driverId <> r2.driverId
+        JOIN races ra ON r1.raceId = ra.raceId
+        WHERE r1.driverId = :driverId
+        GROUP BY ra.year, r1.driverId
+    ),
+    driver_champ AS (
+        SELECT
+            ds.driverId,
+            r.year,
+            ds.position AS driverChampPos
+        FROM driverstandings ds
+        JOIN races r ON ds.raceId = r.raceId
+        WHERE ds.raceId IN (
+            SELECT r2.raceId FROM races r2
+            WHERE r2.round = (SELECT MAX(r3.round) FROM races r3 WHERE r3.year = r2.year)
+        )
+    ),
+    team_champ AS (
+        SELECT
+            cs.constructorId,
+            r.year,
+            cs.position AS constructorChampPos
+        FROM constructorstandings cs
+        JOIN races r ON cs.raceId = r.raceId
+        WHERE cs.raceId IN (
+            SELECT r2.raceId FROM races r2
+            WHERE r2.round = (SELECT MAX(r3.round) FROM races r3 WHERE r3.year = r2.year)
+        )
+    )
+    SELECT
+        ds.driverId,
+        ds.forename,
+        ds.surname,
+        ds.year,
+        ds.avgPosition,
+        ds.stddevPosition,
+        ds.totalPoints,
+        ds.raceCount,
+        ds.maxPointsPerRace,
+        ds.constructorId,
+        tp.teamPoints,
+        tb.teammateBattles,
+        tb.teammateWins,
+        dc.driverChampPos,
+        tc.constructorChampPos
+    FROM driver_stats ds
+    LEFT JOIN team_points tp ON tp.year = ds.year AND tp.constructorId = ds.constructorId
+    LEFT JOIN teammate_battles tb ON tb.year = ds.year AND tb.driverId = ds.driverId
+    LEFT JOIN driver_champ dc ON dc.year = ds.year AND dc.driverId = ds.driverId
+    LEFT JOIN team_champ tc ON tc.year = ds.year AND tc.constructorId = ds.constructorId
+    ORDER BY ds.year
+""", nativeQuery = true)
+    List<DriverSeasonPerformanceView> getDriverPerformanceStats(@Param("driverId") Long driverId);
+
+
+    @Query(value = """
+WITH constructor_stats AS (
+    SELECT
+        ra.year,
+        r.constructorId,
+        AVG(r.positionOrder) AS avgPosition,
+        STDDEV_POP(r.positionOrder) AS stddevPosition,
+        SUM(r.points) AS totalPoints,
+        COUNT(*) AS raceCount,
+        CASE
+            WHEN ra.year >= 2010 THEN 25
+            WHEN ra.year >= 2003 THEN 10
+            WHEN ra.year >= 1991 THEN 10
+            WHEN ra.year >= 1960 THEN 9
+            ELSE 8
+        END AS maxPointsPerRace
+    FROM results r
+    JOIN races ra ON r.raceId = ra.raceId
+    WHERE r.constructorId = :constructorId
+    GROUP BY ra.year, r.constructorId
+),
+team_champ AS (
+    SELECT
+        cs.constructorId,
+        r.year,
+        cs.position AS constructorChampPos
+    FROM constructorstandings cs
+    JOIN races r ON cs.raceId = r.raceId
+    WHERE cs.raceId IN (
+        SELECT r2.raceId FROM races r2
+        WHERE r2.round = (SELECT MAX(r3.round) FROM races r3 WHERE r3.year = r2.year)
+    )
+)
+SELECT
+    cs.year,
+    cs.constructorId,
+    cs.avgPosition,
+    cs.stddevPosition,
+    cs.totalPoints,
+    cs.raceCount,
+    cs.maxPointsPerRace,
+    tc.constructorChampPos
+FROM constructor_stats cs
+LEFT JOIN team_champ tc ON tc.year = cs.year AND tc.constructorId = cs.constructorId
+ORDER BY cs.year
+""", nativeQuery = true)
+    List<ConstructorSeasonPerformanceView> getConstructorPerformanceStats(@Param("constructorId") Long constructorId);
 
 
 }
