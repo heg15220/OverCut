@@ -91,5 +91,28 @@ public interface LapTimeDao extends JpaRepository<LapTime, LapTimeId> {
     List<OvertakePerRaceFullView> getOvertakesPerRaceForYear(@Param("year") int year);
 
 
+    @Query(value = """
+WITH driver_laps AS (
+    SELECT
+        lt.raceId,
+        r.year,
+        lt.driverId,
+        lt.lap,
+        lt.position,
+        LAG(lt.position) OVER (PARTITION BY lt.raceId, lt.driverId ORDER BY lt.lap) AS prev_position
+    FROM laptimes lt
+    JOIN races r ON lt.raceId = r.raceId
+)
+SELECT
+    r.year AS year,
+    COUNT(*) AS overtakes
+FROM driver_laps r
+WHERE prev_position IS NOT NULL
+  AND position < prev_position
+GROUP BY r.year
+ORDER BY r.year
+""", nativeQuery = true)
+    List<OvertakeCountPerYearView> getOvertakesPerYear();
+
 
 }

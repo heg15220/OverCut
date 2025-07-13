@@ -107,7 +107,6 @@ const ChartSelector = () => {
       { endpoint: "points-delta-vs-teammate", label: { es: "Δ Puntos por Temporada", en: "Points Δ per Season" }, param: "season", chartType: "bar" },
       { endpoint: "victory-percentage-by-decade", label: { es: "Porcentaje de Victorias por Década", en: "Win % by Decade" }, param: "decade", chartType: "pie" },
       { endpoint: "average-points-per-season", label: { es: "Promedio de Puntos por Década", en: "Avg Points by Decade" }, param: "decade", chartType: "line" },
-      { endpoint: "q3-percentage-vs-teammate", label: { es: "Q3 vs Compañero", en: "Q3 vs Teammate" }, param: "driverId" },
       { endpoint: "most-common-quali-position", label: { es: "Posición de Clasificación Más Frecuente", en: "Most Common Quali Position" }},
       { endpoint: "quali-vs-teammate-comparison", label: { es: "Rendimiento en Clasificación vs Compañero", en: "Quali Performance vs Teammate" }, param: "driverId"},
       { endpoint: "race-vs-teammate-comparison", label: { es: "Rendimiento en Carrera vs Compañero", en: "Race Performance vs Teammate" }, param: "driverId"},

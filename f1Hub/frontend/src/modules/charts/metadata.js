@@ -86,9 +86,6 @@ const metadata = {
     "avg-fastest-lap-speed": {
       label: { es: "Velocidad Promedio en Vuelta Rápida", en: "Avg Fastest Lap Speed" }
     },
-    "top-overtaking-races": {
-      label: { es: "Temporadas con Más Adelantamientos", en: "Top Overtaking Seasons" }
-    },
     "quali-consistency": {
       label: {
         es: "Consistencia en Clasificación (Varianza)",

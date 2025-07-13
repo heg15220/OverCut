@@ -429,7 +429,6 @@ public class ChartController {
                 "avg-race-duration",
                 "q1-q3-delta-per-season",
                 "avg-fastest-lap-speed",
-                "top-overtaking-races",
                 "pole-conversion-rate",
                 "podiums-from-outside-top10",
                 "retirement-cause-by-season",
