@@ -38,12 +38,6 @@ const metadata = {
   "podiums-from-3rd-or-worse": {
     label: { es: "Podios desde 3ª Posición o Peor", en: "Podiums from 3rd or Worse" }
   },
-  "average-accidents-by-season": {
-    label: { es: "Accidentes Promedio por Temporada", en: "Average Accidents per Season" }
-  },
-  "average-retirements-by-season": {
-    label: { es: "Abandonos Promedio por Temporada", en: "Average Retirements per Season" }
-  },
   "avg-pitstops-per-season": {
     label: { es: "Pitstops Promedio por Temporada", en: "Average Pitstops per Season" }
   },

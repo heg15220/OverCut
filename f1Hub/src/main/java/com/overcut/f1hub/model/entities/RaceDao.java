@@ -30,6 +30,18 @@ public interface RaceDao extends JpaRepository<Race, Long> {
             nativeQuery = true)
     List<YearCountView> getRaceCountByYear();
 
+    @Query(value = """
+    SELECT ra.year AS year, COUNT(DISTINCT ra.raceId) AS count
+    FROM races ra
+    WHERE ra.year BETWEEN :startYear AND :endYear
+    GROUP BY ra.year
+    ORDER BY ra.year
+""", nativeQuery = true)
+    List<YearCountView> getRaceCountByYear(
+            @Param("startYear") int startYear,
+            @Param("endYear") int endYear
+    );
+
 
     @Query("""
     SELECT r FROM Race r
@@ -51,6 +63,55 @@ public interface RaceDao extends JpaRepository<Race, Long> {
     ORDER BY r.year, r.round
 """, nativeQuery = true)
     List<RaceLeaderCountView> getDistinctLeadersPerRace(@Param("season") Integer season);
+
+    @Query(value = """
+    SELECT
+      ra.year AS year,
+      COUNT(DISTINCT ra.raceId) AS totalRaces,
+      COUNT(CASE
+          WHEN LOWER(s.status) NOT IN (
+              'finished', 'classified', 'not classified', 'excluded', 'disqualified',
+              'did not qualify', 'did not prequalify', 'did not start', 'withdrew', '107% rule'
+          )
+          AND LOWER(s.status) NOT REGEXP '\\\\+\\\\d+\\\\s+laps?'
+          THEN 1
+          ELSE NULL
+      END) AS retirements
+    FROM races ra
+    LEFT JOIN results r ON ra.raceId = r.raceId
+    LEFT JOIN status s ON r.statusId = s.statusId
+    GROUP BY ra.year
+    ORDER BY ra.year
+""", nativeQuery = true)
+    List<RetirementRatioAggView> getRetirementsAndRaceCountsBySeason();
+
+    @Query(value = """
+SELECT
+  ra.year AS year,
+  COUNT(DISTINCT ra.raceId) AS totalRaces,
+  COUNT(CASE
+      WHEN s.statusId IS NOT NULL 
+        AND s.statusId NOT IN :lapDownStatusIds
+        AND LOWER(s.status) NOT IN (
+            'finished', 'classified', 'not classified', 'excluded', 'disqualified',
+            'did not qualify', 'did not prequalify', 'did not start', 'withdrew', '107% rule'
+        )
+      THEN 1
+      ELSE NULL
+  END) AS retirements
+FROM races ra
+LEFT JOIN results r ON ra.raceId = r.raceId
+LEFT JOIN status s ON r.statusId = s.statusId
+WHERE ra.year BETWEEN :startYear AND :endYear
+GROUP BY ra.year
+ORDER BY ra.year
+""", nativeQuery = true)
+    List<RetirementRatioAggView> getRetirementsAndRaceCountsBySeason(
+            @Param("lapDownStatusIds") List<Long> lapDownStatusIds,
+            @Param("startYear") int startYear,
+            @Param("endYear") int endYear
+    );
+
 
 }
 

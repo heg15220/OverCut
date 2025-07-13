@@ -6,6 +6,7 @@ import com.overcut.f1hub.rest.dtos.ChartSeriesDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +58,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Autowired
     private SprintResultDao sprintResultDao;
+
+
 
     public List<DriverOption> getAllDrivers() {
         return driverDao.findAll().stream()
@@ -514,11 +517,25 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
-    public ChartDataDTO getAverageAccidentsBySeason(String lang) {
-        Map<Integer, Long> accidents = statusDao.getAccidentCountsBySeason().stream()
+    public ChartDataDTO getAverageAccidentsBySeason(String decade, String lang) {
+        int startYear = 0, endYear = 9999;
+        if (decade != null) {
+            switch (decade) {
+                case "1950s": startYear = 1950; endYear = 1959; break;
+                case "1960s": startYear = 1960; endYear = 1969; break;
+                case "1970s": startYear = 1970; endYear = 1979; break;
+                case "1980s": startYear = 1980; endYear = 1989; break;
+                case "1990s": startYear = 1990; endYear = 1999; break;
+                case "2000s": startYear = 2000; endYear = 2009; break;
+                case "2010s": startYear = 2010; endYear = 2019; break;
+                case "2020s": startYear = 2020; endYear = 2029; break;
+            }
+        }
+
+        Map<Integer, Long> accidents = statusDao.getAccidentCountsBySeason(startYear, endYear).stream()
                 .collect(Collectors.toMap(AccidentStatView::getYear, AccidentStatView::getCount));
 
-        Map<Integer, Long> races = raceDao.getRaceCountByYear().stream()
+        Map<Integer, Long> races = raceDao.getRaceCountByYear(startYear, endYear).stream()
                 .collect(Collectors.toMap(YearCountView::getYear, YearCountView::getCount));
 
         List<Integer> years = new ArrayList<>(races.keySet());
@@ -538,24 +555,41 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
-    @Override
-    public ChartDataDTO getAverageRetirementsBySeason(String lang) {
-        Map<Integer, Long> retirements = resultDao.getRetirementCountsBySeason().stream()
-                .collect(Collectors.toMap(RetirementStatView::getYear, RetirementStatView::getCount));
-        Map<Integer, Long> races = raceDao.getRaceCountByYear().stream()
-                .collect(Collectors.toMap(YearCountView::getYear, YearCountView::getCount));
 
-        List<Integer> years = new ArrayList<>(retirements.keySet());
-        Collections.sort(years);
+
+    @Override
+    public ChartDataDTO getAverageRetirementsBySeason(String decade, String lang) {
+        int startYear = 0, endYear = 9999;
+        if (decade != null) {
+            switch (decade) {
+                case "1950s": startYear = 1950; endYear = 1959; break;
+                case "1960s": startYear = 1960; endYear = 1969; break;
+                case "1970s": startYear = 1970; endYear = 1979; break;
+                case "1980s": startYear = 1980; endYear = 1989; break;
+                case "1990s": startYear = 1990; endYear = 1999; break;
+                case "2000s": startYear = 2000; endYear = 2009; break;
+                case "2010s": startYear = 2010; endYear = 2019; break;
+                case "2020s": startYear = 2020; endYear = 2029; break;
+                // añade más si quieres
+            }
+        }
+
+        // cargar en cada llamada
+        List<Long> lapDownStatusIds = statusDao.findLapDownStatusIds();
+
+        // usar en la query
+        List<RetirementRatioAggView> data = raceDao.getRetirementsAndRaceCountsBySeason(
+                lapDownStatusIds, startYear, endYear
+        );
 
         List<String> labels = new ArrayList<>();
         List<Double> values = new ArrayList<>();
 
-        for (Integer year : years) {
-            long ret = retirements.getOrDefault(year, 0L);
-            long rac = races.getOrDefault(year, 1L);
-            labels.add(String.valueOf(year));
-            values.add((double) ret / rac);
+        for (RetirementRatioAggView row : data) {
+            long ret = row.getRetirements() == null ? 0L : row.getRetirements();
+            long races = row.getTotalRaces() == null || row.getTotalRaces() == 0 ? 1L : row.getTotalRaces();
+            labels.add(String.valueOf(row.getYear()));
+            values.add((double) ret / races);
         }
 
         return new ChartDataDTO(
@@ -565,6 +599,11 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 List.of(new ChartSeriesDTO("Retirements per race", "#cc0000", values))
         );
     }
+
+
+
+
+
 
 
 
@@ -1404,79 +1443,29 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
     @Override
+    @Cacheable("overtakesPerRace")
     public ChartDataDTO getOvertakesPerRace(String yearStr, String lang) {
         int year = Integer.parseInt(yearStr);
 
-        // Usamos la consulta personalizada para obtener las carreras ordenadas por ronda
-        List<Race> races = raceDao.findByYearOrderByRoundAsc(year);
-        Map<Long, Race> raceMap = races.stream()
-                .collect(Collectors.toMap(Race::getRaceId, r -> r));
+        List<OvertakePerRaceFullView> results = lapTimeDao.getOvertakesPerRaceForYear(year);
 
-        Map<Long, Integer> overtakeMap = new HashMap<>();
+        List<String> labels = results.stream()
+                .map(OvertakePerRaceFullView::getRaceName)
+                .toList();
 
-        // Mapa para almacenar las posiciones de cada piloto por carrera y vuelta
-        Map<Long, Map<Integer, Integer>> driverPositions = new HashMap<>();
+        List<Double> values = results.stream()
+                .map(r -> (double) r.getOvertakes())
+                .toList();
 
-        // Obtener los tiempos de vuelta de las carreras seleccionadas (en vez de findAll())
-        List<LapTimeSimpleView> lapTimes = lapTimeDao.findSimpleLapTimesByRaceIds(raceMap.keySet());
-
-        // Recorremos todos los tiempos de vuelta
-        for (LapTimeSimpleView lapTime : lapTimes) {
-            Long driverId = lapTime.getDriverId();
-            Long raceId = lapTime.getRaceId();
-            Integer lapNumber = lapTime.getLap();
-            Integer position = lapTime.getPosition();
-
-            if (raceMap.containsKey(raceId) && position != null) {
-                // Inicializamos el mapa de posiciones si es la primera vez que vemos al piloto
-                driverPositions.computeIfAbsent(driverId, k -> new HashMap<>());
-                Map<Integer, Integer> positions = driverPositions.get(driverId);
-
-                // Si no tenemos la posición para esta vuelta, la asignamos
-                if (!positions.containsKey(lapNumber)) {
-                    positions.put(lapNumber, position);
-                } else {
-                    // Comprobamos si la posición ha cambiado respecto a la vuelta anterior
-                    if (positions.containsKey(lapNumber - 1)) {
-                        int previousPosition = positions.get(lapNumber - 1);
-
-                        // Solo contamos el adelantamiento si la posición ha cambiado (es menor la nueva)
-                        if (position < previousPosition) {
-                            // Incrementamos el contador de adelantamientos para la carrera
-                            overtakeMap.merge(raceId, 1, Integer::sum);
-                        }
-                    }
-
-                    // Actualizamos la posición para la vuelta actual
-                    positions.put(lapNumber, position);
-                }
-            }
-        }
-
-        // Aseguramos que todas las carreras estén en el mapa, incluso si no hubo adelantamientos
-        for (Long raceId : raceMap.keySet()) {
-            overtakeMap.putIfAbsent(raceId, 0);  // Asegura que la carrera esté en el mapa con valor 0 si no hubo adelantamientos
-        }
-
-        // Ordenamos las carreras por número de ronda
-        List<Map.Entry<Long, Integer>> sorted = overtakeMap.entrySet().stream()
-                .sorted(Comparator.comparing(e -> raceMap.get(e.getKey()).getRound()))
-                .collect(Collectors.toList());
-
-        // Preparamos las etiquetas para las carreras
-        List<String> labels = sorted.stream()
-                .map(e -> raceMap.get(e.getKey()).getName())
-                .collect(Collectors.toList());
-
-        // Preparamos los valores de los adelantamientos
-        List<Double> values = sorted.stream()
-                .map(e -> (double) e.getValue())
-                .collect(Collectors.toList());
-
-        // Devolvemos los datos para la gráfica
-        return new ChartDataDTO(chartI18n.get("overtakesPerRace", lang) +  year , "bar", labels,
-                List.of(new ChartSeriesDTO("Position changes", "#00c49f", values)));
+        return new ChartDataDTO(
+                chartI18n.get("overtakesPerRace", lang) + year,
+                "bar",
+                labels,
+                List.of(new ChartSeriesDTO("Position changes", "#00c49f", values))
+        );
     }
+
+
 
 
     @Override

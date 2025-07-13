@@ -125,15 +125,20 @@ public class ChartController {
     }
 
     @GetMapping("/average-accidents-by-season")
-    public ChartDataDTO getAverageAccidentsBySeason(@RequestParam String lang) {
-        return advancedStatsService.getAverageAccidentsBySeason(lang);
+    public ChartDataDTO getAverageAccidentsBySeason(
+            @RequestParam(required = false) String decade,
+            @RequestParam String lang) {
+        return advancedStatsService.getAverageAccidentsBySeason(decade, lang);
     }
-
 
     @GetMapping("/average-retirements-by-season")
-    public ChartDataDTO getAverageRetirementsBySeason(@RequestParam String lang) {
-        return advancedStatsService.getAverageRetirementsBySeason(lang);
+    public ChartDataDTO getAverageRetirementsBySeason(
+            @RequestParam(required = false) String decade,
+            @RequestParam String lang
+    ) {
+        return advancedStatsService.getAverageRetirementsBySeason(decade, lang);
     }
+
 
 
     @GetMapping("/pitstops-per-race")
@@ -415,8 +420,6 @@ public class ChartController {
         categories.put(races, List.of(
                 "wins-from-3rd-or-worse",
                 "podiums-from-3rd-or-worse",
-                "average-accidents-by-season",
-                "average-retirements-by-season",
                 "avg-pitstops-per-season",
                 "avg-overtakes-per-season",
                 "quali-gap-1st-to-2nd-average",
