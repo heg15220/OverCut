@@ -17,6 +17,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const defaultTheme = createTheme();
 
@@ -25,6 +26,7 @@ const validatePassword = (password) => {
     const uppercaseCheck = /[A-Z]/.test(password);
     const numberCheck = /\d/.test(password);
     const specialCharCheck = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
 
     return {
         valid: lengthCheck && uppercaseCheck && numberCheck && specialCharCheck,
@@ -55,9 +57,12 @@ const SignUp = () => {
     });
     const [journalist, setJournalist] = useState(false);
     const isAdmin = useSelector(userSelectors.isAdmin);
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleSubmit = event => {
         event.preventDefault();
+
+        setBackendErrors(null);
+        setPasswordsDoNotMatch(false);
 
         const validation = validatePassword(password);
         if (!validation.valid) {
@@ -70,6 +75,8 @@ const SignUp = () => {
             return;
         }
 
+        setIsSubmitting(true);
+
         dispatch(actions.signUp(
             {
                 userName: userName.trim(),
@@ -80,16 +87,20 @@ const SignUp = () => {
                 journalist: journalist
             },
             () => {
+                setIsSubmitting(false);
                 if (!isAdmin && !journalist) {
                     navigate('/email-confirmation');
                 } else {
                     navigate('/');
                 }
             },
-            errors => setBackendErrors(errors)
+            errors => {
+                setIsSubmitting(false);
+                setBackendErrors(errors);
+            }
         ));
-
     };
+
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -222,10 +233,22 @@ const SignUp = () => {
                             type="submit"
                             fullWidth
                             variant="contained"
-                            sx={{ mt: 3, mb: 2 }}
+                            sx={{ mt: 3, mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            disabled={isSubmitting}
                         >
-                            <FormattedMessage id="project.global.buttons.save" />
+                            {isSubmitting ? (
+                                <>
+                                    <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                                    <Typography variant="button">
+                                        <FormattedMessage id="project.global.buttons.pleaseWait" defaultMessage="Please wait..." />
+                                    </Typography>
+                                </>
+                            ) : (
+                                <FormattedMessage id="project.global.buttons.save" defaultMessage="Save" />
+                            )}
                         </Button>
+
+
                         {backendErrors && <Errors errors={backendErrors} />}
                     </Box>
                 </Box>

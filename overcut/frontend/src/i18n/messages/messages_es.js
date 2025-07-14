@@ -172,6 +172,7 @@ const es = {
     "postEditor.mainImageCaption": "Pie de imagen principal",
     "post.caption.mainImage": "Pie:",
     "project.app.Header.about": "¿Qué es OverCut?",
+    "project.global.buttons.pleaseWait": "Espere por favor...",
 
 
 }

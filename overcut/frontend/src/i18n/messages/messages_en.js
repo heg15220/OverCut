@@ -1,7 +1,7 @@
 const en = {
     'project.global.fields.email': 'Email',
     'project.global.fields.password': 'Password',
-    'project.app.Header.login': 'Login',
+    'project.app.Header.login': 'Sign In',
     'project.app.Header.logout': 'Logout',
     'project.global.buttons.UpdateProfile': 'Update Profile',
     'project.global.buttons.back': 'Back',
@@ -9,7 +9,7 @@ const en = {
     'project.global.buttons.filter': 'Filter',
     'project.global.buttons.next': 'Next',
     'project.global.buttons.save': 'Save',
-    'project.users.SignUp.title': 'Sign up',
+    'project.users.SignUp.title': 'Sign Up',
     "project.global.fields.firstName": 'First name',
     'project.global.fields.lastName': 'Last name',
     'project.users.ChangePassword.fields.confirmNewPassword': 'Confirm new password',
@@ -171,6 +171,7 @@ const en = {
     "postEditor.mainImageCaption": "Main image caption",
     "post.caption.mainImage": "Caption: ",
     "project.app.Header.about": "What is OverCut?",
+    "project.global.buttons.pleaseWait": "Please wait...",
 
 }
 export default en;
