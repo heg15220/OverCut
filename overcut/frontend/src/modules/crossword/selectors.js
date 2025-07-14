@@ -18,3 +18,5 @@ export const checkGameCompleted = (state) => getModuleState(state).game;
 export const resetCrosswordGame = (state) => getModuleState(state).reset;
 
 export const getWordValidation = (state) => getModuleState(state).wordValidation;
+
+export const getActiveWordId = (state) => getModuleState(state).activeWordId;

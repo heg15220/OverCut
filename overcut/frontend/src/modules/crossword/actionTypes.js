@@ -11,3 +11,4 @@ export const SET_WORD_VALIDATION = "project/crossword/setWordValidation";
 export const GET_CHECK_WORD_COMPLETED = "project/crossword/getCheckWordCompleted";
 export const RESET_WORD_VALIDATION = "RESET_WORD_VALIDATION";
 export const RESET_SINGLE_WORD_VALIDATION = "RESET_SINGLE_WORD_VALIDATION";
+export const SET_ACTIVE_WORD = "project/crossword/setActiveWord";

@@ -11,6 +11,7 @@ const initialState = {
     gameCompleted: null,
     reset: null,
     updatedCell: null,
+    activeWordId: null,
     wordValidation: {}, // ✅ un objeto vacío desde el principio
 };
 
@@ -108,6 +109,18 @@ const wordValidation = (state = {}, action) => {
 };
 
 
+const activeWordId = (state = initialState.activeWordId, action) => {
+  switch (action.type) {
+    case actionTypes.SET_ACTIVE_WORD:
+      return action.payload;
+    case actionTypes.RESET_GAME_COMPLETED:
+      return null;
+    default:
+      return state;
+  }
+};
+
+
 
 
 
@@ -120,6 +133,7 @@ const reducer = combineReducers({
     word,
     gameCompleted,
     reset,
+    activeWordId,
     wordValidation,
 });
 

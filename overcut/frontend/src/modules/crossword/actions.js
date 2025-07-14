@@ -3,6 +3,13 @@ import {appFetch, fetchConfig} from "../../backend/appFetch";
 import * as actionTypes from './actionTypes';
 import { getUser } from "../users/selectors";
 
+// actions.js
+export const setActiveWord = (wordId) => ({
+  type: actionTypes.SET_ACTIVE_WORD,
+  payload: wordId,
+});
+
+
 const createCrosswordGameCompleted = (gameId) => ({
     type: actionTypes.CREATE_CROSSWORD_GAME_COMPLETED,
     gameId
