@@ -151,33 +151,31 @@ const GuessDriverGame = () => {
 
 
 
-  return (
-    <div className="grid-game-container">
-      <div className="grid-game-overlay">
-        <div className="card-container">
-          <div className={`card-inner ${game.finished ? "flipped" : ""}`}>
-            <div className="helmet-reveal-container">
-              <div className={`helmet-flip ${game.finished ? "reveal" : ""}`}>
+return (
+  <div className="grid-game-container">
+    <div className="grid-game-overlay">
+      <div className="card-container">
+        <div className="card-inner">
+          <div className="helmet-reveal-container">
+            <div className={`helmet-flip ${game.finished ? "reveal" : ""}`}>
+
+              <div className="helmet-face">
                 <img
                   src={helmetSilhouette}
                   alt="Casco"
                   className="guessPlayerImage"
                 />
-                <div
-                  className={`revealed-name-under ${
-                    game.successful ? "user-success" : "system-reveal"
-                  }`}
-                >
-                  {game.driverName}
-                </div>
-
               </div>
+
+              <div className={`reveal-face ${game.successful ? "user-success" : "system-reveal"}`}>
+                {game.driverName}
+              </div>
+
             </div>
-
-
-
           </div>
         </div>
+      </div>
+
 
 
       {!game.finished && (
