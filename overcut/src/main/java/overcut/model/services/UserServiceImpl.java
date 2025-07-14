@@ -96,9 +96,6 @@ public class UserServiceImpl implements UserService{
             throw new DuplicateInstanceException("project.entities.user", user.getEmail());
         }
 
-        if (!emailSyntaxValidator.isEmailValid(user.getEmail())) {
-            throw new InvalidEmailException("Invalid or unverifiable email address");
-        }
 
         validatePasswordStrength(user.getPassword());
 
@@ -106,7 +103,12 @@ public class UserServiceImpl implements UserService{
         user.setEmailVerified(false);
 
         System.out.println(">>> Email recibido: '" + user.getEmail() + "'");
-        System.out.println(">>> isEmailValid? " + emailSyntaxValidator.isEmailValid(user.getEmail()));
+        boolean valid = emailSyntaxValidator.isEmailValid(user.getEmail());
+        System.out.println(">>> isEmailValid? " + valid);
+        if (!valid) {
+            throw new InvalidEmailException("Invalid or unverifiable email address");
+        }
+
 
         // 🧩 Se delega la transacción a otra clase
         transactionalHelper.persistUserAndToken(user);
