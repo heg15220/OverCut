@@ -116,7 +116,7 @@ public class PostController {
             @RequestParam(required = false) String language
     ) throws InstanceNotFoundException {
 
-        Block<Post> foundPost = postService.getPosts(title, categoryId, page, 400, criteria, order, language);
+        Block<Post> foundPost = postService.getPosts(title, categoryId, page, 40, criteria, order, language);
 
         return new BlockDto<>(PostConversor.toPostDtos(foundPost.getItems()), foundPost.getExistMoreItems());
     }
