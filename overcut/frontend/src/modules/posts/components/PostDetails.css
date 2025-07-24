@@ -87,15 +87,27 @@
 }
 
 .post-section-title {
+  position: relative;
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   font-size: 1.4rem;
   margin-top: 1.5rem;
   margin-bottom: 0.8rem;
   color: #222;
-  border-left: 4px solid #ffcc00;
-  padding-left: 0.6rem;
+  padding-left: 1rem;
 }
+
+.post-section-title::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 6px;
+  background: linear-gradient(135deg, #1e2a48, #2e3e5c);
+  border-radius: 2px;
+}
+
 
 .post-section-text {
   font-family: 'Poppins', sans-serif;

@@ -90,10 +90,6 @@ const Login = () => {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                   />
-                  <FormControlLabel
-                    control={<Checkbox value="remember" color="primary" />}
-                    label={<FormattedMessage id="project.users.Login.rememberMe" defaultMessage="Recuérdame" />}
-                  />
                   <Button
                     type="submit"
                     fullWidth
