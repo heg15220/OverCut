@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import users from '../../users';
 import { useSelector } from 'react-redux';
@@ -27,6 +27,26 @@ const Header = () => {
   const handleToggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
+
+const handleDropdownClick = () => {
+  setShowDropdown(false);
+};
+
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
 
   return (
     <>
@@ -122,36 +142,38 @@ const Header = () => {
       </header>
 
       {isLogged && showDropdown && (
-        <div className="user-dropdown-container">
+        <div className="user-dropdown-container" ref={dropdownRef}>
           <ul className="dropdown-custom shadow">
-            <UserDetailsLink id={user.id} name={userName} />
-            <Link className="dropdown-item" to="/users/update-profile">
+            <UserDetailsLink id={user.id} name={userName} onClick={handleDropdownClick} />
+
+            <Link className="dropdown-item" to="/users/update-profile" onClick={handleDropdownClick}>
               <FormattedMessage id="project.users.UpdateProfile.title" />
             </Link>
-            <Link className="dropdown-item" to="/users/change-password">
+            <Link className="dropdown-item" to="/users/change-password" onClick={handleDropdownClick}>
               <FormattedMessage id="project.users.ChangePassword.title" />
             </Link>
 
             {user.journalist && (
               <>
-                <Link className="dropdown-item" to="/create-post">
+                <Link className="dropdown-item" to="/create-post" onClick={handleDropdownClick}>
                   <FormattedMessage id="project.users.CreatePost.title" />
                 </Link>
-                <Link className="dropdown-item" to="/post/my">
+                <Link className="dropdown-item" to="/post/my" onClick={handleDropdownClick}>
                   <FormattedMessage id="project.users.MyPosts.title" />
                 </Link>
               </>
             )}
 
-            {user.admin && <CreateJournalistButton />}
+            {user.admin && <CreateJournalistButton onClick={handleDropdownClick} />}
 
             <li><hr className="dropdown-divider" /></li>
-            <Link className="dropdown-item" to="/users/logout">
+            <Link className="dropdown-item" to="/users/logout" onClick={handleDropdownClick}>
               <FormattedMessage id="project.app.Header.logout" />
             </Link>
           </ul>
         </div>
       )}
+
     </>
   );
 };
