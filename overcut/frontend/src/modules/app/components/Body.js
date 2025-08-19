@@ -27,6 +27,8 @@ import TicTacToe from "../../tictactoe/components/TicTacToe";
 import TicTacToeGame from "../../tictactoe/components/TicTacToeGame";
 import GridGamePage from "../../gridgame/components/GridGamePage";
 import QuizWrapper from "../../quiz/components/Quiz";
+import OvercutGamesInfo from '../../common/components/OvercutGamesInfo';
+
 
 import Crossword from "../../crossword/components/Crossword";
 
@@ -151,7 +153,7 @@ const Body = () => {
                     {loggedIn && <Route path="/password-change-confirmation" element={<PasswordChangeConfirmationPage />} />}
                     <Route path="/about_us" element={<AboutOvercut />} />
                     <Route path="/about" element={<Overcut />} />
-
+                    <Route path="/overcutgames-info" element={<OvercutGamesInfo />} />
                 </Route>
             </Routes>
         </div>

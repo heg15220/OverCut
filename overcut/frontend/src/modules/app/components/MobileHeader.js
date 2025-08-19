@@ -36,13 +36,15 @@ const MobileHeader = () => {
 
           <nav>
             <ul>
+              {isLogged && (
+                <li>
+                  <Link to="/category/2" onClick={handleCloseMenu}>
+                    <FormattedMessage id="project.app.Header.quiz" /> <Lightbulb size={16} />
+                  </Link>
+                </li>
+              )}
               <li>
-                <Link to="/category/2" onClick={handleCloseMenu}>
-                  <FormattedMessage id="project.app.Header.quiz" /> <Lightbulb size={16} />
-                </Link>
-              </li>
-              <li>
-                <Link to="/minigames" onClick={handleCloseMenu}>
+                <Link to={isLogged ? "/minigames" : "/overcutgames-info"} onClick={handleCloseMenu}>
                   <FormattedMessage id="project.app.Header.minigames" /> <Puzzle size={16} />
                 </Link>
               </li>

@@ -80,14 +80,17 @@ const handleDropdownClick = () => {
                         <FormattedMessage id="project.app.Header.quiz" /> <Lightbulb size={16} />
                       </Link>
                     </li>
-
-                    <li className="nav-item">
-                      <Link className="nav-link" to="/minigames">
-                        <FormattedMessage id="project.app.Header.minigames" /> <Puzzle size={16} />
-                      </Link>
-                    </li>
                   </>
                 )}
+
+                <li className="nav-item">
+                  <Link
+                    className="nav-link"
+                    to={isLogged ? "/minigames" : "/overcutgames-info"}
+                  >
+                    <FormattedMessage id="project.app.Header.minigames" /> <Puzzle size={16} />
+                  </Link>
+                </li>
 
                 <li className="nav-item">
                   <a className="nav-link" href="http://localhost:8083/">

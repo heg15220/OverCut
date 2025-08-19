@@ -28,8 +28,8 @@ public class InitialUserLoader implements CommandLineRunner {
             try {
                 User admin = new User();
                 admin.setUserName("admin1");
-                admin.setFirstName("Admin");
-                admin.setLastName("User");
+                admin.setFirstName("OverCut");
+                admin.setLastName("Admin");
                 admin.setPassword("#EspaGarcia_02");
                 admin.setEmail("hugo.e@gmx.com");
                 admin.setJournalist(true);

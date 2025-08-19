@@ -1,0 +1,106 @@
+/* OvercutGamesInfo.css */
+
+.overcut-info-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0c0f1a, #1a2238);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 3rem 1rem 2rem;
+  color: #fff;
+  animation: fadeIn 0.8s ease-in;
+}
+
+.overcut-info-title {
+  font-size: 2.4rem;
+  margin-bottom: 2rem;
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+  text-align: center;
+}
+
+.overcut-info-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  max-width: 1200px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.overcut-info-image-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.overcut-info-image {
+  max-width: 100%;
+  max-height: 560px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.overcut-info-text-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 540px;
+  text-align: left;
+}
+
+.overcut-info-description p {
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.highlight-text {
+  font-weight: bold;
+  color: #ffd700;
+  margin-top: 0.5rem;
+}
+
+.overcut-info-button-wrapper {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.overcut-info-button {
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  background-color: #ffd700;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.overcut-info-button:hover {
+  background-color: #ffcc00;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .overcut-info-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .overcut-info-text-wrapper {
+    align-items: center;
+  }
+
+  .overcut-info-button-wrapper {
+    justify-content: center;
+  }
+}
