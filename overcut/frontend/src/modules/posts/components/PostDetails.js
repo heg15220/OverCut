@@ -179,12 +179,17 @@ const PostDetails = () => {
 
 
                         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
+                          <Box sx={{ width: 50, height: 50 }}>
                             <UserAvatar image={postUser?.image} userName={userName} size={50} />
-                            <Box sx={{ marginLeft: 2 }}>
-                                <Typography variant="subtitle1">{userName}</Typography>
-                                <Typography variant="body2" color="text.secondary">{new Date(post.creationDate).toLocaleDateString()}</Typography>
-                            </Box>
+                          </Box>
+                          <Box sx={{ marginLeft: 2 }}>
+                            <Typography variant="subtitle1">{userName}</Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {new Date(post.creationDate).toLocaleDateString()}
+                            </Typography>
+                          </Box>
                         </Box>
+
 
                         <Typography variant="body1" sx={{
                             whiteSpace: 'pre-wrap',

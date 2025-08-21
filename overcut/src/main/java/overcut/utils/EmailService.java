@@ -18,10 +18,9 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
         helper.setTo(toEmail);
-        helper.setSubject("✅ Registro exitoso en OverCut / Successful Registration at OverCut");
+        helper.setSubject("✅ Registro exitoso en OverCut / Successful Sign Up at OverCut");
 
         String confirmationUrl = "http://localhost:3000/#/verify-email?token=" + token;
-
 
         String content = "<h2>¡Bienvenido a OverCut, " + userName + "!</h2>" +
                 "<p>Tu cuenta ha sido registrada correctamente. Para activar tu cuenta, haz clic en el siguiente botón:</p>" +
@@ -30,7 +29,7 @@ public class EmailService {
                 "text-decoration: none; border-radius: 5px;\">Activar cuenta</a>" +
                 "<hr>" +
                 "<h2>Welcome to OverCut, " + userName + "!</h2>" +
-                "<p>Your account has been successfully registered. To activate it, click the button below:</p>" +
+                "<p>Your account has been successfully created. To activate it, click the button below:</p>" +
                 "<a href=\"" + confirmationUrl + "\" " +
                 "style=\"display: inline-block; padding: 10px 20px; background-color: #28A745; color: white; " +
                 "text-decoration: none; border-radius: 5px;\">Activate Account</a>";

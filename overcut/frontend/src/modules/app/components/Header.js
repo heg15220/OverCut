@@ -7,6 +7,7 @@ import Notifications from "./Notifications";
 import './App.css';
 import UserAvatar from "../../users/components/UserAvatar";
 import CreateJournalistButton from '../../users/components/CreateJournalistButton';
+import CreateJournalistDialog from "../../users/components/CreateJournalistDialog";
 import {
   Lightbulb,
   Puzzle,
@@ -23,14 +24,15 @@ const Header = () => {
   const user = useSelector(users.selectors.getUser);
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const [openCreateJournalist, setOpenCreateJournalist] = useState(false); // ⬅️ nuevo estado global
 
   const handleToggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
 
-const handleDropdownClick = () => {
-  setShowDropdown(false);
-};
+  const handleDropdownClick = () => {
+    setShowDropdown(false);
+  };
 
   const dropdownRef = useRef(null);
 
@@ -47,25 +49,24 @@ const handleDropdownClick = () => {
     };
   }, []);
 
-
   return (
     <>
       <header className="header">
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
           <div className="container-fluid">
 
-            {/* Brand mobile center-aligned */}
+            {/* Brand mobile */}
             <Link className="navbar-brand mx-auto d-lg-none text-center" to="/">
               <img src={image} alt="OverCut Logo" className="header-logo" />
               <span className="ms-2 overcut-text overcut-text-animation">OverCut</span>
             </Link>
 
-            {/* Hamburger button */}
+            {/* Hamburger */}
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
               <span className="navbar-toggler-icon"></span>
             </button>
 
-            {/* Brand for desktop */}
+            {/* Brand desktop */}
             <Link className="navbar-brand d-none d-lg-flex align-items-center" to="/">
               <img src={image} alt="OverCut Logo" className="header-logo" />
               <span className="ms-2 overcut-text overcut-text-animation">OverCut</span>
@@ -74,13 +75,11 @@ const handleDropdownClick = () => {
             <div className="collapse navbar-collapse" id="navbarContent">
               <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                 {isLogged && (
-                  <>
-                    <li className="nav-item">
-                      <Link className="nav-link" to="/category/2">
-                        <FormattedMessage id="project.app.Header.quiz" /> <Lightbulb size={16} />
-                      </Link>
-                    </li>
-                  </>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/category/2">
+                      <FormattedMessage id="project.app.Header.quiz" /> <Lightbulb size={16} />
+                    </Link>
+                  </li>
                 )}
 
                 <li className="nav-item">
@@ -144,6 +143,7 @@ const handleDropdownClick = () => {
         </nav>
       </header>
 
+      {/* ✅ Dropdown */}
       {isLogged && showDropdown && (
         <div className="user-dropdown-container" ref={dropdownRef}>
           <ul className="dropdown-custom shadow">
@@ -167,7 +167,9 @@ const handleDropdownClick = () => {
               </>
             )}
 
-            {user.admin && <CreateJournalistButton onClick={handleDropdownClick} />}
+            {user.admin && (
+              <CreateJournalistButton openDialog={() => setOpenCreateJournalist(true)} />
+            )}
 
             <li><hr className="dropdown-divider" /></li>
             <Link className="dropdown-item" to="/users/logout" onClick={handleDropdownClick}>
@@ -177,6 +179,11 @@ const handleDropdownClick = () => {
         </div>
       )}
 
+      {/* ✅ Diálogo montado fuera del dropdown */}
+      <CreateJournalistDialog
+        open={openCreateJournalist}
+        onClose={() => setOpenCreateJournalist(false)}
+      />
     </>
   );
 };
