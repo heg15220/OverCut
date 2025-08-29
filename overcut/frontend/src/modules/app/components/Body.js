@@ -81,9 +81,12 @@ import MyCustomCalendar from "../../events/components/MyCustomCalendar";
 import TeamsPage from "../../historic/components/TeamsPage";
 import TeamsVictoriesCircuitBarChart from "../../historic/components/TeamsVictoriesCircuitBarChart";
 import UserAwardConfirmed from "../../quiz/components/UserAwardConfirmed";
-
-
-
+import LegalNotice from "../../app/components/LegalNotice";
+import TermsOfUse from "../../app/components/TermsOfUse";
+import PrivacyPolicy from "../../app/components/PrivacyPolicy";
+import CookiesPolicy from "../../app/components/CookiesPolicy";
+import IntellectualProperty from "../../app/components/IntellectualProperty";
+import LegalHub from "../../app/components/LegalHub";
 
 const Body = () => {
 
@@ -154,6 +157,12 @@ const Body = () => {
                     <Route path="/about_us" element={<AboutOvercut />} />
                     <Route path="/about" element={<Overcut />} />
                     <Route path="/overcutgames-info" element={<OvercutGamesInfo />} />
+                    <Route path="/legal/notice" element={<LegalNotice />} />
+                    <Route path="/legal/terms" element={<TermsOfUse />} />
+                    <Route path="/legal/privacy" element={<PrivacyPolicy />} />
+                    <Route path="/legal/cookies" element={<CookiesPolicy />} />
+                    <Route path="/legal/intellectualProperty" element={<IntellectualProperty />} />
+                    <Route path="/legal" element={<LegalHub />} />
                 </Route>
             </Routes>
         </div>

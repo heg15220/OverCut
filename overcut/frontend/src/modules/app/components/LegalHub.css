@@ -1,0 +1,143 @@
+/* ==== LegalHub.css – HUB de legales con fondo coherente + overlay ==== */
+
+/* Contenedor principal */
+.legalhub-wrapper {
+  position: relative;                 /* necesario para el overlay ::before */
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+
+  /* Fondo coherente con LegalLayout/Footer, pero con jerarquía de “hub” */
+  background: linear-gradient(160deg, #0b0f1d 0%, #1a2238 50%, #0b0f1d 100%);
+  border: 1px solid #2e3a59;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.45);
+  overflow: hidden;                   /* oculta el overlay que sobresalga */
+}
+
+/* Overlay dorado muy sutil para reforzar identidad OverCut */
+.legalhub-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,215,0,0.08), transparent 55%),
+    radial-gradient(circle at 88% 12%, rgba(255,215,0,0.05), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Cabecera */
+.legalhub-header {
+  position: relative; /* para estar encima del overlay */
+  text-align: center;
+  margin-bottom: 1.5rem;
+  z-index: 1;
+}
+
+.legalhub-header h1 {
+  margin: 0 0 .25rem 0;
+  color: #ffd700; /* acento OverCut */
+  font-size: 1.6rem;
+}
+
+.legalhub-sub {
+  color: #97a0b3;
+  margin-top: 0.25rem;
+}
+
+/* Grid de tarjetas */
+.legalhub-grid {
+  position: relative; /* sobre el overlay */
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* Tarjetas */
+.legalhub-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  border-radius: 16px;
+  padding: 1rem;
+  background: linear-gradient(135deg, #0c0f1a, #131b2e);
+  border: 1px solid #2e3a59;
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  color: #eef2ff;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+  min-height: 150px;
+  outline: none; /* usaremos :focus-visible */
+}
+
+.legalhub-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.35);
+  border-color: #3a4a6c;
+  background: linear-gradient(135deg, #0d1222, #17213a);
+}
+
+.legalhub-card:active {
+  transform: translateY(0);
+}
+
+.legalhub-card:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255,215,0,0.35);
+  border-color: #ffd700;
+}
+
+/* Contenidos de tarjeta */
+.legalhub-card-title {
+  font-size: 1.05rem;
+  margin: 0 0 .35rem 0;
+  color: #f8f8f8;
+}
+
+.legalhub-card-desc {
+  margin: 0 0 .75rem 0;
+  color: #b8c2d9;
+  line-height: 1.35;
+  font-size: .95rem;
+}
+
+.legalhub-card-cta {
+  margin-top: auto;
+  font-weight: 600;
+  font-size: .9rem;
+  color: #ffd700; /* amarillo OverCut */
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .legalhub-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .legalhub-grid {
+    grid-template-columns: 1fr;
+  }
+  .legalhub-wrapper {
+    padding: 1.25rem .75rem 2rem;
+  }
+  .legalhub-header h1 {
+    font-size: 1.4rem;
+  }
+  .legalhub-card {
+    min-height: 140px;
+  }
+}
+
+/* Respeto a usuarios con reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .legalhub-card {
+    transition: none;
+  }
+  .legalhub-card:hover,
+  .legalhub-card:active {
+    transform: none;
+  }
+}

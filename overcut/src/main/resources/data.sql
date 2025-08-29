@@ -747,8 +747,8 @@ INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('What was the first country outside Europe to host a Formula 1 race?', null, 3, 'en');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brazil', false, 69, 'en');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('South Africa', false, 69, 'en');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia', true, 69, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Argentina', true, 69, 'en');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia', false, 69, 'en');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('United States', false, 69, 'en');
 
 INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
@@ -852,8 +852,8 @@ INSERT INTO Question (name, imagePath, knowledgequestionlevel, language)
 VALUES ('¿Cuál fue el primer país fuera de Europa en albergar una carrera de Fórmula 1?', null, 3, 'es');
 
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Brasil', false, 81, 'es');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Sudáfrica', false, 81, 'es');
-INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia', true, 81, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Argentina', true, 81, 'es');
+INSERT INTO Answer (name, correct, questionId, language) VALUES ('Australia', false, 81, 'es');
 INSERT INTO Answer (name, correct, questionId, language) VALUES ('Estados Unidos', false, 81, 'es');
 
 -- Pregunta 40

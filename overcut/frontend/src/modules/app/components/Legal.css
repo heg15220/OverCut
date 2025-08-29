@@ -1,0 +1,82 @@
+/* src/common/components/Legal.css */
+.legal-page {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.25rem 1rem;
+  color: #f1f1f1;
+  background: linear-gradient(135deg, #0c0f1a, #141b2e);
+  border: 1px solid #2e3a59;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.legal-page h1 {
+  font-size: 1.75rem;
+  margin: 0 0 0.75rem;
+  color: #ffd700;
+}
+
+.legal-page .legal-meta {
+  font-size: 0.9rem;
+  color: #bfc6da;
+  margin-bottom: 1rem;
+}
+
+.legal-toc {
+  margin: 1rem 0 1.25rem;
+  padding: 0.75rem;
+  background: rgba(26,34,56,0.6);
+  border: 1px solid #3a4a6c;
+  border-radius: 10px;
+}
+
+.legal-toc a {
+  color: #fbc02d;
+  text-decoration: none;
+  margin-right: 1rem;
+}
+
+.legal-toc a:hover {
+  text-decoration: underline;
+}
+
+.legal-section {
+  margin: 1rem 0;
+}
+
+.legal-section h2,
+.legal-section h3 {
+  color: #f8f8f8;
+  margin: 0.75rem 0;
+}
+
+.legal-details {
+  border: 1px solid #3a4a6c;
+  border-radius: 10px;
+  background: rgba(26,34,56,0.45);
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.legal-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #fbc02d;
+  list-style: none;
+}
+
+.legal-details p,
+.legal-details li {
+  color: #e6e9f2;
+}
+
+.legal-list {
+  padding-left: 1.1rem;
+}
+
+.legal-note {
+  font-size: 0.9rem;
+  color: #bfc6da;
+  margin-top: 1rem;
+}

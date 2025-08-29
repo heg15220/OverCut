@@ -173,7 +173,22 @@ const es = {
     "post.caption.mainImage": "Pie:",
     "project.app.Header.about": "¿Qué es OverCut?",
     "project.global.buttons.pleaseWait": "Espere por favor...",
-
+    "project.About": "Sobre OverCut",
+    "project.LegalNotice": "Aviso legal",
+    "project.TermsOfUse": "Condiciones de uso",
+    "project.PrivacyPolicy": "Política de privacidad",
+    "project.CookiesPolicy": "Política de cookies",
+    "project.ContactEmail": "Contacto:",
+    "project.AllRightsReserved": "Todos los derechos reservados.",
+    "project.IntellectualProperty": "Propiedad Intelectual",
+    "project.LegalPolicies": "Políticas legales",
+    "project.LegalPoliciesSubtitle": "Consulta todos nuestros documentos legales en un solo lugar.",
+    "project.ReadMore": "Ver más",
+     "project.LegalNoticeDesc": "Titularidad, contacto e información general.",
+     "project.TermsOfUseDesc": "Normas de uso de OverCut.",
+     "project.PrivacyPolicyDesc": "Tratamiento de datos y tus derechos.",
+     "project.IntellectualPropertyDesc": "Propiedad intelectual y usos permitidos.",
+     "project.CookiesPolicyDesc": "Cookies utilizadas y configuración."
 
 }
 export default es;

@@ -172,6 +172,21 @@ const en = {
     "post.caption.mainImage": "Caption: ",
     "project.app.Header.about": "What is OverCut?",
     "project.global.buttons.pleaseWait": "Please wait...",
-
+    "project.About": "About OverCut",
+    "project.LegalNotice": "Legal Notice",
+    "project.TermsOfUse": "Terms of Use",
+    "project.PrivacyPolicy": "Privacy Policy",
+    "project.CookiesPolicy": "Cookies Policy",
+    "project.ContactEmail": "Contact:",
+    "project.AllRightsReserved": "All rights reserved.",
+    "project.IntellectualProperty": "Intellectual Property",
+    "project.LegalPolicies": "Legal Policies",
+    "project.LegalPoliciesSubtitle": "Find all our legal documents in one place.",
+    "project.ReadMore": "Read more",
+    "project.LegalNoticeDesc": "Ownership, contact, and general info.",
+    "project.TermsOfUseDesc": "Rules for using OverCut.",
+    "project.PrivacyPolicyDesc": "Data processing and your rights.",
+    "project.IntellectualPropertyDesc": "IP ownership and permitted uses.",
+    "project.CookiesPolicyDesc": "Cookies used and settings."
 }
 export default en;
