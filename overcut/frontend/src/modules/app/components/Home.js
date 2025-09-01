@@ -4,9 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AllPostList } from "../../posts";
 import * as actions from "../../posts/actions";
 import { getNewPosts, getLastGetPost } from "../../posts/selectors";
-import { useConsent } from "../../../cookies/ConsentContext"; // <-- importa el contexto
-import CookieIntroModal from "../../../cookies/CookieIntroModal";      // <-- el banner
 import "./Home.css";
+import CookieIntroModal from "../../../cookies/CookieIntroModal";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -14,7 +13,6 @@ const Home = () => {
   const lastGetPost = useSelector(getLastGetPost);
   const lastGetPostRef = useRef(lastGetPost);
 
-  const { bannerOpen } = useConsent(); // <-- sabrá si debe mostrarse
 
   useEffect(() => { lastGetPostRef.current = lastGetPost; }, [lastGetPost]);
 
@@ -36,9 +34,7 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      {/* ⬇️ El banner aparece solo si NO hay consentimiento aún */}
-      {bannerOpen && <CookieIntroModal />}
-
+      <CookieIntroModal /> {/* overlay fijo; sólo aparece si no hay consentimiento */}
       <div className="home-button-wrapper">
         {newPost && (
           <button className="home-refresh-button" onClick={handleRefresh}>

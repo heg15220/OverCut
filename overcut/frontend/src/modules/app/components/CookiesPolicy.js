@@ -56,18 +56,99 @@ const CookiesPolicy = () => {
         <p>
           En la tabla que aparece a continuación se incluyen los detalles, finalidad, el tipo y las clases de cookies que hemos implementado en nuestra plataforma. Para su comprensión, detallamos a continuación los tipos de cookies que pueden ser utilizadas si el usuario nos da su consentimiento:
         </p>
+        <div className="cookie-table-wrapper">
+          <table className="cookie-table" aria-label="Listado de cookies">
+            <caption>Listado de cookies y otros almacenamientos utilizados en OVERCUT</caption>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Proveedor / Dominio</th>
+                <th>Finalidad</th>
+                <th>Categoría</th>
+                <th>Duración</th>
+                <th>Tipo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="Nombre"><code>oc_consent</code></td>
+                <td data-label="Proveedor / Dominio">OVERCUT (dominio del sitio)</td>
+                <td data-label="Finalidad">
+                  Guardar preferencias de consentimiento (formato compacto p. ej. <code>P1|A0|ADS1</code>)
+                </td>
+                <td data-label="Categoría"><span className="badge badge--tech">Técnica</span></td>
+                <td data-label="Duración">12 meses</td>
+                <td data-label="Tipo"><span className="badge badge--own">Cookie propia</span></td>
+              </tr>
 
-        <p>Nombre</p>
-        <p>Dominio</p>
-        <p>Objetivo/Finalidad</p>
-        <p>Duración</p>
-        <p>Tipo (propias/terceros)</p>
+              <tr>
+                <td data-label="Nombre"><code>oc_cid</code></td>
+                <td data-label="Proveedor / Dominio">OVERCUT (dominio del sitio)</td>
+                <td data-label="Finalidad">
+                  Identificador anónimo para asociar el consentimiento antes/después del inicio de sesión
+                </td>
+                <td data-label="Categoría"><span className="badge badge--tech">Técnica</span></td>
+                <td data-label="Duración">12 meses</td>
+                <td data-label="Tipo"><span className="badge badge--own">Cookie propia</span></td>
+              </tr>
+
+              <tr>
+                <td data-label="Nombre"><code>serviceToken</code></td>
+                <td data-label="Proveedor / Dominio">OVERCUT</td>
+                <td data-label="Finalidad">Mantener la sesión de usuario (token JWT)</td>
+                <td data-label="Categoría"><span className="badge badge--tech">Técnica</span></td>
+                <td data-label="Duración">Hasta cerrar sesión / limpiar almacenamiento</td>
+                <td data-label="Tipo"><span className="badge badge--storage">Almacenamiento local</span></td>
+              </tr>
+
+              <tr>
+                <td data-label="Nombre"><code>_ga, _ga_*</code></td>
+                <td data-label="Proveedor / Dominio">Google (si activa “Analítica”)</td>
+                <td data-label="Finalidad">Medición de uso del sitio (Google Analytics)</td>
+                <td data-label="Categoría"><span className="badge badge--analytics">Analítica</span></td>
+                <td data-label="Duración">Hasta 2 años</td>
+                <td data-label="Tipo"><span className="badge badge--third">Cookie de terceros</span></td>
+              </tr>
+
+              <tr>
+                <td data-label="Nombre"><code>_gid</code></td>
+                <td data-label="Proveedor / Dominio">Google (si activa “Analítica”)</td>
+                <td data-label="Finalidad">Distinción de usuarios (Google Analytics)</td>
+                <td data-label="Categoría"><span className="badge badge--analytics">Analítica</span></td>
+                <td data-label="Duración">24 horas</td>
+                <td data-label="Tipo"><span className="badge badge--third">Cookie de terceros</span></td>
+              </tr>
+
+              <tr>
+                <td data-label="Nombre"><code>_gcl_au</code></td>
+                <td data-label="Proveedor / Dominio">Google (si activa “Publicidad”)</td>
+                <td data-label="Finalidad">Medición/Atribución de anuncios</td>
+                <td data-label="Categoría"><span className="badge badge--ads">Publicidad</span></td>
+                <td data-label="Duración">3 meses</td>
+                <td data-label="Tipo"><span className="badge badge--third">Cookie de terceros</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p className="cookie-table__note">
+            Nota: La presencia y duración de determinadas cookies de terceros puede variar según la configuración y los
+            servicios activos. Puede gestionar sus preferencias en “Configuración de cookies”.
+          </p>
+        </div>
+
+
+        <p style={{marginTop: '1rem'}}>
+          <i>Notas:</i> (i) Los identificadores concretos y duraciones de cookies de terceros pueden variar por
+          proveedor y configuración; (ii) al retirar su consentimiento, desactivamos la carga de nuevas cookies
+          no necesarias y dejamos de usar las ya almacenadas; algunas cookies de terceros pueden requerir que Ud.
+          las elimine desde su navegador o mediante los mecanismos del propio tercero.
+        </p>
 
         {/* La tabla de cookies del texto original se define con los encabezados anteriores y sin filas específicas. */}
 
         <h3 id="desinstalar">4.3  ¿Cómo desinstalar las cookies?</h3>
         <p>
-          Si un usuario desea desinstalar las cookies utilizadas en www.overcut.es de su navegador, a continuación, le dejamos las instrucciones para distintos navegadores:
+          Si un usuario desea desinstalar las cookies utilizadas en www.overcutf1.com de su navegador, a continuación, le dejamos las instrucciones para distintos navegadores:
         </p>
         <ul>
           <li>

@@ -1,0 +1,265 @@
+/* --------- Estructura base --------- */
+#cookies-policy {
+  line-height: 1.6;
+}
+
+.cookie-table-wrapper {
+  margin-top: 12px;
+}
+
+.cookie-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #e7e7e7;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cookie-table caption {
+  text-align: left;
+  font-weight: 600;
+  padding: 10px 12px;
+  color: #333;
+}
+
+.cookie-table th,
+.cookie-table td {
+  padding: 12px 14px;
+  vertical-align: top;
+  border-bottom: 1px solid #eee;
+}
+
+.cookie-table thead th {
+  background: #f6f7fb;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.cookie-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.badge--tech { background: #eef2ff; color: #1e40af; }       /* azul suave */
+.badge--analytics { background: #ecfeff; color: #155e75; }  /* cian suave */
+.badge--ads { background: #fff7ed; color: #9a3412; }        /* naranja suave */
+.badge--own { background: #e7f8ee; color: #166534; }        /* verde suave */
+.badge--third { background: #f3e8ff; color: #6b21a8; }      /* violeta suave */
+.badge--storage { background: #f1f5f9; color: #0f172a; }    /* gris suave */
+
+.cookie-table__note {
+  margin-top: 10px;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+/* --------- Tipografía títulos --------- */
+#cookies-policy h2 { font-size: 1.8rem; margin: 0 0 12px; }
+#cookies-policy h3 { font-size: 1.35rem; margin: 20px 0 8px; }
+#cookies-policy h4 { font-size: 1.05rem; margin: 16px 0 6px; }
+
+/* --------- Responsive ≤ 500px --------- */
+@media (max-width: 500px) {
+  /* márgenes/tamaños más compactos */
+  #cookies-policy h2 { font-size: 1.4rem; }
+  #cookies-policy h3 { font-size: 1.2rem; }
+  #cookies-policy h4 { font-size: 1rem; }
+  #cookies-policy p, #cookies-policy li { font-size: 0.98rem; }
+
+  .cookie-table {
+    border: 0;            /* el “card list” ya lleva su propio borde */
+  }
+
+  /* Cambiamos la tabla por tarjetas apiladas */
+  .cookie-table thead {
+    display: none;
+  }
+
+  .cookie-table,
+  .cookie-table tbody,
+  .cookie-table tr,
+  .cookie-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .cookie-table tbody tr {
+    background: #fff;
+    border: 1px solid #e7e7e7;
+    border-radius: 12px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+    margin: 0 0 12px 0;
+    overflow: hidden;
+  }
+
+  .cookie-table td {
+    border: 0;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 10px 12px;
+    /* Dos columnas: etiqueta + valor */
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    column-gap: 10px;
+    align-items: start;
+  }
+
+  .cookie-table td:last-child {
+    border-bottom: 0;
+  }
+
+  /* Mostramos la etiqueta con el nombre del campo */
+  .cookie-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #374151;
+  }
+
+  /* Ajustes visuales para el valor */
+  .cookie-table td code { word-break: break-all; }
+  .cookie-table__note { font-size: 0.9rem; }
+
+  /* Pequeños ajustes de badges en móvil */
+  .badge { font-size: 0.78rem; padding: 2px 7px; }
+}
+
+/* --------- Extra: muy estrechos ≤ 360px --------- */
+@media (max-width: 500px) {
+  .cookie-table td {
+    grid-template-columns: 100px 1fr;
+  }
+}
+
+/* --------- Responsive ≤ 500px (mantener tabla) --------- */
+@media (max-width: 500px) {
+  /* texto más compacto */
+  #cookies-policy h2 { font-size: 1.4rem; }
+  #cookies-policy h3 { font-size: 1.2rem; }
+  #cookies-policy h4 { font-size: 1rem; }
+  #cookies-policy p, #cookies-policy li { font-size: 0.98rem; }
+
+  /* El contenedor permite scroll horizontal */
+  .cookie-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;          /* mantiene las esquinas redondeadas */
+  }
+
+  /* La tabla conserva su aspecto; solo reducimos tamaños */
+  .cookie-table {
+    min-width: 680px;             /* evita que colapse; ajusta 640–760px a tu gusto */
+    border: 1px solid #e7e7e7;    /* borde visible aunque haya scroll */
+    font-size: 0.92rem;
+    background: #fff;
+  }
+
+  .cookie-table caption { padding: 8px 12px; font-size: 0.95rem; }
+
+  .cookie-table th,
+  .cookie-table td {
+    padding: 10px 12px;           /* menos padding para caber mejor */
+    border-bottom: 1px solid #eee;
+    white-space: normal;
+    word-break: break-word;       /* evita desbordes en textos largos y <code> */
+  }
+
+  .badge { font-size: 0.78rem; padding: 2px 6px; }
+}
+
+/* --
+@media (max-width: 500px) {
+  .cookie-table th:first-child,
+  .cookie-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: #fff;             // mismo fondo que la tabla
+    z-index: 1;
+    min-width: 140px;
+    max-width: 160px;
+    box-shadow: 2px 0 0 #eee;     // separador vertical
+  }
+}
+*/
+/* Mantén tu CSS base tal cual… */
+
+/* --- Scrollbar sincronizada en móvil --- */
+@media (max-width: 500px) {
+  /* El wrapper principal hace el scroll real, pero ocultamos su barra nativa */
+  .cookie-table-wrapper {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;           /* Firefox: oculta */
+  }
+  .cookie-table-wrapper::-webkit-scrollbar { display: none; } /* WebKit */
+
+  /* La tabla mantiene su aspecto; forzamos ancho para que haya overflow */
+  .cookie-table {
+    min-width: 680px;                /* ajusta 640–760px a tu gusto */
+    border: 1px solid #e7e7e7;
+    border-collapse: separate;       /* evita bugs con sticky, si lo usas */
+  }
+
+  /* Barra falsa (visible) bajo la tabla */
+  .cookie-scrollbar {
+    margin-top: 8px;
+    height: 14px;                    /* alto de la pista */
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    background: #f5f6fa;
+    border: 1px solid #e7e7e7;
+  }
+
+  /* El contenido interior solo sirve para dar ancho a la barra */
+  .cookie-scrollbar__content {
+    height: 1px;                     /* no ocupa alto, solo ancho */
+  }
+
+  /* Estilizamos la barra visible */
+  .cookie-scrollbar::-webkit-scrollbar {
+    height: 10px;
+  }
+  .cookie-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .cookie-scrollbar::-webkit-scrollbar-thumb {
+    background: #cfd5e1;
+    border-radius: 8px;
+  }
+  .cookie-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #b9c1d1;
+  }
+  .cookie-scrollbar {
+    scrollbar-color: #cfd5e1 transparent; /* Firefox */
+    scrollbar-width: thin;
+  }
+
+  /* Pistas de que hay más contenido a los lados (opcional) */
+  .cookie-table-wrapper.is-scrollable::after,
+  .cookie-table-wrapper.is-scrollable::before {
+    content: "";
+    position: sticky;
+    top: 0;
+    width: 16px;
+    height: 1px; /* solo para que se renderice; el alto visual lo da el gradiente */
+  }
+  .cookie-table-wrapper.is-scrollable::after {
+    float: right;
+    background: linear-gradient(to left, rgba(255,255,255,0.9), rgba(255,255,255,0));
+  }
+  .cookie-table-wrapper.is-scrollable::before {
+    float: left;
+    background: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0));
+  }
+}

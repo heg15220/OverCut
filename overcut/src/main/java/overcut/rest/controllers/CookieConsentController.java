@@ -28,31 +28,39 @@ public class CookieConsentController {
     /**
      * Lee el consentimiento actual (anónimo por oc_cid o del usuario si está autenticado con @RequestAttribute userId)
      */
+    // CookieConsentController.java (GET)
     @GetMapping
-    public CookieConsentDto getConsent(HttpServletRequest req, @RequestAttribute(required = false) Long userId) throws InstanceNotFoundException {
-        CookieConsent c;
+    public CookieConsentDto getConsent(HttpServletRequest req,
+                                       @RequestAttribute(required = false) Long userId)
+            throws InstanceNotFoundException {
+        CookieConsent c = null;
+
         if (userId != null) {
-            c = consentService.getByUserId(userId);
+            c = consentService.findByUserId(userId).orElse(null);
         } else {
             String consentId = readCookie(req, CONSENT_ID_COOKIE);
-            if (consentId == null) {
-                // aún no existe; devolver todo false
-                CookieConsentDto dto = new CookieConsentDto();
-                dto.setPreferences(false);
-                dto.setAnalytics(false);
-                dto.setAds(false);
-                return dto;
+            if (consentId != null && !consentId.isBlank()) {
+                c = consentService.findByConsentId(consentId).orElse(null);
             }
-            c = consentService.getByConsentId(consentId);
         }
+
         CookieConsentDto dto = new CookieConsentDto();
-        dto.setPreferences(c.isPreferences());
-        dto.setAnalytics(c.isAnalytics());
-        dto.setAds(c.isAds());
-        dto.setCountry(c.getCountry());
-        dto.setDnt(c.getDnt());
+        if (c != null) {
+            dto.setPreferences(c.isPreferences());
+            dto.setAnalytics(c.isAnalytics());
+            dto.setAds(c.isAds());
+            dto.setCountry(c.getCountry());
+            dto.setDnt(c.getDnt());
+        } else {
+            // por defecto, todo en false
+            dto.setPreferences(false);
+            dto.setAnalytics(false);
+            dto.setAds(false);
+            dto.setDnt(false);
+        }
         return dto;
     }
+
 
     /**
      * Guarda consentimiento (desde el banner/panel). Emite/actualiza oc_cid y oc_consent.

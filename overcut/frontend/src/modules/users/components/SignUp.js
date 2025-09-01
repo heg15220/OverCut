@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CircularProgress from '@mui/material/CircularProgress';
+import CookieIntroModal from "../../../cookies/CookieIntroModal"; // ajusta la ruta
 
 const defaultTheme = createTheme();
 
@@ -104,6 +105,7 @@ const SignUp = () => {
 
     return (
         <ThemeProvider theme={defaultTheme}>
+            <CookieIntroModal /> {/* mismo overlay aquí */}
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
                 <Box

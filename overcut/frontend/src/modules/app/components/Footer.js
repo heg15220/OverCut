@@ -2,9 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 import { FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
+import { useConsent } from "../../../cookies/ConsentContext"; // ajusta la ruta si tu estructura difiere
 import "./Footer.css";
 
 const Footer = () => {
+  const { openConfig } = useConsent();
+
   return (
     <footer className="footer-wrapper">
       <div className="footer-content">
@@ -19,8 +22,16 @@ const Footer = () => {
           <Link className="footer-link" to="/legal">
             <FormattedMessage id="project.LegalPolicies" defaultMessage="Legal Policies" />
           </Link>
-        </div>
 
+          {/* REABRIR CONFIGURACIÓN DE COOKIES */}
+          <button
+            type="button"
+            className="footer-link footer-link--button"
+            onClick={openConfig}
+          >
+            <FormattedMessage id="cookies.reopen" defaultMessage="Configuración de cookies" />
+          </button>
+        </div>
 
         <hr className="footer-divider" />
 

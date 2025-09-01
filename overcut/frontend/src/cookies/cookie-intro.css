@@ -29,3 +29,60 @@
 .btn--secondary:hover{ background:#f5f9ff; }
 .btn--ghost{ background:#fff; color:#333; border-color:#ddd; }
 .btn--ghost:hover{ background:#fafafa; }
+/* ya lo tenías, pero asegúrate de que estén estas 2 líneas para el scroll */
+.cookie-intro__body {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+/* bloque de config integrado */
+.cookie-intro__config {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.config-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 12px 0;
+}
+
+.config-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* switches inline (reutiliza si ya tienes estilos globales) */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+.switch input { display: none; }
+.switch .slider {
+  width: 40px; height: 22px; border-radius: 999px;
+  background: #ddd; position: relative; transition: background .2s ease;
+}
+.switch .slider::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  transition: transform .2s ease;
+}
+.switch input:checked + .slider { background: #1a73e8; }
+.switch input:checked + .slider::after { transform: translateX(18px); }
+.switch--disabled { opacity: .6; cursor: not-allowed; }
+.switch__label { font-weight: 600; }
+
+/* botón con apariencia de enlace (ya te lo pasé, por si falta) */
+.linklike {
+  background: none; border: 0; padding: 0; margin: 0;
+  color: #1a73e8; text-decoration: underline; cursor: pointer; font: inherit;
+}
+.linklike:hover { text-decoration: none; }
