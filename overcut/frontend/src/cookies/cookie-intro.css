@@ -1,0 +1,31 @@
+.cookie-intro-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center; z-index:9999;
+  padding:16px;
+}
+.cookie-intro{
+  background:#fff; max-width:820px; width:100%;
+  border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,.25);
+  overflow:hidden; font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+.cookie-intro__header{ padding:20px 24px; border-bottom:1px solid #eee; }
+.cookie-intro__header h2{ margin:0; font-size:20px; }
+
+.cookie-intro__body{ padding:18px 24px; max-height:70vh; overflow:auto; }
+.cookie-intro__box{ background:#f7f9ff; border:1px solid #e4e9ff; border-radius:12px; padding:12px 14px; margin:12px 0; }
+.cookie-intro__alt{ background:#fafafa; border:1px solid #eee; border-radius:12px; padding:12px 14px; margin:12px 0; }
+.cookie-intro__legal{ color:#555; font-size:14px; }
+.cookie-intro__purposes summary{ cursor:pointer; font-weight:600; margin:10px 0; }
+.cookie-intro__purposes .purposes{ padding:8px 0 0 0; color:#333; }
+.cookie-intro__purposes ul{ margin:6px 0 10px 20px; }
+
+.cookie-intro__actions{
+  display:flex; gap:10px; justify-content:flex-end; padding:16px; border-top:1px solid #eee;
+}
+.btn{ padding:10px 14px; border-radius:10px; border:1px solid transparent; cursor:pointer; font-weight:600; }
+.btn--primary{ background:#1a73e8; color:#fff; }
+.btn--primary:hover{ background:#155fc0; }
+.btn--secondary{ background:#fff; color:#1a73e8; border-color:#1a73e8; }
+.btn--secondary:hover{ background:#f5f9ff; }
+.btn--ghost{ background:#fff; color:#333; border-color:#ddd; }
+.btn--ghost:hover{ background:#fafafa; }

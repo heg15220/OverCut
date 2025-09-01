@@ -1,13 +1,13 @@
 package overcut.rest.controllers;
 
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import overcut.model.common.exceptions.DuplicateInstanceException;
 import overcut.model.common.exceptions.InstanceNotFoundException;
+import overcut.model.services.CookieConsentService;
 import overcut.model.services.EmailVerificationService;
 import overcut.model.services.exceptions.InvalidEmailException;
-import overcut.rest.common.ErrorsDto;
-import overcut.rest.common.JwtGenerator;
-import overcut.rest.common.JwtInfo;
+import overcut.rest.common.*;
 import overcut.rest.dtos.*;
 import overcut.model.entities.User;
 import overcut.model.services.QuizService;
@@ -61,6 +61,14 @@ public class UserController {
 
     @Autowired
     private EmailVerificationService emailVerificationService;
+
+    @Autowired
+    private CookieConsentService cookieConsentService;
+
+    @Autowired
+    private AnalyticsConsentFilter analyticsConsentFilter;
+
+
 
     /**
      * Handle incorrect login exception.
@@ -129,12 +137,18 @@ public class UserController {
      * @throws IncorrectLoginException the incorrect login exception
      */
     @PostMapping("/login")
-    public AuthenticatedUserDto login(@Validated @RequestBody LoginParamsDto params) throws IncorrectLoginException {
+    public AuthenticatedUserDto login(@Validated @RequestBody LoginParamsDto params,
+                                      HttpServletRequest req) throws IncorrectLoginException {
 
         User user = userService.login(params.getEmail(), params.getPassword());
 
-        return UserConversor.toAuthenticatedUserDto(generateServiceToken(user), user);
+        // Vincula oc_cid al usuario (si existía consentimiento anónimo)
+        try {
+            String consentId = CookieUtil.readCookie(req, "oc_cid");
+            cookieConsentService.attachAnonymousConsentToUser(consentId, user.getId());
+        } catch (Exception ignore) {}
 
+        return UserConversor.toAuthenticatedUserDto(generateServiceToken(user), user);
     }
 
     /**

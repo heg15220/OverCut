@@ -59,6 +59,9 @@ public class SecurityConfig {
                         .requestMatchers(mvc.pattern("/api/events/**")).permitAll()
                         .requestMatchers(mvc.pattern("/api/historic/**")).permitAll()
                         .requestMatchers(mvc.pattern("/api/quiz/**")).permitAll()
+                        .requestMatchers(mvc.pattern(HttpMethod.OPTIONS, "/api/consent")).permitAll()
+                        .requestMatchers(mvc.pattern(HttpMethod.GET,     "/api/consent")).permitAll()
+                        .requestMatchers(mvc.pattern(HttpMethod.PUT,     "/api/consent")).permitAll()
 
                         // 🔐 Endpoints protegidos
                         .requestMatchers(mvc.pattern("/api/posts/")).hasRole("JOURNALIST")

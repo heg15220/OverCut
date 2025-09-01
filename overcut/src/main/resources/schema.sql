@@ -62,6 +62,7 @@ DROP TABLE IF EXISTS QuizType;
 DROP TABLE IF EXISTS Category;
 DROP TABLE IF EXISTS PasswordChangeToken;
 DROP TABLE IF EXISTS EmailVerificationToken;
+DROP TABLE IF EXISTS CookieConsent;
 DROP TABLE IF EXISTS Users;
 
 
@@ -728,4 +729,20 @@ CREATE TABLE GameCooldown (
     lastPlayed DATETIME NOT NULL,
 
     CONSTRAINT fk_cooldown_user FOREIGN KEY (userId) REFERENCES Users(id)
+);
+
+CREATE TABLE CookieConsent (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  userId BIGINT NULL,
+  consentId VARCHAR(64) NULL,        -- para usuarios anónimos (vinculado a cookie oc_cid)
+  preferences BOOLEAN NOT NULL DEFAULT FALSE,
+  analytics  BOOLEAN NOT NULL DEFAULT FALSE,
+  ads        BOOLEAN NOT NULL DEFAULT FALSE,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  country VARCHAR(4) NULL,
+  dnt BOOLEAN NOT NULL DEFAULT FALSE,
+  tcfString TEXT NULL,               -- por si en el futuro integras TCF
+  CONSTRAINT uq_consent_user UNIQUE (userId),
+  CONSTRAINT uq_consent_id UNIQUE (consentId)
 );

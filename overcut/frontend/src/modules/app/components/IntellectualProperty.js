@@ -26,6 +26,9 @@ const IntellectualProperty = () => {
         <p>
           El acceso a OverCut no implica cesión de derechos de propiedad intelectual o industrial. Si considera que algún contenido vulnera sus derechos, puede solicitar su retirada escribiendo a overcutwebf1@gmail.com{" "} con prueba de titularidad y la URL del contenido.
         </p>
+        <p>
+            Este sitio web no es oficial y no está asociado de ninguna manera con las empresas de Fórmula 1. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX y las marcas relacionadas son marcas comerciales de Formula One Licensing B.V.
+        </p>
       </section>
     </LegalLayout>
   );

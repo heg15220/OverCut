@@ -1,38 +1,37 @@
 // App.jsx
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { HashRouter as Router } from "react-router-dom";
-import { Helmet } from 'react-helmet';
-
+import { Helmet } from "react-helmet";
 import Body from "./Body";
 import Footer from "./Footer";
 import Header from "./Header";
-import MobileHeader from "./MobileHeader"; // tu nuevo header móvil
+import MobileHeader from "./MobileHeader";
 
-// Hook para ancho de ventana
-const useWindowWidth = () => {
-  const [width, setWidth] = useState(window.innerWidth);
-  useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  return width;
-};
+import { ConsentProvider } from "../../../cookies/ConsentContext"; // <-- importa tu provider
+import CookiePanel from "../../../cookies/CookiePanel";           // <-- panel 2ª capa
 
 const App = () => {
-  const windowWidth = useWindowWidth();
-  const isMobile = windowWidth <= 768;
+  const [width, setWidth] = React.useState(window.innerWidth);
+  React.useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const isMobile = width <= 768;
 
   return (
     <Router>
-      <Helmet>
-        <meta charSet="UTF-8" />
-      </Helmet>
-      <div className="App">
-        {isMobile ? <MobileHeader /> : <Header />}
-        <Body />
-        <Footer />
-      </div>
+      <Helmet><meta charSet="UTF-8" /></Helmet>
+      <ConsentProvider>
+        <div className="App">
+          {isMobile ? <MobileHeader /> : <Header />}
+          <Body />
+          <Footer />
+        </div>
+
+        {/* El panel puede abrirse desde el footer en cualquier página */}
+        <CookiePanel />
+      </ConsentProvider>
     </Router>
   );
 };
