@@ -2,8 +2,18 @@ import React from "react";
 import LegalLayout from "./LegalLayout";
 
 const PrivacyPolicy = () => {
+  const isSpanish =
+    typeof navigator !== "undefined" &&
+    navigator.language &&
+    navigator.language.toLowerCase().startsWith("es");
+
   return (
-    <LegalLayout title="Política de privacidad" updatedAt="29 de agosto de 2025">
+    <LegalLayout
+      title={isSpanish ? "Política de privacidad" : "Privacy Policy"}
+      updatedAt={isSpanish ? "29 de agosto de 2025" : "August 29, 2025"}
+    >
+      {isSpanish ? (
+      <>
       <section>
         <p>
           Mediante la presente Política de Privacidad, el usuario queda informado de una forma clara,
@@ -104,15 +114,75 @@ const PrivacyPolicy = () => {
             <li>Si OverCut no da curso a la solicitud, le informará, a más tardar en un mes, de las razones de su no actuación y la posibilidad de reclamar ante una Autoridad de Control.</li>
           </ul>
 
-          <p>A fin de facilitar su ejercicio, le facilitamos los enlaces al formulario de solicitud de cada uno de los derechos:</p>
+          <p>
+            A fin de facilitar su ejercicio, le facilitamos los enlaces al formulario de
+            solicitud de cada uno de los derechos:
+          </p>
           <ul>
-            <li>Formulario de ejercicio del derecho de acceso</li>
-            <li>Formulario de ejercicio del derecho de rectificación</li>
-            <li>Formulario de ejercicio del derecho de oposición</li>
-            <li>Formulario de ejercicio del derecho de supresión (derecho “al olvido”)</li>
-            <li>Formulario de ejercicio del derecho a la limitación del tratamiento</li>
-            <li>Formulario de ejercicio del derecho a la portabilidad</li>
-            <li>Formulario de ejercicio a no ser objeto de decisiones individuales automatizadas</li>
+            <li>
+              <a
+                href="https://www.aepd.es/documento/formulario-derecho-de-acceso.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Formulario de ejercicio del derecho de acceso
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.aepd.es/documento/formulario-derecho-de-rectificacion.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Formulario de ejercicio del derecho de rectificación
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.aepd.es/documento/formulario-derecho-de-oposicion.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Formulario de ejercicio del derecho de oposición
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.aepd.es/documento/formulario-derecho-de-supresion.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Formulario de ejercicio del derecho de supresión (derecho “al olvido”)
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.aepd.es/documento/formulario-derecho-de-limitacion.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Formulario de ejercicio del derecho a la limitación del tratamiento
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.aepd.es/documento/formulario-derecho-de-portabilidad.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Formulario de ejercicio del derecho a la portabilidad
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.aepd.es/documento/formulario-derecho-de-oposicion-decisiones-automatizadas.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Formulario de ejercicio a no ser objeto de decisiones individuales
+                automatizadas
+              </a>
+            </li>
           </ul>
 
           <p>Para ejercer sus derechos OverCut pone a su disposición los siguientes medios:</p>
@@ -192,6 +262,183 @@ const PrivacyPolicy = () => {
           </p>
         </details>
       </section>
+      </>
+      ) : (
+              /* === SOLO INGLÉS === */
+              <>
+                <section>
+                  <p>
+                    Through this Privacy Policy, the user is informed in a clear,
+                    precise and concise manner. If the user accepts it, they will give
+                    their consent freely, in an informed, specific and unequivocal way
+                    for OverCut to process their personal data, in accordance with EU
+                    Regulation 2016/679 on the protection of natural persons with
+                    regard to the processing of personal data and the free movement of
+                    such data (GDPR) and Spanish Organic Law 3/2018, of December 5, on
+                    the Protection of Personal Data and Guarantee of Digital Rights
+                    (LOPDGDD).
+                  </p>
+                </section>
+
+                <section id="basic">
+                  <details open className="legal-details">
+                    <summary>2.1 BASIC INFORMATION ON DATA PROTECTION</summary>
+                    <ul className="legal-list">
+                      <li><b>Data Controller:</b> OverCut</li>
+                      <li><b>Purpose of processing:</b> Respond to queries and questions, provide the service and possibly send information about products and services.</li>
+                      <li><b>Legal basis:</b> Data subject’s consent and contractual relationship with OverCut (Article 6.1.a and Article 6.1.b GDPR).</li>
+                      <li><b>Recipients:</b> No data will be transferred to third parties. Access may be granted to: Law Enforcement Authorities and Processors necessary for service provision.</li>
+                      <li><b>Rights and additional information:</b> Users may exercise their rights of access, rectification or erasure, among others. All details can be found in the detailed information of this privacy policy.</li>
+                    </ul>
+                  </details>
+                </section>
+
+                <section id="detailed">
+                  <details className="legal-details">
+                    <summary>2.2 DETAILED INFORMATION ON DATA PROTECTION</summary>
+
+                    <h3>2.2.1 Who is the Data Controller?</h3>
+                    <p>The identification details of the Data Controller are provided in section 1.</p>
+
+                    <h3>2.2.2 What information do we collect and process through the website?</h3>
+                    <p>The data collected refers to the category of identifying information, such as: name and surname, email address, as well as the IP address from which the data collection form is accessed.</p>
+
+                    <ul>
+                      <li><b>Through the Contact form:</b> On our website, the user will find the option to write to us to clarify any questions about the operation of our products/services or anything else they may need. To respond, we will contact the user via email or phone number if provided.</li>
+                      <li><b>Through our corporate email:</b> By emailing <a href="mailto:overcutwebf1@gmail.com">overcutwebf1@gmail.com</a>, the user can contact us and/or request any information needed regarding our services.</li>
+                      <li><b>Through blog/newsletter subscription:</b> Via a small form on our website, users can subscribe to our blog to receive the latest news and promotions from OverCut. They may unsubscribe at any time by emailing <a href="mailto:overcutwebf1@gmail.com">overcutwebf1@gmail.com</a> or through the unsubscribe link in the newsletter.</li>
+                      <li><b>Through blog comments:</b> We may view user data provided in comments on our blog articles. A name and email address will be required to post a comment.</li>
+                      <li><b>Through interactive mini-games:</b> Certain mini-games may request identifying data (name or alias) and, where applicable, email address, in order to register participation, save scores, or display results. These data may be used to create internal rankings, provided the user has accepted the participation conditions.</li>
+                      <li><b>Through surveys, quizzes, and rankings:</b> In surveys or quizzes that generate user rankings, we may collect data such as name or alias, email address (if registration is required), responses, and results. These are used exclusively for statistical purposes, ranking creation, and improving user experience.</li>
+                    </ul>
+
+                    <p>If the user provides us with third-party data, they assume responsibility for having informed them in advance and obtained their consent, in accordance with Article 14 GDPR.</p>
+
+                    <h3>2.2.3 For what purpose do we process the user’s personal data?</h3>
+                    <ul>
+                      <li>To contact, handle, manage and respond to the user’s request, inquiry or issue (via email, contact form or phone).</li>
+                      <li>To manage, where applicable, the sending of information about OverCut news by electronic and/or conventional means.</li>
+                    </ul>
+
+                    <h3>2.2.4 What is the legal basis for processing user data?</h3>
+                    <ul>
+                      <li>To access the services offered through the website, as well as user registration, the legal basis is the contractual relationship with OverCut and acceptance of its terms of use (Article 6.1.b GDPR).</li>
+                      <li>For sending information about OverCut products, services and news, the legal basis is the explicit consent granted by the user (Article 6.1.a GDPR).</li>
+                    </ul>
+
+                    <h3>2.2.5 How long will the user’s personal data be processed?</h3>
+                    <ul>
+                      <li>Data from registered users, queries and requests will be kept for the time necessary to respond, and where applicable, as long as the user does not withdraw their consent to receive related information.</li>
+                      <li>Data for sending OverCut news will be retained until the user revokes their consent.</li>
+                    </ul>
+
+                    <h3>2.2.6 Who will the user’s personal data be shared with?</h3>
+                    <p>As a general rule, data will not be transferred to third parties unless legally required or necessary to provide the service. In particular:</p>
+                    <ul>
+                      <li>In legally required cases, data may be communicated to Law Enforcement Authorities.</li>
+                      <li>Data may also be communicated to relevant Public Administrations as provided by law.</li>
+                      <li>Where applicable, they may also be shared with OverCut’s Processors for proper service provision.</li>
+                    </ul>
+
+                    <h3>2.2.7 What are the user’s rights?</h3>
+                    <p>
+                      Data protection regulations allow you to exercise your rights of access,
+                      rectification, erasure, data portability, opposition and restriction of processing,
+                      as well as not being subject to decisions based solely on automated processing of
+                      your data, where applicable.
+                    </p>
+                    <p>These rights are characterized as follows:</p>
+                    <ul>
+                      <li>The exercise of these rights is free of charge, unless requests are manifestly unfounded or excessive (e.g., repetitive), in which case OverCut may charge a fee proportional to administrative costs or refuse to act.</li>
+                      <li>Rights may be exercised directly or through a legal or voluntary representative.</li>
+                      <li>We must respond to your request within one month, although considering complexity and volume, this period may be extended by two more months.</li>
+                      <li>We are obliged to inform you of the means to exercise these rights, which must be accessible. If submitted electronically, information will be provided electronically where possible, unless you request otherwise.</li>
+                      <li>If OverCut does not act on the request, it will inform you within one month of the reasons and your right to lodge a complaint with a Supervisory Authority.</li>
+                    </ul>
+
+                    <p>
+                      To facilitate exercising these rights, here are the official forms from the Spanish
+                      Data Protection Agency (AEPD):
+                    </p>
+                    <ul>
+                      <li><a href="https://www.aepd.es/documento/formulario-derecho-de-acceso.pdf" target="_blank" rel="noopener noreferrer">Right of Access Form</a></li>
+                      <li><a href="https://www.aepd.es/documento/formulario-derecho-de-rectificacion.pdf" target="_blank" rel="noopener noreferrer">Right of Rectification Form</a></li>
+                      <li><a href="https://www.aepd.es/documento/formulario-derecho-de-oposicion.pdf" target="_blank" rel="noopener noreferrer">Right of Objection Form</a></li>
+                      <li><a href="https://www.aepd.es/documento/formulario-derecho-de-supresion.pdf" target="_blank" rel="noopener noreferrer">Right of Erasure (“Right to be Forgotten”) Form</a></li>
+                      <li><a href="https://www.aepd.es/documento/formulario-derecho-de-limitacion.pdf" target="_blank" rel="noopener noreferrer">Right to Restriction of Processing Form</a></li>
+                      <li><a href="https://www.aepd.es/documento/formulario-derecho-de-portabilidad.pdf" target="_blank" rel="noopener noreferrer">Right to Data Portability Form</a></li>
+                      <li><a href="https://www.aepd.es/documento/formulario-derecho-de-oposicion-decisiones-automatizadas.pdf" target="_blank" rel="noopener noreferrer">Right not to be Subject to Automated Decisions Form</a></li>
+                    </ul>
+
+                    <p>To exercise your rights, OverCut provides the following means:</p>
+                    <ol>
+                      <li>By sending a written, signed request to OverCut. Ref: Exercise of Data Protection Rights.</li>
+                      <li>By sending a scanned, signed form to <a href="mailto:overcutwebf1@gmail.com">overcutwebf1@gmail.com</a> with the subject “Exercise of Data Protection Rights”.</li>
+                    </ol>
+
+                    <p>
+                      If you consider that you have not obtained full satisfaction in the exercise of your rights, you may lodge a complaint with the Spanish Data Protection Agency (AEPD), C/ Jorge Juan, 6 – 28001 Madrid (
+                      <a href="https://www.aepd.es" target="_blank" rel="noopener noreferrer">www.aepd.es</a>).
+                    </p>
+
+                    <h3>2.2.8 What security measures have we implemented?</h3>
+                    <p>
+                      At OverCut we are committed to protecting your personal information. We use physical,
+                      organizational and technological measures, controls and procedures that are reasonably
+                      reliable and effective to preserve the integrity and security of your data and ensure
+                      your privacy.
+                    </p>
+                    <p>
+                      Furthermore, all staff with access to personal data are trained and aware of their
+                      obligations regarding the processing of personal data.
+                    </p>
+                    <p>
+                      In contracts with our suppliers we include clauses requiring them to maintain
+                      confidentiality of the personal data they access and to implement technical and
+                      organizational security measures to ensure permanent confidentiality, integrity,
+                      availability and resilience of personal data processing systems and services.
+                    </p>
+                    <p>
+                      All these security measures are periodically reviewed to ensure their adequacy and
+                      effectiveness.
+                    </p>
+                    <p>
+                      However, absolute security cannot be guaranteed and no system is impenetrable.
+                      Therefore, if any data under our control is compromised as a result of a security
+                      breach, we will take appropriate measures to investigate the incident, notify the
+                      Supervisory Authority and, where appropriate, affected users so that they can take
+                      suitable measures.
+                    </p>
+
+                    <h3>2.2.9 Social Media Policy</h3>
+                    <p>
+                      OverCut has corporate profiles on Facebook, Instagram, X and Google. Therefore, OverCut
+                      is the “Data Controller” of your data by virtue of having these profiles and the fact
+                      that you follow us and we may follow you back.
+                    </p>
+                    <p>
+                      This means that if you decide to follow our corporate profile, like our content or
+                      profile, you accept this policy, where we explain your rights and how we use your data.
+                    </p>
+                    <p>
+                      As the Data Controller, we guarantee confidentiality in processing and compliance with
+                      your rights, always under the applicable data protection regulations.
+                    </p>
+                    <p>
+                      We will also use these social networks to publish news or relevant information related
+                      to the services we offer, or topics of interest to users. Using the platform’s
+                      functionalities, you may receive such news in your feed or profile.
+                    </p>
+                    <p>
+                      Please note that there is no link between OverCut and these platforms. By accessing
+                      them you accept their usage policies and conditions, and OverCut is not responsible for
+                      the use or processing of user data outside the strict relationship and service provision
+                      described in this policy.
+                    </p>
+                  </details>
+                </section>
+              </>
+            )}
     </LegalLayout>
   );
 };
