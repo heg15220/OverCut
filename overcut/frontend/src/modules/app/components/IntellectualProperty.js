@@ -26,7 +26,11 @@ const IntellectualProperty = () => {
           </p>
 
           <p>
-            Las marcas, logotipos, emblemas, nombres comerciales y demás signos distintivos de Fórmula 1/F1, FIA, escuderías, pilotos y patrocinadores mencionados en esta web son propiedad exclusiva de sus respectivos titulares. Su uso en OverCut tiene únicamente fines informativos y descriptivos, para identificar a los sujetos y eventos comentados. Este sitio no es oficial ni está afiliado, patrocinado o respaldado por Formula 1/F1, FIA, escuderías o patrocinadores.
+            Las marcas, logotipos, emblemas, nombres comerciales y demás signos distintivos de Fórmula 1/F1, FIA, escuderías, pilotos y patrocinadores mencionados en esta web son propiedad exclusiva de sus respectivos titulares. Su uso en OverCut tiene únicamente fines informativos y descriptivos, para identificar a los sujetos y eventos comentados.
+          </p>
+
+          <p>
+            Este sitio web no es oficial y no está asociado de ninguna manera con las empresas de Fórmula 1. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX y las marcas relacionadas son marcas comerciales de Formula One Licensing B.V.
           </p>
 
           <p>
@@ -37,9 +41,6 @@ const IntellectualProperty = () => {
             El acceso a OverCut no implica cesión de derechos de propiedad intelectual o industrial. Si considera que algún contenido vulnera sus derechos, puede solicitar su retirada escribiendo a overcutwebf1@gmail.com{" "}con prueba de titularidad y la URL del contenido.
           </p>
 
-          <p>
-            Este sitio web no es oficial y no está asociado de ninguna manera con las empresas de Fórmula 1. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX y las marcas relacionadas son marcas comerciales de Formula One Licensing B.V.
-          </p>
         </section>
       ) : (
         /* === SOLO INGLÉS CUANDO NO EMPIEZA POR 'es' === */
@@ -55,7 +56,7 @@ const IntellectualProperty = () => {
           </p>
 
           <p>
-            The trademarks, logos, emblems, trade names and other distinctive signs of Formula 1/F1, the FIA, teams, drivers and sponsors mentioned on this website are the exclusive property of their respective owners. Their use on OverCut is for informational and descriptive purposes only, to identify the subjects and events discussed. This site is unofficial and is not affiliated with, sponsored or endorsed by Formula 1/F1, the FIA, any teams or sponsors.
+            The trademarks, logos, emblems, trade names and other distinctive signs of Formula 1/F1, the FIA, teams, drivers and sponsors mentioned on this website are the exclusive property of their respective owners. Their use on OverCut is for informational and descriptive purposes only, to identify the subjects and events discussed.
           </p>
 
           <p>
