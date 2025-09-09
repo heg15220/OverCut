@@ -70,6 +70,7 @@
   margin-top: 2rem;
   display: flex;
   justify-content: center;
+  gap: 1rem;
   width: 100%;
 }
 
@@ -88,6 +89,31 @@
 .overcut-info-button:hover {
   background-color: #ffcc00;
 }
+
+.overcut-info-button.secondary {
+  background-color: #fff;
+  color: #000;
+  border: 2px solid #ffd700;
+}
+
+.overcut-info-button.secondary:hover {
+  background-color: #f2f2f2;
+}
+
+.overcut-info-title {
+  font-size: 2.8rem;
+  font-family: 'F1 Bold', sans-serif;
+  letter-spacing: 1px;
+  color: #fbc02d; /* mismo color que minigames-title */
+  text-shadow: 0 0 8px rgba(251, 192, 45, 0.3);
+  text-align: center;
+}
+
+.overcut-info-title .highlight {
+  color: #fff; /* puedes dejarlo blanco o elegir otro contraste */
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
 
 /* Responsive */
 @media (max-width: 768px) {

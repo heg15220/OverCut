@@ -25,7 +25,9 @@ const OvercutGamesInfo = () => {
 
   return (
     <div className="overcut-info-container">
-      <h1 className="overcut-info-title">OverCut Games</h1>
+      <h1 className="overcut-info-title">
+        OverCut<span className="highlight">Games</span>
+      </h1>
       <div className="overcut-info-content">
         <div className="overcut-info-image-wrapper">
           <img
@@ -44,6 +46,12 @@ const OvercutGamesInfo = () => {
               onClick={() => navigate('/users/signUp')}
             >
               {lang === 'es' ? 'Regístrate ahora' : 'Sign up now'}
+            </button>
+            <button
+              className="overcut-info-button secondary"
+              onClick={() => navigate('/users/login')}
+            >
+              {lang === 'es' ? 'Iniciar sesión' : 'Sign In'}
             </button>
           </div>
         </div>

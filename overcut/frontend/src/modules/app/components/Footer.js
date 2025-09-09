@@ -56,7 +56,7 @@ const Footer = () => {
             <FaTwitter />
           </a>
           <a
-            href="https://www.instagram.com/yourprofile"
+            href="https://www.instagram.com/overcutplatform?igsh=eTVhZWk0YjNmeXBv"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
@@ -64,7 +64,7 @@ const Footer = () => {
             <FaInstagram />
           </a>
           <a
-            href="https://www.youtube.com/yourchannel"
+            href="https://www.youtube.com/@OvercutMediaPlatform"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="YouTube"
