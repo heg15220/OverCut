@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
-import { useMemo } from "react";
 import "./DriversConnectionsGame.css";
 import LoadingScreen from '../../common/components/LoadingScreen';
 import MinigameTutorial from "../../common/components/MinigameTutorial"; // nuevo componente compartido
@@ -34,6 +33,7 @@ const DriversConnectionsGame = () => {
   const [lastValidatedGroup, setLastValidatedGroup] = useState(null);
   const [partialMatchCount, setPartialMatchCount] = useState(null);
   const [retainSelection, setRetainSelection] = useState(false);
+
   const { canPlay, secondsRemaining, loading } = useSelector(state =>
     getCooldownForGame(state, "DriversConnections")
   );
@@ -66,11 +66,8 @@ const DriversConnectionsGame = () => {
   const lang = navigator.language.startsWith("es") ? "es" : "en";
   const t = translations[lang];
 
-
   const [showTutorial, setShowTutorial] = useState(true);
-
   const tutorial = tutorialTexts["/minigames/driversConnections"][lang];
-
 
   useEffect(() => {
     dispatch(fetchCooldown("DriversConnections"));
@@ -81,7 +78,6 @@ const DriversConnectionsGame = () => {
       dispatch(actions.startConnectionsGame());
     }
   }, [canPlay, dispatch]);
-
 
   const toggleDriver = (name) => {
     if (selectedDrivers.includes(name)) {
@@ -95,6 +91,10 @@ const DriversConnectionsGame = () => {
 
   const handleValidate = () => {
     if (selectedDrivers.length === 4) {
+      // Limpia estado visual y asegura que el mensaje se controle por retainSelection
+      setPartialMatchCount(null);
+      setRetainSelection(true);
+
       setLastValidatedGroup([...selectedDrivers]);
       dispatch(actions.validateGroup({
         gameId: game.id,
@@ -111,8 +111,13 @@ const DriversConnectionsGame = () => {
     navigate("/minigames");
   };
 
+  // === EFECTO DE RESPUESTA DE VALIDACIÓN (usa lastValidatedGroup, NO selectedDrivers.length) ===
   useEffect(() => {
-    if (lastValidatedGroup && selectedDrivers.length === 4) {
+    if (
+      lastValidatedGroup &&
+      Array.isArray(lastValidatedGroup) &&
+      lastValidatedGroup.length === 4
+    ) {
       if (isValidGroup === true) {
         const solved = game.categories.find(cat => {
           const pilotNames = cat.pilots.map(p => p.driverName);
@@ -131,12 +136,13 @@ const DriversConnectionsGame = () => {
           const matches = lastValidatedGroup.filter(d => pilotNames.includes(d)).length;
           return Math.max(max, matches);
         }, 0);
-        setPartialMatchCount(bestMatch);
-        setRetainSelection(true);
+        setPartialMatchCount(bestMatch); // puede ser 0, 1, 2 o 3
+        // retainSelection ya está en true desde handleValidate
       }
     }
-  }, [isValidGroup, selectedDrivers, lastValidatedGroup, game, solvedGroups]);
+  }, [isValidGroup, lastValidatedGroup, game, solvedGroups]);
 
+  // Ocultar mensaje a los 3s solo cuando es incorrecto
   useEffect(() => {
     if (retainSelection && isValidGroup === false) {
       const timeout = setTimeout(() => {
@@ -148,47 +154,40 @@ const DriversConnectionsGame = () => {
 
   const allDrivers = useMemo(() => {
     if (!game) return [];
-
     return game.categories
       .flatMap(c => c.pilots)
       .filter(d => !solvedGroups.some(cat => cat.pilots.some(p => p.driverName === d.driverName)))
       .sort(() => Math.random() - 0.5);
   }, [game, solvedGroups]);
 
-    if (loading) {
-      return <LoadingScreen lang={lang} text={t.loading} />;
-    }
+  if (loading) {
+    return <LoadingScreen lang={lang} text={t.loading} />;
+  }
 
-    if (!canPlay) {
-      return (
-        <CooldownScreen
-          seconds={secondsRemaining}
-          onBack={() => navigate("/minigames")}
-        />
-      );
-    }
+  if (!canPlay) {
+    return (
+      <CooldownScreen
+        seconds={secondsRemaining}
+        onBack={() => navigate("/minigames")}
+      />
+    );
+  }
 
-
-
-    if (showTutorial) {
-        return (
-          <MinigameTutorial
-            title={tutorial.title}
-            description={tutorial.description}
-            image={sourceImages("./DriversConnection.png")}
-            onStart={() => setShowTutorial(false)}
-            lang={lang}
-          />
-        );
-      }
+  if (showTutorial) {
+    return (
+      <MinigameTutorial
+        title={tutorial.title}
+        description={tutorial.description}
+        image={sourceImages("./DriversConnection.png")}
+        onStart={() => setShowTutorial(false)}
+        lang={lang}
+      />
+    );
+  }
 
   if (!game) return <LoadingScreen lang={lang} text={t.loading} />;
 
-
-
-
   const getColorClass = (index) => `category-color-${index % categoryColors.length}`;
-
   const gameFinished = game.finished || solvedGroups.length === game.categories.length;
 
   return (
@@ -199,7 +198,9 @@ const DriversConnectionsGame = () => {
         <div className="solved-grid">
           {solvedGroups.map((category, idx) => (
             <div key={idx} className={`solved-category ${getColorClass(idx)}`}>
-              <h3 className="category-title" style={{ color: '#000', fontWeight: 'bold', letterSpacing: '0.5px' }}>{category.description}</h3>
+              <h3 className="category-title" style={{ color: '#000', fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                {category.description}
+              </h3>
               <div className="solved-row">
                 {category.pilots.map((pilot, i) => (
                   <div key={i} className="solved-slot">
@@ -230,7 +231,9 @@ const DriversConnectionsGame = () => {
         <div className="solved-grid">
           {game.categories.map((category, idx) => (
             <div key={idx} className={`solved-category ${getColorClass(idx)}`}>
-              <h3 className="category-title" style={{ color: '#000', fontWeight: 'bold', letterSpacing: '0.5px' }}>{category.description}</h3>
+              <h3 className="category-title" style={{ color: '#000', fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                {category.description}
+              </h3>
               <div className="solved-row">
                 {category.pilots.map((pilot, i) => (
                   <div key={i} className="solved-slot">
@@ -250,19 +253,20 @@ const DriversConnectionsGame = () => {
               {t.validate}
             </button>
             <button className="reveal-btn" onClick={handleSurrender}>{t.surrender}</button>
-
           </>
         ) : (
           <button className="validate-btn" onClick={handleGoHome}>{t.backToHome}</button>
         )}
       </div>
 
-      {isValidGroup === true && <div className="result-msg success">{t.correctGroup}</div>}
+      {isValidGroup === true && (
+        <div className="result-msg success">{t.correctGroup}</div>
+      )}
 
-      {isValidGroup === false && (
+      {isValidGroup === false && retainSelection && (
         <div className="result-msg fail">
           {t.incorrectGroup}
-          {partialMatchCount > 0 && (
+          {partialMatchCount !== null && (
             <div style={{ fontSize: "1rem", marginTop: "0.3rem" }}>
               {t.correctMatches}: {partialMatchCount} / 4
             </div>
