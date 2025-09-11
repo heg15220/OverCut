@@ -7,10 +7,10 @@ server:
 
 spring:
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: overcutwebf1@gmail.com
-    password: ixbtqhsujpkqyyzx
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
