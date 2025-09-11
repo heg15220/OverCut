@@ -3,7 +3,7 @@ import json
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine("mysql+pymysql://root:root@localhost:3306/f1db")  # Ajustar si es necesario
+DB_URL = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
 Session = sessionmaker(bind=engine)
 
 def autocomplete_teams(partial_name: str):

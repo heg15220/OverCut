@@ -14,7 +14,7 @@ const Header = () => {
         <Link to="/">{t.headerHome}</Link>
         <Link to="/tables">{t.headerTables}</Link>
         <Link to="/graphs">{t.headerCharts}</Link>
-        <a href="http://localhost:3000/">{t.headerOvercut}</a> {/* 🔗 Aquí el acceso a OverCut */}
+        <a href="/">{t.headerOvercut}</a> {/* 🔗 Aquí el acceso a OverCut */}
       </nav>
     </header>
   );

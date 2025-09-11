@@ -92,7 +92,7 @@ const Header = () => {
                 </li>
 
                 <li className="nav-item">
-                  <a className="nav-link" href="http://localhost:8083/">
+                  <a className="nav-link" href="/f1hub/">
                     <FormattedMessage id="project.app.Header.f1hub" /> <GraphUp size={16} />
                   </a>
                 </li>

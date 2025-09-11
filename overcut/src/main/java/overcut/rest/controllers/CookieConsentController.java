@@ -12,15 +12,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(
-        origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, // ajusta según tu dev
-        allowCredentials = "true"
-)
+            origins = {
+              "https://overcutf1.com",
+              "https://www.overcutf1.com",
+              "https://overcutf1.com/api/users/signUp",
+              "https://www.overcutf1.com/api/users/signUp",
+              "http://localhost:3000"
+                    },
+            allowCredentials = "true"
+        )
 @RestController
 @RequestMapping("/api/consent")
 public class CookieConsentController {
 
     private static final String CONSENT_COOKIE = "oc_consent"; // flags compactos
     private static final String CONSENT_ID_COOKIE = "oc_cid";  // UUID anónimo
+
+    // Ajusta a tu despliegue: si compartes subdominios, usa ".overcut.es"
+    private static final String COOKIE_DOMAIN = null; // o null si un solo host
+    private static final String COOKIE_SAMESITE = (COOKIE_DOMAIN != null ? "None" : "Lax");
+    private static final boolean COOKIE_SECURE = true;
 
     @Autowired
     private CookieConsentService consentService;
@@ -93,8 +104,23 @@ public class CookieConsentController {
                 "|A" + (c.isAnalytics()   ? "1" : "0") +
                 "|ADS" + (c.isAds()      ? "1" : "0");
         // CookieConsentController.saveConsent(...)
-        CookieUtil.addCookie(req, resp, CONSENT_COOKIE, compact, 31536000, false);
-        CookieUtil.addCookie(req, resp, CONSENT_ID_COOKIE, consentId, 31536000, false);
+        int sixMonths = 60 * 60 * 24 * 30 * 6;
+
+        // oc_consent → visible al front (HttpOnly=false)
+        CookieUtil.addCookie(resp, CONSENT_COOKIE, compact, sixMonths,
+                        /*httpOnly*/ false,
+                        /*secure*/   COOKIE_SECURE,
+                        /*sameSite*/ COOKIE_SAMESITE,
+                        /*domain*/   COOKIE_DOMAIN,
+                        /*path*/     "/");
+
+        // oc_cid → solo backend (HttpOnly=true)
+        CookieUtil.addCookie(resp, CONSENT_ID_COOKIE, consentId, sixMonths,
+                        /*httpOnly*/ true,
+                        /*secure*/   COOKIE_SECURE,
+                        /*sameSite*/ COOKIE_SAMESITE,
+                        /*domain*/   COOKIE_DOMAIN,
+                        /*path*/     "/");
 
     }
 

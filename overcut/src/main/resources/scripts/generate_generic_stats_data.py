@@ -3,11 +3,13 @@ import mysql.connector
 
 import pymysql
 
+# Lee valores de entorno, con fallback a local
 DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'root',
-    'database': 'f1db',
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'user': os.getenv('DB_USER', 'root'),
+    'password': os.getenv('DB_PASSWORD', 'root'),
+    'database': os.getenv('DB_NAME', 'f1db'),
+    'port': int(os.getenv('DB_PORT', 3306)),
     'charset': 'utf8mb4',
     'cursorclass': pymysql.cursors.Cursor
 }

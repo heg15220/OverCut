@@ -2,6 +2,7 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.HttpURLConnection;
@@ -13,7 +14,10 @@ import java.io.InputStreamReader;
 @Service
 public class PilotAutoCompleteServiceImpl implements AutoCompleteService {
 
-    private static final String PYTHON_SERVICE_URL = "http://localhost:8000/autocomplete-pilot-tictactoe?partial=";
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
+    private String PYTHON_SERVICE_URL = fastapiBaseUrl + "/autocomplete-pilot-tictactoe?partial=";
 
     @Override
     public List<String> getSuggestions(String name) {

@@ -3,6 +3,7 @@ package overcut.model.services;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.*;
 import jakarta.transaction.Transactional;
 import java.net.URI;
@@ -33,6 +34,8 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
     @Autowired
     private UserDao userDao;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     @Override
     public DriversLinkGame startGame(Long userId) {
@@ -44,7 +47,7 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-drivers-link"))
+                    .uri(URI.create( fastapiBaseUrl + "/generate-drivers-link"))
                     .GET()
                     .build();
 
@@ -109,7 +112,7 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
             HttpClient client = HttpClient.newHttpClient();
             String encoded = java.net.URLEncoder.encode(partial, java.nio.charset.StandardCharsets.UTF_8);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/autocomplete-career-pilot?partial=" + encoded))
+                    .uri(URI.create( fastapiBaseUrl + "/autocomplete-career-pilot?partial=" + encoded))
                     .GET()
                     .build();
 

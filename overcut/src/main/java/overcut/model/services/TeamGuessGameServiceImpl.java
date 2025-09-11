@@ -2,6 +2,7 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
     @Autowired
     private UserDao userDao;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private final HttpClient client = HttpClient.newHttpClient();
@@ -44,7 +47,7 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
             }
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-team-guess"))
+                    .uri(URI.create(fastapiBaseUrl + "/generate-team-guess"))
                     .GET()
                     .build();
 
@@ -97,7 +100,7 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
     @Override
     public List<String> autocompleteTeamNames(String partial) {
         try {
-            String url = String.format("http://localhost:8000/autocomplete-team?partial=%s", java.net.URLEncoder.encode(partial, "UTF-8"));
+            String url = String.format(fastapiBaseUrl + "/autocomplete-team?partial=%s", java.net.URLEncoder.encode(partial, "UTF-8"));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))

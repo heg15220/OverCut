@@ -2,6 +2,7 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.TikiTakaGame;
 import overcut.model.entities.TikiTakaGameDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,17 @@ public class ValidationGameServiceImpl implements ValidationGameService{
     @Autowired
     private TikiTakaGameDao gameDao;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     @Override
     public boolean validatePilot(Long gameId, String rowCriteria, String colCriteria, String piloto) {
         try {
             TikiTakaGame game = gameDao.findById(gameId)
                     .orElseThrow(() -> new RuntimeException("Game not found"));
 
-            StringBuilder url = new StringBuilder("http://127.0.0.1:8000/validate-tikitaka-pilot");
+            StringBuilder url = new StringBuilder(fastapiBaseUrl)
+                    .append("/validate-tikitaka-pilot");
             url.append("?row=").append(URLEncoder.encode(rowCriteria, StandardCharsets.UTF_8));
             url.append("&col=").append(URLEncoder.encode(colCriteria, StandardCharsets.UTF_8));
             url.append("&piloto=").append(URLEncoder.encode(piloto, StandardCharsets.UTF_8));

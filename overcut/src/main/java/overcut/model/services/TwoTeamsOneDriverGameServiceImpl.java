@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -35,9 +36,11 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
     @Autowired
     private UserDao userDao;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static final String PYTHON_API_BASE = "http://localhost:8000";
+    private String PYTHON_API_BASE = fastapiBaseUrl;
 
     @Override
     public TwoTeamsOneDriverGame startGame(Long userId) {
@@ -48,7 +51,7 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
             }
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(PYTHON_API_BASE + "/generate-two-teams-one-driver"))
+                    .uri(URI.create(fastapiBaseUrl + "/generate-two-teams-one-driver"))
                     .GET()
                     .build();
 
@@ -87,7 +90,7 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
     private boolean hasDrivenForBothTeams(String driverGuess, String teamA, String teamB) {
         try {
             String url = String.format("%s/validate-two-teams-driver?driver=%s&teamA=%s&teamB=%s",
-                    PYTHON_API_BASE,
+                    fastapiBaseUrl,
                     URLEncoder.encode(driverGuess, StandardCharsets.UTF_8),
                     URLEncoder.encode(teamA, StandardCharsets.UTF_8),
                     URLEncoder.encode(teamB, StandardCharsets.UTF_8));
@@ -172,7 +175,7 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
     @Override
     public List<String> autocompletePilotNames(String partial) {
         try {
-            String url = String.format("http://localhost:8000/autocomplete-grid-pilot?partial=%s",
+            String url = String.format(fastapiBaseUrl + "/autocomplete-grid-pilot?partial=%s",
                     URLEncoder.encode(partial, StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()

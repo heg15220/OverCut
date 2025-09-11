@@ -1,6 +1,7 @@
 package overcut.model.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.Top10Game;
 import overcut.model.entities.Top10GameDao;
 import overcut.model.entities.Top10Slot;
@@ -33,6 +34,10 @@ public class Top10GameServiceImpl implements Top10GameService {
     private CooldownService cooldownService;
 
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
+
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -43,7 +48,7 @@ public class Top10GameServiceImpl implements Top10GameService {
                 long wait = cooldownService.secondsUntilNextPlay("Top10Game", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            String url = "http://localhost:8000/generate-top10-game?lang=" + URLEncoder.encode(lang, StandardCharsets.UTF_8);
+            String url = fastapiBaseUrl + "/generate-top10-game?lang=" + URLEncoder.encode(lang, StandardCharsets.UTF_8);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
@@ -95,7 +100,7 @@ public class Top10GameServiceImpl implements Top10GameService {
                 .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
 
         try {
-            String url = String.format("http://localhost:8000/validate-top10-pilot?pilot=%s&raceId=%d",
+            String url = String.format(fastapiBaseUrl + "/validate-top10-pilot?pilot=%s&raceId=%d",
                     URLEncoder.encode(pilotName, StandardCharsets.UTF_8),
                     game.getRaceId());
 

@@ -3,7 +3,7 @@ import json
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-DB_URL = "mysql+pymysql://root:root@localhost:3306/f1db"
+DB_URL = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
   # Ajusta según tu entorno
 engine = create_engine(DB_URL)
 Session = sessionmaker(bind=engine)

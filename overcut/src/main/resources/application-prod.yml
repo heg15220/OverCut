@@ -1,3 +1,10 @@
+app:
+  public-base-url: https://overcutf1.com
+
+server:
+  servlet:
+    context-path: /overcut
+
 spring:
   mail:
     host: smtp.gmail.com
@@ -10,4 +17,26 @@ spring:
           auth: true
           starttls:
             enable: true
+          from: no-reply@overcutf1.com
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    jpa:
+      hibernate:
+        ddl-auto: none
+      defer-datasource-initialization: true
+
+project:
+  jwt:
+    signKey: ${PROJECT_JWT_SIGNKEY}
+    expirationMinutes: ${PROJECT_JWT_EXP_MINUTES}
+
+fastapi:
+  base-url: ${FASTAPI_BASE_URL:http://fastapi:8000}
+
+seed:
+  admin:
+    enabled: true
 

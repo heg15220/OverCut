@@ -3,6 +3,7 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CategoryGameGenerationException;
 import overcut.model.services.exceptions.CooldownException;
@@ -44,6 +45,9 @@ public class CategoryGameServiceImpl implements CategoryGameService {
     private UserDao userDao;
 
     private static final ObjectMapper mapper = new ObjectMapper();
+
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     @Override
     public CategoryGame startGame(String lang) {
@@ -102,7 +106,7 @@ public class CategoryGameServiceImpl implements CategoryGameService {
             }
 
             try {
-                String baseUrl = "http://localhost:8000/validate-category";
+                String baseUrl = fastapiBaseUrl + "/validate-category";
                 String query = String.format(
                         "%s?category=%s&answer=%s&letter=%s&lang=%s",
                         baseUrl,

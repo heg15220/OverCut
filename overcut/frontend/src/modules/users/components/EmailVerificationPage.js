@@ -26,7 +26,7 @@ const EmailVerificationPage = () => {
       return;
     }
 
-    fetch(`http://localhost:8080/overcut/api/users/verify-email?token=${token}`)
+    fetch(`/overcut/api/users/verify-email?token=${token}`)
       .then((res) => {
         console.log("📡 Código de respuesta HTTP:", res.status);
         if (res.ok) {

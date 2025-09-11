@@ -4,6 +4,9 @@ package overcut.rest.common;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseCookie;
+
+import java.time.Duration;
 
 public class CookieUtil {
 
@@ -13,15 +16,25 @@ public class CookieUtil {
         return req.isSecure() || "https".equalsIgnoreCase(xfp);
     }
 
-    public static void addCookie(HttpServletResponse resp, String name, String value,
-                                 int maxAgeSeconds, boolean httpOnly) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setPath("/");
-        cookie.setMaxAge(maxAgeSeconds);
-        cookie.setHttpOnly(httpOnly);
-        cookie.setAttribute("SameSite", "Lax");
-        // OJO: este método ya no sabe si es https; crea una sobrecarga con req:
-        resp.addCookie(cookie);
+    public static void addCookie(HttpServletResponse resp,
+                                 String name, String value,
+                                 int maxAgeSeconds,
+                                 boolean httpOnly,
+                                 boolean secure,
+                                 String sameSite,   // "None" | "Lax" | "Strict"
+                                 String domain,     // null si un solo host
+                                 String path) {
+
+        ResponseCookie.ResponseCookieBuilder b = ResponseCookie.from(name, value == null ? "" : value)
+                .httpOnly(httpOnly)
+                .secure(secure)
+                .path(path == null ? "/" : path)
+                .maxAge(Duration.ofSeconds(maxAgeSeconds));
+
+        if (sameSite != null) b = b.sameSite(sameSite);
+        if (domain   != null) b = b.domain(domain);
+
+        resp.addHeader("Set-Cookie", b.build().toString());
     }
 
     // sobrecarga que SÍ recibe la request y puede decidir Secure:

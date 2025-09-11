@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 # Configuración de conexión a BBDD
-DB_URL = 'mysql+pymysql://root:root@localhost/f1db'
+DB_URL = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
 engine = create_engine(DB_URL, pool_size=10, max_overflow=5)
 Session = sessionmaker(bind=engine)
 

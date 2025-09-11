@@ -3,7 +3,8 @@ import json
 from sqlalchemy import create_engine, text
 
 # ✅ Crea el engine una sola vez
-engine = create_engine("mysql+pymysql://root:root@localhost:3306/f1db")
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
+engine = create_engine(DB_URI, pool_pre_ping=True)
 
 def generate_career_path_game():
     with engine.connect() as conn:

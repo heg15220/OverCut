@@ -140,13 +140,11 @@ public class UserServiceImpl implements UserService{
     public User login(String email, String password) throws IncorrectLoginException
     {
         Optional<User> user = userDao.findByEmail(email);
-
+        if (user.isEmpty()) {
+            throw new IncorrectLoginException(email, password);
+        }
         if (!user.get().isEmailVerified()) {
             throw new IncorrectLoginException("Email not verified.", "email");
-        }
-
-        if(user.isEmpty()){
-            throw new IncorrectLoginException(email,password);
         }
 
         if(!passwordEncoder.matches(password,user.get().getPassword())){

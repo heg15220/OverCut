@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from collections import defaultdict
 
 # Configuración DB y logos
-DB_URL = 'mysql+pymysql://root:root@localhost/f1db'
+DB_URL = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
 engine = create_engine(DB_URL, pool_size=25, max_overflow=20)
 Session = sessionmaker(bind=engine)
 STATIC_LOGO_DIR = "frontend/src/assets/images/tictactoe"

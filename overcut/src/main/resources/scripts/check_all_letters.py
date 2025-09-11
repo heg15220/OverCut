@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy.orm import sessionmaker
 
 
-DB_URI = "mysql+pymysql://root:root@localhost:3306/f1db"
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
 # Crear el engine global
 engine = create_engine(DB_URI)
 Session = sessionmaker(bind=engine)

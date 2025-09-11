@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -36,6 +37,8 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
     @Autowired
     private UserDao userDao;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     @Override
     public DriversConnectionsGame startGame(String lang, Long userId) {
@@ -48,7 +51,7 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate?lang=" + lang))
+                    .uri(URI.create(fastapiBaseUrl + "/generate?lang=" + lang))
                     .GET()
                     .build();
 

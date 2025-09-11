@@ -2,6 +2,7 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -30,6 +31,8 @@ public class WordSearchServiceImpl implements WordSearchService {
     @Autowired
     private UserDao userDao;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     @Override
     public WordSearchGame startGame(Long userId) {
@@ -39,7 +42,7 @@ public class WordSearchServiceImpl implements WordSearchService {
                 throw new CooldownException("WAIT", wait);
             }
 
-            String url = "http://localhost:8000/generate-wordsearch";
+            String url = fastapiBaseUrl + "/generate-wordsearch";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()

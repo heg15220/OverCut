@@ -3,6 +3,7 @@ package overcut.model.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
 import overcut.rest.dtos.OrderSubmissionDto;
@@ -34,6 +35,8 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
     @Autowired
     private UserDao userDao;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final HttpClient client = HttpClient.newHttpClient();
@@ -46,7 +49,7 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
                 throw new CooldownException("WAIT", wait);
             }
 
-            String url = "http://localhost:8000/generate-order-game?lang=" +
+            String url = fastapiBaseUrl + "/generate-order-game?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
             HttpRequest request = HttpRequest.newBuilder()

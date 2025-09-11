@@ -1,6 +1,7 @@
 package overcut.model.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
 import overcut.utils.NationalityIsoMapper;
@@ -35,6 +36,8 @@ public class GridGameServiceImpl implements GridGameService{
     @Autowired
     private UserDao userDao;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     private final Map<Integer, List<DriverInfo>> seasonCache = new HashMap<>();
 
@@ -42,7 +45,7 @@ public class GridGameServiceImpl implements GridGameService{
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/get-drivers-for-season?season=" + season))
+                    .uri(URI.create(fastapiBaseUrl + "/get-drivers-for-season?season=" + season))
                     .GET()
                     .build();
 
@@ -60,7 +63,7 @@ public class GridGameServiceImpl implements GridGameService{
     private boolean runPythonValidationScript(Long gameId, String nationalityCode, String pilotName, int seasonYear) {
         try {
             HttpClient client = HttpClient.newHttpClient();
-            String url = String.format("http://localhost:8000/validate-grid-pilot?pilot=%s&season=%d",
+            String url = String.format(fastapiBaseUrl + "/validate-grid-pilot?pilot=%s&season=%d",
                     URLEncoder.encode(pilotName, StandardCharsets.UTF_8), seasonYear);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -79,7 +82,7 @@ public class GridGameServiceImpl implements GridGameService{
     private String getNationalityForPilot(String pilotName, int season) {
         try {
             HttpClient client = HttpClient.newHttpClient();
-            String url = String.format("http://localhost:8000/get-pilot-nationality?pilot=%s&season=%d",
+            String url = String.format(fastapiBaseUrl + "/get-pilot-nationality?pilot=%s&season=%d",
                     URLEncoder.encode(pilotName, StandardCharsets.UTF_8), season);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))

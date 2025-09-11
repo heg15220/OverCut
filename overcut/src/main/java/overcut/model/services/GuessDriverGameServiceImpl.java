@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -30,6 +31,8 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
     @Autowired
     private UserDao userDao;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
@@ -43,7 +46,7 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
             }
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-guess-driver"))
+                    .uri(URI.create(fastapiBaseUrl + "/generate-guess-driver"))
                     .GET()
                     .build();
 
@@ -85,7 +88,7 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
         }
 
         try {
-            String url = String.format("http://localhost:8000/validate-guess-question?driverId=%d&category=%s%s&lang=%s",
+            String url = String.format(fastapiBaseUrl + "/validate-guess-question?driverId=%d&category=%s%s&lang=%s",
                     game.getDriverId(),
                     category,
                     value != null ? "&value=" + value : "",
@@ -155,7 +158,7 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
     @Override
     public List<String> getRecommendations(String category, String lang) {
         try {
-            String url = String.format("http://localhost:8000/recommend-guess-values?category=%s&lang=%s", category, lang);
+            String url = String.format(fastapiBaseUrl + "/recommend-guess-values?category=%s&lang=%s", category, lang);
             HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -172,7 +175,7 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
     @Override
     public List<String> autocompletePilotNames(String partial) {
         try {
-            String url = String.format("http://localhost:8000/autocomplete-pilot?partial=%s", partial);
+            String url = String.format(fastapiBaseUrl + "/autocomplete-pilot?partial=%s", partial);
             HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

@@ -2,6 +2,7 @@ package overcut.utils;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,25 +23,28 @@ public class InitialUserLoader implements CommandLineRunner {
     @Autowired
     private UserDao userDao;
 
+    @Value("${seed.admin.enabled:false}")
+    private boolean seedAdminEnabled;
+
     @Override
     public void run(String... args) {
-        if (!userDao.existsByEmail("hugo.e@gmx.com")) {
-            try {
-                User admin = new User();
-                admin.setUserName("admin1");
-                admin.setFirstName("OverCut");
-                admin.setLastName("Admin");
-                admin.setPassword("#EspaGarcia_02");
-                admin.setEmail("hugo.e@gmx.com");
-                admin.setJournalist(true);
-                admin.setAdmin(true);
-                admin.setPoints(0);
+        if (seedAdminEnabled && !userDao.existsByEmail("hugo.e@gmx.com")) {
+            User admin = new User();
+            admin.setUserName("admin1");
+            admin.setFirstName("OverCut");
+            admin.setLastName("Admin");
+            admin.setPassword("#EspaGarcia_02");
+            admin.setEmail("hugo.e@gmx.com");
+            admin.setJournalist(true);
+            admin.setAdmin(true);
+            admin.setPoints(0);
 
-                userService.signUp(admin);
+            // Crear sin pasar por signUp (evita email y validación externa)
+            // Asegúrate de encodar la password y marcar verificado:
+            admin.setPassword(new BCryptPasswordEncoder().encode(admin.getPassword()));
+            admin.setEmailVerified(true);
+            userDao.save(admin);
 
-            } catch (DuplicateInstanceException | InvalidEmailException e) {
-                System.out.println("⚠️ Usuario admin1 ya existe o el email no es válido.");
-            }
         } else {
             System.out.println(">>> DEBUG: NO se insertó porque ya existía el email hugo.e@gmx.com");
 

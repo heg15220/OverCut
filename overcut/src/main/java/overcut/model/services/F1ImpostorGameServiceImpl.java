@@ -4,6 +4,7 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,10 @@ public class F1ImpostorGameServiceImpl implements F1ImpostorGameService {
     private UserDao userDao;
 
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
+
     @Override
     public F1ImpostorGame startGame(String lang, Long userId) {
         try {
@@ -47,7 +52,7 @@ public class F1ImpostorGameServiceImpl implements F1ImpostorGameService {
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-f1-impostor?lang=" + lang))
+                    .uri(URI.create( fastapiBaseUrl + "/generate-f1-impostor?lang=" + lang))
                     .GET()
                     .build();
 

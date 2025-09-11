@@ -1,6 +1,7 @@
 package overcut.model.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.QuizCategoryCode;
 import overcut.rest.dtos.QuestionAI;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ import java.util.*;
 public class QuestionLLMServiceImpl implements QuestionLLMService {
     private static final Map<String, QuizCategoryCode> CATEGORY_MAP = new HashMap<>();
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     static {
         CATEGORY_MAP.put("Scores", QuizCategoryCode.Scores);
@@ -57,7 +60,7 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
         
         List<QuestionAI> questions = new ArrayList<>();
         try {
-            String urlStr = "http://localhost:8000/generate-quiz-questions?lang=" +
+            String urlStr = fastapiBaseUrl + "/generate-quiz-questions?lang=" +
                     java.net.URLEncoder.encode(language, "UTF-8");
 
             if (category != null && !category.isEmpty()) {
@@ -142,17 +145,17 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
     @Override
     public List<QuestionAI> generateRegulationQuestions(String language, String category) {
-        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-regulation", language, category);
+        return fetchQuestionsFromEndpoint(fastapiBaseUrl + "/generate-quiz-regulation", language, category);
     }
 
     @Override
     public List<QuestionAI> generateStrategyQuestions(String language, String category) {
-        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-strategy", language, category);
+        return fetchQuestionsFromEndpoint(fastapiBaseUrl + "/generate-quiz-strategy", language, category);
     }
 
     @Override
     public List<QuestionAI> generatePhysicsQuestions(String language, String category) {
-        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-physics", language, category);
+        return fetchQuestionsFromEndpoint(fastapiBaseUrl + "/generate-quiz-physics", language, category);
     }
 
 
@@ -202,7 +205,7 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
     public List<QuestionAI> generateTeamRadioQuestions(String language, String category) {
         List<QuestionAI> questions = new ArrayList<>();
         try {
-            String urlStr = "http://localhost:8000/generate-quiz-teamradios?lang=" +
+            String urlStr = fastapiBaseUrl + "/generate-quiz-teamradios?lang=" +
                     java.net.URLEncoder.encode(language, "UTF-8");
 
             URL url = new URL(urlStr);
@@ -240,7 +243,7 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
     @Override
     public List<QuestionAI> generateGenericStatsQuestions(String language) {
-        return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-genericstats", language, null);
+        return fetchQuestionsFromEndpoint(fastapiBaseUrl + "/generate-quiz-genericstats", language, null);
     }
 
 

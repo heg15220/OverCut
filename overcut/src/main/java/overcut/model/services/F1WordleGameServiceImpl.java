@@ -2,6 +2,7 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
     private UserDao userDao;
 
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     @Override
     public F1WordleGame startGame(Long userId) {
         try {
@@ -43,7 +47,7 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-f1-wordle"))
+                    .uri(URI.create(fastapiBaseUrl + "/generate-f1-wordle"))
                     .GET()
                     .build();
 

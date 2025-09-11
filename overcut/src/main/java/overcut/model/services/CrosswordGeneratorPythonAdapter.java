@@ -2,6 +2,7 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -16,10 +17,13 @@ public class CrosswordGeneratorPythonAdapter {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     public List<CrosswordWordData> generateCrossword(int rows, int cols, String language) {
         try {
             HttpClient client = HttpClient.newHttpClient();
-            URI uri = URI.create("http://localhost:8000/generate-crossword?rows=" + rows + "&cols=" + cols + "&lang=" + language);
+            URI uri = URI.create(fastapiBaseUrl + "/generate-crossword?rows=" + rows + "&cols=" + cols + "&lang=" + language);
             HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -48,7 +52,7 @@ public class CrosswordGeneratorPythonAdapter {
     public boolean validateUserAnswer(String word, String clue, String language) {
         try {
             HttpClient client = HttpClient.newHttpClient();
-            String uri = String.format("http://localhost:8000/validate-crossword-word?word=%s&clue=%s&lang=%s",
+            String uri = String.format(fastapiBaseUrl + "validate-crossword-word?word=%s&clue=%s&lang=%s",
                     java.net.URLEncoder.encode(word, java.nio.charset.StandardCharsets.UTF_8),
                     java.net.URLEncoder.encode(clue, java.nio.charset.StandardCharsets.UTF_8),
                     language);

@@ -18,7 +18,7 @@ PROJECT_ROOT    = Path(__file__).resolve().parent.parent.parent
 # directorio real donde están los PNG
 OVERCUT_ROOT    = Path(__file__).resolve().parents[4]
 STATIC_LOGO_DIR = OVERCUT_ROOT / "frontend" / "src" / "assets" / "images" / "tictactoe"
-DB_URL          = 'mysql+pymysql://root:root@localhost/f1db'
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
 engine          = create_engine(DB_URL, pool_size=25, max_overflow=20, future=True)
 SessionLocal    = sessionmaker(bind=engine)
 

@@ -8,8 +8,9 @@ parser.add_argument("--lang", choices=["es", "en"], default="es")
 args = parser.parse_args()
 DEFAULT_LANG = args.lang
 
-# Configura conexión
-engine = create_engine("mysql+pymysql://root:root@localhost:3306/f1db")
+# Configura conexión (variable de entorno o fallback local)
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
+engine = create_engine(DB_URI, pool_pre_ping=True)
 
 translations = {
     "champions": {

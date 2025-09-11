@@ -1,7 +1,8 @@
 import json, random
 from sqlalchemy import create_engine, text
 
-engine = create_engine("mysql+pymysql://root:root@localhost:3306/f1db")
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
+engine = create_engine(DB_URI, pool_pre_ping=True)
 
 def generate_team_guess_data():
     with engine.connect() as conn:

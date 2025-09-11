@@ -10,7 +10,7 @@ from validate_category_answer import (
     validate_engine, validate_tyres
 )
 
-DB_URI = "mysql+pymysql://root:root@localhost:3306/f1db"
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
 
 def main():
     parser = argparse.ArgumentParser()

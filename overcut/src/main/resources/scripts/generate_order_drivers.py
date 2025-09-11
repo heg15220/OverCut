@@ -3,8 +3,9 @@ import json
 import argparse
 from sqlalchemy import create_engine, text
 
-# Conexión a la base de datos
-engine = create_engine("mysql+pymysql://root:root@localhost:3306/f1db")
+# Configura conexión (variable de entorno o fallback local)
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
+engine = create_engine(DB_URI, pool_pre_ping=True)
 
 
 # Diccionario de traducciones de nacionalidades

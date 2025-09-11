@@ -5,7 +5,7 @@ import json
 from sqlalchemy import create_engine, text
 
 # Ajusta a tu entorno
-DB_URI = "mysql+pymysql://root:root@localhost:3306/f1db"
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
 
 CATEGORY_MAP = {
     "es": {

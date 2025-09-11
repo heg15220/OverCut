@@ -3,7 +3,8 @@ import random
 from sqlalchemy import create_engine, text
 
 # Conexión a base de datos
-engine = create_engine("mysql+pymysql://root:root@localhost:3306/f1db")
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
+engine = create_engine(DB_URI, pool_pre_ping=True)
 
 # ✅ Nueva función reutilizable
 def generate_drivers_link_game():

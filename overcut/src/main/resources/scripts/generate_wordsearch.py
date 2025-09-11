@@ -3,8 +3,10 @@
 import json, random
 from sqlalchemy import create_engine, text
 
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
+
 def generate_wordsearch_grid():
-    engine = create_engine("mysql+pymysql://root:root@localhost:3306/f1db")
+    engine = create_engine(DB_URI, pool_pre_ping=True)
     with engine.connect() as conn:
         drivers = conn.execute(text("""
             SELECT d.driverId, d.surname

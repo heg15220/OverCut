@@ -2,6 +2,7 @@ package overcut.model.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.common.exceptions.InstanceNotFoundException;
 import overcut.model.entities.RondoGame;
 import overcut.model.entities.RondoGameDao;
@@ -34,6 +35,10 @@ public class RondoGameServiceImpl implements RondoGameService {
 
     @Autowired
     private CooldownService cooldownService;
+
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
 
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
@@ -147,7 +152,7 @@ public class RondoGameServiceImpl implements RondoGameService {
 
         try {
             String question = letterEntity.getQuestion();
-            String url = String.format("http://localhost:8000/validate-rondo-answer?letter=%s&question=%s&answer=%s",
+            String url = String.format(fastapiBaseUrl + "/validate-rondo-answer?letter=%s&question=%s&answer=%s",
                     URLEncoder.encode(String.valueOf(letter), "UTF-8"),
                     URLEncoder.encode(question, "UTF-8"),
                     URLEncoder.encode(userAnswer, "UTF-8"));

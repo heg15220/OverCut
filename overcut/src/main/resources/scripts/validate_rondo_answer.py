@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 
 # Configuración de base de datos
-DB_URL = "mysql+pymysql://root:root@localhost:3306/f1db"
+DB_URL = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
 engine = create_engine(DB_URL, poolclass=QueuePool, pool_size=10, max_overflow=5, pool_timeout=30)
 Session = sessionmaker(bind=engine)
 

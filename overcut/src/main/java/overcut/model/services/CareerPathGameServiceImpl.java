@@ -19,7 +19,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @Transactional
@@ -33,6 +33,9 @@ public class CareerPathGameServiceImpl implements CareerPathGameService {
     @Autowired
     private CooldownService cooldownService;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     @Override
     public CareerPathGame startGame(Long userId) {
         if (!cooldownService.canPlay("CareerPath", userId)) {
@@ -44,7 +47,7 @@ public class CareerPathGameServiceImpl implements CareerPathGameService {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-career-path"))
+                     .uri(URI.create(fastapiBaseUrl + "/generate-team-guess"))
                     .GET()
                     .build();
 

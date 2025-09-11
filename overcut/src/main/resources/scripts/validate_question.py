@@ -1,25 +1,38 @@
+import os
 import sys
 import json
 import mysql.connector
+from sqlalchemy.engine.url import make_url  # solo para parsear la URI
 
-# Configuración conexión MySQL
+# Lee una sola variable DB_URI o cae a local
+# Ejemplo de DB_URI: mysql+pymysql://overcut:PASS@db:3306/f1db
+DB_URI = os.getenv("DB_URI", "mysql+pymysql://root:root@localhost:3306/f1db")
+
+# Permite override fino si lo prefieres
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
+
+url = make_url(DB_URI)
+
 config = {
-    'host': 'localhost',
-    'port': 3306,
-    'user': 'root',
-    'password': 'root',  # tu contraseña real aquí
-    'database': 'f1db'
+    "host": DB_HOST or (url.host or "localhost"),
+    "port": int(DB_PORT or (url.port or 3306)),
+    "user": DB_USER or (url.username or "root"),
+    "password": DB_PASS or (url.password or "root"),
+    "database": DB_NAME or (url.database or "f1db"),
+    "charset": "utf8mb4",
 }
 
-# Leer entrada JSON del stdin
-input_data = sys.stdin.read()
-data = json.loads(input_data)
+# ---- Entrada JSON por stdin ----
+raw = sys.stdin.read().strip()
+data = json.loads(raw) if raw else {}
+question = (data.get("question") or "").lower()
+answers = data.get("answers") or []
 
-question = data.get("question", "").lower()
-answers = data.get("answers", [])
-
-# Inicializar respuesta
-correct = "unknown"
+result = {"correct": "unknown"}  # yes | no | unknown
 
 try:
     conn = mysql.connector.connect(**config)
