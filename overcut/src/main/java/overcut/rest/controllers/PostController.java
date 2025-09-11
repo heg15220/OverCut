@@ -47,7 +47,7 @@ public class PostController {
     public BlockDto<PostDto> visualizeAllUserPosts(@RequestAttribute Long userId,
                                                    @RequestParam(defaultValue = "0") int page) throws InstanceNotFoundException {
 
-        Block<Post> postBlock = postService.visualizeAllUserPosts(userId, page, 40);
+        Block<Post> postBlock = postService.visualizeAllUserPosts(userId, page, 8);
 
         return new BlockDto<>(PostConversor.toPostDtos(postBlock.getItems()), postBlock.getExistMoreItems());
     }
@@ -116,7 +116,7 @@ public class PostController {
             @RequestParam(required = false) String language
     ) throws InstanceNotFoundException {
 
-        Block<Post> foundPost = postService.getPosts(title, categoryId, page, 40, criteria, order, language);
+        Block<Post> foundPost = postService.getPosts(title, categoryId, page, 8, criteria, order, language);
 
         return new BlockDto<>(PostConversor.toPostDtos(foundPost.getItems()), foundPost.getExistMoreItems());
     }
