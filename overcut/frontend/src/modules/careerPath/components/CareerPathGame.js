@@ -56,12 +56,12 @@ const CareerPathGame = () => {
       en: 'Loading game...',
     },
     win: {
-      es: '¡Ganaste!',
-      en: 'You won!',
+      es: '¡Correcto!',
+      en: 'Correct!',
     },
     lose: {
-      es: 'Perdiste, era',
-      en: 'You lost, it was',
+      es: 'Era',
+      en: 'It was',
     },
   };
 

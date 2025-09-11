@@ -27,9 +27,11 @@ const LegalNotice = () => {
                 del titular:
               </p>
               <ul>
-                <li><b>Responsable:</b> Hugo Espasandín García (en adelante, “OverCut”)</li>
+                <li><b>Responsable:</b> Hugo E.G. (en adelante, “OverCut”)</li>
                 <li><b>Correo electrónico:</b> <a href="mailto:overcutwebf1@gmail.com">overcutwebf1@gmail.com</a></li>
-                <li><b>Página web:</b> www.overcutf1.com</li>
+                <li><b>Identificación de la web:</b> www.overcutf1.com</li>
+                <li><b>Apartado de correos:</b> 636</li>
+                <li><b>Código Postal:</b> 15704</li>
               </ul>
             </details>
           </section>
@@ -63,9 +65,11 @@ const LegalNotice = () => {
                 Services and Electronic Commerce (LSSI), the identifying details of the owner are provided:
               </p>
               <ul>
-                <li><b>Controller:</b> Hugo Espasandín García (hereinafter, “OverCut”)</li>
+                <li><b>Controller:</b> Hugo E.G. (hereinafter, “OverCut”)</li>
                 <li><b>Email:</b> <a href="mailto:overcutwebf1@gmail.com">overcutwebf1@gmail.com</a></li>
-                <li><b>Website:</b> www.overcutf1.com</li>
+                <li><b>Website identification:</b> www.overcutf1.com</li>
+                <li><b>P.O. Box:</b> 636</li>
+                <li><b>Postal Code:</b> 15704</li>
               </ul>
             </details>
           </section>

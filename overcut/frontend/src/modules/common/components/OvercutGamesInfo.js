@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import users from '../../users'; // ⬅️ mismo patrón que en Header
 import './OvercutGamesInfo.css';
 import { useNavigate } from 'react-router-dom';
 import { getAboutOvercutImage } from '../../../helpers/sourceAboutOvercutImages';
 
 const OvercutGamesInfo = () => {
   const navigate = useNavigate();
+  const isLogged = useSelector(users.selectors.isLoggedIn); // ⬅️ estado de login
   const lang = navigator.language.startsWith('es') ? 'es' : 'en';
+
+  // ⬅️ si está logueado, redirige a /minigames
+  useEffect(() => {
+    if (isLogged) navigate('/minigames', { replace: true });
+  }, [isLogged, navigate]);
 
   const description = lang === 'es'
     ? (
@@ -40,19 +48,33 @@ const OvercutGamesInfo = () => {
           <div className="overcut-info-description">
             {description}
           </div>
+
+          {/* ⬅️ Si está logueado, muestra botón directo a minijuegos; si no, signup/login */}
           <div className="overcut-info-button-wrapper">
-            <button
-              className="overcut-info-button"
-              onClick={() => navigate('/users/signUp')}
-            >
-              {lang === 'es' ? 'Regístrate ahora' : 'Sign up now'}
-            </button>
-            <button
-              className="overcut-info-button secondary"
-              onClick={() => navigate('/users/login')}
-            >
-              {lang === 'es' ? 'Iniciar sesión' : 'Sign In'}
-            </button>
+            {isLogged ? (
+              <button
+                className="overcut-info-button"
+                onClick={() => navigate('/minigames')}
+              >
+                {lang === 'es' ? 'Ir a Minijuegos' : 'Go to Minigames'}
+              </button>
+            ) : (
+              <>
+                <button
+                  className="overcut-info-button"
+                  onClick={() => navigate('/users/signUp')}
+                >
+                  {lang === 'es' ? 'Regístrate ahora' : 'Sign up now'}
+                </button>
+                <button
+                  className="overcut-info-button secondary"
+                  onClick={() => navigate('/users/login')}
+                  style={{ marginLeft: 8 }} // pequeño espacio entre botones
+                >
+                  {lang === 'es' ? 'Iniciar sesión' : 'Sign In'}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
