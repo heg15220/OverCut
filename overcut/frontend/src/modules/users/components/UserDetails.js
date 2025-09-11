@@ -19,7 +19,6 @@ const UserDetails = () => {
             <p><span><FormattedMessage id="project.global.fields.firstName" />:</span> {user.firstName}</p>
             <p><span><FormattedMessage id="project.global.fields.lastName" />:</span> {user.lastName}</p>
             <p><span><FormattedMessage id="project.global.fields.email" />:</span> {user.email}</p>
-            <p><span><FormattedMessage id="project.global.fields.points" />:</span> {user.points}</p>
           </div>
 
           <div className="user-avatar">

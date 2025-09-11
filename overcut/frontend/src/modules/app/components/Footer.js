@@ -48,7 +48,7 @@ const Footer = () => {
         {/* ICONOS REDES SOCIALES */}
         <div className="footer-social">
           <a
-            href="https://twitter.com/yourprofile"
+            href="https://x.com/OvercutPlatform?t=jceCVUgFPkqio-Bry8SZIg&s=09"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Twitter"
