@@ -40,7 +40,7 @@ public class QuizController {
         }
 
         Quiz quiz = quizService.createQuiz(userId, lang);
-        cooldownService.registerPlay("Quiz", userId);
+        //cooldownService.registerPlay("Quiz", userId);
         return quiz.getId();
     }
 
@@ -60,11 +60,21 @@ public class QuizController {
     public QuizCategoryDto getQuizQuestionsCategory(@PathVariable Long quizId,
                                                     @RequestParam(defaultValue = "es") String lang) {
         QuizCategory quizCategory = quizService.getQuizQuestionsCategory(quizId);
-        String name = quizService.getQuizCategoryName(quizCategory,lang);
+        String name = quizService.getQuizCategoryName(quizCategory, lang);
+
+        // Si es RacesGP, intenta sobreescribir el nombre con el título del GP guardado
+        if (quizCategory.getCode().equals(QuizCategoryCode.RacesGP)) {
+            String display = quizService.getQuizDisplayName(quizId);
+            if (display != null && !display.isBlank()) {
+                name = display; // <-- aquí sustituimos "RacesGP" por "Qatar 2024", etc.
+            }
+        }
+
         QuizType quizType = quizService.getQuizQuestionsType(quizId);
         QuizTypeDto quizTypeDto = QuizTypeConversor.convertToQuizTypeDto(quizType);
-        return new QuizCategoryDto(quizCategory.getId(),quizCategory.getCode(),quizTypeDto,name);
+        return new QuizCategoryDto(quizCategory.getId(), quizCategory.getCode(), quizTypeDto, name);
     }
+
     @PostMapping("/{id}/answer")
     public void chooseAnswer(@PathVariable("id") Long quizId, @Validated @RequestBody AnswerParamsDto params)
             throws QuizException,

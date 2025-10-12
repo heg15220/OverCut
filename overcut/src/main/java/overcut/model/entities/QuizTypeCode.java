@@ -6,5 +6,6 @@ public enum QuizTypeCode {
     Pictures,
     Strategy,
     Physics,
-    TeamRadios
+    TeamRadios,
+    Races
 }

@@ -23,5 +23,6 @@ public enum QuizCategoryCode {
     DescriptiveImages,
     RaceStrategy,
     F1Physics,
-    LegendaryTeamRadios
+    LegendaryTeamRadios,
+    RacesGP
 }

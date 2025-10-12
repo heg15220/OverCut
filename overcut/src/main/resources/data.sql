@@ -24,7 +24,7 @@ INSERT INTO QuizType (code,imagePath) VALUES ('Pictures', 'coches-alta-velocidad
 INSERT INTO QuizType (code,imagePath) VALUES ('Strategy', 'parada-boxes-coche-carreras-formula-tripulacion-accion_771335-69432.png');
 INSERT INTO QuizType (code, imagePath) VALUES ('Physics', null);
 INSERT INTO QuizType (code, imagePath) VALUES ('TeamRadios', null);
-
+INSERT INTO QuizType (code, imagePath) VALUES ('Races', 'parrilla_carrera.png');
 
 
 -- Traducciones al español (es)
@@ -34,7 +34,7 @@ INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (3, 'es', 'I
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (4, 'es', 'Estrategia');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (5, 'es', 'Física');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (6, 'es', 'Radios');
-
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (7, 'es', 'Carreras');
 
 
 -- Traducciones al inglés (en)
@@ -44,7 +44,7 @@ INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (3, 'en', 'P
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (4, 'en', 'Strategy');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (5, 'en', 'Physics');
 INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (6, 'en', 'TeamRadios');
-
+INSERT INTO QuizTypeTranslation (quizTypeId, language, name) VALUES (7, 'en', 'Races');
 
 
 -- Asociadas a QuizType 'Stats'
@@ -71,6 +71,8 @@ INSERT INTO QuizCategory (code, quizTypeId) VALUES ('DescriptiveImages', 3);
 INSERT INTO QuizCategory (code, quizTypeId) VALUES ('RaceStrategy', 4);
 INSERT INTO QuizCategory (code, quizTypeId) VALUES ('F1Physics', 5);
 INSERT INTO QuizCategory (code, quizTypeId) VALUES ('LegendaryTeamRadios', 6);
+INSERT INTO QuizCategory (code, quizTypeId) VALUES ('RacesGP', 7);
+
 
 
 

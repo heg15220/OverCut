@@ -73,6 +73,9 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private PermissionChecker permissionChecker;
 
+    // arriba en la clase
+    private final Map<Long, String> quizDisplayNameById = new java.util.concurrent.ConcurrentHashMap<>();
+
 
     @Override
     public String getQuizTypeName(QuizType quizType, String lang) {
@@ -147,6 +150,10 @@ public class QuizServiceImpl implements QuizService {
         }
     }
 
+    @Override
+    public String getQuizDisplayName(Long quizId) {
+        return quizDisplayNameById.get(quizId);
+    }
 
 
     private List<Question> getRandomQuestionsByTypeAndCategory(QuizType quizType, QuizCategory quizCategory, String language)
@@ -171,6 +178,8 @@ public class QuizServiceImpl implements QuizService {
             aiQuestions = questionLLMService.generatePhysicsQuestions(language,quizCategory.getCode().name());
         } else if (quizType.getCode().equals(QuizTypeCode.TeamRadios)) {
             aiQuestions = questionLLMService.generateTeamRadioQuestions(language, quizCategory.getCode().name());
+        } else if (quizType.getCode().equals(QuizTypeCode.Races)) {
+            aiQuestions = questionLLMService.generateQuestionsAI(language, quizCategory.getCode().name());
         }
 
         if (dbQuestions.isEmpty() && (aiQuestions == null || aiQuestions.isEmpty())) {
@@ -363,8 +372,8 @@ public class QuizServiceImpl implements QuizService {
             throw new InstanceNotFoundException("User not found here", userId);
         }
 
-        QuizType quizType = chooseQuizType();
-        //QuizType quizType = getStatsType(QuizTypeCode.Stats);
+        //QuizType quizType = chooseQuizType();
+        QuizType quizType = getStatsType(QuizTypeCode.Races);
         QuizCategory quizCategory = chooseQuizCategory(quizType);
         //QuizCategory quizCategory = getQuizCategoryType();
         List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType, quizCategory, language);
@@ -376,6 +385,16 @@ public class QuizServiceImpl implements QuizService {
 
         Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
         quizDao.save(quiz);
+        // Si es un quiz de Races/RacesGP, consume el título del GP y guárdalo asociado al quizId
+        if (quizType.getCode().equals(QuizTypeCode.Races) && quizCategory.getCode().equals(QuizCategoryCode.RacesGP)) {
+            if (questionLLMService instanceof QuestionLLMServiceImpl impl) {
+                String gpTitle = impl.consumeLastGpTitle(); // viene del ThreadLocal que ya rellenas
+                if (gpTitle != null && !gpTitle.isBlank()) {
+                    quizDisplayNameById.put(quiz.getId(), gpTitle);
+                }
+            }
+        }
+
 
         for(Question question: storedQuestions){
             QuizQuestions quizQuestion = new QuizQuestions();

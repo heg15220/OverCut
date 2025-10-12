@@ -9,7 +9,7 @@ from pathlib import Path
 import subprocess
 from contextlib import asynccontextmanager
 
-
+from grand_prix_history_questions import build_game_from_gp, build_game_random_gp,_shuffle_options_in_place
 from generate_drivers_connections import generate_game as generate_drivers_game
 from generate_drivers_connections import precache_static_categories
 from generate_drivers_connections import precache_dynamic_lists
@@ -519,6 +519,99 @@ def generate_quiz_teamradios(lang: str = Query("es")):
         return JSONResponse(content=preguntas)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+####New Quiz Races GP#####
+
+# --- NUEVO: preguntas tipo "Race Review" por GP ---
+from typing import Optional
+@app.get("/generate-quiz-gp")
+def generate_quiz_gp(lang: str = Query("es", enum=["es", "en"]), gp: Optional[str] = Query(None)):
+    try:
+        import random
+        rng = random.Random()
+
+        game = build_game_from_gp(gp, lang, rng) if gp else build_game_random_gp(lang, rng)
+
+        payload = []
+        for q in game["questions"]:
+            # 1) Pregunta
+            if lang == "es":
+                question = (
+                    q.get("question_es")
+                    or q.get("question")
+                    or q.get("questionES")
+                )
+                # 2) Opciones: soporta options*/answers*
+                options = (
+                    q.get("options_es")
+                    or q.get("answers_es")
+                    or q.get("options")
+                    or q.get("answers")
+                )
+                # 3) Correcta: soporta answer*/correctAnswer* + índice
+                correct = (
+                    q.get("answer_es")
+                    or q.get("correctAnswer_es")
+                    or q.get("answer")
+                    or q.get("correctAnswer")
+                )
+            else:
+                question = (
+                    q.get("question_en")
+                    or q.get("question")
+                    or q.get("questionEN")
+                )
+                options = (
+                    q.get("options_en")
+                    or q.get("answers_en")
+                    or q.get("options")
+                    or q.get("answers")
+                )
+                correct = (
+                    q.get("answer_en")
+                    or q.get("correctAnswer_en")
+                    or q.get("answer")
+                    or q.get("correctAnswer")
+                )
+
+            # 4) Si aún no hay correcta pero viene índice, resolverlo
+            if (not correct) and options and isinstance(options, (list, tuple)) and "correct_index" in q:
+                try:
+                    idx = int(q["correct_index"])
+                    if 0 <= idx < len(options):
+                        correct = options[idx]
+                except Exception:
+                    pass
+
+            # 5) Normalizar tipos y descartar entradas inválidas
+            if isinstance(options, tuple):
+                options = list(options)
+            if not question or not options or not isinstance(options, list) or len(options) == 0:
+                # Saltar preguntas mal formadas para no romper el lado Java
+                continue
+
+            payload.append({
+                "question": question,
+                "answers": options,
+                "correctAnswer": correct if isinstance(correct, str) else None,
+                "knowledgeLevel": q.get("level") or q.get("lvl") or 2,
+                "category": "RacesGP",
+                "language": lang,
+            })
+
+
+        return JSONResponse(content={
+            "gp_es": game.get("gp_es", game.get("gp")),
+            "gp_en": game.get("gp_en", game.get("gp")),
+            "questions": payload
+        })
+    except Exception as e:
+        import traceback
+        print("❌ ERROR en /generate-quiz-gp:", e)
+        traceback.print_exc()
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
 
 @app.get("/validate-category")
 def validate_category_endpoint(

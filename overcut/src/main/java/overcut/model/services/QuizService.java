@@ -46,4 +46,6 @@ public interface QuizService {
     int getQuizPoints(Long quizId, Long userId);
 
     int getAvailableQuizPoints(Long quizId);
+
+    String getQuizDisplayName(Long quizId);
 }

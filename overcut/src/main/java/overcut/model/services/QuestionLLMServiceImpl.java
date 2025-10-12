@@ -11,15 +11,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Implementación del servicio que obtiene preguntas desde FastAPI.
+ */
 @Service
 public class QuestionLLMServiceImpl implements QuestionLLMService {
+
     private static final Map<String, QuizCategoryCode> CATEGORY_MAP = new HashMap<>();
-
-
+    private final ThreadLocal<String> lastGpTitle = new ThreadLocal<>();
     static {
         CATEGORY_MAP.put("Scores", QuizCategoryCode.Scores);
         CATEGORY_MAP.put("Penalty", QuizCategoryCode.Penalty);
@@ -43,9 +46,22 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
         CATEGORY_MAP.put("RaceStrategy", QuizCategoryCode.RaceStrategy);
         CATEGORY_MAP.put("F1Physics", QuizCategoryCode.F1Physics);
         CATEGORY_MAP.put("LegendaryTeamRadios", QuizCategoryCode.LegendaryTeamRadios);
-
+        // NUEVO: categoría para el QuizType=Races
+        CATEGORY_MAP.put("RacesGP", QuizCategoryCode.RacesGP);
     }
 
+    public class RaceGPBatch {
+        public final List<QuestionAI> questions;
+        public final String gpTitle;
+        public RaceGPBatch(List<QuestionAI> qs, String title) { this.questions = qs; this.gpTitle = title; }
+    }
+
+
+    public String consumeLastGpTitle() {
+        String t = lastGpTitle.get();
+        lastGpTitle.remove();
+        return t;
+    }
 
     public static QuizCategoryCode getEnumForCategory(String category) {
         return CATEGORY_MAP.getOrDefault(category, QuizCategoryCode.GenericStats);
@@ -53,8 +69,13 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
 
     @Override
     public List<QuestionAI> generateQuestionsAI(String language, String category) {
+        // Si la categoría es RacesGP, desviamos al endpoint específico de Grandes Premios
+        if ("RacesGP".equalsIgnoreCase(category)) {
+            RaceGPBatch batch = fetchRaceReviewGPBatch(language);
+            lastGpTitle.set(batch.gpTitle);     // <-- guardar display
+            return batch.questions;
+        }
 
-        
         List<QuestionAI> questions = new ArrayList<>();
         try {
             String urlStr = "http://localhost:8000/generate-quiz-questions?lang=" +
@@ -68,28 +89,30 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder json = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                json.append(line);
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+
+                StringBuilder json = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    json.append(line);
+                }
+
+                ObjectMapper mapper = new ObjectMapper();
+                List<Map<String, Object>> rawQuestions = mapper.readValue(json.toString(), List.class);
+
+                for (Map<String, Object> raw : rawQuestions) {
+                    String q = (String) raw.get("question");
+                    List<String> answers = (List<String>) raw.get("answers");
+                    String correct = (String) raw.get("correctAnswer");
+                    int levelVal = (Integer) raw.get("knowledgeLevel");
+                    String cat = (String) raw.get("category");
+                    String lang = (String) raw.get("language");
+
+                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
+                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+                }
             }
-            reader.close();
-
-            ObjectMapper mapper = new ObjectMapper();
-            List<Map<String, Object>> rawQuestions = mapper.readValue(json.toString(), List.class);
-
-            for (Map<String, Object> raw : rawQuestions) {
-                String q = (String) raw.get("question");
-                List<String> answers = (List<String>) raw.get("answers");
-                String correct = (String) raw.get("correctAnswer");
-                int levelVal = (Integer) raw.get("knowledgeLevel");
-                String cat = (String) raw.get("category");
-                String lang = (String) raw.get("language");
-                QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
-            }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,35 +133,35 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder json = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                json.append(line);
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+
+                StringBuilder json = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    json.append(line);
+                }
+
+                ObjectMapper mapper = new ObjectMapper();
+                List<Map<String, Object>> rawQuestions = mapper.readValue(json.toString(), List.class);
+
+                for (Map<String, Object> raw : rawQuestions) {
+                    String q = (String) raw.get("question");
+                    List<String> answers = (List<String>) raw.get("answers");
+                    String correct = (String) raw.get("correctAnswer");
+                    int levelVal = (Integer) raw.get("knowledgeLevel");
+                    String cat = (String) raw.get("category");
+                    String lang = (String) raw.get("language");
+                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
+                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+                }
             }
-            reader.close();
-
-            ObjectMapper mapper = new ObjectMapper();
-            List<Map<String, Object>> rawQuestions = mapper.readValue(json.toString(), List.class);
-
-            for (Map<String, Object> raw : rawQuestions) {
-                String q = (String) raw.get("question");
-                List<String> answers = (List<String>) raw.get("answers");
-                String correct = (String) raw.get("correctAnswer");
-                int levelVal = (Integer) raw.get("knowledgeLevel");
-                String cat = (String) raw.get("category");
-                String lang = (String) raw.get("language");
-                QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
-            }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return questions;
     }
-
 
     @Override
     public List<QuestionAI> generateRegulationQuestions(String language, String category) {
@@ -154,9 +177,6 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
     public List<QuestionAI> generatePhysicsQuestions(String language, String category) {
         return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-physics", language, category);
     }
-
-
-
 
     @Override
     public String validateQuestion(String question, List<String> answers) {
@@ -197,7 +217,6 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
         }
     }
 
-
     @Override
     public List<QuestionAI> generateTeamRadioQuestions(String language, String category) {
         List<QuestionAI> questions = new ArrayList<>();
@@ -209,26 +228,28 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder json = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                json.append(line);
-            }
-            reader.close();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
 
-            ObjectMapper mapper = new ObjectMapper();
-            List<Map<String, Object>> rawQuestions = mapper.readValue(json.toString(), List.class);
+                StringBuilder json = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    json.append(line);
+                }
 
-            for (Map<String, Object> raw : rawQuestions) {
-                String q = (String) raw.get("question");
-                List<String> answers = (List<String>) raw.get("answers");
-                String correct = (String) raw.get("correctAnswer");
-                int levelVal = (Integer) raw.get("knowledgeLevel");
-                String cat = (String) raw.get("category");
-                String lang = (String) raw.get("language");
-                QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+                ObjectMapper mapper = new ObjectMapper();
+                List<Map<String, Object>> rawQuestions = mapper.readValue(json.toString(), List.class);
+
+                for (Map<String, Object> raw : rawQuestions) {
+                    String q = (String) raw.get("question");
+                    List<String> answers = (List<String>) raw.get("answers");
+                    String correct = (String) raw.get("correctAnswer");
+                    int levelVal = (Integer) raw.get("knowledgeLevel");
+                    String cat = (String) raw.get("category");
+                    String lang = (String) raw.get("language");
+                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
+                    questions.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+                }
             }
 
         } catch (Exception e) {
@@ -243,5 +264,43 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
         return fetchQuestionsFromEndpoint("http://localhost:8000/generate-quiz-genericstats", language, null);
     }
 
+    /**
+     * Preguntas "Race Review" por GP (1ª fija + 9 aleatorias del mismo GP).
+     * Devuelve 10 preguntas ya barajadas por FastAPI.
+     */
+    private RaceGPBatch fetchRaceReviewGPBatch(String language) {
+        List<QuestionAI> out = new ArrayList<>();
+        String gpTitle = null;
+        try {
+            String urlStr = "http://localhost:8000/generate-quiz-gp?lang=" + URLEncoder.encode(language, "UTF-8");
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setRequestMethod("GET");
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, Object> root = mapper.readValue(reader, Map.class);
+
+                // 1) Título del GP
+                gpTitle = (String) (language.equals("es") ? root.getOrDefault("gp_es", root.get("gp_en")) : root.getOrDefault("gp_en", root.get("gp_es")));
+
+                // 2) Preguntas
+                List<Map<String, Object>> rawQuestions = (List<Map<String, Object>>) root.get("questions");
+                for (Map<String, Object> raw : rawQuestions) {
+                    String q = (String) raw.get("question");
+                    List<String> answers = (List<String>) raw.get("answers");
+                    if (q == null || answers == null || answers.isEmpty()) continue;
+
+                    String correct = (String) raw.get("correctAnswer");
+                    int levelVal = (raw.get("knowledgeLevel") instanceof Number) ? ((Number) raw.get("knowledgeLevel")).intValue() : 2;
+                    String cat = (String) raw.getOrDefault("category", "RacesGP");
+                    String lang = (String) raw.getOrDefault("language", language);
+
+                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
+                    out.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return new RaceGPBatch(out, gpTitle);
+    }
 
 }
