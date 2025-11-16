@@ -10,18 +10,44 @@ import random
 import argparse
 from typing import List, Dict
 
-CATEGORY = "F1GrandPrix"
+CATEGORY = "RacesGP"
 
 def _shuffle_keep_correct(q: Dict) -> Dict:
-    """Baraja answers manteniendo la correcta presente."""
-    answers = list(q["answers"])
-    correct = q["correctAnswer"]
-    if correct not in answers:
+    """Baraja answers manteniendo la correcta presente (si existe)."""
+    answers = list(q.get("answers") or [])
+    correct = q.get("correctAnswer")
+
+    # Si no hay respuestas pero hay correcta, crea lista
+    if not answers and correct:
+        answers = [correct]
+
+    # Si hay correcta y no está en la lista, la añadimos
+    if correct and (correct not in answers):
         answers.append(correct)
+
+    # Si *aún* no hay respuestas, este ítem es inválido
+    if not answers:
+        raise ValueError("missing answers/correctAnswer")
+
     random.shuffle(answers)
     q["answers"] = answers
     return q
-
+def _append_pairs(L, S_ES, S_EN, pairs, default_lvl=2):
+    """
+    Acepta tuplas de 6 o 7 elementos:
+      6 -> (q_es, opts_es, correct_es, q_en, opts_en, correct_en)  [usa default_lvl]
+      7 -> ... + lvl
+    y las convierte en entradas con _mk(...)
+    """
+    for t in pairs:
+        if len(t) == 7:
+            q_es, opts_es, correct_es, q_en, opts_en, correct_en, lvl = t
+        elif len(t) == 6:
+            q_es, opts_es, correct_es, q_en, opts_en, correct_en = t
+            lvl = default_lvl
+        else:
+            raise ValueError(f"Pair con longitud inesperada ({len(t)}): {t}")
+        L.append(_mk(S_ES, S_EN, q_es, opts_es, correct_es, q_en, opts_en, correct_en, lvl))
 
 
 
@@ -48,12 +74,94 @@ def _mk(section_es, section_en, q_es, opts_es, correct_es, q_en, opts_en, correc
         }
     }
 
-def _export(items: List[Dict], lang: str) -> List[Dict]:
-    out = []
-    for it in items:
-        blob = it["es"] if lang == "es" else it["en"]
-        out.append(_shuffle_keep_correct(dict(blob)))
+
+def _normalize_flat_blob(b: dict, lang: str) -> dict:
+    out = dict(b)
+
+    # =========================
+    # QUESTION
+    # =========================
+    if "question" not in out:
+        if lang == "es":
+            # Soportar question_es / q_es
+            q = out.get("question_es") or out.get("q_es")
+        else:
+            # Soportar question_en / q_en
+            q = out.get("question_en") or out.get("q_en")
+        if q:
+            out["question"] = q
+
+    # =========================
+    # ANSWERS
+    # =========================
+    if "answers" not in out:
+        if "options" in out:
+            out["answers"] = list(out["options"])
+        elif "choices" in out:
+            out["answers"] = list(out["choices"])
+        else:
+            key = "options_es" if lang == "es" else "options_en"
+            if out.get(key):
+                out["answers"] = list(out[key])
+
+    # =========================
+    # CORRECT ANSWER
+    # =========================
+    if "correctAnswer" not in out:
+        # 1) Campos "limpios"
+        if "answer" in out:
+            out["correctAnswer"] = out["answer"]
+        elif "correct" in out:
+            out["correctAnswer"] = out["correct"]
+        else:
+            key = "answer_es" if lang == "es" else "answer_en"
+            if out.get(key):
+                out["correctAnswer"] = out[key]
+
+        # 2) Si seguimos sin correcta pero hay answer_index + opciones
+        if "correctAnswer" not in out and "answer_index" in out:
+            idx = out.get("answer_index")
+            try:
+                idx = int(idx)
+            except (TypeError, ValueError):
+                idx = None
+
+            opts = out.get("answers") or out.get("options") or out.get("choices")
+            if isinstance(opts, list) and idx is not None and 0 <= idx < len(opts):
+                out["correctAnswer"] = opts[idx]
+
+    # =========================
+    # METADATOS
+    # =========================
+    # difficulty -> knowledgeLevel si no viene
+    if "knowledgeLevel" not in out:
+        lvl = out.get("level") or out.get("lvl") or out.get("difficulty")
+        out["knowledgeLevel"] = lvl if lvl is not None else 2
+
+    out.setdefault("category", CATEGORY)
+    out.setdefault("language", lang)
     return out
+
+def _export(items: List[Dict], lang: str, source: str = "unknown") -> List[Dict]:
+    out = []
+    for idx, it in enumerate(items):
+        try:
+            if isinstance(it, dict) and ("es" in it or "en" in it):
+                blob = it["es"] if lang == "es" else it["en"]
+                blob = _normalize_flat_blob(blob, lang)
+            else:
+                blob = _normalize_flat_blob(dict(it), lang)
+
+            if not blob.get("question") or not (blob.get("answers") or blob.get("correctAnswer")):
+                print(f"[WARN][{source}] skipping malformed item idx={idx} (no question/answers) -> {blob}")
+                continue
+
+            out.append(_shuffle_keep_correct(blob))
+        except Exception as e:
+            print(f"[WARN][{source}] skipping item idx={idx} due to error: {e} | raw={it}")
+            continue
+    return out
+
 
 # =========================
 # SECCIONES Y PREGUNTAS
@@ -174,7 +282,7 @@ def abu_dhabi_2024_items() -> List[Dict]:
         "Which driver indirectly triggered Carlos Sainz’s move to Williams?",
         ["Franco Colapinto","Lando Norris","Oscar Piastri","Sergio Perez"],
         "Franco Colapinto", 2))
-    L.append(_mk(S_ES,SEN:="2024 Abu Dhabi Grand Prix",
+    L.append(_mk(S_ES,S_EN,
         "¿Qué ocurrió entre Max Verstappen y Oscar Piastri en la primera vuelta?",
         ["Verstappen golpeó al McLaren y ambos trompearon","Piastri adelantó a Verstappen en la salida","Verstappen sufrió un pinchazo por un toque con Norris","Ambos se salieron por fallo de frenos"],
         "Verstappen golpeó al McLaren y ambos trompearon",
@@ -477,7 +585,7 @@ def japan_2025_items() -> List[Dict]:
         "Which of the top three was the first to pit?",
         ["Oscar Piastri","Lando Norris","Max Verstappen","Charles Leclerc"],
         "Oscar Piastri",3))
-    L.append(_mk(S_ES,SEN:="2025 Japanese Grand Prix",
+    L.append(_mk(S_ES,S_EN,
         "¿Qué piloto lideró la parte intermedia antes de caer al sexto lugar?",
         ["Andrea Kimi Antonelli","George Russell","Lewis Hamilton","Charles Leclerc"],
         "Andrea Kimi Antonelli",
@@ -1986,77 +2094,70 @@ def imola_2024_items() -> List[Dict]:
 def monaco_2024_items() -> List[Dict]:
     S_ES = "Gran Premio de Mónaco 2024"; S_EN = "2024 Monaco Grand Prix"; L = []
     pairs = [
-
         ("¿Qué suceso de la salida provocó bandera roja y restauró a Sainz al P3 original?",
-         ["Accidente Pérez-Magnussen-Hülkenberg en Beau Rivage y corte de posiciones por SC Line 2","Choque Leclerc-Piastri en Sainte Devote","Toque de Russell en el túnel","Avería de Stroll"], 
+         ["Accidente Pérez-Magnussen-Hülkenberg en Beau Rivage y corte de posiciones por SC Line 2","Choque Leclerc-Piastri en Sainte Devote","Toque de Russell en el túnel","Avería de Stroll"],
          "Accidente Pérez-Magnussen-Hülkenberg en Beau Rivage y corte de posiciones por SC Line 2",
          "What start incident caused the red flag and restored Sainz to original P3?",
          ["Perez-Magnussen-Hulkenberg crash at Beau Rivage, grid set by SC Line 2","Leclerc-Piastri at Sainte Devote","Russell hit in the tunnel","Stroll failure"],
          "Perez-Magnussen-Hulkenberg crash at Beau Rivage, grid set by SC Line 2", 2),
-
         ("¿Qué oportunidad estratégica brindó la bandera roja y cómo la aprovecharon líderes?",
-         ["Cambiar a duros gratis y planear ir hasta el final","Montar intermedios por lluvia inminente","Cambiar a medios y hacer dos paradas","Reparar fondo y volver con blandos"], 
+         ["Cambiar a duros gratis y planear ir hasta el final","Montar intermedios por lluvia inminente","Cambiar a medios y hacer dos paradas","Reparar fondo y volver con blandos"],
          "Cambiar a duros gratis y planear ir hasta el final",
          "What strategic opportunity did the red flag offer and how did leaders use it?",
          ["Free switch to hards and aim to go to the end","Fit inters for imminent rain","Swap to mediums for a two-stop","Fix floors and return on softs"],
          "Free switch to hards and aim to go to the end", 1),
-
         ("¿Qué instrucción recibió Leclerc tras el reinicio para controlar la ventana de parada rival?",
-         ["Marcar o ir más lento que Russell para impedir ‘free-stop’ a Norris","Atacar en 1’14s constantes","Gastar batería cada vuelta","Abrir hueco de 30s sobre P5"], 
+         ["Marcar o ir más lento que Russell para impedir ‘free-stop’ a Norris","Atacar en 1’14s constantes","Gastar batería cada vuelta","Abrir hueco de 30s sobre P5"],
          "Marcar o ir más lento que Russell para impedir ‘free-stop’ a Norris",
          "What instruction did Leclerc get post-restart to manage rival pit windows?",
          ["Match/go slower than Russell to block a Norris free-stop","Push constant 1:14s","Burn ERS every lap","Open 30s to P5"],
          "Match/go slower than Russell to block a Norris free-stop", 2),
-
         ("¿Qué particularidad de neumáticos tuvo el pelotón tras la roja?",
-         ["Todos cambiaron de compuesto excepto Sargeant","Todos montaron medios nuevos","Ferrari mantuvo medios y el resto duros","Red Bull salió con blandos usados"], 
+         ["Todos cambiaron de compuesto excepto Sargeant","Todos montaron medios nuevos","Ferrari mantuvo medios y el resto duros","Red Bull salió con blandos usados"],
          "Todos cambiaron de compuesto excepto Sargeant",
          "What tyre oddity did the field show after the red flag?",
          ["Everyone switched compounds except Sargeant","All went to new mediums","Ferrari stayed on mediums, others on hards","Red Bull chose scrubbed softs"],
          "Everyone switched compounds except Sargeant", 1),
-
         ("¿Cómo gestionó Leclerc sus emociones hacia el final y qué efecto tuvo en su pilotaje?",
-         ["Admitió lágrimas en el túnel; aun así bajó al 1’15 bajo para cubrir escenarios","Pidió radio en silencio y rodó 2s más lento","Cometió un plano fuerte","Se pasó en la chicane y perdió 5s"], 
+         ["Admitió lágrimas en el túnel; aun así bajó al 1’15 bajo para cubrir escenarios","Pidió radio en silencio y rodó 2s más lento","Cometió un plano fuerte","Se pasó en la chicane y perdió 5s"],
          "Admitió lágrimas en el túnel; aun así bajó al 1’15 bajo para cubrir escenarios",
          "How did Leclerc handle late-race emotions and what lap-time effect followed?",
          ["Admitted tears in the tunnel; still dipped into low 1:15s to cover scenarios","Requested radio silence and slowed by 2s","Flat-spotted badly","Overshot the chicane losing 5s"],
          "Admitted tears in the tunnel; still dipped into low 1:15s to cover scenarios", 2),
-
         ("¿Qué duelo estratégico se vivió entre Russell y Verstappen tras las paradas asimétricas?",
-         ["Verstappen con ritmo superior en duros nuevos persiguiendo a Russell en medios muy viejos, sin lograr pasarlo","Russell cazó y adelantó a Max con DRS","Hubo undercut de Max y pasó con facilidad","SC final dio posición gratis a Russell"], 
+         ["Verstappen con ritmo superior en duros nuevos persiguiendo a Russell en medios muy viejos, sin lograr pasarlo","Russell cazó y adelantó a Max con DRS","Hubo undercut de Max y pasó con facilidad","SC final dio posición gratis a Russell"],
          "Verstappen con ritmo superior en duros nuevos persiguiendo a Russell en medios muy viejos, sin lograr pasarlo",
          "Which strategic duel unfolded between Russell and Verstappen after offset stops?",
          ["Max on fresh hards chased Russell’s very old mediums but couldn’t pass","Russell hunted and DRS-passed Max","Max undercut and breezed by","Late SC gifted Russell the place"],
          "Max on fresh hards chased Russell’s very old mediums but couldn’t pass", 2),
-
         ("¿Qué estadística inédita dejó la carrera sobre parrilla y resultado final?",
-         ["Por primera vez, el top-10 de la parrilla terminó en el mismo orden","Ningún coche abandonó","Todos pararon dos veces","No hubo banderas amarillas"], 
+         ["Por primera vez, el top-10 de la parrilla terminó en el mismo orden","Ningún coche abandonó","Todos pararon dos veces","No hubo banderas amarillas"],
          "Por primera vez, el top-10 de la parrilla terminó en el mismo orden",
          "What unprecedented stat did the race produce re: grid vs finish?",
          ["First ever: top-10 on the grid finished in identical order","No DNFs","All did two stops","No yellows at all"],
          "First ever: top-10 on the grid finished in identical order", 1),
-
         ("¿Qué preocupación técnica puntual marcó el ‘pacing’ de Leclerc según su ingeniero?",
-         ["Evitar micro-bloqueos en Sainte Devote y chicane del puerto","Cuidar temperaturas de ERS","Mantener delta de combustible","Proteger el MGU-H"], 
+         ["Evitar micro-bloqueos en Sainte Devote y chicane del puerto","Cuidar temperaturas de ERS","Mantener delta de combustible","Proteger el MGU-H"],
          "Evitar micro-bloqueos en Sainte Devote y chicane del puerto",
          "Which technical caution shaped Leclerc’s pacing as per his engineer?",
          ["Avoid micro-locks at Sainte Devote and the Harbour chicane","Manage ERS temps","Fuel delta control","Protect the MGU-H"],
          "Avoid micro-locks at Sainte Devote and the Harbour chicane", 1),
-
         ("¿Qué equipos fuera del ‘big five’ se llevaron puntos y qué hito lograron?",
-         ["Williams con Albon y Alpine con Gasly; primeros puntos de Williams en el año","Haas doble puntos; primer podio de la era","Sauber top-6; mejor resultado desde 2012","RB doble top-5"], 
+         ["Williams con Albon y Alpine con Gasly; primeros puntos de Williams en el año","Haas doble puntos; primer podio de la era","Sauber top-6; mejor resultado desde 2012","RB doble top-5"],
          "Williams con Albon y Alpine con Gasly; primeros puntos de Williams en el año",
          "Which non-‘big five’ teams scored and what milestone did they hit?",
          ["Williams (Albon) and Alpine (Gasly); Williams’ first points of the year","Haas double points; first era podium","Sauber top-6; best since 2012","RB double top-5"],
          "Williams (Albon) and Alpine (Gasly); Williams’ first points of the year", 1),
-
         ("Más allá del triunfo, ¿qué sentido personal otorga Leclerc a su victoria en casa?",
-         ["Cumple el sueño propio y el de su padre; catarsis tras pérdidas previas","Garantiza el título","Rompe la maldición de poles en lluvia","Cierra su ciclo en Ferrari"], 
+         ["Cumple el sueño propio y el de su padre; catarsis tras pérdidas previas","Garantiza el título","Rompe la maldición de poles en lluvia","Cierra su ciclo en Ferrari"],
          "Cumple el sueño propio y el de su padre; catarsis tras pérdidas previas",
          "Beyond the win, what personal meaning does Leclerc ascribe to Monaco?",
          ["Fulfilling his and his father’s dream; catharsis after past losses","Secures the title","Breaks wet-pole jinx","Ends his Ferrari chapter"],
          "Fulfilling his and his father’s dream; catharsis after past losses", 2),
     ]
+    _append_pairs(L, S_ES, S_EN, pairs, default_lvl=2)
+    return L
+
     # (Construcción/loop estándar omitido)
 # ---- Canada 2024 ----
 def canada_2024_items() -> List[Dict]:
@@ -30696,7 +30797,7 @@ def monaco_2021_items() -> List[Dict]:
         ),
     ]
     for a in pairs:
-        L.append(_mk(S_ES,S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+        _append_pairs(L, S_ES, S_EN, pairs, default_lvl=2)
     return L
 
 
@@ -30867,7 +30968,7 @@ def azerbaijan_2021_items() -> List[Dict]:
         ),
     ]
     for a in pairs:
-        L.append(_mk(S_ES,S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+        _append_pairs(L, S_ES, S_EN, pairs, default_lvl=2)
     return L
 
 
@@ -31048,7 +31149,7 @@ def france_2021_items() -> List[Dict]:
         ),
     ]
     for a in pairs:
-        L.append(_mk(S_ES,S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+        _append_pairs(L, S_ES, S_EN, pairs, default_lvl=2)
     return L
 
 # =========================

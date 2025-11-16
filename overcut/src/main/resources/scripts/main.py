@@ -58,7 +58,12 @@ from validate_category_answer import validate_category_answer
 from generic_stats_service import load_generic_stats_cache, generate_genericstats_questions
 from generic_stats_service import generar_preguntas_genericstats_desde_main
 from validate_guess_driver_question import NATIONALITY_TRANSLATIONS_EN, NATIONALITY_TRANSLATIONS
+# arriba, junto al resto de imports del módulo GP
+from grand_prix_history_questions import _export, _localize_gp_titles, GP_FUNCS
 
+GP_KEYS = tuple(GP_FUNCS.keys())
+
+_RNG = random.Random()
 
 import sys
 import io
@@ -153,10 +158,43 @@ async def lifespan(app: FastAPI):
     precache_order_circuits()
     precache_order_nationalities()
     load_generic_stats_cache("generic_stats_data.json")
+    for gp in GP_FUNCS.keys():
+            _ = _get_prebuilt(gp, "es")
+            _ = _get_prebuilt(gp, "en")
+            _ = _get_game(gp, "es")
+            _ = _get_game(gp, "en")
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+
+from functools import lru_cache
+
+app = FastAPI(lifespan=lifespan, default_response_class=JSONResponse)
+
+
+def _build_exported_questions(gp_name: str, lang: str) -> list[dict]:
+    fn = GP_FUNCS.get(gp_name)
+    if not fn:
+        raise ValueError(f"GP no encontrado: {gp_name}")
+    items = fn()
+    return _export(items, lang)  # usa tu export tal cual
+
+def _get_titles(gp_name: str) -> dict:
+    if gp_name not in _TITLES:
+        _TITLES[gp_name] = _localize_gp_titles(gp_name)
+    return _TITLES[gp_name]
+
+def _ensure_cache_ready():
+    if _PREBUILT:
+        return
+    for gp in GP_FUNCS.keys():
+        for lang in ("es","en"):
+            try:
+                _PREBUILT[(gp, lang)] = _build_exported_questions(gp, lang)
+                _ = _get_titles(gp)
+            except Exception:
+                pass
+
 
 
 
@@ -522,94 +560,184 @@ def generate_quiz_teamradios(lang: str = Query("es")):
 
 ####New Quiz Races GP#####
 
+from threading import RLock
+
+_PREBUILT: dict[tuple[str,str], list] = {}
+_TITLES: dict[str, dict] = {}
+_PREBUILT_LOCK = RLock()
+
+def _get_titles(gp_name: str) -> dict:
+    t = _TITLES.get(gp_name)
+    if t is None:
+        t = _localize_gp_titles(gp_name)
+        _TITLES[gp_name] = t
+    return t
+
+def _get_prebuilt(gp_name: str, lang: str) -> list[dict]:
+    key = (gp_name, lang)
+    qlist = _PREBUILT.get(key)
+    if qlist is not None:
+        return qlist
+    with _PREBUILT_LOCK:
+        qlist = _PREBUILT.get(key)
+        if qlist is None:
+            fn = GP_FUNCS.get(gp_name)
+            if not fn:
+                raise ValueError(f"GP no encontrado: {gp_name}")
+            items = fn()
+            try:
+                qlist = _export(items, lang, source=f"GP:{gp_name}")
+            except Exception as e:
+                # Evita crash en startup y deja rastro claro
+                print(f"[WARN] export falló para '{gp_name}' ({lang}): {e}")
+                qlist = []
+            _PREBUILT[key] = qlist
+    return qlist
+
+
+def _pick_10(exported: list[dict], rng: random.Random) -> list[dict]:
+    if not exported:
+        return []
+    chosen = [exported[0]] + (rng.sample(exported[1:], 9) if len(exported) > 10 else list(exported[1:]))
+    out = []
+    for q in chosen:
+        q2 = dict(q)
+        key_options = "options" if "options" in q2 else ("choices" if "choices" in q2 else "answers")
+        opts = list(q2.get(key_options, []))
+        rng.shuffle(opts)
+        q2[key_options] = opts
+        out.append(q2)
+    return out
+
+
+def build_game_from_gp_fast(gp_name: str, lang: str, rng: random.Random) -> dict:
+    exported = _get_prebuilt(gp_name, lang)      # <- usa el caché lazy
+    questions = _pick_10(exported, rng)
+    titles = _get_titles(gp_name)
+    return {
+        "gp": gp_name,
+        "gp_en": titles["en"],
+        "gp_es": titles["es"],
+        "lang": lang,
+        "count": len(questions),
+        "questions": questions
+    }
+
+from itertools import cycle
+
+_PREBUILT_GAMES: dict[tuple[str,str], cycle] = {}
+
+def _to_payload_items(exported: list[dict], lang: str, rng: random.Random) -> list[dict]:
+    """
+    Convierte la lista exportada (question/answers/correctAnswer/knowledgeLevel)
+    en el payload final del endpoint, barajando las respuestas.
+    """
+    out = []
+    for q in exported:
+        question = q.get("question")
+        answers  = list(q.get("answers") or [])
+        correct  = q.get("correctAnswer")
+
+        if not question or not answers:
+            continue
+
+        # garantiza que la correcta esté incluida
+        if correct and correct not in answers:
+            answers.append(correct)
+
+        rng.shuffle(answers)
+
+        out.append({
+            "question": question,
+            "answers": answers,
+            "correctAnswer": correct if isinstance(correct, str) else None,
+            "knowledgeLevel": q.get("knowledgeLevel", q.get("level", q.get("lvl", 2))),
+            "category": q.get("category", "F1GrandPrix"),
+            "language": lang,
+        })
+    return out
+
+
+def _pick_k(items: list[dict], k: int, rng: random.Random) -> list[dict]:
+    """Primera fija + resto aleatorio, si hay más de k."""
+    if not items:
+        return []
+    if len(items) <= k:
+        # primera fija + resto barajado
+        first = items[0]
+        tail = items[1:]
+        rng.shuffle(tail)
+        return [first] + tail
+    # >= k: primera fija + (k-1) aleatorias del resto
+    first = items[0]
+    tail = items[1:]
+    picked = rng.sample(tail, k=k-1)
+    return [first] + picked
+
+
+def _prebuild_games(gp_name: str, lang: str, k: int = 8):
+    exported = _get_prebuilt(gp_name, lang)
+    titles = _get_titles(gp_name)
+    rng = random.Random(hash((gp_name, lang)) & 0xffffffff)
+
+    # Si no hay preguntas exportables, prepara ciclo con juego vacío
+    if not exported:
+        empty = [{
+            "gp": gp_name,
+            "gp_en": titles["en"],
+            "gp_es": titles["es"],
+            "lang": lang,
+            "count": 0,
+            "questions": []
+        }]
+        return cycle(empty)
+
+    # 1) payload base (ya con answers barajadas)
+    payload_all = _to_payload_items(exported, lang, rng)
+    # 2) pre-construye K juegos rotativos
+    games = []
+    for _ in range(k):
+        picked = _pick_k(payload_all, k=10, rng=rng)  # 10 preguntas o menos si no alcanza
+        games.append({
+            "gp": gp_name,
+            "gp_en": titles["en"],
+            "gp_es": titles["es"],
+            "lang": lang,
+            "count": len(picked),
+            "questions": picked,   # <- YA EN FORMATO FINAL
+        })
+    return cycle(games)
+
+
+
+def _get_game(gp_name: str, lang: str):
+    key = (gp_name, lang)
+    with _PREBUILT_LOCK:
+        cyc = _PREBUILT_GAMES.get(key)
+        if cyc is None:
+            _PREBUILT_GAMES[key] = _prebuild_games(gp_name, lang, k=8)
+            cyc = _PREBUILT_GAMES[key]
+        return next(cyc)
+
+
+
 # --- NUEVO: preguntas tipo "Race Review" por GP ---
 from typing import Optional
 @app.get("/generate-quiz-gp")
-def generate_quiz_gp(lang: str = Query("es", enum=["es", "en"]), gp: Optional[str] = Query(None)):
+def generate_quiz_gp(lang: str = Query("es", enum=["es","en"]), gp: Optional[str] = Query(None)):
     try:
-        import random
-        rng = random.Random()
-
-        game = build_game_from_gp(gp, lang, rng) if gp else build_game_random_gp(lang, rng)
-
-        payload = []
-        for q in game["questions"]:
-            # 1) Pregunta
-            if lang == "es":
-                question = (
-                    q.get("question_es")
-                    or q.get("question")
-                    or q.get("questionES")
-                )
-                # 2) Opciones: soporta options*/answers*
-                options = (
-                    q.get("options_es")
-                    or q.get("answers_es")
-                    or q.get("options")
-                    or q.get("answers")
-                )
-                # 3) Correcta: soporta answer*/correctAnswer* + índice
-                correct = (
-                    q.get("answer_es")
-                    or q.get("correctAnswer_es")
-                    or q.get("answer")
-                    or q.get("correctAnswer")
-                )
-            else:
-                question = (
-                    q.get("question_en")
-                    or q.get("question")
-                    or q.get("questionEN")
-                )
-                options = (
-                    q.get("options_en")
-                    or q.get("answers_en")
-                    or q.get("options")
-                    or q.get("answers")
-                )
-                correct = (
-                    q.get("answer_en")
-                    or q.get("correctAnswer_en")
-                    or q.get("answer")
-                    or q.get("correctAnswer")
-                )
-
-            # 4) Si aún no hay correcta pero viene índice, resolverlo
-            if (not correct) and options and isinstance(options, (list, tuple)) and "correct_index" in q:
-                try:
-                    idx = int(q["correct_index"])
-                    if 0 <= idx < len(options):
-                        correct = options[idx]
-                except Exception:
-                    pass
-
-            # 5) Normalizar tipos y descartar entradas inválidas
-            if isinstance(options, tuple):
-                options = list(options)
-            if not question or not options or not isinstance(options, list) or len(options) == 0:
-                # Saltar preguntas mal formadas para no romper el lado Java
-                continue
-
-            payload.append({
-                "question": question,
-                "answers": options,
-                "correctAnswer": correct if isinstance(correct, str) else None,
-                "knowledgeLevel": q.get("level") or q.get("lvl") or 2,
-                "category": "RacesGP",
-                "language": lang,
-            })
-
-
-        return JSONResponse(content={
+        gp_name = gp or GP_KEYS[random.randrange(len(GP_KEYS))]
+        game = _get_game(gp_name, lang)  # <- ya viene listo para enviar
+        return {
             "gp_es": game.get("gp_es", game.get("gp")),
             "gp_en": game.get("gp_en", game.get("gp")),
-            "questions": payload
-        })
+            "questions": game["questions"]
+        }
     except Exception as e:
-        import traceback
-        print("❌ ERROR en /generate-quiz-gp:", e)
-        traceback.print_exc()
+        import traceback; traceback.print_exc()
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
 
 
 

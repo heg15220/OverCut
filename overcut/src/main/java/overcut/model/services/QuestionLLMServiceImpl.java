@@ -22,6 +22,8 @@ import java.util.*;
 public class QuestionLLMServiceImpl implements QuestionLLMService {
 
     private static final Map<String, QuizCategoryCode> CATEGORY_MAP = new HashMap<>();
+    private static final Set<String> SEEDED_RACES_GP =
+            java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<>());
     private final ThreadLocal<String> lastGpTitle = new ThreadLocal<>();
     static {
         CATEGORY_MAP.put("Scores", QuizCategoryCode.Scores);
@@ -276,31 +278,56 @@ public class QuestionLLMServiceImpl implements QuestionLLMService {
             HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
             conn.setRequestMethod("GET");
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+
                 ObjectMapper mapper = new ObjectMapper();
                 Map<String, Object> root = mapper.readValue(reader, Map.class);
 
-                // 1) Título del GP
-                gpTitle = (String) (language.equals("es") ? root.getOrDefault("gp_es", root.get("gp_en")) : root.getOrDefault("gp_en", root.get("gp_es")));
+                // --- NUEVO: clave canónica del GP en EN ---
+                String gpEn = (String) root.getOrDefault("gp_en", root.get("gp_es"));
+                if (gpEn != null && !gpEn.isBlank()) {
+                    SEEDED_RACES_GP.add(gpEn);     // <-- aquí marcas ese GP como “sembrado”
+                }
+
+                // 1) Título del GP para mostrar
+                gpTitle = (String) (language.equals("es")
+                        ? root.getOrDefault("gp_es", gpEn)
+                        : gpEn);
 
                 // 2) Preguntas
-                List<Map<String, Object>> rawQuestions = (List<Map<String, Object>>) root.get("questions");
-                for (Map<String, Object> raw : rawQuestions) {
-                    String q = (String) raw.get("question");
-                    List<String> answers = (List<String>) raw.get("answers");
-                    if (q == null || answers == null || answers.isEmpty()) continue;
+                List<Map<String, Object>> rawQuestions =
+                        (List<Map<String, Object>>) root.get("questions");
+                if (rawQuestions != null) {
+                    for (Map<String, Object> raw : rawQuestions) {
+                        String q = (String) raw.get("question");
+                        List<String> answers = (List<String>) raw.get("answers");
+                        if (q == null || answers == null || answers.isEmpty()) continue;
 
-                    String correct = (String) raw.get("correctAnswer");
-                    int levelVal = (raw.get("knowledgeLevel") instanceof Number) ? ((Number) raw.get("knowledgeLevel")).intValue() : 2;
-                    String cat = (String) raw.getOrDefault("category", "RacesGP");
-                    String lang = (String) raw.getOrDefault("language", language);
+                        String correct = (String) raw.get("correctAnswer");
+                        int levelVal = (raw.get("knowledgeLevel") instanceof Number)
+                                ? ((Number) raw.get("knowledgeLevel")).intValue()
+                                : 2;
+                        String cat = (String) raw.getOrDefault("category", "RacesGP");
+                        String lang = (String) raw.getOrDefault("language", language);
 
-                    QuizCategoryCode categoryCode = getEnumForCategory(cat);
-                    out.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+                        QuizCategoryCode categoryCode = getEnumForCategory(cat);
+                        out.add(new QuestionAI(q, answers, correct, levelVal, categoryCode, lang));
+                    }
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return new RaceGPBatch(out, gpTitle);
     }
+
+
+
+    @Override
+    public int getSeededRacesGpCount() {
+        return SEEDED_RACES_GP.size();
+    }
+
 
 }
