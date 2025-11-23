@@ -73,8 +73,15 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private PermissionChecker permissionChecker;
 
+    @Autowired
+    private RacesGpQuestionCache racesGpQuestionCache;
+
+
     // arriba en la clase
     private final Map<Long, String> quizDisplayNameById = new java.util.concurrent.ConcurrentHashMap<>();
+
+    // En la clase QuizServiceImpl (campo)
+    private final ThreadLocal<String> lastRacesGpKey = new ThreadLocal<>();
 
 
     private static final int RACES_GP_SEED_GP_TARGET = 50;
@@ -186,6 +193,28 @@ public class QuizServiceImpl implements QuizService {
         }
     }
 
+    private Question convertTemplateToQuestionEntity(GpQuestionTemplate t, QuizCategory category) {
+        Question q = new Question();
+        q.setName(t.getQuestion());
+        q.setKnowledgequestionlevel(t.getKnowledgeLevel());
+        q.setLanguage(t.getLanguage());
+        q.setQuizCategory(category);
+
+        List<Answer> answers = new ArrayList<>();
+        for (String a : t.getAnswers()) {
+            Answer ans = new Answer();
+            ans.setName(a);
+            ans.setCorrect(a.equals(t.getCorrectAnswer()));
+            ans.setQuestion(q);
+            ans.setLanguage(t.getLanguage());
+            answers.add(ans);
+        }
+
+        q.setAnswers(answers);
+        return q;
+    }
+
+
     @Override
     public String getQuizDisplayName(Long quizId) {
         return quizDisplayNameById.get(quizId);
@@ -199,49 +228,96 @@ public class QuizServiceImpl implements QuizService {
 
         SecureRandom random = new SecureRandom();
 
+        // 🏁 CASO ESPECIAL: Races + RacesGP -> usar caché JSON, sin FastAPI
+        if (quizType.getCode().equals(QuizTypeCode.Races)
+                && quizCategory.getCode().equals(QuizCategoryCode.RacesGP)) {
+
+            // Partida estática desde la caché
+            RacesGpQuestionCache.GpGame game =
+                    racesGpQuestionCache.pickRandomGame(language);
+
+            String gpKey = game.getGpKey(); // p.ej. "Qatar 2024"
+            List<GpQuestionTemplate> templates = game.getQuestions();
+
+            // Guardamos la key como nombre visible del quiz (GP)
+            lastRacesGpKey.set(gpKey);
+
+            // Convertir plantillas -> entidades Question/Answer
+            List<Question> aiConverted = templates.stream()
+                    .map(t -> convertTemplateToQuestionEntity(t, quizCategory))
+                    .collect(Collectors.toList());
+
+            // Persistimos todas las preguntas y respuestas del GP
+            for (Question q : aiConverted) {
+                questionDao.save(q);
+                q.getAnswers().forEach(answerDao::save);
+            }
+
+            // RacesGP siempre devuelve SOLO preguntas de ese GP
+            return aiConverted;
+        }
+
+        // === CÓDIGO ANTIGUO PARA EL RESTO DE TIPOS/CATEGORÍAS ===
+
         // 1) Preguntas existentes en BD por categoría + idioma
         List<Question> dbQuestions =
                 questionDao.findByQuizCategoryAndLanguage(quizCategory, language);
 
         fixEncodingIssuesSafe(dbQuestions);
 
-        // 2) Decidimos si para ESTA llamada queremos usar IA
-        boolean useAI = shouldUseAI(quizType, quizCategory, dbQuestions, random);
-
-        // 3) Generar preguntas por IA según el tipo de quiz (solo si useAI == true)
+        // 2) Generar preguntas por IA según el tipo de quiz
         List<QuestionAI> aiQuestions = new ArrayList<>();
-
-        if (useAI) {
-            if (quizType.getCode().equals(QuizTypeCode.Regulations)) {
-                aiQuestions = questionLLMService.generateRegulationQuestions(
-                        language, quizCategory.getCode().name());
-            } else if (quizType.getCode().equals(QuizTypeCode.Stats)
-                    && quizCategory.getCode().equals(QuizCategoryCode.GenericStats)) {
-                aiQuestions = questionLLMService.generateGenericStatsQuestions(language);
-            } else if (quizType.getCode().equals(QuizTypeCode.Stats)) {
-                aiQuestions = questionLLMService.generateQuestionsAI(
-                        language, quizCategory.getCode().name());
-            } else if (quizType.getCode().equals(QuizTypeCode.Strategy)) {
-                aiQuestions = questionLLMService.generateStrategyQuestions(
-                        language, quizCategory.getCode().name());
-            } else if (quizType.getCode().equals(QuizTypeCode.Physics)) {
-                aiQuestions = questionLLMService.generatePhysicsQuestions(
-                        language, quizCategory.getCode().name());
-            } else if (quizType.getCode().equals(QuizTypeCode.TeamRadios)) {
-                aiQuestions = questionLLMService.generateTeamRadioQuestions(
-                        language, quizCategory.getCode().name());
-            } else if (quizType.getCode().equals(QuizTypeCode.Races)) {
-                // Aquí entra RacesGP también, pero el control de siembra lo hace shouldUseAI(...)
-                aiQuestions = questionLLMService.generateQuestionsAI(
-                        language, quizCategory.getCode().name());
-            }
+        if (quizType.getCode().equals(QuizTypeCode.Regulations)) {
+            aiQuestions = questionLLMService.generateRegulationQuestions(
+                    language, quizCategory.getCode().name());
+        } else if (quizType.getCode().equals(QuizTypeCode.Stats)
+                && quizCategory.getCode().equals(QuizCategoryCode.GenericStats)) {
+            aiQuestions = questionLLMService.generateGenericStatsQuestions(language);
+        } else if (quizType.getCode().equals(QuizTypeCode.Stats)) {
+            aiQuestions = questionLLMService.generateQuestionsAI(
+                    language, quizCategory.getCode().name());
+        } else if (quizType.getCode().equals(QuizTypeCode.Strategy)) {
+            aiQuestions = questionLLMService.generateStrategyQuestions(
+                    language, quizCategory.getCode().name());
+        } else if (quizType.getCode().equals(QuizTypeCode.Physics)) {
+            aiQuestions = questionLLMService.generatePhysicsQuestions(
+                    language, quizCategory.getCode().name());
+        } else if (quizType.getCode().equals(QuizTypeCode.TeamRadios)) {
+            aiQuestions = questionLLMService.generateTeamRadioQuestions(
+                    language, quizCategory.getCode().name());
         }
 
-        // Protección
+        // Protección: ni BD ni IA tienen preguntas
         if (dbQuestions.isEmpty() && (aiQuestions == null || aiQuestions.isEmpty())) {
             throw new RuntimeException(
                     "No hay preguntas disponibles para la categoría " + quizCategory.getCode());
         }
+
+        // 3) Aleatorizar BD
+        Collections.shuffle(dbQuestions);
+
+        // 4) Filtrar IA por categoría
+        List<QuestionAI> aiFiltered = aiQuestions.stream()
+                .filter(q -> q.getCategory().equals(quizCategory.getCode()))
+                .collect(Collectors.toList());
+
+        // 5) Convertir IA -> entidades
+        List<Question> aiConverted = aiFiltered.stream()
+                .map(this::convertAIToQuestionEntity)
+                .collect(Collectors.toList());
+
+        // 6) Evitar duplicados por nombre
+        Set<String> namesUsed = dbQuestions.stream()
+                .map(Question::getName)
+                .collect(Collectors.toSet());
+
+        aiConverted = aiConverted.stream()
+                .filter(q -> !namesUsed.contains(q.getName())
+                        && !questionDao.existsByName(q.getName()))
+                .collect(Collectors.toList());
+
+        // 7) Selección aleatoria y mezcla final BD + IA
+        List<Question> result = new ArrayList<>();
 
         int targetTotal =
                 (quizType.getCode().equals(QuizTypeCode.Strategy)
@@ -251,61 +327,12 @@ public class QuizServiceImpl implements QuizService {
                         ? 5
                         : 10;
 
-        // 👉 CASO ESPECIAL: Races + RacesGP + IA -> SOLO preguntas de ese GP
-        if (quizType.getCode().equals(QuizTypeCode.Races)
-                && quizCategory.getCode().equals(QuizCategoryCode.RacesGP)
-                && useAI) {
-
-            List<Question> aiConverted = aiQuestions.stream()
-                    .map(this::convertAIToQuestionEntity)
-                    .collect(Collectors.toList());
-
-            // Persistimos todas las del GP
-            for (Question q : aiConverted) {
-                questionDao.save(q);
-                q.getAnswers().forEach(answerDao::save);
-            }
-
-            // Si por lo que sea vienen >10, recortamos, si vienen <10 las devolvemos todas
-            Collections.shuffle(aiConverted, random);
-            return aiConverted.size() <= targetTotal
-                    ? aiConverted
-                    : aiConverted.subList(0, targetTotal);
-        }
-
-
-        Collections.shuffle(dbQuestions); // Aleatorizar BD
-
-        // 5) Filtrar por categoría en IA
-        List<QuestionAI> aiFiltered = (aiQuestions == null ? List.<QuestionAI>of() : aiQuestions)
-                .stream()
-                .filter(q -> q.getCategory().equals(quizCategory.getCode()))
-                .collect(Collectors.toList());
-
-        // 6) Convertir IA → entidades
-        List<Question> aiConverted = aiFiltered.stream()
-                .map(this::convertAIToQuestionEntity)
-                .collect(Collectors.toList());
-
-        // 7) Evitar duplicados por nombre
-        Set<String> namesUsed = dbQuestions.stream()
-                .map(Question::getName)
-                .collect(Collectors.toSet());
-
-        aiConverted = aiConverted.stream()
-                .filter(q -> !namesUsed.contains(q.getName()) && !questionDao.existsByName(q.getName()))
-                .collect(Collectors.toList());
-
-        // 8) Selección aleatoria y mezcla final BD + IA
-        List<Question> result = new ArrayList<>();
-
-
         while (result.size() < targetTotal && (!dbQuestions.isEmpty() || !aiConverted.isEmpty())) {
             if (!dbQuestions.isEmpty() && (aiConverted.isEmpty() || random.nextBoolean())) {
-                // coge de BD
+                // Coge de BD
                 result.add(dbQuestions.remove(random.nextInt(dbQuestions.size())));
             } else if (!aiConverted.isEmpty()) {
-                // coge de IA y persiste
+                // Coge de IA y persiste
                 Question aiQ = aiConverted.remove(random.nextInt(aiConverted.size()));
                 questionDao.save(aiQ);
                 aiQ.getAnswers().forEach(answerDao::save);
@@ -315,6 +342,7 @@ public class QuizServiceImpl implements QuizService {
 
         return result;
     }
+
 
 
 
@@ -468,13 +496,15 @@ public class QuizServiceImpl implements QuizService {
 
         Quiz quiz = new Quiz(date, knowledgeLevelQuestions);
         quizDao.save(quiz);
-        // Si es un quiz de Races/RacesGP, consume el título del GP y guárdalo asociado al quizId
-        if (quizType.getCode().equals(QuizTypeCode.Races) && quizCategory.getCode().equals(QuizCategoryCode.RacesGP)) {
-            if (questionLLMService instanceof QuestionLLMServiceImpl impl) {
-                String gpTitle = impl.consumeLastGpTitle(); // viene del ThreadLocal que ya rellenas
-                if (gpTitle != null && !gpTitle.isBlank()) {
-                    quizDisplayNameById.put(quiz.getId(), gpTitle);
-                }
+        // Si es un quiz de Races/RacesGP, guarda el nombre del GP asociado al quizId
+        if (quizType.getCode().equals(QuizTypeCode.Races)
+                && quizCategory.getCode().equals(QuizCategoryCode.RacesGP)) {
+
+            String gpTitle = lastRacesGpKey.get();
+            lastRacesGpKey.remove();
+
+            if (gpTitle != null && !gpTitle.isBlank()) {
+                quizDisplayNameById.put(quiz.getId(), gpTitle);
             }
         }
 

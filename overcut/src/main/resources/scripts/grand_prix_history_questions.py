@@ -31386,6 +31386,8 @@ _GP_NAME_MAP_EN_ES = {
     # añade aquí variantes que uses en claves si aparecen
 }
 
+
+
 def _split_year_suffix(raw: str):
     """
     Separa 'Nombre 2024' -> ('Nombre', '2024').
@@ -31445,6 +31447,29 @@ def _localize_gp_titles(gp_key: str):
 
 def list_available():
     return sorted(GP_FUNCS.keys())
+
+
+def export_all_to_json():
+    import json
+    from pathlib import Path
+
+    out_es = {}
+    out_en = {}
+
+    for gp_name, fn in GP_FUNCS.items():
+        items = fn()
+        out_es[gp_name] = _export(items, "es", source=f"{gp_name}")
+        out_en[gp_name] = _export(items, "en", source=f"{gp_name}")
+
+    Path("gp_questions_es.json").write_text(
+        json.dumps(out_es, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
+    Path("gp_questions_en.json").write_text(
+        json.dumps(out_en, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
+
 
 def main():
     parser = argparse.ArgumentParser(description="Exporta preguntas de Grandes Premios en ES/EN")
