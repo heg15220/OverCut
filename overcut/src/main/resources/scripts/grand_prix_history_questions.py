@@ -48412,6 +48412,3472 @@ def canada_2017_items() -> List[Dict]:
     return L
 
 
+# ---- Azerbaijan 2017 (RaceFans: Championship tensions boil over) ----
+def azerbaijan_2017_items() -> List[Dict]:
+    S_ES = "Gran Premio de Azerbaiyán 2017"; S_EN = "2017 Azerbaijan Grand Prix"; L = []
+    pairs = [
+
+        # (RESUMEN)
+        (
+            "Resumen: ¿cómo acabó Ricciardo ganando en un caos que parecía destinado a Hamilton y Vettel?",
+            [
+                "Se vio obligado a parar muy pronto para limpiar los conductos de freno, cayó al fondo, aprovechó los múltiples Safety Car y la bandera roja, ejecutó un gran relanzamiento con adelantamiento triple y heredó el liderato cuando Hamilton tuvo que parar por el reposacabezas suelto y Vettel cumplió su stop-and-go",
+                "Lideró desde la salida gracias a una gran arrancada desde la primera fila, gestionó el ritmo con aire limpio y solo tuvo que contener a Bottas en las últimas vueltas sin apenas tráfico ni interrupciones",
+                "Basó su victoria en una estrategia extrema a una sola parada sin detenerse bajo Safety Car, aguantó con neumáticos muy viejos hasta el final y resistió la presión directa de Hamilton y Vettel en las últimas vueltas",
+                "Partió desde la pole, mantuvo detrás a los dos Mercedes en un stint largo, se benefició de que los Ferrari tuvieran problemas de frenos al final y conservó el liderato pese a una penalización por exceso de velocidad en el pit-lane"
+            ],
+            "Se vio obligado a parar muy pronto para limpiar los conductos de freno, cayó al fondo, aprovechó los múltiples Safety Car y la bandera roja, ejecutó un gran relanzamiento con adelantamiento triple y heredó el liderato cuando Hamilton tuvo que parar por el reposacabezas suelto y Vettel cumplió su stop-and-go",
+            "Summary: how did Ricciardo end up winning a chaos-fest that had seemed tailor-made for Hamilton and Vettel?",
+            [
+                "He was forced into an early stop to clear his brake ducts, dropped to the back, then exploited multiple Safety Cars and the red flag, nailed a restart with a bold triple overtake and inherited the lead when Hamilton had to pit for a loose headrest and Vettel served his stop-and-go",
+                "He led from the start after a perfect launch from the front row, controlled the pace in clean air and only had to fend off Bottas in the closing laps with barely any traffic or interruptions",
+                "He built his win around an extreme one-stop by refusing to pit under Safety Car, survived on heavily worn tyres to the flag and resisted direct pressure from Hamilton and Vettel in the final laps",
+                "He started from pole, kept both Mercedes behind through a long first stint, benefited when both Ferraris hit late brake problems and still held the lead despite a pit-lane speeding penalty"
+            ],
+            "He was forced into an early stop to clear his brake ducts, dropped to the back, then exploited multiple Safety Cars and the red flag, nailed a restart with a bold triple overtake and inherited the lead when Hamilton had to pit for a loose headrest and Vettel served his stop-and-go",
+            3
+        ),
+
+        (
+            "¿Cómo se desarrolló exactamente el toque entre Bottas y Räikkönen en la primera vuelta?",
+            [
+                "Bottas pisó demasiado piano por el interior de la T2, el coche se le fue de frente y golpeó el lateral de Räikkönen, que rozó el muro pero salió relativamente indemne mientras el Mercedes se dañaba seriamente y sufría pinchazo",
+                "Räikkönen se lanzó tarde por el interior en la T1, bloqueó frenos y embistió la trasera de Bottas, provocando un trompo a ambos y la aparición inmediata del Safety Car",
+                "Ambos llegaron emparejados a final de recta, Bottas intentó adelantar por fuera, perdió el coche al pisar suciedad y terminó llevándose por delante al Ferrari en la escapatoria de T3",
+                "Räikkönen perdió tracción a la salida de la T2, patinó contra el muro interior y rebotó contra Bottas, que milagrosamente pudo seguir sin daños rumbo al podio"
+            ],
+            "Bottas pisó demasiado piano por el interior de la T2, el coche se le fue de frente y golpeó el lateral de Räikkönen, que rozó el muro pero salió relativamente indemne mientras el Mercedes se dañaba seriamente y sufría pinchazo",
+            "How did the clash between Bottas and Räikkönen on lap one play out in detail?",
+            [
+                "Bottas took too much kerb on the inside of turn two, the car washed out straight into Räikkönen’s side, the Ferrari brushed the wall but escaped relatively healthy while the Mercedes picked up heavy front-wing damage and a puncture",
+                "Räikkönen made a late lunge down the inside at turn one, locked up and rammed the rear of Bottas, spinning them both and triggering an immediate Safety Car",
+                "They arrived side by side at the end of the straight, Bottas tried to pass around the outside, lost the car on the dirty line and wiped the Ferrari out in the turn three run-off",
+                "Räikkönen lost traction out of turn two, slid into the inside wall and bounced back into Bottas, who somehow continued undamaged on his way to the podium"
+            ],
+            "Bottas took too much kerb on the inside of turn two, the car washed out straight into Räikkönen’s side, the Ferrari brushed the wall but escaped relatively healthy while the Mercedes picked up heavy front-wing damage and a puncture",
+            2
+        ),
+
+        (
+            "¿Qué cadena de problemas de motor y averías iniciales preparó el terreno para el primer gran Safety Car?",
+            [
+                "Palmer abandonó con un fallo de motor tras un fin de semana plagado de problemas, Kvyat se detuvo con un fallo electrónico junto al castillo y poco después el motor Renault de Verstappen volvió a dejarle vendido en la recta principal, obligando dirección de carrera a neutralizar para retirar el Toro Rosso",
+                "Alonso rompió motor en plena recta de meta, Sainz aparcó su coche sin potencia en la zona del castillo y Hulkenberg se quedó parado en la entrada del pit-lane, bloqueando la calle de boxes y forzando la salida del Coche de Seguridad",
+                "Ambos Force India se retiraron con problemas hidráulicos seguidos, dejando aceite en pista, y un fallo de caja de cambios de Ricciardo provocó que se quedara cruzado en la chicane final",
+                "Los dos Williams sufrieron pinchazos simultáneos en plena recta, generaron una nube de goma y escombros, y uno de los coches se quedó detenido antes de la T1 sin escapatoria cercana"
+            ],
+            "Palmer abandonó con un fallo de motor tras un fin de semana plagado de problemas, Kvyat se detuvo con un fallo electrónico junto al castillo y poco después el motor Renault de Verstappen volvió a dejarle vendido en la recta principal, obligando dirección de carrera a neutralizar para retirar el Toro Rosso",
+            "Which early engine and reliability woes set the stage for the first major Safety Car?",
+            [
+                "Palmer retired with yet another engine issue after a nightmare weekend, Kvyat pulled off near the castle with an electronics failure and soon Verstappen’s Renault power unit faded on the main straight again, forcing race control to deploy the Safety Car to recover the stranded Toro Rosso",
+                "Alonso’s engine blew on the pit straight, Sainz parked a powerless car by the castle section and Hulkenberg stopped at pit entry, blocking the lane and triggering the Safety Car",
+                "Both Force Indias dropped out with back-to-back hydraulic failures, leaving oil on the track, and a Ricciardo gearbox problem left him stranded sideways at the final chicane",
+                "The two Williams suffered simultaneous punctures on the straight, showered the track in debris and one of them came to rest before turn one with no nearby run-off"
+            ],
+            "Palmer retired with yet another engine issue after a nightmare weekend, Kvyat pulled off near the castle with an electronics failure and soon Verstappen’s Renault power unit faded on the main straight again, forcing race control to deploy the Safety Car to recover the stranded Toro Rosso",
+            2
+        ),
+
+        (
+            "¿Cómo se desarrolló el famoso incidente Vettel-Hamilton bajo Safety Car y qué castigo recibió el alemán?",
+            [
+                "Vettel se sorprendió cuando Hamilton mantuvo un ritmo muy lento a la salida de la T15, le alcanzó por detrás, interpretó que le había hecho un ‘brake test’, se puso a su altura gesticulando y le golpeó rueda con rueda; los comisarios lo consideraron conducción peligrosa y le impusieron un stop-and-go de diez segundos",
+                [
+                    "Hamilton frenó intencionadamente hasta detenerse por completo, provocando un fuerte impacto que dañó gravemente ambos coches; la FIA le sancionó a él con un drive-through y a Vettel solo con una reprimenda por las protestas posteriores",
+                    "Vettel intentó adelantar a Hamilton antes de la relanzada, se saltó el delta del Safety Car y fue obligado a devolver posición y cumplir un paso por boxes sin tiempo añadido",
+                    "Los dos se tocaron levemente al salir de boxes, Vettel pinchó y abandonó mientras Hamilton continuaba, y dirección de carrera decidió no investigar para no interferir en la lucha por el título"
+                ][0],
+                "Vettel perdió el control al calentar neumáticos, se cruzó delante de Hamilton y bloqueó la pista, por lo que se le ordenó dejar pasar al inglés y recibió solo cinco segundos añadidos"
+            ],
+            "Vettel se sorprendió cuando Hamilton mantuvo un ritmo muy lento a la salida de la T15, le alcanzó por detrás, interpretó que le había hecho un ‘brake test’, se puso a su altura gesticulando y le golpeó rueda con rueda; los comisarios lo consideraron conducción peligrosa y le impusieron un stop-and-go de diez segundos",
+            "How did the notorious Vettel-Hamilton Safety Car clash unfold and what penalty did the German receive?",
+            [
+                "Vettel was caught out when Hamilton kept a very slow pace exiting turn 15, ran into the back of the Mercedes, interpreted it as a ‘brake test’, then pulled alongside waving his hands and banged wheels with him; the stewards deemed it dangerous driving and handed him a ten-second stop-and-go penalty",
+                "Hamilton deliberately braked to a complete stop, causing a heavy impact which badly damaged both cars; the FIA penalised him with a drive-through while Vettel only received a reprimand for his radio outburst",
+                "Vettel tried to pass Hamilton before the restart, broke the Safety Car delta and was ordered to give the place back and serve a standard drive-through with no added time",
+                "The pair tangled slightly leaving the pits, Vettel picked up a puncture and retired while Hamilton carried on, and race control chose not to investigate in order not to interfere with the title fight"
+            ],
+            "Vettel was caught out when Hamilton kept a very slow pace exiting turn 15, ran into the back of the Mercedes, interpreted it as a ‘brake test’, then pulled alongside waving his hands and banged wheels with him; the stewards deemed it dangerous driving and handed him a ten-second stop-and-go penalty",
+            3
+        ),
+
+        (
+            "Describe con detalle el choque entre los Force India en la resalida y sus consecuencias inmediatas.",
+            [
+                "Massa intentó meter el Williams entre Vettel y los Force India, Pérez atacó por fuera mientras Ocon venía lanzado por dentro; Checo cerró la puerta tarde, ambos rosa se tocaron antes de frenar para la T2, destrozaron partes de sus coches y tiraron por la borda una ocasión de podio casi segura para el equipo",
+                "Ocon frenó demasiado pronto en la T1, bloqueó y golpeó la trasera de Pérez, que trompeó en mitad de la trazada, causando una carambola que dejó fuera también a Hulkenberg y a Stroll",
+                "Pérez se defendió limpiamente por dentro, pero Ocon insistió por el exterior en la curva del castillo, tocó el muro y rebotó contra su compañero, dañando solo ligeramente su propio coche",
+                "Los dos Force India marchaban en paralelo por la recta principal cuando un problema de DRS en el coche de Pérez le hizo frenar antes de tiempo, provocando que Ocon lo embistiera sin remedio y se retiraran ambos en el acto"
+            ],
+            "Massa intentó meter el Williams entre Vettel y los Force India, Pérez atacó por fuera mientras Ocon venía lanzado por dentro; Checo cerró la puerta tarde, ambos rosa se tocaron antes de frenar para la T2, destrozaron partes de sus coches y tiraron por la borda una ocasión de podio casi segura para el equipo",
+            "Describe in detail the Force India collision at the restart and its immediate consequences.",
+            [
+                "Massa dived his Williams between Vettel and the Force Indias, Perez attacked around the outside while Ocon arrived with a strong run on the inside; Checo closed the door late, the two pink cars touched before the turn two braking zone, tore chunks off each other and threw away what had looked like a golden podium chance for the team",
+                "Ocon braked far too early at turn one, locked up and hit the back of Perez, who spun in the middle of the track, triggering a pile-up which also eliminated Hulkenberg and Stroll",
+                "Perez defended cleanly on the inside but Ocon stubbornly tried the outside at the castle section, brushed the wall and bounced into his team mate, lightly damaging only his own car",
+                "The two Force Indias were running side by side on the main straight when a DRS glitch on Perez’s car forced him to lift, leaving Ocon nowhere to go and sending both into immediate retirement"
+            ],
+            "Massa dived his Williams between Vettel and the Force Indias, Perez attacked around the outside while Ocon arrived with a strong run on the inside; Checo closed the door late, the two pink cars touched before the turn two braking zone, tore chunks off each other and threw away what had looked like a golden podium chance for the team",
+            2
+        ),
+
+        (
+            "¿Por qué se mostró finalmente la bandera roja en plena acumulación de incidentes?",
+            [
+                "El asfalto estaba cubierto de restos de fibra de carbono de los Force India y de piezas del Ferrari de Räikkönen, había varios coches dañados repartidos por la vuelta y la tercera aparición del Safety Car ya no bastaba para limpiar la pista con seguridad, así que se decidió neutralizar completamente para reparar y calmar los ánimos",
+                "Una tormenta súbita inundó el sector del castillo, dirección de carrera perdió temporalmente el suministro eléctrico y la única opción fue detener la prueba a la espera de que mejoraran las condiciones",
+                "Se detectó un problema estructural en las barreras de la recta principal, que obligó a interrumpir la carrera durante casi una hora para repararlas con grúas y maquinaria pesada",
+                "Un fallo en el sistema de cronometraje dejó a los comisarios sin tiempos ni posiciones oficiales, por lo que optaron por sacar bandera roja mientras reiniciaban todos los sistemas"
+            ],
+            "El asfalto estaba cubierto de restos de fibra de carbono de los Force India y de piezas del Ferrari de Räikkönen, había varios coches dañados repartidos por la vuelta y la tercera aparición del Safety Car ya no bastaba para limpiar la pista con seguridad, así que se decidió neutralizar completamente para reparar y calmar los ánimos",
+            "Why was the red flag eventually shown amid the pile-up of incidents?",
+            [
+                "The tarmac was littered with carbon fibre from the Force Indias and bits of Räikkönen’s Ferrari, several damaged cars were scattered around the lap and a third Safety Car stint no longer seemed enough to clean the track safely, so the race was stopped to allow full repairs and give everyone a chance to cool down",
+                "A sudden storm flooded the castle section, race control briefly lost electrical power and the only option was to halt the race until conditions improved",
+                "A structural issue was discovered in the main straight barriers, forcing an almost hour-long interruption while cranes and heavy machinery repaired them",
+                "A failure in the timing system left the officials without official laps or positions, so they opted for a red flag while rebooting all systems"
+            ],
+            "The tarmac was littered with carbon fibre from the Force Indias and bits of Räikkönen’s Ferrari, several damaged cars were scattered around the lap and a third Safety Car stint no longer seemed enough to clean the track safely, so the race was stopped to allow full repairs and give everyone a chance to cool down",
+            1
+        ),
+
+        (
+            "¿Qué problema insólito sufrió Hamilton en cabeza y cómo condicionó el resultado final?",
+            [
+                "El reposacabezas empezó a levantarse con el aire en la recta, Hamilton intentó sujetarlo a mano a más de 300 km/h pero Mercedes tuvo que llamarle a boxes para fijarlo, lo que le costó el liderato y convirtió a Ricciardo en el nuevo primero de forma definitiva",
+                "Su volante se apagó por completo en plena vuelta rápida, tuvo que hacer un ‘reset’ completo mientras rodaba, perdió diez posiciones en una vuelta y quedó fuera de la lucha por el podio",
+                "El pedal del freno se quedó hundido en el fondo del recorrido, obligándole a frenar casi solo con el freno motor, por lo que redujo el ritmo y cedió el liderato a Vettel sin pasar por el pit-lane",
+                "El cinturón de seguridad se aflojó tras un bache, y pese a intentar recolocarlo en marcha, los comisarios le obligaron a abandonar por motivos de seguridad"
+            ],
+            "El reposacabezas empezó a levantarse con el aire en la recta, Hamilton intentó sujetarlo a mano a más de 300 km/h pero Mercedes tuvo que llamarle a boxes para fijarlo, lo que le costó el liderato y convirtió a Ricciardo en el nuevo primero de forma definitiva",
+            "What unusual problem did Hamilton suffer while leading and how did it shape the final outcome?",
+            [
+                "His headrest began lifting in the airflow down the straight, Hamilton tried to pin it down one-handed at over 300km/h but Mercedes had to pit him to secure it, costing him the lead and handing Ricciardo what became a decisive first place",
+                "His steering wheel went completely dark on a flying lap, he had to perform a full reboot on the move, lost ten places in a single tour and dropped out of podium contention",
+                "His brake pedal sank to the floor, forcing him to rely almost entirely on engine braking, so he backed off and surrendered the lead to Vettel without visiting the pits",
+                "His seat belts loosened after a bump and, despite trying to re-tighten them on the move, the stewards ordered him to retire on safety grounds"
+            ],
+            "His headrest began lifting in the airflow down the straight, Hamilton tried to pin it down one-handed at over 300km/h but Mercedes had to pit him to secure it, costing him the lead and handing Ricciardo what became a decisive first place",
+            2
+        ),
+
+        (
+            "¿Qué maniobra clave ejecutó Ricciardo tras la bandera roja para colocarse en posición de victoria?",
+            [
+                "En la relanzada se lanzó en una frenada tardía por el interior, adelantando de una vez a los dos Williams de Stroll y Massa y también a Hülkenberg, pasando de quinto a tercero en una sola curva y quedándose a tiro de los coches que luego cederían el liderato",
+                "Optó por quedarse en pista con neumáticos muy usados cuando casi todos pararon, lo que le permitió liderar brevemente y crear un colchón de tiempo suficiente para una parada gratis al final",
+                "Atacó a Vettel en la zona del castillo con un exterior imposible, le obligó a abrirse, le pasó junto al muro y aprovechó que el Ferrari dañó un alerón para colocarse primero",
+                "Superó a Bottas y a Stroll en plena recta principal gracias a un rebufo doble y al DRS, adelantando a ambos justo antes de la línea de meta en el último giro"
+            ],
+            "En la relanzada se lanzó en una frenada tardía por el interior, adelantando de una vez a los dos Williams de Stroll y Massa y también a Hülkenberg, pasando de quinto a tercero en una sola curva y quedándose a tiro de los coches que luego cederían el liderato",
+            "What key move did Ricciardo pull off after the red flag to put himself in winning range?",
+            [
+                "On the restart he sent a late-braking dive down the inside, passing both Williams of Stroll and Massa plus Hülkenberg in one sweep, jumping from fifth to third in a single corner and parking himself right behind the cars who would later hand him the lead",
+                "He stayed out on heavily used tyres when almost everyone else pitted, briefly inherited the lead and built enough of a cushion to take a free stop near the end",
+                "He attacked Vettel at the castle section with a wild outside move, forced the Ferrari wide, slipped past the wall and capitalised when the red car damaged a wing to take the lead",
+                "He blasted past Bottas and Stroll on the main straight with a double slipstream and DRS, overtaking both just before the finish line on the final lap"
+            ],
+            "On the restart he sent a late-braking dive down the inside, passing both Williams of Stroll and Massa plus Hülkenberg in one sweep, jumping from fifth to third in a single corner and parking himself right behind the cars who would later hand him the lead",
+            2
+        ),
+
+        (
+            "¿Cómo se decidió dramáticamente la lucha por el segundo puesto entre Bottas y Stroll en la línea de meta?",
+            [
+                "Stroll iba camino de su primer P2 hasta que Bottas, con modo motor a tope y DRS, llegó lanzado en la recta final, se pegó a su rebufo y le arrebató el segundo puesto a menos de 100 metros de la bandera, dejando al canadiense tercero por unas pocas décimas",
+                "Bottas intentó adelantar a Stroll por fuera en la última curva, se tocó con el Williams y trompeó, permitiendo que el joven canadiense conservara una brillante segunda posición",
+                "Ambos entraron emparejados en la chicane final, Stroll se pasó de frenada, cortó por el interior y recibió una sanción de tiempo que le relegó fuera del podio",
+                "Stroll defendió por dentro en la recta con varios cambios de dirección, los comisarios le impusieron un drive-through y Bottas heredó cómodamente el segundo escalón del podio"
+            ],
+            "Stroll iba camino de su primer P2 hasta que Bottas, con modo motor a tope y DRS, llegó lanzado en la recta final, se pegó a su rebufo y le arrebató el segundo puesto a menos de 100 metros de la bandera, dejando al canadiense tercero por unas pocas décimas",
+            "How was the fight for second between Bottas and Stroll decided in dramatic fashion at the line?",
+            [
+                "Stroll was on course for his first P2 when Bottas, with engine mode cranked up and DRS open, came charging down the final straight, tucked into his slipstream and snatched second less than 100 metres from the flag, leaving the Canadian third by just a few tenths",
+                "Bottas tried to pass Stroll around the outside at the last corner, touched wheels with the Williams and spun, allowing the youngster to hang on to a brilliant second place",
+                "They arrived side-by-side into the final chicane, Stroll out-braked himself and cut across the inside, earning a time penalty which dropped him off the podium",
+                "Stroll weaved aggressively down the straight to defend, the stewards gave him a drive-through and Bottas inherited an easy second step on the podium"
+            ],
+            "Stroll was on course for his first P2 when Bottas, with engine mode cranked up and DRS open, came charging down the final straight, tucked into his slipstream and snatched second less than 100 metres from the flag, leaving the Canadian third by just a few tenths",
+            1
+        ),
+
+        (
+            "¿Qué hito logró Alonso con su discreto noveno puesto y por qué pasaba fácilmente desapercibido?",
+            [
+                "Consiguió los primeros puntos de la temporada para McLaren-Honda tras una larga racha en blanco, pero el foco estaba tan centrado en los incidentes, el podio inesperado y la polémica Vettel-Hamilton que casi nadie habló de ese pequeño respiro para el equipo",
+                "Firmó el primer podio para McLaren en la era híbrida con una remontada espectacular, aunque la sanción posterior a Vettel hizo que muchos pensaran que había sido pura casualidad",
+                "Marcó la vuelta rápida de la carrera con un coche claramente inferior, pero como no terminó en el top-10 el dato quedó en segundo plano y apenas se mencionó",
+                "Lideró brevemente la prueba durante un periodo de Safety Car gracias a una estrategia alternativa, aunque terminó fuera de los puntos tras una penalización por exceso de velocidad en boxes"
+            ],
+            "Consiguió los primeros puntos de la temporada para McLaren-Honda tras una larga racha en blanco, pero el foco estaba tan centrado en los incidentes, el podio inesperado y la polémica Vettel-Hamilton que casi nadie habló de ese pequeño respiro para el equipo",
+            "What milestone did Alonso achieve with his low-key ninth place and why was it easy to overlook?",
+            [
+                "He scored McLaren-Honda’s first points of the season after a long barren spell, but with attention consumed by the chaos, the shock podium and the Vettel-Hamilton storm, that small boost for the team barely got a mention",
+                "He took McLaren’s first hybrid-era podium with a spectacular charge, though Vettel’s later penalty led many to dismiss it as pure luck",
+                "He set the fastest lap of the race in a clearly inferior car, but since he finished outside the top ten the statistic was relegated to a footnote",
+                "He briefly led the race behind the Safety Car on an alternate strategy, yet ended up outside the points after a speeding-in-the-pit-lane penalty"
+            ],
+            "He scored McLaren-Honda’s first points of the season after a long barren spell, but with attention consumed by the chaos, the shock podium and the Vettel-Hamilton storm, that small boost for the team barely got a mention",
+            1
+        ),
+
+        (
+            "¿Qué peculiar final de carrera vivió Sauber y cómo encajaba con la situación interna del equipo?",
+            [
+                "Wehrlein y Ericsson habían tenido un pequeño toque entre ellos que dejó más carbono en pista, pero aun así ambos lograron terminar en los puntos, un resultado simbólico justo después de la marcha de la jefa de equipo Monisha Kaltenborn que sirvió como impulso anímico para la escudería",
+                "Ambos Sauber abandonaron con problemas de frenos en la misma vuelta, reflejando la falta de recursos técnicos tras la salida de Kaltenborn y hundiendo todavía más la moral del garaje",
+                "Wehrlein firmó un sorprendente cuarto puesto mientras Ericsson terminaba último, lo que tensó aún más la relación entre pilotos y dirección justo en el fin de semana del cambio de jefe",
+                "Ericsson se estrelló contra el muro en la última vuelta intentando adelantar a Wehrlein por el último punto, provocando una airada reacción pública de la nueva dirección deportiva"
+            ],
+            "Wehrlein y Ericsson habían tenido un pequeño toque entre ellos que dejó más carbono en pista, pero aun así ambos lograron terminar en los puntos, un resultado simbólico justo después de la marcha de la jefa de equipo Monisha Kaltenborn que sirvió como impulso anímico para la escudería",
+            "What quirky end to the race did Sauber experience and how did it tie into the team’s internal situation?",
+            [
+                "Wehrlein and Ericsson had made slight contact with each other, shedding yet more carbon fibre, but both still managed to finish in the points, a symbolic result coming just after team principal Monisha Kaltenborn’s departure which gave the outfit a much-needed morale boost",
+                "Both Saubers retired with brake failures on the same lap, underlining the lack of technical resources after Kaltenborn’s exit and further crushing garage morale",
+                "Wehrlein grabbed a shock fourth place while Ericsson finished last, ramping up tension between the drivers and management on the very weekend of the leadership change",
+                "Ericsson crashed into the wall on the final lap trying to snatch the last point from Wehrlein, prompting an angry public rebuke from the new sporting management"
+            ],
+            "Wehrlein and Ericsson had made slight contact with each other, shedding yet more carbon fibre, but both still managed to finish in the points, a symbolic result coming just after team principal Monisha Kaltenborn’s departure which gave the outfit a much-needed morale boost",
+            2
+        ),
+
+        (
+            "En términos de campeonato, ¿qué balance dejó esta carrera para Vettel y Hamilton y cómo se vio afectada su relación deportiva?",
+            [
+                "Vettel amplió su ventaja a 14 puntos pese al castigo y a terminar solo cuarto, pero se llevó también tres puntos de sanción en el carnet y un ‘disgrace’ público de Hamilton, una señal clara de que la rivalidad hasta entonces respetuosa se había envenenado tras el encontronazo",
+                "Hamilton recortó la diferencia a solo un punto gracias a la victoria y a la penalización a Vettel, aunque ambos se felicitaron en el parque cerrado y rebajaron el tono en las entrevistas posteriores",
+                "Vettel perdió el liderato en favor de Bottas, cayó al segundo puesto en la general y pidió disculpas públicas a Hamilton, lo que rebajó inmediatamente la tensión entre ambos",
+                "La clasificación se mantuvo idéntica, pero los dos acordaron en el briefing siguiente que se trataba de un simple malentendido y prometieron no volver a rozarse en pista en lo que quedaba de temporada"
+            ],
+            "Vettel amplió su ventaja a 14 puntos pese al castigo y a terminar solo cuarto, pero se llevó también tres puntos de sanción en el carnet y un ‘disgrace’ público de Hamilton, una señal clara de que la rivalidad hasta entonces respetuosa se había envenenado tras el encontronazo",
+            "In championship terms, what did this race leave Vettel and Hamilton with, and how was their sporting relationship affected?",
+            [
+                "Vettel extended his lead to 14 points despite the penalty and only finishing fourth, but he also collected three penalty points on his licence and a very public ‘disgrace’ verdict from Hamilton, a clear sign that their previously respectful rivalry had soured after the clash",
+                "Hamilton cut the gap to just a single point thanks to the win and Vettel’s sanction, yet the pair congratulated each other in parc fermé and toned everything down in their post-race interviews",
+                "Vettel lost the championship lead to Bottas, dropped to second overall and issued a public apology to Hamilton, which immediately cooled tensions between them",
+                "The standings remained unchanged, but both agreed in the next briefing it had all been a misunderstanding and vowed not to touch wheels again for the rest of the season"
+            ],
+            "Vettel extended his lead to 14 points despite the penalty and only finishing fourth, but he also collected three penalty points on his licence and a very public ‘disgrace’ verdict from Hamilton, a clear sign that their previously respectful rivalry had soured after the clash",
+            3
+        ),
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+
+# ---- French 1997 (RaceFans: Inspired Schumacher takes '11-point win') ----
+def france_1997_items() -> List[Dict]:
+    S_ES = "Gran Premio de Francia 1997"; S_EN = "1997 French Grand Prix"; L = []
+    pairs = [
+
+        # 1. RESUMEN
+        (
+            "Resumen: ¿cómo transformó Schumacher un fin de semana incierto en una victoria dominante que además favoreció a su hermano?",
+            [
+                "Clavó la pole con un Ferrari inesperadamente fuerte, impuso un ritmo imposible para Frentzen y Villeneuve, gestionó a la perfección la lluvia tardía sin caer en la trampa de los intermedios y, en la última vuelta, dejó que Ralf volviera al giro del líder para que pudiera arrebatar el sexto puesto tras el incidente entre Alesi y Coulthard",
+                "Apostó por una estrategia radical a una sola parada, aprovechó un Safety Car temprano y ejecutó un undercut doble sobre los dos Williams antes de que la lluvia los dejara vendidos",
+                "Ganó gracias a que Villeneuve y Frentzen abandonaron por fallos mecánicos consecutivos, dejando a Schumacher rodar en solitario toda la segunda mitad de la prueba sin oposición real",
+                "Partió desde la primera fila, cayó hasta el fondo tras un trompo, montó intermedios en el momento exacto y remontó hasta el liderato cuando todos sus rivales cometieron errores en pista mojada"
+            ],
+            "Clavó la pole con un Ferrari inesperadamente fuerte, impuso un ritmo imposible para Frentzen y Villeneuve, gestionó a la perfección la lluvia tardía sin caer en la trampa de los intermedios y, en la última vuelta, dejó que Ralf volviera al giro del líder para que pudiera arrebatar el sexto puesto tras el incidente entre Alesi y Coulthard",
+            "Summary: how did Schumacher turn an uncertain weekend into a dominant win that also benefitted his brother?",
+            [
+                "He nailed pole with a surprisingly strong Ferrari, set a pace Frentzen and Villeneuve couldn’t live with, handled the late rain without falling for the intermediate trap, and on the final lap strategically waved Ralf back onto the lead lap so he could grab sixth after Alesi and Coulthard tangled",
+                "He relied on a radical one-stop plan, capitalised on an early Safety Car and double-undercut the Williams drivers before the rain punished them",
+                "He won because both Villeneuve and Frentzen retired with mechanical failures, leaving Schumacher uncontested for the entire second half of the race",
+                "He started from the front row, spun to last, picked the perfect moment for intermediates and charged through the field as rivals faltered in the wet"
+            ],
+            "He nailed pole with a surprisingly strong Ferrari, set a pace Frentzen and Villeneuve couldn’t live with, handled the late rain without falling for the intermediate trap, and on the final lap strategically waved Ralf back onto the lead lap so he could grab sixth after Alesi and Coulthard tangled",
+            3
+        ),
+
+        # 2
+        (
+            "¿Qué explicación dio Schumacher sobre su repentino segundo de mejora entre test y clasificación?",
+            [
+                "Reconoció que no sabía de dónde salía exactamente la ganancia, insinuó que el nuevo alerón delantero —aún sin validar— podría haber aportado algo, pero admitió que ni él mismo podía cuantificar cuánto valía",
+                "Afirmó que Ferrari había montado un motor experimental con 40 caballos extra que posteriormente se prohibió por irregularidades técnicas",
+                "Dijo que había rodado toda la semana anterior en Fiorano con una configuración secreta y que por fin la había podido aplicar íntegramente en Magny-Cours",
+                "Explicó que habían descubierto un error grave en la telemetría de velocidad y que, en realidad, jamás había estado tan lejos del ritmo durante los test"
+            ],
+            "Reconoció que no sabía de dónde salía exactamente la ganancia, insinuó que el nuevo alerón delantero —aún sin validar— podría haber aportado algo, pero admitió que ni él mismo podía cuantificar cuánto valía",
+            "What explanation did Schumacher give for suddenly finding a full second between testing and qualifying?",
+            [
+                "He admitted he didn’t truly know where the time had come from, hinted that the untested new front wing might have contributed, but confessed he couldn’t quantify how much it was worth",
+                "He stated Ferrari had fitted an experimental engine with 40 extra horsepower that was later banned for technical irregularities",
+                "He said he had spent the previous week in Fiorano running a secret setup that he was finally allowed to apply fully at Magny-Cours",
+                "He explained they had discovered a major telemetry error in speed readings and that he had never actually been that far off the pace in testing"
+            ],
+            "He admitted he didn’t truly know where the time had come from, hinted that the untested new front wing might have contributed, but confessed he couldn’t quantify how much it was worth",
+            2
+        ),
+
+        # 3
+        (
+            "¿Qué rendimiento inesperado destacó especialmente en la clasificación y por qué llamó la atención?",
+            [
+                "El tercer puesto de Ralf Schumacher con el Jordan, quedándose a solo unas milésimas de Frentzen, sorprendió por la madurez y precisión que mostró pese a su limitada experiencia",
+                "La pole provisional de Irvine durante varios minutos, fruto de rodar con muy poco combustible y neumáticos experimentales",
+                "La presencia de los dos Minardi en la Q2 tras beneficiarse de múltiples banderas amarillas que arruinaron las vueltas rápidas de los equipos punteros",
+                "El tiempo de Coulthard, que se coló segundo gracias a un rebufo intencionado de un Williams que luego fue investigado por conducta antideportiva"
+            ],
+            "El tercer puesto de Ralf Schumacher con el Jordan, quedándose a solo unas milésimas de Frentzen, sorprendió por la madurez y precisión que mostró pese a su limitada experiencia",
+            "Which unexpected qualifying performance stood out and why did it raise eyebrows?",
+            [
+                "Ralf Schumacher’s third place for Jordan, just a few thousandths off Frentzen, impressed as a display of maturity and precision despite his relative inexperience",
+                "Irvine’s temporary pole after running ultra-light on fuel and testing prototype tyres",
+                "Both Minardis reaching Q2 after benefiting from multiple yellow flags that ruined the top teams’ laps",
+                "Coulthard taking second thanks to a deliberate tow from a Williams that was later investigated"
+            ],
+            "Ralf Schumacher’s third place for Jordan, just a few thousandths off Frentzen, impressed as a display of maturity and precision despite his relative inexperience",
+            1
+        ),
+
+        # 4
+        (
+            "¿Qué problema previo arruinó el inicio del fin de semana de Villeneuve antes de la clasificación?",
+            [
+                "Se estrelló antes de la sesión, tuvo que empezar con el coche de repuesto y, al volver a su chasis titular, se encontró con tráfico y una maniobra de Hakkinen que le arruinó su vuelta final",
+                "Sufrió un fallo eléctrico que dejó su coche apagado en mitad del pit-lane y perdió toda la sesión matinal",
+                "Destruyó un motor por sobre-revolucionarlo en libres y Williams solo tenía un propulsor de repuesto de especificación antigua",
+                "Pinchó dos neumáticos al pisar restos de fibra en la recta trasera y no pudo completar ninguna tanda larga"
+            ],
+            "Se estrelló antes de la sesión, tuvo que empezar con el coche de repuesto y, al volver a su chasis titular, se encontró con tráfico y una maniobra de Hakkinen que le arruinó su vuelta final",
+            "What issue spoiled Villeneuve’s weekend even before qualifying began?",
+            [
+                "He crashed before the session, had to begin in the spare car and, once back in his race chassis, got held up by traffic and a Hakkinen moment that ruined his final lap",
+                "He suffered an electrical shutdown in the pit lane and missed the entire morning run",
+                "He blew an engine by over-revving and Williams only had an old-spec spare unit left",
+                "He punctured two tyres after running over debris and couldn’t complete any long runs"
+            ],
+            "He crashed before the session, had to begin in the spare car and, once back in his race chassis, got held up by traffic and a Hakkinen moment that ruined his final lap",
+            2
+        ),
+
+        # 5
+        (
+            "¿Qué detalle estratégico complicó la carrera de Williams bajo la lluvia tardía?",
+            [
+                "Entraron demasiado tarde a por intermedios: cuando Villeneuve montó las gomas ya el asfalto comenzaba a secarse, lo que anuló cualquier ventaja y lo dejó atrapado en tráfico sin tiempo para recuperar",
+                "Se equivocaron de compuesto y montaron lluvia extrema cuando solo había humedad superficial, lo que obligó a detenerse otra vez",
+                "Pidieron a Frentzen que entrara en la misma vuelta que Villeneuve, lo que saturó al equipo y generó un pit-stop caótico de casi 40 segundos",
+                "Ordenaron a ambos coches quedarse fuera con slicks esperando un Safety Car que nunca llegó, dejándolos a merced de los coches con intermedios"
+            ],
+            "Entraron demasiado tarde a por intermedios: cuando Villeneuve montó las gomas ya el asfalto comenzaba a secarse, lo que anuló cualquier ventaja y lo dejó atrapado en tráfico sin tiempo para recuperar",
+            "What strategic detail made Williams’ late-race decision under rain backfire?",
+            [
+                "They boxed too late for intermediates: by the time Villeneuve fitted them the track was already drying, cancelling the advantage and trapping him in traffic with no time to recover",
+                "They chose full wets for light drizzle, forcing another stop immediately",
+                "They called Frentzen and Villeneuve in on the same lap, overloading the crew and causing a 40-second pit mess",
+                "They kept both cars out on slicks hoping for a Safety Car that never appeared"
+            ],
+            "They boxed too late for intermediates: by the time Villeneuve fitted them the track was already drying, cancelling the advantage and trapping him in traffic with no time to recover",
+            1
+        ),
+
+        # 6
+        (
+            "¿Qué incidente múltiple definió la lucha por el cuarto puesto en las últimas vueltas?",
+            [
+                "Villeneuve pasó a Coulthard, luego a Ralf, Alesi intentó sumarse al ataque, Ralf se salió al perder el coche en Estoril y Coulthard acabó en la grava tras intentar defenderse de Alesi",
+                "Fisichella se llevó por delante a Wurz en una apurada de frenada, lo que permitió que Herbert heredara la cuarta posición",
+                "Hakkinen trompeó en la curva rápida, bloqueó la trazada y obligó a varios coches a frenar en seco, alterando por completo el orden",
+                "Irvine perdió control bajo lluvia, se llevó a Barrichello y ambos dejaron escombros que cambiaron las posiciones finales en favor de Jordan"
+            ],
+            "Villeneuve pasó a Coulthard, luego a Ralf, Alesi intentó sumarse al ataque, Ralf se salió al perder el coche en Estoril y Coulthard acabó en la grava tras intentar defenderse de Alesi",
+            "Which multi-car sequence defined the fight for fourth place in the closing laps?",
+            [
+                "Villeneuve overtook Coulthard, then Ralf, Alesi tried to join the scrap, Ralf ran off at Estoril and Coulthard ended up in the gravel fending off Alesi",
+                "Fisichella dived into Wurz, eliminating the Benetton and gifting Herbert fourth",
+                "Hakkinen spun at the fast kink, blocking the line and reshuffling the field",
+                "Irvine lost control in the wet, tangled with Barrichello and scattered debris that reshuffled positions for Jordan"
+            ],
+            "Villeneuve overtook Coulthard, then Ralf, Alesi tried to join the scrap, Ralf ran off at Estoril and Coulthard ended up in the gravel fending off Alesi",
+            1
+        ),
+
+        # 7
+        (
+            "¿Qué gesto clave de Schumacher permitió a su hermano sumar un punto en el último momento?",
+            [
+                "Le hizo señas para dejarle desdoblarse justo después de adelantarlo, sabiendo que si Ralf volvía al giro del líder podría aprovechar la salida de pista de Coulthard para arrebatarle el sexto puesto",
+                "Redujo deliberadamente su ritmo para generar un tren de coches y facilitar que Ralf superara a varios rivales antes de meta",
+                "Le cedió posición directamente en la última vuelta para que sumara su primer punto de la temporada",
+                "Provocó una bandera amarilla que neutralizó un ataque de Alesi sobre Ralf"
+            ],
+            "Le hizo señas para dejarle desdoblarse justo después de adelantarlo, sabiendo que si Ralf volvía al giro del líder podría aprovechar la salida de pista de Coulthard para arrebatarle el sexto puesto",
+            "What key gesture from Schumacher allowed his brother to score a point at the last moment?",
+            [
+                "He waved Ralf through to unlap himself right after lapping him, knowing that once back on the lead lap Ralf could exploit Coulthard’s off to take sixth",
+                "He slowed deliberately to bunch the field so Ralf could gain multiple places",
+                "He gave up position on the final lap to let Ralf score his first point of the season",
+                "He triggered a yellow flag that froze Alesi’s attack on Ralf"
+            ],
+            "He waved Ralf through to unlap himself right after lapping him, knowing that once back on the lead lap Ralf could exploit Coulthard’s off to take sixth",
+            2
+        ),
+
+        # 8
+        (
+            "¿Qué piloto reveló un rendimiento sorprendente en lluvia al final, ganando terreno rápidamente tras montar intermedios?",
+            [
+                "Villeneuve, quien tras pasar por boxes empezó a marcar tiempos competitivos de inmediato, superando a varios coches antes de que la pista se secara",
+                "Irvine, que parecía imparable en ese tramo hasta que un error en la última chicane arruinó su remontada",
+                "Wurz, que con neumáticos intermedios llegó a rodar en ritmo de podio durante tres vueltas consecutivas",
+                "Herbert, que voló en condiciones húmedas y alcanzó a Ralf antes de que la pista se secara"
+            ],
+            "Villeneuve, quien tras pasar por boxes empezó a marcar tiempos competitivos de inmediato, superando a varios coches antes de que la pista se secara",
+            "Which driver showed surprisingly strong pace in the late rain after switching to intermediates?",
+            [
+                "Villeneuve, who immediately produced competitive times and passed several cars before the track dried again",
+                "Irvine, who seemed unstoppable until a mistake at the final chicane ruined his charge",
+                "Wurz, who briefly lapped at podium pace for three consecutive laps on inters",
+                "Herbert, who flew in the damp and closed rapidly on Ralf before conditions improved"
+            ],
+            "Villeneuve, who immediately produced competitive times and passed several cars before the track dried again",
+            1
+        ),
+
+        # 9
+        (
+            "¿Qué incidente inicial marcó a varios pilotos poco experimentados durante las primeras vueltas?",
+            [
+                "Nakano trompeó y abandonó en solo siete vueltas, Tarso Marques tuvo un incendio en el motor y Verstappen se estrelló antes del primer ciclo de paradas",
+                "Fontana caló en la parrilla, Wurz golpeó el muro en la curva final y Coulthard hizo un trompo en la chicane del estadio",
+                "Ambos Stewart se tocaron en la primera vuelta y generaron una nube de piezas que afectó a Benetton y Jordan",
+                "Trulli salió volando sobre los pianos de la chicane y dañó irreversible su suspensión delantera"
+            ],
+            "Nakano trompeó y abandonó en solo siete vueltas, Tarso Marques tuvo un incendio en el motor y Verstappen se estrelló antes del primer ciclo de paradas",
+            "Which early-race sequence struck several inexperienced drivers?",
+            [
+                "Nakano spun out within seven laps, Tarso Marques suffered an engine fire and Verstappen crashed before the first pit cycle",
+                "Fontana stalled on the grid, Wurz brushed the wall at the final turn and Coulthard spun at the stadium chicane",
+                "Both Stewarts collided on lap one, scattering debris which hampered Benetton and Jordan",
+                "Trulli launched over the chicane kerbs and terminally damaged his front suspension"
+            ],
+            "Nakano spun out within seven laps, Tarso Marques suffered an engine fire and Verstappen crashed before the first pit cycle",
+            2
+        ),
+
+        # 10
+        (
+            "¿Qué doble ventaja acumuló Schumacher sobre Frentzen durante el segundo stint?",
+            [
+                "Mantuvo un ritmo superior con aire limpio y además su parada estaba mejor sincronizada, asegurando que incluso con la lluvia amenazante conservara un margen cómodo",
+                "Tenía un set de neumáticos nuevos extra y menos combustible por un error en el repostaje previo",
+                "Ferrari le permitió activar un modo de motor especial durante cinco vueltas que Williams no podía igualar",
+                "El alemán adelantó a dos doblados que luego bloquearon a Frentzen durante una vuelta entera"
+            ],
+            "Mantuvo un ritmo superior con aire limpio y además su parada estaba mejor sincronizada, asegurando que incluso con la lluvia amenazante conservara un margen cómodo",
+            "What double advantage did Schumacher build over Frentzen during the second stint?",
+            [
+                "He controlled the pace in clean air and had a perfectly-timed stop, ensuring he kept a comfortable buffer even with rain looming",
+                "He had an extra fresh tyre set and was accidentally fuelled lighter",
+                "Ferrari allowed him to run a special engine mode that Williams couldn’t match",
+                "He cleared two backmarkers who then held Frentzen up for an entire lap"
+            ],
+            "He controlled the pace in clean air and had a perfectly-timed stop, ensuring he kept a comfortable buffer even with rain looming",
+            1
+        ),
+
+        # 11
+        (
+            "¿Qué situación casi permite a Coulthard salvar un punto antes de su accidente final?",
+            [
+                "Pese a ir con intermedios desgastados, todavía controlaba la cuarta plaza en un grupo muy compacto cuando Alesi le atacó y ambos acabaron fuera, dejando el hueco perfecto para Ralf",
+                "McLaren le avisó de que Wurz tenía un problema hidráulico y podría caer detrás, pero chocó justo antes de poder aprovecharlo",
+                "Coulthard tenía combustible para no parar de nuevo y podía haber ascendido al podio si la lluvia aumentaba de intensidad",
+                "Un fallo del sensor de velocidad dejó a varios coches en limitador y Coulthard estuvo a punto de adelantarlos antes de que la pista se normalizara"
+            ],
+            "Pese a ir con intermedios desgastados, todavía controlaba la cuarta plaza en un grupo muy compacto cuando Alesi le atacó y ambos acabaron fuera, dejando el hueco perfecto para Ralf",
+            "What situation almost let Coulthard rescue a point before his final-lap crash?",
+            [
+                "Despite heavily worn intermediates he was still holding fourth in a tight group when Alesi attacked, sending both off and opening the door for Ralf",
+                "McLaren warned him Wurz had a hydraulic issue and could drop behind him, but he crashed moments before capitalising",
+                "He had enough fuel to avoid a second stop and could have reached the podium had the rain intensified",
+                "A speed-sensor glitch put several cars on the limiter and Coulthard nearly passed them before conditions stabilised"
+            ],
+            "Despite heavily worn intermediates he was still holding fourth in a tight group when Alesi attacked, sending both off and opening the door for Ralf",
+            1
+        ),
+
+        # 12
+        (
+            "¿Qué conclusión dejó la carrera para Ferrari y para el propio Schumacher respecto al campeonato?",
+            [
+                "Fue su tercera victoria en cuatro carreras, situó a Schumacher con 14 puntos de ventaja sobre Villeneuve y consolidó la sensación de que Ferrari era mucho más competitivo de lo que ellos mismos habían imaginado al inicio del año",
+                "Confirmó que Ferrari no podía seguir el ritmo de Williams en circuitos de alta carga, dejando a Schumacher resignado a luchar solo por podios",
+                "Demostró que Ferrari debía apostar por Irvine como líder estratégico, ya que su ritmo fue superior en casi todos los stints",
+                "Reveló que el paquete aerodinámico nuevo era un fracaso y que la carrera solo se ganó gracias a las averías ajenas"
+            ],
+            "Fue su tercera victoria en cuatro carreras, situó a Schumacher con 14 puntos de ventaja sobre Villeneuve y consolidó la sensación de que Ferrari era mucho más competitivo de lo que ellos mismos habían imaginado al inicio del año",
+            "What conclusion did the race leave for Ferrari and Schumacher regarding the championship?",
+            [
+                "It was his third win in four races, put him 14 points ahead of Villeneuve and cemented the impression that Ferrari was far more competitive than they had expected at the start of the year",
+                "It confirmed Ferrari could not match Williams at high-downforce circuits, leaving Schumacher resigned to fighting only for podiums",
+                "It showed Ferrari should back Irvine strategically because his pace had been consistently superior",
+                "It revealed the new aero package was a failure and the win came only from rivals’ misfortune"
+            ],
+            "It was his third win in four races, put him 14 points ahead of Villeneuve and cemented the impression that Ferrari was far more competitive than they had expected at the start of the year",
+            3
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Austria 2017 (RaceFans: Second win for Bottas raises prospect of a three-way title fight) ----
+def austria_2017_items() -> List[Dict]:
+    S_ES = "Gran Premio de Austria 2017"; S_EN = "2017 Austrian Grand Prix"; L = []
+    pairs = [
+
+        # 1. RESUMEN
+        (
+            "Resumen: ¿cómo construyó Bottas su segunda victoria pese a la presión final de Vettel?",
+            [
+                "Hizo una salida milimétrica que rozó el ‘jump start’ pero fue declarada legal, abrió hueco en el primer stint, gestionó los ultra blandos mejor que Vettel, contuvo a Räikkönen tras su parada y, pese a un blister al final, aguantó el ataque del Ferrari con menos de un segundo de margen en meta",
+                "Se aprovechó de un Safety Car temprano para montar superblandos, adelantó a los dos Ferrari en pista y se escapó cuando Vettel tuvo una mala parada de boxes",
+                "Partió desde la segunda fila, adelantó a Hamilton en la arrancada, se benefició de la rotura del motor de Vettel y ganó cómodamente con más de veinte segundos de ventaja",
+                "Apostó por una estrategia a tres paradas con neumáticos más frescos al final, superó a Vettel y a Hamilton en las últimas cinco vueltas y se llevó la victoria gracias a la lluvia ligera"
+            ],
+            "Hizo una salida milimétrica que rozó el ‘jump start’ pero fue declarada legal, abrió hueco en el primer stint, gestionó los ultra blandos mejor que Vettel, contuvo a Räikkönen tras su parada y, pese a un blister al final, aguantó el ataque del Ferrari con menos de un segundo de margen en meta",
+            "Summary: how did Bottas build his second win despite Vettel’s late pressure?",
+            [
+                "He produced a razor-sharp getaway that looked like a jump start but was ruled legal, pulled clear in the first stint, managed the ultra-softs better than Vettel, cleared Räikkönen after his stop and, despite a late blister, fended off the Ferrari to win by less than a second",
+                "He capitalised on an early Safety Car to bolt on super-softs, overtook both Ferraris on track and escaped while Vettel suffered a slow pit stop",
+                "He started from the second row, jumped Hamilton at the launch, benefited from Vettel’s engine failure and cruised home over twenty seconds clear",
+                "He ran a three-stop strategy with much fresher tyres at the end, passed Vettel and Hamilton in the last five laps and snatched victory thanks to light rain"
+            ],
+            "He produced a razor-sharp getaway that looked like a jump start but was ruled legal, pulled clear in the first stint, managed the ultra-softs better than Vettel, cleared Räikkönen after his stop and, despite a late blister, fended off the Ferrari to win by less than a second",
+            3
+        ),
+
+        # 2. Salida sospechosa
+        (
+            "¿Por qué generó tanta polémica la salida de Bottas y qué dictaminaron los comisarios?",
+            [
+                "Porque el Mercedes reaccionó prácticamente en el instante en que se apagaron las luces, dando la impresión de que no había tiempo de reacción humano, pero los sensores demostraron que aún estaba dentro del margen legal de tolerancia",
+                "Porque se movió claramente antes de que se encendieran las luces rojas, algo que el reglamento permite si luego se detiene por completo antes del apagado",
+                "Porque arrancó desde un cajetín ligeramente adelantado, fuera de su posición marcada, y los comisarios aplicaron una penalización de cinco segundos",
+                "Porque los mecánicos dejaron herramientas en la parrilla y Bottas tuvo que esquivarlas, lo que provocó una investigación por salida insegura"
+            ],
+            "Porque el Mercedes reaccionó prácticamente en el instante en que se apagaron las luces, dando la impresión de que no había tiempo de reacción humano, pero los sensores demostraron que aún estaba dentro del margen legal de tolerancia",
+            "Why did Bottas’s start cause such a stir and what did the stewards decide?",
+            [
+                "Because his Mercedes appeared to move almost the instant the lights went out, making it look inhumanly quick, but the sensors showed he was still within the legal tolerance window",
+                "Because he clearly crept forward before the reds came on, which the rules permit as long as the car stops again before lights out",
+                "Because he lined up slightly ahead of his grid slot and was given a five-second penalty for the incorrect position",
+                "Because mechanics left tools near his box and Bottas had to avoid them, prompting an investigation for an unsafe grid release"
+            ],
+            "Because his Mercedes appeared to move almost the instant the lights went out, making it look inhumanly quick, but the sensors showed he was still within the legal tolerance window",
+            2
+        ),
+
+        # 3. Kvyat / Alonso / Verstappen
+        (
+            "¿Qué ocurrió en la salida con Kvyat, Alonso y Verstappen que condicionó la carrera de varios coches punteros?",
+            [
+                "Kvyat llegó demasiado rápido a la T1, bloqueó frenos y golpeó a Alonso, que a su vez fue lanzado contra el Red Bull de Verstappen; los dos inocentes abandonaron mientras el Toro Rosso continuó con un drive-through",
+                "Alonso frenó antes de tiempo, Kvyat no pudo reaccionar y lo empujó suavemente contra Verstappen, que perdió posiciones pero siguió en carrera sin daños",
+                "Verstappen se cambió de trayectoria tarde, sorprendió a Alonso, que se subió al piano y tocó al Toro Rosso de Kvyat, provocando un trompo múltiple sin abandonos",
+                "Kvyat tomó la escapatoria de la T1 para evitar un choque con Verstappen, pero al reincorporarse golpeó a Alonso en el lateral y este pinchó una rueda trasera"
+            ],
+            "Kvyat llegó demasiado rápido a la T1, bloqueó frenos y golpeó a Alonso, que a su vez fue lanzado contra el Red Bull de Verstappen; los dos inocentes abandonaron mientras el Toro Rosso continuó con un drive-through",
+            "What happened at the start with Kvyat, Alonso and Verstappen that shaped several front-runners’ races?",
+            [
+                "Kvyat arrived too fast into turn one, locked up and hit Alonso, who was then fired into Verstappen’s slow-starting Red Bull; both innocents retired while the Toro Rosso continued with a drive-through penalty",
+                "Alonso braked early, Kvyat couldn’t react in time and gently nudged him into Verstappen, who lost places but carried on undamaged",
+                "Verstappen made a late move across, surprised Alonso into the kerb and tapped Kvyat’s Toro Rosso, causing a multi-car slide without retirements",
+                "Kvyat took to the escape road at turn one to avoid Verstappen but, rejoining, clouted Alonso’s side and gave him a rear puncture"
+            ],
+            "Kvyat arrived too fast into turn one, locked up and hit Alonso, who was then fired into Verstappen’s slow-starting Red Bull; both innocents retired while the Toro Rosso continued with a drive-through penalty",
+            2
+        ),
+
+        # 4. Grosjean y la clase B
+        (
+            "¿Qué papel jugó Romain Grosjean en la llamada ‘clase B’ del pelotón?",
+            [
+                "Encabezó el grupo medio, se mantuvo al frente de los coches no punteros y acabó como ‘ganador’ oficioso de la subcategoría tras ser alcanzado y rebasado por los cinco coches de cabeza",
+                "Intentó seguir el ritmo de los Mercedes y Ferrari al principio, destrozó sus neumáticos y terminó cayendo al fondo de la clasificación",
+                "Se vio implicado en un toque con Kvyat que arruinó su coche, obligándole a retirarse antes de la primera parada en boxes",
+                "Aprovechó el caos inicial para rodar cuarto durante buena parte de la carrera, pero una sanción por exceso de velocidad en pit lane lo sacó de los puntos"
+            ],
+            "Encabezó el grupo medio, se mantuvo al frente de los coches no punteros y acabó como ‘ganador’ oficioso de la subcategoría tras ser alcanzado y rebasado por los cinco coches de cabeza",
+            "What role did Romain Grosjean play in the so-called ‘Class B’ of the field?",
+            [
+                "He led the midfield pack, stayed ahead of the non-front-running cars and effectively ‘won’ the sub-class once the five top machines had disappeared up the road",
+                "He tried to match the Mercedes and Ferraris early on, destroyed his tyres and slumped to the back",
+                "He got tangled with Kvyat, badly damaging his car and retiring before the first pit stops",
+                "He capitalised on the opening chaos to run fourth for much of the race but lost the points with a speeding in the pit lane penalty"
+            ],
+            "He led the midfield pack, stayed ahead of the non-front-running cars and effectively ‘won’ the sub-class once the five top machines had disappeared up the road",
+            1
+        ),
+
+        # 5. Hamilton vs Räikkönen por estrategia
+        (
+            "¿Cómo logró Hamilton superar a Räikkönen jugando con la estrategia de paradas?",
+            [
+                "Mercedes paró antes a Hamilton para hacer el undercut, le pidió que no siguiera al Ferrari en boxes y, gracias a una vuelta de salida muy fuerte, volvió a pista por delante del número 7 cuando Ferrari decidió dejar a Kimi fuera",
+                "Le pidió a Hamilton que extendiera su primer stint hasta quedarse sin neumático, confiando en un Safety Car que les regaló una parada gratis por delante de Räikkönen",
+                "Ordenó un doble pit-stop con Bottas, bloqueando momentáneamente la calle de boxes y obligando a Räikkönen a levantar el pie en la entrada",
+                "Usó neumáticos superblandos desde la salida, mientras Räikkönen arrancaba con medios, lo que hizo que Lewis pudiera adelantarle en pista sin necesidad de estrategia"
+            ],
+            "Mercedes paró antes a Hamilton para hacer el undercut, le pidió que no siguiera al Ferrari en boxes y, gracias a una vuelta de salida muy fuerte, volvió a pista por delante del número 7 cuando Ferrari decidió dejar a Kimi fuera",
+            "How did Hamilton get ahead of Räikkönen by playing the pit-stop game?",
+            [
+                "Mercedes pitted Hamilton first for the undercut, told him not to shadow the Ferrari into the pits and, thanks to a strong out-lap, he rejoined ahead of car 7 once Ferrari chose to keep Kimi out",
+                "They extended his first stint to the limit, banking on a Safety Car that handed him a free stop ahead of Räikkönen",
+                "They ordered a double-stack with Bottas, briefly blocking the pit lane and forcing Räikkönen to back off at pit entry",
+                "He started on super-softs while Räikkönen used mediums, allowing Lewis to pass him on track without strategic tricks"
+            ],
+            "Mercedes pitted Hamilton first for the undercut, told him not to shadow the Ferrari into the pits and, thanks to a strong out-lap, he rejoined ahead of car 7 once Ferrari chose to keep Kimi out",
+            2
+        ),
+
+        # 6. Ferrari y el rol de Kimi
+        (
+            "¿Por qué mantuvo Ferrari a Räikkönen en pista cuando Hamilton ya había parado, y qué esperaban conseguir?",
+            [
+                "Buscaban que Kimi sirviera de tapón tanto para Bottas como para Vettel una vez que el líder parara, forzando a Mercedes a perder tiempo detrás del Ferrari y protegiendo así la segunda posición de Seb",
+                "Confiaban en estirar el stint lo suficiente como para cambiar directamente a neumático de lluvia por las nubes que se veían al fondo del valle",
+                "Pretendían hacerle un undercut a Vettel, dejándolo fuera para crear hueco estratégico y luego llamando a ambos en la misma vuelta",
+                "Querían evitar doblados en el momento de la parada y por eso retrasaron su stop hasta que el grupo medio se compactara detrás de Grosjean"
+            ],
+            "Buscaban que Kimi sirviera de tapón tanto para Bottas como para Vettel una vez que el líder parara, forzando a Mercedes a perder tiempo detrás del Ferrari y protegiendo así la segunda posición de Seb",
+            "Why did Ferrari keep Räikkönen out when Hamilton had already pitted, and what did they hope to achieve?",
+            [
+                "They wanted Kimi to act as a roadblock for both Bottas and Vettel after the leader stopped, forcing Mercedes to lose time behind the Ferrari and thereby protecting Seb’s second place",
+                "They hoped to stretch the stint long enough to bolt on wets directly if the looming clouds finally burst",
+                "They aimed to undercut Vettel by leaving Kimi out to open a gap and then pitting both cars on the same lap",
+                "They wanted to avoid backmarkers at pit-stop time and so delayed his stop until the midfield had bunched up behind Grosjean"
+            ],
+            "They wanted Kimi to act as a roadblock for both Bottas and Vettel after the leader stopped, forcing Mercedes to lose time behind the Ferrari and thereby protecting Seb’s second place",
+            2
+        ),
+
+        # 7. Lucha Ricciardo–Hamilton
+        (
+            "¿Cómo defendió Ricciardo el último escalón del podio frente al ataque final de Hamilton?",
+            [
+                "Tras una mala salida de la T1 en la penúltima vuelta, cubrió el interior en la frenada de la curva siguiente y obligó a Lewis a rodearle por fuera, aguantando luego una última vuelta limpia sin errores",
+                "Cerró repetidamente el paso en plena recta, forzando a Hamilton a levantar en varias ocasiones hasta que los comisarios intervinieron con una advertencia",
+                "Se dejó adelantar a propósito para aprovechar el DRS en la última vuelta y recuperar la posición justo antes de la meta",
+                "Pidió por radio que Red Bull ordenara a Verstappen interponerse entre ambos, usando al otro coche como escudo defensivo"
+            ],
+            "Tras una mala salida de la T1 en la penúltima vuelta, cubrió el interior en la frenada de la curva siguiente y obligó a Lewis a rodearle por fuera, aguantando luego una última vuelta limpia sin errores",
+            "How did Ricciardo hang on to the final podium spot against Hamilton’s late charge?",
+            [
+                "After a scruffy run out of turn one on the penultimate lap he covered the inside into the next corner, forced Lewis to go the long way around and then delivered a tidy final tour with no mistakes",
+                "He repeatedly chopped across on the straight, forcing Hamilton to lift several times until the stewards warned him",
+                "He deliberately let Hamilton by to gain DRS for the last lap and repassed just before the line",
+                "He asked Red Bull to use Verstappen as a buffer car to get between them and protect him"
+            ],
+            "After a scruffy run out of turn one on the penultimate lap he covered the inside into the next corner, forced Lewis to go the long way around and then delivered a tidy final tour with no mistakes",
+            1
+        ),
+
+        # 8. Problemas y abandono de Magnussen
+        (
+            "¿Qué golpe sufrió Haas en su objetivo de doble puntuación y cómo afectó a Magnussen?",
+            [
+                "Magnussen padeció su segundo problema técnico del fin de semana, tuvo que abandonar pese a un buen ritmo y dejó a Grosjean como único coche del equipo en los puntos",
+                "Magnussen recibió una penalización por exceso de velocidad en boxes que lo mandó al fondo, impidiendo que Haas sumara con ambos coches",
+                "Un toque con Palmer dañó su alerón delantero, obligándole a una parada extra que lo relegó fuera del top 10",
+                "Una mala elección de neumáticos intermedios en una breve llovizna arruinó su estrategia, dejándolo justo en la puerta de los puntos"
+            ],
+            "Magnussen padeció su segundo problema técnico del fin de semana, tuvo que abandonar pese a un buen ritmo y dejó a Grosjean como único coche del equipo en los puntos",
+            "What blow did Haas suffer to their hopes of a double-points finish, and how did it affect Magnussen?",
+            [
+                "Magnussen hit his second technical problem of the weekend, was forced to retire despite strong pace and left Grosjean as their only scorer",
+                "Magnussen was penalised for speeding in the pits, dropping him to the back and ending Haas’s two-car points bid",
+                "Contact with Palmer damaged his front wing, forcing an extra stop and pushing him out of the top ten",
+                "A poor call for intermediates in a brief drizzle ruined his strategy, leaving him just outside the points"
+            ],
+            "Magnussen hit his second technical problem of the weekend, was forced to retire despite strong pace and left Grosjean as their only scorer",
+            1
+        ),
+
+        # 9. Williams y el caos de la primera vuelta
+        (
+            "¿Cómo lograron los Williams salvar el fin de semana tras una clasificación muy discreta?",
+            [
+                "Partiendo desde la penúltima fila, aprovecharon el caos de la primera vuelta para ganar muchas posiciones, mostraron mejor ritmo en carrera que a una vuelta y acabaron ocupando los dos últimos puestos de puntos",
+                "Apostaron por una estrategia de dos paradas con neumáticos medios que les permitió rodar más tiempo en aire limpio mientras los demás se atascaban en tráfico",
+                "Recibieron ayuda de un Safety Car tardío que comprimió al grupo y les permitió cambiar a un compuesto más blando sin perder posiciones",
+                "Pidieron por radio órdenes de equipo a otros constructores para facilitar adelantamientos clave en la segunda mitad de la prueba"
+            ],
+            "Partiendo desde la penúltima fila, aprovecharon el caos de la primera vuelta para ganar muchas posiciones, mostraron mejor ritmo en carrera que a una vuelta y acabaron ocupando los dos últimos puestos de puntos",
+            "How did Williams rescue their weekend after a miserable qualifying?",
+            [
+                "Starting from the penultimate row, they capitalised on the lap one chaos to gain ground, showed better race than quali pace and ended up filling the final two points-paying places",
+                "They gambled on a two-stop run on mediums, running long in clean air while others sat in traffic",
+                "A late Safety Car bunched the field and let them bolt on a softer compound without losing places",
+                "They requested ‘team orders’ from other outfits over the radio to ease key passes in the second half"
+            ],
+            "Starting from the penultimate row, they capitalised on the lap one chaos to gain ground, showed better race than quali pace and ended up filling the final two points-paying places",
+            1
+        ),
+
+        # 10. Palmer y Vandoorne
+        (
+            "¿Qué desenlace tuvieron las carreras de Palmer y Vandoorne pese a algún destello positivo?",
+            [
+                "Palmer, que había encontrado buen ritmo con los blandos, se quedó a las puertas de los puntos, mientras que Vandoorne recibió un drive-through por ignorar de forma clara las banderas azules y tampoco pudo puntuar",
+                "Palmer abandonó por un fallo de motor cuando rodaba octavo y Vandoorne fue sancionado por un adelantamiento bajo Safety Car que le costó el top 10",
+                "Ambos entraron en los puntos, pero posteriores sanciones técnicas por peso mínimo los excluyeron de la clasificación final",
+                "Palmer chocó con Hulkenberg y provocó su propio abandono, mientras que Vandoorne sufrió un pinchazo lento que le obligó a una parada extra"
+            ],
+            "Palmer, que había encontrado buen ritmo con los blandos, se quedó a las puertas de los puntos, mientras que Vandoorne recibió un drive-through por ignorar de forma clara las banderas azules y tampoco pudo puntuar",
+            "How did Palmer’s and Vandoorne’s races end despite some encouraging signs?",
+            [
+                "Palmer, who had looked handy on the softs, narrowly missed out on the points, while Vandoorne picked up a drive-through for a particularly blatant blue-flag infringement and also finished outside the top ten",
+                "Palmer retired with an engine failure from eighth and Vandoorne was penalised for overtaking under Safety Car, losing a points finish",
+                "Both initially scored but were later disqualified on minimum-weight technical grounds",
+                "Palmer tangled with Hulkenberg and retired, while Vandoorne suffered a slow puncture that forced an extra stop"
+            ],
+            "Palmer, who had looked handy on the softs, narrowly missed out on the points, while Vandoorne picked up a drive-through for a particularly blatant blue-flag infringement and also finished outside the top ten",
+            1
+        ),
+
+        # 11. Hülkenberg
+        (
+            "¿Por qué se describe la carrera de Hülkenberg como “horrible” en el texto?",
+            [
+                "Porque cayó al fondo al entrar el anti-stall en la salida, no tuvo ritmo con los superblandos y solo pudo terminar por delante de los Sauber y del retrasado Kvyat",
+                "Porque lideró brevemente la prueba pero un error de pilotaje en la chicane le costó una posible victoria con Renault",
+                "Porque una parada de boxes fallida le dejó sin una rueda bien apretada y tuvo que abandonar por seguridad",
+                "Porque fue sancionado dos veces por exceder los límites de pista y terminó fuera de la clasificación"
+            ],
+            "Porque cayó al fondo al entrar el anti-stall en la salida, no tuvo ritmo con los superblandos y solo pudo terminar por delante de los Sauber y del retrasado Kvyat",
+            "Why is Hülkenberg’s race described as ‘horrible’ in the text?",
+            [
+                "Because anti-stall kicked in at the start, dropping him to the back, he lacked pace on the super-softs and only beat the Saubers and the delayed Kvyat to the flag",
+                "Because he briefly led the race but threw away a shock Renault win with a mistake at the chicane",
+                "Because a botched pit stop left a wheel loose and forced him to retire on safety grounds",
+                "Because he was penalised twice for track-limits abuse and ended up unclassified"
+            ],
+            "Because anti-stall kicked in at the start, dropping him to the back, he lacked pace on the super-softs and only beat the Saubers and the delayed Kvyat to the flag",
+            1
+        ),
+
+        # 12. Título a tres bandas
+        (
+            "¿Qué implicaciones dejó esta carrera para la lucha por el título según el análisis?",
+            [
+                "Con su segunda victoria en nueve carreras y una diferencia de 35 puntos respecto a Vettel, Bottas se consolidó como un tercer aspirante real al campeonato junto a su compañero Hamilton y el piloto de Ferrari",
+                "La victoria de Bottas redujo la pelea a un duelo directo con Vettel, dejando a Hamilton demasiado lejos en la clasificación para ser una amenaza",
+                "El resultado confirmó que Mercedes solo podía luchar por el título de constructores, pero no por el de pilotos, dado el bajo rendimiento de Bottas",
+                "El gran botín de puntos de Ferrari y la discreta carrera de Mercedes dejaron prácticamente sentenciado el campeonato a favor de Vettel a mitad de temporada"
+            ],
+            "Con su segunda victoria en nueve carreras y una diferencia de 35 puntos respecto a Vettel, Bottas se consolidó como un tercer aspirante real al campeonato junto a su compañero Hamilton y el piloto de Ferrari",
+            "What did this race imply for the title fight according to the review?",
+            [
+                "With his second win in nine starts and a 35-point deficit to Vettel, Bottas had firmly inserted himself as a genuine third contender alongside his Mercedes team mate and the Ferrari driver",
+                "Bottas’s win reduced the battle to a straight duel with Vettel, leaving Hamilton too far back to threaten",
+                "The outcome showed Mercedes could only realistically fight for the constructors’ crown, not the drivers’, given Bottas’s lack of form",
+                "Ferrari’s haul and Mercedes’s muted race all but wrapped the championship up for Vettel by mid-season"
+            ],
+            "With his second win in nine starts and a 35-point deficit to Vettel, Bottas had firmly inserted himself as a genuine third contender alongside his Mercedes team mate and the Ferrari driver",
+            2
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Great Britain 1997 (RaceFans: Villeneuve lucks out then lucks in for second Silverstone win) ----
+def great_britain_1997_items() -> List[Dict]:
+    S_ES = "Gran Premio de Gran Bretaña 1997"; S_EN = "1997 British Grand Prix"; L = []
+    pairs = [
+
+        # 1. RESUMEN GENERAL
+        (
+            "Resumen: ¿cómo terminó Villeneuve ganando en Silverstone pese a sus problemas iniciales?",
+            [
+                "Perdió tiempo enorme en su primera parada por un tornillo de disco que se partió, cayó al tráfico, pero el abandono de Schumacher por un fallo de rodamiento tras un humo sospechoso, la rotura del motor de Häkkinen liderando, y una remontada final le permitieron recuperarse para ganar",
+                "Hizo una gran salida desde la pole, lideró de principio a fin sin oposición y únicamente gestionó neumáticos para evitar a Coulthard",
+                "Ganó gracias a un Safety Car tardío que lo colocó directamente en cabeza, tras una parada perfecta y sin incidentes",
+                "Villeneuve se impuso tras un adelantamiento directo en pista a Schumacher en las últimas dos vueltas usando neumáticos más frescos"
+            ],
+            "Perdió tiempo enorme en su primera parada por un tornillo de disco que se partió, cayó al tráfico, pero el abandono de Schumacher por un fallo de rodamiento tras un humo sospechoso, la rotura del motor de Häkkinen liderando, y una remontada final le permitieron recuperarse para ganar",
+            "Summary: how did Villeneuve end up winning at Silverstone despite early trouble?",
+            [
+                "He lost massive time in his first stop due to a sheared brake-disc screw, fell into traffic, but Schumacher’s wheel-bearing failure, Häkkinen’s late engine blow-up while leading, and a clean final stint helped him recover to win",
+                "He blasted away from pole and led flag-to-flag without any threat, only tyre-managing against Coulthard",
+                "He won due to a late Safety Car that put him directly into the lead after a perfect, trouble-free stop",
+                "He passed Schumacher on track in the final two laps thanks to much fresher tyres"
+            ],
+            "He lost massive time in his first stop due to a sheared brake-disc screw, fell into traffic, but Schumacher’s wheel-bearing failure, Häkkinen’s late engine blow-up while leading, and a clean final stint helped him recover to win",
+            3
+        ),
+
+        # 2. CRÍTICAS A HILL
+        (
+            "¿Por qué llegó Hill al fin de semana bajo presión y cómo reaccionó?",
+            [
+                "Su jefe Walkinshaw lo criticó públicamente por no rendir acorde a su salario y hacer que el coche pareciera peor de lo que era; Hill aceptó la presión y dijo que ya había afrontado críticas peores",
+                "Había chocado con Villeneuve en Canadá y la FIA abrió una investigación que puso en duda su continuidad",
+                "Arrows anunció que podría sustituirlo por Barrichello y Hill respondió pidiendo salir del equipo tras la carrera",
+                "Hill admitió que tenía problemas físicos que limitaban su rendimiento y pidió ayuda médica"
+            ],
+            "Su jefe Walkinshaw lo criticó públicicamente por no rendir acorde a su salario y hacer que el coche pareciera peor de lo que era; Hill aceptó la presión y dijo que ya había afrontado críticas peores",
+            "Why was Hill under pressure that weekend and how did he react?",
+            [
+                "His boss Walkinshaw publicly criticised him for underperforming relative to his salary and making the car look worse than it was; Hill took it on the chin and said he’d faced harsher criticism before",
+                "He’d collided with Villeneuve in Canada and the FIA opened an investigation threatening his seat",
+                "Arrows hinted at replacing him with Barrichello and Hill responded by asking to leave the team",
+                "Hill admitted physical issues were limiting him and requested medical assistance"
+            ],
+            "His boss Walkinshaw publicly criticised him for underperforming relative to his salary and making the car look worse than it was; Hill took it on the chin and said he’d faced harsher criticism before",
+            1
+        ),
+
+        # 3. CAMBIOS DEL CIRCUITO
+        (
+            "¿Qué impacto tuvieron los cambios de Silverstone 1997 en la conducción según Villeneuve?",
+            [
+                "Permitieron un mejor flujo entre curvas, con un Copse ahora ciego a altísima velocidad y mayor ritmo general en las secuencias finales",
+                "Volvieron el trazado más técnico y lento, especialmente las secciones nuevas de baja velocidad añadidas en Priory",
+                "Reducieron la carga aerodinámica por reasfaltado y Villeneuve se quejó de inestabilidad crónica",
+                "Hicieron la pista más estrecha en varias zonas, complicando el adelantamiento y aumentando la necesidad de paradas"
+            ],
+            "Permitieron un mejor flujo entre curvas, con un Copse ahora ciego a altísima velocidad y mayor ritmo general en las secuencias finales",
+            "What effect did the 1997 Silverstone changes have on driving according to Villeneuve?",
+            [
+                "They improved rhythm through the lap, with Copse becoming a blind, ultra-fast sixth-gear corner and the final complex flowing more naturally",
+                "They made the layout more technical and slower overall, especially the new low-speed Priory section",
+                "They lowered downforce due to resurfacing, causing chronic instability according to Villeneuve",
+                "They narrowed the track in several areas, making overtaking tougher and stops more decisive"
+            ],
+            "They improved rhythm through the lap, with Copse becoming a blind, ultra-fast sixth-gear corner and the final complex flowing more naturally",
+            1
+        ),
+
+        # 4. CLASIFICACIÓN: HAKKINEN Y FRENTZEN
+        (
+            "¿Cómo perdió Häkkinen la pole que parecía tener asegurada?",
+            [
+                "En su último intento se salió levemente en Becketts y luego tuvo tráfico en Stowe, tirando por la borda el sector inicial espectacular",
+                "McLaren cometió un error en la presión de los neumáticos y el coche perdió adherencia repentinamente",
+                "Le mostraron una bandera amarilla tardía en Woodcote que anuló su vuelta final",
+                "Perdió la referencia de frenada por un fallo del display y se pasó en la chicane final"
+            ],
+            "En su último intento se salió levemente en Becketts y luego tuvo tráfico en Stowe, tirando por la borda el sector inicial espectacular",
+            "How did Häkkinen lose the pole he seemed destined for?",
+            [
+                "On his final run he drifted wide at Becketts and then hit traffic at Stowe, wasting a brilliant first sector",
+                "McLaren mis-set tyre pressures and the car suddenly lost grip",
+                "A late yellow at Woodcote invalidated his final lap",
+                "He missed his braking marker due to a dash error and overshot the final chicane"
+            ],
+            "On his final run he drifted wide at Becketts and then hit traffic at Stowe, wasting a brilliant first sector",
+            1
+        ),
+
+        # 5. INCIDENTES DE SALIDA
+        (
+            "¿Qué ocurrió en la salida original con Frentzen y Katayama?",
+            [
+                "Frentzen caló por accionar dos interruptores a la vez y fue enviado al fondo; Katayama perdió el control por suciedad y se estrelló contra el muro cerca del pit wall",
+                "Frentzen recibió un toque de Irvine y trompeó, mientras Katayama se saltó la salida",
+                "Frentzen se adelantó en la salida y fue penalizado, y Katayama rompió motor apenas metros después",
+                "Ambos se tocaron en la arrancada y quedaron fuera antes de la primera curva"
+            ],
+            "Frentzen caló por accionar dos interruptores a la vez y fue enviado al fondo; Katayama perdió el control por suciedad y se estrelló contra el muro cerca del pit wall",
+            "What happened at the original start with Frentzen and Katayama?",
+            [
+                "Frentzen stalled by activating two switches simultaneously and was sent to the back; Katayama hit dirt, lost control and slammed into the pit-wall barrier",
+                "Frentzen was tapped by Irvine and spun, while Katayama jumped the start",
+                "Frentzen jumped the start and was penalised, and Katayama’s engine blew moments later",
+                "They collided off the line and both retired before turn one"
+            ],
+            "Frentzen stalled by activating two switches simultaneously and was sent to the back; Katayama hit dirt, lost control and slammed into the pit-wall barrier",
+            1
+        ),
+
+        # 6. PROBLEMA DE VILLENEUVE EN BOXES
+        (
+            "¿Cuál fue el problema exacto que arruinó la primera parada de Villeneuve?",
+            [
+                "Los tornillos del disco estaban sueltos; al retirar la tuerca, uno se partió y tuvieron que sustituirlo, dejándolo parado más de medio minuto",
+                "La manguera de combustible se atascó y el sistema derramó gasolina provocando un pequeño incendio",
+                "Metieron un juego de neumáticos equivocado y tuvieron que repetir el cambio entero",
+                "El gato delantero falló y el coche cayó parcialmente, obligando a recolocar todo el sistema"
+            ],
+            "Los tornillos del disco estaban sueltos; al retirar la tuerca, uno se partió y tuvieron que sustituirlo, dejándolo parado más de medio minuto",
+            "What exactly ruined Villeneuve’s first pit stop?",
+            [
+                "Loose brake-disc screws caused one to shear off when the nut came off, forcing replacement and leaving him stationary for over half a minute",
+                "The fuel hose jammed and spilled fuel, causing a minor fire",
+                "The wrong tyre set was fitted and the crew had to redo the stop",
+                "The front jack collapsed and the car partially fell, requiring a full reset"
+            ],
+            "Loose brake-disc screws caused one to shear off when the nut came off, forcing replacement and leaving him stationary for over half a minute",
+            1
+        ),
+
+        # 7. AVERÍA DE SCHUMACHER
+        (
+            "¿Qué anomalía presentó el Ferrari de Schumacher antes de su abandono y cuál fue la causa final?",
+            [
+                "Salió humo blanco de la rueda trasera izquierda; Ferrari revisó y luego el coche sufrió una avería del rodamiento de esa misma rueda",
+                "Perdió presión hidráulica en la caja de cambios y quedó atascado en tercera",
+                "El motor detonó por exceso de temperatura tras quedar bloqueado detrás de doblados",
+                "El alerón trasero se agrietó y se desprendió parcialmente provocando su retirada"
+            ],
+            "Salió humo blanco de la rueda trasera izquierda; Ferrari revisó y luego el coche sufrió una avería del rodamiento de esa misma rueda",
+            "What oddity appeared on Schumacher’s Ferrari before retirement, and what was the cause?",
+            [
+                "White smoke came from the left-rear wheel; Ferrari checked him, but a wheel-bearing failure on that corner ended his race",
+                "He lost hydraulic pressure in the gearbox and got stuck in third",
+                "The engine detonated from overheating while trapped in backmarker traffic",
+                "The rear wing cracked and partially detached, forcing retirement"
+            ],
+            "White smoke came from the left-rear wheel; Ferrari checked him, but a wheel-bearing failure on that corner ended his race",
+            1
+        ),
+
+        # 8. DUELO VILLENEUVE–HÄKKINEN
+        (
+            "¿Cómo se resolvió el duelo final entre Villeneuve y Häkkinen por la victoria?",
+            [
+                "Villeneuve recortó toda la ventaja, se pegó a él durante varias vueltas, pero el motor Mercedes de Häkkinen explotó cuando lideraba, dejando el triunfo servido",
+                "Villeneuve le adelantó limpiamente en la recta Hangar usando rebufo y DRS primitivo",
+                "Häkkinen defendió cada curva con éxito, pero una penalización tardía por límites de pista le quitó la victoria",
+                "Ambos se tocaron en Luffield y Villeneuve heredó la victoria tras una sanción para Mika"
+            ],
+            "Villeneuve recortó toda la ventaja, se pegó a él durante varias vueltas, pero el motor Mercedes de Häkkinen explotó cuando lideraba, dejando el triunfo servido",
+            "How was the final Villeneuve–Häkkinen fight for victory settled?",
+            [
+                "Villeneuve slashed the gap, sat on Häkkinen’s gearbox for several laps, but the McLaren’s Mercedes engine blew up while leading, handing Jacques the win",
+                "Villeneuve cleanly slipstreamed past him down Hangar Straight using an early DRS-style tow",
+                "Häkkinen defended flawlessly but a late track-limits penalty stripped him of the win",
+                "They made contact at Luffield and Villeneuve inherited victory after Mika was penalised"
+            ],
+            "Villeneuve slashed the gap, sat on Häkkinen’s gearbox for several laps, but the McLaren’s Mercedes engine blew up while leading, handing Jacques the win",
+            1
+        ),
+
+        # 9. BENETTON Y EL PODIO SORPRESA
+        (
+            "¿Qué particularidad tuvo el doble podio de Benetton con Alesi y Wurz?",
+            [
+                "Que lograron un 2–3 inesperado tras la rotura de Häkkinen, con Wurz obedeciendo la posición para asegurar el resultado y consolidar un repunte en su temporada",
+                "Alesi adelantó a Wurz doblemente ignorando órdenes de equipo y casi se chocan en Copse",
+                "Ambos rodaron líderes durante varias vueltas, pero una doble parada caótica los relegó antes de recuperar",
+                "El podio llegó pese a que ambos cometieron trompos separados bajo lluvia ligera"
+            ],
+            "Que lograron un 2–3 inesperado tras la rotura de Häkkinen, con Wurz obedeciendo la posición para asegurar el resultado y consolidar un repunte en su temporada",
+            "What was notable about Benetton’s surprise double podium with Alesi and Wurz?",
+            [
+                "They scored an unexpected 2–3 after Häkkinen’s blow-up, with Wurz sensibly holding station behind Alesi to secure a much-needed upswing in their season",
+                "Alesi passed Wurz twice despite team orders and they nearly collided at Copse",
+                "They both led laps but a botched double-stack sent them backwards before recovering",
+                "They reached the podium despite each spinning separately in light rain"
+            ],
+            "They scored an unexpected 2–3 after Häkkinen’s blow-up, with Wurz sensibly holding station behind Alesi to secure a much-needed upswing in their season",
+            1
+        ),
+
+        # 10. INCIDENTE DE COULTHARD
+        (
+            "¿Qué problema tuvo Coulthard que condicionó su ritmo antes de ser adelantado por Hakkinen?",
+            [
+                "Problemas graves de frenos que lo hicieron perder casi dos segundos por vuelta y bloquear al grupo que venía detrás",
+                "Un fallo eléctrico intermitente que reducía la potencia en las rectas",
+                "Un toque con Irvine que le dejó una vibración continua en la rueda delantera derecha",
+                "Una parada lenta por una pistola atascada que le dejó sin opción estratégica"
+            ],
+            "Problemas graves de frenos que lo hicieron perder casi dos segundos por vuelta y bloquear al grupo que venía detrás",
+            "What issue hampered Coulthard’s pace before Hakkinen finally passed him?",
+            [
+                "Severe brake trouble which cost him nearly two seconds per lap and caused him to stack up a train behind",
+                "An intermittent electrical glitch that cut power on the straights",
+                "Light contact with Irvine which caused a persistent front-right vibration",
+                "A slow stop due to a stuck wheel gun that ruined his strategy"
+            ],
+            "Severe brake trouble which cost him nearly two seconds per lap and caused him to stack up a train behind",
+            1
+        ),
+
+        # 11. ÚLTIMA VUELTA: HILL
+        (
+            "¿Cómo consiguió Hill el último punto disponible?",
+            [
+                "Nakano iba sexto, pero su Prost murió en la última vuelta, permitiendo que Hill heredara la posición y celebrara con el público",
+                "Adelantó a Barrichello con un movimiento al límite en Stowe pese a la degradación",
+                "Forzó un error de Herbert en Priory que lo dejó sin tracción",
+                "Recibió una sanción favorable por tiempo de Irvine que le abrió el acceso al top 6"
+            ],
+            "Nakano iba sexto, pero su Prost murió en la última vuelta, permitiendo que Hill heredara la posición y celebrara con el público",
+            "How did Hill grab the final point?",
+            [
+                "Nakano was running sixth but his Prost died on the last lap, letting Hill inherit the spot and wave to the crowd in celebration",
+                "He made a razor-edge overtake on Barrichello at Stowe despite heavy tyre wear",
+                "He forced Herbert into a mistake at Priory that cost the Sauber traction",
+                "He profited from a time penalty for Irvine that promoted him into sixth"
+            ],
+            "Nakano was running sixth but his Prost died on the last lap, letting Hill inherit the spot and wave to the crowd in celebration",
+            1
+        ),
+
+        # 12. EPÍLOGO Y CONSECUENCIAS
+        (
+            "¿Qué debate se abrió tras la victoria de Villeneuve respecto a si habría podido pasar a Häkkinen sin avería?",
+            [
+                "Villeneuve dijo que sí porque veía sus neumáticos traseros destruyéndose; Häkkinen afirmó que aún tenía ‘cartas’ guardadas y que podía haber resistido unas vueltas más",
+                "Ambos coincidieron en que no habría adelantamiento y que el motor habría aguantado de no ser por una fuga de aceite inesperada",
+                "Villeneuve sostuvo que era imposible pasarlo en pista, pero que habría intentado forzar un error",
+                "Häkkinen aseguró que Villeneuve lo habría pasado antes del final, pero que la rotura fue un simple accidente"
+            ],
+            "Villeneuve dijo que sí porque veía sus neumáticos traseros destruyéndose; Häkkinen afirmó que aún tenía ‘cartas’ guardadas y que podía haber resistido unas vueltas más",
+            "What post-race debate emerged about whether Villeneuve could have passed Häkkinen without the failure?",
+            [
+                "Villeneuve said yes because he saw Mika’s rears blistering; Häkkinen said he still had ‘cards in his pocket’ and could have held him off a few more laps",
+                "Both agreed overtaking was unlikely and that the engine failure was due to a random oil leak",
+                "Villeneuve claimed passing was impossible but he’d have provoked a mistake",
+                "Häkkinen insisted Villeneuve would have passed even earlier, and the failure was incidental"
+            ],
+            "Villeneuve said yes because he saw Mika’s rears blistering; Häkkinen said he still had ‘cards in his pocket’ and could have held him off a few more laps",
+            1
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Great Britain 2017 (RaceFans: Hamilton dominates at Silverstone as Ferrari’s fortunes deflate) ----
+def british_2017_items() -> List[Dict]:
+    S_ES = "Gran Premio de Gran Bretaña 2017"; S_EN = "2017 British Grand Prix"; L = []
+    pairs = [
+
+        # 1. RESUMEN GENERAL
+        (
+            "Resumen: ¿por qué la victoria de Hamilton en Silverstone supuso un golpe psicológico clave en la lucha por el título?",
+            [
+                "Porque dominó desde la pole, lideró todas las vueltas, y las dos explosiones de neumático de Ferrari redujeron la ventaja de Vettel a solo un punto justo antes del parón veraniego",
+                "Porque adelantó a Vettel y Raikkonen en pista con un coche inferior y remontó desde la décima posición",
+                "Porque Red Bull perdió a sus dos pilotos al inicio y Mercedes se encontró sin oposición estratégica",
+                "Porque el Safety Car le regaló una parada gratis que le permitió superar a Bottas por ritmo puro"
+            ],
+            "Porque dominó desde la pole, lideró todas las vueltas, y las dos explosiones de neumático de Ferrari redujeron la ventaja de Vettel a solo un punto justo antes del parón veraniego",
+            "Summary: why was Hamilton’s Silverstone win a psychological blow in the title fight?",
+            [
+                "Because he dominated from pole, led every lap, and Ferrari’s double tyre failures slashed Vettel’s championship lead to a single point before the summer break",
+                "Because he passed Vettel and Raikkonen on track with an inferior car after starting tenth",
+                "Because Red Bull lost both drivers early and Mercedes faced no strategic opposition",
+                "Because the Safety Car gifted him a free stop that let him beat Bottas on pure pace"
+            ],
+            "Because he dominated from pole, led every lap, and Ferrari’s double tyre failures slashed Vettel’s championship lead to a single point before the summer break",
+            3
+        ),
+
+        # 2. PALMER Y LA SALIDA ABORTADA
+        (
+            "¿Qué incidente con Jolyon Palmer provocó que se abortara la primera salida?",
+            [
+                "Un fallo hidráulico lo dejó detenido en la Hangar Straight durante la vuelta de formación, obligando a retirar su coche",
+                "Se saltó la salida y los comisarios decidieron reiniciar el procedimiento",
+                "Sufrió un pinchazo súbito que llenó la pista de restos de goma",
+                "Golpeó a un comisario al intentar calentar neumáticos, lo que obligó a detener todo"
+            ],
+            "Un fallo hidráulico lo dejó detenido en la Hangar Straight durante la vuelta de formación, obligando a retirar su coche",
+            "What incident involving Jolyon Palmer caused the start to be aborted?",
+            [
+                "A hydraulic leak caused him to stop on the Hangar Straight during the formation lap, forcing marshals to remove the car",
+                "He jumped the start and race control reset the start procedure",
+                "A sudden puncture scattered debris onto the track",
+                "He clipped a marshal while swerving to warm his tyres, forcing a full reset"
+            ],
+            "A hydraulic leak caused him to stop on the Hangar Straight during the formation lap, forcing marshals to remove the car",
+            2
+        ),
+
+        # 3. ACCIDENTE SAINZ–KVYAT
+        (
+            "¿Qué sucedió en el choque entre Sainz y Kvyat en Maggots y por qué se sancionó al ruso?",
+            [
+                "Kvyat se salió por fuera intentando aguantar por el exterior, rebotó contra la pista y chocó con Sainz; fue penalizado por reincorporación insegura",
+                "Sainz cambió dos veces de trayectoria, golpeó a Kvyat y por eso el ruso recibió dos puntos en su superlicencia por exceso de agresividad",
+                "Ambos se tocaron en Copse y Kvyat fue penalizado por adelantar con bandera amarilla",
+                "Kvyat frenó demasiado tarde en Abbey y embistió a Sainz sin posibilidad de evitar el impacto"
+            ],
+            "Kvyat se salió por fuera intentando aguantar por el exterior, rebotó contra la pista y chocó con Sainz; fue penalizado por reincorporación insegura",
+            "What happened in the Sainz–Kvyat collision at Maggots, and why was the Russian penalised?",
+            [
+                "Kvyat ran out of road trying to hang on around the outside, bounced back onto the track and hit Sainz; he was penalised for unsafe rejoin",
+                "Sainz weaved twice and hit Kvyat, who nonetheless was penalised for excessive aggression",
+                "They touched at Copse and Kvyat was penalised for overtaking under yellows",
+                "Kvyat braked far too late at Abbey and rammed Sainz with no chance to avoid him"
+            ],
+            "Kvyat ran out of road trying to hang on around the outside, bounced back onto the track and hit Sainz; he was penalised for unsafe rejoin",
+            1
+        ),
+
+        # 4. DUELO VERSTAPPEN–VETTEL
+        (
+            "¿Cómo defendió Verstappen su posición frente a Vettel en su lucha rueda a rueda?",
+            [
+                "Lo obligó a ir por el interior en Hangar Straight, aguantó por fuera, usó la escapatoria y cerró la puerta en Vale para mantener la posición hasta que Vettel hizo undercut",
+                "Le devolvió el adelantamiento en Copse con un divebomb arriesgado que casi los deja fuera",
+                "Bloqueó repetidamente con cambios de dirección múltiples que le valieron una advertencia",
+                "Frenó muy tarde en Abbey y Vettel tuvo que cortar la curva para evitar tocarlo"
+            ],
+            "Lo obligó a ir por el interior en Hangar Straight, aguantó por fuera, usó la escapatoria y cerró la puerta en Vale para mantener la posición hasta que Vettel hizo undercut",
+            "How did Verstappen defend against Vettel during their wheel-to-wheel fight?",
+            [
+                "He forced Vettel to try the inside into Hangar Straight, hung on around the outside, used the runoff and shut the door at Vale until Vettel undercut him",
+                "He repassed Vettel at Copse with a risky divebomb which nearly eliminated both",
+                "He weaved several times, earning a warning for excessive blocking",
+                "He braked extremely late at Abbey, forcing Vettel to cut the corner"
+            ],
+            "He forced Vettel to try the inside into Hangar Straight, hung on around the outside, used the runoff and shut the door at Vale until Vettel undercut him",
+            1
+        ),
+
+        # 5. ESTRATEGIA DE FERRARI CON VETTEL
+        (
+            "¿Cómo consiguió Vettel superar finalmente a Verstappen?",
+            [
+                "Mediante un undercut: paró antes, aprovechó aire limpio y un cambio lento en Red Bull",
+                "Gracias a un adelantamiento por fuera en Stowe apoyado en mejor tracción",
+                "Aprovechando un error de Verstappen en Village que le dejó sin velocidad",
+                "Con una estrategia a dos paradas que redujo el desgaste respecto a Red Bull"
+            ],
+            "Mediante un undercut: paró antes, aprovechó aire limpio y un cambio lento en Red Bull",
+            "How did Vettel eventually get ahead of Verstappen?",
+            [
+                "By undercutting him: he pitted earlier, gained clean air and cashed in on Red Bull’s slow left-rear change",
+                "By passing him around the outside at Stowe with superior traction",
+                "By capitalising on a Verstappen mistake at Village which ruined his exit",
+                "With a two-stop strategy that reduced tyre degradation relative to Red Bull"
+            ],
+            "By undercutting him: he pitted earlier, gained clean air and cashed in on Red Bull’s slow left-rear change",
+            1
+        ),
+
+        # 6. RECUPERACIÓN DE RICCIARDO
+        (
+            "¿Qué caracterizó la espectacular remontada de Ricciardo desde el fondo?",
+            [
+                "Tuvo que adelantar tres veces a Magnussen, pasó a casi toda la zona media y fue elegido ‘Driver of the Day’",
+                "Se benefició de dos Safety Cars consecutivos que lo colocaron directamente en los puntos",
+                "Recibió órdenes de equipo para que Verstappen le cediera la posición en varias fases",
+                "Hizo una estrategia de una sola parada con stint ultra largo en blandos"
+            ],
+            "Tuvo que adelantar tres veces a Magnussen, pasó a casi toda la zona media y fue elegido ‘Driver of the Day’",
+            "What defined Ricciardo’s spectacular recovery drive from the back?",
+            [
+                "He had to overtake Magnussen three times, carved through nearly the entire midfield and was voted Driver of the Day",
+                "He benefited from two consecutive Safety Cars that placed him straight into the points",
+                "He was repeatedly let through by Verstappen under team orders",
+                "He made a one-stop strategy with an ultra-long stint on softs work perfectly"
+            ],
+            "He had to overtake Magnussen three times, carved through nearly the entire midfield and was voted Driver of the Day",
+            1
+        ),
+
+        # 7. PODIO DE BOTTAS
+        (
+            "¿Cómo logró Bottas alcanzar el podio tras salir noveno?",
+            [
+                "Remontó con ritmo superior en blandos, pasó a Hulkenberg y Vettel, y usó el DRS en Hangar Straight para completar la maniobra decisiva",
+                "Gracias a un Safety Car tardío que comprimió el grupo y le dio una parada gratis",
+                "Porque Raikkonen y Vettel abandonaron y heredó posiciones sin adelantar",
+                "Porque Mercedes ordenó a Hamilton que le cediera su posición a mitad de carrera"
+            ],
+            "Remontó con ritmo superior en blandos, pasó a Hulkenberg y Vettel, y usó el DRS en Hangar Straight para completar la maniobra decisiva",
+            "How did Bottas reach the podium after starting ninth?",
+            [
+                "He climbed through the field on strong soft-tyre pace, passed Hulkenberg and Vettel, and used DRS on Hangar Straight to seal the decisive move",
+                "A late Safety Car bunched the pack and handed him a free stop",
+                "Raikkonen and Vettel retired, allowing him through without overtaking",
+                "Mercedes ordered Hamilton to give up his position mid-race"
+            ],
+            "He climbed through the field on strong soft-tyre pace, passed Hulkenberg and Vettel, and used DRS on Hangar Straight to seal the decisive move",
+            1
+        ),
+
+        # 8. FALLA DE RÄIKKÖNEN
+        (
+            "¿Qué le ocurrió a Raikkonen en las vueltas finales?",
+            [
+                "Sufrió una repentina deflación en la rueda delantera izquierda, tuvo que ir a boxes y perdió el segundo puesto asegurado",
+                "Se salió en Copse por un error y dañó el fondo plano, cayendo fuera del podio",
+                "Se encontró con tráfico de doblados que comprometió su ritmo y perdió posiciones",
+                "Un problema hidráulico le dejó sin cambios y obligó a abandonar"
+            ],
+            "Sufrió una repentina deflación en la rueda delantera izquierda, tuvo que ir a boxes y perdió el segundo puesto asegurado",
+            "What problem struck Raikkonen in the closing laps?",
+            [
+                "A sudden left-front tyre deflation forced him to pit, costing him a secure second place",
+                "He ran wide at Copse, damaging the floor and losing his podium",
+                "He hit backmarker traffic which compromised pace and made him drop positions",
+                "A hydraulic issue left him without gears and forced retirement"
+            ],
+            "A sudden left-front tyre deflation forced him to pit, costing him a secure second place",
+            1
+        ),
+
+        # 9. FALLA DE VETTEL
+        (
+            "¿Qué le sucedió a Vettel poco después y cómo afectó a su campeonato?",
+            [
+                "Tuvo una deflación aún más severa en la misma rueda, perdió más de un minuto y cayó al séptimo puesto, viendo reducida su ventaja a un solo punto",
+                "Sufrió un trompo por desgaste térmico y quedó fuera de los puntos",
+                "Una fuga hidráulica obligó a retirarlo cuando marchaba cuarto",
+                "Fue penalizado por ignorar banderas azules y perdió tres posiciones"
+            ],
+            "Tuvo una deflación aún más severa en la misma rueda, perdió más de un minuto y cayó al séptimo puesto, viendo reducida su ventaja a un solo punto",
+            "What happened to Vettel shortly afterwards, and how did it affect his championship?",
+            [
+                "He suffered an even worse left-front tyre failure, lost over a minute and fell to seventh, shrinking his lead to just one point",
+                "He spun due to thermal degradation and fell out of the points",
+                "A hydraulic leak forced retirement from fourth place",
+                "He was penalised for blue-flag infringement and dropped three places"
+            ],
+            "He suffered an even worse left-front tyre failure, lost over a minute and fell to seventh, shrinking his lead to just one point",
+            1
+        ),
+
+        # 10. HULKENBERG Y RENAULT
+        (
+            "¿Por qué el sexto puesto de Hulkenberg fue considerado una actuación sólida pero poco reconocida?",
+            [
+                "Porque mantuvo buen ritmo toda la carrera, solo perdió la posición ante Ricciardo al final, y Renault tuvo uno de sus mejores fines de semana del año",
+                "Porque ganó diez posiciones en pista pese a dos sanciones",
+                "Porque lideró varias vueltas antes de caer por estrategia arriesgada",
+                "Porque terminó cuarto en pista pero fue penalizado por un adelantamiento ilegal"
+            ],
+            "Porque mantuvo buen ritmo toda la carrera, solo perdió la posición ante Ricciardo al final, y Renault tuvo uno de sus mejores fines de semana del año",
+            "Why was Hulkenberg’s sixth place considered strong yet understated?",
+            [
+                "Because he maintained strong pace all race, only lost out to Ricciardo late on, and Renault enjoyed one of their best weekends of the season",
+                "Because he gained ten positions despite two penalties",
+                "Because he led several laps before dropping back on a risky strategy",
+                "Because he finished fourth on the road but was penalised for an illegal overtake"
+            ],
+            "Because he maintained strong pace all race, only lost out to Ricciardo late on, and Renault enjoyed one of their best weekends of the season",
+            1
+        ),
+
+        # 11. FORCE INDIA
+        (
+            "¿Cómo terminaron Ocon y Pérez pese a sus roces internos recientes?",
+            [
+                "Octavo y noveno, completando una carrera limpia y sin incidentes graves",
+                "Sexto y séptimo tras aplicar órdenes de equipo desde la vuelta 10",
+                "Ambos fuera por un choque mutuo en la curva 3",
+                "Décimo y undécimo después de dobles penalizaciones"
+            ],
+            "Octavo y noveno, completando una carrera limpia y sin incidentes graves",
+            "How did Ocon and Pérez finish despite their recent clashes?",
+            [
+                "Eighth and ninth, completing a clean race without major incidents",
+                "Sixth and seventh after early team orders",
+                "Both retired after colliding at turn three",
+                "Tenth and eleventh after double penalties for each"
+            ],
+            "Eighth and ninth, completing a clean race without major incidents",
+            1
+        ),
+
+        # 12. MENSAJE FINAL SOBRE EL CAMPEONATO
+        (
+            "¿Qué reflexión deja el artículo sobre cómo esta carrera podría influir en el resto del campeonato?",
+            [
+                "Que un golpe antes del ‘medio tiempo’ puede inclinar la balanza psicológica, y esta victoria podría impulsar a Hamilton hacia otro título",
+                "Que Ferrari pasó a tener ventaja clara y Mercedes debería centrarse solo en constructores",
+                "Que Red Bull emergió como favorito para la segunda mitad del año",
+                "Que los resultados demostraron que el título prácticamente estaba decidido"
+            ],
+            "Que un golpe antes del ‘medio tiempo’ puede inclinar la balanza psicológica, y esta victoria podría impulsar a Hamilton hacia otro título",
+            "What key reflection does the article make about how this race might shape the rest of the championship?",
+            [
+                "That scoring a blow before ‘half-time’ can tip momentum, and this win might carry Hamilton towards another title",
+                "That Ferrari now had a clear advantage and Mercedes should focus only on constructors",
+                "That Red Bull emerged as the clear favourite for the second half",
+                "That results showed the title was practically decided already"
+            ],
+            "That scoring a blow before ‘half-time’ can tip momentum, and this win might carry Hamilton towards another title",
+            1
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Germany 1997 (RaceFans: Berger takes final win in ‘a race I shouldn’t have done’) ----
+def german_1997_items() -> List[Dict]:
+    S_ES = "Gran Premio de Alemania 1997"; S_EN = "1997 German Grand Prix"; L = []
+    pairs = [
+
+        # 1. IMPORTANCIA DE LA VICTORIA
+        (
+            "Resumen: ¿por qué fue tan especial la victoria de Gerhard Berger en el GP de Alemania 1997?",
+            [
+                "Porque regresaba tras perderse tres carreras por problemas de salud y la muerte de su padre, y fue su última victoria y la última de Benetton",
+                "Porque ganó saliendo desde la mitad de la parrilla con lluvia intensa durante toda la carrera",
+                "Porque fue el primer doblete de Benetton desde 1995 y aseguró el título de constructores",
+                "Porque adelantó a Schumacher en la última vuelta tras un Safety Car tardío"
+            ],
+            "Porque regresaba tras perderse tres carreras por problemas de salud y la muerte de su padre, y fue su última victoria y la última de Benetton",
+            "Summary: why was Gerhard Berger’s win in the 1997 German GP so special?",
+            [
+                "Because he returned after missing three races due to illness and his father’s death, and it was both his last win and Benetton’s final victory",
+                "Because he won from the midfield in heavy rain that lasted the whole race",
+                "Because it was Benetton’s first 1–2 since 1995 and it sealed the constructors’ title",
+                "Because he passed Schumacher on the final lap after a late Safety Car"
+            ],
+            "Because he returned after missing three races due to illness and his father’s death, and it was both his last win and Benetton’s final victory",
+            3
+        ),
+
+        # 2. CONTEXTO PERSONAL DE BERGER
+        (
+            "¿Qué circunstancias personales y de salud había vivido Berger antes de volver en Hockenheim?",
+            [
+                "Se perdió tres carreras tras dos operaciones por una infección de los senos nasales y la muerte de su padre en un accidente de avioneta",
+                "Había sufrido una fractura de pierna en Canadá y llegaba aún convaleciente",
+                "Estuvo sancionado tres grandes premios por un incidente con Schumacher",
+                "Había cambiado de equipo a mitad de temporada y volvía a Benetton solo para esta carrera"
+            ],
+            "Se perdió tres carreras tras dos operaciones por una infección de los senos nasales y la muerte de su padre en un accidente de avioneta",
+            "What health and personal circumstances had Berger faced before his Hockenheim return?",
+            [
+                "He missed three races after two operations for a sinus infection and the death of his father in a light aircraft accident",
+                "He had broken his leg in Canada and arrived still on crutches",
+                "He had been banned for three races for an incident with Schumacher",
+                "He had switched teams mid-season and rejoined Benetton just for this race"
+            ],
+            "He missed three races after two operations for a sinus infection and the death of his father in a light aircraft accident",
+            2
+        ),
+
+        # 3. CLASIFICACIÓN: QUIÉN ACOMPAÑA A BERGER
+        (
+            "¿Quién acompañó a Berger en la primera fila de la parrilla y con qué equipo corría?",
+            [
+                "Giancarlo Fisichella con Jordan-Peugeot",
+                "Michael Schumacher con Ferrari",
+                "Mika Hakkinen con McLaren-Mercedes",
+                "Jean Alesi con Benetton-Renault"
+            ],
+            "Giancarlo Fisichella con Jordan-Peugeot",
+            "Who joined Berger on the front row of the grid, and for which team was he driving?",
+            [
+                "Giancarlo Fisichella for Jordan-Peugeot",
+                "Michael Schumacher for Ferrari",
+                "Mika Hakkinen for McLaren-Mercedes",
+                "Jean Alesi for Benetton-Renault"
+            ],
+            "Giancarlo Fisichella for Jordan-Peugeot",
+            2
+        ),
+
+        # 4. FUTURO DE FISICHELLA Y BENETTON
+        (
+            "¿Qué situación contractual particular rodeaba a Fisichella y Benetton antes del fin de semana?",
+            [
+                "Fisichella estaba cedido a Jordan, pero Benetton ya había anunciado que ejercía la opción para ficharlo en 1998",
+                "Fisichella estaba probando para Benetton y solo corría con Jordan en carreras europeas",
+                "Benetton había despedido a Fisichella y buscaba sustituirlo por Wurz de inmediato",
+                "Fisichella era piloto de pruebas de Benetton y solo hacía la clasificación con Jordan"
+            ],
+            "Fisichella estaba cedido a Jordan, pero Benetton ya había anunciado que ejercía la opción para ficharlo en 1998",
+            "What was the contractual situation between Fisichella and Benetton before the weekend?",
+            [
+                "Fisichella was on loan to Jordan, but Benetton had already announced they would exercise their option to sign him for 1998",
+                "Fisichella was testing for Benetton and only racing for Jordan at European rounds",
+                "Benetton had fired Fisichella and wanted Wurz to replace him immediately",
+                "Fisichella was Benetton’s test driver and only qualified the car for Jordan"
+            ],
+            "Fisichella was on loan to Jordan, but Benetton had already announced they would exercise their option to sign him for 1998",
+            2
+        ),
+
+        # 5. PROBLEMAS DE WILLIAMS
+        (
+            "¿Qué problemas tuvo Williams en la clasificación del GP de Alemania 1997?",
+            [
+                "Sufrieron subviraje en el Hockenheim antiguo y ni Villeneuve ni Frentzen estuvieron en la primera fila",
+                "Tuvieron fallos de motor en ambos coches y no pudieron marcar tiempos competitivos",
+                "Equivocaron la elección de neumáticos de lluvia y se quedaron fuera del 107%",
+                "Perdieron a sus dos pilotos por accidentes en el estadio y salieron desde el pit lane"
+            ],
+            "Sufrieron subviraje en el Hockenheim antiguo y ni Villeneuve ni Frentzen estuvieron en la primera fila",
+            "What problems did Williams encounter in qualifying for the 1997 German GP?",
+            [
+                "They struggled with understeer on the old Hockenheim layout and neither Villeneuve nor Frentzen reached the front row",
+                "Both cars suffered engine failures and couldn’t set competitive times",
+                "They chose wet tyres and failed to beat the 107% rule",
+                "Both drivers crashed in the stadium section and had to start from the pit lane"
+            ],
+            "They struggled with understeer on the old Hockenheim layout and neither Villeneuve nor Frentzen reached the front row",
+            2
+        ),
+
+        # 6. INCIDENTE FRENTZEN–IRVINE
+        (
+            "¿Qué ocurrió entre Heinz-Harald Frentzen y Eddie Irvine al inicio de la carrera?",
+            [
+                "Se tocaron a la salida de la primera curva, dañaron los neumáticos y ambos tuvieron que abandonar tras una vuelta lenta",
+                "Frentzen empujó a Irvine contra el muro en recta y fue descalificado",
+                "Irvine frenó tarde y sacó a Frentzen de pista en la chicane Ostkurve, pero los dos siguieron en carrera",
+                "Se tocaron en boxes al coincidir en la parada, rompiendo las suspensiones delanteras"
+            ],
+            "Se tocaron a la salida de la primera curva, dañaron los neumáticos y ambos tuvieron que abandonar tras una vuelta lenta",
+            "What happened between Heinz-Harald Frentzen and Eddie Irvine at the start?",
+            [
+                "They tangled exiting turn one, damaged their tyres and both retired after a slow tour back to the pits",
+                "Frentzen forced Irvine into the wall on the straight and was disqualified",
+                "Irvine outbraked himself and shoved Frentzen off at the Ostkurve chicane, but both continued",
+                "They collided in the pits during simultaneous stops, breaking their front suspensions"
+            ],
+            "They tangled exiting turn one, damaged their tyres and both retired after a slow tour back to the pits",
+            2
+        ),
+
+        # 7. ESTRATEGIA DE BERGER
+        (
+            "Desde el punto de vista estratégico, ¿cuál era la desventaja potencial del plan de carrera de Berger?",
+            [
+                "Hacía dos paradas, frente a la estrategia a una parada de varios rivales, y necesitaba salir del primer pit stop en aire limpio pero quedó detrás de Hakkinen",
+                "Usaba un compuesto de lluvia en una pista que se secaba rápidamente",
+                "Partía con menos combustible que el resto y fue obligado a hacer una parada extra de emergencia",
+                "Intentó hacer toda la carrera sin parar, confiando solo en el consumo bajo del Benetton"
+            ],
+            "Hacía dos paradas, frente a la estrategia a una parada de varios rivales, y necesitaba salir del primer pit stop en aire limpio pero quedó detrás de Hakkinen",
+            "Strategically, what was the main potential disadvantage of Berger’s race plan?",
+            [
+                "He was on a two-stop strategy while key rivals aimed for one stop, and he needed clear air after his first stop but rejoined behind Hakkinen",
+                "He started on wet tyres on a rapidly drying track",
+                "He ran with much less fuel than others and had to make an emergency extra stop",
+                "He tried to go non-stop to the flag, relying solely on low consumption"
+            ],
+            "He was on a two-stop strategy while key rivals aimed for one stop, and he needed clear air after his first stop but rejoined behind Hakkinen",
+            3
+        ),
+
+        # 8. CARRERA DE FISICHELLA
+        (
+            "¿Cómo se esfumaron las opciones de podio de Fisichella en la parte final de la prueba?",
+            [
+                "Sufrió un pinchazo en la rueda trasera izquierda cerca del estadio, trompeó intentando llegar a boxes y acabó abandonando poco después de montar neumáticos nuevos",
+                "Fue sancionado con un stop-and-go por adelantar con Safety Car",
+                "Se quedó sin combustible a dos vueltas del final por un error de cálculo",
+                "Sufrió un fallo de motor en plena recta principal cuando rodaba segundo"
+            ],
+            "Sufrió un pinchazo en la rueda trasera izquierda cerca del estadio, trompeó intentando llegar a boxes y acabó abandonando poco después de montar neumáticos nuevos",
+            "How did Fisichella’s podium chances vanish late in the race?",
+            [
+                "He suffered a left-rear tyre deflation near the stadium, spun trying to reach the pits, and retired shortly after fitting fresh tyres",
+                "He received a stop-and-go penalty for overtaking under Safety Car",
+                "He ran out of fuel with two laps to go due to a miscalculation",
+                "His engine failed on the main straight while he was running second"
+            ],
+            "He suffered a left-rear tyre deflation near the stadium, spun trying to reach the pits, and retired shortly after fitting fresh tyres",
+            2
+        ),
+
+        # 9. CARRERA DE VILLENEUVE
+        (
+            "¿Cómo fue la carrera de Jacques Villeneuve en Hockenheim según el artículo?",
+            [
+                "Pasó buena parte detrás de otros coches, cambió al coche de su compañero en la ‘spare car’ y acabó trompeando hacia la grava en la primera chicane",
+                "Lideró la primera mitad, pero una parada lenta lo relegó al quinto puesto final",
+                "Remontó desde el fondo de la parrilla hasta el podio gracias a la lluvia",
+                "Ganó la carrera tras adelantar a Berger cuando este tuvo problemas de frenos"
+            ],
+            "Pasó buena parte detrás de otros coches, cambió al coche de su compañero en la ‘spare car’ y acabó trompeando hacia la grava en la primera chicane",
+            "How did Jacques Villeneuve’s race unfold at Hockenheim according to the article?",
+            [
+                "He spent much of it bottled up behind rivals, switched to his team mate’s spare car, and eventually spun into the gravel at the first chicane",
+                "He led the first half but a slow stop dropped him to fifth at the flag",
+                "He charged from the back row to the podium thanks to rain",
+                "He won the race by passing Berger when the latter had brake trouble"
+            ],
+            "He spent much of it bottled up behind rivals, switched to his team mate’s spare car, and eventually spun into the gravel at the first chicane",
+            2
+        ),
+
+        # 10. PAPEL DE JOHNNY HERBERT
+        (
+            "¿Qué logró Johnny Herbert con el Sauber en este Gran Premio?",
+            [
+                "Convertir una estrategia a dos paradas, cuidando los neumáticos, en un podio inesperado, su mejor resultado de la temporada",
+                "Marcar la pole position con un motor Ferrari del año anterior",
+                "Liderar varias vueltas antes de abandonar por un fallo de suspensión",
+                "Terminar cuarto tras dejar pasar a su compañero por órdenes de equipo"
+            ],
+            "Convertir una estrategia a dos paradas, cuidando los neumáticos, en un podio inesperado, su mejor resultado de la temporada",
+            "What did Johnny Herbert achieve with Sauber in this Grand Prix?",
+            [
+                "He turned a tyre-nursing two-stop strategy into an unexpected podium, his best result of the season",
+                "He took pole position using a year-old Ferrari engine",
+                "He led several laps before retiring with a suspension failure",
+                "He finished fourth after moving aside for his team mate under orders"
+            ],
+            "He turned a tyre-nursing two-stop strategy into an unexpected podium, his best result of the season",
+            2
+        ),
+
+        # 11. IMPACTO EN EL CAMPEONATO
+        (
+            "¿Cómo afectó esta carrera al campeonato de 1997 según el artículo?",
+            [
+                "Schumacher aumentó en seis puntos su ventaja sobre Villeneuve, y la cancelación del GP de Portugal dejaba una carrera menos para que Jacques recortase",
+                "Villeneuve tomó el liderato por primera vez en la temporada gracias al abandono de Schumacher",
+                "La diferencia entre Schumacher y Villeneuve se mantuvo igual porque ninguno puntuó",
+                "Villeneuve recortó la ventaja a un punto gracias a su victoria en Alemania"
+            ],
+            "Schumacher aumentó en seis puntos su ventaja sobre Villeneuve, y la cancelación del GP de Portugal dejaba una carrera menos para que Jacques recortase",
+            "How did this race affect the 1997 championship according to the article?",
+            [
+                "Schumacher extended his lead over Villeneuve by six points, and the cancellation of the Portuguese GP meant one fewer chance for Jacques to catch up",
+                "Villeneuve took the points lead for the first time thanks to Schumacher’s retirement",
+                "The gap stayed the same because neither driver scored",
+                "Villeneuve cut the gap to a single point thanks to his win in Germany"
+            ],
+            "Schumacher extended his lead over Villeneuve by six points, and the cancellation of the Portuguese GP meant one fewer chance for Jacques to catch up",
+            3
+        ),
+
+        # 12. REFLEXIÓN DE BERGER
+        (
+            "Años después, ¿qué confesó Berger sobre su decisión de disputar esta carrera?",
+            [
+                "Que en realidad no debería haberla corrido, que acababa de salir del hospital y que Briatore intentó evitar que participara",
+                "Que había sido la carrera más fácil de su vida y siempre supo que ganaría",
+                "Que solo aceptó correr porque Benetton le prometió seguir en 1998",
+                "Que se arrepentía de no haber dejado ganar a Fisichella por gratitud"
+            ],
+            "Que en realidad no debería haberla corrido, que acababa de salir del hospital y que Briatore intentó evitar que participara",
+            "Years later, what did Berger admit about his decision to race at Hockenheim?",
+            [
+                "That he really shouldn’t have done the race, he had just come out of hospital and Briatore tried everything to stop him",
+                "That it was the easiest race of his life and he always knew he would win",
+                "That he only agreed to drive because Benetton promised him a 1998 seat",
+                "That he regretted not letting Fisichella win out of gratitude"
+            ],
+            "That he really shouldn’t have done the race, he had just come out of hospital and Briatore tried everything to stop him",
+            2
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Hungary 2017 (RaceFans: Vettel first, Raikkonen accepts second and Hamilton gives up third) ----
+def hungary_2017_items() -> List[Dict]:
+    S_ES = "Gran Premio de Hungría 2017"; S_EN = "2017 Hungarian Grand Prix"; L = []
+    pairs = [
+
+        # 1. ENFOQUE FERRARI vs MERCEDES
+        (
+            "Según el artículo, ¿qué contraste se vio entre Ferrari y Mercedes en Hungría 2017?",
+            [
+                "Ferrari priorizó claramente el título de Vettel frente a Raikkonen, mientras Mercedes fue equitativa entre Hamilton y Bottas",
+                "Ferrari dejó luchar libremente a sus pilotos y Mercedes aplicó órdenes estrictas a su favor",
+                "Ambos equipos aplicaron órdenes de equipo fuertes a favor de sus segundas espadas",
+                "Ferrari protegió a Raikkonen y sacrificó la carrera de Vettel para probar reglajes"
+            ],
+            "Ferrari priorizó claramente el título de Vettel frente a Raikkonen, mientras Mercedes fue equitativa entre Hamilton y Bottas",
+            "According to the article, what contrast was seen between Ferrari and Mercedes in Hungary 2017?",
+            [
+                "Ferrari clearly prioritised Vettel’s title bid over Raikkonen, while Mercedes treated Hamilton and Bottas evenly",
+                "Ferrari allowed their drivers to race freely and Mercedes imposed strict team orders in their favour",
+                "Both teams used strong team orders in favour of their second drivers",
+                "Ferrari protected Raikkonen and sacrificed Vettel’s race to test set-ups"
+            ],
+            "Ferrari clearly prioritised Vettel’s title bid over Raikkonen, while Mercedes treated Hamilton and Bottas evenly",
+            3
+        ),
+
+        # 2. INCIDENTE RED BULL EN LA SALIDA
+        (
+            "¿Qué ocurrió entre los Red Bull en las primeras vueltas de carrera?",
+            [
+                "Verstappen bloqueó una rueda y golpeó a Ricciardo en la curva 2, dañando irreversiblemente el coche de su compañero",
+                "Ricciardo sacó de pista a Verstappen en la curva 1 y fue sancionado con un drive-through",
+                "Ambos Red Bull se tocaron en boxes y tuvieron que abandonar en la misma vuelta",
+                "Verstappen y Ricciardo se saltaron la salida y recibieron un paso por boxes"
+            ],
+            "Verstappen bloqueó una rueda y golpeó a Ricciardo en la curva 2, dañando irreversiblemente el coche de su compañero",
+            "What happened between the Red Bull drivers in the opening laps?",
+            [
+                "Verstappen locked a wheel and hit Ricciardo at turn two, causing terminal damage to his team mate’s car",
+                "Ricciardo forced Verstappen off at turn one and was given a drive-through penalty",
+                "Both Red Bulls collided in the pits and had to retire on the same lap",
+                "Verstappen and Ricciardo jumped the start and received a drive-through"
+            ],
+            "Verstappen locked a wheel and hit Ricciardo at turn two, causing terminal damage to his team mate’s car",
+            2
+        ),
+
+        # 3. PROBLEMA DE DIRECCIÓN DE VETTEL
+        (
+            "¿Qué problema sufrió Sebastian Vettel durante gran parte de la carrera?",
+            [
+                "Un problema de dirección que hacía el coche difícil de manejar, especialmente en las secuencias de curvas enlazadas",
+                "Un fallo intermitente de motor que le dejaba sin potencia en las rectas",
+                "Un pedal de freno blando que le obligaba a hacer paradas extra",
+                "Un problema en el DRS que se quedaba abierto en las rectas"
+            ],
+            "Un problema de dirección que hacía el coche difícil de manejar, especialmente en las secuencias de curvas enlazadas",
+            "What problem did Sebastian Vettel suffer for much of the race?",
+            [
+                "A steering issue which made the car tricky to drive, especially through the linked corner sequences",
+                "An intermittent engine problem that left him down on power on the straights",
+                "A long-travel brake pedal which forced extra pit stops",
+                "A DRS fault that kept the flap open on the straights"
+            ],
+            "A steering issue which made the car tricky to drive, especially through the linked corner sequences",
+            2
+        ),
+
+        # 4. PAPEL DE RAIKKONEN
+        (
+            "¿Cuál fue el papel clave de Kimi Raikkonen en la victoria de Vettel según el texto?",
+            [
+                "Actuar como colchón entre Vettel y los Mercedes, conteniendo a Hamilton durante la segunda mitad de la carrera",
+                "Marcar todas las vueltas rápidas para obligar a Mercedes a parar más veces",
+                "Forzar un Safety Car con un trompo estratégico",
+                "Ceder la posición a Bottas para frenar a Verstappen"
+            ],
+            "Actuar como colchón entre Vettel y los Mercedes, conteniendo a Hamilton durante la segunda mitad de la carrera",
+            "What was Kimi Raikkonen’s key role in Vettel’s victory according to the article?",
+            [
+                "Acting as a buffer between Vettel and the Mercedes, holding Hamilton back in the second half of the race",
+                "Setting all the fastest laps to force Mercedes into extra stops",
+                "Triggering a Safety Car with a deliberate spin",
+                "Letting Bottas past in order to block Verstappen"
+            ],
+            "Acting as a buffer between Vettel and the Mercedes, holding Hamilton back in the second half of the race",
+            2
+        ),
+
+        # 5. ESTRATEGIA DE PARADAS FERRARI
+        (
+            "¿Cómo gestionó Ferrari las paradas en boxes entre Vettel y Raikkonen?",
+            [
+                "Hicieron parar primero a Vettel y llamaron a Raikkonen justo después, manteniendo el orden de equipo",
+                "Llamaron primero a Raikkonen para intentar el undercut sobre Vettel",
+                "Mantuvieron a Raikkonen fuera muchas vueltas para que intentara adelantar en pista",
+                "Pararon a ambos a la vez en una parada doble arriesgada"
+            ],
+            "Hicieron parar primero a Vettel y llamaron a Raikkonen justo después, manteniendo el orden de equipo",
+            "How did Ferrari handle the pit stops between Vettel and Raikkonen?",
+            [
+                "They pitted Vettel first and brought Raikkonen in immediately afterwards, preserving the team order",
+                "They called Raikkonen in first to try an undercut on Vettel",
+                "They left Raikkonen out for many extra laps to attack on track",
+                "They attempted a risky double-stack stop with both cars together"
+            ],
+            "They pitted Vettel first and brought Raikkonen in immediately afterwards, preserving the team order",
+            2
+        ),
+
+        # 6. PROBLEMAS DE RADIO DE HAMILTON
+        (
+            "¿Qué limitación tuvo Lewis Hamilton en su primera tanda debido a un problema técnico?",
+            [
+                "Problemas de radio que le impidieron comunicar a Mercedes que quería alargar su stint",
+                "Un fallo en el display del volante que ocultaba sus tiempos por vuelta",
+                "No funcionaba el limitador de velocidad en boxes y tuvo que entrar muy despacio",
+                "Un sensor de neumáticos roto que le obligaba a parar cada pocas vueltas"
+            ],
+            "Problemas de radio que le impidieron comunicar a Mercedes que quería alargar su stint",
+            "What limitation did Lewis Hamilton face in his first stint due to a technical problem?",
+            [
+                "Radio problems which meant he couldn’t tell Mercedes he wanted to extend his stint",
+                "A steering wheel display failure which hid his lap times",
+                "A broken pit-lane speed limiter, forcing him to crawl through the pits",
+                "A failed tyre sensor which forced him to pit every few laps"
+            ],
+            "Radio problems which meant he couldn’t tell Mercedes he wanted to extend his stint",
+            2
+        ),
+
+        # 7. ACUERDO ENTRE MERCEDES Y HAMILTON
+        (
+            "¿En qué condiciones permitió Mercedes que Hamilton adelantara a Bottas?",
+            [
+                "Con el acuerdo de que si no lograba pasar a los Ferrari debería devolver la posición a Bottas",
+                "Solo si Hamilton prometía no usar el modo de motor más agresivo",
+                "A cambio de que Bottas se quedara fuera con neumáticos viejos hasta el final",
+                "Con la condición de que Hamilton hiciera una parada extra para proteger a Bottas"
+            ],
+            "Con el acuerdo de que si no lograba pasar a los Ferrari debería devolver la posición a Bottas",
+            "Under what condition did Mercedes allow Hamilton to overtake Bottas?",
+            [
+                "On the understanding that if he couldn’t pass the Ferraris he would give the place back to Bottas",
+                "Only if Hamilton agreed not to use the most aggressive engine mode",
+                "In exchange for Bottas staying out on old tyres until the end",
+                "On condition that Hamilton made an extra stop to protect Bottas"
+            ],
+            "On the understanding that if he couldn’t pass the Ferraris he would give the place back to Bottas",
+            3
+        ),
+
+        # 8. GESTO DEPORTIVO FINAL
+        (
+            "¿Cómo cumplió Hamilton su promesa con Bottas en la última vuelta?",
+            [
+                "Redujo su ritmo de forma drástica y le devolvió el tercer puesto en la última curva, manteniendo al mismo tiempo a Verstappen detrás",
+                "Le dejó pasar en plena recta principal activando el limitador de velocidad",
+                "Entró a boxes para ceder la posición sin arriesgar un adelantamiento en pista",
+                "Se salió de pista deliberadamente dejando que Bottas y Verstappen lo superaran"
+            ],
+            "Redujo su ritmo de forma drástica y le devolvió el tercer puesto en la última curva, manteniendo al mismo tiempo a Verstappen detrás",
+            "How did Hamilton honour his promise to Bottas on the final lap?",
+            [
+                "He backed off dramatically and handed third place back at the final corner, while still keeping Verstappen behind",
+                "He let Bottas through on the main straight by switching on the pit limiter",
+                "He pitted to give the place away without risking an on-track pass",
+                "He deliberately ran off the track, allowing both Bottas and Verstappen through"
+            ],
+            "He backed off dramatically and handed third place back at the final corner, while still keeping Verstappen behind",
+            3
+        ),
+
+        # 9. PAPEL DE ALONSO
+        (
+            "¿Qué logró Fernando Alonso en este Gran Premio según el artículo?",
+            [
+                "Ser ‘mejor del resto’ con un séptimo coche en parrilla, terminar sexto y adelantar a Sainz por el exterior de la curva 2 tras las paradas",
+                "Liderar varias vueltas gracias a una estrategia sin paradas",
+                "Subir al podio gracias a un Safety Car tardío",
+                "Marcar la pole position con el McLaren"
+            ],
+            "Ser ‘mejor del resto’ con un séptimo coche en parrilla, terminar sexto y adelantar a Sainz por el exterior de la curva 2 tras las paradas",
+            "What did Fernando Alonso achieve in this Grand Prix according to the article?",
+            [
+                "He was ‘best of the rest’, finishing sixth and passing Sainz around the outside of turn two after the pit stops",
+                "He led several laps thanks to a no-stop strategy",
+                "He reached the podium due to a late Safety Car",
+                "He took pole position in the McLaren"
+            ],
+            "He was ‘best of the rest’, finishing sixth and passing Sainz around the outside of turn two after the pit stops",
+            2
+        ),
+
+        # 10. PAPEL DE STOFFEL VANDOORNE
+        (
+            "¿Qué hito logró Stoffel Vandoorne en Hungría 2017?",
+            [
+                "Consiguió su primer punto de la temporada al terminar décimo, justo detrás de Ocon",
+                "Hizo la vuelta rápida de carrera pese a no puntuar",
+                "Salvó un podio para McLaren tras la retirada de Alonso",
+                "Sumó puntos por primera vez en F1 al acabar tercero"
+            ],
+            "Consiguió su primer punto de la temporada al terminar décimo, justo detrás de Ocon",
+            "What milestone did Stoffel Vandoorne reach in Hungary 2017?",
+            [
+                "He scored his first point of the season by finishing tenth, right on Ocon’s tail",
+                "He set the fastest lap of the race despite not scoring",
+                "He salvaged a podium for McLaren after Alonso retired",
+                "He scored his first ever F1 points by finishing third"
+            ],
+            "He scored his first point of the season by finishing tenth, right on Ocon’s tail",
+            1
+        ),
+
+        # 11. SUSTITUTO DE MASSA
+        (
+            "¿Quién sustituyó a Felipe Massa ese fin de semana y por qué no fue clasificado al final de la carrera?",
+            [
+                "Paul di Resta, que se retiró por una caída de presión de aceite y no completó la distancia suficiente para ser clasificado",
+                "Lance Stroll, que abandonó por un problema de frenos en la vuelta de formación",
+                "Pascal Wehrlein, sancionado por exceder los límites de combustible",
+                "Sergey Sirotkin, descalificado por irregularidades en el fondo plano"
+            ],
+            "Paul di Resta, que se retiró por una caída de presión de aceite y no completó la distancia suficiente para ser clasificado",
+            "Who stood in for Felipe Massa that weekend and why wasn’t he classified at the end?",
+            [
+                "Paul di Resta, who retired with an oil pressure drop and hadn’t covered enough distance to be classified",
+                "Lance Stroll, who retired with brake problems on the formation lap",
+                "Pascal Wehrlein, who was penalised for exceeding the fuel limit",
+                "Sergey Sirotkin, who was disqualified for a floor legality issue"
+            ],
+            "Paul di Resta, who retired with an oil pressure drop and hadn’t covered enough distance to be classified",
+            2
+        ),
+
+        # 12. EFECTO EN EL CAMPEONATO
+        (
+            "¿Cómo afectó el resultado de Hungría 2017 a la lucha por el título entre Vettel y Hamilton según el artículo?",
+            [
+                "Vettel amplió su ventaja y, al devolver Hamilton el podio a Bottas, el británico le regaló además tres puntos extra en esa pelea",
+                "Hamilton tomó el liderato del campeonato por primera vez en la temporada",
+                "La diferencia se mantuvo igual porque ambos abandonaron",
+                "Vettel recortó la desventaja a un solo punto gracias al sacrificio de Hamilton"
+            ],
+            "Vettel amplió su ventaja y, al devolver Hamilton el podio a Bottas, el británico le regaló además tres puntos extra en esa pelea",
+            "How did the Hungary 2017 result affect the Vettel-Hamilton title fight according to the article?",
+            [
+                "Vettel extended his lead, and by handing the podium back to Bottas Hamilton effectively gifted him an extra three points in the battle",
+                "Hamilton took the championship lead for the first time that year",
+                "The gap stayed the same because both retired",
+                "Vettel cut the deficit to a single point thanks to Hamilton’s sacrifice"
+            ],
+            "Vettel extended his lead, and by handing the podium back to Bottas Hamilton effectively gifted him an extra three points in the battle",
+            3
+        ),
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Hungary 1997 (RaceFans: Last-lap heartbreak for Hill and Arrows as Villeneuve snatches win) ----
+def hungary_1997_items() -> List[Dict]:
+    S_ES = "Gran Premio de Hungría 1997"; S_EN = "1997 Hungarian Grand Prix"; L = []
+    pairs = [
+
+        # 1. SORPRESA DE CLASIFICACIÓN
+        (
+            "¿Por qué fue tan llamativa la actuación de Damon Hill en la clasificación del GP de Hungría 1997?",
+            [
+                "Porque colocó el Arrows-Yamaha tercero en parrilla en un circuito que neutralizaba su déficit de potencia",
+                "Porque hizo la pole con más de un segundo de ventaja sobre Schumacher y Villeneuve",
+                "Porque fue el único piloto con neumáticos Goodyear en el top 10",
+                "Porque salió último y remontó hasta la primera fila en la sesión de clasificación al sprint"
+            ],
+            "Porque colocó el Arrows-Yamaha tercero en parrilla en un circuito que neutralizaba su déficit de potencia",
+            "Why was Damon Hill’s qualifying performance at the 1997 Hungarian GP so remarkable?",
+            [
+                "Because he put the Arrows-Yamaha third on the grid at a track which neutralised its power deficit",
+                "Because he took pole position by over a second from Schumacher and Villeneuve",
+                "Because he was the only Goodyear-shod driver inside the top ten",
+                "Because he started last and climbed to the front row in a qualifying sprint session"
+            ],
+            "Because he put the Arrows-Yamaha third on the grid at a track which neutralised its power deficit",
+            2
+        ),
+
+        # 2. ELECCIÓN DE NEUMÁTICOS
+        (
+            "¿Qué dilema de neumáticos afrontaron los pilotos de Goodyear antes de la carrera?",
+            [
+                "Elegir entre un compuesto blando rápido pero propenso al blistering y uno duro más consistente",
+                "Decidir si usar neumáticos de lluvia extrema o intermedios en una pista totalmente seca",
+                "Elegir entre compuestos experimentales de calificación que solo duraban una vuelta",
+                "Decidir si montar neumáticos Bridgestone en el eje delantero y Goodyear en el trasero"
+            ],
+            "Elegir entre un compuesto blando rápido pero propenso al blistering y uno duro más consistente",
+            "What tyre dilemma did the Goodyear runners face before the race?",
+            [
+                "Choosing between a fast soft compound prone to blistering and a harder but more consistent option",
+                "Deciding whether to use full wets or intermediates on a completely dry track",
+                "Choosing experimental qualifying tyres which only lasted one lap",
+                "Deciding whether to run Bridgestones on the front axle and Goodyears on the rear"
+            ],
+            "Choosing between a fast soft compound prone to blistering and a harder but more consistent option",
+            2
+        ),
+
+        # 3. APUESTA DE FRENTZEN
+        (
+            "¿Qué decisión estratégica tomó Heinz-Harald Frentzen respecto a los neumáticos y cómo parecía afectarle en carrera?",
+            [
+                "Eligió el compuesto duro de Goodyear y su ritmo constante le ponía en posición de disputar la victoria",
+                "Montó neumáticos de lluvia esperando un chaparrón que nunca llegó",
+                "Salió con neumáticos usados para ahorrar juegos nuevos para futuras carreras",
+                "Eligió el compuesto más blando solo para la salida y entró en boxes al final de la primera vuelta"
+            ],
+            "Eligió el compuesto duro de Goodyear y su ritmo constante le ponía en posición de disputar la victoria",
+            "What strategic tyre choice did Heinz-Harald Frentzen make, and how did it seem to affect his race?",
+            [
+                "He chose the hard Goodyear compound and his consistent pace put him in contention to fight for the win",
+                "He started on wet tyres gambling on rain which never arrived",
+                "He ran used tyres on purpose to save fresh sets for later races",
+                "He selected the softest compound only for the start and pitted on lap one"
+            ],
+            "He chose the hard Goodyear compound and his consistent pace put him in contention to fight for the win",
+            2
+        ),
+
+        # 4. ADELANTAMIENTO CLAVE POR EL LIDERATO
+        (
+            "¿Cómo describió Damon Hill el adelantamiento a Michael Schumacher por el liderato?",
+            [
+                "Dijo que pudo pasarlo con relativa facilidad en la curva 1 cuando las gomas del Ferrari ya estaban muy blisteradas",
+                "Comentó que fue un movimiento desesperado desde muy lejos que casi termina en choque",
+                "Reconoció que solo le adelantó gracias a una orden de equipo de Ferrari",
+                "Explicó que Schumacher se salió de pista solo y él heredó la posición sin intentarlo"
+            ],
+            "Dijo que pudo pasarlo con relativa facilidad en la curva 1 cuando las gomas del Ferrari ya estaban muy blisteradas",
+            "How did Damon Hill describe his pass on Michael Schumacher for the lead?",
+            [
+                "He said he was able to pass him fairly easily into turn one once the Ferrari’s tyres were badly blistered",
+                "He admitted it was a desperate lunge from way back that almost ended in a crash",
+                "He acknowledged he only got ahead thanks to a Ferrari team order",
+                "He explained that Schumacher went off on his own and he inherited the place without trying"
+            ],
+            "He said he was able to pass him fairly easily into turn one once the Ferrari’s tyres were badly blistered",
+            2
+        ),
+
+        # 5. FRUSTRACIÓN DE FRENTZEN
+        (
+            "¿Qué fue lo que arruinó la carrera de Frentzen cuando estaba en buena posición estratégica?",
+            [
+                "Una avería en la válvula de repostaje que impedía reabastecer el coche",
+                "Un error de pilotaje al doblar a un rezagado que lo mandó a la grava",
+                "Una sanción por exceso de velocidad en el pit-lane",
+                "Una colisión con su compañero Villeneuve en la salida de boxes"
+            ],
+            "Una avería en la válvula de repostaje que impedía reabastecer el coche",
+            "What ruined Frentzen’s race when he was in a strong strategic position?",
+            [
+                "A refuelling valve failure which meant the team couldn’t put fuel into the car",
+                "A driving error while lapping a backmarker which put him in the gravel",
+                "A penalty for speeding in the pit lane",
+                "A collision with his team mate Villeneuve at the pit exit"
+            ],
+            "A refuelling valve failure which meant the team couldn’t put fuel into the car",
+            2
+        ),
+
+        # 6. ESTRATEGIA DE HERBERT
+        (
+            "¿Cómo consiguió Johnny Herbert situarse en posición de podio?",
+            [
+                "Gestionó mejor sus neumáticos Goodyear y alargó su stint para hacer funcionar una estrategia a dos paradas",
+                "Apostó por una estrategia sin paradas y se benefició de varios Safety Car",
+                "Ganó posiciones importantes adelantando a Hill y Villeneuve en pista al final",
+                "Fue el único piloto en montar neumáticos de lluvia al inicio y sacó ventaja"
+            ],
+            "Gestionó mejor sus neumáticos Goodyear y alargó su stint para hacer funcionar una estrategia a dos paradas",
+            "How did Johnny Herbert get himself into podium contention?",
+            [
+                "He nursed his Goodyear tyres and stretched his stint to make a two-stop strategy work",
+                "He gambled on a no-stop strategy and benefited from several Safety Cars",
+                "He gained key positions by overtaking both Hill and Villeneuve on track in the closing laps",
+                "He was the only driver to start on wet tyres and built an early advantage"
+            ],
+            "He nursed his Goodyear tyres and stretched his stint to make a two-stop strategy work",
+            2
+        ),
+
+        # 7. PROBLEMA MECÁNICO DE HILL
+        (
+            "¿Qué fallo técnico provocó que Hill perdiera gran parte de su ventaja en las últimas vueltas?",
+            [
+                "Un problema hidráulico que afectó al acelerador y al cambio, dejándole a veces atascado en segunda o tercera",
+                "Un pinchazo lento en las cuatro ruedas que le obligó a entrar a boxes",
+                "Un fallo en el sistema de combustible que apagó el motor varias veces en la recta principal",
+                "La rotura del alerón delantero tras tocarse con Villeneuve"
+            ],
+            "Un problema hidráulico que afectó al acelerador y al cambio, dejándole a veces atascado en segunda o tercera",
+            "What technical failure caused Hill to lose most of his lead in the closing laps?",
+            [
+                "A hydraulic problem affecting both the throttle and the gearbox, sometimes leaving him stuck in second or third",
+                "A slow puncture on all four tyres which forced him to pit",
+                "A fuel system fault which repeatedly cut the engine on the main straight",
+                "A broken front wing after contact with Villeneuve"
+            ],
+            "A hydraulic problem affecting both the throttle and the gearbox, sometimes leaving him stuck in second or third",
+            2
+        ),
+
+        # 8. ÚLTIMA VUELTA ENTRE VILLENEUVE Y HILL
+        (
+            "¿Cómo describió Villeneuve el adelantamiento final a Hill en la última vuelta?",
+            [
+                "Dijo que no iba a levantar el pie aunque Hill se moviera, y llegó a pisar la hierba cuando Damon cambió de trayectoria",
+                "Comentó que fue un adelantamiento sencillo porque Hill se apartó voluntariamente",
+                "Explicó que esperó una orden de equipo para que Hill le cediera la posición",
+                "Reconoció que solo le adelantó gracias a un error de Hill al salir de boxes"
+            ],
+            "Dijo que no iba a levantar el pie aunque Hill se moviera, y llegó a pisar la hierba cuando Damon cambió de trayectoria",
+            "How did Villeneuve describe his final-lap pass on Hill?",
+            [
+                "He said he wasn’t going to lift even when Hill moved across, and he ended up putting wheels on the grass",
+                "He commented that it was an easy pass because Hill pulled over for him voluntarily",
+                "He explained he waited for a team order instructing Hill to let him by",
+                "He admitted he only got ahead because Hill made a mistake exiting the pits"
+            ],
+            "He said he wasn’t going to lift even when Hill moved across, and he ended up putting wheels on the grass",
+            2
+        ),
+
+        # 9. REACCIÓN DE HILL A SU SEGUNDO PUESTO
+        (
+            "A pesar de perder una victoria casi segura, ¿cómo valoró Hill finalmente su resultado?",
+            [
+                "Se mostró sorprendido de haber podido acabar segundo y dijo estar contento de haber llegado a meta",
+                "Afirmó que el segundo puesto era inaceptable y que el equipo había arruinado su carrera",
+                "Pidió públicamente que se le devolviera la victoria en los despachos",
+                "Comentó que prefería haber abandonado antes que terminar segundo"
+            ],
+            "Se mostró sorprendido de haber podido acabar segundo y dijo estar contento de haber llegado a meta",
+            "Despite losing what looked like a certain win, how did Hill ultimately view his result?",
+            [
+                "He said he was amazed to have finished second at all and was pleased just to reach the flag",
+                "He stated that second place was unacceptable and the team had ruined his race",
+                "He publicly demanded that the victory be handed back to him in the stewards’ room",
+                "He commented that he would rather have retired than finish second"
+            ],
+            "He said he was amazed to have finished second at all and was pleased just to reach the flag",
+            2
+        ),
+
+        # 10. INCIDENTE NAKANO–IRVINE
+        (
+            "¿Qué suceso permitió a Shinji Nakano llevarse el último punto en Hungría 1997?",
+            [
+                "Un toque con Eddie Irvine en las últimas vueltas que sacó al Ferrari de pista y dejó sexto al Prost",
+                "Una sanción de 10 segundos a Herbert que lo relegó detrás del japonés",
+                "La retirada de Villeneuve a pocas vueltas del final por un fallo de motor",
+                "El abandono simultáneo de los dos Jordan por problemas hidráulicos"
+            ],
+            "Un toque con Eddie Irvine en las últimas vueltas que sacó al Ferrari de pista y dejó sexto al Prost",
+            "What incident allowed Shinji Nakano to grab the final point in Hungary 1997?",
+            [
+                "A clash with Eddie Irvine in the closing laps which put the Ferrari out and left the Prost in sixth",
+                "A ten-second penalty for Herbert which dropped him behind the Japanese driver",
+                "Villeneuve’s late retirement with an engine failure",
+                "The simultaneous retirement of both Jordans with hydraulic problems"
+            ],
+            "A clash with Eddie Irvine in the closing laps which put the Ferrari out and left the Prost in sixth",
+            2
+        ),
+
+        # 11. IMPACTO EN EL CAMPEONATO
+        (
+            "En términos de campeonato, ¿qué supuso este resultado para Villeneuve frente a Schumacher?",
+            [
+                "Le otorgó un ‘bonus’ de cuatro puntos extra respecto a lo que habría sumado de haber ganado Hill",
+                "Permitió que Schumacher ampliara su ventaja hasta más de 20 puntos",
+                "Mantuvo la diferencia intacta porque ambos quedaron fuera de los puntos",
+                "Selló matemáticamente el título a favor de Villeneuve"
+            ],
+            "Le otorgó un ‘bonus’ de cuatro puntos extra respecto a lo que habría sumado de haber ganado Hill",
+            "In championship terms, what did this result mean for Villeneuve versus Schumacher?",
+            [
+                "It gave him a four-point ‘bonus’ compared to what he’d have scored if Hill had won",
+                "It allowed Schumacher to extend his lead to over 20 points",
+                "It left the gap unchanged because both finished outside the points",
+                "It mathematically sealed the title in Villeneuve’s favour"
+            ],
+            "It gave him a four-point ‘bonus’ compared to what he’d have scored if Hill had won",
+            2
+        ),
+
+        # 12. CONTEXTO HISTÓRICO DE LA VICTORIA
+        (
+            "¿Por qué se considera esta carrera una de las grandes ‘victorias perdidas’ de la historia de la F1?",
+            [
+                "Porque un Arrows modesto, pilotado por el vigente campeón del mundo, estuvo a una vuelta de ganar dominando casi toda la prueba",
+                "Porque era la última carrera de la temporada y decidió el título por descalificación técnica",
+                "Porque todos los grandes favoritos abandonaron y ganó un piloto invitado",
+                "Porque fue la única vez que se repartieron puntos dobles sin previo aviso"
+            ],
+            "Porque un Arrows modesto, pilotado por el vigente campeón del mundo, estuvo a una vuelta de ganar dominando casi toda la prueba",
+            "Why is this race regarded as one of F1’s great ‘lost victories’?",
+            [
+                "Because a modest Arrows, driven by the reigning world champion, was one lap away from winning after leading almost the entire race",
+                "Because it was the last race of the season and the title was decided by a technical disqualification",
+                "Because all the main favourites retired and a guest driver took the win",
+                "Because it was the only time double points were awarded without prior notice"
+            ],
+            "Because a modest Arrows, driven by the reigning world champion, was one lap away from winning after leading almost the entire race",
+            1
+        ),
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Belgium 1997 (RaceFans: Schumacher capitalises as Williams get it wrong in the rain again) ----
+def belgium_1997_items() -> List[Dict]:
+    S_ES = "Gran Premio de Bélgica 1997"; S_EN = "1997 Belgian Grand Prix"; L = []
+    pairs = [
+
+        # 1. ERROR DE WILLIAMS EN LA ELECCIÓN DE NEUMÁTICOS
+        (
+            "¿Cuál fue el principal error estratégico de Williams al inicio del GP de Bélgica 1997?",
+            [
+                "Montaron neumáticos de lluvia extrema en un momento en que la pista ya se estaba secando, perdiendo tiempo desde la primera vuelta lanzada",
+                "Eligieron salir con slicks cuando estaba lloviendo intensamente",
+                "Pidieron a Villeneuve entrar a boxes antes del inicio para cambiar al compuesto duro",
+                "Pusieron intermedios en sus dos coches cuando todos los demás montaron lluvia extrema"
+            ],
+            "Montaron neumáticos de lluvia extrema en un momento en que la pista ya se estaba secando, perdiendo tiempo desde la primera vuelta lanzada",
+            "What was Williams’ main strategic mistake at the start of the 1997 Belgian GP?",
+            [
+                "They started on full wet tyres while the track was already drying, losing time from the first racing lap",
+                "They chose slicks despite heavy rain",
+                "They called Villeneuve in before the start to fit hard tyres",
+                "They fitted intermediates while everyone else took full wets"
+            ],
+            "They started on full wet tyres while the track was already drying, losing time from the first racing lap",
+            2
+        ),
+
+        # 2. DECISIÓN DE SCHUMACHER EN LA PARRILLA
+        (
+            "¿Qué ventaja clave tuvo Michael Schumacher antes de la salida?",
+            [
+                "Pudo elegir su coche de reserva con reglajes mixtos seco/mojado, adecuados para las condiciones cambiantes",
+                "Ferrari había homologado un motor especial solo para esta carrera",
+                "Tuvo un neumático experimental que le daba dos segundos por vuelta",
+                "La FIA le permitió salir desde la pole a pesar de haber clasificado tercero"
+            ],
+            "Pudo elegir su coche de reserva con reglajes mixtos seco/mojado, adecuados para las condiciones cambiantes",
+            "What key advantage did Michael Schumacher have before the start?",
+            [
+                "He could choose his spare car, which had a mixed wet/dry setup perfect for the changing conditions",
+                "Ferrari had homologated a special engine for this race",
+                "He had an experimental tyre worth two seconds per lap",
+                "The FIA allowed him to start from pole despite qualifying third"
+            ],
+            "He could choose his spare car, which had a mixed wet/dry setup perfect for the changing conditions",
+            2
+        ),
+
+        # 3. PRIMER ADELANTAMIENTO DE SCHUMACHER
+        (
+            "¿Cómo describió Schumacher su adelantamiento sobre Alesi al inicio de la carrera?",
+            [
+                "Dijo que fue muy ajustado y que si Alesi no se movía habría habido contacto",
+                "Afirmó que fue completamente fácil porque Alesi se apartó voluntariamente",
+                "Comentó que Alesi no lo vio venir y casi chocan en plena recta",
+                "Explicó que aprovechó un error de Alesi en La Source"
+            ],
+            "Dijo que fue muy ajustado y que si Alesi no se movía habría habido contacto",
+            "How did Schumacher describe his early overtake on Alesi?",
+            [
+                "He said it was very tight and that if Alesi hadn’t moved, they would have touched",
+                "He stated that it was easy because Alesi pulled over on purpose",
+                "He noted that Alesi didn’t see him and they nearly collided on the straight",
+                "He explained he capitalised on a mistake from Alesi at La Source"
+            ],
+            "He said it was very tight and that if Alesi hadn’t moved, they would have touched",
+            2
+        ),
+
+        # 4. DOMINIO DE SCHUMACHER
+        (
+            "Tras adelantar a Alesi y Villeneuve, ¿qué ritmo mostró Schumacher?",
+            [
+                "Llegó a marcar hasta siete segundos por vuelta más rápido que sus perseguidores",
+                "Rodó conservando neumáticos sin necesidad de empujar",
+                "Perdió ritmo porque su motor no estaba a temperatura óptima",
+                "Fue más lento en lluvia que Villeneuve pero más rápido en seco"
+            ],
+            "Llegó a marcar hasta siete segundos por vuelta más rápido que sus perseguidores",
+            "After passing Alesi and Villeneuve, what pace did Schumacher show?",
+            [
+                "He was up to seven seconds per lap faster than the drivers behind him",
+                "He mainly conserved tyres and didn’t need to push",
+                "He struggled for pace until his engine reached optimal temperature",
+                "He was slower than Villeneuve in the wet but faster in the dry"
+            ],
+            "He was up to seven seconds per lap faster than the drivers behind him",
+            2
+        ),
+
+        # 5. DESASTRE ESTRATÉGICO DE VILLENEUVE
+        (
+            "¿Qué secuencia de decisiones equivocadas hundió la carrera de Villeneuve?",
+            [
+                "Montó lluvia extrema, luego intermedios demasiado pronto y finalmente slicks, perdiendo más de minuto y medio",
+                "Intentó no parar en toda la carrera, arruinando sus neumáticos",
+                "Pidió neumáticos duros en mojado y luego volvió a parar para lluvia extrema",
+                "Se negó a entrar a boxes durante un Safety Car crítico"
+            ],
+            "Montó lluvia extrema, luego intermedios demasiado pronto y finalmente slicks, perdiendo más de minuto y medio",
+            "Which sequence of bad decisions ruined Villeneuve’s race?",
+            [
+                "Full wets, then intermediates too early, then slicks—losing over a minute and a half",
+                "Trying to complete the race with no pit stops",
+                "Choosing hard tyres in the wet before switching again to full wets",
+                "Refusing to pit during a crucial Safety Car"
+            ],
+            "Full wets, then intermediates too early, then slicks—losing over a minute and a half",
+            2
+        ),
+
+        # 6. ERROR BAJO SAFETY CAR — HAKKINEN
+        (
+            "¿Qué infracción cometió Hakkinen bajo Safety Car?",
+            [
+                "Recuperó posiciones adelantando a varios coches mientras aún estaba el Safety Car en pista",
+                "Excedió el límite de velocidad de 80 km/h",
+                "Se saltó la salida lanzada y tuvo que repetirla",
+                "Puso slicks cuando la FIA había ordenado lluvia extrema"
+            ],
+            "Recuperó posiciones adelantando a varios coches mientras aún estaba el Safety Car en pista",
+            "What violation did Hakkinen commit under the Safety Car?",
+            [
+                "He regained positions by overtaking several cars while the Safety Car was still deployed",
+                "He exceeded the 80 km/h limit",
+                "He jumped the rolling start procedure",
+                "He fitted slicks when the FIA required full wets"
+            ],
+            "He regained positions by overtaking several cars while the Safety Car was still deployed",
+            2
+        ),
+
+        # 7. DESTACADO DE FISICHELLA
+        (
+            "¿Cómo logró Fisichella situarse en posiciones de podio?",
+            [
+                "Eligió intermedios desde el inicio, apropiados para la pista que se secaba rápidamente",
+                "Hizo una estrategia de una sola parada en comparación con las dos de sus rivales",
+                "Aprovechó un trompo de Schumacher y un problema hidráulico de Alesi",
+                "Fue el único que no montó slicks en ningún momento"
+            ],
+            "Eligió intermedios desde el inicio, apropiados para la pista que se secaba rápidamente",
+            "How did Fisichella get himself into podium contention?",
+            [
+                "By choosing intermediates from the start, perfect for a rapidly drying track",
+                "By using a one-stop strategy while rivals stopped twice",
+                "By capitalising on spins from Schumacher and hydraulic issues for Alesi",
+                "He was the only driver who never fitted slicks"
+            ],
+            "By choosing intermediates from the start, perfect for a rapidly drying track",
+            1
+        ),
+
+        # 8. ABANDONO DE COULTHARD
+        (
+            "¿Por qué abandonó David Coulthard?",
+            [
+                "Sufrió un trompo al pisar una zona mojada fuera de la trazada seca",
+                "Rompió el motor al adelantar a Herbert",
+                "Se quedó sin frenos entrando al Bus Stop",
+                "Perdió una rueda tras un pit stop defectuoso"
+            ],
+            "Sufrió un trompo al pisar una zona mojada fuera de la trazada seca",
+            "Why did David Coulthard retire?",
+            [
+                "He spun after touching a wet patch off the dry racing line",
+                "His engine failed while overtaking Herbert",
+                "He lost the brakes approaching the Bus Stop chicane",
+                "He lost a wheel after a botched pit stop"
+            ],
+            "He spun after touching a wet patch off the dry racing line",
+            2
+        ),
+
+        # 9. SANCIÓN FINAL A HAKKINEN
+        (
+            "¿Qué decidió finalmente la Corte Internacional de Apelación sobre Hakkinen?",
+            [
+                "Confirmó su exclusión de la clasificación y también de la carrera, aumentando además la multa a McLaren",
+                "Le permitió recuperar los puntos y anuló la sanción",
+                "Le impuso diez segundos añadidos al tiempo final pero mantuvo su posición",
+                "Le permitió mantener su resultado pero redujo la multa a la mitad"
+            ],
+            "Confirmó su exclusión de la clasificación y también de la carrera, aumentando además la multa a McLaren",
+            "What did the International Court of Appeal ultimately decide regarding Hakkinen?",
+            [
+                "They upheld his exclusion from qualifying and also disqualified him from the race, increasing McLaren’s fine",
+                "They reinstated his points and cancelled the penalty",
+                "They added a ten-second penalty but kept his position",
+                "They allowed him to keep the result but reduced the fine"
+            ],
+            "They upheld his exclusion from qualifying and also disqualified him from the race, increasing McLaren’s fine",
+            2
+        ),
+
+        # 10. EFECTO EN EL CAMPEONATO
+        (
+            "¿Qué consecuencia tuvo la descalificación de Hakkinen para el campeonato?",
+            [
+                "Villeneuve heredó el quinto puesto y sumó un punto adicional clave para la lucha por el título",
+                "Schumacher recuperó el liderato matemático",
+                "Alesi entró en zona de puntos por primera vez en la temporada",
+                "Ferrari adelantó a Williams en constructores"
+            ],
+            "Villeneuve heredó el quinto puesto y sumó un punto adicional clave para la lucha por el título",
+            "What was the championship consequence of Hakkinen’s disqualification?",
+            [
+                "Villeneuve was promoted to fifth place and gained a crucial extra point in the title fight",
+                "Schumacher retook the mathematical championship lead",
+                "Alesi scored his first points of the season",
+                "Ferrari overtook Williams in the constructors’ standings"
+            ],
+            "Villeneuve was promoted to fifth place and gained a crucial extra point in the title fight",
+            2
+        ),
+
+        # 11. RITMO REAL DE SCHUMACHER
+        (
+            "Pese a dominar la carrera, ¿qué dato curioso se menciona sobre el ritmo de Schumacher?",
+            [
+                "Su vuelta rápida solo fue la 12ª mejor de toda la carrera",
+                "Nunca utilizó neumáticos slicks",
+                "Rodó toda la carrera sin usar el modo de motor máximo",
+                "Ganó sin adelantar a ningún piloto en pista"
+            ],
+            "Su vuelta rápida solo fue la 12ª mejor de toda la carrera",
+            "Despite dominating the race, what curious detail is mentioned about Schumacher’s pace?",
+            [
+                "His fastest lap was only the 12th-quickest of the race",
+                "He never used slick tyres",
+                "He ran the entire race without using maximum engine mode",
+                "He won without overtaking anyone on track"
+            ],
+            "His fastest lap was only the 12th-quickest of the race",
+            1
+        ),
+
+        # 12. CONTEXTO HISTÓRICO
+        (
+            "¿Por qué se considera esta carrera uno de los ejemplos clásicos de maestría estratégica de Schumacher?",
+            [
+                "Supó leer las condiciones, elegir el coche adecuado, montar los neumáticos correctos y explotar la ventana de rendimiento mejor que nadie",
+                "Ganó partiendo último y adelantó a todos en pista",
+                "Corrió sin radio, sin telemetría y con el alerón roto",
+                "Ganó con solo tres ruedas funcionando correctamente"
+            ],
+            "Supó leer las condiciones, elegir el coche adecuado, montar los neumáticos correctos y explotar la ventana de rendimiento mejor que nadie",
+            "Why is this race considered a classic example of Schumacher’s strategic mastery?",
+            [
+                "He read the conditions, chose the right car, picked the right tyres and maximised the performance window better than anyone",
+                "He won from last place by overtaking everyone on track",
+                "He raced without radio, telemetry or a fully functional front wing",
+                "He won with only three wheels operating properly"
+            ],
+            "He read the conditions, chose the right car, picked the right tyres and maximised the performance window better than anyone",
+            1
+        ),
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Monaco 2016 (RaceFans: Red Bull blunder ends Hamilton’s wait for win) ----
+def monaco_2016_items() -> List[Dict]:
+    S_ES = "Gran Premio de Mónaco 2016"; S_EN = "2016 Monaco Grand Prix"; L = []
+    pairs = [
+
+        # 1. LA CLAVE DEL DÍA
+        (
+            "¿Cuál fue el error fatal que le costó a Ricciardo la victoria en Mónaco 2016?",
+            [
+                "Red Bull no tenía los neumáticos listos en su parada en boxes, perdiendo más de 13 segundos",
+                "Montó neumáticos intermedios cuando la pista ya estaba completamente seca",
+                "El equipo lo mantuvo en pista con neumáticos de lluvia extrema durante 20 vueltas más de lo debido",
+                "Tuvo un problema con el motor Renault que le hizo perder potencia"
+            ],
+            "Red Bull no tenía los neumáticos listos en su parada en boxes, perdiendo más de 13 segundos",
+            "What was the fatal mistake that cost Ricciardo victory in Monaco 2016?",
+            [
+                "Red Bull did not have the tyres ready during his pit stop, losing over 13 seconds",
+                "They fitted intermediate tyres when the track was already fully dry",
+                "The team kept him on full wets for 20 laps longer than needed",
+                "He suffered a Renault engine issue that cost him power"
+            ],
+            "Red Bull did not have the tyres ready during his pit stop, losing over 13 seconds",
+            2
+        ),
+
+        # 2. INICIO BAJO SAFETY CAR
+        (
+            "¿Por qué comenzó la carrera bajo Safety Car?",
+            [
+                "Por la intensa lluvia caída durante la mañana que dejó la pista totalmente empapada",
+                "Porque había habido un accidente múltiple en FormuLa 2 justo antes",
+                "Por un problema en la salida que impidió activar los semáforos",
+                "Por aceite en pista causado por un fallo hidráulico del coche médico"
+            ],
+            "Por la intensa lluvia caída durante la mañana que dejó la pista totalmente empapada",
+            "Why did the race start under the Safety Car?",
+            [
+                "Heavy morning rain had left the track fully soaked",
+                "There had been a multi-car Formula 2 crash minutes earlier",
+                "A start-light system failure forced a rolling start",
+                "Oil on the track from a medical car hydraulic leak"
+            ],
+            "Heavy morning rain had left the track fully soaked",
+            1
+        ),
+
+        # 3. PALMER Y EL PRIMER INCIDENTE
+        (
+            "¿Qué le ocurrió a Jolyon Palmer nada más comenzar la carrera lanzada?",
+            [
+                "Perdió el control en la recta de meta y chocó violentamente contra el muro",
+                "Colisionó con Hülkenberg en Santa Devota",
+                "Tuvo un trompo en Mirabeau y cayó al último lugar",
+                "Se quedó sin potencia y tuvo que retirarse en boxes"
+            ],
+            "Perdió el control en la recta de meta y chocó violentamente contra el muro",
+            "What happened to Jolyon Palmer as soon as the racing began?",
+            [
+                "He lost control on the pit straight and hit the wall heavily",
+                "He collided with Hülkenberg at Sainte Devote",
+                "He spun at Mirabeau and dropped to last",
+                "He lost power and retired in the pits"
+            ],
+            "He lost control on the pit straight and hit the wall heavily",
+            1
+        ),
+
+        # 4. EL PAPEL DE ROSBERG
+        (
+            "¿Por qué Mercedes pidió a Rosberg que dejara pasar a Hamilton?",
+            [
+                "Porque Rosberg tenía un ritmo muy lento y estaba obstaculizando las opciones de luchar por la victoria",
+                "Porque Rosberg había dañado su alerón delantero",
+                "Porque Hamilton estaba obligado por reglamento a recuperar la posición",
+                "Porque Rosberg tenía una penalización pendiente de cinco segundos"
+            ],
+            "Porque Rosberg tenía un ritmo muy lento y estaba obstaculizando las opciones de luchar por la victoria",
+            "Why did Mercedes ask Rosberg to let Hamilton through?",
+            [
+                "Rosberg’s pace was very slow and he was ruining the team’s chance to fight for the win",
+                "Rosberg had damaged his front wing",
+                "Hamilton was entitled by rules to regain the position",
+                "Rosberg had a pending five-second penalty"
+            ],
+            "Rosberg’s pace was very slow and he was ruining the team’s chance to fight for the win",
+            2
+        ),
+
+        # 5. ESTRATEGIA OPUESTA DE HAMILTON
+        (
+            "¿Qué decisión estratégica tomó Hamilton que le permitió ganar la carrera?",
+            [
+                "Decidió no cambiar a intermedios cuando todos los demás lo hicieron, saltando directamente de lluvia extrema a slicks",
+                "Hizo dos paradas muy tempranas para asegurar el undercut",
+                "Montó neumáticos medios en lugar de ultra-blandos para no degradarlos",
+                "Se mantuvo detrás de Ricciardo esperando una sanción que finalmente llegó"
+            ],
+            "Decidió no cambiar a intermedios cuando todos los demás lo hicieron, saltando directamente de lluvia extrema a slicks",
+            "What strategic decision allowed Hamilton to win the race?",
+            [
+                "He skipped intermediates entirely, going straight from full wets to slicks",
+                "He made two early stops to guarantee the undercut",
+                "He chose medium tyres instead of ultra-softs to avoid degradation",
+                "He stayed behind Ricciardo waiting for a penalty that eventually arrived"
+            ],
+            "He skipped intermediates entirely, going straight from full wets to slicks",
+            2
+        ),
+
+        # 6. SEGUNDO ERROR DE RED BULL: VERSTAPPEN
+        (
+            "¿Qué le pasó a Max Verstappen tras su remontada inicial?",
+            [
+                "Chocó en Massenet y abandonó por segunda vez ese fin de semana",
+                "Sufrió un pinchazo que lo dejó sin opciones",
+                "Fue sancionado por exceso de velocidad en el pit-lane",
+                "Se saltó la chicane y recibió un drive-through"
+            ],
+            "Chocó en Massenet y abandonó por segunda vez ese fin de semana",
+            "What happened to Max Verstappen after his early recovery?",
+            [
+                "He crashed at Massenet and retired for the second time that weekend",
+                "He suffered a puncture which ruined his race",
+                "He was penalised for speeding in the pit lane",
+                "He cut the chicane and received a drive-through"
+            ],
+            "He crashed at Massenet and retired for the second time that weekend",
+            1
+        ),
+
+        # 7. INCIDENTE RICCIARDO–HAMILTON
+        (
+            "¿Por qué Ricciardo se enfadó durante su lucha con Hamilton en la chicane?",
+            [
+                "Porque Hamilton se defendió al límite dentro de la curva y Ricciardo casi lo golpea al intentar adelantar",
+                "Porque Hamilton cerró la puerta en plena recta provocando un pequeño toque",
+                "Porque Hamilton lo obligó a frenar en el túnel",
+                "Porque Hamilton se salió de pista y aun así mantuvo la posición"
+            ],
+            "Porque Hamilton se defendió al límite dentro de la curva y Ricciardo casi lo golpea al intentar adelantar",
+            "Why was Ricciardo angry during his fight with Hamilton at the chicane?",
+            [
+                "Hamilton defended extremely tightly inside the corner and Ricciardo nearly hit him",
+                "Hamilton closed the door on the straight causing contact",
+                "Hamilton forced him to brake hard in the tunnel",
+                "Hamilton went off-track and kept the position"
+            ],
+            "Hamilton defended extremely tightly inside the corner and Ricciardo nearly hit him",
+            2
+        ),
+
+        # 8. CHOQUE ENTRE LOS SAUBER
+        (
+            "¿Qué ocurrió entre Nasr y Ericsson?",
+            [
+                "Ericsson ignoró la orden de equipo y embistió a Nasr en Rascasse, abandonando ambos",
+                "Nasr cerró a Ericsson en la curva 1 y recibió una penalización",
+                "Los dos chocaron tratando de evitar a un Haas lento",
+                "Nasr intentó adelantar en el túnel y acabó en el muro"
+            ],
+            "Ericsson ignoró la orden de equipo y embistió a Nasr en Rascasse, abandonando ambos",
+            "What happened between Nasr and Ericsson?",
+            [
+                "Ericsson ignored team orders and lunged into Nasr at Rascasse, taking both out",
+                "Nasr squeezed Ericsson at turn one and was penalised",
+                "They collided trying to avoid a slow Haas",
+                "Nasr attempted a move in the tunnel and hit the wall"
+            ],
+            "Ericsson ignored team orders and lunged into Nasr at Rascasse, taking both out",
+            2
+        ),
+
+        # 9. EL PAPEL DE PÉREZ
+        (
+            "¿Cómo logró Sergio Pérez subir al podio?",
+            [
+                "Aprovechó perfectamente las ventanas de parada y el caos estratégico, adelantando a Rosberg y Vettel",
+                "Adelantó a Hamilton en pista con neumáticos intermedios",
+                "Fue el único que aguantó con lluvia extrema toda la carrera",
+                "Red Bull le cedió la posición tras el error con Ricciardo"
+            ],
+            "Aprovechó perfectamente las ventanas de parada y el caos estratégico, adelantando a Rosberg y Vettel",
+            "How did Sergio Pérez manage to reach the podium?",
+            [
+                "He nailed the pit windows and capitalised on the strategic chaos, jumping Rosberg and Vettel",
+                "He overtook Hamilton on intermediates",
+                "He stayed on full wets for the entire race",
+                "Red Bull gave him the position after Ricciardo’s pit mistake"
+            ],
+            "He nailed the pit windows and capitalised on the strategic chaos, jumping Rosberg and Vettel",
+            1
+        ),
+
+        # 10. FRASE POST-CARRERA
+        (
+            "¿Qué dijo Ricciardo tras perder otra victoria por errores del equipo?",
+            [
+                "“Dos fines de semana seguidos me han jodido.”",
+                "“Hamilton tenía más ritmo, habría ganado igual.”",
+                "“Fue culpa mía por no empujar antes.”",
+                "“No esperaba ganar aquí, así que no pasa nada.”"
+            ],
+            "“Dos fines de semana seguidos me han jodido.”",
+            "What did Ricciardo say after losing another race due to team mistakes?",
+            [
+                "“Two weekends in a row I’ve been screwed.”",
+                "“Hamilton was faster, he would’ve won anyway.”",
+                "“It was my fault for not pushing earlier.”",
+                "“I didn’t expect to win here so it’s fine.”"
+            ],
+            "“Two weekends in a row I’ve been screwed.”",
+            1
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Canada 2016 (RaceFans: Hamilton wins as Mercedes’ rivals slip up again) ----
+def canada_2016_items() -> List[Dict]:
+    S_ES = "Gran Premio de Canadá 2016"; S_EN = "2016 Canadian Grand Prix"; L = []
+    pairs = [
+
+        # 1. SALIDA DE VETTEL
+        (
+            "¿Qué ocurrió en la salida entre Vettel y los Mercedes?",
+            [
+                "Vettel arrancó mejor que ambos Mercedes y tomó el liderato desde la tercera posición",
+                "Hamilton adelantó a Vettel y Rosberg mantuvo el segundo lugar",
+                "Rosberg pasó a Vettel y Hamilton cayó a cuarto",
+                "Los tres mantuvieron sus posiciones de parrilla sin cambios"
+            ],
+            "Vettel arrancó mejor que ambos Mercedes y tomó el liderato desde la tercera posición",
+            "What happened at the start between Vettel and the Mercedes cars?",
+            [
+                "Vettel launched better than both Mercedes and took the lead from third on the grid",
+                "Hamilton passed Vettel and Rosberg kept second place",
+                "Rosberg overtook Vettel and Hamilton dropped to fourth",
+                "All three kept their grid positions without changes"
+            ],
+            "Vettel launched better than both Mercedes and took the lead from third on the grid",
+            1
+        ),
+
+        # 2. LAS GAVIOTAS
+        (
+            "¿Qué distrajo a Vettel en la vuelta 11, provocando un bloqueo de frenos en la primera curva?",
+            [
+                "Un par de gaviotas en la zona de frenada",
+                "Un banderazo amarillo inesperado",
+                "Un coche muy lento saliendo de boxes",
+                "Un mensaje de radio sobre la estrategia"
+            ],
+            "Un par de gaviotas en la zona de frenada",
+            "What distracted Vettel on lap 11, causing him to lock up into turn one?",
+            [
+                "A pair of seagulls near the braking zone",
+                "An unexpected yellow flag",
+                "A very slow car leaving the pits",
+                "A radio message about strategy"
+            ],
+            "A pair of seagulls near the braking zone",
+            1
+        ),
+
+        # 3. ORIGEN DEL VSC
+        (
+            "¿Qué incidente provocó el periodo de Virtual Safety Car que condicionó la estrategia de Ferrari?",
+            [
+                "La avería del motor de Jenson Button en la recta trasera",
+                "Un choque de Hülkenberg contra el muro de campeones",
+                "Un trompo de Verstappen en la horquilla",
+                "La salida de pista de Massa en la curva 1"
+            ],
+            "La avería del motor de Jenson Button en la recta trasera",
+            "Which incident caused the Virtual Safety Car period that influenced Ferrari’s strategy?",
+            [
+                "Jenson Button’s engine failure on the back straight",
+                "Hülkenberg crashing at the Wall of Champions",
+                "Verstappen spinning at the hairpin",
+                "Massa going off at turn one"
+            ],
+            "Jenson Button’s engine failure on the back straight",
+            1
+        ),
+
+        # 4. ERROR ESTRATÉGICO DE FERRARI
+        (
+            "¿Cuál fue el principal error estratégico de Ferrari con Vettel bajo el Virtual Safety Car?",
+            [
+                "Pararon demasiado pronto y el VSC terminó justo cuando entraba en boxes, perdiendo gran parte de la ventaja",
+                "Le pusieron neumáticos medios en lugar de blandos",
+                "Decidieron no pararle y se quedó sin combustible al final",
+                "Le montaron el compuesto ultra-blando usado por error"
+            ],
+            "Pararon demasiado pronto y el VSC terminó justo cuando entraba en boxes, perdiendo gran parte de la ventaja",
+            "What was Ferrari’s main strategic mistake with Vettel under the Virtual Safety Car?",
+            [
+                "They pitted too early and the VSC ended just as he entered the pits, losing most of the advantage",
+                "They fitted medium tyres instead of softs",
+                "They chose not to pit him and he ran short of fuel at the end",
+                "They mistakenly fitted a used set of ultra-softs"
+            ],
+            "They pitted too early and the VSC ended just as he entered the pits, losing most of the advantage",
+            2
+        ),
+
+        # 5. PARADAS DE VETTEL
+        (
+            "¿Cuántas paradas en boxes hizo Vettel frente a Hamilton durante la carrera?",
+            [
+                "Vettel paró dos veces, mientras que Hamilton solo hizo una parada",
+                "Ambos hicieron una sola parada",
+                "Vettel paró una vez y Hamilton dos",
+                "Ambos hicieron dos paradas"
+            ],
+            "Vettel paró dos veces, mientras que Hamilton solo hizo una parada",
+            "How many pit stops did Vettel make compared to Hamilton during the race?",
+            [
+                "Vettel stopped twice, while Hamilton only pitted once",
+                "They both made a single stop",
+                "Vettel stopped once and Hamilton twice",
+                "They both stopped twice"
+            ],
+            "Vettel stopped twice, while Hamilton only pitted once",
+            1
+        ),
+
+        # 6. LOS QUE HICIERON UNA SOLA PARADA
+        (
+            "Entre los pilotos que puntuaron, ¿quiénes completaron la carrera con una sola parada en boxes?",
+            [
+                "Solo Hamilton y Bottas",
+                "Hamilton, Bottas y Vettel",
+                "Hamilton, Bottas y ambos Force India",
+                "Hamilton, Bottas y Verstappen"
+            ],
+            "Solo Hamilton y Bottas",
+            "Among the points finishers, which drivers completed the race with a single pit stop?",
+            [
+                "Only Hamilton and Bottas",
+                "Hamilton, Bottas and Vettel",
+                "Hamilton, Bottas and both Force Indias",
+                "Hamilton, Bottas and Verstappen"
+            ],
+            "Only Hamilton and Bottas",
+            2
+        ),
+
+        # 7. DEFENSA DE VERSTAPPEN
+        (
+            "¿Cómo terminó el intento final de Rosberg de adelantar a Verstappen por la cuarta posición?",
+            [
+                "Rosberg hizo un trompo en la vuelta 69 y aún así mantuvo la quinta plaza",
+                "Rosberg lo superó limpiamente en la chicane final",
+                "Verstappen cortó la chicane y fue sancionado",
+                "Hubo contacto entre ambos y Rosberg abandonó"
+            ],
+            "Rosberg hizo un trompo en la vuelta 69 y aún así mantuvo la quinta plaza",
+            "How did Rosberg’s final attempt to pass Verstappen for fourth place end?",
+            [
+                "Rosberg spun on lap 69 but still held on to fifth place",
+                "Rosberg passed him cleanly at the final chicane",
+                "Verstappen cut the chicane and was penalised",
+                "They made contact and Rosberg retired"
+            ],
+            "Rosberg spun on lap 69 but still held on to fifth place",
+            2
+        ),
+
+        # 8. PODIO SORPRESA
+        (
+            "¿Quién completó el podio detrás de Hamilton y Vettel en Montreal 2016?",
+            [
+                "Valtteri Bottas con el Williams",
+                "Max Verstappen con el Red Bull",
+                "Kimi Räikkönen con el Ferrari",
+                "Nico Rosberg con el Mercedes"
+            ],
+            "Valtteri Bottas con el Williams",
+            "Who completed the podium behind Hamilton and Vettel in Montreal 2016?",
+            [
+                "Valtteri Bottas in the Williams",
+                "Max Verstappen in the Red Bull",
+                "Kimi Räikkönen in the Ferrari",
+                "Nico Rosberg in the Mercedes"
+            ],
+            "Valtteri Bottas in the Williams",
+            1
+        ),
+
+        # 9. SÁINZ DESDE ATRÁS
+        (
+            "¿Qué logró Carlos Sainz Jnr pese a salir desde la penúltima fila de la parrilla?",
+            [
+                "Terminó noveno tras una gran remontada",
+                "Acabó cuarto, su mejor resultado del año",
+                "Puntos por primera vez esa temporada con un séptimo puesto",
+                "Lideró algunas vueltas gracias a una estrategia arriesgada"
+            ],
+            "Terminó noveno tras una gran remontada",
+            "What did Carlos Sainz Jnr manage to do despite starting from the penultimate row of the grid?",
+            [
+                "He finished ninth after an excellent recovery drive",
+                "He ended up fourth, his best result of the year",
+                "He scored his first points of the season with seventh place",
+                "He led a few laps thanks to a risky strategy"
+            ],
+            "He finished ninth after an excellent recovery drive",
+            2
+        ),
+
+        # 10. CONTEXTO ESTRATÉGICO
+        (
+            "Según el análisis del artículo, ¿qué factor ayudó a que se viera de nuevo una carrera estratégica en Canadá 2016?",
+            [
+                "La introducción del nuevo compuesto ultra-blando, que abrió más opciones de estrategia",
+                "La prohibición de los mensajes de radio sobre neumáticos",
+                "La reducción del número de juegos de neumáticos disponibles",
+                "La obligación de usar tres compuestos diferentes en carrera"
+            ],
+            "La introducción del nuevo compuesto ultra-blando, que abrió más opciones de estrategia",
+            "According to the article’s analysis, what factor helped make 2016 Canada a more strategic race again?",
+            [
+                "The introduction of the new ultra-soft compound, which opened up more strategy options",
+                "The ban on radio messages about tyres",
+                "The reduction in the number of tyre sets available",
+                "The obligation to use three different compounds in the race"
+            ],
+            "The introduction of the new ultra-soft compound, which opened up more strategy options",
+            3
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Europe/Baku 2016 (RaceFans: Rosberg cruises to victory in forgettable Baku debut) ----
+def baku_2016_items() -> List[Dict]:
+    S_ES = "Gran Premio de Europa 2016 (Bakú)"; S_EN = "2016 European Grand Prix (Baku)"; L = []
+    pairs = [
+
+        # 1. DOMINIO DE ROSBERG
+        (
+            "¿Por qué Rosberg ganó con tanta comodidad el GP de Europa 2016?",
+            [
+                "Mercedes tuvo una gran ventaja y sus principales rivales salían muy atrás o penalizados",
+                "Hubo múltiples Safety Cars que favorecieron su estrategia",
+                "Vettel y Ricciardo chocaron eliminándose mutuamente",
+                "Rosberg fue el único piloto que no sufrió degradación de neumáticos"
+            ],
+            "Mercedes tuvo una gran ventaja y sus principales rivales salían muy atrás o penalizados",
+            "Why did Rosberg win the 2016 European GP so comfortably?",
+            [
+                "Mercedes had a big performance advantage and most rivals started further back or penalised",
+                "Multiple Safety Cars played perfectly into his strategy",
+                "Vettel and Ricciardo collided and eliminated each other",
+                "Rosberg was the only driver who didn’t suffer tyre degradation"
+            ],
+            "Mercedes had a big performance advantage and most rivals started further back or penalised",
+            1
+        ),
+
+        # 2. LOS PROBLEMAS DE RED BULL
+        (
+            "¿Qué problema afectó a Red Bull en las primeras vueltas, obligando a Ricciardo y Verstappen a parar antes de tiempo?",
+            [
+                "Sufrieron un fuerte desgaste de neumáticos, especialmente en el eje trasero",
+                "La caja de cambios de ambos estaba sobrecalentándose",
+                "Tuvieron fallos de frenos en ambas unidades",
+                "Un problema eléctrico les impedía usar DRS"
+            ],
+            "Sufrieron un fuerte desgaste de neumáticos, especialmente en el eje trasero",
+            "What issue affected Red Bull early in the race, forcing Ricciardo and Verstappen to pit early?",
+            [
+                "They suffered heavy tyre degradation, especially on the rear tyres",
+                "Both cars had overheating gearboxes",
+                "Both drivers experienced brake failures",
+                "An electrical problem prevented them from using DRS"
+            ],
+            "They suffered heavy tyre degradation, especially on the rear tyres",
+            2
+        ),
+
+        # 3. DECISIÓN DE VETTEL
+        (
+            "¿Por qué Vettel decidió no parar cuando Ferrari inicialmente quería hacerlo?",
+            [
+                "Porque sentía buen ritmo y temía perder posición con Ricciardo si entraba demasiado pronto",
+                "Porque tenía un pinchazo lento y quería aguantar hasta boxes",
+                "Porque esperaba lluvia inminente",
+                "Porque pensó que había Safety Car desplegado"
+            ],
+            "Porque sentía buen ritmo y temía perder posición con Ricciardo si entraba demasiado pronto",
+            "Why did Vettel refuse to pit when Ferrari initially wanted him to?",
+            [
+                "He felt strong pace and feared losing position to Ricciardo if he stopped too early",
+                "He had a slow puncture and wanted to stretch it to the pits",
+                "He expected imminent rain",
+                "He mistakenly thought there was a Safety Car deployed"
+            ],
+            "He felt strong pace and feared losing position to Ricciardo if he stopped too early",
+            1
+        ),
+
+        # 4. PENALIZACIÓN DE RAIKKONEN
+        (
+            "¿Por qué Kimi Räikkönen recibió una penalización de cinco segundos?",
+            [
+                "Por cruzar completamente la línea de entrada al pit lane con las cuatro ruedas",
+                "Por exceder el límite de velocidad en el pit lane",
+                "Por adelantar bajo banderas amarillas",
+                "Por ignorar instrucciones del director de carrera"
+            ],
+            "Por cruzar completamente la línea de entrada al pit lane con las cuatro ruedas",
+            "Why did Kimi Räikkönen receive a five-second penalty?",
+            [
+                "For crossing the pit lane entry line with all four wheels",
+                "For exceeding the pit lane speed limit",
+                "For overtaking under yellow flags",
+                "For ignoring race director instructions"
+            ],
+            "For crossing the pit lane entry line with all four wheels",
+            1
+        ),
+
+        # 5. PROBLEMA DE HAMILTON
+        (
+            "¿Qué problema de motor complicó la carrera de Hamilton en Bakú?",
+            [
+                "Un modo de energía híbrida mal configurado que provocaba pérdidas de potencia en recta",
+                "Un fallo del ERS que lo dejó sin recuperación de energía",
+                "Un problema de frenos que le impedía frenar con normalidad",
+                "Un fallo en la caja de cambios que le bloqueaba marchas"
+            ],
+            "Un modo de energía híbrida mal configurado que provocaba pérdidas de potencia en recta",
+            "What engine issue complicated Hamilton’s race in Baku?",
+            [
+                "A wrongly-configured hybrid energy mode causing power losses on the straights",
+                "An ERS failure that left him without energy recovery",
+                "A brake issue that prevented normal stopping power",
+                "A gearbox fault that locked him in certain gears"
+            ],
+            "A wrongly-configured hybrid energy mode causing power losses on the straights",
+            2
+        ),
+
+        # 6. RESOLUCIÓN DEL PROBLEMA
+        (
+            "¿Por qué tardó Hamilton tanto en solucionar el fallo de potencia?",
+            [
+                "Porque las nuevas reglas prohibían a los equipos decirle qué ajuste específico debía cambiar",
+                "Porque tuvo que reiniciar el coche en plena recta",
+                "Porque el mapa motor estaba bloqueado hasta la siguiente parada",
+                "Porque el volante tenía un fallo y no respondía a los comandos"
+            ],
+            "Porque las nuevas reglas prohibían a los equipos decirle qué ajuste específico debía cambiar",
+            "Why did it take Hamilton so long to resolve his power issue?",
+            [
+                "Because new rules forbade the team from telling him which exact setting to change",
+                "Because he had to restart the car on the straight",
+                "Because the engine mode was locked until the next pit stop",
+                "Because his steering wheel was malfunctioning"
+            ],
+            "Because new rules forbade the team from telling him which exact setting to change",
+            1
+        ),
+
+        # 7. PÉREZ
+        (
+            "¿Cómo logró Sergio Pérez terminar por delante de Räikkönen pese a ir detrás en pista?",
+            [
+                "Gracias a la penalización de cinco segundos que arrastraba Räikkönen",
+                "Le adelantó limpiamente en la chicane del castillo",
+                "Se benefició de un Safety Car tardío",
+                "Räikkönen tuvo que parar una vez más por desgaste"
+            ],
+            "Gracias a la penalización de cinco segundos que arrastraba Räikkönen",
+            "How did Sergio Perez finish ahead of Räikkönen despite running behind him on track?",
+            [
+                "Thanks to Räikkönen’s five-second time penalty",
+                "He overtook him cleanly at the castle section",
+                "He benefited from a late Safety Car",
+                "Räikkönen had to pit again due to tyre wear"
+            ],
+            "Thanks to Räikkönen’s five-second time penalty",
+            2
+        ),
+
+        # 8. WEHRLEIN
+        (
+            "¿Por qué fue destacable el punto conseguido por Pascal Wehrlein?",
+            [
+                "Porque cometió un error al colocarse en la parrilla y aun así remontó para puntuar",
+                "Porque fue el único debutante en puntuar ese año",
+                "Porque adelantó a Rosberg en pista",
+                "Porque salió desde el pit lane"
+            ],
+            "Porque cometió un error al colocarse en la parrilla y aun así remontó para puntuar",
+            "Why was Pascal Wehrlein’s point notable?",
+            [
+                "Because he lined up in the wrong grid slot and still came back to score",
+                "Because he was the only rookie to score that year",
+                "Because he overtook Rosberg on track",
+                "Because he started from the pit lane"
+            ],
+            "Because he lined up in the wrong grid slot and still came back to score",
+            1
+        ),
+
+        # 9. HULKENBERG
+        (
+            "¿Por qué Hulkenberg perdió posiciones tras el inicio vibrante?",
+            [
+                "Porque sufrió graining en los neumáticos y tuvo que parar de nuevo",
+                "Porque tocó el muro en la curva 8",
+                "Porque tuvo problemas de frenos desde la vuelta 10",
+                "Porque se equivocó de estrategia al montar medios"
+            ],
+            "Porque sufrió graining en los neumáticos y tuvo que parar de nuevo",
+            "Why did Hulkenberg drop down the order after a strong start?",
+            [
+                "Because he experienced tyre graining and had to pit again",
+                "Because he hit the wall at turn eight",
+                "Because he had brake issues from lap ten",
+                "Because he chose the wrong strategy with medium tyres"
+            ],
+            "Because he experienced tyre graining and had to pit again",
+            2
+        ),
+
+        # 10. EVALUACIÓN FINAL DE LA CARRERA
+        (
+            "¿Cómo calificó la prensa especializada el debut del GP de Europa en Bakú?",
+            [
+                "Como una carrera muy decepcionante, ‘olvidable’ y con muy poca acción",
+                "Como una de las mejores carreras del año",
+                "Como un caos absoluto con múltiples Safety Cars",
+                "Como un ejemplo perfecto de gestión de neumáticos"
+            ],
+            "Como una carrera muy decepcionante, ‘olvidable’ y con muy poca acción",
+            "How did specialised media describe Baku’s first European GP?",
+            [
+                "As a very disappointing, ‘forgettable’ race with very little action",
+                "As one of the best races of the year",
+                "As total chaos with multiple Safety Cars",
+                "As a perfect showcase of tyre management"
+            ],
+            "As a very disappointing, ‘forgettable’ race with very little action",
+            1
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- Austria 2016 (RaceFans: Hamilton wins but Mercedes pay price of letting drivers race) ----
+def austria_2016_items() -> List[Dict]:
+    S_ES = "Gran Premio de Austria 2016"
+    S_EN = "2016 Austrian Grand Prix"
+    L = []
+    pairs = [
+
+        # 1. ESTRATEGIA MERCEDES
+        (
+            "¿Qué decisión estratégica de Mercedes en 2016 acabó favoreciendo el choque final entre Hamilton y Rosberg en Austria?",
+            [
+                "Permitir que sus pilotos usaran estrategias de carrera diferentes y se atacasen entre sí",
+                "Imponer órdenes de equipo para congelar posiciones desde la primera vuelta",
+                "Obligar a ambos a hacer exactamente las mismas paradas y tiempos de vuelta",
+                "Prohibirles luchar en la pista durante las últimas diez vueltas"
+            ],
+            "Permitir que sus pilotos usaran estrategias de carrera diferentes y se atacasen entre sí",
+            "Which 2016 Mercedes strategic policy helped create the conditions for the final-lap clash between Hamilton and Rosberg in Austria?",
+            [
+                "Allowing their drivers to run different strategies and race each other",
+                "Imposing team orders to freeze positions from lap one",
+                "Forcing both to make identical stops and lap times",
+                "Banning them from racing on track in the last ten laps"
+            ],
+            "Allowing their drivers to run different strategies and race each other",
+            1
+        ),
+
+        # 2. ULTRABLANDOS ENTRE SÁBADO Y DOMINGO
+        (
+            "¿Por qué los neumáticos ultra blandos se comportaron mejor en carrera que en los entrenamientos del sábado?",
+            [
+                "Porque la temperatura de pista era mucho más baja el domingo",
+                "Porque Pirelli cambió el compuesto durante la noche",
+                "Porque todos los equipos redujeron drásticamente la carga aerodinámica",
+                "Porque la FIA obligó a usar menos presión de neumáticos"
+            ],
+            "Porque la temperatura de pista era mucho más baja el domingo",
+            "Why did the ultra-soft tyres behave better in the race than in Saturday practice?",
+            [
+                "Because track temperatures were much lower on Sunday",
+                "Because Pirelli changed the compound overnight",
+                "Because all teams dramatically reduced downforce",
+                "Because the FIA forced everyone to lower tyre pressures"
+            ],
+            "Because track temperatures were much lower on Sunday",
+            1
+        ),
+
+        # 3. PRIMERA PARADA DE HAMILTON
+        (
+            "¿Qué sucedió en la primera parada de Hamilton que ayudó al ‘undercut’ de Rosberg?",
+            [
+                "Tuvo una parada lenta por un problema con la rueda trasera izquierda",
+                "Se pasó de la línea de entrada al pit lane y perdió tiempo",
+                "Recibió una penalización de cinco segundos en boxes",
+                "Se caló el motor y tuvo que reiniciar el coche"
+            ],
+            "Tuvo una parada lenta por un problema con la rueda trasera izquierda",
+            "What happened at Hamilton’s first pit stop that helped Rosberg’s undercut?",
+            [
+                "He had a slow stop due to a problem with the left-rear wheel",
+                "He overshot the pit entry line and lost time",
+                "He served a five-second time penalty in the pits",
+                "He stalled the engine and had to restart the car"
+            ],
+            "He had a slow stop due to a problem with the left-rear wheel",
+            1
+        ),
+
+        # 4. SAFETY CAR Y VETTEL
+        (
+            "¿Qué incidente provocó el Safety Car en el GP de Austria 2016?",
+            [
+                "La explosión del neumático de Sebastian Vettel en plena recta",
+                "Un accidente múltiple en la salida entre varios coches",
+                "Un choque de Rosberg contra el muro en la curva 1",
+                "La rotura de motor de Hamilton que dejó aceite en pista"
+            ],
+            "La explosión del neumático de Sebastian Vettel en plena recta",
+            "What incident brought out the Safety Car in the 2016 Austrian GP?",
+            [
+                "Sebastian Vettel’s tyre explosion on the main straight",
+                "A multi-car crash at the start",
+                "Rosberg hitting the wall at turn one",
+                "Hamilton’s engine failure leaving oil on track"
+            ],
+            "Sebastian Vettel’s tyre explosion on the main straight",
+            1
+        ),
+
+        # 5. SEGUNDA PARADA DE MERCEDES
+        (
+            "¿Cuál era el objetivo de Mercedes al hacer una segunda parada con Hamilton en la parte final?",
+            [
+                "Darle neumáticos más frescos para intentar alcanzar y adelantar a Rosberg",
+                "Cumplir una obligación reglamentaria de usar todos los compuestos",
+                "Evitar una sanción por exceder el peso mínimo",
+                "Probar un nuevo mapa de motor para carreras futuras"
+            ],
+            "Darle neumáticos más frescos para intentar alcanzar y adelantar a Rosberg",
+            "What was Mercedes trying to achieve by pitting Hamilton for a second time late in the race?",
+            [
+                "To give him fresher tyres to catch and attack Rosberg",
+                "To comply with a rule forcing them to use all compounds",
+                "To avoid a penalty for running under the minimum weight",
+                "To test a new engine mode for future races"
+            ],
+            "To give him fresher tyres to catch and attack Rosberg",
+            2
+        ),
+
+        # 6. TIPO DE NEUMÁTICO AL FINAL
+        (
+            "En el segundo ‘stint’ final, ¿qué diferencia clave de neumáticos había entre Rosberg y Hamilton?",
+            [
+                "Rosberg llevaba superblandos nuevos y Hamilton solo disponía de superblandos usados",
+                "Rosberg montó intermedios y Hamilton se quedó con slicks",
+                "Hamilton iba con ultrablandos y Rosberg con medios",
+                "Rosberg usaba lluvia extrema y Hamilton intermedios"
+            ],
+            "Rosberg llevaba superblandos nuevos y Hamilton solo disponía de superblandos usados",
+            "In the final stint, what was the key tyre difference between Rosberg and Hamilton?",
+            [
+                "Rosberg had fresh supersofts while Hamilton only had used supersofts",
+                "Rosberg switched to intermediates while Hamilton stayed on slicks",
+                "Hamilton was on ultrasofts and Rosberg on mediums",
+                "Rosberg ran full wets and Hamilton intermediates"
+            ],
+            "Rosberg had fresh supersofts while Hamilton only had used supersofts",
+            2
+        ),
+
+        # 7. INCIDENTE ÚLTIMA VUELTA
+        (
+            "En el incidente de la última vuelta, ¿qué hizo Rosberg en la curva que los comisarios consideraron incorrecto?",
+            [
+                "Se fue recto y retrasó la dirección, dejando sin espacio a Hamilton y provocando el contacto",
+                "Cambió de dirección varias veces en plena frenada",
+                "Empujó deliberadamente a Hamilton contra el muro de boxes",
+                "Utilizó la escapatoria para ganar tiempo de forma intencionada"
+            ],
+            "Se fue recto y retrasó la dirección, dejando sin espacio a Hamilton y provocando el contacto",
+            "In the last-lap incident, what did Rosberg do in the corner that stewards judged to be wrong?",
+            [
+                "He went straight on and delayed turning in, leaving no room for Hamilton and causing contact",
+                "He changed direction multiple times while braking",
+                "He deliberately forced Hamilton into the pit wall",
+                "He cut the run-off area on purpose to gain time"
+            ],
+            "He went straight on and delayed turning in, leaving no room for Hamilton and causing contact",
+            2
+        ),
+
+        # 8. SANCIÓN A ROSBERG
+        (
+            "¿Qué sanción recibió Rosberg tras el toque con Hamilton en la última vuelta?",
+            [
+                "Diez segundos de penalización que no cambiaron su posición final en pista",
+                "Un ‘drive through’ aplicado tras la carrera",
+                "Una descalificación completa de la clasificación",
+                "Una penalización de 5 puestos en la parrilla para la siguiente carrera"
+            ],
+            "Diez segundos de penalización que no cambiaron su posición final en pista",
+            "What penalty did Rosberg receive after the last-lap clash with Hamilton?",
+            [
+                "A ten-second time penalty which didn’t change his finishing position on the road",
+                "A drive-through applied after the race",
+                "Complete disqualification from the results",
+                "A five-place grid penalty for the next race"
+            ],
+            "A ten-second time penalty which didn’t change his finishing position on the road",
+            1
+        ),
+
+        # 9. WEHRLEIN Y PÉREZ
+        (
+            "¿Cómo consiguió Pascal Wehrlein su primer punto en Fórmula 1 en Austria?",
+            [
+                "Se benefició del accidente final de Sergio Pérez por fallo de frenos",
+                "Salió desde la pole y cayó hasta la décima posición",
+                "Adelantó a Vettel y a Bottas en las últimas vueltas",
+                "Marcó la vuelta rápida y recibió un punto extra"
+            ],
+            "Se benefició del accidente final de Sergio Pérez por fallo de frenos",
+            "How did Pascal Wehrlein score his first F1 point in Austria?",
+            [
+                "He benefited from Sergio Perez’s late crash caused by brake failure",
+                "He started from pole and dropped back to tenth",
+                "He overtook both Vettel and Bottas in the final laps",
+                "He set the fastest lap and received an extra point"
+            ],
+            "He benefited from Sergio Perez’s late crash caused by brake failure",
+            1
+        ),
+
+        # 10. REFLEXIÓN DE MERCEDES
+        (
+            "Tras el GP de Austria 2016, ¿qué posibilidad planteó Toto Wolff sobre la gestión futura de sus pilotos?",
+            [
+                "Imponer órdenes de equipo más estrictas o limitar la libertad estratégica para evitar choques",
+                "Rotar a los pilotos cada fin de semana",
+                "Prohibir el uso del DRS entre compañeros de equipo",
+                "No permitir que luchen en clasificación"
+            ],
+            "Imponer órdenes de equipo más estrictas o limitar la libertad estratégica para evitar choques",
+            "After the 2016 Austrian GP, what did Toto Wolff suggest Mercedes might need to do in future?",
+            [
+                "Impose stricter team orders or limit strategic freedom to avoid clashes",
+                "Rotate drivers every race weekend",
+                "Ban DRS use when racing team mates",
+                "Stop them from fighting in qualifying"
+            ],
+            "Impose stricter team orders or limit strategic freedom to avoid clashes",
+            2
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+# ---- British GP 2016 (RaceFans: Hamilton rides wave of home support for fourth Silverstone win) ----
+def british_2016_items() -> List[Dict]:
+    S_ES = "Gran Premio de Gran Bretaña 2016"
+    S_EN = "2016 British Grand Prix"
+    L = []
+    pairs = [
+
+        # 1. SAFETY CAR INICIAL
+        (
+            "¿Por qué comenzó la carrera detrás del Safety Car en Silverstone 2016?",
+            [
+                "Por una fuerte lluvia que cayó justo antes de la salida",
+                "Por un accidente múltiple en parrilla",
+                "Por un problema técnico con los semáforos de salida",
+                "Porque varios coches no llegaron a tiempo a la formación"
+            ],
+            "Por una fuerte lluvia que cayó justo antes de la salida",
+            "Why did the 2016 British Grand Prix start behind the Safety Car?",
+            [
+                "Because heavy rain hit the track moments before the start",
+                "Due to a multi-car crash on the grid",
+                "A technical issue with the start lights",
+                "Several cars failed to reach the grid in time"
+            ],
+            "Because heavy rain hit the track moments before the start",
+            1
+        ),
+
+        # 2. CASI CHOQUE DE HAMILTON
+        (
+            "¿Qué situación casi provoca que Hamilton chocara con el Safety Car antes del reinicio?",
+            [
+                "Tenía los frenos traseros fríos y el coche no frenó correctamente",
+                "Perdió el control al pisar un charco en plena recta",
+                "Intentó adelantar al Safety Car por error",
+                "Se equivocó de marcha y bloqueó el coche"
+            ],
+            "Tenía los frenos traseros fríos y el coche no frenó correctamente",
+            "What nearly caused Hamilton to hit the Safety Car before the restart?",
+            [
+                "His rear brakes were cold and the car didn’t slow properly",
+                "He hit a puddle and aquaplaned on the straight",
+                "He mistakenly tried to overtake the Safety Car",
+                "He selected the wrong gear and locked up"
+            ],
+            "His rear brakes were cold and the car didn’t slow properly",
+            1
+        ),
+
+        # 3. VIRTUAL SAFETY CAR Y RICCIARDO
+        (
+            "¿Por qué Ricciardo perdió tiempo tras su parada temprana en Silverstone?",
+            [
+                "Porque el Virtual Safety Car salió justo después y benefició a los que no habían parado",
+                "Porque Red Bull montó los neumáticos equivocados",
+                "Porque recibió una penalización por exceso de velocidad en el pit lane",
+                "Porque tuvo que esperar a que pasara el tráfico en boxes"
+            ],
+            "Porque el Virtual Safety Car salió justo después y benefició a los que no habían parado",
+            "Why did Ricciardo lose significant time after his early pit stop?",
+            [
+                "Because the Virtual Safety Car was deployed immediately after, helping those who hadn’t pitted",
+                "Because Red Bull fitted the wrong tyres",
+                "Because he received a speeding penalty in the pit lane",
+                "He had to wait for traffic in the pit lane"
+            ],
+            "Because the Virtual Safety Car was deployed immediately after, helping those who hadn’t pitted",
+            2
+        ),
+
+        # 4. ADELANTAMIENTO DE VERSTAPPEN
+        (
+            "¿Dónde realizó Verstappen su espectacular adelantamiento a Rosberg?",
+            [
+                "Por el exterior en Becketts",
+                "En la curva 1 por el interior",
+                "En Stowe usando DRS",
+                "En la chicane previa a meta"
+            ],
+            "Por el exterior en Becketts",
+            "Where did Verstappen make his spectacular overtake on Rosberg?",
+            [
+                "Around the outside at Becketts",
+                "Inside move at turn one",
+                "Using DRS at Stowe",
+                "At the final-corner chicane"
+            ],
+            "Around the outside at Becketts",
+            2
+        ),
+
+        # 5. CAMBIO A SLICK
+        (
+            "¿Qué piloto fue el primero en arriesgar con neumáticos de seco?",
+            [
+                "Sebastian Vettel",
+                "Lewis Hamilton",
+                "Valtteri Bottas",
+                "Nico Hülkenberg"
+            ],
+            "Sebastian Vettel",
+            "Which driver was the first to gamble on slick tyres?",
+            [
+                "Sebastian Vettel",
+                "Lewis Hamilton",
+                "Valtteri Bottas",
+                "Nico Hülkenberg"
+            ],
+            "Sebastian Vettel",
+            1
+        ),
+
+        # 6. ERRORES EN SUPERFICIE MOJADA
+        (
+            "¿Qué problema afectaba a varios pilotos al pisar zonas húmedas fuera de la trazada?",
+            [
+                "Pérdida repentina de agarre que provocaba salidas de pista",
+                "Fallo completo de frenos",
+                "Bloqueo del DRS automáticamente",
+                "Pérdida de potencia por exceso de temperatura"
+            ],
+            "Pérdida repentina de agarre que provocaba salidas de pista",
+            "What issue affected several drivers when touching damp patches off the dry line?",
+            [
+                "A sudden loss of grip causing off-track moments",
+                "Complete brake failure",
+                "DRS automatically disabling",
+                "Loss of power due to overheating"
+            ],
+            "A sudden loss of grip causing off-track moments",
+            1
+        ),
+
+        # 7. SANCIÓN A ROSBERG
+        (
+            "¿Por qué Rosberg recibió una penalización tras la carrera?",
+            [
+                "Por recibir demasiada asistencia por radio para resolver un problema de la caja de cambios",
+                "Por adelantar con DRS en zona prohibida",
+                "Por exceso de velocidad bajo Safety Car",
+                "Por causar una colisión con Verstappen"
+            ],
+            "Por recibir demasiada asistencia por radio para resolver un problema de la caja de cambios",
+            "Why did Rosberg receive a penalty after the race?",
+            [
+                "For receiving too much radio assistance to solve a gearbox problem",
+                "For using DRS in a prohibited zone",
+                "For speeding under the Safety Car",
+                "For causing a collision with Verstappen"
+            ],
+            "For receiving too much radio assistance to solve a gearbox problem",
+            2
+        ),
+
+        # 8. RAIKKONEN VS PÉREZ
+        (
+            "¿Cómo logró Raikkonen superar finalmente a Pérez?",
+            [
+                "Aprovechó un trompo de Pérez",
+                "Por una parada lenta de Force India",
+                "Lo adelantó en pista usando DRS",
+                "Pérez recibió una penalización de tiempo"
+            ],
+            "Aprovechó un trompo de Pérez",
+            "How did Raikkonen eventually get ahead of Perez?",
+            [
+                "He capitalised on Perez spinning",
+                "Force India had a slow pit stop",
+                "He overtook him on track with DRS",
+                "Perez received a time penalty"
+            ],
+            "He capitalised on Perez spinning",
+            1
+        ),
+
+        # 9. HÜLKENBERG Y MASSA
+        (
+            "¿Qué problema tuvo Hülkenberg que condicionó su carrera?",
+            [
+                "Quedó atrapado muchas vueltas detrás de Massa tras el VSC",
+                "Tuvo una penalización por saltarse la salida",
+                "Perdió potencia por un fallo eléctrico",
+                "Fue golpeado por Grosjean en la salida"
+            ],
+            "Quedó atrapado muchas vueltas detrás de Massa tras el VSC",
+            "What issue compromised Hülkenberg’s race?",
+            [
+                "He was stuck behind Massa for many laps after the VSC",
+                "He received a jump-start penalty",
+                "He lost power due to an electrical fault",
+                "He was hit by Grosjean at the start"
+            ],
+            "He was stuck behind Massa for many laps after the VSC",
+            2
+        ),
+
+        # 10. SITUACIÓN DEL CAMPEONATO
+        (
+            "Tras Silverstone 2016, ¿cómo quedó Hamilton respecto a Rosberg en el campeonato?",
+            [
+                "A un solo punto de distancia",
+                "Empatados a puntos",
+                "A más de 20 puntos de diferencia",
+                "Hamilton pasó a liderar con margen"
+            ],
+            "A un solo punto de distancia",
+            "After Silverstone 2016, how close was Hamilton to Rosberg in the championship?",
+            [
+                "Just one point behind",
+                "Tied on points",
+                "More than 20 points behind",
+                "Hamilton moved into the lead with a gap"
+            ],
+            "Just one point behind",
+            1
+        ),
+
+    ]
+
+    for a in pairs:
+        L.append(_mk(S_ES, S_EN, a[0], a[1], a[2], a[3], a[4], a[5], a[6]))
+    return L
+
+
 # =========================
 # Dispatcher y CLI
 # =========================
@@ -48675,6 +52141,20 @@ GP_FUNCS = {
     "Spain 1997": spain_1997_items,
     "Monaco 2017": monaco_2017_items,
     "Canada 2017": canada_2017_items,
+    "Azerbaiyan 2017": azerbaijan_2017_items,
+    "France 1997": france_1997_items,
+    "Austria 2017": austria_2017_items,
+    "Great Britain 1997": great_britain_1997_items,
+    "Great Britain 2017": british_2017_items,
+    "Germany 1997": german_1997_items,
+    "Hungary 2017": hungary_2017_items,
+    "Hungary 1997": hungary_1997_items,
+    "Belgium 1997": belgium_1997_items,
+    "Monaco 2016": monaco_2016_items,
+    "Canada 2016": canada_2016_items,
+    "Azerbaiyan 2016": baku_2016_items,
+    "Austria 2016": austria_2016_items,
+    "Great Britain 2016": british_2016_items,
 
 }
 
