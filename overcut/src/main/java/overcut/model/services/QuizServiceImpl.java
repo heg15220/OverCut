@@ -441,17 +441,40 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public QuizType chooseQuizType() {
+        // Candidatos (sin Pictures)
         List<QuizType> quizTypes = quizTypeDao.findAllExcludingCode(QuizTypeCode.Pictures);
-
 
         if (quizTypes.isEmpty()) {
             throw new RuntimeException("No quiz types available in the system.");
         }
 
-        SecureRandom random = new SecureRandom();
-        int randomIndex = random.nextInt(quizTypes.size());
+        // Separamos Races vs resto
+        QuizType racesType = null;
+        List<QuizType> others = new ArrayList<>();
 
-        return quizTypes.get(randomIndex);
+        for (QuizType qt : quizTypes) {
+            if (qt.getCode() == QuizTypeCode.Races) {
+                racesType = qt;
+            } else {
+                others.add(qt);
+            }
+        }
+
+        SecureRandom random = new SecureRandom();
+
+        // Si no existe Races o no hay otros, caemos a lo disponible
+        if (racesType == null) {
+            return quizTypes.get(random.nextInt(quizTypes.size()));
+        }
+        if (others.isEmpty()) {
+            return racesType;
+        }
+
+        // 60% Races, 40% cualquiera del resto
+        if (random.nextDouble() < 0.60) {
+            return racesType;
+        }
+        return others.get(random.nextInt(others.size()));
     }
 
 
