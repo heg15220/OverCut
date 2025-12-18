@@ -81,7 +81,8 @@ public class QuizServiceImpl implements QuizService {
     private final Map<Long, String> quizDisplayNameById = new java.util.concurrent.ConcurrentHashMap<>();
 
     // En la clase QuizServiceImpl (campo)
-    private final ThreadLocal<String> lastRacesGpKey = new ThreadLocal<>();
+    private final ThreadLocal<String> lastRacesGpDisplayName = new ThreadLocal<>();
+
 
 
     private static final int RACES_GP_SEED_GP_TARGET = 50;
@@ -236,11 +237,12 @@ public class QuizServiceImpl implements QuizService {
             RacesGpQuestionCache.GpGame game =
                     racesGpQuestionCache.pickRandomGame(language);
 
-            String gpKey = game.getGpKey(); // p.ej. "Qatar 2024"
+            String gpDisplayName = game.getGpDisplayName(); // ← YA LOCALIZADO ES/EN
             List<GpQuestionTemplate> templates = game.getQuestions();
 
-            // Guardamos la key como nombre visible del quiz (GP)
-            lastRacesGpKey.set(gpKey);
+            // Guardamos el nombre visible del GP (no la key)
+            lastRacesGpDisplayName.set(gpDisplayName);
+
 
             // Convertir plantillas -> entidades Question/Answer
             List<Question> aiConverted = templates.stream()
@@ -500,8 +502,8 @@ public class QuizServiceImpl implements QuizService {
         if (quizType.getCode().equals(QuizTypeCode.Races)
                 && quizCategory.getCode().equals(QuizCategoryCode.RacesGP)) {
 
-            String gpTitle = lastRacesGpKey.get();
-            lastRacesGpKey.remove();
+            String gpTitle = lastRacesGpDisplayName.get();
+            lastRacesGpDisplayName.remove();
 
             if (gpTitle != null && !gpTitle.isBlank()) {
                 quizDisplayNameById.put(quiz.getId(), gpTitle);
