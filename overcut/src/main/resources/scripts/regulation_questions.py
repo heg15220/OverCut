@@ -251,7 +251,7 @@ def pregunta_sesiones_clasificacion():
 def pregunta_orden_salida_sprint():
     if LANG == "es":
         return {
-            "question": "¿Qué define el orden de salida de la carrera sprint según el reglamento 2025?",
+            "question": "¿Qué define el orden de salida de la carrera sprint según el reglamento?",
             "answers": [
                 "El resultado de la Sprint Shootout",
                 "El resultado de la clasificación del viernes",
@@ -265,7 +265,7 @@ def pregunta_orden_salida_sprint():
         }
     elif LANG == "en":
         return {
-            "question": "What determines the starting order of the sprint race according to the 2025 regulations?",
+            "question": "What determines the starting order of the sprint race according to the regulations?",
             "answers": [
                 "The result of the Sprint Shootout",
                 "The result of Friday’s qualifying",
@@ -398,7 +398,7 @@ def caso_bandera_roja_pista_bloqueada():
 def caso_exceso_velocidad_pitlane():
     if LANG == "es":
         return {
-            "question": "Un coche entra al pit lane y no respeta el límite de 80 km/h. ¿Qué puede suceder según el reglamento?",
+            "question": "Un coche entra al pit lane y no respeta el límite de velocidad. ¿Qué puede suceder según el reglamento?",
             "answers": [
                 "Recibir una sanción económica o de tiempo",
                 "Nada, no hay límite durante la carrera",
@@ -412,7 +412,7 @@ def caso_exceso_velocidad_pitlane():
         }
     elif LANG == "en":
         return {
-            "question": "A car enters the pit lane and exceeds the 80 km/h speed limit. What can happen according to the regulations?",
+            "question": "A car enters the pit lane and exceeds the speed limit. What can happen according to the regulations?",
             "answers": [
                 "Receive a financial or time penalty",
                 "Nothing, there is no limit during the race",
@@ -560,34 +560,286 @@ def pregunta_licencia_12_puntos():
             "language": LANG
         }
 def pregunta_activacion_drs():
+    # 2026: el concepto relevante en el reglamento deportivo es Driver Adjustable Bodywork (con Activation Zones),
+    # no “DRS tras 2 vueltas y a <1s”.
     if LANG == "es":
         return {
-            "question": "¿En qué momento se permite activar el DRS durante una carrera?",
+            "question": "¿Cuándo está permitido que el piloto active la aerodinámoica activa desde 2026?",
             "answers": [
-                "Tras las dos primeras vueltas si hay menos de un segundo con el coche de delante",
-                "Desde el inicio de la carrera",
-                "Solamente en clasificación",
-                "Después de 10 vueltas"
+                "Solo cuando el coche está parado o dentro de una Activation Zone, y si el sistema está habilitado por la electrónica",
+                "En cualquier momento de la carrera desde la salida, sin restricciones de zona",
+                "Únicamente en clasificación, nunca en carrera",
+                "Después de 10 vueltas, siempre que esté a menos de un segundo del coche de delante"
             ],
-            "correctAnswer": "Tras las dos primeras vueltas si hay menos de un segundo con el coche de delante",
+            "correctAnswer": "Solo cuando el coche está parado o dentro de una Activation Zone, y si el sistema está habilitado por la electrónica",
             "knowledgeLevel": 2,
             "category": "Procedures",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "When is DRS allowed to be activated during a race?",
+            "question": "When is a driver allowed to activate Driver Adjustable Bodywork from 2026 onwards?",
             "answers": [
-                "After the first two laps if within one second of the car ahead",
-                "From the start of the race",
-                "Only during qualifying",
-                "After 10 laps"
+                "Only when the car is stationary or inside an Activation Zone, and if the system is enabled via the control electronics",
+                "At any time from the start with no zone restrictions",
+                "Only in qualifying, never in the race",
+                "After 10 laps, provided they are within one second of the car ahead"
             ],
-            "correctAnswer": "After the first two laps if within one second of the car ahead",
+            "correctAnswer": "Only when the car is stationary or inside an Activation Zone, and if the system is enabled via the control electronics",
             "knowledgeLevel": 2,
             "category": "Procedures",
             "language": LANG
         }
+
+def pregunta_override_mode_condicion_uso():
+    if LANG == "es":
+        return {
+            "question": "Durante una TTCS, ¿cuándo puede el piloto usar el Override Mode (modo 'overtake/boost')?",
+            "answers": [
+                "Cuando se activa en la Activation Line y el coche estaba a menos del Detection Gap en la Detection Line",
+                "Siempre que el piloto lo desee, sin depender de distancias ni líneas",
+                "Solo si ha parado en boxes en las dos vueltas anteriores",
+                "Únicamente en la primera vuelta tras la salida"
+            ],
+            "correctAnswer": "Cuando se activa en la Activation Line y el coche estaba a menos del Detection Gap en la Detection Line",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "During a TTCS, when may a driver use Override Mode ('overtake/boost' mode)?",
+            "answers": [
+                "When it is activated at the Activation Line and the car was less than the Detection Gap behind at the Detection Line",
+                "Any time the driver wants, with no distance/line conditions",
+                "Only if they pitted in the previous two laps",
+                "Only on the first lap after the start"
+            ],
+            "correctAnswer": "When it is activated at the Activation Line and the car was less than the Detection Gap behind at the Detection Line",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+
+def pregunta_override_mode_desactivacion_gap():
+    if LANG == "es":
+        return {
+            "question": "¿Cuándo se desactiva el Override Mode en una TTCS si el piloto ya lo llevaba activado?",
+            "answers": [
+                "Al cruzar la Activation Line si en la Detection Line estaba a más del Detection Gap del coche precedente",
+                "En cuanto el piloto frena por primera vez, siempre",
+                "Solo cuando el Race Director lo anuncia por radio",
+                "Al completar exactamente 10 segundos de uso"
+            ],
+            "correctAnswer": "Al cruzar la Activation Line si en la Detection Line estaba a más del Detection Gap del coche precedente",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "When is Override Mode deactivated in a TTCS if it was already active?",
+            "answers": [
+                "When crossing the Activation Line if the car was greater than the Detection Gap at the Detection Line",
+                "As soon as the driver brakes for the first time, always",
+                "Only when Race Control announces it by radio",
+                "After exactly 10 seconds of use"
+            ],
+            "correctAnswer": "When crossing the Activation Line if the car was greater than the Detection Gap at the Detection Line",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+
+def pregunta_override_mode_recharge_harvesting():
+    if LANG == "es":
+        return {
+            "question": "Respecto al 'recharge' (energía recuperada), ¿qué información/limitaciones debe proporcionar la FIA antes de un GP sobre el ERS-K?",
+            "answers": [
+                "Límites de energía recuperable por vuelta (incluyendo condiciones con Override Mode) y parámetros como Detection Gap/Detection Line/Activation Line",
+                "Únicamente el compuesto de neumáticos obligatorio para carrera",
+                "Solo el número máximo de vueltas de formación",
+                "La lista de penalizaciones estándar por adelantamientos"
+            ],
+            "correctAnswer": "Límites de energía recuperable por vuelta (incluyendo condiciones con Override Mode) y parámetros como Detection Gap/Detection Line/Activation Line",
+            "knowledgeLevel": 4,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Regarding 'recharge' (harvested energy), what information/limits must the FIA provide before a GP about the ERS-K?",
+            "answers": [
+                "Per-lap harvest limits (including cases involving Override Mode) and parameters such as Detection Gap/Detection Line/Activation Line",
+                "Only the mandatory race tyre compound",
+                "Only the maximum number of formation laps",
+                "A standard list of overtaking penalties"
+            ],
+            "correctAnswer": "Per-lap harvest limits (including cases involving Override Mode) and parameters such as Detection Gap/Detection Line/Activation Line",
+            "knowledgeLevel": 4,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+
+def pregunta_override_mode_safety_car():
+    if LANG == "es":
+        return {
+            "question": "¿Cuándo NO puede usarse el Override Mode durante un periodo de Safety Car?",
+            "answers": [
+                "Desde que se despliega el Safety Car hasta cruzar la Activation Line después de que el Safety Car entre en el pit lane",
+                "Solo en la vuelta de salida; después siempre se puede",
+                "Nunca se prohíbe: Override Mode sigue activo bajo Safety Car",
+                "Solo se prohíbe si está lloviendo, pero no por Safety Car"
+            ],
+            "correctAnswer": "Desde que se despliega el Safety Car hasta cruzar la Activation Line después de que el Safety Car entre en el pit lane",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "When may Override Mode NOT be used during a Safety Car period?",
+            "answers": [
+                "From SC deployment until crossing the Activation Line after the SC has returned to the pit lane",
+                "Only on lap 1; afterwards it is always allowed",
+                "It is never forbidden: Override Mode remains active under SC",
+                "Only forbidden in the wet, not because of SC"
+            ],
+            "correctAnswer": "From SC deployment until crossing the Activation Line after the SC has returned to the pit lane",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+def pregunta_aerodinamica_activa_definicion():
+    if LANG == "es":
+        return {
+            "question": "¿Qué se entiende por aerodinámica activa en la Fórmula 1?",
+            "answers": [
+                "Sistemas del coche cuya configuración aerodinámica puede modificarse durante la marcha bajo condiciones reglamentadas",
+                "Elementos aerodinámicos que cambian automáticamente con la velocidad sin control del piloto",
+                "Piezas intercambiables entre sesiones",
+                "Componentes aerodinámicos que solo se ajustan en boxes"
+            ],
+            "correctAnswer": "Sistemas del coche cuya configuración aerodinámica puede modificarse durante la marcha bajo condiciones reglamentadas",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is meant by active aerodynamics in Formula 1?",
+            "answers": [
+                "Car systems whose aerodynamic configuration can be modified while running under regulated conditions",
+                "Aerodynamic elements that automatically change with speed without driver control",
+                "Parts that can be swapped between sessions",
+                "Aerodynamic components adjusted only in the pit lane"
+            ],
+            "correctAnswer": "Car systems whose aerodynamic configuration can be modified while running under regulated conditions",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+
+def pregunta_driver_adjustable_bodywork_definicion():
+    if LANG == "es":
+        return {
+            "question": "¿Qué es el Driver Adjustable Bodywork según el reglamento?",
+            "answers": [
+                "Un sistema que permite al piloto modificar ciertas superficies aerodinámicas cuando el reglamento lo permite",
+                "Un alerón móvil utilizado únicamente en clasificación",
+                "Un sistema automático que se activa por velocidad",
+                "Un dispositivo exclusivo para condiciones de lluvia"
+            ],
+            "correctAnswer": "Un sistema que permite al piloto modificar ciertas superficies aerodinámicas cuando el reglamento lo permite",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is Driver Adjustable Bodywork according to the regulations?",
+            "answers": [
+                "A system allowing the driver to modify certain aerodynamic surfaces when permitted by the regulations",
+                "A movable wing used only in qualifying",
+                "An automatic system activated by speed",
+                "A device exclusive to wet conditions"
+            ],
+            "correctAnswer": "A system allowing the driver to modify certain aerodynamic surfaces when permitted by the regulations",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+
+def pregunta_override_mode_definicion():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es el objetivo principal del Override Mode?",
+            "answers": [
+                "Facilitar adelantamientos mediante una configuración aerodinámica y energética más favorable",
+                "Aumentar la velocidad máxima sin restricciones",
+                "Sustituir al Safety Car en neutralizaciones",
+                "Reducir el consumo total de energía"
+            ],
+            "correctAnswer": "Facilitar adelantamientos mediante una configuración aerodinámica y energética más favorable",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the main purpose of Override Mode?",
+            "answers": [
+                "To facilitate overtaking through a more favorable aerodynamic and energy configuration",
+                "To increase top speed without restrictions",
+                "To replace the Safety Car during neutralizations",
+                "To reduce total energy consumption"
+            ],
+            "correctAnswer": "To facilitate overtaking through a more favorable aerodynamic and energy configuration",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+
+def pregunta_recharge_mode_definicion():
+    if LANG == "es":
+        return {
+            "question": "¿Qué se entiende por modo de recarga (harvesting/recharge) en el reglamento?",
+            "answers": [
+                "El proceso mediante el cual el sistema híbrido recupera energía para su uso posterior",
+                "Un modo de máxima potencia para adelantamientos",
+                "Una configuración exclusiva para vueltas de salida",
+                "Un sistema de recarga externa en boxes"
+            ],
+            "correctAnswer": "El proceso mediante el cual el sistema híbrido recupera energía para su uso posterior",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is meant by recharge (harvesting) mode under the regulations?",
+            "answers": [
+                "The process by which the hybrid system recovers energy for later use",
+                "A maximum power mode for overtaking",
+                "A configuration exclusive to formation laps",
+                "An external recharging system in the pit lane"
+            ],
+            "correctAnswer": "The process by which the hybrid system recovers energy for later use",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+
+
+
 def pregunta_fin_parque_cerrado():
     if LANG == "es":
         return {
@@ -623,7 +875,7 @@ def pregunta_bandera_amarilla_doble():
             "question": "¿Qué significa una doble bandera amarilla en pista?",
             "answers": [
                 "Reducir velocidad significativamente y estar preparado para detenerse",
-                "Zona de DRS desactivada",
+                "Zona de adelantamiento desactivada",
                 "Bandera roja inminente",
                 "Se permite adelantar"
             ],
@@ -637,7 +889,7 @@ def pregunta_bandera_amarilla_doble():
             "question": "What does a double yellow flag on track mean?",
             "answers": [
                 "Reduce speed significantly and be prepared to stop",
-                "DRS zone deactivated",
+                "Overtake zone deactivated",
                 "Red flag is imminent",
                 "Overtaking is allowed"
             ],
@@ -1154,7 +1406,7 @@ def pregunta_bandera_azul():
     if LANG == "es":
         return {
             "question": "¿Qué sucede si un piloto ignora una bandera azul?",
-            "answers": ["Puede recibir una sanción por bloquear a otro coche", "Pierde automáticamente una vuelta", "Se le ordena abandonar la carrera", "Debe dejar de usar DRS"],
+            "answers": ["Puede recibir una sanción por bloquear a otro coche", "Pierde automáticamente una vuelta", "Se le ordena abandonar la carrera", "Debe dejar de usar overtake"],
             "correctAnswer": "Puede recibir una sanción por bloquear a otro coche",
             "knowledgeLevel": 2,
             "category": "Penalty",
@@ -1163,7 +1415,7 @@ def pregunta_bandera_azul():
     elif LANG == "en":
         return {
             "question": "What happens if a driver ignores a blue flag?",
-            "answers": ["They may be penalized for blocking another car", "They automatically lose a lap", "They are ordered to retire", "They must stop using DRS"],
+            "answers": ["They may be penalized for blocking another car", "They automatically lose a lap", "They are ordered to retire", "They must stop using overtake"],
             "correctAnswer": "They may be penalized for blocking another car",
             "knowledgeLevel": 2,
             "category": "Penalty",
@@ -1196,7 +1448,7 @@ def pregunta_final_vuelta_formacion():
     if LANG == "es":
         return {
             "question": "¿Qué debe hacer un piloto al final de la vuelta de formación?",
-            "answers": ["Detenerse en su posición de parrilla", "Entrar a boxes", "Activar el DRS", "Cambiar neumáticos"],
+            "answers": ["Detenerse en su posición de parrilla", "Entrar a boxes", "Activar el overtake", "Cambiar neumáticos"],
             "correctAnswer": "Detenerse en su posición de parrilla",
             "knowledgeLevel": 2,
             "category": "Procedures",
@@ -1205,7 +1457,7 @@ def pregunta_final_vuelta_formacion():
     elif LANG == "en":
         return {
             "question": "What must a driver do at the end of the formation lap?",
-            "answers": ["Stop at their grid position", "Enter the pit lane", "Activate the DRS", "Change tyres"],
+            "answers": ["Stop at their grid position", "Enter the pit lane", "Activate the overtake mode", "Change tyres"],
             "correctAnswer": "Stop at their grid position",
             "knowledgeLevel": 2,
             "category": "Procedures",
@@ -2369,7 +2621,7 @@ def pregunta_prohibiciones_clasificacion():
     if LANG == "es":
         return {
             "question": "¿Qué está prohibido durante una vuelta rápida en clasificación?",
-            "answers": ["Obstaculizar a otro piloto", "Usar DRS", "Cambiar de compuesto", "Pasar por boxes"],
+            "answers": ["Obstaculizar a otro piloto", "Usar overtake", "Cambiar de compuesto", "Pasar por boxes"],
             "correctAnswer": "Obstaculizar a otro piloto",
             "knowledgeLevel": 2,
             "category": "Qualifying",
@@ -2378,7 +2630,7 @@ def pregunta_prohibiciones_clasificacion():
     elif LANG == "en":
         return {
             "question": "What is prohibited during a flying lap in qualifying?",
-            "answers": ["Blocking another driver", "Using DRS", "Changing compound", "Going through the pit lane"],
+            "answers": ["Blocking another driver", "Using overtake", "Changing compound", "Going through the pit lane"],
             "correctAnswer": "Blocking another driver",
             "knowledgeLevel": 2,
             "category": "Qualifying",
@@ -2431,7 +2683,7 @@ def pregunta_mas_de_un_tiempo():
     if LANG == "es":
         return {
             "question": "¿Puede un piloto marcar más de un tiempo por sesión?",
-            "answers": ["Sí, puede hacer varias vueltas rápidas", "No, solo una vuelta rápida por sesión", "Solo si no ha usado DRS", "Depende del compuesto usado"],
+            "answers": ["Sí, puede hacer varias vueltas rápidas", "No, solo una vuelta rápida por sesión", "Solo si no ha usado overtake", "Depende del compuesto usado"],
             "correctAnswer": "Sí, puede hacer varias vueltas rápidas",
             "knowledgeLevel": 1,
             "category": "Qualifying",
@@ -2440,7 +2692,7 @@ def pregunta_mas_de_un_tiempo():
     elif LANG == "en":
         return {
             "question": "Can a driver set more than one lap time per session?",
-            "answers": ["Yes, multiple fast laps are allowed", "No, only one flying lap per session", "Only if DRS was not used", "Depends on the compound used"],
+            "answers": ["Yes, multiple fast laps are allowed", "No, only one flying lap per session", "Only if overtake mode was not used", "Depends on the compound used"],
             "correctAnswer": "Yes, multiple fast laps are allowed",
             "knowledgeLevel": 1,
             "category": "Qualifying",
@@ -3337,50 +3589,21 @@ def pregunta_reemplazo_piloto_despues_clasificacion():
             "language": LANG
         }
 
-def pregunta_aleron_trasero_flexibilidad():
-    if LANG == "es":
-        return {
-            "question": "¿Qué ocurre si se detecta flexibilidad excesiva en el alerón trasero durante la inspección técnica?",
-            "answers": [
-                "El coche puede ser descalificado",
-                "Solo se anula el tiempo de clasificación",
-                "Se permite con penalización de 5 segundos",
-                "El alerón debe cambiarse antes de la carrera"
-            ],
-            "correctAnswer": "El coche puede ser descalificado",
-            "knowledgeLevel": 3,
-            "category": "Technical",
-            "language": LANG
-        }
-    elif LANG == "en":
-        return {
-            "question": "What happens if excessive rear wing flexibility is detected during technical inspection?",
-            "answers": [
-                "The car may be disqualified",
-                "Only the qualifying time is annulled",
-                "It is allowed with a 5-second penalty",
-                "The wing must be replaced before the race"
-            ],
-            "correctAnswer": "The car may be disqualified",
-            "knowledgeLevel": 3,
-            "category": "Technical",
-            "language": LANG
-        }
 def pregunta_dimensiones_vehiculo():
     if LANG == "es":
         return {
-            "question": "¿Cuál es la longitud máxima permitida para un monoplaza según el reglamento técnico?",
-            "answers": ["5.000 mm", "5.500 mm", "4.500 mm", "4.000 mm"],
-            "correctAnswer": "5.000 mm",
+            "question": "A partir de 2026, ¿cuál es la anchura máxima del coche (excluyendo retrovisores y neumáticos)?",
+            "answers": ["1.900 mm", "2.000 mm", "1.800 mm", "1.950 mm"],
+            "correctAnswer": "1.900 mm",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the maximum allowed length of a Formula 1 car according to technical regulations?",
-            "answers": ["5,000 mm", "5,500 mm", "4,500 mm", "4,000 mm"],
-            "correctAnswer": "5,000 mm",
+            "question": "From 2026 onwards, what is the maximum car width (excluding mirrors and tyres)?",
+            "answers": ["1,900 mm", "2,000 mm", "1,800 mm", "1,950 mm"],
+            "correctAnswer": "1,900 mm",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
@@ -3389,22 +3612,1149 @@ def pregunta_dimensiones_vehiculo():
 def pregunta_peso_combustible_postcarrera():
     if LANG == "es":
         return {
-            "question": "¿Cuánta cantidad mínima de combustible debe quedar en el coche para su análisis tras la carrera?",
-            "answers": ["1 litro", "500 ml", "2 litros", "1,5 litros"],
-            "correctAnswer": "1 litro",
+            "question": "¿Qué volumen de muestra de combustible debe poder tomarse del coche en cualquier momento de la competición?",
+            "answers": ["0,70 litros", "1,00 litros", "0,50 litros", "0,25 litros"],
+            "correctAnswer": "0,70 litros",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What fuel sample volume must be possible to take from the car at any time during the Competition?",
+            "answers": ["0.70 litres", "1.00 litres", "0.50 litres", "0.25 litres"],
+            "correctAnswer": "0.70 litres",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_refueling_rate():
+    if LANG == "es":
+        return {
+            "question": "Desde 2026, en operaciones de repostaje en garaje, ¿cuál es la tasa máxima a la que se puede repostar o extraer combustible del coche?",
+            "answers": ["0,8 litros por segundo", "1,0 litros por segundo", "0,5 litros por segundo", "2,0 litros por segundo"],
+            "correctAnswer": "0,8 litros por segundo",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the minimum amount of fuel that must remain in the car for analysis after the race?",
-            "answers": ["1 liter", "500 ml", "2 liters", "1.5 liters"],
-            "correctAnswer": "1 liter",
+            "question": "Since 2026, during garage refuelling operations, what is the maximum rate at which fuel may be added to or removed from the car?",
+            "answers": ["0.8 litres per second", "1.0 litres per second", "0.5 litres per second", "2.0 litres per second"],
+            "correctAnswer": "0.8 litres per second",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
+
+def pregunta_monoplaza_ers():
+    if LANG == "es":
+        return {
+            "question": "¿Qué elemento forma parte del ERS definido en el reglamento técnico?",
+            "answers": ["MGU-K y Energy Store", "MGU-H y KERS mecánico", "Turbocompresor y wastegate", "Intercooler y radiador de aceite"],
+            "correctAnswer": "MGU-K y Energy Store",
+            "knowledgeLevel": 2,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Which items are part of the ERS as defined in the Technical Regulations?",
+            "answers": ["MGU-K and the Energy Store", "MGU-H and a mechanical KERS", "Turbocharger and wastegate", "Intercooler and oil radiator"],
+            "correctAnswer": "MGU-K and the Energy Store",
+            "knowledgeLevel": 2,
+            "category": "Technical",
+            "language": LANG
+        }
+
+
+def pregunta_mguk_potencia_maxima():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es la potencia máxima permitida del MGU-K?",
+            "answers": ["350 kW", "120 kW", "500 kW", "200 kW"],
+            "correctAnswer": "350 kW",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum permitted MGU-K?",
+            "answers": ["350 kW", "120 kW", "500 kW", "200 kW"],
+            "correctAnswer": "350 kW",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+
+def pregunta_mguk_velocidad_minima_uso():
+    if LANG == "es":
+        return {
+            "question": "¿A partir de qué velocidad del coche puede usarse el MGU-K (en un arranque/lanzamiento)?",
+            "answers": ["50 km/h", "0 km/h", "80 km/h", "20 km/h"],
+            "correctAnswer": "50 km/h",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "From what car speed may the MGU-K be used (during a start/launch)?",
+            "answers": ["50 km/h", "0 km/h", "80 km/h", "20 km/h"],
+            "correctAnswer": "50 km/h",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+
+def pregunta_mguk_par_maximo():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es el par máximo permitido del MGU-K (en el eje de salida del MGU-K)?",
+            "answers": ["500 Nm", "300 Nm", "650 Nm", "1200 Nm"],
+            "correctAnswer": "500 Nm",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum permitted MGU-K torque (at the MGU-K output shaft)?",
+            "answers": ["500 Nm", "300 Nm", "650 Nm", "1200 Nm"],
+            "correctAnswer": "500 Nm",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_mguk_rpm_maximo():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es la velocidad de giro máxima permitida del MGU-K (valor límite típico especificado)?",
+            "answers": ["60.000 rpm", "100.000 rpm", "15.000 rpm", "30.000 rpm"],
+            "correctAnswer": "60.000 rpm",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum permitted rotational speed of the MGU-K (typical specified limit)?",
+            "answers": ["60,000 rpm", "100,000 rpm", "15,000 rpm", "30,000 rpm"],
+            "correctAnswer": "60,000 rpm",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+
+def pregunta_energia_recuperada_por_vuelta():
+    if LANG == "es":
+        return {
+            "question": "Desde 2026, ¿cuál es el máximo de energía que el MGU-K puede recuperar desde el eje trasero por vuelta (límite por vuelta)?",
+            "answers": ["8,5 MJ", "2,0 MJ", "12,0 MJ", "20,0 MJ"],
+            "correctAnswer": "8,5 MJ",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Since 2026, what is the maximum energy the MGU-K may recover from the rear axle per lap (per-lap limit)?",
+            "answers": ["8.5 MJ", "2.0 MJ", "12.0 MJ", "20.0 MJ"],
+            "correctAnswer": "8.5 MJ",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_flujo_energia_combustible():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es el límite máximo del ‘Fuel Energy Flow’ (flujo de energía del combustible) para la unidad de potencia?",
+            "answers": ["3000 MJ/h", "2000 MJ/h", "4000 MJ/h", "1500 MJ/h"],
+            "correctAnswer": "3000 MJ/h",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum ‘Fuel Energy Flow’ limit for the power unit?",
+            "answers": ["3000 MJ/h", "2000 MJ/h", "4000 MJ/h", "1500 MJ/h"],
+            "correctAnswer": "3000 MJ/h",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_spark_energy_maxima():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es la energía máxima permitida por chispa (spark energy) en el sistema de encendido?",
+            "answers": ["120 mJ", "200 mJ", "50 mJ", "500 mJ"],
+            "correctAnswer": "120 mJ",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum permitted spark energy per ignition event?",
+            "answers": ["120 mJ", "200 mJ", "50 mJ", "500 mJ"],
+            "correctAnswer": "120 mJ",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_modo_ice_unico():
+    if LANG == "es":
+        return {
+            "question": "Salvo entrenamientos libres, ¿cómo debe operarse el motor de combustión (ICE) durante cada vuelta competitiva?",
+            "answers": [
+                "En un único modo de ICE durante cada vuelta competitiva",
+                "Con modos ilimitados siempre que no cambie la mezcla de combustible",
+                "Con al menos dos mapas distintos por vuelta para mejorar seguridad",
+                "Con cambios de modo solo permitidos en rectas"
+            ],
+            "correctAnswer": "En un único modo de ICE durante cada vuelta competitiva",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Except free practice, how must the ICE be operated during each competitive lap?",
+            "answers": [
+                "In a single ICE mode during each competitive lap",
+                "With unlimited modes as long as fuel mixture does not change",
+                "With at least two different maps per lap for safety reasons",
+                "With mode changes allowed only on straights"
+            ],
+            "correctAnswer": "In a single ICE mode during each competitive lap",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_numero_depositos_aceite():
+    if LANG == "es":
+        return {
+            "question": "¿Cuántos depósitos de aceite (Oil Tank) se permiten en el coche según el reglamento técnico?",
+            "answers": ["Uno solo", "Dos (principal y auxiliar)", "Ilimitados si están dentro del perímetro de PU", "Uno por cada radiador de aceite"],
+            "correctAnswer": "Uno solo",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "How many oil tanks are permitted on the car under the Technical Regulations?",
+            "answers": ["A single one", "Two (main and auxiliary)", "Unlimited if inside the PU perimeter", "One per oil cooler"],
+            "correctAnswer": "A single one",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_valvula_alivio_refrigerante():
+    if LANG == "es":
+        return {
+            "question": "¿A qué presión máxima debe estar ajustada la válvula de alivio (pressure relief valve) de un header tank del refrigerante?",
+            "answers": ["3,75 barG", "2,00 barG", "5,00 barG", "10,00 barG"],
+            "correctAnswer": "3,75 barG",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "To what maximum pressure must the coolant header tank pressure relief valve be set?",
+            "answers": ["3.75 barG", "2.00 barG", "5.00 barG", "10.00 barG"],
+            "correctAnswer": "3.75 barG",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_combustible_temperatura():
+    if LANG == "es":
+        return {
+            "question": "Cuando el coche está rodando tras salir del garaje, ¿qué regla resume mejor el límite de temperatura del combustible en el coche?",
+            "answers": [
+                "No puede estar más frío que el menor de: 10°C por debajo de ambiente o 10°C",
+                "Debe estar siempre a 30°C constantes para estabilidad de densidad",
+                "Puede ser enfriado activamente si no supera el flujo máximo de combustible",
+                "Debe estar al menos 15°C por encima de la temperatura ambiente"
+            ],
+            "correctAnswer": "No puede estar más frío que el menor de: 10°C por debajo de ambiente o 10°C",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Once the car is running after leaving the garage area, which rule best summarises the fuel temperature limit in the car?",
+            "answers": [
+                "It must not be colder than the lower of: 10°C below ambient or 10°C",
+                "It must always be a constant 30°C for density stability",
+                "It may be actively cooled provided maximum fuel flow is respected",
+                "It must be at least 15°C above ambient temperature"
+            ],
+            "correctAnswer": "It must not be colder than the lower of: 10°C below ambient or 10°C",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_dispositivo_temperatura_combustible():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dice el reglamento sobre dispositivos a bordo para aumentar o disminuir la temperatura del combustible?",
+            "answers": [
+                "Están prohibidos",
+                "Son obligatorios para evitar vaporización",
+                "Se permiten solo en clasificación",
+                "Se permiten si el combustible es 100% sostenible"
+            ],
+            "correctAnswer": "Están prohibidos",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What do the rules say about on-board devices to increase or decrease fuel temperature?",
+            "answers": [
+                "They are forbidden",
+                "They are mandatory to prevent vapour lock",
+                "They are allowed only in qualifying",
+                "They are allowed if the fuel is 100% sustainable"
+            ],
+            "correctAnswer": "They are forbidden",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_fuel_bladders_edad():
+    if LANG == "es":
+        return {
+            "question": "¿Cuánto tiempo máximo puede usarse un ‘fuel bladder’ desde su fecha de fabricación?",
+            "answers": ["5 años", "3 años", "10 años", "Ilimitado si pasa los crash tests"],
+            "correctAnswer": "5 años",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum time a fuel bladder may be used after its date of manufacture?",
+            "answers": ["5 years", "3 years", "10 years", "Unlimited if it passes crash tests"],
+            "correctAnswer": "5 years",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_fuel_line_cockpit():
+    if LANG == "es":
+        return {
+            "question": "¿Pueden pasar líneas que contengan combustible por el cockpit?",
+            "answers": ["No, está prohibido", "Sí, si están blindadas", "Sí, solo en entrenamientos", "Sí, si son de material no metálico"],
+            "correctAnswer": "No, está prohibido",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Can fuel-carrying lines pass through the cockpit?",
+            "answers": ["No, it is forbidden", "Yes, if they are shielded", "Yes, only in practice", "Yes, if made of non-metallic material"],
+            "correctAnswer": "No, it is forbidden",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_breakaway_valve():
+    if LANG == "es":
+        return {
+            "question": "¿Qué requisito se aplica a las líneas de combustible entre el depósito y el motor?",
+            "answers": [
+                "Deben tener una válvula auto-sellante de separación (breakaway valve)",
+                "Deben pasar siempre por el cockpit para facilitar inspección",
+                "Pueden ir sin válvula si usan conectores de titanio",
+                "Deben ser rígidas en toda su longitud, sin tramos flexibles"
+            ],
+            "correctAnswer": "Deben tener una válvula auto-sellante de separación (breakaway valve)",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What requirement applies to fuel lines between the tank and the engine?",
+            "answers": [
+                "They must have a self-sealing breakaway valve",
+                "They must always pass through the cockpit for inspection access",
+                "They may omit the valve if titanium connectors are used",
+                "They must be fully rigid with no flexible sections"
+            ],
+            "correctAnswer": "They must have a self-sealing breakaway valve",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_fuel_cell_presion_max():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es la presión interna máxima que puede ejercer el sistema sobre el fuel bladder (presión en el interior del depósito)?",
+            "answers": ["1,0 barG", "2,5 barG", "3,75 barG", "10,0 barG"],
+            "correctAnswer": "1,0 barG",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum internal pressure exerted on the fuel bladder (tank internal pressure)?",
+            "answers": ["1.0 barG", "2.5 barG", "3.75 barG", "10.0 barG"],
+            "correctAnswer": "1.0 barG",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_fuel_tank_blader_standard():
+    if LANG == "es":
+        return {
+            "question": "¿Cómo debe ser el depósito de combustible (fuel tank) según el reglamento técnico?",
+            "answers": [
+                "Un único ‘rubber bladder’ conforme (o superior) al estándar FIA FT5-1999",
+                "Dos depósitos gemelos metálicos soldados con espuma obligatoria",
+                "Un depósito rígido de carbono con ventilación libre al cockpit",
+                "Un depósito flexible sin estándar FIA si la estructura del chasis lo protege"
+            ],
+            "correctAnswer": "Un único ‘rubber bladder’ conforme (o superior) al estándar FIA FT5-1999",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "How must the fuel tank be built under the Technical Regulations?",
+            "answers": [
+                "A single rubber bladder conforming to (or exceeding) FIA Standard FT5-1999",
+                "Two welded metal twin tanks with mandatory foam",
+                "A rigid carbon tank with free venting into the cockpit",
+                "A flexible tank without FIA standard if the chassis structure protects it"
+            ],
+            "correctAnswer": "A single rubber bladder conforming to (or exceeding) FIA Standard FT5-1999",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_oil_tank_sensor():
+    if LANG == "es":
+        return {
+            "question": "¿Qué obligación existe sobre la medición del nivel de aceite en el Oil Tank?",
+            "answers": [
+                "Debe llevar un sensor y la medida debe suministrarse a la FIA en todo momento",
+                "Es opcional si el equipo usa un único aceite homologado",
+                "Solo se requiere en carrera, no en clasificación",
+                "Se puede reemplazar por inspección visual entre sesiones"
+            ],
+            "correctAnswer": "Debe llevar un sensor y la medida debe suministrarse a la FIA en todo momento",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is required regarding oil level measurement in the oil tank?",
+            "answers": [
+                "It must have a sensor and the oil level measurement must be supplied to the FIA at all times",
+                "It is optional if the team uses a single approved oil",
+                "It is required only in the race, not in qualifying",
+                "It can be replaced by visual checks between sessions"
+            ],
+            "correctAnswer": "It must have a sensor and the oil level measurement must be supplied to the FIA at all times",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_materiales_combustible_exotermicos():
+    if LANG == "es":
+        return {
+            "question": "Además de los límites de composición, ¿qué prohíbe explícitamente el reglamento sobre el combustible respecto a reacciones químicas?",
+            "answers": [
+                "No debe contener sustancias capaces de reacción exotérmica en ausencia de oxígeno externo",
+                "Debe incluir un compuesto exotérmico para facilitar el arranque en frío",
+                "Debe permitir reacciones exotérmicas siempre que sean a baja presión",
+                "Solo se prohíben reacciones endotérmicas durante la carrera"
+            ],
+            "correctAnswer": "No debe contener sustancias capaces de reacción exotérmica en ausencia de oxígeno externo",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Beyond composition limits, what does the regulation explicitly forbid regarding fuel chemical reactions?",
+            "answers": [
+                "It must contain no substance capable of exothermic reaction in the absence of external oxygen",
+                "It must include an exothermic compound to aid cold starts",
+                "Exothermic reactions are allowed as long as they occur at low pressure",
+                "Only endothermic reactions are forbidden during the race"
+            ],
+            "correctAnswer": "It must contain no substance capable of exothermic reaction in the absence of external oxygen",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_oil_propiedades_flashpoint():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es el punto de inflamación (flashpoint) máximo permitido para el aceite de motor según la tabla de propiedades?",
+            "answers": ["93°C", "120°C", "60°C", "210°C"],
+            "correctAnswer": "93°C",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum engine oil flashpoint allowed in the oil properties table?",
+            "answers": ["93°C", "120°C", "60°C", "210°C"],
+            "correctAnswer": "93°C",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_voltage_maximo_ers():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es el voltaje DC máximo permitido en el sistema eléctrico de alto voltaje del ERS?",
+            "answers": ["1000 V DC", "800 V DC", "120 V DC", "1500 V DC"],
+            "correctAnswer": "1000 V DC",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum permitted DC voltage in the ERS high-voltage electrical system?",
+            "answers": ["1000 V DC", "800 V DC", "120 V DC", "1500 V DC"],
+            "correctAnswer": "1000 V DC",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_fuel_oxigeno_pct():
+    if LANG == "es":
+        return {
+            "question": "Desde 2026, ¿qué rango de porcentaje en masa de oxígeno (Oxygen wt%) se especifica para el combustible permitido?",
+            "answers": ["6,70–7,10 wt%", "0,00–1,00 wt%", "2,00–3,00 wt%", "10,00–12,00 wt%"],
+            "correctAnswer": "6,70–7,10 wt%",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Since 2026, what oxygen mass percentage (Oxygen wt%) range is specified for the permitted fuel?",
+            "answers": ["6.70–7.10 wt%", "0.00–1.00 wt%", "2.00–3.00 wt%", "10.00–12.00 wt%"],
+            "correctAnswer": "6.70–7.10 wt%",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+
+def pregunta_fuel_sulphur_max():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es el máximo de azufre (Sulphur) permitido en el combustible (mg/kg)?",
+            "answers": ["10 mg/kg", "50 mg/kg", "100 mg/kg", "500 mg/kg"],
+            "correctAnswer": "10 mg/kg",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum permitted sulphur content in fuel (mg/kg)?",
+            "answers": ["10 mg/kg", "50 mg/kg", "100 mg/kg", "500 mg/kg"],
+            "correctAnswer": "10 mg/kg",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_componentes_combustible_no_sostenibles():
+    if LANG == "es":
+        return {
+            "question": "¿Qué límite se aplica al paquete de aditivos/denaturantes de fuentes no sostenibles en el combustible final (concentración total combinada)?",
+            "answers": ["1,0% m/m", "5,0% m/m", "0,1% m/m", "10,0% m/m"],
+            "correctAnswer": "1,0% m/m",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What limit applies to the non-sustainable additive/denaturant package in the final blended fuel (total combined concentration)?",
+            "answers": ["1.0% m/m", "5.0% m/m", "0.1% m/m", "10.0% m/m"],
+            "correctAnswer": "1.0% m/m",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_aperturas_fuel_blader():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es el área total máxima de aperturas permitida en el fuel bladder?",
+            "answers": ["35.000 mm²", "10.000 mm²", "50.000 mm²", "100.000 mm²"],
+            "correctAnswer": "35.000 mm²",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum total area of apertures permitted in the fuel bladder?",
+            "answers": ["35,000 mm²", "10,000 mm²", "50,000 mm²", "100,000 mm²"],
+            "correctAnswer": "35,000 mm²",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_componentes_mangueras_fuel_sampling():
+    if LANG == "es":
+        return {
+            "question": "Si se usa una bomba externa para extraer combustible al tomar una muestra, ¿qué restricción clave se aplica a la manguera entre el coche y la bomba?",
+            "answers": [
+                "No debe exceder 2 m y debe ser de diámetro −3",
+                "Debe ser de al menos 5 m para asegurar mezcla representativa",
+                "Debe pasar por el cockpit para facilitar el acceso",
+                "Debe ser de diámetro −10 para evitar cavitación"
+            ],
+            "correctAnswer": "No debe exceder 2 m y debe ser de diámetro −3",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "If an external pump is used to remove fuel for sampling, what key restriction applies to the hose between the car and the pump?",
+            "answers": [
+                "It must not exceed 2 m and must be −3 in diameter",
+                "It must be at least 5 m long to ensure a representative mix",
+                "It must pass through the cockpit for easier access",
+                "It must be −10 in diameter to avoid cavitation"
+            ],
+            "correctAnswer": "It must not exceed 2 m and must be −3 in diameter",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_lubricacion_componentes_pu():
+    if LANG == "es":
+        return {
+            "question": "¿Qué afirmación describe mejor la restricción de lubricantes dentro del perímetro de la unidad de potencia (PU)?",
+            "answers": [
+                "Solo se permite una especificación de aceite, con excepciones limitadas (p.ej., hidráulico y fluido del ERS para funciones concretas)",
+                "Se permiten tantas especificaciones de aceite como componentes tenga el motor",
+                "El aceite puede mezclarse libremente con aditivos de combustible durante la carrera",
+                "Solo se restringe el aceite del turbo; el resto de componentes son libres"
+            ],
+            "correctAnswer": "Solo se permite una especificación de aceite, con excepciones limitadas (p.ej., hidráulico y fluido del ERS para funciones concretas)",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Which statement best describes the lubricant restriction within the power unit (PU) perimeter?",
+            "answers": [
+                "Only one oil specification is allowed, with limited exceptions (e.g., hydraulic fluid and ERS fluid for specific functions)",
+                "As many oil specifications as engine components are allowed",
+                "Oil may be freely mixed with fuel additives during the race",
+                "Only the turbo oil is restricted; other components are unrestricted"
+            ],
+            "correctAnswer": "Only one oil specification is allowed, with limited exceptions (e.g., hydraulic fluid and ERS fluid for specific functions)",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_oil_tank_auxiliar_prohibido():
+    if LANG == "es":
+        return {
+            "question": "¿Qué dice el reglamento sobre el uso de un depósito de aceite auxiliar (Auxiliary Oil Tank) u otras formas de almacenamiento extra de aceite?",
+            "answers": [
+                "No está permitido; solo se admite el depósito único definido",
+                "Se permite un auxiliar si su volumen es menor de 1 litro",
+                "Se permite en entrenamientos, pero no en clasificación ni carrera",
+                "Se permite siempre que sea de material transparente para inspección"
+            ],
+            "correctAnswer": "No está permitido; solo se admite el depósito único definido",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What do the rules say about using an auxiliary oil tank or other extra forms of oil storage?",
+            "answers": [
+                "It is not permitted; only the single defined oil tank is allowed",
+                "An auxiliary is allowed if its volume is under 1 litre",
+                "It is allowed in practice but not in qualifying or the race",
+                "It is allowed provided it is transparent for inspection"
+            ],
+            "correctAnswer": "It is not permitted; only the single defined oil tank is allowed",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_ers_transport_un383():
+    if LANG == "es":
+        return {
+            "question": "¿Qué certificación de transporte debe compartirse con la FIA durante la homologación de cada especificación del Energy Store?",
+            "answers": ["UN38.3", "ISO 9001", "FIA 8860-2018", "EN 228:2012"],
+            "correctAnswer": "UN38.3",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What transport certification must be shared with the FIA during homologation of each Energy Store specification?",
+            "answers": ["UN38.3", "ISO 9001", "FIA 8860-2018", "EN 228:2012"],
+            "correctAnswer": "UN38.3",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_principio_cooling_latent_heat():
+    if LANG == "es":
+        return {
+            "question": "¿Qué prohíbe el reglamento sobre los sistemas de refrigeración de la PU y el uso del calor latente de vaporización?",
+            "answers": [
+                "No pueden usar intencionalmente el calor latente de vaporización de ningún fluido excepto el combustible para la combustión normal",
+                "Deben usar obligatoriamente el calor latente de un fluido auxiliar para enfriar admisión",
+                "Se permite cualquier fluido siempre que no sea agua",
+                "Solo se prohíbe en clasificación; en carrera está permitido"
+            ],
+            "correctAnswer": "No pueden usar intencionalmente el calor latente de vaporización de ningún fluido excepto el combustible para la combustión normal",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What does the regulation forbid about PU cooling systems and the intentional use of latent heat of vaporisation?",
+            "answers": [
+                "They must not intentionally use latent heat of vaporisation of any fluid except fuel for normal combustion",
+                "They must mandatorily use an auxiliary fluid’s latent heat to cool the intake",
+                "Any fluid is allowed as long as it is not water",
+                "It is forbidden only in qualifying; in the race it is permitted"
+            ],
+            "correctAnswer": "They must not intentionally use latent heat of vaporisation of any fluid except fuel for normal combustion",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def pregunta_cooling_sistema_driver_heat_hazard():
+    if LANG == "es":
+        return {
+            "question": "Si se declara ‘Heat Hazard’, ¿qué ocurre con los componentes del Driver Cooling System para Sprint o Carrera?",
+            "answers": [
+                "Deben estar instalados y el sistema debe ser funcional y disponible para el piloto",
+                "Se prohíbe cualquier sistema de refrigeración del piloto por seguridad eléctrica",
+                "Solo se permite si el coche está por debajo del peso mínimo",
+                "Se permite únicamente en clasificación, no en carrera"
+            ],
+            "correctAnswer": "Deben estar instalados y el sistema debe ser funcional y disponible para el piloto",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "If a ‘Heat Hazard’ is declared, what happens regarding the Driver Cooling System components for Sprint or Race?",
+            "answers": [
+                "They must be fitted and the system must be functional and available to the driver",
+                "Any driver cooling system is forbidden due to electrical safety",
+                "It is allowed only if the car is below minimum weight",
+                "It is allowed only in qualifying, not in the race"
+            ],
+            "correctAnswer": "They must be fitted and the system must be functional and available to the driver",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_limite_bancos_prueba():
+    if LANG == "es":
+        return {
+            "question": "Cuando se imponen controles y documentación sobre bancos/pruebas (dyno, sensores, etc.), ¿cuál es el objetivo técnico principal?",
+            "answers": [
+                "Evitar que se eludan límites de la PU y garantizar trazabilidad/verificación de parámetros críticos",
+                "Aumentar el ruido de los motores para mejorar el espectáculo",
+                "Permitir que cada equipo elija libremente el criterio de medición",
+                "Eliminar por completo el uso de sensores obligatorios en la PU"
+            ],
+            "correctAnswer": "Evitar que se eludan límites de la PU y garantizar trazabilidad/verificación de parámetros críticos",
+            "knowledgeLevel": 2,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "When controls and documentation are imposed on test benches and testing (dynos, sensors, etc.), what is the main technical objective?",
+            "answers": [
+                "Preventing circumvention of PU limits and ensuring traceability/verification of critical parameters",
+                "Increasing engine noise to improve the show",
+                "Allowing each team to freely choose measurement criteria",
+                "Eliminating the use of mandatory PU sensors altogether"
+            ],
+            "correctAnswer": "Preventing circumvention of PU limits and ensuring traceability/verification of critical parameters",
+            "knowledgeLevel": 2,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_repostaje_durante_carrera():
+    if LANG == "es":
+        return {
+            "question": "¿Se puede añadir o retirar combustible del coche durante una carrera (Race)?",
+            "answers": ["No, está prohibido", "Sí, pero solo bajo Safety Car", "Sí, si es menos de 5 litros", "Sí, siempre que sea en el pitlane"],
+            "correctAnswer": "No, está prohibido",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Is it permitted to add or remove fuel from the car during a race?",
+            "answers": ["No, it is forbidden", "Yes, but only under Safety Car", "Yes, if it is less than 5 litres", "Yes, as long as it is in the pit lane"],
+            "correctAnswer": "No, it is forbidden",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_presion_componentes_fuera_deposito():
+    if LANG == "es":
+        return {
+            "question": "¿Qué regla aplica a componentes con combustible a más de 10 barG?",
+            "answers": [
+                "Deben estar situados fuera del fuel tank",
+                "Deben estar dentro del fuel tank para minimizar longitud de tuberías",
+                "Pueden estar en el cockpit si se aíslan térmicamente",
+                "Solo se restringen por encima de 100 barG"
+            ],
+            "correctAnswer": "Deben estar situados fuera del fuel tank",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What rule applies to components containing fuel at more than 10 barG?",
+            "answers": [
+                "They must be located outside the fuel tank",
+                "They must be inside the fuel tank to minimise pipe length",
+                "They may be in the cockpit if thermally insulated",
+                "They are restricted only above 100 barG"
+            ],
+            "correctAnswer": "They must be located outside the fuel tank",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_sensores_obligatorios_fuel_density():
+    if LANG == "es":
+        return {
+            "question": "Al verificar muestras de combustible, ¿qué control de densidad se aplica típicamente durante la competición?",
+            "answers": [
+                "La densidad debe estar dentro de ±0,15% del valor anotado en el análisis de preaprobación",
+                "La densidad es libre mientras el oxígeno esté entre 0% y 1%",
+                "La densidad solo se controla si hay protesta de un equipo",
+                "La densidad debe ser idéntica al valor del combustible de calle EN 228"
+            ],
+            "correctAnswer": "La densidad debe estar dentro de ±0,15% del valor anotado en el análisis de preaprobación",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "When checking fuel samples, what density control typically applies during the competition?",
+            "answers": [
+                "Density must be within ±0.15% of the figure noted during pre-approval analysis",
+                "Density is free as long as oxygen is between 0% and 1%",
+                "Density is checked only if a team protests",
+                "Density must match standard road fuel EN 228 exactly"
+            ],
+            "correctAnswer": "Density must be within ±0.15% of the figure noted during pre-approval analysis",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_aceite_un_solo_tipo():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es la regla general sobre tipos de aceite de motor permitidos para competir?",
+            "answers": [
+                "No puede usarse ningún aceite sin aprobación previa por escrito de la FIA",
+                "Se permiten aceites sin aprobación si cumplen viscosidad mínima",
+                "Solo hace falta aprobación para el aceite usado en entrenamientos libres",
+                "El aceite es libre si el equipo usa el mismo combustible que el año anterior"
+            ],
+            "correctAnswer": "No puede usarse ningún aceite sin aprobación previa por escrito de la FIA",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the general rule about engine oils permitted for competition use?",
+            "answers": [
+                "No engine oil may be used without the FIA’s prior written approval",
+                "Unapproved oils are allowed if they meet a minimum viscosity",
+                "Approval is needed only for oils used in free practice",
+                "Oil is unrestricted if the team uses last year’s fuel"
+            ],
+            "correctAnswer": "No engine oil may be used without the FIA’s prior written approval",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_declaracion_aceite_competicion():
+    if LANG == "es":
+        return {
+            "question": "¿Qué debe declarar cada equipo antes de cada competición respecto al aceite?",
+            "answers": [
+                "Qué aceite se usará en cada motor durante la competición",
+                "La marca de aceite preferida del piloto para todo el año",
+                "La densidad del aceite medida en el garaje cada hora",
+                "Un listado de aceites alternativos que podrían mezclarse sin límite"
+            ],
+            "correctAnswer": "Qué aceite se usará en cada motor durante la competición",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What must each team declare prior to every competition regarding oil?",
+            "answers": [
+                "Which oil will be used in each of their engines during the competition",
+                "The driver’s favourite oil brand for the whole season",
+                "The oil density measured in the garage every hour",
+                "A list of alternative oils that may be mixed without limit"
+            ],
+            "correctAnswer": "Which oil will be used in each of their engines during the competition",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_methanol_pct():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es el máximo de metanol permitido en el combustible (porcentaje v/v)?",
+            "answers": ["3,0% v/v", "1,0% v/v", "5,0% v/v", "10,0% v/v"],
+            "correctAnswer": "3,0% v/v",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum permitted methanol content in fuel (percent v/v)?",
+            "answers": ["3.0% v/v", "1.0% v/v", "5.0% v/v", "10.0% v/v"],
+            "correctAnswer": "3.0% v/v",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_fuel_density_range():
+    if LANG == "es":
+        return {
+            "question": "¿Qué rango de densidad (a 15°C) se especifica para el combustible permitido?",
+            "answers": ["720–785 kg/m³", "650–700 kg/m³", "800–900 kg/m³", "600–650 kg/m³"],
+            "correctAnswer": "720–785 kg/m³",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What density range (at 15°C) is specified for permitted fuel?",
+            "answers": ["720–785 kg/m³", "650–700 kg/m³", "800–900 kg/m³", "600–650 kg/m³"],
+            "correctAnswer": "720–785 kg/m³",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_conductividad_electrica_fuel():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es la conductividad eléctrica mínima del combustible (pS/m) indicada en las propiedades del fuel?",
+            "answers": ["200 pS/m", "50 pS/m", "500 pS/m", "10 pS/m"],
+            "correctAnswer": "200 pS/m",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the minimum electrical conductivity of the fuel (pS/m) stated in the fuel properties?",
+            "answers": ["200 pS/m", "50 pS/m", "500 pS/m", "10 pS/m"],
+            "correctAnswer": "200 pS/m",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_boiling_point_fuel():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es el ‘Final Boiling Point’ máximo permitido para el combustible según la tabla de características?",
+            "answers": ["210°C", "180°C", "250°C", "300°C"],
+            "correctAnswer": "210°C",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum permitted Final Boiling Point for the fuel according to the properties table?",
+            "answers": ["210°C", "180°C", "250°C", "300°C"],
+            "correctAnswer": "210°C",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_oil_kinematic_viscosity_min():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es la viscosidad cinemática mínima del aceite de motor a 100°C (cSt) según la tabla de propiedades?",
+            "answers": ["2,8 cSt", "1,0 cSt", "5,0 cSt", "10,0 cSt"],
+            "correctAnswer": "2,8 cSt",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the minimum engine oil kinematic viscosity at 100°C (cSt) in the properties table?",
+            "answers": ["2.8 cSt", "1.0 cSt", "5.0 cSt", "10.0 cSt"],
+            "correctAnswer": "2.8 cSt",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_oil_initial_boiling_point():
+    if LANG == "es":
+        return {
+            "question": "¿Qué valor se fija como ‘Initial Boiling Point’ mínimo del aceite de motor en la tabla de propiedades?",
+            "answers": ["210°C", "150°C", "180°C", "250°C"],
+            "correctAnswer": "210°C",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What value is set as the minimum engine oil Initial Boiling Point in the oil properties table?",
+            "answers": ["210°C", "150°C", "180°C", "250°C"],
+            "correctAnswer": "210°C",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_oil_low_bp_compounds_limit():
+    if LANG == "es":
+        return {
+            "question": "Si se detectan compuestos en el aceite con punto de ebullición <210°C, ¿cuál es el máximo total permitido de esos componentes (m/m)?",
+            "answers": ["0,5% m/m", "2,0% m/m", "0,1% m/m", "5,0% m/m"],
+            "correctAnswer": "0,5% m/m",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "If compounds with boiling point <210°C are detected in the engine oil, what is the maximum total allowed for those components (m/m)?",
+            "answers": ["0.5% m/m", "2.0% m/m", "0.1% m/m", "5.0% m/m"],
+            "correctAnswer": "0.5% m/m",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_oil_no_octane_boosters():
+    if LANG == "es":
+        return {
+            "question": "Desde 2026, ¿qué prohíbe el reglamento sobre la composición del aceite de motor respecto a aditivos metalorgánicos de gasolina (octane boosters)?",
+            "answers": [
+                "No puede contener aditivos metalorgánicos de gasolina ni otros potenciadores de octanaje de gasolina",
+                "Debe contener manganeso para elevar el octanaje bajo carga",
+                "Puede contener plomo si el combustible es sin azufre",
+                "Solo se prohíben aditivos orgánicos; los metalorgánicos están permitidos"
+            ],
+            "correctAnswer": "No puede contener aditivos metalorgánicos de gasolina ni otros potenciadores de octanaje de gasolina",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Since 2026, what does the regulation forbid in engine oil composition regarding organometallic petrol additives (octane boosters)?",
+            "answers": [
+                "It must not contain organometallic petrol additives or other octane boosting petrol additives",
+                "It must contain manganese to raise octane under load",
+                "It may contain lead if the fuel is sulphur-free",
+                "Only organic additives are forbidden; organometallic ones are allowed"
+            ],
+            "correctAnswer": "It must not contain organometallic petrol additives or other octane boosting petrol additives",
+            "knowledgeLevel": 4,
+            "category": "Technical",
+            "language": LANG
+        }
+
+
 
 def pregunta_sistema_frontal_de_impacto():
     if LANG == "es":
@@ -3482,26 +4832,6 @@ def pregunta_techo_presupuesto():
             ],
             "correctAnswer": "They may face sporting or financial penalties",
             "knowledgeLevel": 3,
-            "category": "Technical",
-            "language": LANG
-        }
-
-def pregunta_bateria_ers():
-    if LANG == "es":
-        return {
-            "question": "¿Cuál es la capacidad máxima permitida de la batería del sistema ERS?",
-            "answers": ["4 MJ", "2 MJ", "6 MJ", "8 MJ"],
-            "correctAnswer": "4 MJ",
-            "knowledgeLevel": 2,
-            "category": "Technical",
-            "language": LANG
-        }
-    elif LANG == "en":
-        return {
-            "question": "What is the maximum allowed battery capacity of the ERS system?",
-            "answers": ["4 MJ", "2 MJ", "6 MJ", "8 MJ"],
-            "correctAnswer": "4 MJ",
-            "knowledgeLevel": 2,
             "category": "Technical",
             "language": LANG
         }
@@ -3592,26 +4922,6 @@ def pregunta_estructura_supervivencia():
             ],
             "correctAnswer": "The survival cell",
             "knowledgeLevel": 2,
-            "category": "Technical",
-            "language": LANG
-        }
-
-def pregunta_limite_flujo_combustible():
-    if LANG == "es":
-        return {
-            "question": "¿Cuál es el límite de flujo de combustible durante la carrera?",
-            "answers": ["100 kg/h", "80 kg/h", "120 kg/h", "90 kg/h"],
-            "correctAnswer": "100 kg/h",
-            "knowledgeLevel": 3,
-            "category": "Technical",
-            "language": LANG
-        }
-    elif LANG == "en":
-        return {
-            "question": "What is the fuel flow limit during the race?",
-            "answers": ["100 kg/h", "80 kg/h", "120 kg/h", "90 kg/h"],
-            "correctAnswer": "100 kg/h",
-            "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
@@ -3709,33 +5019,155 @@ def caso_sancion_parada_no_cumplida():
 
 def caso_drs_activado_bajo_bandera_amarilla():
     if LANG == "es":
+            return {
+                "question": "Un piloto intenta usar Override Mode en un sector con bandera amarilla. ¿Qué puede pasar según el reglamento?",
+                "answers": [
+                    "Dirección de carrera puede deshabilitar el Override Mode en ese sector y el piloto puede ser investigado si lo usa indebidamente",
+                    "No hay ninguna restricción: Override Mode siempre está permitido",
+                    "Solo se desactiva al frenar, sin consecuencias",
+                    "El sistema se activa automáticamente aunque no cumpla condiciones"
+                ],
+                "correctAnswer": "Dirección de carrera puede deshabilitar el Override Mode en ese sector y el piloto puede ser investigado si lo usa indebidamente",
+                "knowledgeLevel": 2,
+                "category": "PracticalCase",
+                "language": LANG
+            }
+    elif LANG == "en":
         return {
-            "question": "Un piloto activa el DRS en una zona donde hay bandera amarilla. ¿Qué riesgo corre?",
+            "question": "A driver tries to use Override Mode in a yellow-flag sector. What can happen under the regulations?",
             "answers": [
-                "Puede ser penalizado por conducción peligrosa",
-                "Recibe solo una advertencia",
-                "No hay sanción si no adelanta",
-                "El DRS se desactiva automáticamente"
+                "Race Control may disable Override Mode in that sector and the driver may be investigated if they misuse it",
+                "There is no restriction: Override Mode is always allowed",
+                "It only deactivates on braking, with no consequences",
+                "The system activates automatically even if conditions are not met"
             ],
-            "correctAnswer": "Puede ser penalizado por conducción peligrosa",
+            "correctAnswer": "Race Control may disable Override Mode in that sector and the driver may be investigated if they misuse it",
             "knowledgeLevel": 2,
             "category": "PracticalCase",
+            "language": LANG
+        }
+
+def pregunta_que_es_driver_adjustable_bodywork():
+    if LANG == "es":
+        return {
+            "question": "¿Qué incluye el sistema de aerodinámica activa (Driver Adjustable Bodywork) según el reglamento?",
+            "answers": [
+                "Ajuste del ala delantera (Front Wing Profiles) y del flap del ala trasera (RW Flap), controlados por la ECU estándar FIA",
+                "Solo la apertura de un flap trasero tipo DRS",
+                "Solo cambios de altura del coche (suspensión) en recta",
+                "Un modo extra de potencia eléctrica (ERS) sin relación aerodinámica"
+            ],
+            "correctAnswer": "Ajuste del ala delantera (Front Wing Profiles) y del flap del ala trasera (RW Flap), controlados por la ECU estándar FIA",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "A driver activates DRS in a yellow flag zone. What risk do they face?",
+            "question": "What does Active Aerodynamics (Driver Adjustable Bodywork) include under the regulations?",
             "answers": [
-                "They may be penalized for dangerous driving",
-                "Only receive a warning",
-                "No penalty if no overtaking occurs",
-                "DRS automatically deactivates"
+                "Adjustment of the Front Wing Profiles and the Rear Wing flap (RW Flap), controlled by the FIA Standard ECU",
+                "Only a rear flap opening like classic DRS",
+                "Only ride-height changes on straights",
+                "An extra ERS power mode unrelated to aerodynamics"
             ],
-            "correctAnswer": "They may be penalized for dangerous driving",
+            "correctAnswer": "Adjustment of the Front Wing Profiles and the Rear Wing flap (RW Flap), controlled by the FIA Standard ECU",
             "knowledgeLevel": 2,
-            "category": "PracticalCase",
+            "category": "Procedures",
             "language": LANG
         }
+
+def pregunta_modos_aero_activa_full_vs_partial():
+    if LANG == "es":
+        return {
+            "question": "¿Qué diferencia hay entre activación total y parcial de la aerodinámica activa (DAB)?",
+            "answers": [
+                "Total: ala delantera y flap trasero en modo de baja incidencia; Parcial: solo el ala delantera en baja incidencia y el flap trasero se mantiene en Corner Mode",
+                "Total: solo se mueve el flap trasero; Parcial: solo se mueve el difusor",
+                "Total: se activa solo con lluvia; Parcial: solo en clasificación",
+                "No existe activación parcial en el reglamento"
+            ],
+            "correctAnswer": "Total: ala delantera y flap trasero en modo de baja incidencia; Parcial: solo el ala delantera en baja incidencia y el flap trasero se mantiene en Corner Mode",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the difference between full and partial activation of Active Aerodynamics (DAB)?",
+            "answers": [
+                "Full: front wing and rear wing flap in low-incidence straight-line mode; Partial: front wing in straight-line mode while rear flap remains in corner mode",
+                "Full: only the rear flap moves; Partial: only the diffuser moves",
+                "Full: only in wet conditions; Partial: only in qualifying",
+                "Partial activation does not exist in the regulations"
+            ],
+            "correctAnswer": "Full: front wing and rear wing flap in low-incidence straight-line mode; Partial: front wing in straight-line mode while rear flap remains in corner mode",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+def pregunta_donde_puede_activarse_aero_activa():
+    if LANG == "es":
+        return {
+            "question": "¿Dónde está permitido que el piloto active la aerodinámica activa (DAB)?",
+            "answers": [
+                "Solo con el coche parado o dentro de una Activation Zone",
+                "En cualquier punto del circuito si está a menos de 1s",
+                "Solo en la recta principal",
+                "Solo durante la primera vuelta"
+            ],
+            "correctAnswer": "Solo con el coche parado o dentro de una Activation Zone",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "Where is the driver allowed to activate Active Aerodynamics (DAB)?",
+            "answers": [
+                "Only when the car is stationary or within an Activation Zone",
+                "Anywhere on track if within one second",
+                "Only on the main straight",
+                "Only on the first lap"
+            ],
+            "correctAnswer": "Only when the car is stationary or within an Activation Zone",
+            "knowledgeLevel": 2,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+def pregunta_override_mode_condicion_ttcs():
+    if LANG == "es":
+        return {
+            "question": "En una sesión de carrera (TTCS), ¿cuándo puede un piloto usar Override Mode?",
+            "answers": [
+                "Cuando está habilitado y, al cruzar la Detection Line, estaba a menos del Detection Gap del coche de delante; se activa en la Activation Line",
+                "Siempre que el piloto quiera, desde la salida",
+                "Solo en clasificación (Q3)",
+                "Solo cuando haya Safety Car"
+            ],
+            "correctAnswer": "Cuando está habilitado y, al cruzar la Detection Line, estaba a menos del Detection Gap del coche de delante; se activa en la Activation Line",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "In a race session (TTCS), when may a driver use Override Mode?",
+            "answers": [
+                "When it is enabled and the car was within the Detection Gap at the Detection Line; it activates at the Activation Line",
+                "Any time the driver wants, from the start",
+                "Only in qualifying (Q3)",
+                "Only under Safety Car"
+            ],
+            "correctAnswer": "When it is enabled and the car was within the Detection Gap at the Detection Line; it activates at the Activation Line",
+            "knowledgeLevel": 3,
+            "category": "Procedures",
+            "language": LANG
+        }
+
+
 
 def caso_reinicio_safety_car_confuso():
     if LANG == "es":
@@ -4310,31 +5742,32 @@ def caso_sello_fia_motor_daño():
 def caso_salida_drs_activado_por_error():
     if LANG == "es":
         return {
-            "question": "El sistema activa el DRS antes de lo permitido por error. ¿Qué debe hacer el piloto?",
+            "question": "El sistema activa el overtake antes de lo permitido por error. ¿Qué debe hacer el piloto?",
             "answers": [
-                "Cerrar el DRS inmediatamente y notificar al equipo",
+                "Desactivar el overtake inmediatamente y notificar al equipo",
                 "Continuar hasta que reciba orden de dirección de carrera",
                 "Aprovecharlo sin riesgo de sanción",
                 "Activar y desactivar repetidamente"
             ],
-            "correctAnswer": "Cerrar el DRS inmediatamente y notificar al equipo",
+            "correctAnswer": "Desactivar el overtake inmediatamente y notificar al equipo",
             "knowledgeLevel": 3,
             "category": "PracticalCase",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "The system opens DRS prematurely by mistake. What must the driver do?",
+            "question": "The system mistakenly activates overtake earlier than permitted. What must the driver do?",
             "answers": [
-                "Close DRS immediately and inform the team",
-                "Keep it open until instructed by race control",
-                "Take advantage with no risk of penalty",
-                "Toggle it repeatedly"
+                "Deactivate overtake immediately and notify the team",
+                "Continue until receiving instructions from race control",
+                "Take advantage of it without risk of penalty",
+                "Activate and deactivate it repeatedly"
             ],
-            "correctAnswer": "Close DRS immediately and inform the team",
+            "correctAnswer": "Deactivate overtake immediately and notify the team",
             "knowledgeLevel": 3,
             "category": "PracticalCase",
             "language": LANG
+
         }
 
 def caso_error_panel_safety_car():
@@ -4609,34 +6042,23 @@ def tecnica_supervision_banco_pruebas():
 
 def tecnica_limite_horas_banco():
     if LANG == "es":
-        return {
-            "question": "¿Cuál es el máximo de horas de operación permitido para bancos de prueba de ERS en 2025 según el reglamento?",
-            "answers": [
-                "110 horas anuales",
-                "250 horas mensuales",
-                "1600 horas anuales",
-                "480 horas por trimestre"
-            ],
-            "correctAnswer": "110 horas anuales",
-            "knowledgeLevel": 3,
-            "category": "Technical",
-            "language": LANG
-        }
-    elif LANG == "en":
-        return {
-            "question": "What is the maximum ERS test bench operation hours allowed in 2025?",
-            "answers": [
-                "110 hours per year",
-                "250 hours per month",
-                "1600 hours per year",
-                "480 hours per quarter"
-            ],
-            "correctAnswer": "110 hours per year",
-            "knowledgeLevel": 3,
-            "category": "Technical",
-            "language": LANG
-        }
-
+            return {
+                "question": "¿Cuál es el número máximo de horas de operación permitidas al año para los bancos de prueba del ERS?",
+                "answers": ["110", "210", "480", "1600"],
+                "correctAnswer": "110",
+                "knowledgeLevel": 3,
+                "category": "Technical",
+                "language": LANG
+            }
+        elif LANG == "en":
+            return {
+                "question": "What is the maximum number of operation hours allowed per year for ERS test benches?",
+                "answers": ["110", "210", "480", "1600"],
+                "correctAnswer": "110",
+                "knowledgeLevel": 3,
+                "category": "Technical",
+                "language": LANG
+            }
 def tecnica_inspeccion_postcarrera_inconformidad():
     if LANG == "es":
         return {
@@ -4730,7 +6152,7 @@ def tecnica_presion_minima_neumaticos():
 def tecnica_limite_consumo_combustible():
     if LANG == "es":
         return {
-            "question": "Según el reglamento 2025, ¿qué sanción se aplica si un coche excede el flujo máximo de combustible permitido?",
+            "question": "¿Qué sanción se aplica si un coche excede el flujo máximo de combustible permitido?",
             "answers": [
                 "Descalificación por obtener ventaja competitiva",
                 "Recorte de potencia en la siguiente sesión",
@@ -4744,7 +6166,7 @@ def tecnica_limite_consumo_combustible():
         }
     elif LANG == "en":
         return {
-            "question": "According to the 2025 regulations, what penalty is applied if a car exceeds the permitted fuel flow rate?",
+            "question": "What penalty is applied if a car exceeds the permitted fuel flow rate?",
             "answers": [
                 "Disqualification for gaining a competitive advantage",
                 "Power reduction in the next session",
@@ -4787,66 +6209,63 @@ def tecnica_estructura_impacto_lateral():
             "language": LANG
         }
 
-def tecnica_limite_bancos_prueba():
+def tecnica_limite_bancos_prueba_numero():
     if LANG == "es":
-        return {
-            "question": "¿Cuál es el número máximo de bancos de prueba de ERS permitidos por fabricante en 2025?",
-            "answers": ["4", "3", "6", "5"],
-            "correctAnswer": "4",
-            "knowledgeLevel": 3,
-            "category": "Technical",
-            "language": LANG
-        }
+            return {
+                "question": "¿Cuál es el número máximo de bancos de prueba de ERS permitidos por fabricante?",
+                "answers": ["4", "3", "5", "6"],
+                "correctAnswer": "4",
+                "knowledgeLevel": 3,
+                "category": "Technical",
+                "language": LANG
+            }
     elif LANG == "en":
         return {
-            "question": "What is the maximum number of ERS test benches allowed per manufacturer in 2025?",
-            "answers": ["4", "3", "6", "5"],
+            "question": "What is the maximum number of ERS test benches allowed per manufacturer?",
+            "answers": ["4", "3", "5", "6"],
             "correctAnswer": "4",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
-
 def tecnica_max_horas_operacion_anual():
     if LANG == "es":
-        return {
-            "question": "¿Cuál es el número máximo de horas de operación permitido para bancos de prueba de ERS en 2025?",
-            "answers": ["110", "210", "480", "1600"],
-            "correctAnswer": "110",
-            "knowledgeLevel": 3,
-            "category": "Technical",
-            "language": LANG
-        }
+            return {
+                "question": "¿Cuál es el número máximo de horas de operación permitidas al año para los bancos de prueba del ERS?",
+                "answers": ["110", "210", "480", "1600"],
+                "correctAnswer": "110",
+                "knowledgeLevel": 3,
+                "category": "Technical",
+                "language": LANG
+            }
     elif LANG == "en":
         return {
-            "question": "What is the maximum number of operation hours allowed for ERS test benches in 2025?",
+            "question": "What is the maximum number of operation hours allowed per year for ERS test benches?",
             "answers": ["110", "210", "480", "1600"],
             "correctAnswer": "110",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
-
 def tecnica_max_horas_ocupacion_anual():
     if LANG == "es":
-        return {
-            "question": "Según el reglamento 2025, ¿cuántas horas de ocupación de banco están permitidas por año para el ERS?",
-            "answers": ["480", "880", "1600", "320"],
-            "correctAnswer": "480",
-            "knowledgeLevel": 3,
-            "category": "Technical",
-            "language": LANG
-        }
+            return {
+                "question": "¿Cuántas horas máximas de ocupación de banco están permitidas por año para el ERS?",
+                "answers": ["480", "880", "1600", "320"],
+                "correctAnswer": "480",
+                "knowledgeLevel": 3,
+                "category": "Technical",
+                "language": LANG
+            }
     elif LANG == "en":
         return {
-            "question": "According to the 2025 regulations, how many bench occupancy hours are allowed annually for ERS?",
+            "question": "How many ERS test bench occupancy hours are allowed per year?",
             "answers": ["480", "880", "1600", "320"],
             "correctAnswer": "480",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
-
 def tecnica_valor_amperaje_ers_banco():
     if LANG == "es":
         return {
@@ -4870,38 +6289,37 @@ def tecnica_valor_amperaje_ers_banco():
 def tecnica_max_horas_operacion_periodo():
     if LANG == "es":
         return {
-            "question": "¿Cuál es el límite de horas de operación por período de 10 semanas para bancos de ERS en 2025?",
-            "answers": ["110", "60", "80", "40"],
-            "correctAnswer": "110",
+            "question": "¿Cuál es el límite de horas de operación por período de 10 semanas para bancos de prueba del ERS?",
+            "answers": ["60", "40", "80", "110"],
+            "correctAnswer": "60",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the operation hours limit per 10-week period for ERS benches in 2025?",
-            "answers": ["110", "60", "80", "40"],
-            "correctAnswer": "110",
+            "question": "What is the operation hours limit per 10-week period for ERS test benches?",
+            "answers": ["60", "40", "80", "110"],
+            "correctAnswer": "60",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
-
 def tecnica_peso_minimo_monoplaza():
     if LANG == "es":
         return {
-            "question": "¿Cuál es el peso mínimo permitido para un monoplaza según el reglamento técnico FIA 2025?",
-            "answers": ["798 kg", "796 kg", "800 kg", "790 kg"],
-            "correctAnswer": "798 kg",
+            "question": "¿Cuál es el peso mínimo permitido para un monoplaza según el reglamento técnico?",
+            "answers": ["768 kg", "780 kg", "750 kg", "798 kg"],
+            "correctAnswer": "768 kg",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the minimum weight allowed for an F1 car under the 2025 FIA technical regulations?",
-            "answers": ["798 kg", "796 kg", "800 kg", "790 kg"],
-            "correctAnswer": "798 kg",
+            "question": "What is the minimum weight allowed for an F1 car under the technical regulations?",
+            "answers": ["768 kg", "780 kg", "750 kg", "798 kg"],
+            "correctAnswer": "768 kg",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
@@ -4910,18 +6328,18 @@ def tecnica_peso_minimo_monoplaza():
 def tecnica_capacidad_maxima_bateria():
     if LANG == "es":
         return {
-            "question": "¿Cuál es la capacidad máxima permitida para la batería del ERS en 2025?",
-            "answers": ["4 MJ", "5 MJ", "3 MJ", "2 MJ"],
-            "correctAnswer": "4 MJ",
+            "question": "¿Cuál es la capacidad máxima permitida para la batería del sistema ERS?",
+            "answers": ["9 MJ", "4 MJ", "6 MJ", "12 MJ"],
+            "correctAnswer": "9 MJ",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the maximum allowed capacity of the ERS battery in 2025?",
-            "answers": ["4 MJ", "5 MJ", "3 MJ", "2 MJ"],
-            "correctAnswer": "4 MJ",
+            "question": "What is the maximum allowed capacity of the ERS battery?",
+            "answers": ["9 MJ", "4 MJ", "6 MJ", "12 MJ"],
+            "correctAnswer": "9 MJ",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
@@ -4930,18 +6348,38 @@ def tecnica_capacidad_maxima_bateria():
 def tecnica_velocidad_maxima_mgu():
     if LANG == "es":
         return {
-            "question": "¿Cuál es la velocidad máxima operativa permitida para los MGU en banco según la normativa de 2025?",
-            "answers": ["1000 rpm", "5000 rpm", "12000 rpm", "15000 rpm"],
-            "correctAnswer": "1000 rpm",
+            "question": "¿Cuál es la velocidad máxima operativa permitida para los MGU en banco de pruebas?",
+            "answers": ["50000 rpm", "15000 rpm", "12000 rpm", "1000 rpm"],
+            "correctAnswer": "50000 rpm",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the maximum operating speed permitted for MGUs on test benches under 2025 regulations?",
-            "answers": ["1000 rpm", "5000 rpm", "12000 rpm", "15000 rpm"],
-            "correctAnswer": "1000 rpm",
+            "question": "What is the maximum operating speed permitted for MGUs on test benches?",
+            "answers": ["50000 rpm", "15000 rpm", "12000 rpm", "1000 rpm"],
+            "correctAnswer": "50000 rpm",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+
+def tecnica_velocidad_maxima_mgu():
+    if LANG == "es":
+        return {
+            "question": "¿Cuál es la velocidad máxima operativa permitida para los MGU en banco de pruebas?",
+            "answers": ["50000 rpm", "15000 rpm", "12000 rpm", "1000 rpm"],
+            "correctAnswer": "50000 rpm",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum operating speed permitted for MGUs on test benches?",
+            "answers": ["50000 rpm", "15000 rpm", "12000 rpm", "1000 rpm"],
+            "correctAnswer": "50000 rpm",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
@@ -4950,18 +6388,18 @@ def tecnica_velocidad_maxima_mgu():
 def tecnica_flujo_combustible_maximo():
     if LANG == "es":
         return {
-            "question": "¿Cuál es el flujo de combustible máximo permitido durante carrera según el reglamento técnico 2025?",
-            "answers": ["100 kg/h", "120 kg/h", "110 kg/h", "90 kg/h"],
-            "correctAnswer": "100 kg/h",
+            "question": "¿Cuál es el límite máximo de flujo energético del combustible permitido durante carrera?",
+            "answers": ["3000 MJ/h", "100 kg/h", "2500 MJ/h", "3500 MJ/h"],
+            "correctAnswer": "3000 MJ/h",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the maximum fuel flow allowed during a race according to 2025 technical regulations?",
-            "answers": ["100 kg/h", "120 kg/h", "110 kg/h", "90 kg/h"],
-            "correctAnswer": "100 kg/h",
+            "question": "What is the maximum allowed fuel energy flow during a race?",
+            "answers": ["3000 MJ/h", "100 kg/h", "2500 MJ/h", "3500 MJ/h"],
+            "correctAnswer": "3000 MJ/h",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
@@ -4970,22 +6408,33 @@ def tecnica_flujo_combustible_maximo():
 def tecnica_num_max_ers_elements():
     if LANG == "es":
         return {
-            "question": "¿Cuántas unidades de MGU-K puede utilizar un piloto por temporada sin penalización según el reglamento 2025?",
-            "answers": ["4", "2", "5", "6"],
-            "correctAnswer": "4",
+            "question": "Según el reglamento técnico actual, ¿cómo se controla el uso de unidades MGU-K por piloto?",
+            "answers": [
+                "Mediante homologación y límites de coste",
+                "Con un máximo fijo por temporada",
+                "Por número de Grandes Premios disputados",
+                "Con penalización automática tras la cuarta unidad"
+            ],
+            "correctAnswer": "Mediante homologación y límites de coste",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "How many MGU-K units may a driver use per season without penalty under 2025 rules?",
-            "answers": ["4", "2", "5", "6"],
-            "correctAnswer": "4",
+            "question": "Under the current technical regulations, how is the use of MGU-K units per driver controlled?",
+            "answers": [
+                "Through homologation and cost limits",
+                "With a fixed seasonal limit",
+                "By number of Grands Prix contested",
+                "With automatic penalties after the fourth unit"
+            ],
+            "correctAnswer": "Through homologation and cost limits",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
+
 
 def tecnica_velocidad_banco_declarada():
     if LANG == "es":
@@ -5010,18 +6459,18 @@ def tecnica_velocidad_banco_declarada():
 def tecnica_limite_tiempo_periodo_10_semanas():
     if LANG == "es":
         return {
-            "question": "¿Cuál es el límite de horas de operación de bancos de pruebas ERS por período de 10 semanas en 2025?",
-            "answers": ["110 horas", "210 horas", "60 horas", "480 horas"],
-            "correctAnswer": "110 horas",
+            "question": "¿Cuál es el límite de horas de operación de bancos de pruebas del ERS por período de 10 semanas?",
+            "answers": ["60 horas", "40 horas", "80 horas", "110 horas"],
+            "correctAnswer": "60 horas",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the operation hour limit for ERS benches per 10-week period in 2025?",
-            "answers": ["110 hours", "210 hours", "60 hours", "480 hours"],
-            "correctAnswer": "110 hours",
+            "question": "What is the operation hour limit for ERS test benches per 10-week period?",
+            "answers": ["60 hours", "40 hours", "80 hours", "110 hours"],
+            "correctAnswer": "60 hours",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
@@ -5030,18 +6479,28 @@ def tecnica_limite_tiempo_periodo_10_semanas():
 def tecnica_max_uso_combustible_total():
     if LANG == "es":
         return {
-            "question": "¿Cuál es la cantidad máxima de combustible que puede usarse durante una carrera en 2025?",
-            "answers": ["110 kg", "100 kg", "105 kg", "95 kg"],
-            "correctAnswer": "110 kg",
+            "question": "¿Cómo limita el reglamento el uso de combustible durante una carrera?",
+            "answers": [
+                "Mediante un límite de energía del combustible",
+                "Mediante un máximo fijo de kg por carrera",
+                "Mediante un máximo de litros por stint",
+                "No existe limitación, solo pesa el depósito"
+            ],
+            "correctAnswer": "Mediante un límite de energía del combustible",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the maximum fuel amount that can be used during a race in 2025?",
-            "answers": ["110 kg", "100 kg", "105 kg", "95 kg"],
-            "correctAnswer": "110 kg",
+            "question": "How do the regulations limit fuel usage during a race?",
+            "answers": [
+                "Through a fuel energy limit",
+                "Through a fixed maximum kg per race",
+                "Through a maximum liters per stint",
+                "There is no limit, only tank capacity matters"
+            ],
+            "correctAnswer": "Through a fuel energy limit",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
@@ -5050,18 +6509,28 @@ def tecnica_max_uso_combustible_total():
 def tecnica_max_presion_neumaticos():
     if LANG == "es":
         return {
-            "question": "¿Cuál es la presión mínima recomendada para los neumáticos delanteros según normativa FIA 2025?",
-            "answers": ["21 psi", "19 psi", "23 psi", "25 psi"],
-            "correctAnswer": "21 psi",
+            "question": "¿Quién establece las presiones mínimas obligatorias de neumáticos para un Gran Premio?",
+            "answers": [
+                "La FIA junto con el proveedor de neumáticos para ese evento",
+                "El equipo, libremente",
+                "El piloto durante la vuelta de formación",
+                "El promotor del circuito"
+            ],
+            "correctAnswer": "La FIA junto con el proveedor de neumáticos para ese evento",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the recommended minimum front tyre pressure according to 2025 FIA rules?",
-            "answers": ["21 psi", "19 psi", "23 psi", "25 psi"],
-            "correctAnswer": "21 psi",
+            "question": "Who sets the mandatory minimum tyre pressures for a Grand Prix?",
+            "answers": [
+                "The FIA together with the tyre supplier for that event",
+                "The team, freely",
+                "The driver during the formation lap",
+                "The circuit promoter"
+            ],
+            "correctAnswer": "The FIA together with the tyre supplier for that event",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
@@ -5070,22 +6539,33 @@ def tecnica_max_presion_neumaticos():
 def tecnica_ratio_uso_combustible_max():
     if LANG == "es":
         return {
-            "question": "¿Cuál es el ratio de flujo máximo de combustible permitido durante aceleración en 2025?",
-            "answers": ["100 kg/h", "1.1 kg/min", "1.5 kg/min", "0.9 kg/min"],
-            "correctAnswer": "100 kg/h",
+            "question": "¿Qué magnitud usa el reglamento para limitar el aporte del combustible al motor durante la carrera?",
+            "answers": [
+                "El flujo energético del combustible (Fuel Energy Flow)",
+                "El caudal en kg/h en todo momento",
+                "El número de inyecciones por segundo",
+                "El caudal en litros/min según el piloto"
+            ],
+            "correctAnswer": "El flujo energético del combustible (Fuel Energy Flow)",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What is the maximum fuel flow rate allowed during acceleration in 2025?",
-            "answers": ["100 kg/h", "1.1 kg/min", "1.5 kg/min", "0.9 kg/min"],
-            "correctAnswer": "100 kg/h",
+            "question": "Which measure do the regulations use to limit the fuel contribution to the engine during the race?",
+            "answers": [
+                "Fuel Energy Flow",
+                "Fuel mass flow (kg/h) at all times",
+                "Number of injections per second",
+                "Fuel flow in liters/min depending on the driver"
+            ],
+            "correctAnswer": "Fuel Energy Flow",
             "knowledgeLevel": 3,
             "category": "Technical",
             "language": LANG
         }
+
 
 def qualifying_salida_pitlane_durante_q1():
     if LANG == "es":
@@ -5240,18 +6720,28 @@ def qualifying_tiempo_107_reglamento():
 def qualifying_neumaticos_q1():
     if LANG == "es":
         return {
-            "question": "¿Qué tipo de neumáticos deben usarse obligatoriamente en Q1 según el reglamento FIA 2025?",
-            "answers": ["Duros", "Medios", "Blandos", "Intermedios"],
-            "correctAnswer": "Duros",
+            "question": "En clasificación, ¿qué compuestos de neumáticos puede usar un piloto si están disponibles para el evento?",
+            "answers": [
+                "Cualquiera de los compuestos slick asignados para el evento (salvo restricciones específicas)",
+                "Solo duros en Q1 por norma",
+                "Solo medios en Q2 por norma",
+                "Solo blandos en Q3 por norma"
+            ],
+            "correctAnswer": "Cualquiera de los compuestos slick asignados para el evento (salvo restricciones específicas)",
             "knowledgeLevel": 2,
             "category": "Qualifying",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "What type of tyres must be used in Q1 according to 2025 FIA regulations?",
-            "answers": ["Hard", "Medium", "Soft", "Intermediate"],
-            "correctAnswer": "Hard",
+            "question": "In qualifying, which tyre compounds may a driver use if they are available for the event?",
+            "answers": [
+                "Any of the event’s allocated slick compounds (unless specific restrictions apply)",
+                "Only hard tyres in Q1 by rule",
+                "Only medium tyres in Q2 by rule",
+                "Only soft tyres in Q3 by rule"
+            ],
+            "correctAnswer": "Any of the event’s allocated slick compounds (unless specific restrictions apply)",
             "knowledgeLevel": 2,
             "category": "Qualifying",
             "language": LANG
@@ -5589,29 +7079,29 @@ def qualifying_supera_limite_vuelta_reingreso():
 
 def qualifying_prohibido_uso_drs():
     if LANG == "es":
-        return {
-            "question": "¿En qué condición no está permitido usar DRS durante clasificación?",
-            "answers": [
-                "Bajo bandera amarilla o condiciones inseguras",
-                "Cuando hay más de 10 coches en pista",
-                "Durante la vuelta de salida de boxes",
-                "En la Q1 únicamente"
-            ],
-            "correctAnswer": "Bajo bandera amarilla o condiciones inseguras",
-            "knowledgeLevel": 3,
-            "category": "Qualifying",
-            "language": LANG
-        }
+            return {
+                "question": "¿En qué caso puede Dirección de Carrera deshabilitar la activación de la aerodinámica activa (Driver Adjustable Bodywork) durante clasificación?",
+                "answers": [
+                    "Si hay bandera amarilla o doble amarilla en una Activation Zone (o condiciones inseguras)",
+                    "Cuando hay más de 10 coches en pista",
+                    "Durante la vuelta de salida de boxes siempre",
+                    "Solo en la Q1"
+                ],
+                "correctAnswer": "Si hay bandera amarilla o doble amarilla en una Activation Zone (o condiciones inseguras)",
+                "knowledgeLevel": 3,
+                "category": "Qualifying",
+                "language": LANG
+            }
     elif LANG == "en":
         return {
-            "question": "When is the use of DRS prohibited during qualifying?",
+            "question": "When can Race Control disable activation of Active Aerodynamics (Driver Adjustable Bodywork) during qualifying?",
             "answers": [
-                "Under yellow flag or unsafe conditions",
+                "If yellow/double yellow flags are shown in an Activation Zone (or unsafe conditions)",
                 "When more than 10 cars are on track",
-                "During out lap from pits",
-                "Only during Q1"
+                "Always during the out lap from the pits",
+                "Only in Q1"
             ],
-            "correctAnswer": "Under yellow flag or unsafe conditions",
+            "correctAnswer": "If yellow/double yellow flags are shown in an Activation Zone (or unsafe conditions)",
             "knowledgeLevel": 3,
             "category": "Qualifying",
             "language": LANG
@@ -6039,34 +7529,33 @@ def pregunta_orden_salida_sc_mas_de_una_vuelta():
 
 def pregunta_prohibido_usar_drs_sc():
     if LANG == "es":
-        return {
-            "question": "¿Cuándo puede reactivarse el uso del DRS después de un periodo de Safety Car?",
-            "answers": [
-                "Dos vueltas después del reinicio si dirección de carrera lo permite",
-                "Inmediatamente al apagarse las luces del SC",
-                "Una vuelta antes de la reanudación",
-                "Solo si hay menos de 10 coches en pista"
-            ],
-            "correctAnswer": "Dos vueltas después del reinicio si dirección de carrera lo permite",
-            "knowledgeLevel": 3,
-            "category": "SafetyCar",
-            "language": LANG
-        }
+            return {
+                "question": "¿Cuándo se vuelve a habilitar la aerodinámica activa (Driver Adjustable Bodywork) después de un Safety Car?",
+                "answers": [
+                    "Cuando el Safety Car cruza la primera Safety Car Line en la vuelta en la que regresa al pit lane",
+                    "En cuanto se apagan las luces del Safety Car",
+                    "Dos vueltas después del reinicio",
+                    "Solo cuando lo pide el piloto por radio"
+                ],
+                "correctAnswer": "Cuando el Safety Car cruza la primera Safety Car Line en la vuelta en la que regresa al pit lane",
+                "knowledgeLevel": 3,
+                "category": "SafetyCar",
+                "language": LANG
+            }
     elif LANG == "en":
         return {
-            "question": "When can DRS be re-enabled after a Safety Car period?",
+            "question": "When is Active Aerodynamics (Driver Adjustable Bodywork) re-enabled after a Safety Car?",
             "answers": [
-                "Two laps after the restart if race control allows it",
-                "Immediately when SC lights are off",
-                "One lap before restart",
-                "Only if fewer than 10 cars remain"
+                "When the Safety Car crosses Safety Car Line 1 on the lap it returns to the pit lane",
+                "As soon as the Safety Car lights go out",
+                "Two laps after the restart",
+                "Only when the driver requests it by radio"
             ],
-            "correctAnswer": "Two laps after the restart if race control allows it",
+            "correctAnswer": "When the Safety Car crosses Safety Car Line 1 on the lap it returns to the pit lane",
             "knowledgeLevel": 3,
             "category": "SafetyCar",
             "language": LANG
         }
-
 def pregunta_comportamiento_frenada_reinicio():
     if LANG == "es":
         return {
@@ -6074,7 +7563,7 @@ def pregunta_comportamiento_frenada_reinicio():
             "answers": [
                 "Frenazos o cambios de ritmo impredecibles",
                 "Aceleración máxima en la recta",
-                "Uso del DRS antes del punto activado",
+                "Uso del overtake antes del punto activado",
                 "Adelantar dentro del pit lane"
             ],
             "correctAnswer": "Frenazos o cambios de ritmo impredecibles",
@@ -6088,7 +7577,7 @@ def pregunta_comportamiento_frenada_reinicio():
             "answers": [
                 "Sudden braking or unpredictable pace changes",
                 "Maximum acceleration on the straight",
-                "Using DRS before the activation zone",
+                "Using overtake mode before the activation zone",
                 "Overtaking inside the pit lane"
             ],
             "correctAnswer": "Sudden braking or unpredictable pace changes",
@@ -6275,7 +7764,7 @@ def pregunta_safetycar_lineas_adelantamiento():
                 "Línea del coche de seguridad 1 (SC1)",
                 "Línea de salida de boxes",
                 "Línea de meta",
-                "Zona de DRS"
+                "Zona de overtake"
             ],
             "correctAnswer": "Línea del coche de seguridad 1 (SC1)",
             "knowledgeLevel": 2,
@@ -6289,7 +7778,7 @@ def pregunta_safetycar_lineas_adelantamiento():
                 "Safety Car Line 1 (SC1)",
                 "Pit exit line",
                 "Finish line",
-                "DRS zone"
+                "Overtake zone"
             ],
             "correctAnswer": "Safety Car Line 1 (SC1)",
             "knowledgeLevel": 2,
@@ -6360,28 +7849,28 @@ def pregunta_comportamiento_coche_doblado():
 def pregunta_safetycar_inicio_lluvia():
     if LANG == "es":
         return {
-            "question": "¿Cómo se inicia una carrera en condiciones de lluvia extrema según el reglamento 2025?",
+            "question": "En condiciones de visibilidad o agarre muy comprometidos por lluvia, ¿qué puede ordenar Dirección de Carrera para el inicio?",
             "answers": [
-                "Detrás del Safety Car hasta que se considere seguro para largada lanzada o detenida",
-                "Con bandera roja automática",
-                "Con la obligación de salir desde boxes",
-                "Solo tras una vuelta de formación sin SC"
+                "Una salida detrás del Safety Car hasta que se considere seguro",
+                "Una bandera roja automática siempre",
+                "La obligación de salir desde boxes",
+                "Una salida detenida obligatoria sin excepción"
             ],
-            "correctAnswer": "Detrás del Safety Car hasta que se considere seguro para largada lanzada o detenida",
+            "correctAnswer": "Una salida detrás del Safety Car hasta que se considere seguro",
             "knowledgeLevel": 3,
             "category": "SafetyCar",
             "language": LANG
         }
     elif LANG == "en":
         return {
-            "question": "How is a race started in extreme wet conditions according to the 2025 regulations?",
+            "question": "In very poor visibility or grip due to heavy rain, what can Race Control order for the start?",
             "answers": [
-                "Behind the Safety Car until safe for rolling or standing start",
-                "With automatic red flag",
-                "All cars must start from the pit lane",
-                "Only after a formation lap without SC"
+                "A start behind the Safety Car until it is considered safe",
+                "An automatic red flag every time",
+                "Mandatory pit lane starts",
+                "A mandatory standing start with no exceptions"
             ],
-            "correctAnswer": "Behind the Safety Car until safe for rolling or standing start",
+            "correctAnswer": "A start behind the Safety Car until it is considered safe",
             "knowledgeLevel": 3,
             "category": "SafetyCar",
             "language": LANG
@@ -6451,8 +7940,8 @@ def pregunta_velocidad_segura_pitlane_sc():
     if LANG == "es":
         return {
             "question": "¿Qué velocidad debe respetarse obligatoriamente en el pit lane bajo Safety Car?",
-            "answers": ["80 km/h", "60 km/h", "100 km/h", "70 km/h"],
-            "correctAnswer": "80 km/h",
+            "answers": ["Depende del evento", "60 km/h", "100 km/h", "70 km/h"],
+            "correctAnswer": "Depende del evento",
             "knowledgeLevel": 2,
             "category": "SafetyCar",
             "language": LANG
@@ -6460,8 +7949,8 @@ def pregunta_velocidad_segura_pitlane_sc():
     elif LANG == "en":
         return {
             "question": "What speed must be respected in the pit lane during a Safety Car period?",
-            "answers": ["80 km/h", "60 km/h", "100 km/h", "70 km/h"],
-            "correctAnswer": "80 km/h",
+            "answers": ["It depends on the event", "60 km/h", "100 km/h", "70 km/h"],
+            "correctAnswer": "It depends on the event",
             "knowledgeLevel": 2,
             "category": "SafetyCar",
             "language": LANG
@@ -7689,34 +9178,33 @@ def pregunta_piloto_debe_atender():
 
 def pregunta_piloto_drs_incorrecto():
     if LANG == "es":
-        return {
-            "question": "¿Qué sanción puede recibir un piloto si activa el DRS fuera de la zona permitida?",
-            "answers": [
-                "Penalización de tiempo o pérdida de vuelta rápida",
-                "Descalificación inmediata",
-                "No puede usar DRS el resto de la carrera",
-                "Debe entrar a boxes"
-            ],
-            "correctAnswer": "Penalización de tiempo o pérdida de vuelta rápida",
-            "knowledgeLevel": 2,
-            "category": "Drivers",
-            "language": LANG
-        }
+            return {
+                "question": "Si un piloto activa la aerodinámica activa (Driver Adjustable Bodywork) fuera de una Activation Zone estando en pista, ¿qué puede ocurrir?",
+                "answers": [
+                    "Puede ser investigado y sancionado por los comisarios por uso indebido del sistema",
+                    "No pasa nada porque el sistema siempre se permite",
+                    "Solo pierde la vuelta rápida automáticamente",
+                    "Se le obliga a entrar a boxes inmediatamente"
+                ],
+                "correctAnswer": "Puede ser investigado y sancionado por los comisarios por uso indebido del sistema",
+                "knowledgeLevel": 2,
+                "category": "Drivers",
+                "language": LANG
+            }
     elif LANG == "en":
         return {
-            "question": "What penalty can a driver receive for activating DRS outside the permitted zone?",
+            "question": "If a driver activates Active Aerodynamics (Driver Adjustable Bodywork) outside an Activation Zone while on track, what can happen?",
             "answers": [
-                "Time penalty or fastest lap deletion",
-                "Immediate disqualification",
-                "Forbidden from using DRS for the rest of the race",
-                "Must pit immediately"
+                "They may be investigated and penalized by the stewards for improper use of the system",
+                "Nothing, because it is always allowed",
+                "Only the fastest lap is automatically deleted",
+                "They must pit immediately"
             ],
-            "correctAnswer": "Time penalty or fastest lap deletion",
+            "correctAnswer": "They may be investigated and penalized by the stewards for improper use of the system",
             "knowledgeLevel": 2,
             "category": "Drivers",
             "language": LANG
         }
-
 def pregunta_superlicencia_requisitos():
     if LANG == "es":
         return {
@@ -9676,7 +11164,7 @@ def pregunta_apagado_emergencia():
                 "Ser desconectado desde fuera y dentro del coche",
                 "Emitir una señal acústica",
                 "Mostrar advertencias visuales en el cockpit",
-                "Encender el DRS automáticamente"
+                "Encender el overtake automáticamente"
             ],
             "correctAnswer": "Ser desconectado desde fuera y dentro del coche",
             "knowledgeLevel": 3,
@@ -9690,7 +11178,7 @@ def pregunta_apagado_emergencia():
                 "Be shut off from both outside and inside the car",
                 "Emit an acoustic signal",
                 "Display visual warnings on the cockpit",
-                "Automatically activate DRS"
+                "Automatically activate overtake mode"
             ],
             "correctAnswer": "Be shut off from both outside and inside the car",
             "knowledgeLevel": 3,
@@ -10240,6 +11728,14 @@ generadores_por_categoria = {
         pregunta_boxes_vuelta_formacion,
         pregunta_luces_salida,
         pregunta_activacion_drs,
+        pregunta_override_mode_condicion_uso,
+        pregunta_override_mode_desactivacion_gap,
+        pregunta_override_mode_recharge_harvesting,
+        pregunta_override_mode_safety_car,
+        pregunta_aerodinamica_activa_definicion,
+        pregunta_driver_adjustable_bodywork_definicion,
+        pregunta_override_mode_definicion,
+        pregunta_recharge_mode_definicion,
         pregunta_vuelta_formacion,
         pregunta_orden_reinicio_bandera_roja,
         pregunta_inicio_formacion_sprint,
@@ -10255,7 +11751,11 @@ generadores_por_categoria = {
         pregunta_entrada_boxes_durante_formacion,
         pregunta_cancelacion_salida_inminente,
         pregunta_posicion_salida_despues_vuelta_extra,
-        pregunta_final_banderazo
+        pregunta_final_banderazo,
+        pregunta_que_es_driver_adjustable_bodywork,
+        pregunta_modos_aero_activa_full_vs_partial,
+        pregunta_donde_puede_activarse_aero_activa,
+        pregunta_override_mode_condicion_ttcs
     ],
     "ParcFerme": [
         pregunta_inicio_parque_cerrado,
@@ -10507,17 +12007,13 @@ generadores_por_categoria = {
         pregunta_modificaciones_parque_cerrado,
         pregunta_bandera_amarilla_doble,
         pregunta_modificaciones_bandera_roja,
-        pregunta_aleron_trasero_flexibilidad,
         pregunta_dimensiones_vehiculo,
-        pregunta_peso_combustible_postcarrera,
         pregunta_sistema_frontal_de_impacto,
         pregunta_sensores_obligatorios,
         pregunta_techo_presupuesto,
-        pregunta_bateria_ers,
         pregunta_uso_fibra_carbono,
         pregunta_modificaciones_piezas_sello,
         pregunta_estructura_supervivencia,
-        pregunta_limite_flujo_combustible,
         tecnica_tolerancia_flexion_aleron,
         tecnica_refrigeracion_ers_fuera_limite,
         tecnica_materiales_prohibidos_chasis,
@@ -10529,6 +12025,7 @@ generadores_por_categoria = {
         tecnica_limite_consumo_combustible,
         tecnica_estructura_impacto_lateral,
         tecnica_limite_bancos_prueba,
+        tecnica_limite_bancos_prueba_numero,
         tecnica_max_horas_operacion_anual,
         tecnica_max_horas_ocupacion_anual,
         tecnica_valor_amperaje_ers_banco,
@@ -10536,13 +12033,62 @@ generadores_por_categoria = {
         tecnica_peso_minimo_monoplaza,
         tecnica_capacidad_maxima_bateria,
         tecnica_velocidad_maxima_mgu,
-        tecnica_flujo_combustible_maximo,
         tecnica_num_max_ers_elements,
         tecnica_velocidad_banco_declarada,
         tecnica_limite_tiempo_periodo_10_semanas,
         tecnica_max_uso_combustible_total,
         tecnica_max_presion_neumaticos,
-        tecnica_ratio_uso_combustible_max
+        tecnica_ratio_uso_combustible_max,                # ✅ 2026
+        pregunta_peso_combustible_postcarrera,          # ✅ 2026
+        pregunta_refueling_rate,                        # ✅ 2026 (en garaje)
+        pregunta_monoplaza_ers,                         # ✅ 2026 (MGU-K + Energy Store)
+        pregunta_mguk_potencia_maxima,                  # ✅ 2026
+        pregunta_mguk_velocidad_minima_uso,             # ✅ 2026
+        pregunta_mguk_par_maximo,                       # ✅ 2026
+        pregunta_mguk_rpm_maximo,                       # ✅ 2026
+        pregunta_energia_recuperada_por_vuelta,         # ✅ 2026
+        pregunta_flujo_energia_combustible,             # ✅ 2026 (Fuel Energy Flow)
+        pregunta_spark_energy_maxima,                   # ✅ 2026
+        pregunta_modo_ice_unico,                        # ✅ 2026
+        pregunta_numero_depositos_aceite,               # ✅ 2026
+        pregunta_valvula_alivio_refrigerante,           # ✅ 2026
+        pregunta_combustible_temperatura,               # ✅ 2026
+        pregunta_dispositivo_temperatura_combustible,   # ✅ 2026
+        pregunta_fuel_bladders_edad,                    # ✅ 2026
+        pregunta_fuel_line_cockpit,                     # ✅ 2026
+        pregunta_breakaway_valve,                       # ✅ 2026
+        pregunta_fuel_cell_presion_max,                 # ✅ 2026
+        pregunta_fuel_tank_blader_standard,             # ✅ 2026
+        pregunta_oil_tank_sensor,                       # ✅ 2026
+        pregunta_materiales_combustible_exotermicos,    # ✅ 2026
+        pregunta_oil_propiedades_flashpoint,            # ✅ 2026
+        pregunta_voltage_maximo_ers,                    # ✅ 2026
+        pregunta_fuel_oxigeno_pct,                      # ✅ 2026
+        pregunta_fuel_sulphur_max,                      # ✅ 2026
+        pregunta_componentes_combustible_no_sostenibles,# ✅ 2026
+        pregunta_aperturas_fuel_blader,                 # ✅ 2026
+        pregunta_componentes_mangueras_fuel_sampling,   # ✅ 2026
+        pregunta_lubricacion_componentes_pu,            # ✅ 2026
+        pregunta_oil_tank_auxiliar_prohibido,           # ✅ 2026
+        pregunta_ers_transport_un383,                   # ✅ 2026
+        pregunta_principio_cooling_latent_heat,         # ✅ 2026
+        pregunta_cooling_sistema_driver_heat_hazard,    # ✅ 2026
+
+        # --- ✅ reemplazos/ajustes 2026 (evita mantener las viejas obsoletas) ---
+        tecnica_repostaje_durante_carrera,              # ✅ 2026 (prohibido durante Race)
+        tecnica_presion_componentes_fuera_deposito,     # ✅ 2026 (>10 barG fuera del tank)
+        tecnica_sensores_obligatorios_fuel_density,     # ✅ 2026 (control densidad)
+        tecnica_aceite_un_solo_tipo,                    # ✅ 2026 (aprobación FIA previa)
+        tecnica_declaracion_aceite_competicion,         # ✅ 2026
+        tecnica_methanol_pct,                           # ✅ 2026
+        tecnica_fuel_density_range,                     # ✅ 2026
+        tecnica_conductividad_electrica_fuel,           # ✅ 2026
+        tecnica_boiling_point_fuel,                     # ✅ 2026
+        tecnica_oil_kinematic_viscosity_min,            # ✅ 2026
+        tecnica_oil_initial_boiling_point,              # ✅ 2026
+        tecnica_oil_low_bp_compounds_limit,             # ✅ 2026
+        tecnica_oil_no_octane_boosters                  # ✅ 2026
+
     ],
     "PracticalCase": [
         caso_reincorporacion_peligrosa,
@@ -10570,6 +12116,7 @@ generadores_por_categoria = {
         caso_incidente_entrada_pit_lane,
         caso_problemas_comunicacion_race_control,
         caso_cambio_chasis_evento,
+        caso_cambio_motor_bajo_parque_cerrado,
         caso_cambio_motor_bajo_parque_cerrado,
         caso_salida_abortada_multiple,
         caso_reinicio_post_vsc_con_incidente,

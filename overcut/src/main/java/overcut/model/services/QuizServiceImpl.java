@@ -509,7 +509,7 @@ public class QuizServiceImpl implements QuizService {
         }
 
         QuizType quizType = chooseQuizType();
-        //QuizType quizType = getStatsType(QuizTypeCode.Races);
+        // QuizType quizType = getStatsType(QuizTypeCode.Regulations);
         QuizCategory quizCategory = chooseQuizCategory(quizType);
         //QuizCategory quizCategory = getQuizCategoryType();
         List<Question> storedQuestions = getRandomQuestionsByTypeAndCategory(quizType, quizCategory, language);
