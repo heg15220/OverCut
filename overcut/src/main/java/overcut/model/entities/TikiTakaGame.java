@@ -22,6 +22,8 @@ public class TikiTakaGame {
 
     private boolean gridMode;
 
+    private boolean teamsOnlyMode;
+
     private List<TikiTakaCell> cells;
 
     public TikiTakaGame() {
@@ -130,5 +132,13 @@ public class TikiTakaGame {
 
     public void setGridMode(boolean gridMode) {
         this.gridMode = gridMode;
+    }
+
+    public boolean isTeamsOnlyMode() {
+        return teamsOnlyMode;
+    }
+
+    public void setTeamsOnlyMode(boolean teamsOnlyMode) {
+        this.teamsOnlyMode = teamsOnlyMode;
     }
 }

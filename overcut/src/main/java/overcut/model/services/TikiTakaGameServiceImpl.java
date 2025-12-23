@@ -38,7 +38,6 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-
     private String checkWinnerOrDraw(TikiTakaGame game) {
 
         List<TikiTakaCell> cells = game.getCells();
@@ -91,10 +90,6 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         return result;
     }
 
-
-
-
-
     private void generarCriteriosDinamicos(TikiTakaGame game) {
         try {
             String output = PythonLLMCriteriaGame.executePythonScript("src/main/resources/scripts/generate_criteria_dynamic.py");
@@ -127,11 +122,9 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         }
     }
 
-
     private void generarCriteriosDinamicosModo2000(TikiTakaGame game) {
         try {
             String output = PythonLLMCriteriaGame.executePythonScript("src/main/resources/scripts/generate_criteria_dynamic_2000.py");
-
 
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(output);
@@ -142,7 +135,6 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
 
             JsonNode filasJson = jsonNode.has("rowCriteria") ? jsonNode.get("rowCriteria") : jsonNode.get("rows");
             JsonNode columnasJson = jsonNode.has("columnCriteria") ? jsonNode.get("columnCriteria") : jsonNode.get("cols");
-
 
             if (filasJson == null || columnasJson == null) {
                 throw new RuntimeException("Error: No se pudieron generar criterios válidos modo 2000+");
@@ -204,19 +196,23 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         }
     }
 
-    private void generarCriteriosDinamicosFiltrados(TikiTakaGame game, int sinceYear, Integer endYear) {
+    // ==========================================================
+    // [CHANGED] Firma: añadimos teamsOnlyMode
+    // ==========================================================
+    private void generarCriteriosDinamicosFiltrados(TikiTakaGame game, int sinceYear, Integer endYear, boolean teamsOnlyMode) {
         try {
-            // Llamada al servicio Java que construye ?sinceYear=X&endYear=Y
-            String output = CriteriaService.fetchCriteria(sinceYear, endYear);
+            // ==========================================================
+            // [CHANGED] Llamada al servicio Java con teamsOnly
+            // ==========================================================
+            String output = CriteriaService.fetchCriteria(sinceYear, endYear, teamsOnlyMode);
 
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(output);
             if (jsonNode.has("error")) {
-                throw new RuntimeException("Error desde servidor criterios: "
-                        + jsonNode.get("error").asText());
+                throw new RuntimeException("Error desde servidor criterios: " + jsonNode.get("error").asText());
             }
 
-            JsonNode filasJson    = jsonNode.get("rowCriteria");
+            JsonNode filasJson = jsonNode.get("rowCriteria");
             JsonNode columnasJson = jsonNode.get("columnCriteria");
             if (filasJson == null || columnasJson == null) {
                 throw new RuntimeException("No se pudieron generar criterios dinámicos filtrados");
@@ -236,11 +232,9 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         }
     }
 
-
     @Override
     public Long createGame(CreateGameRequest request) {
 
-        // 1) Creación del juego y celdas (igual que antes) ...
         TikiTakaGame game = new TikiTakaGame(
                 request.getPlayerX(), request.getPlayerO(),
                 "X", "IN_PROGRESS",
@@ -251,23 +245,32 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
             game.setPlayerO("BOT");
         }
 
-        if(request.isGridMode()){
+        if (request.isGridMode()) {
             game.setGridMode(request.isGridMode());
         }
 
-        if(request.isUseDynamicCriteria()){
+        // ==========================================================
+        // [NEW] Guardar teamsOnlyMode en la entidad
+        // ==========================================================
+        if (request.isTeamsOnlyMode()) {
+            game.setTeamsOnlyMode(true);
+        }
+
+        if (request.isUseDynamicCriteria()) {
             game.setSinceYear(1980);
         }
 
-        if(request.isModo2000Plus()){
+        if (request.isModo2000Plus()) {
             game.setSinceYear(2000);
         }
 
-        if(request.isHistoricRangeMode()){
+        if (request.isHistoricRangeMode()) {
             game.setSinceYear(1980);
             game.setEndYear(1999);
         }
+
         gameDao.save(game);
+
         for (int row = 1; row <= 3; row++) {
             for (int col = 1; col <= 3; col++) {
                 cellDao.save(new TikiTakaCell(game, row, col, null, null, false));
@@ -277,32 +280,32 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         // 2) Selección de criterios según request:
         if (request.isRandomCriteria()) {
             asignarCriteriosAleatorios();
-        }
-        else if (request.isUseDynamicCriteria()) {
-            generarCriteriosDinamicosFiltrados(game, 1980,null);
-        }
-        else if (request.isModo2000Plus()) {
-            generarCriteriosDinamicosFiltrados(game, 2000, null);
-        } else if(request.isHistoricRangeMode()){
-            generarCriteriosDinamicosFiltrados(game,1980, 1999);
-        }
-        else {
-            // Criterios estáticos en Python
+        } else if (request.isUseDynamicCriteria()) {
+            // ==========================================================
+            // [CHANGED] Pasamos teamsOnlyMode
+            // ==========================================================
+            generarCriteriosDinamicosFiltrados(game, 1980, null, request.isTeamsOnlyMode());
+        } else if (request.isModo2000Plus()) {
+            // ==========================================================
+            // [CHANGED] Pasamos teamsOnlyMode
+            // ==========================================================
+            generarCriteriosDinamicosFiltrados(game, 2000, null, request.isTeamsOnlyMode());
+        } else if (request.isHistoricRangeMode()) {
+            // ==========================================================
+            // [CHANGED] Pasamos teamsOnlyMode
+            // ==========================================================
+            generarCriteriosDinamicosFiltrados(game, 1980, 1999, request.isTeamsOnlyMode());
+        } else {
             generarCriteriosEstaticos(game);
         }
 
         return game.getId();
     }
 
-
-
-
-
     @Override
     public TikiTakaGame getGame(Long gameId) {
         return gameDao.findById(gameId).orElseThrow(() -> new RuntimeException("Game not found"));
     }
-
 
     @Override
     public ValidationResponseTikTak playMove(Long gameId, MoveRequest request) {
@@ -342,15 +345,14 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
             return new ValidationResponseTikTak(false, "Invalid pilot for selected cell");
         }
 
-        if(game.isGridMode()){
+        if (game.isGridMode()) {
             cell.setFilledBy("X");  // siempre jugador X
             cell.setPiloto(request.getPiloto());
             cell.setValid(true);
             cellDao.save(cell);
         }
-        if (!game.isGridMode()) {
-            // Solo en modos normales comprobamos victoria/empate
 
+        if (!game.isGridMode()) {
             cell.setFilledBy(game.getCurrentTurn());
             cell.setPiloto(request.getPiloto());
             cell.setValid(true);
@@ -375,12 +377,10 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         return new ValidationResponseTikTak(true, "Correct move");
     }
 
-
     @Override
     public List<TikiTakaCriteria> getAllCriteria() {
         return criteriaDao.findAll();
     }
-
 
     @Override
     public void skipTurn(Long gameId) {
@@ -399,7 +399,4 @@ public class TikiTakaGameServiceImpl implements TikiTakaGameService {
         game.setStatus("DRAW");
         gameDao.save(game);
     }
-
-
 }
-

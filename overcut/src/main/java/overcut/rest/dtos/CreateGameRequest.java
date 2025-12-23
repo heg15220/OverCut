@@ -10,6 +10,7 @@ public class CreateGameRequest {
     private boolean vsBot;
     private boolean gridMode;
 
+    private boolean teamsOnlyMode;
 
     public CreateGameRequest() {
     }
@@ -83,5 +84,13 @@ public class CreateGameRequest {
 
     public void setGridMode(boolean gridMode) {
         this.gridMode = gridMode;
+    }
+
+    public boolean isTeamsOnlyMode() {
+        return teamsOnlyMode;
+    }
+
+    public void setTeamsOnlyMode(boolean teamsOnlyMode) {
+        this.teamsOnlyMode = teamsOnlyMode;
     }
 }

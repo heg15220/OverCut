@@ -86,7 +86,6 @@ CACHED_RANGES = [
     (1980, 1999),
 ]
 
-CONFIGS_CACHE: dict[tuple[int, Optional[int]], list] = {}
 
 CATEGORY_CACHE: dict[str, dict[str, dict[str, bool]]] = {
     "es": {},
@@ -97,17 +96,26 @@ GENERIC_STATS_CACHE = {}
 PRECOMPUTED_TOPS = {}
 INDEXES = {}
 
-def cache_file_for(since_year: int, end_year: Optional[int]):
+
+CONFIGS_CACHE: dict[tuple[int, Optional[int], str], list] = {}
+
+def cache_file_for(since_year: int, end_year: Optional[int], mode: str):
     suffix = f"{since_year}_{end_year if end_year is not None else 'plus'}"
+    # ==========================================================
+    # [NEW] Nuevo fichero para teamsOnly
+    # ==========================================================
+    if mode == "teamsOnly":
+        return CACHE_DIR / f"configs_cache_{suffix}_teamsOnly.pkl"
     return CACHE_DIR / f"configs_cache_{suffix}.pkl"
 
 def load_criteria_cache():
     for since, end in CACHED_RANGES:
-        path = cache_file_for(since, end)
-        if not path.exists():
-            print(f"[WARN] Falta caché para rango {since}-{end}: {path}")
-            continue
-        CONFIGS_CACHE[(since, end)] = pickle.loads(path.read_bytes())
+        for mode in ("normal", "teamsOnly"):
+            path = cache_file_for(since, end, mode)
+            if not path.exists():
+                print(f"[WARN] Falta caché modo={mode} para rango {since}-{end}: {path}")
+                continue
+            CONFIGS_CACHE[(since, end, mode)] = pickle.loads(path.read_bytes())
     print(f"[startup] Caché de criterios TikiTaka cargado: {list(CONFIGS_CACHE.keys())}")
 
 def load_category_letter_cache():
@@ -202,15 +210,22 @@ def _ensure_cache_ready():
 @app.get("/generate-tikitaka-criteria")
 def generate_tikitaka_criteria(
     sinceYear: int = Query(2000),
-    endYear: Optional[int] = Query(None)
+    endYear: Optional[int] = Query(None),
+    # ==========================================================
+    # [NEW] Parámetro teamsOnly
+    # ==========================================================
+    teamsOnly: bool = Query(False)
 ):
-    key = (sinceYear, endYear)
+    mode = "teamsOnly" if teamsOnly else "normal"
+    key = (sinceYear, endYear, mode)
     configs = CONFIGS_CACHE.get(key)
+
     if not configs:
         return JSONResponse(
-            content={"error": f"No hay configuraciones precargadas para rango {sinceYear}-{endYear}"},
+            content={"error": f"No hay configuraciones precargadas para rango {sinceYear}-{endYear} (mode={mode})"},
             status_code=400
         )
+
     return JSONResponse(content=random.choice(configs))
 
 

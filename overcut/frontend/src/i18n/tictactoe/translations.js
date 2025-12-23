@@ -11,7 +11,10 @@ export const translations = {
     historic: "Histórico 1980–1999",
     whoPlay: "¿Contra quién quieres jugar?",
     back: "← Volver atrás",
-    playGrid: "Modo libre (solo jugador X)"
+    playGrid: "Modo libre (solo jugador X)",
+    selectGameType: "Elige tipo de partida",
+    normalMode: "Modo normal",
+    teamsOnlyMode: "Solo equipos / nacionalidades",
   },
   en: {
     selectMode: "Select criteria mode",
@@ -24,5 +27,8 @@ export const translations = {
     whoPlay: "Who do you want to play against?",
     back: "← Go back",
     playGrid: "Grid Mode",
+    selectGameType: "Choose game type",
+    normalMode: "Normal mode",
+    teamsOnlyMode: "Teams / nationalities only",
   }
 };

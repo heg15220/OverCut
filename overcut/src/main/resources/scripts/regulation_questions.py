@@ -6050,15 +6050,15 @@ def tecnica_limite_horas_banco():
                 "category": "Technical",
                 "language": LANG
             }
-        elif LANG == "en":
-            return {
-                "question": "What is the maximum number of operation hours allowed per year for ERS test benches?",
-                "answers": ["110", "210", "480", "1600"],
-                "correctAnswer": "110",
-                "knowledgeLevel": 3,
-                "category": "Technical",
-                "language": LANG
-            }
+    elif LANG == "en":
+        return {
+            "question": "What is the maximum number of operation hours allowed per year for ERS test benches?",
+            "answers": ["110", "210", "480", "1600"],
+            "correctAnswer": "110",
+            "knowledgeLevel": 3,
+            "category": "Technical",
+            "language": LANG
+        }
 def tecnica_inspeccion_postcarrera_inconformidad():
     if LANG == "es":
         return {

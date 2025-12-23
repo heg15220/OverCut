@@ -310,6 +310,9 @@ CREATE TABLE TikiTakaGame (
     gridMode BOOLEAN
 );
 
+ALTER TABLE TikiTakaGame ADD COLUMN teamsOnlyMode BOOLEAN DEFAULT FALSE;
+
+
 CREATE TABLE TikiTakaCell (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     gameId BIGINT,
