@@ -1,4 +1,12 @@
 DROP TABLE IF EXISTS GameCooldown;
+
+
+DROP TABLE IF EXISTS Top10QualiSlot;
+DROP TABLE IF EXISTS Top10QualiGame;
+
+
+
+
 DROP TABLE IF EXISTS WordSearchCell;
 DROP TABLE IF EXISTS WordSearchWord;
 DROP TABLE IF EXISTS WordSearchGame;
@@ -745,4 +753,25 @@ CREATE TABLE CookieConsent (
   tcfString TEXT NULL,               -- por si en el futuro integras TCF
   CONSTRAINT uq_consent_user UNIQUE (userId),
   CONSTRAINT uq_consent_id UNIQUE (consentId)
+);
+
+
+CREATE TABLE Top10QualiGame (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    seasonYear INT NOT NULL,
+    raceId INT NOT NULL,
+    raceName VARCHAR(255),
+    sessionUsed VARCHAR(10) NOT NULL,  -- "Q1" | "Q2" | "Q3"
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Top10QualiSlot (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    gameId BIGINT NOT NULL,
+    positionGame INT NOT NULL,                 -- 1..10 (posición en quali)
+    qualiTime VARCHAR(50) NOT NULL,            -- pista (ej: 1:12.345)
+    filledByPilotName VARCHAR(255),            -- respuesta del usuario si acierta
+    correctPilotName VARCHAR(255) NOT NULL,    -- solución
+    nationalityCode VARCHAR(100) NOT NULL,     -- para bandera
+    FOREIGN KEY (gameId) REFERENCES Top10QualiGame(id)
 );

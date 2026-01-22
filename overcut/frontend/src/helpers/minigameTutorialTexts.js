@@ -158,5 +158,22 @@ export const tutorialTexts = {
       title: "F1 Word Search",
       description: "Find surnames of podium finishers. Drag to select letters. You can give up if needed."
     }
-  }
+  },
+    "/minigames/top10quali": {
+      es: {
+        title: "Top 10 Quali",
+        description:
+          "Adivina los 10 pilotos más rápidos de una sesión de clasificación aleatoria. " +
+          "Como pistas verás la bandera del piloto y el tiempo que marcó. " +
+          "Desde 2006 se usa Q3; en temporadas anteriores se usa la mejor sesión disponible."
+      },
+      en: {
+        title: "Top 10 Quali",
+        description:
+          "Guess the 10 fastest drivers from a random qualifying session. " +
+          "Hints are the driver’s flag and the lap time. " +
+          "From 2006 onwards we use Q3; earlier seasons use the best available session."
+      }
+    }
+
 };

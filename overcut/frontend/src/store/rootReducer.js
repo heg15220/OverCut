@@ -23,6 +23,10 @@ import orderDriver from '../modules/orderDriver';
 import categoryGame from '../modules/categoryGame';
 import wordSearch from '../modules/wordSearch';
 import cooldown from '../modules/cooldown';
+import top10quali from '../modules/top10Quali';
+
+
+
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -48,6 +52,7 @@ const rootReducer = combineReducers({
     categoryGame: categoryGame.reducer,
     wordSearch: wordSearch.reducer,
     cooldown: cooldown.reducer,
+    top10quali: top10quali.reducer,
 });
 
 export default rootReducer;

@@ -41,11 +41,15 @@ import * as wordSearchService from "./wordSearchService";
 
 import * as cooldownService from "./cooldownService";
 
+
+import * as top10QualiService from "./top10qualiService"; // ✅ NUEVO
+
+
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
     gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService,
      wordleService, twoTeamsService, f1ImpostorService, teamGuessService, driversConnectionsService, orderDriverService,
-     wordSearchService, cooldownService}
+     wordSearchService, cooldownService, top10QualiService}
 
 
 export default backExport;

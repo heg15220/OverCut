@@ -88,6 +88,10 @@ import CookiesPolicy from "../../app/components/CookiesPolicy";
 import IntellectualProperty from "../../app/components/IntellectualProperty";
 import LegalHub from "../../app/components/LegalHub";
 
+
+import Top10QualiGamePage from "../../top10Quali/components/Top10QualiGamePage";
+
+
 const Body = () => {
 
     const loggedIn = useSelector(users.selectors.isLoggedIn);
@@ -163,6 +167,7 @@ const Body = () => {
                     <Route path="/legal/cookies" element={<CookiesPolicy />} />
                     <Route path="/legal/intellectualProperty" element={<IntellectualProperty />} />
                     <Route path="/legal" element={<LegalHub />} />
+                    {loggedIn && <Route path="/minigames/top10quali" element={<Top10QualiGamePage />} />}
                 </Route>
             </Routes>
         </div>

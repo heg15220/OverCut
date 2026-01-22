@@ -1,0 +1,379 @@
+/* ===========================
+   TOP10 QUALI — estilos base
+   (Top10Game look & feel)
+   Sin animación de título
+   Reveal a misma altura que el input
+   =========================== */
+
+.grid-ranking-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (min-width: 1600px) {
+  .grid-ranking-container {
+    max-width: 1600px;
+  }
+}
+
+.grid-ranking-title {
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.grid-title-main {
+  color: #fbc02d;
+  font-weight: 900;
+  font-size: 2.8rem;
+  position: relative;
+
+  /* ✅ sin animación */
+  background: linear-gradient(90deg, #fbc02d 0%, #ff1744 40%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.grid-title-season {
+  display: block;
+  margin-top: 0.35rem;
+  font-weight: 600;
+  opacity: 0.9;
+  font-size: 1rem;
+  color: #eaeaea;
+  font-family: 'F1 Regular', sans-serif;
+}
+
+/* Fondo/página */
+.top10-game-body {
+  background: linear-gradient(to bottom, #0a1a2f, #050f1e);
+  min-height: 100vh;
+  padding-top: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  color: white;
+}
+
+/* Contenedor */
+.top10-container {
+  text-align: center;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.top10-title {
+  font-size: 2.5rem;
+  color: #fbc02d;
+  margin-bottom: 2rem;
+  font-family: 'F1 Bold', sans-serif;
+}
+
+.top10-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  padding: 0 1rem;
+}
+
+/* Lista vertical */
+.top10-single-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin: 1rem auto;
+}
+
+/* Slot */
+.top10-slot {
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--field-color);
+  border: 1px solid #264861;
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  font-size: 16px;
+  color: #fff;
+  font-weight: 200;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.top10-slot.empty {
+  background: linear-gradient(135deg, #1e2f3f, #152532);
+}
+
+.top10-slot.filled {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1px solid #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.top10-slot.animate__animated {
+  animation: pulse-in 0.6s ease;
+}
+
+@keyframes pulse-in {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.03); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.top10-slot-position {
+  margin-right: 0.6rem;
+  font-size: 15px;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.top10-slot-flag {
+  width: 24px;
+  height: 16px;
+  margin-right: 0.4rem;
+  border-radius: 4px;
+}
+
+/* ✅ tiempo de quali */
+.top10-slot-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  font-family: 'F1 Regular', sans-serif;
+  font-size: 0.95rem;
+  opacity: 0.92;
+  color: #e6e6e6;
+  text-shadow: 0 0 2px rgba(0,0,0,0.4);
+}
+
+/* Nombre */
+.top10-slot-name {
+  font-size: 16px;
+  font-weight: 400;
+  color: #eaeaea;
+  margin-left: 0.5rem;
+  font-family: 'F1 Regular', sans-serif;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 2px rgba(0,0,0,0.4);
+  transition: all 0.3s ease;
+}
+
+.top10-slot-name.filled {
+  color: #e5c04b;
+  text-shadow: 0 0 1px rgba(0,0,0,0.5), 0 0 4px rgba(0,0,0,0.4);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.4px;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.top10-slot.filled .top10-slot-name {
+  color: #f0cb4f;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.4px;
+  text-shadow: 0 0 1px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.4);
+  transition: all 0.3s ease;
+}
+
+/* Loading */
+.top10-loading {
+  font-size: 1.5rem;
+  color: #fbc02d;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* ===========================
+   Input autosuggest + reveal alineado
+   =========================== */
+
+.search-player-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 1rem auto;
+}
+
+/* ✅ misma altura y alineación exacta */
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 420px; /* un pelín más ancho que 300 para respirar */
+  margin: 0 auto;
+  display: flex;
+  gap: 0.6rem;
+  align-items: stretch; /* 👈 clave: ambos elementos con el mismo alto */
+}
+
+.input-suggestion-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+}
+
+.searchPlayerInput {
+  width: 100%;
+  height: 44px;              /* ✅ altura fija */
+  padding: 10px 14px;
+  font-size: 1rem;
+  border: 2px solid #fbc02d;
+  border-radius: 12px;
+  background-color: #1b2c3b;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.searchPlayerInput:focus {
+  border-color: #ffcf44;
+}
+
+.suggestion-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background: #111a2e;
+  border: 1px solid #fbc02d;
+  border-radius: 0 0 10px 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(251, 192, 45, 0.1);
+  z-index: 10;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.suggestion-list li {
+  padding: 0.6rem 1rem;
+  color: #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.95rem;
+  font-family: 'F1 Regular', sans-serif;
+}
+
+.suggestion-list li:hover,
+.suggestion-list li.selected {
+  background-color: rgba(251, 192, 45, 0.1);
+  color: #ffd700;
+}
+
+/* ✅ botón rendirse/reveal: misma altura que input */
+.reveal-all-button {
+  width: 44px;
+  height: 44px;              /* ✅ igual que input */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 2px solid #fbc02d;
+  background-color: #1b2c3b;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+  flex: 0 0 auto;
+}
+
+.reveal-all-button:hover {
+  transform: scale(1.04);
+  background-color: #22384a;
+}
+
+/* botón volver */
+.back-button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  background-color: #fbc02d;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+  margin: 1.5rem auto;
+  display: block;
+}
+
+.back-button:hover {
+  transform: scale(1.05);
+  background-color: #ffcf44;
+}
+
+/* ===========================
+   Responsive
+   =========================== */
+
+@media (max-width: 768px) {
+  .grid-ranking-container {
+    padding: 0 1rem;
+  }
+
+  .grid-title-main {
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+
+  .top10-game-body {
+    padding-top: 2rem;
+  }
+
+  .top10-slot {
+    max-width: 100%;
+    padding: 0.4rem 0.6rem;
+    font-size: 15px;
+  }
+
+  .top10-slot-flag {
+    width: 20px;
+    height: 14px;
+  }
+
+  .top10-slot-time {
+    font-size: 0.9rem;
+  }
+
+  .search-input-wrapper {
+    max-width: 92vw;
+  }
+
+  .searchPlayerInput,
+  .reveal-all-button {
+    height: 44px; /* mantiene alineación */
+  }
+}
+
+@media (max-width: 500px) {
+  .grid-title-main {
+    font-size: 1.7rem;
+    letter-spacing: 0.8px;
+  }
+
+  .top10-slot {
+    padding: 0.3rem 0.5rem;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .top10-slot-flag {
+    width: 18px;
+    height: 12px;
+  }
+
+  .top10-slot-time {
+    font-size: 0.85rem;
+  }
+
+  .searchPlayerInput,
+  .reveal-all-button {
+    height: 42px; /* un pelín más compacto en móviles */
+  }
+}

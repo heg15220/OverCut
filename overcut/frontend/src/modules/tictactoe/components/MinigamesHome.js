@@ -107,6 +107,13 @@ const minigames = [
     title: "Word Search F1",
     description: "Encuentra apellidos de pilotos con podios",
     img:sourceImages(`./searchGame.png`)
+  },
+
+  {
+    path: "/minigames/top10quali",
+    title: "Top 10 Quali",
+    description: "Adivina el top 10 de una clasificación (banderas + tiempos)",
+    img: sourceImages(`./top10quali.png`)
   }
 ];
 
