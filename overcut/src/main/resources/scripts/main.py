@@ -550,12 +550,11 @@ def generate_quiz_genericstats(lang: str = Query("es", enum=["es", "en"])):
 @app.get("/generate-top10quali-game")
 def generate_top10quali_game(lang: str = Query("es", enum=["es", "en"])):
     try:
-        global LANG
-        LANG = lang
-        result = get_random_race_and_top10quali()
+        result = get_random_race_and_top10quali(lang)  # ✅ PASAMOS lang
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
 @app.get("/validate-top10quali-pilot")
 def validate_top10quali_pilot(pilot: str, raceId: int):

@@ -1,7 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import './MinigamesHome.css';
-import { sourceImages } from '../../../helpers/sourceMiniGamesImages';
+import React, { useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import "./MinigamesHome.css";
+import { sourceImages } from "../../../helpers/sourceMiniGamesImages";
 
 const minigames = [
   {
@@ -52,63 +52,54 @@ const minigames = [
     description: "Adivina al piloto por sus equipos",
     img: sourceImages(`./CareerPath.png`)
   },
-
   {
     path: "/minigames/wordle",
     title: "F1 Wordle",
     description: "Adivina el apellido de un piloto F1",
     img: sourceImages(`./F1Wordle.png`)
   },
-
   {
     path: "/minigames/twoTeams",
     title: "2 Teams, 1 Driver",
     description: "Acierta un piloto que corrió para ambos equipos",
     img: sourceImages(`./TwoTeams.png`)
   },
-
   {
     path: "/minigames/f1Impostor",
     title: "F1 Impostors",
     description: "Evita a los impostores en un reto temático",
     img: sourceImages(`./F1Impostors.png`)
   },
-
   {
     path: "/minigames/teamGuess",
     title: "Guess the Team",
     description: "Adivina el equipo por sus pilotos",
     img: sourceImages(`./GuessTeam.png`)
   },
-
   {
     path: "/minigames/driversConnections",
     title: "Drivers Connection",
     description: "Agrupa 4 pilotos que compartan una categoría secreta",
     img: sourceImages(`./DriversConnection.png`)
   },
-
   {
     path: "/minigames/orderDrivers",
     title: "Sort Drivers",
     description: "Ordena a los pilotos según el criterio F1",
     img: sourceImages(`./OrderDriversGame.png`)
   },
-
   {
     path: "/minigames/categoryGame",
     title: "F1 Categories",
     description: "Responde categorías que empiezan con la misma letra",
     img: sourceImages(`./gameCategory.png`)
   },
-
   {
     path: "/minigames/wordSearch",
     title: "Word Search F1",
     description: "Encuentra apellidos de pilotos con podios",
-    img:sourceImages(`./searchGame.png`)
+    img: sourceImages(`./searchGame.png`)
   },
-
   {
     path: "/minigames/top10quali",
     title: "Top 10 Quali",
@@ -121,38 +112,102 @@ const translations = {
   subtitle: {
     es: "¡Demuestra tu conocimiento sobre Fórmula 1 jugando!",
     en: "Prove your Formula 1 knowledge by playing!"
+  },
+  play: {
+    es: "Jugar",
+    en: "Play"
   }
 };
 
+const PAGE_SIZE = 16;
+
 const MinigamesHome = () => {
-    const lang = navigator.language.startsWith('es') ? 'es' : 'en';
+  const lang = navigator.language.startsWith("es") ? "es" : "en";
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawPage = Number(searchParams.get("page") || "1");
+  const totalPages = Math.max(1, Math.ceil(minigames.length / PAGE_SIZE));
+
+  const page = Number.isFinite(rawPage) ? Math.min(Math.max(rawPage, 1), totalPages) : 1;
+
+  const pageItems = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return minigames.slice(start, start + PAGE_SIZE);
+  }, [page]);
+
+  const goToPage = (p) => {
+    const safe = Math.min(Math.max(p, 1), totalPages);
+    setSearchParams({ page: String(safe) });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const pages = useMemo(() => {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }, [totalPages]);
+
   return (
     <div className="minigames-page">
-    <div className="minigames-header animate__animated animate__fadeIn">
-      <h1 className="minigames-title">OverCut<span className="highlight">Games</span></h1>
-      <p className="minigames-subtitle">{translations.subtitle[lang]}</p>
-    </div>
+      <div className="minigames-header animate__animated animate__fadeIn">
+        <h1 className="minigames-title">
+          OverCut<span className="highlight">Games</span>
+        </h1>
+        <p className="minigames-subtitle">{translations.subtitle[lang]}</p>
+      </div>
+
       <div className="games">
-        {minigames.map((game, index) => (
+        {pageItems.map((game, index) => (
           <Link
             to={game.path}
-            key={index}
+            key={`${game.path}-${index}`}
             className="gameThumbnailLink animate__animated animate__fadeIn"
           >
             {game.isNew && <div className="tag">NEW</div>}
             <div className="cardDiv">
               <img src={game.img} alt={game.title} className="gameImage" />
               <div className="text">
-                <p className="playLabel">Play</p>
+                <p className="playLabel">{translations.play[lang]}</p>
                 <p className="gameTitle">{game.title}</p>
               </div>
             </div>
           </Link>
         ))}
       </div>
+
+      {/* ✅ paginación */}
+      {totalPages > 1 && (
+        <div className="minigames-pagination">
+          <button
+            className="page-nav"
+            onClick={() => goToPage(page - 1)}
+            disabled={page === 1}
+            aria-label="Previous page"
+          >
+            ‹
+          </button>
+
+          {pages.map((p) => (
+            <button
+              key={p}
+              className={`page-number ${p === page ? "active" : ""}`}
+              onClick={() => goToPage(p)}
+              aria-label={`Page ${p}`}
+            >
+              {p}
+            </button>
+          ))}
+
+          <button
+            className="page-nav"
+            onClick={() => goToPage(page + 1)}
+            disabled={page === totalPages}
+            aria-label="Next page"
+          >
+            ›
+          </button>
+        </div>
+      )}
     </div>
   );
-
 };
 
 export default MinigamesHome;

@@ -24,6 +24,12 @@ const Top10QualiGameBoard = () => {
   const lang = navigator.language.startsWith("es") ? "es" : "en";
   const t = top10QualiTranslations[lang];
 
+  // ✅ nombre GP según idioma (con fallback por si falta algún campo)
+  const raceLabel =
+    lang === "es"
+      ? (board?.raceNameEs || board?.raceName || board?.raceNameEn)
+      : (board?.raceNameEn || board?.raceName || board?.raceNameEs);
+
   const [gameCompleted, setGameCompleted] = useState(false);
 
   useEffect(() => {
@@ -41,10 +47,11 @@ const Top10QualiGameBoard = () => {
   return (
     <div className="grid-ranking-container">
       <h2 className="grid-ranking-title">
-        <span className="grid-title-main">{t.title}</span>{" "}
-        {board?.seasonYear && board?.raceName && (
+        <span className="grid-title-main">{t.title}</span>
+
+        {board?.seasonYear && raceLabel && (
           <span className="grid-title-season">
-            {board.raceName} – {board.seasonYear} ({board.sessionUsed})
+            {raceLabel} – {board.seasonYear} ({board.sessionUsed})
           </span>
         )}
       </h2>
