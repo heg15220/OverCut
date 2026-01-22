@@ -38,11 +38,11 @@ public class CrossWordServiceImpl implements CrosswordService{
         if (!language.equals("es") && !language.equals("en")) {
             throw new IllegalArgumentException("Unsupported language: " + language);
         }
-        if (!cooldownService.canPlay("Crossword", userId)) {
+     /*   if (!cooldownService.canPlay("Crossword", userId)) {
             long wait = cooldownService.secondsUntilNextPlay("Crossword", userId);
             throw new CooldownException("WAIT", wait);
         }
-
+*/
 
         CrosswordGame game = new CrosswordGame();
         game.setRows(rows);
@@ -130,7 +130,7 @@ public class CrossWordServiceImpl implements CrosswordService{
         // 🔐 Guardar los links ahora que todo tiene ID
         cellWordLinkDao.saveAll(allLinks);
 
-        cooldownService.registerPlay("Crossword", userId);
+        //cooldownService.registerPlay("Crossword", userId);
         return game.getId();
     }
 

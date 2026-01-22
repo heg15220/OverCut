@@ -272,3 +272,29 @@
     padding: 1rem 0.5rem;
   }
 }
+
+/* ============================
+   TwoTeamsGame.css (ADD)
+   ============================ */
+
+/* ✅ Inline ads (tablet + móvil). Desktop ya tiene laterales con AdWindows */
+.twoTeams-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0 auto 1rem auto;
+}
+
+@media (max-width: 1024px) {
+  .twoTeams-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .twoTeams-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

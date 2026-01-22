@@ -1,7 +1,11 @@
+/* ============================
+   DriversLinkGame.css (UPDATED)
+   ============================ */
+
 /* === CONTENEDOR GENERAL === */
 .drivers-link-container {
   position: relative;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0a0a, #1c1c1c);
   display: flex;
@@ -25,6 +29,39 @@
   animation: fadeInUp 0.6s ease;
 }
 
+/* ✅ Inline AD (tablet + móvil) */
+.dl-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0.8rem auto 1.2rem auto;
+}
+
+@media (max-width: 1024px) {
+  .dl-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+/* Móvil: full width real, sin márgenes globales */
+@media (max-width: 500px) {
+  .dl-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .drivers-link-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .drivers-link-overlay {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 /* === TÍTULO CON EFECTO DINÁMICO === */
 .drivers-link-title {
   text-align: center;
@@ -38,12 +75,8 @@
 }
 
 @keyframes glowTitle {
-  from {
-    text-shadow: 0 0 4px rgba(251, 192, 45, 0.2);
-  }
-  to {
-    text-shadow: 0 0 12px rgba(251, 192, 45, 0.6);
-  }
+  from { text-shadow: 0 0 4px rgba(251, 192, 45, 0.2); }
+  to   { text-shadow: 0 0 12px rgba(251, 192, 45, 0.6); }
 }
 
 /* === CLUES === */
@@ -77,14 +110,8 @@
 }
 
 @keyframes popIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 /* === INPUT Y BOTÓN === */
@@ -106,6 +133,12 @@
   box-shadow: 0 0 8px rgba(251, 192, 45, 0.4);
 }
 
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 0.5rem;
+}
+
 .guess-btn {
   width: 100%;
   background: linear-gradient(135deg, #fbc02d, #ffd54f);
@@ -124,6 +157,26 @@
   background: linear-gradient(135deg, #ffeb3b, #ffe082);
   transform: scale(1.03);
   box-shadow: 0 6px 16px rgba(251, 192, 45, 0.5);
+}
+
+.skip-btn {
+  background: linear-gradient(135deg, #757575, #9e9e9e);
+  color: white;
+  font-size: 1.05rem;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.skip-btn:hover {
+  background: linear-gradient(135deg, #bdbdbd, #e0e0e0);
+  color: #000;
+  transform: scale(1.03);
 }
 
 /* === AUTOCOMPLETADO === */
@@ -180,108 +233,16 @@
 
 /* === ANIMACIONES === */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.action-buttons {
-  display: flex;
-  gap: 12px;
-  margin-top: 0.5rem;
-}
-
-.skip-btn {
-  background: linear-gradient(135deg, #757575, #9e9e9e);
-  color: white;
-  font-size: 1.05rem;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  width: 100%;
-  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
-  transition: transform 0.2s ease, background 0.3s ease;
-}
-
-.skip-btn:hover {
-  background: linear-gradient(135deg, #bdbdbd, #e0e0e0);
-  color: #000;
-  transform: scale(1.03);
-}
-
-.driver-reveal-card {
-  width: 120px;
-  height: 160px;
-  margin: 0 auto 1.5rem auto;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #333, #222);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'F1 Bold', sans-serif;
-  font-size: 2.5rem;
-  color: #fbc02d;
-  transition: background 0.5s ease, transform 0.5s ease;
-  animation: flipIn 0.6s ease;
-}
-
-.card-question-mark {
-  font-size: 3rem;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-.card-driver-name {
-  font-size: 1.2rem;
-  color: #fff;
-  text-align: center;
-  padding: 0 10px;
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
-}
-
-/* Colores según resultado */
-.driver-reveal-card.success {
-  background: linear-gradient(135deg, #00c853, #43a047);
-  box-shadow: 0 0 16px rgba(0, 200, 83, 0.5);
-}
-
-.driver-reveal-card.fail {
-  background: linear-gradient(135deg, #c62828, #b71c1c);
-  box-shadow: 0 0 16px rgba(211, 47, 47, 0.5);
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.6; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes flipIn {
-  from {
-    transform: rotateY(90deg);
-    opacity: 0;
-  }
-  to {
-    transform: rotateY(0deg);
-    opacity: 1;
-  }
-}
+/* === CARTA REVELADO === */
 .driver-reveal-card-wrapper {
   width: 140px;
   height: 180px;
@@ -321,7 +282,6 @@
   color: #fbc02d;
 }
 
-
 .driver-reveal-card-face.back {
   transform: rotateY(180deg);
   font-size: 1.2rem;
@@ -330,7 +290,6 @@
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
 }
 
-/* Colores según resultado */
 .driver-reveal-card-face.back.success {
   background: linear-gradient(135deg, #00c853, #43a047);
   box-shadow: 0 0 16px rgba(0, 200, 83, 0.5);
@@ -341,12 +300,6 @@
   box-shadow: 0 0 16px rgba(211, 47, 47, 0.5);
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.6; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
 .back-btn {
   padding: 12px 24px;
   border-radius: 10px;
@@ -354,7 +307,7 @@
   font-size: 1.05rem;
   border: none;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  background: linear-gradient(to right, #2196f3, #64b5f6); /* Azul brillante */
+  background: linear-gradient(to right, #2196f3, #64b5f6);
   color: white;
   transition: transform 0.2s ease, background 0.3s ease;
   margin-top: 1rem;
@@ -420,21 +373,6 @@
   .game-result {
     font-size: 1.5rem;
     margin-top: 1.2rem;
-  }
-
-  .driver-reveal-card {
-    width: 100px;
-    height: 140px;
-    font-size: 2rem;
-  }
-
-  .card-question-mark {
-    font-size: 2.6rem;
-  }
-
-  .card-driver-name {
-    font-size: 1.1rem;
-    padding: 0 8px;
   }
 
   .driver-reveal-card-wrapper {
@@ -513,21 +451,6 @@
     margin-top: 1rem;
   }
 
-  .driver-reveal-card {
-    width: 90px;
-    height: 120px;
-    font-size: 1.8rem;
-  }
-
-  .card-question-mark {
-    font-size: 2.4rem;
-  }
-
-  .card-driver-name {
-    font-size: 1rem;
-    padding: 0 6px;
-  }
-
   .driver-reveal-card-wrapper {
     width: 100px;
     height: 140px;
@@ -546,4 +469,3 @@
     margin-top: 0.6rem;
   }
 }
-

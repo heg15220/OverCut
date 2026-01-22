@@ -35,11 +35,11 @@ public class CareerPathGameServiceImpl implements CareerPathGameService {
 
     @Override
     public CareerPathGame startGame(Long userId) {
-        if (!cooldownService.canPlay("CareerPath", userId)) {
+    /*    if (!cooldownService.canPlay("CareerPath", userId)) {
             long wait = cooldownService.secondsUntilNextPlay("CareerPath", userId);
             throw new CooldownException("WAIT", wait);
         }
-
+*/
 
         try {
             HttpClient client = HttpClient.newHttpClient();
@@ -71,7 +71,7 @@ public class CareerPathGameServiceImpl implements CareerPathGameService {
             }
 
             CareerPathGame careerPathGame =  gameDao.save(game);
-            cooldownService.registerPlay("CareerPath", userId);
+            //cooldownService.registerPlay("CareerPath", userId);
             return careerPathGame;
 
         } catch (Exception e) {

@@ -1,3 +1,36 @@
+/* ============================
+   OrderDriverGame.css (UPDATED)
+   ============================ */
+
+.order-driver-page {
+  background: linear-gradient(to bottom, #0a1a2f, #050f1e);
+  color: white;
+  min-height: 100vh;
+  max-width: 100%;
+}
+
+/* ✅ Inline AD (tablet + móvil) */
+.od-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0.8rem auto 1.1rem auto;
+}
+
+@media (max-width: 1024px) {
+  .od-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .od-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
 .order-driver-container {
   padding: 2rem;
   max-width: 880px;
@@ -7,9 +40,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  background-color: #0d0d0d;
   border-radius: 20px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
 }
 
 .order-driver-container.surrendered-mode {
@@ -20,7 +51,7 @@
   text-align: center;
   color: #ffcc00;
   font-size: 1.9rem;
-  margin-bottom: 1.8rem;
+  margin-bottom: 1.2rem;
   text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
   font-family: 'F1 Bold', sans-serif;
 }
@@ -56,11 +87,11 @@
 
 .ranking-slot {
   display: flex;
-  align-items: center;        /* 🟢 Fuerza la alineación vertical */
+  align-items: center;
   justify-content: flex-start;
-  gap: 12px;                  /* 🟢 Espacio entre número y nombre */
+  gap: 12px;
   padding: 0.5rem 1rem;
-  min-height: 48px;           /* 🟢 Altura suficiente para alinear */
+  min-height: 48px;
   font-size: 1rem;
   background: linear-gradient(135deg, #1f1f1f, #2a2a2a);
   border: 2px dashed #555;
@@ -81,15 +112,20 @@
   text-align: center;
 }
 
-
 .driver-name {
   color: #fff;
   font-weight: 600;
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .placeholder {
   color: #666;
   font-style: italic;
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .driver-card {
@@ -116,7 +152,8 @@
   transform: scale(1.03);
 }
 
-.validate-btn, .surrender-btn {
+.validate-btn,
+.surrender-btn {
   width: 48%;
   background: #ffcc00;
   border: none;
@@ -171,9 +208,6 @@
   color: #ff1744;
 }
 
-
-
-/* Colores de slots cuando se validan o se muestra el resultado */
 .ranking-slot.success {
   background: #ffcc00;
   color: black;
@@ -192,47 +226,6 @@
   color: white;
 }
 
-/* Estos colores deben coincidir con el .driver-card.selected visualmente */
-.driver-card.success {
-  background: #ffcc00;
-  color: black;
-  font-weight: bold;
-  transform: scale(1.03);
-}
-
-.driver-card.success .driver-name,
-.driver-card.success .position-number {
-  color: black;
-}
-
-.driver-card.fail {
-  background: #ff1744;
-  color: white;
-  font-weight: bold;
-  transform: scale(1.03);
-}
-
-.order-driver-page {
-  background: linear-gradient(to bottom, #0a1a2f, #050f1e);
-  color: white;
-  min-height: 100vh;
-}
-
-.order-driver-container {
-  background: transparent;
-  box-shadow: none;
-}
-
-.driver-name,
-.placeholder {
-  flex: 1;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-}
-
 .back-btn {
   padding: 12px 24px;
   border-radius: 10px;
@@ -240,7 +233,7 @@
   font-size: 1.05rem;
   border: none;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  background: linear-gradient(to right, #2196f3, #64b5f6); /* Azul brillante */
+  background: linear-gradient(to right, #2196f3, #64b5f6);
   color: white;
   transition: transform 0.2s ease, background 0.3s ease;
 }
@@ -249,7 +242,6 @@
   transform: scale(1.05);
   background: linear-gradient(to right, #42a5f5, #90caf9);
 }
-
 
 .ranking-slot[draggable="true"] {
   cursor: grab;
@@ -275,24 +267,21 @@
 
   .order-driver-title {
     font-size: 1.6rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .side-candidates {
-      width: 25%;
+    width: 25%;
   }
 
   .ranking-slots {
-      width: 50%;
-  }
-  .order-layout {
-    gap: 1rem;
-  }
-
-
-  .ranking-slots {
+    width: 50%;
     padding: 0.6rem;
     border-radius: 10px;
+  }
+
+  .order-layout {
+    gap: 1rem;
   }
 
   .ranking-slot {
@@ -327,6 +316,7 @@
   }
 
   .button-row {
+    width: 60%;
     gap: 4%;
     margin-top: 1.2rem;
   }
@@ -351,7 +341,7 @@
 
   .order-driver-title {
     font-size: 1.4rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 0.9rem;
   }
 
   .side-candidates {
@@ -359,9 +349,6 @@
   }
 
   .order-layout {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
     gap: 1rem;
   }
 
@@ -403,6 +390,7 @@
   }
 
   .button-row {
+    width: 70%;
     gap: 4%;
     margin-top: 1rem;
   }
@@ -416,17 +404,5 @@
     padding: 9px 18px;
     font-size: 0.95rem;
     border-radius: 7px;
-  }
-}
-
-@media (max-width: 768px) {
-  .order-driver-page {
-    background: linear-gradient(to bottom, #0a1a2f, #050f1e);
-  }
-}
-
-@media (max-width: 500px) {
-  .order-driver-page {
-    background: linear-gradient(to bottom, #0a1a2f, #050f1e);
   }
 }

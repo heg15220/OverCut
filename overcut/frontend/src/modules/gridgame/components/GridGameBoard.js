@@ -7,14 +7,16 @@ import GridSlot from "./GridSlot";
 import { gridGameTranslations } from "../../../i18n/gamegrid/translations";
 import "./GridGame.css";
 import SearchPilotInput from "./SearchPilotInput";
-import LoadingScreen from '../../common/components/LoadingScreen';
+import LoadingScreen from "../../common/components/LoadingScreen";
+
+import { AdInline } from "../../../ads/AdWindows";
 
 const useWindowWidth = () => {
   const [width, setWidth] = useState(window.innerWidth);
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
   return width;
 };
@@ -35,12 +37,10 @@ const GridGameBoard = () => {
 
   useEffect(() => {
     if (!board) return;
-    const filledCount = board.grid.filter(slot =>
-      validated[slot.position] || slot.filledByPilotId
+    const filledCount = board.grid.filter(
+      (slot) => validated[slot.position] || slot.filledByPilotId
     ).length;
-    if (filledCount === board.grid.length) {
-      setGameCompleted(true);
-    }
+    if (filledCount === board.grid.length) setGameCompleted(true);
   }, [board, validated]);
 
   if (!board) return <LoadingScreen lang={lang} text={t.loading} />;
@@ -53,70 +53,39 @@ const GridGameBoard = () => {
       )
     );
 
-  // ✅ En desktop, máx 4 columnas
   const numColumnsDesktop = board.grid.length > 21 ? 4 : 3;
   const columnsDesktop = getColumns(board.grid, numColumnsDesktop);
 
-
-  // ✅ Para tablet, forzamos a máx. 2 columnas
-  const columnsTablet = getColumns(board.grid, 2);
+  const renderSlot = (slot) => {
+    const slotValidated = validated[slot.position] ?? revealed[slot.position];
+    return (
+      <GridSlot
+        key={slot.position}
+        position={slot.position}
+        nationalityCode={slotValidated?.nationalityCode ?? slot.nationalityCode}
+        filledPilot={slotValidated?.pilotName ?? slot.filledByPilotId}
+      />
+    );
+  };
 
   return (
     <div className="grid-ranking-container">
       <h2 className="grid-ranking-title">
         <span className="grid-title-main">{t.title}</span>{" "}
         {board?.seasonYear && (
-          <span className="grid-title-season">{t.season} {board.seasonYear}</span>
+          <span className="grid-title-season">
+            {t.season} {board.seasonYear}
+          </span>
         )}
       </h2>
 
       {isMobile ? (
-        <div className="grid-game-grid-mobile">
-          {board.grid.map(slot => {
-            const slotValidated = validated[slot.position] ?? revealed[slot.position];
-            return (
-              <GridSlot
-                key={slot.position}
-                position={slot.position}
-                nationalityCode={slotValidated?.nationalityCode ?? slot.nationalityCode}
-                filledPilot={slotValidated?.pilotName ?? slot.filledByPilotId}
-              />
-            );
-          })}
-        </div>
-      ) : isTablet ? (
-        <div className="grid-columns tablet">
-          {columnsTablet.map((col, i) => (
-            <div key={i} className="grid-column">
-              {col.map(slot => {
-                const slotValidated = validated[slot.position] ?? revealed[slot.position];
-                return (
-                  <GridSlot
-                    key={slot.position}
-                    position={slot.position}
-                    nationalityCode={slotValidated?.nationalityCode ?? slot.nationalityCode}
-                    filledPilot={slotValidated?.pilotName ?? slot.filledByPilotId}
-                  />
-                );
-              })}
-            </div>
-          ))}
-        </div>
+        <div className="grid-game-grid-mobile">{board.grid.map(renderSlot)}</div>
       ) : (
         <div className="grid-columns">
           {columnsDesktop.map((col, i) => (
             <div key={i} className="grid-column">
-              {col.map(slot => {
-                const slotValidated = validated[slot.position] ?? revealed[slot.position];
-                return (
-                  <GridSlot
-                    key={slot.position}
-                    position={slot.position}
-                    nationalityCode={slotValidated?.nationalityCode ?? slot.nationalityCode}
-                    filledPilot={slotValidated?.pilotName ?? slot.filledByPilotId}
-                  />
-                );
-              })}
+              {col.map(renderSlot)}
             </div>
           ))}
         </div>

@@ -296,3 +296,29 @@
     padding: 1rem 0.5rem;
   }
 }
+
+/* ============================
+   WordleGame.css (ADD)
+   ============================ */
+
+/* ✅ Inline ads (tablet + móvil). Desktop ya tiene laterales con AdWindows */
+.wordle-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0 auto 1rem auto;
+}
+
+@media (max-width: 1024px) {
+  .wordle-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .wordle-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

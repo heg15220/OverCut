@@ -98,11 +98,11 @@ public class GridGameServiceImpl implements GridGameService{
     @Override
     public GridGame createRandomGame(Long userId) {
 
-        if (!cooldownService.canPlay("GridGame", userId)) {
+      /*  if (!cooldownService.canPlay("GridGame", userId)) {
             long wait = cooldownService.secondsUntilNextPlay("GridGame", userId);
             throw new CooldownException("WAIT", wait);
         }
-
+*/
         int randomSeason = getRandomSeasonYear();
         GridGame game = new GridGame(randomSeason);
 
@@ -120,10 +120,9 @@ public class GridGameServiceImpl implements GridGameService{
             slot.setFilledByPilotId(null);
             slots.add(slot);
         }
-
         game.setGridSlots(slots);
         GridGame gridGameSaved = gridGameDao.save(game);
-        cooldownService.registerPlay("GridGame", userId);
+        //cooldownService.registerPlay("GridGame", userId);
         return gridGameSaved;
     }
 

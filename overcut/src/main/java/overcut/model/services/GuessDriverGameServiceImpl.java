@@ -37,11 +37,11 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
     @Override
     public GuessDriverGame startGame(Long userId) {
         try {
-            if (!cooldownService.canPlay("GuessDriver", userId)) {
+         /*   if (!cooldownService.canPlay("GuessDriver", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("GuessDriver", userId);
                 throw new CooldownException("WAIT", wait);
             }
-
+*/
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-guess-driver"))
                     .GET()
@@ -67,7 +67,7 @@ public class GuessDriverGameServiceImpl implements GuessDriverGameService {
             game.setDriverName(driverName);
 
             GuessDriverGame guessDriverGame = gameDao.save(game);
-            cooldownService.registerPlay("GuessDriver", userId);
+            //cooldownService.registerPlay("GuessDriver", userId);
             return guessDriverGame;
 
         } catch (Exception e) {

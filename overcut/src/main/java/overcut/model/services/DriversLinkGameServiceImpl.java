@@ -37,11 +37,11 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
     @Override
     public DriversLinkGame startGame(Long userId) {
         try {
-            if (!cooldownService.canPlay("DriversLink", userId)) {
+          /*  if (!cooldownService.canPlay("DriversLink", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("DriversLink", userId);
                 throw new CooldownException("WAIT", wait);
             }
-
+*/
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-drivers-link"))
@@ -73,7 +73,7 @@ public class DriversLinkGameServiceImpl implements DriversLinkGameService {
 
             DriversLinkGame driversLinkGame = gameDao.save(game);
 
-            cooldownService.registerPlay("DriversLink", userId);
+           // cooldownService.registerPlay("DriversLink", userId);
 
             return  driversLinkGame;
 

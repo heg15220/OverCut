@@ -36,11 +36,11 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
     @Override
     public F1WordleGame startGame(Long userId) {
         try {
-            if (!cooldownService.canPlay("F1Wordle", userId)) {
+        /*    if (!cooldownService.canPlay("F1Wordle", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("F1Wordle", userId);
                 throw new CooldownException("WAIT", wait);
             }
-
+*/
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-f1-wordle"))
@@ -61,7 +61,7 @@ public class F1WordleGameServiceImpl implements F1WordleGameService {
             game.setSurname(result.get("surname").asText());
 
             F1WordleGame f1WordleGame = gameDao.save(game);
-            cooldownService.registerPlay("F1Wordle", userId);
+            //cooldownService.registerPlay("F1Wordle", userId);
             return f1WordleGame;
 
         } catch (Exception e) {

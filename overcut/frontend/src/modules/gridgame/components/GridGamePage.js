@@ -13,6 +13,8 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import LoadingScreen from '../../common/components/LoadingScreen';
 
+import AdWindows, { AdInline } from "../../../ads/AdWindows";
+
 
 const GridGamePage = () => {
     const dispatch = useDispatch();
@@ -66,9 +68,15 @@ const GridGamePage = () => {
     }
 
     return (
+    <AdWindows
+        placeholders={true}
+        enableTabletSide={false}   // Tablet: no laterales
+        showBottomOnDesktop={false}
+      >
         <div className="grid-game-body">
             <GridGameBoard />
         </div>
+        </AdWindows>
     );
 };
 

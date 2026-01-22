@@ -1,9 +1,15 @@
+// ============================
+// RankingPage.jsx (UPDATED + ADS)
+// ============================
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 import "./RankingPage.css";
 import UserAvatar from "./UserAvatar";
+
+// ✅ ADS
+import AdWindows, { AdInline } from "../../../ads/AdWindows";
 
 const rankThresholds = {
   F4: 0,
@@ -56,47 +62,54 @@ const RankingPage = () => {
   }, [dispatch]);
 
   return (
-    <div className="ranking-wrapper">
-      <h2 className="ranking-header">{t.title}</h2>
+    <AdWindows placeholders={true} enableTabletSide={false} showBottomOnDesktop={false}>
+      <div className="ranking-wrapper">
 
-      <div className="ranking-legend">
-        <h3>{t.legendTitle}</h3>
-        <div className="legend-items">
-          {rankOrder.map(rank => (
-            <div key={rank} className={`legend-item legend-${rank.toLowerCase()}`}>
-              <span className="legend-color"></span>
-              <span className="legend-label">{rank} - {d[rank]}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+        <h2 className="ranking-header">{t.title}</h2>
 
-      {rankOrder.map(rank => {
-        const users = [...(ranking[rank] || [])].sort((a, b) => b.points - a.points);
-        return (
-          <div key={rank} className="ranking-rank-section">
-            <h3 className={`rank-header rank-${rank.toLowerCase()}`}>
-              {rank} - {d[rank]}
-            </h3>
-            {users.length > 0 ? (
-              <div className="ranking-list">
-                {users.map((user, idx) => (
-                  <div key={idx} className={`ranking-row rank-${rank.toLowerCase()}`}>
-                    <div className="ranking-pos">#{idx + 1}</div>
-                    <UserAvatar image={user.image} userName={user.userName} size={40} />
-                    <div className="ranking-name">{user.userName}</div>
-                    <div className="ranking-points">{user.points} pts</div>
-                  </div>
-                ))}
+        <div className="ranking-legend">
+          <h3>{t.legendTitle}</h3>
+          <div className="legend-items">
+            {rankOrder.map((rank) => (
+              <div key={rank} className={`legend-item legend-${rank.toLowerCase()}`}>
+                <span className="legend-color"></span>
+                <span className="legend-label">
+                  {rank} - {d[rank]}
+                </span>
               </div>
-            ) : (
-              <div className="ranking-empty">{t.empty}</div>
-            )}
-            <p className="ranking-goal">{t.goal(rankThresholds[rank])}</p>
+            ))}
           </div>
-        );
-      })}
-    </div>
+        </div>
+
+        {rankOrder.map((rank) => {
+          const users = [...(ranking[rank] || [])].sort((a, b) => b.points - a.points);
+          return (
+            <div key={rank} className="ranking-rank-section">
+              <h3 className={`rank-header rank-${rank.toLowerCase()}`}>
+                {rank} - {d[rank]}
+              </h3>
+
+              {users.length > 0 ? (
+                <div className="ranking-list">
+                  {users.map((user, idx) => (
+                    <div key={idx} className={`ranking-row rank-${rank.toLowerCase()}`}>
+                      <div className="ranking-pos">#{idx + 1}</div>
+                      <UserAvatar image={user.image} userName={user.userName} size={40} />
+                      <div className="ranking-name">{user.userName}</div>
+                      <div className="ranking-points">{user.points} pts</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="ranking-empty">{t.empty}</div>
+              )}
+
+              <p className="ranking-goal">{t.goal(rankThresholds[rank])}</p>
+            </div>
+          );
+        })}
+      </div>
+    </AdWindows>
   );
 };
 

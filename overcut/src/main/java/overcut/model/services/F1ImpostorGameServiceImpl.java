@@ -40,11 +40,11 @@ public class F1ImpostorGameServiceImpl implements F1ImpostorGameService {
     @Override
     public F1ImpostorGame startGame(String lang, Long userId) {
         try {
-            if (!cooldownService.canPlay("F1Impostor", userId)) {
+           /* if (!cooldownService.canPlay("F1Impostor", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("F1Impostor", userId);
                 throw new CooldownException("WAIT", wait);
             }
-
+*/
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-f1-impostor?lang=" + lang))
@@ -80,7 +80,7 @@ public class F1ImpostorGameServiceImpl implements F1ImpostorGameService {
             }
 
             F1ImpostorGame f1ImpostorGame = gameDao.save(game);
-            cooldownService.registerPlay("F1Impostor", userId);
+            //cooldownService.registerPlay("F1Impostor", userId);
             return f1ImpostorGame;
 
         } catch (Exception e) {

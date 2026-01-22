@@ -38,11 +38,11 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
     @Override
     public TeamGuessGame startGame(Long userId) {
         try {
-            if (!cooldownService.canPlay("TeamGuess", userId)) {
+         /*   if (!cooldownService.canPlay("TeamGuess", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("TeamGuess", userId);
                 throw new CooldownException("WAIT", wait);
             }
-
+*/
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-team-guess"))
                     .GET()
@@ -70,7 +70,7 @@ public class TeamGuessGameServiceImpl implements TeamGuessGameService {
             }
 
             TeamGuessGame teamGuessGame = gameDao.save(game);
-            cooldownService.registerPlay("TeamGuess", userId);
+            //cooldownService.registerPlay("TeamGuess", userId);
             return teamGuessGame;
 
         } catch (Exception e) {

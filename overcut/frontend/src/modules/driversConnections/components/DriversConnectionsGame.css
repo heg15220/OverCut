@@ -301,3 +301,48 @@
     padding: 1.5rem 0.75rem;
   }
 }
+
+
+
+
+/* =========================
+   AD INLINE (tablet + móvil)
+   ========================= */
+.dc-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0.8rem auto 1.2rem auto;
+}
+
+@media (max-width: 1024px) {
+  .dc-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+/* Móvil: full width real, sin márgenes */
+@media (max-width: 500px) {
+  .dc-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .drivers-connections-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Para que el grid no se pegue al borde pero sin "margen" global:
+     usamos padding interno del contenido que lo necesita */
+  .connections-title,
+  .solved-grid,
+  .grid-4x4,
+  .actions-row,
+  .result-msg {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    box-sizing: border-box;
+  }
+}

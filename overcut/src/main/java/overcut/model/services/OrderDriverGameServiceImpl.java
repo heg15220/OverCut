@@ -41,11 +41,11 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
     @Override
     public OrderDriverGame startGame(String lang, Long userId) {
         try {
-            if (!cooldownService.canPlay("OrderDriver", userId)) {
+          /*  if (!cooldownService.canPlay("OrderDriver", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("OrderDriver", userId);
                 throw new CooldownException("WAIT", wait);
             }
-
+*/
             String url = "http://localhost:8000/generate-order-game?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
@@ -76,7 +76,7 @@ public class OrderDriverGameServiceImpl implements OrderDriverGameService {
 
             game.setSlots(slots);
             OrderDriverGame orderDriverGame = gameDao.save(game);
-            cooldownService.registerPlay("OrderDriver", userId);
+            //cooldownService.registerPlay("OrderDriver", userId);
             return orderDriverGame;
 
         } catch (Exception e) {

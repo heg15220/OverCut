@@ -42,11 +42,11 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
     @Override
     public TwoTeamsOneDriverGame startGame(Long userId) {
         try {
-            if (!cooldownService.canPlay("TwoTeams", userId)) {
+          /*  if (!cooldownService.canPlay("TwoTeams", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("TwoTeams", userId);
                 throw new CooldownException("WAIT", wait);
             }
-
+*/
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(PYTHON_API_BASE + "/generate-two-teams-one-driver"))
                     .GET()
@@ -76,7 +76,7 @@ public class TwoTeamsOneDriverGameServiceImpl implements TwoTeamsOneDriverGameSe
             }
 
             TwoTeamsOneDriverGame twoTeamsOneDriverGame = gameDao.save(game);
-            cooldownService.registerPlay("TwoTeams", userId);
+            //cooldownService.registerPlay("TwoTeams", userId);
             return twoTeamsOneDriverGame;
 
         } catch (Exception e) {

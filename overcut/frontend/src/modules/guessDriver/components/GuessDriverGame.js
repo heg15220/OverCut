@@ -21,6 +21,8 @@ import { fetchCooldown } from "../../cooldown/actions";
 import { getUser } from "../../users/selectors";
 
 
+import AdWindows, { AdInline } from "../../../ads/AdWindows";
+
 
 const GuessDriverGame = () => {
   const dispatch = useDispatch();
@@ -152,6 +154,12 @@ const GuessDriverGame = () => {
 
 
 return (
+
+  <AdWindows
+      placeholders={true}
+      enableTabletSide={false}     // aquí NO lo usamos, lo hacemos inline (más control)
+      showBottomOnDesktop={false}
+    >
   <div className="grid-game-container">
     <div className="grid-game-overlay">
       <div className="card-container">
@@ -370,6 +378,7 @@ return (
           )}
         </div>
       </div>
+      </AdWindows>
   );
 };
 

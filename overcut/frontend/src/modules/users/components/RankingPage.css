@@ -228,3 +228,28 @@
 }
 
 
+/* ============================
+   RankingPage.css (ADD)
+   ============================ */
+
+/* ✅ Inline ad (tablet + móvil). En desktop ya están los laterales con AdWindows */
+.ranking-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0 auto 1rem auto;
+}
+
+@media (max-width: 1024px) {
+  .ranking-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .ranking-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

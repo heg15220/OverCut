@@ -1,7 +1,33 @@
+/* ============================
+   TeamGuessGame.css (UPDATED)
+   ============================ */
+
+/* ✅ Inline AD (tablet + móvil) */
+.tg-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0.6rem auto 1.2rem auto;
+}
+
+@media (max-width: 1024px) {
+  .tg-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .tg-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
 /* === CONTENEDOR GENERAL === */
 .team-guess-container {
   position: relative;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background: linear-gradient(135deg, #0f0f0f, #1b1b1b);
   display: flex;
@@ -29,7 +55,7 @@
   font-size: 2rem;
   color: #ffcc00;
   font-family: 'F1 Bold', sans-serif;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   text-shadow: 0 0 8px rgba(255, 204, 0, 0.3);
   animation: glowTitle 1.5s infinite alternate;
 }
@@ -170,14 +196,6 @@
   to { opacity: 1; }
 }
 
-.team-logo {
-  width: 100px;
-  height: auto;
-  margin: 0 auto 1rem;
-  display: block;
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.1));
-}
-
 /* === FLIP CARD === */
 .team-reveal-card-wrapper {
   width: 140px;
@@ -243,6 +261,7 @@
   color: #fff;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
 }
+
 .result-container {
   display: flex;
   flex-direction: column;
@@ -282,7 +301,7 @@
 
   .team-guess-title {
     font-size: 1.8rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
   }
 
   .clues-row {
@@ -314,11 +333,6 @@
   .game-result {
     font-size: 1.5rem;
     margin-top: 1.2rem;
-  }
-
-  .team-logo {
-    width: 80px;
-    margin-bottom: 0.8rem;
   }
 
   .team-reveal-card-wrapper {
@@ -357,7 +371,7 @@
 
   .team-guess-title {
     font-size: 1.6rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.9rem;
   }
 
   .clues-row {
@@ -389,11 +403,6 @@
   .game-result {
     font-size: 1.4rem;
     margin-top: 1rem;
-  }
-
-  .team-logo {
-    width: 70px;
-    margin-bottom: 0.6rem;
   }
 
   .team-reveal-card-wrapper {

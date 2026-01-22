@@ -39,10 +39,12 @@ public class Top10GameServiceImpl implements Top10GameService {
     @Override
     public Top10Game createGame(Long userId, String lang) {
         try {
-            if (!cooldownService.canPlay("Top10Game", userId)) {
+          /*  if (!cooldownService.canPlay("Top10Game", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("Top10Game", userId);
                 throw new CooldownException("WAIT", wait);
             }
+
+           */
             String url = "http://localhost:8000/generate-top10-game?lang=" + URLEncoder.encode(lang, StandardCharsets.UTF_8);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -76,7 +78,7 @@ public class Top10GameServiceImpl implements Top10GameService {
 
             game.setSlots(slots);
             Top10Game saved = top10GameDao.save(game);
-            cooldownService.registerPlay("Top10Game", userId);
+            //cooldownService.registerPlay("Top10Game", userId);
             return saved;
 
         } catch (Exception e) {

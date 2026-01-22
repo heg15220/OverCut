@@ -19,6 +19,7 @@ import { getCooldownForGame } from "../../cooldown/selectors";
 import { fetchCooldown } from "../../cooldown/actions";
 import CooldownScreen from "../../cooldown/components/CooldownScreen";
 import { getUser } from "../../users/selectors";
+import AdWindows, { AdInline } from "../../../ads/AdWindows";
 
 const DEFAULT_ROWS = 10;
 const DEFAULT_COLS = 10;
@@ -100,6 +101,7 @@ const Crossword = () => {
 
 
     return (
+    <AdWindows placeholders={true} enableTabletSide={false} showBottomOnDesktop={false}>
         <Box
           sx={{
             backgroundColor: "#000000",
@@ -185,6 +187,7 @@ const Crossword = () => {
                 </Grid>
             </Grid>
         </Box>
+        </AdWindows>
     );
 };
 

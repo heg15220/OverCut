@@ -1,0 +1,231 @@
+/* ============================
+   ad-windows.css (UPDATED)
+   ============================ */
+
+/* Layout base: por defecto, el contenido ocupa todo */
+.oc-ad-layout {
+  position: relative;
+  width: 100%;
+}
+
+.oc-ad-fill {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* MAIN */
+.oc-ad-main {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Slots genéricos */
+.oc-ad-slot {
+  box-sizing: border-box;
+}
+
+/* Placeholder look */
+.oc-ad-placeholder {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  place-items: center;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.20);
+}
+
+.oc-ad-placeholder__badge {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.9;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.oc-ad-placeholder__box {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* =========================
+   DESKTOP (>= 1025px)
+   ========================= */
+@media (min-width: 1025px) {
+  .oc-ad-layout {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr) 140px;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .oc-ad-left,
+  .oc-ad-right {
+    position: sticky;
+    top: 84px;
+    height: calc(100vh - 110px);
+  }
+
+  .oc-ad-left .oc-ad-placeholder__box,
+  .oc-ad-right .oc-ad-placeholder__box {
+    height: 600px;
+  }
+
+  .oc-ad-tablet-side {
+    display: none;
+  }
+
+  .oc-ad-bottom {
+    display: none;
+  }
+
+  .oc-ad-bottom.oc-ad-bottom--desktop {
+    display: block;
+    grid-column: 1 / -1;
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    margin-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .oc-ad-bottom.oc-ad-bottom--desktop .oc-ad-placeholder__box {
+    height: 90px;
+  }
+}
+
+/* ✅ Si la pantalla de PC no es muy ancha, escondemos laterales */
+@media (min-width: 1025px) and (max-width: 1399px) {
+  .oc-ad-layout {
+    display: block;
+  }
+
+  .oc-ad-left,
+  .oc-ad-right {
+    display: none !important;
+  }
+}
+
+/* Inline ad: bloque dentro del main */
+.oc-ad-inline {
+  width: 100%;
+  margin: 16px 0;
+}
+
+.oc-ad-inline .oc-ad-placeholder__box {
+  height: 250px;
+}
+
+@media (min-width: 1025px) {
+  .oc-ad-inline .oc-ad-placeholder__box {
+    height: 280px;
+  }
+}
+
+/* =========================
+   TABLET (768px - 1024px)
+   - inline
+   - ❌ NO bottom sticky
+   ========================= */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .oc-ad-layout {
+    display: block;
+  }
+
+  .oc-ad-left,
+  .oc-ad-right,
+  .oc-ad-tablet-side {
+    display: none !important;
+  }
+
+  /* ✅ en tablet NO queremos sticky bottom */
+  .oc-ad-bottom {
+    display: none !important;
+  }
+}
+
+/* =========================
+   MOBILE (<= 767px)
+   - ✅ bottom sticky
+   ========================= */
+@media (max-width: 767px) {
+  .oc-ad-left,
+  .oc-ad-right,
+  .oc-ad-tablet-side {
+    display: none !important;
+  }
+
+  .oc-ad-bottom {
+    display: block; /* ✅ importante */
+    position: sticky;
+    bottom: 0;
+    z-index: 60;
+    padding: 0;
+    margin: 0;
+    backdrop-filter: blur(8px);
+  }
+
+  .oc-ad-bottom .oc-ad-placeholder {
+    padding: 0;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .oc-ad-bottom .oc-ad-placeholder__box {
+    height: 90px;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .oc-ad-bottom .oc-ad-real,
+  .oc-ad-bottom .oc-ad-fill {
+    width: 100%;
+    height: 90px;
+    margin: 0;
+    padding: 0;
+    display: block;
+  }
+}
+
+.oc-ad-real,
+.oc-ad-real * {
+  box-sizing: border-box;
+}
+
+.oc-ad-real {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ✅ HARD OVERRIDE SOLO TABLET (768–1024)
+   - en móvil NO debe aplicarse (era el bug)
+   - mantiene “sin laterales” y “sin bottom” en tablet */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .oc-ad-layout {
+    display: block !important;
+  }
+
+  .oc-ad-left,
+  .oc-ad-right,
+  .oc-ad-tablet-side {
+    display: none !important;
+  }
+
+  .oc-ad-bottom {
+    display: none !important;
+  }
+
+  .oc-ad-main {
+    width: 100%;
+    max-width: 100%;
+  }
+}

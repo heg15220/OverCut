@@ -258,3 +258,25 @@
     transform: scale(1.1);
   }
 }
+
+/* ✅ Inline ad (tablet + móvil). En desktop ya están los laterales con AdWindows */
+.rondo-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0 auto 1rem auto;
+}
+
+@media (max-width: 1024px) {
+  .rondo-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .rondo-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

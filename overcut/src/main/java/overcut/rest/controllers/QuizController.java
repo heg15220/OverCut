@@ -34,13 +34,13 @@ public class QuizController {
     @PostMapping("/create")
     public Long createQuiz(@RequestAttribute Long userId, @RequestParam(defaultValue = "es") String lang)
             throws InstanceNotFoundException {
-        if (!cooldownService.canPlay("Quiz", userId)) {
+       /* if (!cooldownService.canPlay("Quiz", userId)) {
             long wait = cooldownService.secondsUntilNextPlay("Quiz", userId);
             throw new CooldownException("WAIT", wait);
         }
-
+    */
         Quiz quiz = quizService.createQuiz(userId, lang);
-        cooldownService.registerPlay("Quiz", userId);
+        //cooldownService.registerPlay("Quiz", userId);
         return quiz.getId();
     }
 

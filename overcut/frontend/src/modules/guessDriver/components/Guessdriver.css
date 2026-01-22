@@ -1,7 +1,7 @@
 /* CONTENEDORES GENERALES */
 .grid-game-container {
   position: relative;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background-color: #000;
   display: flex;
@@ -833,4 +833,51 @@
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
+}
+
+/* Por defecto oculto */
+.gd-ad-inline-tablet {
+  display: none;
+}
+
+/* Tablet: aparece como bloque entre casco e inputs */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .gd-ad-inline-tablet {
+    display: block;
+    margin: 12px auto 14px auto;
+    width: 100%;
+    max-width: 600px; /* igual que overlay */
+  }
+}
+
+@media (max-width: 600px) {
+  .oc-ad-bottom {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 0;       /* ✅ sin margen */
+    margin: 0;
+  }
+
+  .oc-ad-bottom .oc-ad-placeholder {
+    border-radius: 0; /* ✅ edge-to-edge */
+    padding: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .oc-ad-bottom .oc-ad-placeholder__box {
+    height: 90px;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+}
+/* En móvil dejamos “aire” abajo para que el sticky no tape botones/lista */
+@media (max-width: 600px) {
+  .grid-game-container {
+    padding-bottom: 110px; /* ~90px del ad + algo de margen */
+  }
 }

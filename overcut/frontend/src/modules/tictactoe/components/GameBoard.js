@@ -10,6 +10,8 @@ import { Dialog, DialogTitle, DialogActions, Button, Snackbar, Alert } from '@mu
 import './GameBoard.css';
 import './CriteriaBox.css';
 import { useParams, useNavigate } from 'react-router-dom';
+import AdWindows from "../../../ads/AdWindows";
+
 
 const GameBoard = ({ gameData, onSwitchTurn, onDrawRequest }) => {
   const { id } = useParams();
@@ -177,6 +179,11 @@ const confirmDraw = (mode) => {
 
 
   return (
+    <AdWindows
+      placeholders={true}           // ahora con placeholder
+      enableTabletSide={true}
+      showBottomOnDesktop={false}
+    >
     <div className="game-container">
       <div className="game-grid-wrapper">
         {!gameData.gridMode && (
@@ -285,6 +292,8 @@ const confirmDraw = (mode) => {
       </Snackbar>
 
     </div>
+
+    </AdWindows>
   );
 };
 

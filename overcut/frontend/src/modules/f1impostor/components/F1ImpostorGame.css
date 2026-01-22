@@ -1,3 +1,7 @@
+/* ============================
+   F1ImpostorGame.css (UPDATED)
+   ============================ */
+
 .f1impostor-container {
   background: linear-gradient(to bottom, #0d1b2a, #000);
   color: white;
@@ -5,6 +9,45 @@
   text-align: center;
   font-family: "F1 Regular", sans-serif;
   min-height: 100vh;
+  max-width: 100%;
+}
+
+.f1impostor-title {
+  font-size: 3rem;
+  color: #b71c1c;
+  text-shadow: 0 0 4px rgba(183, 28, 28, 0.2);
+  margin-bottom: 0.5rem;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* (tu JSX lo usa) */
+.f1impostor-subtitle {
+  margin-top: 0.2rem;
+  opacity: 0.95;
+}
+
+/* ✅ Inline AD (tablet + móvil) */
+.fi-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0.8rem auto 1.2rem auto;
+}
+
+@media (max-width: 1024px) {
+  .fi-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .fi-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
 
 .f1impostor-grid {
@@ -42,6 +85,16 @@
   border-color: #e53935;
 }
 
+.f1impostor-card.missed-valid {
+  background: #37474f;
+  border-color: #64b5f6;
+}
+
+.f1impostor-card.avoided {
+  background: #263238;
+  border-color: #81c784;
+}
+
 .f1impostor-validate-btn {
   margin-top: 2rem;
   padding: 0.8rem 1.5rem;
@@ -66,16 +119,6 @@
   padding: 4rem;
 }
 
-.f1impostor-card.missed-valid {
-  background: #37474f; /* gris azulado */
-  border-color: #64b5f6; /* azul claro */
-}
-
-.f1impostor-card.avoided {
-  background: #263238; /* gris oscuro */
-  border-color: #81c784; /* verde claro */
-}
-
 .f1impostor-rondo {
   position: relative;
   width: 30rem;
@@ -87,7 +130,7 @@
   align-items: center;
 }
 
-.f1impostor-card {
+.f1impostor-rondo .f1impostor-card {
   position: absolute;
   width: 120px;
   height: 60px;
@@ -106,24 +149,9 @@
   border-radius: 50px;
 }
 
-.f1impostor-title {
-  font-size: 3rem;
-  color: #b71c1c; /* rojo oscuro */
-  text-shadow: 0 0 4px rgba(183, 28, 28, 0.2); /* sombra mucho más tenue */
-  margin-bottom: 0.5rem;
-  letter-spacing: 1.2px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-
 @media (max-width: 500px) {
   .f1impostor-title {
     font-size: 2rem;
-  }
-
-  .f1impostor-subtitle {
-    font-size: 1rem;
   }
 
   .pilot-name {
@@ -146,7 +174,6 @@
 
 /* En móvil (<768px): ocultar el rondo y mostrar el grid adaptado */
 @media (max-width: 767px) {
-  /* Mobile container tweaks (optional, can be skipped if you want) */
   .f1impostor-container {
     padding: 1.5rem 1rem;
   }
@@ -154,12 +181,11 @@
   .f1impostor-title {
     font-size: 2.2rem;
     margin-bottom: 0.5rem;
-    color: #b71c1c; /* rojo oscuro */
-    text-shadow: 0 0 4px rgba(183, 28, 28, 0.2); /* sombra mucho más tenue */
+    color: #b71c1c;
+    text-shadow: 0 0 4px rgba(183, 28, 28, 0.2);
     text-transform: uppercase;
   }
 
-  /* Mobile grid layout */
   .f1impostor-grid {
     display: grid !important;
     width: 100%;
@@ -228,7 +254,6 @@
     margin-top: 1rem;
   }
 }
-
 
 /* En desktop (>=768px): ocultar la grid y mostrar el rondo original */
 @media (min-width: 768px) {

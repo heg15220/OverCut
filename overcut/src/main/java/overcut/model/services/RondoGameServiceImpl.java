@@ -75,10 +75,11 @@ public class RondoGameServiceImpl implements RondoGameService {
     @Override
     public RondoGame createGame(Long userId, String language) {
         try {
-            if (!cooldownService.canPlay("RondoGame", userId)) {
+          /*  if (!cooldownService.canPlay("RondoGame", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("RondoGame", userId);
                 throw new CooldownException("WAIT", wait);
             }
+            */
             // Leer archivo de caché con roscos pre-generados
             String cachePath = "src/main/resources/scripts/rosco_cache_" + language + ".json";
             ObjectMapper mapper = new ObjectMapper();
@@ -117,7 +118,7 @@ public class RondoGameServiceImpl implements RondoGameService {
 
             letterDao.saveAll(letters);
             game.setPasaPalabraLetterList(letters);
-            cooldownService.registerPlay("RondoGame", userId);
+            //cooldownService.registerPlay("RondoGame", userId);
             return game;
 
         } catch (IOException e) {

@@ -229,3 +229,30 @@
     width: 100%;
   }
 }
+
+
+/* ============================
+   WordSearchGame.css (ADD)
+   ============================ */
+
+/* ✅ Inline ads (tablet + móvil). Desktop ya tiene laterales con AdWindows */
+.wordsearch-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0 auto 1rem auto;
+}
+
+@media (max-width: 1024px) {
+  .wordsearch-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .wordsearch-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

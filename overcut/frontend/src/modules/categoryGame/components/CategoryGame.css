@@ -1,18 +1,22 @@
+/* ============================
+   CategoryGame.css (UPDATED)
+   ============================ */
+
 .category-page {
-  background: linear-gradient(to bottom, #0a1a2f, #050f1e);  /* Degradado azul oscuro */
+  background: linear-gradient(to bottom, #0a1a2f, #050f1e);
   color: white;
-  min-height: 100vh;  /* Ocupa al menos el 100% del alto de la ventana */
-  margin: 0;  /* Elimina los márgenes predeterminados */
-  padding: 0;  /* Elimina el padding, para que ocupe todo el espacio disponible */
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;  /* Alinea los elementos desde arriba */
-  align-items: stretch;  /* Asegura que los elementos hijos se estiren */
+  justify-content: flex-start;
+  align-items: stretch;
 }
 
 .category-game-container {
-  max-width: 90%;  /* Aumentamos el ancho máximo a un 90% del contenedor */
-  margin: 2rem auto;  /* Márgenes para centrar el contenedor */
+  max-width: 100%;
+  margin: 2rem auto;
   padding: 2rem;
   background: #121212;
   border-radius: 12px;
@@ -24,8 +28,30 @@
 .category-title {
   font-size: 1.6rem;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.2rem;
   color: #ffcc00;
+}
+
+/* ✅ Inline AD (tablet + móvil) */
+.cg-ad-inline {
+  display: none;
+  width: 100%;
+  margin: 0.6rem auto 1.2rem auto;
+}
+
+@media (max-width: 1024px) {
+  .cg-ad-inline {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .cg-ad-inline {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
 
 .category-form {
@@ -117,7 +143,7 @@
 
   .category-title {
     font-size: 1.4rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.1rem;
   }
 
   .category-input-block input {
@@ -161,7 +187,7 @@
 
   .category-title {
     font-size: 1.25rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
   }
 
   .category-input-block input {
@@ -192,17 +218,5 @@
     padding: 8px 14px;
     font-size: 0.9rem;
     border-radius: 5px;
-  }
-}
-
-@media (max-width: 768px) {
-  .category-page {
-    background: linear-gradient(to bottom, #0a1a2f, #050f1e);
-  }
-}
-
-@media (max-width: 500px) {
-  .category-page {
-    background: linear-gradient(to bottom, #0a1a2f, #050f1e);
   }
 }

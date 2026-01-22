@@ -13,6 +13,10 @@ import { getCooldownForGame } from "../../cooldown/selectors";
 import { fetchCooldown } from "../../cooldown/actions";
 import { getUser } from "../../users/selectors";
 
+import AdWindows, { AdInline } from "../../../ads/AdWindows";
+
+
+
 const categoryColors = [
   "#1e88e5", // Blue
   "#43a047", // Green
@@ -191,89 +195,97 @@ const DriversConnectionsGame = () => {
   const gameFinished = game.finished || solvedGroups.length === game.categories.length;
 
   return (
-    <div className="drivers-connections-container">
-      <h2 className="connections-title">🏎️ {t.title} 🏎️</h2>
+    <AdWindows
+      placeholders={true}
+      enableTabletSide={false}
+      showBottomOnDesktop={false}
+      showBottomOnMobile={false}
+    >
+      <div className="drivers-connections-container">
+        <h2 className="connections-title">🏎️ {t.title} 🏎️</h2>
 
-      {!gameFinished && solvedGroups.length > 0 && (
-        <div className="solved-grid">
-          {solvedGroups.map((category, idx) => (
-            <div key={idx} className={`solved-category ${getColorClass(idx)}`}>
-              <h3 className="category-title" style={{ color: '#000', fontWeight: 'bold', letterSpacing: '0.5px' }}>
-                {category.description}
-              </h3>
-              <div className="solved-row">
-                {category.pilots.map((pilot, i) => (
-                  <div key={i} className="solved-slot">
-                    {pilot.driverName}
-                  </div>
-                ))}
+        {/* resto del juego */}
+        {!gameFinished && solvedGroups.length > 0 && (
+          <div className="solved-grid">
+            {solvedGroups.map((category, idx) => (
+              <div key={idx} className={`solved-category ${getColorClass(idx)}`}>
+                <h3 className="category-title" style={{ color: '#000', fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                  {category.description}
+                </h3>
+                <div className="solved-row">
+                  {category.pilots.map((pilot, i) => (
+                    <div key={i} className="solved-slot">
+                      {pilot.driverName}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {!gameFinished && (
-        <div className="grid-4x4">
-          {allDrivers.map((driver) => (
-            <div
-              key={driver.id}
-              className={`grid-cell ${selectedDrivers.includes(driver.driverName) ? 'selected' : ''}`}
-              onClick={() => toggleDriver(driver.driverName)}
-            >
-              {driver.driverName}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {gameFinished && (
-        <div className="solved-grid">
-          {game.categories.map((category, idx) => (
-            <div key={idx} className={`solved-category ${getColorClass(idx)}`}>
-              <h3 className="category-title" style={{ color: '#000', fontWeight: 'bold', letterSpacing: '0.5px' }}>
-                {category.description}
-              </h3>
-              <div className="solved-row">
-                {category.pilots.map((pilot, i) => (
-                  <div key={i} className="solved-slot">
-                    {pilot.driverName}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="actions-row">
-        {!gameFinished ? (
-          <>
-            <button className="validate-btn" onClick={handleValidate} disabled={selectedDrivers.length !== 4}>
-              {t.validate}
-            </button>
-            <button className="reveal-btn" onClick={handleSurrender}>{t.surrender}</button>
-          </>
-        ) : (
-          <button className="validate-btn" onClick={handleGoHome}>{t.backToHome}</button>
+            ))}
+          </div>
         )}
-      </div>
 
-      {isValidGroup === true && (
-        <div className="result-msg success">{t.correctGroup}</div>
-      )}
+        {!gameFinished && (
+          <div className="grid-4x4">
+            {allDrivers.map((driver) => (
+              <div
+                key={driver.id}
+                className={`grid-cell ${selectedDrivers.includes(driver.driverName) ? 'selected' : ''}`}
+                onClick={() => toggleDriver(driver.driverName)}
+              >
+                {driver.driverName}
+              </div>
+            ))}
+          </div>
+        )}
 
-      {isValidGroup === false && retainSelection && (
-        <div className="result-msg fail">
-          {t.incorrectGroup}
-          {partialMatchCount !== null && (
-            <div style={{ fontSize: "1rem", marginTop: "0.3rem" }}>
-              {t.correctMatches}: {partialMatchCount} / 4
-            </div>
+        {gameFinished && (
+          <div className="solved-grid">
+            {game.categories.map((category, idx) => (
+              <div key={idx} className={`solved-category ${getColorClass(idx)}`}>
+                <h3 className="category-title" style={{ color: '#000', fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                  {category.description}
+                </h3>
+                <div className="solved-row">
+                  {category.pilots.map((pilot, i) => (
+                    <div key={i} className="solved-slot">
+                      {pilot.driverName}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="actions-row">
+          {!gameFinished ? (
+            <>
+              <button className="validate-btn" onClick={handleValidate} disabled={selectedDrivers.length !== 4}>
+                {t.validate}
+              </button>
+              <button className="reveal-btn" onClick={handleSurrender}>{t.surrender}</button>
+            </>
+          ) : (
+            <button className="validate-btn" onClick={handleGoHome}>{t.backToHome}</button>
           )}
         </div>
-      )}
-    </div>
+
+        {isValidGroup === true && (
+          <div className="result-msg success">{t.correctGroup}</div>
+        )}
+
+        {isValidGroup === false && retainSelection && (
+          <div className="result-msg fail">
+            {t.incorrectGroup}
+            {partialMatchCount !== null && (
+              <div style={{ fontSize: "1rem", marginTop: "0.3rem" }}>
+                {t.correctMatches}: {partialMatchCount} / 4
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </AdWindows>
   );
 };
 

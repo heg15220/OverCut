@@ -420,4 +420,45 @@
   }
 }
 
+/* ============================
+   Top10Game.css (ADD/UPDATED)
+   ============================ */
 
+/* ✅ Inline ads (tablet + móvil). Desktop ya tendrá laterales con AdWindows */
+.top10-ad-inline,
+.top10-ad-inline-board {
+  display: none;
+  width: 100%;
+  margin: 0 auto 1.2rem auto;
+}
+
+@media (max-width: 1024px) {
+  .top10-ad-inline,
+  .top10-ad-inline-board {
+    display: block;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 500px) {
+  .top10-ad-inline,
+  .top10-ad-inline-board {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* ✅ Si quieres que el AD de la página quede centrado arriba del board */
+.top10-game-body {
+  background: linear-gradient(to bottom, #0a1a2f, #050f1e);
+  min-height: 100vh;
+  padding-top: 3rem;
+  display: flex;
+  flex-direction: column;   /* ⬅️ importante para que el ad esté arriba y el board debajo */
+  justify-content: flex-start;
+  align-items: center;
+  color: white;
+}
+
+/* (El resto de tu CSS se mantiene tal cual) */

@@ -34,11 +34,11 @@ public class WordSearchServiceImpl implements WordSearchService {
     @Override
     public WordSearchGame startGame(Long userId) {
         try {
-            if (!cooldownService.canPlay("WordSearch", userId)) {
+           /* if (!cooldownService.canPlay("WordSearch", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("WordSearch", userId);
                 throw new CooldownException("WAIT", wait);
             }
-
+    */
             String url = "http://localhost:8000/generate-wordsearch";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -73,7 +73,7 @@ public class WordSearchServiceImpl implements WordSearchService {
             }
 
             WordSearchGame wordSearchGame = gameDao.save(game);
-            cooldownService.registerPlay("WordSearch", userId);
+            //cooldownService.registerPlay("WordSearch", userId);
             return wordSearchGame;
 
         } catch (Exception e) {

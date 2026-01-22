@@ -41,11 +41,11 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
     public DriversConnectionsGame startGame(String lang, Long userId) {
         try {
 
-            if (!cooldownService.canPlay("DriversConnections", userId)) {
+            /*if (!cooldownService.canPlay("DriversConnections", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("DriversConnections", userId);
                 throw new CooldownException("WAIT", wait);
             }
-
+*/
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate?lang=" + lang))
@@ -84,7 +84,7 @@ public class DriversConnectionsGameServiceImpl implements DriversConnectionsGame
 
             DriversConnectionsGame driversConnectionsGame =  gameDao.save(game);
 
-            cooldownService.registerPlay("DriversConnections", userId);
+            //cooldownService.registerPlay("DriversConnections", userId);
             return driversConnectionsGame;
 
         } catch (Exception e) {
