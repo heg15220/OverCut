@@ -1,5 +1,5 @@
 // ============================
-// AdWindows.jsx (UPDATED)
+// AdWindows.jsx (2 slots/side)
 // ============================
 import React from "react";
 import { useConsent } from "../cookies/ConsentContext";
@@ -19,14 +19,48 @@ const AdWindows = ({
 
   return (
     <div className={`oc-ad-layout ${className}`}>
+      {/* LEFT: 2 slots */}
       <aside className="oc-ad-slot oc-ad-left" aria-label="Publicidad lateral izquierda">
-        {placeholders ? <AdPlaceholder label="AD • Left (Desktop)" /> : <AdSlot id="left" />}
+        <div className="oc-ad-stack">
+          <div className="oc-ad-stack__item" aria-label="Publicidad lateral izquierda superior">
+            {placeholders ? (
+              <AdPlaceholder label="AD • Left Top (Desktop)" />
+            ) : (
+              <AdSlot id="left-top" />
+            )}
+          </div>
+
+          <div className="oc-ad-stack__item" aria-label="Publicidad lateral izquierda inferior">
+            {placeholders ? (
+              <AdPlaceholder label="AD • Left Bottom (Desktop)" />
+            ) : (
+              <AdSlot id="left-bottom" />
+            )}
+          </div>
+        </div>
       </aside>
 
       <main className="oc-ad-main">{children}</main>
 
+      {/* RIGHT: 2 slots */}
       <aside className="oc-ad-slot oc-ad-right" aria-label="Publicidad lateral derecha">
-        {placeholders ? <AdPlaceholder label="AD • Right (Desktop)" /> : <AdSlot id="right" />}
+        <div className="oc-ad-stack">
+          <div className="oc-ad-stack__item" aria-label="Publicidad lateral derecha superior">
+            {placeholders ? (
+              <AdPlaceholder label="AD • Right Top (Desktop)" />
+            ) : (
+              <AdSlot id="right-top" />
+            )}
+          </div>
+
+          <div className="oc-ad-stack__item" aria-label="Publicidad lateral derecha inferior">
+            {placeholders ? (
+              <AdPlaceholder label="AD • Right Bottom (Desktop)" />
+            ) : (
+              <AdSlot id="right-bottom" />
+            )}
+          </div>
+        </div>
       </aside>
 
       {enableTabletSide && (
@@ -58,10 +92,20 @@ const AdSlot = ({ id }) => (
   </div>
 );
 
-export const AdInline = ({ id = "inline", label = "AD • Inline", placeholders = true }) => (
-  <div className="oc-ad-slot oc-ad-inline" aria-label="Publicidad inline">
+export const AdInline = ({
+  id = "inline",
+  label = "AD • Inline",
+  placeholders = true,
+  variant = "normal",      // ✅ nuevo
+  className = "",          // ✅ nuevo
+}) => (
+  <div
+    className={`oc-ad-slot oc-ad-inline ${variant === "mini" ? "oc-ad-inline--mini" : ""} ${className}`}
+    aria-label="Publicidad inline"
+  >
     {placeholders ? <AdPlaceholder label={label} /> : <AdSlot id={id} />}
   </div>
 );
+
 
 export default AdWindows;

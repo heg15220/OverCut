@@ -1,30 +1,40 @@
 .oc-interstitial {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 2147483000; /* ✅ por encima del header */
   display: grid;
   place-items: center;
 }
 
+
+/* ✅ asegura que el backdrop no tape el contenido */
 .oc-interstitial__backdrop {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: rgba(0,0,0,0.86);
   backdrop-filter: blur(6px);
 }
 
+/* ✅ crea contexto y evita recortes raros */
 .oc-interstitial__content {
   position: relative;
+  z-index: 2;
   width: min(980px, 94vw);
   height: min(640px, 86vh);
   display: grid;
   place-items: center;
-  z-index: 2;
+
+  /* ✅ importante para móviles (notch / status bar) */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
+/* ✅ botón SIEMPRE visible */
 .oc-interstitial__close {
-  position: absolute;
-  top: 14px;
+  position: fixed;              /* 👈 clave: no depende del layout interno */
+  top: calc(env(safe-area-inset-top) + 12px);
   width: 46px;
   height: 46px;
   border-radius: 12px;
@@ -32,20 +42,27 @@
   background: rgba(0,0,0,0.55);
   color: #fff;
   font-weight: 900;
+  opacity: 0.85;
+
+  z-index: 2147483647;               /* 👈 por encima de TODO */
+  pointer-events: auto;
+
   cursor: not-allowed;
-  opacity: 0.7;
 }
 
-.oc-interstitial__close--right { right: 14px; }
-.oc-interstitial__close--left  { left: 14px; }
+.oc-interstitial__close--right { right: calc(env(safe-area-inset-right) + 14px); }
+.oc-interstitial__close--left  { left:  calc(env(safe-area-inset-left)  + 14px); }
 
 .oc-interstitial__close.is-enabled {
   cursor: pointer;
   opacity: 1;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.10);
 }
 
+/* ✅ la caja del anuncio queda por debajo del botón */
 .oc-interstitial__ad {
+  position: relative;
+  z-index: 2;
   width: 100%;
   height: 100%;
   border-radius: 18px;
@@ -56,51 +73,6 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-
-.oc-interstitial__badge {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.10);
-}
-
-.oc-interstitial__badgeTitle {
-  font-weight: 900;
-  letter-spacing: 1px;
-  color: #fbc02d;
-}
-
-.oc-interstitial__badgeSub {
-  font-weight: 700;
-  opacity: 0.85;
-  color: #fff;
-}
-
-.oc-interstitial__adBox {
-  flex: 1;
-  border-radius: 16px;
-  border: 1px dashed rgba(255,255,255,0.20);
-  background: rgba(255,255,255,0.04);
-  display: grid;
-  place-items: center;
-  min-height: 220px;
-}
-
-.oc-interstitial__fakeAdText {
-  text-align: center;
-  font-weight: 900;
-  letter-spacing: 1px;
-  opacity: 0.85;
-}
-
-.oc-interstitial__hint {
-  text-align: center;
-  font-weight: 700;
-  opacity: 0.9;
 }
 
 /* ===== Tablet ===== */
@@ -119,7 +91,6 @@
   }
 
   .oc-interstitial__close {
-    top: 10px;
     width: 42px;
     height: 42px;
     border-radius: 12px;
