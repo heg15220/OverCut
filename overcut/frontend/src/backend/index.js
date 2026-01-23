@@ -51,11 +51,15 @@ import * as towerService from "./towerService"; // ✅ NUEVO
 
 import * as anagramsService from "./anagramsService"; // ✅ NUEVO
 
+
+import * as bingoService from "./bingoService"; // ✅ NUEVO
+
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
     gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService,
      wordleService, twoTeamsService, f1ImpostorService, teamGuessService, driversConnectionsService, orderDriverService,
-     wordSearchService, cooldownService, top10QualiService, driverSeasonService, towerService, anagramsService}
+     wordSearchService, cooldownService, top10QualiService, driverSeasonService, towerService, anagramsService,
+     bingoService}
 
 
 export default backExport;

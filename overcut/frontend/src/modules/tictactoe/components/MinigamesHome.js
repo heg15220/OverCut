@@ -137,6 +137,14 @@ const minigames = [
       isNew: true
     },
 
+    {
+      path: "/minigames/bingo",
+      title: "Bingo",
+      description: "Completa un bingo de 9 casillas con pilotos aleatorios",
+      img: sourceImages(`./Bingo.png`),
+      isNew: true
+    }
+
 
 
 ];

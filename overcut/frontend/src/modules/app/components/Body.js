@@ -94,6 +94,10 @@ import DriverSeasonGamePage from "../../driverSeason/components/DriverSeasonGame
 import TowerGame from "../../tower/components/TowerGame";
 import LightsOutGame from "../../lightsout/components/LightsOutGame";
 import AnagramsGame from "../../anagrams/components/AnagramsGame";
+import BingoGame from "../../bingo/components/BingoGame";
+
+
+
 
 const Body = () => {
 
@@ -178,6 +182,8 @@ const Body = () => {
                     <Route path="/minigames/tower" element={<TowerGame />} />
                     <Route path="/minigames/lightsout" element={<LightsOutGame />} />
                     <Route path="/minigames/anagrams" element={<AnagramsGame />} />
+                    <Route path="/minigames/bingo" element={<BingoGame />} />
+
                 </Route>
             </Routes>
         </div>

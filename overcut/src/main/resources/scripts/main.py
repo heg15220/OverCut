@@ -72,6 +72,7 @@ from tower_game import generate_tower, generate_tower_fixed, validate_driver, ge
 # main.py (añadir import)
 from tower_game import resolve_tower_hint
 from select_anagram_driver import generate_f1_anagrams_game
+from generate_bingo import generate_bingo_game
 
 
 
@@ -638,6 +639,14 @@ def tower_hint_value_endpoint(payload: dict):
 def generate_f1_anagrams():
     try:
         return JSONResponse(content=generate_f1_anagrams_game(6))
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-bingo")
+def generate_bingo(lang: str = Query("es", enum=["es", "en"])):
+    try:
+        result = generate_bingo_game(lang)
+        return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 

@@ -1,0 +1,388 @@
+/* BingoGame.css */
+:root {
+  --primary-color: #010b13;
+  --secondary-color: #0096a9;
+  --bluePop-color: #0dd0f7;
+  --field-color: #031825;
+  --button-color: #f2b705;
+  --text-color: #fff;
+  --darkerButton-color: #ffcd39;
+  --blue2-color: #3a6fa1;
+
+  --ok: #2ecc71;
+  --bad: #e74c3c;
+
+  /* extras para mejorar consistencia visual */
+  --glass: rgba(3, 24, 37, 0.88);
+  --border: rgba(13, 208, 247, 0.18);
+  --border-strong: rgba(13, 208, 247, 0.34);
+  --shadow: 0 12px 30px rgba(0,0,0,0.25);
+  --shadow-soft: 0 10px 22px rgba(0,0,0,0.22);
+}
+
+.bingo-page {
+  min-height: 100vh;
+  padding: 24px 14px 46px;
+  background:
+    radial-gradient(900px 520px at 50% 0%, rgba(13,208,247,0.10), transparent 60%),
+    radial-gradient(700px 420px at 20% 30%, rgba(242,183,5,0.06), transparent 60%),
+    linear-gradient(180deg, #020c14, #010812);
+  color: var(--text-color);
+  text-align: center;
+  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* Header */
+.bingo-header {
+  margin: 10px auto 14px;
+  max-width: 980px;
+}
+
+.bingo-title {
+  font-size: 40px;
+  margin: 0 0 6px;
+  letter-spacing: 0.3px;
+  line-height: 1.05;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.bingo-subtitle {
+  opacity: 0.86;
+  margin: 0 auto;
+  max-width: 760px;
+  line-height: 1.35;
+}
+
+/* Topbar */
+.bingo-topbar {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 18px auto 14px;
+}
+
+.bingo-pill {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px 12px;
+  min-width: 180px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.bingo-pill__label {
+  opacity: 0.86;
+  font-weight: 600;
+}
+
+.bingo-pill__value {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.bingo-pill__value.danger {
+  color: var(--button-color);
+}
+
+.bingo-pill--driver {
+  min-width: 260px;
+}
+
+.bingo-pill__driverRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bingo-nextDriverBtn {
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-color);
+  width: 36px;
+  height: 32px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.bingo-nextDriverBtn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(13,208,247,0.40);
+  background: rgba(13,208,247,0.10);
+}
+
+.bingo-nextDriverBtn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+}
+
+/* Feedback */
+.bingo-feedback {
+  width: min(560px, 94vw);
+  margin: 8px auto 14px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(3, 24, 37, 0.78);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+}
+
+.bingo-feedback.ok { border-color: rgba(46, 204, 113, 0.55); }
+.bingo-feedback.bad { border-color: rgba(231, 76, 60, 0.55); }
+.bingo-feedback.error { border-color: rgba(241, 196, 15, 0.55); }
+
+/* Grid */
+.bingo-grid {
+  width: min(560px, 94vw);
+  margin: 14px auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.bingo-grid.disabled {
+  opacity: 0.74;
+  filter: grayscale(0.12);
+}
+
+/* Cell */
+.bingo-cell {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: rgba(3, 24, 37, 0.92);
+  border-radius: 18px;
+  padding: 12px;
+  cursor: pointer;
+  color: var(--text-color);
+  min-height: 148px;
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 0.10s ease,
+    border-color 0.14s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bingo-cell::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: radial-gradient(380px 180px at 50% 0%, rgba(13,208,247,0.12), transparent 60%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.bingo-cell:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
+  box-shadow: 0 16px 34px rgba(0,0,0,0.30);
+}
+
+.bingo-cell:active {
+  transform: translateY(0px) scale(0.995);
+}
+
+.bingo-cell:disabled {
+  cursor: default;
+  opacity: 0.97;
+}
+
+/* Accesibilidad: focus visible */
+.bingo-cell:focus-visible,
+.bingo-nextDriverBtn:focus-visible,
+.bingo-btn:focus-visible {
+  outline: 3px solid rgba(13,208,247,0.35);
+  outline-offset: 2px;
+}
+
+/* ✅ CORRECTO */
+.bingo-cell--correct {
+  border-color: rgba(46, 204, 113, 0.55);
+  background: linear-gradient(
+    180deg,
+    rgba(46, 204, 113, 0.28),
+    rgba(46, 204, 113, 0.12)
+  );
+}
+
+.bingo-cell--correct::before {
+  background: radial-gradient(420px 210px at 50% 0%, rgba(46, 204, 113, 0.18), transparent 60%);
+}
+
+/* ✅ incorrecto */
+.bingo-cell--wrong {
+  border-color: rgba(231, 76, 60, 0.65);
+  animation: bingo-shake 0.35s ease;
+}
+
+.bingo-cell--wrong::before {
+  background: radial-gradient(420px 210px at 50% 0%, rgba(231, 76, 60, 0.16), transparent 60%);
+}
+
+/* ✅ pop */
+.bingo-cell--pop {
+  animation: bingo-pop 0.25s ease;
+}
+
+@keyframes bingo-shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes bingo-pop {
+  0% { transform: scale(1); }
+  60% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* Content layout */
+.bingo-cell__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  place-items: center;
+}
+
+/* Img */
+.bingo-cell__img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.25));
+  user-select: none;
+}
+
+/* ✅ Flag (nuevo) */
+.bingo-cell__flag {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  font-size: 40px;
+  line-height: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.20);
+  user-select: none;
+}
+
+/* Description */
+.bingo-cell__desc {
+  font-size: 13px;
+  line-height: 1.2;
+  opacity: 0.92;
+  padding: 0 2px;
+}
+
+/* Overlay respuesta */
+.bingo-cell__answerOverlay {
+  margin-top: 4px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.24);
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(8px);
+}
+
+.bingo-cell__answerBadge {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  background: rgba(46, 204, 113, 0.25);
+  border: 1px solid rgba(46, 204, 113, 0.35);
+}
+
+.bingo-cell__answerName {
+  font-size: 12.5px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  text-shadow: 0 8px 18px rgba(0,0,0,0.35);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Finish */
+.bingo-finish {
+  margin: 22px auto 0;
+  width: min(560px, 94vw);
+  padding: 14px 12px;
+  border-radius: 18px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.bingo-finish__title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.bingo-btn {
+  border: none;
+  cursor: pointer;
+  background: var(--button-color);
+  color: #111;
+  font-weight: 900;
+  padding: 10px 14px;
+  border-radius: 14px;
+  transition: transform 0.08s ease, filter 0.12s ease;
+  box-shadow: 0 12px 26px rgba(0,0,0,0.25);
+}
+
+.bingo-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.bingo-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  .bingo-title { font-size: 32px; }
+  .bingo-subtitle { font-size: 14px; }
+
+  .bingo-pill { min-width: 160px; }
+  .bingo-pill--driver { min-width: 260px; }
+
+  .bingo-cell { min-height: 136px; padding: 10px; }
+  .bingo-cell__img { width: 44px; height: 44px; }
+  .bingo-cell__flag { width: 48px; height: 48px; font-size: 36px; }
+}
+
+@media (max-width: 360px) {
+  .bingo-grid {
+    width: min(520px, 94vw);
+    gap: 8px;
+  }
+  .bingo-cell__desc { font-size: 12.5px; }
+}

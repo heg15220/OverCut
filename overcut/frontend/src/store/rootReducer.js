@@ -31,6 +31,8 @@ import top10quali from '../modules/top10Quali';
 import driverSeason from "../modules/driverSeason";
 import tower from "../modules/tower";
 import anagrams from '../modules/anagrams';
+import bingo from '../modules/bingo';
+
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -60,6 +62,7 @@ const rootReducer = combineReducers({
     driverSeason: driverSeason.reducer,
     tower: tower.reducer,
     anagrams: anagrams.reducer,
+    bingo: bingo.reducer,
 });
 
 export default rootReducer;

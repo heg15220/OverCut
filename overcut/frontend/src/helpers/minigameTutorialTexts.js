@@ -238,6 +238,25 @@ export const tutorialTexts = {
             "You can type with or without accents and in any case (we normalize automatically).\n\n" +
             "Tip: watch for repeated letters and common letter patterns."
         }
+      },
+
+      "/minigames/bingo": {
+        es: {
+          title: "Bingo",
+          description:
+            "Completa las 9 casillas antes de que se acabe el tiempo.\n\n" +
+            "Cada turno te aparece un piloto: haz clic en una casilla donde ese piloto sea válido.\n" +
+            "Si aciertas, la casilla se rellena. Si fallas, pierdes tiempo.\n\n" +
+            "No puedes usar el mismo piloto en dos casillas. ¡Piensa rápido!"
+        },
+        en: {
+          title: "Bingo",
+          description:
+            "Fill all 9 cells before time runs out.\n\n" +
+            "Each turn shows a driver: click a cell where that driver is valid.\n" +
+            "If correct, the cell is filled. If wrong, you lose time.\n\n" +
+            "You can’t use the same driver in two cells. Think fast!"
+        }
       }
 
 

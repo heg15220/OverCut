@@ -1,6 +1,12 @@
 DROP TABLE IF EXISTS GameCooldown;
 
 
+
+DROP TABLE IF EXISTS BingoSelection;
+DROP TABLE IF EXISTS BingoCellPilot;
+DROP TABLE IF EXISTS BingoGameDriver;
+DROP TABLE IF EXISTS BingoCell;
+DROP TABLE IF EXISTS BingoGame;
 DROP TABLE IF EXISTS F1AnagramsAttempt;
 DROP TABLE IF EXISTS F1AnagramsRound;
 DROP TABLE IF EXISTS F1AnagramsGame;
@@ -862,4 +868,65 @@ CREATE TABLE F1AnagramsAttempt (
   attemptOrder INT NOT NULL,        -- 0..4
   correct BOOLEAN NOT NULL,
   FOREIGN KEY (roundId) REFERENCES F1AnagramsRound(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE BingoGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    startedAt DATETIME NULL,
+    finished BOOLEAN DEFAULT FALSE,
+    durationSeconds INT DEFAULT 60
+);
+
+CREATE TABLE BingoCell (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    cellIndex INT NOT NULL,                 -- 0..8
+    themeCode VARCHAR(100) NOT NULL,
+    themeDescription VARCHAR(255) NOT NULL,
+    themeImage VARCHAR(255) NULL,           -- opcional (ej: "Benetton.svg")
+    FOREIGN KEY (gameId) REFERENCES BingoGame(id) ON DELETE CASCADE,
+    UNIQUE (gameId, cellIndex)
+);
+
+-- Cola de 60 pilotos (orden en el que salen)
+CREATE TABLE BingoGameDriver (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    queueIndex INT NOT NULL,                -- 0..59
+    driverId BIGINT NOT NULL,
+    driverName VARCHAR(100) NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES BingoGame(id) ON DELETE CASCADE,
+    UNIQUE (gameId, queueIndex)
+);
+
+-- Soluciones: qué pilotos son válidos para cada casilla
+-- (igual que DriversConnectionsPilot pero por casilla)
+CREATE TABLE BingoCellPilot (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    cellId BIGINT NOT NULL,
+    driverId BIGINT NOT NULL,
+    driverName VARCHAR(100) NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES BingoGame(id) ON DELETE CASCADE,
+    FOREIGN KEY (cellId) REFERENCES BingoCell(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_bingo_cell_pilot_game_cell_driver
+ON BingoCellPilot (gameId, cellId, driverId);
+
+
+-- Lo que el usuario va acertando (una por casilla)
+CREATE TABLE BingoSelection (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    cellId BIGINT NOT NULL,
+    driverId BIGINT NOT NULL,
+    driverName VARCHAR(100) NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (gameId) REFERENCES BingoGame(id) ON DELETE CASCADE,
+    FOREIGN KEY (cellId) REFERENCES BingoCell(id) ON DELETE CASCADE,
+    UNIQUE (gameId, cellId),                -- una vez por casilla
+    UNIQUE (gameId, driverId)               -- un piloto no puede ocupar 2 casillas
 );
