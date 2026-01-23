@@ -67,6 +67,12 @@ from validate_guess_driver_question import NATIONALITY_TRANSLATIONS_EN, NATIONAL
 from generate_top10quali_game import get_random_race_and_top10quali
 from validate_top10quali_pilot import validate_pilot_in_top10quali
 from generate_driver_season_game import get_driver_season_game
+from tower_game import precache_dynamic_lists as tower_precache_dynamic_lists
+from tower_game import generate_tower, generate_tower_fixed, validate_driver, get_tower_themes
+# main.py (añadir import)
+from tower_game import resolve_tower_hint
+
+
 
 
 import sys
@@ -162,6 +168,8 @@ async def lifespan(app: FastAPI):
     precache_order_circuits()
     precache_order_nationalities()
     load_generic_stats_cache("generic_stats_data.json")
+    precache_dynamic_lists()
+    tower_precache_dynamic_lists()
     yield
 
 
@@ -581,6 +589,43 @@ def generate_driver_season_game(lang: str = Query("es", enum=["es", "en"])):
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/tower-themes")
+def tower_themes_endpoint():
+    return JSONResponse(content=get_tower_themes())
+
+@app.get("/generate-tower")
+def generate_tower_endpoint(themeType: Optional[str] = Query(None),
+                            themeKey: Optional[str] = Query(None)):
+    # si no pasan params -> random
+    if not themeType:
+        return JSONResponse(content=generate_tower())
+    return JSONResponse(content=generate_tower_fixed(themeType, themeKey))
+
+
+@app.post("/validate-tower")
+def validate_tower_endpoint(payload: dict):
+    return validate_driver(
+        payload.get("themeType"),
+        payload.get("themeKey"),
+        payload.get("driverId"),
+        payload.get("driverName"),
+    )
+
+@app.post("/tower-hint-value")
+def tower_hint_value_endpoint(payload: dict):
+    """
+    Payload esperado:
+      {
+        "themeType": "...",
+        "themeKey": "..."  o dict (decade)
+      }
+    """
+    themeType = payload.get("themeType")
+    themeKey  = payload.get("themeKey")
+
+    value = resolve_tower_hint(themeType, themeKey)
+    return JSONResponse(content={"hintValue": value})
 
 
 # === Main app ===

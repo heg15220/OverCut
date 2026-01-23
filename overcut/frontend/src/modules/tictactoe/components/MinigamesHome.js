@@ -112,7 +112,16 @@ const minigames = [
     title: "Driver Season",
     description: "Adivina la posición final del piloto en cada carrera de una temporada",
     img: sourceImages(`./DriverSeason.png`)
+  },
+
+  {
+    path: "/minigames/tower",
+    title: "Tower",
+    description: "Prueba si un piloto entra en una temática secreta",
+    img: sourceImages(`./Tower2.png`),
+    isNew: true
   }
+
 
 
 ];

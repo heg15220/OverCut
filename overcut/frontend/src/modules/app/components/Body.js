@@ -91,6 +91,9 @@ import LegalHub from "../../app/components/LegalHub";
 
 import Top10QualiGamePage from "../../top10Quali/components/Top10QualiGamePage";
 import DriverSeasonGamePage from "../../driverSeason/components/DriverSeasonGamePage";
+import TowerGame from "../../tower/components/TowerGame";
+
+
 
 const Body = () => {
 
@@ -167,9 +170,13 @@ const Body = () => {
                     <Route path="/legal/cookies" element={<CookiesPolicy />} />
                     <Route path="/legal/intellectualProperty" element={<IntellectualProperty />} />
                     <Route path="/legal" element={<LegalHub />} />
-                    {loggedIn && <Route path="/minigames/top10quali" element={<Top10QualiGamePage />} />}
 
+
+
+                    <Route path="/minigames/top10quali" element={<Top10QualiGamePage />} />}
                     <Route path="/minigames/driverSeason" element={<DriverSeasonGamePage />} />
+                    <Route path="/minigames/tower" element={<TowerGame />} />
+
                 </Route>
             </Routes>
         </div>

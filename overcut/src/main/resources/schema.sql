@@ -1,5 +1,9 @@
 DROP TABLE IF EXISTS GameCooldown;
 
+
+
+DROP TABLE IF EXISTS TowerAttempt;
+DROP TABLE IF EXISTS TowerGame;
 DROP TABLE IF EXISTS DriverSeasonRound;
 DROP TABLE IF EXISTS DriverSeasonGame;
 DROP TABLE IF EXISTS Top10QualiSlot;
@@ -802,4 +806,27 @@ CREATE TABLE DriverSeasonRound (
   userGuess INT NULL,
   isCorrect BOOLEAN NULL,
   FOREIGN KEY (gameId) REFERENCES driverSeasonGame(gameId) ON DELETE CASCADE
+);
+
+CREATE TABLE TowerGame (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  lang VARCHAR(5) NOT NULL,
+  themeKey VARCHAR(100) NOT NULL,          -- clave interna (no se muestra)
+  themeType VARCHAR(50) NOT NULL,          -- "team" | "nationality" | "world_champion" | ...
+  hintUsed BOOLEAN DEFAULT FALSE,
+  attempts INT DEFAULT 0,
+  finished BOOLEAN DEFAULT FALSE,
+  solved BOOLEAN DEFAULT FALSE
+);
+
+
+CREATE TABLE TowerAttempt (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  gameId BIGINT NOT NULL,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  driverId BIGINT NULL,
+  driverName VARCHAR(120) NOT NULL,
+  valid BOOLEAN NOT NULL,
+  FOREIGN KEY (gameId) REFERENCES TowerGame(id) ON DELETE CASCADE
 );

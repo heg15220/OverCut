@@ -1,0 +1,496 @@
+/* ===========================
+   TOWER — look & feel
+   =========================== */
+
+.tower-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #0a1a2f, #050f1e);
+  padding: 2.2rem 1rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  color: #fff;
+}
+
+.tower-container {
+  width: 100%;
+  max-width: 980px;
+}
+
+.tower-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.tower-title {
+  margin: 0;
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #fbc02d 0%, #ff1744 40%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tower-subtitle {
+  margin: 0.35rem 0 0;
+  opacity: 0.9;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tower-attempts {
+  display: inline-flex;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
+.tower-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.tower-hintBtn,
+.tower-backBtn,
+.tower-tryBtn {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 0.15s ease, background-color 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.tower-hintBtn {
+  border-color: #64b5f6;
+  background: rgba(100, 181, 246, 0.12);
+  color: #fff;
+}
+
+.tower-hintBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(100, 181, 246, 0.18);
+}
+
+.tower-hintBtn.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tower-backBtn {
+  border-color: #fbc02d;
+  background: rgba(251, 192, 45, 0.12);
+  color: #fff;
+}
+
+.tower-backBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(251, 192, 45, 0.18);
+}
+
+.tower-hintCard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 1rem;
+}
+
+.tower-hintLabel {
+  opacity: 0.85;
+  font-weight: 800;
+}
+
+.tower-hintValue {
+  font-weight: 900;
+  color: #fbc02d;
+  letter-spacing: 0.4px;
+}
+
+.tower-main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* ----- Guess box ----- */
+
+.tower-guess {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1e2f3f, #152532);
+  border: 1px solid #264861;
+  padding: 12px;
+}
+
+.tower-guess.isDisabled {
+  opacity: 0.75;
+}
+
+.tower-guessForm {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.7rem;
+  align-items: stretch;
+}
+
+.tower-searchWrap {
+  position: relative;
+}
+
+.tower-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 2px solid rgba(251, 192, 45, 0.85);
+  background: rgba(0, 0, 0, 0.22);
+  color: #fff;
+  outline: none;
+  font-size: 1rem;
+}
+
+.tower-input:focus {
+  border-color: #fbc02d;
+}
+
+.tower-tryBtn {
+  border-color: #fbc02d;
+  background: #fbc02d;
+  color: #000;
+}
+
+.tower-tryBtn:hover {
+  transform: translateY(-1px);
+  background: #ffcf44;
+}
+
+.tower-tryBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Suggestions dropdown */
+.tower-suggest {
+  position: absolute;
+  top: calc(46px + 8px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: rgba(10, 26, 47, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+
+.tower-suggestItem {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 0.85rem;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.tower-suggestItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.tower-suggestMuted {
+  opacity: 0.75;
+  cursor: default;
+}
+
+/* ----- History ----- */
+
+.tower-history {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 12px;
+}
+
+.tower-historyTitle {
+  margin: 0 0 0.7rem;
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+}
+
+.tower-empty {
+  opacity: 0.8;
+  padding: 0.6rem 0.2rem;
+}
+
+.tower-historyList {
+  display: grid;
+  gap: 10px;
+}
+
+.tower-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.85rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.20);
+  animation: towerRowIn 220ms ease-out both;
+}
+
+@keyframes towerRowIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tower-driver {
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.tower-pill {
+  display: inline-flex;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+}
+
+.tower-pill.ok {
+  background: rgba(46, 204, 113, 0.16);
+  border-color: rgba(46, 204, 113, 0.35);
+}
+
+.tower-pill.no {
+  background: rgba(231, 76, 60, 0.14);
+  border-color: rgba(231, 76, 60, 0.35);
+}
+
+/* Responsive */
+@media (max-width: 780px) {
+  .tower-header {
+    grid-template-columns: 1fr;
+  }
+
+  .tower-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .tower-title {
+    font-size: 2.1rem;
+  }
+
+  .tower-guessForm {
+    grid-template-columns: 1fr;
+  }
+
+  .tower-tryBtn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .tower-title {
+    font-size: 1.85rem;
+  }
+}
+
+.tower-suggestItem.selected{
+  outline: 2px solid rgba(255,255,255,0.25);
+}
+
+/* ----- Answer box (final answer) ----- */
+
+.tower-answerCard {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1e2f3f, #152532);
+  border: 1px solid rgba(251, 192, 45, 0.22);
+  padding: 12px;
+}
+
+.tower-answerTitle {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  margin-bottom: 10px;
+}
+
+.tower-label {
+  display: block;
+  font-weight: 800;
+  opacity: 0.92;
+  margin: 8px 0 6px;
+}
+
+.tower-select {
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  border: 2px solid rgba(251, 192, 45, 0.55);
+  background: rgba(0, 0, 0, 0.22);
+  color: #fff;
+  padding: 0 12px;
+  outline: none;
+  font-weight: 800;
+}
+
+.tower-select:focus {
+  border-color: #fbc02d;
+}
+
+.tower-select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.tower-muted {
+  opacity: 0.82;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.tower-setupActions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 780px) {
+  .tower-setupActions {
+    flex-direction: column;
+  }
+}
+
+/* ----- Finish card (optional, used by TowerGame.jsx) ----- */
+
+.tower-finishCard {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 14px;
+  text-align: center;
+  font-weight: 900;
+}
+
+/* ===========================
+   Overlay Answer (Responder)
+   =========================== */
+
+.tower-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.tower-overlayBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
+  backdrop-filter: blur(6px);
+}
+
+.tower-overlayCard {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 94vw);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(25, 45, 62, 0.98), rgba(12, 22, 33, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 44px rgba(0,0,0,0.55);
+  padding: 14px;
+  max-height: min(84vh, 760px);
+  overflow: auto;
+}
+
+.tower-overlayClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.25);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.tower-overlayClose:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.tower-overlayFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* Botón del header para abrir responder */
+.tower-answerBtn {
+  border-color: #fbc02d;
+  background: rgba(251, 192, 45, 0.22);
+  color: #fff;
+}
+
+.tower-answerBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(251, 192, 45, 0.30);
+}
+
+.tower-answerBtn.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===========================
+   Selects legibles en Tower
+   =========================== */
+
+/* Asegura que el <select> no herede “blanco” raro en algunos navegadores */
+.tower-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* El desplegable (options) en algunos navegadores se pinta blanco sí o sí,
+   pero al menos garantizamos texto oscuro cuando el fondo es claro */
+.tower-select option {
+  color: #111;
+  background: #fff;
+}
+
+/* (Opcional) Para que el placeholder no parezca “lavado” */
+.tower-select option[value=""] {
+  color: #555;
+}

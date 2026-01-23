@@ -187,7 +187,23 @@ export const tutorialTexts = {
         description:
           "Guess the driver’s finishing position in every race of a season. You’ll see each GP’s country flag and must pick the final position. Green if correct, red if wrong!"
       }
+    },
+
+    "/minigames/tower": {
+      es: {
+        title: "Tower",
+        description:
+          "Prueba pilotos para descubrir si pertenecen a una temática secreta (equipo, nacionalidad, campeones, etc.). " +
+          "Verás si cada intento es correcto o incorrecto. Tras 15 intentos podrás revelar el tipo de temática con una pista."
+      },
+      en: {
+        title: "Tower",
+        description:
+          "Try drivers to discover if they belong to a secret theme (team, nationality, champions, etc.). " +
+          "Each attempt will be marked as correct or wrong. After 15 attempts you can reveal the theme type using a hint."
+      }
     }
+
 
 
 };

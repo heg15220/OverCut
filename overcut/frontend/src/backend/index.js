@@ -46,12 +46,13 @@ import * as top10QualiService from "./top10qualiService"; // ✅ NUEVO
 
 import * as driverSeasonService from "./driverSeasonService"; // ✅ NUEVO
 
+import * as towerService from "./towerService"; // ✅ NUEVO
 
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
     gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService,
      wordleService, twoTeamsService, f1ImpostorService, teamGuessService, driversConnectionsService, orderDriverService,
-     wordSearchService, cooldownService, top10QualiService, driverSeasonService}
+     wordSearchService, cooldownService, top10QualiService, driverSeasonService, towerService}
 
 
 export default backExport;

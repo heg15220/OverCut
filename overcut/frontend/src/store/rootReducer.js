@@ -29,7 +29,7 @@ import cooldown from '../modules/cooldown';
 
 import top10quali from '../modules/top10Quali';
 import driverSeason from "../modules/driverSeason";
-
+import tower from "../modules/tower";
 
 
 const rootReducer = combineReducers({
@@ -58,6 +58,7 @@ const rootReducer = combineReducers({
     cooldown: cooldown.reducer,
     top10quali: top10quali.reducer,
     driverSeason: driverSeason.reducer,
+    tower: tower.reducer,
 });
 
 export default rootReducer;
