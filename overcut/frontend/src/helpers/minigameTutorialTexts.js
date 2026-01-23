@@ -257,7 +257,26 @@ export const tutorialTexts = {
             "If correct, the cell is filled. If wrong, you lose time.\n\n" +
             "You can’t use the same driver in two cells. Think fast!"
         }
-      }
+      },
+        "/minigames/race": {
+          es: {
+            title: "Carrera 2D",
+            description:
+              "Corre en un circuito inventado en 2D contra coches controlados por la máquina. " +
+              "Completa 3 o 5 vueltas y mantente dentro de la pista para no perder velocidad.\n\n" +
+              "Controles:\n" +
+              "⬆ acelerar · ⬇ frenar · ⬅ ➡ girar · ESPACIO respawn"
+          },
+          en: {
+            title: "2D Race",
+            description:
+              "Race on a fictional 2D track against AI-controlled cars. " +
+              "Complete 3 or 5 laps and stay on track to avoid losing speed.\n\n" +
+              "Controls:\n" +
+              "⬆ accelerate · ⬇ brake · ⬅ ➡ steer · SPACE respawn"
+          }
+        },
+
 
 
 

@@ -143,9 +143,17 @@ const minigames = [
       description: "Completa un bingo de 9 casillas con pilotos aleatorios",
       img: sourceImages(`./Bingo.png`),
       isNew: true
+    },
+    {
+      path: "/games/race",
+      title: { es: "Carrera 2D", en: "2D Race" },
+      description: {
+        es: "Carrera 2D en circuito inventado contra IA (3/5 vueltas)",
+        en: "2D racing on a fictional track vs AI (3/5 laps)"
+      },
+      img: null,
+      isNew: true
     }
-
-
 
 ];
 
@@ -204,10 +212,16 @@ const MinigamesHome = () => {
           >
             {game.isNew && <div className="tag">NEW</div>}
             <div className="cardDiv">
-              <img src={game.img} alt={game.title} className="gameImage" />
+              <img
+                src={game.img}
+                alt={typeof game.title === "string" ? game.title : game.title?.[lang] || ""}
+                className="gameImage"
+              />
               <div className="text">
                 <p className="playLabel">{translations.play[lang]}</p>
-                <p className="gameTitle">{game.title}</p>
+                <p className="gameTitle">
+                  {typeof game.title === "string" ? game.title : game.title?.[lang]}
+                </p>
               </div>
             </div>
           </Link>

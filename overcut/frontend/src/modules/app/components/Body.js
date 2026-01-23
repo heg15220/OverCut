@@ -60,6 +60,7 @@ import CategoryGame from "../../categoryGame/components/CategoryGame";
 
 import WordSearchGame from '../../wordSearch/components/WordSearchGame';
 
+import RaceGame from "../../racegame/RaceGame";
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList, PostSectionEditor,
  PostSectionModifier } from "../../posts";
@@ -183,6 +184,7 @@ const Body = () => {
                     <Route path="/minigames/lightsout" element={<LightsOutGame />} />
                     <Route path="/minigames/anagrams" element={<AnagramsGame />} />
                     <Route path="/minigames/bingo" element={<BingoGame />} />
+                    <Route path="/games/race" element={<RaceGame />} />
 
                 </Route>
             </Routes>

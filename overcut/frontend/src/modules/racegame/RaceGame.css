@@ -1,0 +1,306 @@
+.racegame {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: #0b0f14;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.racegame__canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ---------- UI (arriba izquierda) ---------- */
+.racegame__ui {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  max-width: min(900px, 92vw);
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 10px 12px;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+}
+
+.racegame__uiLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.racegame__titleMain {
+  font-weight: 800;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.racegame__titleSub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba(231, 238, 247, 0.72);
+}
+
+.racegame__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.racegame__button {
+  background: #121a24;
+  color: rgba(231, 238, 247, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.05s ease, filter 0.1s ease;
+}
+
+.racegame__button:hover {
+  filter: brightness(1.1);
+}
+
+.racegame__button:active {
+  transform: translateY(1px);
+}
+
+.racegame__button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
+.racegame__status {
+  font-size: 13px;
+  color: rgba(231, 238, 247, 0.9);
+  white-space: nowrap;
+}
+
+.racegame__touchHint {
+  font-size: 12px;
+  color: rgba(231, 238, 247, 0.65);
+  white-space: nowrap;
+}
+
+/* ---------- Touch controls overlay ---------- */
+.racegame__touch {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 12;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 18px;
+  padding-bottom: calc(18px + env(safe-area-inset-bottom));
+}
+
+.racegame__joy {
+  pointer-events: auto;
+  width: 140px;
+  height: 140px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.racegame__joyKnob {
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.racegame__joyKnob.isActive {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.racegame__touchRight {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.racegame__touchBtn {
+  width: 70px;
+  height: 70px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+}
+
+.racegame__touchBtn:active {
+  transform: translateY(1px);
+  filter: brightness(1.15);
+}
+
+.racegame__touchBtn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
+/* ---------- SETUP SCREEN (elige 3 o 5 vueltas) ---------- */
+.racegame--setup {
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.racegame__setupCard {
+  width: min(520px, 92vw);
+  background: rgba(0, 0, 0, 0.60);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 18px 16px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.racegame__setupTitle {
+  font-weight: 900;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.racegame__setupSub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: rgba(231, 238, 247, 0.72);
+  line-height: 1.35;
+}
+
+.racegame__setupRow {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.racegame__setupLabel {
+  font-size: 13px;
+  color: rgba(231, 238, 247, 0.88);
+}
+
+.racegame__setupButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.racegame__setupBtn {
+  min-width: 56px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(18, 26, 36, 0.85);
+  color: rgba(231, 238, 247, 0.95);
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 0.05s ease, filter 0.1s ease, border-color 0.1s ease;
+}
+
+.racegame__setupBtn:hover {
+  filter: brightness(1.08);
+}
+
+.racegame__setupBtn:active {
+  transform: translateY(1px);
+}
+
+.racegame__setupBtn.isActive {
+  border-color: rgba(255, 255, 255, 0.35);
+  filter: brightness(1.12);
+}
+
+.racegame__setupBtn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
+.racegame__setupStart {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(18, 26, 36, 0.92);
+  color: rgba(231, 238, 247, 0.95);
+  cursor: pointer;
+  font-weight: 900;
+  transition: transform 0.05s ease, filter 0.1s ease;
+}
+
+.racegame__setupStart:hover {
+  filter: brightness(1.10);
+}
+
+.racegame__setupStart:active {
+  transform: translateY(1px);
+}
+
+.racegame__setupStart:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
+.racegame__setupHint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(231, 238, 247, 0.62);
+  line-height: 1.35;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 520px) {
+  .racegame__ui {
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+
+  .racegame__status,
+  .racegame__touchHint {
+    white-space: normal;
+  }
+
+  .racegame__touch {
+    padding: 14px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .racegame__joy {
+    width: 120px;
+    height: 120px;
+  }
+
+  .racegame__touchBtn {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+  }
+
+  .racegame__setupCard {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+}
