@@ -71,6 +71,7 @@ from tower_game import precache_dynamic_lists as tower_precache_dynamic_lists
 from tower_game import generate_tower, generate_tower_fixed, validate_driver, get_tower_themes
 # main.py (añadir import)
 from tower_game import resolve_tower_hint
+from select_anagram_driver import generate_f1_anagrams_game
 
 
 
@@ -631,6 +632,14 @@ def tower_hint_value_endpoint(payload: dict):
     value = resolve_tower_hint(themeType, themeKey, lang=lang)
 
     return JSONResponse(content={"hintValue": value})
+
+
+@app.get("/generate-f1-anagrams")
+def generate_f1_anagrams():
+    try:
+        return JSONResponse(content=generate_f1_anagrams_game(6))
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
 # === Main app ===

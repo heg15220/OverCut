@@ -127,7 +127,15 @@ const minigames = [
     description: "Reacciona al semáforo: pulsa justo al apagarse la última luz",
     img: sourceImages(`./LightsOut.png`),
     isNew: true
-  }
+  },
+
+    {
+      path: "/minigames/anagrams",
+      title: "Anagrams",
+      description: "Reordena letras para adivinar el apellido del piloto",
+      img: sourceImages(`./Anagrams.png`),
+      isNew: true
+    },
 
 
 

@@ -217,7 +217,28 @@ export const tutorialTexts = {
           "Watch the 5-light traffic system. Lights will turn on one by one, then after a random delay they will all go out. " +
           "Tap as fast as you can when the last light goes out. If you tap early, it’s a false start."
       }
-    }
+    },
+
+      "/minigames/anagrams": {
+        es: {
+          title: "🔀 Anagrams (Apellidos F1)",
+          description:
+            "Te damos un apellido de piloto con las letras desordenadas.\n\n" +
+            "Tu objetivo: reordenar las letras y escribir el apellido correcto.\n" +
+            "Tienes 5 intentos.\n" +
+            "Puedes escribir con o sin acentos y con mayúsculas/minúsculas (se normaliza automáticamente).\n\n" +
+            "Consejo: fíjate en combinaciones típicas y letras repetidas."
+        },
+        en: {
+          title: "🔀 Anagrams (F1 Surnames)",
+          description:
+            "You get a driver's surname with its letters scrambled.\n\n" +
+            "Your goal: reorder the letters and type the correct surname.\n" +
+            "You have 5 attempts.\n" +
+            "You can type with or without accents and in any case (we normalize automatically).\n\n" +
+            "Tip: watch for repeated letters and common letter patterns."
+        }
+      }
 
 
 
