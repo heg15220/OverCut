@@ -140,6 +140,7 @@ def _normalize_driver_id(driverId):
     except:
         return None
 
+
 def _get_driver_id_by_name(session, name: str):
     # 1) exact match
     row = session.execute(text("""
@@ -151,7 +152,7 @@ def _get_driver_id_by_name(session, name: str):
     if row:
         return int(row[0])
 
-    # 2) fallback suave (por si viene sin tildes/espacios raros)
+    # 2) fallback suave
     row2 = session.execute(text("""
         SELECT driverId
         FROM drivers
@@ -161,6 +162,7 @@ def _get_driver_id_by_name(session, name: str):
     """), {"pat": f"%{name}%"}).fetchone()
 
     return int(row2[0]) if row2 else None
+
 
 def _count_candidates(conn, themeType, themeKey):
     """
@@ -204,7 +206,6 @@ def _count_candidates(conn, themeType, themeKey):
         return int(row[0] or 0)
 
     if themeType in ("teammates", "champion_teammates"):
-        # nº de compañeros distintos del driver
         row = conn.execute(text("""
             SELECT COUNT(DISTINCT r2.driverId)
             FROM results r1
@@ -236,15 +237,15 @@ def _count_candidates(conn, themeType, themeKey):
 
     return 0
 
+
 # ---- Generación de tema (Tower) ----
 def generate_tower():
     """
     Devuelve:
-      - themeType: pista (team/country/...)
-      - themeKey: parámetro interno (constructorId, nationality, driverId, etc)
+      - themeType
+      - themeKey (interno)
     """
     with engine.connect() as conn:
-        # intentamos varias veces para evitar temas con muy pocos candidatos
         for _ in range(60):
             themeType = random.choice([
                 "champions",
@@ -257,7 +258,6 @@ def generate_tower():
                 "decade"
             ])
 
-            # construir themeKey según tipo
             if themeType == "champions":
                 themeKey = "world_champions"
                 cnt = _count_candidates(conn, themeType, themeKey)
@@ -266,7 +266,7 @@ def generate_tower():
                 if not TEAM_CACHE:
                     continue
                 constructorId, _name = random.choice(TEAM_CACHE)
-                themeKey = str(constructorId)  # guardamos como string por simplicidad
+                themeKey = str(constructorId)
                 cnt = _count_candidates(conn, themeType, themeKey)
 
             elif themeType == "country":
@@ -315,29 +315,18 @@ def generate_tower():
                 d = random.choice(decades)
                 themeKey = d
                 cnt = _count_candidates(conn, themeType, themeKey)
-
             else:
                 continue
 
-            # masa crítica mínima (ajustable)
             if cnt >= 10:
-                return {
-                    "themeType": themeType,
-                    "themeKey": themeKey
-                }
+                return {"themeType": themeType, "themeKey": themeKey}
 
-        # fallback duro (si algo fue mal)
         return {"themeType": "champions", "themeKey": "world_champions"}
 
 
 def generate_tower_fixed(themeType: str, themeKey=None):
     """
     Generación “forzada” según selección del usuario.
-    themeKey puede ser:
-      - str para team/country/initial/circuit
-      - str code para decade (1980s...) -> lo convertimos a dict
-      - str driverId para teammates/champion_teammates
-      - None para champions
     """
     if not themeType:
         return generate_tower()
@@ -346,7 +335,6 @@ def generate_tower_fixed(themeType: str, themeKey=None):
         return {"themeType": "champions", "themeKey": "world_champions"}
 
     if themeType == "decade":
-        # themeKey esperado: "1980s", "1990s", ...
         decade_map = {
             "1980s": {"code": "1980s", "startYear": 1980, "endYear": 1989},
             "1990s": {"code": "1990s", "startYear": 1990, "endYear": 1999},
@@ -358,7 +346,6 @@ def generate_tower_fixed(themeType: str, themeKey=None):
             return {"themeType": "decade", "themeKey": decade_map[themeKey]}
         return generate_tower()
 
-    # el resto requiere key (string)
     if themeType in ("team", "country", "surname_initial", "circuit_winner", "teammates", "champion_teammates"):
         if themeKey is None or str(themeKey).strip() == "":
             return generate_tower()
@@ -394,7 +381,7 @@ def validate_driver(themeType: str, themeKey, driverId=None, driverName=None):
             """), {"driverId": driverId}).fetchone() is not None
             return {"valid": ok}
 
-        # 2) Equipo (constructorId)
+        # 2) Equipo
         if themeType == "team":
             constructorId = int(themeKey)
             ok = session.execute(text("""
@@ -458,7 +445,6 @@ def validate_driver(themeType: str, themeKey, driverId=None, driverName=None):
 
         # 7) Década
         if themeType == "decade":
-            # themeKey es dict {"code": "...", "startYear": 1980, "endYear": 1989}
             startYear = int(themeKey["startYear"])
             endYear = int(themeKey["endYear"])
             ok = session.execute(text("""
@@ -477,86 +463,55 @@ def validate_driver(themeType: str, themeKey, driverId=None, driverName=None):
         session.close()
 
 
-# tower_game.py  (añadir)
+# ============================================================
+# ✅ HINT NO DIRECTA: SOLO “TIPO DE TEMÁTICA”
+# ============================================================
 
-def resolve_tower_hint(themeType: str, themeKey):
+def resolve_tower_hint_label(themeType: str, lang: str = "es") -> str:
     """
-    Devuelve un string bonito para mostrar en UI como hintValue.
-    - team: nombre del constructor
-    - circuit_winner: nombre del circuito (si quieres) o circuitRef
-    - teammates/champion_teammates: nombre del piloto referencia (driverId)
-    - decade: "1980s (1980–1989)" etc
-    - country/surname_initial: tal cual
-    - champions: "World champions"
+    Devuelve SOLO una pista genérica (sin revelar themeKey).
+    Ej:
+      - team -> "Equipo"
+      - surname_initial -> "Inicial del apellido"
+      - country -> "Nacionalidad"
+      - circuit_winner -> "Ganadores en un circuito"
+      - teammates -> "Compañeros de equipo"
+      - champion_teammates -> "Compañeros de un campeón"
+      - decade -> "Década"
+      - champions -> "Campeones del mundo"
     """
+    es = {
+        "champions": "Campeones del mundo",
+        "team": "Equipo",
+        "country": "Nacionalidad",
+        "surname_initial": "Inicial del apellido",
+        "circuit_winner": "Ganadores en un circuito",
+        "decade": "Década",
+        "teammates": "Compañeros de equipo",
+        "champion_teammates": "Compañeros de un campeón",
+    }
+    en = {
+        "champions": "World champions",
+        "team": "Team",
+        "country": "Nationality",
+        "surname_initial": "Surname initial",
+        "circuit_winner": "Circuit winners",
+        "decade": "Decade",
+        "teammates": "Teammates",
+        "champion_teammates": "Champion teammates",
+    }
 
-    # champs
-    if themeType == "champions":
-        return "World champions"
+    table = es if (lang or "").lower().startswith("es") else en
+    return table.get(themeType, str(themeType))
 
-    # decade: themeKey es dict {"code": "...", "startYear":..., "endYear":...} (guardado como JSON string en Java)
-    if themeType == "decade":
-        try:
-            code = themeKey.get("code") if isinstance(themeKey, dict) else None
-            sy = themeKey.get("startYear") if isinstance(themeKey, dict) else None
-            ey = themeKey.get("endYear") if isinstance(themeKey, dict) else None
-            if code and sy and ey:
-                return f"{code} ({sy}–{ey})"
-            return str(themeKey)
-        except:
-            return str(themeKey)
 
-    # teamKey puede ser constructorId
-    if themeType == "team":
-        try:
-            constructorId = int(themeKey)
-            with engine.connect() as conn:
-                row = conn.execute(text("""
-                    SELECT name
-                    FROM constructors
-                    WHERE constructorId = :cid
-                    LIMIT 1
-                """), {"cid": constructorId}).fetchone()
-            return str(row[0]) if row else str(themeKey)
-        except:
-            return str(themeKey)
-
-    # country / initial
-    if themeType in ("country", "surname_initial"):
-        return str(themeKey)
-
-    # circuitRef -> opcional convertir a nombre del circuito
-    if themeType == "circuit_winner":
-        try:
-            circuitRef = str(themeKey)
-            with engine.connect() as conn:
-                row = conn.execute(text("""
-                    SELECT name
-                    FROM circuits
-                    WHERE circuitRef = :ref
-                    LIMIT 1
-                """), {"ref": circuitRef}).fetchone()
-            return str(row[0]) if row else circuitRef
-        except:
-            return str(themeKey)
-
-    # teammates: themeKey es driverId (string)
-    if themeType in ("teammates", "champion_teammates"):
-        try:
-            driverId = int(themeKey)
-            with engine.connect() as conn:
-                row = conn.execute(text("""
-                    SELECT CONCAT(forename, ' ', surname)
-                    FROM drivers
-                    WHERE driverId = :did
-                    LIMIT 1
-                """), {"did": driverId}).fetchone()
-            return str(row[0]) if row else str(themeKey)
-        except:
-            return str(themeKey)
-
-    # fallback
-    return str(themeKey)
+def resolve_tower_hint(themeType: str, themeKey, lang: str = "es"):
+    """
+    Compatibilidad con tu Java actual:
+    Java espera {"hintValue": "..."} desde /tower-hint-value.
+    Aquí devolvemos SOLO la etiqueta genérica.
+    """
+    return resolve_tower_hint_label(themeType, lang=lang)
 
 
 # ---- CLI debug ----

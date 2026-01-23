@@ -618,13 +618,18 @@ def tower_hint_value_endpoint(payload: dict):
     Payload esperado:
       {
         "themeType": "...",
-        "themeKey": "..."  o dict (decade)
+        "themeKey": "..."  o dict (decade),
+        "lang": "es" | "en" (opcional)
       }
     """
     themeType = payload.get("themeType")
-    themeKey  = payload.get("themeKey")
+    themeKey = payload.get("themeKey")
+    lang = payload.get("lang") or "es"
 
-    value = resolve_tower_hint(themeType, themeKey)
+    # ✅ PISTA NO DIRECTA: SOLO TIPO
+    # (en el tower_game.py actualizado, resolve_tower_hint ya devuelve solo el label genérico)
+    value = resolve_tower_hint(themeType, themeKey, lang=lang)
+
     return JSONResponse(content={"hintValue": value})
 
 

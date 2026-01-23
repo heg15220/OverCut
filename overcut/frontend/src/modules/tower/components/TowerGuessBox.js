@@ -1,3 +1,4 @@
+// src/modules/tower/components/TowerGuessBox.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import backend from "../../../backend";
@@ -26,6 +27,16 @@ const TowerGuessBox = ({ lang, gameId, disabled }) => {
     }),
     [lang]
   );
+
+  // ✅ Cierra teclado en móvil (blur)
+  const closeMobileKeyboard = () => {
+    if (!inputRef.current) return;
+
+    inputRef.current.blur();
+
+    // iOS/Safari a veces necesita un tick extra
+    setTimeout(() => inputRef.current?.blur?.(), 0);
+  };
 
   // scroll al item seleccionado (como GuessDriver)
   useEffect(() => {
@@ -85,8 +96,8 @@ const TowerGuessBox = ({ lang, gameId, disabled }) => {
     setSuggestions([]);
     setHighlightedIndex(-1);
 
-    // opcional: vuelve a enfocar input
-    requestAnimationFrame(() => inputRef.current?.focus());
+    // ✅ En móvil: cerrar teclado tras seleccionar
+    closeMobileKeyboard();
   };
 
   const onSubmit = (e) => {
@@ -102,7 +113,8 @@ const TowerGuessBox = ({ lang, gameId, disabled }) => {
     setSuggestions([]);
     setHighlightedIndex(-1);
 
-    requestAnimationFrame(() => inputRef.current?.focus());
+    // ✅ En móvil: cerrar teclado tras enviar
+    closeMobileKeyboard();
   };
 
   const onKeyDown = (e) => {
@@ -132,11 +144,13 @@ const TowerGuessBox = ({ lang, gameId, disabled }) => {
       if (open && highlightedIndex >= 0 && suggestions[highlightedIndex]) {
         e.preventDefault();
         pickSuggestion(suggestions[highlightedIndex]);
+        return;
       }
-      // si no hay highlight, que haga submit normal (lo gestiona el form)
+      // si no hay highlight, submit normal (lo gestiona el form)
     } else if (e.key === "Escape") {
       setOpen(false);
       setHighlightedIndex(-1);
+      closeMobileKeyboard(); // opcional: ESC también cierra teclado
     }
   };
 
@@ -172,8 +186,14 @@ const TowerGuessBox = ({ lang, gameId, disabled }) => {
                       type="button"
                       key={`${label}-${idx}`}
                       ref={(el) => (listRef.current[idx] = el)}
-                      className={`tower-suggestItem ${highlightedIndex === idx ? "selected" : ""}`}
-                      onMouseDown={() => pickSuggestion(s)}
+                      className={`tower-suggestItem ${
+                        highlightedIndex === idx ? "selected" : ""
+                      }`}
+                      // ✅ importante: evitar blur prematuro y cerrar teclado bien
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        pickSuggestion(s);
+                      }}
                       onMouseEnter={() => setHighlightedIndex(idx)}
                     >
                       {label}
@@ -181,7 +201,9 @@ const TowerGuessBox = ({ lang, gameId, disabled }) => {
                   );
                 })
               ) : (
-                <div className="tower-suggestItem tower-suggestMuted">{t.noResults}</div>
+                <div className="tower-suggestItem tower-suggestMuted">
+                  {t.noResults}
+                </div>
               )}
             </div>
           )}
