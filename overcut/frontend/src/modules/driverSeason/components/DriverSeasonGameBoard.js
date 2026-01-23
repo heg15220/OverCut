@@ -22,7 +22,7 @@ const DriverSeasonGameBoard = () => {
 
   const lang = navigator.language.startsWith("es") ? "es" : "en";
   const t = {
-    title: "Driver Season",
+    title: lang === "es" ? "Temporada Piloto" : "Driver Season",
     subtitle: lang === "es" ? "Temporada" : "Season",
     reveal: lang === "es" ? "Rendirse" : "Give up",
     loading: lang === "es" ? "Cargando..." : "Loading..."
@@ -81,6 +81,21 @@ const DriverSeasonGameBoard = () => {
           </button>
         </div>
       )}
+
+       {/* Al terminar o rendirse: volver a minijuegos */}
+        {(completed || revealed) && (
+          <button
+            className="driver-season-back-minigames"
+            type="button"
+            onClick={() => {
+              dispatch(actions.clearDriverSeason());
+              navigate("/minigames");
+            }}
+          >
+            {lang === "es" ? "Volver a inicio" : "Back home"}
+          </button>
+        )}
+
 
       <div className="driver-season-grid">
         {rounds.map((r) => (
