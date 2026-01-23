@@ -174,6 +174,20 @@ export const tutorialTexts = {
           "Hints are the driver’s flag and the lap time. " +
           "From 2006 onwards we use Q3; earlier seasons use the best available session."
       }
+    },
+
+    "/minigames/driverSeason": {
+      es: {
+        title: "Driver Season",
+        description:
+          "Adivina en qué posición terminó el piloto en cada carrera de una temporada. Verás la bandera del país de cada GP y deberás seleccionar la posición final. ¡Verde si aciertas, rojo si fallas!"
+      },
+      en: {
+        title: "Driver Season",
+        description:
+          "Guess the driver’s finishing position in every race of a season. You’ll see each GP’s country flag and must pick the final position. Green if correct, red if wrong!"
+      }
     }
+
 
 };

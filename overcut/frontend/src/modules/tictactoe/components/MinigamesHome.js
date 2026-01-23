@@ -105,7 +105,16 @@ const minigames = [
     title: "Top 10 Quali",
     description: "Adivina el top 10 de una clasificación (banderas + tiempos)",
     img: sourceImages(`./top10quali.png`)
+  },
+
+  {
+    path: "/minigames/driverSeason",
+    title: "Driver Season",
+    description: "Adivina la posición final del piloto en cada carrera de una temporada",
+    img: sourceImages(`./DriverSeason.png`)
   }
+
+
 ];
 
 const translations = {

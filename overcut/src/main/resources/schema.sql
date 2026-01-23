@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS GameCooldown;
 
-
+DROP TABLE IF EXISTS DriverSeasonRound;
+DROP TABLE IF EXISTS DriverSeasonGame;
 DROP TABLE IF EXISTS Top10QualiSlot;
 DROP TABLE IF EXISTS Top10QualiGame;
 
@@ -774,4 +775,31 @@ CREATE TABLE Top10QualiSlot (
     correctPilotName VARCHAR(255) NOT NULL,    -- solución
     nationalityCode VARCHAR(100) NOT NULL,     -- para bandera
     FOREIGN KEY (gameId) REFERENCES Top10QualiGame(id)
+);
+
+
+CREATE TABLE DriverSeasonGame (
+  gameId BIGINT PRIMARY KEY AUTO_INCREMENT,
+  driverId INT NOT NULL,
+  seasonYear INT NOT NULL,
+  lang VARCHAR(2) NOT NULL DEFAULT 'es',
+  maxPosition INT NOT NULL,
+  revealed BOOLEAN NOT NULL DEFAULT FALSE,
+  completed BOOLEAN NOT NULL DEFAULT FALSE,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  driverName VARCHAR(128) NULL
+);
+
+CREATE TABLE DriverSeasonRound (
+  roundId BIGINT PRIMARY KEY AUTO_INCREMENT,
+  gameId BIGINT NOT NULL,
+  raceId INT NOT NULL,
+  roundNumber INT NOT NULL,
+  country VARCHAR(64) NOT NULL,
+  raceNameEn VARCHAR(255) NOT NULL,
+  raceNameEs VARCHAR(255) NOT NULL,
+  finishingPosition INT NOT NULL,
+  userGuess INT NULL,
+  isCorrect BOOLEAN NULL,
+  FOREIGN KEY (gameId) REFERENCES driverSeasonGame(gameId) ON DELETE CASCADE
 );

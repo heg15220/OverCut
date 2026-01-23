@@ -59,8 +59,14 @@ from generic_stats_service import load_generic_stats_cache, generate_genericstat
 from generic_stats_service import generar_preguntas_genericstats_desde_main
 from validate_guess_driver_question import NATIONALITY_TRANSLATIONS_EN, NATIONALITY_TRANSLATIONS
 
+
+
+
+
+
 from generate_top10quali_game import get_random_race_and_top10quali
 from validate_top10quali_pilot import validate_pilot_in_top10quali
+from generate_driver_season_game import get_driver_season_game
 
 
 import sys
@@ -560,6 +566,18 @@ def generate_top10quali_game(lang: str = Query("es", enum=["es", "en"])):
 def validate_top10quali_pilot(pilot: str, raceId: int):
     try:
         result = validate_pilot_in_top10quali(pilot, raceId)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/generate-driver-season-game")
+def generate_driver_season_game(lang: str = Query("es", enum=["es", "en"])):
+    try:
+        global LANG
+        LANG = lang
+        os.environ["LANG"] = lang  # ✅ importante para consistencia
+        result = get_driver_season_game()
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
