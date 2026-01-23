@@ -673,17 +673,26 @@ const RaceGame = () => {
   };
 
   // ---------------------- canvas / render ----------------------
+  const viewRef = useRef({ w: 0, h: 0 });
+
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.floor(rect.width));
+    const h = Math.max(1, Math.floor(rect.height));
+
     const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    canvas.width = Math.floor(window.innerWidth * dpr);
-    canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
 
     const ctx = canvas.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    viewRef.current = { w, h };
   };
+
 
   const drawBackground = (ctx, cam) => {
     const g = ctx.createLinearGradient(0, 0, 0, window.innerHeight);

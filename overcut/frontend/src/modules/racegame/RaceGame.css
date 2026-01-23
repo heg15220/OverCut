@@ -1,21 +1,38 @@
+/* RaceGame.css — FULL UPDATED (layout-safe inside OverCut app) */
+
+/* ✅ El juego ocupa SOLO el área útil (sin header fijo).
+   Coincide con tus .Body border-top: 95/70/60px */
 .racegame {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  height: calc(100vh - 95px); /* desktop */
   background: #0b0f14;
   overflow: hidden;
   touch-action: none;
 }
 
-.racegame__canvas {
-  display: block;
-  width: 100vw;
-  height: 100vh;
+@media (max-width: 768px) {
+  .racegame {
+    height: calc(100vh - 70px); /* tablet */
+  }
 }
 
-/* ---------- UI (arriba izquierda) ---------- */
+@media (max-width: 500px) {
+  .racegame {
+    height: calc(100vh - 60px); /* mobile */
+  }
+}
+
+/* Canvas ocupa el contenedor (no 100vh real) */
+.racegame__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- UI (HUD) ---------- */
 .racegame__ui {
-  position: fixed;
+  position: absolute;
   top: 12px;
   left: 12px;
   z-index: 10;
@@ -89,7 +106,7 @@
 
 /* ---------- Touch controls overlay ---------- */
 .racegame__touch {
-  position: fixed;
+  position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
@@ -163,13 +180,14 @@
 .racegame--setup {
   display: grid;
   place-items: center;
+  height: 100%;
   padding: 18px;
 }
 
 .racegame__setupCard {
   width: min(520px, 92vw);
   background: rgba(0, 0, 0, 0.60);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255,  255, 255, 0.12);
   border-radius: 16px;
   padding: 18px 16px;
   backdrop-filter: blur(8px);
@@ -270,37 +288,119 @@
   line-height: 1.35;
 }
 
-/* ---------- Responsive ---------- */
+/* ---------- Responsive / Mobile polish ---------- */
+
+/* ✅ En móvil: HUD pequeño arriba derecha, controles más arriba */
 @media (max-width: 520px) {
+  /* HUD como píldora pequeña arriba-dcha */
   .racegame__ui {
-    left: 10px;
+    left: auto;
     right: 10px;
-    max-width: none;
+    top: 10px;
+    max-width: min(240px, 70vw);
+    padding: 8px 10px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.50);
   }
 
-  .racegame__status,
-  .racegame__touchHint {
+  /* Ocultamos título/subtítulo para dejar HUD compacto */
+  .racegame__title {
+    display: none;
+  }
+
+  /* Compactamos controles */
+  .racegame__controls {
+    gap: 8px;
+  }
+
+  .racegame__button {
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+
+  /* Estado más pequeño y con salto */
+  .racegame__status {
+    font-size: 11px;
+    line-height: 1.2;
     white-space: normal;
+    max-width: 180px;
   }
 
+  /* Quitamos hint duplicado (ya se ven los botones) */
+  .racegame__touchHint {
+    display: none;
+  }
+
+  /* ✅ Controles más arriba (no pegados al borde) */
   .racegame__touch {
-    padding: 14px;
-    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    padding: 12px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    bottom: 14px; /* 👈 sube todo el bloque */
   }
 
   .racegame__joy {
-    width: 120px;
-    height: 120px;
+    width: 112px;
+    height: 112px;
+  }
+
+  .racegame__joyKnob {
+    width: 46px;
+    height: 46px;
+  }
+
+  .racegame__touchRight {
+    gap: 10px;
   }
 
   .racegame__touchBtn {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     border-radius: 14px;
+    font-size: 22px;
   }
 
   .racegame__setupCard {
     padding: 16px 14px;
     border-radius: 14px;
+  }
+}
+
+/* Ajuste extra para pantallas MUY pequeñas */
+@media (max-width: 360px) {
+  .racegame__ui {
+    max-width: min(220px, 74vw);
+  }
+
+  .racegame__touch {
+    bottom: 18px; /* un pelín más arriba */
+  }
+
+  .racegame__joy {
+    width: 104px;
+    height: 104px;
+  }
+
+  .racegame__touchBtn {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+}
+
+/* 📱 Mobile: subir controles táctiles */
+@media (max-width: 520px) {
+  .racegame__touch {
+    bottom: 36px; /* antes ~14px → ahora claramente más arriba */
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 520px) {
+  .racegame__joy {
+    transform: translateY(-10px); /* joystick un poco más arriba */
+  }
+
+  .racegame__touchRight {
+    transform: translateY(-10px); /* botones ⬆ ⬇ alineados con joystick */
   }
 }
