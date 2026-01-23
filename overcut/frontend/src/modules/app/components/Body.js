@@ -92,7 +92,7 @@ import LegalHub from "../../app/components/LegalHub";
 import Top10QualiGamePage from "../../top10Quali/components/Top10QualiGamePage";
 import DriverSeasonGamePage from "../../driverSeason/components/DriverSeasonGamePage";
 import TowerGame from "../../tower/components/TowerGame";
-
+import LightsOutGame from "../../lightsout/components/LightsOutGame";
 
 
 const Body = () => {
@@ -176,7 +176,7 @@ const Body = () => {
                     <Route path="/minigames/top10quali" element={<Top10QualiGamePage />} />}
                     <Route path="/minigames/driverSeason" element={<DriverSeasonGamePage />} />
                     <Route path="/minigames/tower" element={<TowerGame />} />
-
+                    <Route path="/minigames/lightsout" element={<LightsOutGame />} />
                 </Route>
             </Routes>
         </div>

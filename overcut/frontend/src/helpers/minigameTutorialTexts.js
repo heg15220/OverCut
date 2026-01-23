@@ -202,6 +202,21 @@ export const tutorialTexts = {
           "Try drivers to discover if they belong to a secret theme (team, nationality, champions, etc.). " +
           "Each attempt will be marked as correct or wrong. After 15 attempts you can reveal the theme type using a hint."
       }
+    },
+
+    "/minigames/lightsout": {
+      es: {
+        title: "Lights Out",
+        description:
+          "Observa el semáforo de 5 luces. Se encenderán una a una y, tras una espera aleatoria, se apagarán todas. " +
+          "Pulsa lo más rápido posible cuando se apague la última luz. Si pulsas antes, será salida falsa."
+      },
+      en: {
+        title: "Lights Out",
+        description:
+          "Watch the 5-light traffic system. Lights will turn on one by one, then after a random delay they will all go out. " +
+          "Tap as fast as you can when the last light goes out. If you tap early, it’s a false start."
+      }
     }
 
 

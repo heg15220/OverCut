@@ -120,6 +120,13 @@ const minigames = [
     description: "Prueba si un piloto entra en una temática secreta",
     img: sourceImages(`./Tower2.png`),
     isNew: true
+  },
+  {
+    path: "/minigames/lightsout",
+    title: "Lights Out",
+    description: "Reacciona al semáforo: pulsa justo al apagarse la última luz",
+    img: sourceImages(`./LightsOut.png`),
+    isNew: true
   }
 
 
