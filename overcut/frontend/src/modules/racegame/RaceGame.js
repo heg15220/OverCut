@@ -40,6 +40,34 @@ function wrap01(x) {
   return ((x % 1) + 1) % 1;
 }
 
+
+function angNorm(a) {
+  return Math.atan2(Math.sin(a), Math.cos(a));
+}
+
+function signedAngleDiff(from, to) {
+  // devuelve (to - from) normalizado [-pi, pi]
+  return angNorm(to - from);
+}
+
+function getNormalFromAng(ang) {
+  // normal “izquierda” de la tangente (ang)
+  return { nx: -Math.sin(ang), ny: Math.cos(ang) };
+}
+
+function estimateCurvatureAt(sampleTrackFn, s) {
+  // Proxy de curvatura: cambio de heading por delta de s
+  // (suficiente para frenar antes sin computar geometría pesada)
+  const ds = 0.008;
+  const a0 = sampleTrackFn(wrap01(s)).ang;
+  const a1 = sampleTrackFn(wrap01(s + ds)).ang;
+
+  const d = Math.abs(signedAngleDiff(a0, a1)); // rad
+  return d / ds; // proxy (no curvatura física)
+}
+
+
+
 const TRACKS = [
   {
     id: 0,
@@ -303,26 +331,125 @@ const RaceGame = () => {
     trackId: 0,
   });
 
+    // ✅ Plan precalculado del circuito (curvatura + perfil de velocidad)
+  const trackPlanRef = useRef({
+    N: 2048,
+    samples: null,   // {x,y,ang}[]
+    curv: null,      // number[]
+    vTarget: null,   // number[]  (0..1 relativo, lo escalamos por maxSpeed)
+    builtForTrackId: null,
+  });
+
+  function smooth1D(arr, passes = 2) {
+    // suavizado circular simple
+    const n = arr.length;
+    let a = arr.slice();
+    for (let p = 0; p < passes; p++) {
+      const b = new Array(n);
+      for (let i = 0; i < n; i++) {
+        const im1 = (i - 1 + n) % n;
+        const ip1 = (i + 1) % n;
+        b[i] = (a[im1] + 2 * a[i] + a[ip1]) / 4;
+      }
+      a = b;
+    }
+    return a;
+  }
+
+  function buildTrackPlan(N = 2048) {
+    // Usamos sampleTrack(s) (que ya depende de trackRef.current)
+    // para precalcular arrays: samples[], curv[], vTarget[]
+    const samples = new Array(N);
+    const curv = new Array(N);
+
+    for (let i = 0; i < N; i++) {
+      const s = i / N;
+      const sp = sampleTrack(s);
+      samples[i] = sp;
+
+      // curvatura proxy: cambio de heading cercano
+      const a0 = sp.ang;
+      const a1 = sampleTrack(wrap01(s + 1 / N)).ang;
+      const dAng = Math.abs(signedAngleDiff(a0, a1));
+      curv[i] = dAng * N; // ~ dAng/ds con ds=1/N
+    }
+
+    // suaviza curvatura (evita jitter)
+    const curvSm = smooth1D(curv, 3);
+
+    // 1) velocidad base por curvatura (0..1)
+    //    (curv alta => v baja)
+    const v0 = new Array(N);
+    for (let i = 0; i < N; i++) {
+      const c = curvSm[i];
+
+      // tuning: ajusta si quieres hard más agresivo
+      // cNorm ~ [0..1] aprox
+      const cNorm = clamp(c * 0.020, 0, 1);
+
+      // velocidad deseada relativa
+      v0[i] = 1 - 0.78 * cNorm; // en curvas fuertes baja mucho
+      v0[i] = clamp(v0[i], 0.22, 1.0);
+    }
+
+    // 2) “forward pass” + “backward pass” para frenada realista:
+    //    limita cuánto puede subir v entre puntos (aceleración)
+    //    y cuánto puede bajar (frenada) para anticipar curvas.
+    //
+    //    Estos límites están en "relativo por paso". No es física exacta,
+    //    pero produce frenadas MUY naturales.
+    const accelPerStep = 0.012; // cuánto puede subir por muestra
+    const brakePerStep = 0.020; // cuánto puede bajar por muestra (frenada más fuerte)
+
+    let v = v0.slice();
+
+    // forward: limita subidas (aceleración)
+    for (let i = 1; i < N; i++) {
+      v[i] = Math.min(v[i], v[i - 1] + accelPerStep);
+    }
+    // wrap forward (circular)
+    v[0] = Math.min(v[0], v[N - 1] + accelPerStep);
+
+    // backward: limita bajadas (para que frene ANTES de la curva)
+    for (let i = N - 2; i >= 0; i--) {
+      v[i] = Math.min(v[i], v[i + 1] + brakePerStep);
+    }
+    // wrap backward
+    v[N - 1] = Math.min(v[N - 1], v[0] + brakePerStep);
+
+    // suaviza un poco el perfil final
+    const vSm = smooth1D(v, 2);
+
+    return { N, samples, curv: curvSm, vTarget: vSm };
+  }
+
+
   const carsRef = useRef([]);
   const stateRef = useRef({
-    running: false,
-    raceOver: false,
-    totalLaps: 3,
-    winnerName: null,
-    trackId: 0,
+  running: false,
+  raceOver: false,
+  totalLaps: 3,
+  winnerName: null,
+  trackId: 0,
 
-    // 🚦 salida
-    startPhase: "lights",  // "lights" | "go"
-    startTimer: 0,
-    lightsCount: 5,
-    goFlash: 0,
-    startRandHold: 0,
-  });
+  // ✅ dificultad IA
+  aiMode: "easy", // "easy" | "hard"
+
+  // 🚦 salida
+  startPhase: "lights",  // "lights" | "go"
+  startTimer: 0,
+  lightsCount: 5,
+  goFlash: 0,
+  startRandHold: 0,
+});
+
 
 
   const [laps, setLaps] = useState(3);
+  const [aiMode, setAiMode] = useState("easy"); // "easy" | "hard"
   const [hudText, setHudText] = useState("");
   const [trackLabel, setTrackLabel] = useState("");
+
 
   const COLORS = useMemo(
     () => ["#f34b4b", "#4bd6ff", "#ffd14b", "#7dff4b", "#c24bff", "#ff4bd8"],
@@ -461,6 +588,18 @@ const RaceGame = () => {
 
     // etiqueta UI
     setTrackLabel(def.name[lang] ?? def.name.en);
+
+        // ✅ Precalcular plan del circuito (solo una vez por circuito)
+    const plan = buildTrackPlan(2048);
+
+    trackPlanRef.current = {
+      N: plan.N,
+      samples: plan.samples,
+      curv: plan.curv,
+      vTarget: plan.vTarget,
+      builtForTrackId: trackId,
+    };
+
   };
 
   const sampleTrack = (s01) => {
@@ -532,31 +671,42 @@ const RaceGame = () => {
 
   // ---------------------- cars / game ----------------------
   const makeCar = (opts) => ({
-    name: opts.name ?? "CAR",
-    isPlayer: !!opts.isPlayer,
-    color: opts.color ?? "#fff",
-    x: 0,
-    y: 0,
-    a: 0,
-    vx: 0,
-    vy: 0,
-    speed: 0,
-    s: 0,
-    lap: 1,
-    finished: false,
+  name: opts.name ?? "CAR",
+  isPlayer: !!opts.isPlayer,
+  color: opts.color ?? "#fff",
+  x: 0,
+  y: 0,
+  a: 0,
+  vx: 0,
+  vy: 0,
+  speed: 0,
+  s: 0,
+  lap: 1,
+  finished: false,
 
-    accel: opts.accel ?? 520,
-    brake: opts.brake ?? 720,
-    maxSpeed: opts.maxSpeed ?? 420,
-    turnRate: opts.turnRate ?? 2.8,
-    grip: opts.grip ?? 7.5,
-    drag: opts.drag ?? 1.7,
-    spawnGrace: opts.spawnGrace ?? 0.0, // segundos: ignora el conteo de meta al reaparecer
+  accel: opts.accel ?? 520,
+  brake: opts.brake ?? 720,
+  maxSpeed: opts.maxSpeed ?? 420,
+  turnRate: opts.turnRate ?? 2.8,
+  grip: opts.grip ?? 7.5,
+  drag: opts.drag ?? 1.7,
+  spawnGrace: opts.spawnGrace ?? 0.0, // segundos: ignora el conteo de meta al reaparecer
 
-    // colisiones
-    radius: opts.radius ?? 18,
-    mass: opts.mass ?? 1.0,
-  });
+  // colisiones
+  radius: opts.radius ?? 18,
+  mass: opts.mass ?? 1.0,
+
+  // ✅ memoria IA (aunque el coche sea player, no molesta)
+  ai: {
+    t: 0,                    // tiempo interno
+    decisionCd: 0,           // cooldown hasta recalcular decisión
+    cached: { throttle: 0, brake: 0, steer: 0 }, // última decisión
+    noiseSeed: Math.random() * 9999,            // para “humanizar” easy
+    lineOffset: 0,           // -1..1 (offset lateral relativo a normal de pista)
+    prevErr: 0,              // error angular anterior (para PD)
+  },
+});
+
 
   const pickRandomTrackId = () => Math.floor(Math.random() * TRACKS.length);
 
@@ -599,26 +749,38 @@ const RaceGame = () => {
     const rowSpacingS = 0.0105;   // separación entre filas hacia atrás (en s)
 
     const placeCarOnGrid = (car, rowIdx, sideSign /* -1 izq, +1 der */) => {
-      const s = wrap01(startS - rowIdx * rowSpacingS);
-      const sp = sampleTrack(s);
+  const s = wrap01(startS - rowIdx * rowSpacingS);
+  const sp = sampleTrack(s);
 
-      // lateral: dos columnas
-      const lateral = sideSign * gridHalfWidth;
+  // lateral: dos columnas
+  const lateral = sideSign * gridHalfWidth;
 
-      car.x = sp.x + dirNx * lateral;
-      car.y = sp.y + dirNy * lateral;
-      car.a = baseAng;
+  car.x = sp.x + dirNx * lateral;
+  car.y = sp.y + dirNy * lateral;
+  car.a = baseAng;
 
-      car.s = s;
-      car.lap = 1;
-      car.finished = false;
-      car.vx = 0;
-      car.vy = 0;
-      car.speed = 0;
+  car.s = s;
+  car.lap = 1;
+  car.finished = false;
+  car.vx = 0;
+  car.vy = 0;
+  car.speed = 0;
 
-      // grace para no contar meta en el primer segundo
-      car.spawnGrace = 1.0;
-    };
+  // grace para no contar meta en el primer segundo
+  car.spawnGrace = 1.0;
+
+  // ✅ reset memoria IA
+  if (car.ai) {
+    car.ai.t = 0;
+    car.ai.decisionCd = 0;
+    car.ai.cached = { throttle: 0, brake: 0, steer: 0 };
+    car.ai.lineOffset = 0;
+    car.ai.prevErr = 0;
+    // noiseSeed se mantiene para que “personalidad” no cambie cada frame,
+    // pero puedes resetearlo si quieres: car.ai.noiseSeed = Math.random()*9999;
+  }
+};
+
 
     // --- player (fila 0, columna izquierda por defecto)
     const player = makeCar({
@@ -639,26 +801,51 @@ const RaceGame = () => {
 
     // --- AIs (rellenamos 2 columnas por filas)
     // fila 0 (derecha) + filas siguientes
-    for (let i = 1; i <= 5; i++) {
-      const ai = makeCar({
-        name: "AI-" + i,
-        color: COLORS[i % COLORS.length],
-        maxSpeed: 410 + (Math.random() * 40 - 20),
-        accel: 500 + (Math.random() * 60 - 30),
-        grip: 7.1 + Math.random() * 1.0,
-        turnRate: 2.6 + Math.random() * 0.6,
-        drag: 1.6 + Math.random() * 0.3,
-        radius: 17,
-        mass: 0.95,
-      });
+    // --- AIs (rellenamos 2 columnas por filas)
+// fila 0 (derecha) + filas siguientes
+for (let i = 1; i <= 5; i++) {
+  const mode = stateRef.current.aiMode || "easy";
 
-      const pairIndex = i;                // 1..5
-      const rowIdx = Math.floor(pairIndex / 2);      // 0,0,1,1,2...
-      const sideSign = pairIndex % 2 === 1 ? +1 : -1; // 1->derecha,2->izq,3->der...
+  const base = {
+    radius: 17,
+    mass: 0.95,
+  };
 
-      placeCarOnGrid(ai, rowIdx, sideSign);
-      cars.push(ai);
-    }
+  // IA fácil: más lenta + menos agarre + más drag (frena/penaliza más)
+  const easyTuning = {
+    maxSpeed: 380 + (Math.random() * 25 - 12),
+    accel: 460 + (Math.random() * 50 - 25),
+    grip: 6.6 + Math.random() * 0.7,
+    turnRate: 2.35 + Math.random() * 0.35,
+    drag: 1.75 + Math.random() * 0.25,
+  };
+
+  // IA difícil: más competente (sin “cheat”, solo mejores límites)
+  const hardTuning = {
+    maxSpeed: 430 + (Math.random() * 30 - 10),
+    accel: 540 + (Math.random() * 60 - 20),
+    grip: 7.6 + Math.random() * 0.9,
+    turnRate: 2.85 + Math.random() * 0.45,
+    drag: 1.55 + Math.random() * 0.20,
+  };
+
+  const tune = mode === "hard" ? hardTuning : easyTuning;
+
+  const ai = makeCar({
+    name: "AI-" + i,
+    color: COLORS[i % COLORS.length],
+    ...base,
+    ...tune,
+  });
+
+  const pairIndex = i; // 1..5
+  const rowIdx = Math.floor(pairIndex / 2); // 0,0,1,1,2...
+  const sideSign = pairIndex % 2 === 1 ? +1 : -1; // 1->derecha,2->izq,3->der...
+
+  placeCarOnGrid(ai, rowIdx, sideSign);
+  cars.push(ai);
+}
+
 
     carsRef.current = cars;
 
@@ -739,32 +926,200 @@ const RaceGame = () => {
         car.spawnGrace = 1.0;
       }
     } else {
-      if (startLocked) {
-        throttle = 0;
-        brake = 0;
-        steer = 0;
-      } else {
-        // IA: target point ahead on path
-        const lookAhead =
-          0.018 + clamp(car.speed / car.maxSpeed, 0, 1) * 0.040;
-        const targetS = wrap01(car.s + lookAhead);
-        const target = sampleTrack(targetS);
+  if (startLocked) {
+    throttle = 0;
+    brake = 0;
+    steer = 0;
+  } else {
+    const mode = st.aiMode || "easy";
 
-        const dx = target.x - car.x;
-        const dy = target.y - car.y;
-        const desired = Math.atan2(dy, dx);
+    // ---------- percepción: coche delante (cono simple) ----------
+    const cars = carsRef.current;
+    let ahead = null;
+    let aheadDist = Infinity;
 
-        let err = desired - car.a;
-        err = Math.atan2(Math.sin(err), Math.cos(err));
-        steer = clamp(err * 1.7, -1, 1);
+    const fwdx = Math.cos(car.a);
+    const fwdy = Math.sin(car.a);
 
-        const turnPenalty = clamp(Math.abs(err) / 1.2, 0, 1);
-        const targetSpeed = car.maxSpeed * (1 - 0.60 * turnPenalty);
+    for (const other of cars) {
+      if (other === car || other.finished) continue;
 
-        if (car.speed < targetSpeed) throttle = 1;
-        else brake = 0.40;
+      const dx = other.x - car.x;
+      const dy = other.y - car.y;
+      const d2 = dx * dx + dy * dy;
+
+      if (d2 > 260 * 260) continue;
+
+      const d = Math.sqrt(d2);
+      const dot = (dx / d) * fwdx + (dy / d) * fwdy; // 1 = justo delante
+
+      if (dot < 0.45) continue;
+
+      if (d < aheadDist) {
+        aheadDist = d;
+        ahead = other;
       }
     }
+
+    // ---------- tiempo interno IA ----------
+    if (car.ai) car.ai.t += dt;
+
+    // ---------- reacción: easy recalcula cada X ms ----------
+    const easyDecisionPeriod = 0.11;
+    const hardDecisionPeriod = 0.0;
+
+    if (car.ai && car.ai.decisionCd > 0) {
+      car.ai.decisionCd -= dt;
+
+      // reusar decisión anterior
+      throttle = car.ai.cached.throttle;
+      brake = car.ai.cached.brake;
+      steer = car.ai.cached.steer;
+    } else {
+      if (car.ai) car.ai.decisionCd = mode === "easy" ? easyDecisionPeriod : hardDecisionPeriod;
+
+      // ---------- target + curvatura ----------
+      const curv = estimateCurvatureAt(sampleTrack, car.s);
+
+      // lookahead: más velocidad -> más lejos; más curvatura -> menos lejos
+      const v01 = clamp(car.speed / car.maxSpeed, 0, 1);
+      const baseLook = mode === "hard" ? 0.020 : 0.016;
+      const speedLook = mode === "hard" ? 0.052 : 0.040;
+      const curveCut = mode === "hard" ? 0.030 : 0.040;
+
+      let lookAhead =
+        baseLook +
+        v01 * speedLook -
+        clamp(curv * 0.0025, 0, curveCut);
+
+      lookAhead = clamp(lookAhead, 0.014, 0.070);
+
+      const targetS = wrap01(car.s + lookAhead);
+      const target = sampleTrack(targetS);
+
+      // normal en target (para offset de línea)
+      const { nx, ny } = getNormalFromAng(target.ang);
+
+      // ---------- racing line (aprox) ----------
+      let desiredOffset = 0;
+
+            if (mode === "hard") {
+        // ✅ HARD: SIEMPRE línea central (trazada ideal = centro de la pista)
+        desiredOffset = 0;
+
+        // (opcional) Si hay coche delante muy cerca, solo entonces abre un poco
+        // pero sin salirte de la pista
+        if (ahead && aheadDist < 120) {
+          const side = Math.sign((ahead.y - car.y) * fwdx - (ahead.x - car.x) * fwdy) || 1;
+          desiredOffset = 0.28 * side; // pequeño offset, no racing line agresiva
+        }
+      } else {
+        // easy: casi siempre centro, y si hay tráfico solo se "abre" un poco
+        if (ahead && aheadDist < 140) desiredOffset = 0.25;
+        else desiredOffset = 0;
+      }
+
+
+      // suavizar offset
+      if (car.ai) car.ai.lineOffset = lerp(car.ai.lineOffset, desiredOffset, clamp(6 * dt, 0, 1));
+      const lineOffset = car.ai ? car.ai.lineOffset : desiredOffset;
+
+      // aplica offset en el objetivo
+      const targetX = target.x + nx * (lineOffset * (track.width * 0.62));
+      const targetY = target.y + ny * (lineOffset * (track.width * 0.62));
+
+      // ---------- volante PD ----------
+      const tx = targetX - car.x;
+      const ty = targetY - car.y;
+      const desiredAng = Math.atan2(ty, tx);
+
+      let err = signedAngleDiff(car.a, desiredAng);
+
+      const prevErr = car.ai ? (car.ai.prevErr ?? err) : err;
+      const derr = (err - prevErr) / Math.max(1e-3, dt);
+      if (car.ai) car.ai.prevErr = err;
+
+      const kp = mode === "hard" ? 1.55 : 1.30;
+      const kd = mode === "hard" ? 0.06 : 0.02;
+
+      steer = clamp(kp * err + kd * derr, -1, 1);
+
+      // ---------- velocidad objetivo (curvatura + error) ----------
+            // ---------- velocidad objetivo ----------
+      let targetSpeed;
+
+      if (mode === "hard" && trackPlanRef.current?.vTarget) {
+        const plan = trackPlanRef.current;
+        const idx = Math.floor(wrap01(car.s) * plan.N);
+        const vRel = plan.vTarget[idx]; // 0..1
+
+        // base del plan (ya frena antes de curvas)
+        targetSpeed = car.maxSpeed * vRel;
+
+        // penaliza un poco si el coche está muy mal orientado hacia el target
+        const turnPenalty = clamp(Math.abs(err) / 1.25, 0, 1);
+        targetSpeed *= (1 - 0.40 * turnPenalty);
+
+        // mínimo razonable (evita quedarse parado)
+        targetSpeed = Math.max(targetSpeed, car.maxSpeed * 0.22);
+      } else {
+        // EASY (tu lógica original)
+        const turnPenalty = clamp(Math.abs(err) / 1.25, 0, 1);
+        const curvePenalty = clamp(curv * 0.030, 0, 1);
+
+        targetSpeed =
+          car.maxSpeed *
+          (1 - 0.52 * turnPenalty) *
+          (1 - 0.70 * curvePenalty);
+      }
+
+
+      // tráfico: limita velocidad si hay coche delante
+      if (ahead) {
+        if (aheadDist < 110) targetSpeed = Math.min(targetSpeed, ahead.speed * 0.98);
+        else if (aheadDist < 150) targetSpeed = Math.min(targetSpeed, ahead.speed * 1.02);
+      }
+
+      // ---------- modo easy: errores humanos ----------
+      if (mode === "easy" && car.ai) {
+        const n = Math.sin((car.ai.t + car.ai.noiseSeed) * 7.3) * 0.10;
+        steer = clamp(steer + n, -1, 1);
+
+        // mini-fallo raro (sube targetSpeed un pelín)
+        const glitch = Math.sin((car.ai.t + car.ai.noiseSeed) * 0.55) > 0.995;
+        if (glitch) targetSpeed *= 1.10;
+      }
+
+      // ---------- throttle/brake ----------
+      const margin = mode === "hard" ? 16 : 24;
+
+      if (car.speed < targetSpeed - margin) {
+        throttle = 1;
+        brake = 0;
+      } else if (car.speed > targetSpeed + margin) {
+        throttle = 0;
+        brake = mode === "hard" ? 0.62 : 0.78;
+      } else {
+        throttle = 0.35;
+        brake = 0;
+      }
+
+      // easy: más educada para no embestir
+      if (mode === "easy" && ahead && aheadDist < 90) {
+        throttle *= 0.25;
+        brake = Math.max(brake, 0.55);
+      }
+
+      // guarda decisión para el “tick” siguiente
+      if (car.ai) {
+        car.ai.cached.throttle = throttle;
+        car.ai.cached.brake = brake;
+        car.ai.cached.steer = steer;
+      }
+    }
+  }
+}
+
 
     // ---------------- dinámica ----------------
     const acc = throttle * car.accel - brake * car.brake;
@@ -1490,43 +1845,73 @@ const drawStartLights = (ctx) => {
   }
 
   // ✅ Setup (elige 3/5 antes de empezar)
-  if (showSetup) {
-    return (
-      <div className="racegame racegame--setup">
-        <div className="racegame__setupCard">
-          <div className="racegame__setupTitle">{translations.title}</div>
-          <div className="racegame__setupSub">{translations.subtitle}</div>
+  // ✅ Setup (elige 3/5 antes de empezar)
+if (showSetup) {
+  return (
+    <div className="racegame racegame--setup">
+      <div className="racegame__setupCard">
+        <div className="racegame__setupTitle">{translations.title}</div>
+        <div className="racegame__setupSub">{translations.subtitle}</div>
 
-          <div className="racegame__setupRow">
-            <div className="racegame__setupLabel">{translations.chooseLaps}</div>
-            <div className="racegame__setupButtons">
-              <button
-                className={`racegame__setupBtn ${laps === 3 ? "isActive" : ""}`}
-                onClick={() => setLaps(3)}
-              >
-                3
-              </button>
-              <button
-                className={`racegame__setupBtn ${laps === 5 ? "isActive" : ""}`}
-                onClick={() => setLaps(5)}
-              >
-                5
-              </button>
-            </div>
+        {/* Vueltas */}
+        <div className="racegame__setupRow">
+          <div className="racegame__setupLabel">{translations.chooseLaps}</div>
+          <div className="racegame__setupButtons">
+            <button
+              className={`racegame__setupBtn ${laps === 3 ? "isActive" : ""}`}
+              onClick={() => setLaps(3)}
+            >
+              3
+            </button>
+            <button
+              className={`racegame__setupBtn ${laps === 5 ? "isActive" : ""}`}
+              onClick={() => setLaps(5)}
+            >
+              5
+            </button>
+          </div>
+        </div>
+
+        {/* Dificultad IA */}
+        <div className="racegame__setupRow">
+          <div className="racegame__setupLabel">
+            {lang === "es" ? "Dificultad IA" : "AI Difficulty"}
           </div>
 
-          <button
-            className="racegame__setupStart"
-            onClick={() => setShowSetup(false)}
-          >
-            {translations.startRace}
-          </button>
+          <div className="racegame__setupButtons">
+            <button
+              className={`racegame__setupBtn ${aiMode === "easy" ? "isActive" : ""}`}
+              onClick={() => setAiMode("easy")}
+            >
+              {lang === "es" ? "Fácil" : "Easy"}
+            </button>
 
-          <div className="racegame__setupHint">{translations.touchHint}</div>
+            <button
+              className={`racegame__setupBtn ${aiMode === "hard" ? "isActive" : ""}`}
+              onClick={() => setAiMode("hard")}
+            >
+              {lang === "es" ? "Difícil" : "Hard"}
+            </button>
+          </div>
         </div>
+
+        {/* Start */}
+        <button
+          className="racegame__setupStart"
+          onClick={() => {
+            stateRef.current.aiMode = aiMode;
+            setShowSetup(false);
+          }}
+        >
+          {translations.startRace}
+        </button>
+
+        <div className="racegame__setupHint">{translations.touchHint}</div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
   return (
     <div className="racegame">

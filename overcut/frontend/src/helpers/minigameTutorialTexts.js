@@ -258,24 +258,43 @@ export const tutorialTexts = {
             "You can’t use the same driver in two cells. Think fast!"
         }
       },
-        "/minigames/race": {
-          es: {
-            title: "Carrera 2D",
-            description:
-              "Corre en un circuito inventado en 2D contra coches controlados por la máquina. " +
-              "Completa 3 o 5 vueltas y mantente dentro de la pista para no perder velocidad.\n\n" +
-              "Controles:\n" +
-              "⬆ acelerar · ⬇ frenar · ⬅ ➡ girar · ESPACIO respawn"
-          },
-          en: {
-            title: "2D Race",
-            description:
-              "Race on a fictional 2D track against AI-controlled cars. " +
-              "Complete 3 or 5 laps and stay on track to avoid losing speed.\n\n" +
-              "Controls:\n" +
-              "⬆ accelerate · ⬇ brake · ⬅ ➡ steer · SPACE respawn"
-          }
-        },
+       "/minigames/race": {
+         es: {
+           title: "Carrera 2D",
+           description:
+             "Corre en un circuito inventado en 2D contra coches controlados por la máquina. " +
+             "Completa 3 o 5 vueltas y mantente dentro de la pista para no perder velocidad.\n\n" +
+
+             "Controles (PC):\n" +
+             "⬆ acelerar · ⬇ frenar · ⬅ ➡ girar · ESPACIO respawn\n\n" +
+
+             "Controles (móvil / tablet):\n" +
+             "🕹️ Joystick izquierdo: girar el coche\n" +
+             "⬆ Botón derecho superior: acelerar\n" +
+             "⬇ Botón derecho inferior: frenar\n\n" +
+
+             "Consejo:\n" +
+             "Frena antes de las curvas cerradas y acelera al salir para ganar velocidad."
+         },
+         en: {
+           title: "2D Race",
+           description:
+             "Race on a fictional 2D track against AI-controlled cars. " +
+             "Complete 3 or 5 laps and stay on track to avoid losing speed.\n\n" +
+
+             "Controls (PC):\n" +
+             "⬆ accelerate · ⬇ brake · ⬅ ➡ steer · SPACE respawn\n\n" +
+
+             "Controls (mobile / tablet):\n" +
+             "🕹️ Left joystick: steer the car\n" +
+             "⬆ Top right button: accelerate\n" +
+             "⬇ Bottom right button: brake\n\n" +
+
+             "Tip:\n" +
+             "Brake before tight corners and accelerate on exit to gain speed."
+         }
+       },
+
 
 
 

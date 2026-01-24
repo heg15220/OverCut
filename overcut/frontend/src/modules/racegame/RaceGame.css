@@ -404,3 +404,26 @@
     transform: translateY(-10px); /* botones ⬆ ⬇ alineados con joystick */
   }
 }
+
+
+.racegame__setupRow {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap; /* ✅ NUEVO: evita overflow en móvil */
+}
+
+
+@media (max-width: 520px) {
+  .racegame__setupButtons {
+    width: 100%;
+    justify-content: flex-end; /* o center si lo prefieres */
+  }
+
+  .racegame__setupBtn {
+    min-width: 88px; /* ✅ para que Easy/Hard tengan buen tamaño */     
+    text-align: center;
+  }
+}
