@@ -323,7 +323,7 @@ const RaceGame = () => {
   const cameraRef = useRef({ x: 0, y: 0 });
 
   const trackRef = useRef({
-    width: 70,
+    width: 85,
     points: [],
     segLen: [],
     totalLen: 0,
@@ -385,11 +385,18 @@ const RaceGame = () => {
 
       // tuning: ajusta si quieres hard más agresivo
       // cNorm ~ [0..1] aprox
-      const cNorm = clamp(c * 0.020, 0, 1);
+      // ✅ menos castigo: curvas rápidas casi a fondo
+      const cNorm = clamp(c * 0.015, 0, 1);
 
-      // velocidad deseada relativa
-      v0[i] = 1 - 0.78 * cNorm; // en curvas fuertes baja mucho
-      v0[i] = clamp(v0[i], 0.22, 1.0);
+      // ✅ curva rápida: casi a fondo, curva lenta: sí baja
+      // usa curva no-lineal para castigar más SOLO en curvaturas altas
+      const shaped = Math.pow(cNorm, 1.35);     // <--- clave
+      v0[i] = 1 - 0.58 * shaped;
+
+      // mínimo más alto para no “morirse” en enlazadas
+      v0[i] = clamp(v0[i], 0.34, 1.0);
+
+
     }
 
     // 2) “forward pass” + “backward pass” para frenada realista:
@@ -398,8 +405,14 @@ const RaceGame = () => {
     //
     //    Estos límites están en "relativo por paso". No es física exacta,
     //    pero produce frenadas MUY naturales.
-    const accelPerStep = 0.012; // cuánto puede subir por muestra
-    const brakePerStep = 0.020; // cuánto puede bajar por muestra (frenada más fuerte)
+    // ✅ recupera gas antes al salir de curva
+    const accelPerStep = 0.019;
+
+    // ✅ frenada “adaptativa”: en curvas rápidas NO limita (brakeStep grande),
+    // en curvas lentas sí anticipa (brakeStep pequeño)
+    const brakeStepFast = 0.032;
+    const brakeStepTight = 0.016;
+
 
     let v = v0.slice();
 
@@ -412,10 +425,20 @@ const RaceGame = () => {
 
     // backward: limita bajadas (para que frene ANTES de la curva)
     for (let i = N - 2; i >= 0; i--) {
-      v[i] = Math.min(v[i], v[i + 1] + brakePerStep);
+      // 0 en recta/curva rápida -> brakeStep grande (NO recorta velocidad antes)
+      // 1 en curva fuerte        -> brakeStep pequeño (sí anticipa frenada)
+      const cNorm = clamp(curvSm[i] * 0.015, 0, 1);
+      const brakeStep = lerp(brakeStepFast, brakeStepTight, cNorm);
+
+      v[i] = Math.min(v[i], v[i + 1] + brakeStep);
     }
     // wrap backward
-    v[N - 1] = Math.min(v[N - 1], v[0] + brakePerStep);
+    {
+      const cNorm = clamp(curvSm[N - 1] * 0.015, 0, 1);
+      const brakeStep = lerp(brakeStepFast, brakeStepTight, cNorm);
+      v[N - 1] = Math.min(v[N - 1], v[0] + brakeStep);
+    }
+
 
     // suaviza un poco el perfil final
     const vSm = smooth1D(v, 2);
@@ -822,12 +845,16 @@ for (let i = 1; i <= 5; i++) {
 
   // IA difícil: más competente (sin “cheat”, solo mejores límites)
   const hardTuning = {
-    maxSpeed: 430 + (Math.random() * 30 - 10),
-    accel: 540 + (Math.random() * 60 - 20),
-    grip: 7.6 + Math.random() * 0.9,
-    turnRate: 2.85 + Math.random() * 0.45,
-    drag: 1.55 + Math.random() * 0.20,
-  };
+  // ✅ más punta real en recta
+  maxSpeed: 485 + (Math.random() * 30 - 10),   // ~475..505
+  accel: 640 + (Math.random() * 70 - 20),      // acelera antes a Vmax
+  // ✅ algo más estable a alta velocidad
+  grip: 7.9 + Math.random() * 0.9,
+  turnRate: 2.95 + Math.random() * 0.40,
+  // ✅ menos drag => mantiene Vmax mejor (clave en rectas)
+  drag: 1.28 + Math.random() * 0.15,
+};
+
 
   const tune = mode === "hard" ? hardTuning : easyTuning;
 
@@ -1029,20 +1056,57 @@ for (let i = 1; i <= 5; i++) {
       const targetY = target.y + ny * (lineOffset * (track.width * 0.62));
 
       // ---------- volante PD ----------
-      const tx = targetX - car.x;
-      const ty = targetY - car.y;
-      const desiredAng = Math.atan2(ty, tx);
+// ---------- volante (HARD no gira "antes": mezcla tangentes + error lateral) ----------
 
-      let err = signedAngleDiff(car.a, desiredAng);
+// usa la proyección real a pista para evitar drift/errores de 'car.s'
+const cNow = closestOnTrack(car.x, car.y);
+const sBase = cNow.s;
 
-      const prevErr = car.ai ? (car.ai.prevErr ?? err) : err;
-      const derr = (err - prevErr) / Math.max(1e-3, dt);
-      if (car.ai) car.ai.prevErr = err;
+// lookahead SOLO para dirección (más corto que el de velocidad)
+const steerBaseLook = mode === "hard" ? 0.010 : 0.012;
+const steerSpeedLook = mode === "hard" ? 0.020 : 0.018;
 
-      const kp = mode === "hard" ? 1.55 : 1.30;
-      const kd = mode === "hard" ? 0.06 : 0.02;
+// en recta mira poco; si vas rápido puede mirar algo más, pero sin pasarse
+let lookSteer = steerBaseLook + v01 * steerSpeedLook;
+lookSteer = clamp(lookSteer, 0.008, mode === "hard" ? 0.030 : 0.040);
 
-      steer = clamp(kp * err + kd * derr, -1, 1);
+const sp0 = sampleTrack(sBase);
+const sp1 = sampleTrack(wrap01(sBase + lookSteer));
+
+// “cuánto se viene curva” en ese lookahead
+const upcoming = Math.abs(signedAngleDiff(sp0.ang, sp1.ang));
+
+// mezcla: en recta (upcoming pequeño) casi todo sp0.ang -> NO gira antes
+// en curva (upcoming grande) va metiendo sp1.ang progresivamente
+const w = clamp(upcoming * (mode === "hard" ? 2.8 : 2.2), 0, 1) * clamp(v01 * 1.15, 0, 1);
+const desiredAng = angNorm(sp0.ang + signedAngleDiff(sp0.ang, sp1.ang) * w);
+
+// error de heading
+let err = signedAngleDiff(car.a, desiredAng);
+
+// además, corrige error lateral respecto a la línea central (o tu offset si lo aplicas)
+const n0 = getNormalFromAng(sp0.ang);
+const latErrPx = (car.x - sp0.x) * n0.nx + (car.y - sp0.y) * n0.ny;
+
+// si estás usando offset de línea, quítaselo al error lateral para que siga esa línea
+const latTargetPx = (car.ai ? car.ai.lineOffset : 0) * (track.width * 0.62);
+const latErr = (latErrPx - latTargetPx) / Math.max(1, track.width); // normalizado aprox
+
+// derivada para suavizar
+const prevErr = car.ai ? (car.ai.prevErr ?? err) : err;
+const derr = (err - prevErr) / Math.max(1e-3, dt);
+if (car.ai) car.ai.prevErr = err;
+
+// gains
+const kp = mode === "hard" ? 1.35 : 1.20;
+const kd = mode === "hard" ? 0.05 : 0.02;
+
+// corrección lateral (clave para que vaya por el centro sin “apuntar antes”)
+const kLat = mode === "hard" ? 0.85 : 0.55;
+
+// steering final
+steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
+
 
       // ---------- velocidad objetivo (curvatura + error) ----------
             // ---------- velocidad objetivo ----------
@@ -1053,16 +1117,25 @@ for (let i = 1; i <= 5; i++) {
         const idx = Math.floor(wrap01(car.s) * plan.N);
         const vRel = plan.vTarget[idx]; // 0..1
 
-        // base del plan (ya frena antes de curvas)
         targetSpeed = car.maxSpeed * vRel;
 
-        // penaliza un poco si el coche está muy mal orientado hacia el target
-        const turnPenalty = clamp(Math.abs(err) / 1.25, 0, 1);
-        targetSpeed *= (1 - 0.40 * turnPenalty);
+        // ✅ Deadzone: si el giro es pequeño (curva rápida bien trazada), no penaliza
+        const absErr = Math.abs(err);
+        const dead = 0.18; // rad ~ 10º
+        const effectiveErr = Math.max(0, absErr - dead);
 
-        // mínimo razonable (evita quedarse parado)
+        // ✅ penaliza menos (antes era 0.40). Ahora solo castiga si va MUY mal orientado.
+        const turnPenalty = clamp(effectiveErr / 1.05, 0, 1);
+        targetSpeed *= (1 - 0.22 * turnPenalty);
+
         targetSpeed = Math.max(targetSpeed, car.maxSpeed * 0.22);
-      } else {
+
+        // ✅ “fast curve keep-speed”: si es curva rápida (vRel alto) y no vas cruzado,
+        // deja ir casi a fondo.
+        if (vRel > 0.78 && absErr < 0.45) {
+          targetSpeed = Math.max(targetSpeed, car.maxSpeed * 0.90);
+        }
+      }else {
         // EASY (tu lógica original)
         const turnPenalty = clamp(Math.abs(err) / 1.25, 0, 1);
         const curvePenalty = clamp(curv * 0.030, 0, 1);
@@ -1091,18 +1164,20 @@ for (let i = 1; i <= 5; i++) {
       }
 
       // ---------- throttle/brake ----------
-      const margin = mode === "hard" ? 16 : 24;
+      const margin = mode === "hard" ? 10 : 24;
 
       if (car.speed < targetSpeed - margin) {
         throttle = 1;
         brake = 0;
       } else if (car.speed > targetSpeed + margin) {
         throttle = 0;
-        brake = mode === "hard" ? 0.62 : 0.78;
+        brake = mode === "hard" ? 0.55 : 0.78;
       } else {
-        throttle = 0.35;
+        // ✅ hard mantiene gas para llegar/clavar Vmax en recta
+        throttle = mode === "hard" ? 0.55 : 0.35;
         brake = 0;
       }
+
 
       // easy: más educada para no embestir
       if (mode === "easy" && ahead && aheadDist < 90) {
@@ -1156,10 +1231,12 @@ for (let i = 1; i <= 5; i++) {
       car.x -= nx * push;
       car.y -= ny * push;
 
-      car.speed *= 0.83;
-      car.vx *= 0.90;
-      car.vy *= 0.90;
+      // menos castigo
+      car.speed *= 0.96;
+      car.vx *= 0.96;
+      car.vy *= 0.96;
     }
+
 
     // ---------------- progreso + vueltas ----------------
     const prevS = car.s;
