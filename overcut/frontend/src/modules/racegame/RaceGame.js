@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 import MinigameTutorial from "../common/components/MinigameTutorial";
 import { tutorialTexts } from "../../helpers/minigameTutorialTexts";
 import { sourceImages } from "../../helpers/sourceMiniGamesImages";
@@ -294,6 +295,10 @@ const TRACKS = [
 const RaceGame = () => {
   const lang = navigator.language.startsWith("es") ? "es" : "en";
 
+  const navigate = useNavigate(); 
+
+  const MINIGAMES_HOME = "/minigames"; 
+
   const [showTutorial, setShowTutorial] = useState(true);
   const [showSetup, setShowSetup] = useState(true);
 
@@ -303,6 +308,16 @@ const RaceGame = () => {
   const rafRef = useRef(null);
   const lastRef = useRef(performance.now());
   const keysRef = useRef(new Set());
+
+  const [hud, setHud] = useState({
+  pos: 1,
+  total: 6,
+  lap: "1/3",
+  speed: 0,
+  note: "",
+});
+
+
 
   // Inputs unificados (teclado + touch)
   const inputRef = useRef({
@@ -509,6 +524,17 @@ const RaceGame = () => {
       restartHint: "Pulsa “Reiniciar” para otra carrera",
       touchHint: "Controles táctiles: joystick (izq) + acelerar/frenar (dcha)",
       aiFinished: "IA terminó (la carrera sigue)",
+      backHome: "Volver al inicio",
+      aiDifficulty: "Dificultad IA",
+      easy: "Fácil",
+      hard: "Difícil",
+      easyDesc: "Más lenta, comete pequeños errores y frena antes.",
+      hardDesc: "Más rápida, traza ideal y maximiza velocidad en rectas.",
+      setupTip: "El circuito se elige aleatoriamente en cada carrera.",
+
+      backToSetup: lang === "es" ? "⚙ Setup" : "⚙ Setup",
+      resume: lang === "es" ? "Continuar" : "Resume",
+
     };
     const en = {
       title: "🏁 2D Race",
@@ -530,6 +556,14 @@ const RaceGame = () => {
       restartHint: "Press “Restart” to race again",
       touchHint: "Touch: joystick (left) + accelerate/brake (right)",
       aiFinished: "AI finished (race continues)",
+      backHome: "Back to home",
+      aiDifficulty: "AI Difficulty",
+      easy: "Easy",
+      hard: "Hard",
+      easyDesc: "Slower, makes small mistakes and brakes earlier.",
+      hardDesc: "Faster, ideal line and max speed on straights.",
+      setupTip: "A random track is selected every race.",
+      
     };
     return lang === "es" ? es : en;
   }, [lang]);
@@ -1888,16 +1922,19 @@ const drawStartLights = (ctx) => {
       const lapText = `${currentLap}/${st.totalLaps}`;
 
       const anyAiFinished = carsRef.current.some((c) => !c.isPlayer && c.finished);
-      const extra = !you.finished && anyAiFinished ? ` · ${translations.aiFinished}` : "";
+      const note = !you.finished && anyAiFinished ? translations.aiFinished : "";
 
-      const text =
-        `${translations.position}: ${yourPos}/${carsRef.current.length} · ` +
-        `${translations.lap}: ${lapText} · ` +
-        `${translations.speed}: ${Math.round(you.speed)} ${translations.sim}` +
-        extra;
-
-      if (now % 6 < 1) setHudText(text);
+      if (now % 6 < 1) {
+        setHud({
+          pos: yourPos,
+          total: carsRef.current.length,
+          lap: lapText,
+          speed: Math.round(you.speed),
+          note,
+        });
+      }
     }
+
 
     // ✅ FIN: solo cuando termina el jugador
     if (you?.finished && !st.raceOver) {
@@ -1995,6 +2032,29 @@ const drawStartLights = (ctx) => {
     resetRace(null); // nuevo circuito aleatorio
   };
 
+  const handleBackToSetup = () => {
+  // parar loop y carrera
+  stateRef.current.running = false;
+  stateRef.current.raceOver = false;
+
+  // reset inputs para evitar “acelerador pegado”
+  inputRef.current.throttle = 0;
+  inputRef.current.brake = 0;
+  inputRef.current.steer = 0;
+  keysRef.current.clear();
+
+  // si hay joystick activo, suéltalo
+  joyRef.current.active = false;
+  joyRef.current.pointerId = null;
+
+  // parar RAF del gameplay
+  if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+  // volver a setup
+  setShowSetup(true);
+};
+
+
   // ---------------------- touch handlers ----------------------
   const onTouchThrottle = (on) => {
     inputRef.current.throttle = on ? 1 : 0;
@@ -2056,88 +2116,186 @@ if (showSetup) {
   return (
     <div className="racegame racegame--setup">
       <div className="racegame__setupCard">
-        <div className="racegame__setupTitle">{translations.title}</div>
-        <div className="racegame__setupSub">{translations.subtitle}</div>
+        {/* Header + Back */}
+        <div className="racegame__setupTop">
+          <div>
+            <div className="racegame__setupTitle">{translations.title}</div>
+            <div className="racegame__setupSub">{translations.subtitle}</div>
+          </div>
 
-        {/* Vueltas */}
-        <div className="racegame__setupRow">
-          <div className="racegame__setupLabel">{translations.chooseLaps}</div>
-          <div className="racegame__setupButtons">
+          <button
+            className="racegame__setupBack"
+            onClick={() => navigate(MINIGAMES_HOME)}
+            type="button"
+          >
+            ⟵ {translations.backHome}
+          </button>
+        </div>
+
+        <div className="racegame__setupTip">{translations.setupTip}</div>
+
+        {/* Vueltas (cards) */}
+        <div className="racegame__setupBlock">
+          <div className="racegame__setupBlockTitle">{translations.chooseLaps}</div>
+
+          <div className="racegame__setupChoiceGrid">
             <button
-              className={`racegame__setupBtn ${laps === 3 ? "isActive" : ""}`}
+              type="button"
+              className={`racegame__choiceCard ${laps === 3 ? "isActive" : ""}`}
               onClick={() => setLaps(3)}
             >
-              3
+              <div className="racegame__choiceBig">3</div>
+              <div className="racegame__choiceSmall">{translations.laps}</div>
+              <div className="racegame__choiceMeta">
+                {lang === "es" ? "Carrera corta" : "Short race"}
+              </div>
             </button>
+
             <button
-              className={`racegame__setupBtn ${laps === 5 ? "isActive" : ""}`}
+              type="button"
+              className={`racegame__choiceCard ${laps === 5 ? "isActive" : ""}`}
               onClick={() => setLaps(5)}
             >
-              5
+              <div className="racegame__choiceBig">5</div>
+              <div className="racegame__choiceSmall">{translations.laps}</div>
+              <div className="racegame__choiceMeta">
+                {lang === "es" ? "Más estrategia" : "More strategy"}
+              </div>
             </button>
           </div>
         </div>
 
-        {/* Dificultad IA */}
-        <div className="racegame__setupRow">
-          <div className="racegame__setupLabel">
-            {lang === "es" ? "Dificultad IA" : "AI Difficulty"}
-          </div>
+        {/* Dificultad IA (cards + descripción) */}
+        <div className="racegame__setupBlock">
+          <div className="racegame__setupBlockTitle">{translations.aiDifficulty}</div>
 
-          <div className="racegame__setupButtons">
+          <div className="racegame__setupChoiceGrid">
             <button
-              className={`racegame__setupBtn ${aiMode === "easy" ? "isActive" : ""}`}
+              type="button"
+              className={`racegame__choiceCard racegame__choiceCard--ai ${
+                aiMode === "easy" ? "isActive" : ""
+              }`}
               onClick={() => setAiMode("easy")}
             >
-              {lang === "es" ? "Fácil" : "Easy"}
+              <div className="racegame__choiceHeader">
+                <div className="racegame__choiceTag">{translations.easy}</div>
+                <div className="racegame__choicePill">
+                  {aiMode === "easy" ? "✓" : ""}
+                </div>
+              </div>
+              <div className="racegame__choiceDesc">{translations.easyDesc}</div>
             </button>
 
             <button
-              className={`racegame__setupBtn ${aiMode === "hard" ? "isActive" : ""}`}
+              type="button"
+              className={`racegame__choiceCard racegame__choiceCard--ai ${
+                aiMode === "hard" ? "isActive" : ""
+              }`}
               onClick={() => setAiMode("hard")}
             >
-              {lang === "es" ? "Difícil" : "Hard"}
+              <div className="racegame__choiceHeader">
+                <div className="racegame__choiceTag">{translations.hard}</div>
+                <div className="racegame__choicePill">
+                  {aiMode === "hard" ? "✓" : ""}
+                </div>
+              </div>
+              <div className="racegame__choiceDesc">{translations.hardDesc}</div>
             </button>
           </div>
         </div>
 
-        {/* Start */}
-        <button
-          className="racegame__setupStart"
-          onClick={() => {
-            stateRef.current.aiMode = aiMode;
-            setShowSetup(false);
-          }}
-        >
-          {translations.startRace}
-        </button>
+        {/* Footer actions */}
+        <div className="racegame__setupFooter">
+          <button
+            className="racegame__setupStart"
+            onClick={() => {
+              stateRef.current.aiMode = aiMode;
+              setShowSetup(false);
+            }}
+            type="button"
+          >
+            {translations.startRace}
+          </button>
 
-        <div className="racegame__setupHint">{translations.touchHint}</div>
+          <div className="racegame__setupHint">{translations.touchHint}</div>
+        </div>
       </div>
     </div>
   );
 }
 
 
+
   return (
     <div className="racegame">
       <div className="racegame__ui">
-        <div className="racegame__uiLeft">
-          <div className="racegame__title">
+      <div className="racegame__uiLeft">
+
+        <div className="racegame__hudTop">
+          <div className="racegame__hudTitle">
             <div className="racegame__titleMain">{translations.title}</div>
             <div className="racegame__titleSub">{translations.subtitle}</div>
           </div>
 
-          <div className="racegame__controls">
-            <button className="racegame__button" onClick={handleRestart}>
-              {translations.restart}
-            </button>
-
-            <div className="racegame__status">{hudText}</div>
-            <div className="racegame__touchHint">{translations.touchHint}</div>
+          <div className="racegame__trackPill">
+            <span className="racegame__trackDot" />
+            <span>{translations.track}: {trackLabel}</span>
           </div>
         </div>
+
+        <div className="racegame__hudStrip">
+          <div className="racegame__hudBottom">
+            <div className="racegame__chips">
+              <div className="racegame__chip">
+                <span className="racegame__chipLabel">{translations.position}</span>
+                <span className="racegame__chipValue">{hud.pos}/{hud.total}</span>
+              </div>
+
+              <div className="racegame__chip">
+                <span className="racegame__chipLabel">{translations.lap}</span>
+                <span className="racegame__chipValue">{hud.lap}</span>
+              </div>
+
+              <div className="racegame__chip">
+                <span className="racegame__chipLabel">{translations.speed}</span>
+                <span className="racegame__chipValue">{hud.speed} {translations.sim}</span>
+              </div>
+
+              {hud.note ? (
+                <div className="racegame__statusPill">
+                  <strong>INFO</strong> {hud.note}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="racegame__controls">
+              <button className="racegame__button" onClick={handleRestart}>
+                {translations.restart}
+              </button>
+
+              <button
+              className="racegame__button racegame__button--ghost"
+              onClick={handleBackToSetup}
+              type="button"
+            >
+              {translations.backToSetup}
+            </button>
+
+
+              <button
+                className="racegame__button racegame__button--ghost"
+                onClick={() => navigate(MINIGAMES_HOME)}
+                type="button"
+              >
+                ⟵ {translations.backHome}
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
+    </div>
+
 
       <canvas ref={canvasRef} className="racegame__canvas" />
 

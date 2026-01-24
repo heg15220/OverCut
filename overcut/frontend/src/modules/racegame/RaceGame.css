@@ -427,3 +427,865 @@
     text-align: center;
   }
 }
+
+/* ---------- SETUP: header/back + blocks ---------- */
+.racegame__setupTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.racegame__setupBack {
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(231,238,247,0.92);
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 0.05s ease, filter 0.1s ease, background 0.1s ease;
+  white-space: nowrap;
+}
+
+.racegame__setupBack:hover { filter: brightness(1.1); }
+.racegame__setupBack:active { transform: translateY(1px); }
+
+.racegame__setupTip {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(231, 238, 247, 0.62);
+  line-height: 1.35;
+}
+
+.racegame__setupBlock {
+  margin-top: 14px;
+}
+
+.racegame__setupBlockTitle {
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(231,238,247,0.92);
+  margin-bottom: 10px;
+}
+
+/* cards grid */
+.racegame__setupChoiceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.racegame__choiceCard {
+  text-align: left;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(18, 26, 36, 0.75);
+  color: rgba(231,238,247,0.95);
+  padding: 14px 14px;
+  cursor: pointer;
+  transition: transform 0.06s ease, filter 0.12s ease, border-color 0.12s ease;
+  min-height: 86px;
+}
+
+.racegame__choiceCard:hover { filter: brightness(1.08); }
+.racegame__choiceCard:active { transform: translateY(1px); }
+.racegame__choiceCard.isActive {
+  border-color: rgba(255,255,255,0.35);
+  filter: brightness(1.12);
+}
+
+.racegame__choiceBig {
+  font-weight: 950;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.racegame__choiceSmall {
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(231,238,247,0.72);
+}
+
+.racegame__choiceMeta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(231,238,247,0.65);
+}
+
+.racegame__choiceCard--ai {
+  min-height: 96px;
+}
+
+.racegame__choiceHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.racegame__choiceTag {
+  font-weight: 950;
+  font-size: 14px;
+}
+
+.racegame__choicePill {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.95);
+  font-weight: 900;
+}
+
+.racegame__choiceDesc {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(231,238,247,0.72);
+}
+
+.racegame__setupFooter {
+  margin-top: 14px;
+}
+
+/* ---------- HUD: ghost button ---------- */
+.racegame__button--ghost {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ---------- Mobile adjustments for setup cards ---------- */
+@media (max-width: 520px) {
+  .racegame__setupChoiceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .racegame__setupBack {
+    padding: 9px 10px;
+    border-radius: 14px;
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   ✅ RaceGame SETUP — OverCutGames palette
+   PÉGALO AL FINAL para que sobreescriba
+   ========================================= */
+
+:root{
+  --oc-bg-a: #0c0f1a;
+  --oc-bg-b: #1a2238;
+  --oc-card: rgba(17, 17, 17, 0.72);          /* similar a cardDiv */
+  --oc-card-2: rgba(10, 47, 69, 0.55);        /* azul “text” panel */
+  --oc-gold: #fbc02d;
+  --oc-white: rgba(255,255,255,0.92);
+  --oc-muted: rgba(204,204,204,0.90);
+  --oc-border-gold: rgba(251,192,45,0.22);
+  --oc-border-soft: rgba(255,255,255,0.08);
+  --oc-shadow: rgba(0,0,0,0.45);
+}
+
+/* Fondo setup: igual vibe que .minigames-page */
+.racegame--setup{
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 2.2rem 1rem 1.6rem;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--oc-bg-a), var(--oc-bg-b));
+}
+
+/* Glow sutil dorado (como title shadow) + textura suave */
+.racegame--setup::before{
+  content:"";
+  position:absolute;
+  inset:-120px;
+  pointer-events:none;
+  background:
+    radial-gradient(650px 380px at 35% 20%, rgba(251,192,45,0.10), transparent 60%),
+    radial-gradient(520px 320px at 78% 18%, rgba(255,255,255,0.05), transparent 55%),
+    radial-gradient(720px 520px at 50% 90%, rgba(10,47,69,0.35), transparent 62%);
+  filter: blur(8px);
+  opacity: 0.95;
+}
+
+.racegame--setup::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,0.045) 0px,
+      rgba(255,255,255,0.045) 1px,
+      transparent 1px,
+      transparent 10px
+    );
+  opacity: 0.08;
+  mask-image: radial-gradient(circle at 50% 35%, #000 0 55%, transparent 72%);
+}
+
+/* Card: similar a .games container / .cardDiv */
+.racegame__setupCard{
+  position: relative;
+  width: min(560px, 94vw);
+  border-radius: 20px;
+  padding: 18px 18px 16px;
+  background: linear-gradient(135deg, rgba(12,15,26,0.75), rgba(26,34,56,0.72));
+  border: 2px solid var(--oc-border-gold);
+  box-shadow:
+    0 0 20px rgba(0,0,0,0.40),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+/* borde dorado al hover del panel */
+.racegame__setupCard:hover{
+  border-color: rgba(251,192,45,0.65);
+  box-shadow:
+    0 0 22px rgba(0,0,0,0.45),
+    0 0 16px rgba(251,192,45,0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* Header layout */
+.racegame__setupTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 14px;
+}
+
+/* Título estilo minigames-title */
+.racegame__setupTitle{
+  font-family: "F1 Bold", sans-serif;
+  font-weight: 900;
+  letter-spacing: 1px;
+  font-size: 1.25rem;
+  color: var(--oc-gold);
+  text-shadow: 0 0 8px rgba(251,192,45,0.28);
+}
+
+.racegame__setupSub{
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: rgba(204,204,204,0.92);
+  font-family: "F1 Regular", sans-serif;
+  line-height: 1.35;
+  max-width: 48ch;
+}
+
+/* Botón “volver” estilo page-nav */
+.racegame__setupBack{
+  border-radius: 12px;
+  border: 2px solid rgba(251,192,45,0.35);
+  background: rgba(0,0,0,0.25);
+  color: rgba(255,255,255,0.92);
+  cursor: pointer;
+  padding: 10px 12px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 12px rgba(0,0,0,0.28);
+  white-space: nowrap;
+}
+
+.racegame__setupBack:hover{
+  transform: scale(1.04);
+  border-color: rgba(251,192,45,0.75);
+  box-shadow: 0 0 12px rgba(251,192,45,0.22);
+}
+
+.racegame__setupBack:active{ transform: scale(0.99); }
+
+.racegame__setupBack:focus-visible{
+  outline: 2px solid rgba(251,192,45,0.75);
+  outline-offset: 2px;
+}
+
+/* Bloques */
+.racegame__setupBlock{
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.racegame__setupBlockTitle{
+  font-family: "F1 Bold", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.92);
+  margin-bottom: 12px;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+
+.racegame__setupBlockTitle::before{
+  content:"";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--oc-gold);
+  box-shadow: 0 0 10px rgba(251,192,45,0.30);
+}
+
+/* Grid */
+.racegame__setupChoiceGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* Cards tipo “cardDiv” con hover dorado */
+.racegame__choiceCard{
+  position: relative;
+  text-align:left;
+  border-radius: 16px;
+  border: 2px solid rgba(251,192,45,0.16);
+  background: rgba(17,17,17,0.72);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    0 0 12px rgba(0,0,0,0.30);
+  padding: 14px 14px;
+  color: rgba(255,255,255,0.92);
+  cursor:pointer;
+  transition: transform 0.18s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 92px;
+  overflow:hidden;
+}
+
+/* franja inferior tipo .text (azul) */
+.racegame__choiceCard::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height: 34px;
+  background: rgba(10,47,69,0.55);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  opacity: 0.9;
+  pointer-events:none;
+}
+
+/* Glow suave al hover (como cardDiv:hover) */
+.racegame__choiceCard:hover{
+  transform: translateY(-2px);
+  border-color: rgba(251,192,45,0.65);
+  box-shadow:
+    0 0 16px rgba(251,192,45,0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    0 0 14px rgba(0,0,0,0.35);
+}
+
+.racegame__choiceCard:active{ transform: translateY(-1px); }
+
+/* Activa: borde dorado fuerte + glow */
+.racegame__choiceCard.isActive{
+  border-color: rgba(251,192,45,0.90);
+  box-shadow:
+    0 0 18px rgba(251,192,45,0.28),
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    0 0 18px rgba(0,0,0,0.35);
+}
+
+/* Texto grande (vueltas) estilo gameTitle */
+.racegame__choiceBig{
+  font-family: "F1 Bold", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  font-size: 30px;
+  color: var(--oc-gold);
+  text-shadow: 0 0 8px rgba(251,192,45,0.22);
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* small / meta */
+.racegame__choiceSmall{
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.70);
+  position: relative;
+  z-index: 1;
+}
+
+.racegame__choiceMeta{
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(204,204,204,0.88);
+  position: relative;
+  z-index: 1;
+}
+
+/* AI header */
+.racegame__choiceCard--ai{ min-height: 104px; }
+
+.racegame__choiceHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.racegame__choiceTag{
+  font-family: "F1 Bold", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  font-size: 14px;
+  color: var(--oc-gold);
+  text-shadow: 0 0 8px rgba(251,192,45,0.18);
+}
+
+/* pill tipo etiqueta NEW, pero dorada */
+.racegame__choicePill{
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  background: rgba(251,192,45,0.18);
+  border: 2px solid rgba(251,192,45,0.35);
+  color: rgba(255,255,255,0.92);
+  font-weight: 900;
+  box-shadow: 0 0 10px rgba(251,192,45,0.15);
+  position: relative;
+  z-index: 1;
+}
+
+.racegame__choiceDesc{
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(204,204,204,0.90);
+  position: relative;
+  z-index: 1;
+}
+
+/* Botón START estilo “page-number active” pero grande */
+.racegame__setupStart{
+  margin-top: 16px;
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  border: 2px solid rgba(251,192,45,0.35);
+  background: rgba(0,0,0,0.22);
+  cursor:pointer;
+
+  font-family: "F1 Bold", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.9px;
+  font-size: 1.05rem;
+  color: var(--oc-gold);
+  text-shadow: 0 0 8px rgba(251,192,45,0.22);
+
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 0 18px rgba(0,0,0,0.30);
+}
+
+.racegame__setupStart:hover{
+  transform: scale(1.02);
+  border-color: rgba(251,192,45,0.75);
+  box-shadow: 0 0 14px rgba(251,192,45,0.25);
+}
+
+.racegame__setupStart:active{ transform: scale(0.995); }
+
+.racegame__setupStart:focus-visible{
+  outline: 2px solid rgba(251,192,45,0.85);
+  outline-offset: 3px;
+}
+
+/* Hint */
+.racegame__setupHint,
+.racegame__setupTip{
+  margin-top: 12px;
+  font-size: 12px;
+  color: rgba(204,204,204,0.86);
+  line-height: 1.35;
+}
+
+/* =========================
+   Responsive setup
+   ========================= */
+@media (max-width: 520px){
+  .racegame__setupCard{
+    width: min(560px, 96vw);
+    padding: 16px 14px 14px;
+    border-radius: 18px;
+  }
+  .racegame__setupChoiceGrid{ grid-template-columns: 1fr; }
+  .racegame__setupTitle{ font-size: 1.12rem; }
+  .racegame__setupSub{ font-size: 0.92rem; }
+  .racegame__choiceBig{ font-size: 28px; }
+  .racegame__setupBack{
+    padding: 9px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   (Opcional) compat con setup viejo (row + btn)
+   ========================================= */
+.racegame__setupRow{
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 2px solid rgba(251,192,45,0.14);
+  background: rgba(0,0,0,0.18);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    0 0 12px rgba(0,0,0,0.25);
+}
+
+.racegame__setupBtn{
+  border-radius: 12px;
+  border: 2px solid rgba(251,192,45,0.22);
+  background: rgba(0,0,0,0.20);
+  color: rgba(255,255,255,0.90);
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.racegame__setupBtn:hover{
+  transform: scale(1.04);
+  border-color: rgba(251,192,45,0.65);
+  box-shadow: 0 0 12px rgba(251,192,45,0.18);
+}
+
+.racegame__setupBtn.isActive{
+  border-color: rgba(251,192,45,0.90);
+  background: rgba(251,192,45,0.10);
+  color: rgba(255,255,255,0.95);
+}
+
+
+/* =========================================
+   ✅ RaceGame HUD — OverCutGames style
+   PÉGALO AL FINAL (override del HUD actual)
+   ========================================= */
+
+:root{
+  --rg-gold: #fbc02d;
+  --rg-white: rgba(255,255,255,0.92);
+  --rg-muted: rgba(204,204,204,0.90);
+  --rg-soft: rgba(255,255,255,0.10);
+  --rg-soft2: rgba(255,255,255,0.06);
+  --rg-border-gold: rgba(251,192,45,0.22);
+  --rg-shadow: rgba(0,0,0,0.45);
+  --rg-bluepanel: rgba(10,47,69,0.55);
+}
+
+/* Contenedor HUD principal */
+.racegame__ui{
+  top: 14px;
+  left: 14px;
+  max-width: min(980px, 92vw);
+
+  border-radius: 18px;
+  padding: 12px 12px 10px;
+
+  background: linear-gradient(135deg, rgba(12,15,26,0.74), rgba(26,34,56,0.70));
+  border: 2px solid var(--rg-border-gold);
+
+  box-shadow:
+    0 0 18px rgba(0,0,0,0.38),
+    0 0 14px rgba(251,192,45,0.10),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+/* textura sutil */
+.racegame__ui::before{
+  content:"";
+  position:absolute;
+  inset:-120px;
+  pointer-events:none;
+  background:
+    radial-gradient(520px 340px at 30% 20%, rgba(251,192,45,0.10), transparent 60%),
+    radial-gradient(680px 420px at 80% 0%, rgba(255,255,255,0.05), transparent 62%);
+  filter: blur(10px);
+  opacity: 0.9;
+}
+
+/* layout interno */
+.racegame__uiLeft{
+  position: relative;
+  z-index: 1;
+  gap: 10px;
+}
+
+/* fila superior: título + track + estado */
+.racegame__hudTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+}
+
+.racegame__hudTitle{
+  display:flex;
+  flex-direction:column;
+  gap: 2px;
+}
+
+.racegame__titleMain{
+  font-family: "F1 Bold", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.9px;
+  font-size: 15px;
+  color: var(--rg-gold);
+  text-shadow: 0 0 8px rgba(251,192,45,0.22);
+}
+
+.racegame__titleSub{
+  font-family: "F1 Regular", sans-serif;
+  font-size: 12px;
+  color: rgba(204,204,204,0.88);
+}
+
+/* track pill (circuito) */
+.racegame__trackPill{
+  align-self: flex-start;
+  display:inline-flex;
+  gap: 8px;
+  align-items:center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.22);
+  color: rgba(231,238,247,0.92);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.racegame__trackDot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--rg-gold);
+  box-shadow: 0 0 10px rgba(251,192,45,0.28);
+}
+
+/* separador azul tipo “text panel” */
+.racegame__hudStrip{
+  margin-top: 8px;
+  padding: 9px 10px;
+  border-radius: 14px;
+  background: var(--rg-bluepanel);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* fila inferior: chips + botones */
+.racegame__hudBottom{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items:center;
+  justify-content: space-between;
+}
+
+/* chips métricas */
+.racegame__chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+  align-items:center;
+}
+
+.racegame__chip{
+  display:inline-flex;
+  align-items:baseline;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.22);
+}
+
+.racegame__chipLabel{
+  font-size: 11px;
+  color: rgba(204,204,204,0.90);
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.racegame__chipValue{
+  font-family: "F1 Bold", system-ui, sans-serif;
+  font-weight: 900;
+  font-size: 13px;
+  color: rgba(255,255,255,0.92);
+}
+
+/* status pill (avisos) */
+.racegame__statusPill{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(251,192,45,0.18);
+  color: rgba(255,255,255,0.90);
+  font-size: 12px;
+  max-width: min(560px, 86vw);
+}
+
+.racegame__statusPill strong{
+  color: var(--rg-gold);
+  font-weight: 900;
+}
+
+/* botones del HUD */
+.racegame__controls{
+  gap: 10px;
+}
+
+.racegame__button{
+  border-radius: 14px;
+  border: 2px solid rgba(251,192,45,0.22);
+  background: rgba(0,0,0,0.22);
+  color: rgba(255,255,255,0.90);
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  padding: 9px 12px;
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease, filter 0.12s ease;
+  box-shadow: 0 0 12px rgba(0,0,0,0.25);
+}
+
+.racegame__button:hover{
+  filter: brightness(1.06);
+  border-color: rgba(251,192,45,0.60);
+  box-shadow: 0 0 12px rgba(251,192,45,0.16);
+}
+
+.racegame__button:active{
+  transform: translateY(1px);
+}
+
+.racegame__button--ghost{
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+}
+
+/* oculta texto viejo (lo reemplazamos por chips) */
+.racegame__status,
+.racegame__touchHint{
+  display:none;
+}
+
+/* ======= Mobile HUD compact ======= */
+@media (max-width: 520px){
+  .racegame__ui{
+    left:auto;
+    right: 10px;
+    top: 10px;
+    max-width: min(320px, 86vw);
+    padding: 10px 10px 9px;
+    border-radius: 18px;
+  }
+
+  .racegame__titleSub{
+    display:none;
+  }
+
+  .racegame__hudStrip{
+    margin-top: 6px;
+    padding: 8px 9px;
+  }
+
+  .racegame__chip{
+    padding: 7px 9px;
+  }
+
+  .racegame__button{
+    padding: 8px 10px;
+    border-radius: 14px;
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   ✅ HUD más pequeño + más arriba/izquierda
+   PÉGALO AL FINAL
+   ========================================= */
+
+/* Desktop/Tablet: más compacto y pegado arriba-izda */
+.racegame__ui{
+  top: 8px !important;
+  left: 8px !important;
+
+  /* 👇 reduce tamaño general */
+  max-width: min(560px, 86vw) !important;
+  padding: 9px 10px 8px !important;
+  border-radius: 14px !important;
+
+  /* un pelín menos “pesado” visualmente */
+  box-shadow:
+    0 0 14px rgba(0,0,0,0.34),
+    0 0 10px rgba(251,192,45,0.08),
+    inset 0 0 0 1px rgba(255,255,255,0.045) !important;
+}
+
+/* Tipografía más pequeña */
+.racegame__titleMain{
+  font-size: 13px !important;
+}
+.racegame__titleSub{
+  font-size: 11px !important;
+}
+
+/* Pills y strip más compactos */
+.racegame__trackPill{
+  padding: 6px 9px !important;
+  font-size: 11px !important;
+}
+.racegame__hudStrip{
+  padding: 7px 8px !important;
+  border-radius: 12px !important;
+}
+
+/* Chips más pequeños */
+.racegame__chip{
+  padding: 6px 8px !important;
+}
+.racegame__chipLabel{
+  font-size: 10px !important;
+}
+.racegame__chipValue{
+  font-size: 12px !important;
+}
+
+/* Botones del HUD más compactos */
+.racegame__controls{
+  gap: 8px !important;
+}
+.racegame__button{
+  padding: 7px 10px !important;
+  border-radius: 12px !important;
+  font-size: 12px !important;
+}
+
+/* ✅ Mantén tu HUD móvil como lo tenías (arriba-dcha).
+   Si TAMBIÉN lo quieres arriba-izda en móvil, dime y lo cambiamos. */
+@media (max-width: 520px){
+  .racegame__ui{
+    left: auto !important;
+    right: 10px !important;
+    top: 10px !important;
+    max-width: min(320px, 86vw) !important;
+  }
+}
+
