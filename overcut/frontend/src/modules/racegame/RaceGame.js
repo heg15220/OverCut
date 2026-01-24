@@ -464,6 +464,15 @@ const RaceGame = () => {
   lightsCount: 5,
   goFlash: 0,
   startRandHold: 0,
+  grid: {
+  startS: 0.03,
+  halfWidth: 18,
+  rowSpacingS: 0.0105,
+  staggerS: 0.0048, // ✅ “escalonado” entre izquierda/derecha
+    // ✅ control visibilidad parrilla
+  visible: true,
+  hideAfterProgressS: 0.16, // 0.12–0.20 aprox (ajústalo a gusto)
+}
 });
 
 
@@ -736,6 +745,9 @@ const RaceGame = () => {
   const resetRace = (explicitTrackId = null) => {
     const st = stateRef.current;
 
+    st.grid.visible = true;
+
+
     // --- estado carrera ---
     st.totalLaps = laps;
     st.raceOver = false;
@@ -757,30 +769,33 @@ const RaceGame = () => {
     const cars = [];
 
     // punto de salida un pelín después de meta para evitar cross frame 1
-    const startS = 0.03;
+    const g = st.grid;
+    const startS = g.startS;
 
     const start = sampleTrack(startS);
     const start2 = sampleTrack(startS + 0.01);
     const baseAng = start2.ang;
 
-    // normal del sentido de la pista
     const dirNx = -Math.sin(baseAng);
     const dirNy = Math.cos(baseAng);
 
-    // ✅ GRID PARALELO (2 columnas)
-    const gridHalfWidth = 18;     // separación lateral izquierda/derecha
-    const rowSpacingS = 0.0105;   // separación entre filas hacia atrás (en s)
+    const gridHalfWidth = g.halfWidth;
+    const rowSpacingS = g.rowSpacingS;
+    const staggerS = g.staggerS;
 
-    const placeCarOnGrid = (car, rowIdx, sideSign /* -1 izq, +1 der */) => {
-  const s = wrap01(startS - rowIdx * rowSpacingS);
+
+  const placeCarOnGrid = (car, rowIdx, sideSign /* -1 izq, +1 der */) => {
+  // ✅ stagger: una columna un poquito más adelantada (como F1 real)
+  const stagger = sideSign > 0 ? 0 : -staggerS;
+
+  const s = wrap01(startS - rowIdx * rowSpacingS + stagger);
   const sp = sampleTrack(s);
 
-  // lateral: dos columnas
   const lateral = sideSign * gridHalfWidth;
 
   car.x = sp.x + dirNx * lateral;
   car.y = sp.y + dirNy * lateral;
-  car.a = baseAng;
+  car.a = sp.ang; // ✅ orienta según el heading local de ese punto
 
   car.s = s;
   car.lap = 1;
@@ -789,52 +804,69 @@ const RaceGame = () => {
   car.vy = 0;
   car.speed = 0;
 
-  // grace para no contar meta en el primer segundo
   car.spawnGrace = 1.0;
 
-  // ✅ reset memoria IA
+  // ✅ guarda info de parrilla (para dibujar cajón exacto)
+  car.grid = {
+    rowIdx,
+    sideSign,
+    s,
+    lateral,
+  };
+
   if (car.ai) {
     car.ai.t = 0;
     car.ai.decisionCd = 0;
     car.ai.cached = { throttle: 0, brake: 0, steer: 0 };
     car.ai.lineOffset = 0;
     car.ai.prevErr = 0;
-    // noiseSeed se mantiene para que “personalidad” no cambie cada frame,
-    // pero puedes resetearlo si quieres: car.ai.noiseSeed = Math.random()*9999;
   }
 };
 
 
-    // --- player (fila 0, columna izquierda por defecto)
-    const player = makeCar({
-      name: "YOU",
-      isPlayer: true,
-      color: COLORS[0],
-      maxSpeed: 470,
-      accel: 600,
-      grip: 8.6,
-      turnRate: 3.0,
-      drag: 1.55,
-      radius: 18,
-      mass: 1.05,
-    });
 
-    placeCarOnGrid(player, 0, -1);
-    cars.push(player);
+    // ===============================
+// ✅ Parrilla: 6 posiciones posibles (3 filas x 2 columnas)
+// ===============================
+const gridSlots = [
+  { rowIdx: 0, sideSign: -1 },
+  { rowIdx: 0, sideSign: +1 },
+  { rowIdx: 1, sideSign: -1 },
+  { rowIdx: 1, sideSign: +1 },
+  { rowIdx: 2, sideSign: -1 },
+  { rowIdx: 2, sideSign: +1 },
+];
 
-    // --- AIs (rellenamos 2 columnas por filas)
-    // fila 0 (derecha) + filas siguientes
-    // --- AIs (rellenamos 2 columnas por filas)
-// fila 0 (derecha) + filas siguientes
-for (let i = 1; i <= 5; i++) {
+// elige una posición aleatoria para el jugador
+const playerSlotIndex = Math.floor(Math.random() * gridSlots.length);
+
+// --- player
+const player = makeCar({
+  name: "YOU",
+  isPlayer: true,
+  color: COLORS[0],
+  maxSpeed: 470,
+  accel: 600,
+  grip: 8.6,
+  turnRate: 3.0,
+  drag: 1.55,
+  radius: 18,
+  mass: 1.05,
+});
+
+placeCarOnGrid(player, gridSlots[playerSlotIndex].rowIdx, gridSlots[playerSlotIndex].sideSign);
+cars.push(player);
+
+// --- AIs: rellenamos el resto de slots (sin tocar el del player)
+let aiNum = 1;
+
+for (let slotIndex = 0; slotIndex < gridSlots.length; slotIndex++) {
+  if (slotIndex === playerSlotIndex) continue;
+
   const mode = stateRef.current.aiMode || "easy";
 
-  const base = {
-    radius: 17,
-    mass: 0.95,
-  };
+  const base = { radius: 17, mass: 0.95 };
 
-  // IA fácil: más lenta + menos agarre + más drag (frena/penaliza más)
   const easyTuning = {
     maxSpeed: 380 + (Math.random() * 25 - 12),
     accel: 460 + (Math.random() * 50 - 25),
@@ -843,35 +875,30 @@ for (let i = 1; i <= 5; i++) {
     drag: 1.75 + Math.random() * 0.25,
   };
 
-  // IA difícil: más competente (sin “cheat”, solo mejores límites)
   const hardTuning = {
-  // ✅ más punta real en recta
-  maxSpeed: 485 + (Math.random() * 30 - 10),   // ~475..505
-  accel: 640 + (Math.random() * 70 - 20),      // acelera antes a Vmax
-  // ✅ algo más estable a alta velocidad
-  grip: 7.9 + Math.random() * 0.9,
-  turnRate: 2.95 + Math.random() * 0.40,
-  // ✅ menos drag => mantiene Vmax mejor (clave en rectas)
-  drag: 1.28 + Math.random() * 0.15,
-};
-
+    maxSpeed: 485 + (Math.random() * 30 - 10),
+    accel: 640 + (Math.random() * 70 - 20),
+    grip: 7.9 + Math.random() * 0.9,
+    turnRate: 2.95 + Math.random() * 0.40,
+    drag: 1.28 + Math.random() * 0.15,
+  };
 
   const tune = mode === "hard" ? hardTuning : easyTuning;
 
   const ai = makeCar({
-    name: "AI-" + i,
-    color: COLORS[i % COLORS.length],
+    name: "AI-" + aiNum,
+    color: COLORS[(aiNum) % COLORS.length],
     ...base,
     ...tune,
   });
 
-  const pairIndex = i; // 1..5
-  const rowIdx = Math.floor(pairIndex / 2); // 0,0,1,1,2...
-  const sideSign = pairIndex % 2 === 1 ? +1 : -1; // 1->derecha,2->izq,3->der...
-
+  const { rowIdx, sideSign } = gridSlots[slotIndex];
   placeCarOnGrid(ai, rowIdx, sideSign);
   cars.push(ai);
+
+  aiNum++;
 }
+
 
 
     carsRef.current = cars;
@@ -1422,6 +1449,90 @@ steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
     }
   };
 
+
+  function drawGridBoxes(ctx) {
+  const track = trackRef.current;
+  const st = stateRef.current;
+
+  if (!st.grid?.visible) return; // ✅ aquí
+
+  const cars = carsRef.current;
+
+  // Solo dibujamos parrilla antes de salir (y un pelín tras GO si quieres)
+  if (!st.running || st.raceOver) return;
+
+  // Si no están los grid datos aún, no pintes
+  if (!cars?.length || !cars[0]?.grid) return;
+
+  // estilo F1
+  const boxLen = 54;        // largo cajón
+  const boxW = 22;          // ancho cajón
+  const lineW = 2;
+
+  ctx.save();
+  ctx.lineWidth = lineW;
+
+  for (const car of cars) {
+    if (!car.grid) continue;
+
+    const sp = sampleTrack(car.grid.s);
+
+    // heading local
+    const ang = sp.ang;
+    const fx = Math.cos(ang);
+    const fy = Math.sin(ang);
+    const nx = -Math.sin(ang);
+    const ny = Math.cos(ang);
+
+    // centro del slot (igual que al posicionar el coche)
+    const cx = sp.x + nx * car.grid.lateral;
+    const cy = sp.y + ny * car.grid.lateral;
+
+    // rectángulo orientado
+    // (cx,cy) centro; eje forward = (fx,fy), normal = (nx,ny)
+    const hx = fx * (boxLen * 0.5);
+    const hy = fy * (boxLen * 0.5);
+    const wx = nx * (boxW * 0.5);
+    const wy = ny * (boxW * 0.5);
+
+    // puntos del rect
+    const p1 = [cx - hx - wx, cy - hy - wy];
+    const p2 = [cx + hx - wx, cy + hy - wy];
+    const p3 = [cx + hx + wx, cy + hy + wy];
+    const p4 = [cx - hx + wx, cy - hy + wy];
+
+    // caja exterior
+    ctx.strokeStyle = "rgba(255,255,255,0.55)";
+    ctx.beginPath();
+    ctx.moveTo(p1[0], p1[1]);
+    ctx.lineTo(p2[0], p2[1]);
+    ctx.lineTo(p3[0], p3[1]);
+    ctx.lineTo(p4[0], p4[1]);
+    ctx.closePath();
+    ctx.stroke();
+
+    // “línea frontal” más marcada (la que toca el morro)
+    ctx.strokeStyle = "rgba(255,255,255,0.85)";
+    ctx.beginPath();
+    ctx.moveTo(p2[0], p2[1]);
+    ctx.lineTo(p3[0], p3[1]);
+    ctx.stroke();
+
+    // sombreado interior sutil (asfalto “marcado”)
+    ctx.fillStyle = "rgba(255,255,255,0.035)";
+    ctx.beginPath();
+    ctx.moveTo(p1[0], p1[1]);
+    ctx.lineTo(p2[0], p2[1]);
+    ctx.lineTo(p3[0], p3[1]);
+    ctx.lineTo(p4[0], p4[1]);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+
   const drawTrackNearPlayer = (ctx, sCenter) => {
     const track = trackRef.current;
     const n = track.points.length;
@@ -1717,6 +1828,20 @@ const drawStartLights = (ctx) => {
     const ranking = computeRanking();
     const you = carsRef.current.find((c) => c.isPlayer);
 
+    // ✅ Ocultar parrilla tras primeras curvas (vuelta 1)
+    if (you && st.grid?.visible && st.startPhase === "go") {
+      // progreso desde la línea de salida en [0..1)
+      const prog = wrap01(you.s - st.grid.startS);
+
+      // si ya estás en vuelta 2, fuera
+      if (you.lap > 1) {
+        st.grid.visible = false;
+      } else if (prog > st.grid.hideAfterProgressS) {
+        st.grid.visible = false;
+      }
+    }
+
+
     // ---------------- CÁMARA ----------------
     if (you) {
       const look = 180;
@@ -1732,17 +1857,21 @@ const drawStartLights = (ctx) => {
 
     drawBackground(ctx, cameraRef.current);
 
-    const cam = cameraRef.current;
+    const cam = cameraRef.current;  
     ctx.save();
     ctx.translate(window.innerWidth * 0.5 - cam.x, window.innerHeight * 0.62 - cam.y);
 
     drawDecorationsNearCamera(ctx, cam);
     drawTrackNearPlayer(ctx, you?.s ?? 0);
 
+    // ✅ PARRILLA (encima del asfalto, debajo de coches)
+    drawGridBoxes(ctx);
+
     carsRef.current
       .slice()
       .sort((a, b) => a.y - b.y)
       .forEach((c) => drawF1Car(ctx, c));
+
 
     ctx.restore();
 
