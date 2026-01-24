@@ -24,6 +24,26 @@ from generate_drivers_connections import (
     get_decade_categories,
 )
 
+
+DRIVER_POOL = []
+
+def load_driver_pool():
+    """
+    Pool de pilotos para rellenos (evita ORDER BY RAND()).
+    """
+    global DRIVER_POOL
+    with engine.connect() as conn:
+        rows = conn.execute(text("""
+            SELECT d.driverId, CONCAT(d.forename,' ', d.surname)
+            FROM drivers d
+            WHERE d.driverId IS NOT NULL
+        """)).fetchall()
+
+    DRIVER_POOL = [{"driverId": r[0], "driverName": r[1]} for r in rows]
+    random.shuffle(DRIVER_POOL)
+    print("[startup] Bingo DRIVER_POOL:", len(DRIVER_POOL))
+
+
 # ----------------------------
 # Helpers
 # ----------------------------
@@ -308,9 +328,6 @@ def build_9_bingo_cells(lang: str, conn):
 
 
 def pick_extra_cell(lang: str, conn, used_codes: set):
-    """
-    Devuelve 1 categoría extra aleatoria (no repetida)
-    """
     used_team_names = set()
     used_countries = set()
     used_circuits = set()
@@ -323,7 +340,6 @@ def pick_extra_cell(lang: str, conn, used_codes: set):
         lambda: build_country_cell(conn, used_codes, used_countries, lang),
         lambda: build_circuit_cell(conn, used_codes, used_circuits, lang),
         lambda: build_teammates_cell(conn, used_codes, lang),
-        # década extra
         lambda: next(
             ({**d, "image": None} for d in decade_pool if d["code"] not in used_codes),
             None
@@ -332,15 +348,9 @@ def pick_extra_cell(lang: str, conn, used_codes: set):
 
     for _ in range(80):
         cell = random.choice(builders)()
-        if not cell:
-            continue
-        if cell["code"] in used_codes:
-            # build_* ya suele añadir a used_codes, pero por si acaso
-            continue
-        used_codes.add(cell["code"])
-        return cell
+        if cell:
+            return cell
 
-    # fallback final (muy raro)
     return {
         "code": "race_winners",
         "description": translate("race_winners", lang),
@@ -420,15 +430,17 @@ def generate_bingo_game(lang: str = "es"):
         drivers_queue = union_list[:60]
 
         # fallback si faltan
+        # fallback si faltan
         if len(drivers_queue) < 60:
             missing = 60 - len(drivers_queue)
-            fillers = conn.execute(text("""
-                SELECT d.driverId, CONCAT(d.forename,' ', d.surname)
-                FROM drivers d
-                ORDER BY RAND()
-                LIMIT :lim
-            """), {"lim": missing}).fetchall()
-            drivers_queue += [{"driverId": r[0], "driverName": r[1]} for r in fillers]
+
+            # ✅ usa pool precargado
+            if len(DRIVER_POOL) >= missing:
+                drivers_queue += random.sample(DRIVER_POOL, missing)
+            else:
+                # ultra-fallback: por si el pool está vacío (no debería)
+                drivers_queue += union_list[:missing]
+
 
         return {
             "cells": enriched_cells[:9],

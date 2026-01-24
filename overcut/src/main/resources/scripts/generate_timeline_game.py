@@ -3,6 +3,19 @@ import random
 from sqlalchemy import text
 from generate_order_drivers import engine
 
+# Pools precargados (tuplas)
+WINNER_POOL = []         # (driverId, name)
+PODIUM_POOL = []         # (driverId, name)
+POLE_POOL = []           # (driverId, name)
+CHAMPION_POOL = []       # (driverId, name)
+RACEDRIVER_POOL_20 = []  # (driverId, name)
+RACEDRIVER_POOL_30 = []  # (driverId, name)
+
+TEAM_WIN_POOL_3 = []     # (constructorId, name)
+TEAM_WIN_POOL_5 = []     # (constructorId, name)
+TEAM_CHAMP_POOL = []     # (constructorId, name)
+
+
 TRANSLATIONS = {
     "first_win": {"es": "Primera victoria de {name}", "en": "{name}'s first win"},
     "last_win": {"es": "Última victoria de {name}", "en": "{name}'s last win"},
@@ -23,105 +36,131 @@ TRANSLATIONS = {
         "last_team_double":  {"es": "Último doblete (1º-2º) de {team}", "en": "{team}'s latest 1–2 finish"},  # ✅ NUEVO
 }
 
+def load_timeline_pools():
+    global WINNER_POOL, PODIUM_POOL, POLE_POOL, CHAMPION_POOL
+    global RACEDRIVER_POOL_20, RACEDRIVER_POOL_30
+    global TEAM_WIN_POOL_3, TEAM_WIN_POOL_5, TEAM_CHAMP_POOL
+
+    with engine.connect() as conn:
+        WINNER_POOL = conn.execute(text("""
+            SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
+            FROM drivers d
+            JOIN results r ON r.driverId = d.driverId
+            WHERE r.positionOrder = 1
+            GROUP BY d.driverId
+            HAVING COUNT(*) >= 2
+        """)).fetchall()
+
+        PODIUM_POOL = conn.execute(text("""
+            SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
+            FROM drivers d
+            JOIN results r ON r.driverId = d.driverId
+            WHERE r.positionOrder BETWEEN 1 AND 3
+            GROUP BY d.driverId
+            HAVING COUNT(*) >= 3
+        """)).fetchall()
+
+        POLE_POOL = conn.execute(text("""
+            SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
+            FROM drivers d
+            JOIN qualifying q ON q.driverId = d.driverId
+            WHERE q.position = 1
+            GROUP BY d.driverId
+            HAVING COUNT(*) >= 2
+        """)).fetchall()
+
+        # Pilotos con >=20 / >=30 carreras (evitas ORDER BY RAND)
+        RACEDRIVER_POOL_20 = conn.execute(text("""
+            SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
+            FROM drivers d
+            JOIN results r ON r.driverId = d.driverId
+            GROUP BY d.driverId
+            HAVING COUNT(*) >= 20
+        """)).fetchall()
+
+        RACEDRIVER_POOL_30 = conn.execute(text("""
+            SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
+            FROM drivers d
+            JOIN results r ON r.driverId = d.driverId
+            GROUP BY d.driverId
+            HAVING COUNT(*) >= 30
+        """)).fetchall()
+
+        # Campeones (WDC al final de temporada)
+        CHAMPION_POOL = conn.execute(text("""
+            SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
+            FROM drivers d
+            JOIN driverStandings ds ON ds.driverId = d.driverId
+            JOIN races r ON r.raceId = ds.raceId
+            WHERE ds.position = 1
+              AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+            GROUP BY d.driverId
+        """)).fetchall()
+
+        TEAM_WIN_POOL_3 = conn.execute(text("""
+            SELECT c.constructorId, c.name
+            FROM constructors c
+            JOIN results r ON r.constructorId = c.constructorId
+            WHERE r.positionOrder = 1
+            GROUP BY c.constructorId
+            HAVING COUNT(*) >= 3
+        """)).fetchall()
+
+        TEAM_WIN_POOL_5 = conn.execute(text("""
+            SELECT c.constructorId, c.name
+            FROM constructors c
+            JOIN results r ON r.constructorId = c.constructorId
+            WHERE r.positionOrder = 1
+            GROUP BY c.constructorId
+            HAVING COUNT(*) >= 5
+        """)).fetchall()
+
+        TEAM_CHAMP_POOL = conn.execute(text("""
+            SELECT c.constructorId, c.name
+            FROM constructors c
+            JOIN constructorStandings cs ON cs.constructorId = c.constructorId
+            JOIN races r ON r.raceId = cs.raceId
+            WHERE cs.position = 1
+              AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
+            GROUP BY c.constructorId
+        """)).fetchall()
+
+    print("[startup] Timeline pools:",
+          len(WINNER_POOL), len(PODIUM_POOL), len(POLE_POOL),
+          len(CHAMPION_POOL), len(TEAM_WIN_POOL_3), len(TEAM_WIN_POOL_5), len(TEAM_CHAMP_POOL))
+
 # -------------------------
 # Pickers (para variedad)
 # -------------------------
+def _pick_random_winner(_conn):
+    d_id, name = random.choice(WINNER_POOL)
+    return d_id, name
 
-def _pick_random_winner(conn):
-    row = conn.execute(text("""
-        SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
-        FROM drivers d
-        JOIN results r ON r.driverId = d.driverId
-        WHERE r.positionOrder = 1
-        GROUP BY d.driverId
-        HAVING COUNT(*) >= 2
-        ORDER BY RAND()
-        LIMIT 1
-    """)).fetchone()
-    return row[0], row[1]
+def _pick_random_podium_driver(_conn):
+    d_id, name = random.choice(PODIUM_POOL)
+    return d_id, name
 
-def _pick_random_podium_driver(conn):
-    row = conn.execute(text("""
-        SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
-        FROM drivers d
-        JOIN results r ON r.driverId = d.driverId
-        WHERE r.positionOrder BETWEEN 1 AND 3
-        GROUP BY d.driverId
-        HAVING COUNT(*) >= 3
-        ORDER BY RAND()
-        LIMIT 1
-    """)).fetchone()
-    return row[0], row[1]
+def _pick_random_driver_with_races(_conn, min_races=30):
+    pool = RACEDRIVER_POOL_30 if min_races >= 30 else RACEDRIVER_POOL_20
+    d_id, name = random.choice(pool)
+    return d_id, name
 
-def _pick_random_driver_with_races(conn, min_races=30):
-    row = conn.execute(text("""
-        SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
-        FROM drivers d
-        JOIN results r ON r.driverId = d.driverId
-        GROUP BY d.driverId
-        HAVING COUNT(*) >= :minRaces
-        ORDER BY RAND()
-        LIMIT 1
-    """), {"minRaces": min_races}).fetchone()
-    return row[0], row[1]
+def _pick_random_pole_driver(_conn):
+    d_id, name = random.choice(POLE_POOL)
+    return d_id, name
 
-def _pick_random_pole_driver(conn):
-    # qualifying.position = 1 (tu schema tipo ergast suele ser así)
-    row = conn.execute(text("""
-        SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
-        FROM drivers d
-        JOIN qualifying q ON q.driverId = d.driverId
-        WHERE q.position = 1
-        GROUP BY d.driverId
-        HAVING COUNT(*) >= 2
-        ORDER BY RAND()
-        LIMIT 1
-    """)).fetchone()
-    return row[0], row[1]
+def _pick_random_champion(_conn):
+    d_id, name = random.choice(CHAMPION_POOL)
+    return d_id, name
 
-def _pick_random_champion(conn):
-    row = conn.execute(text("""
-        SELECT d.driverId, CONCAT(d.forename,' ',d.surname) AS name
-        FROM drivers d
-        JOIN driverStandings ds ON ds.driverId = d.driverId
-        JOIN races r ON r.raceId = ds.raceId
-        WHERE ds.position = 1
-          AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
-        GROUP BY d.driverId
-        HAVING COUNT(*) >= 1
-        ORDER BY RAND()
-        LIMIT 1
-    """)).fetchone()
-    return row[0], row[1]
+def _pick_random_constructor_with_wins(_conn, min_wins=3):
+    pool = TEAM_WIN_POOL_5 if min_wins >= 5 else TEAM_WIN_POOL_3
+    c_id, name = random.choice(pool)
+    return c_id, name
 
-def _pick_random_constructor_with_wins(conn, min_wins=3):
-    row = conn.execute(text("""
-        SELECT c.constructorId, c.name
-        FROM constructors c
-        JOIN results r ON r.constructorId = c.constructorId
-        WHERE r.positionOrder = 1
-        GROUP BY c.constructorId
-        HAVING COUNT(*) >= :minWins
-        ORDER BY RAND()
-        LIMIT 1
-    """), {"minWins": min_wins}).fetchone()
-    return row[0], row[1]
-
-def _pick_random_constructor_champion(conn):
-    # campeón de constructores al final de temporada
-    row = conn.execute(text("""
-        SELECT c.constructorId, c.name
-        FROM constructors c
-        JOIN constructorStandings cs ON cs.constructorId = c.constructorId
-        JOIN races r ON r.raceId = cs.raceId
-        WHERE cs.position = 1
-          AND r.round = (SELECT MAX(r2.round) FROM races r2 WHERE r2.year = r.year)
-        GROUP BY c.constructorId
-        HAVING COUNT(*) >= 1
-        ORDER BY RAND()
-        LIMIT 1
-    """)).fetchone()
-    return row[0], row[1]
+def _pick_random_constructor_champion(_conn):
+    c_id, name = random.choice(TEAM_CHAMP_POOL)
+    return c_id, name
 
 # -------------------------
 # Event builders
