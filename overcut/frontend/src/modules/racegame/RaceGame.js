@@ -534,6 +534,9 @@ const RaceGame = () => {
 
       backToSetup: lang === "es" ? "⚙ Setup" : "⚙ Setup",
       resume: lang === "es" ? "Continuar" : "Resume",
+      medium: "Medio",
+      mediumDesc: "Equilibrada: más rápida que Fácil, pero con margen y algo de prudencia.",
+
 
     };
     const en = {
@@ -563,6 +566,9 @@ const RaceGame = () => {
       easyDesc: "Slower, makes small mistakes and brakes earlier.",
       hardDesc: "Faster, ideal line and max speed on straights.",
       setupTip: "A random track is selected every race.",
+      medium: "Medium",
+      mediumDesc: "Balanced: faster than Easy, but still leaves some margin and plays safer.",
+
       
     };
     return lang === "es" ? es : en;
@@ -917,7 +923,20 @@ for (let slotIndex = 0; slotIndex < gridSlots.length; slotIndex++) {
     drag: 1.28 + Math.random() * 0.15,
   };
 
-  const tune = mode === "hard" ? hardTuning : easyTuning;
+  const mediumTuning = {
+  // entre easy y hard (sin tocar hardTuning)
+  maxSpeed: 430 + (Math.random() * 26 - 13),
+  accel: 545 + (Math.random() * 60 - 30),
+  grip: 7.25 + Math.random() * 0.75,
+  turnRate: 2.65 + Math.random() * 0.35,
+  drag: 1.52 + Math.random() * 0.18,
+};
+
+const tune =
+  mode === "hard" ? hardTuning :
+  mode === "medium" ? mediumTuning :
+  easyTuning;
+
 
   const ai = makeCar({
     name: "AI-" + aiNum,
@@ -1054,7 +1073,8 @@ for (let slotIndex = 0; slotIndex < gridSlots.length; slotIndex++) {
 
     // ---------- reacción: easy recalcula cada X ms ----------
     const easyDecisionPeriod = 0.11;
-    const hardDecisionPeriod = 0.0;
+    const mediumDecisionPeriod = 0.04;
+    const hardDecisionPeriod = 0.0;;
 
     if (car.ai && car.ai.decisionCd > 0) {
       car.ai.decisionCd -= dt;
@@ -1064,16 +1084,34 @@ for (let slotIndex = 0; slotIndex < gridSlots.length; slotIndex++) {
       brake = car.ai.cached.brake;
       steer = car.ai.cached.steer;
     } else {
-      if (car.ai) car.ai.decisionCd = mode === "easy" ? easyDecisionPeriod : hardDecisionPeriod;
+      
+        if (car.ai) {
+          car.ai.decisionCd =
+            mode === "hard" ? hardDecisionPeriod :
+            mode === "medium" ? mediumDecisionPeriod :
+            easyDecisionPeriod;
+        }
 
       // ---------- target + curvatura ----------
       const curv = estimateCurvatureAt(sampleTrack, car.s);
 
       // lookahead: más velocidad -> más lejos; más curvatura -> menos lejos
       const v01 = clamp(car.speed / car.maxSpeed, 0, 1);
-      const baseLook = mode === "hard" ? 0.020 : 0.016;
-      const speedLook = mode === "hard" ? 0.052 : 0.040;
-      const curveCut = mode === "hard" ? 0.030 : 0.040;
+      const baseLook =
+        mode === "hard" ? 0.020 :
+        mode === "medium" ? 0.018 :
+        0.016;
+
+      const speedLook =
+        mode === "hard" ? 0.052 :
+        mode === "medium" ? 0.046 :
+        0.040;
+
+      const curveCut =
+        mode === "hard" ? 0.030 :
+        mode === "medium" ? 0.035 :
+        0.040;
+
 
       let lookAhead =
         baseLook +
@@ -1101,8 +1139,15 @@ for (let slotIndex = 0; slotIndex < gridSlots.length; slotIndex++) {
           const side = Math.sign((ahead.y - car.y) * fwdx - (ahead.x - car.x) * fwdy) || 1;
           desiredOffset = 0.28 * side; // pequeño offset, no racing line agresiva
         }
+      } else if (mode === "medium") {
+        // ✅ MEDIUM: centro casi siempre, abre menos y más tarde que easy
+        desiredOffset = 0;
+        if (ahead && aheadDist < 125) {
+          const side = Math.sign((ahead.y - car.y) * fwdx - (ahead.x - car.x) * fwdy) || 1;
+          desiredOffset = 0.18 * side;
+        }
       } else {
-        // easy: casi siempre centro, y si hay tráfico solo se "abre" un poco
+        // easy
         if (ahead && aheadDist < 140) desiredOffset = 0.25;
         else desiredOffset = 0;
       }
@@ -1124,12 +1169,26 @@ const cNow = closestOnTrack(car.x, car.y);
 const sBase = cNow.s;
 
 // lookahead SOLO para dirección (más corto que el de velocidad)
-const steerBaseLook = mode === "hard" ? 0.010 : 0.012;
-const steerSpeedLook = mode === "hard" ? 0.020 : 0.018;
+const steerBaseLook =
+  mode === "hard" ? 0.010 :
+  mode === "medium" ? 0.011 :
+  0.012;
+
+const steerSpeedLook =
+  mode === "hard" ? 0.020 :
+  mode === "medium" ? 0.019 :
+  0.018;
 
 // en recta mira poco; si vas rápido puede mirar algo más, pero sin pasarse
 let lookSteer = steerBaseLook + v01 * steerSpeedLook;
-lookSteer = clamp(lookSteer, 0.008, mode === "hard" ? 0.030 : 0.040);
+
+lookSteer = clamp(
+  lookSteer,
+  0.008,
+  mode === "hard" ? 0.030 :
+  mode === "medium" ? 0.034 :
+  0.040
+);
 
 const sp0 = sampleTrack(sBase);
 const sp1 = sampleTrack(wrap01(sBase + lookSteer));
@@ -1139,7 +1198,16 @@ const upcoming = Math.abs(signedAngleDiff(sp0.ang, sp1.ang));
 
 // mezcla: en recta (upcoming pequeño) casi todo sp0.ang -> NO gira antes
 // en curva (upcoming grande) va metiendo sp1.ang progresivamente
-const w = clamp(upcoming * (mode === "hard" ? 2.8 : 2.2), 0, 1) * clamp(v01 * 1.15, 0, 1);
+const w = clamp(
+  upcoming * (
+    mode === "hard" ? 2.8 :
+    mode === "medium" ? 2.45 :
+    2.2
+  ),
+  0,
+  1
+) * clamp(v01 * 1.15, 0, 1);
+
 const desiredAng = angNorm(sp0.ang + signedAngleDiff(sp0.ang, sp1.ang) * w);
 
 // error de heading
@@ -1158,12 +1226,25 @@ const prevErr = car.ai ? (car.ai.prevErr ?? err) : err;
 const derr = (err - prevErr) / Math.max(1e-3, dt);
 if (car.ai) car.ai.prevErr = err;
 
-// gains
-const kp = mode === "hard" ? 1.35 : 1.20;
-const kd = mode === "hard" ? 0.05 : 0.02;
 
+// gains
+const kp =
+  mode === "hard" ? 1.35 :
+  mode === "medium" ? 1.28 :
+  1.20;
+
+const kd =
+  mode === "hard" ? 0.05 :
+  mode === "medium" ? 0.035 :
+  0.02;
+
+  
 // corrección lateral (clave para que vaya por el centro sin “apuntar antes”)
-const kLat = mode === "hard" ? 0.85 : 0.55;
+const kLat =
+  mode === "hard" ? 0.85 :
+  mode === "medium" ? 0.70 :
+  0.55;
+
 
 // steering final
 steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
@@ -1196,7 +1277,30 @@ steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
         if (vRel > 0.78 && absErr < 0.45) {
           targetSpeed = Math.max(targetSpeed, car.maxSpeed * 0.90);
         }
-      }else {
+      }else if (mode === "medium" && trackPlanRef.current?.vTarget) {
+        // ✅ MEDIUM: usa el mismo plan, pero con más margen (sin tocar hard)
+        const plan = trackPlanRef.current;
+        const idx = Math.floor(wrap01(car.s) * plan.N);
+        const vRel = plan.vTarget[idx];
+
+        // baja un poco el techo respecto al plan del hard
+        targetSpeed = car.maxSpeed * (0.92 * vRel + 0.03);
+
+        const absErr = Math.abs(err);
+        const dead = 0.14; // menos "deadzone" que hard => penaliza antes
+        const effectiveErr = Math.max(0, absErr - dead);
+
+        const turnPenalty = clamp(effectiveErr / 0.95, 0, 1);
+        targetSpeed *= (1 - 0.32 * turnPenalty);
+
+        targetSpeed = Math.max(targetSpeed, car.maxSpeed * 0.20);
+
+        // curvas rápidas: permite alto, pero no tanto como hard
+        if (vRel > 0.78 && absErr < 0.45) {
+          targetSpeed = Math.max(targetSpeed, car.maxSpeed * 0.84);
+        }
+
+      } else {
         // EASY (tu lógica original)
         const turnPenalty = clamp(Math.abs(err) / 1.25, 0, 1);
         const curvePenalty = clamp(curv * 0.030, 0, 1);
@@ -1225,19 +1329,28 @@ steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
       }
 
       // ---------- throttle/brake ----------
-      const margin = mode === "hard" ? 10 : 24;
+      const margin =
+        mode === "hard" ? 10 :
+        mode === "medium" ? 16 :
+        24;
 
       if (car.speed < targetSpeed - margin) {
         throttle = 1;
         brake = 0;
       } else if (car.speed > targetSpeed + margin) {
         throttle = 0;
-        brake = mode === "hard" ? 0.55 : 0.78;
+        brake =
+          mode === "hard" ? 0.55 :
+          mode === "medium" ? 0.66 :
+          0.78;
       } else {
-        // ✅ hard mantiene gas para llegar/clavar Vmax en recta
-        throttle = mode === "hard" ? 0.55 : 0.35;
+        throttle =
+          mode === "hard" ? 0.55 :
+          mode === "medium" ? 0.45 :
+          0.35;
         brake = 0;
       }
+
 
 
       // easy: más educada para no embestir
@@ -1711,11 +1824,6 @@ steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
     ctx.font = "13px system-ui, sans-serif";
     ctx.fillText(translations.standings, x + 12, y + 19);
 
-    // track label
-    ctx.fillStyle = "rgba(231, 238, 247, 0.72)";
-    ctx.font = "12px system-ui, sans-serif";
-    ctx.fillText(`${translations.track}: ${trackLabel}`, x + 12, y + 38);
-
     const st = stateRef.current;
 
     ctx.font = "12px system-ui, sans-serif";
@@ -2185,6 +2293,23 @@ if (showSetup) {
               </div>
               <div className="racegame__choiceDesc">{translations.easyDesc}</div>
             </button>
+
+            <button
+            type="button"
+            className={`racegame__choiceCard racegame__choiceCard--ai ${
+              aiMode === "medium" ? "isActive" : ""
+            }`}
+            onClick={() => setAiMode("medium")}
+          >
+            <div className="racegame__choiceHeader">
+              <div className="racegame__choiceTag">{translations.medium}</div>
+              <div className="racegame__choicePill">
+                {aiMode === "medium" ? "✓" : ""}
+              </div>
+            </div>
+            <div className="racegame__choiceDesc">{translations.mediumDesc}</div>
+          </button>
+
 
             <button
               type="button"
