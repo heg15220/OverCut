@@ -307,7 +307,13 @@ const RaceGame = () => {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
   const lastRef = useRef(performance.now());
+
+  const containerRef = useRef(null);
+
   const keysRef = useRef(new Set());
+
+  const [leaderboard, setLeaderboard] = useState([]);
+
 
   const [hud, setHud] = useState({
   pos: 1,
@@ -1378,6 +1384,23 @@ steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
     car.speed -= car.drag * car.speed * dt;
     car.speed = clamp(car.speed, 0, car.maxSpeed);
 
+    // ✅ Penalización móvil: el jugador pierde algo de punta SOLO cerca del máximo
+    if (car.isPlayer && isMobileRef.current) {
+      const cap = car.maxSpeed * 0.92;      // tope efectivo (8% menos)
+      const softenFrom = car.maxSpeed * 0.86; // desde aquí empieza a “costar” llegar a punta
+
+      if (car.speed > softenFrom) {
+        // comprime la parte final (mantiene sensación de acelerar, pero recorta la punta)
+        const t = (car.speed - softenFrom) / Math.max(1e-6, (car.maxSpeed - softenFrom));
+        const compressed = softenFrom + (cap - softenFrom) * (1 - Math.pow(1 - clamp(t, 0, 1), 1.8));
+        car.speed = Math.min(car.speed, compressed);
+      }
+
+      // seguridad extra: nunca pasa el cap
+      car.speed = Math.min(car.speed, cap);
+    }
+
+
     const speed01 = car.speed / car.maxSpeed;
     const steerEffect = car.turnRate * (0.55 + 0.45 * (1 - speed01));
     car.a += steer * steerEffect * dt;
@@ -1516,6 +1539,18 @@ steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
   // ---------------------- canvas / render ----------------------
   const viewRef = useRef({ w: 0, h: 0 });
 
+  // ✅ Mobile detection (móvil/tablet touch)
+const isMobileRef = useRef(false);
+
+const computeIsMobile = () => {
+  // max-width + pointer coarse (touch)
+  return (
+    window.matchMedia("(max-width: 520px)").matches ||
+    window.matchMedia("(pointer: coarse)").matches
+  );
+};
+
+
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -1530,6 +1565,8 @@ steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
 
     const ctx = canvas.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    isMobileRef.current = computeIsMobile();
 
     viewRef.current = { w, h };
   };
@@ -2017,7 +2054,26 @@ const drawStartLights = (ctx) => {
 
     ctx.restore();
 
-    drawLeaderboardOverlay(ctx, ranking);
+    const isMobile = isMobileRef.current;
+
+    // ✅ Desktop: leaderboard en canvas
+    if (!isMobile) {
+      drawLeaderboardOverlay(ctx, ranking);
+    } else {
+      // ✅ Mobile: leaderboard en DOM (actualiza de forma ligera)
+      if (now % 6 < 1) {
+        setLeaderboard(
+          ranking.map((c) => ({
+            name: c.name,
+            color: c.color,
+            finished: c.finished,
+            lap: c.lap,
+            isPlayer: c.isPlayer,
+          }))
+        );
+      }
+    }
+
 
     // 🚦 dibuja semáforo SIEMPRE que no haya acabado del todo el flash
     drawStartLights(ctx);
@@ -2333,10 +2389,31 @@ if (showSetup) {
         <div className="racegame__setupFooter">
           <button
             className="racegame__setupStart"
-            onClick={() => {
-              stateRef.current.aiMode = aiMode;
-              setShowSetup(false);
-            }}
+            onClick={(e) => {
+            stateRef.current.aiMode = aiMode;
+
+            // 1) evita focus (móvil)
+            e?.currentTarget?.blur?.();
+
+            // 2) cambia a gameplay
+            setShowSetup(false);
+
+            // 3) siguiente frame: scroll al juego
+            requestAnimationFrame(() => {
+              const el = containerRef.current;
+              if (!el) return;
+
+              // algunos navegadores no aceptan "instant": usa auto
+              el.scrollIntoView({ block: "start", inline: "nearest", behavior: "auto" });
+
+              // backup por si insiste
+              window.scrollTo({
+                top: el.getBoundingClientRect().top + window.scrollY,
+                behavior: "auto",
+              });
+            });
+          }}
+
             type="button"
           >
             {translations.startRace}
@@ -2352,7 +2429,7 @@ if (showSetup) {
 
 
   return (
-    <div className="racegame">
+  <div ref={containerRef} className="racegame">
       <div className="racegame__ui">
       <div className="racegame__uiLeft">
 
@@ -2423,6 +2500,29 @@ if (showSetup) {
 
 
       <canvas ref={canvasRef} className="racegame__canvas" />
+      {/* ✅ Leaderboard DOM (solo móvil) */}
+      <div className="racegame__leaderboard">
+        <div className="racegame__leaderboardTitle">{translations.standings}</div>
+
+        {leaderboard.slice(0, 6).map((c, i) => {
+          const st = stateRef.current;
+          const l = c.finished ? "FIN" : `L${Math.min(c.lap, st.totalLaps)}`;
+
+          return (
+            <div
+              key={c.name + i}
+              className={`racegame__leaderboardRow ${c.isPlayer ? "isPlayer" : ""}`}
+            >
+              <span className="racegame__leaderboardPos">{i + 1}.</span>
+              <span className="racegame__leaderboardName" style={{ color: c.color }}>
+                {c.name}
+              </span>
+              <span className="racegame__leaderboardLap">{l}</span>
+            </div>
+          );
+        })}
+      </div>
+
 
       {/* Touch controls */}
       <div className="racegame__touch">
