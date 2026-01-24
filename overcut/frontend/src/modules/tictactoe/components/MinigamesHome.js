@@ -151,7 +151,7 @@ const minigames = [
         es: "Carrera 2D en circuito inventado contra IA (3/5 vueltas)",
         en: "2D racing on a fictional track vs AI (3/5 laps)"
       },
-      img: null,
+      img: sourceImages(`./raceGame.png`),
       isNew: true
     }
 

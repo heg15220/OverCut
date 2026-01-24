@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import MinigameTutorial from "../common/components/MinigameTutorial";
 import { tutorialTexts } from "../../helpers/minigameTutorialTexts";
+import { sourceImages } from "../../helpers/sourceMiniGamesImages";
 import "./RaceGame.css";
 
 /**
@@ -125,6 +126,141 @@ const TRACKS = [
       [-1.70, 0.05],
     ],
   },
+
+  {
+    id: 4,
+    name: { es: "Desert Switchbacks", en: "Desert Switchbacks" },
+    // técnico con cambios de dirección + horquilla doble
+    raw: [
+      [-1.55, 0.10],
+      [-1.05, -0.60],
+      [-0.30, -0.95],
+      [0.25, -0.55],
+      [0.55, -0.95],
+      [1.20, -0.60],
+      [1.55, 0.05],
+      [1.00, 0.25],
+      [0.85, 0.65],
+      [0.35, 0.55],
+      [0.10, 0.95],
+      [-0.35, 0.65],
+      [-0.85, 0.95],
+      [-1.25, 0.55],
+      [-1.60, 0.30],
+    ],
+  },
+  {
+    id: 5,
+    name: { es: "Old Town Street", en: "Old Town Street" },
+    // “urbano”: 90º + chicane + recta larga
+    raw: [
+      [-1.60, -0.20],
+      [-1.60, -0.85],
+      [-0.70, -0.85],
+      [-0.70, -0.15],
+      [0.30, -0.15],
+      [0.30, -0.95],
+      [1.55, -0.95], // recta larga
+      [1.55, 0.15],
+      [0.80, 0.15],
+      [0.80, 0.55],
+      [1.20, 0.55],  // chicane tipo “esquina”
+      [1.20, 0.95],
+      [-0.40, 0.95],
+      [-0.40, 0.35],
+      [-1.05, 0.35],
+      [-1.05, -0.20],
+    ],
+  },
+  {
+    id: 6,
+    name: { es: "Highlands Flow", en: "Highlands Flow" },
+    // muy fluido, curvas rápidas enlazadas
+    raw: [
+      [-1.55, -0.10],
+      [-1.15, -0.75],
+      [-0.45, -1.05],
+      [0.15, -0.85],
+      [0.55, -1.05],
+      [1.25, -0.70],
+      [1.55, -0.10],
+      [1.25, 0.35],
+      [0.65, 0.55],
+      [0.35, 0.95],
+      [-0.25, 0.85],
+      [-0.65, 0.55],
+      [-1.05, 0.75],
+      [-1.55, 0.35],
+    ],
+  },
+  {
+    id: 7,
+    name: { es: "Reverse Marina", en: "Reverse Marina" },
+    ccw: true, // ✅ antihorario
+    // curva peraltada larga + sector ratonero
+    raw: [
+      [-1.55, 0.20],
+      [-1.10, -0.55],
+      [-0.35, -0.95],
+      [0.55, -0.85],
+      [1.30, -0.35],
+      [1.55, 0.25],
+      [1.10, 0.55],
+      [0.65, 0.25],
+      [0.40, 0.65],
+      [0.05, 0.95],
+      [-0.45, 0.75],
+      [-0.75, 0.95],
+      [-1.25, 0.70],
+      [-1.55, 0.35],
+    ],
+  },
+  {
+    id: 8,
+    name: { es: "Figure-8 Mirage", en: "Figure-8 Mirage" },
+    // “casi” ocho (sin cruzar realmente), con dos bucles diferenciados
+    raw: [
+      [-1.20, -0.05],
+      [-1.45, -0.70],
+      [-0.75, -1.00],
+      [-0.15, -0.65],
+      [0.35, -1.00],
+      [1.05, -0.70],
+      [0.85, -0.05],
+      [1.45, 0.45],
+      [0.65, 0.95],
+      [0.05, 0.55],
+      [-0.35, 0.95],
+      [-1.05, 0.70],
+      [-0.85, 0.25],
+      [-1.20, -0.05],
+    ],
+  },
+  {
+    id: 9,
+    name: { es: "Needle Chicanes", en: "Needle Chicanes" },
+    ccw: true, // ✅ antihorario
+    // muy técnico: dos chicanes + horquilla cerrada
+    raw: [
+      [-1.60, -0.10],
+      [-1.15, -0.85],
+      [-0.25, -1.05],
+      [0.45, -0.85],
+      [0.10, -0.55],  // chicane 1
+      [0.55, -0.35],
+      [1.55, -0.55],  // recta
+      [1.25, 0.05],
+      [1.55, 0.35],   // chicane 2
+      [1.15, 0.55],
+      [0.65, 0.75],
+      [0.20, 0.95],
+      [-0.25, 0.75],
+      [-0.75, 0.95],
+      [-1.25, 0.55],
+      [-1.60, 0.25],
+    ],
+  },
+
 ];
 
 const RaceGame = () => {
@@ -174,7 +310,15 @@ const RaceGame = () => {
     totalLaps: 3,
     winnerName: null,
     trackId: 0,
+
+    // 🚦 salida
+    startPhase: "lights",  // "lights" | "go"
+    startTimer: 0,
+    lightsCount: 5,
+    goFlash: 0,
+    startRandHold: 0,
   });
+
 
   const [laps, setLaps] = useState(3);
   const [hudText, setHudText] = useState("");
@@ -244,6 +388,10 @@ const RaceGame = () => {
     const yStretch = 1.10;
 
     const def = TRACKS.find((t) => t.id === trackId) ?? TRACKS[0];
+
+    let raw = def.raw;
+    if (def.ccw) raw = [...raw].reverse();
+
     track.trackId = trackId;
 
     // coords mundo (centradas en 0,0)
@@ -403,6 +551,7 @@ const RaceGame = () => {
     turnRate: opts.turnRate ?? 2.8,
     grip: opts.grip ?? 7.5,
     drag: opts.drag ?? 1.7,
+    spawnGrace: opts.spawnGrace ?? 0.0, // segundos: ignora el conteo de meta al reaparecer
 
     // colisiones
     radius: opts.radius ?? 18,
@@ -414,23 +563,64 @@ const RaceGame = () => {
   const resetRace = (explicitTrackId = null) => {
     const st = stateRef.current;
 
+    // --- estado carrera ---
     st.totalLaps = laps;
     st.raceOver = false;
     st.running = true;
     st.winnerName = null;
 
+    // 🚦 salida (UNIFICADO con lo que usa loop/update/draw)
+    st.startPhase = "lights";     // "lights" | "go"
+    st.startTimer = 0;
+    st.lightsCount = 5;
+    st.goFlash = 0;
+    st.startRandHold = 0.35 + Math.random() * 0.75; // hold aleatorio antes de GO
+
+    // --- circuito ---
     const trackId = explicitTrackId ?? pickRandomTrackId();
     st.trackId = trackId;
     buildTrack(trackId);
 
     const cars = [];
-    const start = sampleTrack(0);
-    const start2 = sampleTrack(0.010);
+
+    // punto de salida un pelín después de meta para evitar cross frame 1
+    const startS = 0.03;
+
+    const start = sampleTrack(startS);
+    const start2 = sampleTrack(startS + 0.01);
     const baseAng = start2.ang;
 
+    // normal del sentido de la pista
     const dirNx = -Math.sin(baseAng);
     const dirNy = Math.cos(baseAng);
 
+    // ✅ GRID PARALELO (2 columnas)
+    const gridHalfWidth = 18;     // separación lateral izquierda/derecha
+    const rowSpacingS = 0.0105;   // separación entre filas hacia atrás (en s)
+
+    const placeCarOnGrid = (car, rowIdx, sideSign /* -1 izq, +1 der */) => {
+      const s = wrap01(startS - rowIdx * rowSpacingS);
+      const sp = sampleTrack(s);
+
+      // lateral: dos columnas
+      const lateral = sideSign * gridHalfWidth;
+
+      car.x = sp.x + dirNx * lateral;
+      car.y = sp.y + dirNy * lateral;
+      car.a = baseAng;
+
+      car.s = s;
+      car.lap = 1;
+      car.finished = false;
+      car.vx = 0;
+      car.vy = 0;
+      car.speed = 0;
+
+      // grace para no contar meta en el primer segundo
+      car.spawnGrace = 1.0;
+    };
+
+    // --- player (fila 0, columna izquierda por defecto)
     const player = makeCar({
       name: "YOU",
       isPlayer: true,
@@ -444,12 +634,11 @@ const RaceGame = () => {
       mass: 1.05,
     });
 
-    player.x = start.x + dirNx * 22;
-    player.y = start.y + dirNy * 22;
-    player.a = baseAng;
-    player.s = 0;
+    placeCarOnGrid(player, 0, -1);
     cars.push(player);
 
+    // --- AIs (rellenamos 2 columnas por filas)
+    // fila 0 (derecha) + filas siguientes
     for (let i = 1; i <= 5; i++) {
       const ai = makeCar({
         name: "AI-" + i,
@@ -463,20 +652,22 @@ const RaceGame = () => {
         mass: 0.95,
       });
 
-      const offsetS = i * 0.012;
-      const sp = sampleTrack(offsetS);
-      ai.x = sp.x + dirNx * (22 - i * 11);
-      ai.y = sp.y + dirNy * (22 - i * 11);
-      ai.a = baseAng;
-      ai.s = wrap01(offsetS);
+      const pairIndex = i;                // 1..5
+      const rowIdx = Math.floor(pairIndex / 2);      // 0,0,1,1,2...
+      const sideSign = pairIndex % 2 === 1 ? +1 : -1; // 1->derecha,2->izq,3->der...
+
+      placeCarOnGrid(ai, rowIdx, sideSign);
       cars.push(ai);
     }
 
     carsRef.current = cars;
 
+    // cámara al jugador
     cameraRef.current.x = player.x;
     cameraRef.current.y = player.y;
   };
+
+
 
   const computeRanking = () => {
     const st = stateRef.current;
@@ -497,56 +688,89 @@ const RaceGame = () => {
     return cars;
   };
 
+  // =======================
+  // ✅ REEMPLAZA updateCar ENTERO
+  // Busca:  const updateCar = (car, dt) => { ... }
+  // y pega ESTE bloque completo
+  // =======================
   const updateCar = (car, dt) => {
     const st = stateRef.current;
     const track = trackRef.current;
 
     if (car.finished) return;
 
+    // 🚦 SALIDA: hasta que haya GO nadie acelera
+    const startLocked = st.startPhase !== "go";
+
     let throttle = 0;
     let brake = 0;
     let steer = 0;
 
     if (car.isPlayer) {
-      throttle = inputRef.current.throttle;
-      brake = inputRef.current.brake;
-      steer = inputRef.current.steer;
+      if (startLocked) {
+        throttle = 0;
+        brake = 0;
+        steer = 0;
+      } else {
+        throttle = inputRef.current.throttle;
+        brake = inputRef.current.brake;
+        steer = inputRef.current.steer;
+      }
 
-      // respawn
-      if (keysRef.current.has(" ") || keysRef.current.has("r") || keysRef.current.has("R")) {
+      // respawn SOLO si ya arrancó (evita romper la salida)
+      if (
+        !startLocked &&
+        (keysRef.current.has(" ") ||
+          keysRef.current.has("r") ||
+          keysRef.current.has("R"))
+      ) {
         const c = closestOnTrack(car.x, car.y);
         const sp = sampleTrack(c.s);
+
         car.x = sp.x;
         car.y = sp.y;
         car.a = sp.ang;
+
         car.vx = 0;
         car.vy = 0;
         car.speed = 0;
+
+        // ✅ evita que cuente meta justo al reaparecer
+        car.spawnGrace = 1.0;
       }
     } else {
-      // IA: target point ahead on path
-      const lookAhead = 0.018 + clamp(car.speed / car.maxSpeed, 0, 1) * 0.040;
-      const targetS = wrap01(car.s + lookAhead);
-      const target = sampleTrack(targetS);
+      if (startLocked) {
+        throttle = 0;
+        brake = 0;
+        steer = 0;
+      } else {
+        // IA: target point ahead on path
+        const lookAhead =
+          0.018 + clamp(car.speed / car.maxSpeed, 0, 1) * 0.040;
+        const targetS = wrap01(car.s + lookAhead);
+        const target = sampleTrack(targetS);
 
-      const dx = target.x - car.x;
-      const dy = target.y - car.y;
-      const desired = Math.atan2(dy, dx);
+        const dx = target.x - car.x;
+        const dy = target.y - car.y;
+        const desired = Math.atan2(dy, dx);
 
-      let err = desired - car.a;
-      err = Math.atan2(Math.sin(err), Math.cos(err));
-      steer = clamp(err * 1.7, -1, 1);
+        let err = desired - car.a;
+        err = Math.atan2(Math.sin(err), Math.cos(err));
+        steer = clamp(err * 1.7, -1, 1);
 
-      const turnPenalty = clamp(Math.abs(err) / 1.2, 0, 1);
-      const targetSpeed = car.maxSpeed * (1 - 0.60 * turnPenalty);
+        const turnPenalty = clamp(Math.abs(err) / 1.2, 0, 1);
+        const targetSpeed = car.maxSpeed * (1 - 0.60 * turnPenalty);
 
-      if (car.speed < targetSpeed) throttle = 1;
-      else brake = 0.40;
+        if (car.speed < targetSpeed) throttle = 1;
+        else brake = 0.40;
+      }
     }
 
-    // dinámica
+    // ---------------- dinámica ----------------
     const acc = throttle * car.accel - brake * car.brake;
     car.speed += acc * dt;
+
+    // drag
     car.speed -= car.drag * car.speed * dt;
     car.speed = clamp(car.speed, 0, car.maxSpeed);
 
@@ -566,32 +790,43 @@ const RaceGame = () => {
     car.x += car.vx * dt;
     car.y += car.vy * dt;
 
-    // límites pista
+    // ---------------- límites pista ----------------
     const c = closestOnTrack(car.x, car.y);
+
     if (c.dist > track.width) {
       const push = c.dist - track.width;
       const nx = (car.x - c.cx) / (c.dist + 1e-6);
       const ny = (car.y - c.cy) / (c.dist + 1e-6);
+
       car.x -= nx * push;
       car.y -= ny * push;
+
       car.speed *= 0.83;
       car.vx *= 0.90;
       car.vy *= 0.90;
     }
 
-    // progreso + vueltas
+    // ---------------- progreso + vueltas ----------------
     const prevS = car.s;
     const newS = c.s;
 
+    // ✅ cuenta atrás de gracia (si existe)
+    if (car.spawnGrace > 0) car.spawnGrace -= dt;
+
     // crossing finish: de cerca de 1 -> cerca de 0
-    const crossed = prevS > 0.88 && newS < 0.12;
+    const crossed = car.spawnGrace <= 0 && prevS > 0.88 && newS < 0.12;
+
     car.s = newS;
 
     if (crossed) {
       car.lap += 1;
       if (car.lap > st.totalLaps) car.finished = true;
+
+      // ✅ tras cruzar, una mini-gracia evita “doble conteo” por jitter
+      car.spawnGrace = 0.35;
     }
   };
+
 
   // ---------------------- collisions (car vs car) ----------------------
   const resolveCarCollisions = () => {
@@ -947,6 +1182,68 @@ const RaceGame = () => {
     );
   };
 
+
+const drawStartLights = (ctx) => {
+  const st = stateRef.current;
+  if (st.startPhase === "go" && st.goFlash <= 0) return;
+
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+
+  // panel
+  const boxW = 320;
+  const boxH = 120;
+  const x = w * 0.5 - boxW * 0.5;
+  const y = h * 0.16;
+
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.strokeStyle = "rgba(255,255,255,0.14)";
+  ctx.lineWidth = 1;
+  roundRect(ctx, x, y, boxW, boxH, 16);
+  ctx.fill();
+  ctx.stroke();
+
+  // luces
+  const step = 0.8;
+  const lit = st.startPhase === "lights" ? Math.min(st.lightsCount, Math.floor(st.startTimer / step) + 1) : st.lightsCount;
+
+  const cx = w * 0.5;
+  const cy = y + 56;
+  const r = 12;
+  const gap = 18;
+  const total = st.lightsCount;
+  const startX = cx - ((total - 1) * (2 * r + gap)) / 2;
+
+  for (let i = 0; i < total; i++) {
+    const on = st.startPhase === "go" ? false : (i < lit);
+    ctx.fillStyle = on ? "rgba(255,40,40,0.95)" : "rgba(255,255,255,0.15)";
+    ctx.beginPath();
+    ctx.arc(startX + i * (2 * r + gap), cy, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // texto
+  if (st.startPhase === "go") {
+    const t = lang === "es" ? "¡SALIDA!" : "GO!";
+    ctx.globalAlpha = clamp(st.goFlash, 0, 1);
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.font = "900 26px system-ui, sans-serif";
+    ctx.fillText(t, cx - ctx.measureText(t).width / 2, y + 32);
+    ctx.globalAlpha = 1;
+  } else {
+    const t = lang === "es" ? "Prepárate..." : "Get ready...";
+    ctx.fillStyle = "rgba(231,238,247,0.8)";
+    ctx.font = "700 16px system-ui, sans-serif";
+    ctx.fillText(t, cx - ctx.measureText(t).width / 2, y + 32);
+  }
+};
+
+
+  // =======================
+  // ✅ REEMPLAZA loop ENTERO
+  // Busca:  const loop = (now) => { ... }
+  // y pega ESTE bloque completo
+  // =======================
   const loop = (now) => {
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -960,12 +1257,27 @@ const RaceGame = () => {
     const dt = Math.min(0.033, (now - lastRef.current) / 1000);
     lastRef.current = now;
 
+    // ---------------- SIMULACIÓN ----------------
     if (st.running && !st.raceOver) {
-      // 1) integrar coches
+      // 🚦 Semáforo: 5 luces (0.8s c/u) + hold aleatorio antes de GO
+      if (st.startPhase === "lights") {
+        st.startTimer += dt;
+
+        const step = 0.8;
+        const totalLightsTime = st.lightsCount * step;
+
+        if (st.startTimer >= totalLightsTime + (st.startRandHold ?? 0.6)) {
+          st.startPhase = "go";
+          st.goFlash = 0.9; // flash "GO"
+        }
+      } else if (st.goFlash > 0) {
+        st.goFlash -= dt;
+      }
+
+      // 1) integrar coches (si no es GO, updateCar ya los deja quietos)
       for (const car of carsRef.current) updateCar(car, dt);
 
-      // 2) colisiones coche-coche (evita atravesar)
-      // dos pasadas para hacerlo más robusto (sin coste grande)
+      // 2) colisiones coche-coche
       resolveCarCollisions();
       resolveCarCollisions();
     }
@@ -973,7 +1285,7 @@ const RaceGame = () => {
     const ranking = computeRanking();
     const you = carsRef.current.find((c) => c.isPlayer);
 
-    // cámara suavizada (look-ahead)
+    // ---------------- CÁMARA ----------------
     if (you) {
       const look = 180;
       const tx = you.x + Math.cos(you.a) * look;
@@ -983,6 +1295,7 @@ const RaceGame = () => {
       cameraRef.current.y = lerp(cameraRef.current.y, ty, clamp(6.8 * dt, 0, 1));
     }
 
+    // ---------------- RENDER ----------------
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     drawBackground(ctx, cameraRef.current);
@@ -1003,15 +1316,16 @@ const RaceGame = () => {
 
     drawLeaderboardOverlay(ctx, ranking);
 
-    // HUD
+    // 🚦 dibuja semáforo SIEMPRE que no haya acabado del todo el flash
+    drawStartLights(ctx);
+
+    // ---------------- HUD ----------------
     if (you) {
       const yourPos = ranking.findIndex((c) => c.isPlayer) + 1;
 
-      // ojo: you.lap puede ser totalLaps+1 al terminar
       const currentLap = you.finished ? st.totalLaps : Math.min(you.lap, st.totalLaps);
       const lapText = `${currentLap}/${st.totalLaps}`;
 
-      // si IA terminó, no termina carrera, pero se ve en status
       const anyAiFinished = carsRef.current.some((c) => !c.isPlayer && c.finished);
       const extra = !you.finished && anyAiFinished ? ` · ${translations.aiFinished}` : "";
 
@@ -1024,7 +1338,7 @@ const RaceGame = () => {
       if (now % 6 < 1) setHudText(text);
     }
 
-    // ✅ FIN DE CARRERA: SOLO CUANDO TERMINA EL JUGADOR
+    // ✅ FIN: solo cuando termina el jugador
     if (you?.finished && !st.raceOver) {
       st.raceOver = true;
       st.running = false;
@@ -1035,6 +1349,7 @@ const RaceGame = () => {
 
     rafRef.current = requestAnimationFrame(loop);
   };
+
 
   // ---------------------- input mapping ----------------------
   const syncKeyboardToInput = () => {
@@ -1164,7 +1479,7 @@ const RaceGame = () => {
       <MinigameTutorial
         title={tutorial?.title || translations.title}
         description={tutorial?.description || ""}
-        image={null}
+        image={sourceImages(`./raceGame.png`)}
         onStart={() => {
           setShowTutorial(false);
           setShowSetup(true);
