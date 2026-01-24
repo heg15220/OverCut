@@ -1693,3 +1693,196 @@
     top: 70px !important;
   }
 }
+
+/* =========================================================
+   ✅ TABLET LAYOUT (521px–768px)
+   - HUD arriba (no barra inferior)
+   - Touch controls cómodos
+   - Setup en 2 columnas
+   - Leaderboard más compacto
+   PÉGALO AL FINAL
+   ========================================================= */
+@media (min-width: 521px) and (max-width: 768px) {
+
+  /* -------- Touch controls: tamaño intermedio -------- */
+  .racegame__touch{
+    bottom: 10px !important;
+    padding: 14px !important;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .racegame__joy{
+    width: 128px !important;
+    height: 128px !important;
+    transform: none !important;   /* evita “saltos” */
+  }
+
+  .racegame__joyKnob{
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .racegame__touchRight{
+    gap: 12px !important;
+    transform: none !important;
+  }
+
+  .racegame__touchBtn{
+    width: 66px !important;
+    height: 66px !important;
+    border-radius: 16px !important;
+    font-size: 24px !important;
+  }
+
+  /* -------- HUD: arriba-izquierda, compacto pero legible -------- */
+  .racegame__ui{
+    top: 10px !important;
+    left: 10px !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+
+    max-width: min(620px, 88vw) !important;
+    padding: 10px 11px 9px !important;
+    border-radius: 16px !important;
+    z-index: 10 !important;
+  }
+
+  .racegame__titleMain{ font-size: 14px !important; }
+  .racegame__titleSub{ font-size: 11px !important; }
+
+  .racegame__trackPill{
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    max-width: 40vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .racegame__hudStrip{
+    padding: 8px 9px !important;
+    border-radius: 13px !important;
+  }
+
+  .racegame__chip{
+    padding: 7px 9px !important;
+  }
+  .racegame__chipLabel{ font-size: 10.5px !important; }
+  .racegame__chipValue{ font-size: 12px !important; }
+
+  .racegame__button{
+    padding: 8px 11px !important;
+    border-radius: 13px !important;
+    font-size: 12px !important;
+  }
+
+  /* -------- Setup: tablet suele ir genial en 2 columnas -------- */
+  .racegame--setup{
+    place-items: center !important;
+    padding: 18px 14px !important;
+  }
+
+  .racegame__setupCard{
+    width: min(680px, 94vw) !important;
+    padding: 16px 16px 14px !important;
+    border-radius: 18px !important;
+    max-height: calc(100% - 16px) !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .racegame__setupChoiceGrid{
+    grid-template-columns: 1fr 1fr !important; /* 👈 tablet = 2 columnas */
+    gap: 12px !important;
+  }
+
+  .racegame__choiceCard{
+    min-height: 86px !important;
+    padding: 13px 13px !important;
+  }
+
+  .racegame__choiceBig{ font-size: 28px !important; }
+
+  .racegame__setupStart{
+    height: 46px !important;
+    font-size: 1.0rem !important;
+  }
+
+  /* -------- Leaderboard DOM: si lo quieres también en tablet -------- */
+  .racegame__leaderboard{
+    display: block !important;              /* 👈 si NO lo quieres, cambia a none */
+    top: 10px !important;
+    right: 10px !important;
+    width: min(200px, 26vw) !important;
+    padding: 8px 8px !important;
+    border-radius: 12px !important;
+    max-height: 180px !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .racegame__leaderboardTitle{
+    font-size: 11px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .racegame__leaderboardRow{
+    grid-template-columns: 18px 1fr auto !important;
+    gap: 6px !important;
+    padding: 2px 0 !important;
+    font-size: 11px !important;
+  }
+
+  .racegame__leaderboardRow.isPlayer{
+    padding: 3px 5px !important;
+    border-radius: 9px !important;
+  }
+}
+
+/* ✅ Tablet en horizontal: más espacio, permitimos paneles un pelín mayores */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape){
+  .racegame__ui{
+    max-width: min(720px, 70vw) !important;
+  }
+  .racegame__leaderboard{
+    width: min(230px, 22vw) !important;
+    max-height: 220px !important;
+  }
+}
+
+
+/* =========================================================
+   ✅ TABLET: bajar HUD + Leaderboard
+   PÉGALO AL FINAL DEL TODO
+   ========================================================= */
+@media (min-width: 521px) and (max-width: 768px){
+  :root{
+    --rg-tablet-top-offset: 56px; /* 👈 ajusta 40–90px según te guste */
+  }
+
+  /* HUD más abajo */
+  .racegame__ui{
+    top: calc(10px + var(--rg-tablet-top-offset)) !important;
+  }
+
+  /* Leaderboard más abajo */
+  .racegame__leaderboard{
+    top: calc(10px + var(--rg-tablet-top-offset)) !important;
+  }
+}
+
+/* ✅ Tablet landscape (iPad apaisado) suele necesitar menos offset */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape){
+  :root{
+    --rg-tablet-top-offset-land: 36px; /* 👈 ajusta 24–70px */
+  }
+
+  .racegame__ui{
+    top: calc(10px + var(--rg-tablet-top-offset-land)) !important;
+  }
+
+  .racegame__leaderboard{
+    top: calc(10px + var(--rg-tablet-top-offset-land)) !important;
+  }
+}

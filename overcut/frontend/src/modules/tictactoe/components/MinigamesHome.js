@@ -153,6 +153,17 @@ const minigames = [
       },
       img: sourceImages(`./raceGame.png`),
       isNew: true
+    },
+
+    {
+      path: "/minigames/timeline",
+      title: { es: "Timeline", en: "Timeline" },
+      description: {
+        es: "Ordena eventos históricos de F1 en orden cronológico",
+        en: "Sort iconic F1 events in chronological order"
+      },
+      img: sourceImages(`./Timeline2.png`),
+      isNew: true
     }
 
 ];

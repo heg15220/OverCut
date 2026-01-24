@@ -73,6 +73,7 @@ from tower_game import generate_tower, generate_tower_fixed, validate_driver, ge
 from tower_game import resolve_tower_hint
 from select_anagram_driver import generate_f1_anagrams_game
 from generate_bingo import generate_bingo_game
+from generate_timeline_game import generate_timeline_game
 
 
 
@@ -646,6 +647,14 @@ def generate_f1_anagrams():
 def generate_bingo(lang: str = Query("es", enum=["es", "en"])):
     try:
         result = generate_bingo_game(lang)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/generate-timeline")
+def generate_timeline(lang: str = Query("es", enum=["es", "en"])):
+    try:
+        result = generate_timeline_game(lang)
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)

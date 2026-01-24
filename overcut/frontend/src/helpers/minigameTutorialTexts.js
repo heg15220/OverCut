@@ -295,7 +295,22 @@ export const tutorialTexts = {
          }
        },
 
-
+       "/minigames/timeline": {
+         es: {
+           title: "Timeline",
+           description:
+             "Ordena eventos históricos de Fórmula 1 en el orden cronológico correcto.\n\n" +
+             "Usa las flechas para mover cada evento y pulsa 'Validar orden'.\n" +
+             "Tienes 3 intentos. Si aciertas todo, ganas. Si no, la partida se termina."
+         },
+         en: {
+           title: "Timeline",
+           description:
+             "Arrange historical Formula 1 events in the correct chronological order.\n\n" +
+             "Use the arrows to move each event and press 'Validate order'.\n" +
+             "You have 3 attempts. If everything is correct, you win. Otherwise, the game ends."
+         }
+       },
 
 
 

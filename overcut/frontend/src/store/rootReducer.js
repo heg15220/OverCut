@@ -32,6 +32,7 @@ import driverSeason from "../modules/driverSeason";
 import tower from "../modules/tower";
 import anagrams from '../modules/anagrams';
 import bingo from '../modules/bingo';
+import timeline from '../modules/timeline';
 
 
 const rootReducer = combineReducers({
@@ -63,6 +64,7 @@ const rootReducer = combineReducers({
     tower: tower.reducer,
     anagrams: anagrams.reducer,
     bingo: bingo.reducer,
+    timeline: timeline.reducer,
 });
 
 export default rootReducer;

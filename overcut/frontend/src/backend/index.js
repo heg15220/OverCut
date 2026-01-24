@@ -54,12 +54,16 @@ import * as anagramsService from "./anagramsService"; // ✅ NUEVO
 
 import * as bingoService from "./bingoService"; // ✅ NUEVO
 
+
+import * as timelineService from "./timelineService"; // ✅ NUEVO
+
+
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
     gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService,
      wordleService, twoTeamsService, f1ImpostorService, teamGuessService, driversConnectionsService, orderDriverService,
      wordSearchService, cooldownService, top10QualiService, driverSeasonService, towerService, anagramsService,
-     bingoService}
+     bingoService,timelineService}
 
 
 export default backExport;

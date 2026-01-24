@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS GameCooldown;
 
-
-
+DROP TABLE IF EXISTS TimelineEvent;
+DROP TABLE IF EXISTS TimelineGame;
 DROP TABLE IF EXISTS BingoSelection;
 DROP TABLE IF EXISTS BingoCellPilot;
 DROP TABLE IF EXISTS BingoGameDriver;
@@ -929,4 +929,21 @@ CREATE TABLE BingoSelection (
     FOREIGN KEY (cellId) REFERENCES BingoCell(id) ON DELETE CASCADE,
     UNIQUE (gameId, cellId),                -- una vez por casilla
     UNIQUE (gameId, driverId)               -- un piloto no puede ocupar 2 casillas
+);
+
+CREATE TABLE TimelineGame (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  finished BOOLEAN DEFAULT FALSE,
+  attempts INT DEFAULT 0
+);
+
+CREATE TABLE TimelineEvent (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  gameId BIGINT NOT NULL,
+  eventCode VARCHAR(120) NOT NULL,
+  eventText VARCHAR(255) NOT NULL,
+  eventDate DATE NOT NULL,              -- fecha real para validar
+  hintYear INT NULL,                    -- opcional (pista)
+  FOREIGN KEY (gameId) REFERENCES TimelineGame(id) ON DELETE CASCADE
 );
