@@ -146,7 +146,7 @@ const minigames = [
     },
     {
       path: "/games/race",
-      title: { es: "Carrera 2D", en: "2D Race" },
+      title: { es: "OverCut Racing", en: "OverCut Racing" },
       description: {
         es: "Carrera 2D en circuito inventado contra IA (3/5 vueltas)",
         en: "2D racing on a fictional track vs AI (3/5 laps)"

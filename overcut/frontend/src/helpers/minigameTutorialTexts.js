@@ -260,9 +260,9 @@ export const tutorialTexts = {
       },
        "/minigames/race": {
          es: {
-           title: "Carrera 2D",
+           title: "OverCut Racing",
            description:
-             "Corre en un circuito inventado en 2D contra coches controlados por la máquina. " +
+             "Corre en circuitos inventados en 2D contra coches controlados por la máquina. " +
              "Completa 3 o 5 vueltas y mantente dentro de la pista para no perder velocidad.\n\n" +
 
              "Controles (PC):\n" +
@@ -277,9 +277,9 @@ export const tutorialTexts = {
              "Frena antes de las curvas cerradas y acelera al salir para ganar velocidad."
          },
          en: {
-           title: "2D Race",
+           title: "OverCut Racing",
            description:
-             "Race on a fictional 2D track against AI-controlled cars. " +
+             "Race on fictional 2D tracks against AI-controlled cars. " +
              "Complete 3 or 5 laps and stay on track to avoid losing speed.\n\n" +
 
              "Controls (PC):\n" +
