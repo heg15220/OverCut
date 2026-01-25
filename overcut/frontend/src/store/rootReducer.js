@@ -36,7 +36,7 @@ import timeline from '../modules/timeline';
 import whoIsWho from '../modules/whoIsWho';
 import memory from "../modules/memory";
 import teamHistory from "../modules/teamHistory/reducer";
-
+import higherLower from "../modules/higherLower";
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -71,6 +71,7 @@ const rootReducer = combineReducers({
     whoIsWho: whoIsWho.reducer,
     memory: memory.reducer,
     teamHistory: teamHistory,
+    higherLower: higherLower.reducer,
 });
 
 export default rootReducer;

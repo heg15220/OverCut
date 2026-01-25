@@ -1,5 +1,8 @@
 DROP TABLE IF EXISTS GameCooldown;
 
+
+DROP TABLE IF EXISTS HigherLowerEntry;
+DROP TABLE IF EXISTS HigherLowerGame;
 DROP TABLE IF EXISTS TeamHistorySeason;
 DROP TABLE IF EXISTS TeamHistoryGame;
 DROP TABLE IF EXISTS MemoryCard;
@@ -1044,3 +1047,23 @@ CREATE TABLE TeamHistorySeason (
 
 CREATE INDEX idx_teamhistory_seasons_game ON TeamHistorySeason(gameId);
 
+
+CREATE TABLE HigherLowerGame (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  statCode VARCHAR(255) NOT NULL,
+  themeDescription VARCHAR(255) NOT NULL,
+  finished BOOLEAN DEFAULT FALSE,
+  won BOOLEAN DEFAULT NULL,
+  currentIndex INT DEFAULT 0,
+  score INT DEFAULT 0
+);
+
+CREATE TABLE HigherLowerEntry (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  gameId BIGINT NOT NULL,
+  positionIndex INT NOT NULL,
+  pilotName VARCHAR(100) NOT NULL,
+  statValue DOUBLE NOT NULL,
+  FOREIGN KEY (gameId) REFERENCES HigherLowerGame(id) ON DELETE CASCADE
+);

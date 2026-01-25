@@ -63,12 +63,14 @@ import * as memoryService from "./memoryService";// ✅ NUEVO
 
 import * as teamHistoryService from "./teamHistoryService"; // ✅ NUEVO
 
+import * as higherLowerService from "./higherLowerService";
+
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
     gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService,
      wordleService, twoTeamsService, f1ImpostorService, teamGuessService, driversConnectionsService, orderDriverService,
      wordSearchService, cooldownService, top10QualiService, driverSeasonService, towerService, anagramsService,
-     bingoService,timelineService,whoIsWhoService, memoryService, teamHistoryService}
+     bingoService,timelineService,whoIsWhoService, memoryService, teamHistoryService, higherLowerService}
 
 
 export default backExport;

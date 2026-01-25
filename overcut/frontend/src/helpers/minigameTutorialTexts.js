@@ -375,6 +375,31 @@ export const tutorialTexts = {
   }
 },
 
+"/minigames/higherLower": {
+  es: {
+    title: "Higher or Lower",
+    description:
+      "Compara estadísticas reales de pilotos.\n\n" +
+      "Cómo jugar:\n" +
+      "• Verás dos pilotos.\n" +
+      "• Adivina si el segundo tiene un valor mayor (Higher) o menor (Lower).\n" +
+      "• Si fallas, termina la partida.\n\n" +
+      "Consejo:\n" +
+      "Piensa en eras: puntos y GP dependen mucho de la época."
+  },
+  en: {
+    title: "Higher or Lower",
+    description:
+      "Compare real driver statistics.\n\n" +
+      "How to play:\n" +
+      "• You’ll see two drivers.\n" +
+      "• Guess if the second one has a higher (Higher) or lower (Lower) value.\n" +
+      "• One mistake ends the game.\n\n" +
+      "Tip:\n" +
+      "Consider eras: points and GP totals vary a lot by period."
+  }
+},
+
 
 
 

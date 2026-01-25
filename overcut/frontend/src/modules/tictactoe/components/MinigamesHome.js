@@ -196,6 +196,15 @@ const minigames = [
   isNew: true
 },
 
+{
+  path: "/minigames/higherLower",
+  title: "Higher or Lower",
+  description: "Compara estadísticas de pilotos (wins, podiums, points...)",
+  img: sourceImages(`./HigherLower.png`),
+  isNew: true
+},
+
+
 
 
 ];
