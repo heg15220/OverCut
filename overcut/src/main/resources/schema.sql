@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS GameCooldown;
 
-
+DROP TABLE IF EXISTS TeamHistorySeason;
+DROP TABLE IF EXISTS TeamHistoryGame;
 DROP TABLE IF EXISTS MemoryCard;
 DROP TABLE IF EXISTS MemoryGame;
 DROP TABLE IF EXISTS WhoIsWhoHint;
@@ -1014,3 +1015,32 @@ CREATE TABLE MemoryCard (
 
     FOREIGN KEY (gameId) REFERENCES MemoryGame(id) ON DELETE CASCADE
 );
+
+CREATE TABLE TeamHistoryGame (
+  gameId BIGINT AUTO_INCREMENT PRIMARY KEY,
+  constructorId INT NOT NULL,
+  lang VARCHAR(2) NOT NULL DEFAULT 'es',
+  maxPosition INT NOT NULL,
+  revealed BOOLEAN NOT NULL DEFAULT FALSE,
+  completed BOOLEAN NOT NULL DEFAULT FALSE,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  constructorName VARCHAR(128)
+);
+
+CREATE TABLE TeamHistorySeason (
+  seasonId BIGINT AUTO_INCREMENT PRIMARY KEY,
+  gameId BIGINT NOT NULL,
+  seasonYear INT NOT NULL,
+  finishingPosition INT NOT NULL,
+  userGuess INT,
+  isCorrect BOOLEAN,
+
+  CONSTRAINT fk_teamhistory_season_game
+    FOREIGN KEY (gameId) REFERENCES TeamHistoryGame(gameId) ON DELETE CASCADE,
+
+  CONSTRAINT uk_teamhistory_game_year
+    UNIQUE (gameId, seasonYear)
+);
+
+CREATE INDEX idx_teamhistory_seasons_game ON TeamHistorySeason(gameId);
+

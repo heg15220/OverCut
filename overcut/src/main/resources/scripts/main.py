@@ -77,7 +77,7 @@ from generate_timeline_game import generate_timeline_game, load_timeline_pools
 from sqlalchemy import text
 from generate_who_is_who import generate_who_is_who_game, load_whoiswho_pool
 from generate_memory_game import generate_memory_game
-
+from generate_team_history_game import get_team_history_game
 
 
 
@@ -708,6 +708,15 @@ def generate_memory(lang: str = Query("es", enum=["es", "en"]),
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+
+@app.get("/generate-team-history-game")
+def generate_team_history_game_endpoint(lang: str = Query("es", enum=["es", "en"])):
+    try:
+        os.environ["LANG"] = lang
+        result = get_team_history_game(lang)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 # === Main app ===
 if __name__ == "__main__":

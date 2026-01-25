@@ -35,6 +35,8 @@ import bingo from '../modules/bingo';
 import timeline from '../modules/timeline';
 import whoIsWho from '../modules/whoIsWho';
 import memory from "../modules/memory";
+import teamHistory from "../modules/teamHistory/reducer";
+
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -68,6 +70,7 @@ const rootReducer = combineReducers({
     timeline: timeline.reducer,
     whoIsWho: whoIsWho.reducer,
     memory: memory.reducer,
+    teamHistory: teamHistory,
 });
 
 export default rootReducer;

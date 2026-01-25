@@ -188,6 +188,14 @@ const minigames = [
   isNew: true
 },
 
+{
+  path: "/minigames/teamHistory",
+  title: "Team History",
+  description: "Adivina la posición final del equipo en el mundial de constructores en cada temporada",
+  img: sourceImages(`./TeamHistory.png`),
+  isNew: true
+},
+
 
 
 ];

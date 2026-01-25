@@ -356,7 +356,25 @@ export const tutorialTexts = {
       "Flip two cards per turn and remember their position.\n" +
       "Knowledge and memory go hand in hand!"
   }
-}
+},
+
+"/minigames/teamHistory": {
+  es: {
+    title: "Historia de Equipo",
+    description:
+      "Adivina la posición final del equipo en todos o algunos campeonatos de constructores para cada temporada. " +
+      "Selecciona la posición correcta en cada año.\n\n" +
+      "Pulsa “Rendirse” para revelar el equipo y salir."
+  },
+  en: {
+    title: "Team History",
+    description:
+      "Guess the team’s final Constructors’ Championship position for some seasons or all seasons. " +
+      "Pick the correct position for every year.\n\n" +
+      "Press “Give up” to reveal the team and exit."
+  }
+},
+
 
 
 
