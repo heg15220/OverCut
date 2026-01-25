@@ -97,6 +97,7 @@ import LightsOutGame from "../../lightsout/components/LightsOutGame";
 import AnagramsGame from "../../anagrams/components/AnagramsGame";
 import BingoGame from "../../bingo/components/BingoGame";
 import TimelineGame from "../../timeline/components/TimelineGame";
+import WhoIsWhoGame from "../../whoIsWho/components/WhoIsWhoGame";
 
 
 
@@ -186,6 +187,8 @@ const Body = () => {
                     <Route path="/minigames/bingo" element={<BingoGame />} />
                     <Route path="/games/race" element={<RaceGame />} />
                     <Route path="/minigames/timeline" element={<TimelineGame />} />
+                    <Route path="/minigames/whoIsWho" element={<WhoIsWhoGame />} />
+
                 </Route>
             </Routes>
         </div>

@@ -164,7 +164,19 @@ const minigames = [
       },
       img: sourceImages(`./Timeline2.png`),
       isNew: true
-    }
+    },
+
+    {
+  path: "/minigames/whoIsWho",
+  title: { es: "Who Am I", en: "Who Am I" },
+  description: {
+    es: "Adivina el piloto revelando pistas (con intentos limitados)",
+    en: "Guess the driver by revealing hints (limited attempts)"
+  },
+  img: sourceImages(`./WhoAmI2.png`),
+  isNew: true
+},
+
 
 ];
 

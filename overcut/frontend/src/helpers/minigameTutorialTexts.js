@@ -312,6 +312,31 @@ export const tutorialTexts = {
          }
        },
 
+       "/minigames/whoIsWho": {
+  es: {
+    title: "Who Am I?",
+    description:
+      "Descubre qué piloto es con la menor cantidad de pistas posible.\n\n" +
+      "Cómo jugar:\n" +
+      "• Pulsa “Mostrar pista” para revelar una nueva pista.\n" +
+      "• Escribe el nombre del piloto y pulsa “Adivinar”.\n" +
+      "• Tienes un número limitado de intentos y de pistas.\n\n" +
+      "Consejo:\n" +
+      "Prueba primero con los pilotos más probables según las pistas (época, equipo, nacionalidad, etc.)."
+  },
+  en: {
+    title: "Who Am I?",
+    description:
+      "Figure out the mystery driver using as few hints as possible.\n\n" +
+      "How to play:\n" +
+      "• Press “Show hint” to reveal a new clue.\n" +
+      "• Type the driver’s name and press “Guess”.\n" +
+      "• You have a limited number of attempts and hints.\n\n" +
+      "Tip:\n" +
+      "Start with the most likely drivers based on the clues (era, team, nationality, etc.)."
+  }
+},
+
 
 
 };

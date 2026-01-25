@@ -75,6 +75,7 @@ from select_anagram_driver import generate_f1_anagrams_game
 from generate_bingo import generate_bingo_game, load_driver_pool
 from generate_timeline_game import generate_timeline_game, load_timeline_pools
 from sqlalchemy import text
+from generate_who_is_who import generate_who_is_who_game, load_whoiswho_pool
 
 
 
@@ -197,6 +198,7 @@ async def lifespan(app: FastAPI):
     load_anagram_pool()
     load_timeline_pools()
     load_driver_pool()
+    load_whoiswho_pool()
     yield
 
 
@@ -684,6 +686,14 @@ def generate_timeline(lang: str = Query("es", enum=["es", "en"])):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+
+@app.get("/generate-who-is-who")
+def generate_who_is_who(lang: str = Query("es", enum=["es","en"])):
+    try:
+        result = generate_who_is_who_game(lang)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
 # === Main app ===

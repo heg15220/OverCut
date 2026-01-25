@@ -1,5 +1,8 @@
 DROP TABLE IF EXISTS GameCooldown;
 
+
+DROP TABLE IF EXISTS WhoIsWhoHint;
+DROP TABLE IF EXISTS WhoIsWhoGame;
 DROP TABLE IF EXISTS TimelineEvent;
 DROP TABLE IF EXISTS TimelineGame;
 DROP TABLE IF EXISTS BingoSelection;
@@ -947,3 +950,35 @@ CREATE TABLE TimelineEvent (
   hintYear INT NULL,                    -- opcional (pista)
   FOREIGN KEY (gameId) REFERENCES TimelineGame(id) ON DELETE CASCADE
 );
+
+
+CREATE TABLE WhoIsWhoGame (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+  finished BOOLEAN DEFAULT FALSE,
+  won BOOLEAN DEFAULT FALSE,
+
+  lang VARCHAR(5) DEFAULT 'es',
+
+  secretDriverId BIGINT NOT NULL,
+  secretDriverName VARCHAR(120) NOT NULL,
+
+  hintsShown INT DEFAULT 0,
+  maxHints INT DEFAULT 15,
+
+  attemptsUsed INT DEFAULT 0,
+  maxAttempts INT DEFAULT 3
+);
+
+CREATE TABLE WhoIsWhoHint (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  gameId BIGINT NOT NULL,
+
+  hintOrder INT NOT NULL,
+  hintText VARCHAR(255) NOT NULL,
+
+  FOREIGN KEY (gameId) REFERENCES WhoIsWhoGame(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_whoiswhohint_game_order ON WhoIsWhoHint(gameId, hintOrder);
