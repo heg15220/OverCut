@@ -98,6 +98,7 @@ import AnagramsGame from "../../anagrams/components/AnagramsGame";
 import BingoGame from "../../bingo/components/BingoGame";
 import TimelineGame from "../../timeline/components/TimelineGame";
 import WhoIsWhoGame from "../../whoIsWho/components/WhoIsWhoGame";
+import MemoryGame  from "../../memory/components/MemoryGame";
 
 
 
@@ -188,6 +189,8 @@ const Body = () => {
                     <Route path="/games/race" element={<RaceGame />} />
                     <Route path="/minigames/timeline" element={<TimelineGame />} />
                     <Route path="/minigames/whoIsWho" element={<WhoIsWhoGame />} />
+                    <Route path="/minigames/memory" element={<MemoryGame />} />
+
 
                 </Route>
             </Routes>

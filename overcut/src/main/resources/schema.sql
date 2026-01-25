@@ -1,6 +1,8 @@
 DROP TABLE IF EXISTS GameCooldown;
 
 
+DROP TABLE IF EXISTS MemoryCard;
+DROP TABLE IF EXISTS MemoryGame;
 DROP TABLE IF EXISTS WhoIsWhoHint;
 DROP TABLE IF EXISTS WhoIsWhoGame;
 DROP TABLE IF EXISTS TimelineEvent;
@@ -982,3 +984,33 @@ CREATE TABLE WhoIsWhoHint (
 );
 
 CREATE INDEX idx_whoiswhohint_game_order ON WhoIsWhoHint(gameId, hintOrder);
+
+
+-- =========================
+-- F1 MEMORY GAME
+-- =========================
+
+CREATE TABLE MemoryGame (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    rows INT NOT NULL,
+    cols INT NOT NULL,
+    mode VARCHAR(30) NOT NULL DEFAULT 'classic',
+    attemptsLeft INT NOT NULL DEFAULT 20,
+    finished BOOLEAN NOT NULL DEFAULT FALSE,
+    successful BOOLEAN DEFAULT NULL
+);
+
+CREATE TABLE MemoryCard (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    gameId BIGINT NOT NULL,
+    positionIndex INT NOT NULL,          -- 0..(rows*cols-1)
+    pairKey VARCHAR(40) NOT NULL,        -- clave interna para validar pareja (NO se envía al frontend)
+    cardType VARCHAR(30) NOT NULL,       -- DRIVER, TEAM, NATIONALITY, etc.
+    label VARCHAR(120) NOT NULL,         -- texto mostrado al dar la vuelta
+    driverId BIGINT NULL,                -- opcional
+    constructorId BIGINT NULL,           -- opcional
+    matched BOOLEAN NOT NULL DEFAULT FALSE,
+
+    FOREIGN KEY (gameId) REFERENCES MemoryGame(id) ON DELETE CASCADE
+);

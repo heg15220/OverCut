@@ -34,6 +34,7 @@ import anagrams from '../modules/anagrams';
 import bingo from '../modules/bingo';
 import timeline from '../modules/timeline';
 import whoIsWho from '../modules/whoIsWho';
+import memory from "../modules/memory";
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -66,6 +67,7 @@ const rootReducer = combineReducers({
     bingo: bingo.reducer,
     timeline: timeline.reducer,
     whoIsWho: whoIsWho.reducer,
+    memory: memory.reducer,
 });
 
 export default rootReducer;

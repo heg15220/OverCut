@@ -177,6 +177,18 @@ const minigames = [
   isNew: true
 },
 
+{
+  path: "/minigames/memory",
+  title: { es: "Memory", en: "Memory" },
+  description: {
+    es: "Encuentra parejas relacionadas (piloto-equipo, piloto-nacionalidad, etc.)",
+    en: "Find related pairs (driver-team, driver-nationality, etc.)"
+  },
+  img: sourceImages("./Memory.png"),
+  isNew: true
+},
+
+
 
 ];
 

@@ -337,6 +337,27 @@ export const tutorialTexts = {
   }
 },
 
+"/minigames/memory": {
+  es: {
+    title: "Memory",
+    description:
+      "Encuentra todas las parejas relacionadas de Fórmula 1.\n\n" +
+      "Las cartas no son iguales: cada pareja está unida por una relación real " +
+      "(piloto-equipo, piloto-nacionalidad, etc.).\n\n" +
+      "Levanta dos cartas por turno y memoriza bien su posición.\n" +
+      "¡Conocimiento y memoria van de la mano!"
+  },
+  en: {
+    title: "Memory",
+    description:
+      "Find all the related Formula 1 pairs.\n\n" +
+      "Cards are not identical: each pair is linked by a real relationship " +
+      "(driver-team, driver-nationality, etc.).\n\n" +
+      "Flip two cards per turn and remember their position.\n" +
+      "Knowledge and memory go hand in hand!"
+  }
+}
+
 
 
 };
