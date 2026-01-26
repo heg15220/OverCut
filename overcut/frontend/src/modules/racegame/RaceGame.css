@@ -1886,3 +1886,16 @@
     top: calc(10px + var(--rg-tablet-top-offset-land)) !important;
   }
 }
+
+@media (max-width: 520px){
+  .racegame__setupTop{
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .racegame__setupBack{
+    width: 100% !important;           /* se va a su propia línea */
+    justify-content: center;
+    text-align: center;
+  }
+}

@@ -386,3 +386,29 @@
   }
   .bingo-cell__desc { font-size: 12.5px; }
 }
+
+/* =========================
+   Mobile: no cortar respuesta correcta
+   ========================= */
+@media (max-width: 520px){
+  .bingo-cell__answerOverlay{
+    padding: 7px 8px;
+    gap: 6px;
+  }
+
+  .bingo-cell__answerName{
+    white-space: normal;          /* deja de forzar 1 línea */
+    overflow: hidden;
+    text-overflow: unset;
+
+    display: -webkit-box;         /* clamp a 2 líneas */
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+
+    line-height: 1.1;
+    font-size: 12px;
+    max-width: 100%;
+    overflow-wrap: anywhere;      /* rompe cadenas largas */
+    word-break: break-word;       /* fallback */
+  }
+}

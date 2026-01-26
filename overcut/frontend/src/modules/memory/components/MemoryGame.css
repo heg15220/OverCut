@@ -414,3 +414,94 @@
     0 0 22px rgba(46,204,113,.22);
   border-color: rgba(46,204,113,.22);
 }
+
+/* =========================
+   Mobile fix: evitar solape badge + texto
+   ========================= */
+@media (max-width: 520px) {
+  /* Reserva espacio superior para el badge */
+  .memory-card-back {
+    padding-top: 34px;          /* <-- hueco para el badge */
+    justify-content: center;    /* mantiene el texto centrado */
+  }
+
+  /* Asegura que el badge no “invada” más */
+  .memory-type {
+    top: 8px;
+    left: 8px;
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+
+  /* El texto no debe comerse el badge */
+  .memory-text {
+    margin-top: 6px;
+    max-width: 90%;
+    font-size: 12px;
+    line-height: 1.12;
+
+    /* opcional: recorta en 3 líneas en móviles */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* =========================
+   Text wrapping (all sizes)
+   ========================= */
+.memory-type,
+.memory-text{
+  white-space: normal;
+  overflow-wrap: anywhere;   /* rompe cadenas largas */
+  word-break: break-word;    /* fallback */
+  hyphens: auto;             /* si el idioma lo permite */
+}
+
+/* El badge también puede romper (por ejemplo "NATIONALITY") */
+.memory-type{
+  max-width: calc(100% - 16px);
+  line-height: 1.05;
+}
+
+/* El texto principal: permite varias líneas sin cortar palabras “normales” */
+.memory-text{
+  text-align: center;
+}
+
+/* =========================
+   Mobile: más tolerante con textos largos
+   ========================= */
+@media (max-width: 520px){
+  .memory-card-back{
+    padding-top: 36px; /* mantiene hueco del badge */
+  }
+
+  /* Badge: reduce un poco y deja que envuelva */
+  .memory-type{
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+
+  /* Texto: más flexible, y clamp SOLO si se va de madre */
+  .memory-text{
+    font-size: clamp(11px, 3.2vw, 13px);
+    line-height: 1.12;
+    max-width: 92%;
+
+    /* Clamp más amable */
+    display: -webkit-box;
+    -webkit-line-clamp: 4;      /* antes 3 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Extra para móviles muy pequeños */
+@media (max-width: 380px){
+  .memory-text{
+    -webkit-line-clamp: 5; /* un pelín más de margen */
+  }
+}
+
