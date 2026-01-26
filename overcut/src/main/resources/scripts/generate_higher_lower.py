@@ -253,6 +253,6 @@ def generate_higher_lower_game(lang: str):
                 if payload:
                     return payload
 
-        return {"error": "No hay estadísticas con pool suficiente"}
+        return {"error": "No hay estadísticas con pool suficiente "}
     finally:
         session.close()

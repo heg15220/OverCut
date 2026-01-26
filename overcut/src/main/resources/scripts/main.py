@@ -729,7 +729,7 @@ def generate_higher_lower(lang: str = Query("es", enum=["es","en"])):
         result = generate_higher_lower_game(lang)
         return JSONResponse(content=result)
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        return JSONResponse(content={"error ": str(e)}, status_code=500)
 
 # === Main app ===
 if __name__ == "__main__":

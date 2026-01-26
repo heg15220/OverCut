@@ -198,6 +198,6 @@ def generate_memory_game(lang: str = "es", rows: int = 4, cols: int = 4, mode: s
         "rows": rows,
         "cols": cols,
         "mode": mode,
-        "attemptsLeft": 30,
+        "attemptsLeft": 30, 
         "cards": cards
     }
