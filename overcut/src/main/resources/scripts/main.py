@@ -76,9 +76,10 @@ from generate_bingo import generate_bingo_game, load_driver_pool
 from generate_timeline_game import generate_timeline_game, load_timeline_pools
 from sqlalchemy import text
 from generate_who_is_who import generate_who_is_who_game, load_whoiswho_pool
-from generate_memory_game import generate_memory_game
+from generate_memory_game import generate_memory_game, warmup_memory_caches
 from generate_team_history_game import get_team_history_game
-from generate_higher_lower import generate_higher_lower_game
+from generate_higher_lower import generate_higher_lower_game, warmup_higher_lower_caches
+
 
 
 
@@ -201,6 +202,9 @@ async def lifespan(app: FastAPI):
     load_timeline_pools()
     load_driver_pool()
     load_whoiswho_pool()
+    warmup_higher_lower_caches(force=True)
+    warmup_memory_caches(force=True)
+
     yield
 
 
