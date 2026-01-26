@@ -10,6 +10,7 @@ public interface AdvancedStatsService {
     record ConstructorOption(Long constructorId, String name) {}
     record CircuitOption(String circuitRef, String name) {}
 
+    ChartDataDTO getTeamPerformanceGapBySeason(String seasonStr, String lang);
 
     List<DriverOption> getAllDrivers();
 

@@ -8,6 +8,35 @@ import java.util.List;
 import java.util.Set;
 
 public interface ResultDao extends JpaRepository<Result, Long> {
+
+    @Query(value = """
+        SELECT
+            r.raceId                  AS raceId,
+            ra.round                  AS round,
+            ra.name                   AS raceName,
+            r.constructorId           AS constructorId,
+            c.constructorRef          AS constructorRef,
+            c.name                    AS constructorName,
+            AVG(r.milliseconds - w.winner_ms) AS avgGapMs
+        FROM results r
+        JOIN races ra ON ra.raceId = r.raceId
+        JOIN constructors c ON c.constructorId = r.constructorId
+        JOIN (
+            SELECT raceId, MIN(milliseconds) AS winner_ms
+            FROM results
+            WHERE positionOrder = 1 AND milliseconds IS NOT NULL
+            GROUP BY raceId
+        ) w ON w.raceId = r.raceId
+        WHERE ra.year = :year
+          AND r.milliseconds IS NOT NULL
+          AND r.positionOrder IS NOT NULL
+          AND r.positionOrder > 0
+        GROUP BY r.raceId, ra.round, ra.name, r.constructorId, c.constructorRef, c.name
+        ORDER BY ra.round ASC, c.name ASC
+        """, nativeQuery = true)
+    List<TeamAvgLapGapToWinnerPerRaceView> getTeamAvgGapToWinnerPerRace(@Param("year") int year);
+
+
     List<Result> findByRaceRaceIdOrderByPositionOrderAsc(Long raceId);
     @Query("SELECT r FROM Result r WHERE r.positionOrder = 1 AND r.grid > 2")
     List<Result> findAllByPositionOrderAndGridGreaterThan(@Param("positionOrder") int positionOrder, @Param("grid") int grid);

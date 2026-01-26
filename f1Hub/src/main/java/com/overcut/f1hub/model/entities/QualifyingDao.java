@@ -8,6 +8,63 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface QualifyingDao extends JpaRepository<Qualifying, Long> {
+
+
+
+
+    @Query(value = """
+SELECT
+  r.raceId AS raceId,
+  r.round  AS round,
+  r.name   AS raceName,
+
+  q.constructorId AS constructorId,
+  c.constructorRef AS constructorRef,
+  c.name AS constructorName,
+
+  AVG( (qd.bestSec - p.poleBestSec) * 1000.0 ) AS avgQualiGapMs
+FROM races r
+JOIN qualifying q ON q.raceId = r.raceId
+JOIN constructors c ON c.constructorId = q.constructorId
+
+JOIN (
+  SELECT
+    qx.raceId,
+    qx.driverId,
+    qx.constructorId,
+    LEAST(
+      CASE WHEN qx.q1 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' THEN TIME_TO_SEC(STR_TO_DATE(qx.q1, '%i:%s.%f')) ELSE 999999 END,
+      CASE WHEN qx.q2 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' THEN TIME_TO_SEC(STR_TO_DATE(qx.q2, '%i:%s.%f')) ELSE 999999 END,
+      CASE WHEN qx.q3 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' THEN TIME_TO_SEC(STR_TO_DATE(qx.q3, '%i:%s.%f')) ELSE 999999 END
+    ) AS bestSec
+  FROM qualifying qx
+  WHERE qx.position IS NOT NULL
+) qd ON qd.raceId = q.raceId AND qd.driverId = q.driverId AND qd.constructorId = q.constructorId
+
+JOIN (
+  SELECT
+    qp.raceId,
+    LEAST(
+      CASE WHEN qp.q1 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' THEN TIME_TO_SEC(STR_TO_DATE(qp.q1, '%i:%s.%f')) ELSE 999999 END,
+      CASE WHEN qp.q2 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' THEN TIME_TO_SEC(STR_TO_DATE(qp.q2, '%i:%s.%f')) ELSE 999999 END,
+      CASE WHEN qp.q3 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$' THEN TIME_TO_SEC(STR_TO_DATE(qp.q3, '%i:%s.%f')) ELSE 999999 END
+    ) AS poleBestSec
+  FROM qualifying qp
+  WHERE qp.position = 1
+) p ON p.raceId = r.raceId
+
+WHERE r.year = :year
+  AND qd.bestSec < 999999
+  AND p.poleBestSec < 999999
+GROUP BY r.raceId, r.round, r.name, q.constructorId, c.constructorRef, c.name, p.poleBestSec
+ORDER BY r.round
+""", nativeQuery = true)
+    List<TeamAvgQualiGapToPolePerRaceView> getTeamAvgQualiGapToPolePerRace(@Param("year") int year);
+
+
+
+
+
     List<Qualifying> findByRaceRaceIdOrderByPositionAsc(Long raceId);
     boolean existsByRaceRaceId(Long raceId);
 

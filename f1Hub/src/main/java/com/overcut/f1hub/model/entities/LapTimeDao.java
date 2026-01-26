@@ -9,6 +9,49 @@ import java.util.List;
 import java.util.Set;
 
 public interface LapTimeDao extends JpaRepository<LapTime, LapTimeId> {
+
+
+        @Query(value = """
+        SELECT
+          r.raceId AS raceId,
+          r.round  AS round,
+          r.name   AS raceName,
+
+          res.constructorId AS constructorId,
+          c.constructorRef  AS constructorRef,
+          c.name            AS constructorName,
+
+          (AVG(lt.milliseconds) - w.avgWinnerMs) AS avgGapMsPerLap
+        FROM results res
+        JOIN races r ON r.raceId = res.raceId
+        JOIN constructors c ON c.constructorId = res.constructorId
+        JOIN lapTimes lt ON lt.raceId = res.raceId AND lt.driverId = res.driverId
+
+        JOIN (
+           SELECT
+             rr.raceId AS raceId,
+             AVG(ltw.milliseconds) AS avgWinnerMs
+           FROM results rr
+           JOIN lapTimes ltw ON ltw.raceId = rr.raceId AND ltw.driverId = rr.driverId
+           WHERE rr.positionOrder = 1
+           GROUP BY rr.raceId
+        ) w ON w.raceId = res.raceId
+
+        WHERE r.year = :year
+        GROUP BY r.raceId, r.round, r.name, res.constructorId, c.constructorRef, c.name, w.avgWinnerMs
+        """, nativeQuery = true)
+        List<TeamAvgLapGapToWinnerPerRaceView> getTeamAvgLapGapToWinnerPerRace(@Param("year") int year);
+
+
+
+
+
+
+
+
+
+
+
     @Query("SELECT lt FROM LapTime lt WHERE lt.raceId IN :raceIds")
     List<LapTime> findByRaceIdIn(@Param("raceIds") Set<Long> raceIds);
 

@@ -19,6 +19,16 @@ public class ChartController {
     @Autowired
     private AdvancedStatsService advancedStatsService;
 
+
+    @GetMapping("/team-performance-gap")
+    public ChartDataDTO getTeamPerformanceGap(
+            @RequestParam String season,
+            @RequestParam(defaultValue = "es") String lang
+    ) {
+        return advancedStatsService.getTeamPerformanceGapBySeason(season, lang);
+    }
+
+
     @GetMapping("/average-points-per-season")
     public ChartDataDTO getAveragePointsPerSeasonByDriver(@RequestParam(required = false) String decade,
                                                           @RequestParam String lang) {
@@ -414,7 +424,8 @@ public class ChartController {
                 "most-team-points",
                 "wins-no-front-row",
                 "grid-vs-result-delta",
-                "technical-failures"
+                "technical-failures",
+                "team-performance-gap"
         ));
 
         categories.put(races, List.of(

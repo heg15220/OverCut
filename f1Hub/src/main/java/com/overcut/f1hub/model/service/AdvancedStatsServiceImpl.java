@@ -3,19 +3,13 @@ package com.overcut.f1hub.model.service;
 import com.overcut.f1hub.model.entities.*;
 import com.overcut.f1hub.rest.dtos.ChartDataDTO;
 import com.overcut.f1hub.rest.dtos.ChartSeriesDTO;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class AdvancedStatsServiceImpl implements AdvancedStatsService {
@@ -91,6 +85,177 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public ChartDataDTO getTeamPerformanceGapBySeason(String seasonStr, String lang) {
+        int year = Integer.parseInt(seasonStr);
+
+        // Pesos (ajusta si quieres: por ejemplo 0.65 quali, 0.35 race)
+        final double W_RACE = 0.50;
+        final double W_QUALI = 0.50;
+
+        // -------------------------------
+        // 1) RACE PACE (lapTimes): gap medio vs ganador por vuelta (ms/vuelta)
+        // -------------------------------
+        Map<Long, List<Double>> raceByTeam = new HashMap<>(); // s/vuelta
+        Map<Long, String> teamName = new HashMap<>();
+        Map<Long, String> teamRef = new HashMap<>();
+
+        if (year < 2025) { // en 2025+ NO lo usamos
+            List<TeamAvgLapGapToWinnerPerRaceView> raceRows =
+                    lapTimeDao.getTeamAvgLapGapToWinnerPerRace(year);
+
+            if (raceRows != null) {
+                for (TeamAvgLapGapToWinnerPerRaceView v : raceRows) {
+                    Double gapMsPerLap = v.getAvgGapMsPerLap();
+                    if (gapMsPerLap == null) continue;
+
+                    raceByTeam.computeIfAbsent(v.getConstructorId(), k -> new ArrayList<>())
+                            .add(gapMsPerLap / 1000.0); // -> s/vuelta
+
+                    teamName.putIfAbsent(v.getConstructorId(), v.getConstructorName());
+                    teamRef.putIfAbsent(v.getConstructorId(), v.getConstructorRef());
+                }
+            }
+        }
+
+        // -------------------------------
+        // 2) QUALI PACE (qualifying): gap medio vs pole (ms)
+        //    Desde 2003 en adelante, y en 2025+ es la única referencia
+        // -------------------------------
+        Map<Long, List<Double>> qualiByTeam = new HashMap<>(); // s/vuelta
+
+        if (year >= 2003) {
+            List<TeamAvgQualiGapToPolePerRaceView> qualiRows =
+                    qualifyingDao.getTeamAvgQualiGapToPolePerRace(year);
+
+            if (qualiRows != null) {
+                for (TeamAvgQualiGapToPolePerRaceView v : qualiRows) {
+                    Double gapMs = v.getAvgQualiGapMs();
+                    if (gapMs == null) continue;
+
+                    qualiByTeam.computeIfAbsent(v.getConstructorId(), k -> new ArrayList<>())
+                            .add(gapMs / 1000.0); // -> s
+
+                    // Reutiliza nombre/ref del equipo por si este año solo hay quali
+                    teamName.putIfAbsent(v.getConstructorId(), v.getConstructorName());
+                    teamRef.putIfAbsent(v.getConstructorId(), v.getConstructorRef());
+                }
+            }
+        }
+
+        // -------------------------------
+        // 3) Combinar según reglas de año
+        // -------------------------------
+        class TeamGap {
+            Long constructorId;
+            String name;
+            String ref;
+            double avg; // gap final (s)
+            TeamGap(Long id, String n, String r, double a) {
+                constructorId = id; name = n; ref = r; avg = a;
+            }
+        }
+
+        Set<Long> allTeams = new HashSet<>();
+        allTeams.addAll(raceByTeam.keySet());
+        allTeams.addAll(qualiByTeam.keySet());
+
+        List<TeamGap> teamGaps = new ArrayList<>();
+
+        for (Long teamId : allTeams) {
+            double raceAvg = avgOrNaN(raceByTeam.get(teamId));
+            double qualiAvg = avgOrNaN(qualiByTeam.get(teamId));
+
+            Double finalGap = null;
+
+            if (year >= 2025) {
+                // SOLO QUALI
+                if (!Double.isNaN(qualiAvg) && !Double.isInfinite(qualiAvg)) {
+                    finalGap = qualiAvg;
+                }
+            } else if (year >= 2003) {
+                // MEZCLA (si falta uno, usa el otro)
+                boolean hasRace = !Double.isNaN(raceAvg) && !Double.isInfinite(raceAvg);
+                boolean hasQuali = !Double.isNaN(qualiAvg) && !Double.isInfinite(qualiAvg);
+
+                if (hasRace && hasQuali) {
+                    finalGap = (raceAvg * W_RACE) + (qualiAvg * W_QUALI);
+                } else if (hasQuali) {
+                    finalGap = qualiAvg;
+                } else if (hasRace) {
+                    finalGap = raceAvg;
+                }
+            } else {
+                // < 2003: SOLO RACE
+                if (!Double.isNaN(raceAvg) && !Double.isInfinite(raceAvg)) {
+                    finalGap = raceAvg;
+                }
+            }
+
+            if (finalGap == null) continue;
+
+            teamGaps.add(new TeamGap(
+                    teamId,
+                    teamName.getOrDefault(teamId, "Team " + teamId),
+                    teamRef.getOrDefault(teamId, "team"),
+                    finalGap
+            ));
+        }
+
+        if (teamGaps.isEmpty()) {
+            return new ChartDataDTO(
+                    chartI18n.get("teamPerformanceGap", lang) + " " + year,
+                    "bar",
+                    List.of(),
+                    List.of()
+            );
+        }
+
+        // -------------------------------
+        // 4) Normalizar: el mejor queda a 0
+        // -------------------------------
+        double minAvg = teamGaps.stream().mapToDouble(t -> t.avg).min().orElse(0.0);
+        for (TeamGap t : teamGaps) t.avg = t.avg - minAvg;
+
+        // Ordenar mejor->peor
+        teamGaps.sort(Comparator.comparingDouble(t -> t.avg));
+
+        // labels + data
+        List<String> labels = teamGaps.stream().map(t -> t.name).toList();
+        List<Double> data = teamGaps.stream().map(t -> round3(t.avg)).toList();
+
+        // Etiqueta serie según modo
+        String seriesLabel;
+        if (year >= 2025) {
+            seriesLabel = lang.equals("es") ? "Gap medio (Qualy, s)" : "Average gap (Qualy, s)";
+        } else if (year >= 2003) {
+            seriesLabel = lang.equals("es") ? "Gap medio (Race+Qualy, s)" : "Average gap (Race+Qualy, s)";
+        } else {
+            seriesLabel = lang.equals("es") ? "Gap medio (Race pace, s/vuelta)" : "Average gap (Race pace, s/lap)";
+        }
+
+        ChartSeriesDTO serie = new ChartSeriesDTO(seriesLabel, "#999999", data);
+
+        return new ChartDataDTO(
+                chartI18n.get("teamPerformanceGap", lang) + " " + year,
+                "bar",
+                labels,
+                List.of(serie)
+        );
+    }
+
+    private double avgOrNaN(List<Double> vals) {
+        if (vals == null || vals.isEmpty()) return Double.NaN;
+        return vals.stream().mapToDouble(x -> x).average().orElse(Double.NaN);
+    }
+
+    private Double round3(double v) {
+        return Math.round(v * 1000.0) / 1000.0;
+    }
+
+
+
+
 
 
     public ChartDataDTO getAveragePointsPerSeasonByDriver(String decade, String lang) {
@@ -144,6 +309,7 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         return new ChartDataDTO(chartI18n.get("averagePointsPerSeason", lang), "line", yearLabels, datasets);
     }
+
 
 
 

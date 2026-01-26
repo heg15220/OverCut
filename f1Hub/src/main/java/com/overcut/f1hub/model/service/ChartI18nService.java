@@ -275,8 +275,13 @@ public class ChartI18nService {
             Map.entry("constructorPerformanceTrajectory", Map.of(
                     "es", "Trayectoria de rendimiento del equipo ",
                     "en", "Team performance trajectory of "
+            )),
+
+            Map.entry("teamPerformanceGap", Map.of(
+                    "es", "Diferencia de rendimiento entre equipos (gap al ganador) ",
+                    "en", "Performance gap between teams (gap to winner) "
             ))
-    );
+            );
 
     public String get(String key, String lang) {
         return translations.getOrDefault(key, Map.of()).getOrDefault(lang, translations.getOrDefault(key, Map.of()).get("en"));

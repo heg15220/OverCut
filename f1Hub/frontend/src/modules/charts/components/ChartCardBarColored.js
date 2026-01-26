@@ -11,7 +11,6 @@ const defaultColorPalette = [
 
 const lang = navigator.language.startsWith("es") ? "es" : "en";
 
-
 const ChartCardBarColored = ({ chart }) => {
   if (!chart || !chart.labels || !chart.datasets || chart.labels.length === 0 || chart.datasets.length === 0) {
     return (
@@ -30,16 +29,23 @@ const ChartCardBarColored = ({ chart }) => {
     selected[ds.label] = idx === 0;
   });
 
+  const isTeamPerformanceGap =
+    title.toLowerCase().includes("performance gap between teams") ||
+    title.toLowerCase().includes("diferencia de rendimiento entre equipos");
+
   const series = filteredDatasets.map((ds, datasetIndex) => {
     const fallbackColor = defaultColorPalette[datasetIndex % defaultColorPalette.length];
-    const color = Array.isArray(ds.color) ? ds.color[0] || fallbackColor : ds.color || fallbackColor;
+    const baseColor = Array.isArray(ds.color) ? ds.color[0] || fallbackColor : ds.color || fallbackColor;
 
     return {
       name: ds.label,
       type: "bar",
       data: ds.data,
       itemStyle: {
-        color
+        // ✅ SOLO en Team Performance Gap: cada barra un color distinto
+        color: isTeamPerformanceGap
+          ? (params) => defaultColorPalette[params.dataIndex % defaultColorPalette.length]
+          : baseColor
       }
     };
   });
@@ -74,7 +80,9 @@ const ChartCardBarColored = ({ chart }) => {
       borderWidth: 1,
       textStyle: {
         color: "#fff"
-      }
+      },
+      // ✅ para barras horizontales queda mejor
+      axisPointer: isTeamPerformanceGap ? { type: "shadow" } : undefined
     },
     legend: {
       type: "scroll",
@@ -92,57 +100,67 @@ const ChartCardBarColored = ({ chart }) => {
     },
     grid: {
       top: 120,
-      left: "5%",
+      left: isTeamPerformanceGap ? "12%" : "5%",
       right: "5%",
       bottom: "8%",
       containLabel: true
     },
-    xAxis: {
-      type: "category",
-      data: labels,
-      axisLine: {
-        lineStyle: {
-          color: "#777"
+
+    // ✅ HORIZONTAL solo para Team Performance Gap:
+    // xAxis = value, yAxis = category (labels)
+    xAxis: isTeamPerformanceGap
+      ? {
+          type: "value",
+          axisLine: { lineStyle: { color: "#777" } },
+          axisLabel: { color: "#ccc", fontSize: 12 },
+          splitLine: { lineStyle: { color: "#444", type: "dashed" } }
         }
-      },
-      axisLabel: {
-        color: "#ccc",
-        fontSize: 12
-      }
-    },
-    yAxis: {
-      type: "value",
-      axisLine: {
-        lineStyle: {
-          color: "#777"
+      : {
+          type: "category",
+          data: labels,
+          axisLine: { lineStyle: { color: "#777" } },
+          axisLabel: { color: "#ccc", fontSize: 12 }
+        },
+
+    yAxis: isTeamPerformanceGap
+      ? {
+          type: "category",
+          data: labels,
+          axisLine: { lineStyle: { color: "#777" } },
+          axisLabel: { color: "#ccc", fontSize: 12 }
         }
-      },
-      axisLabel: {
-        color: "#ccc",
-        fontSize: 12
-      },
-      splitLine: {
-        lineStyle: {
-          color: "#444",
-          type: "dashed"
-        }
-      }
-    },
+      : {
+          type: "value",
+          axisLine: { lineStyle: { color: "#777" } },
+          axisLabel: { color: "#ccc", fontSize: 12 },
+          splitLine: { lineStyle: { color: "#444", type: "dashed" } }
+        },
+
     series
   };
 
-    return (
-      <div className="chart-card">
-        {(title.includes("Driver efficiency") || title.includes("Índice de eficiencia")) && (
-          <p className="chart-description">
-            {lang === "es"
-              ? "Este índice compara el rendimiento de los pilotos en función de los puntos obtenidos por carrera y su posición media de salida. Una puntuación más alta indica mayor capacidad para maximizar resultados saliendo desde las primeras posiciones de la parrilla"
-              : "This index compares drivers based on the points they score per race relative to their average starting position. A higher score indicates better ability to maximize results from the front of the grid."}
-          </p>
-        )}
-        <ReactECharts option={option} style={{ height: 400, width: "100%" }} />
-      </div>
-    );
+  return (
+    <div className="chart-card">
+      {(title.includes("Driver efficiency") || title.includes("Índice de eficiencia")) && (
+        <p className="chart-description">
+          {lang === "es"
+            ? "Este índice compara el rendimiento de los pilotos en función de los puntos obtenidos por carrera y su posición media de salida. Una puntuación más alta indica mayor capacidad para maximizar resultados saliendo desde las primeras posiciones de la parrilla"
+            : "This index compares drivers based on the points they score per race relative to their average starting position. A higher score indicates better ability to maximize results from the front of the grid."}
+        </p>
+      )}
+
+      {(title.toLowerCase().includes("performance gap between teams") ||
+        title.toLowerCase().includes("diferencia de rendimiento entre equipos")) && (
+        <p className="chart-description">
+          {lang === "es"
+            ? "Este gráfico compara el rendimiento relativo de los equipos en una temporada. El mejor equipo aparece con 0 (referencia) y el resto muestra cuántos segundos de media está por detrás. Desde 2003 se combina ritmo de carrera (tiempo medio por vuelta) y rendimiento en clasificación (gap medio a la pole); a partir de 2025 solo se usa la clasificación."
+            : "This chart compares teams' relative performance in a season. The best team is shown as 0 (baseline) and the others display how many seconds per lap, on average, they are behind. From 2003 onward it blends race pace (average lap time gap) and qualifying pace (average gap to pole); from 2025 onward it uses qualifying only."}
+        </p>
+      )}
+
+      <ReactECharts option={option} style={{ height: 400, width: "100%" }} />
+    </div>
+  );
 };
 
 export default ChartCardBarColored;

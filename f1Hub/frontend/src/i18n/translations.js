@@ -186,6 +186,7 @@ const translations = {
     selectSession: "Selecciona sesión",
     viewResults: "Ver resultados",
     headerOvercut: "OverCut",
+    teamPerformanceGap: "Diferencia de rendimiento entre equipos (gap al ganador)"
 
   },
   en: {
@@ -375,6 +376,7 @@ const translations = {
     selectGrandPrix: "Select GP",
     selectSession: "Select session",
     viewResults: "View results",
+    teamPerformanceGap: "Performance gap between teams (gap to winner)"
 
   },
 };

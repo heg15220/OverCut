@@ -134,7 +134,15 @@ const ChartSelector = () => {
         },
         param: "decade",
         chartType: "line"
-      }
+      },
+
+    {
+      endpoint: "team-performance-gap",
+      label: { es: "Gap medio de rendimiento (equipos)", en: "Team performance gap" },
+      param: "season",
+      chartType: "bar"
+    },
+
     ],
     Carreras: [
       { endpoint: "pitstops-per-race", label: { es: "Pitstops por Carrera", en: "Pitstops per Race" }, param: "season", chartType: "line" },
@@ -163,7 +171,9 @@ const ChartSelector = () => {
     "average-finish-position": ChartCardBarColored,
     "average-start-position": ChartCardBarColored,
     "race-leaders-per-gp": ChartCardColored,
-    "reliability-by-season": ChartCardColored
+    "reliability-by-season": ChartCardColored,
+    "team-performance-gap": ChartCardBarColored , // o ChartCard
+
 
   };
 
