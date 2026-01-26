@@ -28,11 +28,11 @@ public class Top10QualiGameServiceImpl implements Top10QualiGameService {
     @Override
     public Top10QualiGame createGame(Long userId, String lang) {
         try {
-         /*   if (!cooldownService.canPlay("Top10QualiGame", userId)) {
+            if (!cooldownService.canPlay("Top10QualiGame", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("Top10QualiGame", userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+
             String url = "http://localhost:8000/generate-top10quali-game?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
@@ -73,7 +73,7 @@ public class Top10QualiGameServiceImpl implements Top10QualiGameService {
             game.setSlots(slots);
 
             Top10QualiGame saved = gameDao.save(game);
-            //cooldownService.registerPlay("Top10QualiGame", userId);
+            cooldownService.registerPlay("Top10QualiGame", userId);
 
             return saved;
 

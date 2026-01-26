@@ -8,6 +8,10 @@ import { getTowerGame, getTowerHint, getTowerThemesCatalog } from "../selectors"
 
 import MinigameTutorial from "../../common/components/MinigameTutorial";
 import LoadingScreen from "../../common/components/LoadingScreen";
+import CooldownScreen from "../../cooldown/components/CooldownScreen";
+import { fetchCooldown } from "../../cooldown/actions";
+import { getCooldownForGame } from "../../cooldown/selectors";
+
 import { tutorialTexts } from "../../../helpers/minigameTutorialTexts";
 
 import TowerGuessBox from "./TowerGuessBox";
@@ -16,15 +20,6 @@ import TowerAnswerBox from "./TowerAnswerBox";
 import { sourceImages } from "../../../helpers/sourceMiniGamesImages";
 import "./TowerGame.css";
 
-/**
- * Flujo:
- * 1) Tutorial
- * 2) Start random game
- * 3) Guess + History
- * 4) Hint tras 15
- * 5) Responder (overlay) tras 5
- * 6) Al finalizar, feedback (correcto/incorrecto) se muestra ENCIMA del historial
- */
 const TowerGame = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,16 +30,17 @@ const TowerGame = () => {
   const hint = useSelector(getTowerHint);
   const themesCatalog = useSelector(getTowerThemesCatalog);
 
-  const [showTutorial, setShowTutorial] = useState(true);
+  const { canPlay, secondsRemaining, loading } = useSelector((state) =>
+    getCooldownForGame(state, "Tower")
+  );
 
-  // ✅ overlay responder
+  const [showTutorial, setShowTutorial] = useState(true);
   const [showAnswerOverlay, setShowAnswerOverlay] = useState(false);
 
   const t = useMemo(() => {
     return {
       title: "Tower",
       loading: lang === "es" ? "Cargando..." : "Loading...",
-      back: lang === "es" ? "⬅️ Volver" : "⬅️ Back",
       backToMinigames: lang === "es" ? "Volver al inicio" : "Back home",
       hint: lang === "es" ? "💡 Pista" : "💡 Hint",
       hintLocked:
@@ -60,16 +56,12 @@ const TowerGame = () => {
       hintLabel: lang === "es" ? "Temática:" : "Theme:",
       solvedYes: lang === "es" ? "✅ ¡Correcto!" : "✅ Correct!",
       solvedNo: lang === "es" ? "❌ Incorrecto" : "❌ Wrong",
-
-      // ✅ Botón para abrir overlay
       answerBtn: lang === "es" ? "🎯 Responder" : "🎯 Answer",
       answerLocked:
         lang === "es"
           ? "Responder disponible tras 5 intentos"
           : "Answer available after 5 attempts",
       close: lang === "es" ? "Cerrar" : "Close",
-
-      // Traducción hintType (si existe)
       hintType: {
         team: lang === "es" ? "Equipo" : "Team",
         country: lang === "es" ? "Nacionalidad" : "Nationality",
@@ -84,10 +76,17 @@ const TowerGame = () => {
     };
   }, [lang]);
 
+  // 1) Traer cooldown al entrar
   useEffect(() => {
+    dispatch(fetchCooldown("Tower"));
+  }, [dispatch]);
+
+  // 2) Cargar catálogo de themes (solo si puede jugar; así evitas llamadas inútiles)
+  useEffect(() => {
+    if (!canPlay) return;
     dispatch(actions.loadTowerThemes());
     return () => dispatch(actions.clearTower());
-  }, [dispatch]);
+  }, [dispatch, canPlay]);
 
   const onBack = () => {
     dispatch(actions.clearTower());
@@ -113,9 +112,20 @@ const TowerGame = () => {
     setShowAnswerOverlay(true);
   };
 
-  const closeAnswer = () => {
-    setShowAnswerOverlay(false);
-  };
+  const closeAnswer = () => setShowAnswerOverlay(false);
+
+  // ========= Cooldown loading =========
+  if (loading) return <LoadingScreen text={t.loading} />;
+
+  // ========= Cooldown blocked =========
+  if (!canPlay) {
+    return (
+      <CooldownScreen
+        seconds={secondsRemaining}
+        onBack={() => navigate("/minigames")}
+      />
+    );
+  }
 
   // ========= Tutorial =========
   if (showTutorial) {
@@ -133,6 +143,7 @@ const TowerGame = () => {
         description={tutorial.description}
         image={sourceImages(`./Tower.png`)}
         onStart={() => {
+          if (!canPlay) return;
           setShowTutorial(false);
           dispatch(actions.startTowerGame(null, null));
         }}
@@ -141,10 +152,9 @@ const TowerGame = () => {
     );
   }
 
-  // ========= Loading =========
+  // ========= Loading game =========
   if (!game) return <LoadingScreen text={t.loading} />;
 
-  // ========= Game =========
   const hintType = hint?.hintType || null;
   const hintValue = hint?.hintValue || null;
   const hasHint = !!(hint?.ok && hintType);
@@ -164,7 +174,6 @@ const TowerGame = () => {
           </div>
 
           <div className="tower-actions">
-            {/* ✅ botón para abrir overlay */}
             {!game.finished && (
               <button
                 className={`tower-answerBtn ${canAnswer ? "" : "disabled"}`}
@@ -206,7 +215,6 @@ const TowerGame = () => {
         <section className="tower-main">
           <TowerGuessBox lang={lang} gameId={game.id} disabled={!!game.finished} />
 
-          {/* ✅ Feedback arriba del historial */}
           {game.finished && (
             <div className="tower-finishCard tower-finishCard--aboveHistory">
               <div className="tower-finishMsg">
@@ -221,7 +229,6 @@ const TowerGame = () => {
 
           <TowerHistory lang={lang} guesses={game.history || []} />
 
-          {/* ✅ Overlay para responder (encima del historial) */}
           {showAnswerOverlay && !game.finished && (
             <div className="tower-overlay" role="dialog" aria-modal="true">
               <div className="tower-overlayBackdrop" onClick={closeAnswer} />

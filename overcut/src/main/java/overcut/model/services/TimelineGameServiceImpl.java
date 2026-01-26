@@ -30,11 +30,11 @@ public class TimelineGameServiceImpl implements TimelineGameService {
     @Override
     public TimelineGame startGame(String lang, Long userId) {
         try {
-           /* if (!cooldownService.canPlay("Timeline", userId)) {
+            if (!cooldownService.canPlay("Timeline", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("Timeline", userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-timeline?lang=" + lang))
@@ -64,7 +64,7 @@ public class TimelineGameServiceImpl implements TimelineGameService {
             }
 
             TimelineGame saved = gameDao.save(game);
-          //  cooldownService.registerPlay("Timeline", userId);
+          cooldownService.registerPlay("Timeline", userId);
             return saved;
 
         } catch (CooldownException ce) {

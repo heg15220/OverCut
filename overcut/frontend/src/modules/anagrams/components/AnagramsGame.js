@@ -64,8 +64,12 @@ const AnagramsGame = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (canPlay) dispatch(actions.startAnagramsGame());
-  }, [canPlay, dispatch]);
+    if (!canPlay) return;
+    if (showTutorial) return;
+    if (game?.id) return; // o game?.gameId según tu DTO
+    dispatch(actions.startAnagramsGame());
+  }, [canPlay, showTutorial, game?.id, dispatch]);
+
 
   // ✅ Inicialización del “freeze”
   useEffect(() => {

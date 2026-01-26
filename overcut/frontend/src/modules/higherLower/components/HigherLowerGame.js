@@ -47,8 +47,12 @@ export default function HigherLowerGame() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (canPlay) dispatch(actions.startHigherLowerGame());
-  }, [canPlay, dispatch]);
+    if (!canPlay) return;
+    if (showTutorial) return;
+    if (game?.id) return; // evita doble start
+    dispatch(actions.startHigherLowerGame());
+  }, [canPlay, showTutorial, game?.id, dispatch]);
+
 
   // cleanup global
   useEffect(() => {

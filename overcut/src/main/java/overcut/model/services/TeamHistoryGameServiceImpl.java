@@ -37,11 +37,11 @@ public class TeamHistoryGameServiceImpl implements TeamHistoryGameService {
     public TeamHistoryGameDto startGame(String lang, Long userId) {
         try {
             // ✅ cooldown (idéntico a DriversConnections)
-          /*  if (!cooldownService.canPlay(COOLDOWN_KEY, userId)) {
+            if (!cooldownService.canPlay(COOLDOWN_KEY, userId)) {
                 long wait = cooldownService.secondsUntilNextPlay(COOLDOWN_KEY, userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+
             // ✅ llamada FastAPI (idéntico esquema)
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -89,7 +89,7 @@ public class TeamHistoryGameServiceImpl implements TeamHistoryGameService {
                 seasonDao.save(s);
             }
 
-          //  cooldownService.registerPlay(COOLDOWN_KEY, userId);
+          cooldownService.registerPlay(COOLDOWN_KEY, userId);
 
             List<TeamHistorySeason> seasons =
                     seasonDao.findByGame_GameIdOrderBySeasonYearAsc(game.getGameId());

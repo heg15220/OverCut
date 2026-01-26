@@ -24,11 +24,11 @@ public class HigherLowerGameServiceImpl implements HigherLowerGameService {
     @Override
     public HigherLowerGame startGame(String lang, Long userId) {
         try {
-         /*   if (!cooldownService.canPlay("HigherLower", userId)) {
+            if (!cooldownService.canPlay("HigherLower", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("HigherLower", userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-higher-lower?lang=" + lang))
@@ -61,7 +61,7 @@ public class HigherLowerGameServiceImpl implements HigherLowerGameService {
             }
 
             HigherLowerGame saved = gameDao.save(game);
-           // cooldownService.registerPlay("HigherLower", userId);
+           cooldownService.registerPlay("HigherLower", userId);
             return saved;
 
         } catch (CooldownException ce) {

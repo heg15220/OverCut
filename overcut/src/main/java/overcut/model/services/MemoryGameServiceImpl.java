@@ -31,11 +31,11 @@ public class MemoryGameServiceImpl implements MemoryGameService {
     @Override
     public MemoryGame startGame(String lang, Long userId, int rows, int cols, String mode) {
         try {
-           /* if (!cooldownService.canPlay("Memory", userId)) {
+            if (!cooldownService.canPlay("Memory", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("Memory", userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+
             HttpClient client = HttpClient.newHttpClient();
             String url = "http://localhost:8000/generate-memory-game?lang=" + lang
                     + "&rows=" + rows + "&cols=" + cols + "&mode=" + mode;
@@ -77,7 +77,7 @@ public class MemoryGameServiceImpl implements MemoryGameService {
             }
 
             MemoryGame saved = gameDao.save(game);
-           // cooldownService.registerPlay("Memory", userId);
+           cooldownService.registerPlay("Memory", userId);
             return saved;
 
         } catch (CooldownException e) {

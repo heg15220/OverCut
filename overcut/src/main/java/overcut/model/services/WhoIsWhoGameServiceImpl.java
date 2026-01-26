@@ -36,11 +36,11 @@ public class WhoIsWhoGameServiceImpl implements WhoIsWhoGameService {
     @Override
     public WhoIsWhoGame startGame(String lang, Long userId) {
         try {
-         /*    if (!cooldownService.canPlay("WhoIsWho", userId)) {
+             if (!cooldownService.canPlay("WhoIsWho", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("WhoIsWho", userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-who-is-who?lang=" + lang))
@@ -73,8 +73,7 @@ public class WhoIsWhoGameServiceImpl implements WhoIsWhoGameService {
             }
 
             WhoIsWhoGame saved = gameDao.save(game);
-
-           // cooldownService.registerPlay("WhoIsWho", userId);
+            cooldownService.registerPlay("WhoIsWho", userId);
             return saved;
 
         } catch (CooldownException e) {

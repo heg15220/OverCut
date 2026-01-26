@@ -36,11 +36,11 @@ public class F1AnagramsGameServiceImpl implements F1AnagramsGameService {
     @Override
     public F1AnagramsGame startGame(Long userId) {
         try {
-          /*  if (!cooldownService.canPlay("Anagrams", userId)) {
+            if (!cooldownService.canPlay("Anagrams", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("Anagrams", userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-f1-anagrams"))
@@ -79,7 +79,7 @@ public class F1AnagramsGameServiceImpl implements F1AnagramsGameService {
             }
 
             F1AnagramsGame saved = gameDao.save(game);
-          //  cooldownService.registerPlay("Anagrams", userId);
+          cooldownService.registerPlay("Anagrams", userId);
             return saved;
 
         } catch (CooldownException ce) {

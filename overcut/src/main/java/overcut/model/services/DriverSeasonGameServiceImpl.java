@@ -40,11 +40,11 @@ public class DriverSeasonGameServiceImpl implements DriverSeasonGameService {
     @Override
     public DriverSeasonGameDto startGame(String lang, Long userId) {
         // ✅ COOLDOWN: antes de crear partida
-      /*  if (!cooldownService.canPlay(COOLDOWN_KEY, userId)) {
+       if (!cooldownService.canPlay(COOLDOWN_KEY, userId)) {
             long wait = cooldownService.secondsUntilNextPlay(COOLDOWN_KEY, userId);
             throw new CooldownException("WAIT", wait);
         }
-*/
+
         DriverSeasonGeneratedData data = pythonAdapter.generate(lang);
 
         DriverSeasonGame game = new DriverSeasonGame();
@@ -73,7 +73,7 @@ public class DriverSeasonGameServiceImpl implements DriverSeasonGameService {
         }
 
         // ✅ registra play SOLO cuando ya se creó correctamente
-        //cooldownService.registerPlay(COOLDOWN_KEY, userId);
+        cooldownService.registerPlay(COOLDOWN_KEY, userId);
 
         List<DriverSeasonRound> rounds =
                 roundDao.findByGame_GameIdOrderByRoundNumberAsc(game.getGameId());

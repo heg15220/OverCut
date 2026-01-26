@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
+import overcut.model.services.exceptions.CooldownException;
 import overcut.rest.dtos.BingoSelectRequestDto;
 import overcut.rest.dtos.BingoSelectResponseDto;
 
@@ -27,12 +28,12 @@ public class BingoGameServiceImpl implements BingoGameService {
     @Override
     public BingoGame startGame(String lang, Long userId) {
         try {
-            /*
+
             if (!cooldownService.canPlay("Bingo", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("Bingo", userId);
                 throw new CooldownException("WAIT", wait);
             }
-            */
+
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -102,7 +103,7 @@ public class BingoGameServiceImpl implements BingoGameService {
             }
 
             BingoGame saved = gameDao.save(game);
-            // cooldownService.registerPlay("Bingo", userId);
+            cooldownService.registerPlay("Bingo", userId);
             return saved;
 
         } catch (Exception e) {

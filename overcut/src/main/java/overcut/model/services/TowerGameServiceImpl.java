@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
+import overcut.model.services.exceptions.CooldownException;
 import overcut.utils.TowerHintValueResolver;
 import overcut.rest.dtos.*;
 import java.net.URI;
@@ -55,6 +56,10 @@ public class TowerGameServiceImpl implements TowerGameService {
 
     @Override
     public TowerGameDto startGame(String lang, String themeType, String themeKey, Long userId) {
+        if (!cooldownService.canPlay(COOLDOWN_KEY, userId)) {
+            long wait = cooldownService.secondsUntilNextPlay(COOLDOWN_KEY, userId);
+            throw new CooldownException("WAIT", wait);
+        }
         try {
             String url = "http://localhost:8000/generate-tower";
 
@@ -88,6 +93,8 @@ public class TowerGameServiceImpl implements TowerGameService {
             game.setFinished(false);
 
             TowerGame saved = gameDao.save(game);
+
+            cooldownService.registerPlay(COOLDOWN_KEY, userId);
             return TowerConversor.toGameDto(saved, List.of());
 
         } catch (Exception e) {
