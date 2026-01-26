@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import random
+import re
 from sqlalchemy import text
 
 # ✅ Reutiliza engine común (como haces en otros scripts)
@@ -23,7 +24,6 @@ from generate_drivers_connections import (
     get_experienced_category,
     get_decade_categories,
 )
-
 
 DRIVER_POOL = []
 
@@ -56,12 +56,45 @@ def get_all_drivers_matching_query(conn, query, params):
     return [{"driverId": row[0], "driverName": row[1]} for row in rows]
 
 # ----------------------------
+# Decade images (assets/images/bingo/1980s.png etc.)
+# ----------------------------
+
+def is_decade_code(code: str) -> bool:
+    if not code:
+        return False
+    # robusto para "decade_1980s", "1980s", "decade_1980", etc.
+    return ("decade" in code.lower()) or bool(re.search(r"(19|20)\d{2}s?", code.lower()))
+
+def decade_image_from_code(code: str):
+    """
+    Devuelve "1980s.png", "1990s.png", "2000s.png", ...
+    según el code. Si no detecta, devuelve None.
+    """
+    if not code:
+        return None
+
+    c = code.lower()
+
+    # preferimos detectar 4 dígitos (1980, 1990, 2000, 2010...)
+    m = re.search(r"(19|20)\d{2}", c)
+    if m:
+        year = m.group(0)              # "1980"
+        decade = year[:3] + "0"        # asegura decena 0
+        return f"{decade}s.png"        # "1980s.png"
+
+    # fallback si viene "1980s" sin 4 dígitos (raro, pero por si acaso)
+    m2 = re.search(r"(19|20)\d{2}s", c)
+    if m2:
+        decade = m2.group(0)           # "1980s"
+        return f"{decade}.png"
+
+    return None
+
+# ----------------------------
 # Image mapping (tictactoe assets)
 # ----------------------------
 
-# ✅ filenames EXACTOS según tu carpeta:
 TEAM_IMAGE_MAP = {
-    # Modern / common
     "Ferrari": "Ferrari.svg",
     "McLaren": "McLaren.png",
     "Williams": "Williams.png",
@@ -85,8 +118,6 @@ TEAM_IMAGE_MAP = {
     "Benetton": "Benetton.svg",
     "Brawn": "Brawn.svg",
     "BAR": "BAR.png",
-
-    # Older/historic constructors you listed
     "Arrows": "Arrows.png",
     "ATS": "ATS.svg",
     "Andrea Moda": "Andrea_Moda.png",
@@ -99,7 +130,7 @@ TEAM_IMAGE_MAP = {
     "Leyton House": "Leyton_House.png",
     "Life": "Life.png",
     "Lola": "Lola.png",
-    "Lotus": "Lotus.jpg",          # o "Lotus_F1.jpg" si prefieres
+    "Lotus": "Lotus.jpg",
     "Manor Marussia": "Manor_Marussia.png",
     "Minardi": "Minardi.svg",
     "Osella": "Osella.svg",
@@ -117,7 +148,6 @@ TEAM_IMAGE_MAP = {
     "Tyrrell": "Tyrrell.png",
 }
 
-# Algunos nombres en BD pueden variar un pelín -> alias
 TEAM_IMAGE_ALIASES = {
     "BMW-Sauber": "BMW Sauber",
     "Alpine": "Alpine F1 Team",
@@ -182,10 +212,7 @@ def build_country_cell(conn, used_codes: set, used_countries: set, lang: str):
             "code": code,
             "description": translate_country(lang, nat_trans),
             "image": None,
-
-            # ✅ NUEVO
             "meta": {"nationality": nationality},
-
             "query": """
                 SELECT d.driverId, CONCAT(d.forename, ' ', d.surname)
                 FROM drivers d
@@ -195,7 +222,6 @@ def build_country_cell(conn, used_codes: set, used_countries: set, lang: str):
         }
 
     return None
-
 
 
 def build_circuit_cell(conn, used_codes: set, used_circuits: set, lang: str):
@@ -298,13 +324,21 @@ def build_9_bingo_cells(lang: str, conn):
             used_codes.add(c["code"])
             cells.append({**c, "image": "champions" if c["code"] == "champions" else None})
 
-    # ✅ 2 décadas (random)
+    # ✅ 2 décadas (random) -> SOLO IMAGEN, SIN FRASE
     decades = get_decade_categories(lang)
     random.shuffle(decades)
     for dec in decades[:2]:
         if dec["code"] not in used_codes:
             used_codes.add(dec["code"])
-            cells.append({**dec, "image": None})
+
+            # imagen = "1980s.png", "1990s.png", etc.
+            img = decade_image_from_code(dec["code"]) or dec.get("image")
+
+            cells.append({
+                **dec,
+                "image": img,
+                "description": ""  # ✅ vacío para que el UI no muestre texto
+            })
 
     # ✅ 2 teams
     for _ in range(2):
@@ -320,7 +354,6 @@ def build_9_bingo_cells(lang: str, conn):
     # ✅ 1 circuit winner
     cir = build_circuit_cell(conn, used_codes, used_circuits, lang)
     if cir:
-        # si quieres, usa image genérica ya existente
         cir["image"] = "image_circuit_win.png"
         cells.append(cir)
 
@@ -340,8 +373,18 @@ def pick_extra_cell(lang: str, conn, used_codes: set):
         lambda: build_country_cell(conn, used_codes, used_countries, lang),
         lambda: build_circuit_cell(conn, used_codes, used_circuits, lang),
         lambda: build_teammates_cell(conn, used_codes, lang),
+
+        # ✅ decades as extras -> SOLO IMAGEN, SIN TEXTO
         lambda: next(
-            ({**d, "image": None} for d in decade_pool if d["code"] not in used_codes),
+            (
+                {
+                    **d,
+                    "image": decade_image_from_code(d["code"]) or d.get("image"),
+                    "description": ""
+                }
+                for d in decade_pool
+                if d["code"] not in used_codes
+            ),
             None
         ),
     ]
@@ -399,7 +442,7 @@ def generate_bingo_game(lang: str = "es"):
 
             enriched_cells.append({
                 "code": c["code"],
-                "description": c["description"],
+                "description": c.get("description", ""),
                 "image": c.get("image"),
                 "meta": c.get("meta"),
                 "validPilots": pilots
@@ -414,7 +457,7 @@ def generate_bingo_game(lang: str = "es"):
 
             enriched_cells.append({
                 "code": extra["code"],
-                "description": extra["description"],
+                "description": extra.get("description", ""),
                 "image": extra.get("image"),
                 "meta": extra.get("meta"),
                 "validPilots": pilots
@@ -430,17 +473,13 @@ def generate_bingo_game(lang: str = "es"):
         drivers_queue = union_list[:60]
 
         # fallback si faltan
-        # fallback si faltan
         if len(drivers_queue) < 60:
             missing = 60 - len(drivers_queue)
 
-            # ✅ usa pool precargado
             if len(DRIVER_POOL) >= missing:
                 drivers_queue += random.sample(DRIVER_POOL, missing)
             else:
-                # ultra-fallback: por si el pool está vacío (no debería)
                 drivers_queue += union_list[:missing]
-
 
         return {
             "cells": enriched_cells[:9],

@@ -899,6 +899,10 @@ CREATE TABLE BingoCell (
     UNIQUE (gameId, cellIndex)
 );
 
+ALTER TABLE BingoCell
+  ADD COLUMN validPilotIds MEDIUMTEXT NULL;
+
+
 -- Cola de 60 pilotos (orden en el que salen)
 CREATE TABLE BingoGameDriver (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

@@ -14,7 +14,12 @@ public class BingoCell {
     private String themeImage;             // "Benetton.svg" opcional
 
     private BingoGame game;
-    private List<BingoCellPilot> validPilots = new ArrayList<>();
+
+
+    @Lob
+    private String validPilotIds;
+
+
 
     public BingoCell() {}
 
@@ -35,12 +40,17 @@ public class BingoCell {
     public String getThemeImage() { return themeImage; }
     public void setThemeImage(String themeImage) { this.themeImage = themeImage; }
 
+    public String getValidPilotIds() {
+        return validPilotIds;
+    }
+
+    public void setValidPilotIds(String validPilotIds) {
+        this.validPilotIds = validPilotIds;
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gameId")
     public BingoGame getGame() { return game; }
     public void setGame(BingoGame game) { this.game = game; }
 
-    @OneToMany(mappedBy = "cell", cascade = CascadeType.ALL, orphanRemoval = true)
-    public List<BingoCellPilot> getValidPilots() { return validPilots; }
-    public void setValidPilots(List<BingoCellPilot> validPilots) { this.validPilots = validPilots; }
 }

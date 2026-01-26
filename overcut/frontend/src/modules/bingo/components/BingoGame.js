@@ -16,7 +16,7 @@ import CooldownScreen from "../../cooldown/components/CooldownScreen";
 import { getCooldownForGame } from "../../cooldown/selectors";
 import { fetchCooldown } from "../../cooldown/actions";
 
-// ✅ resolver src de imagen desde assets/tictactoe
+// (lo dejamos importado por compatibilidad / fallback legacy)
 import { getTictactoeImageSrc } from "../../../helpers/getTictactoeImageSrc";
 
 const i18n = {
@@ -33,7 +33,7 @@ const i18n = {
   loading: { es: "Cargando juego...", en: "Loading game..." },
 };
 
-// ✅ Nacionalidad (drivers.nationality) -> ISO2 (para emoji bandera)
+// ✅ Nacionalidad (drivers.nationality) -> ISO2
 const NATIONALITY_TO_ISO2 = {
   British: "GB",
   English: "GB",
@@ -86,10 +86,102 @@ const NATIONALITY_TO_ISO2 = {
   "South African": "ZA",
 };
 
-const iso2ToFlagEmoji = (iso2) => {
+// ✅ Bandera EXTERNA (CDN)
+const flagCdnUrl = (iso2) => {
   if (!iso2 || typeof iso2 !== "string" || iso2.length !== 2) return null;
-  const codePoints = [...iso2.toUpperCase()].map((c) => 127397 + c.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
+  return `https://flagcdn.com/40x30/${iso2.toLowerCase()}.png`;
+};
+
+const flagCdnSrcSet = (iso2) => {
+  if (!iso2 || typeof iso2 !== "string" || iso2.length !== 2) return null;
+  const c = iso2.toLowerCase();
+  return `https://flagcdn.com/40x30/${c}.png 1x, https://flagcdn.com/80x60/${c}.png 2x, https://flagcdn.com/120x90/${c}.png 3x`;
+};
+
+// ✅ derive nationality from code when backend doesn't send meta
+// code example: "country_british", "country_new_zealander"
+const codeToNationality = (code) => {
+  const c = String(code || "");
+  if (!c.startsWith("country_")) return null;
+  const slug = c.replace(/^country_/, "");
+
+  // convert slug -> "Title Case" keys used in NATIONALITY_TO_ISO2
+  // e.g. "new_zealander" -> "New Zealander"
+  const title = slug
+    .split("_")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+
+  // quick fix for GB variants if you ever generate "uk" / "great_britain" etc.
+  if (title === "Uk" || title === "United Kingdom") return "British";
+
+  return title;
+};
+
+/**
+ * ✅ assets resolving (Webpack/CRA)
+ * - Bingo images (decades + Winner): assets/images/bingo/*
+ * - Tictactoe images (logos etc.): assets/images/tictactoe/*
+ */
+const bingoImagesCtx = require.context(
+  "../../../assets/images/bingo",
+  false,
+  /\.(png|jpg|jpeg|svg)$/i
+);
+
+const tictactoeImagesCtx = require.context(
+  "../../../assets/images/tictactoe",
+  false,
+  /\.(png|jpg|jpeg|svg)$/i
+);
+
+const resolveCellImageSrc = (file) => {
+  if (!file) return null;
+
+  // si backend te manda URL / path público
+  if (
+    typeof file === "string" &&
+    (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("/"))
+  ) {
+    return `${process.env.PUBLIC_URL || ""}${file}`;
+  }
+
+  const clean = String(file).replace(/^\.\/+/, "");
+
+  try {
+    return bingoImagesCtx(`./${clean}`);
+  } catch (e) {
+    try {
+      return tictactoeImagesCtx(`./${clean}`);
+    } catch (e2) {
+      try {
+        const legacy = getTictactoeImageSrc(clean);
+        return legacy || null;
+      } catch (e3) {
+        return null;
+      }
+    }
+  }
+};
+
+// ✅ detect your "1 GP win" category (ajusta si tu code real es otro)
+const isOneGpWinCell = (cell) => {
+  const code = String(cell?.code || "").toLowerCase();
+
+  // Probables nombres según tu generator:
+  // - "race_winner" / "race_winners" / "race_winners_1" / "one_race_winner"
+  // Ajusta aquí si tu code final es distinto.
+  if (code === "race_winner") return true;
+  if (code === "race_winners") return true;
+  if (code.includes("race_winner") && (code.includes("1") || code.includes("one"))) return true;
+
+  // Fallback por description si no tienes claro el code (ES/EN)
+  const desc = String(cell?.description || "").toLowerCase();
+  if (desc.includes("han ganado 1 gran premio")) return true;
+  if (desc.includes("won 1 grand prix")) return true;
+
+  return false;
 };
 
 const BingoGame = () => {
@@ -281,15 +373,31 @@ const BingoGame = () => {
           const isWrongAnim = lastShakeCellId === cell.id;
           const isSuccessAnim = lastSuccessCellId === cell.id;
 
-          // ✅ Country cell -> bandera (requiere backend: cell.meta.nationality)
+          // ✅ Country -> bandera (meta si existe; si no, derivar por code)
           const isCountryCell = String(cell.code || "").startsWith("country_");
-          const nationality = cell?.meta?.nationality || null;
-          const iso2 = nationality ? NATIONALITY_TO_ISO2[nationality] : null;
-          const flagEmoji = isCountryCell ? iso2ToFlagEmoji(iso2) : null;
+          const nationality =
+            cell?.meta?.nationality ||
+            codeToNationality(cell.code) ||
+            null;
 
-          // ✅ Imagen normal para el resto
-          const imgFile = cell.themeImage || cell.image || null;
-          const imgSrc = !isCountryCell ? getTictactoeImageSrc(imgFile) : null;
+          const iso2 = nationality ? NATIONALITY_TO_ISO2[nationality] : null;
+          const flagSrc = isCountryCell ? flagCdnUrl(iso2) : null;
+          const flagSrcSet = isCountryCell ? flagCdnSrcSet(iso2) : null;
+
+          // ✅ "1 GP win" -> Winner.jpg (y sin texto)
+          const oneGpWin = isOneGpWinCell(cell);
+
+          // ✅ imágenes normales (decades / tictactoe) con resolver
+          const imgFile = oneGpWin ? "Winner.jpg" : (cell.themeImage || cell.image || null);
+          const imgSrc = !isCountryCell ? resolveCellImageSrc(imgFile) : null;
+
+          const desc = String(cell.description || "");
+
+          // ✅ reglas de texto:
+          // - country: sin texto
+          // - oneGpWin: sin texto
+          // - decades: backend manda "" => no pinta texto
+          const hasDesc = !isCountryCell && !oneGpWin && desc.trim().length > 0;
 
           return (
             <button
@@ -302,23 +410,19 @@ const BingoGame = () => {
               ].join(" ")}
               onClick={() => onCellClick(cell)}
               disabled={game.finished || isFilled}
-              aria-label={cell.description}
-              title={cell.description}
+              aria-label={hasDesc ? desc : String(cell.code || "")}
+              title={hasDesc ? desc : String(cell.code || "")}
             >
               <div className="bingo-cell__content">
-                {/* ✅ bandera si es country */}
-                {flagEmoji && (
-                  <div className="bingo-cell__flag" aria-hidden="true">
-                    {flagEmoji}
-                  </div>
-                )}
-
-                {/* ✅ imagen normal si NO es country */}
-                {!flagEmoji && imgSrc && (
+                {/* ✅ country -> bandera externa */}
+                {isCountryCell && flagSrc && (
                   <img
                     className="bingo-cell__img"
-                    src={imgSrc}
-                    alt={cell.description}
+                    src={flagSrc}
+                    srcSet={flagSrcSet || undefined}
+                    width="40"
+                    height="30"
+                    alt={iso2 ? `Flag ${iso2}` : "Flag"}
                     loading="lazy"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
@@ -326,7 +430,20 @@ const BingoGame = () => {
                   />
                 )}
 
-                <div className="bingo-cell__desc">{cell.description}</div>
+                {/* ✅ no-country -> imagen normal (incluye Winner.jpg y decades) */}
+                {!isCountryCell && imgSrc && (
+                  <img
+                    className="bingo-cell__img"
+                    src={imgSrc}
+                    alt={hasDesc ? desc : ""}
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
+
+                {hasDesc && <div className="bingo-cell__desc">{desc}</div>}
 
                 {isFilled && (
                   <div className="bingo-cell__answerOverlay">

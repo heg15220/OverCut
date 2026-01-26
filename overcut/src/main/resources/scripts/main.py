@@ -79,6 +79,9 @@ from generate_who_is_who import generate_who_is_who_game, load_whoiswho_pool
 from generate_memory_game import generate_memory_game, warmup_memory_caches
 from generate_team_history_game import get_team_history_game
 from generate_higher_lower import generate_higher_lower_game, warmup_higher_lower_caches
+import gzip
+import json
+from pathlib import Path
 
 
 
@@ -87,6 +90,90 @@ import sys
 import io
 import json
 
+
+
+BINGO_CACHE = {"es": [], "en": []}
+BINGO_CACHE_META = {"es": None, "en": None}
+
+def load_bingo_cache_files():
+    """
+    Carga cache/bingo_cache_es.json(.gz) y cache/bingo_cache_en.json(.gz)
+    desde el mismo directorio que usas para otros cachés.
+    """
+    global BINGO_CACHE, BINGO_CACHE_META
+
+    # ✅ tu CACHE_DIR ya apunta a .../src/main (según tu código)
+    bingo_dir = CACHE_DIR / "resources" / "scripts" / "cache"
+    # Si tu script lo ejecutas en otro sitio y copias el cache,
+    # pon aquí la ruta real donde estarán en producción.
+
+    for lang in ["es", "en"]:
+        base = bingo_dir / f"bingo_cache_{lang}.json"
+        gz = Path(str(base) + ".gz")
+
+        path = gz if gz.exists() else base
+        if not path.exists():
+            print(f"[WARN] No se encontró bingo cache para {lang}: {base}(.gz)")
+            continue
+
+        try:
+            if path.suffix == ".gz":
+                raw = gzip.decompress(path.read_bytes()).decode("utf-8")
+                payload = json.loads(raw)
+            else:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+
+            games = payload.get("games", [])
+            BINGO_CACHE[lang] = games
+            BINGO_CACHE_META[lang] = {
+                "count": payload.get("count", len(games)),
+                "generatedAt": payload.get("generatedAt"),
+                "compact": payload.get("compact", False),
+                "version": payload.get("version"),
+                "path": str(path)
+            }
+
+            print(f"[startup] Bingo cache {lang.upper()} cargado: {len(games)} games (compact={BINGO_CACHE_META[lang]['compact']})")
+        except Exception as e:
+            print(f"[ERROR] Cargando bingo cache {lang}: {e}")
+
+
+def compact_bingo_game(game: dict) -> dict:
+    """
+    Asegura salida compacta:
+    - validPilots => validPilotIds (solo ids)
+    - driversQueue se mantiene igual
+    Soporta tanto juegos "full" como "compact" ya precargados.
+    """
+    cells = game.get("cells", []) or []
+    compact_cells = []
+
+    for c in cells:
+        # Si ya viene compactado
+        if "validPilotIds" in c and isinstance(c.get("validPilotIds"), list):
+            compact_cells.append({
+                "code": c.get("code"),
+                "description": c.get("description"),
+                "image": c.get("image"),
+                "meta": c.get("meta"),
+                "validPilotIds": c.get("validPilotIds"),
+            })
+            continue
+
+        # Si viene full
+        pilots = c.get("validPilots", []) or []
+        compact_cells.append({
+            "code": c.get("code"),
+            "description": c.get("description"),
+            "image": c.get("image"),
+            "meta": c.get("meta"),
+            "validPilotIds": [p.get("driverId") for p in pilots if p.get("driverId") is not None],
+        })
+
+    return {
+        "cells": compact_cells,
+        "driversQueue": game.get("driversQueue", []) or []
+    }
 
 
 
@@ -204,6 +291,7 @@ async def lifespan(app: FastAPI):
     load_whoiswho_pool()
     warmup_higher_lower_caches(force=True)
     warmup_memory_caches(force=True)
+    load_bingo_cache_files()
 
     yield
 
@@ -679,10 +767,20 @@ def generate_f1_anagrams():
 @app.get("/generate-bingo")
 def generate_bingo(lang: str = Query("es", enum=["es", "en"])):
     try:
-        result = generate_bingo_game(lang)
-        return JSONResponse(content=result)
+        games = BINGO_CACHE.get(lang) or []
+        if games:
+            g = random.choice(games)
+            return JSONResponse(content=compact_bingo_game(g))
+
+        # fallback “live” (SQL)
+        g = generate_bingo_game(lang)
+        return JSONResponse(content=compact_bingo_game(g))
+
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+
 
 @app.get("/generate-timeline")
 def generate_timeline(lang: str = Query("es", enum=["es", "en"])):

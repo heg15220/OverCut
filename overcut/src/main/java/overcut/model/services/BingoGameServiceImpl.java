@@ -6,7 +6,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
-import overcut.model.services.exceptions.CooldownException;
 import overcut.rest.dtos.BingoSelectRequestDto;
 import overcut.rest.dtos.BingoSelectResponseDto;
 
@@ -19,18 +18,22 @@ import java.time.LocalDateTime;
 public class BingoGameServiceImpl implements BingoGameService {
 
     @Autowired private BingoGameDao gameDao;
-    @Autowired private BingoCellPilotDao cellPilotDao;
+    @Autowired private BingoCellDao cellDao;              // ✅ NUEVO: para leer la celda y sus validPilotIds
     @Autowired private BingoSelectionDao selectionDao;
     @Autowired private CooldownService cooldownService;
+
+    private final ObjectMapper mapper = new ObjectMapper(); // ✅ reutiliza (menos basura GC)
 
     @Override
     public BingoGame startGame(String lang, Long userId) {
         try {
-          /*  if (!cooldownService.canPlay("Bingo", userId)) {
+            /*
+            if (!cooldownService.canPlay("Bingo", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("Bingo", userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+            */
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8000/generate-bingo?lang=" + lang))
@@ -42,7 +45,6 @@ public class BingoGameServiceImpl implements BingoGameService {
                 throw new RuntimeException("FastAPI server error: " + response.body());
             }
 
-            ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.body());
 
             BingoGame game = new BingoGame();
@@ -58,18 +60,31 @@ public class BingoGameServiceImpl implements BingoGameService {
                 cell.setCellIndex(idx++);
                 cell.setThemeCode(cellNode.get("code").asText());
                 cell.setThemeDescription(cellNode.get("description").asText());
+
                 if (cellNode.hasNonNull("image")) {
                     cell.setThemeImage(cellNode.get("image").asText());
                 }
 
-                // pilotos válidos por casilla
-                for (JsonNode pilotNode : cellNode.get("validPilots")) {
-                    BingoCellPilot p = new BingoCellPilot();
-                    p.setGame(game);
-                    p.setCell(cell);
-                    p.setDriverId(pilotNode.get("driverId").asLong());
-                    p.setDriverName(pilotNode.get("driverName").asText());
-                    cell.getValidPilots().add(p);
+                // ✅ Guardar SOLO ids en JSON (sin insertar miles de BingoCellPilot)
+                JsonNode vpi = cellNode.get("validPilotIds");
+                JsonNode vp = cellNode.get("validPilots");
+
+                if (vpi != null && vpi.isArray()) {
+                    // formato compacto (solo ids) -> guardamos JSON tal cual
+                    cell.setValidPilotIds(vpi.toString());
+                } else if (vp != null && vp.isArray()) {
+                    // formato antiguo (full) -> lo convertimos a ids y guardamos JSON
+                    StringBuilder sb = new StringBuilder("[");
+                    boolean first = true;
+                    for (JsonNode pilotNode : vp) {
+                        if (!first) sb.append(",");
+                        sb.append(pilotNode.get("driverId").asLong());
+                        first = false;
+                    }
+                    sb.append("]");
+                    cell.setValidPilotIds(sb.toString());
+                } else {
+                    throw new RuntimeException("Bingo cell missing validPilotIds/validPilots");
                 }
 
                 game.getCells().add(cell);
@@ -87,7 +102,7 @@ public class BingoGameServiceImpl implements BingoGameService {
             }
 
             BingoGame saved = gameDao.save(game);
-            //cooldownService.registerPlay("Bingo", userId);
+            // cooldownService.registerPlay("Bingo", userId);
             return saved;
 
         } catch (Exception e) {
@@ -111,8 +126,30 @@ public class BingoGameServiceImpl implements BingoGameService {
             return new BingoSelectResponseDto(false, false, "DRIVER_ALREADY_USED");
         }
 
-        // validación rápida
-        boolean ok = cellPilotDao.existsByCellIdAndDriverId(dto.getCellId(), dto.getDriverId());
+        // ✅ validación sin tabla BingoCellPilot: membership en validPilotIds (JSON)
+        BingoCell cell = cellDao.findById(dto.getCellId()).orElseThrow();
+
+        String jsonIds = cell.getValidPilotIds();
+        if (jsonIds == null || jsonIds.isBlank()) {
+            // si por cualquier motivo está vacío, consideramos inválido
+            return new BingoSelectResponseDto(false, false, "INCORRECT");
+        }
+
+        boolean ok;
+        try {
+            Long[] ids = mapper.readValue(jsonIds, Long[].class);
+            ok = false;
+            for (Long id : ids) {
+                if (id != null && id.equals(dto.getDriverId())) {
+                    ok = true;
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            // JSON corrupto -> inválido
+            return new BingoSelectResponseDto(false, false, "INCORRECT");
+        }
+
         if (!ok) {
             return new BingoSelectResponseDto(false, false, "INCORRECT");
         }
@@ -120,11 +157,14 @@ public class BingoGameServiceImpl implements BingoGameService {
         // guardar acierto
         BingoSelection sel = new BingoSelection();
         sel.setGame(game);
+
         BingoCell cellRef = new BingoCell();
         cellRef.setId(dto.getCellId());
         sel.setCell(cellRef);
+
         sel.setDriverId(dto.getDriverId());
         sel.setDriverName(dto.getDriverName());
+
         selectionDao.save(sel);
 
         // comprobar fin (9 casillas)
