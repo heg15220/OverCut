@@ -280,6 +280,10 @@ public class ChartI18nService {
             Map.entry("teamPerformanceGap", Map.of(
                     "es", "Diferencia de rendimiento entre equipos (gap al ganador) ",
                     "en", "Performance gap between teams (gap to winner) "
+            )),
+            Map.entry("performanceTrajectoryWithNoPoints", Map.of(
+                    "es", "Trayectoria de rendimiento (sin puntos de campeonato) de ",
+                    "en", "Performance trajectory (no championship points) of "
             ))
             );
 

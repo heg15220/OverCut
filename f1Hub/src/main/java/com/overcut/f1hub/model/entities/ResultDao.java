@@ -10,6 +10,166 @@ import java.util.Set;
 public interface ResultDao extends JpaRepository<Result, Long> {
 
     @Query(value = """
+        SELECT COUNT(*)
+        FROM results r
+        JOIN races ra ON ra.raceId = r.raceId
+        WHERE ra.year = :year
+          AND r.constructorId = :constructorId
+          AND r.positionOrder IS NOT NULL
+          AND r.positionOrder <= 3
+        """, nativeQuery = true)
+    int countTeamPodiumsBySeason(@Param("constructorId") Long constructorId,
+                                 @Param("year") int year);
+
+    @Query(value = """
+                WITH driver_stats AS (
+                    SELECT
+                        ra.year,
+                        r.driverId,
+                        d.forename,
+                        d.surname,
+                        AVG(r.positionOrder) AS avgPosition,
+                        STDDEV_POP(r.positionOrder) AS stddevPosition,
+                        SUM(r.points) AS totalPoints,
+                        COUNT(*) AS raceCount,
+                        r.constructorId
+                    FROM results r
+                    JOIN races ra ON r.raceId = ra.raceId
+                    JOIN drivers d ON r.driverId = d.driverId
+                    WHERE r.driverId = :driverId
+                      AND r.positionOrder IS NOT NULL
+                      AND r.positionOrder > 0
+                    GROUP BY ra.year, r.driverId, r.constructorId
+                ),
+                team_points AS (
+                    SELECT
+                        ra.year,
+                        r.constructorId,
+                        SUM(r.points) AS teamPoints
+                    FROM results r
+                    JOIN races ra ON r.raceId = ra.raceId
+                    WHERE r.points IS NOT NULL
+                    GROUP BY ra.year, r.constructorId
+                ),
+                teammate_battles AS (
+                    SELECT
+                        ra.year,
+                        r1.driverId,
+                        SUM(CASE WHEN r1.positionOrder < r2.positionOrder THEN 1 ELSE 0 END) AS teammateWins,
+                        COUNT(*) AS teammateBattles
+                    FROM results r1
+                    JOIN results r2 ON r1.raceId = r2.raceId
+                      AND r1.constructorId = r2.constructorId
+                      AND r1.driverId <> r2.driverId
+                    JOIN races ra ON r1.raceId = ra.raceId
+                    WHERE r1.driverId = :driverId
+                      AND r1.positionOrder IS NOT NULL AND r2.positionOrder IS NOT NULL
+                    GROUP BY ra.year, r1.driverId
+                ),
+                podiums_by_season_team AS (
+                    SELECT
+                        ra.year,
+                        r.driverId,
+                        r.constructorId,
+                        SUM(CASE WHEN r.positionOrder IN (1,2,3) THEN 1 ELSE 0 END) AS podiums
+                    FROM results r
+                    JOIN races ra ON r.raceId = ra.raceId
+                    WHERE r.driverId = :driverId
+                      AND r.positionOrder IS NOT NULL
+                      AND r.positionOrder > 0
+                    GROUP BY ra.year, r.driverId, r.constructorId
+                ),
+                finishes_by_season_team AS (
+                    SELECT
+                        ra.year,
+                        r.driverId,
+                        r.constructorId,
+                        SUM(
+                            CASE
+                                WHEN r.positionOrder IS NOT NULL AND r.positionOrder > 0 THEN 1
+                                WHEN LOWER(s.status) IN ('finished','classified','not classified') THEN 1
+                                WHEN LOWER(s.status) REGEXP '\\\\\\\\+\\\\\\\\d+\\\\\\\\s+laps{0,1}' THEN 1
+                                ELSE 0
+                            END
+                        ) AS finishes
+                    FROM results r
+                    JOIN races ra ON r.raceId = ra.raceId
+                    JOIN status s ON r.statusId = s.statusId
+                    WHERE r.driverId = :driverId
+                    GROUP BY ra.year, r.driverId, r.constructorId
+                ),
+                grid_size_by_year AS (
+                    SELECT
+                        ra.year,
+                        MAX(r.positionOrder) AS gridSize
+                    FROM results r
+                    JOIN races ra ON r.raceId = ra.raceId
+                    WHERE r.positionOrder IS NOT NULL
+                      AND r.positionOrder > 0
+                    GROUP BY ra.year
+                ),
+                driver_champ AS (
+                    SELECT
+                        ds.driverId,
+                        r.year,
+                        ds.position AS driverChampPos
+                    FROM driverstandings ds
+                    JOIN races r ON ds.raceId = r.raceId
+                    WHERE ds.raceId IN (
+                        SELECT r2.raceId FROM races r2
+                        WHERE r2.round = (SELECT MAX(r3.round) FROM races r3 WHERE r3.year = r2.year)
+                    )
+                ),
+                team_champ AS (
+                    SELECT
+                        cs.constructorId,
+                        r.year,
+                        cs.position AS constructorChampPos
+                    FROM constructorstandings cs
+                    JOIN races r ON cs.raceId = r.raceId
+                    WHERE cs.raceId IN (
+                        SELECT r2.raceId FROM races r2
+                        WHERE r2.round = (SELECT MAX(r3.round) FROM races r3 WHERE r3.year = r2.year)
+                    )
+                )
+                SELECT
+                    ds.driverId,
+                    ds.forename,
+                    ds.surname,
+                    ds.year,
+                    ds.avgPosition,
+                    ds.stddevPosition,
+                    ds.totalPoints,
+                    ds.raceCount,
+                    ds.constructorId,
+                    tp.teamPoints,
+                    tb.teammateBattles,
+                    tb.teammateWins,
+                    COALESCE(pod.podiums, 0) AS podiums,
+                    COALESCE(fin.finishes, 0) AS finishes,
+                    COALESCE(gs.gridSize, 20) AS gridSize,
+                    dc.driverChampPos,
+                    tc.constructorChampPos
+                FROM driver_stats ds
+                LEFT JOIN team_points tp ON tp.year = ds.year AND tp.constructorId = ds.constructorId
+                LEFT JOIN teammate_battles tb ON tb.year = ds.year AND tb.driverId = ds.driverId
+                LEFT JOIN podiums_by_season_team pod ON pod.year = ds.year AND pod.driverId = ds.driverId AND pod.constructorId = ds.constructorId
+                LEFT JOIN finishes_by_season_team fin ON fin.year = ds.year AND fin.driverId = ds.driverId AND fin.constructorId = ds.constructorId
+                LEFT JOIN grid_size_by_year gs ON gs.year = ds.year
+                LEFT JOIN driver_champ dc ON dc.year = ds.year AND dc.driverId = ds.driverId
+                LEFT JOIN team_champ tc ON tc.year = ds.year AND tc.constructorId = ds.constructorId
+                ORDER BY ds.year
+            """, nativeQuery = true)
+    List<DriverSeasonPerformanceView2> getDriverPerformanceStats2(@Param("driverId") Long driverId);
+
+
+
+
+
+
+
+
+    @Query(value = """
         SELECT
             r.raceId                  AS raceId,
             ra.round                  AS round,

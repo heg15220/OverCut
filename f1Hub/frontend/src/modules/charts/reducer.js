@@ -7,7 +7,8 @@ const initialState = {
     drivers: [],
     constructors: [],
     seasons: []
-  }
+  },
+  breakdowns: {}
 };
 
 export default function reducer(state = initialState, action) {
@@ -37,6 +38,14 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         filters: action.data
+      };
+    case actionTypes.FETCH_PERFORMANCE_BREAKDOWN_2_COMPLETED:
+      return {
+        ...state,
+        breakdowns: {
+          ...state.breakdowns,
+          [action.key]: action.data
+        }
       };
 
 

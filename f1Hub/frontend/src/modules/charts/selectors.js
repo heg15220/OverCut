@@ -8,3 +8,6 @@ export const getChartCategories = state =>
 
 export const getChartFilters = state =>
   getModuleState(state).filters;
+
+export const getPerformanceBreakdown2 = (state, key) =>
+  getModuleState(state).breakdowns?.[key];

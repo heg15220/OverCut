@@ -24,6 +24,28 @@ export const fetchChartData = (endpoint, params) => dispatch => {
 };
 
 
+export const fetchPerformanceBreakdown2 = (driverId, year) => dispatch => {
+  const params = { driverId, year };
+
+  // Usa tu chartService actual (ya mete lang automáticamente)
+  backend.chartService.getChartData(
+    "performance-breakdown-2",
+    params,
+    data => {
+      const key = `performance-breakdown-2_${driverId}_${year}`;
+      dispatch({
+        type: actionTypes.FETCH_PERFORMANCE_BREAKDOWN_2_COMPLETED,
+        key,
+        data
+      });
+    },
+    err => {
+      console.error("❌ Error al obtener breakdown:", err);
+    }
+  );
+};
+
+
 
 
 export const fetchChartCategories = () => dispatch => {

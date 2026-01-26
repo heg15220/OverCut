@@ -62,6 +62,147 @@ ORDER BY r.round
     List<TeamAvgQualiGapToPolePerRaceView> getTeamAvgQualiGapToPolePerRace(@Param("year") int year);
 
 
+    @Query(value = """
+WITH bestq AS (
+  SELECT
+    q.raceId,
+    q.driverId,
+    q.constructorId,
+    COALESCE(q.q3, q.q2, q.q1) AS bestTime
+  FROM qualifying q
+  WHERE COALESCE(q.q3, q.q2, q.q1) IS NOT NULL
+),
+ranked AS (
+  SELECT
+    b.*,
+    ROW_NUMBER() OVER (PARTITION BY b.raceId, b.constructorId ORDER BY b.bestTime ASC) AS rn
+  FROM bestq b
+),
+pairs AS (
+  SELECT
+    d1.raceId,
+    d1.driverId,
+    d1.constructorId,
+    (d1.bestTime - d2.bestTime) AS gapMs
+  FROM ranked d1
+  JOIN ranked d2
+    ON d1.raceId = d2.raceId
+   AND d1.constructorId = d2.constructorId
+   AND d1.driverId <> d2.driverId
+  WHERE d1.rn <= 2 AND d2.rn <= 2
+)
+SELECT
+  p.driverId AS driverId,
+  p.constructorId AS constructorId,
+  r.year AS year,
+  AVG(p.gapMs) AS avgGapMs
+FROM pairs p
+JOIN races r ON r.raceId = p.raceId
+WHERE r.year = :year
+  AND p.driverId = :driverId
+GROUP BY p.driverId, p.constructorId, r.year
+""", nativeQuery = true)
+    DriverAvgQualiGapToTeammateView getDriverAvgQualiGapToTeammateMs(@Param("driverId") Long driverId,
+                                                                     @Param("year") int year);
+
+
+    @Query(value = """
+        WITH q AS (
+            SELECT q.raceId,
+                   q.driverId,
+                   r.constructorId,
+                   CASE
+                     WHEN q.q3 IS NOT NULL AND q.q3 <> '' THEN q.q3
+                     WHEN q.q2 IS NOT NULL AND q.q2 <> '' THEN q.q2
+                     WHEN q.q1 IS NOT NULL AND q.q1 <> '' THEN q.q1
+                     ELSE NULL
+                   END AS bestTimeStr
+            FROM qualifying q
+            JOIN results r ON r.raceId = q.raceId AND r.driverId = q.driverId
+            JOIN races ra ON ra.raceId = q.raceId
+            WHERE ra.year = :year
+        ),
+        qt AS (
+            SELECT raceId,
+                   driverId,
+                   constructorId,
+                   (
+                     CAST(SUBSTRING_INDEX(bestTimeStr, ':', 1) AS UNSIGNED) * 60
+                     + CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(bestTimeStr, ':', -1), '.', 1) AS UNSIGNED)
+                     + CAST(SUBSTRING_INDEX(bestTimeStr, '.', -1) AS UNSIGNED) / 1000.0
+                   ) AS bestSec
+            FROM q
+            WHERE bestTimeStr IS NOT NULL AND bestTimeStr <> ''
+        )
+        SELECT AVG(
+            qt.bestSec
+            - (
+                SELECT MIN(t2.bestSec)
+                FROM qt t2
+                WHERE t2.raceId = qt.raceId
+                  AND t2.constructorId = qt.constructorId
+                  AND t2.driverId <> qt.driverId
+              )
+        )
+        FROM qt
+        WHERE qt.driverId = :driverId
+        """, nativeQuery = true)
+    Double getAvgQualiGapToTeammateSec(@Param("driverId") Long driverId,
+                                       @Param("year") int year);
+
+    /**
+     * Devuelve, para un año, por carrera y constructor:
+     *   - gap medio en ms respecto a la pole (qualy pace)
+     *
+     * Requiere qualifying con q1/q2/q3 (string tiempos) o un campo pre-parsado.
+     * Si ya tienes esto hecho, deja esta firma y usa tu query.
+     */
+    @Query(value = """
+        WITH pole AS (
+            SELECT
+                ra.raceId,
+                MIN(
+                    CASE
+                        WHEN q.q3 IS NOT NULL AND q.q3 <> '' THEN TIME_TO_SEC(STR_TO_DATE(q.q3, '%i:%s.%f'))*1000
+                        WHEN q.q2 IS NOT NULL AND q.q2 <> '' THEN TIME_TO_SEC(STR_TO_DATE(q.q2, '%i:%s.%f'))*1000
+                        WHEN q.q1 IS NOT NULL AND q.q1 <> '' THEN TIME_TO_SEC(STR_TO_DATE(q.q1, '%i:%s.%f'))*1000
+                        ELSE NULL
+                    END
+                ) AS poleMs
+            FROM qualifying q
+            JOIN races ra ON ra.raceId = q.raceId
+            WHERE ra.year = :year
+            GROUP BY ra.raceId
+        ),
+        driver_best AS (
+            SELECT
+                ra.raceId,
+                q.driverId,
+                r.constructorId,
+                CASE
+                    WHEN q.q3 IS NOT NULL AND q.q3 <> '' THEN TIME_TO_SEC(STR_TO_DATE(q.q3, '%i:%s.%f'))*1000
+                    WHEN q.q2 IS NOT NULL AND q.q2 <> '' THEN TIME_TO_SEC(STR_TO_DATE(q.q2, '%i:%s.%f'))*1000
+                    WHEN q.q1 IS NOT NULL AND q.q1 <> '' THEN TIME_TO_SEC(STR_TO_DATE(q.q1, '%i:%s.%f'))*1000
+                    ELSE NULL
+                END AS bestMs
+            FROM qualifying q
+            JOIN races ra ON ra.raceId = q.raceId
+            JOIN results r ON r.raceId = q.raceId AND r.driverId = q.driverId
+            WHERE ra.year = :year
+        )
+        SELECT
+            db.constructorId AS constructorId,
+            c.name AS constructorName,
+            c.constructorRef AS constructorRef,
+            db.raceId AS raceId,
+            AVG(db.bestMs - p.poleMs) AS avgQualiGapMs
+        FROM driver_best db
+        JOIN pole p ON p.raceId = db.raceId
+        JOIN constructors c ON c.constructorId = db.constructorId
+        WHERE db.bestMs IS NOT NULL AND p.poleMs IS NOT NULL
+        GROUP BY db.constructorId, db.raceId, c.name, c.constructorRef
+        """, nativeQuery = true)
+    List<TeamAvgQualiGapToPolePerRaceView2> getTeamAvgQualiGapToPolePerRace2(@Param("year") int year);
 
 
 

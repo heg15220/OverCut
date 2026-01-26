@@ -3,6 +3,7 @@ package com.overcut.f1hub.model.service;
 import com.overcut.f1hub.model.entities.*;
 import com.overcut.f1hub.rest.dtos.ChartDataDTO;
 import com.overcut.f1hub.rest.dtos.ChartSeriesDTO;
+import com.overcut.f1hub.rest.dtos.DriverPerformanceBreakdownDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -254,8 +255,598 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     }
 
 
+    // residual -> score [0..1], centrado en 0.5
+// Ajusta BETA si quieres más/menos sensibilidad.
+    private double residualScoreFromResidual(double residual) {
+        double beta = 1.25; // más alto = más impacto del “valor añadido”
+        double score = 0.5 + beta * residual;
+        return clamp01(score);
+    }
+
+    // gapSec = (driver - teammate) en segundos.
+// Negativo => el piloto es más rápido.
+// Queremos que -0.06 (6 centésimas) ya sume bastante.
+    private double paceVsTeammateScore01(double gapSec) {
+        if (!isFinite(gapSec)) return 0.5;
+
+        // Escala: 0.06s = “notable”
+        // a) Convertimos a “ventaja” positiva: advantage = -gap
+        double advantage = -gapSec; // si gap=-0.06 => advantage=+0.06
+
+        // b) Función saturada: score = 0.5 + 0.5 * tanh(adv/scale)
+        // scale 0.08 => 0.06 da ~0.82 aprox (puntos considerables)
+        double scale = 0.08;
+        double score = 0.5 + 0.5 * Math.tanh(advantage / scale);
+
+        return clamp01(score);
+    }
 
 
+
+    // ✅ UPDATED: Breakdown (con teamStrength top-sensitive + consScore mejorada + podiumShare del equipo)
+    public DriverPerformanceBreakdownDTO getDriverPerformanceBreakdown2(String driverIdStr, int year) {
+        Long driverId = Long.parseLong(driverIdStr);
+
+        List<DriverSeasonPerformanceView2> stats = resultDao.getDriverPerformanceStats2(driverId);
+        if (stats == null || stats.isEmpty()) return null;
+
+        DriverSeasonPerformanceView2 s = stats.stream()
+                .filter(x -> x.getYear() != null && x.getYear() == year)
+                .findFirst()
+                .orElse(null);
+
+        if (s == null) return null;
+
+        TeamGapSeason seasonGap = computeTeamGapSeason(year);
+
+        double gap0best = seasonGap.gap0bestByTeam.getOrDefault(
+                s.getConstructorId(),
+                seasonGap.fallbackGap
+        );
+
+        // ✅ más sensibilidad entre equipos punteros
+        double kneeSec = 1.0;
+        double blendSec = 0.35;
+
+        double teamStrength01 = strengthFromGapSecondsTopSensitive(
+                gap0best,
+                seasonGap.strengthScaleSec,
+                kneeSec,
+                blendSec
+        );
+
+        // --- componentes
+        int gridSize = (s.getGridSize() != null && s.getGridSize() >= 10) ? s.getGridSize() : 20;
+        double avgPos = (s.getAvgPosition() != null) ? s.getAvgPosition() : gridSize;
+
+        double posScore = ((gridSize + 1.0) - avgPos) / gridSize;
+        posScore = clamp01(posScore);
+
+        // ✅ team rank final en constructores (última carrera del año)
+        Integer teamRank = constructorStandingDao.getConstructorFinalPosition(s.getConstructorId(), year);
+        ConstructorTrajectory traj = computeConstructorTrajectory(year, s.getConstructorId(), teamRank);
+
+        double avgQualiGapToTmSec = Double.NaN;
+
+        try {
+            var v = qualifyingDao.getDriverAvgQualiGapToTeammateMs(driverId, year);
+            if (v != null && v.getAvgGapMs() != null) {
+                avgQualiGapToTmSec = v.getAvgGapMs() / 1000.0;
+            }
+        } catch (Exception ignored) {
+            // si algo falla, se queda NaN y score=0.5
+        }
+
+        double paceVsTeammate01 = paceVsTeammateScore01(avgQualiGapToTmSec);
+
+
+        double std = (s.getStddevPosition() != null) ? s.getStddevPosition() : 6.0;
+        double consScore = consistencyScoreImproved(std, avgPos, teamRank);
+        consScore = clamp01(consScore);
+
+        int tb = (s.getTeammateBattles() != null) ? s.getTeammateBattles() : 0;
+        int tw = (s.getTeammateWins() != null) ? s.getTeammateWins() : 0;
+
+        double tmScore = 0.5;
+        if (tb > 0) tmScore = (double) tw / (double) tb;
+        tmScore = clamp01(tmScore);
+
+        int rc = (s.getRaceCount() != null) ? s.getRaceCount() : 0;
+
+        int podiums = (s.getPodiums() != null) ? s.getPodiums() : 0;
+
+        // ✅ Podios del equipo en la temporada (3 por carrera * carreras donde el equipo sube)
+        int teamPodiums = resultDao.countTeamPodiumsBySeason(s.getConstructorId(), year);
+
+        // ✅ Share del piloto sobre el total del equipo
+        double podiumRate = (teamPodiums > 0) ? ((double) podiums / (double) teamPodiums) : 0.0;
+        podiumRate = clamp01(podiumRate);
+
+        int finishes = (s.getFinishes() != null) ? s.getFinishes() : 0;
+        double finishRate = (rc > 0) ? ((double) finishes / (double) rc) : 0.80;
+        finishRate = clamp01(finishRate);
+
+        double expectedBase = expectedPosScoreFromStrength(teamStrength01);
+        double expectedPosScore = adjustExpectedWithTrajectory(expectedBase, teamRank, traj);
+
+        double residual = posScore - expectedPosScore;
+        double residualScore01 = residualScoreFromResidual(residual);
+
+
+        // ✅ Index usando consScore mejorada + podiumShare del equipo
+        double idx01 = computeIndexValueAdded(s, expectedPosScore, teamRank, paceVsTeammate01);
+
+
+
+        DriverPerformanceBreakdownDTO out = new DriverPerformanceBreakdownDTO();
+        out.year = year;
+
+        out.teamStrength01 = round3(teamStrength01);
+        out.expectedPosScore = round3(expectedPosScore);
+
+        out.gridSize = gridSize;
+        out.avgPos = round3(avgPos);
+        out.posScore = round3(posScore);
+
+        out.stddevPos = round3(std);
+        out.consScore = round3(consScore);
+
+        out.teammateBattles = tb;
+        out.teammateWins = tw;
+        out.tmScore = round3(tmScore);
+
+        out.raceCount = rc;
+        out.podiums = podiums;
+        out.podiumRate = round3(podiumRate);
+
+        out.finishes = finishes;
+        out.finishRate = round3(finishRate);
+
+        out.residual = round3(residual);
+        out.residualScore01 = round3(residualScore01);
+
+        out.index01 = round3(idx01);
+        out.index100 = round1(100.0 * idx01);
+
+
+
+        Double gapQ = qualifyingDao.getAvgQualiGapToTeammateSec(driverId, year);
+        double gapSec = (gapQ != null && isFinite(gapQ)) ? gapQ : 0.0;
+
+        out.avgQualiGapToTeammateSec = round3(gapSec);
+        out.paceVsTeammate01 = round3(paceScoreFromQualiGap(gapSec));
+
+
+
+        // ✅ notas debug (incluye teamRank y expected pos-range)
+        String notes = "gap0best=" + round3(gap0best)
+                + " scaleSec=" + round3(seasonGap.strengthScaleSec)
+                + " fallbackGap=" + round3(seasonGap.fallbackGap)
+        +" avgQualiGapToTmSec=" + round3(avgQualiGapToTmSec)
+                + " paceVsTm01=" + round3(paceVsTeammate01);
+
+
+        if (teamRank != null && teamRank > 0) {
+            int expBest = Math.max(1, 2 * teamRank - 1);
+            int expWorst = Math.max(2, 2 * teamRank);
+            notes += " teamRank=" + teamRank + " expPos=[" + expBest + "," + expWorst + "]";
+            if (traj != null && traj.samples > 0) {
+                notes += " trajAvgRank=" + round3(traj.avgRank)
+                        + " trajP75Rank=" + round3(traj.p75Rank)
+                        + " trajWorsePct=" + round3(traj.pctWorseThanFinal);
+            }
+
+        }
+
+        out.notes = notes;
+
+        return out;
+    }
+
+
+
+
+// ========================================================================
+// 5) Helpers: Team gap season (improved)
+// - Keep your Race+Qualy mixing rules
+// - Normalize best=0
+// - Use robust scale (p90) instead of maxGap for downstream strength mapping
+// ========================================================================
+
+    private static class TeamGapSeason {
+        Map<Long, Double> gap0bestByTeam = new HashMap<>(); // seconds (best=0)
+        Map<Long, String> teamName = new HashMap<>();
+        Map<Long, String> teamRef = new HashMap<>();
+
+        // robust params for strength mapping
+        double strengthScaleSec = 0.45; // default; overwritten by p90 if available
+        double fallbackGap = 1.20;      // used if a team is missing
+    }
+
+    private static class ConstructorTrajectory {
+        double avgRank = Double.NaN;   // media durante el año
+        double p75Rank = Double.NaN;   // percentil 75 (captura “mucho tiempo peor”)
+        double pctWorseThanFinal = Double.NaN; // % de carreras donde estuvo peor que el final
+        int samples = 0;
+    }
+
+    private double paceScoreFromQualiGap(double gapSec) {
+        // negativo = mejor => score más alto
+        // scale controla cuánto “pesa” 0.060s. 0.08–0.12 suele ir bien.
+        double scale = 0.10;
+        double z = (-gapSec) / scale;
+        double score = 0.5 + 0.5 * Math.tanh(z); // 0..1
+        return clamp01(score);
+    }
+
+
+    private ConstructorTrajectory computeConstructorTrajectory(int year, Long constructorId, Integer finalRankOrNull) {
+        ConstructorTrajectory t = new ConstructorTrajectory();
+
+        List<Integer> positions = constructorStandingDao.getConstructorPositionsBySeason(constructorId, year);
+        if (positions == null || positions.isEmpty()) return t;
+
+        // limpia valores raros
+        List<Integer> clean = positions.stream()
+                .filter(p -> p != null && p > 0 && p <= 50)
+                .toList();
+
+        if (clean.isEmpty()) return t;
+
+        t.samples = clean.size();
+
+        double avg = clean.stream().mapToInt(Integer::intValue).average().orElse(Double.NaN);
+        t.avgRank = avg;
+
+        // p75
+        List<Integer> sorted = clean.stream().sorted().toList();
+        int idx = (int) Math.round(0.75 * (sorted.size() - 1));
+        idx = Math.max(0, Math.min(sorted.size() - 1, idx));
+        t.p75Rank = sorted.get(idx);
+
+        // % de carreras donde estuvo peor que el final
+        if (finalRankOrNull != null && finalRankOrNull > 0) {
+            long worse = clean.stream().filter(p -> p > finalRankOrNull).count();
+            t.pctWorseThanFinal = (double) worse / (double) clean.size();
+        }
+
+        return t;
+    }
+    private double adjustExpectedWithTrajectory(double expectedPosScore,
+                                                Integer finalRank,
+                                                ConstructorTrajectory traj) {
+        if (!isFinite(expectedPosScore)) return 0.5;
+        if (finalRank == null || finalRank <= 0) return clamp01(expectedPosScore);
+        if (traj == null || !isFinite(traj.avgRank)) return clamp01(expectedPosScore);
+
+        // delta > 0 => “durante el año estuvo peor que el puesto final”
+        double delta = traj.avgRank - finalRank;
+
+        // si delta <= 0 no bonificamos (significa que normalmente estuvo igual/mejor que su final)
+        if (delta <= 0.0) return clamp01(expectedPosScore);
+
+        // Ajuste saturado: máximo -0.10 (10 puntos)
+        // delta≈1.5 => ~-0.06; delta grande => tiende a -0.10
+        double maxDrop = 0.10;
+        double drop = maxDrop * (1.0 - Math.exp(-delta / 1.5));
+
+        // opcional: si “mucho tiempo peor”, sube un poco el drop
+        if (isFinite(traj.pctWorseThanFinal)) {
+            drop *= (0.85 + 0.30 * clamp01(traj.pctWorseThanFinal)); // 0.85..1.15
+        }
+
+        return clamp01(expectedPosScore - drop);
+    }
+
+    private TeamGapSeason computeTeamGapSeason(int year) {
+        // weights (keep your knobs)
+        final double W_RACE = 0.50;
+        final double W_QUALI = 0.50;
+
+        Map<Long, List<Double>> raceByTeam = new HashMap<>();  // seconds/lap
+        Map<Long, List<Double>> qualiByTeam = new HashMap<>(); // seconds
+
+        Map<Long, String> teamName = new HashMap<>();
+        Map<Long, String> teamRef = new HashMap<>();
+
+        // 1) race pace (only < 2025)
+        if (year < 2025) {
+            List<TeamAvgLapGapToWinnerPerRaceView> raceRows = lapTimeDao.getTeamAvgLapGapToWinnerPerRace(year);
+            if (raceRows != null) {
+                for (TeamAvgLapGapToWinnerPerRaceView v : raceRows) {
+                    Double gapMsPerLap = v.getAvgGapMsPerLap();
+                    if (gapMsPerLap == null) continue;
+
+                    raceByTeam.computeIfAbsent(v.getConstructorId(), k -> new ArrayList<>())
+                            .add(gapMsPerLap / 1000.0);
+
+                    teamName.putIfAbsent(v.getConstructorId(), v.getConstructorName());
+                    teamRef.putIfAbsent(v.getConstructorId(), v.getConstructorRef());
+                }
+            }
+        }
+
+        // 2) quali pace (>= 2003; and >=2025 is only source)
+        if (year >= 2003) {
+            List<TeamAvgQualiGapToPolePerRaceView> qualiRows = qualifyingDao.getTeamAvgQualiGapToPolePerRace(year);
+            if (qualiRows != null) {
+                for (TeamAvgQualiGapToPolePerRaceView v : qualiRows) {
+                    Double gapMs = v.getAvgQualiGapMs();
+                    if (gapMs == null) continue;
+
+                    qualiByTeam.computeIfAbsent(v.getConstructorId(), k -> new ArrayList<>())
+                            .add(gapMs / 1000.0);
+
+                    teamName.putIfAbsent(v.getConstructorId(), v.getConstructorName());
+                    teamRef.putIfAbsent(v.getConstructorId(), v.getConstructorRef());
+                }
+            }
+        }
+
+        // 3) combine by year rules
+        class TeamGapTmp {
+            Long teamId;
+            double avg; // seconds
+            TeamGapTmp(Long teamId, double avg) { this.teamId = teamId; this.avg = avg; }
+        }
+
+        Set<Long> allTeams = new HashSet<>();
+        allTeams.addAll(raceByTeam.keySet());
+        allTeams.addAll(qualiByTeam.keySet());
+
+        List<TeamGapTmp> teamGaps = new ArrayList<>();
+
+        for (Long teamId : allTeams) {
+            double raceAvg = avgOrNaN(raceByTeam.get(teamId));
+            double qualiAvg = avgOrNaN(qualiByTeam.get(teamId));
+            Double finalGap = null;
+
+            if (year >= 2025) {
+                if (isFinite(qualiAvg)) finalGap = qualiAvg;
+            } else if (year >= 2003) {
+                boolean hasRace = isFinite(raceAvg);
+                boolean hasQuali = isFinite(qualiAvg);
+
+                if (hasRace && hasQuali) finalGap = (raceAvg * W_RACE) + (qualiAvg * W_QUALI);
+                else if (hasQuali) finalGap = qualiAvg;
+                else if (hasRace) finalGap = raceAvg;
+            } else {
+                if (isFinite(raceAvg)) finalGap = raceAvg;
+            }
+
+            if (finalGap != null) teamGaps.add(new TeamGapTmp(teamId, finalGap));
+        }
+
+        TeamGapSeason out = new TeamGapSeason();
+        out.teamName.putAll(teamName);
+        out.teamRef.putAll(teamRef);
+
+        if (teamGaps.isEmpty()) return out;
+
+        // 4) normalize best = 0
+        double minAvg = teamGaps.stream().mapToDouble(t -> t.avg).min().orElse(0.0);
+
+        List<Double> gapsNorm = new ArrayList<>(teamGaps.size());
+        for (TeamGapTmp t : teamGaps) {
+            double g = t.avg - minAvg;
+            if (g < 0) g = 0; // safety
+            out.gap0bestByTeam.put(t.teamId, g);
+            gapsNorm.add(g);
+        }
+
+        // 5) robust scale for strength mapping: use p90 gap (less sensitive to one terrible team)
+        out.strengthScaleSec = percentile(gapsNorm, 0.90, 0.45);
+
+        // 6) fallback gap for missing teams: use p95 (or 2*scale as fallback)
+        out.fallbackGap = percentile(gapsNorm, 0.95, Math.max(1.0, 2.0 * out.strengthScaleSec));
+
+        return out;
+    }
+
+    private double percentile(List<Double> vals, double p, double fallback) {
+        if (vals == null || vals.isEmpty()) return fallback;
+        List<Double> clean = vals.stream().filter(this::isFinite).sorted().toList();
+        if (clean.isEmpty()) return fallback;
+        double idx = p * (clean.size() - 1);
+        int lo = (int) Math.floor(idx);
+        int hi = (int) Math.ceil(idx);
+        if (lo == hi) return clean.get(lo);
+        double w = idx - lo;
+        return clean.get(lo) * (1.0 - w) + clean.get(hi) * w;
+    }
+
+
+// ========================================================================
+// 6) Improved index (0..100) — avoids double counting and adds podium/finish
+// ========================================================================
+
+    // ========================================================================
+// NEW: Value-added performance index (0..1)
+// - Elimina doble conteo de posScore
+// - Métrica principal = residual vs expected (según coche)
+// ========================================================================
+    // ✅ UPDATED: Value-added performance index (0..1)
+// - Consistencia mejorada usando teamRank (constructors standings final) + stddev
+// - Podiums = share del piloto sobre el total de podios del equipo esa temporada
+    private double computeIndexValueAdded(DriverSeasonPerformanceView2 s,
+                                          double expectedPosScoreAdjusted,
+                                          Integer teamRank,
+                                          double paceVsTeammate01){
+    int gridSize = (s.getGridSize() != null && s.getGridSize() >= 10) ? s.getGridSize() : 20;
+        double avgPos = (s.getAvgPosition() != null) ? s.getAvgPosition() : gridSize;
+
+        double posScore = ((gridSize + 1.0) - avgPos) / gridSize;
+        posScore = clamp01(posScore);
+
+        double std = (s.getStddevPosition() != null) ? s.getStddevPosition() : 6.0;
+
+        // ✅ Consistencia mejorada: mezcla σ + “cumplir expectativa” según puesto del equipo
+        double consScore = consistencyScoreImproved(std, avgPos, teamRank);
+        consScore = clamp01(consScore);
+
+        double tmScore = 0.5;
+        if (s.getTeammateBattles() != null && s.getTeammateBattles() > 0 && s.getTeammateWins() != null) {
+            tmScore = (double) s.getTeammateWins() / (double) s.getTeammateBattles();
+        }
+        tmScore = clamp01(tmScore);
+
+        // ✅ Podiums como share del piloto sobre el total del equipo
+        double podiumShare = 0.0;
+        if (s.getPodiums() != null && s.getYear() != null && s.getConstructorId() != null) {
+            int podiums = s.getPodiums();
+            int teamPodiums = resultDao.countTeamPodiumsBySeason(s.getConstructorId(), s.getYear());
+            if (teamPodiums > 0) podiumShare = (double) podiums / (double) teamPodiums;
+        }
+        podiumShare = clamp01(podiumShare);
+
+        double finishRate = 0.80;
+        if (s.getRaceCount() != null && s.getRaceCount() > 0 && s.getFinishes() != null) {
+            finishRate = (double) s.getFinishes() / (double) s.getRaceCount();
+        }
+        finishRate = clamp01(finishRate);
+
+        double expectedPosScore = clamp01(expectedPosScoreAdjusted);
+        double residual = posScore - expectedPosScore;
+
+        double residualScore01 = residualScoreFromResidual(residual);
+
+        paceVsTeammate01 = clamp01(paceVsTeammate01);
+
+// Recomendación de pesos:
+// - residual sigue mandando
+// - pace vs teammate pesa fuerte (más que tmScore)
+// - tmScore baja un poco para no duplicar
+        double idx01 =
+                0.40 * residualScore01 +
+                        0.22 * paceVsTeammate01 +
+                        0.13 * tmScore +
+                        0.15 * consScore +
+                        0.05 * podiumShare +
+                        0.05 * finishRate;
+
+        return clamp01(idx01);
+
+    }
+
+
+
+    // Expected performance curve: strong car should “expect” higher posScore.
+// Non-linear curve helps distinguish midfield vs top without maxGap artifacts.
+    private double expectedPosScoreFromStrength(double strength01) {
+        strength01 = clamp01(strength01);
+
+        // curve: expected rises faster near the top (top cars should “expect” high posScore)
+        // You can tweak exponent (1.3–1.7 range). 1.5 is a good start.
+        double gamma = 1.25;
+        double expected = Math.pow(strength01, gamma);
+
+        // Slightly compress extremes so it’s never “impossible” to overperform or underperform.
+        // Map [0,1] -> [0.08, 0.92]
+        expected = 0.08 + 0.84 * expected;
+
+        return clamp01(expected);
+    }
+
+    // Car strength mapping from gap seconds:
+// Strength = exp(-gap / scale). Robust and stable.
+    // Car strength mapping from gap seconds (TOP-SENSITIVE):
+// - For small gaps (top teams), use a smaller scale -> each 0.1s matters more
+// - For larger gaps, fall back to the robust season scale (p90) to keep stability
+    private double strengthFromGapSecondsTopSensitive(double gapSec,
+                                                      double baseScaleSec,   // your robust p90 scale
+                                                      double kneeSec,        // where "top zone" ends (e.g. 1.0s)
+                                                      double blendSec) {     // smooth transition width (e.g. 0.35s)
+        if (!isFinite(gapSec) || gapSec < 0) gapSec = 0.0;
+        if (!isFinite(baseScaleSec) || baseScaleSec <= 0) baseScaleSec = 0.45;
+
+        // Smaller scale in the top zone -> more sensitivity among top teams
+        // You can tune 0.55–0.75. Lower => more punishing per 0.1s near the front.
+        double topScaleSec = Math.max(0.18, baseScaleSec * 0.60);
+
+        // Two exponentials
+        double sTop  = Math.exp(-gapSec / topScaleSec);
+        double sBase = Math.exp(-gapSec / baseScaleSec);
+
+        // Smooth blend factor w in [0..1]
+        // w=0 => use topScale (small gaps), w=1 => use baseScale (bigger gaps)
+        double w = 0.0;
+        if (blendSec <= 0) {
+            w = (gapSec > kneeSec) ? 1.0 : 0.0;
+        } else {
+            w = (gapSec - kneeSec) / blendSec;
+            w = clamp01(w);
+            // smoothstep for nicer transition
+            w = w * w * (3.0 - 2.0 * w);
+        }
+
+        double strength = (1.0 - w) * sTop + w * sBase;
+        return clamp01(strength);
+    }
+
+
+    private boolean isFinite(double v) {
+        return !Double.isNaN(v) && !Double.isInfinite(v);
+    }
+
+
+    private double clamp01(double v) {
+        return Math.max(0.0, Math.min(1.0, v));
+    }
+
+    private double round1(double v) {
+        return Math.round(v * 10.0) / 10.0;
+    }
+
+
+    private int expectedBestPosFromTeamRank(int teamRank) {
+        // 1 -> 1, 2 -> 3, 3 -> 5, ...
+        return Math.max(1, 2 * teamRank - 1);
+    }
+
+    private int expectedWorstPosFromTeamRank(int teamRank) {
+        // 1 -> 2, 2 -> 4, 3 -> 6, ...
+        return Math.max(2, 2 * teamRank);
+    }
+
+    /**
+     * Score 0..1: 1 si el piloto está en el rango esperado o mejor,
+     * y cae rápido si queda por detrás.
+     */
+    private double expectedFinishScore(double avgPos, int expectedWorstPos) {
+        if (!isFinite(avgPos)) return 0.0;
+
+        // si está en expectedWorst o mejor => score máximo
+        if (avgPos <= expectedWorstPos) return 1.0;
+
+        // penaliza si va por detrás (tunea el divisor: 1.5-2.5)
+        double delta = avgPos - expectedWorstPos;
+        double score = Math.exp(-delta / 2.0);
+        return clamp01(score);
+    }
+
+    /**
+     * Consistencia mejorada: mezcla "estabilidad" + "cumplir expectativa del equipo".
+     */
+    private double consistencyScoreImproved(double stddevPos,
+                                            double avgPos,
+                                            Integer teamRankOrNull) {
+        double std = isFinite(stddevPos) ? stddevPos : 6.0;
+
+        double baseCons = Math.exp(-std / 3.5);     // tu fórmula actual
+        baseCons = clamp01(baseCons);
+
+        if (teamRankOrNull == null || teamRankOrNull <= 0) {
+            return baseCons; // fallback si no hay standings
+        }
+
+        int expectedWorst = expectedWorstPosFromTeamRank(teamRankOrNull);
+        double expectScore = expectedFinishScore(avgPos, expectedWorst);
+
+        // ✅ Pesos: estabilidad manda, pero “cumplir expectativas” suma bastante
+        // (ajusta: 0.55/0.45 o 0.60/0.40)
+        double cons = 0.60 * baseCons + 0.40 * expectScore;
+        return clamp01(cons);
+    }
 
 
     public ChartDataDTO getAveragePointsPerSeasonByDriver(String decade, String lang) {

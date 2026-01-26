@@ -44,7 +44,56 @@ public interface LapTimeDao extends JpaRepository<LapTime, LapTimeId> {
 
 
 
-
+    /**
+     * Devuelve, para un año, por carrera y constructor:
+     *   - gap medio en ms por vuelta vs el ganador (race pace)
+     *
+     * Requiere tabla laptimes con (raceId, driverId, lap, milliseconds)
+     * y results para mapear driver -> constructor en esa carrera.
+     *
+     * Si ya tienes un método parecido, usa el tuyo y deja esta firma.
+     */
+    @Query(value = """
+        WITH winner AS (
+            SELECT
+                ra.raceId,
+                MIN(rt.milliseconds) AS winnerTotalMs
+            FROM results r
+            JOIN races ra ON ra.raceId = r.raceId
+            JOIN (
+                SELECT raceId, driverId, SUM(milliseconds) AS milliseconds
+                FROM laptimes
+                GROUP BY raceId, driverId
+            ) rt ON rt.raceId = r.raceId AND rt.driverId = r.driverId
+            WHERE ra.year = :year
+              AND r.positionOrder = 1
+            GROUP BY ra.raceId
+        ),
+        driver_totals AS (
+            SELECT
+                ra.raceId,
+                r.driverId,
+                r.constructorId,
+                SUM(lt.milliseconds) AS driverTotalMs,
+                COUNT(*) AS lapCount
+            FROM laptimes lt
+            JOIN races ra ON ra.raceId = lt.raceId
+            JOIN results r ON r.raceId = lt.raceId AND r.driverId = lt.driverId
+            WHERE ra.year = :year
+            GROUP BY ra.raceId, r.driverId, r.constructorId
+        )
+        SELECT
+            dt.constructorId AS constructorId,
+            c.name AS constructorName,
+            c.constructorRef AS constructorRef,
+            dt.raceId AS raceId,
+            AVG((dt.driverTotalMs - w.winnerTotalMs) / NULLIF(dt.lapCount,0)) AS avgGapMsPerLap
+        FROM driver_totals dt
+        JOIN winner w ON w.raceId = dt.raceId
+        JOIN constructors c ON c.constructorId = dt.constructorId
+        GROUP BY dt.constructorId, dt.raceId, c.name, c.constructorRef
+        """, nativeQuery = true)
+    List<TeamAvgLapGapToWinnerPerRaceView2> getTeamAvgLapGapToWinnerPerRace2(@Param("year") int year);
 
 
 

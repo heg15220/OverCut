@@ -1,6 +1,7 @@
 package com.overcut.f1hub.model.service;
 
 import com.overcut.f1hub.rest.dtos.ChartDataDTO;
+import com.overcut.f1hub.rest.dtos.DriverPerformanceBreakdownDTO;
 
 import java.util.List;
 
@@ -11,6 +12,9 @@ public interface AdvancedStatsService {
     record CircuitOption(String circuitRef, String name) {}
 
     ChartDataDTO getTeamPerformanceGapBySeason(String seasonStr, String lang);
+
+
+    DriverPerformanceBreakdownDTO getDriverPerformanceBreakdown2(String driverIdStr, int year);
 
     List<DriverOption> getAllDrivers();
 
