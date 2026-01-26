@@ -314,6 +314,8 @@ const RaceGame = () => {
 
   const [leaderboard, setLeaderboard] = useState([]);
 
+  const scrollToTopOnStartRef = useRef(false);
+
 
   const [hud, setHud] = useState({
   pos: 1,
@@ -2187,6 +2189,31 @@ const drawStartLights = (ctx) => {
   }, [showTutorial, showSetup]);
 
   useEffect(() => {
+    // cuando pasamos a gameplay
+    if (showTutorial) return;
+    if (showSetup) return;
+
+    if (!scrollToTopOnStartRef.current) return;
+    scrollToTopOnStartRef.current = false;
+
+    // siguiente tick: DOM ya pintado con el gameplay
+    requestAnimationFrame(() => {
+      // 1) scroll al contenedor del juego (el div que ya tienes con ref)
+      if (containerRef.current) {
+        containerRef.current.scrollIntoView({
+          block: "start",
+          inline: "nearest",
+          behavior: "auto",
+        });
+      }
+
+      // 2) backup: fuerza top absoluto del body (por si hay layouts raros)
+      window.scrollTo({ top: 0, behavior: "auto" });
+    });
+  }, [showTutorial, showSetup]);
+
+
+  useEffect(() => {
     stateRef.current.totalLaps = laps;
   }, [laps]);
 
@@ -2390,29 +2417,17 @@ if (showSetup) {
           <button
             className="racegame__setupStart"
             onClick={(e) => {
-            stateRef.current.aiMode = aiMode;
+              stateRef.current.aiMode = aiMode;
 
-            // 1) evita focus (móvil)
-            e?.currentTarget?.blur?.();
+              // marca que venimos de “start”
+              scrollToTopOnStartRef.current = true;
 
-            // 2) cambia a gameplay
-            setShowSetup(false);
+              e?.currentTarget?.blur?.();
 
-            // 3) siguiente frame: scroll al juego
-            requestAnimationFrame(() => {
-              const el = containerRef.current;
-              if (!el) return;
+              // cambia a gameplay
+              setShowSetup(false);
+            }}
 
-              // algunos navegadores no aceptan "instant": usa auto
-              el.scrollIntoView({ block: "start", inline: "nearest", behavior: "auto" });
-
-              // backup por si insiste
-              window.scrollTo({
-                top: el.getBoundingClientRect().top + window.scrollY,
-                behavior: "auto",
-              });
-            });
-          }}
 
             type="button"
           >
