@@ -44,4 +44,13 @@ public class DebateRoomController {
         Long userId = (Long) req.getAttribute("userId");
         service.answerPoll(id, userId, body.answer);
     }
+
+    @GetMapping("/rooms/{id}/messages")
+    public List<ChatMessageHistoryDto> messages(@PathVariable Long id,
+                                                @RequestParam(defaultValue = "50") int limit,
+                                                HttpServletRequest req) {
+        Long userId = (Long) req.getAttribute("userId");
+        return service.getRoomMessages(id, userId, limit);
+    }
+
 }

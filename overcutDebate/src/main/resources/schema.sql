@@ -1,7 +1,9 @@
+DROP TABLE IF EXISTS debate_message;
 DROP TABLE IF EXISTS debate_room_participant;
 DROP TABLE IF EXISTS debate_room;
 DROP TABLE IF EXISTS debate_daily_seed;
 DROP TABLE IF EXISTS debate_opinion;
+
 
 CREATE TABLE debate_opinion (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -53,3 +55,18 @@ CREATE TABLE debate_room_participant (
   CONSTRAINT uq_room_user UNIQUE(room_id, user_id),
   CONSTRAINT fk_part_room FOREIGN KEY (room_id) REFERENCES debate_room(id) ON DELETE CASCADE
 );
+
+CREATE TABLE debate_message (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  room_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+  user_name VARCHAR(60) NOT NULL,
+  text VARCHAR(400) NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+
+  CONSTRAINT fk_msg_room FOREIGN KEY (room_id) REFERENCES debate_room(id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_msg_room_created ON debate_message(room_id, created_at);
+CREATE INDEX ix_msg_created ON debate_message(created_at);
+

@@ -10,4 +10,10 @@ public interface DebateRoomService {
 
     JoinRoomResponseDto joinRoom(Long roomId, Long userId, String authHeader);
     void answerPoll(Long roomId, Long userId, String answer);
+    boolean isRoomLive(Long roomId);
+    boolean isUserJoined(Long roomId, Long userId);
+
+    List<ChatMessageHistoryDto> getRoomMessages(Long roomId, Long userId, int limit);
+
+
 }

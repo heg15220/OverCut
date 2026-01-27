@@ -1,7 +1,9 @@
 package overcutdebate.model.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import overcutdebate.model.daos.DebateMessageDao;
 import overcutdebate.model.daos.DebateRoomDao;
 import overcutdebate.model.daos.DebateRoomParticipantDao;
 import overcutdebate.model.entities.*;
@@ -22,6 +24,8 @@ public class DebateRoomServiceImpl implements DebateRoomService {
     private final DebateRoomDao roomDao;
     private final DebateRoomParticipantDao partDao;
     private final OvercutUserClient overcutUserClient;
+    @Autowired
+    private DebateMessageDao debateMessageDao;
     private final DebateClock clock;
 
     public DebateRoomServiceImpl(DebateRoomDao roomDao,
@@ -150,4 +154,55 @@ public class DebateRoomServiceImpl implements DebateRoomService {
         long s = Duration.between(Instant.now(), deadline).getSeconds();
         return Math.max(0, s);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isRoomLive(Long roomId) {
+        DebateRoom room = roomDao.findById(roomId)
+                .orElseThrow(() -> new ApiException(404, "Room not found"));
+        return room.getStatus() == RoomStatus.LIVE;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isUserJoined(Long roomId, Long userId) {
+        // Si quieres, primero valida que la sala existe (opcional)
+        // roomDao.existsById(roomId) ...
+        return partDao.findByRoomIdAndUserId(roomId, userId).isPresent();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatMessageHistoryDto> getRoomMessages(Long roomId, Long userId, int limit) {
+
+        DebateRoom room = roomDao.findById(roomId)
+                .orElseThrow(() -> new ApiException(404, "Room not found"));
+
+        // ✅ seguridad: solo si está unido (aunque la sala esté CLOSED, puedes decidir)
+        if (!isUserJoined(roomId, userId)) {
+            throw new ApiException(403, "You are not joined in this room");
+        }
+
+        int safe = Math.max(1, Math.min(200, limit));
+
+        // Ojo: devuelve DESC, luego invertimos para pintar cronológico
+        var msgs = debateMessageDao.findLatestByRoomId(roomId, org.springframework.data.domain.PageRequest.of(0, safe));
+
+        return msgs.stream()
+                .sorted(java.util.Comparator.comparing(overcutdebate.model.entities.DebateMessage::getCreatedAt))
+                .map(m -> {
+                    ChatMessageHistoryDto dto = new ChatMessageHistoryDto();
+                    dto.id = m.getId();
+                    dto.roomId = m.getRoomId();
+                    dto.userId = m.getUserId();
+                    dto.userName = m.getUserName();
+                    dto.text = m.getText();
+                    dto.createdAt = m.getCreatedAt();
+                    return dto;
+                })
+                .toList();
+    }
+
+
 }
