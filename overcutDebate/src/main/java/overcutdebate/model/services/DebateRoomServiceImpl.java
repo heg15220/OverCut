@@ -5,11 +5,13 @@ import org.springframework.transaction.annotation.Transactional;
 import overcutdebate.model.daos.DebateRoomDao;
 import overcutdebate.model.daos.DebateRoomParticipantDao;
 import overcutdebate.model.entities.*;
+import overcutdebate.model.services.exceptions.ApiException;
 import overcutdebate.rest.dtos.*;
 import overcutdebate.rest.overcut.OvercutUserClient;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,67 +22,53 @@ public class DebateRoomServiceImpl implements DebateRoomService {
     private final DebateRoomDao roomDao;
     private final DebateRoomParticipantDao partDao;
     private final OvercutUserClient overcutUserClient;
+    private final DebateClock clock;
 
     public DebateRoomServiceImpl(DebateRoomDao roomDao,
                                  DebateRoomParticipantDao partDao,
-                                 OvercutUserClient overcutUserClient) {
+                                 OvercutUserClient overcutUserClient,
+                                 DebateClock clock) {
         this.roomDao = roomDao;
         this.partDao = partDao;
         this.overcutUserClient = overcutUserClient;
+        this.clock = clock;
     }
 
     @Override
     @Transactional(readOnly = true)
     public RoomDetailDto getRoom(Long roomId) {
-        DebateRoom room = roomDao.findById(roomId).orElseThrow();
+        DebateRoom room = roomDao.findById(roomId)
+                .orElseThrow(() -> new ApiException(404, "Room not found"));
         return toDetail(room);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<RoomSummaryDto> listRooms(DebateScope scope) {
-        return roomDao.findByScopeOrderByJoinDeadlineAsc(scope)
-                .stream()
+    public List<RoomSummaryDto> listTodayRooms(String scopeStr) {
+        DebateScope scope;
+        try { scope = DebateScope.valueOf(scopeStr); }
+        catch (Exception e) { throw new ApiException(400, "Invalid scope"); }
+
+        LocalDate day = clock.today();
+        return roomDao.findByDebateDayAndScopeOrderByJoinDeadlineAsc(day, scope).stream()
+                .filter(r -> r.getStatus() != RoomStatus.CLOSED)
                 .map(this::toSummary)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public RoomDetailDto createRoom(String scopeStr, String topic, Integer joinSeconds) {
-        DebateScope scope = DebateScope.valueOf(scopeStr);
-        int join = (joinSeconds == null || joinSeconds <= 0) ? 60 : joinSeconds;
-
-        Instant now = Instant.now();
-
-        DebateRoom r = new DebateRoom();
-        r.setScope(scope);
-        r.setTopic(topic);
-        r.setStatus(RoomStatus.OPEN);
-        r.setCreatedAt(now);
-        r.setJoinDeadline(now.plusSeconds(join));
-        r.setPollDeadline(null);
-        r.setLiveDeadline(null);
-
-        roomDao.save(r);
-        return toDetail(r);
-    }
-
-    @Override
     public JoinRoomResponseDto joinRoom(Long roomId, Long userId, String authHeader) {
-        DebateRoom room = roomDao.findById(roomId).orElseThrow();
+        DebateRoom room = roomDao.findById(roomId)
+                .orElseThrow(() -> new ApiException(404, "Room not found"));
 
-        if (room.getStatus() != RoomStatus.OPEN) {
-            throw new IllegalStateException("Room not open");
-        }
-        if (Instant.now().isAfter(room.getJoinDeadline())) {
-            throw new IllegalStateException("Join window closed");
-        }
+        if (room.getStatus() != RoomStatus.OPEN) throw new ApiException(409, "Room not open");
+        if (Instant.now().isAfter(room.getJoinDeadline())) throw new ApiException(409, "Join window closed");
 
-        // ya está unido?
-        if (partDao.findByRoomIdAndUserId(roomId, userId).isPresent()) {
+        var existing = partDao.findByRoomIdAndUserId(roomId, userId);
+        if (existing.isPresent()) {
             JoinRoomResponseDto dto = new JoinRoomResponseDto();
             dto.joined = true;
-            dto.userName = partDao.findByRoomIdAndUserId(roomId, userId).get().getUserName();
+            dto.userName = existing.get().getUserName();
             return dto;
         }
 
@@ -105,11 +93,17 @@ public class DebateRoomServiceImpl implements DebateRoomService {
 
     @Override
     public void answerPoll(Long roomId, Long userId, String answerStr) {
-        DebateRoom room = roomDao.findById(roomId).orElseThrow();
-        if (room.getStatus() != RoomStatus.POLL) throw new IllegalStateException("Poll not active");
+        DebateRoom room = roomDao.findById(roomId)
+                .orElseThrow(() -> new ApiException(404, "Room not found"));
 
-        DebateRoomParticipant p = partDao.findByRoomIdAndUserId(roomId, userId).orElseThrow();
-        PollAnswer ans = PollAnswer.valueOf(answerStr);
+        if (room.getStatus() != RoomStatus.POLL) throw new ApiException(409, "Poll not active");
+
+        DebateRoomParticipant p = partDao.findByRoomIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new ApiException(403, "You are not joined in this room"));
+
+        PollAnswer ans;
+        try { ans = PollAnswer.valueOf(answerStr); }
+        catch (Exception e) { throw new ApiException(400, "Invalid poll answer"); }
 
         p.setPollAnswer(ans);
         p.setPollAnsweredAt(Instant.now());
@@ -120,6 +114,7 @@ public class DebateRoomServiceImpl implements DebateRoomService {
         RoomSummaryDto dto = new RoomSummaryDto();
         dto.id = room.getId();
         dto.scope = room.getScope().name();
+        dto.day = room.getDebateDay().toString();
         dto.topic = room.getTopic();
         dto.status = room.getStatus().name();
         dto.participantsCount = partDao.countByRoomId(room.getId());
@@ -132,6 +127,7 @@ public class DebateRoomServiceImpl implements DebateRoomService {
         RoomDetailDto dto = new RoomDetailDto();
         dto.id = room.getId();
         dto.scope = room.getScope().name();
+        dto.day = room.getDebateDay().toString();
         dto.topic = room.getTopic();
         dto.status = room.getStatus().name();
         dto.participantsCount = partDao.countByRoomId(room.getId());

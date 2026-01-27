@@ -2,9 +2,10 @@ package overcutdebate.model.entities;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
-@Table(name="debate_room")
+@Table(name = "debate_room")
 public class DebateRoom {
 
     @Id
@@ -14,24 +15,47 @@ public class DebateRoom {
     @Enumerated(EnumType.STRING)
     private DebateScope scope;
 
+    @Column(name = "debate_day", nullable = false)
+    private LocalDate debateDay;
+
+    @Column(name="opinion_id", nullable=false)
+    private Long opinionId;
+
     private String topic;
 
     @Enumerated(EnumType.STRING)
     private RoomStatus status;
 
+
+    @Column(name="created_at", nullable=false)
     private Instant createdAt;
+
+    @Column(name="join_deadline", nullable=false)
     private Instant joinDeadline;
+
+    @Column(name="poll_deadline")
     private Instant pollDeadline;
+
+    @Column(name="live_deadline")
     private Instant liveDeadline;
 
     public DebateRoom() {}
-
-    // getters/setters
 
     public Long getId() { return id; }
 
     public DebateScope getScope() { return scope; }
     public void setScope(DebateScope scope) { this.scope = scope; }
+
+    public LocalDate getDebateDay() {
+        return debateDay;
+    }
+
+    public void setDebateDay(LocalDate debateDay) {
+        this.debateDay = debateDay;
+    }
+
+    public Long getOpinionId() { return opinionId; }
+    public void setOpinionId(Long opinionId) { this.opinionId = opinionId; }
 
     public String getTopic() { return topic; }
     public void setTopic(String topic) { this.topic = topic; }

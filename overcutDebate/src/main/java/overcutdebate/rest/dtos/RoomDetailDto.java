@@ -5,6 +5,7 @@ import java.util.List;
 public class RoomDetailDto {
     public Long id;
     public String scope;
+    public String day;
     public String topic;
     public String status;
     public long participantsCount;

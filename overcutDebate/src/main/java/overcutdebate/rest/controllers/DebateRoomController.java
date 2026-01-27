@@ -1,11 +1,10 @@
 package overcutdebate.rest.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
-import overcutdebate.model.entities.DebateScope;
 import overcutdebate.model.services.DebateRoomService;
 import overcutdebate.rest.dtos.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -19,13 +18,11 @@ public class DebateRoomController {
     }
 
     @GetMapping("/health")
-    public String health() {
-        return "ok";
-    }
+    public String health() { return "ok"; }
 
     @GetMapping("/rooms")
     public List<RoomSummaryDto> list(@RequestParam String scope) {
-        return service.listRooms(DebateScope.valueOf(scope));
+        return service.listTodayRooms(scope);
     }
 
     @GetMapping("/rooms/{id}")
