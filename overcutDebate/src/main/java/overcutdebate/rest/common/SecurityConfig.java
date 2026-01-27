@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(mvc.pattern(HttpMethod.OPTIONS, "/**")).permitAll()
                         .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/debate/health")).permitAll()
+                        .requestMatchers(mvc.pattern("/api/debate/admin/**")).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

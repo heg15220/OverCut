@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/debate")
+@RequestMapping("/api/debate/me")
 public class DebateMeController {
 
     private final OvercutUserClient overcutUserClient;
@@ -26,7 +26,7 @@ public class DebateMeController {
     }
 
 
-    @GetMapping("/me")
+    @GetMapping("/")
     public Map<String, Object> me(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         Boolean isAdmin = (Boolean) request.getAttribute("isAdmin");
