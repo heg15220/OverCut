@@ -4,23 +4,33 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "debate_room_participant",
-        uniqueConstraints = @UniqueConstraint(name="uq_room_user", columnNames = {"roomId", "userId"}))
+@Table(
+        name = "debate_room_participant",
+        uniqueConstraints = @UniqueConstraint(name="uq_room_user", columnNames = {"room_id", "user_id"})
+)
 public class DebateRoomParticipant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="room_id", nullable=false)
     private Long roomId;
+
+    @Column(name="user_id", nullable=false)
     private Long userId;
+
+    @Column(name="user_name", nullable=false, length=60)
     private String userName;
 
+    @Column(name="joined_at", nullable=false)
     private Instant joinedAt;
 
     @Enumerated(EnumType.STRING)
     private PollAnswer pollAnswer;
 
+
+    @Column(name="poll_answered_at")
     private Instant pollAnsweredAt;
 
     public DebateRoomParticipant() {}

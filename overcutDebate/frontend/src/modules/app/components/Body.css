@@ -1,0 +1,20 @@
+/* src/modules/app/components/Body.css */
+.Body {
+  width: 100%;
+  padding-top: 95px; /* desktop header height */
+  min-height: calc(100vh - 95px);
+}
+
+@media (max-width: 768px) {
+  .Body {
+    padding-top: 70px; /* tablet */
+    min-height: calc(100vh - 70px);
+  }
+}
+
+@media (max-width: 500px) {
+  .Body {
+    padding-top: 60px; /* mobile */
+    min-height: calc(100vh - 60px);
+  }
+}

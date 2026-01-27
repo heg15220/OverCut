@@ -1,0 +1,66 @@
+/* src/modules/app/components/Footer.css */
+.Footer {
+  border-top: 1px solid #1e2630;
+  background: #0f141b;
+  padding: 16px 18px;
+}
+
+.Footer__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.Footer__brand {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.4px;
+}
+
+.Footer__muted {
+  margin-top: 6px;
+  color: #9fb0c7;
+  font-size: 12px;
+}
+
+.Footer__links {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.Footer__link {
+  color: #cfe0ff;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.Footer__link:hover {
+  text-decoration: underline;
+}
+
+.Footer__cookieBtn {
+  border: 1px solid #2f3b4c;
+  background: #1b2635;
+  color: #e8edf3;
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.Footer__cookieBtn:hover {
+  border-color: #4a5e7b;
+}
+
+.Footer__bottom {
+  max-width: 1100px;
+  margin: 12px auto 0;
+  color: #9fb0c7;
+  font-size: 12px;
+}

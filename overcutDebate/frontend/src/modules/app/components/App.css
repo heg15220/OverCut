@@ -1,0 +1,13 @@
+/* src/modules/app/components/App.css */
+.AppRoot {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0b0f14;
+  color: #e8edf3;
+}
+
+.AppMain {
+  flex: 1;
+  display: block;
+}

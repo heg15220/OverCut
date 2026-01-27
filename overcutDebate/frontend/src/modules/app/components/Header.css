@@ -1,0 +1,85 @@
+/* src/modules/app/components/Header.css */
+
+.Header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 95px;            /* ✅ coincide con Body.css desktop */
+  z-index: 1000;
+
+  background: #0f141b;
+  border-bottom: 1px solid #1e2630;
+
+  display: flex;
+  align-items: center;
+}
+
+.Header__inner {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.Header__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.Header__title {
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  font-size: 15px;
+  color: #e8edf3;
+  line-height: 1;
+}
+
+.Header__subtitle {
+  font-size: 12px;
+  color: #9fb0c7;
+  line-height: 1;
+}
+
+.Header__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.Header__pill {
+  border: 1px solid #2f3b4c;
+  background: #121a24;
+  color: #cfe0ff;
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 12px;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .Header {
+    height: 70px;          /* ✅ coincide con Body.css tablet */
+  }
+}
+
+@media (max-width: 500px) {
+  .Header {
+    height: 60px;          /* ✅ coincide con Body.css mobile */
+  }
+
+  .Header__inner {
+    padding: 0 14px;
+  }
+
+  .Header__subtitle {
+    display: none;
+  }
+}

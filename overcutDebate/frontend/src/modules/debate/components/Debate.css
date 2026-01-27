@@ -1,0 +1,198 @@
+/* src/modules/debate/components/Debate.css */
+.debate-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 18px;
+}
+
+.debate-card {
+  width: 100%;
+  max-width: 900px;
+  background: #0f141b;
+  border: 1px solid #232b36;
+  border-radius: 14px;
+  padding: 16px;
+  color: #e8edf3;
+}
+
+.debate-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.debate-scope {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.debate-section {
+  margin-top: 16px;
+  border-top: 1px solid #1e2630;
+  padding-top: 14px;
+}
+
+.debate-room-list {
+  display: grid;
+  gap: 10px;
+}
+
+.debate-room-item {
+  text-align: left;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #263042;
+  background: #121a24;
+  cursor: pointer;
+}
+
+.debate-room-item:hover {
+  border-color: #3a4a66;
+}
+
+.debate-room-top,
+.debate-room-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.debate-topic {
+  margin: 10px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #f0f5ff;
+}
+
+.debate-topic.big {
+  font-size: 16px;
+}
+
+.debate-muted {
+  color: #9fb0c7;
+  font-size: 12px;
+}
+
+.debate-empty {
+  color: #9fb0c7;
+  padding: 10px 0;
+}
+
+.debate-textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #2a3443;
+  background: #0c1118;
+  color: #e8edf3;
+  resize: vertical;
+}
+
+.debate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.debate-btn {
+  border: 1px solid #2f3b4c;
+  background: #1b2635;
+  color: #e8edf3;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.debate-btn:hover {
+  border-color: #4a5e7b;
+}
+
+.debate-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.debate-btn.secondary {
+  background: #121a24;
+}
+
+.debate-btn.danger {
+  background: #3a1d22;
+  border-color: #5a2a33;
+}
+
+.debate-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid #2a3443;
+  background: #121a24;
+}
+
+.status-open { background: #10243a; }
+.status-poll { background: #2b250d; }
+.status-live { background: #133019; }
+.status-closed { background: #2a2a2a; }
+
+.debate-room-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.debate-joined-ok {
+  margin-top: 10px;
+  color: #9effb2;
+  font-size: 13px;
+}
+
+.debate-chatbox {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.debate-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #2a3443;
+  background: #0c1118;
+  color: #e8edf3;
+}
+
+.debate-messages {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.debate-msg {
+  border: 1px solid #263042;
+  background: #0c1118;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.debate-msg-user {
+  font-size: 12px;
+  color: #9fb0c7;
+  margin-bottom: 4px;
+}
+
+.debate-msg-text {
+  font-size: 14px;
+  color: #e8edf3;
+}
