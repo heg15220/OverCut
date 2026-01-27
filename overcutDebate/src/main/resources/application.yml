@@ -1,0 +1,21 @@
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:debate;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+project:
+  jwt:
+    signKey: WzROun12eUiDvko3UrJ74gNeJz2TWEWPMTh6DxyE8HWXIf4hETUrkM4IUGqqHq66PuVS
+    expirationMinutes: 1440
+
+overcut:
+  baseUrl: ${OVERCUT_BASE_URL:http://localhost:8080/overcut}
