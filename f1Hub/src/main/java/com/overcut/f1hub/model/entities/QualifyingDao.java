@@ -63,47 +63,83 @@ ORDER BY r.round
 
 
     @Query(value = """
-WITH bestq AS (
+WITH qsec AS (
   SELECT
     q.raceId,
     q.driverId,
     q.constructorId,
-    COALESCE(q.q3, q.q2, q.q1) AS bestTime
+
+    CASE WHEN q.q1 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$'
+      THEN TIME_TO_SEC(STR_TO_DATE(q.q1, '%i:%s.%f')) ELSE NULL END AS q1Sec,
+
+    CASE WHEN q.q2 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$'
+      THEN TIME_TO_SEC(STR_TO_DATE(q.q2, '%i:%s.%f')) ELSE NULL END AS q2Sec,
+
+    CASE WHEN q.q3 REGEXP '^[0-9]+:[0-9]+\\.[0-9]+$'
+      THEN TIME_TO_SEC(STR_TO_DATE(q.q3, '%i:%s.%f')) ELSE NULL END AS q3Sec
   FROM qualifying q
-  WHERE COALESCE(q.q3, q.q2, q.q1) IS NOT NULL
+  JOIN races r ON r.raceId = q.raceId
+  WHERE r.year = :year
 ),
-ranked AS (
+qmax AS (
   SELECT
-    b.*,
-    ROW_NUMBER() OVER (PARTITION BY b.raceId, b.constructorId ORDER BY b.bestTime ASC) AS rn
-  FROM bestq b
+    raceId,
+    driverId,
+    constructorId,
+    q1Sec, q2Sec, q3Sec,
+    CASE
+      WHEN q3Sec IS NOT NULL THEN 3
+      WHEN q2Sec IS NOT NULL THEN 2
+      WHEN q1Sec IS NOT NULL THEN 1
+      ELSE 0
+    END AS maxSession
+  FROM qsec
 ),
 pairs AS (
   SELECT
-    d1.raceId,
-    d1.driverId,
-    d1.constructorId,
-    (d1.bestTime - d2.bestTime) AS gapMs
-  FROM ranked d1
-  JOIN ranked d2
-    ON d1.raceId = d2.raceId
-   AND d1.constructorId = d2.constructorId
-   AND d1.driverId <> d2.driverId
-  WHERE d1.rn <= 2 AND d2.rn <= 2
+    a.raceId,
+    a.driverId AS driverId,
+    a.constructorId,
+    b.driverId AS teammateId,
+
+    LEAST(a.maxSession, b.maxSession) AS commonSession,
+
+    CASE LEAST(a.maxSession, b.maxSession)
+      WHEN 3 THEN a.q3Sec
+      WHEN 2 THEN a.q2Sec
+      WHEN 1 THEN a.q1Sec
+      ELSE NULL
+    END AS aTime,
+
+    CASE LEAST(a.maxSession, b.maxSession)
+      WHEN 3 THEN b.q3Sec
+      WHEN 2 THEN b.q2Sec
+      WHEN 1 THEN b.q1Sec
+      ELSE NULL
+    END AS bTime
+  FROM qmax a
+  JOIN qmax b
+    ON a.raceId = b.raceId
+   AND a.constructorId = b.constructorId
+   AND a.driverId <> b.driverId
+  WHERE a.driverId = :driverId
 )
 SELECT
   p.driverId AS driverId,
   p.constructorId AS constructorId,
-  r.year AS year,
-  AVG(p.gapMs) AS avgGapMs
+  :year AS year,
+  AVG( (p.aTime - p.bTime) * 1000.0 ) AS avgGapMs
 FROM pairs p
-JOIN races r ON r.raceId = p.raceId
-WHERE r.year = :year
-  AND p.driverId = :driverId
-GROUP BY p.driverId, p.constructorId, r.year
+WHERE p.commonSession >= 1
+  AND p.aTime IS NOT NULL
+  AND p.bTime IS NOT NULL
+GROUP BY p.driverId, p.constructorId
 """, nativeQuery = true)
-    DriverAvgQualiGapToTeammateView getDriverAvgQualiGapToTeammateMs(@Param("driverId") Long driverId,
-                                                                     @Param("year") int year);
+    DriverAvgQualiGapToTeammateView getDriverAvgQualiGapToTeammateMs(
+            @Param("driverId") Long driverId,
+            @Param("year") int year
+    );
+
 
 
     @Query(value = """

@@ -103,25 +103,26 @@ GROUP BY r2.constructorId, ra.year
                       AND r.positionOrder > 0
                     GROUP BY ra.year, r.driverId, r.constructorId
                 ),
-                finishes_by_season_team AS (
-                    SELECT
-                        ra.year,
-                        r.driverId,
-                        r.constructorId,
-                        SUM(
-                            CASE
-                                WHEN r.positionOrder IS NOT NULL AND r.positionOrder > 0 THEN 1
-                                WHEN LOWER(s.status) IN ('finished','classified','not classified') THEN 1
-                                WHEN LOWER(s.status) REGEXP '\\\\\\\\+\\\\\\\\d+\\\\\\\\s+laps{0,1}' THEN 1
-                                ELSE 0
-                            END
-                        ) AS finishes
-                    FROM results r
-                    JOIN races ra ON r.raceId = ra.raceId
-                    JOIN status s ON r.statusId = s.statusId
-                    WHERE r.driverId = :driverId
-                    GROUP BY ra.year, r.driverId, r.constructorId
-                ),
+            finishes_by_season_team AS (
+                SELECT
+                    ra.year,
+                    r.driverId,
+                    r.constructorId,
+                    SUM(
+                        CASE
+                            WHEN s.statusId IS NULL THEN 0
+                            WHEN LOWER(s.status) IN ('finished','classified','not classified') THEN 1
+                            WHEN LOWER(s.status) REGEXP '\\\\\\\\+\\\\\\\\d+\\\\\\\\s+(lap|laps)' THEN 1
+                            ELSE 0
+                        END
+                    ) AS finishes
+                FROM results r
+                JOIN races ra ON r.raceId = ra.raceId
+                LEFT JOIN status s ON r.statusId = s.statusId
+                WHERE r.driverId = :driverId
+                GROUP BY ra.year, r.driverId, r.constructorId
+            ),
+                            
                 grid_size_by_year AS (
                     SELECT
                         ra.year,

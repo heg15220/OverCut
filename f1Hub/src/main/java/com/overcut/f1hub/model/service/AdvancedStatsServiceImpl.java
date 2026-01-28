@@ -326,18 +326,20 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         Integer teamRank = constructorStandingDao.getConstructorFinalPosition(s.getConstructorId(), year);
         ConstructorTrajectory traj = computeConstructorTrajectory(year, s.getConstructorId(), teamRank);
 
+// --- Ritmo vs compañero (fuente ÚNICA de verdad) ---
         double avgQualiGapToTmSec = Double.NaN;
 
         try {
-            var v = qualifyingDao.getDriverAvgQualiGapToTeammateMs(driverId, year);
+            DriverAvgQualiGapToTeammateView v = qualifyingDao.getDriverAvgQualiGapToTeammateMs(driverId, year);
             if (v != null && v.getAvgGapMs() != null) {
-                avgQualiGapToTmSec = v.getAvgGapMs() / 1000.0;
+                avgQualiGapToTmSec = v.getAvgGapMs() / 1000.0; // ms -> s
             }
         } catch (Exception ignored) {
-            // si algo falla, se queda NaN y score=0.5
+            // se queda NaN => score neutral (0.5)
         }
 
         double paceVsTeammate01 = paceVsTeammateScore01(avgQualiGapToTmSec);
+
 
 
         double std = (s.getStddevPosition() != null) ? s.getStddevPosition() : 6.0;
@@ -434,11 +436,12 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
 
-        Double gapQ = qualifyingDao.getAvgQualiGapToTeammateSec(driverId, year);
-        double gapSec = (gapQ != null && isFinite(gapQ)) ? gapQ : 0.0;
+
+        double gapSec = (isFinite(avgQualiGapToTmSec)) ? avgQualiGapToTmSec : 0.0;
 
         out.avgQualiGapToTeammateSec = round3(gapSec);
-        out.paceVsTeammate01 = round3(paceScoreFromQualiGap(gapSec));
+        out.paceVsTeammate01 = round3(paceVsTeammate01);
+
 
         out.tmResidualScore01 = round3(tmResidualScore01);
 

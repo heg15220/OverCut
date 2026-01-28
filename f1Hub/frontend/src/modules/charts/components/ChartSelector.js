@@ -184,7 +184,7 @@ const ChartSelector = () => {
       },
       {
         endpoint: "performance-breakdown-2",
-        label: { es: "🔍 Breakdown Rendimiento (debug)", en: "🔍 Performance Breakdown (debug)" },
+        label: { es: "🔍 Breakdown Rendimiento", en: "🔍 Performance Breakdown" },
         param: "driverId",
         chartType: "debug"
       }
