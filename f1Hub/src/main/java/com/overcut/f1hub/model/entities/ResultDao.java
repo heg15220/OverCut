@@ -9,6 +9,30 @@ import java.util.Set;
 
 public interface ResultDao extends JpaRepository<Result, Long> {
 
+
+
+    @Query(value = """
+SELECT
+  r2.constructorId AS constructorId,
+  ra.year          AS year,
+  AVG(r2.positionOrder) AS avgPos,
+  COUNT(*) AS samples
+FROM results r1
+JOIN results r2
+  ON r1.raceId = r2.raceId
+ AND r1.constructorId = r2.constructorId
+ AND r1.driverId <> r2.driverId
+JOIN races ra ON ra.raceId = r1.raceId
+WHERE ra.year = :year
+  AND r1.driverId = :driverId
+  AND r1.positionOrder IS NOT NULL AND r1.positionOrder > 0
+  AND r2.positionOrder IS NOT NULL AND r2.positionOrder > 0
+GROUP BY r2.constructorId, ra.year
+""", nativeQuery = true)
+    TeammateAvgRacePosView getTeammateAvgRacePos(@Param("driverId") Long driverId,
+                                                 @Param("year") int year);
+
+
     @Query(value = """
         SELECT COUNT(*)
         FROM results r

@@ -373,8 +373,32 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         double residualScore01 = residualScoreFromResidual(residual);
 
 
+        // --- NEW: teammate-based expectation ---
+        Double teammateAvgPos = Double.NaN;
+        Integer expectedTeamRankFromTm = null;
+        double expectedPosScoreFromTm = 0.5; // neutral
+
+        double tmResidualScore01 = 0.0;
+        try {
+            var tm = resultDao.getTeammateAvgRacePos(driverId, year);
+            if (tm != null && tm.getAvgPos() != null && isFinite(tm.getAvgPos())) {
+                teammateAvgPos = tm.getAvgPos();
+                expectedTeamRankFromTm = expectedTeamRankFromTeammateAvgPos(teammateAvgPos, gridSize);
+                expectedPosScoreFromTm = expectedPosScoreFromTeamRank(expectedTeamRankFromTm, gridSize);
+
+                // residual vs teammate-based expected (si el piloto está por encima => positivo)
+                double tmResidual = posScore - expectedPosScoreFromTm;
+
+                // “debe sumar mucho”: beta alto y saturado
+                double betaTm = 1.8;
+                tmResidualScore01 = clamp01(0.5 + betaTm * tmResidual);
+            }
+        } catch (Exception ignored) {}
+
+
         // ✅ Index usando consScore mejorada + podiumShare del equipo
-        double idx01 = computeIndexValueAdded(s, expectedPosScore, teamRank, paceVsTeammate01);
+        double idx01 = computeIndexValueAdded(s, expectedPosScore, teamRank, paceVsTeammate01, tmResidualScore01);
+
 
 
 
@@ -416,14 +440,18 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         out.avgQualiGapToTeammateSec = round3(gapSec);
         out.paceVsTeammate01 = round3(paceScoreFromQualiGap(gapSec));
 
+        out.tmResidualScore01 = round3(tmResidualScore01);
 
 
         // ✅ notas debug (incluye teamRank y expected pos-range)
         String notes = "gap0best=" + round3(gap0best)
                 + " scaleSec=" + round3(seasonGap.strengthScaleSec)
                 + " fallbackGap=" + round3(seasonGap.fallbackGap)
-        +" avgQualiGapToTmSec=" + round3(avgQualiGapToTmSec)
-                + " paceVsTm01=" + round3(paceVsTeammate01);
+                + " avgQualiGapToTmSec=" + out.avgQualiGapToTeammateSec
+                + " paceVsTm01=" + out.paceVsTeammate01
+                + " tmResidual01=" + round3(tmResidualScore01)
+                + " tmExpectedRank=" + round3(expectedTeamRankFromTm);
+
 
 
         if (teamRank != null && teamRank > 0) {
@@ -643,6 +671,30 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         return out;
     }
 
+    private int expectedTeamRankFromTeammateAvgPos(double teammateAvgPos, int gridSize) {
+        // teammateAvgPos ~ 1..grid
+        // si teammate = 3.2 -> equipo debería estar ~P2 (top team)
+        // si teammate = 9.5 -> equipo debería estar ~P5
+        // si teammate = 15  -> equipo debería estar ~P8
+        double r = (teammateAvgPos + 1.0) / 2.0; // 1->1, 3->2, 9->5, 15->8
+        int rank = (int) Math.round(r);
+
+        // clamp razonable (10 equipos normalmente)
+        rank = Math.max(1, Math.min(10, rank));
+        return rank;
+    }
+
+    private double expectedPosScoreFromTeamRank(int teamRank, int gridSize) {
+        int expectedWorst = expectedWorstPosFromTeamRank(teamRank); // 2,4,6...
+        // expectedWorst pequeño => expectedPosScore alto
+        // lo mapeamos a la misma escala que posScore
+        double expectedAvgPos = Math.min(gridSize, expectedWorst); // proxy conservadora
+        double expectedPosScore = ((gridSize + 1.0) - expectedAvgPos) / gridSize;
+        return clamp01(expectedPosScore);
+    }
+
+
+
     private double percentile(List<Double> vals, double p, double fallback) {
         if (vals == null || vals.isEmpty()) return fallback;
         List<Double> clean = vals.stream().filter(this::isFinite).sorted().toList();
@@ -671,7 +723,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     private double computeIndexValueAdded(DriverSeasonPerformanceView2 s,
                                           double expectedPosScoreAdjusted,
                                           Integer teamRank,
-                                          double paceVsTeammate01){
+                                          double paceVsTeammate01,
+                                          double teammateExpectedResidualScore01){
     int gridSize = (s.getGridSize() != null && s.getGridSize() >= 10) ? s.getGridSize() : 20;
         double avgPos = (s.getAvgPosition() != null) ? s.getAvgPosition() : gridSize;
 
@@ -712,17 +765,21 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         paceVsTeammate01 = clamp01(paceVsTeammate01);
 
+        teammateExpectedResidualScore01 = clamp01(teammateExpectedResidualScore01);
+
+
 // Recomendación de pesos:
 // - residual sigue mandando
 // - pace vs teammate pesa fuerte (más que tmScore)
 // - tmScore baja un poco para no duplicar
         double idx01 =
-                0.40 * residualScore01 +
+                0.30 * residualScore01 +
                         0.22 * paceVsTeammate01 +
                         0.13 * tmScore +
                         0.15 * consScore +
                         0.05 * podiumShare +
-                        0.05 * finishRate;
+                        0.05 * finishRate +
+                        0.23 * teammateExpectedResidualScore01;
 
         return clamp01(idx01);
 

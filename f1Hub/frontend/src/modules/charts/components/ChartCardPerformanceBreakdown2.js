@@ -23,6 +23,8 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
     },
     kpiIndex: { es: "Index (0-100)", en: "Index (0-100)" },
     kpiResidual: { es: "Residual", en: "Residual" },
+    kpiValueAdded: { es: "Valor añadido", en: "Value added" }, // ✅ (si quieres separar residual vs score)
+    kpiValueAddedTm: { es: "Valor añadido vs comp.", en: "Value added vs tm" }, // ✅ NUEVO
     kpiAvgPos: { es: "Pos. media", en: "Avg pos" },
     kpiConsistency: { es: "Consistencia", en: "Consistency" },
     kpiTM: { es: "Vs compañero", en: "Vs teammate" },
@@ -44,8 +46,11 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
         title: "¿Qué mide este breakdown?",
         intro:
           "Este panel estima el rendimiento de un piloto en una temporada separando: (1) lo que 'permite' el coche (fuerza del equipo) y (2) lo que aporta el piloto (valor añadido). " +
-          "Para ello calcula una expectativa (expectedPosScore) según la fuerza del equipo y compara con el rendimiento real (posScore). " +
-          "La diferencia (residual) mide si el piloto rinde por encima o por debajo de lo esperado. El índice final mezcla ese valor añadido con otros factores (vs compañero, consistencia, fiabilidad, podios).",
+          "Para ello calcula una expectativa principal (expectedPosScore) según la fuerza del equipo y, además, una expectativa alternativa basada en el nivel del compañero. " +
+          "La diferencia con la expectativa del equipo (residual) y su versión reescalada (residualScore01) miden si el piloto rinde por encima o por debajo de lo esperado. " +
+          "La nueva medida tmResidualScore01 hace lo mismo pero usando la expectativa basada en el compañero. " +
+          "El índice final mezcla ese valor añadido con otros factores (ritmo vs compañero, consistencia, fiabilidad y podios).",
+
 
         fieldsTitle: "Campos / KPIs (arriba)",
         fields: [
@@ -55,6 +60,14 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
               "Score final del rendimiento global. index01 está normalizado 0..1 y index100 = index01*100. " +
               "Se calcula ponderando: valor añadido (residualScore01), vs compañero, consistencia, podios y finalizaciones."
           },
+          {
+            k: "Valor añadido vs compañero (tmResidualScore01)",
+            v:
+              "Nueva medida de valor añadido comparando el rendimiento real (posScore) contra lo esperado según el nivel del compañero (expectedPosScoreFromTm). " +
+              "Se reescala a 0..1 centrado en 0.5: ~0.5 = cumple; >0.5 = rinde por encima; <0.5 = por debajo. " +
+              "Es útil cuando la 'fuerza del coche' estimada por clasificación de constructores no refleja bien el rendimiento real del coche."
+          },
+
           {
             k: "Residual = posScore - expectedPosScore",
             v:
@@ -132,8 +145,11 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
         title: "What does this breakdown measure?",
         intro:
           "This panel estimates a driver’s season performance by separating: (1) what the car enables (team strength) and (2) what the driver adds (value-added). " +
-          "It computes an expectation (expectedPosScore) from team strength and compares it to actual performance (posScore). " +
-          "Their difference (residual) indicates over/under-performance. The final index blends value-added with teammate pace, consistency, reliability and podium contribution.",
+          "It computes a primary expectation (expectedPosScore) from team strength and also an alternative expectation derived from the teammate level. " +
+          "The gap vs the team-based expectation (residual) and its rescaled form (residualScore01) indicate over/under-performance. " +
+          "The new tmResidualScore01 does the same but using the teammate-based expectation. " +
+          "The final index blends that value-added with other factors (teammate pace, consistency, reliability and podium contribution).",
+
 
         fieldsTitle: "Fields / KPIs (top)",
         fields: [
@@ -154,6 +170,14 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
             v:
               "Residual rescaled to 0..1 centered at 0.5. ~0.5 = meets expectation; >0.5 = overperforms; <0.5 = underperforms."
           },
+          {
+            k: "Value added vs teammate (tmResidualScore01)",
+            v:
+              "New value-added metric comparing actual performance (posScore) against an expectation derived from the teammate level (expectedPosScoreFromTm). " +
+              "Rescaled to 0..1 centered at 0.5: ~0.5 = meets; >0.5 = overperforms; <0.5 = underperforms. " +
+              "Useful when constructor-based car strength does not capture the true car level."
+          },
+
           {
             k: "Avg position (avgPos) + Grid (gridSize)",
             v:
@@ -277,7 +301,14 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
         label: t.kpiPace[lang],
         value: `${Math.round(clamp01(breakdown.paceVsTeammate01) * 100)}%`,
         sub: `${(clamp01(breakdown.paceVsTeammate01)).toFixed(3)} / 1.000`
+      },
+
+      {
+        label: lang === "es" ? "VA vs comp." : "VA vs teammate",
+        value: `${Math.round(clamp01(breakdown.tmResidualScore01) * 100)}%`,
+        sub: `${clamp01(breakdown.tmResidualScore01).toFixed(3)} / 1.000`
       }
+
     ];
   }, [breakdown, lang]);
 

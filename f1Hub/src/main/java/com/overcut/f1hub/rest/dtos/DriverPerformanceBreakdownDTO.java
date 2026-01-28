@@ -35,4 +35,6 @@ public class DriverPerformanceBreakdownDTO {
     public double avgQualiGapToTeammateSec;  // negativo => más rápido
     public double paceVsTeammate01;          // score 0..1
 
+    public double tmResidualScore01; // score 0..1 (value-added vs teammate-based expectation)
+
 }
