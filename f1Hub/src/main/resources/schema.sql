@@ -351,34 +351,3 @@ CREATE INDEX idx_qualifying_race_driver_constructor ON qualifying(raceId, driver
 CREATE INDEX idx_qualifying_q1_q2_q3 ON qualifying(q1, q2, q3);
 
 
-ALTER TABLE races
-  ADD INDEX idx_races_year_race (year, raceId),
-  ADD INDEX idx_races_year_round (year, round, raceId);
-
-ALTER TABLE qualifying
-  ADD INDEX idx_q_race_constructor_driver (raceId, constructorId, driverId),
-  ADD INDEX idx_q_race_position (raceId, position, driverId),
-  ADD INDEX idx_q_race_driver (raceId, driverId);
-
-ALTER TABLE qualifying
-  ADD INDEX idx_q_driver_race (driverId, raceId),
-  ADD INDEX idx_q_race_constructor (raceId, constructorId);
-
-ALTER TABLE results
-  ADD INDEX idx_res_race_pos_ms (raceId, positionOrder, milliseconds),
-  ADD INDEX idx_res_race_constructor (raceId, constructorId),
-  ADD INDEX idx_res_race_driver (raceId, driverId),
-  ADD INDEX idx_res_year_support (constructorId, positionOrder); -- útil para count podiums por equipo
-
-ALTER TABLE laptimes
-  ADD INDEX idx_lt_race_driver (raceId, driverId),
-  ADD INDEX idx_lt_race_driver_lap (raceId, driverId, lap),
-  ADD INDEX idx_lt_race_lap (raceId, lap);
-
-ALTER TABLE constructorstandings
-  ADD INDEX idx_cs_race_constructor (raceId, constructorId),
-  ADD INDEX idx_cs_constructor_race (constructorId, raceId);
-
-ALTER TABLE driverstandings
-  ADD INDEX idx_ds_race_driver (raceId, driverId),
-  ADD INDEX idx_ds_driver_race (driverId, raceId);

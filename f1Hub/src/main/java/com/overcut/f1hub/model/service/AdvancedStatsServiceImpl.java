@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 public class AdvancedStatsServiceImpl implements AdvancedStatsService {
@@ -53,6 +56,10 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
     @Autowired
     private SprintResultDao sprintResultDao;
+
+    @Autowired
+    private QualiAggDao qualiAggDao;
+
 
 
 
@@ -283,7 +290,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
 
-    // ✅ UPDATED: Breakdown (con teamStrength top-sensitive + consScore mejorada + podiumShare del equipo)
+    @Cacheable(cacheNames = "driverBreakdown", key = "#driverIdStr + ':' + #year")
+    @Transactional(readOnly = true)
     public DriverPerformanceBreakdownDTO getDriverPerformanceBreakdown2(String driverIdStr, int year) {
         Long driverId = Long.parseLong(driverIdStr);
 
@@ -297,14 +305,13 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         if (s == null) return null;
 
-        TeamGapSeason seasonGap = computeTeamGapSeason(year);
+        TeamGapSeason seasonGap = computeTeamGapSeasonCached(year);
 
         double gap0best = seasonGap.gap0bestByTeam.getOrDefault(
                 s.getConstructorId(),
                 seasonGap.fallbackGap
         );
 
-        // ✅ más sensibilidad entre equipos punteros
         double kneeSec = 1.0;
         double blendSec = 0.35;
 
@@ -315,36 +322,28 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 blendSec
         );
 
-        // --- componentes
         int gridSize = (s.getGridSize() != null && s.getGridSize() >= 10) ? s.getGridSize() : 20;
         double avgPos = (s.getAvgPosition() != null) ? s.getAvgPosition() : gridSize;
 
         double posScore = ((gridSize + 1.0) - avgPos) / gridSize;
         posScore = clamp01(posScore);
 
-        // ✅ team rank final en constructores (última carrera del año)
         Integer teamRank = constructorStandingDao.getConstructorFinalPosition(s.getConstructorId(), year);
         ConstructorTrajectory traj = computeConstructorTrajectory(year, s.getConstructorId(), teamRank);
 
-// --- Ritmo vs compañero (fuente ÚNICA de verdad) ---
+        // --- Ritmo vs compañero (tu query actual está bien; si quieres, también se cachea por driver+year)
         double avgQualiGapToTmSec = Double.NaN;
-
         try {
             DriverAvgQualiGapToTeammateView v = qualifyingDao.getDriverAvgQualiGapToTeammateMs(driverId, year);
             if (v != null && v.getAvgGapMs() != null) {
-                avgQualiGapToTmSec = v.getAvgGapMs() / 1000.0; // ms -> s
+                avgQualiGapToTmSec = v.getAvgGapMs() / 1000.0;
             }
-        } catch (Exception ignored) {
-            // se queda NaN => score neutral (0.5)
-        }
+        } catch (Exception ignored) {}
 
         double paceVsTeammate01 = paceVsTeammateScore01(avgQualiGapToTmSec);
 
-
-
         double std = (s.getStddevPosition() != null) ? s.getStddevPosition() : 6.0;
-        double consScore = consistencyScoreImproved(std, avgPos, teamRank);
-        consScore = clamp01(consScore);
+        double consScore = clamp01(consistencyScoreImproved(std, avgPos, teamRank));
 
         int tb = (s.getTeammateBattles() != null) ? s.getTeammateBattles() : 0;
         int tw = (s.getTeammateWins() != null) ? s.getTeammateWins() : 0;
@@ -354,13 +353,9 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         tmScore = clamp01(tmScore);
 
         int rc = (s.getRaceCount() != null) ? s.getRaceCount() : 0;
-
         int podiums = (s.getPodiums() != null) ? s.getPodiums() : 0;
 
-        // ✅ Podios del equipo en la temporada (3 por carrera * carreras donde el equipo sube)
         int teamPodiums = resultDao.countTeamPodiumsBySeason(s.getConstructorId(), year);
-
-        // ✅ Share del piloto sobre el total del equipo
         double podiumRate = (teamPodiums > 0) ? ((double) podiums / (double) teamPodiums) : 0.0;
         podiumRate = clamp01(podiumRate);
 
@@ -374,35 +369,22 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         double residual = posScore - expectedPosScore;
         double residualScore01 = residualScoreFromResidual(residual);
 
-
-        // --- NEW: teammate-based expectation ---
-        Double teammateAvgPos = Double.NaN;
-        Integer expectedTeamRankFromTm = null;
-        double expectedPosScoreFromTm = 0.5; // neutral
-
+        // teammate-based expectation
         double tmResidualScore01 = 0.0;
         try {
             var tm = resultDao.getTeammateAvgRacePos(driverId, year);
             if (tm != null && tm.getAvgPos() != null && isFinite(tm.getAvgPos())) {
-                teammateAvgPos = tm.getAvgPos();
-                expectedTeamRankFromTm = expectedTeamRankFromTeammateAvgPos(teammateAvgPos, gridSize);
-                expectedPosScoreFromTm = expectedPosScoreFromTeamRank(expectedTeamRankFromTm, gridSize);
+                double teammateAvgPos = tm.getAvgPos();
+                Integer expectedTeamRankFromTm = expectedTeamRankFromTeammateAvgPos(teammateAvgPos, gridSize);
+                double expectedPosScoreFromTm = expectedPosScoreFromTeamRank(expectedTeamRankFromTm, gridSize);
 
-                // residual vs teammate-based expected (si el piloto está por encima => positivo)
                 double tmResidual = posScore - expectedPosScoreFromTm;
-
-                // “debe sumar mucho”: beta alto y saturado
                 double betaTm = 1.8;
                 tmResidualScore01 = clamp01(0.5 + betaTm * tmResidual);
             }
         } catch (Exception ignored) {}
 
-
-        // ✅ Index usando consScore mejorada + podiumShare del equipo
         double idx01 = computeIndexValueAdded(s, expectedPosScore, teamRank, paceVsTeammate01, tmResidualScore01);
-
-
-
 
         DriverPerformanceBreakdownDTO out = new DriverPerformanceBreakdownDTO();
         out.year = year;
@@ -431,48 +413,29 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         out.residual = round3(residual);
         out.residualScore01 = round3(residualScore01);
 
-        out.index01 = round3(idx01);
-        out.index100 = round1(100.0 * idx01);
-
-
-
-
-        double gapSec = (isFinite(avgQualiGapToTmSec)) ? avgQualiGapToTmSec : 0.0;
-
-        out.avgQualiGapToTeammateSec = round3(gapSec);
+        out.avgQualiGapToTeammateSec = round3(avgQualiGapToTmSec);
         out.paceVsTeammate01 = round3(paceVsTeammate01);
-
 
         out.tmResidualScore01 = round3(tmResidualScore01);
 
-
-        // ✅ notas debug (incluye teamRank y expected pos-range)
-        String notes = "gap0best=" + round3(gap0best)
-                + " scaleSec=" + round3(seasonGap.strengthScaleSec)
-                + " fallbackGap=" + round3(seasonGap.fallbackGap)
-                + " avgQualiGapToTmSec=" + out.avgQualiGapToTeammateSec
-                + " paceVsTm01=" + out.paceVsTeammate01
-                + " tmResidual01=" + round3(tmResidualScore01)
-                + " tmExpectedRank=" + round3(expectedTeamRankFromTm);
-
-
-
-        if (teamRank != null && teamRank > 0) {
-            int expBest = Math.max(1, 2 * teamRank - 1);
-            int expWorst = Math.max(2, 2 * teamRank);
-            notes += " teamRank=" + teamRank + " expPos=[" + expBest + "," + expWorst + "]";
-            if (traj != null && traj.samples > 0) {
-                notes += " trajAvgRank=" + round3(traj.avgRank)
-                        + " trajP75Rank=" + round3(traj.p75Rank)
-                        + " trajWorsePct=" + round3(traj.pctWorseThanFinal);
-            }
-
-        }
-
-        out.notes = notes;
+        out.index01 = round3(idx01);
+        out.index100 = round3(idx01 * 100.0);
 
         return out;
     }
+
+
+    /**
+     * ✅ Cache por año: esto se recalcula muchísimo en JMeter si no lo cacheas.
+     */
+    @Cacheable(cacheNames = "teamGapSeason", key = "#year")
+    @Transactional(readOnly = true)
+    public TeamGapSeason computeTeamGapSeasonCached(int year) {
+        // Sustituye tu computeTeamGapSeason(year) por este cuerpo (o llama internamente)
+        return computeTeamGapSeason(year);
+    }
+
+
 
 
 
@@ -698,17 +661,23 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
 
 
-    private double percentile(List<Double> vals, double p, double fallback) {
-        if (vals == null || vals.isEmpty()) return fallback;
-        List<Double> clean = vals.stream().filter(this::isFinite).sorted().toList();
-        if (clean.isEmpty()) return fallback;
-        double idx = p * (clean.size() - 1);
-        int lo = (int) Math.floor(idx);
-        int hi = (int) Math.ceil(idx);
-        if (lo == hi) return clean.get(lo);
-        double w = idx - lo;
-        return clean.get(lo) * (1.0 - w) + clean.get(hi) * w;
+    private double percentile(Collection<Double> values, double p, double fallback) {
+        if (values == null || values.isEmpty()) return fallback;
+
+        var arr = values.stream()
+                .filter(this::isFinite)
+                .sorted()
+                .toList();
+
+        if (arr.isEmpty()) return fallback;
+
+        int idx = (int) Math.floor((arr.size() - 1) * p);
+        idx = Math.max(0, Math.min(arr.size() - 1, idx));
+
+        Double v = arr.get(idx);
+        return (v == null || !isFinite(v)) ? fallback : v;
     }
+
 
 
 // ========================================================================
