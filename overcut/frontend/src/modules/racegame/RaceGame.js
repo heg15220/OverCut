@@ -477,6 +477,10 @@ const RaceGame = () => {
   totalLaps: 3,
   winnerName: null,
   trackId: 0,
+  raceTime: 0,
+  finishCounter: 0,
+  winnerIsPlayer: null,
+
 
   // ✅ dificultad IA
   aiMode: "easy", // "easy" | "hard"
@@ -540,11 +544,11 @@ const RaceGame = () => {
       hardDesc: "Más rápida, traza ideal y maximiza velocidad en rectas.",
       setupTip: "El circuito se elige aleatoriamente en cada carrera.",
 
-      backToSetup: lang === "es" ? "⚙ Setup" : "⚙ Setup",
-      resume: lang === "es" ? "Continuar" : "Resume",
       medium: "Medio",
       mediumDesc: "Equilibrada: más rápida que Fácil, pero con margen y algo de prudencia.",
 
+      backToSetup: "⚙ Setup",
+      resume: "Continuar",
 
     };
     const en = {
@@ -576,6 +580,8 @@ const RaceGame = () => {
       setupTip: "A random track is selected every race.",
       medium: "Medium",
       mediumDesc: "Balanced: faster than Easy, but still leaves some margin and plays safer.",
+      backToSetup: "⚙ Setup",
+      resume: "Continuar",
 
       
     };
@@ -763,6 +769,9 @@ const RaceGame = () => {
   s: 0,
   lap: 1,
   finished: false,
+  finishTime: null,
+  finishOrder: null,
+
 
   accel: opts.accel ?? 520,
   brake: opts.brake ?? 720,
@@ -976,9 +985,14 @@ const tune =
     const cars = carsRef.current.slice();
 
     cars.sort((a, b) => {
-      // finished primero, y dentro de finished: mayor progreso
       if (a.finished && !b.finished) return -1;
       if (!a.finished && b.finished) return 1;
+
+      if (a.finished && b.finished) {
+        // ✅ el que terminó antes
+        return (a.finishOrder ?? 9999) - (b.finishOrder ?? 9999);
+        // o: return (a.finishTime ?? 1e9) - (b.finishTime ?? 1e9);
+      }
 
       const aLap = Math.min(a.lap, st.totalLaps + 1);
       const bLap = Math.min(b.lap, st.totalLaps + 1);
@@ -986,6 +1000,7 @@ const tune =
 
       return b.s - a.s;
     });
+
 
     return cars;
   };
@@ -1451,7 +1466,19 @@ steer = clamp(kp * err + kd * derr - kLat * latErr, -1, 1);
 
     if (crossed) {
       car.lap += 1;
-      if (car.lap > st.totalLaps) car.finished = true;
+      if (car.lap > st.totalLaps) {
+        car.finished = true;
+
+        if (car.finishTime == null) car.finishTime = st.raceTime;
+        if (car.finishOrder == null) car.finishOrder = (++st.finishCounter);
+
+        // ✅ Ganador: el primero que termina, y no se vuelve a tocar
+        if (st.winnerName == null) {
+          st.winnerName = car.name;
+          st.winnerIsPlayer = !!car.isPlayer;
+        }
+      }
+
 
       // ✅ tras cruzar, una mini-gracia evita “doble conteo” por jitter
       car.spawnGrace = 0.35;
@@ -1979,6 +2006,8 @@ const drawStartLights = (ctx) => {
     const st = stateRef.current;
 
     const dt = Math.min(0.033, (now - lastRef.current) / 1000);
+    st.raceTime += dt;
+
     lastRef.current = now;
 
     // ---------------- SIMULACIÓN ----------------
@@ -2478,11 +2507,10 @@ if (showSetup) {
                 <span className="racegame__chipValue">{hud.speed} {translations.sim}</span>
               </div>
 
-              {hud.note ? (
-                <div className="racegame__statusPill">
-                  <strong>INFO</strong> {hud.note}
-                </div>
-              ) : null}
+              <div className={`racegame__statusPill ${hud.note ? "isVisible" : ""}`}>
+                <strong>INFO</strong> {hud.note || "·"}
+              </div>
+
             </div>
 
             <div className="racegame__controls">
