@@ -82,7 +82,7 @@ from generate_higher_lower import generate_higher_lower_game, warmup_higher_lowe
 import gzip
 import json
 from pathlib import Path
-
+from thirty_seconds_game import generate_30_seconds_theme, validate_30_seconds
 
 
 
@@ -292,7 +292,6 @@ async def lifespan(app: FastAPI):
     warmup_higher_lower_caches(force=True)
     warmup_memory_caches(force=True)
     load_bingo_cache_files()
-
     yield
 
 
@@ -828,6 +827,25 @@ def generate_higher_lower(lang: str = Query("es", enum=["es","en"])):
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(content={"error ": str(e)}, status_code=500)
+
+@app.get("/generate-30-seconds")
+def generate_30_seconds(lang: str = Query("es", enum=["es","en"])):
+    try:
+        return JSONResponse(content=generate_30_seconds_theme(lang))
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.post("/validate-30-seconds")
+def validate_30_seconds_endpoint(payload: dict):
+    try:
+        themeType = payload.get("themeType")
+        themeValue = payload.get("themeValue")
+        answers = payload.get("answers") or []
+        return JSONResponse(content=validate_30_seconds(themeType, themeValue, answers))
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
 
 # === Main app ===
 if __name__ == "__main__":

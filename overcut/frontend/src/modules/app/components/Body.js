@@ -101,7 +101,7 @@ import WhoIsWhoGame from "../../whoIsWho/components/WhoIsWhoGame";
 import MemoryGame  from "../../memory/components/MemoryGame";
 import TeamHistoryGamePage from "../../teamHistory/components/TeamHistoryGamePage";
 import HigherLowerGame from "../../higherLower/components/HigherLowerGame";
-
+import ThirtySecondsGame from "../../thirtySeconds/components/ThirtySecondsGame";
 
 const Body = () => {
 
@@ -193,8 +193,7 @@ const Body = () => {
                     <Route path="/minigames/memory" element={<MemoryGame />} />
                     <Route path="/minigames/teamHistory" element={<TeamHistoryGamePage />} />
                     <Route path="/minigames/higherLower" element={<HigherLowerGame />} />
-
-
+                    <Route path="/minigames/thirtySeconds" element={<ThirtySecondsGame />} />
                 </Route>
             </Routes>
         </div>

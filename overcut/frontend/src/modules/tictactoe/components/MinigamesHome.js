@@ -203,6 +203,17 @@ const minigames = [
   img: sourceImages(`./HigherLower.png`),
   isNew: true
 },
+{
+  path: "/minigames/thirtySeconds",
+  title: { es: "30 Seconds", en: "30 Seconds" },
+  description: {
+    es: "Escribe tantos pilotos como puedas en 30 segundos según la temática mostrada",
+    en: "Type as many drivers as you can in 30 seconds based on the shown theme"
+  },
+  img: sourceImages("./ThirtySeconds2.png"),
+  isNew: true
+},
+
 
 
 

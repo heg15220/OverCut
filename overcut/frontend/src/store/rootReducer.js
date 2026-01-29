@@ -37,6 +37,8 @@ import whoIsWho from '../modules/whoIsWho';
 import memory from "../modules/memory";
 import teamHistory from "../modules/teamHistory/reducer";
 import higherLower from "../modules/higherLower";
+import thirtySeconds from "../modules/thirtySeconds";
+
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -72,6 +74,7 @@ const rootReducer = combineReducers({
     memory: memory.reducer,
     teamHistory: teamHistory,
     higherLower: higherLower.reducer,
+    thirtySeconds: thirtySeconds.reducer,
 });
 
 export default rootReducer;

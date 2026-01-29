@@ -400,6 +400,22 @@ export const tutorialTexts = {
   }
 },
 
+"/minigames/thirtySeconds": {
+  es: {
+    title: "30 Seconds",
+    description:
+      "Se te mostrará una temática (ganadores en un circuito, pilotos de un equipo, compañeros de un piloto, etc.). " +
+      "Tienes 30 segundos para escribir tantos pilotos como puedas. Al final verás cuántos son válidos."
+  },
+  en: {
+    title: "30 Seconds",
+    description:
+      "You will get a theme (winners at a circuit, drivers for a team, teammates of a driver, etc.). " +
+      "You have 30 seconds to type as many drivers as you can. At the end you’ll see how many are valid."
+  }
+}
+
+
 
 
 

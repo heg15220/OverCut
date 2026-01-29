@@ -1,6 +1,8 @@
 DROP TABLE IF EXISTS GameCooldown;
 
 
+DROP TABLE IF EXISTS ThirtySecondsAnswer;
+DROP TABLE IF EXISTS ThirtySecondsGame;
 DROP TABLE IF EXISTS HigherLowerEntry;
 DROP TABLE IF EXISTS HigherLowerGame;
 DROP TABLE IF EXISTS TeamHistorySeason;
@@ -1070,4 +1072,29 @@ CREATE TABLE HigherLowerEntry (
   pilotName VARCHAR(100) NOT NULL,
   statValue DOUBLE NOT NULL,
   FOREIGN KEY (gameId) REFERENCES HigherLowerGame(id) ON DELETE CASCADE
+);
+
+-- =========================================================
+-- 30 SECONDS (Game)
+-- =========================================================
+CREATE TABLE ThirtySecondsGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    themeType VARCHAR(60) NOT NULL,
+    themeValue VARCHAR(120) NOT NULL,      -- circuito/equipo/piloto/nacionalidad
+    finished BOOLEAN DEFAULT FALSE,
+    correctAnswers INT DEFAULT 0,
+    totalSubmitted INT DEFAULT 0
+);
+
+-- =========================================================
+-- 30 SECONDS (Answers)
+-- =========================================================
+CREATE TABLE ThirtySecondsAnswer (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    answerText VARCHAR(120) NOT NULL,
+    correct BOOLEAN DEFAULT FALSE,
+    answerOrder INT NOT NULL,
+    FOREIGN KEY (gameId) REFERENCES ThirtySecondsGame(id) ON DELETE CASCADE
 );
