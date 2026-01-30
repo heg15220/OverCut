@@ -33,11 +33,11 @@ public class ThirtySecondsGameServiceImpl implements ThirtySecondsGameService {
     @Override
     public ThirtySecondsGame startGame(Long userId, String lang) {
         try {
-         /*   if (!cooldownService.canPlay("ThirtySeconds", userId)) {
+            if (!cooldownService.canPlay("ThirtySeconds", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("ThirtySeconds", userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+
             String url = PYTHON_API_BASE + "/generate-30-seconds?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
@@ -56,7 +56,7 @@ public class ThirtySecondsGameServiceImpl implements ThirtySecondsGameService {
             game.setThemeValue(root.get("themeValue").asText());
 
             ThirtySecondsGame saved = gameDao.save(game);
-           // cooldownService.registerPlay("ThirtySeconds", userId);
+            cooldownService.registerPlay("ThirtySeconds", userId);
             return saved;
 
         } catch (Exception e) {

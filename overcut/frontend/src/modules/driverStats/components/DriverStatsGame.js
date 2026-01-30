@@ -56,13 +56,22 @@ export default function DriverStatsGame() {
     getCooldownForGame(state, "DriverStats")
   );
 
-  useEffect(() => {
-    dispatch(fetchCooldown("DriverStats"));
-  }, [dispatch]);
+  // ...
 
-  useEffect(() => {
-    if (canPlay) dispatch(actions.startDriverStatsGame());
-  }, [dispatch, canPlay]);
+    useEffect(() => {
+      dispatch(fetchCooldown("DriverStats"));
+    }, [dispatch]);
+
+    useEffect(() => {
+      // ✅ Solo arranca partida cuando:
+      // - el cooldown deja jugar
+      // - el usuario ya cerró el tutorial
+      if (canPlay && !showTutorial) {
+        dispatch(actions.startDriverStatsGame());
+      }
+    }, [dispatch, canPlay, showTutorial]);
+
+
 
   const tutorial = tutorialTexts["/minigames/driverStats"]?.[lang] || {
     title: lang === "es" ? "Driver Stats" : "Driver Stats",

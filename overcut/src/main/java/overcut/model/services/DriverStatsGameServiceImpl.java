@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.DriverStatsGame;
 import overcut.model.entities.DriverStatsGameDao;
+import overcut.model.services.exceptions.CooldownException;
 import overcut.rest.dtos.*;
 
 import java.net.URI;
@@ -27,9 +28,18 @@ public class DriverStatsGameServiceImpl implements DriverStatsGameService {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String PYTHON_API_BASE = "http://localhost:8000";
 
+    @Autowired private CooldownService cooldownService;
+
+
     @Override
     public DriverStatsGameDto startGame(String lang, Long userId) {
         try {
+
+            if (!cooldownService.canPlay("DriverStats", userId)) {
+                long wait = cooldownService.secondsUntilNextPlay("DriverStats", userId);
+                throw new CooldownException("WAIT", wait);
+            }
+
             String url = PYTHON_API_BASE + "/generate-driver-stats?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
@@ -52,6 +62,8 @@ public class DriverStatsGameServiceImpl implements DriverStatsGameService {
             game.setDriverName(driverName);
 
             DriverStatsGame saved = gameDao.save(game);
+
+            cooldownService.registerPlay("DriverStats", userId);
 
             DriverStatsGameDto dto = new DriverStatsGameDto();
             dto.setId(saved.getId());
