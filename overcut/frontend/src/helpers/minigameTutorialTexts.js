@@ -413,7 +413,26 @@ export const tutorialTexts = {
       "You will get a theme (winners at a circuit, drivers for a team, teammates of a driver, etc.). " +
       "You have 30 seconds to type as many drivers as you can. At the end you’ll see how many are valid."
   }
-}
+},
+"/minigames/driverStats": {
+  es: {
+    title: "Driver Stats",
+    description:
+      "Se te mostrará un piloto y deberás adivinar sus estadísticas.\n\n" +
+      "Casillas:\n" +
+      "• Victorias • Podios • Nº equipos • Carreras (aprox.) • Mundiales • Puntos (aprox.) • Temporadas\n\n" +
+      "Carreras y puntos se eligen por rangos. Al validar verás cuántas has acertado."
+  },
+  en: {
+    title: "Driver Stats",
+    description:
+      "You will get a driver and you must guess their stats.\n\n" +
+      "Fields:\n" +
+      "• Wins • Podiums • Teams • Races (approx.) • World titles • Points (approx.) • Seasons\n\n" +
+      "Races and points are selected by ranges. After validating you’ll see how many you got right."
+  }
+},
+
 
 
 

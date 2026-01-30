@@ -68,13 +68,15 @@ import * as higherLowerService from "./higherLowerService";// ✅ NUEVO
 
 import * as thirtySecondsService  from "./thirtySecondsService";// ✅ NUEVO
 
+import * as driverStatsService from "./driverStatsService"; // ✅ NUEVO
+
 const backExport = { init, NetworkError, userService,
     postService,quizService, historicService,eventService,tiktakService, pilotService, crosswordService,
     gridGameService, guessDriverService, top10Service, driversLinkService, careerPathService,
      wordleService, twoTeamsService, f1ImpostorService, teamGuessService, driversConnectionsService, orderDriverService,
      wordSearchService, cooldownService, top10QualiService, driverSeasonService, towerService, anagramsService,
      bingoService,timelineService,whoIsWhoService, memoryService, teamHistoryService, higherLowerService,
-     thirtySecondsService}
+     thirtySecondsService, driverStatsService}
 
 
 export default backExport;

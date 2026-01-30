@@ -214,6 +214,18 @@ const minigames = [
   isNew: true
 },
 
+{
+  path: "/minigames/driverStats",
+  title: { es: "Driver Stats", en: "Driver Stats" },
+  description: {
+    es: "Adivina estadísticas del piloto (carreras y puntos por rangos)",
+    en: "Guess driver stats (races and points by ranges)"
+  },
+  img: sourceImages("./DriverStats.png"),
+  isNew: true
+},
+
+
 
 
 

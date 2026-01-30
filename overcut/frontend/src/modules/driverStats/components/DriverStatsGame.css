@@ -1,0 +1,182 @@
+/* DriverStatsGame.css — estilo calcado al look de ThirtySeconds */
+
+.driver-stats {
+  min-height: 100vh;
+  width: 100%;
+  padding: 2rem;
+  color: #fff;
+  background: linear-gradient(to bottom right, #0a1a2f, #050f1e 85%);
+  font-family: "F1 Regular", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+.ds-header {
+  width: 100%;
+  max-width: 760px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.ds-title {
+  color: #fbc02d;
+  text-shadow: 0 0 6px rgba(251, 192, 45, 0.25);
+  font-size: 2rem;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+/* Driver label card */
+.ds-driver {
+  width: 100%;
+  max-width: 760px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(251, 192, 45, 0.4);
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 1.15rem;
+}
+
+/* Grid of selects */
+.ds-grid {
+  width: 100%;
+  max-width: 760px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.ds-field span {
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+/* Selects: borde amarillo como el input del 30s */
+.ds-field select {
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid rgba(251, 192, 45, 0.9);
+  background: #161a22;
+  color: #fff;
+  padding: 0 10px;
+  outline: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.ds-field select:focus {
+  box-shadow: 0 0 10px rgba(251, 192, 45, 0.25);
+}
+
+/* Buttons */
+.ds-submit {
+  margin-top: 1.2rem;
+  width: 100%;
+  max-width: 760px;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 12px;
+  background: #fbc02d;
+  color: #000;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.ds-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ds-back {
+  margin-top: 0.75rem;
+  width: 100%;
+  max-width: 760px;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: #2b2f3a;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Result block */
+.ds-result {
+  width: 100%;
+  max-width: 760px;
+  margin-top: 1.3rem;
+  text-align: center;
+}
+
+.ds-detail {
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Rows like ts-row but with 4 columns */
+.ds-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 40px;
+  gap: 10px;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  align-items: center;
+}
+
+.ds-row.ok {
+  background: rgba(76, 175, 80, 0.12);
+}
+
+.ds-row.bad {
+  background: rgba(244, 67, 54, 0.10);
+}
+
+.ds-rowLabel {
+  opacity: 0.95;
+  font-weight: 800;
+}
+
+.ds-rowAns,
+.ds-rowTrue {
+  opacity: 0.95;
+}
+
+/* Mobile */
+@media (max-width: 720px) {
+  .ds-grid {
+    grid-template-columns: 1fr;
+  }
+  .ds-row {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+}
+
+@media (max-width: 500px) {
+  .driver-stats {
+    padding: 1rem 0.6rem;
+  }
+  .ds-title {
+    font-size: 1.6rem;
+  }
+}

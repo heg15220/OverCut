@@ -102,6 +102,9 @@ import MemoryGame  from "../../memory/components/MemoryGame";
 import TeamHistoryGamePage from "../../teamHistory/components/TeamHistoryGamePage";
 import HigherLowerGame from "../../higherLower/components/HigherLowerGame";
 import ThirtySecondsGame from "../../thirtySeconds/components/ThirtySecondsGame";
+import DriverStatsGame from "../../driverStats/components/DriverStatsGame";
+
+
 
 const Body = () => {
 
@@ -194,6 +197,7 @@ const Body = () => {
                     <Route path="/minigames/teamHistory" element={<TeamHistoryGamePage />} />
                     <Route path="/minigames/higherLower" element={<HigherLowerGame />} />
                     <Route path="/minigames/thirtySeconds" element={<ThirtySecondsGame />} />
+                    <Route path="/minigames/driverStats" element={<DriverStatsGame />} />
                 </Route>
             </Routes>
         </div>

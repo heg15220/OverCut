@@ -38,7 +38,7 @@ import memory from "../modules/memory";
 import teamHistory from "../modules/teamHistory/reducer";
 import higherLower from "../modules/higherLower";
 import thirtySeconds from "../modules/thirtySeconds";
-
+import driverStats from "../modules/driverStats/reducer";
 
 const rootReducer = combineReducers({
     app: app.reducer,
@@ -75,6 +75,7 @@ const rootReducer = combineReducers({
     teamHistory: teamHistory,
     higherLower: higherLower.reducer,
     thirtySeconds: thirtySeconds.reducer,
+    driverStats: driverStats,
 });
 
 export default rootReducer;

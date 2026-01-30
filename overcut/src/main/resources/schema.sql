@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS GameCooldown;
 
 
+DROP TABLE IF EXISTS driver_stats_game;
 DROP TABLE IF EXISTS ThirtySecondsAnswer;
 DROP TABLE IF EXISTS ThirtySecondsGame;
 DROP TABLE IF EXISTS HigherLowerEntry;
@@ -1098,3 +1099,32 @@ CREATE TABLE ThirtySecondsAnswer (
     answerOrder INT NOT NULL,
     FOREIGN KEY (gameId) REFERENCES ThirtySecondsGame(id) ON DELETE CASCADE
 );
+
+CREATE TABLE driver_stats_game (
+  id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+
+  driver_id BIGINT NOT NULL,
+  driver_name VARCHAR(120) NOT NULL,
+
+  finished BOOLEAN NOT NULL DEFAULT FALSE,
+  correct_count INT DEFAULT NULL,
+
+  user_wins INT DEFAULT NULL,
+  user_podiums INT DEFAULT NULL,
+  user_teams INT DEFAULT NULL,
+  user_titles INT DEFAULT NULL,
+  user_seasons INT DEFAULT NULL,
+  user_races_bin VARCHAR(20) DEFAULT NULL,
+  user_points_bin VARCHAR(20) DEFAULT NULL,
+
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  finished_at TIMESTAMP NULL DEFAULT NULL
+);
+
+-- ✅ índices fuera (H2 compatible)
+CREATE INDEX idx_driver_stats_user_created
+  ON driver_stats_game(user_id, created_at);
+
+CREATE INDEX idx_driver_stats_driver
+  ON driver_stats_game(driver_id);
