@@ -304,6 +304,8 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
                 .orElse(null);
 
         if (s == null) return null;
+        final boolean hasQualiToTeammate = year >= 2003;
+
 
         TeamGapSeason seasonGap = computeTeamGapSeasonCached(year);
 
@@ -333,14 +335,19 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         // --- Ritmo vs compañero (tu query actual está bien; si quieres, también se cachea por driver+year)
         double avgQualiGapToTmSec = Double.NaN;
-        try {
-            DriverAvgQualiGapToTeammateView v = qualifyingDao.getDriverAvgQualiGapToTeammateMs(driverId, year);
-            if (v != null && v.getAvgGapMs() != null) {
-                avgQualiGapToTmSec = v.getAvgGapMs() / 1000.0;
-            }
-        } catch (Exception ignored) {}
+        double paceVsTeammate01 = 0.5; // neutral por defecto
 
-        double paceVsTeammate01 = paceVsTeammateScore01(avgQualiGapToTmSec);
+        if (hasQualiToTeammate) {
+            try {
+                DriverAvgQualiGapToTeammateView v = qualifyingDao.getDriverAvgQualiGapToTeammateMs(driverId, year);
+                if (v != null && v.getAvgGapMs() != null) {
+                    avgQualiGapToTmSec = v.getAvgGapMs() / 1000.0;
+                }
+            } catch (Exception ignored) {}
+
+            paceVsTeammate01 = paceVsTeammateScore01(avgQualiGapToTmSec);
+        }
+
 
         double std = (s.getStddevPosition() != null) ? s.getStddevPosition() : 6.0;
         double consScore = clamp01(consistencyScoreImproved(std, avgPos, teamRank));
@@ -351,6 +358,38 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         double tmScore = 0.5;
         if (tb > 0) tmScore = (double) tw / (double) tb;
         tmScore = clamp01(tmScore);
+
+        // -------------------------
+// Penalización por perder el duelo vs teammate
+// - Solo penaliza si tmScore < 0.5
+// - Más diferencia => más penalización (curva power)
+// -------------------------
+        double posScorePenalized = posScore;
+
+        double lossSeverity01 = 0.0;
+        if (isFinite(tmScore) && tmScore < 0.5) {
+            lossSeverity01 = (0.5 - tmScore) / 0.5;  // 0..1
+            lossSeverity01 = clamp01(lossSeverity01);
+
+            // knobs
+            double maxPenalty = 0.30;   // máximo que puede bajar la barra Real (0..1)
+            double gamma = 1.30;         // >1 castiga más las palizas (ej 0.2 vs 0.45)
+
+            double penalty = maxPenalty * Math.pow(lossSeverity01, gamma);
+
+            // opcional: si además es más lento en qualy, castiga un pelín más
+            // (si no lo quieres, borra este bloque)
+            double paceLoss01 = 0.0;
+            if (hasQualiToTeammate && isFinite(paceVsTeammate01) && paceVsTeammate01 < 0.5) {
+                paceLoss01 = clamp01((0.5 - paceVsTeammate01) / 0.5);
+            }
+            penalty *= (0.80 + 0.40 * paceLoss01);
+
+
+            posScorePenalized = clamp01(posScore - penalty);
+        }
+
+
 
         int rc = (s.getRaceCount() != null) ? s.getRaceCount() : 0;
         int podiums = (s.getPodiums() != null) ? s.getPodiums() : 0;
@@ -366,8 +405,18 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
         double expectedBase = expectedPosScoreFromStrength(teamStrength01);
         double expectedPosScore = adjustExpectedWithTrajectory(expectedBase, teamRank, traj);
 
+
         double residual = posScore - expectedPosScore;
         double residualScore01 = residualScoreFromResidual(residual);
+
+        double residualPenalized = posScorePenalized - expectedPosScore;
+        double residualScore01Penalized = residualScoreFromResidual(residualPenalized);
+
+        boolean hasPen = isFinite(posScorePenalized) && (posScorePenalized < posScore - 1e-9);
+
+        double residualEffective = hasPen ? residualPenalized : residual;
+        double residualScore01Effective = hasPen ? residualScore01Penalized : residualScore01;
+
 
         // teammate-based expectation
         double tmResidualScore01 = 0.0;
@@ -384,7 +433,19 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
             }
         } catch (Exception ignored) {}
 
-        double idx01 = computeIndexValueAdded(s, expectedPosScore, teamRank, paceVsTeammate01, tmResidualScore01);
+        double wPace = hasQualiToTeammate ? 0.22 : 0.0;
+
+        double idx01 = computeIndexFromComponents(
+                residualScore01Effective,
+                paceVsTeammate01,
+                tmScore,
+                consScore,
+                podiumRate,
+                finishRate,
+                tmResidualScore01,
+                lossSeverity01,
+                wPace
+        );
 
         DriverPerformanceBreakdownDTO out = new DriverPerformanceBreakdownDTO();
         out.year = year;
@@ -420,6 +481,15 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
 
         out.index01 = round3(idx01);
         out.index100 = round3(idx01 * 100.0);
+
+        out.posScorePenalized = round3(posScorePenalized);
+        out.residualPenalized = round3(residualPenalized);
+        out.residualScore01Penalized = round3(residualScore01Penalized);
+
+// opcional útil para debug
+        out.notes = (out.notes == null ? "" : out.notes + " | ")
+                + "tmLoss=" + round3(lossSeverity01)
+                + " posPen=" + round3(posScore - posScorePenalized);
 
         return out;
     }
@@ -692,70 +762,51 @@ public class AdvancedStatsServiceImpl implements AdvancedStatsService {
     // ✅ UPDATED: Value-added performance index (0..1)
 // - Consistencia mejorada usando teamRank (constructors standings final) + stddev
 // - Podiums = share del piloto sobre el total de podios del equipo esa temporada
-    private double computeIndexValueAdded(DriverSeasonPerformanceView2 s,
-                                          double expectedPosScoreAdjusted,
-                                          Integer teamRank,
-                                          double paceVsTeammate01,
-                                          double teammateExpectedResidualScore01){
-    int gridSize = (s.getGridSize() != null && s.getGridSize() >= 10) ? s.getGridSize() : 20;
-        double avgPos = (s.getAvgPosition() != null) ? s.getAvgPosition() : gridSize;
-
-        double posScore = ((gridSize + 1.0) - avgPos) / gridSize;
-        posScore = clamp01(posScore);
-
-        double std = (s.getStddevPosition() != null) ? s.getStddevPosition() : 6.0;
-
-        // ✅ Consistencia mejorada: mezcla σ + “cumplir expectativa” según puesto del equipo
-        double consScore = consistencyScoreImproved(std, avgPos, teamRank);
-        consScore = clamp01(consScore);
-
-        double tmScore = 0.5;
-        if (s.getTeammateBattles() != null && s.getTeammateBattles() > 0 && s.getTeammateWins() != null) {
-            tmScore = (double) s.getTeammateWins() / (double) s.getTeammateBattles();
-        }
-        tmScore = clamp01(tmScore);
-
-        // ✅ Podiums como share del piloto sobre el total del equipo
-        double podiumShare = 0.0;
-        if (s.getPodiums() != null && s.getYear() != null && s.getConstructorId() != null) {
-            int podiums = s.getPodiums();
-            int teamPodiums = resultDao.countTeamPodiumsBySeason(s.getConstructorId(), s.getYear());
-            if (teamPodiums > 0) podiumShare = (double) podiums / (double) teamPodiums;
-        }
-        podiumShare = clamp01(podiumShare);
-
-        double finishRate = 0.80;
-        if (s.getRaceCount() != null && s.getRaceCount() > 0 && s.getFinishes() != null) {
-            finishRate = (double) s.getFinishes() / (double) s.getRaceCount();
-        }
-        finishRate = clamp01(finishRate);
-
-        double expectedPosScore = clamp01(expectedPosScoreAdjusted);
-        double residual = posScore - expectedPosScore;
-
-        double residualScore01 = residualScoreFromResidual(residual);
-
+    private double computeIndexFromComponents(
+            double residualScore01Effective,
+            double paceVsTeammate01,
+            double tmScore,
+            double consScore,
+            double podiumShare,
+            double finishRate,
+            double tmResidualScore01,
+            double lossSeverity01,
+            double wPace
+    ) {
+        residualScore01Effective = clamp01(residualScore01Effective);
         paceVsTeammate01 = clamp01(paceVsTeammate01);
+        tmScore = clamp01(tmScore);
+        consScore = clamp01(consScore);
+        podiumShare = clamp01(podiumShare);
+        finishRate = clamp01(finishRate);
+        tmResidualScore01 = clamp01(tmResidualScore01);
+        lossSeverity01 = clamp01(lossSeverity01);
 
-        teammateExpectedResidualScore01 = clamp01(teammateExpectedResidualScore01);
+        // 🔥 castigo adicional cuando te “barren” (tmScore muy bajo)
+        // lossSeverity01 = 0 si tmScore=0.5, 1 si tmScore=0.0
+        double tmPenaltyFactor = 1.0 - 0.35 * Math.pow(lossSeverity01, 1.15); // 0.65..1.0 aprox
+        tmPenaltyFactor = clamp01(tmPenaltyFactor);
 
+        // (opcional) no linealidad: tmScore bajo cae más
+        double tmScoreNL = Math.pow(tmScore, 0.70);
 
-// Recomendación de pesos:
-// - residual sigue mandando
-// - pace vs teammate pesa fuerte (más que tmScore)
-// - tmScore baja un poco para no duplicar
         double idx01 =
-                0.30 * residualScore01 +
-                        0.22 * paceVsTeammate01 +
-                        0.13 * tmScore +
-                        0.15 * consScore +
+                0.32 * residualScore01Effective +
+                        wPace * paceVsTeammate01 +
+                        0.18 * tmScoreNL +
+                        0.13 * consScore +
                         0.05 * podiumShare +
                         0.05 * finishRate +
-                        0.23 * teammateExpectedResidualScore01;
+                        0.05 * tmResidualScore01;
 
-        return clamp01(idx01);
+        // si wPace cambia, conviene renormalizar para que el índice no baje por quitar un término
+        double sum = 0.32 + wPace + 0.18 + 0.13 + 0.05 + 0.05 + 0.05;
+        if (sum > 0) idx01 = idx01 / sum;
 
+        idx01 = clamp01(idx01);
+        return clamp01(idx01 * tmPenaltyFactor);
     }
+
 
 
 

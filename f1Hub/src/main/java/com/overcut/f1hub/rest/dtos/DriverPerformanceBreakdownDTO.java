@@ -37,4 +37,9 @@ public class DriverPerformanceBreakdownDTO {
 
     public double tmResidualScore01; // score 0..1 (value-added vs teammate-based expectation)
 
+    public double posScorePenalized;
+    public double residualPenalized;
+    public double residualScore01Penalized;
+
+
 }

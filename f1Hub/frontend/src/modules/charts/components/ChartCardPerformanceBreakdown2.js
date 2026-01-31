@@ -46,11 +46,11 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
         title: "¿Qué mide este breakdown?",
         intro:
           "Este panel estima el rendimiento de un piloto en una temporada separando: (1) lo que 'permite' el coche (fuerza del equipo) y (2) lo que aporta el piloto (valor añadido). " +
-          "Para ello calcula una expectativa principal (expectedPosScore) según la fuerza del equipo y, además, una expectativa alternativa basada en el nivel del compañero. " +
-          "La diferencia con la expectativa del equipo (residual) y su versión reescalada (residualScore01) miden si el piloto rinde por encima o por debajo de lo esperado. " +
-          "La nueva medida tmResidualScore01 hace lo mismo pero usando la expectativa basada en el compañero. " +
-          "El índice final mezcla ese valor añadido con otros factores (ritmo vs compañero, consistencia, fiabilidad y podios).",
-
+          "Calcula una expectativa principal (expectedPosScore) según la fuerza del equipo y, además, una expectativa alternativa basada en el nivel del compañero. " +
+          "La diferencia con la expectativa del coche (residual) y su versión reescalada (residualScore01) miden si el piloto rinde por encima o por debajo de lo esperado. " +
+          "Si el piloto pierde claramente el duelo vs su compañero, se aplica una penalización al rendimiento real (posScorePenalized) y, en ese caso, el residual mostrado pasa a ser el penalizado. " +
+          "La medida tmResidualScore01 hace lo mismo pero usando una expectativa basada en el compañero. " +
+          "El índice final mezcla ese valor añadido con otros factores (duelos vs compañero, consistencia, fiabilidad y podios; y desde 2003 también ritmo vs compañero por qualy).",
 
         fieldsTitle: "Campos / KPIs (arriba)",
         fields: [
@@ -58,98 +58,100 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
             k: "Index (0-100) = index100 / index01",
             v:
               "Score final del rendimiento global. index01 está normalizado 0..1 y index100 = index01*100. " +
-              "Se calcula ponderando: valor añadido (residualScore01), vs compañero, consistencia, podios y finalizaciones."
+              "Se calcula ponderando principalmente: valor añadido (residualScore01), duelos vs compañero (tmScore), consistencia, podios y finalizaciones. " +
+              "Desde 2003 también puede incluir el componente de ritmo vs compañero basado en qualy."
           },
           {
-            k: "Valor añadido vs compañero (tmResidualScore01)",
+            k: "Residual (valor añadido) — con posible penalización",
             v:
-              "Nueva medida de valor añadido comparando el rendimiento real (posScore) contra lo esperado según el nivel del compañero (expectedPosScoreFromTm). " +
-              "Se reescala a 0..1 centrado en 0.5: ~0.5 = cumple; >0.5 = rinde por encima; <0.5 = por debajo. " +
-              "Es útil cuando la 'fuerza del coche' estimada por clasificación de constructores no refleja bien el rendimiento real del coche."
-          },
-
-          {
-            k: "Residual = posScore - expectedPosScore",
-            v:
-              "Valor añadido puro. Positivo = rinde mejor que lo esperado para ese coche. Negativo = peor. " +
-              "Ojo: está en escala 0..1 (porque posScore y expectedPosScore están en 0..1), no en posiciones."
+              "Residual = posScore - expectedPosScore. Positivo = rinde mejor que lo esperado para ese coche; negativo = peor. " +
+              "Si existe penalización por perder claramente el duelo vs compañero, entonces el residual 'principal' pasa a ser residualPenalized = posScorePenalized - expectedPosScore, " +
+              "y el panel muestra ese residual penalizado como referencia principal."
           },
           {
             k: "Valor añadido (residualScore01)",
             v:
               "Residual reescalado a 0..1 centrado en 0.5. ~0.5 = cumple lo esperado; >0.5 = sobre-rinde; <0.5 = infra-rinde. " +
-              "Se usa como componente principal del índice."
+              "Si hay penalización, se usa residualScore01Penalized como valor principal."
           },
           {
-            k: "Pos. media (avgPos) + Grid (gridSize)",
+            k: "Valor añadido vs compañero (tmResidualScore01)",
             v:
-              "avgPos es la posición media en carrera (o métrica equivalente según tu view). gridSize es el tamaño de parrilla usado para normalizar. " +
-              "De aquí sale posScore (0..1)."
+              "Medida alternativa de valor añadido comparando el rendimiento real (posScore) contra lo esperado según el nivel del compañero (expectedPosScoreFromTm). " +
+              "Se reescala a 0..1 centrado en 0.5. Útil cuando la 'fuerza del coche' por constructores no refleja bien el nivel real."
           },
           {
-            k: "posScore (0..1)",
+            k: "Pos. media (avgPos) + Grid (gridSize) → posScore (0..1)",
             v:
-              "Normalización de avgPos: posScore = ((gridSize+1) - avgPos) / gridSize. " +
-              "Más alto = mejores posiciones medias (cerca de P1)."
+              "avgPos es la posición media (o métrica equivalente). Se normaliza con el tamaño de parrilla: " +
+              "posScore = ((gridSize+1) - avgPos) / gridSize. Más alto = mejores posiciones medias."
+          },
+          {
+            k: "Real (penal.) (posScorePenalized)",
+            v:
+              "Versión ajustada de posScore que solo baja si el piloto pierde claramente el duelo vs su compañero (tmScore < 0.5). " +
+              "Sirve para evitar que un posScore alto por circunstancias (fiabilidad del comp., roles, etc.) oculte una derrota clara dentro del mismo coche. " +
+              "En temporadas anteriores a 2003, la penalización se basa solo en tmScore (no usa qualy)."
           },
           {
             k: "Consistencia (consScore) + σ (stddevPos)",
             v:
-              "stddevPos es la desviación típica de la posición (variabilidad). Menor σ => más estable. " +
+              "stddevPos es la variabilidad de la posición. Menor σ => más estable. " +
               "consScore combina estabilidad (σ) y 'cumplir expectativas' según el puesto final del equipo en constructores."
           },
           {
             k: "Vs compañero (tmScore)",
             v:
               "Porcentaje de duelos ganados vs su compañero: teammateWins/teammateBattles. 1.0 = gana siempre, 0.0 = pierde siempre. " +
-              "Es un proxy del rendimiento relativo dentro del mismo coche."
+              "También es el disparador principal de la penalización si cae claramente por debajo de 0.5."
           },
           {
             k: "Finaliza (finishRate)",
             v:
-              "Ratio de carreras terminadas: finishes / raceCount. 1.0 = termina todas. " +
-              "Aporta fiabilidad/consistencia de resultados."
+              "Ratio de carreras terminadas: finishes / raceCount. 1.0 = termina todas. Aporta fiabilidad."
           },
           {
             k: "Podios (podiumRate)",
             v:
-              "Share de podios del piloto respecto a los podios totales del equipo esa temporada (podiums/teamPodiums). " +
-              "0..1. Valora quién capitaliza las oportunidades del coche."
+              "Share de podios del piloto respecto a los podios totales del equipo esa temporada (podiums/teamPodiums). 0..1."
           },
           {
-            k: "Gap qualy vs comp. (avgQualiGapToTeammateSec)",
+            k: "Gap qualy vs comp. (avgQualiGapToTeammateSec) [desde 2003]",
             v:
-              "Diferencia media en clasificación en segundos respecto a su compañero. Negativo = el piloto es más rápido. " +
-              "Es la base numérica para derivar el score de ritmo vs compañero."
+              "Diferencia media en clasificación en segundos respecto al compañero. Negativo = el piloto es más rápido. " +
+              "Solo se calcula desde 2003 (antes no se usa ni afecta a residual ni índice)."
           },
           {
-            k: "Ritmo vs comp. (paceVsTeammate01)",
+            k: "Ritmo vs comp. (paceVsTeammate01) [desde 2003]",
             v:
-              "Conversión del gap de qualy a un score 0..1. 0.5 ≈ igualdad; >0.5 = mejor que el compañero; <0.5 = peor. " +
-              "Se usa en el radar y puede reemplazar/acompañar a tmScore."
+              "Conversión del gap de qualy a score 0..1. 0.5 ≈ igualdad; >0.5 = más rápido; <0.5 = más lento. " +
+              "Desde 2003 puede entrar como componente del índice; antes de 2003 se considera neutral/no disponible."
           }
         ],
 
         radarTitle: "Radar (Componentes 0..1)",
         radar:
-          "El radar resume 6 componentes normalizados 0..1: Fuerza del equipo, Consistencia, Ritmo vs compañero, Podios, Finaliza y Valor añadido. " +
-          "No es un 'ranking absoluto': sirve para ver el perfil del piloto (fortalezas/debilidades) en esa temporada.",
+          "El radar resume componentes normalizados 0..1: Fuerza del equipo, Consistencia, Ritmo vs compañero (desde 2003), Podios, Finaliza y Valor añadido. " +
+          "Sirve para ver el perfil del piloto en esa temporada (fortalezas/debilidades).",
 
         barsTitle: "Barras (Real vs Esperado)",
         bars:
-          "Compara posScore (lo real, derivado de avgPos) contra expectedPosScore (lo esperable por coche). " +
-          "Si la barra Real supera a Esperado => residual positivo (valor añadido)."
+          "Compara el rendimiento real del piloto con lo esperado para su coche. " +
+          "Esperado (expectedPosScore) representa el potencial del coche. " +
+          "Real se basa en posScore. Si hay una derrota clara vs compañero, se muestra Real (penal.) (posScorePenalized) y ese pasa a ser el 'Real' principal. " +
+          "Cuando Real o Real (penal.) supera a Esperado, el residual es positivo (valor añadido)."
       };
+
 
       const en = {
         title: "What does this breakdown measure?",
         intro:
           "This panel estimates a driver’s season performance by separating: (1) what the car enables (team strength) and (2) what the driver adds (value-added). " +
-          "It computes a primary expectation (expectedPosScore) from team strength and also an alternative expectation derived from the teammate level. " +
+          "It computes a primary expectation (expectedPosScore) from team strength and an alternative expectation derived from teammate level. " +
           "The gap vs the team-based expectation (residual) and its rescaled form (residualScore01) indicate over/under-performance. " +
-          "The new tmResidualScore01 does the same but using the teammate-based expectation. " +
-          "The final index blends that value-added with other factors (teammate pace, consistency, reliability and podium contribution).",
-
+          "If the driver clearly loses the teammate battle, a penalty is applied to the actual score (posScorePenalized) and the displayed residual becomes the penalized one. " +
+          "tmResidualScore01 provides a teammate-based value-added view. " +
+          "The final index blends value-added with other factors (teammate battles, consistency, reliability and podium share; and from 2003 onward, qualifying-based pace vs teammate).",
 
         fieldsTitle: "Fields / KPIs (top)",
         fields: [
@@ -157,47 +159,52 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
             k: "Index (0-100) = index100 / index01",
             v:
               "Overall score. index01 is normalized 0..1 and index100 = index01*100. " +
-              "Built from: value-added (residualScore01), vs teammate, consistency, podium share and finish rate."
+              "Main drivers: value-added (residualScore01), teammate battles (tmScore), consistency, podium share and finish rate. " +
+              "From 2003 onward it may also include qualifying-based pace vs teammate."
           },
           {
-            k: "Residual = posScore - expectedPosScore",
+            k: "Residual (value added) — with optional penalty",
             v:
-              "Pure value-added. Positive = better than expected for the car. Negative = worse. " +
-              "Note: it’s on a 0..1 scale (since both scores are 0..1), not in grid positions."
+              "Residual = posScore - expectedPosScore. Positive = better than expected for the car; negative = worse. " +
+              "If a clear teammate loss is detected, the main residual becomes residualPenalized = posScorePenalized - expectedPosScore, " +
+              "and the panel treats the penalized residual as the primary reference."
           },
           {
             k: "Value added (residualScore01)",
             v:
-              "Residual rescaled to 0..1 centered at 0.5. ~0.5 = meets expectation; >0.5 = overperforms; <0.5 = underperforms."
+              "Residual rescaled to 0..1 centered at 0.5. ~0.5 = meets expectation; >0.5 = overperforms; <0.5 = underperforms. " +
+              "If a penalty exists, residualScore01Penalized is used as the main value."
           },
           {
             k: "Value added vs teammate (tmResidualScore01)",
             v:
-              "New value-added metric comparing actual performance (posScore) against an expectation derived from the teammate level (expectedPosScoreFromTm). " +
-              "Rescaled to 0..1 centered at 0.5: ~0.5 = meets; >0.5 = overperforms; <0.5 = underperforms. " +
-              "Useful when constructor-based car strength does not capture the true car level."
-          },
-
-          {
-            k: "Avg position (avgPos) + Grid (gridSize)",
-            v:
-              "avgPos is the average race position (or equivalent metric from your view). gridSize is used for normalization into posScore."
+              "Alternative value-added metric comparing actual performance (posScore) against an expectation derived from teammate level (expectedPosScoreFromTm). " +
+              "Rescaled to 0..1 centered at 0.5. Useful when constructor-based car strength is misleading."
           },
           {
-            k: "posScore (0..1)",
+            k: "Avg position (avgPos) + Grid (gridSize) → posScore (0..1)",
             v:
-              "Normalized average position: posScore = ((gridSize+1) - avgPos) / gridSize. Higher = better average results."
+              "avgPos is the average race position (or equivalent metric). It is normalized using grid size: " +
+              "posScore = ((gridSize+1) - avgPos) / gridSize. Higher = better average results."
+          },
+          {
+            k: "Actual (pen.) (posScorePenalized)",
+            v:
+              "Adjusted version of posScore that only decreases when the driver clearly loses to the teammate (tmScore < 0.5). " +
+              "Helps prevent unusually strong results from masking a clear within-car deficit. " +
+              "Before 2003, the penalty relies only on tmScore (no qualifying pace is used)."
           },
           {
             k: "Consistency (consScore) + σ (stddevPos)",
             v:
-              "stddevPos is the position standard deviation (variability). Lower σ = more stable. " +
+              "stddevPos is the position variability. Lower σ = more stable. " +
               "consScore blends stability (σ) and meeting expectations based on final constructors rank."
           },
           {
             k: "Vs teammate (tmScore)",
             v:
-              "Share of teammate battles won: teammateWins/teammateBattles. Proxy for within-team performance."
+              "Share of teammate battles won: teammateWins/teammateBattles. 1.0 = always wins, 0.0 = always loses. " +
+              "It also acts as the main trigger for the penalty when it drops clearly below 0.5."
           },
           {
             k: "Finish rate (finishRate)",
@@ -207,30 +214,35 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
           {
             k: "Podium share (podiumRate)",
             v:
-              "Driver’s share of team podiums in the season (podiums/teamPodiums). 0..1. Measures opportunity conversion."
+              "Driver’s share of team podiums in the season (podiums/teamPodiums). 0..1."
           },
           {
-            k: "Quali gap vs teammate (avgQualiGapToTeammateSec)",
+            k: "Quali gap vs teammate (avgQualiGapToTeammateSec) [from 2003]",
             v:
-              "Average qualifying time difference in seconds vs teammate. Negative = driver is faster."
+              "Average qualifying time difference in seconds vs teammate. Negative = driver is faster. " +
+              "Computed only from 2003 onward (before 2003 it is not used and does not affect residual or index)."
           },
           {
-            k: "Pace vs teammate (paceVsTeammate01)",
+            k: "Pace vs teammate (paceVsTeammate01) [from 2003]",
             v:
-              "Transforms quali gap into a 0..1 score. 0.5 ≈ equal pace; >0.5 faster; <0.5 slower."
+              "Transforms quali gap into a 0..1 score. 0.5 ≈ equal pace; >0.5 faster; <0.5 slower. " +
+              "From 2003 onward it may contribute to the index; before 2003 it is treated as neutral/not available."
           }
         ],
 
         radarTitle: "Radar (Components 0..1)",
         radar:
-          "Radar summarizes 6 normalized components: Team strength, Consistency, Pace vs teammate, Podiums, Finishes and Value added. " +
+          "Radar summarizes normalized components: Team strength, Consistency, Pace vs teammate (from 2003), Podiums, Finishes and Value added. " +
           "It’s a profile view (strengths/weaknesses), not an absolute ranking.",
 
         barsTitle: "Bars (Actual vs Expected)",
         bars:
-          "Compares actual posScore vs expectedPosScore (from car strength). " +
-          "If Actual > Expected => positive residual (value added)."
+          "Compares the driver’s actual performance with what the car is expected to deliver. " +
+          "Expected (expectedPosScore) represents car potential. " +
+          "Actual is based on posScore. If a clear teammate loss is detected, an additional Actual (pen.) (posScorePenalized) is shown and becomes the primary 'Actual'. " +
+          "When Actual or Actual (pen.) exceeds Expected, the residual is positive (value added)."
       };
+
 
       return lang === "es" ? es : en;
     }, [lang]);
@@ -256,11 +268,36 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
         value: fmt1(breakdown.index100),
         sub: `${fmt3(breakdown.index01)} / 1.000`
       },
-      {
-        label: t.kpiResidual[lang],
-        value: fmt3(breakdown.residual),
-        sub: `${t.valueAdded[lang]}: ${fmt3(breakdown.residualScore01)}`
-      },
+        {
+          label: t.kpiResidual[lang],
+          value: (() => {
+            const hasPen =
+              breakdown.posScorePenalized !== null &&
+              breakdown.posScorePenalized !== undefined &&
+              Number.isFinite(Number(breakdown.posScorePenalized));
+
+            // si hay penalización, el residual “principal” debe ser el penalizado
+            const v = hasPen ? breakdown.residualPenalized : breakdown.residual;
+            return fmt3(v);
+          })(),
+          sub: (() => {
+            const hasPen =
+              breakdown.posScorePenalized !== null &&
+              breakdown.posScorePenalized !== undefined &&
+              Number.isFinite(Number(breakdown.posScorePenalized));
+
+            const base = `${t.valueAdded[lang]}: ${fmt3(
+              hasPen ? breakdown.residualScore01Penalized : breakdown.residualScore01
+            )}`;
+
+            if (!hasPen) return base;
+
+            // opcional: enseñar el raw como referencia
+            const raw = `${lang === "es" ? "Raw" : "Raw"}: ${fmt3(breakdown.residualScore01)}`;
+
+            return base + ` · ${raw}`;
+          })()
+        },
       {
         label: t.kpiAvgPos[lang],
         value: `${fmt1(breakdown.avgPos)}`,
@@ -395,9 +432,32 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
   }, [breakdown, lang]);
 
   // ✅ 3) Mini-bar “Expected vs Actual posScore”
+  // ✅ 3) Mini-bar “Expected vs Actual posScore”
   const barsOption = useMemo(() => {
     const expected = clamp01(breakdown.expectedPosScore);
-    const actual = clamp01(breakdown.posScore);
+    const actualRaw = clamp01(breakdown.posScore);
+
+    // penalización: puede no venir
+    const hasPen =
+      breakdown.posScorePenalized !== null &&
+      breakdown.posScorePenalized !== undefined &&
+      Number.isFinite(Number(breakdown.posScorePenalized));
+
+    const actualPen = hasPen ? clamp01(breakdown.posScorePenalized) : null;
+
+    // ✅ series dinámicas
+    const series = [
+      { name: t.expected[lang], type: "bar", data: [expected], barWidth: 26 },
+
+      ...(hasPen
+        ? [
+            { name: lang === "es" ? "Real" : "Actual (pen.)", type: "bar", data: [actualPen], barWidth: 26 }
+          ]
+        : [
+            { name: lang === "es" ? "Real" : "Actual", type: "bar", data: [actualRaw], barWidth: 26 }
+          ])
+    ];
+
 
     return {
       backgroundColor: "transparent",
@@ -420,11 +480,10 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
         textStyle: { color: "#fff" },
         axisPointer: { type: "shadow" },
         formatter: (params) => {
-          const p0 = params?.[0];
-          const p1 = params?.[1];
-          const a = p0 ? `${p0.marker} ${p0.seriesName}: ${(p0.value * 100).toFixed(1)}%` : "";
-          const b = p1 ? `<br/>${p1.marker} ${p1.seriesName}: ${(p1.value * 100).toFixed(1)}%` : "";
-          return a + b;
+          // params puede traer 2 o 3 series
+          return (params || [])
+            .map((p) => `${p.marker} ${p.seriesName}: ${(p.value * 100).toFixed(1)}%`)
+            .join("<br/>");
         }
       },
       xAxis: {
@@ -441,28 +500,14 @@ export default function ChartCardPerformanceBreakdown2({ breakdown, lang = "es" 
         axisLine: { lineStyle: { color: "#777" } },
         splitLine: { lineStyle: { color: "#444", type: "dashed" } }
       },
-      series: [
-        {
-          name: t.expected[lang],
-          type: "bar",
-          data: [expected],
-          barWidth: 32,
-          itemStyle: { borderRadius: [10, 10, 0, 0] }
-        },
-        {
-          name: t.actual[lang],
-          type: "bar",
-          data: [actual],
-          barWidth: 32,
-          itemStyle: { borderRadius: [10, 10, 0, 0] }
-        }
-      ],
+      series,
       legend: {
         top: 26,
         textStyle: { color: "#ccc" }
       }
     };
   }, [breakdown, lang]);
+
 
   return (
     <div className="chart-card">
