@@ -29,11 +29,11 @@ public class TeamNationalityGameServiceImpl implements TeamNationalityGameServic
     @Override
     public TeamNationalityGame startGame(Long userId, String lang) {
         try {
-         /*   if (!cooldownService.canPlay("TeamNationality", userId)) {
+            if (!cooldownService.canPlay("TeamNationality", userId)) {
                 long wait = cooldownService.secondsUntilNextPlay("TeamNationality", userId);
                 throw new CooldownException("WAIT", wait);
             }
-*/
+
             String url = PYTHON_API_BASE + "/generate-team-nationality?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
@@ -55,7 +55,7 @@ public class TeamNationalityGameServiceImpl implements TeamNationalityGameServic
             game.setMaxAnswers(root.has("maxAnswers") ? root.get("maxAnswers").asInt() : 30);
 
             TeamNationalityGame saved = gameDao.save(game);
-           // cooldownService.registerPlay("TeamNationality", userId);
+            cooldownService.registerPlay("TeamNationality", userId);
             return saved;
 
         } catch (Exception e) {
