@@ -236,6 +236,16 @@ const minigames = [
   img: sourceImages("./Abbreviations2.png"),
   isNew: true
 },
+{
+  path: "/minigames/teamNationality",
+  title: { es: "Equipo & Nacionalidad", en: "Team & Nationality" },
+  description: {
+    es: "Acierta pilotos que cumplan relación país-equipo (bandera + team)",
+    en: "Guess drivers matching a nationality-team pair (flag + team)"
+  },
+  img: sourceImages("./TeamNationality2.png"),
+  isNew: true
+},
 
 
 

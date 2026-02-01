@@ -104,6 +104,9 @@ import HigherLowerGame from "../../higherLower/components/HigherLowerGame";
 import ThirtySecondsGame from "../../thirtySeconds/components/ThirtySecondsGame";
 import DriverStatsGame from "../../driverStats/components/DriverStatsGame";
 import AbbreviationsGame from "../../abbreviations/components/AbbreviationsGame";
+import TeamNationalityGame from "../../teamNationality/components/TeamNationalityGame";
+
+
 
 
 const Body = () => {
@@ -199,6 +202,8 @@ const Body = () => {
                     <Route path="/minigames/thirtySeconds" element={<ThirtySecondsGame />} />
                     <Route path="/minigames/driverStats" element={<DriverStatsGame />} />
                     <Route path="/minigames/abbreviations" element={<AbbreviationsGame />} />
+                    <Route path="/minigames/teamNationality" element={<TeamNationalityGame />} />
+
                 </Route>
             </Routes>
         </div>

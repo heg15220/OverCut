@@ -451,6 +451,24 @@ export const tutorialTexts = {
       "Goal: solve all 20."
   }
 },
+"/minigames/teamNationality": {
+  es: {
+    title: "Equipo & Nacionalidad",
+    description:
+      "Se te mostrará un equipo y una bandera (nacionalidad). " +
+      "Escribe pilotos que cumplan esa relación. " +
+      "Cada acierto se valida al instante y se añade con animación. " +
+      "Objetivo: acertar hasta como mucho 30."
+  },
+  en: {
+    title: "Team & Nationality",
+    description:
+      "You will get a team and a flag (nationality). " +
+      "Type drivers who match that pair. " +
+      "Each correct guess is validated instantly and added with an animation. " +
+      "Goal: up at most to 30 correct drivers."
+  }
+},
 
 
 

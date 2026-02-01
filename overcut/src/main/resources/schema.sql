@@ -1,6 +1,8 @@
 DROP TABLE IF EXISTS GameCooldown;
 
 
+DROP TABLE IF EXISTS TeamNationalityAnswer;
+DROP TABLE IF EXISTS TeamNationalityGame;
 DROP TABLE IF EXISTS AbbreviationsAnswer;
 DROP TABLE IF EXISTS AbbreviationsGame;
 DROP TABLE IF EXISTS driver_stats_game;
@@ -1164,3 +1166,43 @@ CREATE INDEX idx_driver_stats_user_created
 
 CREATE INDEX idx_driver_stats_driver
   ON driver_stats_game(driver_id);
+
+
+-- =========================================================
+-- TEAM NATIONALITY (Game)
+-- =========================================================
+CREATE TABLE TeamNationalityGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    teamName VARCHAR(120) NOT NULL,
+    nationality VARCHAR(60) NOT NULL,     -- ej: "British" (como drivers.nationality)
+    countryCode VARCHAR(3) NOT NULL,      -- ej: "GB" para pintar bandera
+
+    finished BOOLEAN DEFAULT FALSE,
+    correctAnswers INT DEFAULT 0,
+    totalSubmitted INT DEFAULT 0,
+    maxAnswers INT DEFAULT 30
+);
+
+-- =========================================================
+-- TEAM NATIONALITY (Answers)
+-- =========================================================
+CREATE TABLE TeamNationalityAnswer (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+
+    driverId BIGINT NOT NULL,
+    driverName VARCHAR(120) NOT NULL,     -- "Forename Surname"
+    solved BOOLEAN DEFAULT TRUE,
+
+    answerOrder INT NOT NULL,
+    solvedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_tn_game
+      FOREIGN KEY (gameId) REFERENCES TeamNationalityGame(id) ON DELETE CASCADE
+);
+
+-- Índices (H2 compatible)
+CREATE INDEX idx_tn_answer_game ON TeamNationalityAnswer(gameId);
+CREATE INDEX idx_tn_answer_driver ON TeamNationalityAnswer(driverId);

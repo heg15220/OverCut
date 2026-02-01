@@ -40,6 +40,9 @@ import higherLower from "../modules/higherLower";
 import thirtySeconds from "../modules/thirtySeconds";
 import driverStats from "../modules/driverStats/reducer";
 import abbreviations from "../modules/abbreviations/reducer";
+import teamNationality from "../modules/teamNationality";
+
+
 
 
 const rootReducer = combineReducers({
@@ -79,6 +82,8 @@ const rootReducer = combineReducers({
     thirtySeconds: thirtySeconds.reducer,
     driverStats: driverStats,
     abbreviations: abbreviations,
+    teamNationality: teamNationality.reducer,
+
 });
 
 export default rootReducer;

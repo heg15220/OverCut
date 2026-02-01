@@ -1,0 +1,279 @@
+/* TeamNationalityGame.css — styled like Abbreviations */
+
+.teamnat {
+  min-height: 100vh;
+  width: 100%;
+  padding: 2rem;
+  color: #fff;
+  background: linear-gradient(to bottom right, #0a1a2f, #050f1e 85%);
+  font-family: "F1 Regular", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------- Header ---------- */
+
+.teamnat-header {
+  width: 100%;
+  max-width: 980px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.teamnat-titleRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.teamnat-flag {
+  font-size: 46px;
+  line-height: 1;
+  filter: drop-shadow(0 10px 16px rgba(0,0,0,0.35));
+}
+
+.teamnat-titleBlock {
+  flex: 1;
+  min-width: 0;
+}
+
+.teamnat-title {
+  color: #fbc02d;
+  text-shadow: 0 0 6px rgba(251, 192, 45, 0.25);
+  font-size: 2rem;
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.teamnat-sub {
+  margin-top: 6px;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.teamnat-team {
+  font-weight: 900;
+}
+
+.teamnat-dot {
+  opacity: 0.55;
+}
+
+.teamnat-nat {
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.teamnat-score {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(251,192,45,0.35);
+  padding: 0.45rem 0.8rem;
+  border-radius: 12px;
+  font-weight: 800;
+  text-align: right;
+  min-width: 190px;
+}
+
+.teamnat-scoreMain {
+  font-weight: 900;
+}
+
+.teamnat-scoreSub {
+  margin-top: 4px;
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+/* ---------- Input + Suggestions ---------- */
+
+.teamnat-inputWrap {
+  width: 100%;
+  max-width: 980px;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.teamnat-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #fbc02d;
+  background: #161a22;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+}
+
+.teamnat-input:disabled {
+  opacity: 0.65;
+}
+
+.teamnat-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #1c1c1c;
+  border: 1px solid #fbc02d;
+  border-radius: 12px;
+  overflow: hidden;
+  max-height: 210px;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.teamnat-suggestion {
+  padding: 0.65rem 0.8rem;
+  cursor: pointer;
+}
+
+.teamnat-suggestion.selected {
+  background: #2a2a2a;
+  color: #fbc02d;
+}
+
+/* ---------- Board ---------- */
+
+.teamnat-board {
+  width: 100%;
+  max-width: 980px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.teamnat-boardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.teamnat-boardTitle {
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #fbc02d;
+  text-shadow: 0 0 6px rgba(251, 192, 45, 0.18);
+}
+
+.teamnat-boardHint {
+  opacity: 0.75;
+  font-size: 13px;
+}
+
+.teamnat-list {
+  display: grid;
+  gap: 10px;
+}
+
+.teamnat-empty {
+  opacity: 0.75;
+  padding: 14px 8px;
+}
+
+/* Item similar to abbr-card aesthetic */
+.teamnat-item {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 70px 1fr 40px;
+  align-items: center;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.teamnat-order {
+  font-weight: 900;
+  opacity: 0.9;
+  color: #fbc02d;
+  letter-spacing: 1px;
+}
+
+.teamnat-name {
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teamnat-check {
+  text-align: right;
+  font-weight: 900;
+}
+
+/* Pop animation like abbreviations */
+@keyframes teamnatPop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.teamnat-item.pop {
+  animation: teamnatPop 650ms ease;
+  border-color: rgba(76, 175, 80, 0.55);
+  box-shadow: 0 0 14px rgba(76, 175, 80, 0.20);
+}
+
+/* ---------- Footer ---------- */
+
+.teamnat-footer {
+  width: 100%;
+  max-width: 980px;
+  margin-top: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.teamnat-finished {
+  font-weight: 900;
+  color: #7CFF9E;
+}
+
+.teamnat-back {
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: #2b2f3a;
+  color: #fff;
+  font-weight: 700;
+}
+
+.teamnat-back:hover {
+  background: #3a3f4c;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 700px) {
+  .teamnat-score {
+    display: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .teamnat {
+    padding: 1rem 0.6rem;
+  }
+  .teamnat-title {
+    font-size: 1.6rem;
+  }
+  .teamnat-flag {
+    font-size: 40px;
+  }
+  .teamnat-item {
+    grid-template-columns: 58px 1fr 34px;
+  }
+}

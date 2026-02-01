@@ -89,6 +89,7 @@ from driver_stats_game import (
     validate_driver_stats
 )
 from abbreviations_game import generate_abbreviations_game
+from team_nationality_game import generate_team_nationality, _valid_driver_for_pair
 
 
 
@@ -878,6 +879,27 @@ def generate_abbreviations(lang: str = Query("es", enum=["es", "en"])):
         return JSONResponse(content=generate_abbreviations_game(limit=20))
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/generate-team-nationality")
+def generate_team_nat(
+    lang: str = Query("es"),
+    excludeTeam: Optional[str] = None,
+    excludeNat: Optional[str] = None
+):
+    exclude = (excludeTeam, excludeNat) if excludeTeam and excludeNat else None
+    return JSONResponse(content=generate_team_nationality(exclude))
+
+
+@app.post("/validate-team-nationality")
+def validate_team_nat(payload: dict):
+    try:
+        team = payload.get("teamName")
+        nat = payload.get("nationality")
+        driver = payload.get("driverName")
+        return JSONResponse(content=_valid_driver_for_pair(team, nat, driver))
+    except Exception as e:
+        return JSONResponse(content={"valid": False, "error": str(e)}, status_code=500)
 
 
 # === Main app ===
