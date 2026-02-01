@@ -1,0 +1,41 @@
+/* src/styles/theme.css */
+:root{
+  /* Logo palette (aprox) */
+  --oc-blue-900:#071826;
+  --oc-blue-800:#0B2A44;
+  --oc-blue-700:#0D3A5C;
+
+  --oc-yellow-500:#F5B301;
+  --oc-yellow-600:#D99A00;
+
+  --oc-bg:#070B10;
+  --oc-surface:#0D141D;
+  --oc-surface-2:#101B27;
+  --oc-border:#1E2B3A;
+
+  --oc-text:#EAF1FA;
+  --oc-muted:#9CB0C7;
+
+  --oc-success:#22C55E;
+  --oc-danger:#EF4444;
+  --oc-warn:#F59E0B;
+
+  --radius-xl: 18px;
+  --radius-lg: 14px;
+  --shadow: 0 12px 34px rgba(0,0,0,.35);
+
+  --focus: 0 0 0 3px rgba(245,179,1,.35);
+}
+
+html, body, #root { height: 100%; }
+body{
+  margin:0;
+  background: radial-gradient(1200px 700px at 30% 10%, rgba(13,58,92,.35), transparent 60%),
+              radial-gradient(900px 500px at 85% 25%, rgba(245,179,1,.14), transparent 60%),
+              var(--oc-bg);
+  color: var(--oc-text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Arial;
+}
+
+*{ box-sizing:border-box; }
+:focus-visible{ outline:none; box-shadow: var(--focus); border-radius: 10px; }

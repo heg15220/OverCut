@@ -18,10 +18,14 @@ import {
 import image from './Resources/LogoOverCut.png';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
 
+import { ChatDots } from "react-bootstrap-icons";
+import { buildDebateUrl } from "../../../helpers/debateLink"; // ajusta ruta real
+
 const Header = () => {
   const isLogged = useSelector(users.selectors.isLoggedIn);
   const userName = useSelector(users.selectors.getUserName);
   const user = useSelector(users.selectors.getUser);
+
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [openCreateJournalist, setOpenCreateJournalist] = useState(false); // ⬅️ nuevo estado global
@@ -74,6 +78,14 @@ const Header = () => {
 
             <div className="collapse navbar-collapse" id="navbarContent">
               <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+
+                <li className="nav-item">
+                  <a className="nav-link" href={buildDebateUrl()}>
+                    Debate <ChatDots size={16} />
+                  </a>
+                </li>
+
+
                 {isLogged && (
                   <li className="nav-item">
                     <Link className="nav-link" to="/category/2">

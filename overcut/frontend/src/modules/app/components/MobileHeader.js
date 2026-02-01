@@ -7,6 +7,10 @@ import { Lightbulb, Puzzle, GraphUp, Book, Trophy, List, X, PersonCircle, BoxArr
 import "./MobileHeader.css";
 import image from './Resources/LogoOverCut.png';
 
+import { ChatDots } from "react-bootstrap-icons";
+import { buildDebateUrl } from "../../../helpers/debateLink"; // ajusta ruta real
+
+
 const MobileHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -36,6 +40,16 @@ const MobileHeader = () => {
 
           <nav>
             <ul>
+
+            {isLogged && (
+              <li>
+                <a href={buildDebateUrl()} onClick={handleCloseMenu}>
+                  Debate <ChatDots size={16} />
+                </a>
+              </li>
+            )}
+
+
               {isLogged && (
                 <li>
                   <Link to="/category/2" onClick={handleCloseMenu}>

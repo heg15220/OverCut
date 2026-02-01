@@ -17,6 +17,9 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+import { redirectToDebateIfRequested } from "../../../helpers/debateRedirectAfterLogin";
+
+
 const defaultTheme = createTheme();
 
 const Login = () => {
@@ -31,15 +34,20 @@ const Login = () => {
 
         if (event.currentTarget.checkValidity()) {
             dispatch(actions.login(
-                email.trim(),
-                password,
-                () => navigate('/'),
-                errors => setBackendErrors(errors),
-                () => {
-                    navigate('/users/login');
-                    dispatch(actions.logout());
-                }
+              email.trim(),
+              password,
+              () => {
+                // ✅ si venimos de Debate, saltamos directamente allí
+                const redirected = redirectToDebateIfRequested();
+                if (!redirected) navigate("/");
+              },
+              errors => setBackendErrors(errors),
+              () => {
+                navigate("/users/login");
+                dispatch(actions.logout());
+              }
             ));
+
         } else {
             setBackendErrors(null);
             event.currentTarget.classList.add('was-validated');

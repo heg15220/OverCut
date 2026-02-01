@@ -15,6 +15,8 @@ import { store, persistor } from "./store";
 import backend from "./backend";
 import app from "./modules/app";
 import App from "./modules/app/components/App";
+import "./styles/theme.css";
+
 
 /* Configure backend proxy. */
 backend.init(() => store.dispatch(app.actions.error(new backend.NetworkError())));

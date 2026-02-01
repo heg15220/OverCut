@@ -2,108 +2,59 @@
 import NetworkError from "./NetworkError";
 import { config } from "../config/constants";
 
-let networkErrorCallback;
-let reauthenticationCallback;
-
-const isJson = (response) => {
-  const contentType = response.headers.get("content-type");
-  return contentType && contentType.indexOf("application/json") !== -1;
+export const setServiceToken = (serviceToken) => {
+  if (!serviceToken) return;
+  localStorage.setItem(config.SERVICE_TOKEN_NAME, serviceToken);
 };
 
-const handleOkResponse = (response, onSuccess) => {
-  if (!response.ok) {
-    return false;
-  }
+export const getServiceToken = () => localStorage.getItem(config.SERVICE_TOKEN_NAME);
 
-  if (!onSuccess) {
-    return true;
-  }
-
-  if (response.status === 204) {
-    onSuccess();
-    return true;
-  }
-
-  if (isJson(response)) {
-    response.json().then((payload) => onSuccess(payload));
-  } else {
-    response.blob().then((blob) => onSuccess(blob));
-  }
-
-  return true;
-};
-
-const handle4xxResponse = (response, onErrors) => {
-  if (response.status < 400 || response.status >= 500) {
-    return false;
-  }
-
-  if (response.status === 401 && reauthenticationCallback) {
-    reauthenticationCallback();
-    return true;
-  }
-
-  if (!isJson(response)) {
-    throw new NetworkError();
-  }
-
-  if (onErrors) {
-    response.json().then((payload) => {
-      if (payload.globalError || payload.fieldErrors) {
-        onErrors(payload);
-      }
-    });
-  }
-
-  return true;
-};
-
-const handleResponse = (response, onSuccess, onErrors) => {
-  if (handleOkResponse(response, onSuccess)) return;
-  if (handle4xxResponse(response, onErrors)) return;
-  throw new NetworkError();
-};
-
-export const init = (callback) => (networkErrorCallback = callback);
-
-export const setReauthenticationCallback = (callback) =>
-  (reauthenticationCallback = callback);
-
-export const setServiceToken = (serviceToken) =>
-  sessionStorage.setItem(config.SERVICE_TOKEN_NAME, serviceToken);
-
-export const getServiceToken = () =>
-  sessionStorage.getItem(config.SERVICE_TOKEN_NAME);
-
-export const removeServiceToken = () =>
-  sessionStorage.removeItem(config.SERVICE_TOKEN_NAME);
+export const removeServiceToken = () => localStorage.removeItem(config.SERVICE_TOKEN_NAME);
 
 export const fetchConfig = (method, body) => {
-  const fConfig = { method };
+  const headers = {};
+  const token = getServiceToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  if (body) {
-    if (body instanceof FormData) {
-      fConfig.body = body;
-    } else {
-      fConfig.headers = { "Content-Type": "application/json" };
-      fConfig.body = JSON.stringify(body);
-    }
-  }
+  // Si body es FormData NO ponemos JSON headers
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
 
-  const serviceToken = getServiceToken();
+  if (!isFormData) headers["Content-Type"] = "application/json";
 
-  if (serviceToken) {
-    if (fConfig.headers) {
-      fConfig.headers["Authorization"] = `Bearer ${serviceToken}`;
-    } else {
-      fConfig.headers = { Authorization: `Bearer ${serviceToken}` };
-    }
-  }
-
-  return fConfig;
+  return {
+    method,
+    headers,
+    body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
+  };
 };
 
-export const appFetch = (path, options, onSuccess, onErrors) =>
-  fetch(`${config.BASE_PATH}${path}`, options)
-    .then((response) => handleResponse(response, onSuccess, onErrors))
-    .catch(networkErrorCallback);
+export const appFetch = (path, options, onSuccess, onErrors) => {
+  const url = `${config.BASE_PATH}${path}`;
+
+  fetch(url, options)
+    .then(async (res) => {
+      if (res.ok) {
+        const text = await res.text();
+        const data = text ? JSON.parse(text) : null;
+        onSuccess?.(data);
+        return;
+      }
+
+      let payload = null;
+      try { payload = await res.json(); } catch (_) {}
+
+      onErrors?.(payload || { message: "Request failed", status: res.status });
+    })
+    .catch((err) => {
+      onErrors?.({ message: err.message || "Network error" });
+      if (onNetworkError) onNetworkError(); // ✅ SOLO aquí
+    });
+};
+
+
+let onNetworkError = null;
+
+export const init = (cb) => {
+  onNetworkError = cb;
+};
+

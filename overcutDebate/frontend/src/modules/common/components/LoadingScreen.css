@@ -1,0 +1,23 @@
+.loadingScreen{
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.loadingScreen__spinner{
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 4px solid rgba(255,255,255,.2);
+  border-top-color: rgba(255,255,255,.9);
+  animation: spin .9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loadingScreen__text{
+  opacity: .85;
+}

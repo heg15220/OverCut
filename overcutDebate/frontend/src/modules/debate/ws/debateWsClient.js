@@ -2,20 +2,25 @@
 import { Client } from "@stomp/stompjs";
 import { getServiceToken } from "../../../backend/appFetch";
 
+function buildWsUrl() {
+  const proto = window.location.protocol === "https:" ? "wss" : "ws";
+  const token = getServiceToken();
+  const base = `${proto}://${window.location.host}/overcutdebate/ws/debate`;
+  return token ? `${base}?st=${encodeURIComponent(token)}` : base;
+}
+
 export function createDebateWsClient({
-  wsBaseUrl = "ws://localhost:8084/overcutdebate/ws/debate",
   roomId,
   onMessage,
   onConnect,
   onError,
 }) {
   const token = getServiceToken();
+  const brokerURL = buildWsUrl();
 
   const client = new Client({
-    brokerURL: wsBaseUrl,
-    connectHeaders: {
-      Authorization: token ? `Bearer ${token}` : "",
-    },
+    brokerURL: buildWsUrl(),
+    connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
     reconnectDelay: 2000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,
@@ -26,22 +31,17 @@ export function createDebateWsClient({
     const sub = client.subscribe(`/topic/rooms/${roomId}`, (frame) => {
       try {
         const body = JSON.parse(frame.body);
-        if (onMessage) onMessage(body);
+        onMessage?.(body);
       } catch (e) {
         // ignore
       }
     });
 
-    if (onConnect) onConnect({ sub });
+    onConnect?.({ sub });
   };
 
-  client.onStompError = (frame) => {
-    if (onError) onError(frame);
-  };
-
-  client.onWebSocketError = (evt) => {
-    if (onError) onError(evt);
-  };
+  client.onStompError = (frame) => onError?.(frame);
+  client.onWebSocketError = (evt) => onError?.(evt);
 
   client.activate();
 
@@ -55,9 +55,9 @@ export function createDebateWsClient({
         body: JSON.stringify({ text: cleaned }),
       });
     },
-    disconnect: () => {
+    disconnect: async () => {
       try {
-        client.deactivate();
+        await client.deactivate();
       } catch (e) {}
     },
   };

@@ -2,26 +2,23 @@
 import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 
-// Debate
+import ProtectedRoute from "./ProtectedRoute";
 import { DebateHome, DebateRoomPage } from "../../debate";
+import { RequireLoginPage } from "../../auth";
 
-import "./Body.css";
+const Body = () => (
+  <div className="Body">
+    <Routes>
+      <Route path="/auth/require-login" element={<RequireLoginPage />} />
 
-const Body = () => {
-  return (
-    <div className="Body">
-      <Routes>
+      <Route element={<ProtectedRoute />}>
         <Route path="/debate" element={<DebateHome />} />
         <Route path="/debate/rooms/:roomId" element={<DebateRoomPage />} />
+      </Route>
 
-        {/* Si alguien intenta entrar sin login (ajusta si tienes login real) */}
-        <Route path="/debate/*" element={<Navigate to="/users/login" replace />} />
-
-        {/* fallback */}
-        <Route path="*" element={<Navigate to="/debate" replace />} />
-      </Routes>
-    </div>
-  );
-};
+      <Route path="*" element={<Navigate to="/debate" replace />} />
+    </Routes>
+  </div>
+);
 
 export default Body;
