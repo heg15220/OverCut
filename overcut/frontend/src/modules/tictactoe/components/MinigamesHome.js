@@ -226,6 +226,16 @@ const minigames = [
 },
 
 
+{
+  path: "/minigames/abbreviations",
+  title: { es: "Abbreviations", en: "Abbreviations" },
+  description: {
+    es: "Adivina pilotos por abreviaturas de 3 letras",
+    en: "Guess drivers from 3-letter abbreviations"
+  },
+  img: sourceImages("./Abbreviations2.png"),
+  isNew: true
+},
 
 
 

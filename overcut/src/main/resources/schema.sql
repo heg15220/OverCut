@@ -1,6 +1,8 @@
 DROP TABLE IF EXISTS GameCooldown;
 
 
+DROP TABLE IF EXISTS AbbreviationsAnswer;
+DROP TABLE IF EXISTS AbbreviationsGame;
 DROP TABLE IF EXISTS driver_stats_game;
 DROP TABLE IF EXISTS ThirtySecondsAnswer;
 DROP TABLE IF EXISTS ThirtySecondsGame;
@@ -1121,6 +1123,40 @@ CREATE TABLE driver_stats_game (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   finished_at TIMESTAMP NULL DEFAULT NULL
 );
+
+-- =========================================================
+-- ABBREVIATIONS (Game)
+-- =========================================================
+CREATE TABLE AbbreviationsGame (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    finished BOOLEAN DEFAULT FALSE,
+    correctAnswers INT DEFAULT 0,
+    totalSubmitted INT DEFAULT 0
+);
+
+-- =========================================================
+-- ABBREVIATIONS (Answers)
+-- =========================================================
+CREATE TABLE AbbreviationsAnswer (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gameId BIGINT NOT NULL,
+    driverId BIGINT NOT NULL,
+    driverName VARCHAR(120) NOT NULL,
+    abbr VARCHAR(3) NOT NULL,
+    solved BOOLEAN DEFAULT FALSE,
+    answerOrder INT NOT NULL,
+    solvedAt TIMESTAMP NULL,
+    CONSTRAINT fk_abbrev_game
+      FOREIGN KEY (gameId) REFERENCES AbbreviationsGame(id) ON DELETE CASCADE
+);
+
+-- Índices fuera (H2 compatible)
+CREATE INDEX idx_abbrev_game   ON AbbreviationsAnswer(gameId);
+CREATE INDEX idx_abbrev_driver ON AbbreviationsAnswer(driverId);
+CREATE INDEX idx_abbrev_abbr   ON AbbreviationsAnswer(abbr);
+
+
 
 -- ✅ índices fuera (H2 compatible)
 CREATE INDEX idx_driver_stats_user_created

@@ -433,6 +433,24 @@ export const tutorialTexts = {
   }
 },
 
+"/minigames/abbreviations": {
+  es: {
+    title: "Abbreviations",
+    description:
+      "Te mostramos 20 abreviaturas (3 letras) que corresponden a apellidos de pilotos que corrieron desde 1980.\n\n" +
+      "Escribe nombres de pilotos usando el buscador.\n" +
+      "Si aciertas uno que esté en la lista, se revelará su casilla con una animación.\n\n" +
+      "Objetivo: completar las 20."
+  },
+  en: {
+    title: "Abbreviations",
+    description:
+      "You get 20 three-letter abbreviations (surname prefixes) from drivers who raced since 1980.\n\n" +
+      "Type driver names using the search box.\n" +
+      "If the driver is on the list, the matching cell will be revealed with an animation.\n\n" +
+      "Goal: solve all 20."
+  }
+},
 
 
 

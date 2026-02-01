@@ -88,6 +88,7 @@ from driver_stats_game import (
     generate_driver_stats_game,
     validate_driver_stats
 )
+from abbreviations_game import generate_abbreviations_game
 
 
 
@@ -866,6 +867,15 @@ def validate_driver_stats_endpoint(payload: dict):
         lang = payload.get("lang") or "es"
         answers = payload.get("answers") or {}
         return JSONResponse(content=validate_driver_stats(driver_id, answers, lang=lang))
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/generate-abbreviations")
+def generate_abbreviations(lang: str = Query("es", enum=["es", "en"])):
+    try:
+        # lang no es crítico aquí (no hay textos), pero lo dejamos por consistencia
+        return JSONResponse(content=generate_abbreviations_game(limit=20))
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
