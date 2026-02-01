@@ -15,6 +15,11 @@ public interface DebateOpinionDao extends JpaRepository<DebateOpinion, Long> {
 
     Optional<DebateOpinion> findByDebateDayAndUserIdAndScope(LocalDate debateDay, Long userId, DebateScope scope);
 
+    // ✅ NUEVO: “la última” si en dev terminas teniendo varias (o simplemente por robustez)
+    Optional<DebateOpinion> findTopByDebateDayAndUserIdAndScopeOrderByCreatedAtDesc(
+            LocalDate debateDay, Long userId, DebateScope scope
+    );
+
     long countByDebateDayAndScope(LocalDate debateDay, DebateScope scope);
 
     List<DebateOpinion> findByDebateDayAndScope(LocalDate debateDay, DebateScope scope);

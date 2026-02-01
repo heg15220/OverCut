@@ -208,3 +208,24 @@
   padding: 10px 12px;
   line-height: 1.35;
 }
+.ocD-opBox { display: flex; flex-direction: column; gap: 10px; }
+.ocD-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 92px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.25);
+  color: #eaeef5;
+  padding: 10px 12px;
+  outline: none;
+}
+.ocD-textarea:focus { border-color: rgba(255,255,255,0.25); }
+.ocD-row { display:flex; align-items:center; justify-content:space-between; gap: 10px; }
+.ocD-opinionRead {
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.18);
+  border-radius: 12px;
+  padding: 12px;
+}
+.ocD-opinionText { white-space: pre-wrap; }

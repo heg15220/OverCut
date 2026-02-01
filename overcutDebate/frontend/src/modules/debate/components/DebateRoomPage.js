@@ -1,4 +1,4 @@
-// src/modules/debate/components/DebateRoomPage.jsx
+// frontend/src/modules/debate/components/DebateRoomPage.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -20,22 +20,39 @@ export default function DebateRoomPage() {
 
   const room = useSelector((s) => selectors.getRoomById(s, id));
   const joined = useSelector((s) => selectors.isJoined(s, id));
-  const pollAnswer = useSelector((s) => selectors.getPollAnswer(s, id));
+  const joining = useSelector((s) => selectors.isJoining(s, id));
+  const joinErr = useSelector((s) => selectors.getJoinError(s, id));
 
+  const pollAnswer = useSelector((s) => selectors.getPollAnswer(s, id));
   const history = useSelector((s) => selectors.getRoomHistory(s, id));
   const live = useSelector((s) => selectors.getRoomLive(s, id));
 
   const [wsReady, setWsReady] = useState(false);
   const wsRef = useRef(null);
 
+  // 1) cargar detalle al entrar
   useEffect(() => {
     dispatch(actions.getRoomDetail(id));
   }, [dispatch, id]);
 
+  // 2) auto-refresh del room para que pase OPEN->POLL->LIVE sin quedarse “pegado”
+  useEffect(() => {
+    if (!room) return;
+    if (room.status === "CLOSED") return;
+
+    const t = setInterval(() => {
+      dispatch(actions.getRoomDetail(id));
+    }, 1000);
+
+    return () => clearInterval(t);
+  }, [dispatch, id, room?.status]);
+
+  // 3) si ya joined, carga historial
   useEffect(() => {
     if (joined) dispatch(actions.fetchRoomMessages(id, 50));
   }, [dispatch, id, joined]);
 
+  // 4) WS: solo cuando joined
   useEffect(() => {
     if (!joined) return;
     if (wsRef.current) return;
@@ -57,6 +74,17 @@ export default function DebateRoomPage() {
   }, [dispatch, id, joined]);
 
   const status = room?.status;
+
+  const joinLabel =
+    status === "LIVE"
+      ? "Entrar al debate (LIVE)"
+      : status === "POLL"
+      ? "Entrar y votar (POLL)"
+      : status === "OPEN"
+      ? "Unirme a la sala"
+      : "Sala cerrada";
+
+  const canJoin = !!room && status !== "CLOSED" && !joined;
 
   const mergedMessages = useMemo(() => {
     const h = (history || []).map((m) => ({
@@ -94,34 +122,55 @@ export default function DebateRoomPage() {
         ) : (
           <>
             <div className="debate-room-meta">
-              <span className={`debate-badge status-${(status || "").toLowerCase()}`}>
-                {status}
-              </span>
+              <span className={`debate-badge status-${(status || "").toLowerCase()}`}>{status}</span>
               <span className="debate-muted">Participants: {room.participantsCount}</span>
-              <span className="debate-muted">Join remaining: {room.secondsRemainingToJoin}s</span>
-              <span className="debate-muted">Poll remaining: {room.secondsRemainingToPollEnd}s</span>
+
+              {/* si la sala está en OPEN muestra joinRemaining, si está en POLL muestra pollRemaining */}
+              {status === "OPEN" && (
+                <span className="debate-muted">Join remaining: {room.secondsRemainingToJoin}s</span>
+              )}
+              {status === "POLL" && (
+                <span className="debate-muted">Poll remaining: {room.secondsRemainingToPollEnd}s</span>
+              )}
             </div>
 
             <div className="debate-topic big">{room.topic}</div>
 
-            {!joined ? (
+            {/* error específico de join */}
+            {joinErr?.message && (
+              <div className="debate-error" style={{ marginTop: 10 }}>
+                ⚠️ {joinErr.message}
+              </div>
+            )}
+
+            {canJoin ? (
               <button
                 className="debate-btn"
+                disabled={joining}
                 onClick={() =>
                   dispatch(
-                    actions.joinRoom(id, () => {
-                      dispatch(actions.getRoomDetail(id));
-                      dispatch(actions.fetchRoomMessages(id, 50));
-                    })
+                    actions.joinRoom(
+                      id,
+                      () => {
+                        dispatch(actions.getRoomDetail(id));
+                        dispatch(actions.fetchRoomMessages(id, 50));
+                      },
+                      () => {
+                        // si falla, refresca detalle igualmente (por si ya cerró/expiró)
+                        dispatch(actions.getRoomDetail(id));
+                      }
+                    )
                   )
                 }
               >
-                Join room
+                {joining ? "Uniéndote..." : joinLabel}
               </button>
-            ) : (
+            ) : joined ? (
               <div className="debate-joined-ok">
-                ✅ Joined {wsReady ? "(WS connected)" : "(WS connecting...)"}
+                ✅ Unido {wsReady ? "(WS conectado)" : "(WS conectando...)"}
               </div>
+            ) : (
+              <div className="debate-muted">{status === "CLOSED" ? "Sala cerrada." : "Cargando..."}</div>
             )}
 
             <DebatePollBox
@@ -136,11 +185,16 @@ export default function DebateRoomPage() {
             <div className="debate-section">
               <h3>Chat</h3>
 
-              {!joined && <div className="debate-muted">Join the room to see messages.</div>}
+              {!joined && <div className="debate-muted">Únete a la sala para ver mensajes.</div>}
 
               {joined && (
                 <>
-                  <DebateChatBox status={status} onSend={(text) => wsRef.current?.sendMessage(text)} />
+                    <DebateChatBox
+                      status={status}
+                      onSend={(text, onDone, onError) =>
+                        dispatch(actions.sendRoomMessage(id, text, onDone, onError))
+                      }
+                    />
 
                   <div className="debate-messages">
                     {mergedMessages.length === 0 && <div className="debate-empty">No messages yet.</div>}

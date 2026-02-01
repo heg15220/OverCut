@@ -1,13 +1,17 @@
-// src/modules/debate/components/RoomCard.jsx
+// frontend/src/modules/debate/components/RoomCard.jsx
 import React, { useMemo } from "react";
 import "./debateV2.css";
 
-function statusMeta(status){
-  switch(status){
-    case "OPEN": return { label:"Inscripción", tone:"open" };
-    case "POLL": return { label:"Poll", tone:"poll" };
-    case "LIVE": return { label:"LIVE", tone:"live" };
-    default: return { label:"Cerrada", tone:"closed" };
+function statusMeta(status) {
+  switch (status) {
+    case "OPEN":
+      return { label: "Inscripción", tone: "open" };
+    case "POLL":
+      return { label: "Poll", tone: "poll" };
+    case "LIVE":
+      return { label: "LIVE", tone: "live" };
+    default:
+      return { label: "Cerrada", tone: "closed" };
   }
 }
 
@@ -18,16 +22,22 @@ export default function RoomCard({ room, onOpen }) {
   const poll = Math.max(0, room.secondsRemainingToPollEnd ?? 0);
 
   const primaryTime = room.status === "OPEN" ? join : room.status === "POLL" ? poll : 0;
-  const timeLabel = room.status === "OPEN" ? "Cierra en" : room.status === "POLL" ? "Poll termina en" : "";
+  const timeLabel =
+    room.status === "OPEN" ? "Cierra en" : room.status === "POLL" ? "Poll termina en" : "";
 
   const canEnter = room.status !== "CLOSED";
+
   const cta =
-    room.status === "OPEN" ? "Unirme" :
-    room.status === "POLL" ? "Entrar (votar)" :
-    room.status === "LIVE" ? "Entrar (LIVE)" : "Cerrada";
+    room.status === "OPEN"
+      ? "Entrar (unirme)"
+      : room.status === "POLL"
+      ? "Entrar (unirme y votar)"
+      : room.status === "LIVE"
+      ? "Entrar (LIVE)"
+      : "Cerrada";
 
   const progress = useMemo(() => {
-    // barra simple visual: asumimos join window 120 y poll 30 por config; si cambias config, pásalo desde backend
+    // barra simple visual (ajusta si cambias joinSeconds/pollSeconds)
     const denom = room.status === "OPEN" ? 120 : room.status === "POLL" ? 30 : 1;
     return Math.min(100, Math.max(0, (primaryTime / denom) * 100));
   }, [room.status, primaryTime]);
@@ -53,9 +63,7 @@ export default function RoomCard({ room, onOpen }) {
         </>
       ) : (
         <div className="ocD-roomTime">
-          <span className="ocD-muted">
-            {room.status === "LIVE" ? "🔥 Debate en curso" : "Finalizada"}
-          </span>
+          <span className="ocD-muted">{room.status === "LIVE" ? "🔥 Debate en curso" : "Finalizada"}</span>
         </div>
       )}
 

@@ -20,7 +20,12 @@ export default function DebateHomeV2({ onOpenRoom }) {
   const myOpinion = useSelector((s) => selectors.getMyTodayOpinion(s, scope));
   const err = useSelector(selectors.getDebateError);
 
-  useEffect(() => { dispatch(actions.fetchMe()); }, [dispatch]);
+  const me = useSelector(selectors.getMe); // ✅ necesario para admin
+  const isAdmin = !!me?.admin;
+
+  useEffect(() => {
+    dispatch(actions.fetchMe());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(actions.fetchMyTodayOpinion(scope));
@@ -33,7 +38,10 @@ export default function DebateHomeV2({ onOpenRoom }) {
       const oa = order[a.status] ?? 99;
       const ob = order[b.status] ?? 99;
       if (oa !== ob) return oa - ob;
-      return (a.secondsRemainingToJoin ?? 0) - (b.secondsRemainingToJoin ?? 0);
+      return (
+        (a.status === "OPEN" ? a.secondsRemainingToJoin ?? 0 : 9999) -
+        (b.status === "OPEN" ? b.secondsRemainingToJoin ?? 0 : 9999)
+      );
     });
   }, [rooms]);
 
@@ -70,6 +78,7 @@ export default function DebateHomeV2({ onOpenRoom }) {
             <DebateOpinionBox
               scope={scope}
               myOpinion={myOpinion}
+              isAdmin={isAdmin} // ✅ admin puede re-escribir
               onSubmit={(text) => dispatch(actions.submitOpinion(scope, text))}
             />
           </div>
@@ -90,12 +99,7 @@ export default function DebateHomeV2({ onOpenRoom }) {
             ) : (
               <div className="ocD-roomGrid">
                 {sorted.map((r) => (
-                  <RoomCard
-                    key={r.id}
-                    room={r}
-                    now={now}
-                    onOpen={() => onOpenRoom?.(r.id)}
-                  />
+                  <RoomCard key={r.id} room={r} now={now} onOpen={() => onOpenRoom?.(r.id)} />
                 ))}
               </div>
             )}

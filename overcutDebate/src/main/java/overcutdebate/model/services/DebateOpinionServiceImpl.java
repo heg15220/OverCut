@@ -1,5 +1,6 @@
 package overcutdebate.model.services;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import overcutdebate.model.daos.DebateOpinionDao;
@@ -10,7 +11,6 @@ import overcutdebate.rest.dtos.CreateOpinionRequestDto;
 import overcutdebate.rest.dtos.OpinionDto;
 import overcutdebate.rest.overcut.OvercutUserClient;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 @Service
@@ -21,6 +21,10 @@ public class DebateOpinionServiceImpl implements DebateOpinionService {
     private final OvercutUserClient overcutUserClient;
     private final DebateClock clock;
 
+    // ✅ DEV flag: si true, no-admin puede “reescribir” su opinión (UPDATE)
+    @Value("${overcut.debate.allowMultipleOpinions:false}")
+    private boolean allowMultipleOpinions;
+
     public DebateOpinionServiceImpl(DebateOpinionDao opinionDao,
                                     OvercutUserClient overcutUserClient,
                                     DebateClock clock) {
@@ -30,7 +34,7 @@ public class DebateOpinionServiceImpl implements DebateOpinionService {
     }
 
     @Override
-    public OpinionDto submitOpinion(Long userId, String authHeader, CreateOpinionRequestDto req) {
+    public OpinionDto submitOpinion(Long userId, String authHeader, boolean isAdmin, CreateOpinionRequestDto req) {
         if (req == null || req.scope == null || req.text == null) {
             throw new ApiException(400, "Missing scope/text");
         }
@@ -49,10 +53,31 @@ public class DebateOpinionServiceImpl implements DebateOpinionService {
 
         LocalDate day = clock.today();
 
-        if (opinionDao.existsByDebateDayAndUserIdAndScope(day, userId, scope)) {
+        var existingOpt = opinionDao.findByDebateDayAndUserIdAndScope(day, userId, scope);
+        if (existingOpt.isPresent()) {
+            DebateOpinion existing = existingOpt.get();
+
+            // ✅ admin siempre puede reescribir
+            if (isAdmin) {
+                existing.setText(text);
+                existing.setCreatedAt(clock.nowInstant());
+                opinionDao.save(existing);
+                return toDto(existing);
+            }
+
+            // ✅ DEV: permitir “más de una” = permitir reescribir (UPDATE), sin romper UNIQUE
+            if (allowMultipleOpinions) {
+                existing.setText(text);
+                existing.setCreatedAt(clock.nowInstant());
+                opinionDao.save(existing);
+                return toDto(existing);
+            }
+
+            // ✅ PROD: bloquear
             throw new ApiException(409, "You already submitted an opinion today for this scope");
         }
 
+        // ✅ Nuevo INSERT si no existía
         String userName = overcutUserClient.fetchUserNameFromServiceToken(authHeader);
         if (userName == null || userName.isBlank()) userName = "user" + userId;
 
@@ -62,10 +87,9 @@ public class DebateOpinionServiceImpl implements DebateOpinionService {
         o.setUserId(userId);
         o.setUserName(userName);
         o.setText(text);
-        o.setCreatedAt(Instant.now());
+        o.setCreatedAt(clock.nowInstant());
 
         opinionDao.save(o);
-
         return toDto(o);
     }
 
@@ -80,7 +104,8 @@ public class DebateOpinionServiceImpl implements DebateOpinionService {
         }
 
         LocalDate day = clock.today();
-        return opinionDao.findByDebateDayAndUserIdAndScope(day, userId, scope)
+        return opinionDao
+                .findTopByDebateDayAndUserIdAndScopeOrderByCreatedAtDesc(day, userId, scope)
                 .map(this::toDto)
                 .orElse(null);
     }

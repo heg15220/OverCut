@@ -19,8 +19,13 @@ public class DebateOpinionController {
     @PostMapping("/opinions")
     public OpinionDto submit(@RequestBody CreateOpinionRequestDto req, HttpServletRequest http) {
         Long userId = (Long) http.getAttribute("userId");
+        Boolean isAdminAttr = (Boolean) http.getAttribute("isAdmin");
+        boolean isAdmin = isAdminAttr != null && isAdminAttr;
+
         String auth = http.getHeader("Authorization");
-        return service.submitOpinion(userId, auth, req);
+
+        // ✅ admin puede re-escribir (update) su opinión del día
+        return service.submitOpinion(userId, auth, isAdmin, req);
     }
 
     @GetMapping("/opinions/me")

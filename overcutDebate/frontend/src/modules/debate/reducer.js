@@ -1,52 +1,59 @@
-// frontend/src/modules/debate/reducer.js
 import * as types from "./actionTypes";
 
 const initialState = {
+  // ✅ global
   loading: false,
   error: null,
-
   me: null,
 
-  // opinión "de hoy" por scope
-  myTodayOpinionByScope: {
-    ES: null,
-    INT: null,
-  },
+  // ✅ por scope
+  roomsByScope: {},
+  myTodayOpinionByScope: {},
 
-  // rooms list por scope
-  roomsByScope: {
-    ES: [],
-    INT: [],
-  },
-
-  // room details por id
+  // roomsById[roomId] = RoomDetailDto
   roomsById: {},
 
-  // joined + poll por room
-  joinedByRoomId: {},        // { [roomId]: true/false }
-  pollAnswerByRoomId: {},    // { [roomId]: "YES"/"NO"/null }
+  // joinedByRoom[roomId] = true/false
+  joinedByRoom: {},
 
-  // mensajes
-  historyByRoomId: {},       // { [roomId]: [ChatMessageHistoryDto] }
-  liveByRoomId: {},          // { [roomId]: [ChatMessageDto] }
+  // pollAnswerByRoom[roomId] = "YES" | "NO" | null
+  pollAnswerByRoom: {},
+
+  // historyByRoom[roomId] = ChatMessageHistoryDto[]
+  historyByRoom: {},
+
+  // liveByRoom[roomId] = ws ChatMessageDto[]
+  liveByRoom: {},
+
+  // loading flags
+  loadingRoomById: {},
+  loadingMessagesByRoom: {},
+  joiningByRoom: {},
+
+  // errors
+  joinErrorByRoom: {},
 };
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
+    // -------- Global flags --------
     case types.DEBATE_SET_LOADING:
-      return { ...state, loading: !!action.loading };
+      return { ...state, loading: action.loading };
 
     case types.DEBATE_SET_ERROR:
-      return { ...state, error: action.error || null };
+      return { ...state, error: action.error };
+
+    case types.DEBATE_CLEAR_ERROR:
+      return { ...state, error: null };
 
     case types.DEBATE_SET_ME:
-      return { ...state, me: action.me || null };
+      return { ...state, me: action.me };
 
     case types.DEBATE_SET_MY_TODAY_OPINION:
       return {
         ...state,
         myTodayOpinionByScope: {
-          ...state.myTodayOpinionByScope,
+          ...(state.myTodayOpinionByScope || {}),
           [action.scope]: action.opinion || null,
         },
       };
@@ -55,72 +62,104 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         roomsByScope: {
-          ...state.roomsByScope,
+          ...(state.roomsByScope || {}),
           [action.scope]: action.rooms || [],
-        },
-        // opcional: indexar también en roomsById
-        roomsById: (action.rooms || []).reduce((acc, r) => {
-          acc[r.id] = r;
-          return acc;
-        }, { ...state.roomsById }),
-      };
-
-    case types.DEBATE_SET_ROOM_DETAIL:
-      if (!action.room) return state;
-      return {
-        ...state,
-        roomsById: {
-          ...state.roomsById,
-          [action.room.id]: action.room,
-        },
-      };
-
-    case types.DEBATE_SET_JOINED:
-      return {
-        ...state,
-        joinedByRoomId: {
-          ...state.joinedByRoomId,
-          [action.roomId]: !!action.joined,
         },
       };
 
     case types.DEBATE_SET_POLL_ANSWER:
       return {
         ...state,
-        pollAnswerByRoomId: {
-          ...state.pollAnswerByRoomId,
+        pollAnswerByRoom: {
+          ...(state.pollAnswerByRoom || {}),
           [action.roomId]: action.pollAnswer || null,
         },
       };
 
-    case types.DEBATE_SET_ROOM_HISTORY:
-      return {
-        ...state,
-        historyByRoomId: {
-          ...state.historyByRoomId,
-          [action.roomId]: action.messages || [],
-        },
-      };
-
-    case types.DEBATE_PUSH_LIVE_MESSAGE: {
-      const current = state.liveByRoomId[action.roomId] || [];
-      return {
-        ...state,
-        liveByRoomId: {
-          ...state.liveByRoomId,
-          [action.roomId]: [...current, action.msg],
-        },
-      };
-    }
-
     case types.DEBATE_CLEAR_LIVE:
       return {
         ...state,
-        liveByRoomId: {
-          ...state.liveByRoomId,
+        liveByRoom: {
+          ...state.liveByRoom,
           [action.roomId]: [],
         },
       };
+
+    // -------- Room detail --------
+    case types.DEBATE_ROOM_DETAIL_REQUEST:
+      return {
+        ...state,
+        loadingRoomById: { ...state.loadingRoomById, [action.roomId]: true },
+      };
+
+    case types.DEBATE_ROOM_DETAIL_SUCCESS:
+      return {
+        ...state,
+        loadingRoomById: { ...state.loadingRoomById, [action.roomId]: false },
+        roomsById: { ...state.roomsById, [action.roomId]: action.room },
+      };
+
+    case types.DEBATE_ROOM_DETAIL_FAILURE:
+      return {
+        ...state,
+        loadingRoomById: { ...state.loadingRoomById, [action.roomId]: false },
+        error: action.error,
+      };
+
+    // -------- Join room --------
+    case types.DEBATE_JOIN_ROOM_REQUEST:
+      return {
+        ...state,
+        joiningByRoom: { ...state.joiningByRoom, [action.roomId]: true },
+        joinErrorByRoom: { ...state.joinErrorByRoom, [action.roomId]: null },
+      };
+
+    case types.DEBATE_JOIN_ROOM_SUCCESS:
+      return {
+        ...state,
+        joiningByRoom: { ...state.joiningByRoom, [action.roomId]: false },
+        joinedByRoom: { ...state.joinedByRoom, [action.roomId]: true },
+      };
+
+    case types.DEBATE_JOIN_ROOM_FAILURE:
+      return {
+        ...state,
+        joiningByRoom: { ...state.joiningByRoom, [action.roomId]: false },
+        joinErrorByRoom: { ...state.joinErrorByRoom, [action.roomId]: action.error },
+      };
+
+    // -------- Room messages --------
+    case types.DEBATE_ROOM_MESSAGES_REQUEST:
+      return {
+        ...state,
+        loadingMessagesByRoom: { ...state.loadingMessagesByRoom, [action.roomId]: true },
+      };
+
+    case types.DEBATE_ROOM_MESSAGES_SUCCESS:
+      return {
+        ...state,
+        loadingMessagesByRoom: { ...state.loadingMessagesByRoom, [action.roomId]: false },
+        historyByRoom: { ...state.historyByRoom, [action.roomId]: action.messages || [] },
+      };
+
+    case types.DEBATE_ROOM_MESSAGES_FAILURE:
+      return {
+        ...state,
+        loadingMessagesByRoom: { ...state.loadingMessagesByRoom, [action.roomId]: false },
+        error: action.error,
+      };
+
+    // -------- WS/live messages --------
+    case types.DEBATE_LIVE_MESSAGE_RECEIVED: {
+      const prev = state.liveByRoom[action.roomId] || [];
+      return {
+        ...state,
+        liveByRoom: {
+          ...state.liveByRoom,
+          [action.roomId]: [...prev, action.msg],
+        },
+      };
+    }
 
     default:
       return state;

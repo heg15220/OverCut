@@ -12,8 +12,7 @@ CREATE TABLE debate_opinion (
   user_id BIGINT NOT NULL,
   user_name VARCHAR(60) NOT NULL,
   text VARCHAR(500) NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  CONSTRAINT uq_opinion_day_user_scope UNIQUE(debate_day, user_id, scope)
+  created_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE debate_daily_seed (

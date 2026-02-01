@@ -24,8 +24,10 @@ public class DebateRoomServiceImpl implements DebateRoomService {
     private final DebateRoomDao roomDao;
     private final DebateRoomParticipantDao partDao;
     private final OvercutUserClient overcutUserClient;
+
     @Autowired
     private DebateMessageDao debateMessageDao;
+
     private final DebateClock clock;
 
     public DebateRoomServiceImpl(DebateRoomDao roomDao,
@@ -62,11 +64,18 @@ public class DebateRoomServiceImpl implements DebateRoomService {
 
     @Override
     public JoinRoomResponseDto joinRoom(Long roomId, Long userId, String authHeader) {
+
         DebateRoom room = roomDao.findById(roomId)
                 .orElseThrow(() -> new ApiException(404, "Room not found"));
 
-        if (room.getStatus() != RoomStatus.OPEN) throw new ApiException(409, "Room not open");
-        if (Instant.now().isAfter(room.getJoinDeadline())) throw new ApiException(409, "Join window closed");
+        if (room.getStatus() == RoomStatus.CLOSED) {
+            throw new ApiException(409, "Room closed");
+        }
+
+        Instant now = clock.nowInstant();
+        if (room.getLiveDeadline() != null && !now.isBefore(room.getLiveDeadline())) {
+            throw new ApiException(409, "Room expired");
+        }
 
         var existing = partDao.findByRoomIdAndUserId(roomId, userId);
         if (existing.isPresent()) {
@@ -83,9 +92,7 @@ public class DebateRoomServiceImpl implements DebateRoomService {
         p.setRoomId(roomId);
         p.setUserId(userId);
         p.setUserName(userName);
-        p.setJoinedAt(Instant.now());
-        p.setPollAnswer(null);
-        p.setPollAnsweredAt(null);
+        p.setJoinedAt(now);
 
         partDao.save(p);
 
@@ -110,7 +117,7 @@ public class DebateRoomServiceImpl implements DebateRoomService {
         catch (Exception e) { throw new ApiException(400, "Invalid poll answer"); }
 
         p.setPollAnswer(ans);
-        p.setPollAnsweredAt(Instant.now());
+        p.setPollAnsweredAt(clock.nowInstant());
         partDao.save(p);
     }
 
@@ -151,7 +158,7 @@ public class DebateRoomServiceImpl implements DebateRoomService {
 
     private long secondsRemaining(Instant deadline) {
         if (deadline == null) return 0;
-        long s = Duration.between(Instant.now(), deadline).getSeconds();
+        long s = Duration.between(clock.nowInstant(), deadline).getSeconds();
         return Math.max(0, s);
     }
 
@@ -166,11 +173,8 @@ public class DebateRoomServiceImpl implements DebateRoomService {
     @Override
     @Transactional(readOnly = true)
     public boolean isUserJoined(Long roomId, Long userId) {
-        // Si quieres, primero valida que la sala existe (opcional)
-        // roomDao.existsById(roomId) ...
         return partDao.findByRoomIdAndUserId(roomId, userId).isPresent();
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -179,18 +183,19 @@ public class DebateRoomServiceImpl implements DebateRoomService {
         DebateRoom room = roomDao.findById(roomId)
                 .orElseThrow(() -> new ApiException(404, "Room not found"));
 
-        // ✅ seguridad: solo si está unido (aunque la sala esté CLOSED, puedes decidir)
         if (!isUserJoined(roomId, userId)) {
             throw new ApiException(403, "You are not joined in this room");
         }
 
         int safe = Math.max(1, Math.min(200, limit));
 
-        // Ojo: devuelve DESC, luego invertimos para pintar cronológico
-        var msgs = debateMessageDao.findLatestByRoomId(roomId, org.springframework.data.domain.PageRequest.of(0, safe));
+        var msgs = debateMessageDao.findLatestByRoomId(
+                roomId,
+                org.springframework.data.domain.PageRequest.of(0, safe)
+        );
 
         return msgs.stream()
-                .sorted(java.util.Comparator.comparing(overcutdebate.model.entities.DebateMessage::getCreatedAt))
+                .sorted(java.util.Comparator.comparing(DebateMessage::getCreatedAt))
                 .map(m -> {
                     ChatMessageHistoryDto dto = new ChatMessageHistoryDto();
                     dto.id = m.getId();
@@ -204,5 +209,42 @@ public class DebateRoomServiceImpl implements DebateRoomService {
                 .toList();
     }
 
+    // ✅ NUEVO: POST /rooms/{id}/messages
+    @Override
+    public ChatMessageDto sendMessage(Long roomId, Long userId, String text) {
+        DebateRoom room = roomDao.findById(roomId)
+                .orElseThrow(() -> new ApiException(404, "Room not found"));
 
+        // política: solo si estás unido
+        DebateRoomParticipant p = partDao.findByRoomIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new ApiException(403, "You are not joined in this room"));
+
+        // opcional: solo LIVE
+        // if (room.getStatus() != RoomStatus.LIVE) throw new ApiException(409, "Room is not live");
+
+        String cleaned = (text == null) ? "" : text.trim();
+        if (cleaned.isEmpty() || cleaned.length() > 400) {
+            throw new ApiException(400, "Text must be 1..400 chars");
+        }
+
+        Instant now = clock.nowInstant();
+
+        DebateMessage m = new DebateMessage();
+        m.setRoomId(roomId);
+        m.setUserId(userId);
+        m.setUserName(p.getUserName());
+        m.setText(cleaned);
+        m.setCreatedAt(now);
+
+        DebateMessage saved = debateMessageDao.save(m);
+
+        ChatMessageDto dto = new ChatMessageDto();
+        dto.id = saved.getId();
+        dto.roomId = saved.getRoomId();
+        dto.userId = saved.getUserId();
+        dto.userName = saved.getUserName();
+        dto.text = saved.getText();
+        dto.createdAt = saved.getCreatedAt();
+        return dto;
+    }
 }
