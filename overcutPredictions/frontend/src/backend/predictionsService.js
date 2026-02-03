@@ -8,6 +8,15 @@ export const bootstrapSeason = (season, fromRound, onSuccess, onErrors) =>
     onErrors
   );
 
+// ✅ NUEVO
+export const bootstrapSeasonCustom = (payload, onSuccess, onErrors) =>
+  appFetch(
+    `/predictions/bootstrap-custom`,
+    fetchConfig("POST", payload),
+    onSuccess,
+    onErrors
+  );
+
 export const applySimulation = (payload, onSuccess, onErrors) =>
   appFetch(
     `/predictions/simulate/apply`,

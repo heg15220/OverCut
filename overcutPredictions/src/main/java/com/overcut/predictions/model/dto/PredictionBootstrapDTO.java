@@ -10,6 +10,9 @@ public class PredictionBootstrapDTO {
 
     private Integer totalRounds; // útil para dropdowns en UI
 
+    private String mode; // "db" | "custom" | "empty_db"
+    private PredictionBootstrapCustomRequestDTO customConfig; // opcional
+
     private List<PredictionRaceDTO> completedRaces;
     private List<StandingsEntryDTO> driverStandings;
     private List<StandingsEntryDTO> constructorStandings;
@@ -82,5 +85,21 @@ public class PredictionBootstrapDTO {
 
     public void setDriverToConstructor(Map<Long, Long> driverToConstructor) {
         this.driverToConstructor = driverToConstructor;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public PredictionBootstrapCustomRequestDTO getCustomConfig() {
+        return customConfig;
+    }
+
+    public void setCustomConfig(PredictionBootstrapCustomRequestDTO customConfig) {
+        this.customConfig = customConfig;
     }
 }

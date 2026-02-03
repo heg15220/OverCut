@@ -1,6 +1,10 @@
+// reducer.js
 import * as actionTypes from "./actionTypes";
 
 const initialState = {
+  mode: "db", // ✅ "db" | "custom"
+  customConfig: null, // ✅ persistimos la última config custom para reabrir modal
+
   season: null,
   fromRound: null,
   totalRounds: null,
@@ -10,14 +14,12 @@ const initialState = {
   driverStandings: [],
   constructorStandings: [],
 
-  // ✅ mapping driverId -> constructorId (para sumar puntos por equipo en simulación)
   driverToConstructor: {},
 
-  // ✅ lookup maps para mostrar nombres en UI (drivers, constructors, races)
   lookups: {
-    driverNames: {},        // { [driverId]: "Forename Surname" }
-    constructorNames: {},   // { [constructorId]: "Ferrari" }
-    raceNamesByRound: {},   // { [round]: "Spanish Grand Prix" }
+    driverNames: {},
+    constructorNames: {},
+    raceNamesByRound: {},
     seasonDrivers: [],
   },
 
@@ -28,6 +30,7 @@ const initialState = {
 export default function reducer(state = initialState, action) {
   switch (action.type) {
     case actionTypes.BOOTSTRAP_REQUESTED:
+    case actionTypes.BOOTSTRAP_CUSTOM_REQUESTED:
     case actionTypes.SIMULATION_REQUESTED:
     case actionTypes.SIMULATION_BATCH_REQUESTED:
       return { ...state, loading: true, error: null };
@@ -36,10 +39,23 @@ export default function reducer(state = initialState, action) {
       const data = action.data || {};
       const lookups = data.lookups || {};
 
+      const noDbData =
+        (!data.totalRounds) &&
+        ((data.completedRaces || []).length === 0) &&
+        ((lookups.seasonDrivers || []).length === 0) &&
+        (Object.keys(lookups.raceNamesByRound || {}).length === 0);
+
+      const inferredMode =
+        data.mode ||
+        (data.customConfig ? "custom" : (noDbData ? "empty_db" : "db"));
+
       return {
         ...state,
         loading: false,
         error: null,
+
+        mode: inferredMode,
+        customConfig: data.customConfig || state.customConfig,
 
         season: data.season ?? null,
         fromRound: data.simulatedFromRound ?? null,
@@ -50,10 +66,8 @@ export default function reducer(state = initialState, action) {
         driverStandings: data.driverStandings || [],
         constructorStandings: data.constructorStandings || [],
 
-        // ✅ viene ya del backend (si lo añades)
         driverToConstructor: data.driverToConstructor || {},
 
-        // ✅ lookups para UI (con defaults seguros)
         lookups: {
           driverNames: lookups.driverNames || {},
           constructorNames: lookups.constructorNames || {},
@@ -70,8 +84,6 @@ export default function reducer(state = initialState, action) {
         ...state,
         loading: false,
         error: null,
-
-        // ✅ actualizamos solo standings (no tocamos lookups, mapping, etc.)
         driverStandings: data.driverStandings || [],
         constructorStandings: data.constructorStandings || [],
       };

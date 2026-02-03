@@ -1,0 +1,262 @@
+/* ==========================================================
+   CustomSeasonModal.css — consistent with OverCut UI
+   Namespace: .oc-customModal
+   ========================================================== */
+
+.oc-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+  display: grid;
+  place-items: center;
+  z-index: 3000;
+  padding: 18px;
+}
+
+/* Modal shell */
+.oc-customModal {
+  width: min(980px, 94vw);
+  max-height: 88vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+
+  background: rgba(10, 16, 26, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 18px;
+  padding: 14px;
+
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.50);
+  color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+/* Scrollbar */
+.oc-customModal::-webkit-scrollbar { width: 10px; }
+.oc-customModal::-webkit-scrollbar-thumb {
+  background: rgba(244, 180, 0, 0.20);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.06);
+}
+.oc-customModal::-webkit-scrollbar-track { background: transparent; }
+
+/* Header */
+.oc-customModal__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+
+  padding: 12px;
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 12px;
+}
+
+.oc-customModal__head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.oc-customModal__head p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 720px;
+}
+
+/* Sections */
+.oc-customModal__section {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.oc-customModal__section h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 1000;
+  letter-spacing: 0.25px;
+  color: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oc-customModal__section h4::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-left: 8px;
+}
+
+/* Rows */
+.oc-customModal__row {
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.oc-customModal__row--3 {
+  grid-template-columns: 1fr 1fr 44px;
+}
+
+/* Inputs */
+.oc-customModal .oc-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 900;
+  font-size: 13px;
+
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.oc-customModal .oc-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.oc-customModal .oc-input:focus-visible {
+  outline: 2px solid rgba(244, 180, 0, 0.70);
+  outline-offset: 2px;
+  border-color: rgba(244, 180, 0, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.oc-customModal select.oc-input {
+  cursor: pointer;
+  appearance: none;
+  padding-right: 34px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.7) 50%),
+    linear-gradient(135deg, rgba(255,255,255,0.7) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 2px),
+    calc(100% - 11px) calc(50% - 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* Options fix */
+.oc-customModal select.oc-input option {
+  background-color: #0a101a !important;
+  color: #ffffff !important;
+}
+
+/* Remove number spinners */
+.oc-customModal input[type="number"].oc-input { -moz-appearance: textfield; }
+.oc-customModal input[type="number"].oc-input::-webkit-outer-spin-button,
+.oc-customModal input[type="number"].oc-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Buttons inside modal (scoped) */
+.oc-customModal .oc-btn {
+  min-height: 40px;
+  border-radius: 12px;
+  font-weight: 950;
+}
+
+.oc-customModal .oc-btn--primary {
+  border: 1px solid rgba(244, 180, 0, 0.55);
+  background: linear-gradient(180deg, rgba(244, 180, 0, 0.95), rgba(244, 180, 0, 0.70));
+  color: #0b0f14;
+  box-shadow: 0 12px 26px rgba(244, 180, 0, 0.18), 0 10px 22px rgba(0, 0, 0, 0.35);
+}
+
+.oc-customModal .oc-btn--primary:disabled {
+  background: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.70);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: none;
+}
+
+.oc-customModal .oc-btn--ghost {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.92);
+}
+
+.oc-customModal .oc-btn--ghost:hover:not(:disabled) {
+  border-color: rgba(244,180,0,0.30);
+  background: rgba(255,255,255,0.08);
+}
+
+/* Delete X button */
+.oc-customModal__del {
+  width: 44px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 1000;
+}
+
+/* Add button block */
+.oc-customModal__add {
+  margin-top: 6px;
+}
+
+/* Footer */
+.oc-customModal__foot {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .oc-customModal {
+    width: 96vw;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .oc-customModal__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .oc-customModal__row--3 {
+    grid-template-columns: 1fr;
+  }
+
+  .oc-customModal__del {
+    justify-self: end;
+  }
+
+  .oc-customModal__foot {
+    flex-direction: column-reverse;
+  }
+
+  .oc-customModal__foot .oc-btn {
+    width: 100%;
+  }
+}

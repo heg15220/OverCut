@@ -98,6 +98,12 @@ const Header = () => {
                 </li>
 
                 <li className="nav-item">
+                  <a className="nav-link" href="http://localhost:8086/">
+                    <FormattedMessage id="project.app.Header.overcutPredictions" /> <GraphUp size={16} />
+                  </a>
+                </li>
+
+                <li className="nav-item">
                   <Link className="nav-link" to="/about">
                     <FormattedMessage id="project.app.Header.about" /> <Book size={16} />
                   </Link>

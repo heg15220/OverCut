@@ -1,7 +1,9 @@
-import React, { useMemo, useState } from "react";
+// SeasonRoundSelector.jsx
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import predictions from "../index";
 import "./styles/SeasonRoundSelector.css";
+import CustomSeasonModal from "./CustomSeasonModal";
 
 const clampInt = (v, min, max) => {
   const n = parseInt(v, 10);
@@ -24,26 +26,32 @@ const buildRoundOptions = (maxRounds = 30) => {
 export default function SeasonRoundSelector() {
   const dispatch = useDispatch();
 
+  const [customOpen, setCustomOpen] = useState(false);
+
   const loading = useSelector(predictions.selectors.getLoading);
 
-  // estado actual bootstrapped (si existe)
   const bootSeason = useSelector(predictions.selectors.getSeason);
   const bootFromRound = useSelector(predictions.selectors.getFromRound);
   const totalRounds = useSelector(predictions.selectors.getTotalRounds);
 
-  // lookups (para mostrar nombre de GP si ya los tienes)
   const raceNamesByRound = useSelector(predictions.selectors.getRaceNamesByRound);
+  const customConfig = useSelector(predictions.selectors.getCustomConfig);
 
-  // inputs controlados
+  // ✅ NUEVO: lookups completos desde redux (para autogenerar modal con datos reales)
+  const dbLookups = useSelector(predictions.selectors.getLookups);
+
   const [season, setSeason] = useState(bootSeason ?? 2012);
   const [fromRound, setFromRound] = useState(bootFromRound ?? 6);
 
-  // opciones
+  useEffect(() => {
+    if (bootSeason != null) setSeason(bootSeason);
+    if (bootFromRound != null) setFromRound(bootFromRound);
+  }, [bootSeason, bootFromRound]);
+
   const years = useMemo(() => buildYearOptions(1950, 2026), []);
   const roundMax = useMemo(() => clampInt(totalRounds ?? 30, 1, 30) ?? 30, [totalRounds]);
   const rounds = useMemo(() => buildRoundOptions(roundMax), [roundMax]);
 
-  // validaciones
   const seasonOk = useMemo(() => clampInt(season, 1950, 2026) !== null, [season]);
   const roundOk = useMemo(() => {
     const r = clampInt(fromRound, 1, roundMax);
@@ -73,18 +81,44 @@ export default function SeasonRoundSelector() {
           <p>Elige temporada y la ronda desde la que quieres empezar a modificar resultados.</p>
         </div>
 
-        <button
-          type="button"
-          className="oc-btn oc-btn--ghost sr-reset"
-          disabled={loading}
-          onClick={() => {
-            setSeason(2012);
-            setFromRound(6);
-          }}
-          title="Volver a valores por defecto"
-        >
-          Default
-        </button>
+        <div className="sr-headActions">
+          <button
+            type="button"
+            className="oc-btn oc-btn--ghost"
+            disabled={loading}
+            onClick={() => {
+              const hasAnyLookups =
+                (dbLookups?.seasonDrivers?.length || 0) > 0 ||
+                Object.keys(dbLookups?.raceNamesByRound || {}).length > 0;
+
+              // ✅ Si no hay lookups o pertenecen a otra season, los pedimos
+              const lookupsAreForThisSeason = Number(bootSeason) === Number(season);
+
+              if (!hasAnyLookups || !lookupsAreForThisSeason) {
+                dispatch(predictions.actions.bootstrap(Number(season), Number(fromRound)));
+              }
+
+              setCustomOpen(true);
+            }}
+
+            title="Config (basada en datos reales si existen)"
+          >
+            Custom season
+          </button>
+
+          <button
+            type="button"
+            className="oc-btn oc-btn--ghost sr-reset"
+            disabled={loading}
+            onClick={() => {
+              setSeason(2012);
+              setFromRound(6);
+            }}
+            title="Volver a valores por defecto"
+          >
+            Default
+          </button>
+        </div>
       </div>
 
       <div className="sr-grid">
@@ -147,11 +181,24 @@ export default function SeasonRoundSelector() {
         </div>
 
         <div className="sr-actions">
-          <button className="oc-btn sr-primary" disabled={!canSubmit} onClick={submit}>
+          <button className="oc-btn sr-primary" disabled={!canSubmit} onClick={submit} type="button">
             {loading ? "Cargando..." : "Bootstrap"}
           </button>
         </div>
       </div>
+
+      <CustomSeasonModal
+        open={customOpen}
+        onClose={() => setCustomOpen(false)}
+        season={season}
+        fromRound={fromRound}
+        initialConfig={customConfig}
+        dbLookups={Number(bootSeason) === Number(season) ? dbLookups : null} // ✅ NUEVO
+        onSubmit={(payload) => {
+          setCustomOpen(false);
+          dispatch(predictions.actions.bootstrapCustom({ ...payload }));
+        }}
+      />
     </div>
   );
 }

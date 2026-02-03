@@ -1,4 +1,9 @@
+// selectors.js
+
 const getModuleState = (state) => state.predictions;
+
+export const getMode = (state) => getModuleState(state).mode;
+export const getCustomConfig = (state) => getModuleState(state).customConfig;
 
 export const getSeason = (state) => getModuleState(state).season;
 export const getFromRound = (state) => getModuleState(state).fromRound;
@@ -11,10 +16,9 @@ export const getConstructorStandings = (state) => getModuleState(state).construc
 
 export const getDriverToConstructor = (state) => getModuleState(state).driverToConstructor;
 
-export const getSeasonDrivers = (state) => getLookups(state)?.seasonDrivers || [];
-
-
 export const getLookups = (state) => getModuleState(state).lookups;
+
+export const getSeasonDrivers = (state) => getLookups(state)?.seasonDrivers || [];
 
 // ✅ mapas listos para UI
 export const getDriverNamesMap = (state) => getLookups(state)?.driverNames || {};
@@ -50,11 +54,6 @@ export const getRaceNameByRound = (state, round) => {
 /* ✅ Opciones para desplegables                                        */
 /* ------------------------------------------------------------------ */
 
-/**
- * Opciones de rondas disponibles para simular:
- * - Si backend manda totalRounds => usamos [fromRound..totalRounds]
- * - Si no => usamos rounds inferidos de completedRaces + fromRound como fallback
- */
 export const getRoundOptions = (state) => {
   const fromRound = getFromRound(state);
   const totalRounds = getTotalRounds(state);
@@ -62,7 +61,6 @@ export const getRoundOptions = (state) => {
 
   if (!fromRound) return [];
 
-  // Caso ideal: backend manda totalRounds
   if (totalRounds) {
     const opts = [];
     for (let r = fromRound; r <= totalRounds; r++) {
@@ -71,13 +69,12 @@ export const getRoundOptions = (state) => {
     return opts;
   }
 
-  // Fallback: inferimos el máximo round conocido
   const maxCompleted = completed.reduce((acc, race) => {
     const rr = Number(race?.round);
     return Number.isFinite(rr) ? Math.max(acc, rr) : acc;
   }, 0);
 
-  const inferredMax = Math.max(maxCompleted + 1, fromRound); // +1 porque simulas “a partir de”
+  const inferredMax = Math.max(maxCompleted + 1, fromRound);
   const max = Math.max(inferredMax, fromRound);
 
   const opts = [];
@@ -87,9 +84,6 @@ export const getRoundOptions = (state) => {
   return opts;
 };
 
-/**
- * Driver standings con nombre ya resuelto (para tablas limpias)
- */
 export const getDriverStandingsWithNames = (state) => {
   const rows = getDriverStandings(state) || [];
   return rows.map((e) => ({
@@ -98,9 +92,6 @@ export const getDriverStandingsWithNames = (state) => {
   }));
 };
 
-/**
- * Constructor standings con nombre ya resuelto (para tablas limpias)
- */
 export const getConstructorStandingsWithNames = (state) => {
   const rows = getConstructorStandings(state) || [];
   return rows.map((e) => ({

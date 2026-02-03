@@ -1,12 +1,9 @@
+// SimulationPanel.jsx (solo muestro el archivo completo, ya con payload currentState)
+
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-  useSortable,
-} from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import predictions from "../index";
@@ -55,7 +52,6 @@ function SortableDriverRow({ driver, points, isSelected, onClick }) {
   );
 }
 
-// helper para proponer orden por standings
 function buildOrderFromStandings(driverStandings, fallbackIds) {
   if (!Array.isArray(driverStandings) || driverStandings.length === 0) return fallbackIds;
 
@@ -77,7 +73,6 @@ function buildOrderFromStandings(driverStandings, fallbackIds) {
   });
 
   const ordered = rows.map((r) => r.id);
-
   const set = new Set(ordered);
   const rest = fallbackIds.filter((id) => !set.has(id));
   return [...ordered, ...rest];
@@ -102,14 +97,10 @@ export default function SimulationPanel() {
   const [round, setRound] = useState(fromRound || 1);
   const [orderedIds, setOrderedIds] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-
-  // track si el usuario ha tocado el orden (para no pisarlo al cambiar GP)
   const [dirtyOrder, setDirtyOrder] = useState(false);
 
-  // Sensor: click = click, drag requiere mover 6px
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
-  // bootstrap local state
   useEffect(() => {
     if (!canUse) return;
     if (!seasonDrivers || seasonDrivers.length === 0) return;
@@ -121,8 +112,7 @@ export default function SimulationPanel() {
 
     setSelectedId(null);
     setDirtyOrder(false);
-    // ojo: no meto driverStandings en deps para no “pisar” durante la simulación
-  }, [canUse, fromRound, seasonDrivers]);
+  }, [canUse, fromRound, seasonDrivers]); // intencionado
 
   const roundOptions = useMemo(() => {
     if (!canUse) return [];
@@ -177,47 +167,28 @@ export default function SimulationPanel() {
 
   const canApply = canUse && orderedIds.length > 0;
 
+  const buildPayload = () => ({
+    season,
+    driverStandings,          // ✅ arriba
+    constructorStandings,     // ✅ arriba
+    race: { round: Number(round), orderedDriverIds: orderedIds },
+    driverToConstructor,
+  });
+
   const apply = () => {
     if (!canApply) return;
-
-    const payload = {
-      season,
-      race: {
-        round: Number(round),
-        orderedDriverIds: orderedIds,
-      },
-      driverStandings,
-      constructorStandings,
-      driverToConstructor,
-    };
-
-    dispatch(predictions.actions.applySimulation(payload));
+    dispatch(predictions.actions.applySimulation(buildPayload()));
   };
 
-  // NEXT = apply + avanzar
   const maxRound = totalRounds || 30;
   const canNext = canApply && Number(round) < Number(maxRound);
 
   const next = () => {
     if (!canNext) return;
 
-    // 1) aplica
-    const payload = {
-      season,
-      race: {
-        round: Number(round),
-        orderedDriverIds: orderedIds,
-      },
-      driverStandings,
-      constructorStandings,
-      driverToConstructor,
-    };
-    dispatch(predictions.actions.applySimulation(payload));
+    dispatch(predictions.actions.applySimulation(buildPayload()));
 
-    // 2) avanzar round (UI)
     setRound((r) => Number(r) + 1);
-
-    // dejamos el orden actual como base, y limpiamos selección
     setSelectedId(null);
     setDirtyOrder(false);
   };
@@ -250,7 +221,6 @@ export default function SimulationPanel() {
       </div>
 
       <div className="sim-card__grid">
-        {/* LEFT: selector + botones debajo */}
         <div className="sim-field">
           <label>Grand Prix (round)</label>
 
@@ -262,8 +232,6 @@ export default function SimulationPanel() {
               setRound(r);
               setSelectedId(null);
 
-              // al cambiar GP manualmente, si NO has tocado el orden,
-              // proponemos orden según standings actuales
               if (!dirtyOrder) {
                 const fallback = seasonDrivers.map((d) => d.driverId);
                 setOrderedIds(buildOrderFromStandings(driverStandings, fallback));
@@ -277,18 +245,12 @@ export default function SimulationPanel() {
             ))}
           </select>
 
-          {/* ✅ botones justo debajo del select */}
           <div className="sim-roundActions">
             <button className="oc-btn" disabled={!canApply} onClick={apply} type="button">
               Apply simulation
             </button>
 
-            <button
-              className="oc-btn oc-btn--primary"
-              disabled={!canNext}
-              onClick={next}
-              type="button"
-            >
+            <button className="oc-btn oc-btn--primary" disabled={!canNext} onClick={next} type="button">
               Apply and Next round →
             </button>
 
@@ -311,7 +273,6 @@ export default function SimulationPanel() {
           </div>
         </div>
 
-        {/* RIGHT: lista */}
         <div className="sim-field sim-field--wide">
           <label>Finishing order</label>
 
@@ -349,9 +310,7 @@ export default function SimulationPanel() {
 
           <div className="sim-meta">
             <span className="meta-pill meta-pill--soft">GP: {currentGpName}</span>
-            {selectedId != null ? (
-              <span className="meta-pill">Seleccionado: #{selectedId}</span>
-            ) : null}
+            {selectedId != null ? <span className="meta-pill">Seleccionado: #{selectedId}</span> : null}
           </div>
         </div>
       </div>

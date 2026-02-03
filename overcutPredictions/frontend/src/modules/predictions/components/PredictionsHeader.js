@@ -10,6 +10,7 @@ export default function PredictionsHeader() {
   const fromRound = useSelector(predictions.selectors.getFromRound);
   const totalRounds = useSelector(predictions.selectors.getTotalRounds);
   const completed = useSelector(predictions.selectors.getCompletedRaces);
+  const mode = useSelector(predictions.selectors.getMode);
 
   const raceNamesByRound = useSelector(predictions.selectors.getRaceNamesByRound);
   const loading = useSelector(predictions.selectors.getLoading);
@@ -52,6 +53,10 @@ export default function PredictionsHeader() {
                 </span>
               ) : null}
 
+              <span className="pill pill--ghost">
+                Mode <b>{mode}</b>
+              </span>
+
               {loading ? <span className="pill pill--loading">Loading…</span> : null}
             </>
           ) : (
@@ -69,6 +74,7 @@ export default function PredictionsHeader() {
             disabled={loading}
             onClick={() => dispatch(predictions.actions.resetSimulation())}
             title="Reiniciar simulación"
+            type="button"
           >
             Reset
           </button>

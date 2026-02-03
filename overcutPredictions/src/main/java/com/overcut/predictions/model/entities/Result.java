@@ -25,11 +25,14 @@ public class Result {
     @Column(name = "constructorId")
     private Long constructorId;
 
-    @Column(name = "position")
-    private Integer position;
+    // ✅ en tu DDL es positionOrder
+    @Column(name = "positionOrder")
+    private Integer positionOrder;
 
+    // ✅ en tu DDL es DOUBLE
     @Column(name = "points")
-    private Integer points;
+    private Double points;
+
 
     public Result() {}
 
@@ -65,19 +68,19 @@ public class Result {
         this.constructorId = constructorId;
     }
 
-    public Integer getPosition() {
-        return position;
+    public Integer getPositionOrder() {
+        return positionOrder;
     }
 
-    public void setPosition(Integer position) {
-        this.position = position;
+    public void setPositionOrder(Integer positionOrder) {
+        this.positionOrder = positionOrder;
     }
 
-    public Integer getPoints() {
+    public Double getPoints() {
         return points;
     }
 
-    public void setPoints(Integer points) {
+    public void setPoints(Double points) {
         this.points = points;
     }
 }

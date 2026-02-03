@@ -188,7 +188,8 @@ const es = {
      "project.TermsOfUseDesc": "Normas de uso de OverCut.",
      "project.PrivacyPolicyDesc": "Tratamiento de datos y tus derechos.",
      "project.IntellectualPropertyDesc": "Propiedad intelectual y usos permitidos.",
-     "project.CookiesPolicyDesc": "Cookies utilizadas y configuración."
+     "project.CookiesPolicyDesc": "Cookies utilizadas y configuración.",
+    "project.app.Header.overcutPredictions": "OverCutPredictions",
 
 }
 export default es;

@@ -11,10 +11,7 @@ export default function StandingsTable() {
   const drivers = useSelector(predictions.selectors.getDriverStandingsWithNames);
   const constructors = useSelector(predictions.selectors.getConstructorStandingsWithNames);
 
-  const rows = useMemo(
-    () => (tab === "drivers" ? drivers : constructors),
-    [tab, drivers, constructors]
-  );
+  const rows = useMemo(() => (tab === "drivers" ? drivers : constructors), [tab, drivers, constructors]);
 
   if (!season) {
     return (
@@ -38,17 +35,11 @@ export default function StandingsTable() {
       <div className="standings-head">
         <div className="standings-title">
           <h2>Standings</h2>
-          <span className="standings-subtitle">
-            {tab === "drivers" ? "Pilotos" : "Constructores"}
-          </span>
+          <span className="standings-subtitle">{tab === "drivers" ? "Pilotos" : "Constructores"}</span>
         </div>
 
         <div className="standings-tabs">
-          <button
-            className={`tab ${tab === "drivers" ? "active" : ""}`}
-            onClick={() => setTab("drivers")}
-            type="button"
-          >
+          <button className={`tab ${tab === "drivers" ? "active" : ""}`} onClick={() => setTab("drivers")} type="button">
             Drivers
           </button>
           <button
@@ -93,9 +84,7 @@ export default function StandingsTable() {
       </div>
 
       <div className="standings-footnote">
-        {tab === "drivers"
-          ? "Se muestran nombres (y el id como referencia)."
-          : "Clasificación de equipos (id como referencia)."}
+        {tab === "drivers" ? "Clasificación pilotos": "Clasificación de equipos"}
       </div>
     </div>
   );

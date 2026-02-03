@@ -1,5 +1,6 @@
 package com.overcut.predictions.rest.controllers;
 
+import com.overcut.predictions.model.dto.PredictionBootstrapCustomRequestDTO;
 import com.overcut.predictions.model.dto.PredictionBootstrapDTO;
 import com.overcut.predictions.model.service.PredictionBootstrapService;
 
@@ -29,4 +30,12 @@ public class PredictionController {
     ) {
         return bootstrapService.bootstrapSeason(season, fromRound);
     }
+
+    @PostMapping("/bootstrap-custom")
+    public PredictionBootstrapDTO bootstrapCustom(
+            @RequestBody PredictionBootstrapCustomRequestDTO request
+    ) {
+        return bootstrapService.bootstrapSeasonCustom(request);
+    }
+
 }

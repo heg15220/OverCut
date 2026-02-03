@@ -1,3 +1,4 @@
+// actions.js
 import * as actionTypes from "./actionTypes";
 import backend from "../../backend";
 
@@ -7,6 +8,17 @@ export const bootstrap = (season, fromRound) => (dispatch) => {
   backend.predictionsService.bootstrapSeason(
     season,
     fromRound,
+    (data) => dispatch({ type: actionTypes.BOOTSTRAP_COMPLETED, data }),
+    (err) => dispatch({ type: actionTypes.BOOTSTRAP_FAILED, error: err })
+  );
+};
+
+export const bootstrapCustom = (payload) => (dispatch) => {
+  dispatch({ type: actionTypes.BOOTSTRAP_CUSTOM_REQUESTED });
+
+  backend.predictionsService.bootstrapSeasonCustom(
+    payload,
+    // ✅ el backend puede devolver { ... , customConfig } o no
     (data) => dispatch({ type: actionTypes.BOOTSTRAP_COMPLETED, data }),
     (err) => dispatch({ type: actionTypes.BOOTSTRAP_FAILED, error: err })
   );
@@ -22,7 +34,6 @@ export const applySimulation = (payload) => (dispatch) => {
   );
 };
 
-// ✅ NUEVO: batch
 export const applySimulationBatch = (payload) => (dispatch) => {
   dispatch({ type: actionTypes.SIMULATION_BATCH_REQUESTED });
 

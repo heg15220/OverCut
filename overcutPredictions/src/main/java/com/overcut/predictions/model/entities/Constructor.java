@@ -16,9 +16,6 @@ public class Constructor {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "nationality")
-    private String nationality;
-
     public Constructor() {}
 
     public Long getConstructorId() {
@@ -37,11 +34,4 @@ public class Constructor {
         this.name = name;
     }
 
-    public String getNationality() {
-        return nationality;
-    }
-
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
-    }
 }
