@@ -117,7 +117,8 @@ public class PredictionBootstrapService {
         }
 
         // 2) Lookups para mostrar nombres en UI (drivers / constructors / race names)
-        PredictionLookupsDTO lookups = buildLookups(season, completedRaces, driverPoints, constructorPoints);
+        PredictionLookupsDTO lookups = buildLookups(season, driverToConstructor);
+
 
         // 3) totalRounds de la temporada (para dropdowns y validaciones UI)
         Integer totalRounds = computeTotalRoundsForSeason(season);
@@ -141,32 +142,60 @@ public class PredictionBootstrapService {
 
     private PredictionLookupsDTO buildLookups(
             Integer season,
-            List<Race> completedRaces,
-            Map<Long, Integer> driverPoints,
-            Map<Long, Integer> constructorPoints
+            Map<Long, Long> driverToConstructor
     ) {
         PredictionLookupsDTO lookups = new PredictionLookupsDTO();
 
-        // --- driverId -> "Forename Surname"
-        Set<Long> driverIds = driverPoints.keySet();
+        // 1) TODAS las carreras del año => round -> raceName
+        List<Race> allSeasonRaces = raceDao.findByYearOrderByRound(season);
+
+        Map<Integer, String> raceNamesByRound = new LinkedHashMap<>();
+        for (Race r : allSeasonRaces) {
+            if (r.getRound() != null) raceNamesByRound.put(r.getRound(), r.getName());
+        }
+        lookups.setRaceNamesByRound(raceNamesByRound);
+
+        // 2) Pilotos de la temporada (distinct)
+        List<Object[]> pairs = resultDao.findSeasonDriverConstructors(season);
+
+        Set<Long> seasonDriverIds = new HashSet<>();
+        Set<Long> seasonConstructorIds = new HashSet<>();
+
+        // fallback si driverToConstructor no tiene el driver (por ejemplo si fromRound es muy bajo)
+        Map<Long, Long> fallbackDriverToConstructor = new HashMap<>();
+
+        for (Object[] row : pairs) {
+            Long driverId = (Long) row[0];
+            Long constructorId = (Long) row[1];
+
+            if (driverId != null) seasonDriverIds.add(driverId);
+            if (constructorId != null) seasonConstructorIds.add(constructorId);
+
+            if (driverId != null && constructorId != null) {
+                // guardamos "algún" constructor para ese driver
+                fallbackDriverToConstructor.putIfAbsent(driverId, constructorId);
+            }
+        }
+
+        // 3) driverId -> nombre completo
         Map<Long, String> driverNames = new HashMap<>();
-        if (!driverIds.isEmpty()) {
-            Iterable<Driver> drivers = driverDao.findAllById(driverIds);
+        if (!seasonDriverIds.isEmpty()) {
+            Iterable<Driver> drivers = driverDao.findAllById(seasonDriverIds);
             for (Driver d : drivers) {
                 String fullName =
                         ((d.getForename() != null) ? d.getForename() : "").trim()
                                 + " "
                                 + ((d.getSurname() != null) ? d.getSurname() : "").trim();
-                driverNames.put(d.getDriverId(), fullName.trim().isEmpty() ? ("Driver " + d.getDriverId()) : fullName.trim());
+                String name = fullName.trim().isEmpty() ? ("Driver " + d.getDriverId()) : fullName.trim();
+                driverNames.put(d.getDriverId(), name);
             }
         }
         lookups.setDriverNames(driverNames);
 
-        // --- constructorId -> name
-        Set<Long> constructorIds = constructorPoints.keySet();
+        // 4) constructorId -> name
         Map<Long, String> constructorNames = new HashMap<>();
-        if (!constructorIds.isEmpty()) {
-            Iterable<Constructor> constructors = constructorDao.findAllById(constructorIds);
+        if (!seasonConstructorIds.isEmpty()) {
+            Iterable<Constructor> constructors = constructorDao.findAllById(seasonConstructorIds);
             for (Constructor c : constructors) {
                 String name = (c.getName() != null && !c.getName().trim().isEmpty())
                         ? c.getName().trim()
@@ -176,18 +205,25 @@ public class PredictionBootstrapService {
         }
         lookups.setConstructorNames(constructorNames);
 
-        // --- round -> raceName (para las carreras ya completadas)
-        // (más adelante lo haremos de TODA la temporada en frontend con dto.totalRounds + endpoint dedicado si quieres)
-        Map<Integer, String> raceNamesByRound = new LinkedHashMap<>();
-        for (Race r : completedRaces) {
-            if (r.getRound() != null) {
-                raceNamesByRound.put(r.getRound(), r.getName());
-            }
+        // 5) seasonDrivers: lista para UI (drag & drop)
+        List<SeasonDriverDTO> seasonDrivers = new ArrayList<>();
+        for (Long driverId : seasonDriverIds) {
+            Long cid = driverToConstructor.get(driverId);
+            if (cid == null) cid = fallbackDriverToConstructor.get(driverId);
+
+            String dName = driverNames.getOrDefault(driverId, "Driver " + driverId);
+            String cName = (cid != null) ? constructorNames.getOrDefault(cid, "Constructor " + cid) : null;
+
+            seasonDrivers.add(new SeasonDriverDTO(driverId, cid, dName, cName));
         }
-        lookups.setRaceNamesByRound(raceNamesByRound);
+
+        // opcional: orden alfabético (o déjalo como prefieras)
+        seasonDrivers.sort(Comparator.comparing(SeasonDriverDTO::getDriverName, String.CASE_INSENSITIVE_ORDER));
+        lookups.setSeasonDrivers(seasonDrivers);
 
         return lookups;
     }
+
 
     /**
      * Devuelve el max round real de la temporada.
@@ -195,20 +231,15 @@ public class PredictionBootstrapService {
      * (son pocas filas por season; perfecto para empezar).
      */
     private Integer computeTotalRoundsForSeason(Integer season) {
-        List<Race> allSeasonRaces = raceDao.findAll()
-                .stream()
-                .filter(r -> Objects.equals(r.getYear(), season))
-                .sorted(Comparator.comparing(Race::getRound, Comparator.nullsLast(Integer::compareTo)))
-                .collect(Collectors.toList());
+        List<Race> allSeasonRaces = raceDao.findByYearOrderByRound(season);
 
         Integer max = 0;
         for (Race r : allSeasonRaces) {
-            if (r.getRound() != null) {
-                max = Math.max(max, r.getRound());
-            }
+            if (r.getRound() != null) max = Math.max(max, r.getRound());
         }
         return (max == 0) ? null : max;
     }
+
 
     private List<StandingsEntryDTO> buildStandings(
             Map<Long, Integer> pointsMap

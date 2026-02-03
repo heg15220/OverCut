@@ -8,4 +8,7 @@ import java.util.List;
 public interface RaceDao extends JpaRepository<Race, Long> {
 
     List<Race> findByYearAndRoundLessThanOrderByRound(Integer year, Integer round);
+
+    List<Race> findByYearOrderByRound(Integer year);
+
 }

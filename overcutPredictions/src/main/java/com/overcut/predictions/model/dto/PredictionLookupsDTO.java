@@ -1,5 +1,6 @@
 package com.overcut.predictions.model.dto;
 
+import java.util.List;
 import java.util.Map;
 
 public class PredictionLookupsDTO {
@@ -12,6 +13,8 @@ public class PredictionLookupsDTO {
 
     // round -> "Monaco Grand Prix"
     private Map<Integer, String> raceNamesByRound;
+
+    private List<SeasonDriverDTO> seasonDrivers;
 
     public PredictionLookupsDTO() {}
 
@@ -37,5 +40,13 @@ public class PredictionLookupsDTO {
 
     public void setRaceNamesByRound(Map<Integer, String> raceNamesByRound) {
         this.raceNamesByRound = raceNamesByRound;
+    }
+
+    public List<SeasonDriverDTO> getSeasonDrivers() {
+        return seasonDrivers;
+    }
+
+    public void setSeasonDrivers(List<SeasonDriverDTO> seasonDrivers) {
+        this.seasonDrivers = seasonDrivers;
     }
 }

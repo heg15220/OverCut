@@ -204,3 +204,96 @@
     border-radius: 14px;
   }
 }
+
+.sim-dnd {
+  margin-top: 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+
+.sim-dnd__header {
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 900;
+  color: rgba(255,255,255,0.88);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sim-dnd__hint {
+  font-weight: 800;
+  color: rgba(255,255,255,0.65);
+  font-size: 12px;
+}
+
+.sim-list {
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.sim-list__item {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.sim-list__pos {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 1000;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.9);
+}
+
+.sim-row {
+  display: grid;
+  grid-template-columns: 1fr 70px 34px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(10,16,26,0.70);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.sim-row.dragging {
+  border-color: rgba(244,180,0,0.55);
+  background: rgba(244,180,0,0.10);
+}
+
+.sim-row__driver {
+  font-weight: 1000;
+  color: rgba(255,255,255,0.95);
+}
+
+.sim-row__team {
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.65);
+  margin-top: 2px;
+}
+
+.sim-row__id {
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.6);
+  text-align: right;
+}
+
+.sim-row__handle {
+  text-align: right;
+  font-size: 18px;
+  color: rgba(255,255,255,0.55);
+  user-select: none;
+}
+

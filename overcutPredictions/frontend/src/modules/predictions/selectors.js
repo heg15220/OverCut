@@ -11,6 +11,9 @@ export const getConstructorStandings = (state) => getModuleState(state).construc
 
 export const getDriverToConstructor = (state) => getModuleState(state).driverToConstructor;
 
+export const getSeasonDrivers = (state) => getLookups(state)?.seasonDrivers || [];
+
+
 export const getLookups = (state) => getModuleState(state).lookups;
 
 // ✅ mapas listos para UI

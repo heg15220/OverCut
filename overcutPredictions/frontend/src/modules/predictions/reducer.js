@@ -18,6 +18,7 @@ const initialState = {
     driverNames: {},        // { [driverId]: "Forename Surname" }
     constructorNames: {},   // { [constructorId]: "Ferrari" }
     raceNamesByRound: {},   // { [round]: "Spanish Grand Prix" }
+    seasonDrivers: [],
   },
 
   loading: false,
@@ -57,6 +58,7 @@ export default function reducer(state = initialState, action) {
           driverNames: lookups.driverNames || {},
           constructorNames: lookups.constructorNames || {},
           raceNamesByRound: lookups.raceNamesByRound || {},
+          seasonDrivers: lookups.seasonDrivers || [],
         },
       };
     }
