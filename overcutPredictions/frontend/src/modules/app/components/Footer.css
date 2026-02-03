@@ -1,8 +1,25 @@
 .ocp-footer {
   padding: 14px 18px;
-  background: var(--oc-black);
-  color: rgba(255, 255, 255, 0.8);
-  border-top: 2px solid rgba(244, 180, 0, 0.25);
+  background: rgba(0, 0, 0, 0.88);
+  color: rgba(255, 255, 255, 0.78);
+  border-top: 1px solid rgba(244, 180, 0, 0.20);
   text-align: center;
-  font-weight: 700;
+  font-weight: 800;
+}
+
+.ocp-footer__inner {
+  display: inline-flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.ocp-footer__sep {
+  opacity: 0.35;
+}
+
+.ocp-footer__muted {
+  color: rgba(255, 255, 255, 0.62);
+  font-weight: 800;
 }

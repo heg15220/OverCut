@@ -1,17 +1,39 @@
 .standings {
-  background: rgba(0, 0, 0, 0.55);
-  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.52);
+  border-radius: 16px;
   padding: 16px;
   border: 1px solid rgba(244, 180, 0, 0.22);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
 }
+
+/* ---------- Head ---------- */
 
 .standings-head {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 12px;
 }
+
+.standings-title h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+  color: var(--oc-white);
+}
+
+.standings-subtitle {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Tabs ---------- */
 
 .standings-tabs {
   display: flex;
@@ -21,45 +43,122 @@
 .tab {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-weight: 900;
   cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border 0.15s ease;
+}
+
+.tab:hover {
+  transform: translateY(-1px);
+  background: rgba(244, 180, 0, 0.14);
+  border-color: rgba(244, 180, 0, 0.35);
 }
 
 .tab.active {
   background: var(--oc-yellow);
   color: var(--oc-black);
-  border-color: rgba(244, 180, 0, 0.8);
+  border-color: rgba(244, 180, 0, 0.85);
+}
+
+/* ---------- Table ---------- */
+
+.standings-tableWrap {
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .standings-table {
   width: 100%;
   color: var(--oc-white);
   border-collapse: collapse;
+  min-width: 420px;
 }
 
 .standings-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
   text-align: left;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.85);
-  padding: 10px 8px;
+  font-weight: 1000;
+  color: rgba(255, 255, 255, 0.86);
+  padding: 10px 10px;
+  background: rgba(10, 16, 26, 0.95);
   border-bottom: 1px solid rgba(255, 255, 255, 0.10);
 }
 
+.col-pos { width: 52px; }
+.col-pts { width: 92px; text-align: right; }
+.col-name { width: auto; }
+
 .standings-table tbody td {
-  padding: 10px 8px;
+  padding: 10px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.standings-table tbody tr:hover {
-  background: rgba(244, 180, 0, 0.14);
+.standings-table tbody tr:nth-child(2n) {
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.pos { width: 40px; color: rgba(255,255,255,0.9); font-weight: 900; }
-.pts { text-align: right; width: 80px; font-weight: 900; }
-.name .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono"; }
+.standings-table tbody tr:hover {
+  background: rgba(244, 180, 0, 0.10);
+}
+
+/* ---------- Cells ---------- */
+
+.pos {
+  width: 52px;
+  font-weight: 1000;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.nameLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.nameText {
+  font-weight: 950;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.1;
+}
+
+.idTag {
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+}
+
+.pts {
+  text-align: right;
+  font-weight: 1000;
+}
+
+.ptsBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(244, 180, 0, 0.16);
+  border: 1px solid rgba(244, 180, 0, 0.30);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 1000;
+}
+
+/* ---------- Empty / Footnote ---------- */
 
 .standings-empty {
   padding: 14px;
@@ -74,4 +173,29 @@
   font-size: 12px;
   color: rgba(255, 255, 255, 0.65);
   font-weight: 700;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 520px) {
+  .standings {
+    padding: 14px;
+  }
+
+  .standings-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .standings-table {
+    min-width: 360px;
+  }
+
+  .tab {
+    width: 100%;
+  }
+
+  .standings-tabs {
+    width: 100%;
+  }
 }

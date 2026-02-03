@@ -6,8 +6,26 @@
   margin-bottom: 16px;
 }
 
+.predictions-titlebox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.predictions-title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.predictions-title span {
+  color: var(--oc-yellow);
+}
+
 .predictions-sub {
-  margin-top: 10px;
+  margin-top: 6px;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -15,33 +33,67 @@
 }
 
 .predictions-hint {
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 700;
+  color: rgba(255, 255, 255, 0.80);
+  font-weight: 800;
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
+  padding: 7px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.10);
-  color: var(--oc-white);
-  font-weight: 800;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 900;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.16);
+}
+
+.pill__muted {
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .pill--soft {
-  background: rgba(244, 180, 0, 0.18);
-  border: 1px solid rgba(244, 180, 0, 0.35);
+  background: rgba(244, 180, 0, 0.16);
+  border-color: rgba(244, 180, 0, 0.35);
 }
 
 .pill--dark {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.30);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+.pill--ghost {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.pill--loading {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.predictions-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .oc-btn--ghost {
   background: transparent;
-  color: var(--oc-white);
+  color: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(244, 180, 0, 0.55);
+}
+
+.oc-btn--ghost:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .predictions-title {
+    font-size: 28px;
+  }
 }

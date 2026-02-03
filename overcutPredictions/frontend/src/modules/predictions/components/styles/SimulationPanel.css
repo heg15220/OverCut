@@ -1,87 +1,206 @@
-.sim-panel {
-  background: rgba(10, 16, 26, 0.72);
+.sim-card {
+  background: rgba(10, 16, 26, 0.74);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 16px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
 }
 
-.sim-panel__head {
+.sim-card__head {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
 }
 
-.sim-panel__head h2 {
+.sim-card__title h2 {
   margin: 0;
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 1000;
   letter-spacing: 0.2px;
   color: var(--oc-white);
 }
 
-.sim-panel__empty {
+.sim-card__sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 850;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.sim-card__empty {
   color: rgba(255, 255, 255, 0.82);
   padding: 10px 0;
 }
 
-.sim-panel__mode {
+/* ----- Mode segmented control ----- */
+
+.sim-card__mode {
   display: flex;
   gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 6px;
+  border-radius: 999px;
 }
 
-.sim-panel__grid {
+.seg {
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.86);
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 12px;
+  transition: background 0.15s ease, border 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.seg:hover {
+  transform: translateY(-1px);
+  background: rgba(244, 180, 0, 0.12);
+}
+
+.seg:active {
+  transform: translateY(0px);
+}
+
+.seg.active {
+  border-color: rgba(244, 180, 0, 0.55);
+  background: rgba(244, 180, 0, 0.16);
+  color: var(--oc-yellow);
+}
+
+.seg:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ✅ focus pro (teclado) */
+.seg:focus-visible {
+  outline: 2px solid rgba(244, 180, 0, 0.65);
+  outline-offset: 2px;
+}
+
+/* ----- Layout ----- */
+
+.sim-card__grid {
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 12px;
   margin-top: 10px;
 }
 
-.field label {
-  display: block;
-  font-size: 12px;
-  font-weight: 800;
-  margin-bottom: 6px;
-  color: rgba(255, 255, 255, 0.82);
+.sim-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.field--wide {
+.sim-field label {
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.sim-field--wide {
   grid-column: span 1;
 }
 
-.hint {
+.sim-hint {
   margin-top: 6px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.66);
+  font-weight: 750;
 }
 
-.sim-panel__actions {
+.sim-warn {
+  color: rgba(244, 180, 0, 0.95);
+  font-weight: 950;
+}
+
+.sim-select {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* ----- Textarea ----- */
+
+.sim-textarea {
+  resize: vertical;
+  min-height: 74px;
+  line-height: 1.25;
+}
+
+/* ----- Meta pills ----- */
+
+.sim-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.meta-pill--soft {
+  background: rgba(244, 180, 0, 0.12);
+  border-color: rgba(244, 180, 0, 0.25);
+}
+
+.meta-pill--warn {
+  background: rgba(244, 180, 0, 0.18);
+  border-color: rgba(244, 180, 0, 0.35);
+}
+
+/* ----- Actions ----- */
+
+.sim-card__actions {
   display: flex;
   gap: 10px;
   margin-top: 14px;
+  align-items: center;
 }
 
-.chip {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.88);
-  padding: 6px 10px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 800;
+/* ✅ Si usas botones tipo .oc-btn dentro */
+.sim-card__actions .oc-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.1);
+}
+
+.sim-card__note {
+  margin-top: 12px;
   font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+  font-weight: 750;
 }
 
-.chip.active {
-  border-color: rgba(244, 180, 0, 0.55);
-  background: rgba(244, 180, 0, 0.14);
-  color: var(--oc-yellow);
-}
+/* ----- Responsive ----- */
 
-@media (max-width: 900px) {
-  .sim-panel__grid {
+@media (max-width: 950px) {
+  .sim-card__grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .sim-card {
+    padding: 14px;
+    border-radius: 14px;
   }
 }

@@ -22,6 +22,17 @@ export const applySimulation = (payload) => (dispatch) => {
   );
 };
 
+// ✅ NUEVO: batch
+export const applySimulationBatch = (payload) => (dispatch) => {
+  dispatch({ type: actionTypes.SIMULATION_BATCH_REQUESTED });
+
+  backend.predictionsService.applySimulationBatch(
+    payload,
+    (data) => dispatch({ type: actionTypes.SIMULATION_BATCH_UPDATED, data }),
+    (err) => dispatch({ type: actionTypes.SIMULATION_BATCH_FAILED, error: err })
+  );
+};
+
 export const resetSimulation = () => ({
   type: actionTypes.RESET_SIMULATION,
 });

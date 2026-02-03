@@ -5,6 +5,11 @@
   --oc-black: #0b0b0b;
   --oc-white: #ffffff;
   --oc-gray: #e6e6e6;
+
+  /* extras */
+  --oc-glass: rgba(255, 255, 255, 0.06);
+  --oc-glass-border: rgba(255, 255, 255, 0.12);
+  --oc-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
 }
 
 .ocp-header {
@@ -15,7 +20,13 @@
   justify-content: space-between;
 
   background: linear-gradient(135deg, var(--oc-blue-dark), var(--oc-blue));
-  border-bottom: 2px solid rgba(244, 180, 0, 0.35);
+  border-bottom: 1px solid rgba(244, 180, 0, 0.25);
+  box-shadow: var(--oc-shadow);
+
+  /* opcional “pro”: header pegajoso */
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .ocp-brand {
@@ -23,8 +34,8 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
-  font-weight: 900;
-  letter-spacing: 0.5px;
+  font-weight: 1000;
+  letter-spacing: 0.6px;
 }
 
 .ocp-brand__over,
@@ -38,34 +49,58 @@
 }
 
 .ocp-brand__sub {
-  font-size: 14px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.75);
+  transform: translateY(-1px);
 }
 
 .ocp-nav {
   display: flex;
-  gap: 14px;
+  gap: 10px;
   align-items: center;
 }
 
 .ocp-nav a {
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 700;
-  padding: 8px 10px;
-  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.86);
+  font-weight: 800;
+  padding: 9px 12px;
+  border-radius: 12px;
+  transition: transform 0.15s ease, background 0.15s ease, border 0.15s ease;
 }
 
 .ocp-nav a:hover {
   background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
 }
 
 .ocp-nav a.active {
   color: var(--oc-black);
   background: var(--oc-yellow);
+  box-shadow: 0 10px 18px rgba(244, 180, 0, 0.25);
 }
 
+/* CTA OverCut */
 .ocp-nav__overcut {
   border: 1px solid rgba(244, 180, 0, 0.55);
+  background: rgba(244, 180, 0, 0.10);
+}
+
+.ocp-nav__overcut:hover {
+  background: rgba(244, 180, 0, 0.18);
+  border-color: rgba(244, 180, 0, 0.75);
+}
+
+@media (max-width: 560px) {
+  .ocp-brand__sub {
+    display: none;
+  }
+  .ocp-nav {
+    gap: 6px;
+  }
+  .ocp-nav a {
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
 }

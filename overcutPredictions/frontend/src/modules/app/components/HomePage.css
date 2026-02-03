@@ -1,20 +1,45 @@
 .ocp-body {
   min-height: calc(100vh - 70px - 52px);
-  background: linear-gradient(135deg, var(--oc-blue-dark), var(--oc-blue));
+  background: radial-gradient(900px 500px at 15% 10%, rgba(244, 180, 0, 0.16), transparent 60%),
+              linear-gradient(135deg, var(--oc-blue-dark), var(--oc-blue));
   padding: 28px 18px;
   color: var(--oc-white);
 }
 
 .ocp-home {
-  max-width: 900px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 20px 0;
+  padding: 18px 0;
+}
+
+.ocp-hero {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 18px;
+  padding: 22px 20px;
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(10px);
+}
+
+.ocp-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.8px;
+  color: rgba(255, 255, 255, 0.86);
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(244, 180, 0, 0.25);
 }
 
 .ocp-home__title {
-  font-size: 48px;
-  font-weight: 900;
-  margin: 0;
+  font-size: 46px;
+  font-weight: 1000;
+  margin: 10px 0 0 0;
+  letter-spacing: 0.2px;
 }
 
 .ocp-home__title span {
@@ -23,13 +48,15 @@
 
 .ocp-home__subtitle {
   margin-top: 12px;
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 750px;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 820px;
 }
 
 .ocp-home__actions {
-  margin-top: 22px;
+  margin-top: 18px;
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -38,17 +65,46 @@
 .ocp-btn {
   text-decoration: none;
   padding: 12px 16px;
-  border-radius: 12px;
-  font-weight: 900;
+  border-radius: 14px;
+  font-weight: 1000;
+  transition: transform 0.15s ease, background 0.15s ease, border 0.15s ease;
+}
+
+.ocp-btn:hover {
+  transform: translateY(-1px);
 }
 
 .ocp-btn--primary {
   background: var(--oc-yellow);
   color: var(--oc-black);
+  box-shadow: 0 14px 22px rgba(244, 180, 0, 0.22);
 }
 
 .ocp-btn--ghost {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--oc-white);
+  color: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(244, 180, 0, 0.45);
+}
+
+.ocp-btn--ghost:hover {
+  background: rgba(244, 180, 0, 0.14);
+  border-color: rgba(244, 180, 0, 0.65);
+}
+
+.ocp-hero__note {
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.68);
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+@media (max-width: 620px) {
+  .ocp-home__title {
+    font-size: 34px;
+  }
+  .ocp-home__subtitle {
+    font-size: 15px;
+  }
 }
