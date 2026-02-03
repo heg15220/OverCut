@@ -1,0 +1,71 @@
+:root {
+  --oc-blue-dark: #0b2a4a;
+  --oc-blue: #123e6b;
+  --oc-yellow: #f4b400;
+  --oc-black: #0b0b0b;
+  --oc-white: #ffffff;
+  --oc-gray: #e6e6e6;
+}
+
+.ocp-header {
+  height: 70px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: linear-gradient(135deg, var(--oc-blue-dark), var(--oc-blue));
+  border-bottom: 2px solid rgba(244, 180, 0, 0.35);
+}
+
+.ocp-brand {
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.ocp-brand__over,
+.ocp-brand__cut {
+  font-size: 22px;
+  color: var(--oc-white);
+}
+
+.ocp-brand__cut {
+  color: var(--oc-yellow);
+}
+
+.ocp-brand__sub {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ocp-nav {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.ocp-nav a {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.ocp-nav a:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ocp-nav a.active {
+  color: var(--oc-black);
+  background: var(--oc-yellow);
+}
+
+.ocp-nav__overcut {
+  border: 1px solid rgba(244, 180, 0, 0.55);
+}

@@ -18,6 +18,7 @@
     <modules>
         <module>f1Hub</module>
         <module>overcut</module>
+        <module>overcutPredictions</module>
     </modules>
 
     <properties>

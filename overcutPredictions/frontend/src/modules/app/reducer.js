@@ -1,0 +1,26 @@
+import { combineReducers } from "redux";
+import * as actionTypes from "./actionTypes";
+
+const initialState = {
+  error: null,
+  loading: false,
+};
+
+const error = (state = initialState.error, action) => {
+  if (action.type === actionTypes.ERROR) return action.error;
+  return state;
+};
+
+const loading = (state = initialState.loading, action) => {
+  switch (action.type) {
+    case actionTypes.LOADING:
+      return true;
+    case actionTypes.LOADED:
+    case actionTypes.ERROR:
+      return false;
+    default:
+      return state;
+  }
+};
+
+export default combineReducers({ error, loading });

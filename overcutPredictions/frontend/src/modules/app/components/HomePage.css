@@ -1,0 +1,54 @@
+.ocp-body {
+  min-height: calc(100vh - 70px - 52px);
+  background: linear-gradient(135deg, var(--oc-blue-dark), var(--oc-blue));
+  padding: 28px 18px;
+  color: var(--oc-white);
+}
+
+.ocp-home {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+.ocp-home__title {
+  font-size: 48px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.ocp-home__title span {
+  color: var(--oc-yellow);
+}
+
+.ocp-home__subtitle {
+  margin-top: 12px;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 750px;
+}
+
+.ocp-home__actions {
+  margin-top: 22px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ocp-btn {
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 900;
+}
+
+.ocp-btn--primary {
+  background: var(--oc-yellow);
+  color: var(--oc-black);
+}
+
+.ocp-btn--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--oc-white);
+  border: 1px solid rgba(244, 180, 0, 0.45);
+}

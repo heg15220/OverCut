@@ -1,0 +1,77 @@
+.standings {
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid rgba(244, 180, 0, 0.22);
+}
+
+.standings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.standings-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--oc-yellow);
+  color: var(--oc-black);
+  border-color: rgba(244, 180, 0, 0.8);
+}
+
+.standings-table {
+  width: 100%;
+  color: var(--oc-white);
+  border-collapse: collapse;
+}
+
+.standings-table thead th {
+  text-align: left;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.standings-table tbody td {
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.standings-table tbody tr:hover {
+  background: rgba(244, 180, 0, 0.14);
+}
+
+.pos { width: 40px; color: rgba(255,255,255,0.9); font-weight: 900; }
+.pts { text-align: right; width: 80px; font-weight: 900; }
+.name .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono"; }
+
+.standings-empty {
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 800;
+}
+
+.standings-footnote {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 700;
+}

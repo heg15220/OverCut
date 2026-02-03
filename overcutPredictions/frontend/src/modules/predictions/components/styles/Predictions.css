@@ -1,0 +1,22 @@
+.predictions-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 18px;
+}
+
+@media (max-width: 1000px) {
+  .predictions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.oc-alert {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(244, 180, 0, 0.18);
+  border: 1px solid rgba(244, 180, 0, 0.35);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 900;
+}
