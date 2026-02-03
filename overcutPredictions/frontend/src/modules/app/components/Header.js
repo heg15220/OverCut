@@ -13,9 +13,8 @@ export default function Header() {
   return (
     <header className="ocp-header">
       <Link to="/" className="ocp-brand" aria-label="OverCut Predictions Home">
-        <span className="ocp-brand__over">OVER</span>
-        <span className="ocp-brand__cut">CUT</span>
-        <span className="ocp-brand__sub">Predictions</span>
+        <span className="ocp-brand__over">OVERCUT</span>
+        <span className="ocp-brand__cut">Predictions</span>
       </Link>
 
       <nav className="ocp-nav" aria-label="Main navigation">

@@ -36,10 +36,6 @@ export default function HomePage() {
             Abrir OverCut
           </a>
         </div>
-
-        <div className="ocp-hero__note">
-          Consejo: empieza por una temporada histórica (ej. 2012) y simula desde mitad de año.
-        </div>
       </div>
     </div>
   );

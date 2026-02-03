@@ -1,21 +1,19 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  DndContext,
-  closestCenter
-} from "@dnd-kit/core";
+import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
   arrayMove,
-  useSortable
+  useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import predictions from "../index";
 import "./styles/SimulationPanel.css";
+import { pointsForPosition } from "./pointsEras";
 
-function SortableDriverRow({ driver }) {
+function SortableDriverRow({ driver, points, isSelected, onClick }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: driver.driverId });
 
@@ -29,22 +27,60 @@ function SortableDriverRow({ driver }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`sim-row ${isDragging ? "dragging" : ""}`}
+      className={`sim-row ${isDragging ? "dragging" : ""} ${isSelected ? "selected" : ""}`}
       {...attributes}
       {...listeners}
+      role="button"
+      tabIndex={0}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick(driver.driverId);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick(driver.driverId);
+        }
+      }}
     >
-      <div className="sim-row__pos" />
       <div className="sim-row__name">
         <div className="sim-row__driver">{driver.driverName}</div>
-        {driver.constructorName ? (
-          <div className="sim-row__team">{driver.constructorName}</div>
-        ) : null}
       </div>
 
-      <div className="sim-row__id">#{driver.driverId}</div>
-      <div className="sim-row__handle">⠿</div>
+      <div className="sim-row__pts" aria-label={`Points: ${points}`}>
+        {points}
+        <span className="sim-row__ptsUnit">pts</span>
+      </div>
     </div>
   );
+}
+
+// helper para proponer orden por standings
+function buildOrderFromStandings(driverStandings, fallbackIds) {
+  if (!Array.isArray(driverStandings) || driverStandings.length === 0) return fallbackIds;
+
+  const getId = (x) => x?.driverId ?? x?.driver?.driverId ?? x?.id;
+  const getPts = (x) => x?.points ?? x?.pts ?? 0;
+  const getPos = (x) => x?.position ?? x?.pos ?? null;
+
+  const rows = driverStandings
+    .map((x) => ({ id: getId(x), pts: getPts(x), pos: getPos(x) }))
+    .filter((r) => r.id != null);
+
+  if (rows.length === 0) return fallbackIds;
+
+  const hasPos = rows.some((r) => r.pos != null);
+
+  rows.sort((a, b) => {
+    if (hasPos) return (a.pos ?? 9999) - (b.pos ?? 9999);
+    return (b.pts ?? 0) - (a.pts ?? 0);
+  });
+
+  const ordered = rows.map((r) => r.id);
+
+  const set = new Set(ordered);
+  const rest = fallbackIds.filter((id) => !set.has(id));
+  return [...ordered, ...rest];
 }
 
 export default function SimulationPanel() {
@@ -64,18 +100,29 @@ export default function SimulationPanel() {
   const canUse = !!season && !!fromRound;
 
   const [round, setRound] = useState(fromRound || 1);
-
-  // Estado: array de driverId en orden
   const [orderedIds, setOrderedIds] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
 
-  // Cuando cambia bootstrap o seasonDrivers, inicializa orden (alfabético o como venga)
+  // track si el usuario ha tocado el orden (para no pisarlo al cambiar GP)
+  const [dirtyOrder, setDirtyOrder] = useState(false);
+
+  // Sensor: click = click, drag requiere mover 6px
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  // bootstrap local state
   useEffect(() => {
     if (!canUse) return;
-    if (!seasonDrivers || seasonDrivers.length === 0) return; // ✅ guard
-    setRound(fromRound);
-    setOrderedIds(seasonDrivers.map((d) => d.driverId));
-  }, [canUse, fromRound, seasonDrivers]);
+    if (!seasonDrivers || seasonDrivers.length === 0) return;
 
+    setRound(fromRound);
+
+    const fallback = seasonDrivers.map((d) => d.driverId);
+    setOrderedIds(buildOrderFromStandings(driverStandings, fallback));
+
+    setSelectedId(null);
+    setDirtyOrder(false);
+    // ojo: no meto driverStandings en deps para no “pisar” durante la simulación
+  }, [canUse, fromRound, seasonDrivers]);
 
   const roundOptions = useMemo(() => {
     if (!canUse) return [];
@@ -89,10 +136,9 @@ export default function SimulationPanel() {
 
   const currentGpName = raceNamesByRound?.[round] || `Round ${round}`;
 
-  // Lista renderizada (en el orden actual)
   const orderedDrivers = useMemo(() => {
-    const map = new Map(seasonDrivers.map((d) => [d.driverId, d]));
-    return orderedIds.map((id) => map.get(id)).filter(Boolean);
+    const map = new Map((seasonDrivers || []).map((d) => [d.driverId, d]));
+    return (orderedIds || []).map((id) => map.get(id)).filter(Boolean);
   }, [orderedIds, seasonDrivers]);
 
   const onDragEnd = (event) => {
@@ -104,8 +150,30 @@ export default function SimulationPanel() {
 
     if (oldIndex !== -1 && newIndex !== -1) {
       setOrderedIds((items) => arrayMove(items, oldIndex, newIndex));
+      setSelectedId(null);
+      setDirtyOrder(true);
     }
   };
+
+  const handleRowClick = useCallback((driverId) => {
+    setSelectedId((prev) => {
+      if (prev == null) return driverId;
+      if (prev === driverId) return null;
+
+      setOrderedIds((ids) => {
+        const a = ids.indexOf(prev);
+        const b = ids.indexOf(driverId);
+        if (a === -1 || b === -1) return ids;
+
+        const next = [...ids];
+        [next[a], next[b]] = [next[b], next[a]];
+        return next;
+      });
+
+      setDirtyOrder(true);
+      return null;
+    });
+  }, []);
 
   const canApply = canUse && orderedIds.length > 0;
 
@@ -116,7 +184,7 @@ export default function SimulationPanel() {
       season,
       race: {
         round: Number(round),
-        orderedDriverIds: orderedIds, // ✅ importante: usa el nombre que espera tu DTO
+        orderedDriverIds: orderedIds,
       },
       driverStandings,
       constructorStandings,
@@ -124,6 +192,34 @@ export default function SimulationPanel() {
     };
 
     dispatch(predictions.actions.applySimulation(payload));
+  };
+
+  // NEXT = apply + avanzar
+  const maxRound = totalRounds || 30;
+  const canNext = canApply && Number(round) < Number(maxRound);
+
+  const next = () => {
+    if (!canNext) return;
+
+    // 1) aplica
+    const payload = {
+      season,
+      race: {
+        round: Number(round),
+        orderedDriverIds: orderedIds,
+      },
+      driverStandings,
+      constructorStandings,
+      driverToConstructor,
+    };
+    dispatch(predictions.actions.applySimulation(payload));
+
+    // 2) avanzar round (UI)
+    setRound((r) => Number(r) + 1);
+
+    // dejamos el orden actual como base, y limpiamos selección
+    setSelectedId(null);
+    setDirtyOrder(false);
   };
 
   if (!canUse) {
@@ -154,13 +250,25 @@ export default function SimulationPanel() {
       </div>
 
       <div className="sim-card__grid">
+        {/* LEFT: selector + botones debajo */}
         <div className="sim-field">
           <label>Grand Prix (round)</label>
 
           <select
             className="oc-input sim-select"
             value={round}
-            onChange={(e) => setRound(Number(e.target.value))}
+            onChange={(e) => {
+              const r = Number(e.target.value);
+              setRound(r);
+              setSelectedId(null);
+
+              // al cambiar GP manualmente, si NO has tocado el orden,
+              // proponemos orden según standings actuales
+              if (!dirtyOrder) {
+                const fallback = seasonDrivers.map((d) => d.driverId);
+                setOrderedIds(buildOrderFromStandings(driverStandings, fallback));
+              }
+            }}
           >
             {roundOptions.map((opt) => (
               <option key={opt.r} value={opt.r}>
@@ -169,29 +277,71 @@ export default function SimulationPanel() {
             ))}
           </select>
 
+          {/* ✅ botones justo debajo del select */}
+          <div className="sim-roundActions">
+            <button className="oc-btn" disabled={!canApply} onClick={apply} type="button">
+              Apply simulation
+            </button>
+
+            <button
+              className="oc-btn oc-btn--primary"
+              disabled={!canNext}
+              onClick={next}
+              type="button"
+            >
+              Apply and Next round →
+            </button>
+
+            <button
+              className="oc-btn oc-btn--ghost"
+              type="button"
+              onClick={() => {
+                const fallback = seasonDrivers.map((d) => d.driverId);
+                setOrderedIds(buildOrderFromStandings(driverStandings, fallback));
+                setSelectedId(null);
+                setDirtyOrder(false);
+              }}
+            >
+              Reset order
+            </button>
+          </div>
+
           <div className="sim-hint">
             Solo puedes simular desde <b>round {fromRound}</b> en adelante.
           </div>
         </div>
 
+        {/* RIGHT: lista */}
         <div className="sim-field sim-field--wide">
           <label>Finishing order</label>
 
           <div className="sim-dnd">
             <div className="sim-dnd__header">
               <span>{orderedIds.length} pilotos</span>
-              <span className="sim-dnd__hint">Arrastra para reordenar (P1 arriba).</span>
+              <span className="sim-dnd__hint">
+                Arrastra para reordenar (P1 arriba) · Click 2 pilotos para intercambiar
+              </span>
             </div>
 
-            <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
               <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
                 <div className="sim-list">
-                  {orderedDrivers.map((d, idx) => (
-                    <div key={d.driverId} className="sim-list__item">
-                      <div className="sim-list__pos">{idx + 1}</div>
-                      <SortableDriverRow driver={d} />
-                    </div>
-                  ))}
+                  {orderedDrivers.map((d, idx) => {
+                    const pos = idx + 1;
+                    const pts = pointsForPosition(pos, season);
+
+                    return (
+                      <div key={d.driverId} className="sim-list__item">
+                        <div className="sim-list__pos">{pos}</div>
+                        <SortableDriverRow
+                          driver={d}
+                          points={pts}
+                          isSelected={selectedId === d.driverId}
+                          onClick={handleRowClick}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </SortableContext>
             </DndContext>
@@ -199,26 +349,15 @@ export default function SimulationPanel() {
 
           <div className="sim-meta">
             <span className="meta-pill meta-pill--soft">GP: {currentGpName}</span>
+            {selectedId != null ? (
+              <span className="meta-pill">Seleccionado: #{selectedId}</span>
+            ) : null}
           </div>
         </div>
       </div>
 
-      <div className="sim-card__actions">
-        <button className="oc-btn" disabled={!canApply} onClick={apply} type="button">
-          Apply simulation
-        </button>
-
-        <button
-          className="oc-btn oc-btn--ghost"
-          type="button"
-          onClick={() => setOrderedIds(seasonDrivers.map((d) => d.driverId))}
-        >
-          Reset order
-        </button>
-      </div>
-
       <div className="sim-card__note">
-        Próximo paso: modo “apply automático” al soltar (opcional) y soporte batch real.
+        Ahora puedes hacer “Next” para aplicar + avanzar sin validar a mano.
       </div>
     </div>
   );

@@ -1,18 +1,24 @@
+/* ===============================
+   SimulationPanel.css — improved UX
+   =============================== */
+
 .sim-card {
-  background: rgba(10, 16, 26, 0.74);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 16, 26, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 16px;
-  padding: 16px;
+  padding: 14px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.30);
 }
+
+/* ---------- Header ---------- */
 
 .sim-card__head {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .sim-card__title h2 {
@@ -29,68 +35,20 @@
   font-size: 12px;
   font-weight: 850;
   color: rgba(255, 255, 255, 0.72);
+  line-height: 1.25;
 }
 
 .sim-card__empty {
-  color: rgba(255, 255, 255, 0.82);
-  padding: 10px 0;
-}
-
-/* ----- Mode segmented control ----- */
-
-.sim-card__mode {
-  display: flex;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  padding: 6px;
-  border-radius: 999px;
-}
-
-.seg {
-  border: 1px solid transparent;
-  background: transparent;
   color: rgba(255, 255, 255, 0.86);
-  padding: 8px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 900;
-  font-size: 12px;
-  transition: background 0.15s ease, border 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+  padding: 10px 0;
+  font-weight: 750;
 }
 
-.seg:hover {
-  transform: translateY(-1px);
-  background: rgba(244, 180, 0, 0.12);
-}
-
-.seg:active {
-  transform: translateY(0px);
-}
-
-.seg.active {
-  border-color: rgba(244, 180, 0, 0.55);
-  background: rgba(244, 180, 0, 0.16);
-  color: var(--oc-yellow);
-}
-
-.seg:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* ✅ focus pro (teclado) */
-.seg:focus-visible {
-  outline: 2px solid rgba(244, 180, 0, 0.65);
-  outline-offset: 2px;
-}
-
-/* ----- Layout ----- */
+/* ---------- Layout ---------- */
 
 .sim-card__grid {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 320px 1fr;
   gap: 12px;
   margin-top: 10px;
 }
@@ -99,16 +57,17 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .sim-field label {
   font-size: 12px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.84);
+  font-weight: 950;
+  color: rgba(255, 255, 255, 0.86);
 }
 
 .sim-field--wide {
-  grid-column: span 1;
+  min-width: 0;
 }
 
 .sim-hint {
@@ -116,33 +75,216 @@
   font-size: 12px;
   color: rgba(255, 255, 255, 0.66);
   font-weight: 750;
-}
-
-.sim-warn {
-  color: rgba(244, 180, 0, 0.95);
-  font-weight: 950;
-}
-
-.sim-select {
-  appearance: none;
-  cursor: pointer;
-}
-
-/* ----- Textarea ----- */
-
-.sim-textarea {
-  resize: vertical;
-  min-height: 74px;
   line-height: 1.25;
 }
 
-/* ----- Meta pills ----- */
+/* ---------- Inputs / Select ---------- */
+
+.sim-select,
+.oc-input.sim-select {
+  appearance: none;
+  cursor: pointer;
+
+  padding: 10px 36px 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+
+  font-weight: 900;
+  font-size: 13px;
+
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.sim-select:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(244, 180, 0, 0.30);
+}
+
+.sim-select:focus-visible {
+  outline: 2px solid rgba(244, 180, 0, 0.65);
+  outline-offset: 2px;
+}
+
+/* caret */
+.sim-field {
+  position: relative;
+}
+.sim-field .sim-select {
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.7) 50%),
+    linear-gradient(135deg, rgba(255,255,255,0.7) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 2px),
+    calc(100% - 11px) calc(50% - 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* ---------- DnD wrapper ---------- */
+
+.sim-dnd {
+  margin-top: 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+/* sticky header inside list */
+.sim-dnd__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  font-weight: 950;
+  color: rgba(255, 255, 255, 0.90);
+
+  background: rgba(10, 16, 26, 0.96);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sim-dnd__hint {
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* list scroll */
+.sim-list {
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+
+  max-height: min(520px, 62vh);
+  overflow: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(244,180,0,0.45) rgba(255,255,255,0.06);
+}
+
+.sim-list::-webkit-scrollbar {
+  width: 10px;
+}
+.sim-list::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+}
+.sim-list::-webkit-scrollbar-thumb {
+  background: rgba(244,180,0,0.35);
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.06);
+}
+
+/* items */
+.sim-list__item {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.sim-list__pos {
+  width: 44px;
+  height: 40px;
+  border-radius: 12px;
+
+  display: grid;
+  place-items: center;
+
+  font-weight: 1000;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ---------- Row ---------- */
+
+.sim-row {
+  display: grid;
+  grid-template-columns: 1fr 64px 30px;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 12px;
+  border-radius: 14px;
+
+  background: rgba(10, 16, 26, 0.70);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+
+  transition: transform 0.10s ease, border-color 0.10s ease, background 0.10s ease;
+  min-width: 0;
+}
+
+.sim-row:hover {
+  border-color: rgba(244, 180, 0, 0.25);
+  background: rgba(10, 16, 26, 0.82);
+}
+
+.sim-row.dragging {
+  border-color: rgba(244, 180, 0, 0.65);
+  background: rgba(244, 180, 0, 0.12);
+  transform: scale(1.01);
+}
+
+/* truncate long names nicely */
+.sim-row__name {
+  min-width: 0;
+}
+
+.sim-row__driver {
+  font-weight: 1000;
+  color: rgba(255, 255, 255, 0.96);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sim-row__team {
+  font-size: 12px;
+  font-weight: 850;
+  color: rgba(255, 255, 255, 0.62);
+  margin-top: 2px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sim-row__id {
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.58);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sim-row__handle {
+  text-align: right;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.55);
+  user-select: none;
+  cursor: grab;
+}
+.sim-row:active .sim-row__handle {
+  cursor: grabbing;
+}
+
+/* ---------- Meta pills ---------- */
 
 .sim-meta {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .meta-pill {
@@ -152,148 +294,409 @@
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.10);
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.90);
   font-weight: 900;
   font-size: 12px;
 }
 
 .meta-pill--soft {
   background: rgba(244, 180, 0, 0.12);
-  border-color: rgba(244, 180, 0, 0.25);
+  border-color: rgba(244, 180, 0, 0.28);
 }
 
-.meta-pill--warn {
-  background: rgba(244, 180, 0, 0.18);
-  border-color: rgba(244, 180, 0, 0.35);
-}
-
-/* ----- Actions ----- */
+/* ---------- Actions / Buttons ---------- */
 
 .sim-card__actions {
   display: flex;
+  justify-content: flex-end;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 12px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
-/* ✅ Si usas botones tipo .oc-btn dentro */
-.sim-card__actions .oc-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  filter: grayscale(0.1);
+/* mejora general de oc-btn dentro del panel */
+.sim-card__actions .oc-btn {
+  min-height: 40px;
+  border-radius: 12px;
+  font-weight: 950;
+  letter-spacing: 0.2px;
+  transition: transform 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
 }
+
+.sim-card__actions .oc-btn:hover {
+  transform: translateY(-1px);
+}
+
+.sim-card__actions .oc-btn:active {
+  transform: translateY(0px);
+}
+
+.sim-card__actions .oc-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.15);
+  transform: none;
+}
+
+/* si tu ghost no tiene buen contraste */
+.sim-card__actions .oc-btn--ghost {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.92);
+}
+
+.sim-card__actions .oc-btn--ghost:hover {
+  border-color: rgba(244,180,0,0.30);
+  background: rgba(255,255,255,0.08);
+}
+
+/* ---------- Footnote ---------- */
 
 .sim-card__note {
-  margin-top: 12px;
+  margin-top: 10px;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.62);
   font-weight: 750;
+  line-height: 1.25;
 }
 
-/* ----- Responsive ----- */
+/* ---------- Responsive ---------- */
 
-@media (max-width: 950px) {
+@media (max-width: 980px) {
   .sim-card__grid {
     grid-template-columns: 1fr;
+  }
+
+  .sim-card__actions {
+    justify-content: stretch;
+  }
+
+  .sim-card__actions .oc-btn {
+    width: 100%;
   }
 }
 
 @media (max-width: 520px) {
   .sim-card {
-    padding: 14px;
+    padding: 12px;
     border-radius: 14px;
+  }
+
+  .sim-row {
+    grid-template-columns: 1fr 56px 26px;
+    padding: 9px 10px;
+  }
+
+  .sim-list {
+    max-height: min(520px, 58vh);
+    padding: 8px;
+  }
+
+  .sim-list__pos {
+    width: 40px;
+    height: 38px;
+  }
+
+  .sim-card__title h2 {
+    font-size: 17px;
   }
 }
 
-.sim-dnd {
-  margin-top: 8px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
-  overflow: hidden;
-}
+/* =========================================
+   COMPACT MODE: solo nombre del piloto
+   Pégalo AL FINAL de SimulationPanel.css
+   ========================================= */
 
-.sim-dnd__header {
-  padding: 10px 12px;
-  display: flex;
-  justify-content: space-between;
-  font-weight: 900;
-  color: rgba(255,255,255,0.88);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.sim-dnd__hint {
-  font-weight: 800;
-  color: rgba(255,255,255,0.65);
-  font-size: 12px;
-}
-
+/* Reduce el espacio de cada item (pos + fila) */
 .sim-list {
-  padding: 10px;
-  display: grid;
-  gap: 8px;
-  max-height: 520px;
-  overflow: auto;
+  gap: 6px;
+  padding: 8px;
 }
 
 .sim-list__item {
-  display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 10px;
-  align-items: center;
+  grid-template-columns: 34px 1fr; /* pos más estrecha */
+  gap: 8px;
 }
 
 .sim-list__pos {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
+  width: 34px;
+  height: 30px;
+  border-radius: 10px;
+  font-size: 12px;
   font-weight: 1000;
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.9);
 }
 
+/* Fila más baja y simple */
 .sim-row {
-  display: grid;
-  grid-template-columns: 1fr 70px 34px;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(10,16,26,0.70);
-  border: 1px solid rgba(255,255,255,0.10);
+  grid-template-columns: 1fr;       /* SOLO el nombre ocupa la fila */
+  padding: 7px 10px;               /* menos alto */
+  border-radius: 12px;
+  gap: 0;
 }
 
-.sim-row.dragging {
-  border-color: rgba(244,180,0,0.55);
-  background: rgba(244,180,0,0.10);
+/* Oculta cosas que no quieres ver */
+.sim-row__team,
+.sim-row__id,
+.sim-row__handle,
+.sim-row__pos {
+  display: none !important;
+}
+
+/* Solo 1 línea con el nombre */
+.sim-row__name {
+  min-width: 0;
 }
 
 .sim-row__driver {
+  font-size: 13px;
   font-weight: 1000;
-  color: rgba(255,255,255,0.95);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.sim-row__team {
+/* Ajustes cuando se arrastra */
+.sim-row.dragging {
+  transform: scale(1.005);
+}
+
+/* Móvil: aún más compacto */
+@media (max-width: 520px) {
+  .sim-list__item {
+    grid-template-columns: 32px 1fr;
+  }
+  .sim-list__pos {
+    width: 32px;
+    height: 28px;
+    font-size: 12px;
+  }
+  .sim-row {
+    padding: 6px 9px;
+  }
+  .sim-row__driver {
+    font-size: 12.5px;
+  }
+}
+
+/* =========================================
+   Mostrar ~10 items y el resto con scroll
+   (override final)
+   ========================================= */
+
+.sim-list {
+  /* Ajusta esta variable si cambias padding/altura */
+  --sim-row-h: 38px;           /* altura aproximada de 1 item */
+  --sim-row-gap: 6px;          /* gap actual en compact mode */
+  --sim-list-pad: 8px;         /* padding actual en compact mode */
+
+  /* Altura para 10 items + gaps + padding */
+  max-height: calc(
+    (10 * var(--sim-row-h)) +
+    (9 * var(--sim-row-gap)) +
+    (2 * var(--sim-list-pad))
+  );
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Asegura una altura consistente de cada item */
+.sim-row {
+  min-height: var(--sim-row-h);
+  padding-top: 6px;
+  padding-bottom: 6px;
+  display: flex;              /* más estable para altura fija */
+  align-items: center;
+}
+
+/* La cajita de posición también acompasa la altura */
+.sim-list__pos {
+  height: 30px;               /* ya lo tienes, lo dejamos consistente */
+}
+
+/* =========================================
+   FIX dropdown (select + options) GP list
+   Pégalo AL FINAL
+   ========================================= */
+
+/* El control cerrado */
+.sim-select,
+.oc-input.sim-select {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+
+  /* por si algún estilo global mete cosas raras */
+  filter: none !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* El menú abierto (las opciones) */
+.sim-select option {
+  background-color: #0a101a !important;  /* oscuro */
+  color: #ffffff !important;             /* texto visible */
+}
+
+/* Opcional: al pasar/seleccionar (no siempre se respeta según SO) */
+.sim-select option:checked {
+  background-color: #f4b400 !important;
+  color: #0b0f14 !important;
+}
+
+
+/* =========================================
+   Points pill in each row
+   ========================================= */
+
+/* La fila ahora tiene nombre + puntos */
+.sim-row {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Pill puntos */
+.sim-row__pts {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+
+  padding: 4px 8px;
+  border-radius: 999px;
+
+  background: rgba(244, 180, 0, 0.14);
+  border: 1px solid rgba(244, 180, 0, 0.28);
+
+  font-weight: 1000;
   font-size: 12px;
+  color: rgba(255, 255, 255, 0.95);
+
+  white-space: nowrap;
+}
+
+.sim-row__ptsUnit {
+  font-size: 11px;
   font-weight: 900;
-  color: rgba(255,255,255,0.65);
-  margin-top: 2px;
+  opacity: 0.75;
 }
 
-.sim-row__id {
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(255,255,255,0.6);
-  text-align: right;
+/* Para posiciones fuera del top10 (0 pts) un look más suave */
+.sim-row__pts:has(.sim-row__ptsUnit) {
+  /* nada, solo para compatibilidad mental */
 }
 
-.sim-row__handle {
-  text-align: right;
-  font-size: 18px;
-  color: rgba(255,255,255,0.55);
-  user-select: none;
+/* Si quieres “apagado” cuando es 0 */
+.sim-row__pts {
+  opacity: 0.95;
+}
+.sim-row__pts[aria-label="Points: 0"] {
+  opacity: 0.55;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.10);
 }
 
+/* =========================================
+   CLICK-TO-SWAP: piloto seleccionado
+   Pégalo AL FINAL (override final)
+   ========================================= */
+
+/* La fila seleccionada */
+.sim-row.selected {
+  border-color: rgba(244, 180, 0, 0.85) !important;
+  background: rgba(244, 180, 0, 0.16) !important;
+  box-shadow:
+    0 0 0 2px rgba(244, 180, 0, 0.22),
+    0 10px 26px rgba(0, 0, 0, 0.30) !important;
+}
+
+/* El texto del piloto un pelín más “vivo” */
+.sim-row.selected .sim-row__driver {
+  color: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* La pill de puntos también se marca */
+.sim-row.selected .sim-row__pts {
+  background: rgba(244, 180, 0, 0.24) !important;
+  border-color: rgba(244, 180, 0, 0.55) !important;
+}
+
+/* Bonus: marca también la caja de posición P1/P2... del seleccionado */
+.sim-list__item:has(.sim-row.selected) .sim-list__pos {
+  border-color: rgba(244, 180, 0, 0.85) !important;
+  background: rgba(244, 180, 0, 0.16) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* Si está seleccionado y además se arrastra, prioriza "dragging" */
+.sim-row.selected.dragging {
+  border-color: rgba(244, 180, 0, 0.95) !important;
+  background: rgba(244, 180, 0, 0.22) !important;
+}
+
+/* =========================================
+   Next round button (primary)
+   Pégalo AL FINAL
+   ========================================= */
+
+.sim-card__actions .oc-btn--primary {
+  border-radius: 12px;
+  border: 1px solid rgba(244, 180, 0, 0.55);
+  background: linear-gradient(180deg, rgba(244, 180, 0, 0.95), rgba(244, 180, 0, 0.70));
+  color: #0b0f14;
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+  box-shadow:
+    0 12px 26px rgba(244, 180, 0, 0.18),
+    0 10px 22px rgba(0, 0, 0, 0.35);
+}
+
+.sim-card__actions .oc-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.sim-card__actions .oc-btn--primary:disabled {
+  background: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.70);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: none;
+}
+
+/* =========================================
+   Botones debajo del selector de ronda
+   ========================================= */
+
+.sim-roundActions {
+  display: grid;
+  grid-template-columns: 1fr; /* por defecto, en columna */
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Los botones dentro del bloque: full width para que quede “panel” */
+.sim-roundActions .oc-btn {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 12px;
+  font-weight: 950;
+}
+
+/* En desktop ancho, ponemos 2 columnas y el reset abajo ocupando todo */
+@media (min-width: 981px) {
+  .sim-roundActions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Apply (1), Next (2) arriba; Reset abajo ocupando 2 columnas */
+  .sim-roundActions .oc-btn--ghost {
+    grid-column: 1 / -1;
+  }
+}
+
+/* En móvil/tablet, siguen en columna y no se aprietan */
+@media (max-width: 980px) {
+  .sim-roundActions {
+    grid-template-columns: 1fr;
+  }
+}

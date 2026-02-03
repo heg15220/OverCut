@@ -65,21 +65,12 @@ export default function SeasonRoundSelector() {
     dispatch(predictions.actions.bootstrap(s, r));
   };
 
-  // chips rápidos (puedes cambiarlos cuando quieras)
-  const quick = [
-    { label: "2021 (completo)", season: 2021, fromRound: 1 },
-    { label: "2012 (R6)", season: 2012, fromRound: 6 },
-    { label: "2007 (completo)", season: 2007, fromRound: 1 },
-  ];
-
   return (
     <div className="sr-card">
       <div className="sr-head">
         <div className="sr-titlebox">
           <h3>Inicializar simulación</h3>
-          <p>
-            Elige temporada y la ronda desde la que quieres empezar a modificar resultados.
-          </p>
+          <p>Elige temporada y la ronda desde la que quieres empezar a modificar resultados.</p>
         </div>
 
         <button
@@ -135,7 +126,8 @@ export default function SeasonRoundSelector() {
                 Temporada con <b>{totalRounds}</b> rondas.{" "}
                 {selectedRoundName ? (
                   <>
-                    Seleccionada: <b>R{fromRound}</b> — <span className="sr-gp">{selectedRoundName}</span>
+                    Seleccionada: <b>R{fromRound}</b> —{" "}
+                    <span className="sr-gp">{selectedRoundName}</span>
                   </>
                 ) : (
                   <>
@@ -158,26 +150,6 @@ export default function SeasonRoundSelector() {
           <button className="oc-btn sr-primary" disabled={!canSubmit} onClick={submit}>
             {loading ? "Cargando..." : "Bootstrap"}
           </button>
-        </div>
-      </div>
-
-      <div className="sr-quick">
-        <span className="sr-quick__label">Atajos</span>
-        <div className="sr-quick__chips">
-          {quick.map((q) => (
-            <button
-              key={q.label}
-              type="button"
-              className="oc-chip sr-chip"
-              disabled={loading}
-              onClick={() => {
-                setSeason(q.season);
-                setFromRound(q.fromRound);
-              }}
-            >
-              {q.label}
-            </button>
-          ))}
         </div>
       </div>
     </div>

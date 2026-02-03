@@ -97,3 +97,37 @@
     font-size: 28px;
   }
 }
+
+/* ============================
+   Fix dropdown white (select)
+   ============================ */
+
+/* El control cerrado (select) */
+.predictions-header select,
+.predictions-header .oc-input[type="select"],
+.predictions-header .oc-input select,
+.predictions-header .oc-input.oc-select,
+.predictions-header select.oc-input,
+.predictions-header select.oc-select,
+.predictions-header select {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+
+  filter: none !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* El menú abierto (options) */
+.predictions-header select option {
+  background-color: #0a101a !important;
+  color: #ffffff !important;
+}
+
+/* Opcional (no siempre se respeta según SO) */
+.predictions-header select option:checked {
+  background-color: #f4b400 !important;
+  color: #0b0f14 !important;
+}

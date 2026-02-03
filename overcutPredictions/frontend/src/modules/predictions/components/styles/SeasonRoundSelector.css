@@ -153,3 +153,177 @@
     width: 100%;
   }
 }
+
+/* =========================================
+   FIX dropdown white (sr-select + options)
+   Pégalo AL FINAL de SeasonRoundSelector.css
+   ========================================= */
+
+/* Select cerrado: fuerza colores y evita "white wash" */
+.sr-select {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+
+  /* por si algún estilo global mete filtros */
+  filter: none !important;
+
+  /* en algunos navegadores ayuda a que el texto no "desaparezca" */
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Menú abierto: opciones (clave para evitar blanco) */
+.sr-select option {
+  background-color: #0a101a !important; /* oscuro */
+  color: #ffffff !important;            /* texto visible */
+}
+
+/* (Opcional) Estado seleccionado / hover (no siempre lo respeta el SO) */
+.sr-select option:checked {
+  background-color: #f4b400 !important;
+  color: #0b0f14 !important;
+}
+
+
+/* =========================================
+   Bootstrap button — premium
+   Pégalo AL FINAL de SeasonRoundSelector.css
+   ========================================= */
+
+.sr-actions .sr-primary {
+  /* base */
+  width: 100%;
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(244, 180, 0, 0.55);
+
+  /* look */
+  background: linear-gradient(180deg, rgba(244, 180, 0, 0.95), rgba(244, 180, 0, 0.70));
+  color: #0b0f14;
+  font-weight: 1000;
+  letter-spacing: 0.3px;
+
+  /* layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+
+  /* polish */
+  box-shadow:
+    0 12px 26px rgba(244, 180, 0, 0.20),
+    0 10px 22px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease;
+}
+
+.sr-actions .sr-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 16px 34px rgba(244, 180, 0, 0.24),
+    0 12px 28px rgba(0, 0, 0, 0.40);
+}
+
+.sr-actions .sr-primary:active:not(:disabled) {
+  transform: translateY(0px) scale(0.99);
+  filter: brightness(0.98);
+}
+
+.sr-actions .sr-primary:focus-visible {
+  outline: 2px solid rgba(244, 180, 0, 0.75);
+  outline-offset: 2px;
+}
+
+/* Disabled = elegante, no “gris muerto” */
+.sr-actions .sr-primary:disabled {
+  background: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.70);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+/* Si quieres añadir un spinner sin tocar JSX:
+   cuando el texto sea "Cargando..." le metemos pseudo-elemento */
+.sr-actions .sr-primary:not(:disabled)::before {
+  content: "";
+  display: none;
+}
+
+.sr-actions .sr-primary:disabled::before {
+  content: "";
+  display: none; /* no spinner en disabled normal */
+}
+
+/* Spinner SOLO cuando el botón esté deshabilitado por loading:
+   (en tu caso loading => disabled, pero también hay invalid => disabled.
+    Si quieres spinner solo en loading, mejor añade data-loading en JSX.
+    Aun así te dejo la versión "simple": si el texto es Cargando..., muestra spinner con JS (opcional).)
+*/
+/* =========================================
+   Align selects + Bootstrap at same height
+   Pégalo AL FINAL de SeasonRoundSelector.css
+   ========================================= */
+
+/* 1) En desktop: alinear por arriba, no por abajo */
+.sr-grid {
+  align-items: start !important;
+}
+
+/* 2) Reserva un "hueco" fijo debajo de cada select
+      para que todos los selects queden a la misma altura */
+.sr-field {
+  /* espacio para hint/error */
+  padding-bottom: 46px; /* ajusta si tu hint ocupa más/menos */
+  position: relative;
+}
+
+/* coloca hint y error en un área fija abajo */
+.sr-hint,
+.sr-error {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* si hay error, que no se pise con el hint */
+.sr-error {
+  bottom: 0;
+}
+
+.sr-hint {
+  bottom: 0;
+}
+
+/* 3) La columna del botón: que arranque igual que un sr-field (label + gap) */
+.sr-actions {
+  /* mismo “espacio” que label(aprox) + gap(6px) */
+  padding-top: calc(12px + 6px); /* label font-size + gap */
+}
+
+/* Asegura que el botón tenga la misma altura visual que el select */
+.sr-actions .sr-primary {
+  min-height: 42px; /* select: padding 10px + line-height -> suele rondar 40-44 */
+}
+
+/* 4) En responsive (1 columna), volvemos a layout normal */
+@media (max-width: 980px) {
+  .sr-field {
+    padding-bottom: 0;
+  }
+  .sr-hint,
+  .sr-error {
+    position: static;
+  }
+  .sr-actions {
+    padding-top: 0;
+  }
+}
+

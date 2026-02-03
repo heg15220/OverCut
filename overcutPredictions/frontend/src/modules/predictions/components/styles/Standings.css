@@ -1,20 +1,24 @@
+/* ===============================
+   Standings.css — improved UX
+   =============================== */
+
 .standings {
-  background: rgba(0, 0, 0, 0.52);
+  background: rgba(10, 16, 26, 0.66);
   border-radius: 16px;
-  padding: 16px;
-  border: 1px solid rgba(244, 180, 0, 0.22);
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(10px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.30);
 }
 
 /* ---------- Head ---------- */
 
 .standings-head {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .standings-title h2 {
@@ -29,38 +33,49 @@
   display: block;
   margin-top: 4px;
   font-size: 12px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.7);
+  font-weight: 850;
+  color: rgba(255, 255, 255, 0.70);
 }
 
 /* ---------- Tabs ---------- */
 
 .standings-tabs {
-  display: flex;
+  display: inline-flex;
   gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 .tab {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid transparent;
+  background: transparent;
   color: rgba(255, 255, 255, 0.92);
-  padding: 8px 10px;
-  border-radius: 12px;
-  font-weight: 900;
+
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 950;
+  font-size: 12px;
+
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease, border 0.15s ease;
+  transition: transform 0.12s ease, background 0.12s ease, border 0.12s ease;
 }
 
 .tab:hover {
   transform: translateY(-1px);
-  background: rgba(244, 180, 0, 0.14);
-  border-color: rgba(244, 180, 0, 0.35);
+  background: rgba(244, 180, 0, 0.12);
 }
 
 .tab.active {
-  background: var(--oc-yellow);
-  color: var(--oc-black);
-  border-color: rgba(244, 180, 0, 0.85);
+  border-color: rgba(244, 180, 0, 0.55);
+  background: rgba(244, 180, 0, 0.18);
+  color: var(--oc-yellow);
+}
+
+.tab:focus-visible {
+  outline: 2px solid rgba(244, 180, 0, 0.65);
+  outline-offset: 2px;
 }
 
 /* ---------- Table ---------- */
@@ -69,6 +84,21 @@
   overflow: auto;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
+
+  max-height: min(520px, 62vh);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(244,180,0,0.45) rgba(255,255,255,0.06);
+}
+
+.standings-tableWrap::-webkit-scrollbar { width: 10px; }
+.standings-tableWrap::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+}
+.standings-tableWrap::-webkit-scrollbar-thumb {
+  background: rgba(244,180,0,0.35);
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.06);
 }
 
 .standings-table {
@@ -86,8 +116,9 @@
   text-align: left;
   font-weight: 1000;
   color: rgba(255, 255, 255, 0.86);
+
   padding: 10px 10px;
-  background: rgba(10, 16, 26, 0.95);
+  background: rgba(10, 16, 26, 0.96);
   border-bottom: 1px solid rgba(255, 255, 255, 0.10);
 }
 
@@ -96,7 +127,7 @@
 .col-name { width: auto; }
 
 .standings-table tbody td {
-  padding: 10px 10px;
+  padding: 9px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -127,6 +158,10 @@
   font-weight: 950;
   color: rgba(255, 255, 255, 0.95);
   line-height: 1.1;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .idTag {
@@ -149,12 +184,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   min-width: 44px;
   padding: 6px 10px;
   border-radius: 12px;
-  background: rgba(244, 180, 0, 0.16);
-  border: 1px solid rgba(244, 180, 0, 0.30);
+
+  background: rgba(244, 180, 0, 0.14);
+  border: 1px solid rgba(244, 180, 0, 0.28);
   color: rgba(255, 255, 255, 0.95);
+
   font-weight: 1000;
 }
 
@@ -164,38 +202,46 @@
   padding: 14px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.86);
   font-weight: 800;
 }
 
 .standings-footnote {
   margin-top: 10px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.62);
   font-weight: 700;
+  line-height: 1.25;
 }
 
 /* ---------- Responsive ---------- */
 
 @media (max-width: 520px) {
   .standings {
-    padding: 14px;
+    padding: 12px;
+    border-radius: 14px;
   }
 
   .standings-head {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .standings-tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tab {
+    width: 100%;
+    text-align: center;
   }
 
   .standings-table {
     min-width: 360px;
   }
 
-  .tab {
-    width: 100%;
-  }
-
-  .standings-tabs {
-    width: 100%;
+  .standings-tableWrap {
+    max-height: min(520px, 56vh);
   }
 }
