@@ -6,7 +6,6 @@
   --oc-white: #ffffff;
   --oc-gray: #e6e6e6;
 
-  /* extras */
   --oc-glass: rgba(255, 255, 255, 0.06);
   --oc-glass-border: rgba(255, 255, 255, 0.12);
   --oc-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
@@ -23,7 +22,6 @@
   border-bottom: 1px solid rgba(244, 180, 0, 0.25);
   box-shadow: var(--oc-shadow);
 
-  /* opcional “pro”: header pegajoso */
   position: sticky;
   top: 0;
   z-index: 50;
@@ -36,25 +34,21 @@
   gap: 8px;
   font-weight: 1000;
   letter-spacing: 0.6px;
+  min-width: 0;
 }
 
 .ocp-brand__over,
 .ocp-brand__cut {
   font-size: 22px;
   color: var(--oc-white);
+  white-space: nowrap;
 }
 
 .ocp-brand__cut {
   color: var(--oc-yellow);
 }
 
-.ocp-brand__sub {
-  font-size: 13px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.75);
-  transform: translateY(-1px);
-}
-
+/* -------- NAV desktop -------- */
 .ocp-nav {
   display: flex;
   gap: 10px;
@@ -92,15 +86,104 @@
   border-color: rgba(244, 180, 0, 0.75);
 }
 
+/* -------- Burger (solo móvil) -------- */
+.ocp-burger {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+}
+
+.ocp-burger:active {
+  transform: translateY(1px);
+}
+
+.ocp-burger__bar {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 10px;
+}
+
+/* -------- Menú móvil -------- */
+.ocp-mobileOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 60;
+}
+
+.ocp-mobileMenu {
+  position: fixed;
+  top: 70px; /* justo debajo del header */
+  right: 12px;
+  left: 12px;
+  z-index: 70;
+
+  background: rgba(10, 20, 35, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  box-shadow: var(--oc-shadow);
+
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ocp-mobileMenu a {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 900;
+  padding: 12px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.ocp-mobileMenu a:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.ocp-mobileMenu a.active {
+  color: var(--oc-black);
+  background: var(--oc-yellow);
+  border-color: rgba(244, 180, 0, 0.85);
+}
+
+/* -------- Responsive -------- */
 @media (max-width: 560px) {
-  .ocp-brand__sub {
+  .ocp-header {
+    padding: 0 12px;
+    height: 64px;
+  }
+
+  .ocp-brand__over,
+  .ocp-brand__cut {
+    font-size: 18px;
+  }
+
+  /* ocultamos nav de desktop */
+  .ocp-nav--desktop {
     display: none;
   }
-  .ocp-nav {
-    gap: 6px;
+
+  /* mostramos burger */
+  .ocp-burger {
+    display: inline-flex;
   }
-  .ocp-nav a {
-    padding: 8px 10px;
-    border-radius: 10px;
+
+  /* el menú móvil se alinea al nuevo alto */
+  .ocp-mobileMenu {
+    top: 64px;
   }
 }

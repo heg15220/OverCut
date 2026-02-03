@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import predictions from "../index";
 import "./styles/PredictionsHeader.css";
+import { t } from "../../../i18n/translations"; // <-- ajusta ruta
 
 export default function PredictionsHeader() {
   const dispatch = useDispatch();
@@ -35,34 +36,30 @@ export default function PredictionsHeader() {
           {hasBootstrapped ? (
             <>
               <span className="pill">
-                Season <b>{season}</b>
+                {t("predHeader.pillSeason")} <b>{season}</b>
               </span>
 
               <span className="pill pill--soft">
-                Start <b>R{fromRound}</b>
+                {t("predHeader.pillStart")} <b>R{fromRound}</b>
                 {startRoundName ? <span className="pill__muted">· {startRoundName}</span> : null}
               </span>
 
-              <span className="pill pill--dark">
-                <b>{loadedCount}</b> real races loaded
-              </span>
+              <span className="pill pill--dark">{t("predHeader.pillRealLoaded", { n: loadedCount })}</span>
 
               {totalRounds ? (
                 <span className="pill pill--ghost">
-                  Total <b>{totalRounds}</b> rounds
+                  {t("predHeader.pillTotal")} <b>{totalRounds}</b> {t("predHeader.pillRounds")}
                 </span>
               ) : null}
 
               <span className="pill pill--ghost">
-                Mode <b>{mode}</b>
+                {t("predHeader.pillMode")} <b>{mode}</b>
               </span>
 
-              {loading ? <span className="pill pill--loading">Loading…</span> : null}
+              {loading ? <span className="pill pill--loading">{t("predHeader.loading")}</span> : null}
             </>
           ) : (
-            <span className="predictions-hint">
-              Selecciona temporada y ronda para inicializar el campeonato.
-            </span>
+            <span className="predictions-hint">{t("predHeader.hint")}</span>
           )}
         </div>
       </div>
@@ -73,10 +70,10 @@ export default function PredictionsHeader() {
             className="oc-btn oc-btn--ghost"
             disabled={loading}
             onClick={() => dispatch(predictions.actions.resetSimulation())}
-            title="Reiniciar simulación"
+            title={t("predHeader.resetTitle")}
             type="button"
           >
-            Reset
+            {t("predHeader.resetBtn")}
           </button>
         )}
       </div>

@@ -1,18 +1,24 @@
-// SimulationPanel.jsx (solo muestro el archivo completo, ya con payload currentState)
-
+// SimulationPanel.jsx
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+  useSortable,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import predictions from "../index";
 import "./styles/SimulationPanel.css";
 import { pointsForPosition } from "./pointsEras";
+import { t } from "../../../i18n/translations"; // <-- ajusta ruta
 
 function SortableDriverRow({ driver, points, isSelected, onClick }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: driver.driverId });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: driver.driverId,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -44,7 +50,7 @@ function SortableDriverRow({ driver, points, isSelected, onClick }) {
         <div className="sim-row__driver">{driver.driverName}</div>
       </div>
 
-      <div className="sim-row__pts" aria-label={`Points: ${points}`}>
+      <div className="sim-row__pts" aria-label={t("sim.ariaPoints", { points })}>
         {points}
         <span className="sim-row__ptsUnit">pts</span>
       </div>
@@ -169,8 +175,8 @@ export default function SimulationPanel() {
 
   const buildPayload = () => ({
     season,
-    driverStandings,          // ✅ arriba
-    constructorStandings,     // ✅ arriba
+    driverStandings,
+    constructorStandings,
     race: { round: Number(round), orderedDriverIds: orderedIds },
     driverToConstructor,
   });
@@ -198,13 +204,11 @@ export default function SimulationPanel() {
       <div className="sim-card">
         <div className="sim-card__head">
           <div className="sim-card__title">
-            <h2>Simulation</h2>
-            <span className="sim-card__sub">Haz Bootstrap para empezar</span>
+            <h2>{t("sim.title")}</h2>
+            <span className="sim-card__sub">{t("sim.needBootstrap")}</span>
           </div>
         </div>
-        <div className="sim-card__empty">
-          Haz <b>Bootstrap</b> para cargar el estado real del campeonato y empezar a simular.
-        </div>
+        <div className="sim-card__empty">{t("sim.empty")}</div>
       </div>
     );
   }
@@ -213,16 +217,16 @@ export default function SimulationPanel() {
     <div className="sim-card">
       <div className="sim-card__head">
         <div className="sim-card__title">
-          <h2>Simulation</h2>
+          <h2>{t("sim.title")}</h2>
           <span className="sim-card__sub">
-            {season} · Desde ronda {fromRound} · <b>{currentGpName}</b>
+            {t("sim.subtitle", { season, fromRound, gp: currentGpName })}
           </span>
         </div>
       </div>
 
       <div className="sim-card__grid">
         <div className="sim-field">
-          <label>Grand Prix (round)</label>
+          <label>{t("sim.gpRound")}</label>
 
           <select
             className="oc-input sim-select"
@@ -247,11 +251,16 @@ export default function SimulationPanel() {
 
           <div className="sim-roundActions">
             <button className="oc-btn" disabled={!canApply} onClick={apply} type="button">
-              Apply simulation
+              {t("sim.apply")}
             </button>
 
-            <button className="oc-btn oc-btn--primary" disabled={!canNext} onClick={next} type="button">
-              Apply and Next round →
+            <button
+              className="oc-btn oc-btn--primary"
+              disabled={!canNext}
+              onClick={next}
+              type="button"
+            >
+              {t("sim.applyNext")}
             </button>
 
             <button
@@ -264,24 +273,20 @@ export default function SimulationPanel() {
                 setDirtyOrder(false);
               }}
             >
-              Reset order
+              {t("sim.resetOrder")}
             </button>
           </div>
 
-          <div className="sim-hint">
-            Solo puedes simular desde <b>round {fromRound}</b> en adelante.
-          </div>
+          <div className="sim-hint">{t("sim.onlyFrom", { fromRound })}</div>
         </div>
 
         <div className="sim-field sim-field--wide">
-          <label>Finishing order</label>
+          <label>{t("sim.finishingOrder")}</label>
 
           <div className="sim-dnd">
             <div className="sim-dnd__header">
-              <span>{orderedIds.length} pilotos</span>
-              <span className="sim-dnd__hint">
-                Arrastra para reordenar (P1 arriba) · Click 2 pilotos para intercambiar
-              </span>
+              <span>{t("sim.countDrivers", { n: orderedIds.length })}</span>
+              <span className="sim-dnd__hint">{t("sim.dragHint")}</span>
             </div>
 
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
@@ -309,15 +314,15 @@ export default function SimulationPanel() {
           </div>
 
           <div className="sim-meta">
-            <span className="meta-pill meta-pill--soft">GP: {currentGpName}</span>
-            {selectedId != null ? <span className="meta-pill">Seleccionado: #{selectedId}</span> : null}
+            <span className="meta-pill meta-pill--soft">{t("sim.metaGp", { gp: currentGpName })}</span>
+            {selectedId != null ? (
+              <span className="meta-pill">{t("sim.selectedId", { id: selectedId })}</span>
+            ) : null}
           </div>
         </div>
       </div>
 
-      <div className="sim-card__note">
-        Ahora puedes hacer “Next” para aplicar + avanzar sin validar a mano.
-      </div>
+      <div className="sim-card__note">{t("sim.note")}</div>
     </div>
   );
 }

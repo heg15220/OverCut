@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import predictions from "../index";
 import "./styles/Standings.css";
+import { t } from "../../../i18n/translations"; // <-- ajusta ruta
 
 export default function StandingsTable() {
   const [tab, setTab] = useState("drivers");
@@ -18,14 +19,12 @@ export default function StandingsTable() {
       <div className="standings">
         <div className="standings-head">
           <div className="standings-title">
-            <h2>Standings</h2>
-            <span className="standings-subtitle">Clasificación en tiempo real</span>
+            <h2>{t("stand.title")}</h2>
+            <span className="standings-subtitle">{t("stand.subtitleLive")}</span>
           </div>
         </div>
 
-        <div className="standings-empty">
-          Haz <b>Bootstrap</b> para ver la clasificación.
-        </div>
+        <div className="standings-empty">{t("stand.empty")}</div>
       </div>
     );
   }
@@ -34,20 +33,27 @@ export default function StandingsTable() {
     <div className="standings">
       <div className="standings-head">
         <div className="standings-title">
-          <h2>Standings</h2>
-          <span className="standings-subtitle">{tab === "drivers" ? "Pilotos" : "Constructores"}</span>
+          <h2>{t("stand.title")}</h2>
+          <span className="standings-subtitle">
+            {tab === "drivers" ? t("stand.subtitleDrivers") : t("stand.subtitleConstructors")}
+          </span>
         </div>
 
         <div className="standings-tabs">
-          <button className={`tab ${tab === "drivers" ? "active" : ""}`} onClick={() => setTab("drivers")} type="button">
-            Drivers
+          <button
+            className={`tab ${tab === "drivers" ? "active" : ""}`}
+            onClick={() => setTab("drivers")}
+            type="button"
+          >
+            {t("stand.tabDrivers")}
           </button>
+
           <button
             className={`tab ${tab === "constructors" ? "active" : ""}`}
             onClick={() => setTab("constructors")}
             type="button"
           >
-            Constructors
+            {t("stand.tabConstructors")}
           </button>
         </div>
       </div>
@@ -57,8 +63,10 @@ export default function StandingsTable() {
           <thead>
             <tr>
               <th className="col-pos">#</th>
-              <th className="col-name">{tab === "drivers" ? "Driver" : "Constructor"}</th>
-              <th className="col-pts">Pts</th>
+              <th className="col-name">
+                {tab === "drivers" ? t("stand.thDriver") : t("stand.thConstructor")}
+              </th>
+              <th className="col-pts">{t("stand.thPts")}</th>
             </tr>
           </thead>
 
@@ -84,7 +92,7 @@ export default function StandingsTable() {
       </div>
 
       <div className="standings-footnote">
-        {tab === "drivers" ? "Clasificación pilotos": "Clasificación de equipos"}
+        {tab === "drivers" ? t("stand.footDrivers") : t("stand.footConstructors")}
       </div>
     </div>
   );

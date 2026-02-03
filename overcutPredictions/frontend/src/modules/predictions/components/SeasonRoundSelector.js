@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import predictions from "../index";
 import "./styles/SeasonRoundSelector.css";
 import CustomSeasonModal from "./CustomSeasonModal";
+import { t } from "../../../i18n/translations"; // <-- ajusta ruta
 
 const clampInt = (v, min, max) => {
   const n = parseInt(v, 10);
@@ -37,7 +38,6 @@ export default function SeasonRoundSelector() {
   const raceNamesByRound = useSelector(predictions.selectors.getRaceNamesByRound);
   const customConfig = useSelector(predictions.selectors.getCustomConfig);
 
-  // ✅ NUEVO: lookups completos desde redux (para autogenerar modal con datos reales)
   const dbLookups = useSelector(predictions.selectors.getLookups);
 
   const [season, setSeason] = useState(bootSeason ?? 2012);
@@ -77,8 +77,8 @@ export default function SeasonRoundSelector() {
     <div className="sr-card">
       <div className="sr-head">
         <div className="sr-titlebox">
-          <h3>Inicializar simulación</h3>
-          <p>Elige temporada y la ronda desde la que quieres empezar a modificar resultados.</p>
+          <h3>{t("sr.title")}</h3>
+          <p>{t("sr.desc")}</p>
         </div>
 
         <div className="sr-headActions">
@@ -91,7 +91,6 @@ export default function SeasonRoundSelector() {
                 (dbLookups?.seasonDrivers?.length || 0) > 0 ||
                 Object.keys(dbLookups?.raceNamesByRound || {}).length > 0;
 
-              // ✅ Si no hay lookups o pertenecen a otra season, los pedimos
               const lookupsAreForThisSeason = Number(bootSeason) === Number(season);
 
               if (!hasAnyLookups || !lookupsAreForThisSeason) {
@@ -100,10 +99,9 @@ export default function SeasonRoundSelector() {
 
               setCustomOpen(true);
             }}
-
-            title="Config (basada en datos reales si existen)"
+            title={t("sr.customTitle")}
           >
-            Custom season
+            {t("sr.custom")}
           </button>
 
           <button
@@ -114,16 +112,16 @@ export default function SeasonRoundSelector() {
               setSeason(2012);
               setFromRound(6);
             }}
-            title="Volver a valores por defecto"
+            title={t("sr.defaultTitle")}
           >
-            Default
+            {t("sr.default")}
           </button>
         </div>
       </div>
 
       <div className="sr-grid">
         <div className="sr-field">
-          <label>Temporada</label>
+          <label>{t("sr.season")}</label>
           <select
             className="sr-select"
             value={season}
@@ -136,11 +134,11 @@ export default function SeasonRoundSelector() {
               </option>
             ))}
           </select>
-          {!seasonOk && <div className="sr-error">Rango 1950–2026</div>}
+          {!seasonOk && <div className="sr-error">{t("sr.rangeYears")}</div>}
         </div>
 
         <div className="sr-field">
-          <label>Simular desde la ronda</label>
+          <label>{t("sr.fromRound")}</label>
           <select
             className="sr-select"
             value={fromRound}
@@ -157,32 +155,32 @@ export default function SeasonRoundSelector() {
           <div className="sr-hint">
             {totalRounds ? (
               <>
-                Temporada con <b>{totalRounds}</b> rondas.{" "}
+                {t("sr.hintWithTotal", { total: totalRounds })}{" "}
                 {selectedRoundName ? (
                   <>
-                    Seleccionada: <b>R{fromRound}</b> —{" "}
+                    {t("sr.selected")} <b>R{fromRound}</b> —{" "}
                     <span className="sr-gp">{selectedRoundName}</span>
                   </>
                 ) : (
                   <>
-                    Seleccionada: <b>R{fromRound}</b>
+                    {t("sr.selected")} <b>R{fromRound}</b>
                   </>
                 )}
               </>
             ) : (
               <>
-                Seleccionada: <b>R{fromRound}</b> (máx. 30).{" "}
-                <span className="sr-muted">Al hacer Bootstrap mostraremos el GP.</span>
+                {t("sr.selected")} <b>R{fromRound}</b> ({t("sr.max30")}).{" "}
+                <span className="sr-muted">{t("sr.hintAfterBootstrap")}</span>
               </>
             )}
           </div>
 
-          {!roundOk && <div className="sr-error">Rango 1–{roundMax}</div>}
+          {!roundOk && <div className="sr-error">{t("sr.rangeRounds", { max: roundMax })}</div>}
         </div>
 
         <div className="sr-actions">
           <button className="oc-btn sr-primary" disabled={!canSubmit} onClick={submit} type="button">
-            {loading ? "Cargando..." : "Bootstrap"}
+            {loading ? t("sr.loading") : t("sr.bootstrap")}
           </button>
         </div>
       </div>
@@ -193,7 +191,7 @@ export default function SeasonRoundSelector() {
         season={season}
         fromRound={fromRound}
         initialConfig={customConfig}
-        dbLookups={Number(bootSeason) === Number(season) ? dbLookups : null} // ✅ NUEVO
+        dbLookups={Number(bootSeason) === Number(season) ? dbLookups : null}
         onSubmit={(payload) => {
           setCustomOpen(false);
           dispatch(predictions.actions.bootstrapCustom({ ...payload }));

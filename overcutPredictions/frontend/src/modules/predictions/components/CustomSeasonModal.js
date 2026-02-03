@@ -1,6 +1,7 @@
 // CustomSeasonModal.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import "./styles/CustomSeasonModal.css";
+import { t } from "../../../i18n/translations"; // <-- ajusta ruta
 
 const mkNegId = (base) => -Math.abs(base);
 
@@ -57,11 +58,13 @@ const buildStateFromDbLookups = (dbLookups, fromRound) => {
   const constructors = Array.from(uniqueConstructorIds).map((cid) => ({
     constructorId: Number(cid),
     name:
-      (constructorNames?.[String(cid)] || constructorNames?.[cid] || seasonDrivers.find((x) => Number(x.constructorId) === Number(cid))?.constructorName || `Constructor ${cid}`),
+      constructorNames?.[String(cid)] ||
+      constructorNames?.[cid] ||
+      seasonDrivers.find((x) => Number(x.constructorId) === Number(cid))?.constructorName ||
+      `Constructor ${cid}`,
   }));
 
   // 4) Races: desde raceNamesByRound
-  // OJO: esto devuelve todo el calendario. Si prefieres solo desde fromRound, puedes filtrar.
   const raceRounds = Object.keys(raceNamesByRound)
     .map((k) => Number(k))
     .filter((n) => Number.isFinite(n))
@@ -70,11 +73,12 @@ const buildStateFromDbLookups = (dbLookups, fromRound) => {
   const races = raceRounds.length
     ? raceRounds.map((round) => ({
         round,
-        name: String(raceNamesByRound[String(round)] || raceNamesByRound[round] || `Round ${round}`),
+        name: String(
+          raceNamesByRound[String(round)] || raceNamesByRound[round] || `Round ${round}`
+        ),
       }))
     : [{ round: fromRound || 1, name: `Round ${fromRound || 1}` }];
 
-  // 5) Si el usuario abre esto, lo consideramos "no tocado" todavía (autofill)
   return {
     constructors: constructors.length ? constructors : makeFallbackState(fromRound).constructors,
     drivers: drivers.length ? drivers : makeFallbackState(fromRound).drivers,
@@ -108,13 +112,9 @@ export default function CustomSeasonModal({
   season,
   fromRound,
   initialConfig,
-  dbLookups, // ✅ NUEVO
+  dbLookups,
   onSubmit,
 }) {
-  // prioridad:
-  // 1) initialConfig (si existe) -> reabrir lo que el usuario guardó
-  // 2) dbLookups -> autogenerar desde BD
-  // 3) fallback placeholders
   const computeInitial = () => {
     const cfgSeason = Number(initialConfig?.season);
     const cfgFrom = Number(initialConfig?.fromRound);
@@ -125,7 +125,6 @@ export default function CustomSeasonModal({
       cfgSeason === Number(season) &&
       cfgFrom === Number(fromRound);
 
-    // ✅ SOLO si el config guardado es de ESTA season/fromRound
     if (initialConfig && sameSelection) {
       const fromCfg = mapConfigToState(initialConfig, fromRound);
       if (fromCfg) return fromCfg;
@@ -137,18 +136,15 @@ export default function CustomSeasonModal({
     return makeFallbackState(fromRound);
   };
 
-
   const [state, setState] = useState(() => computeInitial());
   const { constructors, drivers, mapping, races, touchedCalendar } = state;
 
-  // ✅ al abrir: rehidrata de nuevo
   useEffect(() => {
     if (!open) return;
     setState(computeInitial());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialConfig, fromRound, season, dbLookups]);
 
-  // ✅ ESC
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e) => {
@@ -158,14 +154,11 @@ export default function CustomSeasonModal({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, onClose]);
 
-  // ✅ si cambia fromRound y NO tocaste calendario, puedes alinear "primera ronda"
-  // (solo en fallback; si vienes de BD ya tienes calendario completo)
   useEffect(() => {
     if (!open) return;
     setState((prev) => {
       if (prev.touchedCalendar) return prev;
 
-      // Si en BD no hay races y estamos en modo fallback (1 solo elemento "Round X"), lo actualizamos
       if (prev.races?.length === 1 && String(prev.races[0]?.name || "").startsWith("Round ")) {
         return { ...prev, races: [{ round: fromRound || 1, name: `Round ${fromRound || 1}` }] };
       }
@@ -227,21 +220,18 @@ export default function CustomSeasonModal({
       <div className="oc-customModal" onClick={(e) => e.stopPropagation()}>
         <div className="oc-customModal__head">
           <div>
-            <h3>Config de temporada (basada en BD)</h3>
-            <p>
-              Se precarga con pilotos/equipos/calendario reales si existen en tu base de datos.
-              Puedes ajustar lo que necesites.
-            </p>
+            <h3>{t("customModal.title")}</h3>
+            <p>{t("customModal.desc")}</p>
           </div>
 
           <button className="oc-btn oc-btn--ghost" onClick={onClose} type="button">
-            Cerrar
+            {t("customModal.close")}
           </button>
         </div>
 
         {/* CONSTRUCTORS */}
         <section className="oc-customModal__section">
-          <h4>Equipos</h4>
+          <h4>{t("customModal.sectionTeams")}</h4>
 
           {constructors.map((c, idx) => (
             <div className="oc-customModal__row" key={c.constructorId}>
@@ -253,7 +243,7 @@ export default function CustomSeasonModal({
                   next[idx] = { ...c, name: e.target.value };
                   setState((s) => ({ ...s, constructors: next }));
                 }}
-                placeholder="Nombre del equipo"
+                placeholder={t("customModal.teamPlaceholder")}
               />
 
               <button
@@ -265,7 +255,7 @@ export default function CustomSeasonModal({
                     constructors: s.constructors.filter((_, i) => i !== idx),
                   }));
                 }}
-                title="Eliminar"
+                title={t("customModal.deleteTitle")}
               >
                 ✕
               </button>
@@ -287,14 +277,14 @@ export default function CustomSeasonModal({
                 }));
               }}
             >
-              + Añadir equipo
+              {t("customModal.addTeam")}
             </button>
           </div>
         </section>
 
         {/* DRIVERS + MAPPING */}
         <section className="oc-customModal__section">
-          <h4>Pilotos + Equipo</h4>
+          <h4>{t("customModal.sectionDriversTeams")}</h4>
 
           {drivers.map((d, idx) => (
             <div className="oc-customModal__row oc-customModal__row--3" key={d.driverId}>
@@ -306,7 +296,7 @@ export default function CustomSeasonModal({
                   next[idx] = { ...d, name: e.target.value };
                   setState((s) => ({ ...s, drivers: next }));
                 }}
-                placeholder="Nombre del piloto"
+                placeholder={t("customModal.driverPlaceholder")}
               />
 
               <select
@@ -321,7 +311,7 @@ export default function CustomSeasonModal({
                 }}
               >
                 <option value="" disabled>
-                  Selecciona equipo…
+                  {t("customModal.selectTeam")}
                 </option>
                 {constructors.map((c) => (
                   <option key={c.constructorId} value={c.constructorId}>
@@ -341,7 +331,7 @@ export default function CustomSeasonModal({
                     return { ...s, drivers: nextDrivers, mapping: nextMapping };
                   });
                 }}
-                title="Eliminar"
+                title={t("customModal.deleteTitle")}
               >
                 ✕
               </button>
@@ -360,14 +350,14 @@ export default function CustomSeasonModal({
                 }));
               }}
             >
-              + Añadir piloto
+              {t("customModal.addDriver")}
             </button>
           </div>
         </section>
 
         {/* RACES */}
         <section className="oc-customModal__section">
-          <h4>Calendario</h4>
+          <h4>{t("customModal.sectionCalendar")}</h4>
 
           {races.map((r, idx) => (
             <div className="oc-customModal__row oc-customModal__row--3" key={`${r.round}-${idx}`}>
@@ -380,7 +370,7 @@ export default function CustomSeasonModal({
                   next[idx] = { ...r, round: Number(e.target.value) };
                   setState((s) => ({ ...s, races: next, touchedCalendar: true }));
                 }}
-                placeholder="Ronda"
+                placeholder={t("customModal.roundPlaceholder")}
                 min={1}
                 max={40}
               />
@@ -393,7 +383,7 @@ export default function CustomSeasonModal({
                   next[idx] = { ...r, name: e.target.value };
                   setState((s) => ({ ...s, races: next, touchedCalendar: true }));
                 }}
-                placeholder="Nombre del GP"
+                placeholder={t("customModal.gpPlaceholder")}
               />
 
               <button
@@ -406,7 +396,7 @@ export default function CustomSeasonModal({
                     touchedCalendar: true,
                   }));
                 }}
-                title="Eliminar"
+                title={t("customModal.deleteTitle")}
               >
                 ✕
               </button>
@@ -426,14 +416,14 @@ export default function CustomSeasonModal({
                 }));
               }}
             >
-              + Añadir GP
+              {t("customModal.addGp")}
             </button>
           </div>
         </section>
 
         <div className="oc-customModal__foot">
           <button className="oc-btn oc-btn--ghost" onClick={onClose} type="button">
-            Cancelar
+            {t("customModal.cancel")}
           </button>
 
           <button
@@ -442,7 +432,7 @@ export default function CustomSeasonModal({
             onClick={submit}
             type="button"
           >
-            Bootstrap custom
+            {t("customModal.bootstrap")}
           </button>
         </div>
       </div>

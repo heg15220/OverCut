@@ -8,6 +8,7 @@ import SimulationPanel from "./SimulationPanel";
 
 import predictions from "../index";
 import "./styles/Predictions.css";
+import { t } from "../../../i18n/translations"; // <-- ajusta ruta
 
 export default function PredictionsView() {
   const error = useSelector(predictions.selectors.getError);
@@ -19,16 +20,10 @@ export default function PredictionsView() {
 
       {(error?.message || error?.global) && (
         <div className="oc-alert" role="alert">
-          <div className="oc-alert__title">Ha ocurrido un error</div>
-          <div className="oc-alert__msg">
-            {error.message || error.global || "Error de red"}
-          </div>
+          <div className="oc-alert__title">{t("pred.errorTitle")}</div>
+          <div className="oc-alert__msg">{error.message || error.global || t("pred.errorNetwork")}</div>
 
-          {loading && (
-            <div className="oc-alert__hint">
-              Nota: el sistema está cargando; si el error persiste, prueba “Reset” y vuelve a bootstrap.
-            </div>
-          )}
+          {loading && <div className="oc-alert__hint">{t("pred.errorHint")}</div>}
         </div>
       )}
 
