@@ -8,7 +8,8 @@ import com.overcut.predictions.model.simulation.SimulationState;
 
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:8086")
+@CrossOrigin(origins = {"https://overcutf1.com", "http://localhost:8086"})
+
 @RestController
 @RequestMapping("/api/predictions/simulate")
 public class PredictionSimulationController {
