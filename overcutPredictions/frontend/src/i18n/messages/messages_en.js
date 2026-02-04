@@ -20,7 +20,7 @@ export default {
   // CustomSeasonModal
   "customModal.title": "Custom season configuration",
   "customModal.desc":
-    "It preloads real drivers/teams/calendar if they exist in your database. You can tweak anything you want.",
+    "It preloads real drivers/teams/calendar if they exist in database. You can tweak anything you want.",
     "customModal.sectionPoints": "Points system",
     "customModal.pointsAuto": "Auto (by season)",
     "customModal.points1950": "1950–1960 (8-6-4-3-2-1)",

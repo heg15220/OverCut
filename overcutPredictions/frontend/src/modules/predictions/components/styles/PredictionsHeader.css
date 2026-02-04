@@ -214,3 +214,45 @@
   box-shadow: none !important;
   filter: none !important;
 }
+/* =========================================
+   Mobile layout fix: ensure Reset is visible
+   Pégalo AL FINAL de PredictionsHeader.css
+   ========================================= */
+
+@media (max-width: 720px) {
+  .predictions-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .predictions-titlebox {
+    width: 100%;
+  }
+
+  /* Que el reset quede visible y no "empujado" */
+  .predictions-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* En móvil: versión compacta (solo icono) para no ocupar tanto */
+  .pred-resetBtn {
+    padding: 10px 12px !important;
+  }
+
+  .pred-resetBtn__label {
+    display: none;
+  }
+
+  .pred-resetBtn__icon {
+    font-size: 18px;
+  }
+}
+
+/* Extra: móviles muy pequeños */
+@media (max-width: 420px) {
+  .predictions-sub .pill__muted {
+    display: none; /* opcional: evita que el startRoundName coma demasiado */
+  }
+}
