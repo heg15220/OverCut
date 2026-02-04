@@ -18,9 +18,17 @@ export default {
   "home.ctaOvercut": "Abrir OverCut",
 
   // CustomSeasonModal
-  "customModal.title": "Config de temporada (basada en BD)",
+  "customModal.title": "Config personalizada de temporada",
   "customModal.desc":
     "Se precarga con pilotos/equipos/calendario reales si existen en tu base de datos. Puedes ajustar lo que necesites.",
+      // ✅ NUEVO: sistema de puntos
+    "customModal.sectionPoints": "Sistema de puntos",
+    "customModal.pointsAuto": "Auto (según temporada)",
+    "customModal.points1950": "1950–1960 (8-6-4-3-2-1)",
+    "customModal.points1961": "1961–1990 (9-6-4-3-2-1)",
+    "customModal.points1991": "1991–2002 (10-6-4-3-2-1)",
+    "customModal.points2003": "2003–2009 (10-8-6-5-4-3-2-1)",
+    "customModal.points2010": "2010+ (25-18-15-12-10-8-6-4-2-1)",
   "customModal.close": "Cerrar",
   "customModal.sectionTeams": "Equipos",
   "customModal.sectionDriversTeams": "Pilotos + Equipo",

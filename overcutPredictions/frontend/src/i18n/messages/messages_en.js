@@ -18,9 +18,16 @@ export default {
   "home.ctaOvercut": "Open OverCut",
 
   // CustomSeasonModal
-  "customModal.title": "Season config (from DB)",
+  "customModal.title": "Custom season configuration",
   "customModal.desc":
     "It preloads real drivers/teams/calendar if they exist in your database. You can tweak anything you want.",
+    "customModal.sectionPoints": "Points system",
+    "customModal.pointsAuto": "Auto (by season)",
+    "customModal.points1950": "1950–1960 (8-6-4-3-2-1)",
+    "customModal.points1961": "1961–1990 (9-6-4-3-2-1)",
+    "customModal.points1991": "1991–2002 (10-6-4-3-2-1)",
+    "customModal.points2003": "2003–2009 (10-8-6-5-4-3-2-1)",
+    "customModal.points2010": "2010+ (25-18-15-12-10-8-6-4-2-1)",
   "customModal.close": "Close",
   "customModal.sectionTeams": "Teams",
   "customModal.sectionDriversTeams": "Drivers + Team",

@@ -21,38 +21,29 @@ public class PredictionSimulationController {
         this.simulationService = simulationService;
     }
 
-    /**
-     * Apply a simulated race on top of current standings
-     */
     @PostMapping("/apply")
     public SimulationResultDTO applySimulation(
             @RequestBody SimulationApplyRequestDTO request
     ) {
 
-        // 1️⃣ Rebuild state from frontend standings
         SimulationState state = new SimulationState();
 
         if (request.getDriverStandings() != null) {
             for (StandingsEntryDTO e : request.getDriverStandings()) {
-                state.getDriverPoints()
-                        .put(e.getEntityId(), e.getPoints());
+                state.getDriverPoints().put(e.getEntityId(), e.getPoints());
             }
         }
 
         if (request.getConstructorStandings() != null) {
             for (StandingsEntryDTO e : request.getConstructorStandings()) {
-                state.getConstructorPoints()
-                        .put(e.getEntityId(), e.getPoints());
+                state.getConstructorPoints().put(e.getEntityId(), e.getPoints());
             }
         }
 
-        // 2️⃣ Points system for the season
-        PointsSystem pointsSystem =
-                PointsSystemFactory.forSeason(
-                        request.getSeason()
-                );
+        // ✅ pointsEra si viene, si no -> season
+        int key = (request.getPointsEra() != null ? request.getPointsEra() : request.getSeason());
+        PointsSystem pointsSystem = PointsSystemFactory.forSeason(key);
 
-        // 3️⃣ Apply simulation
         return simulationService.applySimulation(
                 state,
                 pointsSystem,
@@ -61,36 +52,28 @@ public class PredictionSimulationController {
         );
     }
 
-
     @PostMapping("/apply-batch")
     public SimulationResultDTO applySimulationBatch(
             @RequestBody SimulationApplyBatchRequestDTO request
     ) {
 
-        // 1️⃣ Rebuild state
         SimulationState state = new SimulationState();
 
         if (request.getDriverStandings() != null) {
             for (StandingsEntryDTO e : request.getDriverStandings()) {
-                state.getDriverPoints()
-                        .put(e.getEntityId(), e.getPoints());
+                state.getDriverPoints().put(e.getEntityId(), e.getPoints());
             }
         }
 
         if (request.getConstructorStandings() != null) {
             for (StandingsEntryDTO e : request.getConstructorStandings()) {
-                state.getConstructorPoints()
-                        .put(e.getEntityId(), e.getPoints());
+                state.getConstructorPoints().put(e.getEntityId(), e.getPoints());
             }
         }
 
-        // 2️⃣ Points system
-        PointsSystem pointsSystem =
-                PointsSystemFactory.forSeason(
-                        request.getSeason()
-                );
+        int key = (request.getPointsEra() != null ? request.getPointsEra() : request.getSeason());
+        PointsSystem pointsSystem = PointsSystemFactory.forSeason(key);
 
-        // 3️⃣ Apply batch
         return simulationService.applySimulationBatch(
                 state,
                 pointsSystem,
@@ -98,5 +81,4 @@ public class PredictionSimulationController {
                 request.getDriverToConstructor()
         );
     }
-
 }

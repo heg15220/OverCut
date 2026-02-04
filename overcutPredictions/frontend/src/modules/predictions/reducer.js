@@ -16,6 +16,9 @@ const initialState = {
 
   driverToConstructor: {},
 
+  pointsEra: null,
+
+
   lookups: {
     driverNames: {},
     constructorNames: {},
@@ -67,6 +70,8 @@ export default function reducer(state = initialState, action) {
         constructorStandings: data.constructorStandings || [],
 
         driverToConstructor: data.driverToConstructor || {},
+
+        pointsEra: data.pointsEra ?? null,
 
         lookups: {
           driverNames: lookups.driverNames || {},

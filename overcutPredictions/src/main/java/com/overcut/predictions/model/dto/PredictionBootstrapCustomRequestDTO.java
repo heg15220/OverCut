@@ -8,6 +8,9 @@ public class PredictionBootstrapCustomRequestDTO {
     private Integer season;
     private Integer fromRound;
 
+    private Integer pointsEra;
+
+
     // ✅ Datos custom para completar temporadas vacías/incompletas
     private List<CustomRaceDTO> customRaces;
     private List<CustomDriverDTO> customDrivers;
@@ -33,4 +36,12 @@ public class PredictionBootstrapCustomRequestDTO {
 
     public Map<Long, Long> getCustomDriverToConstructor() { return customDriverToConstructor; }
     public void setCustomDriverToConstructor(Map<Long, Long> customDriverToConstructor) { this.customDriverToConstructor = customDriverToConstructor; }
+
+    public Integer getPointsEra() {
+        return pointsEra;
+    }
+
+    public void setPointsEra(Integer pointsEra) {
+        this.pointsEra = pointsEra;
+    }
 }

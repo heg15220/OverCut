@@ -16,7 +16,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class PredictionBootstrapService {
@@ -43,19 +42,20 @@ public class PredictionBootstrapService {
      * returning real races and standings + lookups for UI.
      */
     @Transactional
-    public PredictionBootstrapDTO bootstrapSeason(
-            Integer season,
-            Integer fromRound
-    ) {
+    public PredictionBootstrapDTO bootstrapSeason(Integer season, Integer fromRound, Integer pointsEra) {
+
+        int key = (pointsEra != null ? pointsEra : season);
+        PointsSystem pointsSystem = PointsSystemFactory.forSeason(key);
+
+        // ✅ si pointsEra != season => recalculamos puntos por posición incluso en 2010+
+        boolean overridePoints = (pointsEra != null && !pointsEra.equals(season));
+
         // 1) Races already completed (real) until fromRound-1
         List<Race> completedRaces =
                 raceDao.findByYearAndRoundLessThanOrderByRound(
                         season,
                         fromRound
                 );
-
-        PointsSystem pointsSystem =
-                PointsSystemFactory.forSeason(season);
 
         Map<Long, Integer> driverPoints = new HashMap<>();
         Map<Long, Integer> constructorPoints = new HashMap<>();
@@ -79,16 +79,7 @@ public class PredictionBootstrapService {
 
             for (Result result : results) {
 
-                int pts;
-
-                if (season >= 2010) {
-                    // Trust DB points for modern seasons (points es DOUBLE)
-                    pts = (result.getPoints() != null) ? (int) Math.round(result.getPoints()) : 0;
-                } else {
-                    Integer pos = result.getPositionOrder();
-                    pts = (pos != null) ? pointsSystem.pointsForPosition(pos) : 0;
-                }
-
+                int pts = computePts(result, season, pointsSystem, overridePoints);
 
                 PredictionResultDTO r = new PredictionResultDTO();
                 r.setDriverId(result.getDriverId());
@@ -127,7 +118,6 @@ public class PredictionBootstrapService {
             }
         }
 
-
         // 3) totalRounds de la temporada (para dropdowns y validaciones UI)
         Integer totalRounds = computeTotalRoundsForSeason(season);
 
@@ -145,18 +135,148 @@ public class PredictionBootstrapService {
         dto.setLookups(lookups);
         dto.setDriverToConstructor(driverToConstructor);
 
+        dto.setPointsEra(pointsEra);
+
         boolean hasAnyRaces = (raceDao.findByYearOrderByRound(season).size() > 0);
         boolean hasAnySeasonDrivers = lookups.getSeasonDrivers() != null && !lookups.getSeasonDrivers().isEmpty();
 
         // Si la BD no tiene nada para esa season:
         if (!hasAnyRaces && !hasAnySeasonDrivers) {
-            dto.setMode("empty_db"); // o "custom" directamente
+            dto.setMode("empty_db");
         } else {
             dto.setMode("db");
         }
 
+        return dto;
+    }
+
+    @Transactional
+    public PredictionBootstrapDTO bootstrapSeasonCustom(PredictionBootstrapCustomRequestDTO request) {
+
+        Integer season = request.getSeason();
+        Integer fromRound = request.getFromRound();
+
+        // 1) bootstrap real (igual que antes)
+        List<Race> completedRaces =
+                raceDao.findByYearAndRoundLessThanOrderByRound(season, fromRound);
+
+        Integer pointsEra = request.getPointsEra();
+        int key = (pointsEra != null ? pointsEra : season);
+        PointsSystem pointsSystem = PointsSystemFactory.forSeason(key);
+
+        // ✅ override si pointsEra != season
+        boolean overridePoints = (pointsEra != null && !pointsEra.equals(season));
+
+        Map<Long, Integer> driverPoints = new HashMap<>();
+        Map<Long, Integer> constructorPoints = new HashMap<>();
+        Map<Long, Long> driverToConstructor = new HashMap<>();
+
+        List<PredictionRaceDTO> raceDTOs = new ArrayList<>();
+
+        for (Race race : completedRaces) {
+
+            List<Result> results = resultDao.findByRaceId(race.getRaceId());
+
+            PredictionRaceDTO raceDTO = new PredictionRaceDTO();
+            raceDTO.setRaceId(race.getRaceId());
+            raceDTO.setRound(race.getRound());
+            raceDTO.setRaceName(race.getName());
+
+            List<PredictionResultDTO> resultDTOs = new ArrayList<>();
+
+            for (Result result : results) {
+
+                int pts = computePts(result, season, pointsSystem, overridePoints);
+
+                PredictionResultDTO r = new PredictionResultDTO();
+                r.setDriverId(result.getDriverId());
+                r.setConstructorId(result.getConstructorId());
+                r.setPosition(result.getPositionOrder());
+                r.setPoints(pts);
+
+                resultDTOs.add(r);
+
+                if (result.getDriverId() != null) driverPoints.merge(result.getDriverId(), pts, Integer::sum);
+                if (result.getConstructorId() != null) constructorPoints.merge(result.getConstructorId(), pts, Integer::sum);
+
+                if (result.getDriverId() != null && result.getConstructorId() != null) {
+                    driverToConstructor.put(result.getDriverId(), result.getConstructorId());
+                }
+            }
+
+            raceDTO.setResults(resultDTOs);
+            raceDTOs.add(raceDTO);
+        }
+
+        // 2) lookups MIX: BD + custom
+        PredictionLookupsDTO lookups = buildLookupsCustom(
+                season,
+                driverToConstructor,
+                request.getCustomRaces(),
+                request.getCustomDrivers(),
+                request.getCustomConstructors(),
+                request.getCustomDriverToConstructor()
+        );
+
+        // ✅ Completar driverToConstructor para TODOS los pilotos (clave para constructores)
+        if (lookups.getSeasonDrivers() != null) {
+            for (SeasonDriverDTO sd : lookups.getSeasonDrivers()) {
+                if (sd.getDriverId() != null && sd.getConstructorId() != null) {
+                    driverToConstructor.putIfAbsent(sd.getDriverId(), sd.getConstructorId());
+                }
+            }
+        }
+
+        // 3) totalRounds = max(DB, custom)
+        Integer totalRounds = computeTotalRoundsForSeason(season);
+
+        Integer customMax = 0;
+        if (request.getCustomRaces() != null) {
+            for (CustomRaceDTO cr : request.getCustomRaces()) {
+                if (cr.getRound() != null) customMax = Math.max(customMax, cr.getRound());
+            }
+        }
+        if (totalRounds == null) totalRounds = (customMax == 0 ? null : customMax);
+        else totalRounds = Math.max(totalRounds, customMax);
+
+        // 4) driverToConstructor: custom overrides
+        if (request.getCustomDriverToConstructor() != null) {
+            driverToConstructor.putAll(request.getCustomDriverToConstructor());
+        }
+
+        PredictionBootstrapDTO dto = new PredictionBootstrapDTO();
+        dto.setSeason(season);
+        dto.setSimulatedFromRound(fromRound);
+        dto.setTotalRounds(totalRounds);
+        dto.setCompletedRaces(raceDTOs);
+
+        dto.setDriverStandings(buildStandings(driverPoints));
+        dto.setConstructorStandings(buildStandings(constructorPoints));
+
+        dto.setLookups(lookups);
+        dto.setDriverToConstructor(driverToConstructor);
+
+        dto.setMode("custom");
+        dto.setCustomConfig(request);
+
+        dto.setPointsEra(pointsEra);
 
         return dto;
+    }
+
+    // ---------------------------------------------------------------------
+    // ✅ Helper: cálculo de puntos con override por pointsEra
+    // ---------------------------------------------------------------------
+    private int computePts(Result result, Integer season, PointsSystem pointsSystem, boolean overridePoints) {
+
+        // Si NO se está sobreescribiendo y es 2010+, usamos puntos de BD (incluye sprint/fastest lap si la BD lo trae)
+        if (!overridePoints && season != null && season >= 2010) {
+            return (result.getPoints() != null) ? (int) Math.round(result.getPoints()) : 0;
+        }
+
+        // Si se sobreescribe (o es <2010): recalculamos según posición con el pointsSystem elegido
+        Integer pos = result.getPositionOrder();
+        return (pos != null) ? pointsSystem.pointsForPosition(pos) : 0;
     }
 
     private PredictionLookupsDTO buildLookups(
@@ -199,7 +319,6 @@ public class PredictionBootstrapService {
             }
         }
 
-
         // 3) driverId -> nombre completo
         Map<Long, String> driverNames = new HashMap<>();
         if (!seasonDriverIds.isEmpty()) {
@@ -240,13 +359,11 @@ public class PredictionBootstrapService {
             seasonDrivers.add(new SeasonDriverDTO(driverId, cid, dName, cName));
         }
 
-        // opcional: orden alfabético (o déjalo como prefieras)
         seasonDrivers.sort(Comparator.comparing(SeasonDriverDTO::getDriverName, String.CASE_INSENSITIVE_ORDER));
         lookups.setSeasonDrivers(seasonDrivers);
 
         return lookups;
     }
-
 
     private PredictionLookupsDTO buildLookupsCustom(
             Integer season,
@@ -289,7 +406,6 @@ public class PredictionBootstrapService {
             if (constructorId != null) seasonConstructorIds.add(constructorId);
 
             if (driverId != null && constructorId != null) {
-                // fallback (por si no hay mapping real o fromRound es muy bajo)
                 fallbackDriverToConstructor.putIfAbsent(driverId, constructorId);
             }
         }
@@ -313,7 +429,6 @@ public class PredictionBootstrapService {
             for (CustomDriverDTO cd : customDrivers) {
                 if (cd.getDriverId() != null && cd.getName() != null && !cd.getName().trim().isEmpty()) {
                     driverNames.put(cd.getDriverId(), cd.getName().trim());
-                    // ✅ clave: que entren como season drivers incluso si no hay results
                     seasonDriverIds.add(cd.getDriverId());
                 }
             }
@@ -348,16 +463,12 @@ public class PredictionBootstrapService {
 
         // ✅ mapping final preferido: fallback -> real -> custom
         Map<Long, Long> finalMapping = new HashMap<>();
-
-        // 1) fallback primero (base)
         finalMapping.putAll(fallbackDriverToConstructor);
 
-        // 2) luego lo real (pisará fallback si hace falta)
         if (realDriverToConstructor != null) {
             finalMapping.putAll(realDriverToConstructor);
         }
 
-        // 3) luego lo custom (pisará todo)
         if (customDriverToConstructor != null) {
             finalMapping.putAll(customDriverToConstructor);
         }
@@ -382,13 +493,6 @@ public class PredictionBootstrapService {
         return lookups;
     }
 
-
-
-    /**
-     * Devuelve el max round real de la temporada.
-     * Implementación simple sin tocar RaceDao: findAll() y filtrar por year.
-     * (son pocas filas por season; perfecto para empezar).
-     */
     private Integer computeTotalRoundsForSeason(Integer season) {
         List<Race> allSeasonRaces = raceDao.findByYearOrderByRound(season);
 
@@ -398,7 +502,6 @@ public class PredictionBootstrapService {
         }
         return (max == 0) ? null : max;
     }
-
 
     private List<StandingsEntryDTO> buildStandings(
             Map<Long, Integer> pointsMap
@@ -412,122 +515,4 @@ public class PredictionBootstrapService {
         list.sort((a, b) -> b.getPoints().compareTo(a.getPoints()));
         return list;
     }
-
-    @Transactional
-    public PredictionBootstrapDTO bootstrapSeasonCustom(PredictionBootstrapCustomRequestDTO request) {
-
-        Integer season = request.getSeason();
-        Integer fromRound = request.getFromRound();
-
-        // 1) bootstrap real (igual que antes)
-        List<Race> completedRaces =
-                raceDao.findByYearAndRoundLessThanOrderByRound(season, fromRound);
-
-        PointsSystem pointsSystem = PointsSystemFactory.forSeason(season);
-
-        Map<Long, Integer> driverPoints = new HashMap<>();
-        Map<Long, Integer> constructorPoints = new HashMap<>();
-        Map<Long, Long> driverToConstructor = new HashMap<>();
-
-        List<PredictionRaceDTO> raceDTOs = new ArrayList<>();
-
-        for (Race race : completedRaces) {
-
-            List<Result> results = resultDao.findByRaceId(race.getRaceId());
-
-            PredictionRaceDTO raceDTO = new PredictionRaceDTO();
-            raceDTO.setRaceId(race.getRaceId());
-            raceDTO.setRound(race.getRound());
-            raceDTO.setRaceName(race.getName());
-
-            List<PredictionResultDTO> resultDTOs = new ArrayList<>();
-
-            for (Result result : results) {
-
-                int pts;
-
-                if (season >= 2010) {
-                    // Trust DB points for modern seasons (points es DOUBLE)
-                    pts = (result.getPoints() != null) ? (int) Math.round(result.getPoints()) : 0;
-                } else {
-                    Integer pos = result.getPositionOrder();
-                    pts = (pos != null) ? pointsSystem.pointsForPosition(pos) : 0;
-                }
-
-
-                PredictionResultDTO r = new PredictionResultDTO();
-                r.setDriverId(result.getDriverId());
-                r.setConstructorId(result.getConstructorId());
-                r.setPosition(result.getPositionOrder());
-                r.setPoints(pts);
-
-                resultDTOs.add(r);
-
-                if (result.getDriverId() != null) driverPoints.merge(result.getDriverId(), pts, Integer::sum);
-                if (result.getConstructorId() != null) constructorPoints.merge(result.getConstructorId(), pts, Integer::sum);
-
-                if (result.getDriverId() != null && result.getConstructorId() != null) {
-                    driverToConstructor.put(result.getDriverId(), result.getConstructorId());
-                }
-            }
-
-            raceDTO.setResults(resultDTOs);
-            raceDTOs.add(raceDTO);
-        }
-
-        // 2) lookups MIX: BD + custom
-        PredictionLookupsDTO lookups = buildLookupsCustom(
-                season,
-                driverToConstructor,
-                request.getCustomRaces(),
-                request.getCustomDrivers(),
-                request.getCustomConstructors(),
-                request.getCustomDriverToConstructor()
-        );
-        // ✅ Completar driverToConstructor para TODOS los pilotos (clave para constructores)
-        if (lookups.getSeasonDrivers() != null) {
-            for (SeasonDriverDTO sd : lookups.getSeasonDrivers()) {
-                if (sd.getDriverId() != null && sd.getConstructorId() != null) {
-                    driverToConstructor.putIfAbsent(sd.getDriverId(), sd.getConstructorId());
-                }
-            }
-        }
-
-
-
-        // 3) totalRounds = max(DB, custom)
-        Integer totalRounds = computeTotalRoundsForSeason(season);
-
-        Integer customMax = 0;
-        if (request.getCustomRaces() != null) {
-            for (CustomRaceDTO cr : request.getCustomRaces()) {
-                if (cr.getRound() != null) customMax = Math.max(customMax, cr.getRound());
-            }
-        }
-        if (totalRounds == null) totalRounds = (customMax == 0 ? null : customMax);
-        else totalRounds = Math.max(totalRounds, customMax);
-
-        // 4) driverToConstructor: custom overrides
-        if (request.getCustomDriverToConstructor() != null) {
-            driverToConstructor.putAll(request.getCustomDriverToConstructor());
-        }
-
-        PredictionBootstrapDTO dto = new PredictionBootstrapDTO();
-        dto.setSeason(season);
-        dto.setSimulatedFromRound(fromRound);
-        dto.setTotalRounds(totalRounds);
-        dto.setCompletedRaces(raceDTOs);
-
-        dto.setDriverStandings(buildStandings(driverPoints));
-        dto.setConstructorStandings(buildStandings(constructorPoints));
-
-        dto.setLookups(lookups);
-        dto.setDriverToConstructor(driverToConstructor);
-
-        dto.setMode("custom");
-        dto.setCustomConfig(request);
-
-        return dto;
-    }
-
 }

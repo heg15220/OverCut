@@ -13,6 +13,8 @@ public class PredictionBootstrapDTO {
     private String mode; // "db" | "custom" | "empty_db"
     private PredictionBootstrapCustomRequestDTO customConfig; // opcional
 
+    private Integer pointsEra;
+
     private List<PredictionRaceDTO> completedRaces;
     private List<StandingsEntryDTO> driverStandings;
     private List<StandingsEntryDTO> constructorStandings;
@@ -101,5 +103,13 @@ public class PredictionBootstrapDTO {
 
     public void setCustomConfig(PredictionBootstrapCustomRequestDTO customConfig) {
         this.customConfig = customConfig;
+    }
+
+    public Integer getPointsEra() {
+        return pointsEra;
+    }
+
+    public void setPointsEra(Integer pointsEra) {
+        this.pointsEra = pointsEra;
     }
 }

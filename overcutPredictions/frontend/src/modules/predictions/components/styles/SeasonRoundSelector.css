@@ -333,3 +333,116 @@
   flex-wrap: wrap;
   align-items: center;
 }
+
+/* =========================================
+   Head action buttons (Custom / Default)
+   Pégalo AL FINAL de SeasonRoundSelector.css
+   ========================================= */
+
+.sr-headActions {
+  display: inline-flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Base “pill button” */
+.sr-headBtn {
+  border-radius: 999px !important;
+  padding: 10px 12px !important;
+  min-height: 40px;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: 0.2px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.sr-headBtn__icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+.sr-headBtn__label {
+  white-space: nowrap;
+}
+
+/* Hover / active */
+.sr-headBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  border-color: rgba(244, 180, 0, 0.35) !important;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.sr-headBtn:active:not(:disabled) {
+  transform: translateY(0px) scale(0.99);
+  filter: brightness(0.98);
+}
+
+/* Focus accesible */
+.sr-headBtn:focus-visible {
+  outline: 2px solid rgba(244, 180, 0, 0.75);
+  outline-offset: 2px;
+}
+
+/* Disabled elegante */
+.sr-headBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  filter: none;
+}
+
+/* Variante: CUSTOM (accent dorado) */
+.sr-headBtn--custom {
+  border-color: rgba(244, 180, 0, 0.28) !important;
+}
+
+.sr-headBtn--custom:hover:not(:disabled) {
+  border-color: rgba(244, 180, 0, 0.55) !important;
+}
+
+/* Variante: DEFAULT (reset suave “rojo”) */
+.sr-headBtn--default {
+  border-color: rgba(255, 90, 90, 0.22) !important;
+}
+
+.sr-headBtn--default:hover:not(:disabled) {
+  border-color: rgba(255, 90, 90, 0.42) !important;
+  background: rgba(255, 90, 90, 0.08) !important;
+}
+
+/* Mobile: que ocupen ancho completo si quieres */
+@media (max-width: 520px) {
+  .sr-headActions {
+    width: 100%;
+  }
+  .sr-headBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -73,9 +73,7 @@ const buildStateFromDbLookups = (dbLookups, fromRound) => {
   const races = raceRounds.length
     ? raceRounds.map((round) => ({
         round,
-        name: String(
-          raceNamesByRound[String(round)] || raceNamesByRound[round] || `Round ${round}`
-        ),
+        name: String(raceNamesByRound[String(round)] || raceNamesByRound[round] || `Round ${round}`),
       }))
     : [{ round: fromRound || 1, name: `Round ${fromRound || 1}` }];
 
@@ -137,11 +135,15 @@ export default function CustomSeasonModal({
   };
 
   const [state, setState] = useState(() => computeInitial());
-  const { constructors, drivers, mapping, races, touchedCalendar } = state;
+  const { constructors, drivers, mapping, races } = state;
+
+  // ✅ NUEVO: pointsEra editable en el modal
+  const [pointsEra, setPointsEra] = useState(initialConfig?.pointsEra ?? null);
 
   useEffect(() => {
     if (!open) return;
     setState(computeInitial());
+    setPointsEra(initialConfig?.pointsEra ?? null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialConfig, fromRound, season, dbLookups]);
 
@@ -172,9 +174,12 @@ export default function CustomSeasonModal({
     if (!Array.isArray(constructors) || constructors.length === 0) return false;
     if (!Array.isArray(races) || races.length === 0) return false;
 
+    const validConstructorIds = new Set(constructors.map((c) => Number(c.constructorId)));
+
     for (const d of drivers) {
       const cid = mapping?.[String(d.driverId)] ?? mapping?.[d.driverId];
       if (cid == null) return false;
+      if (!validConstructorIds.has(Number(cid))) return false;
     }
 
     const roundsOnly = races.map((r) => Number(r.round)).filter(Boolean);
@@ -194,6 +199,9 @@ export default function CustomSeasonModal({
     const payload = {
       season: Number(season),
       fromRound: Number(fromRound),
+
+      // ✅ CLAVE: aplicar override del sistema de puntos si el usuario lo selecciona
+      pointsEra: pointsEra != null ? Number(pointsEra) : null,
 
       customRaces: races.map((r) => ({ round: Number(r.round), name: String(r.name || "").trim() })),
 
@@ -229,6 +237,29 @@ export default function CustomSeasonModal({
           </button>
         </div>
 
+        {/* ✅ POINTS ERA */}
+        <section className="oc-customModal__section">
+          <h4>{t("customModal.sectionPoints")}</h4>
+
+          <select
+            className="oc-input"
+            value={pointsEra ?? ""}
+            onChange={(e) => {
+              const v = e.target.value;
+              setPointsEra(v === "" ? null : Number(v));
+            }}
+          >
+            <option value="">{t("customModal.pointsAuto")}</option>
+
+            <option value="1950">{t("customModal.points1950")}</option>
+            <option value="1961">{t("customModal.points1961")}</option>
+            <option value="1991">{t("customModal.points1991")}</option>
+            <option value="2003">{t("customModal.points2003")}</option>
+            <option value="2010">{t("customModal.points2010")}</option>
+          </select>
+
+        </section>
+
         {/* CONSTRUCTORS */}
         <section className="oc-customModal__section">
           <h4>{t("customModal.sectionTeams")}</h4>
@@ -250,10 +281,18 @@ export default function CustomSeasonModal({
                 className="oc-btn oc-btn--ghost oc-customModal__del"
                 type="button"
                 onClick={() => {
-                  setState((s) => ({
-                    ...s,
-                    constructors: s.constructors.filter((_, i) => i !== idx),
-                  }));
+                  setState((s) => {
+                    const removedId = s.constructors[idx]?.constructorId;
+                    const nextConstructors = s.constructors.filter((_, i) => i !== idx);
+
+                    // ✅ Limpia mapping de pilotos que apuntaban al constructor borrado
+                    const nextMapping = { ...s.mapping };
+                    for (const [did, cid] of Object.entries(nextMapping)) {
+                      if (Number(cid) === Number(removedId)) delete nextMapping[did];
+                    }
+
+                    return { ...s, constructors: nextConstructors, mapping: nextMapping };
+                  });
                 }}
                 title={t("customModal.deleteTitle")}
               >

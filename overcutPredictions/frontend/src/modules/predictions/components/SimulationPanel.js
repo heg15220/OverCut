@@ -2,12 +2,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-  useSortable,
-} from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import predictions from "../index";
@@ -61,7 +56,7 @@ function SortableDriverRow({ driver, points, isSelected, onClick }) {
 function buildOrderFromStandings(driverStandings, fallbackIds) {
   if (!Array.isArray(driverStandings) || driverStandings.length === 0) return fallbackIds;
 
-  const getId = (x) => x?.driverId ?? x?.driver?.driverId ?? x?.id;
+  const getId = (x) => x?.entityId ?? x?.driverId ?? x?.driver?.driverId ?? x?.id;
   const getPts = (x) => x?.points ?? x?.pts ?? 0;
   const getPos = (x) => x?.position ?? x?.pos ?? null;
 
@@ -87,6 +82,7 @@ function buildOrderFromStandings(driverStandings, fallbackIds) {
 export default function SimulationPanel() {
   const dispatch = useDispatch();
 
+  // ✅ Hooks SIEMPRE arriba (nunca dentro de map/if/loops)
   const season = useSelector(predictions.selectors.getSeason);
   const fromRound = useSelector(predictions.selectors.getFromRound);
   const totalRounds = useSelector(predictions.selectors.getTotalRounds);
@@ -95,8 +91,10 @@ export default function SimulationPanel() {
   const driverStandings = useSelector(predictions.selectors.getDriverStandings);
   const constructorStandings = useSelector(predictions.selectors.getConstructorStandings);
   const driverToConstructor = useSelector(predictions.selectors.getDriverToConstructor);
-
   const seasonDrivers = useSelector(predictions.selectors.getSeasonDrivers);
+
+  // ✅ IMPORTANTE: pointsEra en el scope del componente (no dentro del map)
+  const pointsEra = useSelector(predictions.selectors.getPointsEra);
 
   const canUse = !!season && !!fromRound;
 
@@ -118,19 +116,21 @@ export default function SimulationPanel() {
 
     setSelectedId(null);
     setDirtyOrder(false);
-  }, [canUse, fromRound, seasonDrivers]); // intencionado
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canUse, fromRound, seasonDrivers]);
 
   const roundOptions = useMemo(() => {
     if (!canUse) return [];
     const max = totalRounds || 30;
     const list = [];
     for (let r = fromRound; r <= max; r++) {
-      list.push({ r, name: raceNamesByRound?.[r] || `Round ${r}` });
+      list.push({ r, name: raceNamesByRound?.[r] || raceNamesByRound?.[String(r)] || `Round ${r}` });
     }
     return list;
   }, [canUse, fromRound, totalRounds, raceNamesByRound]);
 
-  const currentGpName = raceNamesByRound?.[round] || `Round ${round}`;
+  const currentGpName =
+    raceNamesByRound?.[round] || raceNamesByRound?.[String(round)] || `Round ${round}`;
 
   const orderedDrivers = useMemo(() => {
     const map = new Map((seasonDrivers || []).map((d) => [d.driverId, d]));
@@ -174,7 +174,8 @@ export default function SimulationPanel() {
   const canApply = canUse && orderedIds.length > 0;
 
   const buildPayload = () => ({
-    season,
+    season: Number(season),
+    pointsEra: pointsEra != null ? Number(pointsEra) : null,
     driverStandings,
     constructorStandings,
     race: { round: Number(round), orderedDriverIds: orderedIds },
@@ -254,12 +255,7 @@ export default function SimulationPanel() {
               {t("sim.apply")}
             </button>
 
-            <button
-              className="oc-btn oc-btn--primary"
-              disabled={!canNext}
-              onClick={next}
-              type="button"
-            >
+            <button className="oc-btn oc-btn--primary" disabled={!canNext} onClick={next} type="button">
               {t("sim.applyNext")}
             </button>
 
@@ -294,7 +290,9 @@ export default function SimulationPanel() {
                 <div className="sim-list">
                   {orderedDrivers.map((d, idx) => {
                     const pos = idx + 1;
-                    const pts = pointsForPosition(pos, season);
+
+                    // ✅ sin hooks aquí
+                    const pts = pointsForPosition(pos, (pointsEra ?? season));
 
                     return (
                       <div key={d.driverId} className="sim-list__item">

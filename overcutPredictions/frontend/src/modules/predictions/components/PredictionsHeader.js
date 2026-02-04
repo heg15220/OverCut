@@ -67,15 +67,17 @@ export default function PredictionsHeader() {
       <div className="predictions-header-actions">
         {hasBootstrapped && (
           <button
-            className="oc-btn oc-btn--ghost"
+            className="oc-btn oc-btn--ghost pred-resetBtn pred-resetBtn--danger"
             disabled={loading}
             onClick={() => dispatch(predictions.actions.resetSimulation())}
             title={t("predHeader.resetTitle")}
             type="button"
           >
-            {t("predHeader.resetBtn")}
+            <span className="pred-resetBtn__icon" aria-hidden="true">↺</span>
+            <span className="pred-resetBtn__label">{t("predHeader.resetBtn")}</span>
           </button>
         )}
+
       </div>
     </div>
   );

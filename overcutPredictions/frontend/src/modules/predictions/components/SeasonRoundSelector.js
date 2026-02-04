@@ -82,9 +82,10 @@ export default function SeasonRoundSelector() {
         </div>
 
         <div className="sr-headActions">
+
           <button
             type="button"
-            className="oc-btn oc-btn--ghost"
+            className="oc-btn oc-btn--ghost sr-headBtn sr-headBtn--custom"
             disabled={loading}
             onClick={() => {
               const hasAnyLookups =
@@ -101,12 +102,13 @@ export default function SeasonRoundSelector() {
             }}
             title={t("sr.customTitle")}
           >
-            {t("sr.custom")}
+            <span className="sr-headBtn__icon" aria-hidden="true">⚙️</span>
+            <span className="sr-headBtn__label">{t("sr.custom")}</span>
           </button>
 
           <button
             type="button"
-            className="oc-btn oc-btn--ghost sr-reset"
+            className="oc-btn oc-btn--ghost sr-headBtn sr-headBtn--default sr-reset"
             disabled={loading}
             onClick={() => {
               setSeason(2012);
@@ -114,8 +116,10 @@ export default function SeasonRoundSelector() {
             }}
             title={t("sr.defaultTitle")}
           >
-            {t("sr.default")}
+            <span className="sr-headBtn__icon" aria-hidden="true">↺</span>
+            <span className="sr-headBtn__label">{t("sr.default")}</span>
           </button>
+
         </div>
       </div>
 

@@ -7,6 +7,8 @@ public class SimulationApplyRequestDTO {
 
     private Integer season;
 
+    private Integer pointsEra;
+
     /**
      * Current accumulated standings BEFORE applying this race
      */
@@ -62,5 +64,13 @@ public class SimulationApplyRequestDTO {
 
     public void setDriverToConstructor(Map<Long, Long> driverToConstructor) {
         this.driverToConstructor = driverToConstructor;
+    }
+
+    public Integer getPointsEra() {
+        return pointsEra;
+    }
+
+    public void setPointsEra(Integer pointsEra) {
+        this.pointsEra = pointsEra;
     }
 }

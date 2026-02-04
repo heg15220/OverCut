@@ -28,6 +28,9 @@ export const getRaceNamesByRound = (state) => getLookups(state)?.raceNamesByRoun
 export const getLoading = (state) => getModuleState(state).loading;
 export const getError = (state) => getModuleState(state).error;
 
+export const getPointsEra = (state) => getModuleState(state).pointsEra;
+
+
 /* ------------------------------------------------------------------ */
 /* ✅ Helpers “pro” (para no mostrar IDs en UI)                         */
 /* ------------------------------------------------------------------ */

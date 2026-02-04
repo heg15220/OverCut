@@ -18,17 +18,15 @@ public class PredictionController {
     }
 
     /**
-     * Bootstrap real championship state until (fromRound - 1)
-     *
-     * Example:
-     * /api/predictions/bootstrap?season=2012&fromRound=6
+     * /api/predictions/bootstrap?season=2012&fromRound=6&pointsEra=2003
      */
     @GetMapping("/bootstrap")
     public PredictionBootstrapDTO bootstrap(
             @RequestParam Integer season,
-            @RequestParam Integer fromRound
+            @RequestParam Integer fromRound,
+            @RequestParam(required = false) Integer pointsEra
     ) {
-        return bootstrapService.bootstrapSeason(season, fromRound);
+        return bootstrapService.bootstrapSeason(season, fromRound, pointsEra);
     }
 
     @PostMapping("/bootstrap-custom")
@@ -37,5 +35,4 @@ public class PredictionController {
     ) {
         return bootstrapService.bootstrapSeasonCustom(request);
     }
-
 }

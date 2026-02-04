@@ -93,5 +93,4 @@ public class PredictionSimulationService {
 
         return result;
     }
-
 }
