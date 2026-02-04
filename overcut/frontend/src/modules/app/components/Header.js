@@ -76,7 +76,7 @@ const Header = () => {
               <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                 {isLogged && (
                   <li className="nav-item">
-                    <Link className="nav-link" to="/category/2">
+                    <Link className="nav-link" to={isLogged ? "/category/2" : "/quiz-info"}>
                       <FormattedMessage id="project.app.Header.quiz" /> <Lightbulb size={16} />
                     </Link>
                   </li>

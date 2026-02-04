@@ -88,6 +88,11 @@ import CookiesPolicy from "../../app/components/CookiesPolicy";
 import IntellectualProperty from "../../app/components/IntellectualProperty";
 import LegalHub from "../../app/components/LegalHub";
 
+
+import StartHome from "./StartHome";
+import QuizInfo from "../../common/components/QuizInfo";
+
+
 const Body = () => {
 
     const loggedIn = useSelector(users.selectors.isLoggedIn);
@@ -96,7 +101,8 @@ const Body = () => {
         <div className="Body">
             <Routes>
                 <Route path="/">
-                    <Route index exact element={<Home />} />
+                      <Route index exact element={<StartHome />} />
+                      <Route path="/posts" element={<Home />} />
                     <Route path="/users/signUp" element={<SignUp />} />
                     <Route path="/users/login" element={<Login />} />
                     <Route path="/users/logout" element={<Logout />} />
@@ -157,6 +163,7 @@ const Body = () => {
                     <Route path="/about_us" element={<AboutOvercut />} />
                     <Route path="/about" element={<Overcut />} />
                     <Route path="/overcutgames-info" element={<OvercutGamesInfo />} />
+                    <Route path="/quiz-info" element={<QuizInfo />} />
                     <Route path="/legal/notice" element={<LegalNotice />} />
                     <Route path="/legal/terms" element={<TermsOfUse />} />
                     <Route path="/legal/privacy" element={<PrivacyPolicy />} />

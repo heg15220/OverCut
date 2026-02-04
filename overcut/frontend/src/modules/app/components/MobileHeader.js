@@ -38,7 +38,7 @@ const MobileHeader = () => {
             <ul>
               {isLogged && (
                 <li>
-                  <Link to="/category/2" onClick={handleCloseMenu}>
+                  <Link to={isLogged ? "/category/2" : "/quiz-info"} onClick={handleCloseMenu}>
                     <FormattedMessage id="project.app.Header.quiz" /> <Lightbulb size={16} />
                   </Link>
                 </li>
