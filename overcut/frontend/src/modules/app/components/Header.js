@@ -18,6 +18,10 @@ import {
 import image from './Resources/LogoOverCut.png';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
 
+import { ArrowRepeat } from "react-bootstrap-icons";
+
+
+
 const Header = () => {
   const isLogged = useSelector(users.selectors.isLoggedIn);
   const userName = useSelector(users.selectors.getUserName);
@@ -99,7 +103,7 @@ const Header = () => {
 
                 <li className="nav-item">
                   <a className="nav-link" href="http://localhost:8086/">
-                    <FormattedMessage id="project.app.Header.overcutPredictions" /> <GraphUp size={16} />
+                    <FormattedMessage id="project.app.Header.overcutPredictions" /> <ArrowRepeat size={16} />
                   </a>
                 </li>
 

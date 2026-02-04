@@ -38,7 +38,28 @@ export const translations = {
         chartExamples3: "Posiciones medias de salida y llegada.",
         chartExamples4: "Delta entre clasificación y carrera.",
         chartExamples5: "Podios desde fuera del Top 10, dominancia por circuito, comparaciones entre compañeros, rankings de fiabilidad, adelantamientos y más."
-      }
+      },
+
+      predictions: {
+        intro:
+          "OverCut Predictions es el simulador interactivo de campeonatos. Te permite rehacer una temporada desde cualquier ronda y ver cómo cambiaría el mundial si los resultados hubieran sido distintos.",
+
+        feature1:
+          "🏁 Elige una temporada real y la ronda desde la que quieres empezar a simular.",
+
+        feature2:
+          "🔀 Reordena el resultado de cada Gran Premio moviendo pilotos libremente.",
+
+        feature3:
+          "📊 El sistema recalcula en tiempo real las clasificaciones de pilotos y constructores.",
+
+        feature4:
+          "🧠 Compatible con calendarios, equipos y pilotos reales cargados desde la base de datos.",
+
+        end:
+          "Es la herramienta perfecta para debates, escenarios hipotéticos y análisis del tipo “¿qué habría pasado si…?”"
+      },
+
     }
   },
 
@@ -80,7 +101,28 @@ export const translations = {
         chartExamples3: "Average starting and finishing positions.",
         chartExamples4: "Delta between qualifying and race.",
         chartExamples5: "Podiums from outside the Top 10, team dominance by circuit, teammate comparisons, reliability rankings, overtakes and more."
-      }
+      },
+
+      predictions: {
+        intro:
+          "OverCut Predictions is an interactive championship simulator. It allows you to replay a season from any round and see how the standings would change if race results had been different.",
+
+        feature1:
+          "🏁 Choose a real season and the round from which you want to start simulating.",
+
+        feature2:
+          "🔀 Reorder each Grand Prix result by freely rearranging drivers.",
+
+        feature3:
+          "📊 The system recalculates drivers’ and constructors’ standings in real time.",
+
+        feature4:
+          "🧠 Fully compatible with real calendars, teams and drivers loaded from the database.",
+
+        end:
+          "It’s the perfect tool for debates, hypothetical scenarios and classic “what if…?” analyses."
+      },
+
     }
   }
 };

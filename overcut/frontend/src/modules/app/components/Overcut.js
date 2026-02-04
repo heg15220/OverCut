@@ -81,6 +81,30 @@ const Overcut = () => {
         </div>
       </section>
 
+        {/* OVERCUT PREDICTIONS */}
+      <section className="overcut__section overcut__section--with-image">
+        <img
+          className="overcut__image"
+          src={getAboutOvercutImage("OverCutPredictions.png")}
+          alt="OverCut Predictions"
+        />
+
+        <div className="overcut__content">
+          <h2 className="overcut__subtitle">🔮 OverCut Predictions</h2>
+          <p>{t.predictions.intro}</p>
+
+          <ul className="overcut__list">
+            <li>{t.predictions.feature1}</li>
+            <li>{t.predictions.feature2}</li>
+            <li>{t.predictions.feature3}</li>
+            <li>{t.predictions.feature4}</li>
+          </ul>
+
+          <p>{t.predictions.end}</p>
+        </div>
+      </section>
+
+
       <section className="overcut__section overcut__section--with-image">
         <img
           className="overcut__image"
@@ -97,6 +121,9 @@ const Overcut = () => {
           </ul>
         </div>
       </section>
+
+
+
 
       <section className="overcut__section overcut__section--with-image">
         <img
