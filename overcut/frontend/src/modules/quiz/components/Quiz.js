@@ -95,6 +95,14 @@ const Quiz = () => {
       );
     }
 
+const isMobile = window.innerWidth <= 600;
+
+const titleStyle = {
+  fontSize: isMobile ? "1.35rem" : "2.4rem",
+  lineHeight: isMobile ? "1.15" : "1.1",
+  marginBottom: "1rem",
+  textAlign: "center"
+};
 
 
     return (
@@ -159,7 +167,9 @@ const Quiz = () => {
                         transition={{ duration: 1 }}
                         className="intro-card"
                     >
-                        <h1 className="question-title"><FormattedMessage id="quiz.intro.title" /></h1>
+                        <h1 className="question-title" style={titleStyle}>
+                          <FormattedMessage id="quiz.intro.title" />
+                        </h1>
                         <p style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '2rem' }}>
                             <FormattedMessage id="quiz.intro.subtitle" />
                         </p>
