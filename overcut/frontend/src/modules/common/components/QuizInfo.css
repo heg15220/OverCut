@@ -106,3 +106,101 @@
   opacity: 0.92;
   transform: scale(0.98);
 }
+
+/* ------------------------------
+   ✅ Mobile-first improvements
+   Pegar AL FINAL del CSS
+-------------------------------- */
+
+/* Mejor escala general */
+.quizinfo-title{
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  margin-bottom: clamp(1.2rem, 4vw, 2rem);
+}
+
+/* Contenedor: menos padding en móvil */
+.quizinfo-container{
+  padding: clamp(1.6rem, 5vw, 3rem) 1rem 2rem;
+}
+
+/* Layout: en pantallas pequeñas, columna real (no wrap raro) */
+@media (max-width: 900px){
+  .quizinfo-content{
+    flex-direction: column;
+    gap: 1.6rem;
+    align-items: stretch;
+  }
+
+  .quizinfo-imageWrap{
+    order: 1;
+  }
+
+  .quizinfo-textWrap{
+    order: 2;
+    max-width: 100%;
+    text-align: center;
+  }
+}
+
+/* Imágenes: que se vean bien en móvil y no “gigantes” */
+.quizinfo-image{
+  width: 100%;
+  max-width: 520px;
+  max-height: none;          /* 👈 evita recortes raros */
+  border-radius: 14px;
+  object-fit: cover;         /* 👈 se adapta mejor en móvil */
+}
+
+/* Si prefieres que no recorte, cambia cover por contain y añade background */
+@media (max-width: 600px){
+  .quizinfo-image{
+    max-width: 100%;
+    border-radius: 12px;
+  }
+}
+
+/* Dos imágenes: que no ocupen demasiado alto en móvil */
+@media (max-width: 600px){
+  .quizinfo-imageWrap{
+    gap: 12px;
+  }
+
+  .quizinfo-image{
+    max-height: 280px;      /* 👈 limita altura */
+    object-fit: contain;     /* 👈 para que no recorte capturas */
+    background: rgba(255,255,255,0.03);
+  }
+}
+
+/* Texto: más compacto en móvil */
+.quizinfo-desc p{
+  font-size: clamp(1rem, 3.6vw, 1.15rem);
+  line-height: 1.55;
+}
+
+/* Botones: estilo “app”, más grandes y usables */
+@media (max-width: 600px){
+  .quizinfo-buttons{
+    gap: 10px;
+  }
+
+  .quizinfo-btn{
+    width: 100%;
+    max-width: 420px;
+    justify-content: center;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+
+  .quizinfo-btn.secondary{
+    border-width: 2px;
+  }
+}
+
+/* Reduce sombras en móvil para que no se vea “pesado” */
+@media (max-width: 600px){
+  .quizinfo-image{
+    box-shadow: 0 10px 26px rgba(0,0,0,0.40);
+  }
+}
