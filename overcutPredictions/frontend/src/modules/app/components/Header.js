@@ -4,10 +4,12 @@ import "./Header.css";
 import { t } from "../../../i18n/translations";
 
 export default function Header() {
-  const overcutUrl = useMemo(() => {
-    const v = (process.env.REACT_APP_OVERCUT_URL || "").trim();
-    return v.length ? v : "http://localhost:3000/";
-  }, []);
+const overcutUrl = useMemo(() => {
+  // Dev: tu OverCut local
+  if (process.env.NODE_ENV === "development") return "http://localhost:3000/";
+  // Prod: OverCut vive en la raíz del mismo dominio
+  return "/";
+}, []);
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
