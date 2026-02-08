@@ -1,4 +1,13 @@
-/* src/modules/debate/components/debateV2.css */
+/* ✅ Variables necesarias (si no las tienes en global) */
+:root{
+  --oc-border: rgba(255,255,255,0.12);
+  --oc-muted: rgba(201,214,232,0.72);
+  --oc-text: #e8edf3;
+
+  --radius-xl: 16px;
+  --shadow: 0 10px 24px rgba(0,0,0,0.35);
+}
+
 .ocD-page{ width:100%; padding: 18px; display:flex; justify-content:center; }
 .ocD-shell{ width:100%; max-width: 1200px; }
 
@@ -136,78 +145,6 @@
 .ocD-empty{ padding: 12px; }
 .ocD-emptyTitle{ font-weight: 800; margin-bottom: 6px; }
 
-/* Modal poll */
-.ocD-modalOverlay{
-  position: fixed; inset:0;
-  background: rgba(0,0,0,.55);
-  display:flex; align-items:center; justify-content:center;
-  padding: 18px; z-index: 2000;
-}
-.ocD-modal{
-  width: 100%; max-width: 520px;
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(245,179,1,.35);
-  background: rgba(13,20,29,.95);
-  box-shadow: var(--shadow);
-  padding: 14px;
-}
-.ocD-modalHeader{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-}
-.ocD-modalTitle{ font-weight: 900; letter-spacing:.2px; }
-.ocD-modalTimer{ font-weight: 900; color: rgba(245,179,1,.95); }
-.ocD-modalActions{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-
-/* Chat */
-.ocD-chat{
-  margin-top: 12px;
-  border: 1px solid var(--oc-border);
-  background: rgba(13,20,29,.85);
-  border-radius: var(--radius-xl);
-  overflow:hidden;
-}
-.ocD-chatHeader{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--oc-border);
-}
-.ocD-chatList{
-  height: 360px;
-  overflow:auto;
-  padding: 12px;
-}
-.ocD-chatInputRow{
-  display:flex; gap:10px;
-  padding: 10px 12px;
-  border-top: 1px solid var(--oc-border);
-  background: rgba(16,27,39,.75);
-}
-.ocD-input{
-  flex:1;
-  border-radius: 12px;
-  border: 1px solid var(--oc-border);
-  background: rgba(7,11,16,.65);
-  color: var(--oc-text);
-  padding: 10px 12px;
-}
-.ocD-msg{ margin-bottom: 10px; }
-.ocD-msg.mine .ocD-msgBubble{
-  border-color: rgba(245,179,1,.35);
-  background: rgba(245,179,1,.10);
-}
-.ocD-msgMeta{
-  display:flex; align-items:center; justify-content:space-between;
-  font-size: 12px; color: var(--oc-muted);
-  margin-bottom: 6px;
-}
-.ocD-msgUser{ font-weight: 800; color: var(--oc-text); }
-.ocD-msgBubble{
-  border: 1px solid var(--oc-border);
-  background: rgba(16,27,39,.55);
-  border-radius: 14px;
-  padding: 10px 12px;
-  line-height: 1.35;
-}
 .ocD-opBox { display: flex; flex-direction: column; gap: 10px; }
 .ocD-textarea {
   width: 100%;

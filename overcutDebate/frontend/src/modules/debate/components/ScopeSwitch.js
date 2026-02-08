@@ -1,4 +1,3 @@
-// src/modules/debate/components/ScopeSwitch.jsx
 import React from "react";
 import "./debateV2.css";
 

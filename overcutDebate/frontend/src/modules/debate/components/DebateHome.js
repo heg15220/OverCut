@@ -13,7 +13,7 @@ export default function DebateHome() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [scope, setScope] = useState("ES"); // ES / INT
+  const [scope, setScope] = useState("ES");
 
   const loading = useSelector(selectors.getDebateLoading);
   const rooms = useSelector((s) => selectors.getRooms(s, scope));
@@ -29,33 +29,44 @@ export default function DebateHome() {
   }, [dispatch, scope]);
 
   const roomsSorted = useMemo(() => {
-    return [...(rooms || [])].sort(
-      (a, b) => (a.secondsRemainingToJoin ?? 0) - (b.secondsRemainingToJoin ?? 0)
-    );
+    const order = { OPEN: 0, POLL: 1, LIVE: 2, CLOSED: 3 };
+    return [...(rooms || [])].sort((a, b) => {
+      const oa = order[a.status] ?? 99;
+      const ob = order[b.status] ?? 99;
+      if (oa !== ob) return oa - ob;
+      return (a.secondsRemainingToJoin ?? 0) - (b.secondsRemainingToJoin ?? 0);
+    });
   }, [rooms]);
 
   return (
-    <div className="debate-page">
-      <div className="debate-card">
-        <div className="debate-header">
-          <h2>Debate</h2>
+    <div className="debate-home">
+      <div className="debate-home__content">
+        <header className="debate-home__header">
+          <div>
+            <div className="debate-home__title">OverCutDebate</div>
+            <div className="debate-home__subtitle">
+              Unpopular opinions → salas → poll → debate LIVE
+            </div>
+          </div>
 
-          <div className="debate-scope">
-            <label>Scope</label>
-            <select value={scope} onChange={(e) => setScope(e.target.value)}>
-              <option value="ES">ES</option>
-              <option value="INT">INT</option>
-            </select>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <span className="room-pill">Scope</span>
+              <select value={scope} onChange={(e) => setScope(e.target.value)}>
+                <option value="ES">ES</option>
+                <option value="INT">INT</option>
+              </select>
+            </div>
 
             <button
-              className="debate-btn"
+              className="btn btn--primary"
               onClick={() => dispatch(actions.listRoomsToday(scope))}
               disabled={loading}
             >
               Refresh
             </button>
           </div>
-        </div>
+        </header>
 
         <DebateOpinionBox
           scope={scope}
@@ -63,47 +74,57 @@ export default function DebateHome() {
           onSubmit={(text) => dispatch(actions.submitOpinion(scope, text))}
         />
 
-        <div className="debate-section">
-          <h3>Today rooms</h3>
+        <section className="rooms">
+          <div className="rooms__topbar">
+            <div className="rooms__h">Today rooms</div>
+            <div className="rooms__hint">
+              {roomsSorted.length === 0
+                ? "No rooms yet (or seeding not executed for today)."
+                : `${roomsSorted.length} salas`}
+            </div>
+          </div>
 
-          {roomsSorted.length === 0 && (
-            <div className="debate-empty">
-              No rooms yet (or seeded not executed for today).
+          {roomsSorted.length === 0 ? null : (
+            <div className="rooms__grid">
+              {roomsSorted.map((r) => {
+                const statusLower = (r.status || "").toLowerCase(); // live/poll/closed/scheduled...
+                return (
+                  <button
+                    key={r.id}
+                    className="room-card"
+                    onClick={() => navigate(`/debate/rooms/${r.id}`)}
+                    type="button"
+                  >
+                    <div className="room-card__head">
+                      <div className="room-card__meta">
+                        <span className="room-pill">👥 {r.participantsCount}</span>
+                      </div>
+
+                      <span className={`room-badge ${statusLower}`}>{r.status}</span>
+                    </div>
+
+                    <h3 className="room-card__title">{r.topic}</h3>
+
+                    <div className="room-card__footer">
+                      <div className="room-timing">
+                        {r.status === "OPEN" && (
+                          <div className="room-time">Join remaining: {r.secondsRemainingToJoin}s</div>
+                        )}
+                        {r.status === "POLL" && (
+                          <div className="room-time">Poll remaining: {r.secondsRemainingToPollEnd}s</div>
+                        )}
+                      </div>
+
+                      <span className="room-pill">
+                        {r.status === "LIVE" ? "Entrar →" : r.status === "CLOSED" ? "Cerrada" : "Abrir →"}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
-
-          <div className="debate-room-list">
-            {roomsSorted.map((r) => (
-              <button
-                key={r.id}
-                className="debate-room-item"
-                onClick={() => navigate(`/debate/rooms/${r.id}`)}
-              >
-                <div className="debate-room-top">
-                  <span
-                    className={`debate-badge status-${(r.status || "").toLowerCase()}`}
-                  >
-                    {r.status}
-                  </span>
-                  <span className="debate-muted">
-                    Participants: {r.participantsCount}
-                  </span>
-                </div>
-
-                <div className="debate-topic">{r.topic}</div>
-
-                <div className="debate-room-bottom">
-                  <span className="debate-muted">
-                    Join remaining: {r.secondsRemainingToJoin}s
-                  </span>
-                  <span className="debate-muted">
-                    Poll remaining: {r.secondsRemainingToPollEnd}s
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
+        </section>
       </div>
     </div>
   );

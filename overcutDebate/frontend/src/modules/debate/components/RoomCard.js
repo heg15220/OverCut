@@ -1,4 +1,3 @@
-// frontend/src/modules/debate/components/RoomCard.jsx
 import React, { useMemo } from "react";
 import "./debateV2.css";
 
@@ -22,8 +21,7 @@ export default function RoomCard({ room, onOpen }) {
   const poll = Math.max(0, room.secondsRemainingToPollEnd ?? 0);
 
   const primaryTime = room.status === "OPEN" ? join : room.status === "POLL" ? poll : 0;
-  const timeLabel =
-    room.status === "OPEN" ? "Cierra en" : room.status === "POLL" ? "Poll termina en" : "";
+  const timeLabel = room.status === "OPEN" ? "Cierra en" : room.status === "POLL" ? "Poll termina en" : "";
 
   const canEnter = room.status !== "CLOSED";
 
@@ -37,7 +35,6 @@ export default function RoomCard({ room, onOpen }) {
       : "Cerrada";
 
   const progress = useMemo(() => {
-    // barra simple visual (ajusta si cambias joinSeconds/pollSeconds)
     const denom = room.status === "OPEN" ? 120 : room.status === "POLL" ? 30 : 1;
     return Math.min(100, Math.max(0, (primaryTime / denom) * 100));
   }, [room.status, primaryTime]);

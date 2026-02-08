@@ -1,36 +1,16 @@
-// frontend/src/modules/debate/components/DebateOpinionBox.jsx
+// src/modules/debate/components/DebateOpinionBox.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import "./debateV2.css";
+import "./Debate.css";
 
 export default function DebateOpinionBox({ scope, myOpinion, isAdmin, onSubmit }) {
   const [text, setText] = useState("");
 
-  // ✅ si ya había opinión y el usuario es admin, precargamos para editar
   useEffect(() => {
-    if (myOpinion?.text && isAdmin) {
-      setText(myOpinion.text);
-    }
-    if (!myOpinion && text) {
-      // no tocamos, por si el user estaba escribiendo
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (myOpinion?.text && isAdmin) setText(myOpinion.text);
   }, [myOpinion?.id, isAdmin]);
 
-  const locked = !!myOpinion && !isAdmin; // ✅ no-admin: bloqueado; admin: editable
-
+  const locked = !!myOpinion && !isAdmin;
   const remaining = useMemo(() => 500 - (text?.length || 0), [text]);
-
-  const ctaLabel = locked
-    ? "Opinión enviada"
-    : myOpinion && isAdmin
-    ? "Actualizar opinión (admin)"
-    : "Enviar opinión";
-
-  const helper = locked
-    ? "Ya has enviado tu opinión hoy para este scope."
-    : myOpinion && isAdmin
-    ? "Eres admin: puedes editar y actualizar tu opinión de hoy."
-    : "Escribe una opinión impopular (1..500).";
 
   const submit = () => {
     const cleaned = (text || "").trim();
@@ -39,53 +19,47 @@ export default function DebateOpinionBox({ scope, myOpinion, isAdmin, onSubmit }
   };
 
   return (
-    <div className="ocD-opBox">
-      <div className="ocD-muted" style={{ marginBottom: 8 }}>
-        {helper}
-      </div>
-
-      {/* Si no-admin y ya existe opinión, mostramos caja de solo lectura */}
-      {locked ? (
-        <div className="ocD-opinionRead">
-          <div className="ocD-opinionText">{myOpinion?.text}</div>
-          <div className="ocD-muted" style={{ marginTop: 6 }}>
-            Scope: <b>{scope}</b>
-          </div>
+    <div style={{ marginTop: 10, marginBottom: 16 }}>
+      <div className="field">
+        <div className="field__label">
+          Tu opinión de hoy <span className="room-pill">{scope}</span>
         </div>
-      ) : (
-        <>
-          <textarea
-            className="ocD-textarea"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={scope === "ES" ? "Tu opinión impopular..." : "Your unpopular opinion..."}
-            maxLength={500}
-            rows={4}
-          />
 
-          <div className="ocD-row">
-            <span className={`ocD-muted ${remaining < 0 ? "ocD-bad" : ""}`}>
-              {remaining} chars
-            </span>
-
-            <button
-              className="ocD-btn"
-              onClick={submit}
-              disabled={!text.trim()}
-              title={ctaLabel}
-            >
-              {ctaLabel}
-            </button>
-          </div>
-
-          {/* Si admin y hay opinión existente, avisito */}
-          {myOpinion && isAdmin && (
-            <div className="ocD-muted" style={{ marginTop: 8 }}>
-              ⚙️ Se actualizará la misma opinión (no crea una nueva).
+        {locked ? (
+          <div className="modal-card" style={{ padding: 14 }}>
+            <div style={{ color: "rgba(255,255,255,0.9)", lineHeight: 1.35 }}>{myOpinion?.text}</div>
+            <div className="field__help" style={{ marginTop: 8 }}>
+              Ya has enviado tu opinión hoy para este scope.
             </div>
-          )}
-        </>
-      )}
+          </div>
+        ) : (
+          <>
+            <textarea
+              className="field__input"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={scope === "ES" ? "Tu opinión impopular..." : "Your unpopular opinion..."}
+              maxLength={500}
+            />
+
+            <div className="field__meta">
+              <span className={`field__count ${remaining <= 40 ? "is-warn" : ""}`}>
+                {remaining} chars
+              </span>
+
+              <button className="btn btn--primary" onClick={submit} disabled={!text.trim()}>
+                Enviar
+              </button>
+            </div>
+
+            {myOpinion && isAdmin && (
+              <div className="field__help" style={{ marginTop: 6 }}>
+                ⚙️ Admin: se actualizará la misma opinión.
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

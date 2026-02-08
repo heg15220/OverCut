@@ -1,4 +1,3 @@
-// src/modules/debate/components/DebateHomeV2.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as actions from "../actions";
@@ -20,7 +19,7 @@ export default function DebateHomeV2({ onOpenRoom }) {
   const myOpinion = useSelector((s) => selectors.getMyTodayOpinion(s, scope));
   const err = useSelector(selectors.getDebateError);
 
-  const me = useSelector(selectors.getMe); // ✅ necesario para admin
+  const me = useSelector(selectors.getMe);
   const isAdmin = !!me?.admin;
 
   useEffect(() => {
@@ -78,7 +77,7 @@ export default function DebateHomeV2({ onOpenRoom }) {
             <DebateOpinionBox
               scope={scope}
               myOpinion={myOpinion}
-              isAdmin={isAdmin} // ✅ admin puede re-escribir
+              isAdmin={isAdmin}
               onSubmit={(text) => dispatch(actions.submitOpinion(scope, text))}
             />
           </div>
@@ -99,7 +98,12 @@ export default function DebateHomeV2({ onOpenRoom }) {
             ) : (
               <div className="ocD-roomGrid">
                 {sorted.map((r) => (
-                  <RoomCard key={r.id} room={r} now={now} onOpen={() => onOpenRoom?.(r.id)} />
+                  <RoomCard
+                    key={r.id}
+                    room={r}
+                    now={now}
+                    onOpen={() => onOpenRoom?.(r.id)}
+                  />
                 ))}
               </div>
             )}

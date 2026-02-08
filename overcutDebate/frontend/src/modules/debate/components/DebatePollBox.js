@@ -1,4 +1,3 @@
-// src/modules/debate/components/DebatePollBox.jsx
 import React from "react";
 import "./Debate.css";
 
@@ -6,27 +5,25 @@ export default function DebatePollBox({ status, joined, pollAnswer, onAnswer }) 
   const canVote = joined && status === "POLL" && !pollAnswer;
 
   return (
-    <div className="debate-section">
-      <h3>Poll</h3>
+    <div style={{ marginTop: 14 }}>
+      <div className="rooms__h" style={{ marginBottom: 6 }}>Poll</div>
 
-      {!joined && <div className="debate-muted">Join the room to vote.</div>}
+      {!joined && <div className="rooms__hint">Join the room to vote.</div>}
 
       {joined && status !== "POLL" && (
-        <div className="debate-muted">
-          Poll is not active right now (status: {status}).
-        </div>
+        <div className="rooms__hint">Poll is not active right now (status: {status}).</div>
       )}
 
       {joined && status === "POLL" && (
         <>
           {pollAnswer ? (
-            <div className="debate-joined-ok">✅ You answered: {pollAnswer}</div>
+            <div className="room-pill">✅ You answered: {pollAnswer}</div>
           ) : (
-            <div className="debate-row">
-              <button className="debate-btn" disabled={!canVote} onClick={() => onAnswer("YES")}>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button className="btn btn--primary" disabled={!canVote} onClick={() => onAnswer("YES")}>
                 YES
               </button>
-              <button className="debate-btn danger" disabled={!canVote} onClick={() => onAnswer("NO")}>
+              <button className="btn btn--ghost" disabled={!canVote} onClick={() => onAnswer("NO")}>
                 NO
               </button>
             </div>
