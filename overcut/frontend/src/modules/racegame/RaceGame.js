@@ -2335,7 +2335,7 @@ const drawStartLights = (ctx) => {
       <MinigameTutorial
         title={tutorial?.title || translations.title}
         description={tutorial?.description || ""}
-        image={sourceImages(`./raceGame.png`)}
+        image={sourceImages(`./RaceGame.png`)}
         onStart={() => {
           setShowTutorial(false);
           setShowSetup(true);
