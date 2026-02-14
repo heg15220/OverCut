@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -30,6 +31,9 @@ public class ThirtySecondsGameServiceImpl implements ThirtySecondsGameService {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String PYTHON_API_BASE = "http://localhost:8000";
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     @Override
     public ThirtySecondsGame startGame(Long userId, String lang) {
         try {
@@ -38,7 +42,7 @@ public class ThirtySecondsGameServiceImpl implements ThirtySecondsGameService {
                 throw new CooldownException("WAIT", wait);
             }
 
-            String url = PYTHON_API_BASE + "/generate-30-seconds?lang=" +
+            String url = fastapiBaseUrl + "/generate-30-seconds?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -92,7 +96,7 @@ public class ThirtySecondsGameServiceImpl implements ThirtySecondsGameService {
             payload.put("answers", cleaned);
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(PYTHON_API_BASE + "/validate-30-seconds"))
+                    .uri(URI.create(fastapiBaseUrl + "/validate-30-seconds"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload)))
                     .timeout(Duration.ofSeconds(20))
@@ -138,7 +142,7 @@ public class ThirtySecondsGameServiceImpl implements ThirtySecondsGameService {
     public List<String> autocompletePilotNames(String partial) {
         try {
             String url = String.format("%s/autocomplete-grid-pilot?partial=%s",
-                    PYTHON_API_BASE,
+                    fastapiBaseUrl,
                     URLEncoder.encode(partial, StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()

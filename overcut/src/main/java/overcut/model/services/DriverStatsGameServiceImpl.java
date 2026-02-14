@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.DriverStatsGame;
 import overcut.model.entities.DriverStatsGameDao;
@@ -31,6 +32,9 @@ public class DriverStatsGameServiceImpl implements DriverStatsGameService {
     @Autowired private CooldownService cooldownService;
 
 
+    @Value("${fastapi.base-url:http://localhost:8000}")
+    private String fastapiBaseUrl;
+
     @Override
     public DriverStatsGameDto startGame(String lang, Long userId) {
         try {
@@ -40,7 +44,7 @@ public class DriverStatsGameServiceImpl implements DriverStatsGameService {
                 throw new CooldownException("WAIT", wait);
             }
 
-            String url = PYTHON_API_BASE + "/generate-driver-stats?lang=" +
+            String url = fastapiBaseUrl + "/generate-driver-stats?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -110,7 +114,7 @@ public class DriverStatsGameServiceImpl implements DriverStatsGameService {
             payload.set("answers", mapper.valueToTree(a));
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(PYTHON_API_BASE + "/validate-driver-stats"))
+                    .uri(URI.create(fastapiBaseUrl + "/validate-driver-stats"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload)))
                     .timeout(Duration.ofSeconds(20))

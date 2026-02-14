@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -35,12 +36,14 @@ public class TowerGameServiceImpl implements TowerGameService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final HttpClient client = HttpClient.newHttpClient();
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
 
     @Override
     public Object getThemes() {
         try {
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/tower-themes"))
+                    .uri(URI.create(fastapiBaseUrl + "/tower-themes"))
                     .GET()
                     .build();
 
@@ -61,7 +64,7 @@ public class TowerGameServiceImpl implements TowerGameService {
             throw new CooldownException("WAIT", wait);
         }
         try {
-            String url = "http://localhost:8000/generate-tower";
+            String url = fastapiBaseUrl + "/generate-tower";
 
             if (themeType != null && !themeType.isBlank()) {
                 url += "?themeType=" + URLEncoder.encode(themeType, StandardCharsets.UTF_8);
@@ -127,7 +130,7 @@ public class TowerGameServiceImpl implements TowerGameService {
             String payload = node.toString();
 
             HttpRequest httpReq = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/validate-tower"))
+                    .uri(URI.create(fastapiBaseUrl + "/validate-tower"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
@@ -205,7 +208,7 @@ public class TowerGameServiceImpl implements TowerGameService {
             String payload = node.toString();
 
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/tower-hint-value"))
+                    .uri(URI.create(fastapiBaseUrl + "/tower-hint-value"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
@@ -237,7 +240,7 @@ public class TowerGameServiceImpl implements TowerGameService {
     @Override
     public List<String> autocompletePilots(Long gameId, String query, Long userId) {
         try {
-            String url = "http://localhost:8000/autocomplete-pilot?partial=" +
+            String url = fastapiBaseUrl + "/autocomplete-pilot?partial=" +
                     URLEncoder.encode(query, StandardCharsets.UTF_8);
 
             HttpRequest request = HttpRequest.newBuilder()

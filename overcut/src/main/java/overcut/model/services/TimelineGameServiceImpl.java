@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -27,6 +28,9 @@ public class TimelineGameServiceImpl implements TimelineGameService {
 
     @Autowired private CooldownService cooldownService;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     @Override
     public TimelineGame startGame(String lang, Long userId) {
         try {
@@ -37,7 +41,7 @@ public class TimelineGameServiceImpl implements TimelineGameService {
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-timeline?lang=" + lang))
+                    .uri(URI.create(fastapiBaseUrl + "/generate-timeline?lang=" + lang))
                     .GET()
                     .build();
 

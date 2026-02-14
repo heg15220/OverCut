@@ -1,6 +1,7 @@
 package overcut.model.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
 import overcut.rest.dtos.GridSlotReveal;
@@ -25,6 +26,10 @@ public class Top10QualiGameServiceImpl implements Top10QualiGameService {
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
+
     @Override
     public Top10QualiGame createGame(Long userId, String lang) {
         try {
@@ -33,7 +38,7 @@ public class Top10QualiGameServiceImpl implements Top10QualiGameService {
                 throw new CooldownException("WAIT", wait);
             }
 
-            String url = "http://localhost:8000/generate-top10quali-game?lang=" +
+            String url = fastapiBaseUrl + "/generate-top10quali-game?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
             HttpResponse<String> response = client.send(
@@ -96,7 +101,7 @@ public class Top10QualiGameServiceImpl implements Top10QualiGameService {
 
         try {
             String url = String.format(
-                    "http://localhost:8000/validate-top10quali-pilot?pilot=%s&raceId=%d",
+                    fastapiBaseUrl + "/validate-top10quali-pilot?pilot=%s&raceId=%d",
                     URLEncoder.encode(pilotName, StandardCharsets.UTF_8),
                     game.getRaceId()
             );
@@ -156,7 +161,7 @@ public class Top10QualiGameServiceImpl implements Top10QualiGameService {
     @Override
     public List<String> autocompletePilots(Long gameId, String query) {
         try {
-            String url = "http://localhost:8000/autocomplete-grid-pilot?partial=" +
+            String url = fastapiBaseUrl + "/autocomplete-grid-pilot?partial=" +
                     URLEncoder.encode(query, StandardCharsets.UTF_8);
 
             HttpResponse<String> response = client.send(

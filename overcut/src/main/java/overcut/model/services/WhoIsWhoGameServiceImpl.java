@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -25,6 +26,9 @@ public class WhoIsWhoGameServiceImpl implements WhoIsWhoGameService {
 
     @Autowired private CooldownService cooldownService;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     private static String norm(String s) {
         if (s == null) return "";
         String n = Normalizer.normalize(s, Normalizer.Form.NFD)
@@ -43,7 +47,7 @@ public class WhoIsWhoGameServiceImpl implements WhoIsWhoGameService {
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-who-is-who?lang=" + lang))
+                    .uri(URI.create(fastapiBaseUrl + "/generate-who-is-who?lang=" + lang))
                     .GET()
                     .build();
 
@@ -146,7 +150,7 @@ public class WhoIsWhoGameServiceImpl implements WhoIsWhoGameService {
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:8000/autocomplete-pilot?partial=" + q))
+            .uri(URI.create(fastapiBaseUrl + "/autocomplete-pilot?partial=" + q))
             .GET()
             .build();
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -26,6 +27,10 @@ public class TeamNationalityGameServiceImpl implements TeamNationalityGameServic
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String PYTHON_API_BASE = "http://localhost:8000";
 
+    @Value("${fastapi.base-url:http://localhost:8000}")
+    private String fastapiBaseUrl;
+
+
     @Override
     public TeamNationalityGame startGame(Long userId, String lang) {
         try {
@@ -34,7 +39,7 @@ public class TeamNationalityGameServiceImpl implements TeamNationalityGameServic
                 throw new CooldownException("WAIT", wait);
             }
 
-            String url = PYTHON_API_BASE + "/generate-team-nationality?lang=" +
+            String url = fastapiBaseUrl + "/generate-team-nationality?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -152,7 +157,7 @@ public class TeamNationalityGameServiceImpl implements TeamNationalityGameServic
     public List<String> autocompletePilotNames(String partial) {
         try {
             String url = String.format("%s/autocomplete-grid-pilot?partial=%s",
-                    PYTHON_API_BASE,
+                    fastapiBaseUrl,
                     URLEncoder.encode(partial, StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()

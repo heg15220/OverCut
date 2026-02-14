@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.F1AnagramsAttempt;
 import overcut.model.entities.F1AnagramsGame;
@@ -33,6 +34,10 @@ public class F1AnagramsGameServiceImpl implements F1AnagramsGameService {
     private F1AnagramsGameDao gameDao;
     @Autowired private CooldownService cooldownService;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
+
     @Override
     public F1AnagramsGame startGame(Long userId) {
         try {
@@ -43,7 +48,7 @@ public class F1AnagramsGameServiceImpl implements F1AnagramsGameService {
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-f1-anagrams"))
+                    .uri(URI.create(fastapiBaseUrl + "/generate-f1-anagrams"))
                     .GET()
                     .build();
 

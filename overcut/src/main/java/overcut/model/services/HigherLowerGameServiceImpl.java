@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -21,6 +22,9 @@ public class HigherLowerGameServiceImpl implements HigherLowerGameService {
     @Autowired private HigherLowerGameDao gameDao;
     @Autowired private CooldownService cooldownService;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     @Override
     public HigherLowerGame startGame(String lang, Long userId) {
         try {
@@ -31,7 +35,7 @@ public class HigherLowerGameServiceImpl implements HigherLowerGameService {
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-higher-lower?lang=" + lang))
+                    .uri(URI.create(fastapiBaseUrl + "/generate-higher-lower?lang=" + lang))
                     .GET().build();
 
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());

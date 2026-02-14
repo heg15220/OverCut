@@ -2005,6 +2005,9 @@ const drawStartLights = (ctx) => {
     const ctx = canvas.getContext("2d");
     const st = stateRef.current;
 
+
+    const isMobile = isMobileRef.current;
+
     const dt = Math.min(0.033, (now - lastRef.current) / 1000);
     st.raceTime += dt;
 
@@ -2054,7 +2057,10 @@ const drawStartLights = (ctx) => {
 
     // ---------------- CÁMARA ----------------
     if (you) {
-      const look = 180;
+
+      // ✅ menos look en móvil para que el coche quede centrado
+      const look = isMobile ? 90 : 180;
+
       const tx = you.x + Math.cos(you.a) * look;
       const ty = you.y + Math.sin(you.a) * look;
 
@@ -2062,14 +2068,24 @@ const drawStartLights = (ctx) => {
       cameraRef.current.y = lerp(cameraRef.current.y, ty, clamp(6.8 * dt, 0, 1));
     }
 
+
     // ---------------- RENDER ----------------
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     drawBackground(ctx, cameraRef.current);
 
-    const cam = cameraRef.current;  
+    const { w, h } = viewRef.current;
+
+    const cam = cameraRef.current;
+
+    // ✅ ancla: en desktop mantienes “coche más abajo” (0.62)
+    // ✅ en móvil: centrado real (0.50)
+    const anchorX = w * 0.5;
+    const anchorY = isMobile ? h * 0.50 : h * 0.62;
+
     ctx.save();
-    ctx.translate(window.innerWidth * 0.5 - cam.x, window.innerHeight * 0.62 - cam.y);
+    ctx.translate(anchorX - cam.x, anchorY - cam.y);
+
 
     drawDecorationsNearCamera(ctx, cam);
     drawTrackNearPlayer(ctx, you?.s ?? 0);
@@ -2085,7 +2101,6 @@ const drawStartLights = (ctx) => {
 
     ctx.restore();
 
-    const isMobile = isMobileRef.current;
 
     // ✅ Desktop: leaderboard en canvas
     if (!isMobile) {

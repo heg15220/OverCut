@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import overcut.model.entities.TeamHistoryGame;
@@ -33,6 +34,10 @@ public class TeamHistoryGameServiceImpl implements TeamHistoryGameService {
 
     private static final String COOLDOWN_KEY = "TeamHistoryGame";
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
+
     @Override
     public TeamHistoryGameDto startGame(String lang, Long userId) {
         try {
@@ -45,7 +50,7 @@ public class TeamHistoryGameServiceImpl implements TeamHistoryGameService {
             // ✅ llamada FastAPI (idéntico esquema)
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8000/generate-team-history-game?lang=" + lang))
+                    .uri(URI.create(fastapiBaseUrl + "/generate-team-history-game?lang=" + lang))
                     .GET()
                     .build();
 

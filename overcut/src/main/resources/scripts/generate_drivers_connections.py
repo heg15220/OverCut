@@ -87,7 +87,8 @@ TEAM_CACHE = []
 COUNTRY_CACHE = []
 CIRCUIT_CACHE = []
 TEAMMATE_DRIVER_CACHE = []
-
+TEAM_PAIR_CACHE = []
+COUNTRY_IN_TEAM_CACHE = []
 
 
 def translate(code, lang, extra=""):
@@ -160,6 +161,49 @@ def precache_dynamic_lists():
             )
         """)).fetchall()
         TEAMMATE_DRIVER_CACHE.extend(rows)
+
+        # === TEAM_PAIR_CACHE ===
+        TEAM_PAIR_CACHE.clear()
+        # pares de equipos donde existe al menos 1 piloto que haya corrido en ambos
+        pairs = conn.execute(text("""
+            SELECT
+              LEAST(r1.constructorId, r2.constructorId) AS teamA,
+              GREATEST(r1.constructorId, r2.constructorId) AS teamB,
+              c1.name AS nameA,
+              c2.name AS nameB,
+              COUNT(DISTINCT r1.driverId) AS driversCnt
+            FROM results r1
+            JOIN results r2
+              ON r1.driverId = r2.driverId
+             AND r1.constructorId <> r2.constructorId
+            JOIN constructors c1 ON c1.constructorId = LEAST(r1.constructorId, r2.constructorId)
+            JOIN constructors c2 ON c2.constructorId = GREATEST(r1.constructorId, r2.constructorId)
+            GROUP BY teamA, teamB, nameA, nameB
+            HAVING driversCnt >= 6
+            ORDER BY driversCnt DESC
+        """)).fetchall()
+
+        TEAM_PAIR_CACHE.extend([(int(r[0]), str(r[2]), int(r[1]), str(r[3])) for r in pairs])
+
+        # === COUNTRY_IN_TEAM_CACHE ===
+        COUNTRY_IN_TEAM_CACHE.clear()
+        combos = conn.execute(text("""
+            SELECT
+              d.nationality AS country,
+              r.constructorId AS teamId,
+              c.name AS teamName,
+              COUNT(DISTINCT d.driverId) AS driversCnt
+            FROM drivers d
+            JOIN results r ON d.driverId = r.driverId
+            JOIN constructors c ON c.constructorId = r.constructorId
+            WHERE d.nationality IS NOT NULL
+            GROUP BY country, teamId, teamName
+            HAVING driversCnt >= 8
+            ORDER BY driversCnt DESC
+        """)).fetchall()
+
+        COUNTRY_IN_TEAM_CACHE.extend([(str(r[0]), int(r[1]), str(r[2])) for r in combos])
+
 
 
 

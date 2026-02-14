@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -29,6 +30,9 @@ public class AbbreviationsGameServiceImpl implements AbbreviationsGameService {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String PYTHON_API_BASE = "http://localhost:8000";
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     private static String norm(String s) {
         return (s == null ? "" : s.trim().toLowerCase());
     }
@@ -41,7 +45,7 @@ public class AbbreviationsGameServiceImpl implements AbbreviationsGameService {
                 throw new CooldownException("WAIT", wait);
             }
 
-            String url = PYTHON_API_BASE + "/generate-abbreviations?lang=" +
+            String url = fastapiBaseUrl + "/generate-abbreviations?lang=" +
                     URLEncoder.encode(lang, StandardCharsets.UTF_8);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -125,7 +129,7 @@ public class AbbreviationsGameServiceImpl implements AbbreviationsGameService {
     public List<String> autocompletePilotNames(String partial) {
         try {
             String url = String.format("%s/autocomplete-grid-pilot?partial=%s",
-                    PYTHON_API_BASE,
+                    fastapiBaseUrl,
                     URLEncoder.encode(partial, StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()

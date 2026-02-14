@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import overcut.model.entities.*;
 import overcut.model.services.exceptions.CooldownException;
@@ -28,6 +29,9 @@ public class MemoryGameServiceImpl implements MemoryGameService {
     @Autowired
     private CooldownService cooldownService;
 
+    @Value("${fastapi.base-url:http://fastapi:8000}")
+    private String fastapiBaseUrl;
+
     @Override
     public MemoryGame startGame(String lang, Long userId, int rows, int cols, String mode) {
         try {
@@ -37,7 +41,7 @@ public class MemoryGameServiceImpl implements MemoryGameService {
             }
 
             HttpClient client = HttpClient.newHttpClient();
-            String url = "http://localhost:8000/generate-memory-game?lang=" + lang
+            String url = fastapiBaseUrl + "/generate-memory-game?lang=" + lang
                     + "&rows=" + rows + "&cols=" + cols + "&mode=" + mode;
 
             HttpRequest request = HttpRequest.newBuilder()

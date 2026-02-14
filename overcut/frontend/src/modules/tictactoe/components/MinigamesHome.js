@@ -118,31 +118,27 @@ const minigames = [
     path: "/minigames/tower",
     title: "Tower",
     description: "Prueba si un piloto entra en una temática secreta",
-    img: sourceImages(`./Tower2.png`),
-    isNew: true
+    img: sourceImages(`./Tower2.png`)
   },
   {
     path: "/minigames/lightsout",
     title: "Lights Out",
     description: "Reacciona al semáforo: pulsa justo al apagarse la última luz",
-    img: sourceImages(`./LightsOut.png`),
-    isNew: true
+    img: sourceImages(`./LightsOut.png`)
   },
 
     {
       path: "/minigames/anagrams",
       title: "Anagrams",
       description: "Reordena letras para adivinar el apellido del piloto",
-      img: sourceImages(`./Anagrams.png`),
-      isNew: true
+      img: sourceImages(`./Anagrams.png`)
     },
 
     {
       path: "/minigames/bingo",
       title: "Bingo",
       description: "Completa un bingo de 9 casillas con pilotos aleatorios",
-      img: sourceImages(`./Bingo.png`),
-      isNew: true
+      img: sourceImages(`./Bingo.png`)
     },
     {
       path: "/games/race",
@@ -151,8 +147,7 @@ const minigames = [
         es: "Carrera 2D en circuito inventado contra IA (3/5 vueltas)",
         en: "2D racing on a fictional track vs AI (3/5 laps)"
       },
-      img: sourceImages(`./raceGame.png`),
-      isNew: true
+      img: sourceImages(`./raceGame.png`)
     },
 
     {
@@ -162,8 +157,7 @@ const minigames = [
         es: "Ordena eventos históricos de F1 en orden cronológico",
         en: "Sort iconic F1 events in chronological order"
       },
-      img: sourceImages(`./Timeline2.png`),
-      isNew: true
+      img: sourceImages(`./Timeline2.png`)
     },
 
     {
@@ -173,8 +167,7 @@ const minigames = [
     es: "Adivina el piloto revelando pistas (con intentos limitados)",
     en: "Guess the driver by revealing hints (limited attempts)"
   },
-  img: sourceImages(`./WhoAmI2.png`),
-  isNew: true
+  img: sourceImages(`./WhoAmI2.png`)
 },
 
 {
@@ -184,24 +177,21 @@ const minigames = [
     es: "Encuentra parejas relacionadas (piloto-equipo, piloto-nacionalidad, etc.)",
     en: "Find related pairs (driver-team, driver-nationality, etc.)"
   },
-  img: sourceImages("./Memory.png"),
-  isNew: true
+  img: sourceImages("./Memory.png")
 },
 
 {
   path: "/minigames/teamHistory",
   title: "Team History",
   description: "Adivina la posición final del equipo en el mundial de constructores en cada temporada",
-  img: sourceImages(`./TeamHistory.png`),
-  isNew: true
+  img: sourceImages(`./TeamHistory.png`)
 },
 
 {
   path: "/minigames/higherLower",
   title: "Higher or Lower",
   description: "Compara estadísticas de pilotos (wins, podiums, points...)",
-  img: sourceImages(`./HigherLower.png`),
-  isNew: true
+  img: sourceImages(`./HigherLower.png`)
 },
 {
   path: "/minigames/thirtySeconds",
@@ -210,8 +200,7 @@ const minigames = [
     es: "Escribe tantos pilotos como puedas en 30 segundos según la temática mostrada",
     en: "Type as many drivers as you can in 30 seconds based on the shown theme"
   },
-  img: sourceImages("./ThirtySeconds2.png"),
-  isNew: true
+  img: sourceImages("./ThirtySeconds2.png")
 },
 
 {
@@ -221,8 +210,7 @@ const minigames = [
     es: "Adivina estadísticas del piloto (carreras y puntos por rangos)",
     en: "Guess driver stats (races and points by ranges)"
   },
-  img: sourceImages("./DriverStats.png"),
-  isNew: true
+  img: sourceImages("./DriverStats.png")
 },
 
 
@@ -233,8 +221,7 @@ const minigames = [
     es: "Adivina pilotos por abreviaturas de 3 letras",
     en: "Guess drivers from 3-letter abbreviations"
   },
-  img: sourceImages("./Abbreviations2.png"),
-  isNew: true
+  img: sourceImages("./Abbreviations2.png")
 },
 {
   path: "/minigames/teamNationality",
@@ -243,8 +230,7 @@ const minigames = [
     es: "Acierta pilotos que cumplan relación país-equipo (bandera + team)",
     en: "Guess drivers matching a nationality-team pair (flag + team)"
   },
-  img: sourceImages("./TeamNationality2.png"),
-  isNew: true
+  img: sourceImages("./TeamNationality2.png")
 },
 
 

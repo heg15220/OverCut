@@ -16,7 +16,7 @@ GRAND_PRIX_TRANSLATIONS = {
     "Australian Grand Prix": "Gran Premio de Australia",
     "Austrian Grand Prix": "Gran Premio de Austria",
     "Azerbaijan Grand Prix": "Gran Premio de Azerbaiyán",
-    "Bahrain Grand Prix": "Gran Premio de Baréin",
+    "Bahrain Grand Prix": "Gran Premioa de Baréin",
     "Belgian Grand Prix": "Gran Premio de Bélgica",
     "Brazilian Grand Prix": "Gran Premio de Brasil",
     "British Grand Prix": "Gran Premio de Gran Bretaña",
