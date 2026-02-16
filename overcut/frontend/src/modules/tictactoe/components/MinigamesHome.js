@@ -233,6 +233,16 @@ const minigames = [
   img: sourceImages("./TeamNationality2.png")
 },
 
+{
+  path: "/minigames/race3d",
+  title: { es: "Carrera 3D (Cockpit)", en: "3D Race (Cockpit)" },
+  description: {
+    es: "Carrera 3D en primera persona contra IA (vista cockpit).",
+    en: "First-person 3D cockpit race against AI."
+  },
+  img: null, // o el nombre real del asset
+  isNew: true
+},
 
 
 

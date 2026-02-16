@@ -470,6 +470,42 @@ export const tutorialTexts = {
   }
 },
 
+"/minigames/race3d": {
+  es: {
+    title: "🏁 Carrera 3D (Cockpit)",
+    description:
+      "Carrera en 3D en primera persona (vista cockpit) contra IA en circuitos generados.\n\n" +
+      "Cómo jugar:\n" +
+      "• Elige 3 o 5 vueltas.\n" +
+      "• Elige dificultad de la IA (Fácil / Medio / Difícil).\n" +
+      "• El circuito se selecciona aleatoriamente en cada carrera.\n\n" +
+      "Controles (PC):\n" +
+      "⬆ acelerar · ⬇ frenar · ⬅ ➡ girar · (si lo tienes) ESPACIO respawn\n\n" +
+      "Controles (móvil / tablet):\n" +
+      "🕹️ Joystick izquierdo: girar\n" +
+      "⬆ Botón superior derecho: acelerar\n" +
+      "⬇ Botón inferior derecho: frenar\n\n" +
+      "Consejo:\n" +
+      "Frena antes de curvas cerradas y acelera al salir para mantener velocidad."
+  },
+  en: {
+    title: "🏁 3D Race (Cockpit)",
+    description:
+      "First-person 3D cockpit racing against AI on generated tracks.\n\n" +
+      "How to play:\n" +
+      "• Choose 3 or 5 laps.\n" +
+      "• Pick AI difficulty (Easy / Medium / Hard).\n" +
+      "• A random track is selected every race.\n\n" +
+      "Controls (PC):\n" +
+      "⬆ accelerate · ⬇ brake · ⬅ ➡ steer · (if enabled) SPACE respawn\n\n" +
+      "Controls (mobile / tablet):\n" +
+      "🕹️ Left joystick: steer\n" +
+      "⬆ Top right button: accelerate\n" +
+      "⬇ Bottom right button: brake\n\n" +
+      "Tip:\n" +
+      "Brake before tight corners and accelerate on exit to keep speed."
+  }
+},
 
 
 

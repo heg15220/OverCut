@@ -62,6 +62,8 @@ import WordSearchGame from '../../wordSearch/components/WordSearchGame';
 
 import RaceGame from "../../racegame/RaceGame";
 
+
+
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList, PostSectionEditor,
  PostSectionModifier } from "../../posts";
 import {
@@ -106,6 +108,7 @@ import DriverStatsGame from "../../driverStats/components/DriverStatsGame";
 import AbbreviationsGame from "../../abbreviations/components/AbbreviationsGame";
 import TeamNationalityGame from "../../teamNationality/components/TeamNationalityGame";
 
+import RaceGame3D from "../../racegame3d/RaceGame3D";
 
 
 
@@ -203,6 +206,7 @@ const Body = () => {
                     <Route path="/minigames/driverStats" element={<DriverStatsGame />} />
                     <Route path="/minigames/abbreviations" element={<AbbreviationsGame />} />
                     <Route path="/minigames/teamNationality" element={<TeamNationalityGame />} />
+                    <Route path="/minigames/race3d" element={<RaceGame3D />} />
 
                 </Route>
             </Routes>

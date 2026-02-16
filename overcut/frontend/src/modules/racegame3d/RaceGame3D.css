@@ -1,0 +1,290 @@
+.race3d{
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 95px);
+  background: #0b0f14;
+  overflow: hidden;
+  touch-action: none;
+}
+
+@media (max-width: 768px){
+  .race3d{ height: calc(100vh - 70px); }
+}
+@media (max-width: 500px){
+  .race3d{ height: calc(100vh - 60px); }
+}
+
+/* HUD */
+.race3d-ui{
+  position:absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.race3d-hudTop{
+  position:absolute;
+  top: 12px;
+  left: 12px;
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(920px, 92vw);
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+@media (max-width: 520px){
+  .race3d-hudTop{
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    max-width: calc(100vw - 20px);
+    padding: 10px 10px;
+  }
+}
+
+.race3d-title{ display:flex; flex-direction:column; }
+.race3d-titleMain{ font-weight: 900; font-size: 16px; color: rgba(255,255,255,0.95); }
+.race3d-titleSub{ margin-top: 2px; font-size: 12px; color: rgba(231,238,247,0.72); }
+
+.race3d-chips{
+  display:flex; gap: 10px; flex-wrap: wrap;
+}
+.race3d-chip{
+  display:flex; gap: 8px; align-items: baseline;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.race3d-chip span{ font-size: 12px; color: rgba(231,238,247,0.72); }
+.race3d-chip strong{ font-size: 13px; color: rgba(255,255,255,0.92); }
+
+.race3d-buttons{ display:flex; gap: 10px; flex-wrap: wrap; }
+.race3d-btn{
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: #121a24;
+  color: rgba(231,238,247,0.95);
+  padding: 7px 12px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.race3d-btn.ghost{ background: rgba(255,255,255,0.06); }
+.race3d-btn:active{ transform: translateY(1px); }
+
+/* Leaderboard */
+.race3d-leader{
+  position:absolute;
+  top: 12px;
+  right: 12px;
+  width: 240px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 10px 10px;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+@media (max-width: 520px){
+  /* en móvil suele estorbar; la ocultamos */
+  .race3d-leader{ display:none; }
+}
+
+.race3d-leaderTitle{
+  font-weight: 900;
+  font-size: 13px;
+  color: rgba(255,255,255,0.92);
+  margin-bottom: 8px;
+}
+.race3d-row{
+  display:flex; align-items:center; gap: 8px;
+  font-size: 12px;
+  padding: 4px 0;
+  color: rgba(231,238,247,0.9);
+}
+.race3d-row.me{
+  background: rgba(251,192,45,0.10);
+  border-radius: 10px;
+  padding: 4px 6px;
+}
+.race3d-pos{ width: 22px; color: rgba(231,238,247,0.7); }
+.race3d-name{ flex:1; font-weight: 900; }
+.race3d-lap{ width: 40px; text-align:right; color: rgba(231,238,247,0.72); }
+
+/* Start lights */
+.race3d-startLights{
+  position:absolute;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events:none;
+}
+.race3d-startPanel{
+  width: 320px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  padding: 14px 14px;
+  backdrop-filter: blur(8px);
+  text-align:center;
+}
+@media (max-width: 520px){
+  .race3d-startPanel{
+    width: min(320px, 92vw);
+    padding: 12px 12px;
+  }
+}
+.race3d-startText{
+  font-weight: 950;
+  color: rgba(255,255,255,0.92);
+  letter-spacing: 0.6px;
+  margin-bottom: 10px;
+}
+.race3d-lightsRow{
+  display:flex; justify-content:center; gap: 10px;
+}
+.race3d-light{
+  width: 16px; height: 16px; border-radius: 999px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.race3d-light.on{
+  background: rgba(255,40,40,0.92);
+  box-shadow: 0 0 14px rgba(255,40,40,0.35);
+}
+
+/* Touch controls */
+.race3d-touch{
+  position:absolute;
+  left:0; right:0;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 12;
+  display:flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 18px;
+  padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  pointer-events:none;
+}
+
+@media (max-width: 520px){
+  .race3d-touch{
+    padding: 14px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.race3d-joy{
+  pointer-events:auto;
+  width: 120px; height: 120px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  display:grid;
+  place-items:center;
+}
+
+.race3d-joyKnob{
+  width: 48px; height: 48px; border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.14);
+}
+.race3d-joyKnob.active{ background: rgba(255,255,255,0.18); }
+
+.race3d-touchRight{
+  pointer-events:auto;
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+}
+
+.race3d-touchBtn{
+  width: 64px; height: 64px;
+  border-radius: 16px;
+  background: rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.92);
+  font-size: 24px;
+}
+.race3d-touchBtn:active{ transform: translateY(1px); filter: brightness(1.1); }
+
+/* Setup */
+.race3d.setup{
+  display:grid; place-items:center;
+  padding: 18px;
+  background: linear-gradient(135deg, #0c0f1a, #1a2238);
+}
+.race3d-setupCard{
+  width: min(560px, 94vw);
+  border-radius: 20px;
+  padding: 18px;
+  background: rgba(0,0,0,0.55);
+  border: 2px solid rgba(251,192,45,0.22);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+}
+.race3d-setupTop{ display:flex; justify-content:space-between; gap: 12px; }
+.race3d-setupTitle{ font-weight: 950; color: #fbc02d; letter-spacing:0.8px; }
+.race3d-setupSub{ margin-top: 6px; color: rgba(231,238,247,0.72); }
+.race3d-setupBack{
+  border-radius: 12px;
+  border: 2px solid rgba(251,192,45,0.35);
+  background: rgba(0,0,0,0.25);
+  color: rgba(255,255,255,0.92);
+  padding: 10px 12px;
+  cursor:pointer;
+}
+.race3d-setupTip{ margin-top: 10px; color: rgba(231,238,247,0.62); font-size: 12px; }
+
+.race3d-block{ margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+.race3d-blockTitle{ font-weight: 950; color: rgba(255,255,255,0.92); margin-bottom: 10px; }
+
+.race3d-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 520px){ .race3d-grid{ grid-template-columns: 1fr; } }
+
+.race3d-card{
+  border-radius: 16px;
+  border: 2px solid rgba(251,192,45,0.16);
+  background: rgba(17,17,17,0.72);
+  color: rgba(255,255,255,0.92);
+  padding: 14px;
+  cursor:pointer;
+  text-align:left;
+}
+.race3d-card.active{ border-color: rgba(251,192,45,0.85); box-shadow: 0 0 16px rgba(251,192,45,0.18); }
+.race3d-cardBig{ font-weight: 950; font-size: 30px; color: #fbc02d; }
+.race3d-cardSmall{ margin-top: 6px; color: rgba(231,238,247,0.72); font-size: 12px; }
+
+.race3d-card.ai .race3d-cardHdr{
+  display:flex; justify-content:space-between; align-items:center;
+  gap: 10px; font-weight: 950; color:#fbc02d;
+}
+.race3d-pill{
+  width: 26px; height: 26px; border-radius: 999px;
+  display:grid; place-items:center;
+  background: rgba(251,192,45,0.18);
+  border:2px solid rgba(251,192,45,0.35);
+}
+.race3d-desc{ margin-top: 10px; color: rgba(231,238,247,0.70); font-size: 12px; line-height:1.35; }
+
+.race3d-start{
+  margin-top: 16px;
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  border: 2px solid rgba(251,192,45,0.35);
+  background: rgba(0,0,0,0.22);
+  cursor:pointer;
+  font-weight: 950;
+  letter-spacing: 0.8px;
+  color: #fbc02d;
+}
+.race3d-hint{ margin-top: 10px; font-size: 12px; color: rgba(231,238,247,0.62); }
