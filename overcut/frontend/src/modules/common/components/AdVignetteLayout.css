@@ -1,0 +1,212 @@
+.overcut-ad-layout {
+  --ad-rail-width: 184px;
+  --ad-tablet-width: 132px;
+  --ad-accent: #00d4ff;
+  --ad-border: rgba(255, 255, 255, 0.2);
+  --ad-bg-a: rgba(5, 10, 18, 0.72);
+  --ad-bg-b: rgba(10, 14, 24, 0.5);
+  --ad-glow: rgba(0, 212, 255, 0.28);
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  isolation: isolate;
+}
+
+.overcut-ad-layout__content {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.overcut-ad-column {
+  position: fixed;
+  top: 124px;
+  bottom: 1rem;
+  z-index: 60;
+  display: grid;
+  gap: 0.9rem;
+  width: var(--ad-rail-width);
+  pointer-events: none;
+}
+
+.overcut-ad-column--left {
+  left: 1rem;
+}
+
+.overcut-ad-column--right {
+  right: 1rem;
+}
+
+.overcut-ad-column__desktop,
+.overcut-ad-column__tablet {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.overcut-ad-column__tablet,
+.overcut-ad-layout__mobile-bottom {
+  display: none;
+}
+
+.overcut-ad-card {
+  position: relative;
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  text-decoration: none;
+  overflow: visible;
+  pointer-events: auto;
+}
+
+.overcut-ad-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--ad-border);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 100% 0%, var(--ad-glow), transparent 42%),
+    linear-gradient(155deg, var(--ad-bg-a), var(--ad-bg-b));
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+.overcut-ad-card--rail {
+  height: 100%;
+  min-height: 0;
+}
+
+.overcut-ad-card--tablet {
+  height: 100%;
+  min-height: 0;
+}
+
+.overcut-ad-card--mobile-bottom {
+  width: min(720px, 100%);
+  min-height: 58px;
+  margin: 0 auto;
+}
+
+.overcut-ad-layout--games {
+  --ad-accent: #fbc02d;
+  --ad-border: rgba(251, 192, 45, 0.24);
+  --ad-bg-a: rgba(5, 15, 30, 0.78);
+  --ad-bg-b: rgba(10, 26, 47, 0.54);
+  --ad-glow: rgba(251, 192, 45, 0.2);
+}
+
+.overcut-ad-layout--quiz {
+  --ad-accent: #ffcc00;
+  --ad-border: rgba(255, 204, 0, 0.26);
+  --ad-bg-a: rgba(6, 8, 14, 0.72);
+  --ad-bg-b: rgba(20, 20, 20, 0.5);
+  --ad-glow: rgba(255, 204, 0, 0.18);
+}
+
+.overcut-ad-layout--ranking {
+  --ad-accent: #f5c518;
+  --ad-border: rgba(245, 197, 24, 0.24);
+  --ad-bg-a: rgba(18, 18, 18, 0.78);
+  --ad-bg-b: rgba(30, 30, 30, 0.52);
+  --ad-glow: rgba(245, 197, 24, 0.18);
+}
+
+.overcut-ad-layout--bottom .overcut-ad-column {
+  display: none;
+}
+
+.overcut-ad-layout--bottom .overcut-ad-layout__content {
+  padding-bottom: 0;
+}
+
+.overcut-ad-layout--bottom .overcut-ad-layout__mobile-bottom {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  display: block;
+  padding: 0;
+  pointer-events: none;
+  background: transparent;
+}
+
+.overcut-ad-layout--bottom .overcut-ad-layout__mobile-bottom .overcut-ad-card {
+  pointer-events: auto;
+}
+
+@media (max-width: 1199px) {
+  .overcut-ad-column {
+    display: none;
+  }
+
+  .overcut-ad-layout__content {
+    padding-bottom: 0;
+  }
+
+  .overcut-ad-layout__mobile-bottom {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 60;
+    display: block;
+    padding: 0;
+    pointer-events: none;
+    background: transparent;
+  }
+
+  .overcut-ad-layout__mobile-bottom .overcut-ad-card {
+    pointer-events: auto;
+  }
+}
+
+.overcut-ad-layout--quiz .overcut-ad-layout__content {
+  overflow: hidden;
+}
+
+@media (max-width: 900px), (orientation: portrait) {
+  .overcut-ad-layout {
+    display: block;
+    width: 100%;
+    padding: 0;
+  }
+
+  .overcut-ad-layout__content {
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+  }
+
+  .overcut-ad-column {
+    display: none;
+  }
+
+  .overcut-ad-layout__mobile-bottom {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    z-index: 60;
+    display: block;
+    padding: 0;
+    pointer-events: none;
+    background: transparent;
+  }
+
+  .overcut-ad-layout__mobile-bottom .overcut-ad-card {
+    pointer-events: auto;
+  }
+}

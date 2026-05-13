@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="1551f4c6-9da4-4f93-a24b-a9471d3373f2" name="Changes" comment="Trying to implement RaceGame3D">
+      <change afterPath="$PROJECT_DIR$/frontend/src/backend/overcutpediaService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/helpers/teamLogos.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/actionTypes.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/actions.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/components/OvercutPedia.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/components/OvercutPediaCategoryView.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/components/OvercutPediaHome.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/components/OvercutPediaPageView.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/components/PediaInfobox.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/components/PediaSection.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/components/PediaTable.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/components/translations.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/reducer.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/modules/overcutpedia/selectors.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaCategory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaInfoboxItem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaInfoboxItemDao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaPage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaPageDao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaSection.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaSectionDao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaTable.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaTableCell.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaTableCellDao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaTableColumn.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaTableColumnDao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaTableDao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaTableRow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/entities/OvercutPediaTableRowDao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/services/OvercutPediaService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/model/services/OvercutPediaServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/rest/controllers/OvercutPediaController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/rest/dtos/OvercutPediaConversor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/rest/dtos/OvercutPediaInfoboxItemDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/rest/dtos/OvercutPediaPageDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/rest/dtos/OvercutPediaPageSummaryDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/rest/dtos/OvercutPediaSectionDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/overcut/rest/dtos/OvercutPediaTableDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/application-test.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/data-h2.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/backend/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/backend/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/modules/app/components/Body.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/modules/app/components/Body.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/modules/app/components/StartHome.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/modules/app/components/StartHome.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/store/rootReducer.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/store/rootReducer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/schema.sql" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="JpbToolWindowState">
+    <option name="myId2FirstActivated">
+      <map>
+        <entry key="com.haulmont.jpb.jpaInspector" value="true" />
+        <entry key="com.haulmont.jpb.jpaPalette" value="true" />
+        <entry key="com.haulmont.jpb.jpaStructure" value="true" />
+      </map>
+    </option>
+    <option name="myId2Visible">
+      <map>
+        <entry key="com.haulmont.jpb.jpaInspector" value="false" />
+        <entry key="com.haulmont.jpb.jpaPalette" value="false" />
+        <entry key="com.haulmont.jpb.jpaStructure" value="false" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectId" id="2up0qSvDcKg1us8Mxa6bD7Z539w" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\hugoe\Downloads\OverCut\overcut\frontend\src\modules" />
+      <recent name="C:\Users\hugoe\Downloads\OverCut\overcut\frontend\src\tower\components" />
+      <recent name="C:\Users\hugoe\Downloads\OverCut\overcut\src\main\resources" />
+      <recent name="C:\Users\hugoe\Downloads\OverCut\overcut\frontend\src\modules\common\components" />
+      <recent name="C:\Users\hugoe\Downloads\OverCut\overcut\frontend\src\modules\twoTeams\components" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.overcut" />
+      <recent name="com.overcut.web" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Application" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="overcut.Application" />
+      <module name="overcut" />
+      <option name="PROGRAM_PARAMETERS" value="mvn spring-boot:run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1551f4c6-9da4-4f93-a24b-a9471d3373f2" name="Changes" comment="" />
+      <created>1742930404725</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1742930404725</updated>
+    </task>
+    <task id="LOCAL-00245" summary="Fixing Panel problems + added 2 ads panel in each side">
+      <created>1769101568028</created>
+      <option name="number" value="00245" />
+      <option name="presentableId" value="LOCAL-00245" />
+      <option name="project" value="LOCAL" />
+      <updated>1769101568028</updated>
+    </task>
+    <task id="LOCAL-00246" summary="Implemented top10QualiGame">
+      <created>1769123818429</created>
+      <option name="number" value="00246" />
+      <option name="presentableId" value="LOCAL-00246" />
+      <option name="project" value="LOCAL" />
+      <updated>1769123818429</updated>
+    </task>
+    <task id="LOCAL-00247" summary="Fixed TopQuualiProblem + Added Pagination in MinigamesHome frontend">
+      <created>1769124642332</created>
+      <option name="number" value="00247" />
+      <option name="presentableId" value="LOCAL-00247" />
+      <option name="project" value="LOCAL" />
+      <updated>1769124642335</updated>
+    </task>
+    <task id="LOCAL-00248" summary="Implemented DriverSeason game backend + frontend">
+      <created>1769131408089</created>
+      <option name="number" value="00248" />
+      <option name="presentableId" value="LOCAL-00248" />
+      <option name="project" value="LOCAL" />
+      <updated>1769131408089</updated>
+    </task>
+    <task id="LOCAL-00249" summary="Updated DriverSeasonGame">
+      <created>1769163428488</created>
+      <option name="number" value="00249" />
+      <option name="presentableId" value="LOCAL-00249" />
+      <option name="project" value="LOCAL" />
+      <updated>1769163428492</updated>
+    </task>
+    <task id="LOCAL-00250" summary="Implemented TowerGame backend + frontend">
+      <created>1769173420728</created>
+      <option name="number" value="00250" />
+      <option name="presentableId" value="LOCAL-00250" />
+      <option name="project" value="LOCAL" />
+      <updated>1769173420728</updated>
+    </task>
+    <task id="LOCAL-00251" summary="Fixed hint in TowerGame">
+      <created>1769180770548</created>
+      <option name="number" value="00251" />
+      <option name="presentableId" value="LOCAL-00251" />
+      <option name="project" value="LOCAL" />
+      <updated>1769180770548</updated>
+    </task>
+    <task id="LOCAL-00252" summary="Implemented LightsOutGame with only using frontend">
+      <created>1769182673332</created>
+      <option name="number" value="00252" />
+      <option name="presentableId" value="LOCAL-00252" />
+      <option name="project" value="LOCAL" />
+      <updated>1769182673332</updated>
+    </task>
+    <task id="LOCAL-00253" summary="Added LightsOutGame image">
+      <created>1769182701997</created>
+      <option name="number" value="00253" />
+      <option name="presentableId" value="LOCAL-00253" />
+      <option name="project" value="LOCAL" />
+      <updated>1769182701997</updated>
+    </task>
+    <task id="LOCAL-00254" summary="Implemented AnagramsGame backend + frontend">
+      <created>1769187206894</created>
+      <option name="number" value="00254" />
+      <option name="presentableId" value="LOCAL-00254" />
+      <option name="project" value="LOCAL" />
+      <updated>1769187206894</updated>
+    </task>
+    <task id="LOCAL-00255" summary="First implementation of BingoGame in backend + frontend">
+      <created>1769195711327</created>
+      <option name="number" value="00255" />
+      <option name="presentableId" value="LOCAL-00255" />
+      <option name="project" value="LOCAL" />
+      <updated>1769195711327</updated>
+    </task>
+    <task id="LOCAL-00256" summary="Implementing RaceGame2D frontend first impression">
+      <created>1769199875426</created>
+      <option name="number" value="00256" />
+      <option name="presentableId" value="LOCAL-00256" />
+      <option name="project" value="LOCAL" />
+      <updated>1769199875426</updated>
+    </task>
+    <task id="LOCAL-00257" summary="Updated first version of RaceGame">
+      <created>1769211075985</created>
+      <option name="number" value="00257" />
+      <option name="presentableId" value="LOCAL-00257" />
+      <option name="project" value="LOCAL" />
+      <updated>1769211075985</updated>
+    </task>
+    <task id="LOCAL-00258" summary="Adding more tracks + updated race start for RaceGame.js">
+      <created>1769214317942</created>
+      <option name="number" value="00258" />
+      <option name="presentableId" value="LOCAL-00258" />
+      <option name="project" value="LOCAL" />
+      <updated>1769214317942</updated>
+    </task>
+    <task id="LOCAL-00259" summary="Updating IA in RaceGame trying">
+      <created>1769217475900</created>
+      <option name="number" value="00259" />
+      <option name="presentableId" value="LOCAL-00259" />
+      <option name="project" value="LOCAL" />
+      <updated>1769217475903</updated>
+    </task>
+    <task id="LOCAL-00260" summary="Fixed IA in level hard for RaceGame">
+      <created>1769250338170</created>
+      <option name="number" value="00260" />
+      <option name="presentableId" value="LOCAL-00260" />
+      <option name="project" value="LOCAL" />
+      <updated>1769250338170</updated>
+    </task>
+    <task id="LOCAL-00261" summary="Updted car grid position in start for RaceGame.js">
+      <created>1769251568368</created>
+      <option name="number" value="00261" />
+      <option name="presentableId" value="LOCAL-00261" />
+      <option name="project" value="LOCAL" />
+      <updated>1769251568368</updated>
+    </task>
+    <task id="LOCAL-00262" summary="Updated HUD in RaceGame.js">
+      <created>1769254795277</created>
+      <option name="number" value="00262" />
+      <option name="presentableId" value="LOCAL-00262" />
+      <option name="project" value="LOCAL" />
+      <updated>1769254795277</updated>
+    </task>
+    <task id="LOCAL-00263" summary="Added medium level in RaceGame.js">
+      <created>1769255989904</created>
+      <option name="number" value="00263" />
+      <option name="presentableId" value="LOCAL-00263" />
+      <option name="project" value="LOCAL" />
+      <updated>1769255989904</updated>
+    </task>
+    <task id="LOCAL-00264" summary="Updated RaceGame for Mobile view">
+      <created>1769257962908</created>
+      <option name="number" value="00264" />
+      <option name="presentableId" value="LOCAL-00264" />
+      <option name="project" value="LOCAL" />
+      <updated>1769257962908</updated>
+    </task>
+    <task id="LOCAL-00265" summary="Last fixes on view for racegame">
+      <created>1769258158921</created>
+      <option name="number" value="00265" />
+      <option name="presentableId" value="LOCAL-00265" />
+      <option name="project" value="LOCAL" />
+      <updated>1769258158921</updated>
+    </task>
+    <task id="LOCAL-00266" summary="Implemented TimeLineGame backend + frontend">
+      <created>1769268640684</created>
+      <option name="number" value="00266" />
+      <option name="presentableId" value="LOCAL-00266" />
+      <option name="project" value="LOCAL" />
+      <updated>1769268640686</updated>
+    </task>
+    <task id="LOCAL-00267" summary="Added Timeline images">
+      <created>1769268670390</created>
+      <option name="number" value="00267" />
+      <option name="presentableId" value="LOCAL-00267" />
+      <option name="project" value="LOCAL" />
+      <updated>1769268670390</updated>
+    </task>
+    <task id="LOCAL-00268" summary="Improving performance in newMiniGames implemented">
+      <created>1769272705404</created>
+      <option name="number" value="00268" />
+      <option name="presentableId" value="LOCAL-00268" />
+      <option name="project" value="LOCAL" />
+      <updated>1769272705404</updated>
+    </task>
+    <task id="LOCAL-00269" summary="Implemented WhoAmI game backend + frontend">
+      <created>1769338549168</created>
+      <option name="number" value="00269" />
+      <option name="presentableId" value="LOCAL-00269" />
+      <option name="project" value="LOCAL" />
+      <updated>1769338549170</updated>
+    </task>
+    <task id="LOCAL-00270" summary="Implemented MemoryGame backend + frontend">
+      <created>1769357066285</created>
+      <option name="number" value="00270" />
+      <option name="presentableId" value="LOCAL-00270" />
+      <option name="project" value="LOCAL" />
+      <updated>1769357066285</updated>
+    </task>
+    <task id="LOCAL-00271" summary="Implemented TeamHistoryGame backend + frontend">
+      <created>1769361166465</created>
+      <option name="number" value="00271" />
+      <option name="presentableId" value="LOCAL-00271" />
+      <option name="project" value="LOCAL" />
+      <updated>1769361166465</updated>
+    </task>
+    <task id="LOCAL-00272" summary="Implemented HigherLowerGame backend + frontend">
+      <created>1769383745609</created>
+      <option name="number" value="00272" />
+      <option name="presentableId" value="LOCAL-00272" />
+      <option name="project" value="LOCAL" />
+      <updated>1769383745611</updated>
+    </task>
+    <task id="LOCAL-00273" summary="Updated generate_higher_lower.py + added miniGames images">
+      <created>1769384625513</created>
+      <option name="number" value="00273" />
+      <option name="presentableId" value="LOCAL-00273" />
+      <option name="project" value="LOCAL" />
+      <updated>1769384625513</updated>
+    </task>
+    <task id="LOCAL-00274" summary="Fixed optimization problems in NewMiniGames">
+      <created>1769425786347</created>
+      <option name="number" value="00274" />
+      <option name="presentableId" value="LOCAL-00274" />
+      <option name="project" value="LOCAL" />
+      <updated>1769425786347</updated>
+    </task>
+    <task id="LOCAL-00275" summary="Fixed optimization problems in NewMiniGames">
+      <created>1769426150488</created>
+      <option name="number" value="00275" />
+      <option name="presentableId" value="LOCAL-00275" />
+      <option name="project" value="LOCAL" />
+      <updated>1769426150488</updated>
+    </task>
+    <task id="LOCAL-00276" summary="Updated BingoGame with JSON caches + images">
+      <created>1769431791690</created>
+      <option name="number" value="00276" />
+      <option name="presentableId" value="LOCAL-00276" />
+      <option name="project" value="LOCAL" />
+      <updated>1769431791690</updated>
+    </task>
+    <task id="LOCAL-00277" summary="Fixed Mobile view in some games">
+      <created>1769433141898</created>
+      <option name="number" value="00277" />
+      <option name="presentableId" value="LOCAL-00277" />
+      <option name="project" value="LOCAL" />
+      <updated>1769433141898</updated>
+    </task>
+    <task id="LOCAL-00278" summary="Fixed RaceGame Start view">
+      <created>1769463312996</created>
+      <option name="number" value="00278" />
+      <option name="presentableId" value="LOCAL-00278" />
+      <option name="project" value="LOCAL" />
+      <updated>1769463312996</updated>
+    </task>
+    <task id="LOCAL-00279" summary="Added GameCoolDown in new MiniGames">
+      <created>1769464749732</created>
+      <option name="number" value="00279" />
+      <option name="presentableId" value="LOCAL-00279" />
+      <option name="project" value="LOCAL" />
+      <updated>1769464749734</updated>
+    </task>
+    <task id="LOCAL-00280" summary="Fixed RaceGame view">
+      <created>1769687970820</created>
+      <option name="number" value="00280" />
+      <option name="presentableId" value="LOCAL-00280" />
+      <option name="project" value="LOCAL" />
+      <updated>1769687970825</updated>
+    </task>
+    <task id="LOCAL-00281" summary="Implemented 30 seconds game backend + frontend">
+      <created>1769730993286</created>
+      <option name="number" value="00281" />
+      <option name="presentableId" value="LOCAL-00281" />
+      <option name="project" value="LOCAL" />
+      <updated>1769730993286</updated>
+    </task>
+    <task id="LOCAL-00282" summary="Implemented DriverStatsGame backend + frontend">
+      <created>1769733061868</created>
+      <option name="number" value="00282" />
+      <option name="presentableId" value="LOCAL-00282" />
+      <option name="project" value="LOCAL" />
+      <updated>1769733061868</updated>
+    </task>
+    <task id="LOCAL-00283" summary="Added images + using cooldown in new games">
+      <created>1769733405721</created>
+      <option name="number" value="00283" />
+      <option name="presentableId" value="LOCAL-00283" />
+      <option name="project" value="LOCAL" />
+      <updated>1769733405721</updated>
+    </task>
+    <task id="LOCAL-00284" summary="Implemented AbbreviationsGame backend + frontend">
+      <created>1769972029169</created>
+      <option name="number" value="00284" />
+      <option name="presentableId" value="LOCAL-00284" />
+      <option name="project" value="LOCAL" />
+      <updated>1769972029171</updated>
+    </task>
+    <task id="LOCAL-00285" summary="Implemented TeamNationalityGame backend + frontend">
+      <created>1769976768608</created>
+      <option name="number" value="00285" />
+      <option name="presentableId" value="LOCAL-00285" />
+      <option name="project" value="LOCAL" />
+      <updated>1769976768608</updated>
+    </task>
+    <task id="LOCAL-00286" summary="Using GameCoolDown in TeamNationalityGameServiceImpl">
+      <created>1769976925885</created>
+      <option name="number" value="00286" />
+      <option name="presentableId" value="LOCAL-00286" />
+      <option name="project" value="LOCAL" />
+      <updated>1769976925896</updated>
+    </task>
+    <task id="LOCAL-00287" summary="Integrated OverCutPredictions in Overcut module">
+      <created>1770163650388</created>
+      <option name="number" value="00287" />
+      <option name="presentableId" value="LOCAL-00287" />
+      <option name="project" value="LOCAL" />
+      <updated>1770163650392</updated>
+    </task>
+    <task id="LOCAL-00288" summary="Added StartHomePage in OverCut frontend">
+      <created>1770217989810</created>
+      <option name="number" value="00288" />
+      <option name="presentableId" value="LOCAL-00288" />
+      <option name="project" value="LOCAL" />
+      <updated>1770217989811</updated>
+    </task>
+    <task id="LOCAL-00289" summary="Fixing QuizInfo.css">
+      <created>1770218379560</created>
+      <option name="number" value="00289" />
+      <option name="presentableId" value="LOCAL-00289" />
+      <option name="project" value="LOCAL" />
+      <updated>1770218379560</updated>
+    </task>
+    <task id="LOCAL-00290" summary="Updated Quiz mobile title">
+      <created>1770219717367</created>
+      <option name="number" value="00290" />
+      <option name="presentableId" value="LOCAL-00290" />
+      <option name="project" value="LOCAL" />
+      <updated>1770219717367</updated>
+    </task>
+    <task id="LOCAL-00291" summary="Updated games for deployment">
+      <created>1771079275201</created>
+      <option name="number" value="00291" />
+      <option name="presentableId" value="LOCAL-00291" />
+      <option name="project" value="LOCAL" />
+      <updated>1771079275201</updated>
+    </task>
+    <task id="LOCAL-00292" summary="Updated RaceGame tutorial image">
+      <created>1771080246712</created>
+      <option name="number" value="00292" />
+      <option name="presentableId" value="LOCAL-00292" />
+      <option name="project" value="LOCAL" />
+      <updated>1771080246714</updated>
+    </task>
+    <task id="LOCAL-00293" summary="Trying to implement RaceGame3D">
+      <created>1771283256399</created>
+      <option name="number" value="00293" />
+      <option name="presentableId" value="LOCAL-00293" />
+      <option name="project" value="LOCAL" />
+      <updated>1771283256399</updated>
+    </task>
+    <option name="localTasksCounter" value="294" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Improving performance in newMiniGames implemented" />
+    <MESSAGE value="Implemented WhoAmI game backend + frontend" />
+    <MESSAGE value="Implemented MemoryGame backend + frontend" />
+    <MESSAGE value="Implemented TeamHistoryGame backend + frontend" />
+    <MESSAGE value="Implemented HigherLowerGame backend + frontend" />
+    <MESSAGE value="Updated generate_higher_lower.py + added miniGames images" />
+    <MESSAGE value="Fixed optimization problems in NewMiniGames" />
+    <MESSAGE value="Updated BingoGame with JSON caches + images" />
+    <MESSAGE value="Fixed Mobile view in some games" />
+    <MESSAGE value="Fixed RaceGame Start view" />
+    <MESSAGE value="Added GameCoolDown in new MiniGames" />
+    <MESSAGE value="Fixed RaceGame view" />
+    <MESSAGE value="Implemented 30 seconds game backend + frontend" />
+    <MESSAGE value="Implemented DriverStatsGame backend + frontend" />
+    <MESSAGE value="Added images + using cooldown in new games" />
+    <MESSAGE value="Implemented AbbreviationsGame backend + frontend" />
+    <MESSAGE value="Implemented TeamNationalityGame backend + frontend" />
+    <MESSAGE value="Using GameCoolDown in TeamNationalityGameServiceImpl" />
+    <MESSAGE value="Integrated OverCutPredictions in Overcut module" />
+    <MESSAGE value="Added StartHomePage in OverCut frontend" />
+    <MESSAGE value="Fixing QuizInfo.css" />
+    <MESSAGE value="Updated Quiz mobile title" />
+    <MESSAGE value="Updated games for deployment" />
+    <MESSAGE value="Updated RaceGame tutorial image" />
+    <MESSAGE value="Trying to implement RaceGame3D" />
+    <option name="LAST_COMMIT_MESSAGE" value="Trying to implement RaceGame3D" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/QuizServiceImpl.java</url>
+          <line>154</line>
+          <properties class="tfg.model.services.QuizServiceImpl">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/QuestionLLMServiceImpl.java</url>
+          <line>54</line>
+          <properties class="tfg.model.services.QuestionLLMServiceImpl">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/QuestionLLMServiceImpl.java</url>
+          <line>111</line>
+          <properties class="tfg.model.services.QuestionLLMServiceImpl">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/CriteriaService.java</url>
+          <line>16</line>
+          <properties class="tfg.model.services.CriteriaService">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/TikiTakaGameServiceImpl.java</url>
+          <line>209</line>
+          <properties class="tfg.model.services.TikiTakaGameServiceImpl">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/rest/dtos/CrosswordGameDtoConversor.java</url>
+          <line>14</line>
+          <properties class="tfg.rest.dtos.CrosswordGameDtoConversor">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="39" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/CrosswordGeneratorPythonAdapter.java</url>
+          <line>79</line>
+          <properties class="tfg.model.services.CrosswordGeneratorPythonAdapter">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="43" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/GridGameServiceImpl.java</url>
+          <line>98</line>
+          <properties class="tfg.model.services.GridGameServiceImpl">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="51" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/rest/controllers/GuessDriverGameController.java</url>
+          <line>26</line>
+          <properties class="tfg.rest.controllers.GuessDriverGameController">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="57" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/RondoGameServiceImpl.java</url>
+          <line>31</line>
+          <properties class="tfg.model.services.RondoGameServiceImpl">
+            <option name="EMULATED" value="true" />
+          </properties>
+          <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/QuizServiceImpl.java</url>
+          <line>357</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/QuizServiceImpl.java</url>
+          <line>355</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/QuizServiceImpl.java</url>
+          <line>359</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/GuessDriverGameServiceImpl.java</url>
+          <line>28</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/GuessDriverGameServiceImpl.java</url>
+          <line>29</line>
+          <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/GuessDriverGameServiceImpl.java</url>
+          <line>63</line>
+          <option name="timeStamp" value="59" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/rest/controllers/RondoGameController.java</url>
+          <line>21</line>
+          <option name="timeStamp" value="60" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/rest/controllers/TwoTeamsOneDriverGameController.java</url>
+          <line>20</line>
+          <option name="timeStamp" value="65" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/TwoTeamsOneDriverGameServiceImpl.java</url>
+          <line>27</line>
+          <option name="timeStamp" value="66" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/rest/controllers/F1ImpostorGameController.java</url>
+          <line>25</line>
+          <option name="timeStamp" value="69" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/F1ImpostorGameServiceImpl.java</url>
+          <line>72</line>
+          <option name="timeStamp" value="71" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/overcut/src/main/java/overcut/model/services/CategoryGameServiceImpl.java</url>
+          <line>78</line>
+          <option name="timeStamp" value="73" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/overcut/model/services/QuizServiceImpl.java</url>
+          <line>360</line>
+          <option name="timeStamp" value="75" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="es.udc.fic.tfg.model.entities.QuizCategory" memberName="code" />
+        <PinnedItemInfo parentTag="es.udc.fic.tfg.model.entities.TikiTakaGame" memberName="status" />
+        <PinnedItemInfo parentTag="es.udc.fic.tfg.model.entities.TikiTakaGame" memberName="cells" />
+        <PinnedItemInfo parentTag="java.lang.Long" memberName="value" />
+        <PinnedItemInfo parentTag="es.udc.fic.tfg.model.entities.QuizType" memberName="id" />
+        <PinnedItemInfo parentTag="es.udc.fic.tfg.model.entities.QuizType" memberName="code" />
+        <PinnedItemInfo parentTag="es.udc.fic.tfg.model.entities.TikiTakaGame" memberName="createdAt" />
+      </pinned-members>
+    </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="quizQuestionDao" language="JAVA" />
+        <watch expression="line" />
+        <watch expression="line" />
+        <watch expression="userInput" />
+        <watch expression="clue" />
+        <watch expression="language" />
+        <watch expression="scriptPath" />
+      </configuration>
+    </watches-manager>
+  </component>
+</project>
