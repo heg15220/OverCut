@@ -1,22 +1,28 @@
 import React from "react";
-import "./debateV2.css";
+import { Globe2 } from "react-bootstrap-icons";
 
 export default function ScopeSwitch({ value, onChange }) {
   return (
-    <div className="ocD-seg">
+    <div className="scope-switch" role="tablist" aria-label="Ambito del debate">
       <button
-        className={`ocD-segBtn ${value === "ES" ? "active" : ""}`}
+        className={`scope-switch__button ${value === "ES" ? "is-active" : ""}`}
         onClick={() => onChange("ES")}
         type="button"
+        role="tab"
+        aria-selected={value === "ES"}
       >
-        🇪🇸 España
+        ES
+        <span>Espana</span>
       </button>
       <button
-        className={`ocD-segBtn ${value === "INT" ? "active" : ""}`}
+        className={`scope-switch__button ${value === "INT" ? "is-active" : ""}`}
         onClick={() => onChange("INT")}
         type="button"
+        role="tab"
+        aria-selected={value === "INT"}
       >
-        🌍 Internacional
+        <Globe2 aria-hidden="true" />
+        <span>Internacional</span>
       </button>
     </div>
   );

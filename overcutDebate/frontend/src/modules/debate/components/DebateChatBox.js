@@ -1,5 +1,6 @@
 // src/modules/debate/components/DebateChatBox.jsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { Send, X } from "react-bootstrap-icons";
 import "./Debate.css";
 
 export default function DebateChatBox({ status, onSend, replyTo, onClearReply }) {
@@ -12,9 +13,6 @@ export default function DebateChatBox({ status, onSend, replyTo, onClearReply })
     if (!replyTo) return "";
     return String(replyTo.text || "").replace(/\s+/g, " ").trim().slice(0, 110);
   }, [replyTo]);
-
-  // opcional: si se activa reply, no borres texto, pero sí enfoca UX (si quieres)
-  useEffect(() => {}, [replyTo]);
 
   const submit = () => {
     if (!canSend || sending) return;
@@ -33,49 +31,44 @@ export default function DebateChatBox({ status, onSend, replyTo, onClearReply })
   };
 
   return (
-    <div className="chat__composerInner">
+    <div className="chat-composer">
       {replyTo && (
         <div className="replybar">
-          <div className="replybar__left">
-            <div className="replybar__title">Respondiendo a <b>{replyTo.userName}</b></div>
-            <div className="replybar__snippet">{replySnippet}</div>
+          <div>
+            <strong>Respondiendo a {replyTo.userName}</strong>
+            <span>{replySnippet}</span>
           </div>
-
-          <button
-            className="replybar__close"
-            type="button"
-            onClick={() => onClearReply?.()}
-            title="Cancelar respuesta"
-          >
-            ✕
+          <button type="button" onClick={() => onClearReply?.()} title="Cancelar respuesta">
+            <X aria-hidden="true" />
           </button>
         </div>
       )}
 
-      <input
-        className="chat__input"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder={canSend ? "Write a message..." : "Chat disabled until LIVE"}
-        disabled={!canSend || sending}
-        maxLength={400}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            submit();
-          }
-        }}
-      />
+      <div className="chat-composer__row">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={canSend ? "Escribe tu argumento..." : "El chat se habilita cuando la sala pasa a LIVE"}
+          disabled={!canSend || sending}
+          maxLength={400}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              submit();
+            }
+          }}
+        />
 
-      <button
-        className="send-btn"
-        disabled={!canSend || sending || text.trim().length === 0}
-        onClick={submit}
-        type="button"
-        title={sending ? "Sending..." : "Send"}
-      >
-        {sending ? "…" : "➤"}
-      </button>
+        <button
+          className="send-action"
+          disabled={!canSend || sending || text.trim().length === 0}
+          onClick={submit}
+          type="button"
+          title={sending ? "Enviando" : "Enviar"}
+        >
+          <Send aria-hidden="true" />
+        </button>
+      </div>
     </div>
   );
 }

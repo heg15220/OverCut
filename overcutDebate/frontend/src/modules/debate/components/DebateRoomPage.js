@@ -2,6 +2,17 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+  ArrowLeft,
+  ArrowRepeat,
+  BoxArrowInRight,
+  ChatDots,
+  Check2All,
+  People,
+  Reply,
+  Wifi,
+  WifiOff,
+} from "react-bootstrap-icons";
 
 import * as actions from "../actions";
 import * as selectors from "../selectors";
@@ -13,7 +24,6 @@ import "./Debate.css";
 
 const toMs = (v) => {
   if (v == null) return Date.now();
-
   if (typeof v === "number") return v < 1e12 ? v * 1000 : v;
 
   const asNum = Number(v);
@@ -31,13 +41,8 @@ const formatHHMM = (ms) => {
     : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
-// Prefijo “embebido” para reply dentro del text (sin backend)
 const makeReplyPrefix = ({ userName, ts, text }) => {
-  const snippet = String(text || "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 90);
-  // OJO: evitamos caracteres raros que rompan el parseo
+  const snippet = String(text || "").replace(/\s+/g, " ").trim().slice(0, 90);
   const safeUser = String(userName || "").replace(/\|/g, " ");
   const safeSnippet = snippet.replace(/\]\]/g, "] ]").replace(/\|/g, " ");
   return `[[replyTo:${safeUser}|${ts}|${safeSnippet}]]\n`;
@@ -48,13 +53,40 @@ const parseReplyPrefix = (rawText) => {
   const m = text.match(/^\[\[replyTo:(.*?)\|(.*?)\|(.*?)\]\]\n([\s\S]*)$/);
   if (!m) return null;
 
-  const userName = m[1] || "";
-  const ts = toMs(m[2]);
-  const snippet = m[3] || "";
-  const body = m[4] || "";
-
-  return { reply: { userName, ts, snippet }, body };
+  return {
+    reply: { userName: m[1] || "", ts: toMs(m[2]), snippet: m[3] || "" },
+    body: m[4] || "",
+  };
 };
+
+function roomStatusMeta(status) {
+  switch (status) {
+    case "OPEN":
+      return {
+        tone: "open",
+        label: "Inscripcion abierta",
+        detail: "Puedes unirte antes de que cierre el contador.",
+      };
+    case "POLL":
+      return {
+        tone: "poll",
+        label: "Encuesta activa",
+        detail: "Responde SI o NO. El chat empieza al terminar los 30 segundos.",
+      };
+    case "LIVE":
+      return {
+        tone: "live",
+        label: "Debate en directo",
+        detail: "La sala ya esta abierta para conversar.",
+      };
+    default:
+      return {
+        tone: "closed",
+        label: "Sala cerrada",
+        detail: "El debate ya ha finalizado.",
+      };
+  }
+}
 
 export default function DebateRoomPage() {
   const { roomId } = useParams();
@@ -67,45 +99,40 @@ export default function DebateRoomPage() {
   const joined = useSelector((s) => selectors.isJoined(s, id));
   const joining = useSelector((s) => selectors.isJoining(s, id));
   const joinErr = useSelector((s) => selectors.getJoinError(s, id));
-
   const pollAnswer = useSelector((s) => selectors.getPollAnswer(s, id));
   const history = useSelector((s) => selectors.getRoomHistory(s, id));
   const live = useSelector((s) => selectors.getRoomLive(s, id));
-
   const me = useSelector(selectors.getMe);
+
   const myName = me?.userName || me?.username || me?.name || null;
 
   const [wsReady, setWsReady] = useState(false);
   const wsRef = useRef(null);
-
-  // ✅ reply state
-  const [replyTo, setReplyTo] = useState(null); // { key, userName, ts, text }
+  const [replyTo, setReplyTo] = useState(null);
 
   useEffect(() => {
+    dispatch(actions.fetchMe());
     dispatch(actions.getRoomDetail(id));
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (!room) return;
-    if (room.status === "CLOSED") return;
-
+    if (!room || room.status === "CLOSED") return undefined;
     const t = setInterval(() => dispatch(actions.getRoomDetail(id)), 1000);
     return () => clearInterval(t);
   }, [dispatch, id, room?.status]);
 
   useEffect(() => {
-    if (joined) dispatch(actions.fetchRoomMessages(id, 50));
+    if (joined) dispatch(actions.fetchRoomMessages(id, 80));
   }, [dispatch, id, joined]);
 
   useEffect(() => {
-    if (!joined) return;
-    if (wsRef.current) return;
+    if (!joined || wsRef.current) return undefined;
 
     wsRef.current = createDebateWsClient({
       roomId: id,
       onConnect: () => setWsReady(true),
       onMessage: (msg) => dispatch(actions.liveMessageReceived(id, msg)),
-      onError: () => {},
+      onError: () => setWsReady(false),
     });
 
     return () => {
@@ -118,17 +145,17 @@ export default function DebateRoomPage() {
   }, [dispatch, id, joined]);
 
   const status = room?.status;
+  const meta = roomStatusMeta(status);
+  const canJoin = !!room && status !== "CLOSED" && !joined;
 
   const joinLabel =
     status === "LIVE"
-      ? "Entrar al debate (LIVE)"
+      ? "Entrar al debate"
       : status === "POLL"
-      ? "Entrar y votar (POLL)"
+      ? "Entrar y votar"
       : status === "OPEN"
       ? "Unirme a la sala"
       : "Sala cerrada";
-
-  const canJoin = !!room && status !== "CLOSED" && !joined;
 
   const mergedMessages = useMemo(() => {
     const h = (history || []).map((m) => ({
@@ -148,51 +175,81 @@ export default function DebateRoomPage() {
     return [...h, ...l].sort((a, b) => a.ts - b.ts);
   }, [history, live]);
 
-  const statusLower = (status || "closed").toLowerCase();
+  const currentUserParticipant = useMemo(() => {
+    if (!myName || !room?.participants) return null;
+    return room.participants.find((p) => p.userName === myName) || null;
+  }, [myName, room?.participants]);
+
+  const displayedPollAnswer = pollAnswer || currentUserParticipant?.pollAnswer || null;
 
   return (
-    <div className="debate-home">
+    <div className="debate-home debate-room-page">
       <div className="debate-home__content">
-        <header className="debate-home__header">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-            <div>
-              <div className="debate-home__title">Room #{id}</div>
-              <div className="debate-home__subtitle">{room?.topic ? room.topic : "Cargando sala..."}</div>
-            </div>
+        <header className="room-hero">
+          <div>
+            <button className="text-action" onClick={() => navigate("/debate")} type="button">
+              <ArrowLeft aria-hidden="true" />
+              Volver al lobby
+            </button>
+            <span className="debate-kicker">Sala #{id}</span>
+            <h1>{room?.topic || "Cargando sala..."}</h1>
+            <p>{meta.detail}</p>
+          </div>
 
-            <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-              <button className="btn btn--ghost" onClick={() => navigate("/debate")} type="button">
-                ← Back
-              </button>
-              <button className="btn btn--primary" onClick={() => dispatch(actions.getRoomDetail(id))} type="button">
-                Refresh
-              </button>
-            </div>
+          <div className="room-hero__actions">
+            <span className={`status-chip status-chip--${meta.tone}`}>{meta.label}</span>
+            <button
+              className="icon-action"
+              onClick={() => dispatch(actions.getRoomDetail(id))}
+              type="button"
+              title="Refrescar sala"
+            >
+              <ArrowRepeat aria-hidden="true" />
+            </button>
           </div>
         </header>
 
         {!room ? (
-          <div className="rooms__hint">Loading room...</div>
+          <div className="empty-state">
+            <strong>Cargando sala...</strong>
+          </div>
         ) : (
           <>
-            <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
-              <span className={`room-badge ${statusLower}`}>{status}</span>
-              <span className="room-pill">👥 {room.participantsCount}</span>
-
-              {status === "OPEN" && <span className="room-pill">Join remaining: {room.secondsRemainingToJoin}s</span>}
-              {status === "POLL" && <span className="room-pill">Poll remaining: {room.secondsRemainingToPollEnd}s</span>}
-            </div>
-
-            {joinErr?.message && (
-              <div className="room-pill" style={{ borderColor: "rgba(255,77,109,0.35)" }}>
-                ⚠️ {joinErr.message}
+            <section className="room-status-grid">
+              <div className="metric-card">
+                <span>Participantes</span>
+                <strong>{room.participantsCount || 0}</strong>
               </div>
-            )}
+              <div className="metric-card">
+                <span>Inscripcion</span>
+                <strong>{status === "OPEN" ? `${room.secondsRemainingToJoin || 0}s` : "Cerrada"}</strong>
+              </div>
+              <div className="metric-card">
+                <span>Encuesta</span>
+                <strong>{status === "POLL" ? `${room.secondsRemainingToPollEnd || 0}s` : status}</strong>
+              </div>
+              <div className="metric-card">
+                <span>Conexion</span>
+                <strong className="metric-card__inline">
+                  {wsReady ? <Wifi aria-hidden="true" /> : <WifiOff aria-hidden="true" />}
+                  {joined ? (wsReady ? "Online" : "Conectando") : "Fuera"}
+                </strong>
+              </div>
+            </section>
 
-            <div style={{ marginTop: 10, marginBottom: 12 }}>
+            <section className="room-gate">
+              <div>
+                <span className="panel-eyebrow">Acceso</span>
+                <h2>{joined ? "Estas dentro de la sala" : "Unete antes de participar"}</h2>
+                <p>
+                  Primero se reserva plaza. Despues, cuando la sala pase a encuesta, se vota SI o NO
+                  sobre la tematica antes de abrir el chat.
+                </p>
+              </div>
+
               {canJoin ? (
                 <button
-                  className="btn btn--primary"
+                  className="primary-action"
                   disabled={joining}
                   onClick={() =>
                     dispatch(
@@ -200,7 +257,7 @@ export default function DebateRoomPage() {
                         id,
                         () => {
                           dispatch(actions.getRoomDetail(id));
-                          dispatch(actions.fetchRoomMessages(id, 50));
+                          dispatch(actions.fetchRoomMessages(id, 80));
                         },
                         () => dispatch(actions.getRoomDetail(id))
                       )
@@ -208,105 +265,105 @@ export default function DebateRoomPage() {
                   }
                   type="button"
                 >
-                  {joining ? "Uniéndote..." : joinLabel}
+                  <BoxArrowInRight aria-hidden="true" />
+                  {joining ? "Uniendo..." : joinLabel}
                 </button>
-              ) : joined ? (
-                <span className="room-pill">✅ Unido {wsReady ? "(WS conectado)" : "(WS conectando...)"}</span>
               ) : (
-                <span className="rooms__hint">{status === "CLOSED" ? "Sala cerrada." : "Cargando..."}</span>
+                <span className="answer-chip">
+                  <Check2All aria-hidden="true" />
+                  {joined ? "Unido" : "No disponible"}
+                </span>
               )}
-            </div>
+            </section>
+
+            {joinErr?.message && <div className="debate-alert">{joinErr.message}</div>}
 
             <DebatePollBox
               status={status}
               joined={joined}
-              pollAnswer={pollAnswer}
+              pollAnswer={displayedPollAnswer}
+              secondsRemaining={room.secondsRemainingToPollEnd}
               onAnswer={(ans) => dispatch(actions.answerPoll(id, ans, () => dispatch(actions.getRoomDetail(id))))}
             />
 
-            <div className="chat" style={{ marginTop: 14 }}>
-              <div className="chat__header">
-                <div className="chat__avatar">{(room?.topic || "D").slice(0, 1).toUpperCase()}</div>
-
-                <div className="chat__headtext">
-                  <div className="chat__title">{room.topic}</div>
-                  <div className="chat__subtitle">
-                    {joined ? "Estás dentro" : "Únete para ver y participar"} · Status: <b>{status}</b>
-                  </div>
+            <section className="chat-panel">
+              <div className="chat-panel__header">
+                <div className="chat-panel__avatar">
+                  <ChatDots aria-hidden="true" />
                 </div>
-
-                <div className="chat__actions">
-                  <button className="icon-btn" onClick={() => dispatch(actions.getRoomDetail(id))} type="button" title="Refresh">
-                    ⟳
-                  </button>
+                <div>
+                  <span>Chat de debate</span>
+                  <h2>{status === "LIVE" ? "Conversacion en directo" : "Esperando inicio del debate"}</h2>
+                </div>
+                <div className="chat-panel__meta">
+                  <People aria-hidden="true" />
+                  {room.participantsCount || 0}
                 </div>
               </div>
 
-              <div className="chat__messages">
-                {(!mergedMessages || mergedMessages.length === 0) && <div className="chat__day">No messages yet</div>}
+              <div className="chat-panel__messages">
+                {!joined && (
+                  <div className="chat-empty">
+                    Unete a la sala para cargar los mensajes y participar cuando el debate este en vivo.
+                  </div>
+                )}
 
-                {(mergedMessages || []).map((m) => {
-                  const mine = myName && m.userName === myName;
-                  const parsed = parseReplyPrefix(m.text);
-                  const body = parsed ? parsed.body : m.text;
-                  const reply = parsed ? parsed.reply : null;
+                {joined && mergedMessages.length === 0 && (
+                  <div className="chat-empty">Aun no hay mensajes en esta sala.</div>
+                )}
 
-                  const isSelected = replyTo?.key === m.key;
+                {joined &&
+                  mergedMessages.map((m) => {
+                    const mine = myName && m.userName === myName;
+                    const parsed = parseReplyPrefix(m.text);
+                    const body = parsed ? parsed.body : m.text;
+                    const reply = parsed ? parsed.reply : null;
+                    const isSelected = replyTo?.key === m.key;
 
-                  return (
-                    <div
-                      key={m.key}
-                      className={`msg ${mine ? "msg--out" : "msg--in"} ${isSelected ? "msg--selected" : ""}`}
-                    >
-                      <div style={{ display: "grid" }}>
-                        {!mine && <div className="msg__name">{m.userName}</div>}
+                    return (
+                      <article
+                        key={m.key}
+                        className={`message-row ${mine ? "message-row--mine" : ""} ${
+                          isSelected ? "is-selected" : ""
+                        }`}
+                      >
+                        <div className="message-bubble">
+                          {!mine && <span className="message-bubble__name">{m.userName}</span>}
 
-                        <div
-                          className="msg__bubble"
-                          title="Click para responder"
-                          onClick={() => setReplyTo({ key: m.key, userName: m.userName, ts: m.ts, text: body })}
-                          role="button"
-                        >
-                          {/* bloque de reply embebido */}
                           {reply && (
-                            <div className="msg__reply">
-                              <div className="msg__replyTop">
-                                <span className="msg__replyUser">{reply.userName}</span>
-                                <span className="msg__replyTime">{formatHHMM(reply.ts)}</span>
+                            <div className="message-reply">
+                              <div>
+                                <strong>{reply.userName}</strong>
+                                <span>{formatHHMM(reply.ts)}</span>
                               </div>
-                              <div className="msg__replySnippet">{reply.snippet}</div>
+                              <p>{reply.snippet}</p>
                             </div>
                           )}
 
-                          <div className="msg__text">{body}</div>
+                          <p>{body}</p>
 
-                          <div className="msg__meta">
+                          <footer>
                             <span>{formatHHMM(m.ts)}</span>
-                            {mine && <span className="msg__check">✓✓</span>}
-                          </div>
+                            {mine && <Check2All aria-hidden="true" />}
+                          </footer>
 
                           <button
-                            className="msg__replyBtn"
+                            className="message-reply-action"
                             type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setReplyTo({ key: m.key, userName: m.userName, ts: m.ts, text: body });
-                            }}
+                            onClick={() => setReplyTo({ key: m.key, userName: m.userName, ts: m.ts, text: body })}
                             title="Responder"
                           >
-                            ↩
+                            <Reply aria-hidden="true" />
                           </button>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      </article>
+                    );
+                  })}
               </div>
 
-              <div className="chat__composer">
+              <div className="chat-panel__composer">
                 {!joined ? (
-                  <div className="rooms__hint">Únete a la sala para ver mensajes.</div>
+                  <div className="chat-locked">Unete a la sala para escribir.</div>
                 ) : (
                   <DebateChatBox
                     status={status}
@@ -335,7 +392,7 @@ export default function DebateRoomPage() {
                   />
                 )}
               </div>
-            </div>
+            </section>
           </>
         )}
       </div>
