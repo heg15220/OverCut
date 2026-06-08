@@ -15,12 +15,13 @@ const DRIVER_CANDIDATE_MAX_SPREAD = 10;
 const SIMULATION_DURATION_MS = 2500;
 
 const HELMET_COLORS = [
-  "#e6194b", "#f58231", "#ffe119", "#bcf60c", "#3cb44b",
-  "#469990", "#42d4f4", "#4363d8", "#911eb4", "#f032e6",
-  "#fabed4", "#9a6324", "#800000", "#aaffc3", "#808000",
-  "#ffd8b1", "#000075", "#a9a9a9", "#ff6e54", "#1976d2",
-  "#26a69a", "#7e57c2",
+  "#0a2d52", "#123b66", "#1f568b", "#2c6aa3", "#4d7fae",
+  "#7b96b7", "#a8b8cc", "#d8a11d", "#f0bf35", "#f5d56d",
+  "#f7e6a9", "#f5f1e8", "#6b5b2a", "#8b6b12", "#b38d2c",
+  "#caa74a", "#3b3f48", "#5a606b", "#7b8088", "#9aa1aa",
+  "#111827", "#e8e1cf",
 ];
+const OCR_NEUTRAL_COLOR = "#f0bf35";
 
 const HelmetIcon = ({ color, size = 28 }) => (
   <span
@@ -441,7 +442,7 @@ const StandingsTable = ({ title, rows, compact }) => {
             <tr key={row.id || row.name} style={{ "--points-share": `${(row.points / maxPoints) * 100}%` }}>
               <th>{index + 1}</th>
               <td>
-                <span style={{ "--team-color": row.color || "#d6a945" }} />
+                <span style={{ "--team-color": row.color || OCR_NEUTRAL_COLOR }} />
                 <span className="ocr-standings-driver">
                   {row.helmetColor && <HelmetIcon color={row.helmetColor} size={20} />}
                   {row.name}
@@ -543,7 +544,7 @@ const RaceResultStage = ({ race, isLast, onNext }) => (
       {race.top10.map((row) => (
         <li
           key={`${row.position}-${row.driver}`}
-          style={{ "--row-color": row.color || "#d6a945" }}
+          style={{ "--row-color": row.color || OCR_NEUTRAL_COLOR }}
           className={row.status === "DNF" ? "is-dnf" : undefined}
         >
           <b>{row.position}</b>
@@ -586,7 +587,7 @@ const StandingsTransition = ({ race, isLast, onContinue }) => (
           {race.driverStandingsSnapshot.map((row, index) => (
             <li
               key={row.id || row.name}
-              style={{ "--row-color": row.color || "#d6a945" }}
+              style={{ "--row-color": row.color || OCR_NEUTRAL_COLOR }}
             >
               <b>{index + 1}</b>
               <span className="ocr-standings-color" aria-hidden="true" />
@@ -606,7 +607,7 @@ const StandingsTransition = ({ race, isLast, onContinue }) => (
           {race.constructorStandingsSnapshot.map((row, index) => (
             <li
               key={row.id || row.name}
-              style={{ "--row-color": row.color || "#d6a945" }}
+              style={{ "--row-color": row.color || OCR_NEUTRAL_COLOR }}
             >
               <b>{index + 1}</b>
               <span className="ocr-standings-color" aria-hidden="true" />
