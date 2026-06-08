@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(mvc.pattern("/api/posts/{id}/user")).permitAll()
                         .requestMatchers(mvc.pattern("/api/events/**")).permitAll()
                         .requestMatchers(mvc.pattern("/api/historic/**")).permitAll()
+                        .requestMatchers(mvc.pattern("/api/overcutRacing/**")).permitAll()
                         .requestMatchers(mvc.pattern("/api/quiz/**")).permitAll()
                         .requestMatchers(mvc.pattern(HttpMethod.OPTIONS, "/api/consent")).permitAll()
                         .requestMatchers(mvc.pattern(HttpMethod.GET,     "/api/consent")).permitAll()

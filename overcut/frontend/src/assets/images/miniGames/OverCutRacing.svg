@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 960" role="img" aria-labelledby="title desc">
+  <title id="title">OverCutRacing</title>
+  <desc id="desc">Racing draft card with track, cars and championship podium</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fffdf8"/>
+      <stop offset="1" stop-color="#ebe3d1"/>
+    </linearGradient>
+    <linearGradient id="track" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2d7b46"/>
+      <stop offset="1" stop-color="#174d2d"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="960" fill="url(#paper)"/>
+  <path d="M0 660 C150 600 230 650 360 595 C500 535 590 555 720 500 L720 960 L0 960 Z" fill="#071711" opacity=".08"/>
+  <rect x="88" y="110" width="544" height="628" rx="24" fill="url(#track)" stroke="#d6a945" stroke-width="8"/>
+  <path d="M150 170 C370 70 580 210 495 390 C435 520 245 440 255 610 C265 790 560 705 590 805" fill="none" stroke="#ffffff" stroke-opacity=".82" stroke-width="34" stroke-linecap="round"/>
+  <path d="M150 170 C370 70 580 210 495 390 C435 520 245 440 255 610 C265 790 560 705 590 805" fill="none" stroke="#071711" stroke-opacity=".35" stroke-width="4" stroke-dasharray="28 28" stroke-linecap="round"/>
+  <g transform="translate(158 236)">
+    <rect width="108" height="54" rx="12" fill="#ff553c"/>
+    <circle cx="24" cy="52" r="12" fill="#071711"/>
+    <circle cx="84" cy="52" r="12" fill="#071711"/>
+    <rect x="50" y="10" width="42" height="22" rx="6" fill="#fffdf8" opacity=".72"/>
+  </g>
+  <g transform="translate(425 520)">
+    <rect width="112" height="56" rx="12" fill="#d6a945"/>
+    <circle cx="25" cy="54" r="13" fill="#071711"/>
+    <circle cx="87" cy="54" r="13" fill="#071711"/>
+    <rect x="18" y="10" width="42" height="22" rx="6" fill="#fffdf8" opacity=".72"/>
+  </g>
+  <g fill="#071711">
+    <text x="76" y="835" font-family="Impact, Arial Black, sans-serif" font-size="70">OVERCUT</text>
+    <text x="76" y="900" font-family="Impact, Arial Black, sans-serif" font-size="70" fill="#ff553c">RACING</text>
+  </g>
+  <g transform="translate(468 116)">
+    <rect x="0" y="72" width="56" height="76" rx="6" fill="#fffdf8" stroke="#071711" stroke-width="5"/>
+    <rect x="64" y="38" width="56" height="110" rx="6" fill="#fffdf8" stroke="#071711" stroke-width="5"/>
+    <rect x="128" y="0" width="56" height="148" rx="6" fill="#fffdf8" stroke="#071711" stroke-width="5"/>
+  </g>
+</svg>

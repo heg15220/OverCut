@@ -103,6 +103,14 @@ const minigames = [
   },
 
   {
+    path: "/minigames/overcutRacing",
+    title: "OverCutRacing",
+    description: "Draftea equipos y pilotos para simular un mundial F1",
+    img: sourceImages(`./OverCutRacing.svg`),
+    isNew: true
+  },
+
+  {
     path: "/minigames/wordSearch",
     title: "Word Search F1",
     description: "Encuentra apellidos de pilotos con podios",

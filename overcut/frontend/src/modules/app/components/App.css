@@ -21,6 +21,14 @@
   width:100%;
 }
 
+.App--fullscreen .Body {
+  border-top: 0;
+}
+
+.App--fullscreen .Body:before {
+  display: none;
+}
+
 /* Nuevo estilo para el contenedor principal */
 .contenedorPrincipal {
   min-height: calc(100vh - 180px); /* Calcula el alto total disponible menos el borde superior */

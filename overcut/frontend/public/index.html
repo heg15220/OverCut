@@ -2,20 +2,287 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <link rel="icon" href="%PUBLIC_URL%/LogoOverCut.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Web site created using create-react-app" />
-  <link rel="apple-touch-icon" href="%PUBLIC_URL%/stock-vector-formula-racing-car-silhouette-isolated-logo-2340770493.jpg" />
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-  <!-- Script para renderizar tweets embebidos -->
+  <title>OverCut - Independent Formula 1 platform: quizzes, games and stats</title>
+  <meta
+    name="description"
+    content="OverCut is an independent Formula 1 platform with quizzes, mini-games, posts, OverCutHub advanced stats and OverCut Predictions."
+  />
+  <meta
+    name="robots"
+    content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"
+  />
+  <meta
+    name="googlebot"
+    content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"
+  />
+  <meta name="application-name" content="OverCut" />
+  <meta name="apple-mobile-web-app-title" content="OverCut" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <link rel="canonical" href="https://overcutf1.com/" />
+
+  <link rel="icon" href="/LogoOverCut.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/LogoOverCut.png" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <meta property="og:site_name" content="OverCut" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="es_ES" />
+  <meta property="og:title" content="OverCut - Independent Formula 1 platform" />
+  <meta
+    property="og:description"
+    content="Formula 1 quizzes, mini-games, posts, advanced stats in OverCutHub and championship simulations in OverCut Predictions."
+  />
+  <meta property="og:url" content="https://overcutf1.com/" />
+  <meta property="og:image" content="https://overcutf1.com/LogoOverCut.png" />
+  <meta property="og:image:secure_url" content="https://overcutf1.com/LogoOverCut.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1024" />
+  <meta property="og:image:height" content="1024" />
+  <meta property="og:image:alt" content="OverCut logo, independent Formula 1 platform" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="OverCut - Formula 1 quizzes, games and F1 stats" />
+  <meta
+    name="twitter:description"
+    content="Independent Formula 1 platform with quizzes, games, posts, OverCutHub and a championship simulator."
+  />
+  <meta name="twitter:image" content="https://overcutf1.com/LogoOverCut.png" />
+  <meta name="twitter:image:alt" content="OverCut logo" />
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://overcutf1.com/#organization",
+          "name": "OverCut",
+          "url": "https://overcutf1.com/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://overcutf1.com/LogoOverCut.png",
+            "width": 1024,
+            "height": 1024
+          },
+          "sameAs": [
+            "https://x.com/OvercutPlatform",
+            "https://www.instagram.com/overcutplatform",
+            "https://www.youtube.com/@OvercutMediaPlatform"
+          ],
+          "description": "OverCut is an independent Formula 1 platform. It is not an official Formula 1, FIA, Formula One Group or racing team website."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://overcutf1.com/#website",
+          "url": "https://overcutf1.com/",
+          "name": "OverCut",
+          "alternateName": [
+            "OverCut F1",
+            "OverCut Formula 1",
+            "OverCut Platform"
+          ],
+          "description": "Independent Formula 1 platform with quizzes, mini-games, posts, advanced stats and a championship simulator.",
+          "inLanguage": [
+            "es",
+            "en"
+          ],
+          "publisher": {
+            "@id": "https://overcutf1.com/#organization"
+          }
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://overcutf1.com/#webapp",
+          "name": "OverCut",
+          "url": "https://overcutf1.com/",
+          "applicationCategory": "SportsApplication",
+          "applicationSubCategory": "Formula 1 quizzes, games, statistics and championship simulation",
+          "operatingSystem": "Any",
+          "isAccessibleForFree": true,
+          "inLanguage": [
+            "es",
+            "en"
+          ],
+          "publisher": {
+            "@id": "https://overcutf1.com/#organization"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "description": "OverCut brings together Formula 1 knowledge games, category-based quizzes, posts, historical data, rankings, advanced charts and championship simulations.",
+          "featureList": [
+            "Formula 1 quizzes about history, regulations, seasons and statistics",
+            "F1 mini-games such as Drivers Connections, Grid Guess, Career Path, F1 Wordle, Top 10 and daily challenges",
+            "Posts with Formula 1 analysis, opinion and current topics",
+            "OverCutHub with tables, rankings, championship tracking and advanced charts",
+            "OverCut Predictions to simulate championships, modify results and recalculate standings"
+          ]
+        },
+        {
+          "@type": "ItemList",
+          "@id": "https://overcutf1.com/#main-sections",
+          "name": "Main OverCut sections",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Formula 1 posts",
+              "url": "https://overcutf1.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Formula 1 quizzes",
+              "url": "https://overcutf1.com/#/category/2"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "OverCut Games",
+              "url": "https://overcutf1.com/#/overcutgames-info"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "OverCutHub",
+              "url": "https://overcutf1.com/overcuthub/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 5,
+              "name": "OverCut Predictions",
+              "url": "https://overcutf1.com/overcutPredictions/"
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+
   <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-  <title>Overcut</title>
 </head>
+
 <body>
-<noscript>You need to enable JavaScript to run this app.</noscript>
-<div id="root"></div>
+  <noscript>
+    <main id="seo-fallback">
+      <header>
+        <h1>OverCut - Independent Formula 1 platform</h1>
+        <p>
+          OverCut is an independent platform for Formula 1 fans. It is not affiliated with,
+          associated with or endorsed by Formula One Group, FIA, Formula 1 or any racing team.
+        </p>
+        <p>
+          On OverCut you can read posts, play quizzes and mini-games, explore advanced stats
+          and simulate full F1 championships.
+        </p>
+      </header>
+
+      <section aria-labelledby="seo-posts-title">
+        <h2 id="seo-posts-title">Formula 1 posts and analysis</h2>
+        <p>
+          The home page features posts, analysis, opinion columns and content about current
+          and historical Formula 1 trends.
+        </p>
+        <p><a href="/">Go to the home page</a></p>
+      </section>
+
+      <section aria-labelledby="seo-quiz-title">
+        <h2 id="seo-quiz-title">Formula 1 quizzes</h2>
+        <p>
+          Test your knowledge with questions about F1 history, regulations, drivers, teams,
+          seasons, circuits, results and statistics.
+        </p>
+        <p>
+          Registered users can compete, earn points and climb community rankings.
+        </p>
+        <p>
+          <a href="/#/category/2">Open quizzes</a> |
+          <a href="/#/users/signUp">Create account</a> |
+          <a href="/#/users/login">Log in</a>
+        </p>
+      </section>
+
+      <section aria-labelledby="seo-games-title">
+        <h2 id="seo-games-title">OverCut Games</h2>
+        <p>
+          Formula 1 mini-games for quick challenges, daily sessions and fans who want to learn
+          by playing: Drivers Connections, Grid Guess, Career Path, F1 Wordle, Top 10,
+          Guess Driver, Two Teams, F1 Impostor and more.
+        </p>
+        <p>
+          <a href="/#/overcutgames-info">Discover OverCut Games</a> |
+          <a href="/#/minigames/wordSearch">Play Word Search</a>
+        </p>
+      </section>
+
+      <section aria-labelledby="seo-hub-title">
+        <h2 id="seo-hub-title">OverCutHub: F1 data, tables and advanced stats</h2>
+        <p>
+          OverCutHub organizes historical and current Formula 1 data with session tables,
+          rankings, records, championship tracking and comparative charts.
+        </p>
+        <ul>
+          <li>Race, qualifying, sprint and practice results.</li>
+          <li>Driver and team rankings by titles, wins, poles, podiums and points.</li>
+          <li>Round-by-round championship evolution.</li>
+          <li>Performance, reliability, delta and teammate comparison charts.</li>
+        </ul>
+        <p><a href="/overcuthub/">Open OverCutHub</a></p>
+      </section>
+
+      <section aria-labelledby="seo-predictions-title">
+        <h2 id="seo-predictions-title">OverCut Predictions</h2>
+        <p>
+          OverCut Predictions lets you replay a season from any round, reorder Grand Prix
+          results and recalculate driver and constructor standings in real time.
+        </p>
+        <p><a href="/overcutPredictions/">Open OverCut Predictions</a></p>
+      </section>
+
+      <section aria-labelledby="seo-independent-title">
+        <h2 id="seo-independent-title">An independent F1 platform</h2>
+        <p>
+          OverCut is an independent editorial and interactive project created for the community.
+          Competition, driver, team and championship names are used for informational,
+          historical, statistical and entertainment purposes.
+        </p>
+        <p>
+          <a href="/#/about">What is OverCut</a> |
+          <a href="/#/legal">Legal information</a> |
+          <a href="/#/legal/privacy">Privacy</a> |
+          <a href="/#/legal/cookies">Cookies</a>
+        </p>
+      </section>
+
+      <section lang="es" aria-labelledby="seo-es-title">
+        <h2 id="seo-es-title">OverCut en español</h2>
+        <p>
+          OverCut es una plataforma independiente de Fórmula 1 con quizzes, minijuegos,
+          publicaciones, estadísticas avanzadas, rankings, seguimiento del campeonato y simulaciones.
+        </p>
+        <p>
+          OverCut no está afiliada, asociada ni respaldada por Formula One Group, FIA,
+          Formula 1 ni por ningún equipo.
+        </p>
+      </section>
+
+      <footer>
+        <p>Enable JavaScript to use the full interactive OverCut experience.</p>
+      </footer>
+    </main>
+  </noscript>
+
+  <div id="root"></div>
 </body>
 </html>

@@ -60,6 +60,7 @@ import CategoryGame from "../../categoryGame/components/CategoryGame";
 
 
 import WordSearchGame from '../../wordSearch/components/WordSearchGame';
+import OvercutRacing from "../../overcutRacing/components/OvercutRacing";
 
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList, PostSectionEditor,
@@ -152,6 +153,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/driversConnections" element={withAdVignettes(<DriversConnectionsGame />, "games")} />}
                     {loggedIn && <Route path="/minigames/orderDrivers" element={withAdVignettes(<OrderDriverGame />, "games")} />}
                     {loggedIn && <Route path="/minigames/categoryGame" element={withAdVignettes(<CategoryGame />, "games")} />}
+                    {loggedIn && <Route path="/minigames/overcutRacing" element={<OvercutRacing />} />}
                     <Route path="/minigames/wordSearch" element={withAdVignettes(<WordSearchGame />, "games")} />
                     <Route path="/verify-email" element={<EmailVerificationPage />} />
                     <Route path="/email-confirmation" element={<EmailConfirmationPending />} />
