@@ -17,6 +17,35 @@ const WEATHER_LABELS = {
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
+// --- Balance tuning ---------------------------------------------------------
+// Target: the front group (top-4 by rating) wins ~80% of clean dry races,
+// ~65% behind a safety car and ~55% in the wet.
+//
+// The main lever is GRIP: how much of a car/driver's rating advantage actually
+// counts in each condition. In the dry the best cars get their full edge; rain
+// and safety-car restarts COMPRESS the field (everyone closer), so ratings
+// matter less and surprises rise — exactly like real life. Volatility then adds
+// the residual race-to-race randomness on top.
+const GRIP = { dry: 1.0, safetyCar: 0.72, wet: 0.3, mixed: 0.5 };
+const RACE_VOLATILITY = {
+  base: 4, // baseline shuffle in a clean dry race
+  chaos: 9, // extra shuffle on chaotic circuits
+  wet: 11, // residual chaos on top of wet compression
+  mixed: 9, // residual chaos in mixed conditions
+  safetyCar: 5, // restart lottery on top of SC compression
+  drift: 0.06, // slow season-long variance creep
+};
+// Momentum weights (form streaks and team trend). High enough to reward
+// consistency, low enough not to let a single fluke snowball into dominance.
+const FORM_WEIGHT = 1.45;
+const TEAM_TREND_WEIGHT = 1.0;
+// Per-driver wet talent swing (rain masters vs. drivers who struggle).
+const WET_SKILL_SWING = { wet: 8, mixed: 4, dry: 1.5 };
+// The championship arc only *nudges* the racing now (soft push), it no longer
+// scripts a protagonist. The storyline still emerges from real standings.
+const ARC_NUDGE = 0.34;
+// ---------------------------------------------------------------------------
+
 const hashString = (value) => {
   let hash = 2166136261;
   for (let i = 0; i < value.length; i += 1) {
@@ -511,6 +540,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
     }))
   );
   const maxRacePoints = (scoringSystem.points[0] || 0) + (scoringSystem.fastestLap || 0);
+  const fieldMeanBase = entrants.reduce((total, entrant) => total + entrant.base, 0) / entrants.length;
   let seasonArc = buildArc("open");
 
   const driverStandings = new Map(
@@ -578,6 +608,17 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
     const driverStreakBefore = getRecentWinnerStreak(history, "winner");
     const teamStreakBefore = getRecentWinnerStreak(history, "teamWinner");
 
+    // How much of the rating hierarchy survives today's conditions. Rain and
+    // safety cars compress the field; the dry lets the best cars stretch out.
+    const grip = Math.min(
+      conditions.weatherCode === "wet"
+        ? GRIP.wet
+        : conditions.weatherCode === "mixed"
+        ? GRIP.mixed
+        : GRIP.dry,
+      conditions.safetyCar ? GRIP.safetyCar : GRIP.dry
+    );
+
     const scored = entrants.map((entrant) => {
       const standing = driverStandings.get(entrant.id);
       const teamStanding = constructorStandings.get(entrant.team.name);
@@ -591,30 +632,35 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
           ? 2.5 + profile.overtaking * 4
           : 0;
       const teamTrend = teamMomentum.get(entrant.team.name) || 0;
-      const arcScore = seasonArcScore({
-        arc: raceArcBefore,
-        entrant,
-        raceIndex,
-        raceCount: races.length,
-        standingsBefore,
-        rng,
-      });
+      const arcScore =
+        seasonArcScore({
+          arc: raceArcBefore,
+          entrant,
+          raceIndex,
+          raceCount: races.length,
+          standingsBefore,
+          rng,
+        }) * ARC_NUDGE;
       const trackFit =
         ((hashString(`${entrant.team.name}-${originalRaceName}`) % 100) / 100 - 0.5) *
         (profile.power * 7 + profile.tyre * 5 + profile.street * 4);
       const baseRank = entrants.filter((other) => other.base > entrant.base).length + 1;
       const weatherSkill =
         ((hashString(`${entrant.driver.name}-wet`) % 100) / 100 - 0.44) *
-        (conditions.weatherCode === "wet" ? 10 : conditions.weatherCode === "mixed" ? 5 : 1.5);
+        (WET_SKILL_SWING[conditions.weatherCode] ?? WET_SKILL_SWING.dry);
       const tyreManagement =
         ((hashString(`${entrant.driver.name}-tyres`) % 100) / 100 - 0.43) * conditions.degradation * 7;
       const safetyCarSwing = conditions.safetyCar ? (rng() - 0.45) * (profile.chaos * 8 + 4) : 0;
       const volatility =
-        10 +
-        profile.chaos * 16 +
-        (conditions.weatherCode !== "dry" ? 6 : 0) +
-        (conditions.safetyCar ? 4 : 0) +
-        raceIndex * 0.08;
+        RACE_VOLATILITY.base +
+        profile.chaos * RACE_VOLATILITY.chaos +
+        (conditions.weatherCode === "wet"
+          ? RACE_VOLATILITY.wet
+          : conditions.weatherCode === "mixed"
+          ? RACE_VOLATILITY.mixed
+          : 0) +
+        (conditions.safetyCar ? RACE_VOLATILITY.safetyCar : 0) +
+        raceIndex * RACE_VOLATILITY.drift;
       const randomSwing = (rng() - 0.5) * volatility;
       const reliabilityRisk = clamp(
         0.025 +
@@ -636,9 +682,10 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         strategy,
         baseRank,
         score:
-          entrant.base +
-          entrant.form * 2.6 +
-          teamTrend * 1.7 +
+          fieldMeanBase +
+          (entrant.base - fieldMeanBase) * grip +
+          entrant.form * FORM_WEIGHT +
+          teamTrend * TEAM_TREND_WEIGHT +
           pressure +
           comeback +
           arcScore +

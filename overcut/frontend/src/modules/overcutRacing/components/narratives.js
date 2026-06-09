@@ -84,10 +84,12 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
       "Una segunda salida con caos repartió cartas nuevas a media carrera.",
     ],
     safety_car: [
-      "El coche de seguridad neutralizó la ventaja construida durante toda la carrera.",
-      "Una salida tras coche de seguridad decidió quién pasaba por boxes con tiempo libre.",
-      "El re-arranque a falta de quince vueltas repartió cartas nuevas.",
-      "La banda amarilla tardía hizo de la estrategia un juego de tirar la moneda.",
+      "El coche de seguridad borró de un plumazo la ventaja construida durante toda la carrera.",
+      "Una salida tras coche de seguridad decidió quién entraba a boxes con el carril libre.",
+      "El relanzamiento a quince vueltas del final repartió cartas nuevas para todos.",
+      "La amarilla tardía convirtió la estrategia en un cara o cruz.",
+      "Neutralización en el peor momento para el líder y comprimido el pelotón hasta el parachoques.",
+      "El reinicio juntó a todo el mundo y la victoria se jugó en una sola frenada.",
     ],
     wet: [
       "En la transición de seco a mojado se separó al ganador del resto.",
@@ -97,16 +99,20 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
       "Diluvio inesperado: solo los que se atrevieron a cambiar a tiempo sobrevivieron.",
     ],
     leader_dnf: [
-      "El abandono del líder del campeonato cambió el rumbo del mundial.",
-      "El motor del entonces líder dijo basta a falta de doce vueltas.",
-      "Una rotura de transmisión arruinó el guion del puntero de la tabla.",
-      "El golpe en boxes del piloto top sacrificó la carrera y abrió la puerta a un nuevo rey.",
+      "El abandono del líder del campeonato torció de golpe el rumbo del mundial.",
+      "El motor del hasta entonces líder dijo basta a doce vueltas del final.",
+      "Una rotura de transmisión hizo trizas el guion del puntero de la tabla.",
+      "El error en boxes del piloto top tiró por la borda la carrera y abrió la puerta a un nuevo rey.",
+      "El líder se fue a la grava cuando mejor pintaba todo, y nadie desaprovechó la herencia.",
+      "Un toque tonto dejó fuera al favorito y reescribió la tarde para todos los demás.",
     ],
     comeback: [
-      "Desde sexta posición trazó una de las remontadas del año.",
+      "Desde la sexta plaza hilvanó una de las remontadas del año.",
       "Tres adelantamientos en cinco vueltas pusieron la victoria a tiro.",
-      "Convirtió un paso por pit lane lento en una clase de gestión de ritmo.",
-      "Volvió desde fuera de los puntos a podio en quince vueltas eléctricas.",
+      "Convirtió un pit lane lento en una clase magistral de gestión de ritmo.",
+      "Volvió desde fuera de los puntos hasta el podio en quince vueltas de infarto.",
+      "Cada vuelta era un coche menos por delante hasta que ya no quedó ninguno.",
+      "Salió mal parado, pero fue comiéndose la parrilla a bocados hasta liderarla.",
     ],
     tyre: [
       "La gestión de la degradación marcó el resultado en los últimos veinte giros.",
@@ -114,30 +120,40 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
       "Estiró el primer juego diez vueltas más que cualquiera y eso bastó.",
     ],
     control: [
-      "Posición en pista guardada con ritmo de control en cada fase.",
-      "Defensa tranquila desde la salida hasta la última curva.",
-      "Sin sobresaltos, sin riesgos, sin necesidad de exhibir más de la cuenta.",
+      "Posición en pista bien guardada, con ritmo de control en cada fase de la carrera.",
+      "Defensa serena desde la salida hasta la última curva, sin un solo amago de duda.",
+      "Sin sobresaltos, sin riesgos y sin necesidad de enseñar más cartas de la cuenta.",
+      "Administró la ventaja con la cabeza fría de quien ya sabe que la carrera está hecha.",
+      "Cada vez que un rival se acercaba, respondía con una vuelta rápida y volvía a estirar el hueco.",
     ],
     photo_finish: [
-      "Final a degüello: el margen entre oro y plata fue mínimo.",
-      "El último sector escribió una victoria decidida por detalles.",
-      "Foto de meta, tensión en el muro y un suspiro de paddock al confirmar el orden.",
+      "Final a degüello: entre el oro y la plata cupo apenas un suspiro.",
+      "El último sector escribió una victoria que se decidió por puros detalles.",
+      "Foto de meta, tensión en el muro y todo el paddock conteniendo la respiración hasta el veredicto.",
+      "Llegaron emparejados a la línea y la victoria se resolvió por el ancho de un faldón.",
+      "Una última vuelta de las que dejan sin uñas, resuelta en la frenada final.",
     ],
     team_double: [
-      "Doblete de la escudería con un ritmo simbiótico de los dos coches.",
-      "Los dos pilotos del equipo gestionaron el cierre como uno solo.",
-      "Estrategia de equipo perfectamente sincronizada para amarrar el 1-2.",
+      "Doblete de la escudería con los dos coches funcionando como un mecanismo de relojería.",
+      "Los dos pilotos del equipo gestionaron el cierre como si fueran un solo coche.",
+      "Estrategia de garaje milimétricamente sincronizada para amarrar el 1-2.",
+      "Cuando uno marcaba el ritmo, el otro cerraba la puerta: pleno al equipo.",
+      "Un fin de semana redondo para la escudería, con sus dos máquinas intratables de principio a fin.",
     ],
     strategy: [
-      "El overcut en la primera ronda de paradas fue el golpe definitivo.",
-      "Pasar a una parada cuando todos iban a dos descolocó al ganador anterior.",
-      "El segundo juego de duros estiró hasta extremos imposibles.",
-      "Stop&go fingido de los rivales se convirtió en ventaja real para el campeón del día.",
+      "El overcut en la primera ronda de paradas fue el golpe que sentenció la carrera.",
+      "Apostar por una sola parada mientras el resto iba a dos descolocó al ganador de antes.",
+      "Estiró el segundo juego de duros hasta extremos que parecían imposibles.",
+      "El falso amago de boxes de los rivales se tradujo en ventaja real para el campeón del día.",
+      "El muro acertó la ventana exacta y lo que era empate en pista se volvió victoria cómoda.",
+      "Un undercut clavado al milímetro le dio la posición que ya no soltaría.",
     ],
     streak: [
-      "La racha continúa y el dominio empieza a parecer ley.",
-      "Una secuencia que aplana el campeonato y obliga a redefinir favoritos.",
+      "La racha sigue viva y el dominio empieza a oler a ley no escrita.",
+      "Una secuencia que aplana el campeonato y obliga a reescribir la lista de favoritos.",
       "Cada Gran Premio se convierte en un capítulo más de la misma historia.",
+      "Van tantas seguidas que el resto ya corre por el segundo puesto.",
+      "Otra muesca en el casco: el guion se repite y nadie encuentra la manera de pararlo.",
     ],
     rookie: [
       "Un primer triunfo en F1 que el paddock recordará durante años.",
@@ -177,10 +193,12 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
       "A chaotic second start dealt a fresh hand mid-race.",
     ],
     safety_car: [
-      "The safety car wiped out the gap built over the whole race.",
-      "A restart behind the safety car decided who got a free pit stop.",
-      "The relaunch fifteen laps from home reshuffled the deck.",
-      "The late yellow flag turned strategy into a coin toss.",
+      "The safety car wiped out the gap built over the whole race in one swoop.",
+      "A restart behind the safety car decided who got the free pit stop.",
+      "The relaunch fifteen laps from home reshuffled the deck for everyone.",
+      "The late yellow turned strategy into a coin toss.",
+      "Neutralisation at the worst possible moment for the leader, with the pack squeezed bumper to bumper.",
+      "The restart bunched everyone up and the win came down to a single braking zone.",
     ],
     wet: [
       "The crossover from dry to wet separated the winner from the rest.",
@@ -190,16 +208,20 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
       "Unexpected downpour: only those bold enough to box on time survived.",
     ],
     leader_dnf: [
-      "The championship leader's retirement reshaped the title race.",
+      "The championship leader's retirement reshaped the title race in an instant.",
       "The leader's engine cried enough with twelve laps to go.",
-      "A driveline failure ruined the script of the man at the front of the table.",
-      "A pit-lane incident for the top driver opened the door for a new king.",
+      "A driveline failure tore up the script of the man at the front of the table.",
+      "A pit-lane blunder by the top driver threw the race away and opened the door for a new king.",
+      "The leader beached it in the gravel just as everything was falling into place, and nobody wasted the gift.",
+      "A clumsy tap put the favourite out and rewrote the afternoon for everyone else.",
     ],
     comeback: [
       "From sixth place, one of the year's great comebacks.",
       "Three passes in five laps put the win in range.",
       "Turned a slow pit stop into a masterclass in pace management.",
       "Climbed from outside the points to the podium in fifteen electric laps.",
+      "Every lap meant one fewer car ahead, until there were none left.",
+      "Started on the back foot and chewed through the grid one bite at a time until he led it.",
     ],
     tyre: [
       "Tyre management decided the result in the final twenty laps.",
@@ -207,30 +229,40 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
       "Stretched the first set ten laps further than anyone, and that was enough.",
     ],
     control: [
-      "Track position guarded with controlled pace in every phase.",
-      "Calm defence from the lights to the final corner.",
-      "No drama, no risks, no need to show more than necessary.",
+      "Track position guarded with controlled pace in every phase of the race.",
+      "Calm defence from the lights to the final corner, never a flicker of doubt.",
+      "No drama, no risks, no need to show a single card more than necessary.",
+      "Managed the gap with the cool head of a driver who already knows the race is done.",
+      "Every time a rival crept closer, the answer was a fastest lap and the gap stretched again.",
     ],
     photo_finish: [
-      "Last lap to the wire: two tenths between gold and silver.",
-      "The final corner wrote the win by less than half a car.",
-      "Photo finish, stopwatch deciding and a paddock-wide sigh when the order was confirmed.",
+      "Last lap to the wire: barely a breath between gold and silver.",
+      "The final corner wrote a win settled by pure detail.",
+      "Photo finish, stopwatch deciding and the whole paddock holding its breath for the verdict.",
+      "They arrived side by side at the line and the win came down to a bodywork's width.",
+      "A final lap to chew your nails to the bone, settled under braking into the last corner.",
     ],
     team_double: [
-      "Team double with the two cars working as one.",
-      "Both team drivers managed the finish like a single act.",
-      "Team strategy perfectly synced to lock in the 1-2.",
+      "Team double with both cars ticking like clockwork.",
+      "Both team drivers managed the finish as if they were a single car.",
+      "Garage strategy synced to the millimetre to lock in the 1-2.",
+      "When one set the pace, the other shut the door: a clean sweep for the team.",
+      "A perfect weekend for the constructor, its two machines untouchable from start to finish.",
     ],
     strategy: [
-      "The overcut at the first pit window was the decisive blow.",
-      "Switching to one stop while everyone else went for two caught the previous winner off guard.",
-      "The second set of hards was stretched to impossible lengths.",
-      "Rivals' fake stop-and-go became real advantage for the winner of the day.",
+      "The overcut at the first pit window was the blow that settled the race.",
+      "Betting on one stop while everyone else went for two caught the previous winner off guard.",
+      "Stretched the second set of hards to lengths that looked impossible.",
+      "The rivals' fake stop-and-go turned into real advantage for the winner of the day.",
+      "The pit wall nailed the exact window and an on-track stalemate became a comfortable win.",
+      "An undercut timed to the millimetre handed over the position he'd never give back.",
     ],
     streak: [
-      "The streak continues and the dominance starts to look like law.",
+      "The streak lives on and the dominance is starting to look like unwritten law.",
       "A run that flattens the championship and forces a rethink of the favourites.",
       "Every grand prix becomes another chapter of the same story.",
+      "So many in a row now that everyone else is racing for second.",
+      "Another notch on the helmet: the script repeats and nobody can find a way to stop it.",
     ],
     rookie: [
       "A first F1 win the paddock will remember for years.",
@@ -248,276 +280,280 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
 const CATEGORY_TEMPLATES_BY_LOCALE = {
   es: {
     dominant: [
-      "Recital de {winner} en {race}. {team} firma una victoria sin oposición real. {decisive}",
-      "{race}: {winner} sale, lidera y gana sin un solo titular incómodo para {team}. {decisive}",
-      "Pista propia para {winner} en {race}. {team} pasea por la cuadrícula. {decisive}",
-      "Sin sorpresas en {race}: {winner} convierte el mejor ritmo en victoria como dictaba el guion. {decisive}",
-      "Clase magistral de {winner} en {race}: {team} se va con una victoria de alto valor. {decisive}",
-      "{race} cae del lado lógico: {winner} para {team}, en el final del día sigue todo como debía. {decisive}",
-      "Dominio puro de {winner} en {race}. {team} maneja el escaparate de {weather} sin un solo paso en falso. {decisive}",
-      "{race} sin emoción al frente: {winner} controla todos los relojes y entrega a {team} otra victoria cómoda. {decisive}",
-      "Cátedra de {winner} en {race}. {team} ejecuta una carrera de manual y se lleva todo en juego. {decisive}",
-      "{race}: máximo control del binomio {winner} / {team}, sin un solo momento de duda en las fases clave. {decisive}",
-      "Lección de paddock en {race}: {winner} marca ritmo, neumático y línea. {decisive}",
-      "{winner} encadena vuelta perfecta tras vuelta perfecta en {race} para regalarle a {team} un triunfo de manual. {decisive}",
+      "Recital de {winner} en {race}. {team} firma una victoria sin oposición real.",
+      "{race}: {winner} sale, lidera y gana sin un solo titular incómodo para {team}.",
+      "Pista propia para {winner} en {race}. {team} pasea por la cuadrícula.",
+      "Sin sorpresas en {race}: {winner} convierte el mejor ritmo en victoria como dictaba el guion.",
+      "Clase magistral de {winner} en {race}: {team} se va con una victoria de alto valor.",
+      "{race} cae del lado lógico: {winner} para {team}, en el final del día sigue todo como debía.",
+      "Dominio puro de {winner} en {race}. {team} maneja el escaparate de {weather} sin un solo paso en falso.",
+      "{race} sin emoción al frente: {winner} controla todos los relojes y entrega a {team} otra victoria cómoda.",
+      "Cátedra de {winner} en {race}. {team} ejecuta una carrera de manual y se lleva todo en juego.",
+      "{race}: máximo control del binomio {winner} / {team}, sin un solo momento de duda en las fases clave.",
+      "Lección de paddock en {race}: {winner} marca ritmo, neumático y línea.",
+      "{winner} encadena vuelta perfecta tras vuelta perfecta en {race} para regalarle a {team} un triunfo de manual.",
     ],
     upset: [
-      "Sorpresa mayúscula en {race}: {winner} arrebata la victoria desde fuera del grupo favorito. {decisive}",
-      "{race} se cae del lado imprevisto. {winner} regala a {team} un triunfo que pocos imaginaban en clasificación. {decisive}",
-      "Bombazo en {race}: {winner} lee mejor la carrera y deja a los favoritos sin respuesta. {decisive}",
-      "{race} entrega un giro inesperado: {winner} aparece donde nadie le esperaba y se lleva la victoria para {team}. {decisive}",
-      "Resultado inédito en {race}. {winner} y {team} firman un capítulo digno de antología del mundial. {decisive}",
-      "Carrera de cuento de hadas en {race}: {winner} cruza la línea primero contra todo pronóstico. {decisive}",
-      "Nadie tenía en su quiniela a {winner} ganando {race}; lo hizo, y con margen para hacerlo otra vez. {decisive}",
-      "{race} se reescribe por completo. {winner} aprovecha cada apertura y entrega a {team} un sorpresón. {decisive}",
-      "Cambio de actores en {race}: {winner} se sube al escenario principal y firma el triunfo más improbable de la temporada. {decisive}",
-      "Cuando todos miraban a otros, {winner} colocó a {team} en lo más alto de {race}. {decisive}",
-      "{race} para {winner} y para {team}: una victoria de pizarra que vuela todo lo previsto. {decisive}",
+      "Sorpresa mayúscula en {race}: {winner} arrebata la victoria desde fuera del grupo favorito.",
+      "{race} se cae del lado imprevisto. {winner} regala a {team} un triunfo que pocos imaginaban en clasificación.",
+      "Bombazo en {race}: {winner} lee mejor la carrera y deja a los favoritos sin respuesta.",
+      "{race} entrega un giro inesperado: {winner} aparece donde nadie le esperaba y se lleva la victoria para {team}.",
+      "Resultado inédito en {race}. {winner} y {team} firman un capítulo digno de antología del mundial.",
+      "Carrera de cuento de hadas en {race}: {winner} cruza la línea primero contra todo pronóstico.",
+      "Nadie tenía en su quiniela a {winner} ganando {race}; lo hizo, y con margen para hacerlo otra vez.",
+      "{race} se reescribe por completo. {winner} aprovecha cada apertura y entrega a {team} un sorpresón.",
+      "Cambio de actores en {race}: {winner} se sube al escenario principal y firma el triunfo más improbable de la temporada.",
+      "Cuando todos miraban a otros, {winner} colocó a {team} en lo más alto de {race}.",
+      "{race} para {winner} y para {team}: una victoria de pizarra que vuela todo lo previsto.",
     ],
     wet_master: [
-      "Carrera de los valientes en {race}. {winner} domina la lluvia y le entrega a {team} una victoria épica. {decisive}",
-      "Diluvio en {race}, exhibición de {winner}: {team} se lleva un triunfo bajo el agua que vale por dos. {decisive}",
-      "{race} se transforma con la lluvia y {winner} demuestra por qué su muñeca es de las mejores del paddock. {decisive}",
-      "Pasarela acuática en {race}. {winner} firma vueltas que parecían imposibles y {team} se queda con el botín. {decisive}",
-      "Carrera anfibia en {race}: {winner} elige momento e intermedios y le da a {team} un trofeo de leyenda. {decisive}",
-      "Lluvia, niebla y {winner}. {team} se llevó un Gran Premio en condiciones que muy pocos disfrutaron en {race}. {decisive}",
-      "El cielo se desplomó sobre {race} y {winner} respondió con una clase de manejo de neumático mojado. {decisive}",
-      "{winner} hizo de {race} su pintura particular. {team} gana en una carrera de las que se ven una vez por temporada. {decisive}",
-      "Diluvio bíblico en {race}: {winner} y {team} construyen una victoria que ya forma parte del folclore del campeonato. {decisive}",
-      "Bailando bajo la lluvia: {winner} pone a {team} en lo más alto en una de las grandes carreras del año en {race}. {decisive}",
+      "Carrera de los valientes en {race}. {winner} domina la lluvia y le entrega a {team} una victoria épica.",
+      "Diluvio en {race}, exhibición de {winner}: {team} se lleva un triunfo bajo el agua que vale por dos.",
+      "{race} se transforma con la lluvia y {winner} demuestra por qué su muñeca es de las mejores del paddock.",
+      "Pasarela acuática en {race}. {winner} firma vueltas que parecían imposibles y {team} se queda con el botín.",
+      "Carrera anfibia en {race}: {winner} elige momento e intermedios y le da a {team} un trofeo de leyenda.",
+      "Lluvia, niebla y {winner}. {team} se llevó un Gran Premio en condiciones que muy pocos disfrutaron en {race}.",
+      "El cielo se desplomó sobre {race} y {winner} respondió con una clase de manejo de neumático mojado.",
+      "{winner} hizo de {race} su pintura particular. {team} gana en una carrera de las que se ven una vez por temporada.",
+      "Diluvio bíblico en {race}: {winner} y {team} construyen una victoria que ya forma parte del folclore del campeonato.",
+      "Bailando bajo la lluvia: {winner} pone a {team} en lo más alto en una de las grandes carreras del año en {race}.",
     ],
     chaos: [
-      "Caos absoluto en {race}: tres coches fuera y {winner} aparece para llevarse la victoria por {team}. {decisive}",
-      "{race} se rompe en pedazos. Mientras los favoritos se quedan tirados, {winner} hace su carrera y entrega a {team} el botín completo. {decisive}",
-      "Carrera demolida en {race}. {winner} sobrevive, ejecuta y firma un triunfo para {team}. {decisive}",
-      "Hecatombe mecánica en {race}: muchos coches fuera, {winner} de pie. {team} se lleva la única consistencia del día. {decisive}",
-      "Carambolas, banderas amarillas y {winner} al frente. {race} entrega a {team} la victoria a base de mantenerse entero. {decisive}",
-      "Escenas de circo en {race}. {winner} guarda la calma, esquiva la guerra y firma un triunfo de oficio para {team}. {decisive}",
-      "Una de las carreras más rotas del año en {race}. {winner} mantiene el coche entero y se va con todos los puntos. {decisive}",
-      "Bandera roja, recapitulación, reinicio y {winner} arriba. {team} no se mete en líos en {race}. {decisive}",
-      "{race} fue un juego de supervivencia. {winner} jugó mejor que nadie y le regaló a {team} 25 puntos de oro. {decisive}",
+      "Caos absoluto en {race}: tres coches fuera y {winner} aparece para llevarse la victoria por {team}.",
+      "{race} se rompe en pedazos. Mientras los favoritos se quedan tirados, {winner} hace su carrera y entrega a {team} el botín completo.",
+      "Carrera demolida en {race}. {winner} sobrevive, ejecuta y firma un triunfo para {team}.",
+      "Hecatombe mecánica en {race}: muchos coches fuera, {winner} de pie. {team} se lleva la única consistencia del día.",
+      "Carambolas, banderas amarillas y {winner} al frente. {race} entrega a {team} la victoria a base de mantenerse entero.",
+      "Escenas de circo en {race}. {winner} guarda la calma, esquiva la guerra y firma un triunfo de oficio para {team}.",
+      "Una de las carreras más rotas del año en {race}. {winner} mantiene el coche entero y se va con todos los puntos.",
+      "Bandera roja, recapitulación, reinicio y {winner} arriba. {team} no se mete en líos en {race}.",
+      "{race} fue un juego de supervivencia. {winner} jugó mejor que nadie y le regaló a {team} 25 puntos de oro.",
     ],
     safety_car: [
-      "El coche de seguridad decidió {race}. {winner} aprovechó el reinicio y le entregó a {team} una victoria táctica. {decisive}",
-      "{race} cambió tras el coche de seguridad. {winner} respondió mejor que nadie y {team} se llevó el día. {decisive}",
-      "Ventaja borrada por el coche de seguridad en {race}, pero {winner} reconstruyó la diferencia y {team} firmó la victoria. {decisive}",
-      "Coche de seguridad en el momento más caliente de {race}: {winner} respondió, {team} celebró. {decisive}",
-      "{winner} aprovechó el coche de seguridad en {race} y le regaló a {team} una victoria que parecía cuesta arriba. {decisive}",
-      "Carrera reseteada por el coche de seguridad, victoria reconstruida por {winner}. {team} suma fuerte en {race}. {decisive}",
-      "La neutralización tardía en {race} reordenó las opciones y {winner} eligió el momento exacto para atacar. {decisive}",
-      "Reinicio caliente en {race}: {winner} ejecutó como un veterano y {team} recogió las recompensas. {decisive}",
-      "Un coche de seguridad a falta de quince vueltas comprimió el grupo en {race} y {winner} respondió con un ataque inmediato. {decisive}",
+      "El coche de seguridad decidió {race}. {winner} aprovechó el reinicio y le entregó a {team} una victoria táctica.",
+      "{race} cambió tras el coche de seguridad. {winner} respondió mejor que nadie y {team} se llevó el día.",
+      "Ventaja borrada por el coche de seguridad en {race}, pero {winner} reconstruyó la diferencia y {team} firmó la victoria.",
+      "Coche de seguridad en el momento más caliente de {race}: {winner} respondió, {team} celebró.",
+      "{winner} aprovechó el coche de seguridad en {race} y le regaló a {team} una victoria que parecía cuesta arriba.",
+      "Carrera reseteada por el coche de seguridad, victoria reconstruida por {winner}. {team} suma fuerte en {race}.",
+      "La neutralización tardía en {race} reordenó las opciones y {winner} eligió el momento exacto para atacar.",
+      "Reinicio caliente en {race}: {winner} ejecutó como un veterano y {team} recogió las recompensas.",
+      "Un coche de seguridad a falta de quince vueltas comprimió el grupo en {race} y {winner} respondió con un ataque inmediato.",
     ],
     leader_dnf: [
-      "Golpe brutal al campeonato en {race}: el líder se queda sin coche y {winner} hereda la victoria para {team}. {decisive}",
-      "El puntero de la tabla se rompe en {race}. {winner} aparece para llevarse el botín para {team}. {decisive}",
-      "{race} cambia el mundial: abandono del líder y {winner} cosecha 25 puntos de oro para {team}. {decisive}",
-      "Drama en {race}: el coche del líder dice basta y {winner} convierte la suerte en victoria para {team}. {decisive}",
-      "El líder se queda fuera de combate en {race}. {winner} no perdona y {team} se queda con la victoria. {decisive}",
-      "Cataclismo para el primero del mundial en {race}. {winner} la heredó pero la peleó. {team} se va con todo. {decisive}",
-      "{race} dejó al líder con cara larga. {winner} respondió como un campeón y {team} aprovechó la oportunidad. {decisive}",
+      "Golpe brutal al campeonato en {race}: el líder se queda sin coche y {winner} hereda la victoria para {team}.",
+      "El puntero de la tabla se rompe en {race}. {winner} aparece para llevarse el botín para {team}.",
+      "{race} cambia el mundial: abandono del líder y {winner} cosecha 25 puntos de oro para {team}.",
+      "Drama en {race}: el coche del líder dice basta y {winner} convierte la suerte en victoria para {team}.",
+      "El líder se queda fuera de combate en {race}. {winner} no perdona y {team} se queda con la victoria.",
+      "Cataclismo para el primero del mundial en {race}. {winner} la heredó pero la peleó. {team} se va con todo.",
+      "{race} dejó al líder con cara larga. {winner} respondió como un campeón y {team} aprovechó la oportunidad.",
     ],
     comeback: [
-      "Remontada espectacular de {winner} en {race}: {team} gana una carrera que parecía perdida. {decisive}",
-      "{winner} subió desde el fondo del grupo en {race} y firmó un triunfo épico para {team}. {decisive}",
-      "Carrera de remontada en {race}. {winner} firma adelantamientos de los que cuentan y {team} brinda con la victoria. {decisive}",
-      "{race} se hizo cuesta arriba para {winner}, que la convirtió en cuesta abajo a base de adelantamientos. {team} celebra. {decisive}",
-      "Maratón de adelantamientos en {race}. {winner} la peleó vuelta a vuelta y {team} se la quedó. {decisive}",
-      "Remontada de campeón en {race}: {winner} subió escalón a escalón hasta dejarle la victoria a {team}. {decisive}",
-      "Crónica de un asalto: {winner} convirtió un fin de semana complicado en triunfo en {race} para {team}. {decisive}",
+      "Remontada espectacular de {winner} en {race}: {team} gana una carrera que parecía perdida.",
+      "{winner} subió desde el fondo del grupo en {race} y firmó un triunfo épico para {team}.",
+      "Carrera de remontada en {race}. {winner} firma adelantamientos de los que cuentan y {team} brinda con la victoria.",
+      "{race} se hizo cuesta arriba para {winner}, que la convirtió en cuesta abajo a base de adelantamientos. {team} celebra.",
+      "Maratón de adelantamientos en {race}. {winner} la peleó vuelta a vuelta y {team} se la quedó.",
+      "Remontada de campeón en {race}: {winner} subió escalón a escalón hasta dejarle la victoria a {team}.",
+      "Crónica de un asalto: {winner} convirtió un fin de semana complicado en triunfo en {race} para {team}.",
     ],
     streak: [
-      "{winner} no se cansa en {race}: otra victoria para {team} y la racha continúa. {decisive}",
-      "Sigue dominando {winner} en {race}. {team} amplía la diferencia y empieza a oler a campeonato. {decisive}",
-      "Otra vez {winner}, otra vez {team}. En {race}, la racha se vuelve cuestión de tiempo. {decisive}",
-      "La hegemonía de {winner} continúa en {race}. {team} consolida liderato y mensaje. {decisive}",
-      "{race} no rompe la racha. {winner} suma otra victoria y {team} firma su dominio. {decisive}",
-      "Cada vez que parece una nueva carrera, gana lo mismo: {winner} y {team} repiten guion en {race}. {decisive}",
-      "Vuelven a coincidir nombre y apellido: {winner} para {team} en {race}, sin sobresaltos. {decisive}",
+      "{winner} no se cansa en {race}: otra victoria para {team} y la racha continúa.",
+      "Sigue dominando {winner} en {race}. {team} amplía la diferencia y empieza a oler a campeonato.",
+      "Otra vez {winner}, otra vez {team}. En {race}, la racha se vuelve cuestión de tiempo.",
+      "La hegemonía de {winner} continúa en {race}. {team} consolida liderato y mensaje.",
+      "{race} no rompe la racha. {winner} suma otra victoria y {team} firma su dominio.",
+      "Cada vez que parece una nueva carrera, gana lo mismo: {winner} y {team} repiten guion en {race}.",
+      "Vuelven a coincidir nombre y apellido: {winner} para {team} en {race}, sin sobresaltos.",
     ],
     photo_finish: [
-      "Final de foto en {race}: {winner} cruza la meta apenas por delante para meter el oro en casa de {team}. {decisive}",
-      "{race} se decide en el tramo final. {winner} aguanta el ataque y le entrega a {team} un triunfo épico. {decisive}",
-      "Tramo final de infarto en {race}. {winner} firma una de las victorias más estrechas de la temporada. {decisive}",
-      "{race} se decide por detalles: {winner} encuentra el hueco decisivo y {team} se la queda. {decisive}",
-      "Final de carrera para enmarcar en {race}. {winner} y {team} se llevan un triunfo decidido por muy poco. {decisive}",
-      "Duelo a brazo partido hasta el cierre en {race}. {winner} prevalece y {team} estalla en boxes. {decisive}",
-      "Carrera de las que se cuentan: {winner} se lleva {race} por margen mínimo y le regala a {team} una victoria histórica. {decisive}",
+      "Final de foto en {race}: {winner} cruza la meta apenas por delante para meter el oro en casa de {team}.",
+      "{race} se decide en el tramo final. {winner} aguanta el ataque y le entrega a {team} un triunfo épico.",
+      "Tramo final de infarto en {race}. {winner} firma una de las victorias más estrechas de la temporada.",
+      "{race} se decide por detalles: {winner} encuentra el hueco decisivo y {team} se la queda.",
+      "Final de carrera para enmarcar en {race}. {winner} y {team} se llevan un triunfo decidido por muy poco.",
+      "Duelo a brazo partido hasta el cierre en {race}. {winner} prevalece y {team} estalla en boxes.",
+      "Carrera de las que se cuentan: {winner} se lleva {race} por margen mínimo y le regala a {team} una victoria histórica.",
     ],
     team_double: [
-      "Doblete de {team} en {race}: {winner} adelante, {second} a continuación. {decisive}",
-      "1-2 perfecto para {team} en {race}, encabezado por {winner}. {decisive}",
-      "Día redondo para {team}: {winner} primero, {second} segundo. {race} se llevó el premio mayor. {decisive}",
-      "Doble podio de {team} en {race}, con {winner} y {second} de la mano hasta meta. {decisive}",
-      "Ejecución limpia de {team} en {race}: dos coches arriba, sin estorbarse, sin errores. {decisive}",
-      "Pintar de los colores del equipo el podio: {team} ocupa el 1-2 en {race} con {winner} al frente. {decisive}",
+      "Doblete de {team} en {race}: {winner} adelante, {second} a continuación.",
+      "1-2 perfecto para {team} en {race}, encabezado por {winner}.",
+      "Día redondo para {team}: {winner} primero, {second} segundo. {race} se llevó el premio mayor.",
+      "Doble podio de {team} en {race}, con {winner} y {second} de la mano hasta meta.",
+      "Ejecución limpia de {team} en {race}: dos coches arriba, sin estorbarse, sin errores.",
+      "Pintar de los colores del equipo el podio: {team} ocupa el 1-2 en {race} con {winner} al frente.",
     ],
     strategy: [
-      "Pizarrazo de manual en {race}. {winner} ejecutó la estrategia perfecta y {team} se llevó el día. {decisive}",
-      "{race} se decidió en boxes. {winner} hizo correr su carta y {team} firmó la victoria. {decisive}",
-      "Estrategia de campeones para {team} en {race}. {winner} convirtió la pizarra en victoria. {decisive}",
-      "{race} fue ajedrez sobre asfalto. {winner} jugó el mejor movimiento y {team} se llevó la partida. {decisive}",
-      "Movida brillante de {team} en {race}. {winner} ejecutó el plan a la perfección. {decisive}",
-      "Cuestión de timing: {winner} y {team} cerraron {race} con el momento perfecto en boxes. {decisive}",
-      "Estrategia diferente, resultado diferente. {winner} ganó {race} para {team} con un guion atípico. {decisive}",
+      "Pizarrazo de manual en {race}. {winner} ejecutó la estrategia perfecta y {team} se llevó el día.",
+      "{race} se decidió en boxes. {winner} hizo correr su carta y {team} firmó la victoria.",
+      "Estrategia de campeones para {team} en {race}. {winner} convirtió la pizarra en victoria.",
+      "{race} fue ajedrez sobre asfalto. {winner} jugó el mejor movimiento y {team} se llevó la partida.",
+      "Movida brillante de {team} en {race}. {winner} ejecutó el plan a la perfección.",
+      "Cuestión de timing: {winner} y {team} cerraron {race} con el momento perfecto en boxes.",
+      "Estrategia diferente, resultado diferente. {winner} ganó {race} para {team} con un guion atípico.",
     ],
     control: [
-      "{race} no se complicó: {winner} controló de salida a meta y le entregó a {team} una victoria de oficio. {decisive}",
-      "Carrera bajo control en {race}. {winner} no dio opciones y {team} suma fuerte sin estrés. {decisive}",
-      "{race} en piloto automático para {winner}. {team} suma puntos importantes sin sobresaltos. {decisive}",
-      "Día tranquilo para {team} en {race}: {winner} hizo su carrera y mandó toda la cita. {decisive}",
-      "Sin sobresaltos: {winner} colocó a {team} en lo más alto de {race} y a otra cosa. {decisive}",
-      "Gestión de oficio en {race}: {winner} no rompió nada y {team} celebra la victoria. {decisive}",
-      "Resultado natural en {race}: {winner} ganó como lo dictaba la lógica y {team} consolida momento. {decisive}",
-      "{winner} se llevó {race} sin necesidad de subir el listón. {team} firma sin estridencias. {decisive}",
-      "Control absoluto en {race}. {winner} y {team} no dejaron resquicios al rival. {decisive}",
+      "{race} no se complicó: {winner} controló de salida a meta y le entregó a {team} una victoria de oficio.",
+      "Carrera bajo control en {race}. {winner} no dio opciones y {team} suma fuerte sin estrés.",
+      "{race} en piloto automático para {winner}. {team} suma puntos importantes sin sobresaltos.",
+      "Día tranquilo para {team} en {race}: {winner} hizo su carrera y mandó toda la cita.",
+      "Sin sobresaltos: {winner} colocó a {team} en lo más alto de {race} y a otra cosa.",
+      "Gestión de oficio en {race}: {winner} no rompió nada y {team} celebra la victoria.",
+      "Resultado natural en {race}: {winner} ganó como lo dictaba la lógica y {team} consolida momento.",
+      "{winner} se llevó {race} sin necesidad de subir el listón. {team} firma sin estridencias.",
+      "Control absoluto en {race}. {winner} y {team} no dejaron resquicios al rival.",
     ],
   },
   en: {
     dominant: [
-      "A {winner} masterclass at {race}. {team} bag a win with no real opposition. {decisive}",
-      "{race}: {winner} starts, leads and wins without a single awkward headline for {team}. {decisive}",
-      "Home turf for {winner} at {race}. {team} stroll through the grid. {decisive}",
-      "No surprises at {race}: {winner} turns the strongest pace into victory, just as the script demanded. {decisive}",
-      "Masterclass from {winner} at {race}: {team} leave with the win and the fastest lap. {decisive}",
-      "{race} falls on the logical side: {winner} for {team}, and at the end of the day everything stays as it should. {decisive}",
-      "Pure dominance from {winner} at {race}. {team} handle the {weather} showcase without a single misstep. {decisive}",
-      "{race} with no drama at the front: {winner} controls every clock and hands {team} another comfortable win. {decisive}",
-      "{winner}'s lecture at {race}. {team} run a textbook race and take everything on offer. {decisive}",
-      "{race}: total control of the {winner} / {team} pairing, never a moment's doubt in the key phases. {decisive}",
-      "Paddock lesson at {race}: {winner} sets pace, tyre and line. {decisive}",
-      "{winner} strings together perfect lap after perfect lap at {race} to gift {team} a textbook win. {decisive}",
+      "A {winner} masterclass at {race}. {team} bag a win with no real opposition.",
+      "{race}: {winner} starts, leads and wins without a single awkward headline for {team}.",
+      "Home turf for {winner} at {race}. {team} stroll through the grid.",
+      "No surprises at {race}: {winner} turns the strongest pace into victory, just as the script demanded.",
+      "Masterclass from {winner} at {race}: {team} leave with the win and the fastest lap.",
+      "{race} falls on the logical side: {winner} for {team}, and at the end of the day everything stays as it should.",
+      "Pure dominance from {winner} at {race}. {team} handle the {weather} showcase without a single misstep.",
+      "{race} with no drama at the front: {winner} controls every clock and hands {team} another comfortable win.",
+      "{winner}'s lecture at {race}. {team} run a textbook race and take everything on offer.",
+      "{race}: total control of the {winner} / {team} pairing, never a moment's doubt in the key phases.",
+      "Paddock lesson at {race}: {winner} sets pace, tyre and line.",
+      "{winner} strings together perfect lap after perfect lap at {race} to gift {team} a textbook win.",
     ],
     upset: [
-      "Major upset at {race}: {winner} snatches the win from outside the favourites. {decisive}",
-      "{race} falls on the unexpected side. {winner} hands {team} a win few imagined in qualifying. {decisive}",
-      "Bombshell at {race}: {winner} turns the race into a personal canvas and leaves the favourites without an answer. {decisive}",
-      "{race} delivers a twist: {winner} turns up where nobody expected and takes the win for {team}. {decisive}",
-      "Unprecedented result at {race}. {winner} and {team} write a chapter worthy of any championship anthology. {decisive}",
-      "Fairy-tale race at {race}: {winner} crosses the line first against every prediction. {decisive}",
-      "Nobody had {winner} winning {race} on their card; he did, and with room to do it again. {decisive}",
-      "{race} is rewritten entirely. {winner} takes every opening and gifts {team} a stunner. {decisive}",
-      "Cast change at {race}: {winner} steps onto the main stage and seals the most improbable win of the season. {decisive}",
-      "When everyone was looking elsewhere, {winner} put {team} on top at {race}. {decisive}",
-      "{race} for {winner} and for {team}: a chalkboard win that blows up every forecast. {decisive}",
+      "Major upset at {race}: {winner} snatches the win from outside the favourites.",
+      "{race} falls on the unexpected side. {winner} hands {team} a win few imagined in qualifying.",
+      "Bombshell at {race}: {winner} turns the race into a personal canvas and leaves the favourites without an answer.",
+      "{race} delivers a twist: {winner} turns up where nobody expected and takes the win for {team}.",
+      "Unprecedented result at {race}. {winner} and {team} write a chapter worthy of any championship anthology.",
+      "Fairy-tale race at {race}: {winner} crosses the line first against every prediction.",
+      "Nobody had {winner} winning {race} on their card; he did, and with room to do it again.",
+      "{race} is rewritten entirely. {winner} takes every opening and gifts {team} a stunner.",
+      "Cast change at {race}: {winner} steps onto the main stage and seals the most improbable win of the season.",
+      "When everyone was looking elsewhere, {winner} put {team} on top at {race}.",
+      "{race} for {winner} and for {team}: a chalkboard win that blows up every forecast.",
     ],
     wet_master: [
-      "A race for the brave at {race}. {winner} masters the rain and hands {team} an epic win. {decisive}",
-      "Deluge at {race}, exhibition from {winner}: {team} take a wet-weather win worth twice as much. {decisive}",
-      "{race} is transformed by the rain and {winner} shows again why his wrist is one of the paddock's best. {decisive}",
-      "Aquatic catwalk at {race}. {winner} pulls off laps that looked impossible and {team} keep the spoils. {decisive}",
-      "Amphibian race at {race}: {winner} picks the moment, picks the inters and gifts {team} a legendary trophy. {decisive}",
-      "Rain, fog and {winner}. {team} took a grand prix in conditions few enjoyed at {race}. {decisive}",
-      "The sky collapsed on {race} and {winner} responded with a wet-tyre masterclass. {decisive}",
-      "{winner} made {race} a personal painting. {team} win in a race seen once a season. {decisive}",
-      "Biblical downpour at {race}: {winner} and {team} build a win that's already paddock folklore. {decisive}",
-      "Singing in the rain: {winner} puts {team} on top in one of the year's defining races at {race}. {decisive}",
+      "A race for the brave at {race}. {winner} masters the rain and hands {team} an epic win.",
+      "Deluge at {race}, exhibition from {winner}: {team} take a wet-weather win worth twice as much.",
+      "{race} is transformed by the rain and {winner} shows again why his wrist is one of the paddock's best.",
+      "Aquatic catwalk at {race}. {winner} pulls off laps that looked impossible and {team} keep the spoils.",
+      "Amphibian race at {race}: {winner} picks the moment, picks the inters and gifts {team} a legendary trophy.",
+      "Rain, fog and {winner}. {team} took a grand prix in conditions few enjoyed at {race}.",
+      "The sky collapsed on {race} and {winner} responded with a wet-tyre masterclass.",
+      "{winner} made {race} a personal painting. {team} win in a race seen once a season.",
+      "Biblical downpour at {race}: {winner} and {team} build a win that's already paddock folklore.",
+      "Singing in the rain: {winner} puts {team} on top in one of the year's defining races at {race}.",
     ],
     chaos: [
-      "Total chaos at {race}: three cars out and {winner} surfaces to take the win for {team}. {decisive}",
-      "{race} falls apart. While the favourites are stranded, {winner} runs his own race and hands {team} the lot. {decisive}",
-      "Race demolished at {race}. {winner} survives, executes and seals a win for {team}. {decisive}",
-      "Mechanical mayhem at {race}: lots of cars out, {winner} standing. {team} take the only consistency of the day. {decisive}",
-      "Pile-ups, yellow flags and {winner} at the front. {race} gives {team} the win by simply staying intact. {decisive}",
-      "Circus scenes at {race}. {winner} stays calm, dodges the war and seals a craftsman's win for {team}. {decisive}",
-      "One of the year's most broken races at {race}. {winner} keeps the car together and leaves with every point. {decisive}",
-      "Red flag, restart, and {winner} on top. {team} stay out of trouble at {race}. {decisive}",
-      "{race} was a survival game. {winner} played it better than anyone and gifted {team} 25 golden points. {decisive}",
+      "Total chaos at {race}: three cars out and {winner} surfaces to take the win for {team}.",
+      "{race} falls apart. While the favourites are stranded, {winner} runs his own race and hands {team} the lot.",
+      "Race demolished at {race}. {winner} survives, executes and seals a win for {team}.",
+      "Mechanical mayhem at {race}: lots of cars out, {winner} standing. {team} take the only consistency of the day.",
+      "Pile-ups, yellow flags and {winner} at the front. {race} gives {team} the win by simply staying intact.",
+      "Circus scenes at {race}. {winner} stays calm, dodges the war and seals a craftsman's win for {team}.",
+      "One of the year's most broken races at {race}. {winner} keeps the car together and leaves with every point.",
+      "Red flag, restart, and {winner} on top. {team} stay out of trouble at {race}.",
+      "{race} was a survival game. {winner} played it better than anyone and gifted {team} 25 golden points.",
     ],
     safety_car: [
-      "The safety car decided {race}. {winner} took the restart and delivered {team} a tactical win. {decisive}",
-      "{race} changed after the safety car. {winner} answered best and {team} took the day. {decisive}",
-      "Lead wiped by the safety car at {race}, but {winner} rebuilt the gap and {team} sealed the win. {decisive}",
-      "Safety car at the hottest moment of {race}: {winner} answered, {team} celebrated. {decisive}",
-      "{winner} thanked the safety car at {race} and gave {team} a win that looked uphill. {decisive}",
-      "Race reset by the safety car, win rebuilt by {winner}. {team} score big at {race}. {decisive}",
-      "The late neutralisation at {race} dealt fresh cards and {winner} shuffled best. {decisive}",
-      "Hot restart at {race}: {winner} executed like a veteran and {team} took the rewards. {decisive}",
-      "A safety car with fifteen laps left compressed the pack at {race} and {winner} answered with an instant strike. {decisive}",
+      "The safety car decided {race}. {winner} took the restart and delivered {team} a tactical win.",
+      "{race} changed after the safety car. {winner} answered best and {team} took the day.",
+      "Lead wiped by the safety car at {race}, but {winner} rebuilt the gap and {team} sealed the win.",
+      "Safety car at the hottest moment of {race}: {winner} answered, {team} celebrated.",
+      "{winner} thanked the safety car at {race} and gave {team} a win that looked uphill.",
+      "Race reset by the safety car, win rebuilt by {winner}. {team} score big at {race}.",
+      "The late neutralisation at {race} dealt fresh cards and {winner} shuffled best.",
+      "Hot restart at {race}: {winner} executed like a veteran and {team} took the rewards.",
+      "A safety car with fifteen laps left compressed the pack at {race} and {winner} answered with an instant strike.",
     ],
     leader_dnf: [
-      "Brutal blow to the championship at {race}: the leader is out and {winner} inherits the win for {team}. {decisive}",
-      "The man at the top of the table breaks at {race}. {winner} surfaces to take the spoils for {team}. {decisive}",
-      "{race} changes the title race: leader's retirement and {winner} bags 25 golden points for {team}. {decisive}",
-      "Drama at {race}: the leader's car cries enough and {winner} turns luck into win for {team}. {decisive}",
-      "The leader runs dry at {race}. {winner} doesn't forgive and {team} keep the victory. {decisive}",
-      "Title cataclysm for the championship leader at {race}. {winner} inherited it but earned it. {team} leave with everything. {decisive}",
-      "{race} left the leader gutted. {winner} answered like a champion and {team} grabbed the chance. {decisive}",
+      "Brutal blow to the championship at {race}: the leader is out and {winner} inherits the win for {team}.",
+      "The man at the top of the table breaks at {race}. {winner} surfaces to take the spoils for {team}.",
+      "{race} changes the title race: leader's retirement and {winner} bags 25 golden points for {team}.",
+      "Drama at {race}: the leader's car cries enough and {winner} turns luck into win for {team}.",
+      "The leader runs dry at {race}. {winner} doesn't forgive and {team} keep the victory.",
+      "Title cataclysm for the championship leader at {race}. {winner} inherited it but earned it. {team} leave with everything.",
+      "{race} left the leader gutted. {winner} answered like a champion and {team} grabbed the chance.",
     ],
     comeback: [
-      "Spectacular comeback from {winner} at {race}: {team} win a race that looked lost. {decisive}",
-      "{winner} climbed from the back at {race} and sealed an epic win for {team}. {decisive}",
-      "Comeback race at {race}. {winner} the kind of passes that count; {team} toast the win. {decisive}",
-      "{race} turned into a climb for {winner}, who turned it into a descent with pass after pass. {team} celebrate. {decisive}",
-      "Overtaking marathon at {race}. {winner} fought lap by lap and {team} kept it. {decisive}",
-      "Champion's comeback at {race}: {winner} climbed step by step until he handed {team} the win. {decisive}",
-      "Chronicle of an assault: {winner} turned a tough weekend into victory at {race} for {team}. {decisive}",
+      "Spectacular comeback from {winner} at {race}: {team} win a race that looked lost.",
+      "{winner} climbed from the back at {race} and sealed an epic win for {team}.",
+      "Comeback race at {race}. {winner} the kind of passes that count; {team} toast the win.",
+      "{race} turned into a climb for {winner}, who turned it into a descent with pass after pass. {team} celebrate.",
+      "Overtaking marathon at {race}. {winner} fought lap by lap and {team} kept it.",
+      "Champion's comeback at {race}: {winner} climbed step by step until he handed {team} the win.",
+      "Chronicle of an assault: {winner} turned a tough weekend into victory at {race} for {team}.",
     ],
     streak: [
-      "{winner} doesn't tire at {race}: another win for {team} and the streak goes on. {decisive}",
-      "{winner} keeps dominating at {race}. {team} extend the gap and start to smell a title. {decisive}",
-      "Once again {winner}, once again {team}. At {race}, the streak becomes a matter of time. {decisive}",
-      "{winner}'s hegemony continues at {race}. {team} consolidate the lead and the message. {decisive}",
-      "{race} doesn't break the streak. {winner} adds another win and {team} cement their dominance. {decisive}",
-      "Every time it looks like a new race, the same name wins: {winner} and {team} replay the script at {race}. {decisive}",
-      "Name and surname align again: {winner} for {team} at {race}, no drama. {decisive}",
+      "{winner} doesn't tire at {race}: another win for {team} and the streak goes on.",
+      "{winner} keeps dominating at {race}. {team} extend the gap and start to smell a title.",
+      "Once again {winner}, once again {team}. At {race}, the streak becomes a matter of time.",
+      "{winner}'s hegemony continues at {race}. {team} consolidate the lead and the message.",
+      "{race} doesn't break the streak. {winner} adds another win and {team} cement their dominance.",
+      "Every time it looks like a new race, the same name wins: {winner} and {team} replay the script at {race}.",
+      "Name and surname align again: {winner} for {team} at {race}, no drama.",
     ],
     photo_finish: [
-      "Photo finish at {race}: {winner} crosses the line just ahead to put the gold at {team}. {decisive}",
-      "{race} decided on the last lap. {winner} holds the attack and gives {team} an epic win. {decisive}",
-      "Heart-stopping last lap at {race}. {winner} delivers one of the closest wins of the season. {decisive}",
-      "{race} settled by millimetres: {winner} passes the leader three corners from home. {team} keep it. {decisive}",
-      "A frame-worthy finish at {race}. {winner} and {team} take the win by less than half a car. {decisive}",
-      "Bare-knuckle duel to the final straight at {race}. {winner} prevails, {team} explode in the pit box. {decisive}",
-      "One for the books: {winner} takes {race} by two tenths and gifts {team} a historic win. {decisive}",
+      "Photo finish at {race}: {winner} crosses the line just ahead to put the gold at {team}.",
+      "{race} decided on the last lap. {winner} holds the attack and gives {team} an epic win.",
+      "Heart-stopping last lap at {race}. {winner} delivers one of the closest wins of the season.",
+      "{race} settled by millimetres: {winner} passes the leader three corners from home. {team} keep it.",
+      "A frame-worthy finish at {race}. {winner} and {team} take the win by less than half a car.",
+      "Bare-knuckle duel to the final straight at {race}. {winner} prevails, {team} explode in the pit box.",
+      "One for the books: {winner} takes {race} by two tenths and gifts {team} a historic win.",
     ],
     team_double: [
-      "Team double for {team} at {race}: {winner} ahead, {second} right behind. {decisive}",
-      "Perfect 1-2 for {team} at {race}, led by {winner}. {decisive}",
-      "Dream day for {team}: {winner} first, {second} second. {race} brought home the biggest prize. {decisive}",
-      "Double podium for {team} at {race}, with {winner} and {second} side by side to the flag. {decisive}",
-      "Clean execution from {team} at {race}: two cars on top, no contact, no errors. {decisive}",
-      "Painting the podium team colours: {team} take 1-2 at {race} with {winner} leading. {decisive}",
+      "Team double for {team} at {race}: {winner} ahead, {second} right behind.",
+      "Perfect 1-2 for {team} at {race}, led by {winner}.",
+      "Dream day for {team}: {winner} first, {second} second. {race} brought home the biggest prize.",
+      "Double podium for {team} at {race}, with {winner} and {second} side by side to the flag.",
+      "Clean execution from {team} at {race}: two cars on top, no contact, no errors.",
+      "Painting the podium team colours: {team} take 1-2 at {race} with {winner} leading.",
     ],
     strategy: [
-      "Textbook chalkboard at {race}. {winner} executed the perfect strategy and {team} took the day. {decisive}",
-      "{race} decided in the pits. {winner} played his card and {team} sealed the win. {decisive}",
-      "Champion's strategy for {team} at {race}. {winner} turned chalkboard into victory. {decisive}",
-      "{race} was asphalt chess. {winner} played the best move and {team} took the game. {decisive}",
-      "Brilliant move from {team} at {race}. {winner} executed the plan to perfection. {decisive}",
-      "Question of timing: {winner} and {team} closed out {race} with the perfect pit window. {decisive}",
-      "Different strategy, different result. {winner} won {race} for {team} with an atypical script. {decisive}",
+      "Textbook chalkboard at {race}. {winner} executed the perfect strategy and {team} took the day.",
+      "{race} decided in the pits. {winner} played his card and {team} sealed the win.",
+      "Champion's strategy for {team} at {race}. {winner} turned chalkboard into victory.",
+      "{race} was asphalt chess. {winner} played the best move and {team} took the game.",
+      "Brilliant move from {team} at {race}. {winner} executed the plan to perfection.",
+      "Question of timing: {winner} and {team} closed out {race} with the perfect pit window.",
+      "Different strategy, different result. {winner} won {race} for {team} with an atypical script.",
     ],
     control: [
-      "{race} kept things simple: {winner} controlled lights to flag and gave {team} a craftsman's win. {decisive}",
-      "Race under control at {race}. {winner} gave no openings and {team} score big without stress. {decisive}",
-      "{race} on autopilot for {winner}. {team} take important points with no drama. {decisive}",
-      "Calm day for {team} at {race}: {winner} ran his race and ran the show. {decisive}",
-      "No drama: {winner} put {team} on top at {race} and on to the next. {decisive}",
-      "Craftsman management at {race}: {winner} didn't break anything and {team} celebrate the win. {decisive}",
-      "Natural result at {race}: {winner} won as logic dictated and {team} consolidate momentum. {decisive}",
-      "{winner} took {race} without lifting the level. {team} sign off without fireworks. {decisive}",
-      "Total control at {race}. {winner} and {team} left no openings for the rival. {decisive}",
+      "{race} kept things simple: {winner} controlled lights to flag and gave {team} a craftsman's win.",
+      "Race under control at {race}. {winner} gave no openings and {team} score big without stress.",
+      "{race} on autopilot for {winner}. {team} take important points with no drama.",
+      "Calm day for {team} at {race}: {winner} ran his race and ran the show.",
+      "No drama: {winner} put {team} on top at {race} and on to the next.",
+      "Craftsman management at {race}: {winner} didn't break anything and {team} celebrate the win.",
+      "Natural result at {race}: {winner} won as logic dictated and {team} consolidate momentum.",
+      "{winner} took {race} without lifting the level. {team} sign off without fireworks.",
+      "Total control at {race}. {winner} and {team} left no openings for the rival.",
     ],
   },
 };
 
 const CONTRAST_CONNECTORS_BY_LOCALE = {
   es: [
-    "Mientras tanto, {leaderAfter} sigue al frente del mundial con {gapAfter} puntos de ventaja.",
-    "El campeonato lo lidera {leaderAfter}, con {gapAfter} puntos sobre el segundo.",
-    "{leaderAfter} mantiene el rumbo del mundial con un margen de {gapAfter} puntos.",
-    "Al cierre, {leaderAfter} sigue dictando ritmo de tabla con {gapAfter} puntos de colchón.",
-    "Tabla mundial al cierre: {leaderAfter} en cabeza, {gapAfter} puntos sobre el segundo.",
-    "{leaderAfter} amarra el liderato con {gapAfter} puntos de diferencia tras la cita.",
+    "Mientras tanto, {leaderAfter} sigue mandando en el mundial con {gapAfter} puntos de colchón.",
+    "Arriba, en la general, {leaderAfter} aguanta el liderato con {gapAfter} puntos sobre el segundo.",
+    "{leaderAfter} mantiene el rumbo del campeonato con un margen de {gapAfter} puntos.",
+    "Al bajar el telón, {leaderAfter} sigue dictando el ritmo de la tabla con {gapAfter} puntos de renta.",
+    "Foto de la general: {leaderAfter} en cabeza, {gapAfter} puntos por delante del perseguidor.",
+    "{leaderAfter} se va de la cita con el liderato atado y {gapAfter} puntos de diferencia.",
+    "En la pelea por el título, {leaderAfter} respira algo más tranquilo: {gapAfter} puntos de ventaja.",
+    "Y en lo alto del mundial, lo de siempre por ahora: {leaderAfter}, con {gapAfter} puntos de margen.",
   ],
   en: [
-    "Meanwhile, {leaderAfter} stays at the top of the championship with a {gapAfter}-point lead.",
-    "{leaderAfter} leads the table, {gapAfter} points clear of second.",
-    "{leaderAfter} stays on course in the championship with a {gapAfter}-point margin.",
-    "At the close, {leaderAfter} keeps setting the table's pace with a {gapAfter}-point cushion.",
-    "Championship snapshot: {leaderAfter} on top, {gapAfter} points clear of second.",
-    "{leaderAfter} ties up the lead by {gapAfter} points after the race.",
+    "Meanwhile, {leaderAfter} keeps the championship in hand with a {gapAfter}-point cushion.",
+    "Up at the top of the table, {leaderAfter} holds the lead {gapAfter} points clear of second.",
+    "{leaderAfter} stays on course in the title race with a {gapAfter}-point margin.",
+    "As the curtain falls, {leaderAfter} still sets the table's pace with {gapAfter} points in hand.",
+    "Standings snapshot: {leaderAfter} out front, {gapAfter} points clear of the chaser.",
+    "{leaderAfter} leaves the weekend with the lead locked down and {gapAfter} points to spare.",
+    "In the fight for the crown, {leaderAfter} breathes a little easier: {gapAfter} points up.",
+    "And at the summit, same as ever for now: {leaderAfter}, {gapAfter} points to the good.",
   ],
 };
 
@@ -615,7 +651,7 @@ const describeMidfieldHighlight = (highlight) => {
     highlight.overPerformance > 0
       ? `+${highlight.overPerformance}`
       : locale === "es"
-      ? "coche al limite"
+      ? "coche al límite"
       : "car on the limit";
   return `${highlight.driver} (${highlight.team}) ${position}, ${pointsText}, ${gain}`;
 };
@@ -637,10 +673,10 @@ const renderMidfieldInsights = (vars) => {
     const templates =
       locale === "es"
         ? [
-            `La zona media no tuvo un solo protagonista: ${names} metieron a sus equipos en una carrera que normalmente no les pertenecia. ${details}.`,
-            `Detras del podio tambien hubo carrera: ${names} sostuvieron una pelea de garaje contra garaje que cambio el reparto menor de puntos.`,
-            `La batalla secundaria fue de las buenas: ${names} convirtieron la zona media en una carrera dentro de la carrera, con ${teamSpread} equipos distintos pescando rendimiento real.`,
-            `No todo paso delante: ${names} firmaron una actuacion coral de zona media y dejaron puntos que pueden pesar mas adelante.`,
+            `La zona media no tuvo un solo protagonista: ${names} metieron a sus equipos en una carrera que, sobre el papel, no les pertenecía. ${details}.`,
+            `Detrás del podio también hubo carrera de verdad: ${names} sostuvieron una pelea garaje contra garaje que movió el reparto fino de puntos.`,
+            `La batalla secundaria fue de las que enganchan: ${names} convirtieron la zona media en una carrera dentro de la carrera, con ${teamSpread} equipos distintos sacando rendimiento real.`,
+            `No todo se jugó delante: ${names} firmaron una actuación coral en la zona media y se llevaron puntos que pueden pesar más adelante.`,
           ]
         : [
             `The midfield had more than one story: ${names} put their teams into a race that was not supposed to belong to them. ${details}.`,
@@ -650,7 +686,7 @@ const renderMidfieldInsights = (vars) => {
           ];
     const fastestTail = fastest
       ? locale === "es"
-        ? ` ${fastest.driver} incluso se quedo con la vuelta rapida.`
+        ? ` ${fastest.driver} hasta se quedó con la vuelta rápida.`
         : ` ${fastest.driver} even took fastest lap.`
       : "";
     return `${pickFromBank(templates, vars.rng || Math.random)}${fastestTail}`;
@@ -661,36 +697,36 @@ const renderMidfieldInsights = (vars) => {
   const pointsText =
     highlight.points > 0
       ? locale === "es"
-        ? `sumo ${highlight.points} ${highlight.points === 1 ? "punto" : "puntos"}`
+        ? `sumó ${highlight.points} ${highlight.points === 1 ? "punto" : "puntos"}`
         : `scored ${highlight.points} ${highlight.points === 1 ? "point" : "points"}`
       : locale === "es"
-      ? "rozo la zona de puntos"
+      ? "se quedó a las puertas de los puntos"
       : "knocked on the door of the points";
   const gainText =
     highlight.overPerformance > 0
       ? locale === "es"
-        ? `gano ${highlight.overPerformance} posiciones respecto a su expectativa real`
+        ? `ganó ${highlight.overPerformance} posiciones respecto a lo que dictaba su coche`
         : `ran ${highlight.overPerformance} places above expectation`
       : locale === "es"
-      ? "maximizo un coche de zona media"
+      ? "exprimió hasta la última gota un coche de zona media"
       : "maximised a midfield car";
   const strategyText = highlight.strategy
     ? locale === "es"
-      ? ` con ${highlight.strategy}`
+      ? ` apoyado en ${highlight.strategy}`
       : ` on ${highlight.strategy}`
     : "";
   const fastestLapText = highlight.fastestLap
     ? locale === "es"
-      ? " y ademas se llevo la vuelta rapida"
+      ? " y, de propina, la vuelta rápida"
       : " and also took fastest lap"
     : "";
   const templates =
     locale === "es"
       ? [
-          `${highlight.driver} tambien dejo una carrera seria para ${highlight.team}: ${position}, ${pointsText}, ${gainText}${strategyText}${fastestLapText}.`,
-          `En la pelea menos visible, ${highlight.driver} puso a ${highlight.team} donde no era evidente: ${position}, ${pointsText} y una ejecucion limpia${fastestLapText}.`,
-          `${highlight.team} encontro oxigeno con ${highlight.driver}: acabo ${position}, ${pointsText} y sostuvo ritmo de puntos cuando la carrera se rompio por delante.`,
-          `La actuacion de zona media fue ${highlight.driver}: sin camaras encima, termino ${position} y ${pointsText}, con una lectura de carrera por encima del coche.`,
+          `${highlight.driver} también firmó una carrera seria para ${highlight.team}: ${position}, ${pointsText}, ${gainText}${strategyText}${fastestLapText}.`,
+          `En la pelea menos televisada, ${highlight.driver} colocó a ${highlight.team} donde nadie le esperaba: ${position}, ${pointsText} y una ejecución impecable${fastestLapText}.`,
+          `${highlight.team} respiró gracias a ${highlight.driver}: acabó ${position}, ${pointsText} y aguantó ritmo de puntos cuando la carrera se rompía por delante.`,
+          `El nombre de la zona media fue ${highlight.driver}: lejos de las cámaras, terminó ${position} y ${pointsText}, con una lectura de carrera muy por encima de su coche.`,
         ]
       : [
           `${highlight.driver} also delivered a serious race for ${highlight.team}: ${position}, ${pointsText}, ${gainText}${strategyText}${fastestLapText}.`,
@@ -706,25 +742,25 @@ const renderChampionshipInsight = (vars) => {
   const contenders = Array.isArray(vars.titleContenders) ? vars.titleContenders : [];
   if (locale === "es") {
     if (vars.seasonArc === "driver_domination" && vars.leaderAfter && vars.gapAfter >= 35) {
-      return `${vars.leaderAfter} esta convirtiendo el mundial en una demolicion: la ventaja ya no parece coyuntural, parece estructura.`;
+      return `${vars.leaderAfter} está convirtiendo el mundial en una demolición: la ventaja ya no parece coyuntural, parece estructura.`;
     }
     if (vars.seasonArc === "team_domination" && vars.dominantTeam) {
-      return `${vars.dominantTeam} esta jugando otro campeonato: cuando no gana, aun suele colocar dos coches arriba.`;
+      return `${vars.dominantTeam} juega a otro campeonato: los días que no gana, aún coloca sus dos coches en la zona noble.`;
     }
     if (vars.seasonArc === "cross_team_duel" && contenders.length >= 2) {
-      return `${contenders[0].name} y ${contenders[1].name} siguen en un duelo de equipos distintos donde cada victoria cambia el peso politico del mundial.`;
+      return `${contenders[0].name} y ${contenders[1].name} siguen enzarzados en un duelo entre equipos distintos en el que cada victoria mueve el centro de gravedad del título.`;
     }
     if (vars.seasonArc === "intra_team_duel" && contenders.length >= 2) {
-      return `La tension principal esta dentro del mismo garaje: ${contenders[0].name} y ${contenders[1].name} comparten equipo, pero no margen de error.`;
+      return `La tensión gorda vive dentro del mismo garaje: ${contenders[0].name} y ${contenders[1].name} comparten equipo, pero ni un milímetro de margen de error.`;
     }
     if (vars.seasonArc === "streak_breakaway" && vars.leaderAfter && vars.gapAfter >= 25) {
-      return `${vars.leaderAfter} ha convertido un duelo directo en una escapada: la racha empieza a pesar mas que la igualdad inicial.`;
+      return `${vars.leaderAfter} ha convertido un mano a mano en una escapada: la racha ya pesa más que la igualdad de los primeros grandes premios.`;
     }
     if (contenders.length >= 4) {
-      return `El mundial se abre de verdad: ${joinNames(contenders.slice(0, 4).map((row) => row.name))} siguen en una pelea con demasiados cambios de guion.`;
+      return `El mundial se abre de par en par: ${joinNames(contenders.slice(0, 4).map((row) => row.name))} siguen vivos en una pelea con demasiados giros de guion.`;
     }
     if (contenders.length === 3) {
-      return `Ya no es un duelo simple: ${contenders[2].name} se ha metido como tercer candidato y obliga a recalcular el campeonato.`;
+      return `Ya no es un duelo a dos: ${contenders[2].name} se ha colado como tercer candidato y obliga a rehacer todos los cálculos.`;
     }
     return "";
   }
@@ -754,59 +790,113 @@ const renderChampionshipInsight = (vars) => {
 };
 
 const renderRaceInsight = (scenario, vars) => {
+  const rng = vars.rng || Math.random;
   const facts = [];
 
   if (vars.winnerStrategy) {
     facts.push(
-      locale === "es"
-        ? `La clave competitiva fue la estrategia de ${vars.winnerStrategy}`
-        : `The competitive key was the ${vars.winnerStrategy} strategy`
+      pickFromBank(
+        locale === "es"
+          ? [
+              `Y todo se apoyó en una palanca clara: la estrategia de ${vars.winnerStrategy}, ejecutada sin un solo titubeo.`,
+              `La carta de ${vars.winnerStrategy} fue la que terminó marcando la diferencia en el muro.`,
+              `Por encima del ritmo puro, fue la estrategia de ${vars.winnerStrategy} la que abrió el hueco definitivo.`,
+            ]
+          : [
+              `And it all hinged on one clear lever: the ${vars.winnerStrategy} strategy, executed without a flinch.`,
+              `The ${vars.winnerStrategy} call was the one that made the difference on the pit wall.`,
+              `Beyond raw pace, it was the ${vars.winnerStrategy} strategy that cracked the race open.`,
+            ],
+        rng
+      )
     );
   }
 
   if (vars.winnerBaseRank && vars.winnerBaseRank > 8) {
     facts.push(
-      locale === "es"
-        ? `{winner} ganó desde un perfil inicial de candidato exterior`
-        : `{winner} won from an outsider baseline`
+      pickFromBank(
+        locale === "es"
+          ? [
+              `Nadie lo tenía en la quiniela: {winner} arrancaba con galones de candidato de segunda fila.`,
+              `Que ganara {winner}, con su perfil de partida, no entraba en ningún pronóstico sensato.`,
+              `{winner} llegaba como outsider, lejos del foco de los favoritos, y aun así mandó.`,
+            ]
+          : [
+              `Nobody saw it coming: {winner} started with the profile of a second-row outsider.`,
+              `{winner} winning, given the starting form, was in nobody's sensible forecast.`,
+              `{winner} came in as an outsider, well off the favourites' radar, and still ran the show.`,
+            ],
+        rng
+      )
     );
   }
 
   if (vars.fastestLapDriver) {
     facts.push(
-      locale === "es"
-        ? `la vuelta rápida fue para {fastestLapDriver}`
-        : `fastest lap went to {fastestLapDriver}`
+      pickFromBank(
+        locale === "es"
+          ? [
+              `Como nota al margen, la vuelta rápida se la quedó {fastestLapDriver}.`,
+              `El punto extra de la vuelta rápida cayó del lado de {fastestLapDriver}.`,
+              `{fastestLapDriver} se llevó el premio de consolación de la vuelta rápida.`,
+            ]
+          : [
+              `As a footnote, fastest lap went the way of {fastestLapDriver}.`,
+              `The bonus point for fastest lap landed with {fastestLapDriver}.`,
+              `{fastestLapDriver} pocketed the consolation of fastest lap.`,
+            ],
+        rng
+      )
     );
   }
 
   if (vars.dnfCount >= 3) {
     facts.push(
-      locale === "es"
-        ? `${vars.dnfCount} abandonos alteraron el orden natural`
-        : `${vars.dnfCount} retirements disrupted the natural order`
+      pickFromBank(
+        locale === "es"
+          ? [
+              `Con ${vars.dnfCount} coches en el muro, la parrilla de meta poco tuvo que ver con la de salida.`,
+              `${vars.dnfCount} abandonos dinamitaron por completo el orden natural de la carrera.`,
+              `${vars.dnfCount} retiradas reescribieron la clasificación sobre la marcha.`,
+            ]
+          : [
+              `With ${vars.dnfCount} cars in the barriers, the finishing order had little to do with the grid.`,
+              `${vars.dnfCount} retirements blew the natural running order apart.`,
+              `${vars.dnfCount} cars out rewrote the order on the fly.`,
+            ],
+        rng
+      )
     );
   } else if (vars.safetyCar) {
-    facts.push(locale === "es" ? "el coche de seguridad reabrió la carrera" : "the safety car reopened the race");
+    facts.push(
+      pickFromBank(
+        locale === "es"
+          ? [
+              "Un coche de seguridad reseteó los relojes y reabrió una carrera que parecía sentenciada.",
+              "El coche de seguridad volvió a barajar el mazo justo cuando todo parecía decidido.",
+            ]
+          : [
+              "A safety car reset the clocks and reopened a race that looked done.",
+              "The safety car shuffled the deck again just as everything seemed settled.",
+            ],
+        rng
+      )
+    );
   }
 
   const midfield = renderMidfieldInsights(vars);
   const championship = renderChampionshipInsight(vars);
-  const factualTail = facts.length
-    ? locale === "es"
-      ? `Lectura de carrera: ${facts.join("; ")}.`
-      : `Race read: ${facts.join("; ")}.`
-    : "";
+  const factualTail = facts.join(" ");
 
   const scenarioTail =
     scenario === "leader_dnf" && vars.leaderAfter
       ? locale === "es"
-        ? "El abandono del líder no solo cambió la victoria: también comprimió la pelea del campeonato."
-        : "The leader's retirement did not only change the win; it compressed the title fight."
+        ? "El abandono del líder no solo repartió la victoria: comprimió de golpe toda la pelea por el título."
+        : "The leader's retirement didn't just hand out the win; it squeezed the whole title fight shut."
       : scenario === "team_double"
       ? locale === "es"
-        ? "El doblete refuerza tanto el mundial de pilotos como el de constructores."
-        : "The one-two strengthens both the drivers' and constructors' standings."
+        ? "Un doblete que engorda a la vez el mundial de pilotos y el de constructores."
+        : "A one-two that fattens both the drivers' and the constructors' tables at once."
       : "";
 
   return [factualTail, scenarioTail, championship, midfield].filter(Boolean).join(" ");
@@ -899,22 +989,22 @@ export const renderLastRacePreview = ({ race, contenders, maxPoints, constructor
     locale === "es"
       ? contenders.length >= 5
         ? [
-            `Ultima carrera en {race} con cinco pilotos vivos. {titleNames} llegan separados por una distancia que cabe en una victoria de {maxPoints} puntos: no hay calculadora segura, solo ejecucion.`,
-            `{race} decide un mundial salvaje: cinco nombres con opciones reales, {titleNames}, y cualquier coche de seguridad puede cambiar al campeon.`,
+            `Última carrera en {race} con cinco pilotos vivos. {titleNames} llegan tan apretados que la distancia cabe dentro de una sola victoria de {maxPoints} puntos: aquí no vale la calculadora, solo la ejecución.`,
+            `{race} decide un mundial salvaje: cinco nombres con opciones reales —{titleNames}— y un simple coche de seguridad bastaría para cambiar al campeón.`,
           ]
         : contenders.length === 4
         ? [
-            `Final a cuatro en {race}. {titleNames} aun pueden ser campeones; {leader} defiende ventaja, pero {chaserNames} llegan con margen para convertir una carrera normal en terremoto.`,
-            `El campeonato entra en {race} sin dueño: cuatro pilotos siguen vivos y la presion no cae solo sobre el lider.`,
+            `Final a cuatro en {race}. {titleNames} aún pueden levantar la corona; {leader} defiende la ventaja, pero {chaserNames} llegan con margen para convertir una carrera normal en un terremoto.`,
+            `El campeonato entra en {race} sin dueño: cuatro pilotos siguen con vida y la presión no recae solo sobre el líder.`,
           ]
         : contenders.length === 3
         ? [
-            `{race} abre una ultima batalla a tres. {leader} llega primero, pero {chaserNames} tienen puntos suficientes para forzar un vuelco si la carrera se rompe.`,
-            `Tres pilotos, una corona. En {race}, {leader} necesita controlar daños; {chaserNames} necesitan convertir ritmo en golpe definitivo.`,
+            `{race} abre una última batalla a tres. {leader} llega por delante, pero {chaserNames} tienen puntos de sobra para darle la vuelta a todo si la carrera se rompe.`,
+            `Tres pilotos, una sola corona. En {race}, {leader} necesita controlar los daños; {chaserNames} necesitan transformar el ritmo en golpe definitivo.`,
           ]
         : [
-            `El mundial se decide en {race}: {leader} contra {chaserNames}. La distancia entra dentro de una victoria de {maxPoints} puntos y cada parada puede ser titulo o derrota.`,
-            `{race} recibe el duelo final. {leader} parte con ventaja, {chaserNames} llega obligado a atacar desde la primera ventana de boxes.`,
+            `El mundial se decide en {race}: {leader} contra {chaserNames}. La distancia cabe dentro de una victoria de {maxPoints} puntos y cada parada puede valer un título o una derrota.`,
+            `{race} acoge el duelo final. {leader} parte con ventaja; {chaserNames} llega obligado a atacar desde la primera ventana de boxes.`,
           ]
       : contenders.length >= 5
       ? [
