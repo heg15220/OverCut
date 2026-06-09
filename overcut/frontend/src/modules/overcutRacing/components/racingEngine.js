@@ -8,7 +8,7 @@ import {
 } from "./narratives";
 import { locale, strings } from "./i18n";
 import { translateGrandPrixName } from "./grandPrixTranslations";
-import { describeScoringSystem, pickScoringSystem } from "./scoringSystems";
+import { describeScoringSystem, effectiveResultLimit, pickScoringSystem } from "./scoringSystems";
 
 const WEATHER_LABELS = {
   dry: strings.weatherDry,
@@ -241,11 +241,11 @@ const scoreBestResults = (scores, scoringSystem, totalRaces) => {
     const firstSegment = validScores.slice(0, splitIndex);
     const secondSegment = validScores.slice(splitIndex);
     return (
-      sumBestScores(firstSegment, scoringSystem.segmentLimits[0]) +
-      sumBestScores(secondSegment, scoringSystem.segmentLimits[1])
+      sumBestScores(firstSegment, effectiveResultLimit(scoringSystem.segmentLimits[0], splitIndex)) +
+      sumBestScores(secondSegment, effectiveResultLimit(scoringSystem.segmentLimits[1], totalRaces - splitIndex))
     );
   }
-  return sumBestScores(validScores, scoringSystem.maxResults);
+  return sumBestScores(validScores, effectiveResultLimit(scoringSystem.maxResults, totalRaces));
 };
 
 const refreshScoredStandings = (standings, scoringSystem, totalRaces) => {
@@ -1010,7 +1010,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
     grid,
     scoringSystem: {
       ...scoringSystem,
-      description: describeScoringSystem(scoringSystem),
+      description: describeScoringSystem(scoringSystem, races.length),
     },
   };
 };

@@ -33,9 +33,33 @@ export const SCORING_SYSTEMS = [
 
 export const pickScoringSystem = (rng) => SCORING_SYSTEMS[Math.floor(rng() * SCORING_SYSTEMS.length)];
 
-export const describeScoringSystem = (system) => {
+// Historical "best N results count" caps were built for short 1950s-70s
+// calendars. Applied verbatim to a long simulated season they freeze the
+// standings, so we scale the cap to the actual calendar: keep at least
+// SCORING_KEEP_RATIO of the races (drop only the worst ~15%), never fewer than
+// the historical cap and never more than the number of races available.
+export const SCORING_KEEP_RATIO = 0.85;
+
+export const effectiveResultLimit = (limit, segmentLength) => {
+  if (!limit || !segmentLength) return null;
+  return Math.min(segmentLength, Math.max(limit, Math.ceil(segmentLength * SCORING_KEEP_RATIO)));
+};
+
+export const describeScoringSystem = (system, totalRaces = 0) => {
   const positions = system.points.map((points, index) => `P${index + 1} ${points}`).join(" · ");
   const fastestLap = system.fastestLap ? ` · VR +${system.fastestLap}` : "";
-  const maxResults = system.segmentLimits ? system.segmentLimits.join("+") : system.maxResults || allResultsLabel;
+  let maxResults;
+  if (system.segmentLimits) {
+    const splitIndex = Math.ceil(totalRaces / 2);
+    maxResults = [
+      effectiveResultLimit(system.segmentLimits[0], splitIndex),
+      effectiveResultLimit(system.segmentLimits[1], totalRaces - splitIndex),
+    ]
+      .filter(Boolean)
+      .join("+");
+  } else if (system.maxResults) {
+    maxResults = effectiveResultLimit(system.maxResults, totalRaces);
+  }
+  if (!maxResults) maxResults = allResultsLabel;
   return `${system.years}: ${positions}${fastestLap} · MRE ${maxResults}`;
 };
