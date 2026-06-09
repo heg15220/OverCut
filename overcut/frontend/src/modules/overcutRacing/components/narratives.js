@@ -1,7 +1,32 @@
 import { locale } from "./i18n";
 
+// Grand Prix names must always carry the definite article when named in prose:
+// "el Gran Premio de Mónaco" / "the Monaco Grand Prix". We inject it around the
+// {race} placeholder according to the surrounding grammar (Spanish contracts
+// "de el" -> "del" and "a el" -> "al", and the article is capitalised at the
+// start of a sentence). A sentinel marks already-handled spots so the generic
+// pass doesn't double-article them.
+const articleizeRaceTemplate = (template) => {
+  if (template.indexOf("{race}") === -1) return template;
+  if (locale === "es") {
+    // Capture whatever sits right before {race}: a sentence break, the
+    // prepositions "de"/"a" (which contract to del/al), or a plain space.
+    return template.replace(/(^|[.!?]\s+|\bde |\ba |\s)\{race\}/g, function (match, pre) {
+      if (pre === "de ") return "del {race}";
+      if (pre === "a ") return "al {race}";
+      if (pre === "" || /[.!?]\s+$/.test(pre)) return pre + "El {race}";
+      return pre + "el {race}";
+    });
+  }
+  return template.replace(/(^|[.!?]\s+|\s)\{race\}/g, function (match, pre) {
+    return pre === "" || /[.!?]\s+$/.test(pre) ? pre + "The {race}" : pre + "the {race}";
+  });
+};
+
 const fillTemplate = (template, vars) =>
-  template.replace(/\{(\w+)\}/g, (match, key) => (vars[key] != null ? String(vars[key]) : match));
+  articleizeRaceTemplate(template).replace(/\{(\w+)\}/g, (match, key) =>
+    vars[key] != null ? String(vars[key]) : match
+  );
 
 const pickFromBank = (bank, rng) => {
   if (!bank || !bank.length) return "";
@@ -557,6 +582,38 @@ const CONTRAST_CONNECTORS_BY_LOCALE = {
   ],
 };
 
+// Used when the leader is level on points and only ahead on countback.
+const CONTRAST_TIED_BY_LOCALE = {
+  es: [
+    "Mientras tanto, {leaderAfter} encabeza el mundial, pero solo por el desempate: nadie le saca un punto.",
+    "Arriba todo sigue en tablas: {leaderAfter} manda en la general sin diferencia de puntos con su perseguidor.",
+    "Foto de la general: {leaderAfter} en cabeza, aunque empatado a puntos con el segundo.",
+    "{leaderAfter} se va líder por la vía del desempate, sin la menor renta en la tabla.",
+  ],
+  en: [
+    "Meanwhile, {leaderAfter} leads the championship on countback alone: nobody is a single point behind.",
+    "It's all square up top: {leaderAfter} heads the table level on points with the chaser.",
+    "Standings snapshot: {leaderAfter} out front, but tied on points with second.",
+    "{leaderAfter} stays top on the tiebreak only, with no points cushion at all.",
+  ],
+};
+
+// Used when the leader is ahead, but by less than a single win.
+const CONTRAST_SLIM_BY_LOCALE = {
+  es: [
+    "Mientras tanto, {leaderAfter} aguanta el liderato por la mínima: apenas {gapAfter} puntos sobre el segundo.",
+    "Arriba la cosa está al rojo: {leaderAfter} manda con un frágil colchón de {gapAfter} puntos.",
+    "{leaderAfter} sigue líder, pero con la respiración contenida: solo {gapAfter} puntos de margen.",
+    "Foto de la general: {leaderAfter} en cabeza, con un hilo de {gapAfter} puntos sobre el perseguidor.",
+  ],
+  en: [
+    "Meanwhile, {leaderAfter} clings to the lead by a whisker: just {gapAfter} points clear of second.",
+    "It's tight at the top: {leaderAfter} leads on a fragile {gapAfter}-point cushion.",
+    "{leaderAfter} stays ahead, but only just — a slim {gapAfter} points in hand.",
+    "Standings snapshot: {leaderAfter} out front by a thread, {gapAfter} points up.",
+  ],
+};
+
 const SCENARIO_TAGS_BY_LOCALE = {
   es: {
     dominant: "Dominio",
@@ -592,6 +649,8 @@ const SEASON_INTRO_TEMPLATES = pickByLocale(SEASON_INTRO_TEMPLATES_BY_LOCALE);
 const DECISIVE_MOMENTS = pickByLocale(DECISIVE_MOMENTS_BY_LOCALE);
 const CATEGORY_TEMPLATES = pickByLocale(CATEGORY_TEMPLATES_BY_LOCALE);
 const CONTRAST_CONNECTORS = pickByLocale(CONTRAST_CONNECTORS_BY_LOCALE);
+const CONTRAST_TIED = pickByLocale(CONTRAST_TIED_BY_LOCALE);
+const CONTRAST_SLIM = pickByLocale(CONTRAST_SLIM_BY_LOCALE);
 const SCENARIO_TAGS = pickByLocale(SCENARIO_TAGS_BY_LOCALE);
 
 const renderMidfieldInsight = (vars) => {
@@ -669,20 +728,35 @@ const renderMidfieldInsights = (vars) => {
     const names = joinNames(highlights.map((highlight) => highlight.driver));
     const teamSpread = new Set(highlights.map((highlight) => highlight.team)).size;
     const fastest = highlights.find((highlight) => highlight.fastestLap);
+    const scoredPoints = highlights.some((highlight) => highlight.points > 0);
     const details = highlights.map(describeMidfieldHighlight).join("; ");
     const templates =
       locale === "es"
+        ? scoredPoints
+          ? [
+              `La zona media no tuvo un solo protagonista: ${names} metieron a sus equipos en una carrera que, sobre el papel, no les pertenecía. ${details}.`,
+              `Detrás del podio también hubo carrera de verdad: ${names} sostuvieron una pelea garaje contra garaje que movió el reparto fino de puntos.`,
+              `La batalla secundaria fue de las que enganchan: ${names} convirtieron la zona media en una carrera dentro de la carrera, con ${teamSpread} equipos distintos sacando rendimiento real.`,
+              `No todo se jugó delante: ${names} firmaron una actuación coral en la zona media y se llevaron puntos que pueden pesar más adelante.`,
+            ]
+          : [
+              `La zona media no tuvo un solo protagonista: ${names} se enzarzaron en una pelea aparte que el podio no llegó a ver. ${details}.`,
+              `Lejos de los puntos también hubo carrera: ${names} sostuvieron un duelo garaje contra garaje por el orgullo de la zona media.`,
+              `La batalla secundaria fue de las que enganchan: ${names} convirtieron la zona media en una carrera dentro de la carrera, con ${teamSpread} equipos distintos peleándose cada posición.`,
+              `No todo se jugó delante: ${names} firmaron una actuación coral en la zona media, sin premio en la tabla pero a cara de perro.`,
+            ]
+        : scoredPoints
         ? [
-            `La zona media no tuvo un solo protagonista: ${names} metieron a sus equipos en una carrera que, sobre el papel, no les pertenecía. ${details}.`,
-            `Detrás del podio también hubo carrera de verdad: ${names} sostuvieron una pelea garaje contra garaje que movió el reparto fino de puntos.`,
-            `La batalla secundaria fue de las que enganchan: ${names} convirtieron la zona media en una carrera dentro de la carrera, con ${teamSpread} equipos distintos sacando rendimiento real.`,
-            `No todo se jugó delante: ${names} firmaron una actuación coral en la zona media y se llevaron puntos que pueden pesar más adelante.`,
-          ]
-        : [
             `The midfield had more than one story: ${names} put their teams into a race that was not supposed to belong to them. ${details}.`,
-            `Behind the podium there was a proper race too: ${names} made the midfield a garage-to-garage fight.`,
+            `Behind the podium there was a proper race too: ${names} made the midfield a garage-to-garage fight that shifted the minor scoring.`,
             `The secondary battle mattered: ${names} turned the midfield into a race within the race, with ${teamSpread} teams finding real performance.`,
             `It was not all about the front: ${names} delivered a collective midfield result that may matter later.`,
+          ]
+        : [
+            `The midfield had more than one story: ${names} fought a separate battle the podium never saw. ${details}.`,
+            `Away from the points there was a race too: ${names} traded blows garage-to-garage for midfield pride.`,
+            `The secondary battle mattered: ${names} turned the midfield into a race within the race, with ${teamSpread} teams scrapping over every place.`,
+            `It was not all about the front: ${names} delivered a collective midfield scrap, no reward on the table but no quarter given.`,
           ];
     const fastestTail = fastest
       ? locale === "es"
@@ -740,27 +814,67 @@ const renderMidfieldInsights = (vars) => {
 
 const renderChampionshipInsight = (vars) => {
   const contenders = Array.isArray(vars.titleContenders) ? vars.titleContenders : [];
+  const rng = vars.rng || Math.random;
+  const round = vars.round || 0;
+  const raceCount = vars.raceCount || 0;
+  const progress = raceCount > 1 ? (round - 1) / (raceCount - 1) : 0;
+  // Very start of the year: nothing has settled yet, so don't pretend there is
+  // an established storyline or "plot twists" to read.
+  const earlyPhase = round > 0 && (round <= 2 || progress < 0.15);
+  const names4 = joinNames(contenders.slice(0, 4).map((row) => row.name));
+  const names3 = joinNames(contenders.slice(0, 3).map((row) => row.name));
+
   if (locale === "es") {
     if (vars.seasonArc === "driver_domination" && vars.leaderAfter && vars.gapAfter >= 35) {
       return `${vars.leaderAfter} está convirtiendo el mundial en una demolición: la ventaja ya no parece coyuntural, parece estructura.`;
     }
     if (vars.seasonArc === "team_domination" && vars.dominantTeam) {
-      return `${vars.dominantTeam} juega a otro campeonato: los días que no gana, aún coloca sus dos coches en la zona noble.`;
+      return `${vars.dominantTeam} juega a otro campeonato: gane quien gane dentro del equipo, casi siempre hay dos coches suyos en la zona noble.`;
     }
-    if (vars.seasonArc === "cross_team_duel" && contenders.length >= 2) {
+    if (vars.seasonArc === "cross_team_duel" && !earlyPhase && contenders.length >= 2) {
       return `${contenders[0].name} y ${contenders[1].name} siguen enzarzados en un duelo entre equipos distintos en el que cada victoria mueve el centro de gravedad del título.`;
     }
-    if (vars.seasonArc === "intra_team_duel" && contenders.length >= 2) {
+    if (vars.seasonArc === "intra_team_duel" && !earlyPhase && contenders.length >= 2) {
       return `La tensión gorda vive dentro del mismo garaje: ${contenders[0].name} y ${contenders[1].name} comparten equipo, pero ni un milímetro de margen de error.`;
     }
     if (vars.seasonArc === "streak_breakaway" && vars.leaderAfter && vars.gapAfter >= 25) {
       return `${vars.leaderAfter} ha convertido un mano a mano en una escapada: la racha ya pesa más que la igualdad de los primeros grandes premios.`;
     }
+    if (earlyPhase && contenders.length >= 3) {
+      return pickFromBank(
+        [
+          `Demasiado pronto para sacar conclusiones: con tan pocas carreras disputadas, ${names4} siguen apelotonados en lo más alto.`,
+          `El campeonato apenas ha echado a rodar y ${names4} comparten la zona noble; aún no ha dado tiempo a que nadie marque distancias.`,
+          `Todavía no hay patrón que leer: la tabla está casi en blanco y ${names4} arrancan prácticamente empatados.`,
+          `Es solo el arranque del año, así que toca prudencia: ${names4} encabezan un mundial que aún no ha enseñado sus cartas.`,
+          `Primeras citas, primeras impresiones: ${names4} mandan de momento, pero es pronto para fiarse de nada.`,
+        ],
+        rng
+      );
+    }
     if (contenders.length >= 4) {
-      return `El mundial se abre de par en par: ${joinNames(contenders.slice(0, 4).map((row) => row.name))} siguen vivos en una pelea con demasiados giros de guion.`;
+      return pickFromBank(
+        [
+          `El título sigue en el aire: ${names4} llegan vivos a esta altura de temporada y ninguno termina de imponerse.`,
+          `Nadie consigue escaparse: ${names4} mantienen un pulso a varias bandas que cambia de líder casi cada fin de semana.`,
+          `La corona no tiene dueño: ${names4} siguen dentro y cada carrera vuelve a barajar el orden.`,
+          `Cuatro en danza por el cetro: ${names4} se niegan a soltar el grupo de cabeza.`,
+          `El mundial se mantiene abierto de verdad: la distancia entre ${names4} cabe en una sola tarde mala.`,
+          `Pelea de altura por el campeonato: ${names4} se reparten las opciones y obligan a recalcular tras cada bandera a cuadros.`,
+        ],
+        rng
+      );
     }
     if (contenders.length === 3) {
-      return `Ya no es un duelo a dos: ${contenders[2].name} se ha colado como tercer candidato y obliga a rehacer todos los cálculos.`;
+      return pickFromBank(
+        [
+          `Ya no es un duelo a dos: ${contenders[2].name} se ha metido como tercer candidato y obliga a rehacer todos los cálculos.`,
+          `El título es cosa de tres: ${names3} se reparten las opciones reales con la temporada avanzada.`,
+          `Aparece un tercero en discordia: ${contenders[2].name} mete presión a los dos de delante y reabre el campeonato.`,
+          `Tres pretendientes para una sola corona: ${names3} mantienen la pelea encendida hasta nuevo aviso.`,
+        ],
+        rng
+      );
     }
     return "";
   }
@@ -769,22 +883,52 @@ const renderChampionshipInsight = (vars) => {
     return `${vars.leaderAfter} is turning the championship into a demolition job: the gap no longer looks circumstantial.`;
   }
   if (vars.seasonArc === "team_domination" && vars.dominantTeam) {
-    return `${vars.dominantTeam} are running a different championship: even when they do not win, they usually place two cars near the front.`;
+    return `${vars.dominantTeam} are running a different championship: whoever wins inside the team, they almost always have two cars near the front.`;
   }
-  if (vars.seasonArc === "cross_team_duel" && contenders.length >= 2) {
+  if (vars.seasonArc === "cross_team_duel" && !earlyPhase && contenders.length >= 2) {
     return `${contenders[0].name} and ${contenders[1].name} remain locked in a cross-team duel where every win shifts the title's centre of gravity.`;
   }
-  if (vars.seasonArc === "intra_team_duel" && contenders.length >= 2) {
+  if (vars.seasonArc === "intra_team_duel" && !earlyPhase && contenders.length >= 2) {
     return `The main tension sits inside one garage: ${contenders[0].name} and ${contenders[1].name} share a team, not margin for error.`;
   }
   if (vars.seasonArc === "streak_breakaway" && vars.leaderAfter && vars.gapAfter >= 25) {
     return `${vars.leaderAfter} has turned a direct duel into a breakaway: the streak now matters more than the early balance.`;
   }
+  if (earlyPhase && contenders.length >= 3) {
+    return pickFromBank(
+      [
+        `Far too early to read anything into it: with so few races run, ${names4} are still bunched at the top.`,
+        `The season has barely started and ${names4} share the front; nobody has had time to pull clear yet.`,
+        `No pattern to read just yet: the table is almost blank and ${names4} are level on next to nothing.`,
+        `It is only the opening stretch, so caution: ${names4} lead a championship that hasn't shown its hand.`,
+        `Early rounds, early impressions: ${names4} set the early pace, but it is far too soon to trust it.`,
+      ],
+      rng
+    );
+  }
   if (contenders.length >= 4) {
-    return `The title is properly open: ${joinNames(contenders.slice(0, 4).map((row) => row.name))} remain in a fight with too many plot twists.`;
+    return pickFromBank(
+      [
+        `The title is still up for grabs: ${names4} are all alive this deep into the year and none can shake the rest.`,
+        `Nobody can break clear: ${names4} keep a multi-way fight that swaps leader almost every weekend.`,
+        `The crown has no owner: ${names4} remain in it and every race reshuffles the order.`,
+        `Four in the dance for the title: ${names4} refuse to let the front group go.`,
+        `The championship stays genuinely open: the gap between ${names4} fits inside a single bad afternoon.`,
+        `A heavyweight title scrap: ${names4} share the odds and force a recalculation after every chequered flag.`,
+      ],
+      rng
+    );
   }
   if (contenders.length === 3) {
-    return `This is no longer a simple duel: ${contenders[2].name} has arrived as a third title candidate.`;
+    return pickFromBank(
+      [
+        `No longer a simple duel: ${contenders[2].name} has arrived as a third title candidate and rewrites the maths.`,
+        `The title is now a three-way affair: ${names3} share the real odds with the season well advanced.`,
+        `A third name gatecrashes the fight: ${contenders[2].name} piles pressure on the front two and reopens it.`,
+        `Three suitors for one crown: ${names3} keep the fight alight until further notice.`,
+      ],
+      rng
+    );
   }
   return "";
 };
@@ -794,13 +938,26 @@ const renderRaceInsight = (scenario, vars) => {
   const facts = [];
 
   if (vars.winnerStrategy) {
+    const purePace = vars.winnerStrategyCode === "pure_pace";
     facts.push(
       pickFromBank(
         locale === "es"
+          ? purePace
+            ? [
+                `Aquí no hubo pizarra que valiera: el hueco se abrió a base de ritmo puro, vuelta tras vuelta.`,
+                `Sin artificios en boxes ni jugadas de estrategia: mandó la velocidad pura y dura.`,
+                `Nada de overcuts ni undercuts; la diferencia la marcó el cronómetro, sin más.`,
+              ]
+            : [
+                `Y todo se apoyó en una palanca clara: la estrategia de ${vars.winnerStrategy}, ejecutada sin un solo titubeo.`,
+                `La carta de ${vars.winnerStrategy} fue la que terminó marcando la diferencia en el muro.`,
+                `Por encima del ritmo puro, fue la estrategia de ${vars.winnerStrategy} la que abrió el hueco definitivo.`,
+              ]
+          : purePace
           ? [
-              `Y todo se apoyó en una palanca clara: la estrategia de ${vars.winnerStrategy}, ejecutada sin un solo titubeo.`,
-              `La carta de ${vars.winnerStrategy} fue la que terminó marcando la diferencia en el muro.`,
-              `Por encima del ritmo puro, fue la estrategia de ${vars.winnerStrategy} la que abrió el hueco definitivo.`,
+              `No pit-wall games here: the gap opened on raw pace, lap after lap.`,
+              `No undercuts, no overcuts — sheer speed did all the talking.`,
+              `Nothing clever in the strategy; the stopwatch settled it on pace alone.`,
             ]
           : [
               `And it all hinged on one clear lever: the ${vars.winnerStrategy} strategy, executed without a flinch.`,
@@ -832,18 +989,31 @@ const renderRaceInsight = (scenario, vars) => {
   }
 
   if (vars.fastestLapDriver) {
+    const fastestLapIsWinner = vars.fastestLapDriver === vars.winner;
     facts.push(
       pickFromBank(
         locale === "es"
+          ? fastestLapIsWinner
+            ? [
+                `Y por si fuera poco, {winner} se llevó también la vuelta rápida.`,
+                `Para cerrar el día redondo, suya fue además la vuelta rápida.`,
+                `Remató la faena firmando encima la vuelta rápida.`,
+              ]
+            : [
+                `Como nota al margen, la vuelta rápida se la quedó {fastestLapDriver}.`,
+                `El punto extra de la vuelta rápida cayó del lado de {fastestLapDriver}.`,
+                `{fastestLapDriver} se llevó al menos el premio de la vuelta rápida.`,
+              ]
+          : fastestLapIsWinner
           ? [
-              `Como nota al margen, la vuelta rápida se la quedó {fastestLapDriver}.`,
-              `El punto extra de la vuelta rápida cayó del lado de {fastestLapDriver}.`,
-              `{fastestLapDriver} se llevó el premio de consolación de la vuelta rápida.`,
+              `And for good measure, {winner} grabbed the fastest lap too.`,
+              `Fastest lap as well — the cherry on a flawless afternoon.`,
+              `The fastest lap went their way too, rounding off the perfect day.`,
             ]
           : [
               `As a footnote, fastest lap went the way of {fastestLapDriver}.`,
               `The bonus point for fastest lap landed with {fastestLapDriver}.`,
-              `{fastestLapDriver} pocketed the consolation of fastest lap.`,
+              `{fastestLapDriver} took at least the fastest-lap point.`,
             ],
         rng
       )
@@ -961,13 +1131,51 @@ export const renderRaceNarrative = ({
     text = `${text} ${insight}`;
   }
   if (withContrast && vars.leaderAfter) {
-    const tail = fillTemplate(pickFromBank(CONTRAST_CONNECTORS, rng), vars);
+    const gap = Number(vars.gapAfter) || 0;
+    const bank = gap === 0 ? CONTRAST_TIED : gap <= 6 ? CONTRAST_SLIM : CONTRAST_CONNECTORS;
+    const tail = fillTemplate(pickFromBank(bank, rng), vars);
     text = `${text} ${tail}`;
   }
   return {
     tag: SCENARIO_TAGS[scenario] || SCENARIO_TAGS.control,
     text,
   };
+};
+
+export const renderChampionTitle = ({ champion, team, year, racesToSpare = 0, points = 0, wins = 0, rng }) => {
+  if (!champion) return "";
+  const pick = rng || Math.random;
+  const winsText =
+    locale === "es"
+      ? `${wins} ${wins === 1 ? "victoria" : "victorias"}`
+      : `${wins} ${wins === 1 ? "win" : "wins"}`;
+  const when =
+    racesToSpare > 0
+      ? locale === "es"
+        ? `a falta de ${racesToSpare} ${racesToSpare === 1 ? "carrera" : "carreras"}`
+        : `with ${racesToSpare} ${racesToSpare === 1 ? "race" : "races"} to spare`
+      : locale === "es"
+      ? "en la última cita del año"
+      : "in the final round of the year";
+
+  const templates =
+    locale === "es"
+      ? [
+          `Y con esto, hay campeón del mundo: ${champion} se proclama campeón ${year} ${when}, coronando con ${team} una temporada de ${winsText}.`,
+          `Cae el telón sobre el título: ${champion} amarra matemáticamente el Mundial ${year} ${when}, y lo firma con ${points} puntos en el casillero.`,
+          `Misión cumplida para ${champion}: el Mundial ${year} ya lleva su nombre, sellado ${when} al volante de ${team}.`,
+          `No hará falta esperar más: ${champion} es campeón del mundo ${year}, con la corona atada ${when} y ${winsText} en la mochila.`,
+          `Se acabó la pelea por el cetro: ${champion} conquista para ${team} el Mundial ${year} ${when}, premio a una campaña de ${points} puntos.`,
+        ]
+      : [
+          `And there it is — a world champion: ${champion} is crowned ${year} champion ${when}, capping a ${winsText} season with ${team}.`,
+          `The title curtain falls: ${champion} clinches the ${year} World Championship ${when}, sealing it with ${points} points on the board.`,
+          `Mission accomplished for ${champion}: the ${year} crown now carries their name, secured ${when} at the wheel of ${team}.`,
+          `No need to wait any longer: ${champion} is ${year} world champion, the title locked up ${when} with ${winsText} in the bag.`,
+          `The fight for the crown is over: ${champion} takes the ${year} World Championship for ${team} ${when}, reward for a ${points}-point campaign.`,
+        ];
+
+  return pickFromBank(templates, pick);
 };
 
 export const renderSeasonIntro = ({ year, teamCount, driverCount, raceCount, rng, arcLabel }) => {

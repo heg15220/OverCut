@@ -1,6 +1,7 @@
 import {
   classifyRaceScenario,
   pickDecisiveMoment,
+  renderChampionTitle,
   renderLastRacePreview,
   renderRaceNarrative,
   renderSeasonIntro,
@@ -579,6 +580,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
 
   const teamMomentum = new Map(grid.map((team) => [team.name, 0]));
   const history = [];
+  let championAnnounced = false;
 
   const raceResults = races.map((race, raceIndex) => {
     const originalRaceName = race.name;
@@ -797,6 +799,25 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
     const remainingRaces = Math.max(0, races.length - raceIndex - 1);
     const liveTitleContenders =
       remainingRaces > 0 ? titleContenders(standingsAfter, remainingRaces * maxRacePoints).slice(0, 5) : [];
+    // The drivers' title is sealed once the leader is out of reach (gap bigger
+    // than the points still on the table) or simply after the final round.
+    const titleClinched =
+      !championAnnounced &&
+      !!leaderAfter &&
+      (remainingRaces === 0 || gapAfter > remainingRaces * maxRacePoints);
+    let championNarrative = "";
+    if (titleClinched) {
+      championAnnounced = true;
+      championNarrative = renderChampionTitle({
+        champion: leaderAfter.name,
+        team: leaderAfter.team,
+        year: seasonYear,
+        racesToSpare: remainingRaces,
+        points: leaderAfter.points,
+        wins: leaderAfter.wins,
+        rng,
+      });
+    }
     const projectedHistory = [...history, { winner: winner.driver.name, teamWinner: winner.team.name }];
     const raceArcAfter = deriveChampionshipArc({
       driverStandings,
@@ -843,6 +864,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         winnerPosition: winner.position,
         winnerPoints: winner.points,
         winnerStrategy: winner.strategy.label,
+        winnerStrategyCode: winner.strategy.code,
         fastestLapDriver: fastestLapResult?.driver.name || "",
         fastestLapTeam: fastestLapResult?.team.name || "",
         midfieldDriver: midfieldHighlight?.driver || "",
@@ -857,6 +879,8 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         titleContenders: liveTitleContenders,
         seasonArc: raceArcAfter.type,
         dominantTeam: raceArcAfter.teamName || "",
+        round: raceIndex + 1,
+        raceCount: races.length,
         scoringSystem: scoringSystem.years,
         decisive: decisiveMoment,
         previousWinner: previousWinner || "",
@@ -879,6 +903,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
       profile,
       conditions,
       narrative,
+      championNarrative,
       decisiveMoment,
       midfieldHighlight,
       midfieldHighlights,

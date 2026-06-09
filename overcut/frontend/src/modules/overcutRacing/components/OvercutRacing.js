@@ -547,6 +547,13 @@ const RaceResultStage = ({ race, isLast, onNext }) => (
     <p className="ocr-race-result-text">{race.narrative.text}</p>
     <em className="ocr-race-result-decisive">{race.decisiveMoment}</em>
 
+    {race.championNarrative && (
+      <div className="ocr-champion-crowned">
+        <span>{strings.championCrowned}</span>
+        <p>{race.championNarrative}</p>
+      </div>
+    )}
+
     <div className="ocr-race-winner-card">
       {race.winner.helmetColor && (
         <HelmetIcon color={race.winner.helmetColor} size={56} />
