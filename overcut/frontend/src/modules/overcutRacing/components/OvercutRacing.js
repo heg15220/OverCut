@@ -16,12 +16,23 @@ const SIMULATION_DURATION_MS = 2500;
 
 const HELMET_COLORS = [
   "#0a2d52", "#123b66", "#1f568b", "#2c6aa3", "#4d7fae",
-  "#7b96b7", "#a8b8cc", "#d8a11d", "#f0bf35", "#f5d56d",
-  "#f7e6a9", "#f5f1e8", "#6b5b2a", "#8b6b12", "#b38d2c",
-  "#caa74a", "#3b3f48", "#5a606b", "#7b8088", "#9aa1aa",
-  "#111827", "#e8e1cf",
+  "#7b96b7", "#5f7592", "#d8a11d", "#b8840c", "#9b6b00",
+  "#80621f", "#6b5b2a", "#8b6b12", "#b38d2c", "#8a5f18",
+  "#3b3f48", "#5a606b", "#6b7280", "#4b5563", "#111827",
+  "#7f1d1d", "#14532d", "#581c87",
 ];
-const OCR_NEUTRAL_COLOR = "#f0bf35";
+const OCR_NEUTRAL_COLOR = "#d8a11d";
+
+const normalizeVisualColor = (color, fallback = "#0a2d52") => {
+  if (!/^#[0-9a-f]{6}$/i.test(color || "")) {
+    return fallback;
+  }
+  const red = parseInt(color.slice(1, 3), 16);
+  const green = parseInt(color.slice(3, 5), 16);
+  const blue = parseInt(color.slice(5, 7), 16);
+  const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+  return luminance > 0.68 ? fallback : color;
+};
 
 const HelmetIcon = ({ color, size = 28 }) => (
   <span
@@ -30,7 +41,7 @@ const HelmetIcon = ({ color, size = 28 }) => (
     style={{
       width: size,
       height: size,
-      backgroundColor: color,
+      backgroundColor: normalizeVisualColor(color),
       WebkitMaskImage: `url(${racingHelmetUrl})`,
       maskImage: `url(${racingHelmetUrl})`,
     }}
@@ -40,7 +51,7 @@ const HelmetIcon = ({ color, size = 28 }) => (
 const pickHelmetColor = (usedColors) => {
   const available = HELMET_COLORS.filter((color) => !usedColors.has(color));
   const pool = available.length ? available : HELMET_COLORS;
-  return pool[Math.floor(Math.random() * pool.length)];
+  return normalizeVisualColor(pool[Math.floor(Math.random() * pool.length)]);
 };
 
 const normalizeName = (name) =>
@@ -258,7 +269,7 @@ const GridBoard = ({ teams, drivers, lastRoll, pendingDriverAssignment, onAssign
           <div className={`ocr-garage ${team ? "is-filled" : ""} ${justAddedTeam ? "is-new" : ""}`} key={index}>
             <div
               className={`ocr-garage-team ${team ? "is-filled" : ""}`}
-              style={team ? { "--team-color": team.color } : undefined}
+              style={team ? { "--team-color": normalizeVisualColor(team.color, "#0f4c81") } : undefined}
             >
               <span>{index + 1}</span>
               <b>{team?.name || strings.teamPlaceholder}</b>
@@ -296,7 +307,7 @@ const GridBoard = ({ teams, drivers, lastRoll, pendingDriverAssignment, onAssign
                     tabIndex={isTarget ? 0 : undefined}
                     onClick={handleClick}
                     onKeyDown={handleKeyDown}
-                    style={driver?.helmetColor ? { "--helmet-color": driver.helmetColor } : undefined}
+                    style={driver?.helmetColor ? { "--helmet-color": normalizeVisualColor(driver.helmetColor) } : undefined}
                   >
                     {driver ? <HelmetIcon color={driver.helmetColor} size={26} /> : null}
                     <span>{driver ? driver.rating : "--"}</span>
@@ -442,7 +453,7 @@ const StandingsTable = ({ title, rows, compact }) => {
             <tr key={row.id || row.name} style={{ "--points-share": `${(row.points / maxPoints) * 100}%` }}>
               <th>{index + 1}</th>
               <td>
-                <span style={{ "--team-color": row.color || OCR_NEUTRAL_COLOR }} />
+                <span style={{ "--team-color": normalizeVisualColor(row.color || OCR_NEUTRAL_COLOR, OCR_NEUTRAL_COLOR) }} />
                 <span className="ocr-standings-driver">
                   {row.helmetColor && <HelmetIcon color={row.helmetColor} size={20} />}
                   {row.name}
@@ -468,6 +479,11 @@ const SeasonIntro = ({ championship, onStart }) => (
       <h2>{championship.seasonYear}</h2>
     </div>
     <p className="ocr-season-intro-text">{championship.intro}</p>
+    <div className="ocr-scoring-card">
+      <span>{strings.scoringSystem}</span>
+      <b>{championship.scoringSystem.years}</b>
+      <p>{championship.scoringSystem.description}</p>
+    </div>
     <div className="ocr-season-intro-meta">
       <div>
         <span>{strings.teamsCounter}</span>
@@ -507,6 +523,9 @@ const RaceSimulating = ({ race, durationMs, onComplete }) => {
         <h2>{race.name}</h2>
         {race.conditions?.weather && <small>{race.conditions.weather}</small>}
       </div>
+      {race.preRaceNarrative && (
+        <p className="ocr-pre-race-narrative">{race.preRaceNarrative}</p>
+      )}
       <div className="ocr-sim-bar" style={{ "--sim-duration": `${durationMs}ms` }}>
         <div className="ocr-sim-bar-fill" />
         <b>{strings.simulating}</b>
@@ -516,7 +535,10 @@ const RaceSimulating = ({ race, durationMs, onComplete }) => {
 };
 
 const RaceResultStage = ({ race, isLast, onNext }) => (
-  <section className="ocr-race-result" style={{ "--winner-color": race.winner.color }}>
+  <section
+    className={`ocr-race-result ocr-scenario-${race.scenario}`}
+    style={{ "--winner-color": normalizeVisualColor(race.winner.color, "#0f4c81") }}
+  >
     <header className="ocr-race-result-head">
       <span>{strings.round(race.round)}</span>
       <h2>{race.name}</h2>
@@ -544,7 +566,7 @@ const RaceResultStage = ({ race, isLast, onNext }) => (
       {race.top10.map((row) => (
         <li
           key={`${row.position}-${row.driver}`}
-          style={{ "--row-color": row.color || OCR_NEUTRAL_COLOR }}
+          style={{ "--row-color": normalizeVisualColor(row.color || OCR_NEUTRAL_COLOR, OCR_NEUTRAL_COLOR) }}
           className={row.status === "DNF" ? "is-dnf" : undefined}
         >
           <b>{row.position}</b>
@@ -556,7 +578,7 @@ const RaceResultStage = ({ race, isLast, onNext }) => (
           )}
           <div>
             <strong>{row.driver}</strong>
-            <small>{row.team}</small>
+            <small>{row.team}{row.fastestLap ? ` · ${strings.scoringFastestLap}` : ""}</small>
           </div>
           <em>{row.points}</em>
         </li>
@@ -587,7 +609,7 @@ const StandingsTransition = ({ race, isLast, onContinue }) => (
           {race.driverStandingsSnapshot.map((row, index) => (
             <li
               key={row.id || row.name}
-              style={{ "--row-color": row.color || OCR_NEUTRAL_COLOR }}
+              style={{ "--row-color": normalizeVisualColor(row.color || OCR_NEUTRAL_COLOR, OCR_NEUTRAL_COLOR) }}
             >
               <b>{index + 1}</b>
               <span className="ocr-standings-color" aria-hidden="true" />
@@ -607,7 +629,7 @@ const StandingsTransition = ({ race, isLast, onContinue }) => (
           {race.constructorStandingsSnapshot.map((row, index) => (
             <li
               key={row.id || row.name}
-              style={{ "--row-color": row.color || OCR_NEUTRAL_COLOR }}
+              style={{ "--row-color": normalizeVisualColor(row.color || OCR_NEUTRAL_COLOR, OCR_NEUTRAL_COLOR) }}
             >
               <b>{index + 1}</b>
               <span className="ocr-standings-color" aria-hidden="true" />
@@ -686,7 +708,11 @@ const SeasonSchedule = ({ races, currentRaceIndex, seasonStage }) => (
           <li
             key={`${race.round}-${race.name}`}
             className={`ocr-schedule-item ${className}`}
-            style={completed && race.winner ? { "--row-color": race.winner.color } : undefined}
+            style={
+              completed && race.winner
+                ? { "--row-color": normalizeVisualColor(race.winner.color, OCR_NEUTRAL_COLOR) }
+                : undefined
+            }
           >
             <b>{`R${race.round}`}</b>
             <div>
@@ -760,6 +786,11 @@ const OvercutRacing = () => {
         seasonStage,
         currentRound: championship?.races?.[currentRaceIndex]?.round,
         currentRace: championship?.races?.[currentRaceIndex]?.name,
+        preRaceNarrative: championship?.races?.[currentRaceIndex]?.preRaceNarrative,
+        finalRoundContenders: championship?.races?.[currentRaceIndex]?.finalRoundContenders,
+        seasonArc: championship?.seasonArc?.type,
+        scoringSystem: championship?.scoringSystem?.years,
+        scoringSystemDetail: championship?.scoringSystem?.description,
         champion: championship?.champion?.name,
         constructorsChampion: championship?.constructorsChampion?.name,
         calendarSource,

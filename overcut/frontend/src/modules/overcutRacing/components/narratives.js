@@ -10,6 +10,11 @@ const pickFromBank = (bank, rng) => {
 
 const pickByLocale = (bankByLocale) => bankByLocale[locale] || bankByLocale.es;
 
+const ordinal = (position) => {
+  if (!position) return "";
+  return locale === "es" ? `${position}.º` : `P${position}`;
+};
+
 const SEASON_INTRO_TEMPLATES_BY_LOCALE = {
   es: [
     "Arranca la temporada {year}. {teamCount} escuderías y {driverCount} pilotos persiguen el cetro mundial a lo largo de {raceCount} grandes premios.",
@@ -54,7 +59,7 @@ const SEASON_INTRO_TEMPLATES_BY_LOCALE = {
 const DECISIVE_MOMENTS_BY_LOCALE = {
   es: {
     dominant: [
-      "Pole, vuelta rápida y victoria en pista limpia, sin un solo error.",
+      "Ritmo de referencia y victoria en pista limpia, sin un solo error.",
       "Marcó el tono en la primera vuelta y no soltó el liderato hasta meta.",
       "Ningún rival pudo acercarse a tres décimas durante toda la carrera.",
       "Convirtió el trazado en un Gran Premio a un coche: diferencia desde la salida.",
@@ -64,12 +69,12 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
     ],
     upset: [
       "Un undercut imposible cambió la carrera en una sola vuelta.",
-      "Aguantó tres ataques en la última vuelta para llevarse el triunfo.",
-      "Subió desde la sexta fila a un fin de semana de leyenda.",
+      "Aguantó la presión final para llevarse el triunfo.",
+      "Subió desde un perfil de zona media a un fin de semana de leyenda.",
       "Su ritmo en los stints largos descolocó a los favoritos.",
       "Compromisos de neumáticos arriesgados que salieron perfectos.",
       "Aprovechó cada error ajeno con frialdad de veterano.",
-      "Su pit-stop fue cuatro décimas más rápido de lo que cualquiera podía pedirle.",
+      "Su parada llegó en el momento exacto y cambió por completo la lectura de carrera.",
     ],
     chaos: [
       "Tres coches fuera en diez vueltas reescribieron la clasificación.",
@@ -79,8 +84,8 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
       "Una segunda salida con caos repartió cartas nuevas a media carrera.",
     ],
     safety_car: [
-      "El safety car neutralizó la ventaja construida durante toda la carrera.",
-      "Una salida tras safety car decidió quién pasaba por boxes con tiempo libre.",
+      "El coche de seguridad neutralizó la ventaja construida durante toda la carrera.",
+      "Una salida tras coche de seguridad decidió quién pasaba por boxes con tiempo libre.",
       "El re-arranque a falta de quince vueltas repartió cartas nuevas.",
       "La banda amarilla tardía hizo de la estrategia un juego de tirar la moneda.",
     ],
@@ -114,14 +119,14 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
       "Sin sobresaltos, sin riesgos, sin necesidad de exhibir más de la cuenta.",
     ],
     photo_finish: [
-      "Última vuelta a degollar: dos décimas separaron oro y plata.",
-      "La curva final escribió la victoria por menos de medio coche.",
-      "Foto de meta, cronómetro decidiendo y un suspiro de paddock al confirmar el orden.",
+      "Final a degüello: el margen entre oro y plata fue mínimo.",
+      "El último sector escribió una victoria decidida por detalles.",
+      "Foto de meta, tensión en el muro y un suspiro de paddock al confirmar el orden.",
     ],
     team_double: [
       "Doblete de la escudería con un ritmo simbiótico de los dos coches.",
       "Los dos pilotos del equipo gestionaron el cierre como uno solo.",
-      "Strategia de equipo perfectamente sincronizada para amarrar 1-2.",
+      "Estrategia de equipo perfectamente sincronizada para amarrar el 1-2.",
     ],
     strategy: [
       "El overcut en la primera ronda de paradas fue el golpe definitivo.",
@@ -147,7 +152,7 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
   },
   en: {
     dominant: [
-      "Pole, fastest lap and a flawless win on a clear track.",
+      "Reference pace and a flawless win on a clear track.",
       "Set the tone on lap one and never let the lead go until the flag.",
       "No rival could get within three tenths the whole race.",
       "Turned the venue into a one-car grand prix from the lights out.",
@@ -246,20 +251,20 @@ const CATEGORY_TEMPLATES_BY_LOCALE = {
       "Recital de {winner} en {race}. {team} firma una victoria sin oposición real. {decisive}",
       "{race}: {winner} sale, lidera y gana sin un solo titular incómodo para {team}. {decisive}",
       "Pista propia para {winner} en {race}. {team} pasea por la cuadrícula. {decisive}",
-      "Sin sorpresas en {race}: {winner} convierte la pole en victoria como dictaba el guion. {decisive}",
-      "Clase magistral de {winner} en {race}: {team} se va con la victoria y la vuelta rápida. {decisive}",
+      "Sin sorpresas en {race}: {winner} convierte el mejor ritmo en victoria como dictaba el guion. {decisive}",
+      "Clase magistral de {winner} en {race}: {team} se va con una victoria de alto valor. {decisive}",
       "{race} cae del lado lógico: {winner} para {team}, en el final del día sigue todo como debía. {decisive}",
       "Dominio puro de {winner} en {race}. {team} maneja el escaparate de {weather} sin un solo paso en falso. {decisive}",
       "{race} sin emoción al frente: {winner} controla todos los relojes y entrega a {team} otra victoria cómoda. {decisive}",
       "Cátedra de {winner} en {race}. {team} ejecuta una carrera de manual y se lleva todo en juego. {decisive}",
-      "{race}: máximo control del binomio {winner} / {team}, sin un solo momento de duda durante 305 km. {decisive}",
+      "{race}: máximo control del binomio {winner} / {team}, sin un solo momento de duda en las fases clave. {decisive}",
       "Lección de paddock en {race}: {winner} marca ritmo, neumático y línea. {decisive}",
       "{winner} encadena vuelta perfecta tras vuelta perfecta en {race} para regalarle a {team} un triunfo de manual. {decisive}",
     ],
     upset: [
       "Sorpresa mayúscula en {race}: {winner} arrebata la victoria desde fuera del grupo favorito. {decisive}",
       "{race} se cae del lado imprevisto. {winner} regala a {team} un triunfo que pocos imaginaban en clasificación. {decisive}",
-      "Bombazo en {race}: {winner} convierte la carrera en pintada propia y deja a los favoritos sin respuesta. {decisive}",
+      "Bombazo en {race}: {winner} lee mejor la carrera y deja a los favoritos sin respuesta. {decisive}",
       "{race} entrega un giro inesperado: {winner} aparece donde nadie le esperaba y se lleva la victoria para {team}. {decisive}",
       "Resultado inédito en {race}. {winner} y {team} firman un capítulo digno de antología del mundial. {decisive}",
       "Carrera de cuento de hadas en {race}: {winner} cruza la línea primero contra todo pronóstico. {decisive}",
@@ -293,29 +298,29 @@ const CATEGORY_TEMPLATES_BY_LOCALE = {
       "{race} fue un juego de supervivencia. {winner} jugó mejor que nadie y le regaló a {team} 25 puntos de oro. {decisive}",
     ],
     safety_car: [
-      "El safety car decidió {race}. {winner} aprovechó el reinicio y le entregó a {team} una victoria táctica. {decisive}",
-      "{race} cambió tras el safety car. {winner} respondió mejor que nadie y {team} se llevó el día. {decisive}",
-      "Ventaja borrada por el safety car en {race}, pero {winner} reconstruyó la diferencia y {team} firmó la victoria. {decisive}",
+      "El coche de seguridad decidió {race}. {winner} aprovechó el reinicio y le entregó a {team} una victoria táctica. {decisive}",
+      "{race} cambió tras el coche de seguridad. {winner} respondió mejor que nadie y {team} se llevó el día. {decisive}",
+      "Ventaja borrada por el coche de seguridad en {race}, pero {winner} reconstruyó la diferencia y {team} firmó la victoria. {decisive}",
       "Coche de seguridad en el momento más caliente de {race}: {winner} respondió, {team} celebró. {decisive}",
-      "{winner} dijo gracias al safety car en {race} y le regaló a {team} una victoria que parecía cuesta arriba. {decisive}",
-      "Carrera reseteada por el safety car, victoria reconstruida por {winner}. {team} suma fuerte en {race}. {decisive}",
-      "La neutralización tardía en {race} ofreció una baraja nueva y {winner} barajó mejor que nadie. {decisive}",
+      "{winner} aprovechó el coche de seguridad en {race} y le regaló a {team} una victoria que parecía cuesta arriba. {decisive}",
+      "Carrera reseteada por el coche de seguridad, victoria reconstruida por {winner}. {team} suma fuerte en {race}. {decisive}",
+      "La neutralización tardía en {race} reordenó las opciones y {winner} eligió el momento exacto para atacar. {decisive}",
       "Reinicio caliente en {race}: {winner} ejecutó como un veterano y {team} recogió las recompensas. {decisive}",
-      "Un safety car a falta de quince vueltas comprimió el grupo en {race} y {winner} respondió con un ataque inmediato. {decisive}",
+      "Un coche de seguridad a falta de quince vueltas comprimió el grupo en {race} y {winner} respondió con un ataque inmediato. {decisive}",
     ],
     leader_dnf: [
       "Golpe brutal al campeonato en {race}: el líder se queda sin coche y {winner} hereda la victoria para {team}. {decisive}",
       "El puntero de la tabla se rompe en {race}. {winner} aparece para llevarse el botín para {team}. {decisive}",
       "{race} cambia el mundial: abandono del líder y {winner} cosecha 25 puntos de oro para {team}. {decisive}",
       "Drama en {race}: el coche del líder dice basta y {winner} convierte la suerte en victoria para {team}. {decisive}",
-      "El líder se queda sin tirar en {race}. {winner} no perdona y {team} se queda con la victoria. {decisive}",
+      "El líder se queda fuera de combate en {race}. {winner} no perdona y {team} se queda con la victoria. {decisive}",
       "Cataclismo para el primero del mundial en {race}. {winner} la heredó pero la peleó. {team} se va con todo. {decisive}",
       "{race} dejó al líder con cara larga. {winner} respondió como un campeón y {team} aprovechó la oportunidad. {decisive}",
     ],
     comeback: [
       "Remontada espectacular de {winner} en {race}: {team} gana una carrera que parecía perdida. {decisive}",
       "{winner} subió desde el fondo del grupo en {race} y firmó un triunfo épico para {team}. {decisive}",
-      "Carrera de remontada en {race}. {winner} adelantamientos de los que cuentan; {team} brinda con la victoria. {decisive}",
+      "Carrera de remontada en {race}. {winner} firma adelantamientos de los que cuentan y {team} brinda con la victoria. {decisive}",
       "{race} se hizo cuesta arriba para {winner}, que la convirtió en cuesta abajo a base de adelantamientos. {team} celebra. {decisive}",
       "Maratón de adelantamientos en {race}. {winner} la peleó vuelta a vuelta y {team} se la quedó. {decisive}",
       "Remontada de campeón en {race}: {winner} subió escalón a escalón hasta dejarle la victoria a {team}. {decisive}",
@@ -332,12 +337,12 @@ const CATEGORY_TEMPLATES_BY_LOCALE = {
     ],
     photo_finish: [
       "Final de foto en {race}: {winner} cruza la meta apenas por delante para meter el oro en casa de {team}. {decisive}",
-      "{race} se decide en la última vuelta. {winner} aguanta el ataque y le entrega a {team} un triunfo de épico. {decisive}",
-      "Última vuelta de infarto en {race}. {winner} firma una de las victorias más estrechas de la temporada. {decisive}",
-      "{race} se decide al milímetro: {winner} adelanta al primero a falta de tres curvas. {team} se la queda. {decisive}",
-      "Final de carrera para enmarcar en {race}. {winner} y {team} se llevan el triunfo por menos de medio coche. {decisive}",
-      "Duelo a brazo partido hasta la última recta en {race}. {winner} prevalece, {team} estalla en boxes. {decisive}",
-      "Carrera de las que se cuentan: {winner} se lleva {race} por dos décimas y le regala a {team} una victoria histórica. {decisive}",
+      "{race} se decide en el tramo final. {winner} aguanta el ataque y le entrega a {team} un triunfo épico. {decisive}",
+      "Tramo final de infarto en {race}. {winner} firma una de las victorias más estrechas de la temporada. {decisive}",
+      "{race} se decide por detalles: {winner} encuentra el hueco decisivo y {team} se la queda. {decisive}",
+      "Final de carrera para enmarcar en {race}. {winner} y {team} se llevan un triunfo decidido por muy poco. {decisive}",
+      "Duelo a brazo partido hasta el cierre en {race}. {winner} prevalece y {team} estalla en boxes. {decisive}",
+      "Carrera de las que se cuentan: {winner} se lleva {race} por margen mínimo y le regala a {team} una victoria histórica. {decisive}",
     ],
     team_double: [
       "Doblete de {team} en {race}: {winner} adelante, {second} a continuación. {decisive}",
@@ -373,13 +378,13 @@ const CATEGORY_TEMPLATES_BY_LOCALE = {
       "A {winner} masterclass at {race}. {team} bag a win with no real opposition. {decisive}",
       "{race}: {winner} starts, leads and wins without a single awkward headline for {team}. {decisive}",
       "Home turf for {winner} at {race}. {team} stroll through the grid. {decisive}",
-      "No surprises at {race}: {winner} turns pole into victory, just as the script demanded. {decisive}",
+      "No surprises at {race}: {winner} turns the strongest pace into victory, just as the script demanded. {decisive}",
       "Masterclass from {winner} at {race}: {team} leave with the win and the fastest lap. {decisive}",
       "{race} falls on the logical side: {winner} for {team}, and at the end of the day everything stays as it should. {decisive}",
       "Pure dominance from {winner} at {race}. {team} handle the {weather} showcase without a single misstep. {decisive}",
       "{race} with no drama at the front: {winner} controls every clock and hands {team} another comfortable win. {decisive}",
       "{winner}'s lecture at {race}. {team} run a textbook race and take everything on offer. {decisive}",
-      "{race}: total control of the {winner} / {team} pairing, never a moment's doubt for 305 km. {decisive}",
+      "{race}: total control of the {winner} / {team} pairing, never a moment's doubt in the key phases. {decisive}",
       "Paddock lesson at {race}: {winner} sets pace, tyre and line. {decisive}",
       "{winner} strings together perfect lap after perfect lap at {race} to gift {team} a textbook win. {decisive}",
     ],
@@ -522,8 +527,8 @@ const SCENARIO_TAGS_BY_LOCALE = {
     upset: "Sorpresa",
     wet_master: "Lluvia",
     chaos: "Carrera rota",
-    safety_car: "Safety car",
-    leader_dnf: "Golpe al lider",
+    safety_car: "Coche de seguridad",
+    leader_dnf: "Golpe al líder",
     comeback: "Remontada",
     streak: "Racha",
     photo_finish: "Foto finish",
@@ -552,6 +557,260 @@ const DECISIVE_MOMENTS = pickByLocale(DECISIVE_MOMENTS_BY_LOCALE);
 const CATEGORY_TEMPLATES = pickByLocale(CATEGORY_TEMPLATES_BY_LOCALE);
 const CONTRAST_CONNECTORS = pickByLocale(CONTRAST_CONNECTORS_BY_LOCALE);
 const SCENARIO_TAGS = pickByLocale(SCENARIO_TAGS_BY_LOCALE);
+
+const renderMidfieldInsight = (vars) => {
+  if (!vars.midfieldDriver || !vars.midfieldTeam) {
+    return "";
+  }
+
+  const position = ordinal(vars.midfieldPosition);
+  const pointsText =
+    vars.midfieldPoints > 0
+      ? locale === "es"
+        ? `sumó ${vars.midfieldPoints} ${vars.midfieldPoints === 1 ? "punto" : "puntos"}`
+        : `scored ${vars.midfieldPoints} ${vars.midfieldPoints === 1 ? "point" : "points"}`
+      : locale === "es"
+      ? "rozó la zona de puntos"
+      : "knocked on the door of the points";
+  const gainText =
+    vars.midfieldGain > 0
+      ? locale === "es"
+        ? `rindió ${vars.midfieldGain} puestos por encima de su ranking base`
+        : `ran ${vars.midfieldGain} places above baseline`
+      : locale === "es"
+      ? "maximizó un coche de zona media"
+      : "maximised a midfield car";
+  const fastestLapText = vars.midfieldFastestLap
+    ? locale === "es"
+      ? " y además se llevó la vuelta rápida"
+      : " and also took fastest lap"
+    : "";
+
+  if (locale === "es") {
+    return `En la zona media, {midfieldDriver} también merece foco: terminó ${position} para {midfieldTeam}, ${pointsText} y ${gainText}${fastestLapText}.`;
+  }
+
+  return `In the midfield, {midfieldDriver} also deserves attention: ${position} for {midfieldTeam}, ${pointsText}, and ${gainText}${fastestLapText}.`;
+};
+
+const joinNames = (names) => {
+  const filtered = names.filter(Boolean);
+  if (filtered.length <= 1) return filtered[0] || "";
+  const last = filtered[filtered.length - 1];
+  const rest = filtered.slice(0, -1).join(", ");
+  return locale === "es" ? `${rest} y ${last}` : `${rest} and ${last}`;
+};
+
+const describeMidfieldHighlight = (highlight) => {
+  const position = ordinal(highlight.position);
+  const pointsText =
+    highlight.points > 0
+      ? locale === "es"
+        ? `${highlight.points} ${highlight.points === 1 ? "punto" : "puntos"}`
+        : `${highlight.points} ${highlight.points === 1 ? "point" : "points"}`
+      : locale === "es"
+      ? "a las puertas de los puntos"
+      : "just outside the points";
+  const gain =
+    highlight.overPerformance > 0
+      ? `+${highlight.overPerformance}`
+      : locale === "es"
+      ? "coche al limite"
+      : "car on the limit";
+  return `${highlight.driver} (${highlight.team}) ${position}, ${pointsText}, ${gain}`;
+};
+
+const renderMidfieldInsights = (vars) => {
+  const highlights = Array.isArray(vars.midfieldHighlights)
+    ? vars.midfieldHighlights.filter((highlight) => highlight?.driver && highlight?.team)
+    : [];
+
+  if (!highlights.length) {
+    return renderMidfieldInsight(vars);
+  }
+
+  if (highlights.length >= 2) {
+    const names = joinNames(highlights.map((highlight) => highlight.driver));
+    const teamSpread = new Set(highlights.map((highlight) => highlight.team)).size;
+    const fastest = highlights.find((highlight) => highlight.fastestLap);
+    const details = highlights.map(describeMidfieldHighlight).join("; ");
+    const templates =
+      locale === "es"
+        ? [
+            `La zona media no tuvo un solo protagonista: ${names} metieron a sus equipos en una carrera que normalmente no les pertenecia. ${details}.`,
+            `Detras del podio tambien hubo carrera: ${names} sostuvieron una pelea de garaje contra garaje que cambio el reparto menor de puntos.`,
+            `La batalla secundaria fue de las buenas: ${names} convirtieron la zona media en una carrera dentro de la carrera, con ${teamSpread} equipos distintos pescando rendimiento real.`,
+            `No todo paso delante: ${names} firmaron una actuacion coral de zona media y dejaron puntos que pueden pesar mas adelante.`,
+          ]
+        : [
+            `The midfield had more than one story: ${names} put their teams into a race that was not supposed to belong to them. ${details}.`,
+            `Behind the podium there was a proper race too: ${names} made the midfield a garage-to-garage fight.`,
+            `The secondary battle mattered: ${names} turned the midfield into a race within the race, with ${teamSpread} teams finding real performance.`,
+            `It was not all about the front: ${names} delivered a collective midfield result that may matter later.`,
+          ];
+    const fastestTail = fastest
+      ? locale === "es"
+        ? ` ${fastest.driver} incluso se quedo con la vuelta rapida.`
+        : ` ${fastest.driver} even took fastest lap.`
+      : "";
+    return `${pickFromBank(templates, vars.rng || Math.random)}${fastestTail}`;
+  }
+
+  const highlight = highlights[0];
+  const position = ordinal(highlight.position);
+  const pointsText =
+    highlight.points > 0
+      ? locale === "es"
+        ? `sumo ${highlight.points} ${highlight.points === 1 ? "punto" : "puntos"}`
+        : `scored ${highlight.points} ${highlight.points === 1 ? "point" : "points"}`
+      : locale === "es"
+      ? "rozo la zona de puntos"
+      : "knocked on the door of the points";
+  const gainText =
+    highlight.overPerformance > 0
+      ? locale === "es"
+        ? `gano ${highlight.overPerformance} posiciones respecto a su expectativa real`
+        : `ran ${highlight.overPerformance} places above expectation`
+      : locale === "es"
+      ? "maximizo un coche de zona media"
+      : "maximised a midfield car";
+  const strategyText = highlight.strategy
+    ? locale === "es"
+      ? ` con ${highlight.strategy}`
+      : ` on ${highlight.strategy}`
+    : "";
+  const fastestLapText = highlight.fastestLap
+    ? locale === "es"
+      ? " y ademas se llevo la vuelta rapida"
+      : " and also took fastest lap"
+    : "";
+  const templates =
+    locale === "es"
+      ? [
+          `${highlight.driver} tambien dejo una carrera seria para ${highlight.team}: ${position}, ${pointsText}, ${gainText}${strategyText}${fastestLapText}.`,
+          `En la pelea menos visible, ${highlight.driver} puso a ${highlight.team} donde no era evidente: ${position}, ${pointsText} y una ejecucion limpia${fastestLapText}.`,
+          `${highlight.team} encontro oxigeno con ${highlight.driver}: acabo ${position}, ${pointsText} y sostuvo ritmo de puntos cuando la carrera se rompio por delante.`,
+          `La actuacion de zona media fue ${highlight.driver}: sin camaras encima, termino ${position} y ${pointsText}, con una lectura de carrera por encima del coche.`,
+        ]
+      : [
+          `${highlight.driver} also delivered a serious race for ${highlight.team}: ${position}, ${pointsText}, ${gainText}${strategyText}${fastestLapText}.`,
+          `In the less visible fight, ${highlight.driver} put ${highlight.team} somewhere unexpected: ${position}, ${pointsText}, clean execution${fastestLapText}.`,
+          `${highlight.team} found oxygen through ${highlight.driver}: ${position}, ${pointsText}, and points-level pace when the race broke ahead.`,
+          `The midfield standout was ${highlight.driver}: away from the cameras, ${position}, ${pointsText}, and a race read above the car.`,
+        ];
+
+  return pickFromBank(templates, vars.rng || Math.random);
+};
+
+const renderChampionshipInsight = (vars) => {
+  const contenders = Array.isArray(vars.titleContenders) ? vars.titleContenders : [];
+  if (locale === "es") {
+    if (vars.seasonArc === "driver_domination" && vars.leaderAfter && vars.gapAfter >= 35) {
+      return `${vars.leaderAfter} esta convirtiendo el mundial en una demolicion: la ventaja ya no parece coyuntural, parece estructura.`;
+    }
+    if (vars.seasonArc === "team_domination" && vars.dominantTeam) {
+      return `${vars.dominantTeam} esta jugando otro campeonato: cuando no gana, aun suele colocar dos coches arriba.`;
+    }
+    if (vars.seasonArc === "cross_team_duel" && contenders.length >= 2) {
+      return `${contenders[0].name} y ${contenders[1].name} siguen en un duelo de equipos distintos donde cada victoria cambia el peso politico del mundial.`;
+    }
+    if (vars.seasonArc === "intra_team_duel" && contenders.length >= 2) {
+      return `La tension principal esta dentro del mismo garaje: ${contenders[0].name} y ${contenders[1].name} comparten equipo, pero no margen de error.`;
+    }
+    if (vars.seasonArc === "streak_breakaway" && vars.leaderAfter && vars.gapAfter >= 25) {
+      return `${vars.leaderAfter} ha convertido un duelo directo en una escapada: la racha empieza a pesar mas que la igualdad inicial.`;
+    }
+    if (contenders.length >= 4) {
+      return `El mundial se abre de verdad: ${joinNames(contenders.slice(0, 4).map((row) => row.name))} siguen en una pelea con demasiados cambios de guion.`;
+    }
+    if (contenders.length === 3) {
+      return `Ya no es un duelo simple: ${contenders[2].name} se ha metido como tercer candidato y obliga a recalcular el campeonato.`;
+    }
+    return "";
+  }
+
+  if (vars.seasonArc === "driver_domination" && vars.leaderAfter && vars.gapAfter >= 35) {
+    return `${vars.leaderAfter} is turning the championship into a demolition job: the gap no longer looks circumstantial.`;
+  }
+  if (vars.seasonArc === "team_domination" && vars.dominantTeam) {
+    return `${vars.dominantTeam} are running a different championship: even when they do not win, they usually place two cars near the front.`;
+  }
+  if (vars.seasonArc === "cross_team_duel" && contenders.length >= 2) {
+    return `${contenders[0].name} and ${contenders[1].name} remain locked in a cross-team duel where every win shifts the title's centre of gravity.`;
+  }
+  if (vars.seasonArc === "intra_team_duel" && contenders.length >= 2) {
+    return `The main tension sits inside one garage: ${contenders[0].name} and ${contenders[1].name} share a team, not margin for error.`;
+  }
+  if (vars.seasonArc === "streak_breakaway" && vars.leaderAfter && vars.gapAfter >= 25) {
+    return `${vars.leaderAfter} has turned a direct duel into a breakaway: the streak now matters more than the early balance.`;
+  }
+  if (contenders.length >= 4) {
+    return `The title is properly open: ${joinNames(contenders.slice(0, 4).map((row) => row.name))} remain in a fight with too many plot twists.`;
+  }
+  if (contenders.length === 3) {
+    return `This is no longer a simple duel: ${contenders[2].name} has arrived as a third title candidate.`;
+  }
+  return "";
+};
+
+const renderRaceInsight = (scenario, vars) => {
+  const facts = [];
+
+  if (vars.winnerStrategy) {
+    facts.push(
+      locale === "es"
+        ? `La clave competitiva fue la estrategia de ${vars.winnerStrategy}`
+        : `The competitive key was the ${vars.winnerStrategy} strategy`
+    );
+  }
+
+  if (vars.winnerBaseRank && vars.winnerBaseRank > 8) {
+    facts.push(
+      locale === "es"
+        ? `{winner} ganó desde un perfil inicial de candidato exterior`
+        : `{winner} won from an outsider baseline`
+    );
+  }
+
+  if (vars.fastestLapDriver) {
+    facts.push(
+      locale === "es"
+        ? `la vuelta rápida fue para {fastestLapDriver}`
+        : `fastest lap went to {fastestLapDriver}`
+    );
+  }
+
+  if (vars.dnfCount >= 3) {
+    facts.push(
+      locale === "es"
+        ? `${vars.dnfCount} abandonos alteraron el orden natural`
+        : `${vars.dnfCount} retirements disrupted the natural order`
+    );
+  } else if (vars.safetyCar) {
+    facts.push(locale === "es" ? "el coche de seguridad reabrió la carrera" : "the safety car reopened the race");
+  }
+
+  const midfield = renderMidfieldInsights(vars);
+  const championship = renderChampionshipInsight(vars);
+  const factualTail = facts.length
+    ? locale === "es"
+      ? `Lectura de carrera: ${facts.join("; ")}.`
+      : `Race read: ${facts.join("; ")}.`
+    : "";
+
+  const scenarioTail =
+    scenario === "leader_dnf" && vars.leaderAfter
+      ? locale === "es"
+        ? "El abandono del líder no solo cambió la victoria: también comprimió la pelea del campeonato."
+        : "The leader's retirement did not only change the win; it compressed the title fight."
+      : scenario === "team_double"
+      ? locale === "es"
+        ? "El doblete refuerza tanto el mundial de pilotos como el de constructores."
+        : "The one-two strengthens both the drivers' and constructors' standings."
+      : "";
+
+  return [factualTail, scenarioTail, championship, midfield].filter(Boolean).join(" ");
+};
 
 export const classifyRaceScenario = ({
   winner,
@@ -607,6 +866,10 @@ export const renderRaceNarrative = ({
   const templates = CATEGORY_TEMPLATES[scenario] || CATEGORY_TEMPLATES.control;
   const baseTemplate = pickFromBank(templates, rng);
   let text = fillTemplate(baseTemplate, vars);
+  const insight = fillTemplate(renderRaceInsight(scenario, { ...vars, rng }), vars);
+  if (insight) {
+    text = `${text} ${insight}`;
+  }
   if (withContrast && vars.leaderAfter) {
     const tail = fillTemplate(pickFromBank(CONTRAST_CONNECTORS, rng), vars);
     text = `${text} ${tail}`;
@@ -617,7 +880,79 @@ export const renderRaceNarrative = ({
   };
 };
 
-export const renderSeasonIntro = ({ year, teamCount, driverCount, raceCount, rng }) => {
+export const renderSeasonIntro = ({ year, teamCount, driverCount, raceCount, rng, arcLabel }) => {
   const template = pickFromBank(SEASON_INTRO_TEMPLATES, rng);
-  return fillTemplate(template, { year, teamCount, driverCount, raceCount });
+  const arcTail = arcLabel
+    ? locale === "es"
+      ? ` El pulso previsto: ${arcLabel}.`
+      : ` Expected storyline: ${arcLabel}.`
+    : "";
+  return `${fillTemplate(template, { year, teamCount, driverCount, raceCount })}${arcTail}`;
+};
+
+export const renderLastRacePreview = ({ race, contenders, maxPoints, constructorsLeader, arc, rng }) => {
+  const titleNames = joinNames(contenders.map((row) => row.name));
+  const leader = contenders[0];
+  const chasers = contenders.slice(1);
+  const chaserNames = joinNames(chasers.map((row) => row.name));
+  const templates =
+    locale === "es"
+      ? contenders.length >= 5
+        ? [
+            `Ultima carrera en {race} con cinco pilotos vivos. {titleNames} llegan separados por una distancia que cabe en una victoria de {maxPoints} puntos: no hay calculadora segura, solo ejecucion.`,
+            `{race} decide un mundial salvaje: cinco nombres con opciones reales, {titleNames}, y cualquier coche de seguridad puede cambiar al campeon.`,
+          ]
+        : contenders.length === 4
+        ? [
+            `Final a cuatro en {race}. {titleNames} aun pueden ser campeones; {leader} defiende ventaja, pero {chaserNames} llegan con margen para convertir una carrera normal en terremoto.`,
+            `El campeonato entra en {race} sin dueño: cuatro pilotos siguen vivos y la presion no cae solo sobre el lider.`,
+          ]
+        : contenders.length === 3
+        ? [
+            `{race} abre una ultima batalla a tres. {leader} llega primero, pero {chaserNames} tienen puntos suficientes para forzar un vuelco si la carrera se rompe.`,
+            `Tres pilotos, una corona. En {race}, {leader} necesita controlar daños; {chaserNames} necesitan convertir ritmo en golpe definitivo.`,
+          ]
+        : [
+            `El mundial se decide en {race}: {leader} contra {chaserNames}. La distancia entra dentro de una victoria de {maxPoints} puntos y cada parada puede ser titulo o derrota.`,
+            `{race} recibe el duelo final. {leader} parte con ventaja, {chaserNames} llega obligado a atacar desde la primera ventana de boxes.`,
+          ]
+      : contenders.length >= 5
+      ? [
+          `Final race at {race} with five drivers alive. {titleNames} are within a {maxPoints}-point win: no safe calculator, only execution.`,
+          `{race} decides a wild championship: five real contenders, {titleNames}, and any safety car can change the champion.`,
+        ]
+      : contenders.length === 4
+      ? [
+          `Four-way finale at {race}. {titleNames} can still be champion; {leader} defends the lead, but {chaserNames} can still turn a normal race into an earthquake.`,
+          `The championship enters {race} ownerless: four drivers remain alive and the pressure is not only on the leader.`,
+        ]
+      : contenders.length === 3
+      ? [
+          `{race} opens a final three-way fight. {leader} arrives ahead, but {chaserNames} have enough points to flip it if the race breaks open.`,
+          `Three drivers, one crown. At {race}, {leader} needs damage limitation; {chaserNames} need to turn pace into the decisive blow.`,
+        ]
+      : [
+          `The title is decided at {race}: {leader} versus {chaserNames}. The gap fits inside a {maxPoints}-point win and every stop can mean title or defeat.`,
+          `{race} hosts the final duel. {leader} starts ahead, {chaserNames} has to attack from the first pit window.`,
+        ];
+  const constructorsText = constructorsLeader
+    ? locale === "es"
+      ? ` En constructores, ${constructorsLeader.name} llega como referencia del garaje.`
+      : ` In constructors, ${constructorsLeader.name} arrives as the garage benchmark.`
+    : "";
+  const arcText =
+    arc?.type === "team_domination"
+      ? locale === "es"
+        ? " Si el equipo dominante vuelve a hacer primero y segundo, el resto necesita una carrera imperfecta."
+        : " If the dominant team goes one-two again, everyone else needs an imperfect race."
+      : "";
+  return (
+    fillTemplate(pickFromBank(templates, rng), {
+      race,
+      titleNames,
+      leader: leader?.name || "",
+      chaserNames,
+      maxPoints,
+    }) + constructorsText + arcText
+  );
 };

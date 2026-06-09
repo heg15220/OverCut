@@ -1,19 +1,19 @@
 import {
   classifyRaceScenario,
   pickDecisiveMoment,
+  renderLastRacePreview,
   renderRaceNarrative,
   renderSeasonIntro,
 } from "./narratives";
-import { strings } from "./i18n";
+import { locale, strings } from "./i18n";
 import { translateGrandPrixName } from "./grandPrixTranslations";
+import { describeScoringSystem, pickScoringSystem } from "./scoringSystems";
 
 const WEATHER_LABELS = {
   dry: strings.weatherDry,
   mixed: strings.weatherMixed,
   wet: strings.weatherWet,
 };
-
-const POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -24,6 +24,17 @@ const hashString = (value) => {
     hash = Math.imul(hash, 16777619);
   }
   return hash >>> 0;
+};
+
+const normalizeHexColor = (color) => {
+  if (!/^#[0-9a-f]{6}$/i.test(color || "")) {
+    return "#0a2d52";
+  }
+  const red = parseInt(color.slice(1, 3), 16);
+  const green = parseInt(color.slice(3, 5), 16);
+  const blue = parseInt(color.slice(5, 7), 16);
+  const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+  return luminance > 0.68 ? "#0f4c81" : color;
 };
 
 const createRng = (seedText) => {
@@ -47,11 +58,11 @@ const teamColor = (name, index) => {
     "#641e9b",
     "#006f62",
     "#c8b273",
-    "#e8e8e8",
+    "#7a4f12",
     "#263238",
     "#b71c1c",
   ];
-  return colors[(hashString(name) + index) % colors.length];
+  return normalizeHexColor(colors[(hashString(name) + index) % colors.length]);
 };
 
 export const buildGrid = (teams, drivers) =>
@@ -182,6 +193,38 @@ const sortStandings = (standings) =>
     return a.name.localeCompare(b.name);
   });
 
+const sumBestScores = (scores, limit) => {
+  if (!limit || scores.length <= limit) {
+    return scores.reduce((total, score) => total + score, 0);
+  }
+  return scores
+    .slice()
+    .sort((a, b) => b - a)
+    .slice(0, limit)
+    .reduce((total, score) => total + score, 0);
+};
+
+const scoreBestResults = (scores, scoringSystem, totalRaces) => {
+  const validScores = scores.filter((score) => Number.isFinite(score));
+  if (scoringSystem.segmentLimits) {
+    const splitIndex = Math.ceil(totalRaces / 2);
+    const firstSegment = validScores.slice(0, splitIndex);
+    const secondSegment = validScores.slice(splitIndex);
+    return (
+      sumBestScores(firstSegment, scoringSystem.segmentLimits[0]) +
+      sumBestScores(secondSegment, scoringSystem.segmentLimits[1])
+    );
+  }
+  return sumBestScores(validScores, scoringSystem.maxResults);
+};
+
+const refreshScoredStandings = (standings, scoringSystem, totalRaces) => {
+  standings.forEach((row) => {
+    row.points = scoreBestResults(row.raceScores || [], scoringSystem, totalRaces);
+    row.rawPoints = (row.raceScores || []).reduce((total, score) => total + score, 0);
+  });
+};
+
 const topGap = (standings) => {
   const sorted = sortStandings(standings);
   if (sorted.length < 2) return 0;
@@ -199,10 +242,206 @@ const getRecentWinnerStreak = (history, key) => {
   return streak;
 };
 
+const pickMidfieldHighlights = (fullOrder, winner) => {
+  const candidates = fullOrder
+    .filter(
+      (result) =>
+        result.status !== "DNF" &&
+        result.id !== winner.id &&
+        result.position >= 4 &&
+        result.position <= 10 &&
+        result.baseRank >= 6
+    )
+    .map((result) => ({
+      ...result,
+      overPerformance: Math.max(0, result.baseRank - result.position),
+      highlightScore: Math.max(0, result.baseRank - result.position) * 2 + result.points + (result.fastestLap ? 2 : 0),
+    }))
+    .filter((result) => result.points > 0 || result.overPerformance >= 3 || result.fastestLap);
+
+  if (!candidates.length) return [];
+
+  const selected = [];
+  candidates
+    .sort((a, b) => b.highlightScore - a.highlightScore || a.position - b.position)
+    .forEach((highlight) => {
+      if (selected.length >= 3) return;
+      if (selected.some((entry) => entry.team.name === highlight.team.name)) return;
+      selected.push(highlight);
+    });
+
+  return selected.map((highlight) => ({
+    driver: highlight.driver.name,
+    team: highlight.team.name,
+    position: highlight.position,
+    points: highlight.points,
+    baseRank: highlight.baseRank,
+    overPerformance: highlight.overPerformance,
+    fastestLap: highlight.fastestLap,
+    strategy: highlight.strategy.label,
+  }));
+};
+
+const arcLabels = {
+  es: {
+    driver_domination: "un piloto puede romper el campeonato desde el primer tercio",
+    team_domination: "un equipo amenaza con dominar con sus dos coches",
+    cross_team_duel: "dos lideres de equipos distintos pueden repartirse el mundial carrera a carrera",
+    intra_team_duel: "dos companeros pueden convertir el garaje en la pelea principal por el titulo",
+    streak_breakaway: "un duelo directo puede romperse por una racha decisiva en la segunda mitad",
+    three_way: "la pelea puede abrirse a tres candidatos reales",
+    four_way: "el titulo puede sobrevivir con cuatro aspirantes en paralelo",
+    final_shootout: "el guion empuja hacia una ultima carrera con varios pilotos vivos",
+    open: "un mundial abierto, sensible a rachas, abandonos y golpes de estrategia",
+  },
+  en: {
+    driver_domination: "one driver may break the championship from the opening third",
+    team_domination: "one team threatens to dominate with both cars",
+    cross_team_duel: "two leaders from different teams may trade the title race round by round",
+    intra_team_duel: "two team-mates may turn one garage into the main title fight",
+    streak_breakaway: "a direct duel may break open through a decisive second-half streak",
+    three_way: "the fight may open up to three real contenders",
+    four_way: "the title may survive with four parallel contenders",
+    final_shootout: "the plot leans toward a final race with several drivers alive",
+    open: "an open championship shaped by streaks, retirements and strategy swings",
+  },
+};
+
+const pickSeasonArc = (entrants, grid, rng) => {
+  const roll = rng();
+  const type =
+    roll < 0.18
+      ? "driver_domination"
+      : roll < 0.30
+      ? "team_domination"
+      : roll < 0.43
+      ? "cross_team_duel"
+      : roll < 0.55
+      ? "intra_team_duel"
+      : roll < 0.67
+      ? "streak_breakaway"
+      : roll < 0.78
+      ? "three_way"
+      : roll < 0.88
+      ? "four_way"
+      : roll < 0.96
+      ? "final_shootout"
+      : "open";
+  const rankedEntrants = [...entrants].sort((a, b) => b.base - a.base);
+  const rankedTeams = [...grid].sort((a, b) => b.rating - a.rating);
+  const teamWithTwoDrivers =
+    rankedTeams.find((team) => entrants.filter((entrant) => entrant.team.name === team.name).length >= 2) || rankedTeams[0];
+  const sameTeamContenders = rankedEntrants
+    .filter((entrant) => entrant.team.name === teamWithTwoDrivers?.name)
+    .slice(0, 2);
+  const crossTeamContenders = rankedEntrants.reduce((acc, entrant) => {
+    if (acc.length >= 2) return acc;
+    if (!acc.some((candidate) => candidate.team.name === entrant.team.name)) acc.push(entrant);
+    return acc;
+  }, []);
+  const contenderCount = type === "four_way" || type === "final_shootout" ? 4 : type === "three_way" ? 3 : 2;
+  const contenderIds =
+    type === "intra_team_duel" && sameTeamContenders.length >= 2
+      ? sameTeamContenders.map((entrant) => entrant.id)
+      : (type === "cross_team_duel" || type === "streak_breakaway") && crossTeamContenders.length >= 2
+      ? crossTeamContenders.map((entrant) => entrant.id)
+      : rankedEntrants.slice(0, Math.min(contenderCount, rankedEntrants.length)).map((entrant) => entrant.id);
+  return {
+    type,
+    label: locale === "en" ? arcLabels.en[type] : arcLabels.es[type],
+    driverId: rankedEntrants[Math.floor(rng() * Math.min(4, rankedEntrants.length))]?.id,
+    breakawayId: contenderIds[Math.floor(rng() * Math.max(1, contenderIds.length))],
+    teamName:
+      type === "intra_team_duel"
+        ? teamWithTwoDrivers?.name
+        : rankedTeams[Math.floor(rng() * Math.min(3, rankedTeams.length))]?.name,
+    contenderIds,
+  };
+};
+
+const titleContenders = (standings, maxPoints) => {
+  const sorted = Array.isArray(standings) ? standings : sortStandings(standings);
+  const leader = sorted[0];
+  if (!leader) return [];
+  return sorted.filter((row) => leader.points - row.points <= maxPoints);
+};
+
+const seasonArcScore = ({ arc, entrant, raceIndex, raceCount, standingsBefore, rng }) => {
+  if (!arc || arc.type === "open") return 0;
+  const progress = raceCount > 1 ? raceIndex / (raceCount - 1) : 0;
+  const leader = standingsBefore[0];
+  const standing = standingsBefore.find((row) => row.id === entrant.id);
+  const gapToLeader = leader && standing ? leader.points - standing.points : 0;
+  const isContender = arc.contenderIds.includes(entrant.id);
+
+  if (arc.type === "driver_domination") {
+    if (entrant.id === arc.driverId) return 8.5 + progress * 3.5;
+    if (progress > 0.7 && gapToLeader > 45 && rng() < 0.18) return 5.5;
+    return 0;
+  }
+
+  if (arc.type === "team_domination") {
+    if (entrant.team.name === arc.teamName) {
+      const surpriseBrake = progress > 0.25 && Math.floor(progress * raceCount) % 5 === 3 ? -8 : 0;
+      return 11.5 + progress * 3.2 + surpriseBrake;
+    }
+    return progress > 0.35 && rng() < 0.1 ? 5.5 : 0;
+  }
+
+  if (arc.type === "cross_team_duel") {
+    if (!isContender) return 0;
+    const phase = Math.floor(progress * raceCount) % 2;
+    const rotationTarget = arc.contenderIds[phase] || arc.contenderIds[0];
+    const chaseBoost = gapToLeader > 0 && gapToLeader <= 40 ? clamp(gapToLeader / 6, 1.5, 7.5) : 0;
+    return entrant.id === rotationTarget ? 5.2 + chaseBoost : 3.2 + chaseBoost * 0.8;
+  }
+
+  if (arc.type === "intra_team_duel") {
+    if (!isContender) {
+      return entrant.team.name === arc.teamName ? 1.2 : 0;
+    }
+    const phase = Math.floor(progress * raceCount) % 2;
+    const rotationTarget = arc.contenderIds[phase] || arc.contenderIds[0];
+    const garagePressure = leader?.team === entrant.team.name ? -1.2 : 0;
+    const chaseBoost = gapToLeader > 0 && gapToLeader <= 35 ? clamp(gapToLeader / 7, 1.2, 6.5) : 0;
+    return entrant.id === rotationTarget ? 4.8 + chaseBoost + garagePressure : 3 + chaseBoost * 0.85 + garagePressure;
+  }
+
+  if (arc.type === "streak_breakaway") {
+    if (!isContender) return 0;
+    if (progress < 0.42) {
+      const phase = Math.floor(progress * raceCount) % 2;
+      return entrant.id === arc.contenderIds[phase] ? 5 : 4.2;
+    }
+    if (entrant.id === arc.breakawayId) {
+      return 9.5 + progress * 5.5;
+    }
+    return gapToLeader <= 18 ? 2 : -2.8 - progress * 2.4;
+  }
+
+  if (arc.type === "three_way" || arc.type === "four_way") {
+    if (!isContender) return 0;
+    const phase = Math.floor(progress * arc.contenderIds.length) % arc.contenderIds.length;
+    const rotationTarget = arc.contenderIds[phase];
+    const chaseBoost = gapToLeader > 0 && gapToLeader <= 55 ? clamp(gapToLeader / 8, 1, 7) : 0;
+    return entrant.id === rotationTarget ? 5.5 + chaseBoost : 2.5 + chaseBoost * 0.7;
+  }
+
+  if (arc.type === "final_shootout") {
+    if (!isContender) return 0;
+    if (progress < 0.5) return 1.8;
+    if (leader?.id === entrant.id && gapToLeader === 0) return -clamp(standing.points / 42, 0, 5);
+    return clamp(gapToLeader / 5, 2.5, 10.5);
+  }
+
+  return 0;
+};
+
 export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
   const grid = buildGrid(teams, drivers);
   const seed = `${seasonYear}|${teams.map((team) => team.name).join("|")}|${drivers.map((driver) => driver.name).join("|")}`;
   const rng = createRng(seed);
+  const scoringSystem = pickScoringSystem(rng);
   const entrants = grid.flatMap((team) =>
     team.drivers.map((driver) => ({
       id: entrantId(driver, team),
@@ -213,6 +452,8 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
       base: driver.rating * 0.58 + team.rating * 0.42,
     }))
   );
+  const seasonArc = pickSeasonArc(entrants, grid, rng);
+  const maxRacePoints = (scoringSystem.points[0] || 0) + (scoringSystem.fastestLap || 0);
 
   const driverStandings = new Map(
     entrants.map((entrant) => [
@@ -224,6 +465,8 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         color: entrant.team.color,
         helmetColor: entrant.driver.helmetColor,
         points: 0,
+        rawPoints: 0,
+        raceScores: [],
         wins: 0,
         podiums: 0,
         dnfs: 0,
@@ -238,6 +481,8 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         name: team.name,
         color: team.color,
         points: 0,
+        rawPoints: 0,
+        raceScores: [],
         wins: 0,
         podiums: 0,
       },
@@ -253,7 +498,21 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
     const profile = raceProfile(originalRaceName);
     const conditions = raceConditions(profile, rng);
     const standingsBefore = sortStandings(driverStandings);
+    const constructorStandingsBefore = sortStandings(constructorStandings);
     const leaderBefore = standingsBefore[0];
+    const finalRoundContenders =
+      raceIndex === races.length - 1 ? titleContenders(standingsBefore, maxRacePoints).slice(0, 5) : [];
+    const preRaceNarrative =
+      finalRoundContenders.length >= 2
+        ? renderLastRacePreview({
+            race: displayRaceName,
+            contenders: finalRoundContenders,
+            maxPoints: maxRacePoints,
+            constructorsLeader: constructorStandingsBefore[0],
+            arc: seasonArc,
+            rng,
+          })
+        : "";
     const gapBefore = topGap(driverStandings);
     const previousWinner = history[history.length - 1]?.winner;
     const previousTeamWinner = history[history.length - 1]?.teamWinner;
@@ -273,6 +532,14 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
           ? 2.5 + profile.overtaking * 4
           : 0;
       const teamTrend = teamMomentum.get(entrant.team.name) || 0;
+      const arcScore = seasonArcScore({
+        arc: seasonArc,
+        entrant,
+        raceIndex,
+        raceCount: races.length,
+        standingsBefore,
+        rng,
+      });
       const trackFit =
         ((hashString(`${entrant.team.name}-${originalRaceName}`) % 100) / 100 - 0.5) *
         (profile.power * 7 + profile.tyre * 5 + profile.street * 4);
@@ -315,6 +582,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
           teamTrend * 1.7 +
           pressure +
           comeback +
+          arcScore +
           trackFit +
           strategy.score +
           weatherSkill +
@@ -325,16 +593,29 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
       };
     });
 
-    const classified = scored
+    const classifiedBase = scored
       .filter((entry) => !entry.dnf)
       .sort((a, b) => b.score - a.score)
       .map((entry, index) => ({
         ...entry,
         position: index + 1,
-        points: POINTS[index] || 0,
+        points: scoringSystem.points[index] || 0,
+        fastestLap: false,
         status: "FIN",
         performanceRank: index + 1,
       }));
+
+    const fastestLapWinner =
+      scoringSystem.fastestLap > 0
+        ? classifiedBase
+            .filter((entry) => scoringSystem.id !== "2019-2024" || entry.position <= 10)
+            .sort((a, b) => b.score - a.score)[0]
+        : null;
+    const classified = classifiedBase.map((entry) =>
+      fastestLapWinner && entry.id === fastestLapWinner.id
+        ? { ...entry, fastestLap: true, points: entry.points + scoringSystem.fastestLap }
+        : entry
+    );
 
     const dnfs = scored
       .filter((entry) => entry.dnf)
@@ -343,18 +624,20 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         ...entry,
         position: classified.length + index + 1,
         points: 0,
+        fastestLap: false,
         status: "DNF",
         performanceRank: classified.length + index + 1,
       }));
 
     const fullOrder = [...classified, ...dnfs];
+    const constructorRaceScores = new Map(grid.map((team) => [team.name, 0]));
     fullOrder.forEach((result) => {
       const standing = driverStandings.get(result.id);
       const constructor = constructorStandings.get(result.team.name);
       const liveEntrant = entrants.find((entrant) => entrant.id === result.id);
 
-      standing.points += result.points;
-      constructor.points += result.points;
+      standing.raceScores.push(result.points);
+      constructorRaceScores.set(result.team.name, (constructorRaceScores.get(result.team.name) || 0) + result.points);
 
       if (result.position === 1) {
         standing.wins += 1;
@@ -386,12 +669,28 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
       teamMomentum.set(result.team.name, clamp(currentTeamMomentum * 0.76 + formDelta / 2, -4, 4));
     });
 
+    constructorRaceScores.forEach((points, teamName) => {
+      const constructor = constructorStandings.get(teamName);
+      if (constructor) {
+        constructor.raceScores.push(points);
+      }
+    });
+
+    refreshScoredStandings(driverStandings, scoringSystem, races.length);
+    refreshScoredStandings(constructorStandings, scoringSystem, races.length);
+
     const winner = fullOrder[0];
     const podium = fullOrder.slice(0, 3);
+    const midfieldHighlights = pickMidfieldHighlights(fullOrder, winner);
+    const midfieldHighlight = midfieldHighlights[0];
+    const fastestLapResult = fullOrder.find((result) => result.fastestLap);
     const standingsAfter = sortStandings(driverStandings);
     const constructorStandingsAfter = sortStandings(constructorStandings);
     const leaderAfter = standingsAfter[0];
     const gapAfter = topGap(driverStandings);
+    const remainingRaces = Math.max(0, races.length - raceIndex - 1);
+    const liveTitleContenders =
+      remainingRaces > 0 ? titleContenders(standingsAfter, remainingRaces * maxRacePoints).slice(0, 5) : [];
     const driverStreak = previousWinner === winner.driver.name ? driverStreakBefore + 1 : 1;
     const teamStreak = previousTeamWinner === winner.team.name ? teamStreakBefore + 1 : 1;
 
@@ -422,6 +721,27 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         leaderAfter: leaderAfter?.name || "",
         gapAfter,
         weather: conditions.weather,
+        safetyCar: conditions.safetyCar,
+        dnfCount: dnfs.length,
+        winnerBaseRank: winner.baseRank,
+        winnerPosition: winner.position,
+        winnerPoints: winner.points,
+        winnerStrategy: winner.strategy.label,
+        fastestLapDriver: fastestLapResult?.driver.name || "",
+        fastestLapTeam: fastestLapResult?.team.name || "",
+        midfieldDriver: midfieldHighlight?.driver || "",
+        midfieldTeam: midfieldHighlight?.team || "",
+        midfieldPosition: midfieldHighlight?.position || "",
+        midfieldPoints: midfieldHighlight?.points || 0,
+        midfieldBaseRank: midfieldHighlight?.baseRank || "",
+        midfieldGain: midfieldHighlight?.overPerformance || 0,
+        midfieldFastestLap: midfieldHighlight?.fastestLap || false,
+        midfieldStrategy: midfieldHighlight?.strategy || "",
+        midfieldHighlights,
+        titleContenders: liveTitleContenders,
+        seasonArc: seasonArc.type,
+        dominantTeam: seasonArc.teamName || "",
+        scoringSystem: scoringSystem.years,
         decisive: decisiveMoment,
         previousWinner: previousWinner || "",
       },
@@ -444,6 +764,16 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
       conditions,
       narrative,
       decisiveMoment,
+      midfieldHighlight,
+      midfieldHighlights,
+      preRaceNarrative,
+      finalRoundContenders: finalRoundContenders.map((row) => ({
+        id: row.id,
+        name: row.name,
+        team: row.team,
+        points: row.points,
+        wins: row.wins,
+      })),
       winner: {
         driver: winner.driver.name,
         team: winner.team.name,
@@ -458,6 +788,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         team: result.team.name,
         helmetColor: result.driver.helmetColor,
         points: result.points,
+        fastestLap: result.fastestLap,
       })),
       results: fullOrder.slice(0, 12).map((result) => ({
         position: result.position,
@@ -465,6 +796,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         team: result.team.name,
         helmetColor: result.driver.helmetColor,
         points: result.points,
+        fastestLap: result.fastestLap,
         status: result.status,
         strategy: result.strategy.label,
       })),
@@ -475,6 +807,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         color: result.team.color,
         helmetColor: result.driver.helmetColor,
         points: result.points,
+        fastestLap: result.fastestLap,
         status: result.status,
       })),
       driverStandingsSnapshot: standingsAfter.slice(0, 10).map((row) => ({
@@ -518,6 +851,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
     driverCount: entrants.length,
     raceCount: raceResults.length,
     rng,
+    arcLabel: seasonArc.label,
   });
 
   return {
@@ -529,6 +863,11 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
     constructorStandings: finalConstructors,
     champion: finalDrivers[0],
     constructorsChampion: finalConstructors[0],
+    seasonArc,
     grid,
+    scoringSystem: {
+      ...scoringSystem,
+      description: describeScoringSystem(scoringSystem),
+    },
   };
 };

@@ -763,6 +763,40 @@
   line-height: 1.45;
 }
 
+.ocr-scoring-card {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, rgba(10, 45, 82, 0.08), rgba(216, 161, 29, 0.12));
+  border: 1px solid var(--ocr-line);
+  border-left: 5px solid var(--ocr-navy);
+  border-radius: 10px;
+}
+
+.ocr-scoring-card span {
+  color: var(--ocr-muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ocr-scoring-card b {
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--ocr-ink);
+}
+
+.ocr-scoring-card p {
+  margin: 0;
+  color: var(--ocr-muted);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
 .ocr-season-intro-meta {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -848,6 +882,21 @@
   border-radius: 999px;
 }
 
+.ocr-pre-race-narrative {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px 18px;
+  color: var(--ocr-ink);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--ocr-line);
+  border-left: 5px solid var(--ocr-gold);
+  border-radius: 10px;
+}
+
 .ocr-sim-bar {
   position: relative;
   width: 100%;
@@ -875,7 +924,7 @@
   font-size: 18px;
   font-weight: 400;
   letter-spacing: 0.18em;
-  color: white;
+  color: #d8efff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
   mix-blend-mode: normal;
 }
@@ -921,7 +970,7 @@
   display: inline-block;
   margin-top: 6px;
   padding: 4px 10px;
-  color: white;
+  color: #d8efff;
   background: var(--winner-color, var(--ocr-accent));
   border-radius: 8px;
   font-style: normal;
@@ -929,6 +978,18 @@
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.ocr-race-result.ocr-scenario-wet_master {
+  border-left-color: #0b6f9f;
+}
+
+.ocr-race-result.ocr-scenario-wet_master .ocr-race-result-head em {
+  color: #d8efff;
+  background: linear-gradient(135deg, #06344f, #0b6f9f);
+  border: 1px solid rgba(184, 232, 255, 0.85);
+  box-shadow: 0 6px 16px rgba(6, 52, 79, 0.28);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 .ocr-race-result-text {
@@ -1582,7 +1643,7 @@
   min-width: 0;
   padding: 12px 14px;
   background: var(--ocr-navy);
-  color: white;
+  color: #d8efff;
   border-bottom: 3px solid var(--ocr-gold);
 }
 
@@ -1920,6 +1981,10 @@
 
   .ocr-season-intro-meta {
     grid-template-columns: 1fr;
+  }
+
+  .ocr-scoring-card {
+    padding: 14px;
   }
 
   .ocr-race-winner-card {
