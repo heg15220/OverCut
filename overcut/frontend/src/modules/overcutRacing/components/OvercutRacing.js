@@ -13,6 +13,8 @@ const TARGET_DRIVERS = 22;
 const DRIVER_CANDIDATES_PER_ROLL = 11;
 const DRIVER_CANDIDATE_MAX_SPREAD = 10;
 const SIMULATION_DURATION_MS = 2500;
+// The race that crowns the champion gets a longer, more dramatic build-up.
+const CHAMPION_SIMULATION_DURATION_MS = 10000;
 
 const HELMET_COLORS = [
   "#0a2d52", "#123b66", "#1f568b", "#2c6aa3", "#4d7fae",
@@ -1088,7 +1090,11 @@ const OvercutRacing = () => {
                 {seasonStage === "simulating" && (
                   <RaceSimulating
                     race={championship.races[currentRaceIndex]}
-                    durationMs={SIMULATION_DURATION_MS}
+                    durationMs={
+                      championship.races[currentRaceIndex]?.championNarrative
+                        ? CHAMPION_SIMULATION_DURATION_MS
+                        : SIMULATION_DURATION_MS
+                    }
                     onComplete={finishSimulation}
                   />
                 )}

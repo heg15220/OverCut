@@ -728,36 +728,58 @@ const renderMidfieldInsights = (vars) => {
     const names = joinNames(highlights.map((highlight) => highlight.driver));
     const teamSpread = new Set(highlights.map((highlight) => highlight.team)).size;
     const fastest = highlights.find((highlight) => highlight.fastestLap);
-    const scoredPoints = highlights.some((highlight) => highlight.points > 0);
     const details = highlights.map(describeMidfieldHighlight).join("; ");
-    const templates =
+    // Three cases: every highlight scored, none scored, or a mix. The mixed
+    // case must not claim collective points nor deny them — the per-driver
+    // ${details} carries the accurate scoring of each.
+    const tier = highlights.every((h) => h.points > 0)
+      ? "all"
+      : highlights.every((h) => h.points === 0)
+      ? "none"
+      : "mixed";
+    const banks =
       locale === "es"
-        ? scoredPoints
-          ? [
+        ? {
+            all: [
               `La zona media no tuvo un solo protagonista: ${names} metieron a sus equipos en una carrera que, sobre el papel, no les pertenecía. ${details}.`,
               `Detrás del podio también hubo carrera de verdad: ${names} sostuvieron una pelea garaje contra garaje que movió el reparto fino de puntos.`,
               `La batalla secundaria fue de las que enganchan: ${names} convirtieron la zona media en una carrera dentro de la carrera, con ${teamSpread} equipos distintos sacando rendimiento real.`,
               `No todo se jugó delante: ${names} firmaron una actuación coral en la zona media y se llevaron puntos que pueden pesar más adelante.`,
-            ]
-          : [
+            ],
+            mixed: [
+              `La zona media no tuvo un solo protagonista: ${names} se pelearon cada metro lejos del foco. ${details}.`,
+              `Detrás del podio hubo tanta carrera como delante: ${names} se enzarzaron rueda con rueda en la zona media. ${details}.`,
+              `La batalla secundaria fue de las que enganchan: ${names} convirtieron la zona media en una carrera dentro de la carrera, con ${teamSpread} equipos distintos peleándose cada posición.`,
+              `No todo se jugó delante: ${names} dieron su propio espectáculo en la zona media. ${details}.`,
+            ],
+            none: [
               `La zona media no tuvo un solo protagonista: ${names} se enzarzaron en una pelea aparte que el podio no llegó a ver. ${details}.`,
               `Lejos de los puntos también hubo carrera: ${names} sostuvieron un duelo garaje contra garaje por el orgullo de la zona media.`,
               `La batalla secundaria fue de las que enganchan: ${names} convirtieron la zona media en una carrera dentro de la carrera, con ${teamSpread} equipos distintos peleándose cada posición.`,
               `No todo se jugó delante: ${names} firmaron una actuación coral en la zona media, sin premio en la tabla pero a cara de perro.`,
-            ]
-        : scoredPoints
-        ? [
-            `The midfield had more than one story: ${names} put their teams into a race that was not supposed to belong to them. ${details}.`,
-            `Behind the podium there was a proper race too: ${names} made the midfield a garage-to-garage fight that shifted the minor scoring.`,
-            `The secondary battle mattered: ${names} turned the midfield into a race within the race, with ${teamSpread} teams finding real performance.`,
-            `It was not all about the front: ${names} delivered a collective midfield result that may matter later.`,
-          ]
-        : [
-            `The midfield had more than one story: ${names} fought a separate battle the podium never saw. ${details}.`,
-            `Away from the points there was a race too: ${names} traded blows garage-to-garage for midfield pride.`,
-            `The secondary battle mattered: ${names} turned the midfield into a race within the race, with ${teamSpread} teams scrapping over every place.`,
-            `It was not all about the front: ${names} delivered a collective midfield scrap, no reward on the table but no quarter given.`,
-          ];
+            ],
+          }
+        : {
+            all: [
+              `The midfield had more than one story: ${names} put their teams into a race that was not supposed to belong to them. ${details}.`,
+              `Behind the podium there was a proper race too: ${names} made the midfield a garage-to-garage fight that shifted the minor scoring.`,
+              `The secondary battle mattered: ${names} turned the midfield into a race within the race, with ${teamSpread} teams finding real performance.`,
+              `It was not all about the front: ${names} took points that may matter later.`,
+            ],
+            mixed: [
+              `The midfield had more than one story: ${names} scrapped for every metre away from the spotlight. ${details}.`,
+              `Behind the podium there was as much racing as up front: ${names} went wheel to wheel through the midfield. ${details}.`,
+              `The secondary battle mattered: ${names} turned the midfield into a race within the race, with ${teamSpread} teams scrapping over every place.`,
+              `It was not all about the front: ${names} put on their own midfield show. ${details}.`,
+            ],
+            none: [
+              `The midfield had more than one story: ${names} fought a separate battle the podium never saw. ${details}.`,
+              `Away from the points there was a race too: ${names} traded blows garage-to-garage for midfield pride.`,
+              `The secondary battle mattered: ${names} turned the midfield into a race within the race, with ${teamSpread} teams scrapping over every place.`,
+              `It was not all about the front: ${names} delivered a collective midfield scrap, no reward on the table but no quarter given.`,
+            ],
+          };
+    const templates = banks[tier];
     const fastestTail = fastest
       ? locale === "es"
         ? ` ${fastest.driver} hasta se quedó con la vuelta rápida.`
@@ -826,19 +848,64 @@ const renderChampionshipInsight = (vars) => {
 
   if (locale === "es") {
     if (vars.seasonArc === "driver_domination" && vars.leaderAfter && vars.gapAfter >= 35) {
-      return `${vars.leaderAfter} está convirtiendo el mundial en una demolición: la ventaja ya no parece coyuntural, parece estructura.`;
+      return pickFromBank(
+        [
+          `${vars.leaderAfter} está convirtiendo el mundial en una demolición: la ventaja ya no parece coyuntural, parece estructura.`,
+          `Esto ya no es una pelea, es un monólogo: ${vars.leaderAfter} dicta el campeonato a su antojo.`,
+          `El mundial tiene un dueño cada vez más claro: ${vars.leaderAfter} no le deja opciones a nadie.`,
+          `${vars.leaderAfter} ha pasado de líder a apisonadora: cada carrera agranda una diferencia que ya asusta.`,
+          `Mientras ${vars.leaderAfter} siga a este nivel, el resto del campeonato corre por el subcampeonato.`,
+        ],
+        rng
+      );
     }
     if (vars.seasonArc === "team_domination" && vars.dominantTeam) {
-      return `${vars.dominantTeam} juega a otro campeonato: gane quien gane dentro del equipo, casi siempre hay dos coches suyos en la zona noble.`;
+      return pickFromBank(
+        [
+          `${vars.dominantTeam} juega a otro campeonato: gane quien gane dentro del equipo, casi siempre hay dos coches suyos en la zona noble.`,
+          `${vars.dominantTeam} ha convertido el mundial en un asunto interno: su pelea real es contra su propio crono.`,
+          `Cuando un equipo es así de superior, el campeonato se decide en su garaje: ${vars.dominantTeam} manda con autoridad.`,
+          `${vars.dominantTeam} arrasa en constructores y, de paso, condiciona el mundial de pilotos.`,
+          `El resto se reparte las migajas: ${vars.dominantTeam} coloca sus dos coches arriba con una regularidad preocupante.`,
+        ],
+        rng
+      );
     }
     if (vars.seasonArc === "cross_team_duel" && !earlyPhase && contenders.length >= 2) {
-      return `${contenders[0].name} y ${contenders[1].name} siguen enzarzados en un duelo entre equipos distintos en el que cada victoria mueve el centro de gravedad del título.`;
+      return pickFromBank(
+        [
+          `${contenders[0].name} y ${contenders[1].name} siguen enzarzados en un duelo entre equipos distintos en el que cada victoria mueve el centro de gravedad del título.`,
+          `El mundial es cosa de dos, y de dos garajes rivales: ${contenders[0].name} contra ${contenders[1].name}, golpe por golpe.`,
+          `${contenders[0].name} y ${contenders[1].name} se intercambian la cabeza del campeonato carrera sí, carrera también.`,
+          `Dos equipos, una sola corona: ${contenders[0].name} y ${contenders[1].name} no se dan tregua.`,
+          `Cada fin de semana reabre el mismo pulso: ${contenders[0].name} y ${contenders[1].name}, separados por un suspiro en la tabla.`,
+        ],
+        rng
+      );
     }
     if (vars.seasonArc === "intra_team_duel" && !earlyPhase && contenders.length >= 2) {
-      return `La tensión gorda vive dentro del mismo garaje: ${contenders[0].name} y ${contenders[1].name} comparten equipo, pero ni un milímetro de margen de error.`;
+      return pickFromBank(
+        [
+          `La tensión gorda vive dentro del mismo garaje: ${contenders[0].name} y ${contenders[1].name} comparten equipo, pero ni un milímetro de margen de error.`,
+          `El duelo más caliente es de puertas adentro: ${contenders[0].name} y ${contenders[1].name} se juegan el título con el mismo mono.`,
+          `Mismo equipo, cero tregua en la tabla: ${contenders[0].name} y ${contenders[1].name} se disputan el mundial entre ellos.`,
+          `${contenders[0].name} y ${contenders[1].name} comparten boxes y se pelean la corona: el rival a batir está al otro lado del garaje.`,
+          `Guerra civil servida: ${contenders[0].name} y ${contenders[1].name} defienden los mismos colores, pero no se regalan ni un punto.`,
+        ],
+        rng
+      );
     }
     if (vars.seasonArc === "streak_breakaway" && vars.leaderAfter && vars.gapAfter >= 25) {
-      return `${vars.leaderAfter} ha convertido un mano a mano en una escapada: la racha ya pesa más que la igualdad de los primeros grandes premios.`;
+      return pickFromBank(
+        [
+          `${vars.leaderAfter} ha convertido un mano a mano en una escapada: la racha ya pesa más que la igualdad de los primeros grandes premios.`,
+          `Lo que era un duelo se ha roto: ${vars.leaderAfter} encadena triunfos y abre una brecha difícil de remontar.`,
+          `${vars.leaderAfter} ha cambiado de marcha en el peor momento para sus rivales: la racha se está llevando el campeonato por delante.`,
+          `De la igualdad inicial al monólogo: ${vars.leaderAfter} se ha despegado a base de victorias en cadena.`,
+          `La racha de ${vars.leaderAfter} ha desnivelado un mundial que parecía parejo.`,
+        ],
+        rng
+      );
     }
     if (earlyPhase && contenders.length >= 3) {
       return pickFromBank(
@@ -880,19 +947,64 @@ const renderChampionshipInsight = (vars) => {
   }
 
   if (vars.seasonArc === "driver_domination" && vars.leaderAfter && vars.gapAfter >= 35) {
-    return `${vars.leaderAfter} is turning the championship into a demolition job: the gap no longer looks circumstantial.`;
+    return pickFromBank(
+      [
+        `${vars.leaderAfter} is turning the championship into a demolition job: the gap no longer looks circumstantial.`,
+        `This is no longer a fight, it's a monologue: ${vars.leaderAfter} dictates the title at will.`,
+        `The championship has an ever-clearer owner: ${vars.leaderAfter} leaves nobody an opening.`,
+        `${vars.leaderAfter} has gone from leader to steamroller: every race widens an alarming gap.`,
+        `As long as ${vars.leaderAfter} stays at this level, everyone else is racing for runner-up.`,
+      ],
+      rng
+    );
   }
   if (vars.seasonArc === "team_domination" && vars.dominantTeam) {
-    return `${vars.dominantTeam} are running a different championship: whoever wins inside the team, they almost always have two cars near the front.`;
+    return pickFromBank(
+      [
+        `${vars.dominantTeam} are running a different championship: whoever wins inside the team, they almost always have two cars near the front.`,
+        `${vars.dominantTeam} have turned the title into an internal affair: their real fight is against their own stopwatch.`,
+        `When a team is this superior, the championship is settled in their garage: ${vars.dominantTeam} rule with authority.`,
+        `${vars.dominantTeam} are running away with the constructors' and bending the drivers' race their way too.`,
+        `Everyone else fights for scraps: ${vars.dominantTeam} put both cars up front with worrying regularity.`,
+      ],
+      rng
+    );
   }
   if (vars.seasonArc === "cross_team_duel" && !earlyPhase && contenders.length >= 2) {
-    return `${contenders[0].name} and ${contenders[1].name} remain locked in a cross-team duel where every win shifts the title's centre of gravity.`;
+    return pickFromBank(
+      [
+        `${contenders[0].name} and ${contenders[1].name} remain locked in a cross-team duel where every win shifts the title's centre of gravity.`,
+        `The title is a two-man, two-garage affair: ${contenders[0].name} versus ${contenders[1].name}, blow for blow.`,
+        `${contenders[0].name} and ${contenders[1].name} keep trading the championship lead race after race.`,
+        `Two teams, one crown: ${contenders[0].name} and ${contenders[1].name} give each other no quarter.`,
+        `Every weekend reopens the same duel: ${contenders[0].name} and ${contenders[1].name}, a breath apart in the table.`,
+      ],
+      rng
+    );
   }
   if (vars.seasonArc === "intra_team_duel" && !earlyPhase && contenders.length >= 2) {
-    return `The main tension sits inside one garage: ${contenders[0].name} and ${contenders[1].name} share a team, not margin for error.`;
+    return pickFromBank(
+      [
+        `The main tension sits inside one garage: ${contenders[0].name} and ${contenders[1].name} share a team, not margin for error.`,
+        `The hottest duel is behind closed doors: ${contenders[0].name} and ${contenders[1].name} fight for the title in the same overalls.`,
+        `Same team, no mercy in the standings: ${contenders[0].name} and ${contenders[1].name} are settling the championship between themselves.`,
+        `${contenders[0].name} and ${contenders[1].name} share a pit box and contest the crown: the rival to beat is across the garage.`,
+        `A civil war is on: ${contenders[0].name} and ${contenders[1].name} wear the same colours but won't gift each other a point.`,
+      ],
+      rng
+    );
   }
   if (vars.seasonArc === "streak_breakaway" && vars.leaderAfter && vars.gapAfter >= 25) {
-    return `${vars.leaderAfter} has turned a direct duel into a breakaway: the streak now matters more than the early balance.`;
+    return pickFromBank(
+      [
+        `${vars.leaderAfter} has turned a direct duel into a breakaway: the streak now matters more than the early balance.`,
+        `What was a duel has cracked open: ${vars.leaderAfter} stacks up wins and opens a gap that's hard to claw back.`,
+        `${vars.leaderAfter} has shifted up a gear at the worst time for the rivals: the streak is carrying the title away.`,
+        `From early parity to a monologue: ${vars.leaderAfter} has pulled clear on the back of win after win.`,
+        `${vars.leaderAfter}'s streak has tilted a championship that looked even.`,
+      ],
+      rng
+    );
   }
   if (earlyPhase && contenders.length >= 3) {
     return pickFromBank(
