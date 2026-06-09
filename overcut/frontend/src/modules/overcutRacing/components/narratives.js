@@ -57,7 +57,7 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
       "Pole, vuelta rápida y victoria en pista limpia, sin un solo error.",
       "Marcó el tono en la primera vuelta y no soltó el liderato hasta meta.",
       "Ningún rival pudo acercarse a tres décimas durante toda la carrera.",
-      "Convirtió el trazado en un Grand Prix a un coche: diferencia desde la salida.",
+      "Convirtió el trazado en un Gran Premio a un coche: diferencia desde la salida.",
       "Pista limpia tras las paradas y un margen invencible al final.",
       "Ritmo de manual con vueltas rápidas selladas en cada relanzamiento.",
       "Defensa tranquila, ataque medido, victoria con espacio de sobra.",
@@ -132,7 +132,7 @@ const DECISIVE_MOMENTS_BY_LOCALE = {
     streak: [
       "La racha continúa y el dominio empieza a parecer ley.",
       "Una secuencia que aplana el campeonato y obliga a redefinir favoritos.",
-      "Cada Grand Premio se convierte en un capítulo más de la misma historia.",
+      "Cada Gran Premio se convierte en un capítulo más de la misma historia.",
     ],
     rookie: [
       "Un primer triunfo en F1 que el paddock recordará durante años.",
@@ -275,7 +275,7 @@ const CATEGORY_TEMPLATES_BY_LOCALE = {
       "{race} se transforma con la lluvia y {winner} demuestra por qué su muñeca es de las mejores del paddock. {decisive}",
       "Pasarela acuática en {race}. {winner} firma vueltas que parecían imposibles y {team} se queda con el botín. {decisive}",
       "Carrera anfibia en {race}: {winner} elige momento e intermedios y le da a {team} un trofeo de leyenda. {decisive}",
-      "Lluvia, niebla y {winner}. {team} se llevó un Grand Premio en condiciones que muy pocos disfrutaron en {race}. {decisive}",
+      "Lluvia, niebla y {winner}. {team} se llevó un Gran Premio en condiciones que muy pocos disfrutaron en {race}. {decisive}",
       "El cielo se desplomó sobre {race} y {winner} respondió con una clase de manejo de neumático mojado. {decisive}",
       "{winner} hizo de {race} su pintura particular. {team} gana en una carrera de las que se ven una vez por temporada. {decisive}",
       "Diluvio bíblico en {race}: {winner} y {team} construyen una victoria que ya forma parte del folclore del campeonato. {decisive}",

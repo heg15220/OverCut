@@ -22,6 +22,17 @@
   color: var(--ocr-ink);
   font-family: "Hanken Grotesk", Arial, Helvetica, sans-serif;
   letter-spacing: 0;
+  overflow-x: hidden;
+}
+
+.overcut-racing-page *,
+.overcut-racing-page *::before,
+.overcut-racing-page *::after {
+  box-sizing: border-box;
+}
+
+.overcut-ad-layout--bottom .overcut-racing-page {
+  padding-bottom: 96px;
 }
 
 .ocr-shell {
@@ -184,6 +195,7 @@
   text-transform: uppercase;
   letter-spacing: 0;
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  touch-action: manipulation;
 }
 
 .ocr-btn:active {
@@ -627,6 +639,7 @@
 
 .ocr-garage-drivers div.is-target {
   cursor: pointer;
+  touch-action: manipulation;
   color: white;
   border-color: var(--ocr-accent);
   border-style: solid;
@@ -1697,12 +1710,34 @@
 }
 
 @media (max-width: 720px) {
+  .overcut-racing-page {
+    min-width: 0;
+  }
+
+  .ocr-shell {
+    min-width: 0;
+  }
+
   .ocr-header,
   .ocr-hero-strip {
     align-items: stretch;
     flex-direction: column;
-    padding-left: 18px;
-    padding-right: 18px;
+    gap: 14px;
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .ocr-header {
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+
+  .ocr-header h1 {
+    font-size: clamp(34px, 12vw, 48px);
+    text-shadow: 2px 2px 0 rgba(240, 191, 53, 0.9);
+  }
+
+  .ocr-hero-strip h2 {
+    font-size: clamp(28px, 10vw, 40px);
   }
 
   .ocr-header-actions {
@@ -1710,35 +1745,213 @@
     flex-direction: column;
   }
 
+  .ocr-home-link,
+  .ocr-header-actions .ocr-btn {
+    width: 100%;
+  }
+
   .ocr-data-chip {
     width: 100%;
+  }
+
+  .ocr-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .ocr-left,
   .ocr-center,
   .ocr-right {
-    padding: 16px;
+    min-width: 0;
+    padding: 14px;
   }
 
   .ocr-left {
+    display: contents;
     grid-template-columns: 1fr;
+  }
+
+  .ocr-phase-season .ocr-left {
+    display: block;
+    order: 2;
+  }
+
+  .ocr-roll-panel {
+    order: 1;
+    padding: 0 14px;
+  }
+
+  .ocr-center {
+    order: 2;
+  }
+
+  .ocr-left .ocr-list-panel {
+    order: 3;
+    padding: 0 14px;
+  }
+
+  .ocr-right {
+    order: 4;
+  }
+
+  .ocr-phase-season .ocr-center {
+    order: 1;
+  }
+
+  .ocr-phase-season .ocr-right {
+    order: 3;
   }
 
   .ocr-start-button,
   .ocr-roll-button {
     width: 100%;
+    min-height: 58px;
+    font-size: clamp(22px, 7vw, 28px);
+  }
+
+  .ocr-roll-result {
+    min-height: 126px;
+    padding: 16px;
+    padding-right: 84px;
+  }
+
+  .ocr-roll-result b {
+    font-size: clamp(28px, 9vw, 34px);
+  }
+
+  .ocr-roll-result strong {
+    font-size: clamp(18px, 5.6vw, 22px);
+    overflow-wrap: anywhere;
+  }
+
+  .ocr-dice-stage {
+    right: 20px;
+    width: 68px;
+    height: 68px;
+  }
+
+  .ocr-dice-stage svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .ocr-phase-meter {
+    gap: 6px;
+  }
+
+  .ocr-phase-meter div {
+    padding: 9px 6px;
+  }
+
+  .ocr-phase-meter b {
+    font-size: 10px;
+  }
+
+  .ocr-choice-list {
+    max-height: min(52vh, 430px);
+  }
+
+  .ocr-choice-row {
+    min-height: 62px;
   }
 
   .ocr-grid-board {
     grid-template-columns: 1fr;
     min-height: auto;
-    padding: 14px;
+    gap: 10px;
+    padding: 14px 12px;
+  }
+
+  .ocr-grid-board::before {
+    inset: 18px 22px;
+  }
+
+  .ocr-curb {
+    width: 10px;
+  }
+
+  .ocr-curb-left {
+    left: 4px;
+  }
+
+  .ocr-curb-right {
+    right: 4px;
+  }
+
+  .ocr-garage {
+    padding: 8px;
+  }
+
+  .ocr-garage-team,
+  .ocr-garage-drivers div {
+    min-height: 54px;
+  }
+
+  .ocr-garage-team b,
+  .ocr-garage-drivers b,
+  .ocr-choice-row b,
+  .ocr-top10-list li strong,
+  .ocr-schedule-item strong {
+    white-space: normal;
+  }
+
+  .ocr-garage-drivers b,
+  .ocr-choice-row b,
+  .ocr-schedule-item strong {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
   }
 
   .ocr-season-seal,
   .ocr-season-stats,
   .ocr-standings-transition-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ocr-season-intro,
+  .ocr-race-simulating,
+  .ocr-race-result,
+  .ocr-standings-transition,
+  .ocr-season-complete {
+    padding: 20px 16px;
+  }
+
+  .ocr-season-intro-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .ocr-race-winner-card {
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .ocr-top10-list li {
+    grid-template-columns: 24px 6px 24px minmax(0, 1fr) 38px;
+    gap: 7px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .ocr-standings table {
+    table-layout: fixed;
+  }
+
+  .ocr-standings td.ocr-points-cell {
+    width: 58px;
+    min-width: 58px;
+    font-size: 22px;
+  }
+
+  .ocr-standings td:nth-child(2) {
+    grid-template-columns: 8px minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .ocr-standings td:nth-child(2) > span:first-child {
+    width: 8px;
   }
 
   .ocr-entity-list {

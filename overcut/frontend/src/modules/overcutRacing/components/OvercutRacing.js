@@ -979,7 +979,7 @@ const OvercutRacing = () => {
         );
 
   return (
-    <main className="overcut-racing-page">
+    <main className={`overcut-racing-page ocr-phase-${phase}`}>
       <section className="ocr-shell">
         <header className="ocr-header">
           <div className="ocr-header-title">

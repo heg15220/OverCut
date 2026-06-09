@@ -153,7 +153,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/driversConnections" element={withAdVignettes(<DriversConnectionsGame />, "games")} />}
                     {loggedIn && <Route path="/minigames/orderDrivers" element={withAdVignettes(<OrderDriverGame />, "games")} />}
                     {loggedIn && <Route path="/minigames/categoryGame" element={withAdVignettes(<CategoryGame />, "games")} />}
-                    {loggedIn && <Route path="/minigames/overcutRacing" element={<OvercutRacing />} />}
+                    {loggedIn && <Route path="/minigames/overcutRacing" element={withAdVignettes(<OvercutRacing />, "games", "bottom")} />}
                     <Route path="/minigames/wordSearch" element={withAdVignettes(<WordSearchGame />, "games")} />
                     <Route path="/verify-email" element={<EmailVerificationPage />} />
                     <Route path="/email-confirmation" element={<EmailConfirmationPending />} />

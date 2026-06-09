@@ -5,6 +5,7 @@ import {
   renderSeasonIntro,
 } from "./narratives";
 import { strings } from "./i18n";
+import { translateGrandPrixName } from "./grandPrixTranslations";
 
 const WEATHER_LABELS = {
   dry: strings.weatherDry,
@@ -247,7 +248,9 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
   const history = [];
 
   const raceResults = races.map((race, raceIndex) => {
-    const profile = raceProfile(race.name);
+    const originalRaceName = race.name;
+    const displayRaceName = translateGrandPrixName(originalRaceName);
+    const profile = raceProfile(originalRaceName);
     const conditions = raceConditions(profile, rng);
     const standingsBefore = sortStandings(driverStandings);
     const leaderBefore = standingsBefore[0];
@@ -271,7 +274,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
           : 0;
       const teamTrend = teamMomentum.get(entrant.team.name) || 0;
       const trackFit =
-        ((hashString(`${entrant.team.name}-${race.name}`) % 100) / 100 - 0.5) *
+        ((hashString(`${entrant.team.name}-${originalRaceName}`) % 100) / 100 - 0.5) *
         (profile.power * 7 + profile.tyre * 5 + profile.street * 4);
       const baseRank = entrants.filter((other) => other.base > entrant.base).length + 1;
       const weatherSkill =
@@ -411,7 +414,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
       scenario,
       rng,
       vars: {
-        race: race.name,
+        race: displayRaceName,
         winner: winner.driver.name,
         team: winner.team.name,
         second: podium[1]?.driver.name || "",
@@ -432,7 +435,8 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
 
     return {
       round: race.round || raceIndex + 1,
-      name: race.name,
+      name: displayRaceName,
+      originalName: originalRaceName,
       circuit: race.circuit,
       locality: race.locality,
       country: race.country,
