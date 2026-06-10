@@ -9,6 +9,7 @@ import com.overcut.f1hub.rest.dtos.GrandPrixDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,8 +44,8 @@ public class RaceResultServiceImpl implements RaceResultService {
                     var circuit = r.getCircuit();
                     String circuitName = circuit != null ? circuit.getName() : "Desconocido";
                     String circuitCountry = circuit != null ? circuit.getCountry() : "Desconocido";
-                    String circuitCountryCode = circuit != null ? getCountryCode(circuit.getCountry()) : "xx";
-                    String gpAbbreviation = circuit != null ? getGrandPrixAbbreviation(circuit.getCountry()) : "UNK";
+                    String circuitCountryCode = getCountryCode(circuitCountry);
+                    String gpAbbreviation = getGrandPrixAbbreviation(r.getName(), circuitCountry);
 
                     // Opción 1: constructor extendido con la abreviatura
                     GrandPrixDTO dto = new GrandPrixDTO(
@@ -77,6 +78,7 @@ public class RaceResultServiceImpl implements RaceResultService {
     }
 
     private String getCountryCode(String country) {
+        if (country == null) return "xx";
         return switch (country.toLowerCase()) {
             case "argentina" -> "ar";
             case "australia" -> "au";
@@ -117,7 +119,30 @@ public class RaceResultServiceImpl implements RaceResultService {
         };
     }
 
+    private String getGrandPrixAbbreviation(String raceName, String country) {
+        String name = normalizeText(raceName);
+
+        if (name.contains("miami")) return "MIA";
+        if (name.contains("madrid")) return "MAD";
+        if (name.contains("barcelona-catalunya")) return "BCN";
+        if (name.contains("las vegas")) return "LVG";
+        if (name.contains("united states")) return "USA";
+        if (name.contains("sao paulo")) return "SAO";
+        if (name.contains("abu dhabi")) return "ABU";
+
+        return getGrandPrixAbbreviation(country);
+    }
+
+    private String normalizeText(String value) {
+        if (value == null) return "";
+        return Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase()
+                .trim();
+    }
+
     private String getGrandPrixAbbreviation(String country) {
+        if (country == null) return "UNK";
         return switch (country.toLowerCase().trim()) {
             case "argentina"        -> "ARG";
             case "australia"        -> "AUS";
@@ -162,14 +187,17 @@ public class RaceResultServiceImpl implements RaceResultService {
     public GrandPrixDTO getRaceInfo(Long raceId) {
         var race = raceDao.findById(raceId).orElseThrow();
         var circuit = race.getCircuit();
-        return new GrandPrixDTO(
+        String circuitCountry = circuit != null ? circuit.getCountry() : "Desconocido";
+        GrandPrixDTO dto = new GrandPrixDTO(
                 race.getRaceId(),
                 race.getName(),
                 race.getRound(),
                 circuit != null ? circuit.getName() : "Desconocido",
-                circuit != null ? circuit.getCountry() : "Desconocido",
+                circuitCountry,
                 race.getYear(),
-                getCountryCode(circuit.getCountry())
+                getCountryCode(circuitCountry)
         );
+        dto.setGpAbbreviation(getGrandPrixAbbreviation(race.getName(), circuitCountry));
+        return dto;
     }
 }

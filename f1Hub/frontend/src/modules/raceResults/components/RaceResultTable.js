@@ -51,7 +51,7 @@ const RaceResultTable = ({ raceId }) => {
                 <td>{r.position}</td>
                 <td>
                   <div className="pilot-cell">
-                      <span className="pilot-bar" style={{ backgroundColor: r.teamColor }} />
+                      <span className="pilot-bar" style={{ background: r.teamColor }} />
                       {r.driverFlagUrl && (
                         <img src={r.driverFlagUrl} className="flag" alt={r.driverNationality} />
                       )}
@@ -62,7 +62,7 @@ const RaceResultTable = ({ raceId }) => {
                   </td>
                 <td>
                   <div className="team-cell">
-                    <span className="team-bar" style={{ backgroundColor: r.teamColor }} />
+                    <span className="team-bar" style={{ background: r.teamColor }} />
                     <span>{r.constructorName}</span>
                   </div>
                 </td>

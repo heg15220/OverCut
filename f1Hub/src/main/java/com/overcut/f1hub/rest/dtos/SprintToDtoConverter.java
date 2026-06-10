@@ -37,6 +37,8 @@ public class SprintToDtoConverter {
             case "williams" -> "#005aff";
             case "alpha_tauri", "alphatauri" -> "#2b4562";
             case "haas" -> "#b6babd";
+            case "audi" -> "linear-gradient(180deg, #c7c7c7 0%, #c7c7c7 50%, #e30613 50%, #e30613 100%)";
+            case "cadillac" -> "linear-gradient(180deg, #ffffff 0%, #ffffff 50%, #000000 50%, #000000 100%)";
             case "sauber", "stake", "alfa_romeo", "alfa" -> "#900000";
             case "renault" -> "#fff500";
             case "toro_rosso" -> "#0033a0";
