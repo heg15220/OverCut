@@ -3,6 +3,7 @@ import "./Overcut.css";
 import { getAboutOvercutImage } from "../../../helpers/sourceAboutOvercutImages";
 import { translations } from "./translations";
 import logoImage from './Resources/LogoOverCut.png';
+import overCutDraftImage from '../../../assets/images/miniGames/OverCutDraft.png';
 
 
 const Overcut = () => {
@@ -25,6 +26,16 @@ const Overcut = () => {
         list: ["Drivers Connections", "Grid Guess", "Career Path", "F1 Wordle"],
         more: "And many more!",
         end: "Each game tests your F1 knowledge in original and interactive ways. Register and prove your skill!"
+      };
+
+  const draftText = lang === "es"
+    ? {
+        title: "OverCutDraft",
+        desc: "OverCutDraft es un modo estrategico dentro de OverCutGames en el que construyes tu propia parrilla de Formula 1 mediante elecciones por turnos. Analiza pilotos, equipos y rendimiento historico para crear la combinacion mas competitiva posible."
+      }
+    : {
+        title: "OverCutDraft",
+        desc: "OverCutDraft is a strategic mode inside OverCutGames where you build your own Formula 1 grid through turn-based choices. Analyze drivers, teams and historical performance to create the most competitive combination possible."
       };
 
   return (
@@ -78,6 +89,18 @@ const Overcut = () => {
           </ul>
           <p>{gamesTexts.more}</p>
           <p>{gamesTexts.end}</p>
+        </div>
+      </section>
+
+      <section className="overcut__section overcut__section--with-image">
+        <img
+          className="overcut__image"
+          src={overCutDraftImage}
+          alt="OverCutDraft"
+        />
+        <div className="overcut__content">
+          <h2 className="overcut__subtitle">{draftText.title}</h2>
+          <p>{draftText.desc}</p>
         </div>
       </section>
 
