@@ -1814,10 +1814,6 @@
     padding-right: 28px;
   }
 
-  .ocr-header h1 {
-    font-size: clamp(44px, 7vw, 58px);
-  }
-
   .ocr-hero-strip h2 {
     font-size: clamp(34px, 5.8vw, 48px);
   }
@@ -1895,20 +1891,8 @@
     padding: 6px;
   }
 
-  .ocr-garage-drivers b {
-    font-size: 11px;
-  }
-
   .ocr-roll-result {
     padding: 16px;
-  }
-
-  .ocr-roll-result b {
-    font-size: 30px;
-  }
-
-  .ocr-roll-result strong {
-    font-size: 20px;
   }
 
   .ocr-choice-list,
@@ -1964,11 +1948,6 @@
 
   .ocr-header {
     padding-top: max(16px, env(safe-area-inset-top));
-  }
-
-  .ocr-header h1 {
-    font-size: clamp(34px, 12vw, 48px);
-    text-shadow: 2px 2px 0 rgba(240, 191, 53, 0.9);
   }
 
   .ocr-hero-strip h2 {
@@ -2050,15 +2029,6 @@
     padding-right: 84px;
   }
 
-  .ocr-roll-result b {
-    font-size: clamp(28px, 9vw, 34px);
-  }
-
-  .ocr-roll-result strong {
-    font-size: clamp(18px, 5.6vw, 22px);
-    overflow-wrap: anywhere;
-  }
-
   .ocr-dice-stage {
     right: 20px;
     width: 68px;
@@ -2122,23 +2092,6 @@
     min-height: 54px;
   }
 
-  .ocr-garage-team b,
-  .ocr-garage-drivers b,
-  .ocr-choice-row b,
-  .ocr-top10-list li strong,
-  .ocr-schedule-item strong {
-    white-space: normal;
-  }
-
-  .ocr-garage-drivers b,
-  .ocr-choice-row b,
-  .ocr-schedule-item strong {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-  }
-
   .ocr-season-seal,
   .ocr-season-stats,
   .ocr-standings-transition-grid {
@@ -2172,8 +2125,9 @@
   }
 
   .ocr-race-result-text {
-    font-size: 17px;
-    line-height: 1.32;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.42;
   }
 
   .ocr-race-result-decisive {
