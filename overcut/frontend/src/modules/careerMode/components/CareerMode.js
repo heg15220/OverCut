@@ -17,9 +17,11 @@ import {
   createCareerSeason,
   fetchCareerBootstrap,
   generateContracts,
+  interpolateRacePosition,
   normalizeColor,
   playableDecades,
   prepareCareerBootstrap,
+  raceResultRows,
   raceStateAtLap,
   randomYearInDecade,
   retirementSummary,
@@ -27,26 +29,59 @@ import {
   teammateBattleSummary,
   evaluateSeason,
 } from "./careerModeEngine";
+import {
+  ATTRIBUTE_KEYS,
+  analyzeRaceXp,
+  applyRaceXp,
+  computeOverall,
+  createDriverCard,
+} from "./driverCard";
 import { localizeRaceName } from "./careerRaceNames";
 import { fallbackBootstrap } from "../../overcutRacing/components/fallbackData";
 import "./CareerMode.css";
 
-const INITIAL_PROFILE = {
-  name: "",
-  helmetColor: HELMET_COLORS[0],
-  rating: 58,
-  reputation: 28,
-  consistency: 58,
-  aggression: 55,
-  seasons: 0,
-  status: "rookie",
-  stats: {
-    points: 0,
-    wins: 0,
-    podiums: 0,
-    titles: 0,
-    teams: [],
-  },
+const STARTING_AGE = 18;
+const FINAL_AGE = 41; // last season the driver may race
+
+const createInitialProfile = () => {
+  const card = createDriverCard();
+  const overall = computeOverall(card);
+  return {
+    name: "",
+    helmetColor: HELMET_COLORS[0],
+    age: STARTING_AGE,
+    card,
+    cardXp: { pace: 0, racecraft: 0, awareness: 0, experience: 0 },
+    overall,
+    rating: overall,
+    reputation: 28,
+    seasons: 0,
+    status: "rookie",
+    stats: {
+      points: 0,
+      wins: 0,
+      podiums: 0,
+      titles: 0,
+      teams: [],
+    },
+  };
+};
+
+const INITIAL_PROFILE = createInitialProfile();
+
+// Labels + order for the four card attributes (F1 25 style).
+const ATTRIBUTE_LABELS = {
+  pace: { short: "PAC", name: "Ritmo" },
+  racecraft: { short: "RAC", name: "Pilotaje" },
+  awareness: { short: "AWA", name: "Conciencia" },
+  experience: { short: "EXP", name: "Experiencia" },
+};
+
+const ATTRIBUTE_XP_LABELS = {
+  pace: "Ritmo",
+  racecraft: "Pilotaje",
+  awareness: "Conciencia",
+  experience: "Experiencia",
 };
 
 const HelmetIcon = ({ color, size = 34 }) => (
@@ -69,6 +104,122 @@ const stat = (label, value) => (
     <b>{value}</b>
   </div>
 );
+
+// One attribute bar; when `delta > 0` a brighter overlay marks the points just
+// gained so the post-race growth reads at a glance.
+const AttributeBar = ({ value, delta = 0 }) => (
+  <div className="cm-card-bar" aria-hidden="true">
+    <span className="cm-card-bar-fill" style={{ width: `${value}%` }} />
+    {delta > 0 && (
+      <span
+        className="cm-card-bar-gain"
+        style={{ left: `${value - delta}%`, width: `${delta}%` }}
+      />
+    )}
+  </div>
+);
+
+const buildRaceDevelopment = ({ profile, raceResult, season }) => {
+  const xpGains = analyzeRaceXp(raceResult, season, profile);
+  const progression = applyRaceXp(
+    profile.card,
+    profile.cardXp || { pace: 0, racecraft: 0, awareness: 0, experience: 0 },
+    xpGains,
+    profile.age || STARTING_AGE
+  );
+  const previousOverall = profile.overall ?? computeOverall(profile.card);
+  const nextProfile = {
+    ...profile,
+    card: progression.card,
+    cardXp: progression.cardXp,
+    overall: progression.overall,
+    rating: progression.overall,
+  };
+  return {
+    previousProfile: profile,
+    nextProfile,
+    xpGains,
+    deltas: progression.deltas,
+    overallDelta: progression.overall - previousOverall,
+    resultFactor: xpGains.resultFactor,
+    expected: xpGains.expected,
+    actual: xpGains.actual,
+  };
+};
+
+// The driver's F1 25-style card: Pace / Racecraft / Awareness / Experience plus a
+// derived Overall. `deltas` (optional) animates the points won after a race.
+const DriverCardView = ({ profile, deltas = null, compact = false }) => {
+  const card = profile?.card;
+  if (!card) return null;
+  const overall = profile.overall ?? computeOverall(card);
+  return (
+    <section
+      className={`cm-driver-card${compact ? " is-compact" : ""}${deltas ? " is-animating" : ""}`}
+      style={{ "--card-accent": normalizeColor(profile.helmetColor, "#d8a11d") }}
+    >
+      <header className="cm-card-head">
+        <HelmetIcon color={profile.helmetColor} size={compact ? 34 : 46} />
+        <div className="cm-card-id">
+          <span>{profile.status} · {profile.age} años</span>
+          <b>{profile.name || "Piloto"}</b>
+        </div>
+        <div className="cm-card-overall">
+          <small>GLOBAL</small>
+          <strong>{overall}</strong>
+        </div>
+      </header>
+      <ul className="cm-card-attrs">
+        {ATTRIBUTE_KEYS.map((key) => {
+          const delta = deltas?.[key] || 0;
+          return (
+            <li key={key} className={delta > 0 ? "is-up" : ""}>
+              <span className="cm-card-attr-label">
+                <b>{ATTRIBUTE_LABELS[key].short}</b>
+                <small>{ATTRIBUTE_LABELS[key].name}</small>
+              </span>
+              <AttributeBar value={card[key]} delta={delta} />
+              <span className="cm-card-attr-value">
+                {card[key]}
+                {delta > 0 && <em className="cm-card-attr-delta">+{delta}</em>}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+};
+
+// Live head-to-head between the player and their team-mate during the race.
+const TrackDuel = ({ player, teammate, playerPosition, teammatePosition }) => {
+  if (!teammate || !Number.isFinite(playerPosition) || !Number.isFinite(teammatePosition)) return null;
+  const ahead = playerPosition < teammatePosition;
+  const tied = playerPosition === teammatePosition;
+  const gap = Math.abs(teammatePosition - playerPosition);
+  return (
+    <section className={`cm-track-duel ${ahead ? "is-ahead" : tied ? "is-tied" : "is-behind"}`}>
+      <header>Duelo en pista</header>
+      <div className="cm-duel-grid">
+        <div className={`cm-duel-side${ahead || tied ? " is-leader" : ""}`}>
+          <small>Tú</small>
+          <HelmetIcon color={player.helmetColor} size={28} />
+          <b>P{playerPosition}</b>
+        </div>
+        <div className="cm-duel-mid" aria-hidden="true">
+          <span className="cm-duel-arrow">{tied ? "=" : ahead ? "◄" : "►"}</span>
+          {!tied && <em>+{gap}</em>}
+        </div>
+        <div className={`cm-duel-side${!ahead && !tied ? " is-leader" : ""}`}>
+          <small>Compañero</small>
+          <HelmetIcon color={teammate.helmetColor} size={28} />
+          <b>P{teammatePosition}</b>
+        </div>
+      </div>
+      <p className="cm-duel-name">{teammate.name}</p>
+    </section>
+  );
+};
 
 // Custom inline SVG icons for the on-track race-state overlays.
 const SafetyCarIcon = ({ size = 30 }) => (
@@ -298,6 +449,10 @@ const ContractSelection = ({ contracts, year, profile, onSelect }) => (
 
 const StandingsTable = ({ title, rows, playerOnly = false }) => {
   const visibleRows = playerOnly ? rows : rows.slice(0, 10);
+  const playerBelow =
+    !playerOnly && title === "Pilotos"
+      ? rows.find((row) => row.isPlayer && !visibleRows.some((visible) => visible.isPlayer))
+      : null;
   return (
     <section className="cm-standings">
       <h3>{title}</h3>
@@ -317,6 +472,26 @@ const StandingsTable = ({ title, rows, playerOnly = false }) => {
             <em>{row.points}</em>
           </li>
         ))}
+        {playerBelow && (
+          <>
+            <li className="cm-standing-player-label" aria-hidden="true">
+              <span>Tu posicion</span>
+            </li>
+            <li
+              key={playerBelow.id || playerBelow.name}
+              className="is-player"
+              style={{ "--row-color": normalizeColor(playerBelow.color || "#d8a11d", "#d8a11d") }}
+            >
+              <b>{playerBelow.position}</b>
+              <span className="cm-row-stripe" />
+              <div>
+                <strong>{playerBelow.name}</strong>
+                <small>{playerBelow.team || `${playerBelow.wins || 0} victorias`}</small>
+              </div>
+              <em>{playerBelow.points}</em>
+            </li>
+          </>
+        )}
       </ol>
     </section>
   );
@@ -333,6 +508,13 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
     player.gridPosition ||
     player.position;
   const currentLap = visibleEvents.length ? visibleEvents[visibleEvents.length - 1].lap : 1;
+  const teammatePosition = raceResult.teammate
+    ? interpolateRacePosition(
+        raceResult.teammate.startingPosition,
+        raceResult.teammate.finalPosition,
+        currentLap / raceResult.race.lapCount
+      )
+    : null;
   // State is derived only from the current lap, so nothing about future safety
   // cars, red flags or rain is revealed before it actually happens.
   const liveState = raceStateAtLap(raceResult.conditions, currentLap);
@@ -409,6 +591,12 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
         {stat("Degradacion", `${Math.round(raceResult.conditions.degradation * 100)}%`)}
         {stat("Estado de pista", trackStatusLabel)}
       </div>
+      <TrackDuel
+        player={player}
+        teammate={raceResult.teammate}
+        playerPosition={livePlayerPosition}
+        teammatePosition={teammatePosition}
+      />
       <ol className="cm-lap-feed" ref={feedRef}>
         {visibleEvents.map((event, index) => (
           <li key={`${event.lap}-${index}`} className={`cm-event-${event.type}${event.important ? " is-important" : ""}`}>
@@ -429,38 +617,95 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
   );
 };
 
-const RaceResult = ({ raceResult, onContinue, lang }) => (
-  <section className="cm-panel cm-race-result">
-    <div className="cm-panel-head">
-      <TrophyFill />
-      <div>
-        <span>Resultado</span>
-        <h2>{localizeRaceName(raceResult.race.name, lang)}</h2>
-      </div>
+const RaceResult = ({ raceResult, onContinue, lang }) => {
+  const { rows, playerBelow } = raceResultRows(raceResult.results);
+  const resultRow = (row) => (
+    <div key={row.id} className={row.isPlayer ? "is-player" : ""}>
+      <b>P{row.position}</b>
+      <HelmetIcon color={row.helmetColor} size={26} />
+      <span>{row.driver}</span>
+      <em>{row.status === "DNF" ? "DNF" : `${row.points} pts`}</em>
     </div>
-    <div className="cm-winner-card" style={{ "--team-color": normalizeColor(raceResult.winner.teamColor, "#0f4c81") }}>
-      <span className="cm-team-stripe" />
-      <div>
-        <small>Ganador</small>
-        <b>{raceResult.winner.driver}</b>
-        <span>{raceResult.winner.team}</span>
-      </div>
-    </div>
-    <div className="cm-result-grid">
-      {raceResult.results.slice(0, 10).map((row) => (
-        <div key={row.id} className={row.isPlayer ? "is-player" : ""}>
-          <b>P{row.position}</b>
-          <HelmetIcon color={row.helmetColor} size={26} />
-          <span>{row.driver}</span>
-          <em>{row.status === "DNF" ? "DNF" : `${row.points} pts`}</em>
+  );
+  return (
+    <section className="cm-panel cm-race-result">
+      <div className="cm-panel-head">
+        <TrophyFill />
+        <div>
+          <span>Resultado</span>
+          <h2>{localizeRaceName(raceResult.race.name, lang)}</h2>
         </div>
-      ))}
-    </div>
-    <button className="cm-btn cm-btn-primary" type="button" onClick={onContinue}>
-      Continuar temporada
-    </button>
-  </section>
-);
+      </div>
+      <div className="cm-winner-card" style={{ "--team-color": normalizeColor(raceResult.winner.teamColor, "#0f4c81") }}>
+        <span className="cm-team-stripe" />
+        <div>
+          <small>Ganador</small>
+          <b>{raceResult.winner.driver}</b>
+          <span>{raceResult.winner.team}</span>
+        </div>
+      </div>
+      <div className="cm-result-grid">
+        {rows.map(resultRow)}
+        {playerBelow && (
+          <>
+            <p className="cm-result-player-label">Tu resultado</p>
+            {resultRow(playerBelow)}
+          </>
+        )}
+      </div>
+      <button className="cm-btn cm-btn-primary" type="button" onClick={onContinue}>
+        Ver evolucion
+      </button>
+    </section>
+  );
+};
+
+const RaceDevelopment = ({ development, raceResult, onContinue, lang }) => {
+  const player = raceResult.playerResult;
+  const totalDelta = ATTRIBUTE_KEYS.reduce((sum, key) => sum + (development.deltas[key] || 0), 0);
+  return (
+    <section className="cm-panel cm-race-development">
+      <div className="cm-panel-head">
+        <AwardFill />
+        <div>
+          <span>Progreso tras {localizeRaceName(raceResult.race.name, lang)}</span>
+          <h2>{development.overallDelta > 0 ? "La carta sube" : "Experiencia acumulada"}</h2>
+        </div>
+      </div>
+      <div className="cm-development-layout">
+        <DriverCardView profile={development.nextProfile} deltas={development.deltas} />
+        <div className="cm-development-side">
+          <div className="cm-season-stats">
+            {stat("Resultado", player.status === "DNF" ? "DNF" : `P${player.position}`)}
+            {stat("Esperado", `P${development.expected}`)}
+            {stat("Factor XP", `${development.resultFactor.toFixed(2)}x`)}
+            {stat("Subidas", totalDelta > 0 ? `+${totalDelta}` : "0")}
+          </div>
+          <div className="cm-xp-list">
+            {ATTRIBUTE_KEYS.map((key) => (
+              <div
+                key={key}
+                className={development.deltas[key] > 0 ? "is-up" : ""}
+                style={{ "--xp-width": `${Math.min(100, Math.round(development.xpGains[key] || 0))}%` }}
+              >
+                <span>{ATTRIBUTE_XP_LABELS[key]}</span>
+                <b>+{Math.round(development.xpGains[key] || 0)} XP</b>
+                <em>{development.deltas[key] > 0 ? `+${development.deltas[key]}` : "sin subida"}</em>
+              </div>
+            ))}
+          </div>
+          <p className="cm-panel-copy">
+            La experiencia siempre progresa; el rendimiento sobre el objetivo del coche multiplica Ritmo,
+            Pilotaje y Conciencia. La mejora ya cuenta desde la siguiente carrera.
+          </p>
+          <button className="cm-btn cm-btn-primary" type="button" onClick={onContinue}>
+            Continuar temporada
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const SeasonDashboard = ({
   season,
@@ -484,9 +729,11 @@ const SeasonDashboard = ({
             <div>
               <span>{profile.status}</span>
               <b>{profile.name}</b>
+              <small>Edad actual: {profile.age} años</small>
               <small>Rating {profile.rating} · Reputacion {profile.reputation}</small>
             </div>
           </div>
+          <DriverCardView profile={profile} compact />
           <div className="cm-season-objectives">
             {stat("Equipo", season.contract.team.name)}
             {stat("Objetivo pts", season.contract.objectives.points)}
@@ -640,6 +887,7 @@ const CareerMode = () => {
   const [season, setSeason] = useState(null);
   const [currentRaceIndex, setCurrentRaceIndex] = useState(0);
   const [raceResult, setRaceResult] = useState(null);
+  const [raceDevelopment, setRaceDevelopment] = useState(null);
   const [visibleEventCount, setVisibleEventCount] = useState(0);
   const [simulationSpeed, setSimulationSpeed] = useState("normal");
   const [evaluation, setEvaluation] = useState(null);
@@ -702,6 +950,16 @@ const CareerMode = () => {
               eventCatalogStats: raceResult.eventCatalogStats,
             }
           : null,
+        development: raceDevelopment
+          ? {
+              rating: raceDevelopment.nextProfile.rating,
+              deltas: raceDevelopment.deltas,
+              xpGains: ATTRIBUTE_KEYS.reduce((acc, key) => {
+                acc[key] = Math.round(raceDevelopment.xpGains[key] || 0);
+                return acc;
+              }, {}),
+            }
+          : null,
         summary,
       });
     window.advanceTime = () => undefined;
@@ -709,7 +967,7 @@ const CareerMode = () => {
       delete window.render_game_to_text;
       delete window.advanceTime;
     };
-  }, [phase, profile, decadeRoll, yearRoll, contracts, season, currentRaceIndex, raceResult, visibleEventCount, simulationSpeed, summary]);
+  }, [phase, profile, decadeRoll, yearRoll, contracts, season, currentRaceIndex, raceResult, raceDevelopment, visibleEventCount, simulationSpeed, summary]);
 
   const reset = () => {
     setPhase("setup");
@@ -721,6 +979,7 @@ const CareerMode = () => {
     setSeason(null);
     setCurrentRaceIndex(0);
     setRaceResult(null);
+    setRaceDevelopment(null);
     setVisibleEventCount(0);
     setSimulationSpeed("normal");
     setEvaluation(null);
@@ -753,6 +1012,7 @@ const CareerMode = () => {
     setSeason(nextSeason);
     setCurrentRaceIndex(0);
     setRaceResult(null);
+    setRaceDevelopment(null);
     setPhase("season");
   };
 
@@ -760,6 +1020,7 @@ const CareerMode = () => {
     if (!season || currentRaceIndex >= season.races.length) return;
     const result = simulateCareerRace({ season, raceIndex: currentRaceIndex, profile });
     setRaceResult(result);
+    setRaceDevelopment(null);
     setVisibleEventCount(1);
     setSimulationSpeed("normal");
     setPhase("race-live");
@@ -773,15 +1034,31 @@ const CareerMode = () => {
     setPhase("race-result");
   };
 
+  const showRaceDevelopment = () => {
+    if (!profile || !raceResult || !season) return;
+    setRaceDevelopment(buildRaceDevelopment({ profile, raceResult, season }));
+    setPhase("race-development");
+  };
+
   const continueSeason = () => {
+    const activeDevelopment =
+      raceDevelopment || (profile && raceResult && season ? buildRaceDevelopment({ profile, raceResult, season }) : null);
+    const updatedProfile = activeDevelopment?.nextProfile || profile;
     const nextSeason = completeRace(season, currentRaceIndex, raceResult);
     setSeason(nextSeason);
     setRaceResult(null);
+    setRaceDevelopment(null);
     setVisibleEventCount(0);
     setSimulationSpeed("normal");
     if (currentRaceIndex + 1 >= nextSeason.races.length) {
-      const seasonEvaluation = evaluateSeason({ season: nextSeason, profile });
+      const seasonEvaluation = evaluateSeason({ season: nextSeason, profile: updatedProfile });
       const nextYear = (bootstrap.seasonYears || []).find((year) => year > nextSeason.year) || nextSeason.year + 1;
+      if (seasonEvaluation.nextProfile.age > FINAL_AGE) {
+        setProfile(seasonEvaluation.nextProfile);
+        setSummary(retirementSummary(seasonEvaluation.nextProfile, nextSeason));
+        setPhase("retired");
+        return;
+      }
       const nextContracts = generateContracts({
         bootstrap,
         year: nextYear,
@@ -793,6 +1070,7 @@ const CareerMode = () => {
       setContracts(nextContracts);
       setPhase("season-review");
     } else {
+      setProfile(updatedProfile);
       setCurrentRaceIndex(currentRaceIndex + 1);
       setPhase("season");
     }
@@ -804,6 +1082,7 @@ const CareerMode = () => {
     setCurrentRaceIndex(0);
     setEvaluation(null);
     setRaceResult(null);
+    setRaceDevelopment(null);
     setPhase("season");
   };
 
@@ -816,6 +1095,7 @@ const CareerMode = () => {
     () => (raceResult ? raceResult.events.slice(0, visibleEventCount) : []),
     [raceResult, visibleEventCount]
   );
+  const displaySeasonYear = season?.year || yearRoll;
 
   return (
     <main className={`career-mode-page cm-phase-${phase}`}>
@@ -844,13 +1124,14 @@ const CareerMode = () => {
               {phase === "setup"
                 ? "Crea un piloto y deja que el dado elija su epoca"
                 : profile
-                ? `${profile.name} · ${profile.status}`
+                ? `${profile.name} · ${profile.status} · Temporada ${profile.seasons + 1}${displaySeasonYear ? ` · ${displaySeasonYear}` : ""}`
                 : "Trayectoria F1"}
             </h2>
           </div>
           {profile && (
             <div className="cm-hero-profile">
               <HelmetIcon color={profile.helmetColor} size={42} />
+              <span>EDAD {profile.age}</span>
               <span>REP {profile.reputation}</span>
               <b>RTG {profile.rating}</b>
             </div>
@@ -891,7 +1172,15 @@ const CareerMode = () => {
             />
           )}
           {phase === "race-result" && raceResult && (
-            <RaceResult raceResult={raceResult} onContinue={continueSeason} lang={lang} />
+            <RaceResult raceResult={raceResult} onContinue={showRaceDevelopment} lang={lang} />
+          )}
+          {phase === "race-development" && raceResult && raceDevelopment && (
+            <RaceDevelopment
+              development={raceDevelopment}
+              raceResult={raceResult}
+              onContinue={continueSeason}
+              lang={lang}
+            />
           )}
           {phase === "season-review" && evaluation && (
             <SeasonReview

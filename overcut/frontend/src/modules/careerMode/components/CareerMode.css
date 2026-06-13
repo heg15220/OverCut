@@ -572,6 +572,21 @@
   border-color: var(--cm-gold);
 }
 
+.cm-standings li.cm-standing-player-label {
+  display: block;
+  min-height: 0;
+  padding: 8px 8px 2px;
+  background: transparent;
+  border: 0;
+}
+
+.cm-standing-player-label span {
+  color: var(--cm-muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .cm-standings li > b,
 .cm-standings li em {
   font-family: Impact, "Arial Black", sans-serif;
@@ -863,6 +878,101 @@
   list-style: none;
 }
 
+.cm-track-duel {
+  --duel-color: var(--cm-blue);
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  margin: 14px 0 16px;
+  background: white;
+  border: 1px solid var(--cm-line);
+  border-left: 5px solid var(--duel-color);
+  border-radius: 8px;
+  box-shadow: 0 10px 22px rgba(7, 26, 49, 0.1);
+}
+
+.cm-track-duel.is-ahead { --duel-color: var(--cm-green); }
+.cm-track-duel.is-behind { --duel-color: var(--cm-danger); }
+.cm-track-duel.is-tied { --duel-color: var(--cm-gold); }
+
+.cm-track-duel header {
+  color: var(--cm-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cm-duel-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.cm-duel-side {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  background: rgba(10, 45, 82, 0.06);
+  border: 1px solid var(--cm-line);
+  border-radius: 8px;
+}
+
+.cm-duel-side.is-leader {
+  background: color-mix(in srgb, var(--duel-color) 13%, white);
+  border-color: var(--duel-color);
+}
+
+.cm-duel-side small {
+  grid-column: 1 / -1;
+  color: var(--cm-muted);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cm-duel-side b,
+.cm-duel-arrow,
+.cm-duel-mid em {
+  font-family: Impact, "Arial Black", sans-serif;
+  font-weight: 400;
+}
+
+.cm-duel-side b {
+  color: var(--duel-color);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.cm-duel-mid {
+  display: grid;
+  place-items: center;
+  min-width: 54px;
+}
+
+.cm-duel-arrow {
+  color: var(--duel-color);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.cm-duel-mid em {
+  color: var(--cm-muted);
+  font-size: 14px;
+  font-style: normal;
+}
+
+.cm-duel-name {
+  margin: 0;
+  color: var(--cm-muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .cm-lap-feed li {
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr);
@@ -934,6 +1044,317 @@
   line-height: 1;
 }
 
+.cm-driver-card {
+  --card-accent: var(--cm-gold);
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+  color: white;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--card-accent) 34%, #f8df87) 0 19%, transparent 19.4%),
+    linear-gradient(155deg, #101722 0%, #1b2533 52%, #090d14 100%);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 60%, white);
+  border-bottom: 4px solid var(--card-accent);
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 14px 34px rgba(7, 26, 49, 0.22);
+}
+
+.cm-driver-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 18px, rgba(255, 255, 255, 0.06) 19px, transparent 21px),
+    radial-gradient(circle at 82% 14%, color-mix(in srgb, var(--card-accent) 38%, transparent), transparent 28%);
+  pointer-events: none;
+}
+
+.cm-driver-card.is-animating {
+  animation: cmCardPop 0.55s ease both;
+}
+
+.cm-card-head,
+.cm-card-attrs {
+  position: relative;
+  z-index: 1;
+}
+
+.cm-card-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cm-card-id span,
+.cm-card-overall small,
+.cm-card-attr-label small {
+  display: block;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cm-card-id b {
+  display: block;
+  overflow-wrap: anywhere;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.cm-card-overall {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  min-height: 74px;
+  color: #101722;
+  background: linear-gradient(180deg, #fff6c8, var(--card-accent));
+  border: 2px solid rgba(255, 255, 255, 0.78);
+  border-radius: 8px;
+}
+
+.cm-card-overall strong {
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 42px;
+  font-weight: 400;
+  line-height: 0.85;
+}
+
+.cm-card-attrs {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cm-card-attrs li {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 10px;
+}
+
+.cm-card-attr-label b,
+.cm-card-attr-value {
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.cm-card-bar {
+  position: relative;
+  height: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+}
+
+.cm-card-bar-fill,
+.cm-card-bar-gain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 999px;
+}
+
+.cm-card-bar-fill {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--card-accent) 72%, white), #fff3bc);
+}
+
+.cm-card-bar-gain {
+  background: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+  animation: cmGainGlow 1s ease-in-out infinite alternate;
+}
+
+.cm-card-attr-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.cm-card-attr-delta {
+  color: #fff3bc;
+  font-size: 15px;
+  font-style: normal;
+}
+
+.cm-driver-card.is-compact {
+  padding: 12px;
+  margin: -4px 0 12px;
+}
+
+.cm-driver-card.is-compact .cm-card-head {
+  margin-bottom: 10px;
+}
+
+.cm-driver-card.is-compact .cm-card-id b {
+  font-size: 24px;
+}
+
+.cm-driver-card.is-compact .cm-card-overall {
+  width: 58px;
+  min-height: 58px;
+}
+
+.cm-driver-card.is-compact .cm-card-overall strong {
+  font-size: 34px;
+}
+
+.cm-driver-card.is-compact .cm-card-attrs li {
+  grid-template-columns: 68px minmax(0, 1fr) 40px;
+  gap: 8px;
+}
+
+.cm-driver-card.is-compact .cm-card-attr-label b,
+.cm-driver-card.is-compact .cm-card-attr-value {
+  font-size: 19px;
+}
+
+.cm-race-development {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+}
+
+.cm-development-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 500px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.cm-race-development .cm-driver-card {
+  min-height: clamp(520px, 62vh, 720px);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  padding: clamp(20px, 3vw, 30px);
+}
+
+.cm-race-development .cm-card-head {
+  align-items: start;
+  gap: 16px;
+  margin-bottom: clamp(22px, 4vh, 42px);
+}
+
+.cm-race-development .cm-card-id span,
+.cm-race-development .cm-card-overall small,
+.cm-race-development .cm-card-attr-label small {
+  font-size: 12px;
+}
+
+.cm-race-development .cm-card-id b {
+  font-size: clamp(36px, 4.6vw, 58px);
+}
+
+.cm-race-development .cm-card-overall {
+  width: clamp(98px, 12vw, 132px);
+  min-height: clamp(98px, 12vw, 132px);
+}
+
+.cm-race-development .cm-card-overall strong {
+  font-size: clamp(58px, 7vw, 82px);
+}
+
+.cm-race-development .cm-card-attrs {
+  align-content: space-evenly;
+  gap: clamp(16px, 3vh, 30px);
+}
+
+.cm-race-development .cm-card-attrs li {
+  grid-template-columns: 104px minmax(0, 1fr) 64px;
+  gap: 14px;
+}
+
+.cm-race-development .cm-card-attr-label b,
+.cm-race-development .cm-card-attr-value {
+  font-size: clamp(28px, 3.2vw, 40px);
+}
+
+.cm-race-development .cm-card-bar {
+  height: 16px;
+}
+
+.cm-race-development .cm-card-attr-delta {
+  font-size: 20px;
+}
+
+.cm-development-side {
+  display: grid;
+  gap: 14px;
+}
+
+.cm-xp-list {
+  display: grid;
+  gap: 8px;
+}
+
+.cm-xp-list div {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid var(--cm-line);
+  border-left: 4px solid var(--cm-blue);
+  border-radius: 8px;
+}
+
+.cm-xp-list div::after {
+  content: "";
+  position: absolute;
+  inset: auto auto 0 0;
+  width: var(--xp-width, 0%);
+  height: 4px;
+  background: linear-gradient(90deg, var(--cm-blue), var(--cm-gold));
+  transform-origin: left center;
+  animation: cmXpBar 0.9s ease-out both;
+}
+
+.cm-xp-list div.is-up {
+  background: rgba(216, 161, 29, 0.13);
+  border-left-color: var(--cm-gold);
+  animation: cmXpUpPulse 1.15s ease-in-out 2;
+}
+
+.cm-xp-list span {
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cm-xp-list b,
+.cm-xp-list em {
+  position: relative;
+  z-index: 1;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.cm-xp-list em {
+  color: var(--cm-muted);
+  font-size: 18px;
+}
+
+.cm-xp-list div.is-up em {
+  color: var(--cm-gold);
+  animation: cmXpValuePop 0.7s ease both;
+}
+
 .cm-winner-card {
   padding: 16px;
   margin-bottom: 16px;
@@ -986,6 +1407,15 @@
   font-weight: 900;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.cm-result-player-label {
+  margin: 5px 0 0;
+  padding: 8px 10px 2px;
+  color: var(--cm-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .cm-season-review {
@@ -1063,9 +1493,39 @@
   }
 }
 
+@keyframes cmCardPop {
+  0% { transform: translateY(12px) scale(0.98); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes cmGainGlow {
+  from { opacity: 0.78; }
+  to { opacity: 1; }
+}
+
+@keyframes cmXpBar {
+  from { transform: scaleX(0); opacity: 0.45; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+@keyframes cmXpUpPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(216, 161, 29, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(216, 161, 29, 0.16); }
+}
+
+@keyframes cmXpValuePop {
+  0% { transform: translateY(6px) scale(0.86); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cm-career-car,
-  .cm-review-animation span {
+  .cm-review-animation span,
+  .cm-driver-card.is-animating,
+  .cm-card-bar-gain,
+  .cm-xp-list div,
+  .cm-xp-list div::after,
+  .cm-xp-list div.is-up em {
     animation: none;
   }
 }
@@ -1124,8 +1584,57 @@
   .cm-season-standings,
   .cm-season-objectives,
   .cm-season-stats,
-  .cm-race-meta {
+  .cm-race-meta,
+  .cm-development-layout {
     grid-template-columns: 1fr;
+  }
+
+  .cm-card-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .cm-race-development .cm-driver-card {
+    min-height: 500px;
+    padding: 18px;
+  }
+
+  .cm-race-development .cm-card-head {
+    margin-bottom: 18px;
+  }
+
+  .cm-card-overall {
+    grid-column: 1 / -1;
+    justify-self: start;
+    width: 100%;
+    min-height: 58px;
+    grid-template-columns: auto auto;
+    gap: 10px;
+  }
+
+  .cm-card-attrs li,
+  .cm-driver-card.is-compact .cm-card-attrs li,
+  .cm-race-development .cm-card-attrs li {
+    grid-template-columns: 62px minmax(0, 1fr) 40px;
+  }
+
+  .cm-race-development .cm-card-bar {
+    height: 13px;
+  }
+
+  .cm-xp-list div {
+    grid-template-columns: 1fr auto;
+  }
+
+  .cm-xp-list em {
+    grid-column: 1 / -1;
+  }
+
+  .cm-duel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cm-duel-mid {
+    min-width: 0;
   }
 
   .cm-contract-card h3 {

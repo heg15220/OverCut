@@ -15,6 +15,7 @@ import {
   renderStrategyEvent,
   renderWeatherEvent,
 } from "./careerRaceEventCatalog";
+import { applySeasonAging, computeOverall } from "./driverCard";
 
 export const HELMET_COLORS = [
   "#0a2d52", "#123b66", "#1f568b", "#2c6aa3", "#4d7fae",
@@ -33,6 +34,52 @@ const TEAM_COLORS = [
 const MODERN_POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+// Deterministic estimate of a driver's track position at a given race progress
+// (0 = lights out, 1 = chequered flag). Used to animate the team-mate's live
+// position without RNG, so re-renders stay stable. The curve is gentle early on
+// and steepens in the second half, landing exactly on the final position.
+export const interpolateRacePosition = (start, final, progress) => {
+  const p = clamp(progress, 0, 1);
+  const curve = p < 0.5 ? p * 0.72 : 0.36 + (p - 0.5) * 1.28;
+  return Math.max(1, Math.round(start + (final - start) * curve));
+};
+
+// Legacy/offline fallback: build a flat card from a single rating so the engine
+// still runs for profiles created before the card system existed.
+const deriveCardFromRating = (rating = 58) => ({
+  pace: rating,
+  racecraft: rating,
+  awareness: rating,
+  experience: rating,
+});
+
+// Translate a driver-card profile into the knobs the race simulation reads. The
+// card is the source of truth: `rating` is the overall, and the legacy
+// consistency/aggression knobs are derived from Awareness/Experience.
+export const engineInputsFromProfile = (profile = {}) => {
+  const card = profile.card || deriveCardFromRating(profile.rating);
+  const overall = Number.isFinite(profile.overall) ? profile.overall : computeOverall(card);
+  return {
+    rating: overall,
+    pace: card.pace,
+    racecraft: card.racecraft,
+    awareness: card.awareness,
+    experience: card.experience,
+    consistency: clamp(card.awareness * 0.55 + card.experience * 0.45, 35, 95),
+    aggression: clamp(70 - (card.awareness - 60) * 0.6, 35, 75),
+  };
+};
+
+// Rows to render in a race-result table: the top `limit`, plus the player's own
+// row pulled out separately when they finished outside it, so the player always
+// sees where they classified.
+export const raceResultRows = (results, limit = 10) => {
+  const rows = results.slice(0, limit);
+  const player = results.find((row) => row.isPlayer);
+  const playerBelow = player && !rows.some((row) => row.isPlayer) ? player : null;
+  return { rows, playerBelow };
+};
 
 export const hashString = (value = "") => {
   let hash = 2166136261;
@@ -774,6 +821,13 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   const rng = createRng(`${profile.name}|${season.year}|${race.name}|${raceIndex}|${profile.rating}`);
   const entrants = entrantsForSeason(season);
   const player = entrants.find((entrant) => entrant.isPlayer);
+  // The card is read live, so attribute growth during the season is felt in the
+  // very next race (the season grid was frozen at sign-on).
+  const inputs = engineInputsFromProfile(profile);
+  if (player) {
+    player.driver = { ...player.driver, rating: inputs.rating };
+    player.base = inputs.rating * 0.55 + player.team.rating * 0.45;
+  }
   const profileTrack = raceProfile(race.name);
   const lapCount = lapCountForRace(race.name, rng);
   const plan = conditionPlan(profileTrack, lapCount, rng);
@@ -800,7 +854,8 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       qualiScore:
         entrant.base +
         (rng() - 0.5) * 10 +
-        (profileTrack.street > 0.55 ? entrant.driver.rating * 0.035 : 0),
+        (profileTrack.street > 0.55 ? entrant.driver.rating * 0.035 : 0) +
+        (entrant.isPlayer ? (inputs.pace - inputs.rating) * 0.35 : 0),
     }))
     .sort((a, b) => b.qualiScore - a.qualiScore)
     .map((entry, index) => ({ ...entry, gridPosition: index + 1 }));
@@ -820,7 +875,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     ),
   ];
 
-  const startGain = Math.round((rng() - 0.42) * 4 + (profile.consistency - 50) / 45);
+  const startGain = Math.round((rng() - 0.42) * 4 + (inputs.consistency - 50) / 45);
   playerDelta += startGain;
   eventLaps.add(2);
   events.push(
@@ -871,7 +926,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
 
   if (plan.degradation > 0.66) {
     const lap = Math.floor(lapCount * (0.34 + rng() * 0.2));
-    const gain = profile.consistency > 58 ? 2 : rng() < 0.45 ? 1 : -1;
+    const gain = inputs.consistency > 58 ? 2 : rng() < 0.45 ? 1 : -1;
     playerDelta += gain;
     events.push(
       playerEvent(
@@ -939,8 +994,8 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     );
   }
 
-  const accidentRisk = clamp(0.03 + profileTrack.chaos * 0.06 + wetLevel * 0.05 - profile.consistency / 1800, 0.01, 0.2);
-  const playerDnf = rng() < accidentRisk * (profile.aggression > 65 ? 1.25 : 0.8);
+  const accidentRisk = clamp(0.03 + profileTrack.chaos * 0.06 + wetLevel * 0.05 - inputs.awareness / 1800, 0.01, 0.2);
+  const playerDnf = rng() < accidentRisk * (inputs.aggression > 65 ? 1.25 : 0.8);
   if (playerDnf) {
     const lap = 4 + Math.floor(rng() * Math.max(4, lapCount - 8));
     events.push(renderIncidentEvent({ driver: profile.name, lap, raceName: race.name, rng, player: true, severe: true, state: raceStateAtLap(plan, lap) }));
@@ -969,7 +1024,12 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
           weatherSkill +
           (profileTrack.power - 0.5) * (adjustedTeamRating - 70) * 0.12 +
           (profileTrack.tyre - 0.4) * ((hashString(`${entrant.driver.name}-tyre`) % 12) - 5) +
-          (isPlayer ? playerDelta * 2.8 + profile.reputation * 0.025 : 0),
+          (isPlayer
+            ? playerDelta * 2.8 +
+              profile.reputation * 0.025 +
+              (inputs.pace - inputs.rating) * 0.25 +
+              (inputs.racecraft - inputs.rating) * 0.2
+            : 0),
       };
     });
 
@@ -1003,6 +1063,18 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   const playerResult = results.find((result) => result.isPlayer);
   const winner = results[0];
   const podium = results.slice(0, 3);
+  // The team-mate shares the player's team. Some real grids field a single seat,
+  // so this can be absent; the live duel header simply hides itself then.
+  const teammateResult = results.find((result) => !result.isPlayer && result.team === player.team.name);
+  const teammate = teammateResult
+    ? {
+        name: teammateResult.driver,
+        helmetColor: teammateResult.helmetColor,
+        teamColor: teammateResult.teamColor,
+        startingPosition: teammateResult.gridPosition,
+        finalPosition: teammateResult.position,
+      }
+    : null;
   const classifiedRivals = results.filter((result) => !result.isPlayer);
   const getPlayerRaceRival = (lap, intent = "around") => {
     const estimatedPosition = estimatedPlayerPositionAtLap({
@@ -1167,6 +1239,8 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     playerResult,
     winner,
     podium,
+    teammate,
+    wetLevel,
     eventCatalogStats: eventCatalogStats(),
   };
 };
@@ -1253,15 +1327,21 @@ export const evaluateSeason = ({ season, profile }) => {
   // losing the intra-team duel costs it. A tie is neutral.
   const battle = teammateBattleSummary(season, profile);
   const teammateRepDelta = !battle ? 0 : battle.tied ? 0 : battle.beaten ? 6 : -6;
-  const teammateRatingBonus = battle && battle.beaten && battle.teammateRating > profile.rating ? 1 : 0;
   const reputationDelta = (overDelivered ? objectives.reputationBonus + 6 : met ? objectives.reputationBonus : failed ? -10 : -3) + teammateRepDelta;
-  const ratingDelta = (overDelivered ? 3 : met ? 2 : failed ? -1 : 0) + teammateRatingBonus;
+  const nextAge = (Number.isFinite(profile.age) ? profile.age : 18) + 1;
+  const aged = profile.card
+    ? applySeasonAging(profile.card, nextAge)
+    : { card: profile.card, overall: Number.isFinite(profile.overall) ? profile.overall : profile.rating };
+  // Rating now comes from the driver card (raised per race), so the season review
+  // only ages the driver, moves reputation/status, and tallies career stats.
   const nextProfile = {
     ...profile,
     seasons: profile.seasons + 1,
+    age: nextAge,
+    card: aged.card,
+    overall: aged.overall,
     reputation: clamp(profile.reputation + reputationDelta, 0, 100),
-    rating: clamp(profile.rating + ratingDelta, 45, 99),
-    consistency: clamp(profile.consistency + (met ? 2 : failed ? -1 : 0), 35, 92),
+    rating: aged.overall,
     status:
       profile.reputation + reputationDelta >= 78 ? "estrella" :
       profile.reputation + reputationDelta >= 55 ? "promesa" :
@@ -1282,7 +1362,6 @@ export const evaluateSeason = ({ season, profile }) => {
     overDelivered,
     fired: failed,
     reputationDelta,
-    ratingDelta,
     champion: playerStanding?.position === 1,
     titleFight: playerStanding?.position <= 3 || (playerStanding?.points || 0) >= (season.driverStandings[0]?.points || 0) * 0.72,
     teammateBattle: battle,
