@@ -2409,47 +2409,83 @@
   }
 
   .ocr-race-podium {
-    grid-template-columns: 1fr;
-    align-items: stretch;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
     gap: 10px;
   }
 
   .ocr-podium-place {
-    grid-template-columns: minmax(0, 1fr) 82px;
-    grid-template-rows: none;
-    --step-height: auto;
+    grid-template-columns: none;
+    grid-template-rows: minmax(0, auto) var(--step-height);
+    --step-height: 70px;
   }
 
   .ocr-podium-place.is-winner {
+    grid-column: 1 / -1;
     order: -1;
-    --step-height: auto;
+    --step-height: 92px;
   }
 
   .ocr-podium-driver,
   .ocr-podium-place.is-winner .ocr-podium-driver {
-    justify-items: start;
-    padding: 13px 14px;
-    text-align: left;
+    justify-items: center;
+    padding: 12px 10px;
+    text-align: center;
     border: 1px solid color-mix(in srgb, var(--podium-color) 44%, var(--ocr-line));
-    border-right: 0;
-    border-radius: 10px 0 0 10px;
+    border-bottom: 0;
+    border-radius: 10px 10px 0 0;
   }
 
   .ocr-podium-driver h3,
   .ocr-podium-place.is-winner .ocr-podium-driver h3 {
-    font-size: clamp(22px, 7vw, 34px);
+    font-size: clamp(20px, 6vw, 30px);
   }
 
   .ocr-podium-step,
   .ocr-podium-place--p2 .ocr-podium-step,
   .ocr-podium-place--p3 .ocr-podium-step {
-    min-height: 100%;
-    border-radius: 0 10px 10px 0;
+    min-height: var(--step-height);
+    border-radius: 0;
+  }
+
+  .ocr-podium-place.is-winner .ocr-podium-step {
+    border-radius: 0 0 10px 10px;
+  }
+
+  .ocr-podium-place--p2 .ocr-podium-step {
+    border-radius: 0 0 0 10px;
+  }
+
+  .ocr-podium-place--p3 .ocr-podium-step {
+    border-radius: 0 0 10px 0;
   }
 
   .ocr-podium-step b,
   .ocr-podium-place.is-winner .ocr-podium-step b {
-    font-size: clamp(42px, 12vw, 62px);
+    font-size: clamp(38px, 12vw, 58px);
+  }
+
+  @media (max-width: 390px) {
+    .ocr-race-podium {
+      grid-template-columns: 1fr;
+    }
+
+    .ocr-podium-place {
+      grid-column: 1;
+    }
+
+    .ocr-podium-place--p2 {
+      order: 0;
+    }
+
+    .ocr-podium-place--p3 {
+      order: 1;
+    }
+
+    .ocr-podium-place--p2 .ocr-podium-step,
+    .ocr-podium-place--p3 .ocr-podium-step {
+      border-radius: 0 0 10px 10px;
+    }
   }
 
   .ocr-top10-list li {
