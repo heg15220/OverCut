@@ -1,11 +1,22 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowClockwise, ArrowLeftShort, Dice5Fill, FlagFill, LightningChargeFill } from "react-bootstrap-icons";
+import {
+  ArrowClockwise,
+  ArrowLeftShort,
+  CloudRainHeavyFill,
+  CloudSunFill,
+  Dice5Fill,
+  FlagFill,
+  LightningChargeFill,
+  SunFill,
+} from "react-bootstrap-icons";
 import { config } from "../../../config/constants";
 import racingHelmetUrl from "../../../assets/images/miniGames/RacingHelmet.png";
+import formulaCarLoadingUrl from "../../../assets/images/miniGames/FormulaCarLoading.png";
 import { fallbackBootstrap } from "./fallbackData";
 import { buildGrid, simulateChampionship } from "./racingEngine";
 import { strings } from "./i18n";
+import { applyTeamDecadeRatings } from "./teamDecadeRatings";
 import "./OvercutRacing.css";
 
 const TARGET_TEAMS = 11;
@@ -24,6 +35,21 @@ const HELMET_COLORS = [
   "#7f1d1d", "#14532d", "#581c87",
 ];
 const OCR_NEUTRAL_COLOR = "#d8a11d";
+const TEAM_COLOR_PALETTE = [
+  "#d0182f", "#ff8700", "#d8a11d", "#00a19c", "#0090ff", "#1e5bc6",
+  "#641e9b", "#9c27b0", "#006f62", "#2e7d32", "#8bc34a", "#00bcd4",
+  "#3f51b5", "#e91e63", "#795548", "#607d8b", "#b71c1c", "#f06292",
+  "#4caf50", "#26a69a", "#5c6bc0", "#8e24aa",
+];
+
+const hashString = (value = "") => {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+};
 
 const normalizeVisualColor = (color, fallback = "#0a2d52") => {
   if (!/^#[0-9a-f]{6}$/i.test(color || "")) {
@@ -34,6 +60,42 @@ const normalizeVisualColor = (color, fallback = "#0a2d52") => {
   const blue = parseInt(color.slice(5, 7), 16);
   const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
   return luminance > 0.68 ? fallback : color;
+};
+
+const hexToRgb = (color) => {
+  if (!/^#[0-9a-f]{6}$/i.test(color || "")) {
+    return [0, 0, 0];
+  }
+  return [
+    parseInt(color.slice(1, 3), 16),
+    parseInt(color.slice(3, 5), 16),
+    parseInt(color.slice(5, 7), 16),
+  ];
+};
+
+const colorDistance = (colorA, colorB) => {
+  const [ar, ag, ab] = hexToRgb(colorA);
+  const [br, bg, bb] = hexToRgb(colorB);
+  return Math.sqrt((ar - br) ** 2 + (ag - bg) ** 2 + (ab - bb) ** 2);
+};
+
+const pickDiverseTeamColor = (team, selectedTeams) => {
+  const usedColors = selectedTeams
+    .map((selectedTeam) => normalizeVisualColor(selectedTeam.color, ""))
+    .filter(Boolean);
+  const normalizedPalette = TEAM_COLOR_PALETTE.map((color) => normalizeVisualColor(color, "#0f4c81"));
+  const unused = normalizedPalette.filter((color) => !usedColors.includes(color));
+  const candidates = unused.length ? unused : normalizedPalette;
+  const offset = hashString(team.name) % candidates.length;
+  const orderedCandidates = [...candidates.slice(offset), ...candidates.slice(0, offset)];
+
+  return orderedCandidates.reduce((best, color) => {
+    const minDistance = usedColors.length
+      ? Math.min(...usedColors.map((usedColor) => colorDistance(color, usedColor)))
+      : Number.POSITIVE_INFINITY;
+    const score = minDistance + ((hashString(`${team.name}-${color}`) % 17) / 100);
+    return score > best.score ? { color, score } : best;
+  }, { color: orderedCandidates[0], score: -1 }).color;
 };
 
 const HelmetIcon = ({ color, size = 28 }) => (
@@ -49,6 +111,39 @@ const HelmetIcon = ({ color, size = 28 }) => (
     }}
   />
 );
+
+const TeamCarIcon = ({ color }) => (
+  <span
+    className="ocr-team-car"
+    aria-hidden="true"
+    style={{ "--team-car-color": normalizeVisualColor(color, "#0f4c81") }}
+  >
+    <img className="ocr-team-car-image" src={formulaCarLoadingUrl} alt="" />
+  </span>
+);
+
+const WeatherIcon = ({ code, label }) => {
+  const Icon =
+    code === "wet"
+      ? CloudRainHeavyFill
+      : code === "mixed"
+        ? CloudSunFill
+        : SunFill;
+
+  return (
+    <small className={`ocr-weather-icon ocr-weather-icon--${code || "dry"}`} aria-label={label}>
+      <Icon aria-hidden="true" />
+    </small>
+  );
+};
+
+const RaceResultTag = ({ race }) => {
+  if (race.scenario === "wet_master" && race.conditions?.weatherCode) {
+    return <WeatherIcon code={race.conditions.weatherCode} label={race.narrative.tag} />;
+  }
+
+  return <em>{race.narrative.tag}</em>;
+};
 
 const pickHelmetColor = (usedColors) => {
   const available = HELMET_COLORS.filter((color) => !usedColors.has(color));
@@ -88,6 +183,7 @@ const prepareBootstrap = (data, fallbackMode = false) => {
 
   return {
     ...source,
+    teamsByDecade: applyTeamDecadeRatings(source.teamsByDecade),
     currentYear: source.currentYear || latestSeasonYear,
     dataCoverageYear: source.dataCoverageYear || latestSeasonYear,
     dataSource: source.dataSource || strings.dataSourceFallback,
@@ -273,7 +369,8 @@ const GridBoard = ({ teams, drivers, lastRoll, pendingDriverAssignment, onAssign
               className={`ocr-garage-team ${team ? "is-filled" : ""}`}
               style={team ? { "--team-color": normalizeVisualColor(team.color, "#0f4c81") } : undefined}
             >
-              <span>{index + 1}</span>
+              <span className="ocr-garage-number">{index + 1}</span>
+              {team ? <TeamCarIcon color={team.color} /> : null}
               <b>{team?.name || strings.teamPlaceholder}</b>
             </div>
             <div className="ocr-garage-drivers">
@@ -523,14 +620,19 @@ const RaceSimulating = ({ race, durationMs, onComplete }) => {
       <div className="ocr-race-sim-head">
         <span>{strings.round(race.round)}</span>
         <h2>{race.name}</h2>
-        {race.conditions?.weather && <small>{race.conditions.weather}</small>}
+        {race.conditions?.weather && (
+          <WeatherIcon code={race.conditions.weatherCode} label={race.conditions.weather} />
+        )}
       </div>
       {race.preRaceNarrative && (
         <p className="ocr-pre-race-narrative">{race.preRaceNarrative}</p>
       )}
-      <div className="ocr-sim-bar" style={{ "--sim-duration": `${durationMs}ms` }}>
-        <div className="ocr-sim-bar-fill" />
-        <b>{strings.simulating}</b>
+      <div className="ocr-sim-loader" style={{ "--sim-duration": `${durationMs}ms` }}>
+        <img className="ocr-sim-car" src={formulaCarLoadingUrl} alt="" aria-hidden="true" />
+        <div className="ocr-sim-bar">
+          <div className="ocr-sim-bar-fill" />
+          <b>{strings.simulating}</b>
+        </div>
       </div>
     </section>
   );
@@ -544,7 +646,7 @@ const RaceResultStage = ({ race, isLast, onNext }) => (
     <header className="ocr-race-result-head">
       <span>{strings.round(race.round)}</span>
       <h2>{race.name}</h2>
-      <em>{race.narrative.tag}</em>
+      <RaceResultTag race={race} />
     </header>
     <p className="ocr-race-result-text">{race.narrative.text}</p>
     <em className="ocr-race-result-decisive">{race.decisiveMoment}</em>
@@ -556,15 +658,40 @@ const RaceResultStage = ({ race, isLast, onNext }) => (
       </div>
     )}
 
-    <div className="ocr-race-winner-card">
-      {race.winner.helmetColor && (
-        <HelmetIcon color={race.winner.helmetColor} size={56} />
-      )}
-      <div>
-        <span>{strings.winnerLabel}</span>
-        <h3>{race.winner.driver}</h3>
-        <small>{race.winner.team} · {race.winner.strategy}</small>
-      </div>
+    <div className="ocr-race-podium" aria-label={strings.podiumLabel}>
+      {[2, 1, 3].map((position) => {
+        const driver = race.podium?.find((row) => row.position === position);
+        if (!driver) return null;
+
+        const isWinner = position === 1;
+        return (
+          <article
+            key={driver.position}
+            className={`ocr-podium-place ocr-podium-place--p${driver.position}${isWinner ? " is-winner" : ""}`}
+            style={{
+              "--podium-color": normalizeVisualColor(driver.color || (isWinner ? race.winner.color : OCR_NEUTRAL_COLOR), OCR_NEUTRAL_COLOR),
+            }}
+          >
+            <div className="ocr-podium-driver">
+              {driver.helmetColor ? (
+                <HelmetIcon color={driver.helmetColor} size={isWinner ? 62 : 46} />
+              ) : (
+                <span className="ocr-podium-helmet-placeholder" aria-hidden="true" />
+              )}
+              <span>{isWinner ? strings.winnerLabel : strings.positionLabel(driver.position)}</span>
+              <h3>{driver.driver}</h3>
+              <small>
+                {driver.team}
+                {driver.fastestLap ? ` - ${strings.scoringFastestLap}` : ""}
+              </small>
+            </div>
+            <div className="ocr-podium-step">
+              <b>{driver.position}</b>
+              <small>{driver.points} pts</small>
+            </div>
+          </article>
+        );
+      })}
     </div>
 
     <div className="ocr-top10-head">
@@ -587,7 +714,7 @@ const RaceResultStage = ({ race, isLast, onNext }) => (
           )}
           <div>
             <strong>{row.driver}</strong>
-            <small>{row.team}{row.fastestLap ? ` · ${strings.scoringFastestLap}` : ""}</small>
+            <small>{row.team}{row.fastestLap ? ` - ${strings.scoringFastestLap}` : ""}</small>
           </div>
           <em>{row.points}</em>
         </li>
@@ -863,7 +990,11 @@ const OvercutRacing = () => {
     window.setTimeout(() => setRolling(false), 520);
 
     if (type === "teams") {
-      const entity = pickRandom(pool);
+      const pickedTeam = pickRandom(pool);
+      const entity = {
+        ...pickedTeam,
+        color: pickDiverseTeamColor(pickedTeam, teams),
+      };
       const rollResult = { type, decade: decade.label, entity };
       const nextTeams = [...teams, entity];
       setPendingDriverRoll(null);

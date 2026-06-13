@@ -31,7 +31,13 @@ export const SCORING_SYSTEMS = [
   { id: "2025-", years: "2025-", points: [25, 18, 15, 12, 10, 8, 6, 4, 2, 1], fastestLap: 0, maxResults: null },
 ];
 
-export const pickScoringSystem = (rng) => SCORING_SYSTEMS[Math.floor(rng() * SCORING_SYSTEMS.length)];
+const getSystemStartYear = (system) => Number(String(system.years).match(/\d{4}/)?.[0] || 0);
+
+export const pickScoringSystem = (rng) => {
+  const modernSystems = SCORING_SYSTEMS.filter((system) => getSystemStartYear(system) >= 1991);
+  const pool = rng() < 0.65 && modernSystems.length ? modernSystems : SCORING_SYSTEMS;
+  return pool[Math.floor(rng() * pool.length)];
+};
 
 // Historical "best N results count" caps were built for short 1950s-70s
 // calendars. Applied verbatim to a long simulated season they freeze the

@@ -102,7 +102,7 @@ export const buildGrid = (teams, drivers) =>
     const reliability = clamp(0.68 + team.rating / 330 + ((hashString(team.name) % 9) - 4) / 100, 0.7, 0.96);
     return {
       ...team,
-      color: teamColor(team.name, index),
+      color: normalizeHexColor(team.color || teamColor(team.name, index)),
       reliability,
       drivers: [driverA, driverB].filter(Boolean),
     };
@@ -929,6 +929,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         position: result.position,
         driver: result.driver.name,
         team: result.team.name,
+        color: result.team.color,
         helmetColor: result.driver.helmetColor,
         points: result.points,
         fastestLap: result.fastestLap,
