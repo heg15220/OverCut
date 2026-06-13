@@ -20,11 +20,14 @@ import {
   normalizeColor,
   playableDecades,
   prepareCareerBootstrap,
+  raceStateAtLap,
   randomYearInDecade,
   retirementSummary,
   simulateCareerRace,
+  teammateBattleSummary,
   evaluateSeason,
 } from "./careerModeEngine";
+import { localizeRaceName } from "./careerRaceNames";
 import { fallbackBootstrap } from "../../overcutRacing/components/fallbackData";
 import "./CareerMode.css";
 
@@ -66,6 +69,91 @@ const stat = (label, value) => (
     <b>{value}</b>
   </div>
 );
+
+// Custom inline SVG icons for the on-track race-state overlays.
+const SafetyCarIcon = ({ size = 30 }) => (
+  <svg className="cm-flag-icon" width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M6 30l3-9a5 5 0 0 1 4.7-3.4h20.6A5 5 0 0 1 39 21l3 9v7a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-2H14v2a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="currentColor" />
+    <path d="M12 18l2.4-6.2A4 4 0 0 1 18.1 9h11.8a4 4 0 0 1 3.7 2.8L36 18z" fill="rgba(0,0,0,.35)" />
+    <circle cx="14" cy="31" r="2.6" fill="#10141b" />
+    <circle cx="34" cy="31" r="2.6" fill="#10141b" />
+    <rect x="20" y="6" width="8" height="4" rx="1.4" fill="#10141b" />
+    <path d="M6 24h36" stroke="#10141b" strokeWidth="2.4" strokeDasharray="4 3" opacity=".5" />
+  </svg>
+);
+
+const RedFlagIcon = ({ size = 30 }) => (
+  <svg className="cm-flag-icon" width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
+    <rect x="11" y="6" width="3" height="36" rx="1.5" fill="#1c1f25" />
+    <path d="M14 8h24l-4 7 4 7H14z" fill="currentColor" />
+  </svg>
+);
+
+const RainIcon = ({ size = 30 }) => (
+  <svg className="cm-flag-icon" width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M14 27a8 8 0 0 1 1.2-15.9A10 10 0 0 1 34 14.5 7 7 0 0 1 33 28z" fill="currentColor" />
+    <g fill="none" stroke="#cfe6ff" strokeWidth="2.6" strokeLinecap="round">
+      <path d="M16 33l-2 5" />
+      <path d="M24 33l-2 5" />
+      <path d="M32 33l-2 5" />
+    </g>
+  </svg>
+);
+
+const CONDITION_LABELS = {
+  seco: "Seco",
+  intermedios: "Intermedios",
+  lluvia: "Lluvia",
+};
+
+// Derive the prominent track overlay from the live race state. Priority:
+// red flag > safety car > rain. Returns null when the track is green and dry.
+const trackOverlayFor = (state) => {
+  if (state.redFlagActive) return { kind: "redflag", label: "BANDERA ROJA", icon: <RedFlagIcon size={34} /> };
+  if (state.scActive) return { kind: "safetycar", label: "SAFETY CAR", icon: <SafetyCarIcon size={34} /> };
+  if (state.wet) return { kind: "rain", label: state.condition === "lluvia" ? "LLUVIA" : "PISTA MOJADA", icon: <RainIcon size={34} /> };
+  return null;
+};
+
+const RAIN_DROPS = Array.from({ length: 16 }, (_, index) => index);
+
+const TeammateBattle = ({ battle }) => {
+  if (!battle) return null;
+  const stateClass = battle.tied ? "is-tied" : battle.leading ? "is-leading" : "is-behind";
+  return (
+    <section className={`cm-teammate ${stateClass}`}>
+      <header>
+        <span>Duelo con el compañero</span>
+        <b>{battle.teammateName}</b>
+      </header>
+      <div className="cm-teammate-grid">
+        <div>
+          <small>Carreras</small>
+          <strong>{battle.raceWins}-{battle.raceLosses}</strong>
+        </div>
+        <div>
+          <small>Clasificación</small>
+          <strong>{battle.qualiWins}-{battle.qualiLosses}</strong>
+        </div>
+        <div>
+          <small>Puntos</small>
+          <strong>{battle.playerPoints}-{battle.teammatePoints}</strong>
+        </div>
+        <div>
+          <small>Balance</small>
+          <strong>{battle.pointsGap >= 0 ? `+${battle.pointsGap}` : battle.pointsGap}</strong>
+        </div>
+      </div>
+      <p className="cm-teammate-state">
+        {battle.tied
+          ? "Empate al límite con tu compañero."
+          : battle.leading
+          ? "Por delante en el cómputo de la temporada: clave para tu estatus."
+          : "Por detrás del compañero: ganar el duelo cuenta para tu estatus."}
+      </p>
+    </section>
+  );
+};
 
 const SetupPanel = ({ draft, setDraft, onSubmit }) => {
   const validName = draft.name.trim().length >= 2;
@@ -244,6 +332,12 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
     raceResult.startingPosition ||
     player.gridPosition ||
     player.position;
+  const currentLap = visibleEvents.length ? visibleEvents[visibleEvents.length - 1].lap : 1;
+  // State is derived only from the current lap, so nothing about future safety
+  // cars, red flags or rain is revealed before it actually happens.
+  const liveState = raceStateAtLap(raceResult.conditions, currentLap);
+  const overlay = trackOverlayFor(liveState);
+  const trackStatusLabel = liveState.redFlagActive ? "Bandera roja" : liveState.scActive ? "Safety Car" : "Verde";
 
   useEffect(() => {
     if (!feedRef.current) return;
@@ -256,7 +350,7 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
         <FlagFill />
         <div>
           <span>Vuelta {visibleEvents.length ? visibleEvents[visibleEvents.length - 1].lap : 1}/{raceResult.race.lapCount}</span>
-          <h2>{raceResult.race.name}</h2>
+          <h2>{localizeRaceName(raceResult.race.name, lang)}</h2>
         </div>
       </div>
       <div className="cm-sim-controls" aria-label="Velocidad de simulacion">
@@ -280,18 +374,40 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
           Simular carrera
         </button>
       </div>
-      <div className={`cm-track-scene cm-weather-${raceResult.conditions.weather}`}>
+      <div
+        className={`cm-track-scene cm-weather-${liveState.condition}${overlay ? ` cm-track-${overlay.kind}` : ""}`}
+      >
         <div className="cm-track-line" />
+        {liveState.wet && (
+          <div className="cm-rain-layer" aria-hidden="true">
+            {RAIN_DROPS.map((drop) => (
+              <span
+                key={drop}
+                style={{
+                  left: `${(drop * 6.1 + 4) % 96}%`,
+                  animationDelay: `${(drop % 8) * 0.13}s`,
+                  animationDuration: `${0.6 + (drop % 4) * 0.14}s`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+        {overlay && overlay.kind !== "rain" && <span className="cm-flag-sweep" aria-hidden="true" />}
         <div className="cm-career-car" style={{ "--car-color": normalizeColor(player.teamColor, "#0f4c81") }}>
           <HelmetIcon color={player.helmetColor} size={30} />
           <span>{livePlayerPosition ? `P${livePlayerPosition}` : "RUN"}</span>
         </div>
+        {overlay && (
+          <div className={`cm-race-flag cm-race-flag-${overlay.kind}`} role="status">
+            {overlay.icon}
+            <span>{overlay.label}</span>
+          </div>
+        )}
       </div>
       <div className="cm-race-meta">
-        {stat("Clima", raceResult.conditions.weather)}
+        {stat("Clima", CONDITION_LABELS[liveState.condition] || liveState.condition)}
         {stat("Degradacion", `${Math.round(raceResult.conditions.degradation * 100)}%`)}
-        {stat("Safety car", raceResult.conditions.safetyCar ? `V${raceResult.conditions.safetyCarLap}` : "No")}
-        {stat("Bandera roja", raceResult.conditions.redFlag ? `V${raceResult.conditions.redFlagLap}` : "No")}
+        {stat("Estado de pista", trackStatusLabel)}
       </div>
       <ol className="cm-lap-feed" ref={feedRef}>
         {visibleEvents.map((event, index) => (
@@ -313,13 +429,13 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
   );
 };
 
-const RaceResult = ({ raceResult, onContinue }) => (
+const RaceResult = ({ raceResult, onContinue, lang }) => (
   <section className="cm-panel cm-race-result">
     <div className="cm-panel-head">
       <TrophyFill />
       <div>
         <span>Resultado</span>
-        <h2>{raceResult.race.name}</h2>
+        <h2>{localizeRaceName(raceResult.race.name, lang)}</h2>
       </div>
     </div>
     <div className="cm-winner-card" style={{ "--team-color": normalizeColor(raceResult.winner.teamColor, "#0f4c81") }}>
@@ -353,10 +469,12 @@ const SeasonDashboard = ({
   onSimulateRace,
   onRetire,
   canSimulate,
+  lang,
 }) => {
   const currentRace = season.races[currentRaceIndex];
   const playerStanding = season.driverStandings.find((row) => row.isPlayer);
   const constructorStanding = season.constructorStandings.find((row) => row.name === season.contract.team.name);
+  const teammateBattle = teammateBattleSummary(season, profile);
   return (
     <div className="cm-season-layout">
       <aside className="cm-season-side">
@@ -379,13 +497,18 @@ const SeasonDashboard = ({
             Retirarse
           </button>
         </section>
+        {teammateBattle && (
+          <section className="cm-panel cm-teammate-panel">
+            <TeammateBattle battle={teammateBattle} />
+          </section>
+        )}
         <section className="cm-panel cm-calendar">
           <h3>Calendario {season.year}</h3>
           <ol>
             {season.races.map((race, index) => (
               <li key={`${race.round}-${race.name}`} className={index === currentRaceIndex ? "is-active" : race.completed ? "is-done" : ""}>
                 <b>{race.round}</b>
-                <span>{race.name}</span>
+                <span>{localizeRaceName(race.name, lang)}</span>
               </li>
             ))}
           </ol>
@@ -396,7 +519,7 @@ const SeasonDashboard = ({
           <FlagFill />
           <div>
             <span>{currentRace ? `Ronda ${currentRace.round}` : "Temporada completa"}</span>
-            <h2>{currentRace?.name || "Evaluacion final"}</h2>
+            <h2>{currentRace ? localizeRaceName(currentRace.name, lang) : "Evaluacion final"}</h2>
           </div>
         </div>
         <div className="cm-season-stats">
@@ -452,6 +575,18 @@ const SeasonReview = ({ evaluation, season, contracts, onContract, onRetire }) =
       {stat("Equipo", evaluation.constructorStanding ? `P${evaluation.constructorStanding.position}` : "--")}
       {stat("Reputacion", `${evaluation.reputationDelta >= 0 ? "+" : ""}${evaluation.reputationDelta}`)}
     </div>
+    {evaluation.teammateBattle && (
+      <div className="cm-review-teammate">
+        <TeammateBattle battle={evaluation.teammateBattle} />
+        <p className="cm-teammate-impact">
+          {evaluation.teammateBattle.tied
+            ? "Duelo interno igualado: sin efecto en la reputación."
+            : evaluation.teammateBattle.beaten
+            ? `Ganaste a tu compañero en el cómputo final (${evaluation.teammateRepDelta >= 0 ? "+" : ""}${evaluation.teammateRepDelta} reputación).`
+            : `Tu compañero te superó en el cómputo final (${evaluation.teammateRepDelta} reputación).`}
+        </p>
+      </div>
+    )}
     <p className="cm-panel-copy">
       {evaluation.fired
         ? "La directiva considera que el rendimiento quedo lejos del minimo. Las nuevas ofertas bajan el riesgo y el nivel."
@@ -741,6 +876,7 @@ const CareerMode = () => {
               onSimulateRace={simulateRace}
               onRetire={retire}
               canSimulate
+              lang={lang}
             />
           )}
           {phase === "race-live" && raceResult && (
@@ -755,7 +891,7 @@ const CareerMode = () => {
             />
           )}
           {phase === "race-result" && raceResult && (
-            <RaceResult raceResult={raceResult} onContinue={continueSeason} />
+            <RaceResult raceResult={raceResult} onContinue={continueSeason} lang={lang} />
           )}
           {phase === "season-review" && evaluation && (
             <SeasonReview

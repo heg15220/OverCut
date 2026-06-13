@@ -75,3 +75,38 @@ Test Jest sobre muchos seeds que afirma:
 - ningún evento de lluvia antes de `rainArrivalLap`,
 - resalidas solo tras una neutralización,
 - el estado en la vuelta actual no expone vueltas futuras.
+
+## Ampliación (mismo día): objetivos de contrato realistas
+
+Los objetivos de cada oferta deben reflejar el rendimiento real del equipo en
+esa temporada/década, no una escala fija.
+
+- `buildContractObjectives({ team, field, scoring, raceCount, playerStatus })`
+  (exportada).
+- `expectedConstructorRank(team, field)`: puesto esperado del equipo en la tabla
+  de constructores, escalado a una parrilla de 11 según su rating ajustado a la
+  década frente al campo real.
+- `realisticSeasonPoints(rank, scoring, raceCount)`: puntos realistas del piloto
+  usando el **sistema de puntos de la época** (`scoring.points`) proyectado sobre
+  la longitud real del calendario, con un suelo oportunista para coleros.
+- `constructorPosition = clamp(rank, 1, 10)`: a un colero no se le pide el top.
+- Verificación (`careerContracts.test.js`): los puntos escalan con la época,
+  nunca superan una temporada perfecta del coche líder, mejores coches → objetivos
+  más exigentes, y el orden por rating se respeta.
+
+## Ampliación (mismo día): nivelador de condiciones húmedas
+
+En mixto/lluvia los equipos con peor rendimiento deben poder destacar más, con
+lógica y sin exagerar: la lluvia neutraliza parte de la ventaja del coche.
+
+- `wetLevelFromPlan(plan, lapCount)`: fracción de vueltas mojadas (0–1) derivada
+  del timeline de clima.
+- `levelledCarRating(teamRating, meanTeamRating, wetLevel)`: acerca el rating del
+  equipo a la media del campo según `wetLevel × CAR_WET_COMPRESSION` (0.45 a tope),
+  preservando el orden. El rating del piloto mantiene su peso completo.
+- Cableado en `simulateCareerRace`: `raceScore` usa la base de coche comprimida;
+  `randomSwing`, `weatherSkill` y el riesgo de accidente escalan de forma continua
+  con `wetLevel`.
+- Verificación (`careerWetLeveler.test.js`): unitarios de ambas funciones puras +
+  test estadístico de que el tercio inferior por rating termina, de media, mejor
+  en mojado que en seco.

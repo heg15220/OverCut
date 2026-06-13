@@ -74,7 +74,57 @@ public class OvercutRacingController {
         response.put("teamsByDecade", constructorsByDecade);
         response.put("driversByDecade", driversByDecade);
         response.put("racesByYear", racesByYear);
+        response.put("lineupsByYear", buildLineupsByYear(driverRatings, constructorRatings));
         return response;
+    }
+
+    // Real per-season grid (team <-> drivers) extracted from f1db by
+    // scripts/generate_career_lineups.py. Drivers and team names match the
+    // strings the rest of the bootstrap uses, so ratings join cleanly. Returns
+    // an empty map if the cache is absent, so the client falls back gracefully.
+    private Map<String, Object> buildLineupsByYear(
+            Map<String, Integer> driverRatings,
+            Map<String, Integer> constructorRatings) {
+
+        Map<String, Object> byYear = new LinkedHashMap<>();
+        try {
+            JsonNode root = objectMapper.readTree(
+                    new ClassPathResource("scripts/career_lineups.json").getInputStream());
+            Iterator<Map.Entry<String, JsonNode>> years = root.path("lineupsByYear").fields();
+            while (years.hasNext()) {
+                Map.Entry<String, JsonNode> yearEntry = years.next();
+                List<Map<String, Object>> teams = new ArrayList<>();
+                for (JsonNode teamNode : yearEntry.getValue()) {
+                    String teamName = teamNode.path("team").asText();
+                    if (teamName.isBlank()) {
+                        continue;
+                    }
+                    List<Map<String, Object>> drivers = new ArrayList<>();
+                    for (JsonNode driverNode : teamNode.path("drivers")) {
+                        String name = driverNode.path("name").asText();
+                        if (name.isBlank()) {
+                            continue;
+                        }
+                        Map<String, Object> driver = new LinkedHashMap<>();
+                        driver.put("name", name);
+                        driver.put("rating", driverRatings.getOrDefault(name, 58));
+                        driver.put("races", driverNode.path("races").asInt(0));
+                        drivers.add(driver);
+                    }
+                    Map<String, Object> team = new LinkedHashMap<>();
+                    team.put("id", slug(teamName));
+                    team.put("team", teamName);
+                    team.put("rating", constructorRatings.getOrDefault(teamName, 58));
+                    team.put("races", teamNode.path("races").asInt(0));
+                    team.put("drivers", drivers);
+                    teams.add(team);
+                }
+                byYear.put(yearEntry.getKey(), teams);
+            }
+        } catch (IOException | RuntimeException ex) {
+            return Map.of();
+        }
+        return byYear;
     }
 
     private Map<String, EntitySeed> collectEntities(JsonNode byYear) {

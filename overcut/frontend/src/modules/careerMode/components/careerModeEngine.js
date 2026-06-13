@@ -112,9 +112,33 @@ export const prepareCareerBootstrap = (data, fallbackMode = false) => {
   return {
     ...source,
     teamsByDecade: applyTeamDecadeRatings(source.teamsByDecade || {}),
+    lineupsByYear: source.lineupsByYear || null,
     seasonYears,
     fallbackMode: fallbackMode || !hasBackendPayload,
   };
+};
+
+// Real grid for a season (team <-> drivers) sourced from the backend
+// `lineupsByYear` cache. Returns null when the data is unavailable (offline
+// fallback), so callers degrade to the rating-based grid.
+export const realTeamsForYear = (bootstrap, year) => {
+  const list = bootstrap?.lineupsByYear?.[String(year)];
+  if (!Array.isArray(list) || !list.length) return null;
+  return list
+    .map((entry) => ({
+      id: entry.id || entry.team,
+      name: entry.team,
+      rating: Number.isFinite(entry.rating) ? entry.rating : 58,
+      races: entry.races || 0,
+      drivers: (entry.drivers || [])
+        .filter((driver) => driver?.name)
+        .map((driver) => ({
+          name: driver.name,
+          rating: Number.isFinite(driver.rating) ? driver.rating : 58,
+          races: driver.races || 0,
+        })),
+    }))
+    .filter((team) => team.name && team.drivers.length);
 };
 
 export const fetchCareerBootstrap = async () => {
@@ -163,31 +187,71 @@ const teamTier = (rating) => {
   return "bajo";
 };
 
-const contractObjectives = (team, playerStatus, rng) => {
+const GRID_TEAMS = 11; // matches the grid size built by buildSeasonTeams
+const SEASON_COMPLETION = 0.85; // not every weekend delivers the expected result
+
+// Where the team is expected to finish in the constructors' table of THIS
+// season, derived from its decade-adjusted rating against the real field.
+// Result is scaled onto an 11-team grid so the target matches the standings
+// the player will actually see.
+const expectedConstructorRank = (team, field) => {
+  const ranked = field.filter((entry) => Number.isFinite(entry.rating));
+  if (ranked.length <= 1) return 1;
+  const better = ranked.filter((entry) => entry.rating > team.rating).length;
+  return clamp(Math.round((better / (ranked.length - 1)) * (GRID_TEAMS - 1)) + 1, 1, GRID_TEAMS);
+};
+
+// Realistic season points for the contracted driver, using the era's scoring
+// system. A team expected k-th in the constructors fields its lead car around
+// P(2k-1); we average a spread around that finish and project it across the
+// real calendar length.
+const realisticSeasonPoints = (rank, scoring, raceCount) => {
+  const driverFieldSize = GRID_TEAMS * 2;
+  const leadFinish = clamp(rank * 2 - 1, 1, driverFieldSize);
+  const spread = [-3, -2, -1, 0, 1, 2, 3];
+  const avgPerRace =
+    spread.reduce(
+      (sum, delta) => sum + (scoring.points[clamp(leadFinish + delta, 1, driverFieldSize) - 1] || 0),
+      0
+    ) / spread.length;
+  const expected = avgPerRace * raceCount * SEASON_COMPLETION;
+  // Even a backmarker can fish a handful of points across a chaotic season.
+  const lowestScoring = scoring.points[scoring.points.length - 1] || 1;
+  const floor = rank >= GRID_TEAMS - 1 ? Math.round(lowestScoring * Math.max(1, raceCount * 0.12)) : 0;
+  return Math.max(floor, Math.round(expected));
+};
+
+export const buildContractObjectives = ({ team, field, scoring, raceCount, playerStatus = "rookie" }) => {
   const tier = teamTier(team.rating);
-  const basePoints =
-    tier === "medio" ? 20 + Math.round((team.rating - 76) * 2.5) :
-    tier === "bajo competitivo" ? 7 + Math.round((team.rating - 67) * 1.3) :
-    2 + Math.round(rng() * 5);
-  const constructorTarget =
-    tier === "medio" ? 6 :
-    tier === "bajo competitivo" ? 8 :
-    10;
-  const multiplier = playerStatus === "estrella" ? 1.25 : playerStatus === "promesa" ? 1.1 : 1;
+  const rank = expectedConstructorRank(team, field);
+  const multiplier = playerStatus === "estrella" ? 1.2 : playerStatus === "promesa" ? 1.08 : 1;
+  const basePoints = Math.max(1, Math.round(realisticSeasonPoints(rank, scoring, raceCount) * multiplier));
+  // Ask the team to land around its natural rank (a touch forward), capped so a
+  // backmarker is asked to beat at least one rival rather than "reach the top".
+  const constructorPosition = clamp(rank, 1, GRID_TEAMS - 1);
 
   return {
-    points: Math.max(1, Math.round(basePoints * multiplier)),
-    constructorPosition: constructorTarget,
+    points: basePoints,
+    constructorPosition,
     reputationBonus: tier === "medio" ? 10 : tier === "bajo competitivo" ? 8 : 6,
     minimumPoints: Math.max(0, Math.floor(basePoints * 0.45)),
     tier,
+    expectedRank: rank,
   };
 };
 
 export const generateContracts = ({ bootstrap, year, playerProfile }) => {
   const rng = createRng(`${playerProfile.name}|${year}|contracts|${playerProfile.reputation}`);
   const activeTeams = collectByYear(bootstrap.teamsByDecade, year);
-  const candidates = (activeTeams.length ? activeTeams : Object.values(bootstrap.teamsByDecade || {}).flat())
+  // Prefer the real grid of the season so offered teams (and their objectives)
+  // match who actually raced that year; fall back to the decade pool offline.
+  const realTeams = realTeamsForYear(bootstrap, year);
+  const fieldSource = realTeams || (activeTeams.length ? activeTeams : Object.values(bootstrap.teamsByDecade || {}).flat());
+  // The real competitive field this season drives how realistic each objective is.
+  const field = [...fieldSource].sort((a, b) => b.rating - a.rating);
+  const scoring = scoringForYear(year);
+  const raceCount = racesForYear(bootstrap, year).length || 20;
+  const candidates = [...fieldSource]
     .filter((team) => team.rating < (playerProfile.reputation > 75 ? 92 : 84))
     .sort((a, b) => a.rating - b.rating || a.name.localeCompare(b.name));
   const low = candidates.filter((team) => team.rating < 69);
@@ -209,7 +273,13 @@ export const generateContracts = ({ bootstrap, year, playerProfile }) => {
 
   return chosen.slice(0, 4).map((team, index) => {
     const coloredTeam = { ...team, color: teamColor(team, index) };
-    const objectives = contractObjectives(coloredTeam, playerProfile.status, rng);
+    const objectives = buildContractObjectives({
+      team: coloredTeam,
+      field,
+      scoring,
+      raceCount,
+      playerStatus: playerProfile.status,
+    });
     return {
       id: `${coloredTeam.id || coloredTeam.name}-${year}-${index}`,
       team: coloredTeam,
@@ -266,15 +336,45 @@ const raceProfile = (raceName) => {
   };
 };
 
+const WET_CONDITIONS = new Set(["lluvia", "intermedios"]);
+const isWetCondition = (condition) => WET_CONDITIONS.has(condition);
+
+// Turn the initial weather plus the scheduled switches into an ordered list of
+// weather phases the rest of the engine and the UI can read deterministically.
+const buildWeatherPhases = (weather, weatherSwitches) => {
+  const initial = weather === "lluvia" ? "lluvia" : "seco"; // "mixto" and surprise rain start dry
+  const phases = [{ fromLap: 1, condition: initial }];
+  [...weatherSwitches]
+    .sort((a, b) => a.lap - b.lap)
+    .forEach((sw) => phases.push({ fromLap: sw.lap, condition: sw.to }));
+  return phases;
+};
+
+const firstRainArrivalLap = (phases) => {
+  for (let i = 1; i < phases.length; i += 1) {
+    if (isWetCondition(phases[i].condition) && !isWetCondition(phases[i - 1].condition)) {
+      return phases[i].fromLap;
+    }
+  }
+  return null;
+};
+
+const firstDryReturnLap = (phases) => {
+  for (let i = 1; i < phases.length; i += 1) {
+    if (!isWetCondition(phases[i].condition) && isWetCondition(phases[i - 1].condition)) {
+      return phases[i].fromLap;
+    }
+  }
+  return null;
+};
+
 const conditionPlan = (profile, lapCount, rng) => {
   const weatherRoll = rng();
-  const weather =
+  let weather =
     weatherRoll < profile.chaos * 0.16 ? "lluvia" :
     weatherRoll < profile.chaos * 0.34 + profile.tyre * 0.07 ? "mixto" :
     "seco";
   const degradation = clamp(profile.tyre * 0.7 + rng() * 0.32, 0.12, 0.95);
-  const safetyCar = rng() < clamp(profile.chaos * 0.32 + (weather !== "seco" ? 0.16 : 0), 0.08, 0.62);
-  const redFlag = rng() < clamp(profile.chaos * 0.08 + (weather === "lluvia" ? 0.08 : 0), 0.01, 0.18);
   const weatherSwitches = [];
   if (weather === "mixto") {
     const first = 5 + Math.floor(rng() * Math.max(5, lapCount * 0.35));
@@ -282,17 +382,90 @@ const conditionPlan = (profile, lapCount, rng) => {
     weatherSwitches.push({ lap: first, to: "intermedios" }, { lap: second, to: rng() < 0.55 ? "seco" : "lluvia" });
   } else if (weather === "lluvia" && rng() < 0.42) {
     weatherSwitches.push({ lap: Math.floor(lapCount * (0.42 + rng() * 0.24)), to: "intermedios" });
+  } else if (weather === "seco" && rng() < clamp(profile.chaos * 0.18 + 0.05, 0.05, 0.3)) {
+    // Dry race that gets caught out by rain arriving mid-race.
+    const arrival = 6 + Math.floor(lapCount * (0.35 + rng() * 0.3));
+    weatherSwitches.push({ lap: Math.min(lapCount - 4, arrival), to: rng() < 0.5 ? "intermedios" : "lluvia" });
+    if (rng() < 0.5) {
+      const back = Math.min(lapCount - 2, arrival + 6 + Math.floor(rng() * 8));
+      weatherSwitches.push({ lap: back, to: "seco" });
+    }
+    weather = "mixto";
   }
+
+  const phases = buildWeatherPhases(weather, weatherSwitches);
+  const rainArrivalLap = firstRainArrivalLap(phases);
+  const dryReturnLap = firstDryReturnLap(phases);
+
+  const safetyCar = rng() < clamp(profile.chaos * 0.32 + (weather !== "seco" ? 0.16 : 0), 0.08, 0.62);
+  const scStart = safetyCar ? 6 + Math.floor(rng() * Math.max(8, lapCount - 14)) : null;
+  const scEnd = scStart ? Math.min(lapCount - 1, scStart + 3 + Math.floor(rng() * 3)) : null;
+  const redFlag = rng() < clamp(profile.chaos * 0.08 + (weather === "lluvia" ? 0.08 : 0), 0.01, 0.18);
+  const redFlagLap = redFlag ? 8 + Math.floor(rng() * Math.max(8, lapCount - 18)) : null;
+
   return {
     weather,
     degradation,
     safetyCar,
-    safetyCarLap: safetyCar ? 6 + Math.floor(rng() * Math.max(8, lapCount - 14)) : null,
+    scStart,
+    scEnd,
     redFlag,
-    redFlagLap: redFlag ? 8 + Math.floor(rng() * Math.max(8, lapCount - 18)) : null,
+    redFlagLap,
     weatherSwitches,
+    phases,
+    rainArrivalLap,
+    dryReturnLap,
   };
 };
+
+// Live race state at a given lap, derived purely from the plan. Used both to
+// keep narration coherent and to drive the on-track animations. It never
+// reveals future laps: it only answers "what is true at this lap".
+export const raceStateAtLap = (plan, lap) => {
+  const phases = plan.phases || buildWeatherPhases(plan.weather, plan.weatherSwitches || []);
+  let condition = phases[0].condition;
+  phases.forEach((phase) => {
+    if (lap >= phase.fromLap) condition = phase.condition;
+  });
+  const scActive = plan.scStart != null && lap >= plan.scStart && lap <= (plan.scEnd ?? plan.scStart);
+  const scHappenedBefore = plan.scStart != null && lap >= plan.scStart;
+  const redFlagActive = plan.redFlagLap != null && lap >= plan.redFlagLap && lap <= plan.redFlagLap + 1;
+  const redFlagHappenedBefore = plan.redFlagLap != null && lap >= plan.redFlagLap;
+  const rainArrived = plan.rainArrivalLap != null && lap >= plan.rainArrivalLap;
+  const dryReturned = plan.dryReturnLap != null && lap >= plan.dryReturnLap;
+  return {
+    condition,
+    wet: isWetCondition(condition),
+    scActive,
+    scHappenedBefore,
+    redFlagActive,
+    redFlagHappenedBefore,
+    rainArrived,
+    dryReturned,
+  };
+};
+
+// How much rain neutralises the car-performance advantage at full wet. Moderate
+// on purpose: the field compresses, it does not invert.
+export const CAR_WET_COMPRESSION = 0.45;
+
+// Fraction of the race run on a wet track (0 = fully dry, 1 = fully wet),
+// derived from the same weather timeline that drives the narration.
+export const wetLevelFromPlan = (plan, lapCount) => {
+  if (!lapCount || !plan?.phases?.length) return 0;
+  let wetLaps = 0;
+  for (let lap = 1; lap <= lapCount; lap += 1) {
+    if (raceStateAtLap(plan, lap).wet) wetLaps += 1;
+  }
+  return clamp(wetLaps / lapCount, 0, 1);
+};
+
+// Shrink a team's rating towards the field mean in the wet. A car above the
+// mean loses part of its advantage; a car below the mean gains part of it.
+// Ordering is preserved (it never overshoots the mean), so it lifts weaker
+// teams' chances without turning the result into a lottery.
+export const levelledCarRating = (teamRating, meanTeamRating, wetLevel) =>
+  teamRating - (teamRating - meanTeamRating) * clamp(wetLevel, 0, 1) * CAR_WET_COMPRESSION;
 
 const buildSeasonTeams = ({ bootstrap, year, contract, rng }) => {
   const active = collectByYear(bootstrap.teamsByDecade, year);
@@ -353,10 +526,87 @@ const buildSeasonDrivers = ({ bootstrap, year, teams, contract, profile, rng }) 
   return rosters;
 };
 
+const MAX_REAL_TEAMS = 13; // bounds the field for the long privateer tail of early seasons
+
+const realDriverEntry = (driver, teamName, year) => ({
+  name: driver.name,
+  rating: driver.rating,
+  helmetColor: HELMET_COLORS[hashString(`${driver.name}-${teamName}`) % HELMET_COLORS.length],
+  firstYear: year,
+  lastYear: year,
+});
+
+// Build the historically real grid for a season: the actual teams and the
+// drivers who raced for them that year. The player takes one seat of the
+// contract team and keeps the real lead driver as team-mate; every other seat
+// stays real. Returns null when no real lineup exists for the year.
+const buildRealSeasonGrid = ({ bootstrap, year, contract, profile }) => {
+  const realTeams = realTeamsForYear(bootstrap, year);
+  if (!realTeams) return null;
+
+  const contractName = contract.team.name;
+  const used = new Set();
+  const chosen = [];
+  const contractTeam = realTeams.find((team) => team.name === contractName);
+  if (contractTeam) {
+    chosen.push(contractTeam);
+    used.add(contractTeam.name.toLowerCase());
+  }
+  realTeams.forEach((team) => {
+    if (chosen.length >= MAX_REAL_TEAMS) return;
+    const key = team.name.toLowerCase();
+    if (used.has(key)) return;
+    chosen.push(team);
+    used.add(key);
+  });
+  // The contract team must be in the grid even if it never had a real lineup.
+  if (!contractTeam) {
+    chosen.unshift({ ...contract.team, drivers: [] });
+  }
+
+  const player = {
+    id: "career-player",
+    name: profile.name,
+    rating: profile.rating,
+    helmetColor: profile.helmetColor,
+    isPlayer: true,
+    firstYear: year,
+    lastYear: year,
+    seasons: profile.seasons + 1,
+  };
+
+  return chosen.slice(0, MAX_REAL_TEAMS).map((team, index) => {
+    const color = teamColor(team, index);
+    const realDrivers = (team.drivers || []).slice(0, 2);
+    let drivers;
+    if (team.name === contractName) {
+      const teammate = realDrivers[0];
+      drivers = teammate ? [player, realDriverEntry(teammate, team.name, year)] : [player];
+    } else {
+      drivers = realDrivers.map((driver) => realDriverEntry(driver, team.name, year));
+    }
+    return {
+      id: team.id || team.name,
+      name: team.name,
+      rating: team.rating,
+      color,
+      drivers,
+    };
+  });
+};
+
 export const createCareerSeason = ({ bootstrap, profile, year, contract }) => {
   const rng = createRng(`${profile.name}|${year}|${contract.team.name}|season-${profile.seasons}`);
-  const teams = buildSeasonTeams({ bootstrap, year, contract, rng });
-  const grid = buildSeasonDrivers({ bootstrap, year, teams, contract, profile, rng });
+  const grid =
+    buildRealSeasonGrid({ bootstrap, year, contract, profile }) ||
+    buildSeasonDrivers({
+      bootstrap,
+      year,
+      teams: buildSeasonTeams({ bootstrap, year, contract, rng }),
+      contract,
+      profile,
+      rng,
+    });
   const entrants = grid.flatMap((team) =>
     team.drivers.map((driver) => ({
       id: driver.isPlayer ? "career-player" : `${driver.name}-${team.name}`,
@@ -475,8 +725,6 @@ const playerEvent = (lap, text, textEn = text, type = "player", extras = {}) => 
   ...extras,
 });
 
-const normalEvent = (lap, text, textEn = text) => ({ lap, text, textEn, type: "neutral", important: false });
-
 const attachPlayerPositionTimeline = ({ events, startPosition, finalPosition, entrantCount }) => {
   let currentPosition = clamp(startPosition, 1, entrantCount);
   const ordered = [...events].sort((a, b) => a.lap - b.lap || Number(b.important) - Number(a.important));
@@ -514,9 +762,10 @@ const estimatedPlayerPositionAtLap = ({ lap, lapCount, startPosition, finalPosit
   return clamp(Math.round(startPosition + (finalPosition - startPosition) * curve + noise), 1, entrantCount);
 };
 
-const describeTyre = (weather, plan) => {
-  if (weather === "lluvia") return "neumatico de lluvia";
-  if (weather === "mixto" || plan.weatherSwitches.length) return "intermedio";
+const describeTyre = (plan) => {
+  const start = plan.phases[0].condition;
+  if (start === "lluvia") return "neumatico de lluvia";
+  if (start === "intermedios") return "intermedio";
   return plan.degradation > 0.68 ? "medio-duro" : "medio";
 };
 
@@ -528,6 +777,10 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   const profileTrack = raceProfile(race.name);
   const lapCount = lapCountForRace(race.name, rng);
   const plan = conditionPlan(profileTrack, lapCount, rng);
+  // Wet conditions compress the car-performance spread, so weaker teams get a
+  // realistic (not exaggerated) chance to shine. Both values feed the pace model.
+  const wetLevel = wetLevelFromPlan(plan, lapCount);
+  const meanTeamRating = entrants.reduce((sum, entry) => sum + entry.team.rating, 0) / entrants.length;
   const eventLaps = new Set([
     1,
     2 + Math.floor(rng() * 5),
@@ -536,7 +789,8 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     Math.floor(lapCount * 0.75),
     lapCount,
   ]);
-  if (plan.safetyCarLap) eventLaps.add(plan.safetyCarLap);
+  if (plan.scStart) eventLaps.add(plan.scStart);
+  if (plan.scEnd) eventLaps.add(plan.scEnd);
   if (plan.redFlagLap) eventLaps.add(plan.redFlagLap);
   plan.weatherSwitches.forEach((item) => eventLaps.add(item.lap));
 
@@ -556,7 +810,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     .sort((a, b) => Math.abs(a.gridPosition - playerGrid) - Math.abs(b.gridPosition - playerGrid));
   const rivalName = nearbyRivals[0]?.driver.name || qualifying.find((entry) => !entry.isPlayer)?.driver.name || "su rival directo";
 
-  const tyre = describeTyre(plan.weather, plan);
+  const tyre = describeTyre(plan);
   let playerDelta = 0;
   const events = [
     playerEvent(
@@ -604,7 +858,15 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
         { positionDelta: -gain }
       )
     );
-    events.push(renderWeatherEvent({ lap: switchItem.lap, raceName: race.name, rng, important: true }));
+    events.push(
+      renderWeatherEvent({
+        lap: switchItem.lap,
+        raceName: race.name,
+        rng,
+        important: true,
+        state: raceStateAtLap(plan, switchItem.lap),
+      })
+    );
   });
 
   if (plan.degradation > 0.66) {
@@ -633,23 +895,33 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
         lap: lap + 1,
         rng,
         player: true,
+        state: raceStateAtLap(plan, lap + 1),
       })
     );
   }
 
-  if (plan.safetyCarLap) {
+  if (plan.scStart) {
     const gain = Math.round((rng() - 0.42) * 5);
     playerDelta += gain;
     events.push(
       playerEvent(
-        plan.safetyCarLap,
+        plan.scStart,
         `Safety car por restos en pista. La relanzada ${gain >= 0 ? "le abre hueco y gana" : "le deja encajonado y pierde"} ${Math.abs(gain)} posicion${Math.abs(gain) === 1 ? "" : "es"}.`,
         `Safety car for debris on track. The restart ${gain >= 0 ? "opens a gap and gains" : "boxes him in and costs"} ${Math.abs(gain)} position${Math.abs(gain) === 1 ? "" : "s"}.`,
-        "player",
+        "safetycar",
         { positionDelta: -gain }
       )
     );
-    events.push(renderRestartEvent({ driver: profile.name, leader: qualifying[0]?.driver.name || "el lider", lap: plan.safetyCarLap + 1, raceName: race.name, rng }));
+    events.push(
+      renderRestartEvent({
+        driver: profile.name,
+        leader: qualifying[0]?.driver.name || "el lider",
+        lap: (plan.scEnd ?? plan.scStart) + 1,
+        raceName: race.name,
+        rng,
+        kind: "safetyCar",
+      })
+    );
   }
 
   if (plan.redFlagLap) {
@@ -667,33 +939,35 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     );
   }
 
-  const accidentRisk = clamp(0.03 + profileTrack.chaos * 0.06 + (plan.weather !== "seco" ? 0.04 : 0) - profile.consistency / 1800, 0.01, 0.18);
+  const accidentRisk = clamp(0.03 + profileTrack.chaos * 0.06 + wetLevel * 0.05 - profile.consistency / 1800, 0.01, 0.2);
   const playerDnf = rng() < accidentRisk * (profile.aggression > 65 ? 1.25 : 0.8);
   if (playerDnf) {
     const lap = 4 + Math.floor(rng() * Math.max(4, lapCount - 8));
-    events.push(renderIncidentEvent({ driver: profile.name, lap, raceName: race.name, rng, player: true, severe: true }));
+    events.push(renderIncidentEvent({ driver: profile.name, lap, raceName: race.name, rng, player: true, severe: true, state: raceStateAtLap(plan, lap) }));
   }
 
   const classified = qualifying
     .map((entrant) => {
       const isPlayer = entrant.isPlayer;
-      const randomSwing =
-        (rng() - 0.5) *
-        (8 + profileTrack.chaos * 9 + (plan.weather === "lluvia" ? 8 : plan.weather === "mixto" ? 5 : 0));
-      const weatherSkill =
-        (hashString(`${entrant.driver.name}-rain`) % 100) / 100 * (plan.weather === "lluvia" ? 7 : plan.weather === "mixto" ? 4 : 1);
+      // Rain widens the random spread and rewards driver skill over the car.
+      const randomSwing = (rng() - 0.5) * (8 + profileTrack.chaos * 9 + wetLevel * 8);
+      const weatherSkill = ((hashString(`${entrant.driver.name}-rain`) % 100) / 100) * (1 + wetLevel * 6);
+      // Car advantage shrinks towards the field mean as the track gets wetter;
+      // driver rating keeps its full weight.
+      const adjustedTeamRating = levelledCarRating(entrant.team.rating, meanTeamRating, wetLevel);
+      const wetBase = entrant.driver.rating * 0.55 + adjustedTeamRating * 0.45;
       const dnf =
         isPlayer
           ? playerDnf
-          : rng() < clamp(0.025 + (1 - entrant.reliability) * 0.14 + profileTrack.chaos * 0.05, 0.01, 0.2);
+          : rng() < clamp(0.025 + (1 - entrant.reliability) * 0.14 + profileTrack.chaos * 0.05 + wetLevel * 0.04, 0.01, 0.22);
       return {
         ...entrant,
         dnf,
         raceScore:
-          entrant.base +
+          wetBase +
           randomSwing +
           weatherSkill +
-          (profileTrack.power - 0.5) * (entrant.team.rating - 70) * 0.12 +
+          (profileTrack.power - 0.5) * (adjustedTeamRating - 70) * 0.12 +
           (profileTrack.tyre - 0.4) * ((hashString(`${entrant.driver.name}-tyre`) % 12) - 5) +
           (isPlayer ? playerDelta * 2.8 + profile.reputation * 0.025 : 0),
       };
@@ -771,6 +1045,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   );
   sample([...Array(neutralCount)].map((_, index) => index), neutralCount, rng).forEach((_, index) => {
     const lap = 3 + Math.floor(rng() * Math.max(5, lapCount - 6));
+    const state = raceStateAtLap(plan, lap);
     const actor = pickRandom(classifiedRivals, rng) || winner;
     const rival = pickRandom(classifiedRivals.filter((item) => item.id !== actor.id), rng) || playerResult;
     if (index % 7 === 0 && podium.length >= 2) {
@@ -778,15 +1053,15 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     } else if (index % 7 === 1) {
       events.push(renderOvertakeEvent({ driver: actor.driver, rival: rival.driver, lap, raceName: race.name, rng, player: false }));
     } else if (index % 7 === 2) {
-      events.push(renderIncidentEvent({ driver: actor.driver, lap, raceName: race.name, rng, severe: rng() < 0.2 }));
+      events.push(renderIncidentEvent({ driver: actor.driver, lap, raceName: race.name, rng, severe: rng() < 0.2, state }));
     } else if (index % 7 === 3) {
-      events.push(renderStrategyEvent({ driver: actor.driver, rival: rival.driver, team: actor.team, lap, rng }));
+      events.push(renderStrategyEvent({ driver: actor.driver, rival: rival.driver, team: actor.team, lap, rng, state }));
     } else if (index % 7 === 4) {
-      events.push(renderExtraDynamicEvent({ driver: actor.driver, rival: rival.driver, team: actor.team, lap, raceName: race.name, rng }));
+      events.push(renderExtraDynamicEvent({ driver: actor.driver, rival: rival.driver, team: actor.team, lap, raceName: race.name, rng, state }));
     } else if (index % 7 === 5) {
-      events.push(renderPressureManagementEvent({ driver: actor.driver, rival: rival.driver, team: actor.team, lap, raceName: race.name, rng }));
+      events.push(renderPressureManagementEvent({ driver: actor.driver, rival: rival.driver, team: actor.team, lap, raceName: race.name, rng, state }));
     } else {
-      events.push(renderWeatherEvent({ lap, raceName: race.name, rng, important: false }));
+      events.push(renderWeatherEvent({ lap, raceName: race.name, rng, important: false, state }));
     }
   });
 
@@ -813,6 +1088,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
         lap,
         raceName: race.name,
         rng,
+        state: raceStateAtLap(plan, lap),
       })
     );
   });
@@ -838,6 +1114,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
         raceName: race.name,
         rng,
         player: true,
+        state: raceStateAtLap(plan, Math.max(4, Math.floor(lapCount * 0.88))),
       })
     );
     events.push(
@@ -908,6 +1185,60 @@ export const completeRace = (season, raceIndex, raceResult) => {
   };
 };
 
+// Head-to-head with the team-mate across the season: the team-mate is the
+// benchmark every driver is measured against. `beaten` reflects the final
+// championship tally (season points), which is what matters for status.
+export const teammateBattleSummary = (season, profile) => {
+  if (!season) return null;
+  const teamName = season.contract?.team?.name;
+  const standings = season.driverStandings || [];
+  const playerRow = standings.find((row) => row.isPlayer);
+  const teammateRow = standings.find((row) => row.team === teamName && !row.isPlayer);
+  if (!playerRow || !teammateRow) return null;
+
+  let raceWins = 0;
+  let raceLosses = 0;
+  let qualiWins = 0;
+  let qualiLosses = 0;
+  let racesCompared = 0;
+  (season.completedRaces || []).forEach((race) => {
+    const results = race.results || [];
+    const playerResult = results.find((row) => row.isPlayer);
+    const teammateResult = results.find((row) => row.team === teamName && !row.isPlayer);
+    if (!playerResult || !teammateResult) return;
+    racesCompared += 1;
+    if (playerResult.position < teammateResult.position) raceWins += 1;
+    else if (playerResult.position > teammateResult.position) raceLosses += 1;
+    if (Number.isFinite(playerResult.gridPosition) && Number.isFinite(teammateResult.gridPosition)) {
+      if (playerResult.gridPosition < teammateResult.gridPosition) qualiWins += 1;
+      else if (playerResult.gridPosition > teammateResult.gridPosition) qualiLosses += 1;
+    }
+  });
+
+  const playerPoints = playerRow.points || 0;
+  const teammatePoints = teammateRow.points || 0;
+  const teamRoster = (season.grid || []).find((team) => team.name === teamName);
+  const teammateDriver = teamRoster?.drivers.find((driver) => !driver.isPlayer);
+
+  return {
+    teammateName: teammateRow.name,
+    teammateId: teammateRow.id,
+    teammateRating: Number.isFinite(teammateDriver?.rating) ? teammateDriver.rating : null,
+    playerPoints,
+    teammatePoints,
+    pointsGap: playerPoints - teammatePoints,
+    raceWins,
+    raceLosses,
+    qualiWins,
+    qualiLosses,
+    racesCompared,
+    // Ahead on the season tally (points; race head-to-head breaks an exact tie).
+    leading: playerPoints > teammatePoints || (playerPoints === teammatePoints && raceWins > raceLosses),
+    beaten: playerPoints > teammatePoints || (playerPoints === teammatePoints && raceWins > raceLosses),
+    tied: playerPoints === teammatePoints && raceWins === raceLosses,
+  };
+};
+
 export const evaluateSeason = ({ season, profile }) => {
   const playerStanding = season.driverStandings.find((row) => row.isPlayer);
   const constructorStanding = season.constructorStandings.find((row) => row.name === season.contract.team.name);
@@ -918,8 +1249,13 @@ export const evaluateSeason = ({ season, profile }) => {
   const overDelivered = pointsRatio >= 1.25 || (pointsRatio >= 1 && constructorMet);
   const met = pointsRatio >= 1 || (pointsRatio >= 0.82 && constructorMet);
   const failed = points < objectives.minimumPoints && !constructorMet;
-  const reputationDelta = overDelivered ? objectives.reputationBonus + 6 : met ? objectives.reputationBonus : failed ? -10 : -3;
-  const ratingDelta = overDelivered ? 3 : met ? 2 : failed ? -1 : 0;
+  // Beating the team-mate over the season lifts reputation (and thus status);
+  // losing the intra-team duel costs it. A tie is neutral.
+  const battle = teammateBattleSummary(season, profile);
+  const teammateRepDelta = !battle ? 0 : battle.tied ? 0 : battle.beaten ? 6 : -6;
+  const teammateRatingBonus = battle && battle.beaten && battle.teammateRating > profile.rating ? 1 : 0;
+  const reputationDelta = (overDelivered ? objectives.reputationBonus + 6 : met ? objectives.reputationBonus : failed ? -10 : -3) + teammateRepDelta;
+  const ratingDelta = (overDelivered ? 3 : met ? 2 : failed ? -1 : 0) + teammateRatingBonus;
   const nextProfile = {
     ...profile,
     seasons: profile.seasons + 1,
@@ -949,6 +1285,8 @@ export const evaluateSeason = ({ season, profile }) => {
     ratingDelta,
     champion: playerStanding?.position === 1,
     titleFight: playerStanding?.position <= 3 || (playerStanding?.points || 0) >= (season.driverStandings[0]?.points || 0) * 0.72,
+    teammateBattle: battle,
+    teammateRepDelta,
     nextProfile,
   };
 };
