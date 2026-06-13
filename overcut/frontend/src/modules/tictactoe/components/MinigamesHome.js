@@ -111,6 +111,14 @@ const minigames = [
   },
 
   {
+    path: "/minigames/careerMode",
+    title: "Modo Trayectoria",
+    description: "Crea un piloto, firma contratos y simula su carrera F1",
+    img: sourceImages(`./OverCutDraft.png`),
+    isNew: true
+  },
+
+  {
     path: "/minigames/wordSearch",
     title: "Word Search F1",
     description: "Encuentra apellidos de pilotos con podios",

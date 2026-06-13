@@ -1,0 +1,1057 @@
+.career-mode-page {
+  --cm-surface: #f4efe1;
+  --cm-panel: #fffdf7;
+  --cm-ink: #071a31;
+  --cm-muted: #5f6776;
+  --cm-line: #d8cfb8;
+  --cm-gold: #d8a11d;
+  --cm-gold-soft: #f4d76d;
+  --cm-blue: #0a2d52;
+  --cm-blue-dark: #061629;
+  --cm-danger: #a62929;
+  --cm-green: #12745a;
+  min-height: 100vh;
+  color: var(--cm-ink);
+  background:
+    linear-gradient(90deg, rgba(10, 45, 82, 0.04) 0 1px, transparent 1px 76px),
+    repeating-linear-gradient(135deg, rgba(216, 161, 29, 0.08) 0 1px, transparent 1px 34px),
+    var(--cm-surface);
+  font-family: "Hanken Grotesk", Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+.career-mode-page *,
+.career-mode-page *::before,
+.career-mode-page *::after {
+  box-sizing: border-box;
+}
+
+.cm-shell {
+  min-height: 100vh;
+  background:
+    linear-gradient(115deg, transparent 0 62%, rgba(216, 161, 29, 0.13) 62.2% 62.4%, transparent 62.6%),
+    repeating-linear-gradient(16deg, transparent 0 28px, rgba(10, 45, 82, 0.08) 29px, transparent 31px);
+}
+
+.cm-header,
+.cm-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 40px 16px;
+}
+
+.cm-header {
+  border-bottom: 3px solid var(--cm-ink);
+}
+
+.cm-hero {
+  border-bottom: 1px solid var(--cm-line);
+}
+
+.cm-header span,
+.cm-hero span,
+.cm-panel-head span,
+.cm-stat span,
+.cm-field span,
+.cm-driver-preview span {
+  display: block;
+  color: var(--cm-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.cm-header h1,
+.cm-hero h2,
+.cm-panel-head h2 {
+  margin: 4px 0 0;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.cm-header h1 {
+  font-size: clamp(38px, 5vw, 66px);
+  text-shadow: 3px 3px 0 rgba(240, 191, 53, 0.9);
+}
+
+.cm-hero h2 {
+  max-width: 820px;
+  font-size: clamp(28px, 4vw, 52px);
+}
+
+.cm-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cm-home-link,
+.cm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 42px;
+  border-radius: 8px;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.cm-home-link {
+  padding: 6px 18px 6px 10px;
+  color: var(--cm-ink);
+  background: white;
+  border: 2px solid var(--cm-ink);
+}
+
+.cm-home-link svg {
+  color: var(--cm-gold);
+}
+
+.cm-btn {
+  padding: 11px 18px;
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.cm-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cm-btn:active {
+  transform: translate(2px, 2px);
+}
+
+.cm-btn-primary {
+  color: white;
+  background: linear-gradient(180deg, #f5d56d, var(--cm-gold));
+  box-shadow: 0 16px 34px rgba(216, 161, 29, 0.28);
+}
+
+.cm-btn-secondary {
+  color: var(--cm-ink);
+  background: rgba(255, 253, 248, 0.78);
+  border: 2px solid var(--cm-ink);
+}
+
+.cm-main {
+  width: min(1480px, 100%);
+  margin: 0 auto;
+  padding: 28px 40px 44px;
+}
+
+.cm-panel {
+  position: relative;
+  min-width: 0;
+  padding: 24px;
+  background: var(--cm-panel);
+  border: 1px solid var(--cm-line);
+  border-radius: 8px;
+  box-shadow: 0 18px 42px rgba(7, 26, 49, 0.16);
+}
+
+.cm-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.cm-panel-head > svg {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  padding: 8px;
+  color: white;
+  background: var(--cm-blue);
+  border-radius: 8px;
+}
+
+.cm-panel-head h2 {
+  font-size: clamp(30px, 4vw, 54px);
+}
+
+.cm-panel-copy {
+  max-width: 860px;
+  margin: 0 0 18px;
+  color: var(--cm-muted);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.cm-setup,
+.cm-dice-panel,
+.cm-retirement {
+  width: min(760px, 100%);
+  margin: 0 auto;
+}
+
+.cm-field {
+  display: grid;
+  gap: 8px;
+}
+
+.cm-field input {
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 14px;
+  color: var(--cm-ink);
+  background: white;
+  border: 2px solid var(--cm-line);
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.cm-field input:focus {
+  border-color: var(--cm-gold);
+  outline: none;
+}
+
+.cm-color-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.cm-color-picker button {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  background: color-mix(in srgb, var(--helmet-choice) 15%, white);
+  border: 2px solid var(--cm-line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cm-color-picker button.is-selected {
+  border-color: var(--cm-ink);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--helmet-choice) 38%, transparent);
+}
+
+.cm-helmet {
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  filter: drop-shadow(0 2px 3px rgba(7, 26, 49, 0.28));
+}
+
+.cm-driver-preview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 16px;
+  margin: 14px 0 18px;
+  background: rgba(216, 161, 29, 0.08);
+  border: 1px solid var(--cm-line);
+  border-left: 5px solid var(--cm-gold);
+  border-radius: 8px;
+}
+
+.cm-driver-preview b {
+  display: block;
+  overflow-wrap: anywhere;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cm-driver-preview small {
+  display: block;
+  color: var(--cm-muted);
+  font-weight: 900;
+}
+
+.cm-hero-profile {
+  display: inline-grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: white;
+  border: 1px solid var(--cm-line);
+  border-bottom: 3px solid var(--cm-ink);
+  border-radius: 8px;
+}
+
+.cm-hero-profile b,
+.cm-hero-profile span {
+  color: var(--cm-ink);
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.cm-dice-panel {
+  overflow: hidden;
+}
+
+.cm-dice-visual {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  display: grid;
+  place-items: center;
+  width: 110px;
+  height: 110px;
+  color: var(--cm-gold);
+  opacity: 0.34;
+}
+
+.cm-dice-visual svg {
+  width: 82px;
+  height: 82px;
+  transform: rotate(-10deg);
+}
+
+.cm-roll-result {
+  display: grid;
+  gap: 8px;
+  min-height: 160px;
+  padding: 22px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(10, 45, 82, 0.07), rgba(216, 161, 29, 0.12));
+  border: 6px solid white;
+}
+
+.cm-roll-result b {
+  color: var(--cm-gold);
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: clamp(54px, 11vw, 92px);
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.cm-contract-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.cm-contract-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  color: var(--cm-ink);
+  text-align: left;
+  background: white;
+  border: 1px solid var(--cm-line);
+  border-bottom: 4px solid var(--team-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+}
+
+.cm-contract-card:hover,
+.cm-contract-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--team-color);
+  box-shadow: 0 12px 26px rgba(7, 26, 49, 0.13);
+  outline: none;
+}
+
+.cm-contract-tier {
+  justify-self: start;
+  padding: 4px 8px;
+  color: white;
+  background: var(--team-color);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cm-contract-team,
+.cm-winner-card {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.cm-team-stripe {
+  width: 8px;
+  min-height: 100%;
+  background: var(--team-color);
+  border-radius: 8px;
+}
+
+.cm-contract-card h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.cm-contract-card small,
+.cm-contract-card p {
+  color: var(--cm-muted);
+  font-weight: 800;
+}
+
+.cm-contract-card p {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.cm-contract-card dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.cm-contract-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 6px;
+  border-top: 1px solid var(--cm-line);
+}
+
+.cm-contract-card dt {
+  color: var(--cm-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cm-contract-card dd {
+  margin: 0;
+  color: var(--cm-gold);
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 24px;
+}
+
+.cm-season-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr) minmax(300px, 380px);
+  gap: 18px;
+  align-items: start;
+}
+
+.cm-season-side,
+.cm-season-standings {
+  display: grid;
+  gap: 18px;
+}
+
+.cm-profile-card .cm-driver-preview {
+  margin-top: 0;
+}
+
+.cm-season-objectives,
+.cm-season-stats,
+.cm-race-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cm-stat {
+  min-width: 0;
+  padding: 12px;
+  background: rgba(216, 161, 29, 0.08);
+  border: 1px solid var(--cm-line);
+  border-bottom: 3px solid var(--cm-ink);
+  border-radius: 8px;
+}
+
+.cm-stat b {
+  display: block;
+  overflow-wrap: anywhere;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.cm-calendar h3,
+.cm-standings h3 {
+  margin: 0 0 12px;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.cm-calendar ol,
+.cm-standings ol {
+  display: grid;
+  gap: 5px;
+  max-height: 58vh;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cm-calendar li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--cm-line);
+  border-left: 4px solid transparent;
+  border-radius: 6px;
+}
+
+.cm-calendar li.is-active {
+  background: white;
+  border-color: var(--cm-gold);
+  border-left-color: var(--cm-gold);
+}
+
+.cm-calendar li.is-done {
+  border-left-color: var(--cm-green);
+  opacity: 0.82;
+}
+
+.cm-calendar li span {
+  overflow: hidden;
+  color: var(--cm-ink);
+  font-size: 12px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-next-race {
+  min-height: 520px;
+}
+
+.cm-big-action {
+  width: 100%;
+  min-height: 70px;
+  margin-top: 12px;
+  font-size: clamp(24px, 4vw, 36px);
+}
+
+.cm-standings li {
+  display: grid;
+  grid-template-columns: 28px 6px minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid var(--cm-line);
+  border-radius: 6px;
+}
+
+.cm-standings li.is-player {
+  background: rgba(216, 161, 29, 0.14);
+  border-color: var(--cm-gold);
+}
+
+.cm-standings li > b,
+.cm-standings li em {
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.cm-row-stripe {
+  width: 6px;
+  height: 26px;
+  background: var(--row-color);
+  border-radius: 8px;
+}
+
+.cm-standings strong,
+.cm-standings small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-standings strong {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.cm-standings small {
+  color: var(--cm-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.cm-race-live,
+.cm-race-result,
+.cm-season-review {
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.cm-sim-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: -4px 0 16px;
+  padding: 8px;
+  background: rgba(10, 45, 82, 0.06);
+  border: 1px solid var(--cm-line);
+  border-radius: 8px;
+}
+
+.cm-sim-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 8px 10px;
+  color: var(--cm-ink);
+  background: white;
+  border: 1px solid var(--cm-line);
+  border-radius: 7px;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.cm-sim-controls button.is-active {
+  color: white;
+  background: var(--cm-blue);
+  border-color: var(--cm-blue);
+}
+
+.cm-sim-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cm-sim-controls .cm-sim-skip {
+  color: white;
+  background: linear-gradient(180deg, #f5d56d, var(--cm-gold));
+  border-color: var(--cm-gold);
+}
+
+.cm-track-scene {
+  position: relative;
+  min-height: 220px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background:
+    repeating-linear-gradient(35deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, #333942 0%, #1f2123 62%, #141920 100%);
+  border: 1px solid rgba(0, 0, 0, 0.68);
+  border-radius: 8px;
+  box-shadow: inset 0 0 48px rgba(0, 0, 0, 0.42);
+}
+
+.cm-track-scene::before,
+.cm-track-scene::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  width: 18px;
+  background: repeating-linear-gradient(180deg, var(--cm-blue) 0 18px, var(--cm-gold-soft) 18px 36px);
+}
+
+.cm-track-scene::before {
+  left: 8px;
+}
+
+.cm-track-scene::after {
+  right: 8px;
+}
+
+.cm-weather-lluvia {
+  background:
+    repeating-linear-gradient(110deg, rgba(160, 206, 255, 0.18) 0 2px, transparent 2px 12px),
+    linear-gradient(180deg, #303846, #171b22);
+}
+
+.cm-weather-mixto {
+  background:
+    linear-gradient(90deg, rgba(120, 160, 190, 0.18), transparent 45%, rgba(216, 161, 29, 0.1)),
+    linear-gradient(180deg, #3b4148, #181b20);
+}
+
+.cm-track-line {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  top: 50%;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.58) 0 22px, transparent 22px 38px);
+}
+
+.cm-career-car {
+  position: absolute;
+  left: 10%;
+  bottom: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 130px;
+  min-height: 48px;
+  padding: 8px 12px;
+  color: white;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--car-color) 88%, white), color-mix(in srgb, var(--car-color) 60%, #071a31));
+  border: 1px solid color-mix(in srgb, var(--car-color) 70%, white);
+  border-radius: 8px;
+  animation: cmCarRun 2.8s ease-in-out infinite;
+}
+
+.cm-career-car span {
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 22px;
+}
+
+.cm-lap-feed {
+  display: grid;
+  gap: 8px;
+  max-height: 420px;
+  overflow: auto;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cm-lap-feed li {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid var(--cm-line);
+  border-left: 4px solid transparent;
+  border-radius: 8px;
+}
+
+.cm-lap-feed li.is-important {
+  background: rgba(216, 161, 29, 0.1);
+  border-left-color: var(--cm-gold);
+}
+
+.cm-lap-feed .cm-event-danger {
+  border-left-color: var(--cm-danger);
+}
+
+.cm-lap-feed .cm-event-winner {
+  border-left-color: var(--cm-green);
+}
+
+.cm-lap-feed b {
+  color: var(--cm-gold);
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.cm-lap-feed span {
+  color: var(--cm-ink);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.cm-lap-feed span em {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 24px;
+  margin-right: 8px;
+  color: white;
+  background: var(--cm-blue);
+  border-radius: 6px;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.cm-winner-card {
+  padding: 16px;
+  margin-bottom: 16px;
+  background: rgba(216, 161, 29, 0.08);
+  border: 1px solid var(--cm-line);
+  border-radius: 8px;
+}
+
+.cm-winner-card b {
+  display: block;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: clamp(34px, 5vw, 54px);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cm-result-grid {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.cm-result-grid div {
+  display: grid;
+  grid-template-columns: 44px 32px minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid var(--cm-line);
+  border-radius: 8px;
+}
+
+.cm-result-grid div.is-player {
+  background: rgba(216, 161, 29, 0.16);
+  border-color: var(--cm-gold);
+}
+
+.cm-result-grid b,
+.cm-result-grid em {
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 21px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.cm-result-grid span {
+  overflow: hidden;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-season-review {
+  overflow: hidden;
+}
+
+.cm-review-animation {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  display: none;
+  width: 150px;
+  height: 150px;
+  color: var(--cm-gold);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.cm-review-animation svg {
+  position: absolute;
+  inset: 36px;
+  width: 78px;
+  height: 78px;
+  filter: drop-shadow(0 12px 20px rgba(216, 161, 29, 0.28));
+}
+
+.cm-review-animation span {
+  position: absolute;
+  inset: 10px;
+  border: 3px solid rgba(216, 161, 29, 0.45);
+  border-radius: 50%;
+  animation: cmPulseRing 1.7s ease-in-out infinite;
+}
+
+.cm-review-animation span:last-child {
+  inset: 26px;
+  border-color: rgba(10, 45, 82, 0.34);
+  animation-delay: 0.42s;
+}
+
+.cm-season-review.is-title-fight,
+.cm-season-review.is-champion {
+  background:
+    radial-gradient(circle at 86% 16%, rgba(216, 161, 29, 0.24), transparent 28%),
+    var(--cm-panel);
+}
+
+.cm-season-review.is-title-fight .cm-review-animation,
+.cm-season-review.is-champion .cm-review-animation {
+  display: block;
+}
+
+.cm-season-review.is-champion {
+  border-color: var(--cm-gold);
+  box-shadow: 0 24px 58px rgba(216, 161, 29, 0.26);
+}
+
+@keyframes cmCarRun {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(min(38vw, 460px));
+  }
+}
+
+@keyframes cmPulseRing {
+  0% {
+    opacity: 0.95;
+    transform: scale(0.82);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.24);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-career-car,
+  .cm-review-animation span {
+    animation: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  .cm-contract-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cm-season-layout {
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  }
+
+  .cm-season-standings {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .cm-header,
+  .cm-hero {
+    align-items: stretch;
+    flex-direction: column;
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .cm-header h1 {
+    font-size: clamp(36px, 11vw, 46px);
+    text-shadow: 2px 2px 0 rgba(240, 191, 53, 0.9);
+  }
+
+  .cm-hero h2,
+  .cm-panel-head h2 {
+    font-size: clamp(28px, 9vw, 40px);
+  }
+
+  .cm-actions,
+  .cm-home-link,
+  .cm-actions .cm-btn,
+  .cm-hero-profile {
+    width: 100%;
+  }
+
+  .cm-main {
+    padding: 16px 14px 32px;
+  }
+
+  .cm-panel {
+    padding: 16px;
+  }
+
+  .cm-contract-grid,
+  .cm-season-layout,
+  .cm-season-standings,
+  .cm-season-objectives,
+  .cm-season-stats,
+  .cm-race-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .cm-contract-card h3 {
+    font-size: 28px;
+  }
+
+  .cm-calendar ol,
+  .cm-standings ol {
+    max-height: 360px;
+  }
+
+  .cm-track-scene {
+    min-height: 180px;
+  }
+
+  .cm-sim-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .cm-career-car {
+    min-width: 116px;
+    bottom: 34px;
+    animation-name: cmCarRunMobile;
+  }
+
+  .cm-lap-feed {
+    max-height: 360px;
+  }
+
+  .cm-lap-feed li {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .cm-lap-feed span {
+    font-size: 13px;
+    line-height: 1.34;
+  }
+
+  .cm-result-grid div {
+    grid-template-columns: 40px 28px minmax(0, 1fr) 54px;
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .cm-result-grid b,
+  .cm-result-grid em {
+    font-size: 18px;
+  }
+
+  .cm-review-animation {
+    right: -16px;
+    top: -10px;
+    transform: scale(0.72);
+  }
+}
+
+@keyframes cmCarRunMobile {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(calc(100vw - 190px));
+  }
+}

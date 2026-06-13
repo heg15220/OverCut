@@ -906,6 +906,7 @@
 }
 
 .ocr-weather-icon {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -929,15 +930,32 @@
   height: 42px;
 }
 
-.ocr-weather-icon svg {
+.ocr-weather-icon-main {
   width: 24px;
   height: 24px;
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.16));
 }
 
-.ocr-race-result-head .ocr-weather-icon svg {
+.ocr-race-result-head .ocr-weather-icon-main {
   width: 27px;
   height: 27px;
+}
+
+.ocr-weather-icon-rain {
+  position: absolute;
+  right: 7px;
+  bottom: 4px;
+  width: 16px;
+  height: 16px;
+  color: #06344f;
+  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.55));
+}
+
+.ocr-race-result-head .ocr-weather-icon-rain {
+  right: 8px;
+  bottom: 5px;
+  width: 18px;
+  height: 18px;
 }
 
 .ocr-weather-icon--dry {

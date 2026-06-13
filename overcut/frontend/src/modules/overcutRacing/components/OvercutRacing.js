@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   ArrowClockwise,
   ArrowLeftShort,
+  CloudRainFill,
   CloudRainHeavyFill,
   CloudSunFill,
   Dice5Fill,
@@ -123,16 +124,20 @@ const TeamCarIcon = ({ color }) => (
 );
 
 const WeatherIcon = ({ code, label }) => {
-  const Icon =
-    code === "wet"
-      ? CloudRainHeavyFill
-      : code === "mixed"
-        ? CloudSunFill
-        : SunFill;
+  if (code === "mixed") {
+    return (
+      <small className="ocr-weather-icon ocr-weather-icon--mixed" aria-label={label}>
+        <CloudSunFill className="ocr-weather-icon-main" aria-hidden="true" />
+        <CloudRainFill className="ocr-weather-icon-rain" aria-hidden="true" />
+      </small>
+    );
+  }
+
+  const Icon = code === "wet" ? CloudRainHeavyFill : SunFill;
 
   return (
     <small className={`ocr-weather-icon ocr-weather-icon--${code || "dry"}`} aria-label={label}>
-      <Icon aria-hidden="true" />
+      <Icon className="ocr-weather-icon-main" aria-hidden="true" />
     </small>
   );
 };

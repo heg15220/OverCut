@@ -5,3 +5,23 @@ Notes:
 - Need smaller race narrative text on mobile and a tablet-specific layout for 721px-1050px.
 - Added tablet-specific 721px-1050px CSS with a two-column draft/season layout and adjusted tablet typography.
 - Reduced mobile simulation/result narrative text sizing and compacted simulation spacing.
+
+New prompt: Implementar un nuevo modo trayectoria con nombre de piloto, color de casco, tirada aleatoria de decada/anio, contratos de equipos medios/bajos, simulacion de temporada F1 con narracion vuelta a vuelta, ofertas por reputacion, despido por incumplimiento y retirada con resumen.
+
+Progress:
+- Added `frontend/src/modules/careerMode/components/careerModeEngine.js`.
+- The new engine reuses `/overcutRacing/bootstrap`, fallback data, decade buckets and team decade ratings.
+- Engine covers contract generation, season grid, weather/degradation/safety car/red flag/accident race simulation, lap events, standings, season evaluation and retirement summary.
+- Added `CareerMode.js` and `CareerMode.css` with setup, helmet color picker, dice rolls, contract selection, season dashboard, live race feed, review and retirement screens.
+- Wired route `/minigames/careerMode`, fullscreen app shell behavior and a new MinigamesHome card.
+- Added `careerRaceEventCatalog.js`: bilingual procedural race-event catalog with circuit-specific corners, overtakes, incidents, leader events, strategy calls, weather changes, red flags and restarts. Minimum generated combinations reported by `eventCatalogStats()` is well above 500.
+- Integrated the catalog into `simulateCareerRace`, so live race narration now uses contextual Spanish/English text for player events and general race events.
+- Added an additional dynamic event block with 10 phases, 10 actions, 10 outcomes and 6 contexts: 6,000 extra bilingual combinations beyond the earlier catalog.
+- Connected `renderExtraDynamicEvent()` into neutral race narration and late-race player-highlight narration.
+- Slowed live race reveal speed: normal is now 1500ms per event, x2 is 750ms per event. The skip button still jumps straight to the race result.
+- Added another new pressure-management event block with 8 triggers, 8 reactions and 8 consequences: 512 extra bilingual combinations. Integrated through `renderPressureManagementEvent()`.
+- Added a player-specific event catalog with 10 setups, 10 actions, 10 results and 7 contexts: 7,000 combinations focused only on our driver (overtakes, defenses, position losses, incidents, collisions, driver errors, strategy and recovery).
+- Race events now carry `positionDelta`/`playerPosition`; `simulateCareerRace` attaches a player-position timeline from grid position to final result.
+- Live race UI now shows the current narrated player position in the car badge and prefixes important player events with `P<n>`.
+- Improved player-specific overtake/defense phrases to be more natural F1 race language.
+- Player battle rivals now come from the simulated race context: start events use nearby grid rivals; mid/late player events estimate the player's live position and choose the real simulated driver ahead/behind from the race order.

@@ -10,7 +10,7 @@ import MobileHeader from "./MobileHeader";
 import { ConsentProvider } from "../../../cookies/ConsentContext"; // <-- importa tu provider
 import CookiePanel from "../../../cookies/CookiePanel";           // <-- panel 2ª capa
 
-const FULLSCREEN_GAME_PATHS = new Set(["/minigames/overcutRacing"]);
+const FULLSCREEN_GAME_PATHS = new Set(["/minigames/overcutRacing", "/minigames/careerMode"]);
 
 const AppShell = () => {
   const [width, setWidth] = React.useState(window.innerWidth);
