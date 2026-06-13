@@ -26,3 +26,4 @@ Progress:
 - Improved player-specific overtake/defense phrases to be more natural F1 race language.
 - Player battle rivals now come from the simulated race context: start events use nearby grid rivals; mid/late player events estimate the player's live position and choose the real simulated driver ahead/behind from the race order.
 - Rebalanced driver-card progression for a full 18-41 career: growth now peaks in the 28-33 prime window, PAC learns very little after 33 and declines yearly in late career, while RAC/EXP keep meaningful post-prime growth. Added unit/integration tests for prime growth and age-related PAC decline.
+- Added OverCutRacing final-race title shock logic: when 3-4 drivers are mathematically alive and P3/P4 need P1/P2 to collapse, the last race can now produce a controlled rare DNF/incident/strategy failure for one or both leaders. The result exposes `titleShock` and the race-result UI shows a "Golpe al mundial" callout.

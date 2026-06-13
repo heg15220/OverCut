@@ -454,6 +454,57 @@ const titleContenders = (standings, maxPoints) => {
   return sorted.filter((row) => leader.points - row.points <= maxPoints);
 };
 
+export const finalTitleShockPlan = ({ finalRoundContenders, scoringSystem, rng }) => {
+  if (!Array.isArray(finalRoundContenders) || finalRoundContenders.length < 3) return null;
+  const contenders = finalRoundContenders.slice(0, 4);
+  const leader = contenders[0];
+  const second = contenders[1];
+  const outsiders = contenders.slice(2);
+  const winPoints = (scoringSystem?.points?.[0] || 25) + (scoringSystem?.fastestLap || 0);
+  const lowPointsThreshold = scoringSystem?.points?.[7] ?? 4;
+  const needsLeaderCollapse = outsiders.some((row) => leader.points - row.points > winPoints - lowPointsThreshold);
+  const needsSecondCollapse = outsiders.some((row) => second.points - row.points > winPoints - lowPointsThreshold);
+  if (!needsLeaderCollapse && !needsSecondCollapse) return null;
+
+  const shockable = contenders.slice(0, 2).filter((row, index) => (index === 0 ? needsLeaderCollapse : needsSecondCollapse));
+  const underdogGap = Math.min(...outsiders.map((row) => leader.points - row.points));
+  const baseChance = finalRoundContenders.length >= 4 ? 0.34 : 0.24;
+  const gapPressure = clamp((winPoints - underdogGap + 8) / Math.max(1, winPoints), 0, 0.16);
+  const chance = clamp(baseChance + gapPressure, 0.18, 0.48);
+  if (rng() > chance) return null;
+
+  const primary = shockable[Math.floor(rng() * shockable.length)] || shockable[0];
+  const canDoubleShock = shockable.length >= 2 && rng() < (finalRoundContenders.length >= 4 ? 0.26 : 0.14);
+  const targets = canDoubleShock ? shockable : [primary];
+  const kindRoll = rng();
+  const kind = kindRoll < 0.42 ? "dnf" : kindRoll < 0.76 ? "strategy" : "incident";
+  return {
+    kind,
+    targets: targets.map((row) => row.id),
+    contenderCount: finalRoundContenders.length,
+    outsiderIds: outsiders.map((row) => row.id),
+    chance,
+  };
+};
+
+export const applyFinalTitleShock = ({ scored, plan, scoringSystem, rng }) => {
+  if (!plan?.targets?.length) return scored;
+  const lowPointsPosition = Math.max(8, Math.min(scored.length, (scoringSystem?.points || []).findIndex((points) => points <= 2) + 1 || 8));
+  return scored.map((entry) => {
+    if (!plan.targets.includes(entry.id)) return entry;
+    if (plan.kind === "dnf") {
+      return { ...entry, dnf: true, titleShock: plan.kind, score: entry.score - 80 };
+    }
+    const penalty = plan.kind === "incident" ? 34 + rng() * 12 : 24 + rng() * 10;
+    return {
+      ...entry,
+      dnf: false,
+      titleShock: plan.kind,
+      score: entry.score - penalty - lowPointsPosition,
+    };
+  });
+};
+
 const seasonArcScore = ({ arc, entrant, raceIndex, raceCount, standingsBefore, rng }) => {
   if (!arc || arc.type === "open") return 0;
   const progress = raceCount > 1 ? raceIndex / (raceCount - 1) : 0;
@@ -593,6 +644,10 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
     const leaderBefore = standingsBefore[0];
     const finalRoundContenders =
       raceIndex === races.length - 1 ? titleContenders(standingsBefore, maxRacePoints).slice(0, 5) : [];
+    const titleShockPlan =
+      raceIndex === races.length - 1
+        ? finalTitleShockPlan({ finalRoundContenders, scoringSystem, rng })
+        : null;
     const preRaceNarrative =
       finalRoundContenders.length >= 2
         ? renderLastRacePreview({
@@ -621,7 +676,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
       conditions.safetyCar ? GRIP.safetyCar : GRIP.dry
     );
 
-    const scored = entrants.map((entrant) => {
+    const scoredBase = entrants.map((entrant) => {
       const standing = driverStandings.get(entrant.id);
       const teamStanding = constructorStandings.get(entrant.team.name);
       const strategy = chooseStrategy({ entrant, standing, leaderBefore, gapBefore, profile, conditions, rng });
@@ -700,6 +755,22 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
         dnf,
       };
     });
+    const scored = applyFinalTitleShock({ scored: scoredBase, plan: titleShockPlan, scoringSystem, rng });
+    const titleShock =
+      titleShockPlan && scored.some((entry) => entry.titleShock)
+        ? {
+            kind: titleShockPlan.kind,
+            targets: scored
+              .filter((entry) => entry.titleShock)
+              .map((entry) => ({
+                id: entry.id,
+                driver: entry.driver.name,
+                team: entry.team.name,
+                standingPosition: standingsBefore.findIndex((row) => row.id === entry.id) + 1,
+              })),
+            outsiderIds: titleShockPlan.outsiderIds,
+          }
+        : null;
 
     const classifiedBase = scored
       .filter((entry) => !entry.dnf)
@@ -905,6 +976,7 @@ export const simulateChampionship = ({ teams, drivers, races, seasonYear }) => {
       narrative,
       championNarrative,
       decisiveMoment,
+      titleShock,
       midfieldHighlight,
       midfieldHighlights,
       preRaceNarrative,

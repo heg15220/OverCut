@@ -1138,6 +1138,19 @@
   line-height: 1.4;
 }
 
+.ocr-title-shock {
+  margin: 0;
+  padding: 12px 14px;
+  color: #fff8dd;
+  background: linear-gradient(135deg, rgba(160, 24, 32, 0.94), rgba(10, 45, 82, 0.94));
+  border-left: 5px solid var(--ocr-gold);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.35;
+  box-shadow: 0 12px 28px rgba(7, 26, 49, 0.18);
+}
+
 .ocr-champion-crowned {
   display: grid;
   gap: 6px;

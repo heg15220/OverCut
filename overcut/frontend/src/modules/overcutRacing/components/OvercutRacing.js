@@ -643,6 +643,18 @@ const RaceSimulating = ({ race, durationMs, onComplete }) => {
   );
 };
 
+const titleShockText = (titleShock) => {
+  if (!titleShock?.targets?.length) return "";
+  const drivers = titleShock.targets.map((target) => target.driver).join(" y ");
+  if (titleShock.kind === "dnf") {
+    return `Golpe al mundial: ${drivers} abandona y deja abierta la puerta a la sorpresa.`;
+  }
+  if (titleShock.kind === "incident") {
+    return `Golpe al mundial: ${drivers} pierde muchos puntos por un incidente en la final.`;
+  }
+  return `Golpe al mundial: la estrategia hunde a ${drivers} y reabre la pelea por el titulo.`;
+};
+
 const RaceResultStage = ({ race, isLast, onNext }) => (
   <section
     className={`ocr-race-result ocr-scenario-${race.scenario}`}
@@ -655,6 +667,9 @@ const RaceResultStage = ({ race, isLast, onNext }) => (
     </header>
     <p className="ocr-race-result-text">{race.narrative.text}</p>
     <em className="ocr-race-result-decisive">{race.decisiveMoment}</em>
+    {race.titleShock && (
+      <p className="ocr-title-shock">{titleShockText(race.titleShock)}</p>
+    )}
 
     {race.championNarrative && (
       <div className="ocr-champion-crowned">
