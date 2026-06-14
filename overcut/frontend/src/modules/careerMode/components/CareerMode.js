@@ -10,6 +10,7 @@ import {
   PersonFill,
   TrophyFill,
 } from "react-bootstrap-icons";
+import formulaCarLoadingUrl from "../../../assets/images/miniGames/FormulaCarLoading.png";
 import racingHelmetUrl from "../../../assets/images/miniGames/RacingHelmet.png";
 import {
   HELMET_COLORS,
@@ -26,6 +27,7 @@ import {
   randomYearInDecade,
   retirementSummary,
   simulateCareerRace,
+  sillySeasonMarketWindow,
   teammateBattleSummary,
   evaluateSeason,
 } from "./careerModeEngine";
@@ -257,11 +259,46 @@ const CONDITION_LABELS = {
   lluvia: "Lluvia",
 };
 
+const positionToTrackProgress = (position, fieldSize = 22) => {
+  const size = Math.max(2, fieldSize || 22);
+  const pos = Math.max(1, Math.min(size, position || size));
+  return ((size - pos) / (size - 1)) * 100;
+};
+
+const CareerTrackCar = ({ player, position, fieldSize }) => {
+  const progress = positionToTrackProgress(position, fieldSize);
+  return (
+    <div
+      className="cm-career-car"
+      style={{
+        "--car-color": normalizeColor(player.teamColor, "#0f4c81"),
+        "--track-car-left": `${7 + progress * 0.86}%`,
+        "--track-car-anchor": `${progress}%`,
+      }}
+    >
+      <img className="cm-career-car-base" src={formulaCarLoadingUrl} alt="" aria-hidden="true" />
+      <span
+        className="cm-career-car-paint"
+        aria-hidden="true"
+        style={{
+          WebkitMaskImage: `url(${formulaCarLoadingUrl})`,
+          maskImage: `url(${formulaCarLoadingUrl})`,
+        }}
+      />
+      <img className="cm-career-car-lines" src={formulaCarLoadingUrl} alt="" aria-hidden="true" />
+      <span className="cm-career-car-position">P{position || "--"}</span>
+    </div>
+  );
+};
+
 // Derive the prominent track overlay from the live race state. Priority:
 // red flag > safety car > rain. Returns null when the track is green and dry.
 const trackOverlayFor = (state) => {
   if (state.redFlagActive) return { kind: "redflag", label: "BANDERA ROJA", icon: <RedFlagIcon size={34} /> };
   if (state.scActive) return { kind: "safetycar", label: "SAFETY CAR", icon: <SafetyCarIcon size={34} /> };
+  if (state.vscActive) return { kind: "vsc", label: "VIRTUAL SC", icon: <SafetyCarIcon size={34} /> };
+  if (state.yellowActive) return { kind: "yellow", label: "BANDERA AMARILLA", icon: <FlagFill size={34} /> };
+  if (state.greenFlag) return { kind: "green", label: "BANDERA VERDE", icon: <FlagFill size={34} /> };
   if (state.wet) return { kind: "rain", label: state.condition === "lluvia" ? "LLUVIA" : "PISTA MOJADA", icon: <RainIcon size={34} /> };
   return null;
 };
@@ -393,14 +430,14 @@ const DicePanel = ({ phase, decadeRoll, yearRoll, onRollDecade, onRollYear }) =>
   </section>
 );
 
-const ContractCard = ({ contract, onSelect }) => (
+const ContractCard = ({ contract, onSelect, badge = null }) => (
   <button
     className="cm-contract-card"
     type="button"
     onClick={() => onSelect(contract)}
     style={{ "--team-color": normalizeColor(contract.team.color, "#0f4c81") }}
   >
-    <span className="cm-contract-tier">{contract.objectives.tier}</span>
+    <span className="cm-contract-tier">{badge || contract.objectives.tier}</span>
     <div className="cm-contract-team">
       <span className="cm-team-stripe" />
       <div>
@@ -409,6 +446,7 @@ const ContractCard = ({ contract, onSelect }) => (
       </div>
     </div>
     <p>{contract.promise}</p>
+    {contract.marketReason && <small className="cm-market-reason">{contract.marketReason}</small>}
     <dl>
       <div>
         <dt>Puntos objetivo</dt>
@@ -425,6 +463,20 @@ const ContractCard = ({ contract, onSelect }) => (
     </dl>
   </button>
 );
+
+const PreContractNotice = ({ preContract }) => {
+  if (!preContract) return null;
+  return (
+    <section
+      className="cm-precontract-strip"
+      style={{ "--team-color": normalizeColor(preContract.team.color, "#0f4c81") }}
+    >
+      <span>Precontrato firmado</span>
+      <b>{preContract.team.name} {preContract.targetYear}</b>
+      <small>Se decide al final de la temporada.</small>
+    </section>
+  );
+};
 
 const ContractSelection = ({ contracts, year, profile, onSelect }) => (
   <section className="cm-panel cm-contracts">
@@ -519,7 +571,14 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
   // cars, red flags or rain is revealed before it actually happens.
   const liveState = raceStateAtLap(raceResult.conditions, currentLap);
   const overlay = trackOverlayFor(liveState);
-  const trackStatusLabel = liveState.redFlagActive ? "Bandera roja" : liveState.scActive ? "Safety Car" : "Verde";
+  const trackStatusLabel =
+    liveState.redFlagActive ? "Bandera roja" :
+    liveState.scActive ? "Safety Car" :
+    liveState.vscActive ? "VSC" :
+    liveState.yellowActive ? "Bandera amarilla" :
+    liveState.greenFlag ? "Bandera verde" :
+    "Verde";
+  const fieldSize = raceResult.results?.length || 22;
 
   useEffect(() => {
     if (!feedRef.current) return;
@@ -575,10 +634,7 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
           </div>
         )}
         {overlay && overlay.kind !== "rain" && <span className="cm-flag-sweep" aria-hidden="true" />}
-        <div className="cm-career-car" style={{ "--car-color": normalizeColor(player.teamColor, "#0f4c81") }}>
-          <HelmetIcon color={player.helmetColor} size={30} />
-          <span>{livePlayerPosition ? `P${livePlayerPosition}` : "RUN"}</span>
-        </div>
+        <CareerTrackCar player={player} position={livePlayerPosition} fieldSize={fieldSize} />
         {overlay && (
           <div className={`cm-race-flag cm-race-flag-${overlay.kind}`} role="status">
             {overlay.icon}
@@ -711,6 +767,7 @@ const SeasonDashboard = ({
   season,
   currentRaceIndex,
   profile,
+  preContract,
   onSimulateRace,
   onRetire,
   canSimulate,
@@ -740,6 +797,7 @@ const SeasonDashboard = ({
             {stat("Constructores", `Top ${season.contract.objectives.constructorPosition}`)}
             {stat("Ronda", `${Math.min(currentRaceIndex + 1, season.races.length)}/${season.races.length}`)}
           </div>
+          <PreContractNotice preContract={preContract} />
           <button className="cm-btn cm-btn-secondary" type="button" onClick={onRetire}>
             Retirarse
           </button>
@@ -792,7 +850,47 @@ const SeasonDashboard = ({
   );
 };
 
-const SeasonReview = ({ evaluation, season, contracts, onContract, onRetire }) => (
+const SillySeasonPanel = ({ market, onSign, onPass }) => (
+  <section className="cm-panel cm-silly-season">
+    <div className="cm-panel-head">
+      <BriefcaseFill />
+      <div>
+        <span>Silly Season · Ronda {market.round}</span>
+        <h2>El paddock pregunta por ti</h2>
+      </div>
+    </div>
+    <p className="cm-panel-copy">
+      Tu rendimiento y estatus han abierto conversaciones antes de acabar el anio. Puedes firmar un precontrato,
+      pero la decision definitiva se tomara al terminar la temporada.
+    </p>
+    <div className="cm-season-stats">
+      {stat("Probabilidad", `${market.chance}%`)}
+      {stat("Puntos vs objetivo", `${market.signal.pointsRatio.toFixed(2)}x`)}
+      {stat("Proximo anio", market.targetYear)}
+      {stat("Ofertas", market.offers.length)}
+    </div>
+    <div className="cm-contract-grid">
+      {market.offers.map((contract) => (
+        <ContractCard key={contract.id} contract={contract} onSelect={onSign} badge="precontrato" />
+      ))}
+    </div>
+    <button className="cm-btn cm-btn-secondary" type="button" onClick={onPass}>
+      Seguir sin firmar
+    </button>
+  </section>
+);
+
+const SeasonReview = ({
+  evaluation,
+  season,
+  contracts,
+  preContract,
+  exploringMarket,
+  onHonorPreContract,
+  onExploreMarket,
+  onContract,
+  onRetire,
+}) => (
   <section className={`cm-panel cm-season-review${evaluation.champion ? " is-champion" : evaluation.titleFight ? " is-title-fight" : ""}`}>
     <div className="cm-review-animation" aria-hidden="true">
       <TrophyFill />
@@ -841,11 +939,32 @@ const SeasonReview = ({ evaluation, season, contracts, onContract, onRetire }) =
         ? "El paddock toma nota: el rendimiento supera el valor del coche y abre puertas mejores."
         : "El mercado reacciona de forma gradual: ofertas cercanas al estatus actual y alguna apuesta condicionada."}
     </p>
-    <div className="cm-contract-grid">
-      {contracts.map((contract) => (
-        <ContractCard key={contract.id} contract={contract} onSelect={onContract} />
-      ))}
-    </div>
+    {preContract && !exploringMarket ? (
+      <div className="cm-precontract-choice">
+        <ContractCard contract={preContract} onSelect={onHonorPreContract} badge="precontrato" />
+        <div>
+          <h3>Decision de Silly Season</h3>
+          <p className="cm-panel-copy">
+            Tienes un acuerdo previo con {preContract.team.name}. Puedes respetarlo y cerrar el asiento, o romper
+            la prioridad para mirar el mercado final de temporada.
+          </p>
+          <div className="cm-choice-actions">
+            <button className="cm-btn cm-btn-primary" type="button" onClick={() => onHonorPreContract(preContract)}>
+              Cumplir precontrato
+            </button>
+            <button className="cm-btn cm-btn-secondary" type="button" onClick={onExploreMarket}>
+              Mirar otras ofertas
+            </button>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div className="cm-contract-grid">
+        {contracts.map((contract) => (
+          <ContractCard key={contract.id} contract={contract} onSelect={onContract} />
+        ))}
+      </div>
+    )}
     <button className="cm-btn cm-btn-secondary" type="button" onClick={onRetire}>
       Retirarse ahora
     </button>
@@ -891,6 +1010,9 @@ const CareerMode = () => {
   const [visibleEventCount, setVisibleEventCount] = useState(0);
   const [simulationSpeed, setSimulationSpeed] = useState("normal");
   const [evaluation, setEvaluation] = useState(null);
+  const [sillySeasonMarket, setSillySeasonMarket] = useState(null);
+  const [preContract, setPreContract] = useState(null);
+  const [exploringMarket, setExploringMarket] = useState(false);
   const [summary, setSummary] = useState(null);
   const lang = navigator.language.startsWith("en") ? "en" : "es";
 
@@ -928,7 +1050,23 @@ const CareerMode = () => {
           rating: contract.team.rating,
           targetPoints: contract.objectives.points,
           constructorTarget: contract.objectives.constructorPosition,
+          kind: contract.kind || "contract",
         })),
+        sillySeason: sillySeasonMarket
+          ? {
+              round: sillySeasonMarket.round,
+              chance: sillySeasonMarket.chance,
+              targetYear: sillySeasonMarket.targetYear,
+              offers: sillySeasonMarket.offers.map((offer) => offer.team.name),
+            }
+          : null,
+        preContract: preContract
+          ? {
+              team: preContract.team.name,
+              targetYear: preContract.targetYear,
+              round: preContract.generatedAtRound,
+            }
+          : null,
         season: season
           ? {
               year: season.year,
@@ -967,7 +1105,7 @@ const CareerMode = () => {
       delete window.render_game_to_text;
       delete window.advanceTime;
     };
-  }, [phase, profile, decadeRoll, yearRoll, contracts, season, currentRaceIndex, raceResult, raceDevelopment, visibleEventCount, simulationSpeed, summary]);
+  }, [phase, profile, decadeRoll, yearRoll, contracts, sillySeasonMarket, preContract, season, currentRaceIndex, raceResult, raceDevelopment, visibleEventCount, simulationSpeed, summary]);
 
   const reset = () => {
     setPhase("setup");
@@ -983,6 +1121,9 @@ const CareerMode = () => {
     setVisibleEventCount(0);
     setSimulationSpeed("normal");
     setEvaluation(null);
+    setSillySeasonMarket(null);
+    setPreContract(null);
+    setExploringMarket(false);
     setSummary(null);
   };
 
@@ -1013,6 +1154,9 @@ const CareerMode = () => {
     setCurrentRaceIndex(0);
     setRaceResult(null);
     setRaceDevelopment(null);
+    setSillySeasonMarket(null);
+    setPreContract(null);
+    setExploringMarket(false);
     setPhase("season");
   };
 
@@ -1068,11 +1212,24 @@ const CareerMode = () => {
       setProfile(seasonEvaluation.nextProfile);
       setYearRoll(nextYear);
       setContracts(nextContracts);
+      setExploringMarket(false);
       setPhase("season-review");
     } else {
+      const market = sillySeasonMarketWindow({
+        bootstrap,
+        season: nextSeason,
+        profile: updatedProfile,
+        alreadySigned: Boolean(preContract),
+      });
       setProfile(updatedProfile);
       setCurrentRaceIndex(currentRaceIndex + 1);
-      setPhase("season");
+      if (market?.offers?.length) {
+        setSillySeasonMarket(market);
+        setPhase("silly-season");
+      } else {
+        setSillySeasonMarket(null);
+        setPhase("season");
+      }
     }
   };
 
@@ -1081,9 +1238,28 @@ const CareerMode = () => {
     setSeason(nextSeason);
     setCurrentRaceIndex(0);
     setEvaluation(null);
+    setSillySeasonMarket(null);
+    setPreContract(null);
+    setExploringMarket(false);
     setRaceResult(null);
     setRaceDevelopment(null);
     setPhase("season");
+  };
+
+  const signPreContract = (contract) => {
+    setPreContract(contract);
+    setSillySeasonMarket(null);
+    setPhase("season");
+  };
+
+  const passPreContracts = () => {
+    setSillySeasonMarket(null);
+    setPhase("season");
+  };
+
+  const exploreFinalMarket = () => {
+    setExploringMarket(true);
+    setPreContract(null);
   };
 
   const retire = () => {
@@ -1154,10 +1330,18 @@ const CareerMode = () => {
               season={season}
               currentRaceIndex={currentRaceIndex}
               profile={profile}
+              preContract={preContract}
               onSimulateRace={simulateRace}
               onRetire={retire}
               canSimulate
               lang={lang}
+            />
+          )}
+          {phase === "silly-season" && sillySeasonMarket && (
+            <SillySeasonPanel
+              market={sillySeasonMarket}
+              onSign={signPreContract}
+              onPass={passPreContracts}
             />
           )}
           {phase === "race-live" && raceResult && (
@@ -1187,6 +1371,10 @@ const CareerMode = () => {
               evaluation={evaluation}
               season={season}
               contracts={contracts}
+              preContract={preContract}
+              exploringMarket={exploringMarket}
+              onHonorPreContract={signNextContract}
+              onExploreMarket={exploreFinalMarket}
               onContract={signNextContract}
               onRetire={retire}
             />

@@ -1,3 +1,5 @@
+import { chooseEraTerm, isEraFeatureAllowed, raceKnowledgeStats } from "./careerRaceEraKnowledge";
+
 const DEFAULT_CORNERS = [
   { es: "la curva 1", en: "Turn 1", type: "braking" },
   { es: "la horquilla", en: "the hairpin", type: "slow" },
@@ -124,7 +126,7 @@ const MOVE_STYLES = [
   { es: "por fuera", en: "around the outside" },
   { es: "con un cambio de trayectoria", en: "with a switchback" },
   { es: "apurando la frenada", en: "by braking late" },
-  { es: "con DRS al final de la recta", en: "with DRS at the end of the straight" },
+  { es: "con DRS al final de la recta", en: "with DRS at the end of the straight", needs: "drs" },
   { es: "traccionando antes que su rival", en: "by getting earlier traction" },
   { es: "metiéndose en el hueco minimo", en: "by squeezing into the smallest gap" },
   { es: "cruzando el coche en la salida", en: "by crossing over on exit" },
@@ -164,13 +166,13 @@ const INCIDENT_CAUSES = [
 
 const INCIDENT_OUTCOMES = [
   { es: "hay bandera amarilla local", en: "local yellow flags are shown" },
-  { es: "direccion de carrera activa VSC", en: "race control deploys the VSC" },
+  { es: "direccion de carrera activa VSC", en: "race control deploys the VSC", needs: "vsc" },
   { es: "sale el safety car", en: "the safety car is deployed", needs: "safetyCar" },
   { es: "la pista queda llena de restos y se investiga el incidente", en: "debris is scattered and the incident is investigated" },
   { es: "el coche llega lento a boxes", en: "the car limps back to the pits" },
   { es: "los comisarios preparan doble amarilla", en: "marshals prepare double yellows" },
-  { es: "se abre una ventana estrategica inesperada", en: "an unexpected strategy window opens" },
-  { es: "varios pilotos aprovechan para parar", en: "several drivers dive into the pits" },
+  { es: "se abre una ventana estrategica inesperada", en: "an unexpected strategy window opens", needs: "advancedStrategy" },
+  { es: "varios pilotos aprovechan para parar", en: "several drivers dive into the pits", needs: "pitStrategy" },
   { es: "la direccion considera bandera roja", en: "race control considers a red flag", needs: "redFlag" },
   { es: "el peloton se compacta de golpe", en: "the field suddenly bunches up" },
 ];
@@ -179,14 +181,17 @@ const STRATEGY_EVENTS = [
   {
     es: "{driver} intenta el undercut sobre {rival}; la vuelta de salida sera decisiva con goma fria.",
     en: "{driver} tries the undercut on {rival}; the out-lap on cold tyres will decide it.",
+    needs: "advancedStrategy",
   },
   {
     es: "{driver} alarga el stint buscando overcut: necesita aire limpio y no castigar el eje trasero.",
     en: "{driver} extends the stint for an overcut: clean air and rear-tyre control are essential.",
+    needs: "advancedStrategy",
   },
   {
     es: "{team} prepara doble parada; un segundo lento puede costar dos posiciones.",
     en: "{team} prepares a double stack; one slow second could cost two places.",
+    needs: "pitStrategy",
   },
   {
     es: "{driver} cambia a intermedios antes que el grupo y apuesta por lluvia estable.",
@@ -205,6 +210,7 @@ const STRATEGY_EVENTS = [
   {
     es: "{driver} recibe orden de levantar y rodar en delta positivo durante el VSC.",
     en: "{driver} is told to lift and keep a positive delta under VSC.",
+    needs: "vsc",
   },
   {
     es: "{driver} protege bateria para atacar tras la resalida.",
@@ -217,10 +223,12 @@ const LEADER_EVENTS = [
   {
     es: "{leader} lidera, pero {chaser} esta a menos de un segundo y abre DRS en cada recta.",
     en: "{leader} leads, but {chaser} is within one second and opens DRS on every straight.",
+    needs: "drs",
   },
   {
     es: "{leader} marca vuelta rapida y rompe el tren de DRS.",
     en: "{leader} sets fastest lap pace and breaks the DRS train.",
+    needs: "drs",
   },
   {
     es: "{leader} informa de vibraciones; {chaser} empieza a oler sangre.",
@@ -242,6 +250,11 @@ const LEADER_EVENTS = [
 
 const WEATHER_EVENTS = [
   {
+    es: "El radar avisa lluvia cerca de {corner}; el muro prepara intermedios por si la nube llega antes de lo previsto.",
+    en: "The radar shows rain near {corner}; the pit wall prepares intermediates in case the cloud arrives early.",
+    needs: "rainThreat",
+  },
+  {
     es: "Empiezan gotas en {corner}; los muros dudan entre slicks e intermedios.",
     en: "Rain drops appear at {corner}; pit walls hesitate between slicks and intermediates.",
     needs: "wet",
@@ -249,6 +262,11 @@ const WEATHER_EVENTS = [
   {
     es: "La trazada seca vuelve en {corner}, pero fuera de linea aun no hay agarre.",
     en: "The dry line returns at {corner}, but there is still no grip off-line.",
+    needs: "dryReturn",
+  },
+  {
+    es: "La pista empieza a secarse en {corner}; quien cambie demasiado pronto puede destruir los slicks.",
+    en: "The track starts drying at {corner}; switching too early could destroy the slicks.",
     needs: "dryReturn",
   },
   {
@@ -263,6 +281,41 @@ const WEATHER_EVENTS = [
     es: "Direccion muestra bandera amarilla y roja por baja adherencia en {corner}.",
     en: "Race control shows the yellow-and-red flag for low grip at {corner}.",
     needs: "wet",
+  },
+];
+
+const RACE_RHYTHM_EVENTS = [
+  {
+    es: "Carrera en ritmo verde: el grupo se estira y cada piloto protege su ventana de neumaticos.",
+    en: "Green-flag rhythm: the field stretches out and every driver protects their tyre window.",
+  },
+  {
+    es: "Sin neutralizaciones, la carrera entra en fase de gestion pura: aire limpio, temperatura y paciencia.",
+    en: "With no neutralisation, the race moves into pure management: clean air, temperature and patience.",
+  },
+  {
+    es: "El peloton se ordena por ritmo real; adelantar exige preparar la maniobra varias curvas antes.",
+    en: "The field settles by real pace; overtaking needs to be prepared several corners in advance.",
+  },
+  {
+    es: "Los muros comparan tiempos de vuelta: la amenaza ya no es el coche de delante, sino la ventana de parada.",
+    en: "Pit walls compare lap times: the threat is no longer just the car ahead, but the stop window.",
+    needs: "pitStrategy",
+  },
+];
+
+const VSC_EVENTS = [
+  {
+    es: "Virtual Safety Car: todos deben respetar el delta y el muro recalcula si la parada sale barata.",
+    en: "Virtual Safety Car: everyone must respect the delta and the pit wall recalculates whether the stop is cheap.",
+  },
+  {
+    es: "VSC en pista por restos pequenos; no se compacta el grupo, pero la ventana estrategica cambia de golpe.",
+    en: "VSC for small debris; the field does not bunch up, but the strategy window changes instantly.",
+  },
+  {
+    es: "Direccion de carrera activa VSC: el ritmo cae sin juntar al peloton y las baterias se reorganizan.",
+    en: "Race control deploys the VSC: pace drops without bunching the field and battery plans reset.",
   },
 ];
 
@@ -316,6 +369,7 @@ const EXTRA_PHASES = [
   {
     es: "con el tren de DRS formado",
     en: "with the DRS train forming",
+    needs: "drs",
   },
   {
     es: "tras una vuelta de salida complicada",
@@ -387,6 +441,7 @@ const EXTRA_ACTIONS = [
   {
     es: "{driver} se queda sin DRS por una decima y debe defender a pulso",
     en: "{driver} misses DRS by a tenth and has to defend manually",
+    needs: "drs",
   },
   {
     es: "{driver} usa el piano interior para mantener el coche dentro del limite",
@@ -449,6 +504,7 @@ const EXTRA_CONTEXTS = [
   {
     es: "a menos de un segundo del coche de delante",
     en: "within one second of the car ahead",
+    needs: "drs",
   },
   {
     es: "mientras cae alguna gota aislada",
@@ -532,6 +588,7 @@ const PRESSURE_REACTIONS = [
   {
     es: "{driver} acepta perder DRS para no sobrecalentar el coche",
     en: "{driver} accepts losing DRS to avoid overheating the car",
+    needs: "drs",
   },
 ];
 
@@ -571,7 +628,7 @@ const PRESSURE_CONSEQUENCES = [
 ];
 
 const PLAYER_EVENT_SETUPS = [
-  { es: "{driver} mide la salida de {rival} antes de abrir DRS", en: "{driver} measures {rival}'s exit before opening DRS", delta: 0, type: "player" },
+  { es: "{driver} mide la salida de {rival} antes de abrir DRS", en: "{driver} measures {rival}'s exit before opening DRS", delta: 0, type: "player", needs: "drs" },
   { es: "{driver} prepara el adelantamiento sobre {rival} desde dos curvas antes", en: "{driver} sets up the pass on {rival} two corners in advance", delta: -1, type: "player" },
   { es: "{driver} cubre el interior ante el ataque de {rival}", en: "{driver} covers the inside against {rival}'s attack", delta: 0, type: "player" },
   { es: "{driver} queda sin bateria para defenderse de {rival}", en: "{driver} runs out of battery to defend from {rival}", delta: 1, type: "player" },
@@ -597,7 +654,7 @@ const PLAYER_EVENT_ACTIONS = [
 ];
 
 const PLAYER_EVENT_RESULTS = [
-  { es: "sale por delante y corta el DRS del rival al final del sector", en: "comes out ahead and breaks the rival's DRS by the end of the sector", adjust: -1 },
+  { es: "sale por delante y corta el DRS del rival al final del sector", en: "comes out ahead and breaks the rival's DRS by the end of the sector", adjust: -1, needs: "drs" },
   { es: "mantiene la posicion por menos de medio coche y fuerza al rival a levantar", en: "keeps the place by less than half a car length and forces the rival to lift", adjust: 0 },
   { es: "pierde una posicion y debe recomponer la vuelta", en: "loses one place and has to rebuild the lap", adjust: 1 },
   { es: "pierde dos posiciones por salir sin traccion", en: "loses two places after exiting without traction", adjust: 2 },
@@ -616,7 +673,7 @@ const PLAYER_EVENT_CONTEXTS = [
   { es: "con un coche lento justo delante", en: "with a slow car just ahead" },
   { es: "tras una radio corta y tensa", en: "after a short and tense radio call" },
   { es: "cuando los frenos estan al limite", en: "when the brakes are on the limit" },
-  { es: "con el grupo comprimido por el DRS", en: "with the pack compressed by DRS" },
+  { es: "con el grupo comprimido por el DRS", en: "with the pack compressed by DRS", needs: "drs" },
 ];
 
 const replaceVars = (template, vars) =>
@@ -642,17 +699,29 @@ const isEligible = (template, state = {}) => {
   if (!template || !template.needs) return true;
   switch (template.needs) {
     case "safetyCar":
-      return Boolean(state.scActive || state.scHappenedBefore);
+      return isEraFeatureAllowed(state.year, "safetyCar") && Boolean(state.scActive || state.scHappenedBefore);
     case "redFlag":
       return Boolean(state.redFlagActive || state.redFlagHappenedBefore);
     case "restart":
       return Boolean(
         state.scActive || state.scHappenedBefore || state.redFlagActive || state.redFlagHappenedBefore
       );
+    case "drs":
+      return isEraFeatureAllowed(state.year, "drs");
+    case "vsc":
+      return isEraFeatureAllowed(state.year, "vsc");
+    case "refueling":
+      return isEraFeatureAllowed(state.year, "refueling");
+    case "advancedStrategy":
+      return (state.year || 2026) >= 1978;
+    case "pitStrategy":
+      return (state.year || 2026) >= 1993;
     case "wet":
       return isWet(state);
+    case "rainThreat":
+      return Boolean(state.rainThreat || state.rainArrived || isWet(state));
     case "dryReturn":
-      return Boolean(state.dryReturned);
+      return Boolean(state.dryingNow);
     default:
       return true;
   }
@@ -674,6 +743,8 @@ export const eventCatalogStats = () => ({
   strategyCombinations: STRATEGY_EVENTS.length,
   leaderCombinations: LEADER_EVENTS.length,
   weatherCombinations: WEATHER_EVENTS.length * DEFAULT_CORNERS.length,
+  rhythmCombinations: RACE_RHYTHM_EVENTS.length,
+  vscCombinations: VSC_EVENTS.length,
   redFlagCombinations: RED_FLAG_EVENTS.length * DEFAULT_CORNERS.length,
   restartCombinations: RESTART_EVENTS.length * DEFAULT_CORNERS.length,
   extraDynamicCombinations:
@@ -682,6 +753,7 @@ export const eventCatalogStats = () => ({
     PRESSURE_TRIGGERS.length * PRESSURE_REACTIONS.length * PRESSURE_CONSEQUENCES.length,
   playerSpecificCombinations:
     PLAYER_EVENT_SETUPS.length * PLAYER_EVENT_ACTIONS.length * PLAYER_EVENT_RESULTS.length * PLAYER_EVENT_CONTEXTS.length,
+  eraKnowledge: raceKnowledgeStats(),
   totalMinimumCombinations:
     MOVE_STYLES.length * MOVE_RESULTS.length * DEFAULT_CORNERS.length +
     INCIDENT_CAUSES.length * INCIDENT_OUTCOMES.length * DEFAULT_CORNERS.length +
@@ -695,9 +767,9 @@ export const eventCatalogStats = () => ({
     PLAYER_EVENT_SETUPS.length * PLAYER_EVENT_ACTIONS.length * PLAYER_EVENT_RESULTS.length * PLAYER_EVENT_CONTEXTS.length,
 });
 
-export const renderOvertakeEvent = ({ driver, rival, lap, raceName, rng, player = false }) => {
+export const renderOvertakeEvent = ({ driver, rival, lap, raceName, rng, player = false, year }) => {
   const corner = pick(getCornersForRace(raceName), rng);
-  const style = pick(MOVE_STYLES, rng);
+  const style = pickEligible(MOVE_STYLES, rng, { year });
   const result = pick(MOVE_RESULTS, rng);
   const subjectEs = player ? driver : `${driver}`;
   const subjectEn = player ? driver : `${driver}`;
@@ -711,8 +783,9 @@ export const renderOvertakeEvent = ({ driver, rival, lap, raceName, rng, player 
   };
 };
 
-export const renderIncidentEvent = ({ driver, lap, raceName, rng, player = false, severe = false, state = {} }) => {
+export const renderIncidentEvent = ({ driver, lap, raceName, rng, player = false, severe = false, state = {}, year }) => {
   const corner = pick(getCornersForRace(raceName), rng);
+  const eraIncident = chooseEraTerm(year || state.year, "incidents", rng);
   const cause = severe
     ? pickEligible(INCIDENT_CAUSES.slice(1, 8), rng, state)
     : pickEligible(INCIDENT_CAUSES, rng, state);
@@ -724,26 +797,27 @@ export const renderIncidentEvent = ({ driver, lap, raceName, rng, player = false
     type: player ? "danger" : "neutral",
     important: player || severe,
     positionDelta: player ? (severe ? 3 : 1) : undefined,
-    text: `${driver} sufre ${cause.es} en ${corner.es}; ${outcome.es}.`,
-    textEn: `${driver} suffers ${cause.en} at ${corner.en}; ${outcome.en}.`,
+    text: `${driver} sufre ${eraIncident?.es || cause.es} en ${corner.es}; ${outcome.es}.`,
+    textEn: `${driver} suffers ${eraIncident?.en || cause.en} at ${corner.en}; ${outcome.en}.`,
   };
 };
 
-export const renderStrategyEvent = ({ driver, rival, team, lap, rng, player = false, state = {} }) => {
+export const renderStrategyEvent = ({ driver, rival, team, lap, rng, player = false, state = {}, year }) => {
   const template = pickEligible(STRATEGY_EVENTS, rng, state);
+  const eraStrategy = chooseEraTerm(year || state.year, "strategy", rng);
   const vars = { driver, rival, team };
   return {
     lap,
     type: player ? "player" : "neutral",
     important: player,
     positionDelta: player ? (rng() < 0.55 ? -1 : 0) : undefined,
-    text: replaceVars(template.es, vars),
-    textEn: replaceVars(template.en, vars),
+    text: `${replaceVars(template.es, vars)}${eraStrategy ? ` La clave de epoca: ${eraStrategy.es}.` : ""}`,
+    textEn: `${replaceVars(template.en, vars)}${eraStrategy ? ` Era-specific key: ${eraStrategy.en}.` : ""}`,
   };
 };
 
-export const renderLeaderEvent = ({ leader, chaser, third, lap, rng }) => {
-  const template = pick(LEADER_EVENTS, rng);
+export const renderLeaderEvent = ({ leader, chaser, third, lap, rng, year }) => {
+  const template = pickEligible(LEADER_EVENTS, rng, { year });
   const vars = { leader, chaser, third };
   return {
     lap,
@@ -756,7 +830,14 @@ export const renderLeaderEvent = ({ leader, chaser, third, lap, rng }) => {
 
 export const renderWeatherEvent = ({ lap, raceName, rng, important = false, state = {} }) => {
   const corner = pick(getCornersForRace(raceName), rng);
-  const template = pickEligible(WEATHER_EVENTS, rng, state);
+  const pool = state.dryingNow
+    ? WEATHER_EVENTS.filter((event) => event.needs === "dryReturn")
+    : state.rainThreat && !isWet(state)
+    ? WEATHER_EVENTS.filter((event) => event.needs === "rainThreat")
+    : isWet(state)
+    ? WEATHER_EVENTS.filter((event) => event.needs === "wet" || !event.needs)
+    : WEATHER_EVENTS.filter((event) => !event.needs);
+  const template = pickEligible(pool.length ? pool : WEATHER_EVENTS, rng, state);
   const wet = isWet(state);
   return {
     lap,
@@ -765,6 +846,29 @@ export const renderWeatherEvent = ({ lap, raceName, rng, important = false, stat
     positionDelta: important ? (rng() < 0.5 ? -1 : 1) : undefined,
     text: replaceVars(template.es, { corner: corner.es }),
     textEn: replaceVars(template.en, { corner: corner.en }),
+  };
+};
+
+export const renderRaceRhythmEvent = ({ lap, rng, state = {} }) => {
+  const template = pickEligible(RACE_RHYTHM_EVENTS, rng, state);
+  return {
+    lap,
+    type: "neutral",
+    important: false,
+    text: template.es,
+    textEn: template.en,
+  };
+};
+
+export const renderVirtualSafetyCarEvent = ({ lap, rng, player = false }) => {
+  const template = pick(VSC_EVENTS, rng);
+  return {
+    lap,
+    type: player ? "player" : "safetycar",
+    important: true,
+    positionDelta: player ? (rng() < 0.45 ? -1 : rng() < 0.8 ? 0 : 1) : undefined,
+    text: template.es,
+    textEn: template.en,
   };
 };
 
@@ -798,8 +902,8 @@ export const renderRestartEvent = ({ driver, leader, lap, raceName, rng, kind = 
 
 export const renderExtraDynamicEvent = ({ driver, rival, team, lap, raceName, rng, player = false, state = {} }) => {
   const corner = pick(getCornersForRace(raceName), rng);
-  const phase = pick(EXTRA_PHASES, rng);
-  const action = pick(EXTRA_ACTIONS, rng);
+  const phase = pickEligible(EXTRA_PHASES, rng, state);
+  const action = pickEligible(EXTRA_ACTIONS, rng, state);
   const outcome = pick(EXTRA_OUTCOMES, rng);
   const context = pickEligible(EXTRA_CONTEXTS, rng, state);
   const vars = { driver, rival, team };
@@ -813,10 +917,10 @@ export const renderExtraDynamicEvent = ({ driver, rival, team, lap, raceName, rn
   };
 };
 
-export const renderPressureManagementEvent = ({ driver, rival, team, lap, raceName, rng, player = false }) => {
+export const renderPressureManagementEvent = ({ driver, rival, team, lap, raceName, rng, player = false, state = {} }) => {
   const corner = pick(getCornersForRace(raceName), rng);
   const trigger = pick(PRESSURE_TRIGGERS, rng);
-  const reaction = pick(PRESSURE_REACTIONS, rng);
+  const reaction = pickEligible(PRESSURE_REACTIONS, rng, state);
   const consequence = pick(PRESSURE_CONSEQUENCES, rng);
   const vars = { driver, rival, team };
   return {
@@ -833,7 +937,14 @@ export const renderPlayerSpecificEvent = ({ driver, rival, team, lap, raceName, 
   const corner = pick(getCornersForRace(raceName), rng);
   const setup = pickEligible(PLAYER_EVENT_SETUPS, rng, state);
   const action = pick(PLAYER_EVENT_ACTIONS, rng);
-  const result = pick(PLAYER_EVENT_RESULTS, rng);
+  const resultPool = PLAYER_EVENT_RESULTS.filter((result) => {
+    if (!isEligible(result, state)) return false;
+    const delta = (setup.delta || 0) + (result.adjust || 0);
+    if ((setup.delta || 0) > 0) return delta >= 0;
+    if ((setup.delta || 0) < 0) return delta <= 0;
+    return true;
+  });
+  const result = pickEligible(resultPool.length ? resultPool : PLAYER_EVENT_RESULTS, rng, state);
   const context = pickEligible(PLAYER_EVENT_CONTEXTS, rng, state);
   const vars = { driver, rival, team };
   const positionDelta = clampPositionDelta((setup.delta || 0) + (result.adjust || 0));

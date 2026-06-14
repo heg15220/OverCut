@@ -1,9 +1,11 @@
 import {
   prepareCareerBootstrap,
   createCareerSeason,
+  generateContracts,
   simulateCareerRace,
   engineInputsFromProfile,
   evaluateSeason,
+  sillySeasonMarketWindow,
 } from "./careerModeEngine";
 import { createDriverCard, computeOverall } from "./driverCard";
 
@@ -73,6 +75,72 @@ describe("simulateCareerRace with a card profile", () => {
     expect(result.wetLevel).toBeGreaterThanOrEqual(0);
     expect(result.teammate).not.toBeNull();
   });
+
+  test("keeps the race feed coherent around neutralisations and retirements", () => {
+    const profile = cardProfile({ name: "HEG" });
+    const season = createCareerSeason({ bootstrap, profile, year: 2010, contract });
+    const result = simulateCareerRace({ season, raceIndex: 0, profile });
+    const activeNeutralisedLaps = new Set();
+    for (let lap = 1; lap <= result.race.lapCount; lap += 1) {
+      const state = result.conditions.neutralizations?.some(
+        (period) => lap >= period.startLap && lap <= period.endLap
+      );
+      if (state) activeNeutralisedLaps.add(lap);
+    }
+    result.events.forEach((event) => {
+      expect(event.text).not.toMatch(/1 posiciones/);
+      const isPlayerAttack = event.type === "player" && /ataca|adelantamiento|se tira por dentro|por fuera/i.test(event.text);
+      if (activeNeutralisedLaps.has(event.lap)) {
+        expect(isPlayerAttack).toBe(false);
+      }
+    });
+  });
+});
+
+describe("generateContracts real constructor objectives", () => {
+  test("uses half of the real constructor points as the driver minimum when available", () => {
+    const bootstrap = prepareCareerBootstrap({
+      decades: [{ key: "2010s", label: "2010s", from: 2010, to: 2019 }],
+      seasonYears: [2010],
+      teamsByDecade: {
+        "2010s": [
+          { name: "Williams", rating: 72, firstYear: 2010, lastYear: 2010, decade: "2010s" },
+          { name: "Lotus", rating: 61, firstYear: 2010, lastYear: 2010, decade: "2010s" },
+        ],
+      },
+      driversByDecade: { "2010s": [] },
+      racesByYear: { "2010": [{ round: 1, name: "Race A" }] },
+      lineupsByYear: {
+        "2010": [
+          {
+            id: "williams",
+            team: "Williams",
+            rating: 72,
+            races: 19,
+            points: 69,
+            standingPosition: 6,
+            drivers: [{ name: "Rubens Barrichello", rating: 78, races: 19 }],
+          },
+          {
+            id: "lotus",
+            team: "Lotus",
+            rating: 61,
+            races: 19,
+            points: 0,
+            standingPosition: 10,
+            drivers: [{ name: "Jarno Trulli", rating: 70, races: 18 }],
+          },
+        ],
+      },
+    });
+    const profile = cardProfile({ reputation: 76, status: "promesa" });
+    const contracts = generateContracts({ bootstrap, year: 2010, playerProfile: profile });
+    const williams = contracts.find((item) => item.team.name === "Williams");
+    expect(williams.objectives.minimumPoints).toBe(35);
+    expect(williams.objectives.points).toBe(35);
+    expect(williams.objectives.constructorPosition).toBe(6);
+    expect(williams.objectives.objectiveSource).toBe("realConstructorPoints");
+  });
 });
 
 describe("evaluateSeason ages the driver and leaves rating to the card", () => {
@@ -104,5 +172,57 @@ describe("evaluateSeason ages the driver and leaves rating to the card", () => {
     expect(evaluation.nextProfile.card.pace).toBeLessThan(card.pace);
     expect(evaluation.nextProfile.card.racecraft).toBe(card.racecraft);
     expect(evaluation.nextProfile.rating).toBe(computeOverall(evaluation.nextProfile.card));
+  });
+});
+
+describe("sillySeasonMarketWindow", () => {
+  const bootstrap = prepareCareerBootstrap({
+    decades: [{ key: "2010s", label: "2010s", from: 2010, to: 2019 }],
+    seasonYears: [2010, 2011],
+    teamsByDecade: {
+      "2010s": [
+        { name: "Lotus", rating: 61, firstYear: 2010, lastYear: 2011, decade: "2010s" },
+        { name: "Williams", rating: 72, firstYear: 2010, lastYear: 2011, decade: "2010s" },
+        { name: "Renault", rating: 80, firstYear: 2010, lastYear: 2011, decade: "2010s" },
+        { name: "Mercedes", rating: 84, firstYear: 2010, lastYear: 2011, decade: "2010s" },
+        { name: "Ferrari", rating: 94, firstYear: 2010, lastYear: 2011, decade: "2010s" },
+      ],
+    },
+    driversByDecade: { "2010s": [] },
+    racesByYear: {
+      "2010": Array.from({ length: 10 }, (_, index) => ({ round: index + 1, name: `Race ${index + 1}` })),
+      "2011": Array.from({ length: 10 }, (_, index) => ({ round: index + 1, name: `Race ${index + 1}` })),
+    },
+  });
+
+  const marketSeason = (completedRaces) => ({
+    year: 2010,
+    contract: {
+      team: { name: "Williams", rating: 72, color: "#0090ff" },
+      objectives: { points: 20, minimumPoints: 5, constructorPosition: 5, reputationBonus: 8 },
+    },
+    races: Array.from({ length: 10 }, (_, index) => ({ round: index + 1, completed: index < completedRaces })),
+    completedRaces: Array.from({ length: completedRaces }, (_, index) => ({ race: { name: `Race ${index + 1}` } })),
+    grid: [{ name: "Williams", drivers: [{ name: "Player", isPlayer: true }, { name: "Mate" }] }],
+    driverStandings: [
+      { id: "career-player", name: "Player", team: "Williams", isPlayer: true, points: 28, wins: 1, podiums: 2, position: 4 },
+      { id: "Mate-Williams", name: "Mate", team: "Williams", isPlayer: false, points: 6, wins: 0, podiums: 0, position: 12 },
+    ],
+    constructorStandings: [{ name: "Williams", position: 3, points: 34 }],
+  });
+
+  test("does not open outside the mid-season market rounds", () => {
+    const profile = cardProfile({ reputation: 92, status: "estrella", rating: 85, overall: 85 });
+    expect(sillySeasonMarketWindow({ bootstrap, season: marketSeason(2), profile })).toBeNull();
+  });
+
+  test("can create pre-contract offers for a standout driver", () => {
+    const profile = cardProfile({ name: "Ayrton Test", reputation: 92, status: "estrella", rating: 88, overall: 88 });
+    const market = sillySeasonMarketWindow({ bootstrap, season: marketSeason(5), profile });
+    expect(market).not.toBeNull();
+    expect(market.targetYear).toBe(2011);
+    expect(market.offers.length).toBeGreaterThan(0);
+    expect(market.offers[0].kind).toBe("precontract");
+    expect(market.offers[0].team.name).not.toBe("Williams");
   });
 });

@@ -416,6 +416,15 @@
   font-weight: 800;
 }
 
+.cm-market-reason {
+  display: block;
+  padding: 7px 9px;
+  color: var(--cm-ink);
+  background: color-mix(in srgb, var(--team-color) 10%, white);
+  border-left: 4px solid var(--team-color);
+  border-radius: 6px;
+}
+
 .cm-contract-card p {
   margin: 0;
   line-height: 1.35;
@@ -472,6 +481,62 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+}
+
+.cm-silly-season {
+  width: min(1040px, 100%);
+  margin: 0 auto;
+}
+
+.cm-precontract-strip {
+  display: grid;
+  gap: 2px;
+  padding: 12px;
+  margin: 12px 0;
+  background: color-mix(in srgb, var(--team-color) 12%, white);
+  border: 1px solid var(--cm-line);
+  border-left: 5px solid var(--team-color);
+  border-radius: 8px;
+}
+
+.cm-precontract-strip span,
+.cm-precontract-strip small {
+  color: var(--cm-muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cm-precontract-strip b {
+  overflow-wrap: anywhere;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cm-precontract-choice {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+  margin-bottom: 18px;
+}
+
+.cm-precontract-choice h3 {
+  margin: 0 0 10px;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: clamp(30px, 4vw, 46px);
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.cm-choice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .cm-stat {
@@ -676,12 +741,12 @@
 
 .cm-track-scene {
   position: relative;
-  min-height: 220px;
+  min-height: 245px;
   overflow: hidden;
   margin-bottom: 16px;
   background:
-    repeating-linear-gradient(35deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 5px),
-    linear-gradient(180deg, #333942 0%, #1f2123 62%, #141920 100%);
+    linear-gradient(180deg, rgba(173, 205, 232, 0.28) 0 30%, rgba(78, 103, 116, 0.22) 30.4% 31%, transparent 31.2%),
+    linear-gradient(180deg, #505761 0%, #30343a 42%, #1c2026 100%);
   border: 1px solid rgba(0, 0, 0, 0.68);
   border-radius: 8px;
   box-shadow: inset 0 0 48px rgba(0, 0, 0, 0.42);
@@ -691,29 +756,38 @@
 .cm-track-scene::after {
   content: "";
   position: absolute;
-  top: 8px;
-  bottom: 8px;
-  width: 18px;
-  background: repeating-linear-gradient(180deg, var(--cm-blue) 0 18px, var(--cm-gold-soft) 18px 36px);
+  left: 0;
+  right: 0;
+  pointer-events: none;
 }
 
 .cm-track-scene::before {
-  left: 8px;
+  top: 56%;
+  bottom: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0 2px, transparent 2px 100%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0 70px, transparent 70px 128px),
+    linear-gradient(180deg, #2b2f35 0%, #15191f 100%);
 }
 
 .cm-track-scene::after {
-  right: 8px;
+  top: calc(56% - 18px);
+  height: 18px;
+  background: repeating-linear-gradient(90deg, var(--cm-blue) 0 34px, var(--cm-gold-soft) 34px 68px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
 }
 
 .cm-weather-lluvia {
   background:
     repeating-linear-gradient(110deg, rgba(160, 206, 255, 0.18) 0 2px, transparent 2px 12px),
+    linear-gradient(180deg, rgba(83, 114, 143, 0.38) 0 30%, rgba(52, 60, 72, 0.28) 30.4% 31%, transparent 31.2%),
     linear-gradient(180deg, #303846, #171b22);
 }
 
 .cm-weather-mixto,
 .cm-weather-intermedios {
   background:
+    linear-gradient(180deg, rgba(147, 178, 199, 0.28) 0 30%, rgba(78, 103, 116, 0.22) 30.4% 31%, transparent 31.2%),
     linear-gradient(90deg, rgba(120, 160, 190, 0.18), transparent 45%, rgba(216, 161, 29, 0.1)),
     linear-gradient(180deg, #3b4148, #181b20);
 }
@@ -762,13 +836,34 @@
 
 .cm-track-redflag .cm-flag-sweep { --cm-sweep: rgba(226, 40, 40, 0.5); }
 .cm-track-safetycar .cm-flag-sweep { --cm-sweep: rgba(244, 194, 10, 0.45); }
+.cm-track-vsc .cm-flag-sweep { --cm-sweep: rgba(244, 194, 10, 0.32); }
+.cm-track-yellow .cm-flag-sweep { --cm-sweep: rgba(255, 218, 73, 0.42); }
+.cm-track-green .cm-flag-sweep { --cm-sweep: rgba(45, 190, 105, 0.42); }
 
 .cm-track-safetycar { animation: cmScScene 1s steps(1, end) infinite; }
+.cm-track-vsc { animation: cmVscScene 1s steps(1, end) infinite; }
+.cm-track-yellow { animation: cmYellowScene 0.9s steps(1, end) infinite; }
+.cm-track-green { animation: cmGreenScene 0.85s ease-out infinite; }
 .cm-track-redflag { animation: cmRedScene 1.1s ease-in-out infinite; }
 
 @keyframes cmScScene {
   0%, 49% { box-shadow: inset 0 0 64px rgba(244, 194, 10, 0.3); }
   50%, 100% { box-shadow: inset 0 0 48px rgba(0, 0, 0, 0.42); }
+}
+
+@keyframes cmVscScene {
+  0%, 49% { box-shadow: inset 0 0 52px rgba(244, 194, 10, 0.22); }
+  50%, 100% { box-shadow: inset 0 0 42px rgba(0, 0, 0, 0.4); }
+}
+
+@keyframes cmYellowScene {
+  0%, 49% { box-shadow: inset 0 0 54px rgba(255, 218, 73, 0.24); }
+  50%, 100% { box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.4); }
+}
+
+@keyframes cmGreenScene {
+  0% { box-shadow: inset 0 0 72px rgba(45, 190, 105, 0.44); }
+  100% { box-shadow: inset 0 0 42px rgba(0, 0, 0, 0.38); }
 }
 
 @keyframes cmRedScene {
@@ -803,6 +898,22 @@
 }
 
 .cm-race-flag-safetycar .cm-flag-icon { color: #1a1500; }
+.cm-race-flag-vsc,
+.cm-race-flag-yellow {
+  background: linear-gradient(180deg, #ffe982, #d6aa00);
+  color: #1a1500;
+  animation: cmFlagIn 0.4s ease both, cmScBadge 1s steps(1, end) infinite;
+}
+
+.cm-race-flag-vsc .cm-flag-icon,
+.cm-race-flag-yellow .cm-flag-icon { color: #1a1500; }
+
+.cm-race-flag-green {
+  background: linear-gradient(180deg, #52d17e, #138b45);
+  color: #fff;
+}
+
+.cm-race-flag-green .cm-flag-icon { color: #fff; }
 
 @keyframes cmScBadge {
   0%, 49% { background: linear-gradient(180deg, #ffe169, #f4c20a); color: #1a1500; }
@@ -832,6 +943,9 @@
   .cm-rain-layer span,
   .cm-flag-sweep,
   .cm-track-safetycar,
+  .cm-track-vsc,
+  .cm-track-yellow,
+  .cm-track-green,
   .cm-track-redflag,
   .cm-race-flag,
   .cm-race-flag-safetycar { animation: none; }
@@ -841,31 +955,89 @@
   position: absolute;
   left: 7%;
   right: 7%;
-  top: 50%;
-  height: 3px;
-  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.58) 0 22px, transparent 22px 38px);
+  top: calc(56% + 56px);
+  height: 4px;
+  z-index: 1;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.64) 0 34px, transparent 34px 62px);
 }
 
 .cm-career-car {
   position: absolute;
-  left: 10%;
-  bottom: 42px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 130px;
-  min-height: 48px;
-  padding: 8px 12px;
-  color: white;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--car-color) 88%, white), color-mix(in srgb, var(--car-color) 60%, #071a31));
-  border: 1px solid color-mix(in srgb, var(--car-color) 70%, white);
-  border-radius: 8px;
-  animation: cmCarRun 2.8s ease-in-out infinite;
+  left: var(--track-car-left, 7%);
+  bottom: 34px;
+  z-index: 4;
+  display: block;
+  width: clamp(104px, 16vw, 172px);
+  height: clamp(54px, 8vw, 88px);
+  filter: drop-shadow(0 16px 10px rgba(0, 0, 0, 0.46));
+  transform: translateX(calc(-1 * var(--track-car-anchor, 0%)));
+  transition: left 0.45s ease, transform 0.45s ease;
 }
 
-.cm-career-car span {
+.cm-career-car-base,
+.cm-career-car-lines,
+.cm-career-car-paint {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cm-career-car-base,
+.cm-career-car-lines {
+  object-fit: contain;
+}
+
+.cm-career-car-base {
+  opacity: 0.5;
+  filter: grayscale(1) brightness(0.75) contrast(1.25);
+}
+
+.cm-career-car-paint {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--car-color) 82%, white), var(--car-color) 58%, color-mix(in srgb, var(--car-color) 72%, #071a31));
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  mix-blend-mode: color;
+  opacity: 0.95;
+}
+
+.cm-career-car-lines {
+  opacity: 0.64;
+  filter: grayscale(1) brightness(0.72) contrast(1.85);
+  mix-blend-mode: multiply;
+}
+
+.cm-career-car::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 10%;
+  bottom: 2px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--car-color) 78%, white), transparent);
+  border-radius: 999px;
+}
+
+.cm-career-car-position {
+  position: absolute;
+  right: 4px;
+  top: -14px;
+  min-width: 38px;
+  padding: 2px 7px;
+  color: white;
+  background: var(--cm-blue-dark);
+  border: 1px solid color-mix(in srgb, var(--car-color) 70%, white);
+  border-radius: 6px;
   font-family: Impact, "Arial Black", sans-serif;
-  font-size: 22px;
+  font-size: 18px;
+  text-align: center;
+  line-height: 1;
 }
 
 .cm-lap-feed {
@@ -1001,6 +1173,17 @@
 .cm-lap-feed .cm-event-safetycar {
   border-left-color: #f4c20a;
   background: rgba(244, 194, 10, 0.16);
+}
+
+.cm-lap-feed .cm-event-vsc,
+.cm-lap-feed .cm-event-yellow {
+  border-left-color: #f4c20a;
+  background: rgba(244, 194, 10, 0.12);
+}
+
+.cm-lap-feed .cm-event-green {
+  border-left-color: var(--cm-green);
+  background: rgba(45, 190, 105, 0.12);
 }
 
 .cm-lap-feed .cm-event-redflag {
@@ -1473,15 +1656,6 @@
   box-shadow: 0 24px 58px rgba(216, 161, 29, 0.26);
 }
 
-@keyframes cmCarRun {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(min(38vw, 460px));
-  }
-}
-
 @keyframes cmPulseRing {
   0% {
     opacity: 0.95;
@@ -1580,6 +1754,7 @@
   }
 
   .cm-contract-grid,
+  .cm-precontract-choice,
   .cm-season-layout,
   .cm-season-standings,
   .cm-season-objectives,
@@ -1655,9 +1830,9 @@
   }
 
   .cm-career-car {
-    min-width: 116px;
-    bottom: 34px;
-    animation-name: cmCarRunMobile;
+    width: clamp(94px, 30vw, 126px);
+    height: clamp(48px, 16vw, 66px);
+    bottom: 30px;
   }
 
   .cm-lap-feed {
@@ -1688,15 +1863,6 @@
     right: -16px;
     top: -10px;
     transform: scale(0.72);
-  }
-}
-
-@keyframes cmCarRunMobile {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(calc(100vw - 190px));
   }
 }
 

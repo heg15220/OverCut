@@ -74,7 +74,9 @@ public class OvercutRacingController {
         response.put("teamsByDecade", constructorsByDecade);
         response.put("driversByDecade", driversByDecade);
         response.put("racesByYear", racesByYear);
-        response.put("lineupsByYear", buildLineupsByYear(driverRatings, constructorRatings));
+        Map<String, List<Map<String, Object>>> constructorStandingsByYear = buildConstructorStandingsByYear();
+        response.put("constructorStandingsByYear", constructorStandingsByYear);
+        response.put("lineupsByYear", buildLineupsByYear(driverRatings, constructorRatings, constructorStandingsByYear));
         return response;
     }
 
@@ -84,7 +86,8 @@ public class OvercutRacingController {
     // an empty map if the cache is absent, so the client falls back gracefully.
     private Map<String, Object> buildLineupsByYear(
             Map<String, Integer> driverRatings,
-            Map<String, Integer> constructorRatings) {
+            Map<String, Integer> constructorRatings,
+            Map<String, List<Map<String, Object>>> constructorStandingsByYear) {
 
         Map<String, Object> byYear = new LinkedHashMap<>();
         try {
@@ -116,6 +119,22 @@ public class OvercutRacingController {
                     team.put("team", teamName);
                     team.put("rating", constructorRatings.getOrDefault(teamName, 58));
                     team.put("races", teamNode.path("races").asInt(0));
+                    Map<String, Object> standing = findConstructorStanding(
+                            constructorStandingsByYear.get(yearEntry.getKey()), teamName);
+                    if (standing != null) {
+                        team.put("points", standing.get("points"));
+                        team.put("constructorPoints", standing.get("points"));
+                        team.put("standingPosition", standing.get("position"));
+                    }
+                    if (teamNode.hasNonNull("points")) {
+                        team.put("points", teamNode.path("points").asDouble());
+                    }
+                    if (teamNode.hasNonNull("constructorPoints")) {
+                        team.put("constructorPoints", teamNode.path("constructorPoints").asDouble());
+                    }
+                    if (teamNode.hasNonNull("standingPosition")) {
+                        team.put("standingPosition", teamNode.path("standingPosition").asInt());
+                    }
                     team.put("drivers", drivers);
                     teams.add(team);
                 }
@@ -125,6 +144,46 @@ public class OvercutRacingController {
             return Map.of();
         }
         return byYear;
+    }
+
+    private Map<String, List<Map<String, Object>>> buildConstructorStandingsByYear() {
+        Map<String, List<Map<String, Object>>> byYear = new LinkedHashMap<>();
+        try {
+            JsonNode root = objectMapper.readTree(
+                    new ClassPathResource("scripts/career_constructor_standings.json").getInputStream());
+            Iterator<Map.Entry<String, JsonNode>> years = root.path("constructorStandingsByYear").fields();
+            while (years.hasNext()) {
+                Map.Entry<String, JsonNode> yearEntry = years.next();
+                List<Map<String, Object>> rows = new ArrayList<>();
+                for (JsonNode rowNode : yearEntry.getValue()) {
+                    String teamName = rowNode.path("team").asText();
+                    if (teamName.isBlank()) {
+                        continue;
+                    }
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("team", teamName);
+                    row.put("position", rowNode.path("position").isMissingNode() ? null : rowNode.path("position").asInt());
+                    row.put("points", rowNode.path("points").asDouble(0));
+                    rows.add(row);
+                }
+                byYear.put(yearEntry.getKey(), rows);
+            }
+        } catch (IOException | RuntimeException ex) {
+            return Map.of();
+        }
+        return byYear;
+    }
+
+    private Map<String, Object> findConstructorStanding(List<Map<String, Object>> rows, String teamName) {
+        if (rows == null || rows.isEmpty()) {
+            return null;
+        }
+        for (Map<String, Object> row : rows) {
+            if (teamName.equals(row.get("team"))) {
+                return row;
+            }
+        }
+        return null;
     }
 
     private Map<String, EntitySeed> collectEntities(JsonNode byYear) {
