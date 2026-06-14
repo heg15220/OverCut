@@ -202,6 +202,9 @@ export const isEraFeatureAllowed = (year, feature) => {
   if (feature === "vsc") return era.vsc;
   if (feature === "refueling") return era.refuelling;
   if (feature === "safetyCar") return era.safetyCar !== "none";
+  // ERS/battery harvesting and deployment as a race resource arrives with the
+  // hybrid power units in 2014; before that, "battery" wording is anachronistic.
+  if (feature === "ers") return (year || 2026) >= 2014;
   return true;
 };
 

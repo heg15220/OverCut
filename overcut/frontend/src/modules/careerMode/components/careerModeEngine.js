@@ -3,7 +3,9 @@ import { fallbackBootstrap } from "../../overcutRacing/components/fallbackData";
 import { applyTeamDecadeRatings } from "../../overcutRacing/components/teamDecadeRatings";
 import { SCORING_SYSTEMS } from "../../overcutRacing/components/scoringSystems";
 import {
+  BATTLE_GAIN_OUTCOMES,
   eventCatalogStats,
+  renderBattleEvent,
   renderExtraDynamicEvent,
   renderIncidentEvent,
   renderLeaderEvent,
@@ -17,7 +19,7 @@ import {
   renderVirtualSafetyCarEvent,
   renderWeatherEvent,
 } from "./careerRaceEventCatalog";
-import { getRaceEraKnowledge, renderEraContextEvent } from "./careerRaceEraKnowledge";
+import { getRaceEraKnowledge, isEraFeatureAllowed, renderEraContextEvent } from "./careerRaceEraKnowledge";
 import { applySeasonAging, computeOverall } from "./driverCard";
 
 export const HELMET_COLORS = [
@@ -497,7 +499,7 @@ export const sillySeasonMarketWindow = ({ bootstrap, season, profile, alreadySig
 const lapCountForRace = (raceName, rng) => {
   const name = String(raceName).toLowerCase();
   if (name.includes("monaco")) return 78;
-  if (name.includes("belgian") || name.includes("spa")) return 44;
+  if (name.includes("belgian") || name.includes("francorchamps")) return 44;
   if (name.includes("italian") || name.includes("monza")) return 53;
   if (name.includes("british")) return 52;
   if (name.includes("singapore")) return 62;
@@ -968,8 +970,20 @@ const playerEvent = (lap, text, textEn = text, type = "player", extras = {}) => 
   ...extras,
 });
 
-const attachPlayerPositionTimeline = ({ events, startPosition, finalPosition, entrantCount }) => {
-  let currentPosition = clamp(startPosition, 1, entrantCount);
+// How far the narrated position is allowed to drift from the interpolated
+// baseline. Keeps event "texture" believable without letting it run away.
+const PLAYER_TIMELINE_OFFSET_CAP = 4;
+
+// The lap-by-lap position shown in the narration is anchored to the *real*
+// classification: it interpolates from the grid slot to the finishing position
+// across race distance, and event deltas only add bounded local texture that
+// decays to zero by the chequered flag. The result table is the single source
+// of truth, so the narration can no longer drift off and then "teleport" onto
+// the final position on the last lap.
+const attachPlayerPositionTimeline = ({ events, startPosition, finalPosition, entrantCount, lapCount }) => {
+  const start = clamp(startPosition, 1, entrantCount);
+  const final = clamp(finalPosition, 1, entrantCount);
+  const laps = Math.max(1, lapCount || 1);
   const priority = {
     redflag: 0,
     safetycar: 1,
@@ -989,16 +1003,45 @@ const attachPlayerPositionTimeline = ({ events, startPosition, finalPosition, en
       (priority[a.type] ?? 8) - (priority[b.type] ?? 8) ||
       Number(b.important) - Number(a.important)
   );
+  let offset = 0;
   return ordered.map((event) => {
     if (event.finalPlayerPosition) {
-      currentPosition = clamp(finalPosition, 1, entrantCount);
-    } else if (Number.isFinite(event.positionDelta)) {
-      currentPosition = clamp(currentPosition + event.positionDelta, 1, entrantCount);
+      offset = 0;
+      return { ...event, playerPosition: final };
     }
+    // A battle involving the player carries the exact rank it puts them in; anchor
+    // the label to it (the rank tracks the interpolation baseline, so no jump).
+    if (Number.isFinite(event.playerPositionOverride)) {
+      offset = 0;
+      return { ...event, playerPosition: clamp(event.playerPositionOverride, 1, entrantCount) };
+    }
+    if (Number.isFinite(event.positionDelta)) {
+      offset = clamp(offset + event.positionDelta, -PLAYER_TIMELINE_OFFSET_CAP, PLAYER_TIMELINE_OFFSET_CAP);
+    }
+    const progress = clamp(event.lap / laps, 0, 1);
+    const baseline = interpolateRacePosition(start, final, progress);
+    const damped = Math.round(offset * (1 - progress));
     return {
       ...event,
-      playerPosition: currentPosition,
+      playerPosition: clamp(baseline + damped, 1, entrantCount),
     };
+  });
+};
+
+// Greens are emitted independently by several sources (the global plan and every
+// dynamic incident), so they can pile up or land while another neutralisation is
+// still running. Consolidate them against the real race state: drop any green on
+// a lap still under a safety car, VSC, red or yellow, and keep at most one green
+// per lap. The neutralisation timeline (plan) is the single source of truth.
+const sanitizeNeutralizationFlags = (events, plan) => {
+  const greenLaps = new Set();
+  return events.filter((event) => {
+    if (event.type !== "green") return true;
+    const state = raceStateAtLap(plan, event.lap);
+    if (state.scActive || state.vscActive || state.redFlagActive || state.yellowActive) return false;
+    if (greenLaps.has(event.lap)) return false;
+    greenLaps.add(event.lap);
+    return true;
   });
 };
 
@@ -1054,6 +1097,74 @@ const isGreenRacingState = (state = {}) =>
 const liveRaceOrderAtLap = (results, lap) =>
   results.filter((result) => result.status !== "DNF" || !Number.isFinite(result.dnfLap) || result.dnfLap > lap);
 
+// Estimated running order at a given lap: each still-racing driver's position is
+// interpolated from its grid slot towards its final classification (the same
+// model the player timeline uses), then ranked. This is the single source of
+// truth for the ordinals announced in battle narration, so it stays coherent
+// lap to lap without simulating every overtake.
+const estimatedRaceOrderAtLap = ({ results, lap, lapCount }) => {
+  const progress = clamp(lap / Math.max(1, lapCount), 0, 1);
+  return liveRaceOrderAtLap(results, lap)
+    .map((result) => ({
+      id: result.id,
+      driver: result.driver,
+      team: result.team,
+      isPlayer: result.isPlayer,
+      gridPosition: result.gridPosition,
+      finalPosition: result.position,
+      est: interpolateRacePosition(result.gridPosition, result.position, progress),
+    }))
+    .sort((a, b) => a.est - b.est || a.finalPosition - b.finalPosition || (a.id < b.id ? -1 : 1))
+    .map((entry, index) => ({ ...entry, rank: index + 1, trend: entry.finalPosition - entry.gridPosition }));
+};
+
+// One coherent wheel-to-wheel battle between two adjacent cars in the estimated
+// order at `lap`. The trailing car attacks the one ahead; the announced ordinal
+// is the real position the overtaker moves into. When the player is involved the
+// event also carries the position to anchor their on-screen label to.
+const buildBattleAtLap = ({ results, lap, lapCount, raceName, year, rng, state }) => {
+  const order = estimatedRaceOrderAtLap({ results, lap, lapCount });
+  if (order.length < 2) return null;
+  const aheadIndex = Math.floor(rng() * (order.length - 1));
+  const defender = order[aheadIndex];
+  const attacker = order[aheadIndex + 1];
+  const climbing = attacker.trend < defender.trend;
+  const passChance = climbing ? 0.6 : 0.32;
+  const roll = rng();
+  const successOutcomes = isEraFeatureAllowed(year, "drs")
+    ? ["inside", "outside", "switchback", "drs"]
+    : ["inside", "outside", "switchback"];
+  const outcome =
+    roll < passChance ? pickRandom(successOutcomes, rng) :
+    roll < passChance + 0.16 ? "error" :
+    roll < passChance + 0.4 ? "defense" :
+    roll < passChance + 0.64 ? "sideBySide" :
+    "lockup";
+  const gain = BATTLE_GAIN_OUTCOMES.includes(outcome);
+  // On a completed pass the attacker takes the defender's slot.
+  const ordinal = defender.rank;
+  const playerInvolved = attacker.isPlayer || defender.isPlayer;
+  const base = renderBattleEvent({
+    attacker: attacker.driver,
+    defender: defender.driver,
+    ordinal,
+    outcome,
+    lap,
+    raceName,
+    rng,
+    state: { ...state, year },
+    player: playerInvolved,
+  });
+  const event = { ...base, category: "battle" };
+  if (attacker.isPlayer) {
+    event.playerPositionOverride = gain ? defender.rank : attacker.rank;
+    if (gain) event.playerOvertakeOrdinal = ordinal; // the ordinal in the text is the player's
+  } else if (defender.isPlayer) {
+    event.playerPositionOverride = gain ? attacker.rank : defender.rank;
+  }
+  return event;
+};
+
 const positionTextEs = (count) => `${count} posicion${count === 1 ? "" : "es"}`;
 
 const positionTextEn = (count) => `${count} position${count === 1 ? "" : "s"}`;
@@ -1070,10 +1181,16 @@ const MECHANICAL_FAILURES = [
   { es: "motor", en: "engine" },
   { es: "frenos", en: "brakes" },
   { es: "embrague", en: "clutch" },
-  { es: "bateria", en: "battery" },
-  { es: "unidad de potencia", en: "power unit" },
+  { es: "bateria", en: "battery", ers: true },
+  { es: "unidad de potencia", en: "power unit", ers: true },
   { es: "hidraulica", en: "hydraulics" },
 ];
+
+// Hybrid-era failures (battery, power unit) only make sense once ERS exists.
+const mechanicalFailuresForYear = (year) => {
+  const ersAllowed = isEraFeatureAllowed(year, "ers");
+  return MECHANICAL_FAILURES.filter((failure) => !failure.ers || ersAllowed);
+};
 
 const incidentFlagFor = ({ severity, kind, era, state, rng }) => {
   if (severity >= 0.92) return "redFlag";
@@ -1090,23 +1207,37 @@ const periodLengthForFlag = (flag, rng) => {
   return 1;
 };
 
-const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, era, wetLevel, rng, playerId }) => {
+const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, era, wetLevel, rng, playerId, reliabilityDnf = new Map() }) => {
   const baseCount = clamp(
     Math.round(profileTrack.chaos * 5 + wetLevel * 7 + (plan.weather !== "seco" ? 2 : 0) + rng() * 3),
     2,
     10
   );
   const available = qualifying.filter((entry) => entry.id !== playerId);
+  // Resolve incidents in lap order with a growing set of retired drivers, so a
+  // car that has already abandoned can never be picked again as the actor of a
+  // later incident, nor be named as a rival still racing after its retirement.
+  const laps = [...Array(baseCount)]
+    .map(() => 3 + Math.floor(rng() * Math.max(5, lapCount - 7)))
+    .sort((a, b) => a - b);
+  const retired = new Set();
   const incidents = [];
-  for (let index = 0; index < baseCount && available.length; index += 1) {
-    const lap = 3 + Math.floor(rng() * Math.max(5, lapCount - 7));
+  for (let index = 0; index < laps.length; index += 1) {
+    const lap = laps[index];
+    const pool = available.filter((entry) => {
+      if (retired.has(entry.id)) return false;
+      const reliability = reliabilityDnf.get(entry.id);
+      return !(reliability && lap >= reliability.lap);
+    });
+    if (!pool.length) break;
     const state = raceStateAtLap(plan, lap);
-    const actor = pickRandom(available, rng);
-    const rival = pickRandom(available.filter((entry) => entry.id !== actor.id), rng) || pickRandom(available, rng);
+    const actor = pickRandom(pool, rng);
+    const rivalPool = pool.filter((entry) => entry.id !== actor.id);
+    const rival = rivalPool.length ? pickRandom(rivalPool, rng) : null;
     const rainBoost = state.wet ? 1.85 : state.rainThreat ? 1.28 : 1;
     const mechanicalChance = clamp((1 - actor.reliability) * 0.36 * (era.scenarioWeights?.mechanical || 1), 0.06, 0.42);
     const roll = rng();
-    const kind =
+    let kind =
       roll < mechanicalChance
         ? "mechanicalDnf"
         : roll < mechanicalChance + 0.18 * rainBoost
@@ -1116,6 +1247,10 @@ const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, e
         : roll < mechanicalChance + 0.6 * rainBoost
         ? "collisionLoss"
         : "driverError";
+    // No rival left on track to collide with: fall back to a single-car version.
+    if (!rival && (kind === "collisionDnf" || kind === "collisionLoss")) {
+      kind = kind === "collisionDnf" ? "soloCrash" : "driverError";
+    }
     const severity =
       kind === "mechanicalDnf"
         ? 0.32 + rng() * 0.38
@@ -1131,6 +1266,7 @@ const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, e
       kind === "collisionLoss" || kind === "soloCrash" ? 2 + Math.floor(rng() * (state.wet ? 5 : 3)) :
       0;
     const dnf = kind === "mechanicalDnf" || kind === "collisionDnf" || (kind === "soloCrash" && severity > 0.72);
+    if (dnf) retired.add(actor.id);
     incidents.push({
       id: `${actor.id}-${lap}-${index}`,
       lap,
@@ -1146,11 +1282,12 @@ const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, e
       severity,
       lostPositions,
       dnf,
-      mechanical: kind === "mechanicalDnf" ? pickRandom(MECHANICAL_FAILURES, rng) : null,
+      mechanical: kind === "mechanicalDnf" ? pickRandom(mechanicalFailuresForYear(plan.year), rng) : null,
       wet: state.wet,
     });
   }
-  return incidents.sort((a, b) => a.lap - b.lap);
+  // Already in lap order: incidents were resolved against a lap-sorted schedule.
+  return incidents;
 };
 
 const renderDynamicIncidentEvent = ({ incident, playerName, playerNearby }) => {
@@ -1201,12 +1338,22 @@ const renderDynamicIncidentEvent = ({ incident, playerName, playerNearby }) => {
       eventType
     );
   }
+  // A soloCrash that is not terminal: a spin/off that only costs positions, so it
+  // must NOT read as a retirement (the driver stays in the race).
+  if (!incident.dnf) {
+    return playerEvent(
+      incident.lap,
+      `${incident.actor} se va largo y pierde ${positionTextEs(incident.lostPositions)}; hay ${flagEs} en el sector.${playerEs}`,
+      `${incident.actor} runs wide and loses ${positionTextEn(incident.lostPositions)}; ${flagEn} in the sector.${playerEn}`,
+      eventType
+    );
+  }
   return playerEvent(
     incident.lap,
     `${incident.actor} ${incident.kind === "soloCrash" ? "se accidenta solo" : `colisiona con ${incident.rival}`} y abandona. Restos en pista: direccion activa ${flagEs}.${playerEs}`,
     `${incident.actor} ${incident.kind === "soloCrash" ? "crashes alone" : `collides with ${incident.rival}`} and retires. Debris on track: race control deploys ${flagEn}.${playerEn}`,
     eventType,
-    playerNearby && incident.dnf ? { positionDelta: -1 } : {}
+    playerNearby ? { positionDelta: -1 } : {}
   );
 };
 
@@ -1530,7 +1677,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   const playerDnfLap = playerDnf ? 4 + Math.floor(rng() * Math.max(4, lapCount - 8)) : null;
   if (playerDnf) {
     if (playerMechanicalDnf) {
-      const failure = pickRandom(MECHANICAL_FAILURES, rng);
+      const failure = pickRandom(mechanicalFailuresForYear(season.year), rng);
       events.push(
         playerEvent(
           playerDnfLap,
@@ -1544,6 +1691,26 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     }
   }
 
+  // Reliability retirements are decided up front (one retirement timeline), so
+  // the incident builder can avoid naming a driver who has already retired and
+  // the result table can reuse the very same lap.
+  const reliabilityDnf = new Map();
+  qualifying.forEach((entrant) => {
+    if (entrant.isPlayer) return;
+    const risk = clamp(
+      (0.025 + (1 - entrant.reliability) * 0.14 + profileTrack.chaos * 0.05 + wetLevel * 0.04) *
+        (era.scenarioWeights?.mechanical || 1),
+      0.01,
+      0.28
+    );
+    if (rng() < risk) {
+      reliabilityDnf.set(entrant.id, {
+        lap: 5 + Math.floor(rng() * Math.max(5, lapCount - 10)),
+        kind: rng() < 0.58 ? "mechanical" : "incident",
+      });
+    }
+  });
+
   const dynamicIncidents = buildDynamicRaceIncidents({
     qualifying,
     plan,
@@ -1553,6 +1720,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     wetLevel,
     rng,
     playerId: player?.id,
+    reliabilityDnf,
   });
   plan.neutralizations = dynamicIncidents.map((incident) => ({
     type: incident.type,
@@ -1598,6 +1766,11 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     const previous = dynamicByActor.get(incident.actorId);
     if (!previous || incident.severity > previous.severity) dynamicByActor.set(incident.actorId, incident);
   });
+  // Drivers already narrated as retiring by a dynamic incident, so the result
+  // table's DNF loop can avoid telling the same retirement a second time.
+  const dynamicDnfActors = new Set(
+    dynamicIncidents.filter((incident) => incident.dnf).map((incident) => incident.actorId)
+  );
 
   const classified = qualifying
     .map((entrant) => {
@@ -1610,24 +1783,22 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       // driver rating keeps its full weight.
       const adjustedTeamRating = levelledCarRating(entrant.team.rating, meanTeamRating, wetLevel);
       const wetBase = entrant.driver.rating * 0.55 + adjustedTeamRating * 0.45;
-      const rivalDnfRisk = clamp(
-        (0.025 + (1 - entrant.reliability) * 0.14 + profileTrack.chaos * 0.05 + wetLevel * 0.04) *
-          (era.scenarioWeights?.mechanical || 1),
-        0.01,
-        0.28
-      );
-      const dnf = isPlayer ? playerDnf : Boolean(dynamicIncident?.dnf) || rng() < rivalDnfRisk;
+      // Reliability retirement was decided up front; a dynamic incident DNF takes
+      // precedence and overrides the lap so the timeline stays single-sourced.
+      const reliability = reliabilityDnf.get(entrant.id);
+      const dnf = isPlayer ? playerDnf : Boolean(dynamicIncident?.dnf) || Boolean(reliability);
       const dnfLap =
         isPlayer && dnf ? playerDnfLap :
         dynamicIncident?.dnf ? dynamicIncident.lap :
-        dnf ? 5 + Math.floor(rng() * Math.max(5, lapCount - 10)) :
+        reliability ? reliability.lap :
         null;
       const dnfKind =
         !dnf ? null :
         isPlayer && playerMechanicalDnf ? "mechanical" :
         dynamicIncident?.kind === "mechanicalDnf" ? "mechanical" :
         dynamicIncident ? "incident" :
-        rng() < 0.58 ? "mechanical" : "incident";
+        reliability ? reliability.kind :
+        "incident";
       return {
         ...entrant,
         dnf,
@@ -1683,6 +1854,10 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   const podium = results.slice(0, 3);
   results
     .filter((result) => !result.isPlayer && result.status === "DNF" && Number.isFinite(result.dnfLap))
+    // Drivers who retired through a dynamic incident were already narrated there;
+    // this loop only covers the remaining (reliability) DNFs, so each retirement
+    // is told exactly once.
+    .filter((result) => !dynamicDnfActors.has(result.id))
     .sort((a, b) => a.dnfLap - b.dnfLap)
     .forEach((result) => {
       const playerEstimatedPosition = estimatedPlayerPositionAtLap({
@@ -1780,7 +1955,8 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     } else if (index % 8 === 0 && podium.length >= 2) {
       events.push(renderLeaderEvent({ leader: podium[0].driver, chaser: podium[1].driver, third: podium[2]?.driver || rival.driver, lap, rng, year: season.year }));
     } else if (index % 8 === 1) {
-      events.push(renderOvertakeEvent({ driver: actor.driver, rival: rival.driver, lap, raceName: race.name, rng, player: false, year: season.year }));
+      const battle = buildBattleAtLap({ results, lap, lapCount, raceName: race.name, year: season.year, rng, state });
+      if (battle) events.push(battle);
     } else if (index % 8 === 2) {
       events.push(renderIncidentEvent({ driver: actor.driver, lap, raceName: race.name, rng, severe: rng() < 0.2, state, year: season.year }));
     } else if (index % 8 === 3) {
@@ -1894,10 +2070,11 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     conditions: plan,
     startingPosition: playerGrid,
     events: attachPlayerPositionTimeline({
-      events: compactRaceEvents(events, lapCount),
+      events: compactRaceEvents(sanitizeNeutralizationFlags(events, plan), lapCount),
       startPosition: playerGrid,
       finalPosition: playerResult.position,
       entrantCount: entrants.length,
+      lapCount,
     }),
     results,
     playerResult,

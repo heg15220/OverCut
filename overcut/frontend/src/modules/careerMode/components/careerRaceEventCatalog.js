@@ -24,7 +24,7 @@ const CIRCUIT_CORNERS = [
     ],
   },
   {
-    match: ["belgian", "spa"],
+    match: ["belgian", "francorchamps"],
     corners: [
       { es: "La Source", en: "La Source", type: "slow" },
       { es: "Eau Rouge", en: "Eau Rouge", type: "commitment" },
@@ -215,7 +215,7 @@ const STRATEGY_EVENTS = [
   {
     es: "{driver} protege bateria para atacar tras la resalida.",
     en: "{driver} saves battery to attack after the restart.",
-    needs: "restart",
+    needs: ["restart", "ers"],
   },
 ];
 
@@ -358,6 +358,7 @@ const RESTART_EVENTS = [
     es: "La resalida mezcla estrategias: blandos contra medios y bateria al maximo.",
     en: "The restart mixes strategies: softs against mediums and full battery deployment.",
     kind: "any",
+    needs: "ers",
   },
 ];
 
@@ -365,6 +366,7 @@ const EXTRA_PHASES = [
   {
     es: "en plena gestion de bateria",
     en: "while managing battery deployment",
+    needs: "ers",
   },
   {
     es: "con el tren de DRS formado",
@@ -417,6 +419,7 @@ const EXTRA_ACTIONS = [
   {
     es: "{driver} se mete en el rebufo, descarga bateria y llega emparejado",
     en: "{driver} tucks into the slipstream, deploys battery and draws alongside",
+    needs: "ers",
   },
   {
     es: "{driver} levanta medio segundo para enfriar frenos y preparar el ataque siguiente",
@@ -568,6 +571,7 @@ const PRESSURE_REACTIONS = [
   {
     es: "{team} pide defender el interior y no gastar bateria",
     en: "{team} asks for inside defence without spending battery",
+    needs: "ers",
   },
   {
     es: "{driver} deja respirar los neumaticos durante media vuelta",
@@ -631,7 +635,7 @@ const PLAYER_EVENT_SETUPS = [
   { es: "{driver} mide la salida de {rival} antes de abrir DRS", en: "{driver} measures {rival}'s exit before opening DRS", delta: 0, type: "player", needs: "drs" },
   { es: "{driver} prepara el adelantamiento sobre {rival} desde dos curvas antes", en: "{driver} sets up the pass on {rival} two corners in advance", delta: -1, type: "player" },
   { es: "{driver} cubre el interior ante el ataque de {rival}", en: "{driver} covers the inside against {rival}'s attack", delta: 0, type: "player" },
-  { es: "{driver} queda sin bateria para defenderse de {rival}", en: "{driver} runs out of battery to defend from {rival}", delta: 1, type: "player" },
+  { es: "{driver} queda sin bateria para defenderse de {rival}", en: "{driver} runs out of battery to defend from {rival}", delta: 1, type: "player", needs: "ers" },
   { es: "{driver} bloquea el neumatico delantero", en: "{driver} locks the front tyre", delta: 1, type: "danger" },
   { es: "{driver} toca ligeramente a {rival} en plena batalla", en: "{driver} makes light contact with {rival} in the fight", delta: 1, type: "danger" },
   { es: "{driver} completa una vuelta de salida mejor que {rival}", en: "{driver} completes a better out-lap than {rival}", delta: -1, type: "player" },
@@ -644,9 +648,9 @@ const PLAYER_EVENT_ACTIONS = [
   { es: "se tira por dentro justo al soltar el freno y deja el coche colocado en el vertice", en: "dives down the inside as he releases the brake and places the car on the apex" },
   { es: "aguanta por fuera con medio coche en paralelo y mejor traccion", en: "hangs around the outside with half a car alongside and better traction" },
   { es: "con un contravolante al pisar el piano", en: "with opposite lock after touching the kerb" },
-  { es: "levanta lo justo para evitar contacto y vuelve a cargar bateria", en: "lifts just enough to avoid contact and starts harvesting again" },
+  { es: "levanta lo justo para evitar contacto y vuelve a cargar bateria", en: "lifts just enough to avoid contact and starts harvesting again", needs: "ers" },
   { es: "alarga la frenada sin bloquear y obliga al rival a dejar espacio", en: "brakes late without locking and forces the rival to leave room" },
-  { es: "protegiendo la bateria para la recta siguiente", en: "saving battery for the next straight" },
+  { es: "protegiendo la bateria para la recta siguiente", en: "saving battery for the next straight", needs: "ers" },
   { es: "cruza la trazada en la salida y gana el interior de la siguiente curva", en: "switches back on exit and gains the inside for the next corner" },
   { es: "aprovecha una correccion minima del rival y mete el morro", en: "pounces on a tiny correction from the rival and gets the nose in" },
   { es: "con neumaticos frios y poca adherencia", en: "on cold tyres with little grip" },
@@ -693,11 +697,9 @@ const pick = (items, rng) => items[Math.floor(rng() * items.length)];
 const isWet = (state = {}) =>
   Boolean(state.wet) || state.condition === "lluvia" || state.condition === "intermedios";
 
-// Decide whether a template is allowed given the live race state at its lap.
-// Templates without a `needs` tag are always eligible.
-const isEligible = (template, state = {}) => {
-  if (!template || !template.needs) return true;
-  switch (template.needs) {
+// Whether a single requirement tag is satisfied by the live race state.
+const needMet = (need, state = {}) => {
+  switch (need) {
     case "safetyCar":
       return isEraFeatureAllowed(state.year, "safetyCar") && Boolean(state.scActive || state.scHappenedBefore);
     case "redFlag":
@@ -710,6 +712,8 @@ const isEligible = (template, state = {}) => {
       return isEraFeatureAllowed(state.year, "drs");
     case "vsc":
       return isEraFeatureAllowed(state.year, "vsc");
+    case "ers":
+      return isEraFeatureAllowed(state.year, "ers");
     case "refueling":
       return isEraFeatureAllowed(state.year, "refueling");
     case "advancedStrategy":
@@ -725,6 +729,15 @@ const isEligible = (template, state = {}) => {
     default:
       return true;
   }
+};
+
+// Decide whether a template is allowed given the live race state at its lap.
+// Templates without a `needs` tag are always eligible; an array of needs means
+// every requirement must hold (e.g. a restart line that also needs ERS).
+const isEligible = (template, state = {}) => {
+  if (!template || !template.needs) return true;
+  if (Array.isArray(template.needs)) return template.needs.every((need) => needMet(need, state));
+  return needMet(template.needs, state);
 };
 
 // Pick respecting eligibility. Falls back to the untagged subset (and finally to
@@ -884,12 +897,11 @@ export const renderRedFlagEvent = ({ lap, raceName, rng }) => {
   };
 };
 
-export const renderRestartEvent = ({ driver, leader, lap, raceName, rng, kind = "safetyCar" }) => {
+export const renderRestartEvent = ({ driver, leader, lap, raceName, rng, kind = "safetyCar", year, state }) => {
   const corner = pick(getCornersForRace(raceName), rng);
-  const eligible = RESTART_EVENTS.filter((item) => item.kind === kind || item.kind === "any");
-  const template = (eligible.length ? eligible : RESTART_EVENTS)[
-    Math.floor(rng() * (eligible.length ? eligible.length : RESTART_EVENTS.length))
-  ];
+  const eligibilityState = state || { year };
+  const byKind = RESTART_EVENTS.filter((item) => item.kind === kind || item.kind === "any");
+  const template = pickEligible(byKind.length ? byKind : RESTART_EVENTS, rng, eligibilityState);
   return {
     lap,
     type: "player",
@@ -936,12 +948,16 @@ export const renderPressureManagementEvent = ({ driver, rival, team, lap, raceNa
 export const renderPlayerSpecificEvent = ({ driver, rival, team, lap, raceName, rng, state = {} }) => {
   const corner = pick(getCornersForRace(raceName), rng);
   const setup = pickEligible(PLAYER_EVENT_SETUPS, rng, state);
-  const action = pick(PLAYER_EVENT_ACTIONS, rng);
+  const action = pickEligible(PLAYER_EVENT_ACTIONS, rng, state);
+  // Keep the prose coherent, not just the net number: a setup that sets up a gain
+  // (delta < 0) must not resolve into a losing result (adjust > 0), and a setup
+  // that concedes ground (delta > 0) must not resolve into a gaining one.
   const resultPool = PLAYER_EVENT_RESULTS.filter((result) => {
     if (!isEligible(result, state)) return false;
-    const delta = (setup.delta || 0) + (result.adjust || 0);
-    if ((setup.delta || 0) > 0) return delta >= 0;
-    if ((setup.delta || 0) < 0) return delta <= 0;
+    const setupDelta = setup.delta || 0;
+    const adjust = result.adjust || 0;
+    if (setupDelta < 0) return adjust <= 0;
+    if (setupDelta > 0) return adjust >= 0;
     return true;
   });
   const result = pickEligible(resultPool.length ? resultPool : PLAYER_EVENT_RESULTS, rng, state);
@@ -959,3 +975,115 @@ export const renderPlayerSpecificEvent = ({ driver, rival, team, lap, raceName, 
 };
 
 const clampPositionDelta = (delta) => Math.max(-2, Math.min(3, delta));
+
+// Position as a racing ordinal: Spanish uses the masculine degree sign ("8º",
+// from "octavo puesto"); English uses the usual suffix with the 11–13 exception.
+export const formatOrdinal = (n, lang = "es") => {
+  if (lang === "en") {
+    const lastTwo = n % 100;
+    if (lastTwo >= 11 && lastTwo <= 13) return `${n}th`;
+    switch (n % 10) {
+      case 1:
+        return `${n}st`;
+      case 2:
+        return `${n}nd`;
+      case 3:
+        return `${n}rd`;
+      default:
+        return `${n}th`;
+    }
+  }
+  return `${n}º`;
+};
+
+// Battle phrases keyed by outcome. {attacker}/{defender} are driver names,
+// {corner} the corner token, {ord} the ordinal the overtaker moves into. Only
+// the success/error outcomes carry {ord}; defence and side-by-side never claim a
+// new position. DRS lines are era-gated through the standard `needs` mechanism.
+const BATTLE_TEMPLATES = {
+  inside: [
+    {
+      es: "¡{attacker} se lanza al interior de {corner} y supera a {defender} para colocarse {ord}!",
+      en: "{attacker} dives down the inside of {corner} and takes {defender} to move up to {ord}!",
+    },
+    {
+      es: "¡{attacker} clava la frenada en {corner}, se mete por dentro de {defender} y asciende a {ord}!",
+      en: "{attacker} nails the brakes into {corner}, goes up the inside of {defender} and grabs {ord}!",
+    },
+  ],
+  outside: [
+    {
+      es: "¡{attacker} completa el adelantamiento por fuera de {corner} sobre {defender} y sube a {ord}!",
+      en: "{attacker} sweeps around the outside of {corner} past {defender} into {ord}!",
+    },
+    {
+      es: "¡{attacker} aguanta por el exterior de {corner} y sale por delante de {defender} en {ord}!",
+      en: "{attacker} holds it around the outside of {corner} and emerges ahead of {defender} in {ord}!",
+    },
+  ],
+  switchback: [
+    {
+      es: "¡{attacker} obliga a {defender} a abrirse en {corner} y con la contratrazada escala a {ord}!",
+      en: "{attacker} forces {defender} wide at {corner} and switches back to climb to {ord}!",
+    },
+  ],
+  drs: [
+    {
+      es: "¡{attacker} abre el DRS en la recta y despacha a {defender} para colocarse {ord}!",
+      en: "{attacker} opens DRS down the straight and clears {defender} to take {ord}!",
+      needs: "drs",
+    },
+  ],
+  error: [
+    {
+      es: "¡{defender} comete un error en {corner} y cede la plaza a {attacker}, que sube a {ord}!",
+      en: "{defender} runs wide at {corner} and concedes the place to {attacker}, who moves up to {ord}!",
+    },
+  ],
+  defense: [
+    {
+      es: "¡{defender} cierra el interior de {corner} y aguanta la posición ante {attacker}!",
+      en: "{defender} shuts the door on the inside of {corner} and holds off {attacker}!",
+    },
+    {
+      es: "¡{defender} se defiende de maravilla en {corner} y {attacker} no encuentra el hueco!",
+      en: "{defender} defends brilliantly through {corner} and {attacker} can't find a way through!",
+    },
+  ],
+  sideBySide: [
+    {
+      es: "¡{attacker} y {defender} cruzan {corner} rueda con rueda, sin ceder un palmo!",
+      en: "{attacker} and {defender} run wheel to wheel through {corner}, neither giving an inch!",
+    },
+  ],
+  lockup: [
+    {
+      es: "¡{attacker} se cuela tarde en {corner} pero se pasa de frenada y {defender} mantiene la plaza!",
+      en: "{attacker} lunges late into {corner} but locks up, and {defender} keeps the place!",
+    },
+  ],
+};
+
+// Outcomes where the overtaker actually changes position (and announces it).
+export const BATTLE_GAIN_OUTCOMES = ["inside", "outside", "switchback", "drs", "error"];
+
+export const renderBattleEvent = ({ attacker, defender, ordinal, outcome = "inside", lap, raceName, rng, state = {}, player = false }) => {
+  const corner = pick(getCornersForRace(raceName), rng);
+  // Fall back to a non-DRS pass when the era has no DRS, so the outcome still
+  // resolves into a real overtake rather than anachronistic wording.
+  let resolved = outcome;
+  if (resolved === "drs" && !isEraFeatureAllowed(state.year, "drs")) {
+    resolved = rng() < 0.5 ? "inside" : "outside";
+  }
+  const templates = BATTLE_TEMPLATES[resolved] || BATTLE_TEMPLATES.inside;
+  const template = pickEligible(templates, rng, state);
+  const esVars = { attacker, defender, corner: corner.es, ord: formatOrdinal(ordinal, "es") };
+  const enVars = { attacker, defender, corner: corner.en, ord: formatOrdinal(ordinal, "en") };
+  return {
+    lap,
+    type: player ? "player" : "neutral",
+    important: player,
+    text: replaceVars(template.es, esVars),
+    textEn: replaceVars(template.en, enVars),
+  };
+};

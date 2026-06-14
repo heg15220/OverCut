@@ -479,7 +479,7 @@
 .cm-season-stats,
 .cm-race-meta {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -693,9 +693,55 @@
   margin: 0 auto;
 }
 
+/* Race simulation runs in two columns: the live panel, and a lateral rail that
+   docks the team-mate duel into the free space beside it. */
+.cm-race-live-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 22px;
+  width: min(1480px, 100%);
+  margin: 0 auto;
+}
+
+.cm-race-live-layout .cm-race-live {
+  flex: 1 1 940px;
+  width: auto;
+  max-width: 980px;
+  margin: 0;
+}
+
+.cm-race-duel-rail {
+  position: sticky;
+  top: 24px;
+  flex: 0 0 300px;
+  max-width: 300px;
+}
+
+@media (max-width: 1180px) {
+  .cm-race-live-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cm-race-live-layout .cm-race-live {
+    width: min(980px, 100%);
+    max-width: none;
+    margin: 0 auto;
+  }
+
+  .cm-race-duel-rail {
+    position: static;
+    flex-basis: auto;
+    width: min(980px, 100%);
+    max-width: none;
+    margin: 0 auto;
+  }
+}
+
 .cm-sim-controls {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.6fr);
   gap: 8px;
   margin: -4px 0 16px;
   padding: 8px;
@@ -1751,6 +1797,15 @@
 
   .cm-panel {
     padding: 16px;
+  }
+
+  /* Three speed buttons in a row; the "simulate" action spans full width below. */
+  .cm-sim-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cm-sim-controls .cm-sim-skip {
+    grid-column: 1 / -1;
   }
 
   .cm-contract-grid,

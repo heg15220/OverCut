@@ -111,22 +111,29 @@ describe("simulated race events are temporally coherent", () => {
     expect(runs.some((run) => run.conditions.rainArrivalLap != null)).toBe(true);
   });
 
-  test("no safety car reference appears before the safety car is deployed", () => {
+  // Safety cars and red flags now come from several sources (the global plan and
+  // the dynamic incidents), all consolidated into raceStateAtLap. The oracle is
+  // that consolidated state: a flag may only be mentioned while it is active or
+  // after it has already been shown — never before any such flag exists.
+  test("no safety car reference appears before any safety car is deployed", () => {
     const broken = violations((event, run) => {
-      if (!/safety car/i.test(event.text)) return null;
-      if (run.conditions.scStart == null) return "safety car mentioned but never deployed";
-      if (event.lap < run.conditions.scStart) return `safety car mentioned on lap ${event.lap} before deployment on ${run.conditions.scStart}`;
-      return null;
+      // "Virtual Safety Car" is a VSC, a different neutralisation; ignore it here.
+      if (!/safety car/i.test(event.text) || /virtual safety car/i.test(event.text)) return null;
+      const state = raceStateAtLap(run.conditions, event.lap);
+      return state.scActive || state.scHappenedBefore
+        ? null
+        : `safety car mentioned on lap ${event.lap} with no safety car deployed`;
     });
     expect(broken).toEqual([]);
   });
 
-  test("no red flag reference appears before the red flag", () => {
+  test("no red flag reference appears before any red flag", () => {
     const broken = violations((event, run) => {
       if (!/bandera roja/i.test(event.text)) return null;
-      if (run.conditions.redFlagLap == null) return "red flag mentioned but never shown";
-      if (event.lap < run.conditions.redFlagLap) return `red flag mentioned on lap ${event.lap} before lap ${run.conditions.redFlagLap}`;
-      return null;
+      const state = raceStateAtLap(run.conditions, event.lap);
+      return state.redFlagActive || state.redFlagHappenedBefore
+        ? null
+        : `red flag mentioned on lap ${event.lap} with no red flag shown`;
     });
     expect(broken).toEqual([]);
   });
@@ -144,6 +151,194 @@ describe("simulated race events are temporally coherent", () => {
     const broken = violations((event, run) => {
       if (!/gota|aquaplaning/i.test(event.text)) return null;
       return raceStateAtLap(run.conditions, event.lap).wet ? null : `rain narration on lap ${event.lap} while track is dry`;
+    });
+    expect(broken).toEqual([]);
+  });
+});
+
+describe("narrated player position is a single source of truth", () => {
+  const runs = collectSimulations();
+
+  // The final marker event is the one declaring the real classified position.
+  const finalMarkerIndex = (run) => run.events.findIndex((event) => event.finalPlayerPosition);
+
+  test("the narrated position converges to the classified result (no end-of-race teleport)", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      const finalIdx = finalMarkerIndex(run);
+      if (finalIdx <= 0) return;
+      const finalPosition = run.events[finalIdx].playerPosition;
+      const before = run.events[finalIdx - 1].playerPosition;
+      const gap = Math.abs(before - finalPosition);
+      // The lap before classifying, the narrated position must already be in the
+      // neighbourhood of where the driver actually finishes.
+      if (gap > 5) broken.push({ before, finalPosition, gap, race: run.race.name });
+    });
+    expect(broken).toEqual([]);
+  });
+
+  test("the narrated position never teleports between consecutive events", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      for (let i = 1; i < run.events.length; i += 1) {
+        const jump = Math.abs(run.events[i].playerPosition - run.events[i - 1].playerPosition);
+        if (jump > 8) broken.push({ jump, lap: run.events[i].lap, race: run.race.name });
+      }
+    });
+    expect(broken).toEqual([]);
+  });
+});
+
+describe("retirements are narrated once and drivers never revive", () => {
+  const runs = collectSimulations();
+
+  // Name of the driver who retires in this event, or null if it is not a
+  // retirement. Covers every retirement template the engine can emit.
+  const retireeOf = (text) => {
+    const patterns = [
+      /^(.+?) se accidenta solo y abandona/,
+      /^(.+?) colisiona con .+? y abandona/,
+      /^(.+?) abandona por un problema de /,
+      /^(.+?) abandona por un problema mecanico/,
+      /^(.+?) queda fuera de carrera/,
+    ];
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
+  // Rivals named in an incident text but who are NOT the one retiring here, so
+  // they are asserted to still be on track at this lap.
+  const mentionedRivals = (text) => {
+    const collide = text.match(/^.+? colisiona con (.+?) y abandona/);
+    if (collide) return [collide[1]];
+    const touch = text.match(/^(.+?) y (.+?) se tocan/);
+    if (touch) return [touch[1], touch[2]];
+    return [];
+  };
+
+  test("no driver is narrated as retiring more than once", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      const counts = new Map();
+      run.events.forEach((event) => {
+        const name = retireeOf(event.text);
+        if (name) counts.set(name, (counts.get(name) || 0) + 1);
+      });
+      counts.forEach((count, name) => {
+        if (count > 1) broken.push({ race: run.race.name, name, count });
+      });
+    });
+    expect(broken).toEqual([]);
+  });
+
+  test("no driver is mentioned in an incident after retiring", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      const retiredAt = new Map();
+      run.events.forEach((event) => {
+        const name = retireeOf(event.text);
+        if (name && !retiredAt.has(name)) retiredAt.set(name, event.lap);
+      });
+      run.events.forEach((event) => {
+        mentionedRivals(event.text).forEach((name) => {
+          const retireLap = retiredAt.get(name);
+          if (retireLap != null && retireLap < event.lap) {
+            broken.push({ race: run.race.name, name, retireLap, mentionedLap: event.lap });
+          }
+        });
+      });
+    });
+    expect(broken).toEqual([]);
+  });
+});
+
+describe("race neutralisation flags never contradict each other", () => {
+  const runs = collectSimulations();
+
+  test("no green flag is narrated while the race is still neutralised", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      run.events.forEach((event) => {
+        if (event.type !== "green") return;
+        const state = raceStateAtLap(run.conditions, event.lap);
+        if (state.scActive || state.vscActive || state.redFlagActive || state.yellowActive) {
+          broken.push({ race: run.race.name, lap: event.lap, text: event.text });
+        }
+      });
+    });
+    expect(broken).toEqual([]);
+  });
+
+  test("at most one green flag is narrated per lap", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      const perLap = new Map();
+      run.events.forEach((event) => {
+        if (event.type !== "green") return;
+        perLap.set(event.lap, (perLap.get(event.lap) || 0) + 1);
+      });
+      perLap.forEach((count, lap) => {
+        if (count > 1) broken.push({ race: run.race.name, lap, count });
+      });
+    });
+    expect(broken).toEqual([]);
+  });
+});
+
+describe("battle narration is coherent with the running order", () => {
+  const runs = collectSimulations();
+  const battlesOf = (run) => run.events.filter((event) => event.category === "battle");
+  const ordinalIn = (text) => {
+    const match = text.match(/(\d+)º/);
+    return match ? Number(match[1]) : null;
+  };
+
+  test("the batch actually produces battle events", () => {
+    expect(runs.some((run) => battlesOf(run).length > 0)).toBe(true);
+  });
+
+  test("every announced battle position is inside the field", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      const fieldSize = run.results.length;
+      battlesOf(run).forEach((event) => {
+        const ordinal = ordinalIn(event.text);
+        if (ordinal == null) return;
+        if (ordinal < 1 || ordinal > fieldSize) broken.push({ race: run.race.name, ordinal, fieldSize, text: event.text });
+      });
+    });
+    expect(broken).toEqual([]);
+  });
+
+  test("battles only happen while the race is green", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      battlesOf(run).forEach((event) => {
+        const state = raceStateAtLap(run.conditions, event.lap);
+        if (state.scActive || state.vscActive || state.redFlagActive || state.yellowActive) {
+          broken.push({ race: run.race.name, lap: event.lap, text: event.text });
+        }
+      });
+    });
+    expect(broken).toEqual([]);
+  });
+
+  test("a player's own overtake announces the very position shown on the label", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      battlesOf(run)
+        .filter((event) => Number.isFinite(event.playerOvertakeOrdinal))
+        .forEach((event) => {
+          if (event.playerOvertakeOrdinal !== event.playerPosition) {
+            broken.push({ race: run.race.name, ordinal: event.playerOvertakeOrdinal, label: event.playerPosition });
+          }
+          if (ordinalIn(event.text) !== event.playerOvertakeOrdinal) {
+            broken.push({ race: run.race.name, reason: "text mismatch", text: event.text });
+          }
+        });
     });
     expect(broken).toEqual([]);
   });

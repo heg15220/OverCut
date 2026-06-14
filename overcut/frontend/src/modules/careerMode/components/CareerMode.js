@@ -586,7 +586,8 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
   }, [visibleEvents.length]);
 
   return (
-    <section className="cm-panel cm-race-live">
+    <div className="cm-race-live-layout">
+      <section className="cm-panel cm-race-live">
       <div className="cm-panel-head">
         <FlagFill />
         <div>
@@ -610,6 +611,14 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
           disabled={isComplete}
         >
           x2
+        </button>
+        <button
+          className={simulationSpeed === "x3" ? "is-active" : ""}
+          type="button"
+          onClick={() => onSpeedChange("x3")}
+          disabled={isComplete}
+        >
+          x3
         </button>
         <button className="cm-sim-skip" type="button" onClick={onSkipToResult}>
           Simular carrera
@@ -647,12 +656,6 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
         {stat("Degradacion", `${Math.round(raceResult.conditions.degradation * 100)}%`)}
         {stat("Estado de pista", trackStatusLabel)}
       </div>
-      <TrackDuel
-        player={player}
-        teammate={raceResult.teammate}
-        playerPosition={livePlayerPosition}
-        teammatePosition={teammatePosition}
-      />
       <ol className="cm-lap-feed" ref={feedRef}>
         {visibleEvents.map((event, index) => (
           <li key={`${event.lap}-${index}`} className={`cm-event-${event.type}${event.important ? " is-important" : ""}`}>
@@ -669,7 +672,18 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
           Ver resultado
         </button>
       )}
-    </section>
+      </section>
+      {raceResult.teammate && (
+        <aside className="cm-race-duel-rail">
+          <TrackDuel
+            player={player}
+            teammate={raceResult.teammate}
+            playerPosition={livePlayerPosition}
+            teammatePosition={teammatePosition}
+          />
+        </aside>
+      )}
+    </div>
   );
 };
 
@@ -1023,7 +1037,7 @@ const CareerMode = () => {
   useEffect(() => {
     if (phase !== "race-live" || !raceResult) return undefined;
     if (visibleEventCount >= raceResult.events.length) return undefined;
-    const delay = simulationSpeed === "x2" ? 750 : 1500;
+    const delay = simulationSpeed === "x3" ? 500 : simulationSpeed === "x2" ? 750 : 1500;
     const timer = window.setTimeout(() => {
       setVisibleEventCount((count) => Math.min(raceResult.events.length, count + 1));
     }, delay);

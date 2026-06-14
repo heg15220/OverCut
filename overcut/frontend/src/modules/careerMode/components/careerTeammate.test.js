@@ -120,3 +120,84 @@ describe("integration: duel tracks the real team-mate", () => {
     expect(battle.raceWins + battle.raceLosses).toBe(1);
   });
 });
+
+describe("the team-mate counter stays correct across a full season", () => {
+  const bootstrap = prepareCareerBootstrap({
+    decades: [{ key: "2010s", label: "2010s", from: 2010, to: 2019 }],
+    seasonYears: [2010],
+    teamsByDecade: {
+      "2010s": [
+        { name: "Williams", rating: 72, firstYear: 2010, lastYear: 2010, decade: "2010s" },
+        { name: "Ferrari", rating: 95, firstYear: 2010, lastYear: 2010, decade: "2010s" },
+      ],
+    },
+    driversByDecade: { "2010s": [{ name: "X", rating: 70, firstYear: 2010, lastYear: 2010, decade: "2010s" }] },
+    racesByYear: {
+      "2010": [
+        { round: 1, name: "Race A" },
+        { round: 2, name: "Race B" },
+        { round: 3, name: "Race C" },
+        { round: 4, name: "Race D" },
+        { round: 5, name: "Race E" },
+      ],
+    },
+    lineupsByYear: {
+      "2010": [
+        { id: "williams", team: "Williams", rating: 72, races: 1, drivers: [{ name: "Rubens Barrichello", rating: 78, races: 1 }, { name: "Nico Hulkenberg", rating: 75, races: 1 }] },
+        { id: "ferrari", team: "Ferrari", rating: 95, races: 1, drivers: [{ name: "Felipe Massa", rating: 80, races: 1 }, { name: "Fernando Alonso", rating: 92, races: 1 }] },
+      ],
+    },
+  });
+
+  test("race/quali/points tallies match an independent recount after every race", () => {
+    const contract = { id: "c", team: { name: "Williams", rating: 72, color: "#0090ff" }, objectives: {}, duration: 1 };
+    let season = createCareerSeason({ bootstrap, profile, year: 2010, contract });
+
+    const expected = { raceWins: 0, raceLosses: 0, qualiWins: 0, qualiLosses: 0, playerPoints: 0, matePoints: 0 };
+    const mismatches = [];
+
+    for (let raceIndex = 0; raceIndex < season.races.length; raceIndex += 1) {
+      const result = simulateCareerRace({ season, raceIndex, profile });
+      season = completeRace(season, raceIndex, result);
+
+      // Independent recount straight from this race's results.
+      const player = result.results.find((row) => row.isPlayer);
+      const mate = result.results.find((row) => !row.isPlayer && row.team === "Williams");
+      if (player.position < mate.position) expected.raceWins += 1;
+      else expected.raceLosses += 1;
+      if (player.gridPosition < mate.gridPosition) expected.qualiWins += 1;
+      else expected.qualiLosses += 1;
+      expected.playerPoints += player.points;
+      expected.matePoints += mate.points;
+
+      const battle = teammateBattleSummary(season, profile);
+      const snapshot = {
+        racesCompared: battle.racesCompared,
+        raceWins: battle.raceWins,
+        raceLosses: battle.raceLosses,
+        qualiWins: battle.qualiWins,
+        qualiLosses: battle.qualiLosses,
+        playerPoints: battle.playerPoints,
+        teammatePoints: battle.teammatePoints,
+        pointsGap: battle.pointsGap,
+        teammateName: battle.teammateName,
+        winLossSum: battle.raceWins + battle.raceLosses,
+      };
+      const want = {
+        racesCompared: raceIndex + 1,
+        raceWins: expected.raceWins,
+        raceLosses: expected.raceLosses,
+        qualiWins: expected.qualiWins,
+        qualiLosses: expected.qualiLosses,
+        playerPoints: expected.playerPoints,
+        teammatePoints: expected.matePoints,
+        pointsGap: expected.playerPoints - expected.matePoints,
+        teammateName: "Rubens Barrichello",
+        winLossSum: raceIndex + 1,
+      };
+      if (JSON.stringify(snapshot) !== JSON.stringify(want)) mismatches.push({ raceIndex, snapshot, want });
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+});
