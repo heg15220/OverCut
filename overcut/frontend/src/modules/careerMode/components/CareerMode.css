@@ -199,6 +199,62 @@
   line-height: 1.45;
 }
 
+.cm-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.cm-entry-card {
+  display: flex;
+  min-height: 320px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.cm-entry-card .cm-btn {
+  margin-top: auto;
+}
+
+.cm-entry-card .cm-field {
+  width: 100%;
+  margin: 4px 0 12px;
+}
+
+.cm-entry-card .cm-field input {
+  font-family: "Courier New", monospace;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.cm-code-chip {
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  color: var(--cm-ink);
+  background: rgba(216, 161, 29, 0.14);
+  border: 1px solid rgba(216, 161, 29, 0.42);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: left;
+}
+
+.cm-save-message {
+  margin: 10px 0 0;
+  color: var(--cm-green);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.cm-save-message.is-error {
+  color: var(--cm-danger);
+}
+
 .cm-setup,
 .cm-dice-panel,
 .cm-retirement {
@@ -1884,6 +1940,14 @@
 }
 
 @media (max-width: 760px) {
+  .cm-entry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cm-entry-card {
+    min-height: 0;
+  }
+
   .cm-header,
   .cm-hero {
     align-items: stretch;

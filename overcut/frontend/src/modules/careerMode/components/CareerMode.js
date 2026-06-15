@@ -8,11 +8,15 @@ import {
   BriefcaseFill,
   Dice5Fill,
   FlagFill,
+  Folder2Open,
   PauseFill,
   PersonFill,
   PlayFill,
+  PlusCircleFill,
+  SaveFill,
   TrophyFill,
 } from "react-bootstrap-icons";
+import { config } from "../../../config/constants";
 import formulaCarLoadingUrl from "../../../assets/images/miniGames/FormulaCarLoading.png";
 import racingHelmetUrl from "../../../assets/images/miniGames/RacingHelmet.png";
 import {
@@ -50,10 +54,49 @@ import "./CareerMode.css";
 
 const STARTING_AGE = 18;
 const FINAL_AGE = 41; // last season the driver may race
+const CAREER_SAVE_CODE_KEY = "overcutCareerModeSaveCode";
+const CAREER_SAVE_VERSION = 1;
 
 // Pick a localized field, falling back to the Spanish text when the English
 // variant is missing (engine prose carries both `x` and `xEn`).
 const localized = (es, en) => (locale === "en" ? en || es : es);
+
+const normalizeSaveCode = (code = "") => code.trim().toUpperCase().replace(/-/g, "");
+
+const formatSaveCode = (code = "") => {
+  const normalized = normalizeSaveCode(code);
+  return normalized ? normalized.replace(/(.{4})(?=.)/g, "$1-") : "";
+};
+
+const readBrowserSaveCode = () => {
+  if (typeof window === "undefined") return "";
+  return window.localStorage.getItem(CAREER_SAVE_CODE_KEY) || "";
+};
+
+const writeBrowserSaveCode = (code) => {
+  if (typeof window === "undefined" || !code) return;
+  window.localStorage.setItem(CAREER_SAVE_CODE_KEY, normalizeSaveCode(code));
+};
+
+const saveCareerState = async ({ code, state }) => {
+  const response = await fetch(`${config.BASE_PATH}/careerMode/saves`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code: normalizeSaveCode(code), state }),
+  });
+  if (!response.ok) {
+    throw new Error(`save failed: ${response.status}`);
+  }
+  return response.json();
+};
+
+const loadCareerState = async (code) => {
+  const response = await fetch(`${config.BASE_PATH}/careerMode/saves/${encodeURIComponent(normalizeSaveCode(code))}`);
+  if (!response.ok) {
+    throw new Error(`load failed: ${response.status}`);
+  }
+  return response.json();
+};
 
 const createInitialProfile = () => {
   const card = createDriverCard();
@@ -1308,9 +1351,73 @@ const Retirement = ({ summary, onRestart }) => (
   </section>
 );
 
+const CareerEntryPanel = ({
+  codeInput,
+  setCodeInput,
+  browserCode,
+  loading,
+  error,
+  onNewCareer,
+  onLoadCareer,
+}) => (
+  <section className="cm-entry-grid">
+    <article className="cm-panel cm-entry-card">
+      <div className="cm-panel-head">
+        <PlusCircleFill />
+        <div>
+          <span>{t.newGameKicker}</span>
+          <h2>{t.startNewGame}</h2>
+        </div>
+      </div>
+      <p className="cm-panel-copy">{t.startNewGameCopy}</p>
+      <button className="cm-btn cm-btn-primary" type="button" onClick={onNewCareer}>
+        <PlayFill />
+        {t.startNewGame}
+      </button>
+    </article>
+
+    <article className="cm-panel cm-entry-card">
+      <div className="cm-panel-head">
+        <Folder2Open />
+        <div>
+          <span>{t.existingGameKicker}</span>
+          <h2>{t.continueExisting}</h2>
+        </div>
+      </div>
+      <p className="cm-panel-copy">{t.continueExistingCopy}</p>
+      <label className="cm-field">
+        <span>{t.exportCodeLabel}</span>
+        <input
+          type="text"
+          value={codeInput}
+          onChange={(event) => setCodeInput(event.target.value)}
+          placeholder="ABCD-EFGH-JKLM"
+          autoComplete="off"
+          spellCheck="false"
+        />
+      </label>
+      {browserCode && (
+        <button className="cm-code-chip" type="button" onClick={() => setCodeInput(browserCode)}>
+          {t.browserCode(formatSaveCode(browserCode))}
+        </button>
+      )}
+      {error && <p className="cm-save-message is-error">{error}</p>}
+      <button
+        className="cm-btn cm-btn-secondary"
+        type="button"
+        onClick={onLoadCareer}
+        disabled={loading || normalizeSaveCode(codeInput).length !== 12}
+      >
+        <Folder2Open />
+        {loading ? t.loadingSave : t.continueExisting}
+      </button>
+    </article>
+  </section>
+);
+
 const CareerMode = () => {
   const [bootstrap, setBootstrap] = useState(() => prepareCareerBootstrap(fallbackBootstrap, true));
-  const [phase, setPhase] = useState("setup");
+  const [phase, setPhase] = useState("career-menu");
   const [draft, setDraft] = useState(INITIAL_PROFILE);
   const [profile, setProfile] = useState(null);
   const [decadeRoll, setDecadeRoll] = useState(null);
@@ -1333,6 +1440,12 @@ const CareerMode = () => {
   const [contractSigningStatus, setContractSigningStatus] = useState("idle");
   const [manualDecadeOpen, setManualDecadeOpen] = useState(false);
   const [rollingTarget, setRollingTarget] = useState(null);
+  const [saveCode, setSaveCode] = useState(() => readBrowserSaveCode());
+  const [saveCodeInput, setSaveCodeInput] = useState(() => formatSaveCode(readBrowserSaveCode()));
+  const [saveStatus, setSaveStatus] = useState("idle");
+  const [saveMessage, setSaveMessage] = useState("");
+  const [loadStatus, setLoadStatus] = useState("idle");
+  const [loadError, setLoadError] = useState("");
   const raceLivePanelRef = useRef(null);
   const signingTimerRef = useRef(null);
   const rollTimerRef = useRef(null);
@@ -1445,6 +1558,68 @@ const CareerMode = () => {
     };
   }, [phase, profile, decadeRoll, yearRoll, contracts, sillySeasonMarket, preContract, season, currentRaceIndex, raceResult, raceDevelopment, visibleEventCount, simulationSpeed, summary]);
 
+  const clearRuntimeTimers = () => {
+    window.clearTimeout(signingTimerRef.current);
+    window.clearTimeout(rollTimerRef.current);
+  };
+
+  const applyCareerSnapshot = (snapshot) => {
+    const state = snapshot?.v === CAREER_SAVE_VERSION ? snapshot : snapshot?.state;
+    if (!state) {
+      throw new Error("invalid snapshot");
+    }
+    clearRuntimeTimers();
+    setPhase(state.phase || "setup");
+    setDraft(state.draft || INITIAL_PROFILE);
+    setProfile(state.profile || null);
+    setDecadeRoll(state.decadeRoll || null);
+    setYearRoll(state.yearRoll || null);
+    setContracts(Array.isArray(state.contracts) ? state.contracts : []);
+    setSeason(state.season || null);
+    setCurrentRaceIndex(Number.isFinite(state.currentRaceIndex) ? state.currentRaceIndex : 0);
+    setRaceResult(state.raceResult || null);
+    setRaceDevelopment(state.raceDevelopment || null);
+    setVisibleEventCount(Number.isFinite(state.visibleEventCount) ? state.visibleEventCount : 0);
+    setSimulationSpeed(state.simulationSpeed || "normal");
+    setSimulationPaused(Boolean(state.simulationPaused));
+    setEvaluation(state.evaluation || null);
+    setSillySeasonMarket(state.sillySeasonMarket || null);
+    setPreContract(state.preContract || null);
+    setExploringMarket(Boolean(state.exploringMarket));
+    setSummary(state.summary || null);
+    setContractToSign(state.contractToSign || null);
+    setContractSigningMode(state.contractSigningMode || "contract");
+    setContractSigningStatus(state.contractSigningStatus || "idle");
+    setManualDecadeOpen(Boolean(state.manualDecadeOpen));
+    setRollingTarget(null);
+  };
+
+  const buildCareerSnapshot = () => ({
+    v: CAREER_SAVE_VERSION,
+    phase,
+    draft,
+    profile,
+    decadeRoll,
+    yearRoll,
+    contracts,
+    season,
+    currentRaceIndex,
+    raceResult,
+    raceDevelopment,
+    visibleEventCount,
+    simulationSpeed,
+    simulationPaused,
+    evaluation,
+    sillySeasonMarket,
+    preContract,
+    exploringMarket,
+    summary,
+    contractToSign,
+    contractSigningMode,
+    contractSigningStatus,
+    manualDecadeOpen,
+  });
+
   const reset = () => {
     setPhase("setup");
     setDraft(INITIAL_PROFILE);
@@ -1469,8 +1644,48 @@ const CareerMode = () => {
     setContractSigningStatus("idle");
     setManualDecadeOpen(false);
     setRollingTarget(null);
-    window.clearTimeout(signingTimerRef.current);
-    window.clearTimeout(rollTimerRef.current);
+    setSaveMessage("");
+    setLoadError("");
+    clearRuntimeTimers();
+  };
+
+  const openNewCareer = () => {
+    reset();
+    setPhase("setup");
+  };
+
+  const handleSave = async () => {
+    if (phase === "career-menu") return;
+    setSaveStatus("saving");
+    setSaveMessage("");
+    try {
+      const response = await saveCareerState({ code: saveCode, state: buildCareerSnapshot() });
+      setSaveCode(response.code);
+      setSaveCodeInput(formatSaveCode(response.code));
+      writeBrowserSaveCode(response.code);
+      setSaveStatus("saved");
+      setSaveMessage(t.saveSuccess(formatSaveCode(response.code)));
+    } catch (error) {
+      setSaveStatus("error");
+      setSaveMessage(t.saveError);
+    }
+  };
+
+  const handleLoad = async () => {
+    setLoadStatus("loading");
+    setLoadError("");
+    try {
+      const response = await loadCareerState(saveCodeInput);
+      applyCareerSnapshot(response.state);
+      setSaveCode(response.code);
+      setSaveCodeInput(formatSaveCode(response.code));
+      writeBrowserSaveCode(response.code);
+      setSaveMessage(t.loadSuccess(formatSaveCode(response.code)));
+      setLoadStatus("idle");
+    } catch (error) {
+      setLoadStatus("idle");
+      setLoadError(t.loadError);
+    }
   };
 
   const startProfile = () => {
@@ -1677,10 +1892,18 @@ const CareerMode = () => {
               <ArrowLeftShort size={28} />
               <span>{t.homeLabel}</span>
             </Link>
-            <button className="cm-btn cm-btn-secondary" type="button" onClick={reset}>
-              <ArrowClockwise />
-              {t.restart}
-            </button>
+            {phase !== "career-menu" && (
+              <button className="cm-btn cm-btn-primary" type="button" onClick={handleSave} disabled={saveStatus === "saving"}>
+                <SaveFill />
+                {saveStatus === "saving" ? t.saving : t.saveGame}
+              </button>
+            )}
+            {phase !== "career-menu" && (
+              <button className="cm-btn cm-btn-secondary" type="button" onClick={reset}>
+                <ArrowClockwise />
+                {t.restart}
+              </button>
+            )}
           </nav>
         </header>
 
@@ -1688,12 +1911,15 @@ const CareerMode = () => {
           <div>
             <span>{bootstrap.fallbackMode ? t.dataFallback : t.dataCache}</span>
             <h2>
-              {phase === "setup"
+              {phase === "career-menu"
+                ? t.heroEntry
+                : phase === "setup"
                 ? t.heroSetup
                 : profile
                 ? t.heroProfile(profile.name, statusLabel(profile.status), profile.seasons + 1, displaySeasonYear)
                 : t.heroFallbackTitle}
             </h2>
+            {saveMessage && <p className={`cm-save-message${saveStatus === "error" ? " is-error" : ""}`}>{saveMessage}</p>}
           </div>
           {profile && (
             <div className="cm-hero-profile">
@@ -1706,6 +1932,17 @@ const CareerMode = () => {
         </section>
 
         <section className="cm-main">
+          {phase === "career-menu" && (
+            <CareerEntryPanel
+              codeInput={saveCodeInput}
+              setCodeInput={setSaveCodeInput}
+              browserCode={saveCode}
+              loading={loadStatus === "loading"}
+              error={loadError}
+              onNewCareer={openNewCareer}
+              onLoadCareer={handleLoad}
+            />
+          )}
           {phase === "setup" && <SetupPanel draft={draft} setDraft={setDraft} onSubmit={startProfile} />}
           {phase === "decade-choice" && (
             <DecadeChoicePanel

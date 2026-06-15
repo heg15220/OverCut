@@ -22,8 +22,15 @@ const STRINGS = {
     backToHome: "Volver a OverCut",
     homeLabel: "OverCut",
     restart: "Reiniciar",
+    saveGame: "Guardar",
+    saving: "Guardando",
+    saveSuccess: (code) => `Partida guardada. Codigo de exportacion: ${code}`,
+    saveError: "No se pudo guardar la partida.",
+    loadSuccess: (code) => `Partida cargada: ${code}`,
+    loadError: "No se encontro una partida con ese codigo.",
     dataFallback: "Datos locales de respaldo",
     dataCache: "Cache OverCutRacing",
+    heroEntry: "Comienza una trayectoria o recupera una partida guardada",
     heroSetup: "Crea un piloto y decide cómo empieza su época",
     heroFallbackTitle: "Trayectoria F1",
     heroProfile: (name, status, seasonNumber, year) =>
@@ -88,6 +95,17 @@ const STRINGS = {
     newDriver: "Nuevo piloto",
     initialStats: "Rating 58 · Reputación 28 · Status rookie",
     enterF1: "Empezar Modo Trayectoria",
+
+    // Career saves
+    newGameKicker: "Nueva partida",
+    existingGameKicker: "Partida existente",
+    startNewGame: "Comenzar nueva partida",
+    startNewGameCopy: "Crea un piloto nuevo en este navegador. Podras guardarlo y recibir un codigo de exportacion.",
+    continueExisting: "Seguir con una existente",
+    continueExistingCopy: "Introduce el codigo de exportacion de una partida guardada para continuar desde cualquier navegador.",
+    exportCodeLabel: "Codigo de exportacion",
+    browserCode: (code) => `Codigo de este navegador: ${code}`,
+    loadingSave: "Cargando",
 
     // Decade choice
     step2: "Paso 2",
@@ -271,8 +289,15 @@ const STRINGS = {
     backToHome: "Back to OverCut",
     homeLabel: "OverCut",
     restart: "Restart",
+    saveGame: "Save",
+    saving: "Saving",
+    saveSuccess: (code) => `Game saved. Export code: ${code}`,
+    saveError: "The game could not be saved.",
+    loadSuccess: (code) => `Game loaded: ${code}`,
+    loadError: "No saved game was found for that code.",
     dataFallback: "Local fallback data",
     dataCache: "OverCutRacing cache",
+    heroEntry: "Start a career or recover a saved game",
     heroSetup: "Create a driver and decide how their era begins",
     heroFallbackTitle: "F1 career",
     heroProfile: (name, status, seasonNumber, year) =>
@@ -337,6 +362,17 @@ const STRINGS = {
     newDriver: "New driver",
     initialStats: "Rating 58 · Reputation 28 · rookie status",
     enterF1: "Start Career Mode",
+
+    // Career saves
+    newGameKicker: "New game",
+    existingGameKicker: "Existing game",
+    startNewGame: "Start new game",
+    startNewGameCopy: "Create a new driver in this browser. You can save later and receive an export code.",
+    continueExisting: "Continue existing",
+    continueExistingCopy: "Enter the export code for a saved game to continue from any browser.",
+    exportCodeLabel: "Export code",
+    browserCode: (code) => `This browser's code: ${code}`,
+    loadingSave: "Loading",
 
     // Decade choice
     step2: "Step 2",
