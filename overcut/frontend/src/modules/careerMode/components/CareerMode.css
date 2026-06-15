@@ -4611,6 +4611,32 @@
     min-height: clamp(118px, 31vw, 148px);
   }
 
+  .cm-race-live .cm-race-flag {
+    top: 7px;
+    max-width: calc(100% - 18px);
+    gap: 5px;
+    padding: 4px 8px 4px 7px;
+    border-radius: 6px;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.4px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.34);
+  }
+
+  .cm-race-live .cm-race-flag .cm-flag-icon,
+  .cm-race-live .cm-race-flag svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+  }
+
+  .cm-race-live .cm-race-flag span {
+    overflow: hidden;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .cm-race-live .cm-career-car {
     width: clamp(74px, 26vw, 104px);
     height: clamp(38px, 13vw, 54px);
@@ -4679,5 +4705,149 @@
   .cm-race-live .cm-sim-controls .cm-sim-skip,
   .cm-race-live .cm-sim-controls .cm-sim-audio {
     grid-column: span 1;
+  }
+}
+
+/* Phone contract selection: keep offers scannable in two columns. */
+@media (max-width: 640px) {
+  .cm-contracts .cm-contract-grid,
+  .cm-silly-season .cm-contract-grid,
+  .cm-season-review .cm-contract-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .cm-contracts .cm-contract-card,
+  .cm-silly-season .cm-contract-card,
+  .cm-season-review .cm-contract-card {
+    gap: 7px;
+    min-height: 0;
+    padding: 9px;
+    border-bottom-width: 3px;
+    border-radius: 6px;
+  }
+
+  .cm-contracts .cm-contract-tier,
+  .cm-silly-season .cm-contract-tier,
+  .cm-season-review .cm-contract-tier {
+    max-width: 100%;
+    padding: 3px 5px;
+    overflow: hidden;
+    border-radius: 4px;
+    font-size: 8px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-contracts .cm-contract-team,
+  .cm-silly-season .cm-contract-team,
+  .cm-season-review .cm-contract-team {
+    grid-template-columns: 5px minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .cm-contracts .cm-team-stripe,
+  .cm-silly-season .cm-team-stripe,
+  .cm-season-review .cm-team-stripe {
+    width: 5px;
+    border-radius: 5px;
+  }
+
+  .cm-contracts .cm-contract-card h3,
+  .cm-silly-season .cm-contract-card h3,
+  .cm-season-review .cm-contract-card h3 {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: clamp(18px, 5.2vw, 23px);
+    line-height: 0.95;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .cm-contracts .cm-contract-card small,
+  .cm-silly-season .cm-contract-card small,
+  .cm-season-review .cm-contract-card small {
+    overflow: hidden;
+    font-size: 9px;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-contracts .cm-contract-card p,
+  .cm-silly-season .cm-contract-card p,
+  .cm-season-review .cm-contract-card p,
+  .cm-contracts .cm-market-reason,
+  .cm-silly-season .cm-market-reason,
+  .cm-season-review .cm-market-reason {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 10px;
+    line-height: 1.18;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .cm-contracts .cm-market-reason,
+  .cm-silly-season .cm-market-reason,
+  .cm-season-review .cm-market-reason {
+    padding: 5px 6px;
+    border-left-width: 3px;
+  }
+
+  .cm-contracts .cm-contract-card dl,
+  .cm-silly-season .cm-contract-card dl,
+  .cm-season-review .cm-contract-card dl {
+    gap: 3px;
+    grid-template-columns: 1fr;
+  }
+
+  .cm-contracts .cm-contract-card dl div,
+  .cm-silly-season .cm-contract-card dl div,
+  .cm-season-review .cm-contract-card dl div {
+    gap: 4px;
+    padding-top: 4px;
+  }
+
+  .cm-contracts .cm-contract-card dt,
+  .cm-silly-season .cm-contract-card dt,
+  .cm-season-review .cm-contract-card dt {
+    overflow: hidden;
+    font-size: 8px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-contracts .cm-contract-card dd,
+  .cm-silly-season .cm-contract-card dd,
+  .cm-season-review .cm-contract-card dd {
+    font-size: 16px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 360px) {
+  .cm-contracts .cm-contract-grid,
+  .cm-silly-season .cm-contract-grid,
+  .cm-season-review .cm-contract-grid {
+    gap: 6px;
+  }
+
+  .cm-contracts .cm-contract-card,
+  .cm-silly-season .cm-contract-card,
+  .cm-season-review .cm-contract-card {
+    padding: 7px;
+  }
+
+  .cm-contracts .cm-contract-card p,
+  .cm-silly-season .cm-contract-card p,
+  .cm-season-review .cm-contract-card p,
+  .cm-contracts .cm-market-reason,
+  .cm-silly-season .cm-market-reason,
+  .cm-season-review .cm-market-reason {
+    -webkit-line-clamp: 1;
   }
 }
