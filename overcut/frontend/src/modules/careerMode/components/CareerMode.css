@@ -4501,6 +4501,33 @@
   .cm-race-development .cm-driver-card {
     padding: 14px;
   }
+
+  .cm-race-development .cm-card-overall {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 56px;
+    grid-template-columns: auto auto;
+    justify-content: start;
+    gap: 10px;
+  }
+
+  .cm-race-development .cm-card-overall strong {
+    font-size: 34px;
+  }
+
+  .cm-race-development .cm-card-id b {
+    font-size: clamp(28px, 11vw, 42px);
+  }
+
+  .cm-race-development .cm-card-attrs {
+    align-content: start;
+    gap: 10px;
+  }
+
+  .cm-race-development .cm-card-attr-label b,
+  .cm-race-development .cm-card-attr-value {
+    font-size: 20px;
+  }
 }
 
 @media (max-width: 420px) {
