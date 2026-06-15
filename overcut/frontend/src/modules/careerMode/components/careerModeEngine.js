@@ -433,6 +433,12 @@ export const generateContracts = ({ bootstrap, year, playerProfile }) => {
           : objectives.tier === "bajo competitivo"
           ? "Aprovechar carreras caoticas y superar al companero."
           : "Aprender, terminar carreras y pescar puntos cuando el caos abra la puerta.",
+      promiseEn:
+        objectives.tier === "medio"
+          ? "Regular points and leading the car's development."
+          : objectives.tier === "bajo competitivo"
+          ? "Make the most of chaotic races and beat your team-mate."
+          : "Learn, finish races and pick up points when chaos opens the door.",
     };
   });
 };
@@ -532,12 +538,22 @@ export const sillySeasonMarketWindow = ({ bootstrap, season, profile, alreadySig
         signal.standout
           ? "Precontrato condicionado al asiento libre: quieren cerrar tu fichaje antes que el resto del paddock."
           : "Interes temprano del mercado: el equipo reserva una opcion si mantienes el nivel hasta final de anio.",
+      promiseEn:
+        signal.standout
+          ? "Pre-contract conditional on the open seat: they want to lock in your signing before the rest of the paddock."
+          : "Early market interest: the team reserves an option if you hold your level until the end of the year.",
       marketReason:
         signal.standout
           ? "Rendimiento por encima del valor del coche"
           : profile.status === "estrella"
           ? "Estatus alto y asiento disponible"
           : "Progresion visible durante la temporada",
+      marketReasonEn:
+        signal.standout
+          ? "Performance above the car's value"
+          : profile.status === "estrella"
+          ? "High status and an available seat"
+          : "Visible progression during the season",
       generatedAtRound: signal.completed,
       targetYear: nextYear,
       confidence: Math.round(chance * 100),
@@ -1328,6 +1344,11 @@ const positionTextEs = (count) => `${count} posicion${count === 1 ? "" : "es"}`;
 
 const positionTextEn = (count) => `${count} position${count === 1 ? "" : "s"}`;
 
+// English label for an internal condition token, used to keep the weather-switch
+// narration fully translated (the Spanish text reuses the token directly).
+const conditionNameEn = (condition) =>
+  condition === "lluvia" ? "wet" : condition === "intermedios" ? "intermediates" : "dry";
+
 const describeTyre = (plan) => {
   const start = plan.phases[0].condition;
   if (start === "lluvia") return "neumatico de lluvia";
@@ -1677,7 +1698,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       playerEvent(
         switchItem.lap,
         `Cambio de condiciones a ${switchItem.to}. ${profile.name} ${gain >= 0 ? "gana" : "pierde"} ${Math.abs(gain)} posicion${Math.abs(gain) === 1 ? "" : "es"} con la llamada a boxes.`,
-        `Conditions switch to ${switchItem.to}. ${profile.name} ${gain >= 0 ? "gains" : "loses"} ${Math.abs(gain)} position${Math.abs(gain) === 1 ? "" : "s"} with the pit call.`,
+        `Conditions switch to ${conditionNameEn(switchItem.to)}. ${profile.name} ${gain >= 0 ? "gains" : "loses"} ${Math.abs(gain)} position${Math.abs(gain) === 1 ? "" : "s"} with the pit call.`,
         "player",
         { positionDelta: -gain }
       )

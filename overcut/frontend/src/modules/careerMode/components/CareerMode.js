@@ -2,12 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowClockwise,
+  ArrowDownShort,
   ArrowLeftShort,
   AwardFill,
   BriefcaseFill,
   Dice5Fill,
   FlagFill,
+  PauseFill,
   PersonFill,
+  PlayFill,
   TrophyFill,
 } from "react-bootstrap-icons";
 import formulaCarLoadingUrl from "../../../assets/images/miniGames/FormulaCarLoading.png";
@@ -39,11 +42,16 @@ import {
   createDriverCard,
 } from "./driverCard";
 import { localizeRaceName } from "./careerRaceNames";
+import { strings as t, locale, statusLabel, tierLabel, conditionLabel } from "./i18n";
 import { fallbackBootstrap } from "../../overcutRacing/components/fallbackData";
 import "./CareerMode.css";
 
 const STARTING_AGE = 18;
 const FINAL_AGE = 41; // last season the driver may race
+
+// Pick a localized field, falling back to the Spanish text when the English
+// variant is missing (engine prose carries both `x` and `xEn`).
+const localized = (es, en) => (locale === "en" ? en || es : es);
 
 const createInitialProfile = () => {
   const card = createDriverCard();
@@ -71,19 +79,13 @@ const createInitialProfile = () => {
 
 const INITIAL_PROFILE = createInitialProfile();
 
-// Labels + order for the four card attributes (F1 25 style).
+// Short codes for the four card attributes (F1 25 style). The long names come
+// from the active locale; the abbreviations stay language-neutral.
 const ATTRIBUTE_LABELS = {
-  pace: { short: "PAC", name: "Ritmo" },
-  racecraft: { short: "RAC", name: "Pilotaje" },
-  awareness: { short: "AWA", name: "Conciencia" },
-  experience: { short: "EXP", name: "Experiencia" },
-};
-
-const ATTRIBUTE_XP_LABELS = {
-  pace: "Ritmo",
-  racecraft: "Pilotaje",
-  awareness: "Conciencia",
-  experience: "Experiencia",
+  pace: { short: "PAC" },
+  racecraft: { short: "RAC" },
+  awareness: { short: "AWA" },
+  experience: { short: "EXP" },
 };
 
 const HelmetIcon = ({ color, size = 34 }) => (
@@ -163,11 +165,11 @@ const DriverCardView = ({ profile, deltas = null, compact = false }) => {
       <header className="cm-card-head">
         <HelmetIcon color={profile.helmetColor} size={compact ? 34 : 46} />
         <div className="cm-card-id">
-          <span>{profile.status} · {profile.age} años</span>
-          <b>{profile.name || "Piloto"}</b>
+          <span>{t.cardIdentity(statusLabel(profile.status), profile.age)}</span>
+          <b>{profile.name || t.cardDriverFallback}</b>
         </div>
         <div className="cm-card-overall">
-          <small>GLOBAL</small>
+          <small>{t.cardOverall}</small>
           <strong>{overall}</strong>
         </div>
       </header>
@@ -178,7 +180,7 @@ const DriverCardView = ({ profile, deltas = null, compact = false }) => {
             <li key={key} className={delta > 0 ? "is-up" : ""}>
               <span className="cm-card-attr-label">
                 <b>{ATTRIBUTE_LABELS[key].short}</b>
-                <small>{ATTRIBUTE_LABELS[key].name}</small>
+                <small>{t.attributeNames[key]}</small>
               </span>
               <AttributeBar value={card[key]} delta={delta} />
               <span className="cm-card-attr-value">
@@ -201,10 +203,10 @@ const TrackDuel = ({ player, teammate, playerPosition, teammatePosition }) => {
   const gap = Math.abs(teammatePosition - playerPosition);
   return (
     <section className={`cm-track-duel ${ahead ? "is-ahead" : tied ? "is-tied" : "is-behind"}`}>
-      <header>Duelo en pista</header>
+      <header>{t.trackDuelTitle}</header>
       <div className="cm-duel-grid">
         <div className={`cm-duel-side${ahead || tied ? " is-leader" : ""}`}>
-          <small>Tú</small>
+          <small>{t.you}</small>
           <HelmetIcon color={player.helmetColor} size={28} />
           <b>P{playerPosition}</b>
         </div>
@@ -213,7 +215,7 @@ const TrackDuel = ({ player, teammate, playerPosition, teammatePosition }) => {
           {!tied && <em>+{gap}</em>}
         </div>
         <div className={`cm-duel-side${!ahead && !tied ? " is-leader" : ""}`}>
-          <small>Compañero</small>
+          <small>{t.teammate}</small>
           <HelmetIcon color={teammate.helmetColor} size={28} />
           <b>P{teammatePosition}</b>
         </div>
@@ -253,12 +255,6 @@ const RainIcon = ({ size = 30 }) => (
   </svg>
 );
 
-const CONDITION_LABELS = {
-  seco: "Seco",
-  intermedios: "Intermedios",
-  lluvia: "Lluvia",
-};
-
 const positionToTrackProgress = (position, fieldSize = 22) => {
   const size = Math.max(2, fieldSize || 22);
   const pos = Math.max(1, Math.min(size, position || size));
@@ -294,12 +290,12 @@ const CareerTrackCar = ({ player, position, fieldSize }) => {
 // Derive the prominent track overlay from the live race state. Priority:
 // red flag > safety car > rain. Returns null when the track is green and dry.
 const trackOverlayFor = (state) => {
-  if (state.redFlagActive) return { kind: "redflag", label: "BANDERA ROJA", icon: <RedFlagIcon size={34} /> };
-  if (state.scActive) return { kind: "safetycar", label: "SAFETY CAR", icon: <SafetyCarIcon size={34} /> };
-  if (state.vscActive) return { kind: "vsc", label: "VIRTUAL SC", icon: <SafetyCarIcon size={34} /> };
-  if (state.yellowActive) return { kind: "yellow", label: "BANDERA AMARILLA", icon: <FlagFill size={34} /> };
-  if (state.greenFlag) return { kind: "green", label: "BANDERA VERDE", icon: <FlagFill size={34} /> };
-  if (state.wet) return { kind: "rain", label: state.condition === "lluvia" ? "LLUVIA" : "PISTA MOJADA", icon: <RainIcon size={34} /> };
+  if (state.redFlagActive) return { kind: "redflag", label: t.overlayRedFlag, icon: <RedFlagIcon size={34} /> };
+  if (state.scActive) return { kind: "safetycar", label: t.overlaySafetyCar, icon: <SafetyCarIcon size={34} /> };
+  if (state.vscActive) return { kind: "vsc", label: t.overlayVsc, icon: <SafetyCarIcon size={34} /> };
+  if (state.yellowActive) return { kind: "yellow", label: t.overlayYellow, icon: <FlagFill size={34} /> };
+  if (state.greenFlag) return { kind: "green", label: t.overlayGreen, icon: <FlagFill size={34} /> };
+  if (state.wet) return { kind: "rain", label: state.condition === "lluvia" ? t.overlayRain : t.overlayWetTrack, icon: <RainIcon size={34} /> };
   return null;
 };
 
@@ -311,33 +307,33 @@ const TeammateBattle = ({ battle }) => {
   return (
     <section className={`cm-teammate ${stateClass}`}>
       <header>
-        <span>Duelo con el compañero</span>
+        <span>{t.teammateBattleTitle}</span>
         <b>{battle.teammateName}</b>
       </header>
       <div className="cm-teammate-grid">
         <div>
-          <small>Carreras</small>
+          <small>{t.battleRaces}</small>
           <strong>{battle.raceWins}-{battle.raceLosses}</strong>
         </div>
         <div>
-          <small>Clasificación</small>
+          <small>{t.battleQualifying}</small>
           <strong>{battle.qualiWins}-{battle.qualiLosses}</strong>
         </div>
         <div>
-          <small>Puntos</small>
+          <small>{t.battlePoints}</small>
           <strong>{battle.playerPoints}-{battle.teammatePoints}</strong>
         </div>
         <div>
-          <small>Balance</small>
+          <small>{t.battleBalance}</small>
           <strong>{battle.pointsGap >= 0 ? `+${battle.pointsGap}` : battle.pointsGap}</strong>
         </div>
       </div>
       <p className="cm-teammate-state">
         {battle.tied
-          ? "Empate al límite con tu compañero."
+          ? t.battleTied
           : battle.leading
-          ? "Por delante en el cómputo de la temporada: clave para tu estatus."
-          : "Por detrás del compañero: ganar el duelo cuenta para tu estatus."}
+          ? t.battleLeading
+          : t.battleBehind}
       </p>
     </section>
   );
@@ -350,21 +346,21 @@ const SetupPanel = ({ draft, setDraft, onSubmit }) => {
       <div className="cm-panel-head">
         <PersonFill />
         <div>
-          <span>Paso 1</span>
-          <h2>Crea tu piloto</h2>
+          <span>{t.step1}</span>
+          <h2>{t.setupTitle}</h2>
         </div>
       </div>
       <label className="cm-field">
-        <span>Nombre del piloto</span>
+        <span>{t.driverNameLabel}</span>
         <input
           type="text"
           value={draft.name}
           maxLength={32}
           onChange={(event) => setDraft({ ...draft, name: event.target.value })}
-          placeholder="Nombre y apellido"
+          placeholder={t.driverNamePlaceholder}
         />
       </label>
-      <div className="cm-color-picker" aria-label="Color del casco">
+      <div className="cm-color-picker" aria-label={t.helmetColorLabel}>
         {HELMET_COLORS.map((color) => (
           <button
             key={color}
@@ -372,7 +368,7 @@ const SetupPanel = ({ draft, setDraft, onSubmit }) => {
             className={draft.helmetColor === color ? "is-selected" : ""}
             onClick={() => setDraft({ ...draft, helmetColor: color })}
             style={{ "--helmet-choice": normalizeColor(color) }}
-            aria-label={`Casco ${color}`}
+            aria-label={t.helmetAria(color)}
           >
             <HelmetIcon color={color} size={28} />
           </button>
@@ -381,14 +377,14 @@ const SetupPanel = ({ draft, setDraft, onSubmit }) => {
       <div className="cm-driver-preview">
         <HelmetIcon color={draft.helmetColor} size={56} />
         <div>
-          <span>Perfil inicial</span>
-          <b>{draft.name.trim() || "Nuevo piloto"}</b>
-          <small>Rating 58 · Reputacion 28 · Status rookie</small>
+          <span>{t.initialProfile}</span>
+          <b>{draft.name.trim() || t.newDriver}</b>
+          <small>{t.initialStats}</small>
         </div>
       </div>
       <button className="cm-btn cm-btn-primary" type="button" disabled={!validName} onClick={onSubmit}>
         <FlagFill />
-        Entrar en la Formula 1
+        {t.enterF1}
       </button>
     </section>
   );
@@ -403,31 +399,31 @@ const DecadeChoicePanel = ({ decades, decadeRoll, rolling, manualOpen, onOpenMan
     <div className="cm-panel-head">
       <Dice5Fill />
       <div>
-        <span>Paso 2</span>
-        <h2>Elige la decada</h2>
+        <span>{t.step2}</span>
+        <h2>{t.chooseDecadeTitle}</h2>
       </div>
     </div>
     <div className="cm-choice-stage">
       <div className="cm-roll-result cm-roll-result-choice">
-        <span>Entrada al calendario</span>
-        <b>{decadeRoll?.label || (rolling ? "..." : "Decada")}</b>
-        <small>Escoge una epoca concreta o deja que el dado abra la primera puerta de tu trayectoria.</small>
+        <span>{t.calendarEntry}</span>
+        <b>{decadeRoll?.label || (rolling ? "..." : t.decadeFallback)}</b>
+        <small>{t.decadeIntro}</small>
       </div>
       <div className="cm-dice-options">
         <button className="cm-choice-card" type="button" onClick={onOpenManual} aria-pressed={manualOpen}>
-          <span>Control</span>
-          <b>Escoger decada</b>
-          <small>Selecciona manualmente la etapa historica donde quieres debutar.</small>
+          <span>{t.controlLabel}</span>
+          <b>{t.chooseDecadeAction}</b>
+          <small>{t.chooseDecadeHint}</small>
         </button>
         <button className="cm-choice-card is-random" type="button" onClick={onRollDecade} disabled={rolling}>
-          <span>Azar</span>
-          <b>Tirar dado</b>
-          <small>El sistema sortea una decada disponible antes de tirar el anio.</small>
+          <span>{t.randomLabel}</span>
+          <b>{t.rollDiceAction}</b>
+          <small>{t.rollDiceHint}</small>
         </button>
       </div>
     </div>
     {manualOpen && (
-      <div className="cm-decade-grid" aria-label="Decadas disponibles">
+      <div className="cm-decade-grid" aria-label={t.availableDecades}>
         {decades.map((decade) => (
           <button
             key={decade.key || decade.label}
@@ -453,8 +449,8 @@ const DicePanel = ({ decadeRoll, yearRoll, onRollYear, rolling }) => (
     <div className="cm-panel-head">
       <Dice5Fill />
       <div>
-        <span>Paso 3</span>
-        <h2>Tira por anio</h2>
+        <span>{t.step3}</span>
+        <h2>{t.rollYearTitle}</h2>
       </div>
     </div>
     <div className="cm-roll-track" aria-hidden="true">
@@ -463,13 +459,13 @@ const DicePanel = ({ decadeRoll, yearRoll, onRollYear, rolling }) => (
       <span>{decadeRoll?.to || "--"}</span>
     </div>
     <div className="cm-roll-result">
-      <span>Temporada exacta</span>
+      <span>{t.exactSeason}</span>
       <b>{yearRoll || (rolling ? "..." : "--")}</b>
-      <small>Dentro de {decadeRoll?.label || "la decada"}, el dado decide el calendario de debut.</small>
+      <small>{t.yearHint(decadeRoll?.label || t.theDecade)}</small>
     </div>
     <button className="cm-btn cm-btn-primary" type="button" onClick={onRollYear} disabled={rolling || !decadeRoll}>
       <Dice5Fill />
-      Decidir anio
+      {t.decideYear}
     </button>
   </section>
 );
@@ -481,27 +477,27 @@ const ContractCard = ({ contract, onSelect, badge = null }) => (
     onClick={() => onSelect(contract)}
     style={{ "--team-color": normalizeColor(contract.team.color, "#0f4c81") }}
   >
-    <span className="cm-contract-tier">{badge || contract.objectives.tier}</span>
+    <span className="cm-contract-tier">{badge || tierLabel(contract.objectives.tier)}</span>
     <div className="cm-contract-team">
       <span className="cm-team-stripe" />
       <div>
         <h3>{contract.team.name}</h3>
-        <small>Rating coche {contract.team.rating} · Salario {contract.salary}</small>
+        <small>{t.carRatingSalary(contract.team.rating, contract.salary)}</small>
       </div>
     </div>
-    <p>{contract.promise}</p>
-    {contract.marketReason && <small className="cm-market-reason">{contract.marketReason}</small>}
+    <p>{localized(contract.promise, contract.promiseEn)}</p>
+    {contract.marketReason && <small className="cm-market-reason">{localized(contract.marketReason, contract.marketReasonEn)}</small>}
     <dl>
       <div>
-        <dt>Puntos objetivo</dt>
+        <dt>{t.targetPoints}</dt>
         <dd>{contract.objectives.points}</dd>
       </div>
       <div>
-        <dt>Constructores</dt>
-        <dd>Top {contract.objectives.constructorPosition}</dd>
+        <dt>{t.constructors}</dt>
+        <dd>{t.topN(contract.objectives.constructorPosition)}</dd>
       </div>
       <div>
-        <dt>Reputacion</dt>
+        <dt>{t.reputation}</dt>
         <dd>+{contract.objectives.reputationBonus}</dd>
       </div>
     </dl>
@@ -515,9 +511,9 @@ const PreContractNotice = ({ preContract }) => {
       className="cm-precontract-strip"
       style={{ "--team-color": normalizeColor(preContract.team.color, "#0f4c81") }}
     >
-      <span>Precontrato firmado</span>
+      <span>{t.precontractSigned}</span>
       <b>{preContract.team.name} {preContract.targetYear}</b>
-      <small>Se decide al final de la temporada.</small>
+      <small>{t.precontractDecided}</small>
     </section>
   );
 };
@@ -528,12 +524,11 @@ const ContractSelection = ({ contracts, year, profile, onSelect }) => (
       <BriefcaseFill />
       <div>
         <span>{year}</span>
-        <h2>Elige tu primer contrato</h2>
+        <h2>{t.firstContractTitle}</h2>
       </div>
     </div>
     <p className="cm-panel-copy">
-      {profile.name} llega como {profile.status}. Las ofertas priorizan equipos medios y bajos: objetivos realistas,
-      bonus de reputacion y riesgo de perder el asiento si queda lejos.
+      {t.firstContractCopy(profile.name, statusLabel(profile.status))}
     </p>
     <div className="cm-contract-grid">
       {contracts.map((contract) => (
@@ -556,62 +551,62 @@ const ContractSigning = ({ contract, profile, year, mode, status, onSign, onCont
       <div className="cm-panel-head">
         <BriefcaseFill />
         <div>
-          <span>{isPrecontract ? `Precontrato ${contract.targetYear || year}` : `Contrato ${year}`}</span>
-          <h2>{linked ? "Piloto vinculado" : "Firma del contrato"}</h2>
+          <span>{isPrecontract ? t.precontractTerm(contract.targetYear || year) : t.contractTerm(year)}</span>
+          <h2>{linked ? t.driverLinked : t.contractSigning}</h2>
         </div>
       </div>
       <div className="cm-signing-layout">
         <section className="cm-contract-document">
-          <span className="cm-contract-tier">{isPrecontract ? "precontrato" : contract.objectives.tier}</span>
+          <span className="cm-contract-tier">{isPrecontract ? t.precontractBadge : tierLabel(contract.objectives.tier)}</span>
           <div className="cm-contract-party">
             <div>
-              <small>Piloto</small>
+              <small>{t.driverLabel}</small>
               <b>{profile.name}</b>
             </div>
             <span className="cm-contract-link" aria-hidden="true" />
             <div>
-              <small>Escuderia</small>
+              <small>{t.teamLabel}</small>
               <b>{contract.team.name}</b>
             </div>
           </div>
-          <p>{contract.promise}</p>
-          {contract.marketReason && <small className="cm-market-reason">{contract.marketReason}</small>}
+          <p>{localized(contract.promise, contract.promiseEn)}</p>
+          {contract.marketReason && <small className="cm-market-reason">{localized(contract.marketReason, contract.marketReasonEn)}</small>}
           <dl>
             <div>
-              <dt>Rating coche</dt>
+              <dt>{t.carRating}</dt>
               <dd>{contract.team.rating}</dd>
             </div>
             <div>
-              <dt>Salario</dt>
+              <dt>{t.salary}</dt>
               <dd>{contract.salary}</dd>
             </div>
             <div>
-              <dt>Companero</dt>
-              <dd>{teammate?.name || "Por confirmar"}</dd>
+              <dt>{t.teammateLabel}</dt>
+              <dd>{teammate?.name || t.toBeConfirmed}</dd>
             </div>
             <div>
-              <dt>Rating companero</dt>
+              <dt>{t.teammateRating}</dt>
               <dd>{Number.isFinite(teammate?.rating) ? teammate.rating : "--"}</dd>
             </div>
             <div>
-              <dt>Puntos objetivo</dt>
+              <dt>{t.targetPoints}</dt>
               <dd>{contract.objectives.points}</dd>
             </div>
             <div>
-              <dt>Constructores</dt>
-              <dd>Top {contract.objectives.constructorPosition}</dd>
+              <dt>{t.constructors}</dt>
+              <dd>{t.topN(contract.objectives.constructorPosition)}</dd>
             </div>
             <div>
-              <dt>Reputacion</dt>
+              <dt>{t.reputation}</dt>
               <dd>+{contract.objectives.reputationBonus}</dd>
             </div>
             <div>
-              <dt>Vigencia</dt>
+              <dt>{t.term}</dt>
               <dd>{isPrecontract ? contract.targetYear || year : year}</dd>
             </div>
           </dl>
           <div className="cm-signature-zone">
-            <span>Zona de firma</span>
+            <span>{t.signatureZone}</span>
             <div className="cm-signature-line">
               <b className={status !== "idle" ? "is-written" : ""}>{profile.name}</b>
               {status === "signing" && <i aria-hidden="true" />}
@@ -630,27 +625,27 @@ const ContractSigning = ({ contract, profile, year, mode, status, onSign, onCont
           </div>
           <p>
             {linked
-              ? `${profile.name} queda vinculado a ${contract.team.name}.`
+              ? t.linkedMessage(profile.name, contract.team.name)
               : status === "signing"
-              ? "Firmando contrato..."
-              : "Revisa objetivos y confirma la firma."}
+              ? t.signingMessage
+              : t.reviewMessage}
           </p>
         </aside>
       </div>
       <div className="cm-signing-actions">
         {!linked && (
           <button className="cm-btn cm-btn-secondary" type="button" onClick={onCancel} disabled={status === "signing"}>
-            Volver
+            {t.back}
           </button>
         )}
         {status === "idle" && (
           <button className="cm-btn cm-btn-primary" type="button" onClick={onSign}>
-            Firmar contrato
+            {t.signContract}
           </button>
         )}
         {linked && (
           <button className="cm-btn cm-btn-primary" type="button" onClick={onContinue}>
-            {isPrecontract ? "Volver al paddock" : "Entrar al equipo"}
+            {isPrecontract ? t.backToPaddock : t.joinTeam}
           </button>
         )}
       </div>
@@ -658,10 +653,10 @@ const ContractSigning = ({ contract, profile, year, mode, status, onSign, onCont
   );
 };
 
-const StandingsTable = ({ title, rows, playerOnly = false }) => {
+const StandingsTable = ({ title, rows, playerOnly = false, isDrivers = false }) => {
   const visibleRows = playerOnly ? rows : rows.slice(0, 10);
   const playerBelow =
-    !playerOnly && title === "Pilotos"
+    !playerOnly && isDrivers
       ? rows.find((row) => row.isPlayer && !visibleRows.some((visible) => visible.isPlayer))
       : null;
   return (
@@ -678,7 +673,7 @@ const StandingsTable = ({ title, rows, playerOnly = false }) => {
             <span className="cm-row-stripe" />
             <div>
               <strong>{row.name}</strong>
-              <small>{row.team || `${row.wins || 0} victorias`}</small>
+              <small>{row.team || t.winsCount(row.wins || 0)}</small>
             </div>
             <em>{row.points}</em>
           </li>
@@ -686,7 +681,7 @@ const StandingsTable = ({ title, rows, playerOnly = false }) => {
         {playerBelow && (
           <>
             <li className="cm-standing-player-label" aria-hidden="true">
-              <span>Tu posicion</span>
+              <span>{t.yourPosition}</span>
             </li>
             <li
               key={playerBelow.id || playerBelow.name}
@@ -697,7 +692,7 @@ const StandingsTable = ({ title, rows, playerOnly = false }) => {
               <span className="cm-row-stripe" />
               <div>
                 <strong>{playerBelow.name}</strong>
-                <small>{playerBelow.team || `${playerBelow.wins || 0} victorias`}</small>
+                <small>{playerBelow.team || t.winsCount(playerBelow.wins || 0)}</small>
               </div>
               <em>{playerBelow.points}</em>
             </li>
@@ -708,10 +703,24 @@ const StandingsTable = ({ title, rows, playerOnly = false }) => {
   );
 };
 
-const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, lang, simulationSpeed, onSpeedChange, panelRef }) => {
+// Distance (px) from the bottom within which the feed is considered "live": the
+// auto-scroll keeps the latest event in view while the reader stays at the end.
+const FEED_BOTTOM_THRESHOLD = 24;
+
+const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, lang, simulationSpeed, onSpeedChange, paused, onTogglePause, panelRef }) => {
   const player = raceResult.playerResult;
   const feedRef = useRef(null);
   const [feedScrollable, setFeedScrollable] = useState(false);
+  // The feed follows the live narration only while the reader is at the bottom and
+  // not hovering it. Hovering pauses the scroll so they can read at their own pace;
+  // the "back to live" button (shown when behind) jumps back to the latest event.
+  const [atBottom, setAtBottom] = useState(true);
+  const atBottomRef = useRef(true);
+  const isHoveringRef = useRef(false);
+  const setBottomState = (value) => {
+    atBottomRef.current = value;
+    setAtBottom(value);
+  };
   const eventText = (event) => (lang === "en" && event.textEn ? event.textEn : event.text);
   const isComplete = visibleEvents.length >= raceResult.events.length;
   const livePlayerPosition =
@@ -732,20 +741,45 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
   const liveState = raceStateAtLap(raceResult.conditions, currentLap);
   const overlay = trackOverlayFor(liveState);
   const trackStatusLabel =
-    liveState.redFlagActive ? "Bandera roja" :
-    liveState.scActive ? "Safety Car" :
-    liveState.vscActive ? "VSC" :
-    liveState.yellowActive ? "Bandera amarilla" :
-    liveState.greenFlag ? "Bandera verde" :
-    "Verde";
+    liveState.redFlagActive ? t.statusRedFlag :
+    liveState.scActive ? t.statusSafetyCar :
+    liveState.vscActive ? t.statusVsc :
+    liveState.yellowActive ? t.statusYellow :
+    liveState.greenFlag ? t.statusGreenFlag :
+    t.statusGreen;
   const fieldSize = raceResult.results?.length || 22;
+
+  const distanceFromBottom = (feed) => feed.scrollHeight - feed.scrollTop - feed.clientHeight;
+
+  // Jump back to the latest event and resume following the live narration.
+  const jumpToLive = () => {
+    const feed = feedRef.current;
+    if (!feed) return;
+    feed.scrollTo({ top: feed.scrollHeight, behavior: "smooth" });
+    setBottomState(true);
+  };
+
+  // Reading-position tracking: once the reader scrolls up (or new events arrive
+  // while hovering), the feed stops following and the "back to live" button shows.
+  const handleFeedScroll = () => {
+    const feed = feedRef.current;
+    if (!feed) return;
+    setBottomState(distanceFromBottom(feed) <= FEED_BOTTOM_THRESHOLD);
+  };
 
   useEffect(() => {
     const feed = feedRef.current;
     if (!feed) return undefined;
     const syncFeed = () => {
       setFeedScrollable(feed.scrollHeight > feed.clientHeight + 1);
-      feed.scrollTo({ top: feed.scrollHeight, behavior: "smooth" });
+      // Follow the live feed only while the reader is at the bottom and not
+      // hovering it; otherwise just refresh whether they have fallen behind.
+      if (!isHoveringRef.current && atBottomRef.current) {
+        feed.scrollTo({ top: feed.scrollHeight, behavior: "smooth" });
+        setBottomState(true);
+      } else {
+        setBottomState(distanceFromBottom(feed) <= FEED_BOTTOM_THRESHOLD);
+      }
     };
     const frame = window.requestAnimationFrame(syncFeed);
     window.addEventListener("resize", syncFeed);
@@ -761,18 +795,18 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
       <div className="cm-panel-head">
         <FlagFill />
         <div>
-          <span>Vuelta {visibleEvents.length ? visibleEvents[visibleEvents.length - 1].lap : 1}/{raceResult.race.lapCount}</span>
+          <span>{t.lapOf(visibleEvents.length ? visibleEvents[visibleEvents.length - 1].lap : 1, raceResult.race.lapCount)}</span>
           <h2>{localizeRaceName(raceResult.race.name, lang)}</h2>
         </div>
       </div>
-      <div className="cm-sim-controls" aria-label="Velocidad de simulacion">
+      <div className="cm-sim-controls" aria-label={t.simulationSpeed}>
         <button
           className={simulationSpeed === "normal" ? "is-active" : ""}
           type="button"
           onClick={() => onSpeedChange("normal")}
           disabled={isComplete}
         >
-          Normal
+          {t.speedNormal}
         </button>
         <button
           className={simulationSpeed === "x2" ? "is-active" : ""}
@@ -790,8 +824,18 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
         >
           x3
         </button>
+        <button
+          className={`cm-sim-pause${paused ? " is-active" : ""}`}
+          type="button"
+          onClick={onTogglePause}
+          disabled={isComplete}
+          aria-pressed={paused}
+        >
+          {paused ? <PlayFill /> : <PauseFill />}
+          {paused ? t.resume : t.pause}
+        </button>
         <button className="cm-sim-skip" type="button" onClick={onSkipToResult}>
-          Simular carrera
+          {t.simulateRaceSkip}
         </button>
       </div>
       <div
@@ -822,24 +866,44 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
         )}
       </div>
       <div className="cm-race-meta">
-        {stat("Clima", CONDITION_LABELS[liveState.condition] || liveState.condition)}
-        {stat("Degradacion", `${Math.round(raceResult.conditions.degradation * 100)}%`)}
-        {stat("Estado de pista", trackStatusLabel)}
+        {stat(t.metaWeather, conditionLabel(liveState.condition))}
+        {stat(t.metaDegradation, `${Math.round(raceResult.conditions.degradation * 100)}%`)}
+        {stat(t.metaTrackStatus, trackStatusLabel)}
       </div>
-      <ol className={`cm-lap-feed${feedScrollable ? " is-scrollable" : ""}`} ref={feedRef}>
-        {visibleEvents.map((event, index) => (
-          <li key={`${event.lap}-${index}`} className={`cm-event-${event.type}${event.important ? " is-important" : ""}`}>
-            <b>V{event.lap}</b>
-            <span>
-              {Number.isFinite(event.playerPosition) && event.important ? <em>P{event.playerPosition}</em> : null}
-              {eventText(event)}
-            </span>
-          </li>
-        ))}
-      </ol>
+      <div className="cm-lap-feed-wrap">
+        <ol
+          className={`cm-lap-feed${feedScrollable ? " is-scrollable" : ""}`}
+          ref={feedRef}
+          onScroll={handleFeedScroll}
+          onMouseEnter={() => { isHoveringRef.current = true; }}
+          onMouseLeave={() => { isHoveringRef.current = false; }}
+        >
+          {visibleEvents.map((event, index) => (
+            <li key={`${event.lap}-${index}`} className={`cm-event-${event.type}${event.important ? " is-important" : ""}`}>
+              <b>{t.lapTag(event.lap)}</b>
+              <span>
+                {Number.isFinite(event.playerPosition) && event.important ? <em>P{event.playerPosition}</em> : null}
+                {eventText(event)}
+              </span>
+            </li>
+          ))}
+        </ol>
+        {feedScrollable && !atBottom && (
+          <button
+            className="cm-feed-live-btn"
+            type="button"
+            onClick={jumpToLive}
+            aria-label={t.backToLive}
+            title={t.backToLive}
+          >
+            <ArrowDownShort size={20} />
+            <span>{t.backToLive}</span>
+          </button>
+        )}
+      </div>
       {isComplete && (
         <button className="cm-btn cm-btn-primary" type="button" onClick={onFinish}>
-          Ver resultado
+          {t.viewResult}
         </button>
       )}
       </section>
@@ -864,7 +928,7 @@ const RaceResult = ({ raceResult, onContinue, lang }) => {
       <b>P{row.position}</b>
       <HelmetIcon color={row.helmetColor} size={26} />
       <span>{row.driver}</span>
-      <em>{row.status === "DNF" ? "DNF" : `${row.points} pts`}</em>
+      <em>{row.status === "DNF" ? "DNF" : t.pointsShort(row.points)}</em>
     </div>
   );
   return (
@@ -872,14 +936,14 @@ const RaceResult = ({ raceResult, onContinue, lang }) => {
       <div className="cm-panel-head">
         <TrophyFill />
         <div>
-          <span>Resultado</span>
+          <span>{t.resultLabel}</span>
           <h2>{localizeRaceName(raceResult.race.name, lang)}</h2>
         </div>
       </div>
       <div className="cm-winner-card" style={{ "--team-color": normalizeColor(raceResult.winner.teamColor, "#0f4c81") }}>
         <span className="cm-team-stripe" />
         <div>
-          <small>Ganador</small>
+          <small>{t.winnerLabel}</small>
           <b>{raceResult.winner.driver}</b>
           <span>{raceResult.winner.team}</span>
         </div>
@@ -888,13 +952,13 @@ const RaceResult = ({ raceResult, onContinue, lang }) => {
         {rows.map(resultRow)}
         {playerBelow && (
           <>
-            <p className="cm-result-player-label">Tu resultado</p>
+            <p className="cm-result-player-label">{t.yourResult}</p>
             {resultRow(playerBelow)}
           </>
         )}
       </div>
       <button className="cm-btn cm-btn-primary" type="button" onClick={onContinue}>
-        Ver evolucion
+        {t.viewProgress}
       </button>
     </section>
   );
@@ -908,18 +972,18 @@ const RaceDevelopment = ({ development, raceResult, onContinue, lang }) => {
       <div className="cm-panel-head">
         <AwardFill />
         <div>
-          <span>Progreso tras {localizeRaceName(raceResult.race.name, lang)}</span>
-          <h2>{development.overallDelta > 0 ? "La carta sube" : "Experiencia acumulada"}</h2>
+          <span>{t.progressAfter(localizeRaceName(raceResult.race.name, lang))}</span>
+          <h2>{development.overallDelta > 0 ? t.cardImproves : t.experienceGained}</h2>
         </div>
       </div>
       <div className="cm-development-layout">
         <DriverCardView profile={development.nextProfile} deltas={development.deltas} />
         <div className="cm-development-side">
           <div className="cm-season-stats">
-            {stat("Resultado", player.status === "DNF" ? "DNF" : `P${player.position}`)}
-            {stat("Esperado", `P${development.expected}`)}
-            {stat("Factor XP", `${development.resultFactor.toFixed(2)}x`)}
-            {stat("Subidas", totalDelta > 0 ? `+${totalDelta}` : "0")}
+            {stat(t.devResult, player.status === "DNF" ? "DNF" : `P${player.position}`)}
+            {stat(t.devExpected, `P${development.expected}`)}
+            {stat(t.devXpFactor, `${development.resultFactor.toFixed(2)}x`)}
+            {stat(t.devGains, totalDelta > 0 ? `+${totalDelta}` : "0")}
           </div>
           <div className="cm-xp-list">
             {ATTRIBUTE_KEYS.map((key) => (
@@ -928,18 +992,17 @@ const RaceDevelopment = ({ development, raceResult, onContinue, lang }) => {
                 className={development.deltas[key] > 0 ? "is-up" : ""}
                 style={{ "--xp-width": `${Math.min(100, Math.round(development.xpGains[key] || 0))}%` }}
               >
-                <span>{ATTRIBUTE_XP_LABELS[key]}</span>
-                <b>+{Math.round(development.xpGains[key] || 0)} XP</b>
-                <em>{development.deltas[key] > 0 ? `+${development.deltas[key]}` : "sin subida"}</em>
+                <span>{t.attributeNames[key]}</span>
+                <b>{t.xpAmount(Math.round(development.xpGains[key] || 0))}</b>
+                <em>{development.deltas[key] > 0 ? `+${development.deltas[key]}` : t.noGain}</em>
               </div>
             ))}
           </div>
           <p className="cm-panel-copy">
-            La experiencia siempre progresa; el rendimiento sobre el objetivo del coche multiplica Ritmo,
-            Pilotaje y Conciencia. La mejora ya cuenta desde la siguiente carrera.
+            {t.devCopy}
           </p>
           <button className="cm-btn cm-btn-primary" type="button" onClick={onContinue}>
-            Continuar temporada
+            {t.continueSeason}
           </button>
         </div>
       </div>
@@ -968,26 +1031,26 @@ const SeasonDashboard = ({
           <div className="cm-driver-preview">
             <HelmetIcon color={profile.helmetColor} size={50} />
             <div>
-              <span>{profile.status}</span>
+              <span>{statusLabel(profile.status)}</span>
               <b>{profile.name}</b>
-              <small>Edad actual: {profile.age} años</small>
-              <small>Rating {profile.rating} · Reputacion {profile.reputation}</small>
+              <small>{t.currentAge(profile.age)}</small>
+              <small>{t.ratingReputation(profile.rating, profile.reputation)}</small>
             </div>
           </div>
           <DriverCardView profile={profile} compact />
           <div className="cm-season-objectives">
-            {stat("Equipo", season.contract.team.name)}
-            {stat("Objetivo pts", season.contract.objectives.points)}
-            {stat("Constructores", `Top ${season.contract.objectives.constructorPosition}`)}
-            {stat("Ronda", `${Math.min(currentRaceIndex + 1, season.races.length)}/${season.races.length}`)}
+            {stat(t.objectiveTeam, season.contract.team.name)}
+            {stat(t.objectivePoints, season.contract.objectives.points)}
+            {stat(t.objectiveConstructors, t.topN(season.contract.objectives.constructorPosition))}
+            {stat(t.objectiveRound, t.roundProgress(Math.min(currentRaceIndex + 1, season.races.length), season.races.length))}
           </div>
           <PreContractNotice preContract={preContract} />
           <button className="cm-btn cm-btn-secondary" type="button" onClick={onRetire}>
-            Retirarse
+            {t.retire}
           </button>
         </section>
         <section className="cm-panel cm-calendar">
-          <h3>Calendario {season.year}</h3>
+          <h3>{t.calendarYear(season.year)}</h3>
           <ol>
             {season.races.map((race, index) => (
               <li key={`${race.round}-${race.name}`} className={index === currentRaceIndex ? "is-active" : race.completed ? "is-done" : ""}>
@@ -1002,23 +1065,22 @@ const SeasonDashboard = ({
         <div className="cm-panel-head">
           <FlagFill />
           <div>
-            <span>{currentRace ? `Ronda ${currentRace.round}` : "Temporada completa"}</span>
-            <h2>{currentRace ? localizeRaceName(currentRace.name, lang) : "Evaluacion final"}</h2>
+            <span>{currentRace ? t.roundLabel(currentRace.round) : t.seasonComplete}</span>
+            <h2>{currentRace ? localizeRaceName(currentRace.name, lang) : t.finalEvaluation}</h2>
           </div>
         </div>
         <div className="cm-season-stats">
-          {stat("Puntos piloto", playerStanding?.points || 0)}
-          {stat("Posicion piloto", playerStanding ? `P${playerStanding.position}` : "--")}
-          {stat("Equipo pts", constructorStanding?.points || 0)}
-          {stat("Constructores", constructorStanding ? `P${constructorStanding.position}` : "--")}
+          {stat(t.driverPoints, playerStanding?.points || 0)}
+          {stat(t.driverPosition, playerStanding ? `P${playerStanding.position}` : "--")}
+          {stat(t.teamPoints, constructorStanding?.points || 0)}
+          {stat(t.objectiveConstructors, constructorStanding ? `P${constructorStanding.position}` : "--")}
         </div>
         <p className="cm-panel-copy">
-          La simulacion calcula ritmo puro, adaptacion al circuito, fiabilidad, estrategia, gestion de goma,
-          clima variable y eventos de carrera. La narracion destaca lo que afecta a {profile.name}.
+          {t.seasonCopy(profile.name)}
         </p>
         <button className="cm-btn cm-btn-primary cm-big-action" type="button" disabled={!canSimulate || !currentRace} onClick={onSimulateRace}>
           <FlagFill />
-          Simular carrera
+          {t.simulateRace}
         </button>
         {teammateBattle && (
           <section className="cm-teammate-panel">
@@ -1027,8 +1089,8 @@ const SeasonDashboard = ({
         )}
       </section>
       <aside className="cm-season-standings">
-        <StandingsTable title="Pilotos" rows={season.driverStandings} />
-        <StandingsTable title="Constructores" rows={season.constructorStandings} />
+        <StandingsTable title={t.standingsDrivers} rows={season.driverStandings} isDrivers />
+        <StandingsTable title={t.standingsConstructors} rows={season.constructorStandings} />
       </aside>
     </div>
   );
@@ -1039,27 +1101,26 @@ const SillySeasonPanel = ({ market, onSign, onPass }) => (
     <div className="cm-panel-head">
       <BriefcaseFill />
       <div>
-        <span>Silly Season · Ronda {market.round}</span>
-        <h2>El paddock pregunta por ti</h2>
+        <span>{t.sillySeasonTitle(market.round)}</span>
+        <h2>{t.paddockAsking}</h2>
       </div>
     </div>
     <p className="cm-panel-copy">
-      Tu rendimiento y estatus han abierto conversaciones antes de acabar el anio. Puedes firmar un precontrato,
-      pero la decision definitiva se tomara al terminar la temporada.
+      {t.sillySeasonCopy}
     </p>
     <div className="cm-season-stats">
-      {stat("Probabilidad", `${market.chance}%`)}
-      {stat("Puntos vs objetivo", `${market.signal.pointsRatio.toFixed(2)}x`)}
-      {stat("Proximo anio", market.targetYear)}
-      {stat("Ofertas", market.offers.length)}
+      {stat(t.probability, `${market.chance}%`)}
+      {stat(t.pointsVsTarget, `${market.signal.pointsRatio.toFixed(2)}x`)}
+      {stat(t.nextYear, market.targetYear)}
+      {stat(t.offers, market.offers.length)}
     </div>
     <div className="cm-contract-grid">
       {market.offers.map((contract) => (
-        <ContractCard key={contract.id} contract={contract} onSelect={onSign} badge="precontrato" />
+        <ContractCard key={contract.id} contract={contract} onSelect={onSign} badge={t.precontractBadge} />
       ))}
     </div>
     <button className="cm-btn cm-btn-secondary" type="button" onClick={onPass}>
-      Seguir sin firmar
+      {t.carryOnUnsigned}
     </button>
   </section>
 );
@@ -1084,60 +1145,59 @@ const SeasonReview = ({
     <div className="cm-panel-head">
       <AwardFill />
       <div>
-        <span>Fin de temporada {season.year}</span>
+        <span>{t.endOfSeason(season.year)}</span>
         <h2>
           {evaluation.champion
-            ? "Campeon del mundo"
+            ? t.reviewChampion
             : evaluation.titleFight
-            ? "Temporada de elite"
+            ? t.reviewEliteSeason
             : evaluation.fired
-            ? "El equipo rompe el contrato"
+            ? t.reviewFired
             : evaluation.met
-            ? "Objetivos cumplidos"
-            : "Temporada insuficiente"}
+            ? t.reviewObjectivesMet
+            : t.reviewInsufficient}
         </h2>
       </div>
     </div>
     <div className="cm-season-stats">
-      {stat("Puntos", evaluation.playerStanding?.points || 0)}
-      {stat("Mundial", evaluation.playerStanding ? `P${evaluation.playerStanding.position}` : "--")}
-      {stat("Equipo", evaluation.constructorStanding ? `P${evaluation.constructorStanding.position}` : "--")}
-      {stat("Reputacion", `${evaluation.reputationDelta >= 0 ? "+" : ""}${evaluation.reputationDelta}`)}
+      {stat(t.reviewPoints, evaluation.playerStanding?.points || 0)}
+      {stat(t.reviewChampionship, evaluation.playerStanding ? `P${evaluation.playerStanding.position}` : "--")}
+      {stat(t.reviewTeam, evaluation.constructorStanding ? `P${evaluation.constructorStanding.position}` : "--")}
+      {stat(t.reviewReputation, `${evaluation.reputationDelta >= 0 ? "+" : ""}${evaluation.reputationDelta}`)}
     </div>
     {evaluation.teammateBattle && (
       <div className="cm-review-teammate">
         <TeammateBattle battle={evaluation.teammateBattle} />
         <p className="cm-teammate-impact">
           {evaluation.teammateBattle.tied
-            ? "Duelo interno igualado: sin efecto en la reputación."
+            ? t.teammateTied
             : evaluation.teammateBattle.beaten
-            ? `Ganaste a tu compañero en el cómputo final (${evaluation.teammateRepDelta >= 0 ? "+" : ""}${evaluation.teammateRepDelta} reputación).`
-            : `Tu compañero te superó en el cómputo final (${evaluation.teammateRepDelta} reputación).`}
+            ? t.teammateBeaten(`${evaluation.teammateRepDelta >= 0 ? "+" : ""}${evaluation.teammateRepDelta}`)
+            : t.teammateLost(`${evaluation.teammateRepDelta}`)}
         </p>
       </div>
     )}
     <p className="cm-panel-copy">
       {evaluation.fired
-        ? "La directiva considera que el rendimiento quedo lejos del minimo. Las nuevas ofertas bajan el riesgo y el nivel."
+        ? t.reviewFiredCopy
         : evaluation.overDelivered
-        ? "El paddock toma nota: el rendimiento supera el valor del coche y abre puertas mejores."
-        : "El mercado reacciona de forma gradual: ofertas cercanas al estatus actual y alguna apuesta condicionada."}
+        ? t.reviewOverDeliveredCopy
+        : t.reviewMarketCopy}
     </p>
     {preContract && !exploringMarket ? (
       <div className="cm-precontract-choice">
-        <ContractCard contract={preContract} onSelect={onHonorPreContract} badge="precontrato" />
+        <ContractCard contract={preContract} onSelect={onHonorPreContract} badge={t.precontractBadge} />
         <div>
-          <h3>Decision de Silly Season</h3>
+          <h3>{t.sillySeasonDecision}</h3>
           <p className="cm-panel-copy">
-            Tienes un acuerdo previo con {preContract.team.name}. Puedes respetarlo y cerrar el asiento, o romper
-            la prioridad para mirar el mercado final de temporada.
+            {t.precontractChoiceCopy(preContract.team.name)}
           </p>
           <div className="cm-choice-actions">
             <button className="cm-btn cm-btn-primary" type="button" onClick={() => onHonorPreContract(preContract)}>
-              Cumplir precontrato
+              {t.honorPrecontract}
             </button>
             <button className="cm-btn cm-btn-secondary" type="button" onClick={onExploreMarket}>
-              Mirar otras ofertas
+              {t.lookOtherOffers}
             </button>
           </div>
         </div>
@@ -1150,7 +1210,7 @@ const SeasonReview = ({
       </div>
     )}
     <button className="cm-btn cm-btn-secondary" type="button" onClick={onRetire}>
-      Retirarse ahora
+      {t.retireNow}
     </button>
   </section>
 );
@@ -1160,21 +1220,21 @@ const Retirement = ({ summary, onRestart }) => (
     <div className="cm-panel-head">
       <TrophyFill />
       <div>
-        <span>Retirada</span>
+        <span>{t.retirementLabel}</span>
         <h2>{summary.name}</h2>
       </div>
     </div>
     <div className="cm-season-stats">
-      {stat("Temporadas", summary.seasons)}
-      {stat("Equipos", summary.teams)}
-      {stat("Puntos", summary.points)}
-      {stat("Victorias", summary.wins)}
-      {stat("Podios", summary.podiums)}
-      {stat("Titulos", summary.titles)}
+      {stat(t.retSeasons, summary.seasons)}
+      {stat(t.retTeams, summary.teams)}
+      {stat(t.retPoints, summary.points)}
+      {stat(t.retWins, summary.wins)}
+      {stat(t.retPodiums, summary.podiums)}
+      {stat(t.retTitles, summary.titles)}
     </div>
     <button className="cm-btn cm-btn-primary" type="button" onClick={onRestart}>
       <ArrowClockwise />
-      Nueva trayectoria
+      {t.newCareer}
     </button>
   </section>
 );
@@ -1193,6 +1253,7 @@ const CareerMode = () => {
   const [raceDevelopment, setRaceDevelopment] = useState(null);
   const [visibleEventCount, setVisibleEventCount] = useState(0);
   const [simulationSpeed, setSimulationSpeed] = useState("normal");
+  const [simulationPaused, setSimulationPaused] = useState(false);
   const [evaluation, setEvaluation] = useState(null);
   const [sillySeasonMarket, setSillySeasonMarket] = useState(null);
   const [preContract, setPreContract] = useState(null);
@@ -1206,21 +1267,21 @@ const CareerMode = () => {
   const raceLivePanelRef = useRef(null);
   const signingTimerRef = useRef(null);
   const rollTimerRef = useRef(null);
-  const lang = navigator.language.startsWith("en") ? "en" : "es";
+  const lang = locale;
 
   useEffect(() => {
     fetchCareerBootstrap().then(setBootstrap);
   }, []);
 
   useEffect(() => {
-    if (phase !== "race-live" || !raceResult) return undefined;
+    if (phase !== "race-live" || !raceResult || simulationPaused) return undefined;
     if (visibleEventCount >= raceResult.events.length) return undefined;
     const delay = simulationSpeed === "x3" ? 500 : simulationSpeed === "x2" ? 750 : 1500;
     const timer = window.setTimeout(() => {
       setVisibleEventCount((count) => Math.min(raceResult.events.length, count + 1));
     }, delay);
     return () => window.clearTimeout(timer);
-  }, [phase, raceResult, simulationSpeed, visibleEventCount]);
+  }, [phase, raceResult, simulationSpeed, simulationPaused, visibleEventCount]);
 
   useEffect(() => {
     if (phase !== "race-live") return undefined;
@@ -1328,6 +1389,7 @@ const CareerMode = () => {
     setRaceDevelopment(null);
     setVisibleEventCount(0);
     setSimulationSpeed("normal");
+    setSimulationPaused(false);
     setEvaluation(null);
     setSillySeasonMarket(null);
     setPreContract(null);
@@ -1435,6 +1497,7 @@ const CareerMode = () => {
     setRaceDevelopment(null);
     setVisibleEventCount(1);
     setSimulationSpeed("normal");
+    setSimulationPaused(false);
     setPhase("race-live");
   };
 
@@ -1530,39 +1593,39 @@ const CareerMode = () => {
           <div className="cm-brand-block">
             <img className="cm-brand-mark" src="/LogoOverCut.png" alt="OverCut" />
             <div>
-              <span>OverCut Career</span>
-              <h1>Modo trayectoria</h1>
+              <span>{t.careerKicker}</span>
+              <h1>{t.careerTitle}</h1>
             </div>
           </div>
           <nav className="cm-actions">
-            <Link to="/minigames" className="cm-home-link" aria-label="Volver a minijuegos">
+            <Link to="/minigames" className="cm-home-link" aria-label={t.backToGames}>
               <ArrowLeftShort size={28} />
-              <span>Juegos</span>
+              <span>{t.gamesLabel}</span>
             </Link>
             <button className="cm-btn cm-btn-secondary" type="button" onClick={reset}>
               <ArrowClockwise />
-              Reiniciar
+              {t.restart}
             </button>
           </nav>
         </header>
 
         <section className="cm-hero">
           <div>
-            <span>{bootstrap.fallbackMode ? "Datos locales de respaldo" : "Cache OverCutRacing"}</span>
+            <span>{bootstrap.fallbackMode ? t.dataFallback : t.dataCache}</span>
             <h2>
               {phase === "setup"
-                ? "Crea un piloto y decide como empieza su epoca"
+                ? t.heroSetup
                 : profile
-                ? `${profile.name} · ${profile.status} · Temporada ${profile.seasons + 1}${displaySeasonYear ? ` · ${displaySeasonYear}` : ""}`
-                : "Trayectoria F1"}
+                ? t.heroProfile(profile.name, statusLabel(profile.status), profile.seasons + 1, displaySeasonYear)
+                : t.heroFallbackTitle}
             </h2>
           </div>
           {profile && (
             <div className="cm-hero-profile">
               <HelmetIcon color={profile.helmetColor} size={42} />
-              <span>EDAD {profile.age}</span>
-              <span>REP {profile.reputation}</span>
-              <b>RTG {profile.rating}</b>
+              <span>{t.heroAge(profile.age)}</span>
+              <span>{t.heroRep(profile.reputation)}</span>
+              <b>{t.heroRtg(profile.rating)}</b>
             </div>
           )}
         </section>
@@ -1631,6 +1694,8 @@ const CareerMode = () => {
               lang={lang}
               simulationSpeed={simulationSpeed}
               onSpeedChange={setSimulationSpeed}
+              paused={simulationPaused}
+              onTogglePause={() => setSimulationPaused((value) => !value)}
               panelRef={raceLivePanelRef}
             />
           )}

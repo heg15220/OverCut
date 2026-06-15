@@ -771,13 +771,22 @@
 
 .cm-sim-controls {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.6fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1fr) minmax(0, 1.5fr);
   gap: 8px;
   margin: -4px 0 16px;
   padding: 8px;
   background: rgba(10, 45, 82, 0.06);
   border: 1px solid var(--cm-line);
   border-radius: 8px;
+}
+
+.cm-sim-controls .cm-sim-pause {
+  gap: 7px;
+  font-size: 16px;
+}
+
+.cm-sim-controls .cm-sim-pause svg {
+  font-size: 18px;
 }
 
 .cm-sim-controls button {
@@ -1116,6 +1125,10 @@
   line-height: 1;
 }
 
+.cm-lap-feed-wrap {
+  position: relative;
+}
+
 .cm-lap-feed {
   display: grid;
   gap: 8px;
@@ -1130,6 +1143,35 @@
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-gutter: stable;
+}
+
+/* Floating "back to live" control: appears over the bottom of the feed once the
+   reader has scrolled up (or hovered to pause), and jumps back to the latest
+   event when clicked. */
+.cm-feed-live-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  color: white;
+  background: var(--cm-blue);
+  border: 1px solid var(--cm-blue);
+  border-radius: 999px;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(10, 45, 82, 0.3);
+  z-index: 4;
+}
+
+.cm-feed-live-btn:hover {
+  background: #0d3a66;
 }
 
 .cm-track-duel {
@@ -1840,6 +1882,7 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .cm-sim-controls .cm-sim-pause,
   .cm-sim-controls .cm-sim-skip {
     grid-column: 1 / -1;
   }
@@ -3759,6 +3802,7 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .cm-sim-controls .cm-sim-pause,
   .cm-sim-controls .cm-sim-skip {
     grid-column: 1 / -1;
   }
