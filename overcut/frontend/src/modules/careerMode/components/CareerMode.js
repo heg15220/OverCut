@@ -379,7 +379,7 @@ const SetupPanel = ({ draft, setDraft, onSubmit }) => {
         ))}
       </div>
       <div className="cm-driver-preview">
-        <HelmetIcon color={draft.helmetColor} size={76} />
+        <HelmetIcon color={draft.helmetColor} size={56} />
         <div>
           <span>Perfil inicial</span>
           <b>{draft.name.trim() || "Nuevo piloto"}</b>
@@ -394,8 +394,8 @@ const SetupPanel = ({ draft, setDraft, onSubmit }) => {
   );
 };
 
-const DicePanel = ({ phase, decadeRoll, yearRoll, onRollDecade, onRollYear }) => (
-  <section className="cm-panel cm-dice-panel">
+const DecadeChoicePanel = ({ decades, decadeRoll, rolling, manualOpen, onOpenManual, onChooseDecade, onRollDecade }) => (
+  <section className={`cm-panel cm-dice-panel cm-decade-choice${rolling ? " is-rolling" : ""}`}>
     <div className="cm-dice-visual" aria-hidden="true">
       <Dice5Fill />
       <span />
@@ -403,30 +403,74 @@ const DicePanel = ({ phase, decadeRoll, yearRoll, onRollDecade, onRollYear }) =>
     <div className="cm-panel-head">
       <Dice5Fill />
       <div>
-        <span>{phase === "decade" ? "Paso 2" : "Paso 3"}</span>
-        <h2>{phase === "decade" ? "Tira por decada" : "Tira por anio"}</h2>
+        <span>Paso 2</span>
+        <h2>Elige la decada</h2>
       </div>
     </div>
-    <div className="cm-roll-result">
-      <span>{phase === "decade" ? "Decada sorteada" : "Temporada exacta"}</span>
-      <b>{phase === "decade" ? decadeRoll?.label || "--" : yearRoll || "--"}</b>
-      <small>
-        {phase === "decade"
-          ? "La carrera empieza en una epoca aleatoria disponible en la cache."
-          : `Dentro de ${decadeRoll?.label || "la decada"}, se decide el calendario de debut.`}
-      </small>
+    <div className="cm-choice-stage">
+      <div className="cm-roll-result cm-roll-result-choice">
+        <span>Entrada al calendario</span>
+        <b>{decadeRoll?.label || (rolling ? "..." : "Decada")}</b>
+        <small>Escoge una epoca concreta o deja que el dado abra la primera puerta de tu trayectoria.</small>
+      </div>
+      <div className="cm-dice-options">
+        <button className="cm-choice-card" type="button" onClick={onOpenManual} aria-pressed={manualOpen}>
+          <span>Control</span>
+          <b>Escoger decada</b>
+          <small>Selecciona manualmente la etapa historica donde quieres debutar.</small>
+        </button>
+        <button className="cm-choice-card is-random" type="button" onClick={onRollDecade} disabled={rolling}>
+          <span>Azar</span>
+          <b>Tirar dado</b>
+          <small>El sistema sortea una decada disponible antes de tirar el anio.</small>
+        </button>
+      </div>
     </div>
-    {phase === "decade" ? (
-      <button className="cm-btn cm-btn-primary" type="button" onClick={onRollDecade}>
-        <Dice5Fill />
-        Tirar dado
-      </button>
-    ) : (
-      <button className="cm-btn cm-btn-primary" type="button" onClick={onRollYear}>
-        <Dice5Fill />
-        Decidir anio
-      </button>
+    {manualOpen && (
+      <div className="cm-decade-grid" aria-label="Decadas disponibles">
+        {decades.map((decade) => (
+          <button
+            key={decade.key || decade.label}
+            className={decadeRoll?.label === decade.label ? "is-selected" : ""}
+            type="button"
+            onClick={() => onChooseDecade(decade)}
+          >
+            <span>{decade.from}-{decade.to}</span>
+            <b>{decade.label}</b>
+          </button>
+        ))}
+      </div>
     )}
+  </section>
+);
+
+const DicePanel = ({ decadeRoll, yearRoll, onRollYear, rolling }) => (
+  <section className={`cm-panel cm-dice-panel cm-year-dice${rolling ? " is-rolling" : ""}`}>
+    <div className="cm-dice-visual" aria-hidden="true">
+      <Dice5Fill />
+      <span />
+    </div>
+    <div className="cm-panel-head">
+      <Dice5Fill />
+      <div>
+        <span>Paso 3</span>
+        <h2>Tira por anio</h2>
+      </div>
+    </div>
+    <div className="cm-roll-track" aria-hidden="true">
+      <span>{decadeRoll?.from || "--"}</span>
+      <i />
+      <span>{decadeRoll?.to || "--"}</span>
+    </div>
+    <div className="cm-roll-result">
+      <span>Temporada exacta</span>
+      <b>{yearRoll || (rolling ? "..." : "--")}</b>
+      <small>Dentro de {decadeRoll?.label || "la decada"}, el dado decide el calendario de debut.</small>
+    </div>
+    <button className="cm-btn cm-btn-primary" type="button" onClick={onRollYear} disabled={rolling || !decadeRoll}>
+      <Dice5Fill />
+      Decidir anio
+    </button>
   </section>
 );
 
@@ -499,6 +543,121 @@ const ContractSelection = ({ contracts, year, profile, onSelect }) => (
   </section>
 );
 
+const ContractSigning = ({ contract, profile, year, mode, status, onSign, onContinue, onCancel }) => {
+  if (!contract) return null;
+  const isPrecontract = mode === "precontract";
+  const linked = status === "linked";
+  const teammate = contract.team.drivers?.find((driver) => !driver.isPlayer);
+  return (
+    <section
+      className={`cm-panel cm-contract-signing${status === "signing" ? " is-signing" : ""}${linked ? " is-linked" : ""}`}
+      style={{ "--team-color": normalizeColor(contract.team.color, "#0f4c81") }}
+    >
+      <div className="cm-panel-head">
+        <BriefcaseFill />
+        <div>
+          <span>{isPrecontract ? `Precontrato ${contract.targetYear || year}` : `Contrato ${year}`}</span>
+          <h2>{linked ? "Piloto vinculado" : "Firma del contrato"}</h2>
+        </div>
+      </div>
+      <div className="cm-signing-layout">
+        <section className="cm-contract-document">
+          <span className="cm-contract-tier">{isPrecontract ? "precontrato" : contract.objectives.tier}</span>
+          <div className="cm-contract-party">
+            <div>
+              <small>Piloto</small>
+              <b>{profile.name}</b>
+            </div>
+            <span className="cm-contract-link" aria-hidden="true" />
+            <div>
+              <small>Escuderia</small>
+              <b>{contract.team.name}</b>
+            </div>
+          </div>
+          <p>{contract.promise}</p>
+          {contract.marketReason && <small className="cm-market-reason">{contract.marketReason}</small>}
+          <dl>
+            <div>
+              <dt>Rating coche</dt>
+              <dd>{contract.team.rating}</dd>
+            </div>
+            <div>
+              <dt>Salario</dt>
+              <dd>{contract.salary}</dd>
+            </div>
+            <div>
+              <dt>Companero</dt>
+              <dd>{teammate?.name || "Por confirmar"}</dd>
+            </div>
+            <div>
+              <dt>Rating companero</dt>
+              <dd>{Number.isFinite(teammate?.rating) ? teammate.rating : "--"}</dd>
+            </div>
+            <div>
+              <dt>Puntos objetivo</dt>
+              <dd>{contract.objectives.points}</dd>
+            </div>
+            <div>
+              <dt>Constructores</dt>
+              <dd>Top {contract.objectives.constructorPosition}</dd>
+            </div>
+            <div>
+              <dt>Reputacion</dt>
+              <dd>+{contract.objectives.reputationBonus}</dd>
+            </div>
+            <div>
+              <dt>Vigencia</dt>
+              <dd>{isPrecontract ? contract.targetYear || year : year}</dd>
+            </div>
+          </dl>
+          <div className="cm-signature-zone">
+            <span>Zona de firma</span>
+            <div className="cm-signature-line">
+              <b className={status !== "idle" ? "is-written" : ""}>{profile.name}</b>
+              {status === "signing" && <i aria-hidden="true" />}
+            </div>
+          </div>
+        </section>
+        <aside className="cm-link-animation" aria-live="polite">
+          <div className="cm-link-driver">
+            <HelmetIcon color={profile.helmetColor} size={42} />
+            <b>{profile.name}</b>
+          </div>
+          <span className="cm-link-beam" />
+          <div className="cm-link-team">
+            <span className="cm-team-stripe" />
+            <b>{contract.team.name}</b>
+          </div>
+          <p>
+            {linked
+              ? `${profile.name} queda vinculado a ${contract.team.name}.`
+              : status === "signing"
+              ? "Firmando contrato..."
+              : "Revisa objetivos y confirma la firma."}
+          </p>
+        </aside>
+      </div>
+      <div className="cm-signing-actions">
+        {!linked && (
+          <button className="cm-btn cm-btn-secondary" type="button" onClick={onCancel} disabled={status === "signing"}>
+            Volver
+          </button>
+        )}
+        {status === "idle" && (
+          <button className="cm-btn cm-btn-primary" type="button" onClick={onSign}>
+            Firmar contrato
+          </button>
+        )}
+        {linked && (
+          <button className="cm-btn cm-btn-primary" type="button" onClick={onContinue}>
+            {isPrecontract ? "Volver al paddock" : "Entrar al equipo"}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+};
+
 const StandingsTable = ({ title, rows, playerOnly = false }) => {
   const visibleRows = playerOnly ? rows : rows.slice(0, 10);
   const playerBelow =
@@ -549,9 +708,10 @@ const StandingsTable = ({ title, rows, playerOnly = false }) => {
   );
 };
 
-const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, lang, simulationSpeed, onSpeedChange }) => {
+const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, lang, simulationSpeed, onSpeedChange, panelRef }) => {
   const player = raceResult.playerResult;
   const feedRef = useRef(null);
+  const [feedScrollable, setFeedScrollable] = useState(false);
   const eventText = (event) => (lang === "en" && event.textEn ? event.textEn : event.text);
   const isComplete = visibleEvents.length >= raceResult.events.length;
   const livePlayerPosition =
@@ -581,13 +741,23 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
   const fieldSize = raceResult.results?.length || 22;
 
   useEffect(() => {
-    if (!feedRef.current) return;
-    feedRef.current.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
+    const feed = feedRef.current;
+    if (!feed) return undefined;
+    const syncFeed = () => {
+      setFeedScrollable(feed.scrollHeight > feed.clientHeight + 1);
+      feed.scrollTo({ top: feed.scrollHeight, behavior: "smooth" });
+    };
+    const frame = window.requestAnimationFrame(syncFeed);
+    window.addEventListener("resize", syncFeed);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", syncFeed);
+    };
   }, [visibleEvents.length]);
 
   return (
     <div className="cm-race-live-layout">
-      <section className="cm-panel cm-race-live">
+      <section className="cm-panel cm-race-live" ref={panelRef}>
       <div className="cm-panel-head">
         <FlagFill />
         <div>
@@ -656,7 +826,7 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
         {stat("Degradacion", `${Math.round(raceResult.conditions.degradation * 100)}%`)}
         {stat("Estado de pista", trackStatusLabel)}
       </div>
-      <ol className="cm-lap-feed" ref={feedRef}>
+      <ol className={`cm-lap-feed${feedScrollable ? " is-scrollable" : ""}`} ref={feedRef}>
         {visibleEvents.map((event, index) => (
           <li key={`${event.lap}-${index}`} className={`cm-event-${event.type}${event.important ? " is-important" : ""}`}>
             <b>V{event.lap}</b>
@@ -796,7 +966,7 @@ const SeasonDashboard = ({
       <aside className="cm-season-side">
         <section className="cm-panel cm-profile-card">
           <div className="cm-driver-preview">
-            <HelmetIcon color={profile.helmetColor} size={68} />
+            <HelmetIcon color={profile.helmetColor} size={50} />
             <div>
               <span>{profile.status}</span>
               <b>{profile.name}</b>
@@ -816,11 +986,6 @@ const SeasonDashboard = ({
             Retirarse
           </button>
         </section>
-        {teammateBattle && (
-          <section className="cm-panel cm-teammate-panel">
-            <TeammateBattle battle={teammateBattle} />
-          </section>
-        )}
         <section className="cm-panel cm-calendar">
           <h3>Calendario {season.year}</h3>
           <ol>
@@ -855,6 +1020,11 @@ const SeasonDashboard = ({
           <FlagFill />
           Simular carrera
         </button>
+        {teammateBattle && (
+          <section className="cm-teammate-panel">
+            <TeammateBattle battle={teammateBattle} />
+          </section>
+        )}
       </section>
       <aside className="cm-season-standings">
         <StandingsTable title="Pilotos" rows={season.driverStandings} />
@@ -1028,6 +1198,14 @@ const CareerMode = () => {
   const [preContract, setPreContract] = useState(null);
   const [exploringMarket, setExploringMarket] = useState(false);
   const [summary, setSummary] = useState(null);
+  const [contractToSign, setContractToSign] = useState(null);
+  const [contractSigningMode, setContractSigningMode] = useState("contract");
+  const [contractSigningStatus, setContractSigningStatus] = useState("idle");
+  const [manualDecadeOpen, setManualDecadeOpen] = useState(false);
+  const [rollingTarget, setRollingTarget] = useState(null);
+  const raceLivePanelRef = useRef(null);
+  const signingTimerRef = useRef(null);
+  const rollTimerRef = useRef(null);
   const lang = navigator.language.startsWith("en") ? "en" : "es";
 
   useEffect(() => {
@@ -1043,6 +1221,22 @@ const CareerMode = () => {
     }, delay);
     return () => window.clearTimeout(timer);
   }, [phase, raceResult, simulationSpeed, visibleEventCount]);
+
+  useEffect(() => {
+    if (phase !== "race-live") return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      raceLivePanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [phase, raceResult]);
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(signingTimerRef.current);
+      window.clearTimeout(rollTimerRef.current);
+    },
+    []
+  );
 
   useEffect(() => {
     window.render_game_to_text = () =>
@@ -1139,38 +1333,98 @@ const CareerMode = () => {
     setPreContract(null);
     setExploringMarket(false);
     setSummary(null);
+    setContractToSign(null);
+    setContractSigningMode("contract");
+    setContractSigningStatus("idle");
+    setManualDecadeOpen(false);
+    setRollingTarget(null);
+    window.clearTimeout(signingTimerRef.current);
+    window.clearTimeout(rollTimerRef.current);
   };
 
   const startProfile = () => {
     const nextProfile = { ...INITIAL_PROFILE, name: draft.name.trim(), helmetColor: draft.helmetColor };
     setProfile(nextProfile);
-    setPhase("decade");
+    setDecadeRoll(null);
+    setYearRoll(null);
+    setManualDecadeOpen(false);
+    setRollingTarget(null);
+    setPhase("decade-choice");
+  };
+
+  const chooseDecade = (decade) => {
+    if (!decade) return;
+    window.clearTimeout(rollTimerRef.current);
+    setRollingTarget("decade");
+    setDecadeRoll(decade);
+    setYearRoll(null);
+    rollTimerRef.current = window.setTimeout(() => {
+      setRollingTarget(null);
+      setPhase("year");
+    }, 520);
   };
 
   const rollDecade = () => {
     const decades = playableDecades(bootstrap);
     const picked = decades[Math.floor(Math.random() * decades.length)] || bootstrap.decades?.[0];
-    setDecadeRoll(picked);
-    setPhase("year");
+    chooseDecade(picked);
   };
 
   const rollYear = () => {
     const year = randomYearInDecade(bootstrap, decadeRoll);
+    window.clearTimeout(rollTimerRef.current);
+    setRollingTarget("year");
     setYearRoll(year);
-    const nextContracts = generateContracts({ bootstrap, year, playerProfile: profile });
-    setContracts(nextContracts);
-    setPhase("contracts");
+    rollTimerRef.current = window.setTimeout(() => {
+      const nextContracts = generateContracts({ bootstrap, year, playerProfile: profile });
+      setContracts(nextContracts);
+      setRollingTarget(null);
+      setPhase("contracts");
+    }, 760);
   };
 
-  const selectContract = (contract) => {
-    const nextSeason = createCareerSeason({ bootstrap, profile, year: yearRoll, contract });
+  const beginContractSigning = (contract, mode = "contract") => {
+    setContractToSign(contract);
+    setContractSigningMode(mode);
+    setContractSigningStatus("idle");
+    setPhase("contract-signing");
+  };
+
+  const signContractDocument = () => {
+    window.clearTimeout(signingTimerRef.current);
+    setContractSigningStatus("signing");
+    signingTimerRef.current = window.setTimeout(() => setContractSigningStatus("linked"), 1450);
+  };
+
+  const cancelContractSigning = () => {
+    window.clearTimeout(signingTimerRef.current);
+    setContractToSign(null);
+    setContractSigningStatus("idle");
+    setPhase(contractSigningMode === "precontract" ? "silly-season" : evaluation ? "season-review" : "contracts");
+  };
+
+  const applySignedContract = () => {
+    if (!contractToSign) return;
+    window.clearTimeout(signingTimerRef.current);
+    if (contractSigningMode === "precontract") {
+      setPreContract(contractToSign);
+      setSillySeasonMarket(null);
+      setContractToSign(null);
+      setContractSigningStatus("idle");
+      setPhase("season");
+      return;
+    }
+    const nextSeason = createCareerSeason({ bootstrap, profile, year: yearRoll, contract: contractToSign });
     setSeason(nextSeason);
     setCurrentRaceIndex(0);
+    setEvaluation(null);
     setRaceResult(null);
     setRaceDevelopment(null);
     setSillySeasonMarket(null);
     setPreContract(null);
     setExploringMarket(false);
+    setContractToSign(null);
+    setContractSigningStatus("idle");
     setPhase("season");
   };
 
@@ -1247,25 +1501,6 @@ const CareerMode = () => {
     }
   };
 
-  const signNextContract = (contract) => {
-    const nextSeason = createCareerSeason({ bootstrap, profile, year: yearRoll, contract });
-    setSeason(nextSeason);
-    setCurrentRaceIndex(0);
-    setEvaluation(null);
-    setSillySeasonMarket(null);
-    setPreContract(null);
-    setExploringMarket(false);
-    setRaceResult(null);
-    setRaceDevelopment(null);
-    setPhase("season");
-  };
-
-  const signPreContract = (contract) => {
-    setPreContract(contract);
-    setSillySeasonMarket(null);
-    setPhase("season");
-  };
-
   const passPreContracts = () => {
     setSillySeasonMarket(null);
     setPhase("season");
@@ -1285,15 +1520,19 @@ const CareerMode = () => {
     () => (raceResult ? raceResult.events.slice(0, visibleEventCount) : []),
     [raceResult, visibleEventCount]
   );
+  const availableDecades = useMemo(() => playableDecades(bootstrap), [bootstrap]);
   const displaySeasonYear = season?.year || yearRoll;
 
   return (
     <main className={`career-mode-page cm-phase-${phase}`}>
       <section className="cm-shell">
         <header className="cm-header">
-          <div>
-            <span>OverCut Career</span>
-            <h1>Modo trayectoria</h1>
+          <div className="cm-brand-block">
+            <img className="cm-brand-mark" src="/LogoOverCut.png" alt="OverCut" />
+            <div>
+              <span>OverCut Career</span>
+              <h1>Modo trayectoria</h1>
+            </div>
           </div>
           <nav className="cm-actions">
             <Link to="/minigames" className="cm-home-link" aria-label="Volver a minijuegos">
@@ -1312,7 +1551,7 @@ const CareerMode = () => {
             <span>{bootstrap.fallbackMode ? "Datos locales de respaldo" : "Cache OverCutRacing"}</span>
             <h2>
               {phase === "setup"
-                ? "Crea un piloto y deja que el dado elija su epoca"
+                ? "Crea un piloto y decide como empieza su epoca"
                 : profile
                 ? `${profile.name} · ${profile.status} · Temporada ${profile.seasons + 1}${displaySeasonYear ? ` · ${displaySeasonYear}` : ""}`
                 : "Trayectoria F1"}
@@ -1330,14 +1569,39 @@ const CareerMode = () => {
 
         <section className="cm-main">
           {phase === "setup" && <SetupPanel draft={draft} setDraft={setDraft} onSubmit={startProfile} />}
-          {phase === "decade" && (
-            <DicePanel phase="decade" decadeRoll={decadeRoll} yearRoll={yearRoll} onRollDecade={rollDecade} />
+          {phase === "decade-choice" && (
+            <DecadeChoicePanel
+              decades={availableDecades}
+              decadeRoll={decadeRoll}
+              rolling={rollingTarget === "decade"}
+              manualOpen={manualDecadeOpen}
+              onOpenManual={() => setManualDecadeOpen((open) => !open)}
+              onChooseDecade={chooseDecade}
+              onRollDecade={rollDecade}
+            />
           )}
           {phase === "year" && (
-            <DicePanel phase="year" decadeRoll={decadeRoll} yearRoll={yearRoll} onRollYear={rollYear} />
+            <DicePanel
+              decadeRoll={decadeRoll}
+              yearRoll={yearRoll}
+              onRollYear={rollYear}
+              rolling={rollingTarget === "year"}
+            />
           )}
           {phase === "contracts" && (
-            <ContractSelection contracts={contracts} year={yearRoll} profile={profile} onSelect={selectContract} />
+            <ContractSelection contracts={contracts} year={yearRoll} profile={profile} onSelect={(contract) => beginContractSigning(contract, "contract")} />
+          )}
+          {phase === "contract-signing" && contractToSign && (
+            <ContractSigning
+              contract={contractToSign}
+              profile={profile}
+              year={yearRoll}
+              mode={contractSigningMode}
+              status={contractSigningStatus}
+              onSign={signContractDocument}
+              onContinue={applySignedContract}
+              onCancel={cancelContractSigning}
+            />
           )}
           {phase === "season" && season && (
             <SeasonDashboard
@@ -1354,7 +1618,7 @@ const CareerMode = () => {
           {phase === "silly-season" && sillySeasonMarket && (
             <SillySeasonPanel
               market={sillySeasonMarket}
-              onSign={signPreContract}
+              onSign={(contract) => beginContractSigning(contract, "precontract")}
               onPass={passPreContracts}
             />
           )}
@@ -1367,6 +1631,7 @@ const CareerMode = () => {
               lang={lang}
               simulationSpeed={simulationSpeed}
               onSpeedChange={setSimulationSpeed}
+              panelRef={raceLivePanelRef}
             />
           )}
           {phase === "race-result" && raceResult && (
@@ -1387,13 +1652,14 @@ const CareerMode = () => {
               contracts={contracts}
               preContract={preContract}
               exploringMarket={exploringMarket}
-              onHonorPreContract={signNextContract}
+              onHonorPreContract={(contract) => beginContractSigning(contract, "contract")}
               onExploreMarket={exploreFinalMarket}
-              onContract={signNextContract}
+              onContract={(contract) => beginContractSigning(contract, "contract")}
               onRetire={retire}
             />
           )}
           {phase === "retired" && summary && <Retirement summary={summary} onRestart={reset} />}
+          <div className="cm-ad-bottom-safe-space" aria-hidden="true" />
         </section>
       </section>
     </main>

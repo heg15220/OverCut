@@ -88,9 +88,17 @@ export const analyzeRaceXp = (raceResult, season, profile) => {
   const fieldSize = raceResult.results?.length || pr.position || 1;
   const grid = pr.gridPosition ?? raceResult.startingPosition ?? pr.position;
   const expected = expectedFinishFromCar(raceResult, season);
+  const playerTeam = (season?.grid || []).find((team) => team.name === pr.team);
+  const teamRating = Number.isFinite(playerTeam?.rating) ? playerTeam.rating : null;
   const actual = finished ? pr.position : fieldSize;
   const delta = expected - actual; // > 0 means the driver beat the car's potential
   const resultFactor = clamp(1 + delta * 0.12, 0.4, 1.8);
+  const lowCarPodiumBonus =
+    finished && pr.position <= 3 && teamRating != null && teamRating < 70
+      ? 1.75
+      : finished && pr.position <= 3 && teamRating != null && teamRating < 76
+      ? 1.4
+      : 1;
 
   const positionsGained = finished ? Math.max(0, grid - pr.position) : 0;
   const degradation = raceResult.conditions?.degradation ?? 0;
@@ -113,11 +121,12 @@ export const analyzeRaceXp = (raceResult, season, profile) => {
   const awarenessRaw = finished ? 50 + (overperformedWet ? wetLevel * 20 : 0) : 0;
 
   return {
-    pace: paceRaw * resultFactor,
-    racecraft: racecraftRaw * resultFactor,
-    awareness: awarenessRaw * resultFactor,
-    experience,
+    pace: paceRaw * resultFactor * lowCarPodiumBonus,
+    racecraft: racecraftRaw * resultFactor * lowCarPodiumBonus,
+    awareness: awarenessRaw * resultFactor * lowCarPodiumBonus,
+    experience: experience * lowCarPodiumBonus,
     resultFactor,
+    lowCarPodiumBonus,
     expected,
     actual,
   };

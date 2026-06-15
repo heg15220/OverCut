@@ -3,6 +3,8 @@ import {
   prepareCareerBootstrap,
   generateContracts,
   buildContractObjectives,
+  realTeamsForYear,
+  maxOfferRatingForProfile,
 } from "./careerModeEngine";
 
 const MODERN = { years: "2010-2018", points: [25, 18, 15, 12, 10, 8, 6, 4, 2, 1], fastestLap: 0 };
@@ -44,6 +46,67 @@ describe("buildContractObjectives is realistic for the era and the team", () => 
     expect(back.constructorPosition).toBeGreaterThanOrEqual(7);
     expect(back.constructorPosition).toBeLessThanOrEqual(10);
   });
+
+  test("real constructor points set a lead-driver target, not the firing minimum", () => {
+    const objective = buildContractObjectives({
+      team: { ...midTeam, realConstructorPoints: 100, realConstructorPosition: 5, scaledRealConstructorPosition: 5 },
+      field: FIELD,
+      scoring: MODERN,
+      raceCount: 20,
+    });
+
+    expect(objective.points).toBe(44);
+    expect(objective.minimumPoints).toBe(19);
+    expect(objective.minimumPoints).toBeLessThan(objective.points);
+    expect(objective.objectiveSource).toBe("realConstructorPoints");
+  });
+
+  test("zero-point real teams still get a small target instead of a free season", () => {
+    const objective = buildContractObjectives({
+      team: { ...backTeam, realConstructorPoints: 0, realConstructorPosition: 10, scaledRealConstructorPosition: 10 },
+      field: FIELD,
+      scoring: MODERN,
+      raceCount: 20,
+    });
+
+    expect(objective.points).toBeGreaterThanOrEqual(1);
+    expect(objective.points).toBeLessThanOrEqual(4);
+    expect(objective.minimumPoints).toBeLessThanOrEqual(objective.points);
+  });
+});
+
+describe("real-season competitiveness feeds contracts", () => {
+  const bootstrap = prepareCareerBootstrap({
+    decades: [{ key: "2010s", label: "2010s", from: 2010, to: 2019 }],
+    seasonYears: [2010],
+    teamsByDecade: {},
+    driversByDecade: {},
+    racesByYear: { "2010": Array.from({ length: 20 }, (_, index) => ({ round: index + 1, name: `Race ${index + 1}` })) },
+    constructorStandingsByYear: {
+      "2010": [
+        { team: "Fast", position: 1, points: 500 },
+        { team: "Mid", position: 5, points: 80 },
+        { team: "Slow", position: 10, points: 0 },
+      ],
+    },
+    lineupsByYear: {
+      "2010": [
+        { id: "fast", team: "Fast", rating: 58, races: 20, drivers: [{ name: "A", rating: 80, races: 20 }] },
+        { id: "mid", team: "Mid", rating: 90, races: 20, drivers: [{ name: "B", rating: 78, races: 20 }] },
+        { id: "slow", team: "Slow", rating: 90, races: 20, drivers: [{ name: "C", rating: 72, races: 20 }] },
+      ],
+    },
+  });
+
+  test("season rating follows real constructor performance more than historical rating", () => {
+    const teams = realTeamsForYear(bootstrap, 2010);
+    const fast = teams.find((team) => team.name === "Fast");
+    const slow = teams.find((team) => team.name === "Slow");
+
+    expect(fast.rating).toBeGreaterThan(slow.rating);
+    expect(fast.historicalRating).toBeLessThan(slow.historicalRating);
+    expect(slow.scaledRealConstructorPosition).toBe(10);
+  });
 });
 
 describe("generated contracts stay within realistic bounds across decades", () => {
@@ -83,5 +146,28 @@ describe("generated contracts stay within realistic bounds across decades", () =
       }
       expect(orderingBreaks).toEqual([]);
     });
+  });
+
+  test("drivers below 75 rating cannot receive offers above 78-rated teams", () => {
+    const bootstrap = prepareCareerBootstrap({
+      decades: [{ key: "2010s", label: "2010s", from: 2010, to: 2019 }],
+      seasonYears: [2010],
+      teamsByDecade: {
+        "2010s": [
+          { name: "Backmarker", rating: 66, firstYear: 2010, lastYear: 2010, decade: "2010s" },
+          { name: "Lower Mid", rating: 74, firstYear: 2010, lastYear: 2010, decade: "2010s" },
+          { name: "Upper Mid", rating: 78, firstYear: 2010, lastYear: 2010, decade: "2010s" },
+          { name: "Top Team", rating: 91, firstYear: 2010, lastYear: 2010, decade: "2010s" },
+        ],
+      },
+      driversByDecade: { "2010s": [] },
+      racesByYear: { "2010": [{ round: 1, name: "Race A" }] },
+    });
+    const lowRatedProfile = { ...profile, rating: 74, overall: 74, reputation: 95, status: "estrella" };
+    const contracts = generateContracts({ bootstrap, year: 2010, playerProfile: lowRatedProfile });
+
+    expect(maxOfferRatingForProfile(lowRatedProfile)).toBe(78);
+    expect(contracts.length).toBeGreaterThan(0);
+    expect(contracts.every((contract) => contract.team.rating <= 78)).toBe(true);
   });
 });

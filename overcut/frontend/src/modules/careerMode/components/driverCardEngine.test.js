@@ -8,6 +8,7 @@ import {
   sillySeasonMarketWindow,
 } from "./careerModeEngine";
 import { createDriverCard, computeOverall } from "./driverCard";
+import { analyzeRaceXp } from "./driverCard";
 
 const cardProfile = (overrides = {}) => {
   const card = { ...createDriverCard(), ...(overrides.card || {}) };
@@ -98,7 +99,7 @@ describe("simulateCareerRace with a card profile", () => {
 });
 
 describe("generateContracts real constructor objectives", () => {
-  test("uses half of the real constructor points as the driver minimum when available", () => {
+  test("uses real constructor points as a lead-driver objective with a softer minimum", () => {
     const bootstrap = prepareCareerBootstrap({
       decades: [{ key: "2010s", label: "2010s", from: 2010, to: 2019 }],
       seasonYears: [2010],
@@ -136,8 +137,8 @@ describe("generateContracts real constructor objectives", () => {
     const profile = cardProfile({ reputation: 76, status: "promesa" });
     const contracts = generateContracts({ bootstrap, year: 2010, playerProfile: profile });
     const williams = contracts.find((item) => item.team.name === "Williams");
-    expect(williams.objectives.minimumPoints).toBe(35);
-    expect(williams.objectives.points).toBe(35);
+    expect(williams.objectives.points).toBe(33);
+    expect(williams.objectives.minimumPoints).toBe(14);
     expect(williams.objectives.constructorPosition).toBe(6);
     expect(williams.objectives.objectiveSource).toBe("realConstructorPoints");
   });
@@ -224,5 +225,45 @@ describe("sillySeasonMarketWindow", () => {
     expect(market.offers.length).toBeGreaterThan(0);
     expect(market.offers[0].kind).toBe("precontract");
     expect(market.offers[0].team.name).not.toBe("Williams");
+  });
+
+  test("does not offer teams above 78 rating to a standout driver below 75 rating", () => {
+    const profile = cardProfile({ name: "Low Rated Standout", reputation: 99, status: "estrella", rating: 74, overall: 74 });
+    const market = sillySeasonMarketWindow({ bootstrap, season: marketSeason(5), profile });
+    if (market) {
+      expect(market.offers.every((offer) => offer.team.rating <= 78)).toBe(true);
+    }
+  });
+});
+
+describe("race XP breakthroughs", () => {
+  const podiumResult = {
+    playerResult: {
+      team: "Backmarker",
+      status: "FIN",
+      position: 2,
+      gridPosition: 14,
+      fastestLap: false,
+    },
+    results: Array.from({ length: 20 }, (_, index) => ({
+      position: index + 1,
+      isPlayer: index === 1,
+    })),
+    conditions: { degradation: 0.5 },
+    wetLevel: 0,
+    teammate: { startingPosition: 16, finalPosition: 11 },
+  };
+
+  test("podium with a low-rating car heavily boosts post-race XP", () => {
+    const lowCarSeason = { grid: [{ name: "Backmarker", rating: 66 }] };
+    const midCarSeason = { grid: [{ name: "Backmarker", rating: 80 }] };
+    const profile = cardProfile();
+
+    const lowCarXp = analyzeRaceXp(podiumResult, lowCarSeason, profile);
+    const midCarXp = analyzeRaceXp(podiumResult, midCarSeason, profile);
+
+    expect(lowCarXp.lowCarPodiumBonus).toBe(1.75);
+    expect(lowCarXp.pace).toBeGreaterThan(midCarXp.pace * 1.5);
+    expect(lowCarXp.experience).toBeGreaterThan(midCarXp.experience);
   });
 });

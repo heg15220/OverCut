@@ -177,19 +177,49 @@ const constructorStandingForTeam = (bootstrap, year, teamName) => {
   return rows.find((row) => row?.team === teamName) || null;
 };
 
+const constructorStandingsForYear = (bootstrap, year) => {
+  const rows = bootstrap?.constructorStandingsByYear?.[String(year)];
+  return Array.isArray(rows) ? rows : [];
+};
+
+const scaledRealConstructorPosition = (position, fieldSize) => {
+  if (!Number.isFinite(position)) return null;
+  if (!Number.isFinite(fieldSize) || fieldSize <= 1) return clamp(position, 1, GRID_TEAMS - 1);
+  return clamp(Math.round(((position - 1) / (fieldSize - 1)) * (GRID_TEAMS - 1)) + 1, 1, GRID_TEAMS - 1);
+};
+
+const seasonRatingFromStanding = (standing, standings, fallbackRating = 58) => {
+  if (!standing || !Number.isFinite(standing.position)) return fallbackRating;
+  const fieldSize = Math.max(2, standings.length || GRID_TEAMS);
+  const maxPoints = Math.max(...standings.map((row) => (Number.isFinite(row.points) ? row.points : 0)), 0);
+  const positionScore = 1 - (standing.position - 1) / (fieldSize - 1);
+  const pointsScore = maxPoints > 0 && Number.isFinite(standing.points) ? Math.sqrt(Math.max(0, standing.points) / maxPoints) : 0;
+  const seasonScore = clamp(positionScore * 0.72 + pointsScore * 0.28, 0, 1);
+  const seasonRating = 46 + seasonScore * 50;
+  return clamp(Math.round(seasonRating * 0.76 + fallbackRating * 0.24), 45, 97);
+};
+
 // Real grid for a season (team <-> drivers) sourced from the backend
 // `lineupsByYear` cache. Returns null when the data is unavailable (offline
 // fallback), so callers degrade to the rating-based grid.
 export const realTeamsForYear = (bootstrap, year) => {
   const list = bootstrap?.lineupsByYear?.[String(year)];
   if (!Array.isArray(list) || !list.length) return null;
+  const standings = constructorStandingsForYear(bootstrap, year);
   return list
     .map((entry) => {
       const standing = constructorStandingForTeam(bootstrap, year, entry.team);
+      const historicalRating = Number.isFinite(entry.rating) ? entry.rating : 58;
+      const standingPosition = Number.isFinite(entry.standingPosition)
+        ? entry.standingPosition
+        : Number.isFinite(standing?.position)
+        ? standing.position
+        : null;
       return {
         id: entry.id || entry.team,
         name: entry.team,
-        rating: Number.isFinite(entry.rating) ? entry.rating : 58,
+        rating: seasonRatingFromStanding(standing || entry, standings, historicalRating),
+        historicalRating,
         races: entry.races || 0,
         realConstructorPoints: Number.isFinite(entry.constructorPoints)
           ? entry.constructorPoints
@@ -198,11 +228,9 @@ export const realTeamsForYear = (bootstrap, year) => {
           : Number.isFinite(standing?.points)
           ? standing.points
           : null,
-        realConstructorPosition: Number.isFinite(entry.standingPosition)
-          ? entry.standingPosition
-          : Number.isFinite(standing?.position)
-          ? standing.position
-          : null,
+        realConstructorPosition: standingPosition,
+        realConstructorFieldSize: standings.length || null,
+        scaledRealConstructorPosition: scaledRealConstructorPosition(standingPosition, standings.length),
         drivers: (entry.drivers || [])
           .filter((driver) => driver?.name)
           .map((driver) => ({
@@ -300,29 +328,55 @@ const realConstructorPointsForTeam = (team) => {
   return Number.isFinite(points) ? points : null;
 };
 
+const realPointsDriverObjective = (team, playerStatus, fallbackEstimate) => {
+  const realConstructorPoints = realConstructorPointsForTeam(team);
+  if (realConstructorPoints == null) return null;
+  if (realConstructorPoints <= 0) return Math.max(1, Math.min(fallbackEstimate, 4));
+  const share = playerStatus === "estrella" ? 0.52 : playerStatus === "promesa" ? 0.48 : 0.44;
+  return Math.max(1, Math.round(realConstructorPoints * share));
+};
+
+export const teammateRatingDuelModifier = ({ entrant, player, teammate, playerRating }) => {
+  if (!entrant || !player || !teammate || entrant.team.name !== player.team.name) return 0;
+  const teammateRating = teammate.driver?.rating;
+  if (!Number.isFinite(playerRating) || !Number.isFinite(teammateRating)) return 0;
+  const gap = clamp(playerRating - teammateRating, -35, 35);
+  if (entrant.isPlayer) return gap;
+  if (entrant.id === teammate.id) return -gap;
+  return 0;
+};
+
+export const maxOfferRatingForProfile = (profile = {}) => {
+  const rating = Number.isFinite(profile.rating) ? profile.rating : profile.overall;
+  if (!Number.isFinite(rating)) return 84;
+  if (rating < 75) return 78;
+  if (rating < 82) return 86;
+  return profile.reputation > 75 ? 96 : 92;
+};
+
 export const buildContractObjectives = ({ team, field, scoring, raceCount, playerStatus = "rookie" }) => {
   const tier = teamTier(team.rating);
   const rank = expectedConstructorRank(team, field);
   const multiplier = playerStatus === "estrella" ? 1.2 : playerStatus === "promesa" ? 1.08 : 1;
   const realConstructorPoints = realConstructorPointsForTeam(team);
-  const realMinimum = realConstructorPoints != null ? Math.ceil(realConstructorPoints / 2) : null;
-  const basePoints =
-    realMinimum != null
-      ? realMinimum
-      : Math.max(1, Math.round(realisticSeasonPoints(rank, scoring, raceCount) * multiplier));
+  const estimatedPoints = Math.max(1, Math.round(realisticSeasonPoints(rank, scoring, raceCount) * multiplier));
+  const realObjective = realPointsDriverObjective(team, playerStatus, estimatedPoints);
+  const basePoints = realObjective != null ? realObjective : estimatedPoints;
   // Ask the team to land around its natural rank (a touch forward), capped so a
   // backmarker is asked to beat at least one rival rather than "reach the top".
-  const constructorPosition = clamp(team.realConstructorPosition || rank, 1, GRID_TEAMS - 1);
+  const constructorPosition = clamp(team.scaledRealConstructorPosition || team.realConstructorPosition || rank, 1, GRID_TEAMS - 1);
 
   return {
     points: basePoints,
     constructorPosition,
     reputationBonus: tier === "medio" ? 10 : tier === "bajo competitivo" ? 8 : 6,
-    minimumPoints: realMinimum != null ? realMinimum : Math.max(0, Math.floor(basePoints * 0.45)),
+    minimumPoints: Math.max(0, Math.floor(basePoints * 0.45)),
     tier,
     expectedRank: rank,
     realConstructorPoints,
-    objectiveSource: realMinimum != null ? "realConstructorPoints" : "estimated",
+    realConstructorPosition: team.realConstructorPosition || null,
+    realConstructorFieldSize: team.realConstructorFieldSize || null,
+    objectiveSource: realObjective != null ? "realConstructorPoints" : "estimated",
   };
 };
 
@@ -337,8 +391,9 @@ export const generateContracts = ({ bootstrap, year, playerProfile }) => {
   const field = [...fieldSource].sort((a, b) => b.rating - a.rating);
   const scoring = scoringForYear(year);
   const raceCount = racesForYear(bootstrap, year).length || 20;
+  const maxOfferRating = maxOfferRatingForProfile(playerProfile);
   const candidates = [...fieldSource]
-    .filter((team) => team.rating < (playerProfile.reputation > 75 ? 92 : 84))
+    .filter((team) => team.rating <= maxOfferRating)
     .sort((a, b) => a.rating - b.rating || a.name.localeCompare(b.name));
   const low = candidates.filter((team) => team.rating < 69);
   const lowerMid = candidates.filter((team) => team.rating >= 69 && team.rating < 76);
@@ -441,7 +496,10 @@ export const sillySeasonMarketWindow = ({ bootstrap, season, profile, alreadySig
   const field = [...fieldSource].sort((a, b) => b.rating - a.rating);
   const currentRating = season.contract.team.rating || 60;
   const playerPull = profile.reputation + profile.rating * 0.45 + signal.score * 12;
-  const ceiling = clamp(70 + playerPull * 0.36 + (signal.standout ? 8 : 0), currentRating + 3, 96);
+  const ceiling = Math.min(
+    maxOfferRatingForProfile(profile),
+    clamp(70 + playerPull * 0.36 + (signal.standout ? 8 : 0), currentRating + 3, 96)
+  );
   const floor = signal.standout ? currentRating - 4 : currentRating - 10;
   const candidates = field
     .filter((team) => team.name !== season.contract.team.name)
@@ -773,19 +831,63 @@ const buildSeasonDrivers = ({ bootstrap, year, teams, contract, profile, rng }) 
 
 const MAX_REAL_TEAMS = 13; // bounds the field for the long privateer tail of early seasons
 
-const realDriverEntry = (driver, teamName, year) => ({
-  name: driver.name,
-  rating: driver.rating,
-  helmetColor: HELMET_COLORS[hashString(`${driver.name}-${teamName}`) % HELMET_COLORS.length],
-  firstYear: year,
-  lastYear: year,
-});
+const driversForDecade = (bootstrap, year) => {
+  const decade = (bootstrap.decades || []).find((item) => year >= item.from && year <= item.to);
+  const decadeDrivers = decade ? bootstrap.driversByDecade?.[decade.key] : null;
+  if (Array.isArray(decadeDrivers) && decadeDrivers.length) return decadeDrivers;
+  const active = collectByYear(bootstrap.driversByDecade, year);
+  return active.length ? active : Object.values(bootstrap.driversByDecade || {}).flat();
+};
 
-// Build the historically real grid for a season: the actual teams and the
-// drivers who raced for them that year. The player takes one seat of the
-// contract team and keeps the real lead driver as team-mate; every other seat
-// stays real. Returns null when no real lineup exists for the year.
-const buildRealSeasonGrid = ({ bootstrap, year, contract, profile }) => {
+const marketDriversForYear = (bootstrap, year) => {
+  const byName = new Map();
+  const addDriver = (driver) => {
+    if (!driver?.name) return;
+    const key = driver.name.toLowerCase();
+    const current = byName.get(key);
+    if (!current || Number(driver.rating || 0) > Number(current.rating || 0)) {
+      byName.set(key, driver);
+    }
+  };
+
+  driversForDecade(bootstrap, year).forEach(addDriver);
+  (realTeamsForYear(bootstrap, year) || []).forEach((team) => {
+    (team.drivers || []).forEach(addDriver);
+  });
+
+  return Array.from(byName.values());
+};
+
+const minimumDriverRatingForTeam = (teamRating) => {
+  if (teamRating >= 90) return 82;
+  if (teamRating >= 84) return 78;
+  if (teamRating >= 78) return 72;
+  if (teamRating >= 70) return 64;
+  return 50;
+};
+
+const pickMarketDriver = ({ pool, used, team, rng, teammate = false }) => {
+  const target = team.rating + (teammate ? 1 : -1);
+  const strictMinimum = minimumDriverRatingForTeam(team.rating);
+  const available = pool.filter((driver) => !used.has(driver.name.toLowerCase()));
+  const ranked = (minimum) =>
+    available
+      .filter((driver) => driver.rating >= minimum)
+      .sort(
+        (a, b) =>
+          Math.abs(a.rating - target) - Math.abs(b.rating - target) ||
+          b.rating - a.rating ||
+          a.name.localeCompare(b.name)
+      );
+  const candidates = ranked(strictMinimum);
+  const relaxed = candidates.length ? candidates : ranked(Math.max(45, strictMinimum - 8));
+  const fallback = relaxed.length ? relaxed : available.sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
+  if (!fallback.length) return null;
+  const shortlist = fallback.slice(0, Math.min(4, fallback.length));
+  return pickRandom(shortlist, rng);
+};
+
+const chooseRealSeasonTeams = ({ bootstrap, year, contract }) => {
   const realTeams = realTeamsForYear(bootstrap, year);
   if (!realTeams) return null;
 
@@ -804,10 +906,66 @@ const buildRealSeasonGrid = ({ bootstrap, year, contract, profile }) => {
     chosen.push(team);
     used.add(key);
   });
-  // The contract team must be in the grid even if it never had a real lineup.
-  if (!contractTeam) {
-    chosen.unshift({ ...contract.team, drivers: [] });
-  }
+  if (!contractTeam) chosen.unshift({ ...contract.team, drivers: [] });
+  return chosen.slice(0, MAX_REAL_TEAMS);
+};
+
+const buildMarketSeasonGrid = ({ bootstrap, year, contract, profile, rng }) => {
+  const realTeams = chooseRealSeasonTeams({ bootstrap, year, contract });
+  const teams = realTeams || buildSeasonTeams({ bootstrap, year, contract, rng });
+  const pool = marketDriversForYear(bootstrap, year).sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
+  const used = new Set();
+  const player = {
+    id: "career-player",
+    name: profile.name,
+    rating: profile.rating,
+    helmetColor: profile.helmetColor,
+    isPlayer: true,
+    firstYear: year,
+    lastYear: year,
+    seasons: profile.seasons + 1,
+  };
+
+  return teams.map((team, index) => {
+    const color = teamColor(team, index);
+    const drivers = [];
+    if (team.name === contract.team.name) drivers.push(player);
+    while (drivers.length < 2) {
+      const picked = pickMarketDriver({ pool, used, team, rng, teammate: team.name === contract.team.name });
+      if (!picked) break;
+      used.add(picked.name.toLowerCase());
+      drivers.push({
+        ...picked,
+        helmetColor: HELMET_COLORS[hashString(`${picked.name}-${team.name}-${year}`) % HELMET_COLORS.length],
+      });
+    }
+    return {
+      id: team.id || team.name,
+      name: team.name,
+      rating: team.rating,
+      color,
+      drivers,
+    };
+  });
+};
+
+const realDriverEntry = (driver, teamName, year) => ({
+  name: driver.name,
+  rating: driver.rating,
+  helmetColor: HELMET_COLORS[hashString(`${driver.name}-${teamName}`) % HELMET_COLORS.length],
+  firstYear: year,
+  lastYear: year,
+});
+
+// Build the historically real grid for a season: the actual teams and the
+// drivers who raced for them that year. The player takes one seat of the
+// contract team and keeps the real lead driver as team-mate; every other seat
+// stays real. Returns null when no real lineup exists for the year.
+const buildRealSeasonGrid = ({ bootstrap, year, contract, profile }) => {
+  const chosen = chooseRealSeasonTeams({ bootstrap, year, contract });
+  if (!chosen) return null;
+
+  const contractName = contract.team.name;
 
   const player = {
     id: "career-player",
@@ -842,8 +1000,9 @@ const buildRealSeasonGrid = ({ bootstrap, year, contract, profile }) => {
 
 export const createCareerSeason = ({ bootstrap, profile, year, contract }) => {
   const rng = createRng(`${profile.name}|${year}|${contract.team.name}|season-${profile.seasons}`);
-  const grid =
-    buildRealSeasonGrid({ bootstrap, year, contract, profile }) ||
+  const grid = profile.seasons >= 1
+    ? buildMarketSeasonGrid({ bootstrap, year, contract, profile, rng })
+    : buildRealSeasonGrid({ bootstrap, year, contract, profile }) ||
     buildSeasonDrivers({
       bootstrap,
       year,
@@ -1402,6 +1561,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     player.driver = { ...player.driver, rating: inputs.rating };
     player.base = inputs.rating * 0.55 + player.team.rating * 0.45;
   }
+  const teammateEntrant = entrants.find((entrant) => !entrant.isPlayer && player && entrant.team.name === player.team.name);
   const profileTrack = raceProfile(race.name);
   const lapCount = lapCountForRace(race.name, rng);
   const plan = conditionPlan(profileTrack, lapCount, rng, season.year);
@@ -1426,14 +1586,23 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   plan.weatherSwitches.forEach((item) => eventLaps.add(item.lap));
 
   const qualifying = entrants
-    .map((entrant) => ({
-      ...entrant,
-      qualiScore:
-        entrant.base +
-        (rng() - 0.5) * 10 +
-        (profileTrack.street > 0.55 ? entrant.driver.rating * 0.035 : 0) +
-        (entrant.isPlayer ? (inputs.pace - inputs.rating) * 0.35 : 0),
-    }))
+    .map((entrant) => {
+      const teammateDuel = teammateRatingDuelModifier({
+        entrant,
+        player,
+        teammate: teammateEntrant,
+        playerRating: inputs.rating,
+      });
+      return {
+        ...entrant,
+        qualiScore:
+          entrant.base +
+          teammateDuel * 0.18 +
+          (rng() - 0.5) * 10 +
+          (profileTrack.street > 0.55 ? entrant.driver.rating * 0.035 : 0) +
+          (entrant.isPlayer ? (inputs.pace - inputs.rating) * 0.35 : 0),
+      };
+    })
     .sort((a, b) => b.qualiScore - a.qualiScore)
     .map((entry, index) => ({ ...entry, gridPosition: index + 1 }));
   const playerGrid = qualifying.find((entry) => entry.isPlayer)?.gridPosition || 20;
@@ -1783,6 +1952,12 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       // driver rating keeps its full weight.
       const adjustedTeamRating = levelledCarRating(entrant.team.rating, meanTeamRating, wetLevel);
       const wetBase = entrant.driver.rating * 0.55 + adjustedTeamRating * 0.45;
+      const teammateDuel = teammateRatingDuelModifier({
+        entrant,
+        player,
+        teammate: teammateEntrant,
+        playerRating: inputs.rating,
+      });
       // Reliability retirement was decided up front; a dynamic incident DNF takes
       // precedence and overrides the lap so the timeline stays single-sourced.
       const reliability = reliabilityDnf.get(entrant.id);
@@ -1806,6 +1981,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
         dnfKind,
         raceScore:
           wetBase +
+          teammateDuel * 0.32 +
           randomSwing +
           weatherSkill +
           (profileTrack.power - 0.5) * (adjustedTeamRating - 70) * 0.12 +
@@ -2201,7 +2377,7 @@ export const evaluateSeason = ({ season, profile }) => {
     constructorStanding,
     met,
     overDelivered,
-    fired: failed,
+    fired: failed && !battle?.beaten,
     reputationDelta,
     champion: playerStanding?.position === 1,
     titleFight: playerStanding?.position <= 3 || (playerStanding?.points || 0) >= (season.driverStandings[0]?.points || 0) * 0.72,

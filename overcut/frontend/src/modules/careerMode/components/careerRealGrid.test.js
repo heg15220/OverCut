@@ -19,7 +19,13 @@ const buildBootstrap = () =>
       ],
     },
     driversByDecade: {
-      "2010s": [{ name: "Generic Driver", rating: 70, firstYear: 2010, lastYear: 2010, decade: "2010s" }],
+      "2010s": [
+        { name: "Generic Driver", rating: 70, firstYear: 2010, lastYear: 2010, decade: "2010s" },
+        { name: "Decade Ace", rating: 86, firstYear: 2012, lastYear: 2012, decade: "2010s" },
+        { name: "Decade Star", rating: 83, firstYear: 2013, lastYear: 2013, decade: "2010s" },
+        { name: "Decade Mid", rating: 74, firstYear: 2014, lastYear: 2014, decade: "2010s" },
+        { name: "Decade Backmarker", rating: 61, firstYear: 2015, lastYear: 2015, decade: "2010s" },
+      ],
     },
     racesByYear: { "2010": [{ round: 1, name: "Race A" }, { round: 2, name: "Race B" }] },
     lineupsByYear: {
@@ -112,5 +118,20 @@ describe("real season grid from lineupsByYear", () => {
     // The player appears exactly once across the whole grid.
     const playerSeats = season.grid.flatMap((team) => team.drivers).filter((driver) => driver.isPlayer);
     expect(playerSeats).toHaveLength(1);
+  });
+
+  test("from the second career season, teams can sign decade-market drivers with rating logic", () => {
+    const contract = { id: "c", team: { name: "Williams", rating: 72, color: "#0090ff" }, objectives: {}, duration: 1 };
+    const experiencedProfile = { ...profile, seasons: 1 };
+    const season = createCareerSeason({ bootstrap, profile: experiencedProfile, year: 2010, contract });
+
+    const ferrari = season.grid.find((team) => team.name === "Ferrari");
+    const ferrariDrivers = ferrari.drivers.map((driver) => driver.name);
+    expect(ferrariDrivers).not.toEqual(["Felipe Massa", "Fernando Alonso"]);
+    expect(ferrari.drivers.every((driver) => driver.rating >= 82)).toBe(true);
+
+    const williams = season.grid.find((team) => team.name === "Williams");
+    expect(williams.drivers.some((driver) => driver.isPlayer)).toBe(true);
+    expect(williams.drivers.find((driver) => !driver.isPlayer)?.rating).toBeGreaterThanOrEqual(64);
   });
 });

@@ -5,6 +5,7 @@ import {
   completeRace,
   teammateBattleSummary,
   evaluateSeason,
+  teammateRatingDuelModifier,
 } from "./careerModeEngine";
 
 const profile = {
@@ -51,6 +52,48 @@ const seasonWith = (playerPoints, matePoints) => ({
   ],
 });
 
+describe("teammateRatingDuelModifier", () => {
+  const playerEntrant = {
+    id: "career-player",
+    isPlayer: true,
+    team: { name: "Williams" },
+    driver: { name: "Player", rating: 72 },
+  };
+  const teammateEntrant = {
+    id: "Mate-Williams",
+    isPlayer: false,
+    team: { name: "Williams" },
+    driver: { name: "Mate", rating: 82 },
+  };
+
+  test("makes the intra-team race easier or harder from the rating gap", () => {
+    expect(
+      teammateRatingDuelModifier({
+        entrant: playerEntrant,
+        player: playerEntrant,
+        teammate: teammateEntrant,
+        playerRating: 90,
+      })
+    ).toBe(8);
+    expect(
+      teammateRatingDuelModifier({
+        entrant: teammateEntrant,
+        player: playerEntrant,
+        teammate: teammateEntrant,
+        playerRating: 90,
+      })
+    ).toBe(-8);
+    expect(
+      teammateRatingDuelModifier({
+        entrant: playerEntrant,
+        player: playerEntrant,
+        teammate: teammateEntrant,
+        playerRating: 70,
+      })
+    ).toBe(-12);
+  });
+});
+
 describe("teammateBattleSummary", () => {
   test("counts race and quali head-to-head and the points tally", () => {
     const battle = teammateBattleSummary(seasonWith(24, 12), profile);
@@ -84,6 +127,19 @@ describe("evaluateSeason folds the team-mate duel into reputation/status", () =>
     expect(lost.teammateRepDelta).toBe(-6);
     // The duel moves reputation, and thus status, in the right direction.
     expect(won.reputationDelta).toBeGreaterThan(lost.reputationDelta);
+  });
+
+  test("beating the team-mate prevents being fired even if contract minimums fail", () => {
+    const season = {
+      ...seasonWith(6, 0),
+      constructorStandings: [{ name: "Williams", position: 10, points: 6 }],
+    };
+
+    const evaluation = evaluateSeason({ season, profile });
+
+    expect(evaluation.teammateBattle.beaten).toBe(true);
+    expect(evaluation.met).toBe(false);
+    expect(evaluation.fired).toBe(false);
   });
 });
 
