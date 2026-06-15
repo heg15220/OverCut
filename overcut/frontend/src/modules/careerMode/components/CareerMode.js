@@ -15,6 +15,8 @@ import {
   PlusCircleFill,
   SaveFill,
   TrophyFill,
+  VolumeMuteFill,
+  VolumeUpFill,
 } from "react-bootstrap-icons";
 import { config } from "../../../config/constants";
 import formulaCarLoadingUrl from "../../../assets/images/miniGames/FormulaCarLoading.png";
@@ -800,9 +802,77 @@ const StandingsTable = ({ title, rows, playerOnly = false, isDrivers = false }) 
 // auto-scroll keeps the latest event in view while the reader stays at the end.
 const FEED_BOTTOM_THRESHOLD = 24;
 
-const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, lang, simulationSpeed, onSpeedChange, paused, onTogglePause, panelRef }) => {
+const playRaceCue = (cue) => {
+  if (typeof window === "undefined") return;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  const context = window.__overcutRaceAudioContext || new AudioContext();
+  window.__overcutRaceAudioContext = context;
+  if (context.state === "suspended") {
+    context.resume().catch(() => undefined);
+  }
+
+  const now = context.currentTime;
+  const master = context.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(0.18, now + 0.015);
+  master.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+  master.connect(context.destination);
+
+  const patterns = {
+    overtake: [520, 660, 820],
+    safetycar: [390, 330, 390],
+    redflag: [180, 180, 140],
+    yellow: [440, 440],
+    green: [620, 780],
+    finish: [520, 660, 880, 1040],
+  };
+  const wave = cue === "redflag" || cue === "safetycar" ? "sawtooth" : "triangle";
+  (patterns[cue] || patterns.green).forEach((frequency, index) => {
+    const start = now + index * 0.105;
+    const osc = context.createOscillator();
+    const gain = context.createGain();
+    osc.type = wave;
+    osc.frequency.setValueAtTime(frequency, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(cue === "finish" ? 0.22 : 0.15, start + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.09);
+    osc.connect(gain);
+    gain.connect(master);
+    osc.start(start);
+    osc.stop(start + 0.11);
+  });
+};
+
+const raceCueForEvent = (event) => {
+  if (!event) return null;
+  if (event.type === "winner") return "finish";
+  if (event.type === "safetycar" || event.type === "redflag" || event.type === "yellow" || event.type === "green") {
+    return event.type;
+  }
+  if (Number.isFinite(event.playerOvertakeOrdinal)) {
+    return "overtake";
+  }
+  return null;
+};
+
+const RaceSimulation = ({
+  raceResult,
+  visibleEvents,
+  onFinish,
+  onSkipToResult,
+  lang,
+  simulationSpeed,
+  onSpeedChange,
+  paused,
+  onTogglePause,
+  audioMuted,
+  onToggleAudio,
+  panelRef,
+}) => {
   const player = raceResult.playerResult;
   const feedRef = useRef(null);
+  const lastSoundEventRef = useRef(0);
   const [feedScrollable, setFeedScrollable] = useState(false);
   // The feed follows the live narration only while the reader is at the bottom and
   // not hovering it. Hovering pauses the scroll so they can read at their own pace;
@@ -892,6 +962,18 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
     };
   }, [visibleEvents.length]);
 
+  useEffect(() => {
+    if (audioMuted || !visibleEvents.length) {
+      lastSoundEventRef.current = visibleEvents.length;
+      return;
+    }
+    if (visibleEvents.length <= lastSoundEventRef.current) return;
+    const event = visibleEvents[visibleEvents.length - 1];
+    const cue = raceCueForEvent(event);
+    lastSoundEventRef.current = visibleEvents.length;
+    if (cue) playRaceCue(cue);
+  }, [audioMuted, visibleEvents]);
+
   return (
     <div className="cm-race-live-layout">
       <section className="cm-panel cm-race-live" ref={panelRef}>
@@ -939,6 +1021,17 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
         </button>
         <button className="cm-sim-skip" type="button" onClick={onSkipToResult}>
           {t.simulateRaceSkip}
+        </button>
+        <button
+          className={`cm-sim-audio${audioMuted ? " is-muted" : ""}`}
+          type="button"
+          onClick={onToggleAudio}
+          aria-pressed={!audioMuted}
+          aria-label={audioMuted ? t.audioOn : t.audioOff}
+          title={audioMuted ? t.audioOn : t.audioOff}
+        >
+          {audioMuted ? <VolumeMuteFill /> : <VolumeUpFill />}
+          <span>{audioMuted ? t.audioMuted : t.audioEnabled}</span>
         </button>
       </div>
       <div
@@ -1440,6 +1533,7 @@ const CareerMode = () => {
   const [visibleEventCount, setVisibleEventCount] = useState(0);
   const [simulationSpeed, setSimulationSpeed] = useState("normal");
   const [simulationPaused, setSimulationPaused] = useState(false);
+  const [simulationAudioMuted, setSimulationAudioMuted] = useState(false);
   const [evaluation, setEvaluation] = useState(null);
   const [sillySeasonMarket, setSillySeasonMarket] = useState(null);
   const [preContract, setPreContract] = useState(null);
@@ -1564,6 +1658,7 @@ const CareerMode = () => {
               visibleEvents: visibleEventCount,
               totalEvents: raceResult.events.length,
               simulationSpeed,
+              simulationAudioMuted,
               playerResult: raceResult.playerResult,
               winner: raceResult.winner,
               eventCatalogStats: raceResult.eventCatalogStats,
@@ -1586,7 +1681,7 @@ const CareerMode = () => {
       delete window.render_game_to_text;
       delete window.advanceTime;
     };
-  }, [phase, profile, decadeRoll, yearRoll, contracts, sillySeasonMarket, preContract, season, currentRaceIndex, raceResult, raceDevelopment, visibleEventCount, simulationSpeed, summary]);
+  }, [phase, profile, decadeRoll, yearRoll, contracts, sillySeasonMarket, preContract, season, currentRaceIndex, raceResult, raceDevelopment, visibleEventCount, simulationSpeed, simulationAudioMuted, summary]);
 
   const clearRuntimeTimers = () => {
     window.clearTimeout(signingTimerRef.current);
@@ -1612,6 +1707,7 @@ const CareerMode = () => {
     setVisibleEventCount(Number.isFinite(state.visibleEventCount) ? state.visibleEventCount : 0);
     setSimulationSpeed(state.simulationSpeed || "normal");
     setSimulationPaused(Boolean(state.simulationPaused));
+    setSimulationAudioMuted(Boolean(state.simulationAudioMuted));
     setEvaluation(state.evaluation || null);
     setSillySeasonMarket(state.sillySeasonMarket || null);
     setPreContract(state.preContract || null);
@@ -1639,6 +1735,7 @@ const CareerMode = () => {
     visibleEventCount,
     simulationSpeed,
     simulationPaused,
+    simulationAudioMuted,
     evaluation,
     sillySeasonMarket,
     preContract,
@@ -1664,6 +1761,7 @@ const CareerMode = () => {
     setVisibleEventCount(0);
     setSimulationSpeed("normal");
     setSimulationPaused(false);
+    setSimulationAudioMuted(false);
     setEvaluation(null);
     setSillySeasonMarket(null);
     setPreContract(null);
@@ -2038,6 +2136,8 @@ const CareerMode = () => {
               onSpeedChange={setSimulationSpeed}
               paused={simulationPaused}
               onTogglePause={() => setSimulationPaused((value) => !value)}
+              audioMuted={simulationAudioMuted}
+              onToggleAudio={() => setSimulationAudioMuted((value) => !value)}
               panelRef={raceLivePanelRef}
             />
           )}

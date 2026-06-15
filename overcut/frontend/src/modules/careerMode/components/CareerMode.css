@@ -877,7 +877,7 @@
 
 .cm-sim-controls {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1fr) minmax(0, 1.5fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr);
   gap: 8px;
   margin: -4px 0 16px;
   padding: 8px;
@@ -891,7 +891,8 @@
   font-size: 16px;
 }
 
-.cm-sim-controls .cm-sim-pause svg {
+.cm-sim-controls .cm-sim-pause svg,
+.cm-sim-controls .cm-sim-audio svg {
   font-size: 18px;
 }
 
@@ -928,6 +929,10 @@
   color: white;
   background: linear-gradient(180deg, #f5d56d, var(--cm-gold));
   border-color: var(--cm-gold);
+}
+
+.cm-sim-controls .cm-sim-audio {
+  gap: 7px;
 }
 
 .cm-track-scene {
@@ -4529,5 +4534,150 @@
 
   .cm-profile-card .cm-driver-card.is-compact .cm-card-overall strong {
     font-size: 30px;
+  }
+}
+
+/* Compact live race simulation for phones: prioritize narration visibility. */
+@media (max-width: 640px) {
+  .cm-race-live {
+    padding: 10px;
+  }
+
+  .cm-race-live .cm-panel-head {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .cm-race-live .cm-panel-head > svg {
+    width: 28px;
+    height: 28px;
+    padding: 6px;
+  }
+
+  .cm-race-live .cm-panel-head span {
+    font-size: 9px;
+  }
+
+  .cm-race-live .cm-panel-head h2 {
+    font-size: clamp(20px, 6vw, 27px);
+  }
+
+  .cm-race-live .cm-sim-controls {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 4px;
+    margin: -2px 0 8px;
+    padding: 5px;
+  }
+
+  .cm-race-live .cm-sim-controls .cm-sim-pause,
+  .cm-race-live .cm-sim-controls .cm-sim-skip,
+  .cm-race-live .cm-sim-controls .cm-sim-audio {
+    grid-column: auto;
+  }
+
+  .cm-race-live .cm-sim-controls button {
+    min-height: 30px;
+    padding: 4px 3px;
+    border-radius: 5px;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .cm-race-live .cm-sim-controls .cm-sim-pause {
+    gap: 3px;
+    font-size: 11px;
+  }
+
+  .cm-race-live .cm-sim-controls .cm-sim-pause svg,
+  .cm-race-live .cm-sim-controls .cm-sim-audio svg {
+    width: 13px;
+    height: 13px;
+    font-size: 13px;
+  }
+
+  .cm-race-live .cm-sim-controls .cm-sim-skip,
+  .cm-race-live .cm-sim-controls .cm-sim-audio {
+    overflow: hidden;
+    font-size: 10px;
+    text-overflow: ellipsis;
+  }
+
+  .cm-race-live .cm-sim-controls .cm-sim-audio {
+    gap: 3px;
+  }
+
+  .cm-race-live .cm-track-scene {
+    min-height: clamp(118px, 31vw, 148px);
+  }
+
+  .cm-race-live .cm-career-car {
+    width: clamp(74px, 26vw, 104px);
+    height: clamp(38px, 13vw, 54px);
+    bottom: 22px;
+  }
+
+  .cm-race-live .cm-race-meta {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .cm-race-live .cm-race-meta .cm-stat {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    min-height: 42px;
+    padding: 5px 4px;
+    border-bottom-width: 2px;
+  }
+
+  .cm-race-live .cm-race-meta .cm-stat span {
+    overflow: hidden;
+    font-size: 8px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-race-live .cm-race-meta .cm-stat b {
+    overflow: hidden;
+    font-size: clamp(16px, 4.7vw, 20px);
+    line-height: 1;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-race-live .cm-lap-feed {
+    gap: 5px;
+    max-height: min(430px, 54svh);
+    margin: 8px 0;
+  }
+
+  .cm-race-live .cm-lap-feed li {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 6px;
+    padding: 7px;
+  }
+
+  .cm-race-live .cm-lap-feed b {
+    font-size: 14px;
+  }
+
+  .cm-race-live .cm-lap-feed span {
+    font-size: 12px;
+    line-height: 1.25;
+  }
+}
+
+@media (max-width: 380px) {
+  .cm-race-live .cm-sim-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cm-race-live .cm-sim-controls .cm-sim-pause,
+  .cm-race-live .cm-sim-controls .cm-sim-skip,
+  .cm-race-live .cm-sim-controls .cm-sim-audio {
+    grid-column: span 1;
   }
 }
