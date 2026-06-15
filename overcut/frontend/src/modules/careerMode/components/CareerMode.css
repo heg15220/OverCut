@@ -4723,6 +4723,140 @@
   }
 }
 
+/* Phone race development: keep result metrics and XP gains close to the card. */
+@media (max-width: 640px) {
+  .cm-race-development {
+    padding: 10px;
+  }
+
+  .cm-race-development .cm-panel-head {
+    margin-bottom: 8px;
+  }
+
+  .cm-race-development .cm-panel-head h2 {
+    font-size: clamp(20px, 6.5vw, 28px);
+  }
+
+  .cm-race-development .cm-development-layout,
+  .cm-race-development .cm-development-side {
+    gap: 7px;
+  }
+
+  .cm-race-development .cm-driver-card {
+    padding: 10px;
+  }
+
+  .cm-race-development .cm-card-head {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .cm-race-development .cm-card-id span,
+  .cm-race-development .cm-card-overall small {
+    font-size: 9px;
+  }
+
+  .cm-race-development .cm-card-id b {
+    font-size: clamp(24px, 8.8vw, 34px);
+  }
+
+  .cm-race-development .cm-card-overall {
+    min-height: 46px;
+  }
+
+  .cm-race-development .cm-card-overall strong {
+    font-size: 29px;
+  }
+
+  .cm-race-development .cm-card-attrs {
+    gap: 7px;
+  }
+
+  .cm-race-development .cm-card-attrs li {
+    grid-template-columns: 48px minmax(0, 1fr) 34px;
+    gap: 6px;
+  }
+
+  .cm-race-development .cm-card-attr-label b,
+  .cm-race-development .cm-card-attr-value {
+    font-size: 17px;
+  }
+
+  .cm-race-development .cm-card-bar {
+    height: 8px;
+  }
+
+  .cm-race-development .cm-season-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .cm-race-development .cm-season-stats .cm-stat {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: 42px;
+    gap: 2px;
+    padding: 5px 4px;
+  }
+
+  .cm-race-development .cm-season-stats .cm-stat span {
+    overflow: hidden;
+    font-size: 8px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-race-development .cm-season-stats .cm-stat b {
+    font-size: clamp(14px, 4.6vw, 18px);
+    line-height: 1;
+    text-align: left;
+  }
+
+  .cm-race-development .cm-xp-list {
+    gap: 4px;
+  }
+
+  .cm-race-development .cm-xp-list div {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 5px;
+    padding: 7px 8px;
+    border-left-width: 3px;
+  }
+
+  .cm-race-development .cm-xp-list span {
+    overflow: hidden;
+    font-size: 10px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-race-development .cm-xp-list b,
+  .cm-race-development .cm-xp-list em {
+    font-size: 15px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .cm-race-development .cm-xp-list em {
+    font-size: 13px;
+  }
+
+  .cm-race-development .cm-panel-copy {
+    margin: 0;
+    padding: 7px 8px;
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .cm-race-development .cm-btn {
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
 @media (max-width: 380px) {
   .cm-race-live .cm-sim-controls {
     grid-template-columns: repeat(3, minmax(0, 1fr));
