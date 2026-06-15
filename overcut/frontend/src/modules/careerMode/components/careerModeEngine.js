@@ -1035,7 +1035,9 @@ const buildRealSeasonGrid = ({ bootstrap, year, contract, profile }) => {
 
 export const createCareerSeason = ({ bootstrap, profile, year, contract }) => {
   const rng = createRng(`${profile.name}|${year}|${contract.team.name}|season-${profile.seasons}`);
-  const grid = profile.seasons >= 1
+  const hasCareerHistory = (profile.stats?.teams || []).length > 0;
+  const isDebutSeason = !hasCareerHistory && (profile.seasons || 0) <= 1;
+  const grid = !isDebutSeason
     ? buildMarketSeasonGrid({ bootstrap, year, contract, profile, rng })
     : buildRealSeasonGrid({ bootstrap, year, contract, profile }) ||
     buildSeasonDrivers({

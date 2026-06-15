@@ -808,11 +808,17 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
   // not hovering it. Hovering pauses the scroll so they can read at their own pace;
   // the "back to live" button (shown when behind) jumps back to the latest event.
   const [atBottom, setAtBottom] = useState(true);
+  const [followingLive, setFollowingLive] = useState(true);
   const atBottomRef = useRef(true);
+  const followingLiveRef = useRef(true);
   const isHoveringRef = useRef(false);
   const setBottomState = (value) => {
     atBottomRef.current = value;
     setAtBottom(value);
+  };
+  const setFollowingLiveState = (value) => {
+    followingLiveRef.current = value;
+    setFollowingLive(value);
   };
   const eventText = (event) => (lang === "en" && event.textEn ? event.textEn : event.text);
   const isComplete = visibleEvents.length >= raceResult.events.length;
@@ -848,7 +854,8 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
   const jumpToLive = () => {
     const feed = feedRef.current;
     if (!feed) return;
-    feed.scrollTo({ top: feed.scrollHeight, behavior: "smooth" });
+    setFollowingLiveState(true);
+    feed.scrollTo({ top: feed.scrollHeight, behavior: "auto" });
     setBottomState(true);
   };
 
@@ -857,7 +864,9 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
   const handleFeedScroll = () => {
     const feed = feedRef.current;
     if (!feed) return;
-    setBottomState(distanceFromBottom(feed) <= FEED_BOTTOM_THRESHOLD);
+    const isAtBottom = distanceFromBottom(feed) <= FEED_BOTTOM_THRESHOLD;
+    setBottomState(isAtBottom);
+    setFollowingLiveState(isAtBottom);
   };
 
   useEffect(() => {
@@ -865,11 +874,12 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
     if (!feed) return undefined;
     const syncFeed = () => {
       setFeedScrollable(feed.scrollHeight > feed.clientHeight + 1);
-      // Follow the live feed only while the reader is at the bottom and not
-      // hovering it; otherwise just refresh whether they have fallen behind.
-      if (!isHoveringRef.current && atBottomRef.current) {
-        feed.scrollTo({ top: feed.scrollHeight, behavior: "smooth" });
+      // Follow the live feed after the user explicitly returns to live; otherwise
+      // pause only when they intentionally scroll away to read older events.
+      if (followingLiveRef.current || (!isHoveringRef.current && atBottomRef.current)) {
+        feed.scrollTo({ top: feed.scrollHeight, behavior: "auto" });
         setBottomState(true);
+        setFollowingLiveState(true);
       } else {
         setBottomState(distanceFromBottom(feed) <= FEED_BOTTOM_THRESHOLD);
       }
@@ -981,7 +991,7 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
             </li>
           ))}
         </ol>
-        {feedScrollable && !atBottom && (
+        {feedScrollable && !atBottom && !followingLive && (
           <button
             className="cm-feed-live-btn"
             type="button"

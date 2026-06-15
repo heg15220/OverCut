@@ -4449,6 +4449,21 @@
     margin-top: 12px;
   }
 
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-head {
+    grid-template-columns: auto minmax(0, 1fr) 58px;
+    align-items: stretch;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-overall {
+    grid-column: auto;
+    justify-self: end;
+    width: 58px;
+    min-height: 58px;
+    grid-template-columns: 1fr;
+    justify-content: center;
+    gap: 0;
+  }
+
   .cm-calendar ol,
   .cm-standings ol {
     max-height: none;
@@ -4500,5 +4515,19 @@
 
   .cm-hero-profile b {
     grid-column: 2 / -1;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-head {
+    grid-template-columns: auto minmax(0, 1fr) 52px;
+    gap: 8px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-overall {
+    width: 52px;
+    min-height: 52px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-overall strong {
+    font-size: 30px;
   }
 }
