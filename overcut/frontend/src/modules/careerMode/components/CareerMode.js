@@ -1446,6 +1446,8 @@ const CareerMode = () => {
   const [saveMessage, setSaveMessage] = useState("");
   const [loadStatus, setLoadStatus] = useState("idle");
   const [loadError, setLoadError] = useState("");
+  const headerRef = useRef(null);
+  const mainRef = useRef(null);
   const raceLivePanelRef = useRef(null);
   const signingTimerRef = useRef(null);
   const rollTimerRef = useRef(null);
@@ -1466,12 +1468,30 @@ const CareerMode = () => {
   }, [phase, raceResult, simulationSpeed, simulationPaused, visibleEventCount]);
 
   useEffect(() => {
-    if (phase !== "race-live") return undefined;
     const frame = window.requestAnimationFrame(() => {
-      raceLivePanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (phase === "career-menu") {
+        headerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      const selectors = {
+        setup: ".cm-setup",
+        "decade-choice": ".cm-decade-choice",
+        year: ".cm-year-dice",
+        contracts: ".cm-contracts",
+        season: ".cm-next-race",
+        "silly-season": ".cm-silly-season",
+        "contract-signing": ".cm-contract-signing",
+        "race-live": ".cm-race-live",
+        "race-result": ".cm-race-result",
+        "race-development": ".cm-race-development",
+        "season-review": ".cm-season-review",
+        retired: ".cm-retirement",
+      };
+      const target = selectors[phase] ? mainRef.current?.querySelector(selectors[phase]) : null;
+      (target || headerRef.current)?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [phase, raceResult]);
+  }, [phase, currentRaceIndex, raceResult, raceDevelopment, evaluation, summary]);
 
   useEffect(
     () => () => {
@@ -1879,7 +1899,7 @@ const CareerMode = () => {
   return (
     <main className={`career-mode-page cm-phase-${phase}`}>
       <section className="cm-shell">
-        <header className="cm-header">
+        <header className="cm-header" ref={headerRef}>
           <div className="cm-brand-block">
             <img className="cm-brand-mark" src="/LogoOverCut.png" alt="OverCut" />
             <div>
@@ -1931,7 +1951,7 @@ const CareerMode = () => {
           )}
         </section>
 
-        <section className="cm-main">
+        <section className="cm-main" ref={mainRef}>
           {phase === "career-menu" && (
             <CareerEntryPanel
               codeInput={saveCodeInput}
