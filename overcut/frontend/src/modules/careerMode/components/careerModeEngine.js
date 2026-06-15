@@ -30,6 +30,8 @@ export const HELMET_COLORS = [
   "#7f1d1d", "#14532d", "#581c87",
 ];
 
+export const HELMET_STYLES = ["solid", "gradient", "lines"];
+
 const TEAM_COLORS = [
   "#d0182f", "#ff8700", "#d8a11d", "#00a19c", "#0090ff", "#1e5bc6",
   "#641e9b", "#9c27b0", "#006f62", "#2e7d32", "#8bc34a", "#00bcd4",
@@ -124,6 +126,17 @@ export const normalizeColor = (color, fallback = "#0a2d52") => {
   const blue = parseInt(color.slice(5, 7), 16);
   const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
   return luminance > 0.68 ? fallback : color;
+};
+
+// Build the CSS `background` value for a helmet from its style and two colours.
+// Both colours pass through normalizeColor so a bright/invalid pick is muted the
+// same way the solid helmet already behaves. Unknown styles render as solid.
+export const helmetBackground = (style, colorA, colorB) => {
+  const a = normalizeColor(colorA);
+  const b = normalizeColor(colorB);
+  if (style === "gradient") return `linear-gradient(135deg, ${a}, ${b})`;
+  if (style === "lines") return `repeating-linear-gradient(45deg, ${a} 0 6px, ${b} 6px 12px)`;
+  return a;
 };
 
 const teamColor = (team, index = 0) =>
@@ -537,7 +550,7 @@ export const sillySeasonMarketWindow = ({ bootstrap, season, profile, alreadySig
       promise:
         signal.standout
           ? "Precontrato condicionado al asiento libre: quieren cerrar tu fichaje antes que el resto del paddock."
-          : "Interes temprano del mercado: el equipo reserva una opcion si mantienes el nivel hasta final de anio.",
+          : "Interes temprano del mercado: el equipo reserva una opcion si mantienes el nivel hasta final de año.",
       promiseEn:
         signal.standout
           ? "Pre-contract conditional on the open seat: they want to lock in your signing before the rest of the paddock."
@@ -817,6 +830,8 @@ const buildSeasonDrivers = ({ bootstrap, year, teams, contract, profile, rng }) 
     name: profile.name,
     rating: profile.rating,
     helmetColor: profile.helmetColor,
+    helmetColor2: profile.helmetColor2,
+    helmetStyle: profile.helmetStyle,
     isPlayer: true,
     firstYear: year,
     lastYear: year,
@@ -936,6 +951,8 @@ const buildMarketSeasonGrid = ({ bootstrap, year, contract, profile, rng }) => {
     name: profile.name,
     rating: profile.rating,
     helmetColor: profile.helmetColor,
+    helmetColor2: profile.helmetColor2,
+    helmetStyle: profile.helmetStyle,
     isPlayer: true,
     firstYear: year,
     lastYear: year,
@@ -988,6 +1005,8 @@ const buildRealSeasonGrid = ({ bootstrap, year, contract, profile }) => {
     name: profile.name,
     rating: profile.rating,
     helmetColor: profile.helmetColor,
+    helmetColor2: profile.helmetColor2,
+    helmetStyle: profile.helmetStyle,
     isPlayer: true,
     firstYear: year,
     lastYear: year,
@@ -1034,6 +1053,8 @@ export const createCareerSeason = ({ bootstrap, profile, year, contract }) => {
       team: team.name,
       color: team.color,
       helmetColor: driver.helmetColor,
+      helmetColor2: driver.helmetColor2,
+      helmetStyle: driver.helmetStyle,
       points: 0,
       wins: 0,
       podiums: 0,
@@ -1093,6 +1114,8 @@ const updateStandings = (season, raceResult) => {
       team: result.team,
       color: result.teamColor,
       helmetColor: result.helmetColor,
+      helmetColor2: result.helmetColor2,
+      helmetStyle: result.helmetStyle,
       points: 0,
       wins: 0,
       podiums: 0,
@@ -2035,6 +2058,8 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       team: entry.team.name,
       teamColor: entry.team.color,
       helmetColor: entry.driver.helmetColor,
+      helmetColor2: entry.driver.helmetColor2,
+      helmetStyle: entry.driver.helmetStyle,
       isPlayer: entry.isPlayer,
       position: entry.position,
       gridPosition: entry.gridPosition,

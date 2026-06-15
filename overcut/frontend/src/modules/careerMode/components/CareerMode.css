@@ -250,6 +250,41 @@
   box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--helmet-choice) 38%, transparent);
 }
 
+.cm-helmet-styles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.cm-helmet-style {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: white;
+  border: 2px solid var(--cm-line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cm-helmet-style small {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cm-muted);
+}
+
+.cm-helmet-style.is-selected {
+  border-color: var(--cm-ink);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--cm-gold) 30%, transparent);
+}
+
+.cm-helmet-style.is-selected small {
+  color: var(--cm-ink);
+}
+
 .cm-helmet {
   display: inline-block;
   vertical-align: middle;
@@ -1701,6 +1736,11 @@
   border-color: var(--cm-gold);
 }
 
+.cm-result-grid div.is-teammate {
+  background: rgba(31, 86, 139, 0.14);
+  border-color: rgba(31, 86, 139, 0.55);
+}
+
 .cm-result-grid b,
 .cm-result-grid em {
   font-family: Impact, "Arial Black", sans-serif;
@@ -2372,6 +2412,31 @@
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.26), inset 0 0 0 2px rgba(247, 190, 34, 0.34);
 }
 
+.cm-helmet-style {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.16));
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.cm-helmet-style:hover {
+  border-color: var(--cm-gold);
+}
+
+.cm-helmet-style small {
+  color: color-mix(in srgb, var(--cm-gold) 70%, white);
+}
+
+.cm-helmet-style.is-selected small {
+  color: white;
+}
+
+.cm-helmet-style.is-selected {
+  transform: translateY(-2px);
+  border-color: var(--cm-gold);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.26), inset 0 0 0 2px rgba(247, 190, 34, 0.34);
+}
+
 .cm-driver-preview,
 .cm-hero-profile,
 .cm-precontract-strip,
@@ -2573,6 +2638,11 @@
 .cm-result-grid div.is-player {
   background: linear-gradient(90deg, rgba(247, 190, 34, 0.28), rgba(255, 255, 255, 0.08));
   border-color: rgba(247, 190, 34, 0.72);
+}
+
+.cm-result-grid div.is-teammate {
+  background: linear-gradient(90deg, rgba(120, 170, 230, 0.26), rgba(255, 255, 255, 0.06));
+  border-color: rgba(120, 170, 230, 0.62);
 }
 
 .cm-row-stripe,

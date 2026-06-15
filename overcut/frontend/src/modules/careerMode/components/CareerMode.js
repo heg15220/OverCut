@@ -17,6 +17,8 @@ import formulaCarLoadingUrl from "../../../assets/images/miniGames/FormulaCarLoa
 import racingHelmetUrl from "../../../assets/images/miniGames/RacingHelmet.png";
 import {
   HELMET_COLORS,
+  HELMET_STYLES,
+  helmetBackground,
   completeRace,
   createCareerSeason,
   fetchCareerBootstrap,
@@ -59,6 +61,8 @@ const createInitialProfile = () => {
   return {
     name: "",
     helmetColor: HELMET_COLORS[0],
+    helmetColor2: HELMET_COLORS[7],
+    helmetStyle: "solid",
     age: STARTING_AGE,
     card,
     cardXp: { pace: 0, racecraft: 0, awareness: 0, experience: 0 },
@@ -88,19 +92,27 @@ const ATTRIBUTE_LABELS = {
   experience: { short: "EXP" },
 };
 
-const HelmetIcon = ({ color, size = 34 }) => (
+const HelmetIcon = ({ color, color2, style = "solid", size = 34 }) => (
   <span
     className="cm-helmet"
     aria-hidden="true"
     style={{
       width: size,
       height: size,
-      backgroundColor: normalizeColor(color),
+      background: helmetBackground(style, color, color2),
       WebkitMaskImage: `url(${racingHelmetUrl})`,
       maskImage: `url(${racingHelmetUrl})`,
     }}
   />
 );
+
+// Spread helper: pulls the three helmet fields off a profile/draft/driver entity.
+// Rivals only carry `helmetColor`, so style/color2 stay undefined and render solid.
+const helmetFor = (entity = {}) => ({
+  color: entity.helmetColor,
+  color2: entity.helmetColor2,
+  style: entity.helmetStyle,
+});
 
 const stat = (label, value) => (
   <div className="cm-stat" key={label}>
@@ -163,7 +175,7 @@ const DriverCardView = ({ profile, deltas = null, compact = false }) => {
       style={{ "--card-accent": normalizeColor(profile.helmetColor, "#d8a11d") }}
     >
       <header className="cm-card-head">
-        <HelmetIcon color={profile.helmetColor} size={compact ? 34 : 46} />
+        <HelmetIcon {...helmetFor(profile)} size={compact ? 34 : 46} />
         <div className="cm-card-id">
           <span>{t.cardIdentity(statusLabel(profile.status), profile.age)}</span>
           <b>{profile.name || t.cardDriverFallback}</b>
@@ -207,7 +219,7 @@ const TrackDuel = ({ player, teammate, playerPosition, teammatePosition }) => {
       <div className="cm-duel-grid">
         <div className={`cm-duel-side${ahead || tied ? " is-leader" : ""}`}>
           <small>{t.you}</small>
-          <HelmetIcon color={player.helmetColor} size={28} />
+          <HelmetIcon {...helmetFor(player)} size={28} />
           <b>P{playerPosition}</b>
         </div>
         <div className="cm-duel-mid" aria-hidden="true">
@@ -216,7 +228,7 @@ const TrackDuel = ({ player, teammate, playerPosition, teammatePosition }) => {
         </div>
         <div className={`cm-duel-side${!ahead && !tied ? " is-leader" : ""}`}>
           <small>{t.teammate}</small>
-          <HelmetIcon color={teammate.helmetColor} size={28} />
+          <HelmetIcon {...helmetFor(teammate)} size={28} />
           <b>P{teammatePosition}</b>
         </div>
       </div>
@@ -360,22 +372,60 @@ const SetupPanel = ({ draft, setDraft, onSubmit }) => {
           placeholder={t.driverNamePlaceholder}
         />
       </label>
-      <div className="cm-color-picker" aria-label={t.helmetColorLabel}>
-        {HELMET_COLORS.map((color) => (
-          <button
-            key={color}
-            type="button"
-            className={draft.helmetColor === color ? "is-selected" : ""}
-            onClick={() => setDraft({ ...draft, helmetColor: color })}
-            style={{ "--helmet-choice": normalizeColor(color) }}
-            aria-label={t.helmetAria(color)}
-          >
-            <HelmetIcon color={color} size={28} />
-          </button>
-        ))}
+      <div className="cm-field">
+        <span>{t.helmetStyleLabel}</span>
+        <div className="cm-helmet-styles" role="group" aria-label={t.helmetStyleLabel}>
+          {HELMET_STYLES.map((style) => (
+            <button
+              key={style}
+              type="button"
+              className={`cm-helmet-style${draft.helmetStyle === style ? " is-selected" : ""}`}
+              onClick={() => setDraft({ ...draft, helmetStyle: style })}
+            >
+              <HelmetIcon color={draft.helmetColor} color2={draft.helmetColor2} style={style} size={26} />
+              <small>{t.helmetStyleNames[style]}</small>
+            </button>
+          ))}
+        </div>
       </div>
+      <div className="cm-field">
+        <span>{draft.helmetStyle === "solid" ? t.helmetColorLabel : t.helmetPrimaryLabel}</span>
+        <div className="cm-color-picker" aria-label={t.helmetColorLabel}>
+          {HELMET_COLORS.map((color) => (
+            <button
+              key={color}
+              type="button"
+              className={draft.helmetColor === color ? "is-selected" : ""}
+              onClick={() => setDraft({ ...draft, helmetColor: color })}
+              style={{ "--helmet-choice": normalizeColor(color) }}
+              aria-label={t.helmetAria(color)}
+            >
+              <HelmetIcon color={color} size={28} />
+            </button>
+          ))}
+        </div>
+      </div>
+      {draft.helmetStyle !== "solid" && (
+        <div className="cm-field">
+          <span>{t.helmetSecondaryLabel}</span>
+          <div className="cm-color-picker" aria-label={t.helmetSecondaryLabel}>
+            {HELMET_COLORS.map((color) => (
+              <button
+                key={color}
+                type="button"
+                className={draft.helmetColor2 === color ? "is-selected" : ""}
+                onClick={() => setDraft({ ...draft, helmetColor2: color })}
+                style={{ "--helmet-choice": normalizeColor(color) }}
+                aria-label={t.helmetAria(color)}
+              >
+                <HelmetIcon color={color} size={28} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="cm-driver-preview">
-        <HelmetIcon color={draft.helmetColor} size={56} />
+        <HelmetIcon {...helmetFor(draft)} size={56} />
         <div>
           <span>{t.initialProfile}</span>
           <b>{draft.name.trim() || t.newDriver}</b>
@@ -615,7 +665,7 @@ const ContractSigning = ({ contract, profile, year, mode, status, onSign, onCont
         </section>
         <aside className="cm-link-animation" aria-live="polite">
           <div className="cm-link-driver">
-            <HelmetIcon color={profile.helmetColor} size={42} />
+            <HelmetIcon {...helmetFor(profile)} size={42} />
             <b>{profile.name}</b>
           </div>
           <span className="cm-link-beam" />
@@ -923,14 +973,27 @@ const RaceSimulation = ({ raceResult, visibleEvents, onFinish, onSkipToResult, l
 
 const RaceResult = ({ raceResult, onContinue, lang }) => {
   const { rows, playerBelow } = raceResultRows(raceResult.results);
-  const resultRow = (row) => (
-    <div key={row.id} className={row.isPlayer ? "is-player" : ""}>
-      <b>P{row.position}</b>
-      <HelmetIcon color={row.helmetColor} size={26} />
-      <span>{row.driver}</span>
-      <em>{row.status === "DNF" ? "DNF" : t.pointsShort(row.points)}</em>
-    </div>
-  );
+  const playerTeam = (rows.find((row) => row.isPlayer) || playerBelow)?.team;
+  const teammateRow = playerTeam
+    ? raceResult.results.find((row) => !row.isPlayer && row.team === playerTeam)
+    : null;
+  const teammateBelow =
+    teammateRow && !rows.some((row) => row.id === teammateRow.id) ? teammateRow : null;
+  const resultRow = (row) => {
+    const role = row.isPlayer
+      ? "is-player"
+      : teammateRow && row.id === teammateRow.id
+      ? "is-teammate"
+      : "";
+    return (
+      <div key={row.id} className={role}>
+        <b>P{row.position}</b>
+        <HelmetIcon {...helmetFor(row)} size={26} />
+        <span>{row.driver}</span>
+        <em>{row.status === "DNF" ? "DNF" : t.pointsShort(row.points)}</em>
+      </div>
+    );
+  };
   return (
     <section className="cm-panel cm-race-result">
       <div className="cm-panel-head">
@@ -954,6 +1017,12 @@ const RaceResult = ({ raceResult, onContinue, lang }) => {
           <>
             <p className="cm-result-player-label">{t.yourResult}</p>
             {resultRow(playerBelow)}
+          </>
+        )}
+        {teammateBelow && (
+          <>
+            <p className="cm-result-player-label cm-result-teammate-label">{t.teammateResult}</p>
+            {resultRow(teammateBelow)}
           </>
         )}
       </div>
@@ -1029,7 +1098,7 @@ const SeasonDashboard = ({
       <aside className="cm-season-side">
         <section className="cm-panel cm-profile-card">
           <div className="cm-driver-preview">
-            <HelmetIcon color={profile.helmetColor} size={50} />
+            <HelmetIcon {...helmetFor(profile)} size={50} />
             <div>
               <span>{statusLabel(profile.status)}</span>
               <b>{profile.name}</b>
@@ -1405,7 +1474,13 @@ const CareerMode = () => {
   };
 
   const startProfile = () => {
-    const nextProfile = { ...INITIAL_PROFILE, name: draft.name.trim(), helmetColor: draft.helmetColor };
+    const nextProfile = {
+      ...INITIAL_PROFILE,
+      name: draft.name.trim(),
+      helmetColor: draft.helmetColor,
+      helmetColor2: draft.helmetColor2,
+      helmetStyle: draft.helmetStyle,
+    };
     setProfile(nextProfile);
     setDecadeRoll(null);
     setYearRoll(null);
@@ -1622,7 +1697,7 @@ const CareerMode = () => {
           </div>
           {profile && (
             <div className="cm-hero-profile">
-              <HelmetIcon color={profile.helmetColor} size={42} />
+              <HelmetIcon {...helmetFor(profile)} size={42} />
               <span>{t.heroAge(profile.age)}</span>
               <span>{t.heroRep(profile.reputation)}</span>
               <b>{t.heroRtg(profile.rating)}</b>

@@ -24,7 +24,7 @@ const STRINGS = {
     restart: "Reiniciar",
     dataFallback: "Datos locales de respaldo",
     dataCache: "Cache OverCutRacing",
-    heroSetup: "Crea un piloto y decide como empieza su epoca",
+    heroSetup: "Crea un piloto y decide cómo empieza su época",
     heroFallbackTitle: "Trayectoria F1",
     heroProfile: (name, status, seasonNumber, year) =>
       `${name} · ${status} · Temporada ${seasonNumber}${year ? ` · ${year}` : ""}`,
@@ -79,39 +79,43 @@ const STRINGS = {
     driverNameLabel: "Nombre del piloto",
     driverNamePlaceholder: "Nombre y apellido",
     helmetColorLabel: "Color del casco",
+    helmetPrimaryLabel: "Color principal",
+    helmetSecondaryLabel: "Color secundario",
+    helmetStyleLabel: "Formato del casco",
+    helmetStyleNames: { solid: "Sólido", gradient: "Degradado", lines: "Líneas" },
     helmetAria: (color) => `Casco ${color}`,
     initialProfile: "Perfil inicial",
     newDriver: "Nuevo piloto",
-    initialStats: "Rating 58 · Reputacion 28 · Status rookie",
-    enterF1: "Entrar en la Formula 1",
+    initialStats: "Rating 58 · Reputación 28 · Status rookie",
+    enterF1: "Empezar Modo Trayectoria",
 
     // Decade choice
     step2: "Paso 2",
-    chooseDecadeTitle: "Elige la decada",
+    chooseDecadeTitle: "Elige la década",
     calendarEntry: "Entrada al calendario",
-    decadeFallback: "Decada",
-    decadeIntro: "Escoge una epoca concreta o deja que el dado abra la primera puerta de tu trayectoria.",
+    decadeFallback: "Década",
+    decadeIntro: "Escoge una época concreta o deja que el dado abra la primera puerta de tu trayectoria.",
     controlLabel: "Control",
-    chooseDecadeAction: "Escoger decada",
-    chooseDecadeHint: "Selecciona manualmente la etapa historica donde quieres debutar.",
+    chooseDecadeAction: "Escoger década",
+    chooseDecadeHint: "Selecciona manualmente la etapa histórica donde quieres debutar.",
     randomLabel: "Azar",
     rollDiceAction: "Tirar dado",
-    rollDiceHint: "El sistema sortea una decada disponible antes de tirar el anio.",
-    availableDecades: "Decadas disponibles",
+    rollDiceHint: "El sistema sortea una década disponible antes de tirar el año.",
+    availableDecades: "Décadas disponibles",
 
     // Year dice
     step3: "Paso 3",
-    rollYearTitle: "Tira por anio",
+    rollYearTitle: "Tira por año",
     exactSeason: "Temporada exacta",
     yearHint: (decade) => `Dentro de ${decade}, el dado decide el calendario de debut.`,
-    theDecade: "la decada",
-    decideYear: "Decidir anio",
+    theDecade: "la década",
+    decideYear: "Decidir año",
 
     // Contracts
     targetPoints: "Puntos objetivo",
     constructors: "Constructores",
     topN: (n) => `Top ${n}`,
-    reputation: "Reputacion",
+    reputation: "Reputación",
     carRatingSalary: (rating, salary) => `Rating coche ${rating} · Salario ${salary}`,
     precontractBadge: "precontrato",
 
@@ -122,7 +126,7 @@ const STRINGS = {
     // Contract selection
     firstContractTitle: "Elige tu primer contrato",
     firstContractCopy: (name, status) =>
-      `${name} llega como ${status}. Las ofertas priorizan equipos medios y bajos: objetivos realistas, bonus de reputacion y riesgo de perder el asiento si queda lejos.`,
+      `${name} llega como ${status}. Las ofertas priorizan equipos medios y bajos: objetivos realistas, bonus de reputación y riesgo de perder el asiento si queda lejos.`,
 
     // Contract signing
     precontractTerm: (year) => `Precontrato ${year}`,
@@ -130,12 +134,12 @@ const STRINGS = {
     driverLinked: "Piloto vinculado",
     contractSigning: "Firma del contrato",
     driverLabel: "Piloto",
-    teamLabel: "Escuderia",
+    teamLabel: "Escudería",
     carRating: "Rating coche",
     salary: "Salario",
-    teammateLabel: "Companero",
+    teammateLabel: "Compañero",
     toBeConfirmed: "Por confirmar",
-    teammateRating: "Rating companero",
+    teammateRating: "Rating compañero",
     term: "Vigencia",
     signatureZone: "Zona de firma",
     linkedMessage: (name, team) => `${name} queda vinculado a ${team}.`,
@@ -149,19 +153,19 @@ const STRINGS = {
     // Standings
     standingsDrivers: "Pilotos",
     standingsConstructors: "Constructores",
-    yourPosition: "Tu posicion",
+    yourPosition: "Tu posición",
     winsCount: (n) => `${n} victorias`,
 
     // Race simulation
     lapOf: (lap, total) => `Vuelta ${lap}/${total}`,
-    simulationSpeed: "Velocidad de simulacion",
+    simulationSpeed: "Velocidad de simulación",
     speedNormal: "Normal",
     pause: "Pausar",
     resume: "Reanudar",
     backToLive: "Volver al directo",
     simulateRaceSkip: "Simular carrera",
     metaWeather: "Clima",
-    metaDegradation: "Degradacion",
+    metaDegradation: "Degradación",
     metaTrackStatus: "Estado de pista",
     lapTag: (lap) => `V${lap}`,
     viewResult: "Ver resultado",
@@ -171,7 +175,8 @@ const STRINGS = {
     winnerLabel: "Ganador",
     pointsShort: (n) => `${n} pts`,
     yourResult: "Tu resultado",
-    viewProgress: "Ver evolucion",
+    teammateResult: "Resultado del compañero",
+    viewProgress: "Ver evolución",
 
     // Race development
     progressAfter: (raceName) => `Progreso tras ${raceName}`,
@@ -189,7 +194,7 @@ const STRINGS = {
 
     // Season dashboard
     currentAge: (age) => `Edad actual: ${age} años`,
-    ratingReputation: (rating, reputation) => `Rating ${rating} · Reputacion ${reputation}`,
+    ratingReputation: (rating, reputation) => `Rating ${rating} · Reputación ${reputation}`,
     objectiveTeam: "Equipo",
     objectivePoints: "Objetivo pts",
     objectiveConstructors: "Constructores",
@@ -199,46 +204,46 @@ const STRINGS = {
     calendarYear: (year) => `Calendario ${year}`,
     roundLabel: (round) => `Ronda ${round}`,
     seasonComplete: "Temporada completa",
-    finalEvaluation: "Evaluacion final",
+    finalEvaluation: "Evaluación final",
     driverPoints: "Puntos piloto",
-    driverPosition: "Posicion piloto",
+    driverPosition: "Posición piloto",
     teamPoints: "Equipo pts",
     seasonCopy: (name) =>
-      `La simulacion calcula ritmo puro, adaptacion al circuito, fiabilidad, estrategia, gestion de goma, clima variable y eventos de carrera. La narracion destaca lo que afecta a ${name}.`,
+      `La simulación calcula ritmo puro, adaptación al circuito, fiabilidad, estrategia, gestión de goma, clima variable y eventos de carrera. La narración destaca lo que afecta a ${name}.`,
     simulateRace: "Simular carrera",
 
     // Silly season
     sillySeasonTitle: (round) => `Silly Season · Ronda ${round}`,
     paddockAsking: "El paddock pregunta por ti",
     sillySeasonCopy:
-      "Tu rendimiento y estatus han abierto conversaciones antes de acabar el anio. Puedes firmar un precontrato, pero la decision definitiva se tomara al terminar la temporada.",
+      "Tu rendimiento y estatus han abierto conversaciones antes de acabar el año. Puedes firmar un precontrato, pero la decisión definitiva se tomará al terminar la temporada.",
     probability: "Probabilidad",
     pointsVsTarget: "Puntos vs objetivo",
-    nextYear: "Proximo anio",
+    nextYear: "Proximo año",
     offers: "Ofertas",
     carryOnUnsigned: "Seguir sin firmar",
 
     // Season review
     endOfSeason: (year) => `Fin de temporada ${year}`,
-    reviewChampion: "Campeon del mundo",
-    reviewEliteSeason: "Temporada de elite",
+    reviewChampion: "Campeón del mundo",
+    reviewEliteSeason: "Temporada de élite",
     reviewFired: "El equipo rompe el contrato",
     reviewObjectivesMet: "Objetivos cumplidos",
     reviewInsufficient: "Temporada insuficiente",
     reviewPoints: "Puntos",
     reviewChampionship: "Mundial",
     reviewTeam: "Equipo",
-    reviewReputation: "Reputacion",
+    reviewReputation: "Reputación",
     teammateTied: "Duelo interno igualado: sin efecto en la reputación.",
     teammateBeaten: (delta) => `Ganaste a tu compañero en el cómputo final (${delta} reputación).`,
     teammateLost: (delta) => `Tu compañero te superó en el cómputo final (${delta} reputación).`,
     reviewFiredCopy:
-      "La directiva considera que el rendimiento quedo lejos del minimo. Las nuevas ofertas bajan el riesgo y el nivel.",
+      "La directiva considera que el rendimiento quedó lejos del mínimo. Las nuevas ofertas bajan el riesgo y el nivel.",
     reviewOverDeliveredCopy:
       "El paddock toma nota: el rendimiento supera el valor del coche y abre puertas mejores.",
     reviewMarketCopy:
       "El mercado reacciona de forma gradual: ofertas cercanas al estatus actual y alguna apuesta condicionada.",
-    sillySeasonDecision: "Decision de Silly Season",
+    sillySeasonDecision: "Decisión de Silly Season",
     precontractChoiceCopy: (team) =>
       `Tienes un acuerdo previo con ${team}. Puedes respetarlo y cerrar el asiento, o romper la prioridad para mirar el mercado final de temporada.`,
     honorPrecontract: "Cumplir precontrato",
@@ -252,7 +257,7 @@ const STRINGS = {
     retPoints: "Puntos",
     retWins: "Victorias",
     retPodiums: "Podios",
-    retTitles: "Titulos",
+    retTitles: "Títulos",
     newCareer: "Nueva trayectoria",
 
     // Engine tokens shown in the UI
@@ -323,11 +328,15 @@ const STRINGS = {
     driverNameLabel: "Driver name",
     driverNamePlaceholder: "First and last name",
     helmetColorLabel: "Helmet colour",
+    helmetPrimaryLabel: "Primary colour",
+    helmetSecondaryLabel: "Secondary colour",
+    helmetStyleLabel: "Helmet style",
+    helmetStyleNames: { solid: "Solid", gradient: "Gradient", lines: "Lines" },
     helmetAria: (color) => `Helmet ${color}`,
     initialProfile: "Initial profile",
     newDriver: "New driver",
     initialStats: "Rating 58 · Reputation 28 · rookie status",
-    enterF1: "Enter Formula 1",
+    enterF1: "Start Career Mode",
 
     // Decade choice
     step2: "Step 2",
@@ -415,6 +424,7 @@ const STRINGS = {
     winnerLabel: "Winner",
     pointsShort: (n) => `${n} pts`,
     yourResult: "Your result",
+    teammateResult: "Team-mate result",
     viewProgress: "View progress",
 
     // Race development
