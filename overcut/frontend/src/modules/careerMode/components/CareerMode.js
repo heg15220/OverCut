@@ -1598,9 +1598,9 @@ const CareerMode = () => {
             </div>
           </div>
           <nav className="cm-actions">
-            <Link to="/minigames" className="cm-home-link" aria-label={t.backToGames}>
+            <Link to="/" className="cm-home-link" aria-label={t.backToHome}>
               <ArrowLeftShort size={28} />
-              <span>{t.gamesLabel}</span>
+              <span>{t.homeLabel}</span>
             </Link>
             <button className="cm-btn cm-btn-secondary" type="button" onClick={reset}>
               <ArrowClockwise />

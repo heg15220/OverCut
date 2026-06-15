@@ -19,8 +19,8 @@ const STRINGS = {
     // Header / shell
     careerKicker: "OverCut Career",
     careerTitle: "Modo trayectoria",
-    backToGames: "Volver a minijuegos",
-    gamesLabel: "Juegos",
+    backToHome: "Volver a OverCut",
+    homeLabel: "OverCut",
     restart: "Reiniciar",
     dataFallback: "Datos locales de respaldo",
     dataCache: "Cache OverCutRacing",
@@ -263,8 +263,8 @@ const STRINGS = {
     // Header / shell
     careerKicker: "OverCut Career",
     careerTitle: "Career mode",
-    backToGames: "Back to minigames",
-    gamesLabel: "Games",
+    backToHome: "Back to OverCut",
+    homeLabel: "OverCut",
     restart: "Restart",
     dataFallback: "Local fallback data",
     dataCache: "OverCutRacing cache",
