@@ -5022,10 +5022,11 @@
 .cm-season-data-row .cm-standings {
   min-width: 0;
   padding: clamp(14px, 1.8vw, 18px);
-  background: var(--cm-panel);
-  border: 1px solid var(--cm-line);
+  color: white;
+  background: rgba(0, 13, 25, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
-  box-shadow: 0 12px 34px rgba(7, 26, 49, 0.08);
+  box-shadow: 0 12px 34px rgba(0, 8, 18, 0.18);
 }
 
 .cm-season-data-row .cm-calendar ol,
@@ -5036,6 +5037,28 @@
 .cm-season-data-row .cm-calendar li,
 .cm-season-data-row .cm-standings li {
   min-height: 36px;
+}
+
+.cm-season-data-row .cm-standings li {
+  color: white;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--row-color, var(--cm-gold)) 22%, rgba(0, 10, 20, 0.62)), rgba(0, 10, 20, 0.54));
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.cm-season-data-row .cm-standings li.is-player {
+  background: linear-gradient(90deg, rgba(247, 190, 34, 0.28), rgba(0, 10, 20, 0.58));
+  border-color: rgba(247, 190, 34, 0.78);
+}
+
+.cm-season-data-row .cm-standings strong,
+.cm-season-data-row .cm-standings li > b,
+.cm-season-data-row .cm-standings li em {
+  color: white;
+}
+
+.cm-season-data-row .cm-standings small {
+  color: rgba(255, 255, 255, 0.66);
 }
 
 .cm-season-data-row .cm-row-stripe {
