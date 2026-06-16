@@ -5019,6 +5019,10 @@
   align-items: start;
 }
 
+.cm-season-standings-stack {
+  display: contents;
+}
+
 .cm-season-data-row .cm-standings {
   min-width: 0;
   padding: clamp(14px, 1.8vw, 18px);
@@ -5866,14 +5870,12 @@
     grid-row: 2;
   }
 
-  .cm-phase-season .cm-season-data-row .cm-standings:nth-of-type(2) {
+  .cm-phase-season .cm-season-standings-stack {
     grid-column: 3;
-    grid-row: 1;
-  }
-
-  .cm-phase-season .cm-season-data-row .cm-standings:nth-of-type(3) {
-    grid-column: 3;
-    grid-row: 2;
+    grid-row: 1 / span 2;
+    display: grid;
+    gap: 10px;
+    align-self: start;
   }
 
   .cm-phase-season .cm-profile-card,

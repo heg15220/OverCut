@@ -1330,8 +1330,10 @@ const SeasonDashboard = ({
             ))}
           </ol>
         </section>
-        <StandingsTable title={t.standingsDrivers} rows={season.driverStandings} isDrivers />
-        <StandingsTable title={t.standingsConstructors} rows={season.constructorStandings} />
+        <div className="cm-season-standings-stack">
+          <StandingsTable title={t.standingsDrivers} rows={season.driverStandings} isDrivers />
+          <StandingsTable title={t.standingsConstructors} rows={season.constructorStandings} />
+        </div>
       </section>
     </div>
   );
