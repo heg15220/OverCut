@@ -255,6 +255,152 @@
   color: var(--cm-danger);
 }
 
+.cm-save-code-notice {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  max-width: min(760px, 100%);
+  margin-top: 12px;
+  padding: 12px;
+  color: white;
+  background:
+    linear-gradient(135deg, rgba(247, 190, 34, 0.22), rgba(10, 45, 82, 0.84)),
+    var(--cm-blue-dark);
+  border: 1px solid rgba(247, 190, 34, 0.64);
+  border-left: 5px solid var(--cm-gold);
+  border-radius: 8px;
+  box-shadow: 0 14px 32px rgba(7, 26, 49, 0.2);
+  animation: cmSaveNoticeIn 0.42s ease both, cmSaveNoticeGlow 1.8s ease-in-out 0.42s 3;
+}
+
+.cm-save-code-notice::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0 35%, rgba(255, 255, 255, 0.2) 45%, transparent 56% 100%);
+  transform: translateX(-120%);
+  animation: cmSaveNoticeSweep 1.35s ease 0.18s 2;
+  pointer-events: none;
+}
+
+.cm-save-code-pulse {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: var(--cm-black);
+  background: var(--cm-gold);
+  border-radius: 8px;
+}
+
+.cm-save-code-pulse::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 2px solid rgba(247, 190, 34, 0.55);
+  border-radius: 10px;
+  animation: cmSaveCodePulse 1.15s ease-in-out infinite;
+}
+
+.cm-save-code-pulse svg {
+  position: relative;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+}
+
+.cm-save-code-content {
+  min-width: 0;
+}
+
+.cm-save-code-content span,
+.cm-hero .cm-save-code-content span {
+  display: block;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cm-save-code-content strong {
+  display: block;
+  margin-top: 3px;
+  color: white;
+  font-family: "Arial Black", Impact, sans-serif;
+  font-size: clamp(20px, 2.2vw, 29px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.cm-save-code-content p {
+  margin: 5px 0 0;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.cm-save-code-content p b {
+  display: inline;
+  margin-right: 5px;
+  color: var(--cm-gold);
+  text-transform: uppercase;
+}
+
+.cm-save-code-copy {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 9px 12px;
+  color: var(--cm-black);
+  background: var(--cm-gold);
+  border: 1px solid var(--cm-gold);
+  border-radius: 7px;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.cm-save-code-copy:hover,
+.cm-save-code-copy:focus-visible {
+  background: #ffe08a;
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+@keyframes cmSaveNoticeIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes cmSaveNoticeGlow {
+  0%, 100% { box-shadow: 0 14px 32px rgba(7, 26, 49, 0.2); }
+  50% { box-shadow: 0 14px 32px rgba(7, 26, 49, 0.2), 0 0 0 4px rgba(247, 190, 34, 0.2); }
+}
+
+@keyframes cmSaveNoticeSweep {
+  to { transform: translateX(120%); }
+}
+
+@keyframes cmSaveCodePulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
 .cm-setup,
 .cm-decade-choice,
 .cm-year-dice,
@@ -1939,7 +2085,10 @@
   .cm-card-bar-gain,
   .cm-xp-list div,
   .cm-xp-list div::after,
-  .cm-xp-list div.is-up em {
+  .cm-xp-list div.is-up em,
+  .cm-save-code-notice,
+  .cm-save-code-notice::after,
+  .cm-save-code-pulse::before {
     animation: none;
   }
 }
@@ -4857,6 +5006,333 @@
   }
 }
 
+/* Season dashboard: keep the calendar and both standings grouped and compact. */
+.cm-season-layout {
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+}
+
+.cm-season-data-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(260px, 0.95fr) repeat(2, minmax(260px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.cm-season-data-row .cm-standings {
+  min-width: 0;
+  padding: clamp(14px, 1.8vw, 18px);
+  background: var(--cm-panel);
+  border: 1px solid var(--cm-line);
+  border-radius: 8px;
+  box-shadow: 0 12px 34px rgba(7, 26, 49, 0.08);
+}
+
+.cm-season-data-row .cm-calendar ol,
+.cm-season-data-row .cm-standings ol {
+  max-height: clamp(320px, 42svh, 520px);
+}
+
+.cm-season-data-row .cm-calendar li,
+.cm-season-data-row .cm-standings li {
+  min-height: 36px;
+}
+
+.cm-season-data-row .cm-row-stripe {
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .cm-season-data-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cm-season-data-row .cm-calendar {
+    grid-column: 1 / -1;
+  }
+
+  .cm-season-data-row .cm-calendar ol,
+  .cm-season-data-row .cm-standings ol {
+    max-height: min(360px, 42svh);
+  }
+}
+
+@media (max-width: 820px) {
+  .cm-season-layout > .cm-season-data-row {
+    order: 3;
+  }
+}
+
+@media (max-width: 640px) {
+  .cm-season-layout {
+    gap: 9px;
+  }
+
+  .cm-season-layout > .cm-next-race {
+    order: 1;
+  }
+
+  .cm-season-layout > .cm-season-side {
+    order: 2;
+  }
+
+  .cm-season-layout > .cm-season-data-row {
+    order: 3;
+  }
+
+  .cm-season-data-row {
+    grid-template-columns: repeat(3, minmax(188px, 1fr));
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+
+  .cm-season-data-row .cm-calendar {
+    grid-column: auto;
+  }
+
+  .cm-season-data-row .cm-calendar,
+  .cm-season-data-row .cm-standings {
+    scroll-snap-align: start;
+    padding: 9px;
+  }
+
+  .cm-season-data-row .cm-calendar h3,
+  .cm-season-data-row .cm-standings h3 {
+    margin-bottom: 7px;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .cm-season-data-row .cm-calendar ol,
+  .cm-season-data-row .cm-standings ol {
+    gap: 4px;
+    max-height: min(292px, 46svh);
+  }
+
+  .cm-season-data-row .cm-calendar li {
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 5px;
+    min-height: 30px;
+    padding: 5px 6px;
+  }
+
+  .cm-season-data-row .cm-calendar li b,
+  .cm-season-data-row .cm-standings li > b,
+  .cm-season-data-row .cm-standings li em {
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  .cm-season-data-row .cm-calendar li span,
+  .cm-season-data-row .cm-standings strong {
+    font-size: 10px;
+  }
+
+  .cm-season-data-row .cm-standings small {
+    font-size: 8px;
+  }
+
+  .cm-season-data-row .cm-standings li {
+    grid-template-columns: 20px 5px minmax(0, 1fr) 30px;
+    gap: 5px;
+    min-height: 30px;
+    padding: 5px 6px;
+  }
+
+  .cm-season-data-row .cm-row-stripe {
+    width: 5px;
+    height: 20px;
+  }
+
+  .cm-profile-card,
+  .cm-next-race {
+    padding: 10px;
+  }
+
+  .cm-profile-card .cm-driver-preview {
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact {
+    margin: 8px 0;
+    padding: 9px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-head {
+    gap: 7px;
+    margin-bottom: 7px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-id b {
+    font-size: 21px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-overall {
+    min-height: 44px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-overall strong {
+    font-size: 27px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-attrs {
+    gap: 5px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-attrs li {
+    grid-template-columns: 44px minmax(0, 1fr) 30px;
+    gap: 5px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-attr-label b,
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-attr-value {
+    font-size: 15px;
+  }
+
+  .cm-profile-card .cm-driver-card.is-compact .cm-card-bar {
+    height: 7px;
+  }
+
+  .cm-profile-card .cm-season-objectives,
+  .cm-next-race .cm-season-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .cm-profile-card .cm-season-objectives .cm-stat,
+  .cm-next-race .cm-season-stats .cm-stat {
+    grid-template-columns: 1fr;
+    min-height: 40px;
+    gap: 2px;
+    padding: 5px;
+  }
+
+  .cm-profile-card .cm-season-objectives .cm-stat span,
+  .cm-next-race .cm-season-stats .cm-stat span {
+    overflow: hidden;
+    font-size: 8px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-profile-card .cm-season-objectives .cm-stat b,
+  .cm-next-race .cm-season-stats .cm-stat b {
+    overflow: hidden;
+    font-size: clamp(14px, 4.2vw, 18px);
+    line-height: 1;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-next-race .cm-big-action {
+    min-height: 58px;
+    padding: 9px 8px;
+    gap: 6px;
+    font-size: clamp(18px, 5.8vw, 25px);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .cm-race-live .cm-sim-controls .cm-sim-skip {
+    min-width: 0;
+    min-height: 30px;
+    padding: 4px 3px;
+    overflow: visible;
+    font-size: clamp(9px, 2.85vw, 11px);
+    line-height: 1.05;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 420px) {
+  .cm-season-data-row {
+    grid-template-columns: repeat(3, minmax(172px, 1fr));
+  }
+
+  .cm-season-data-row .cm-standings .cm-row-stripe {
+    display: block;
+  }
+}
+
+/* Tablet decade choice: preserve readable card grids without clipped labels. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .cm-decade-choice {
+    padding: clamp(16px, 2.4vw, 22px);
+  }
+
+  .cm-decade-choice .cm-panel-head h2 {
+    font-size: clamp(32px, 5.8vw, 48px);
+    line-height: 0.98;
+  }
+
+  .cm-decade-choice .cm-choice-stage {
+    grid-template-columns: minmax(0, 0.9fr) minmax(300px, 1.1fr);
+    gap: 12px;
+  }
+
+  .cm-decade-choice .cm-roll-result-choice {
+    min-height: 190px;
+    padding: 16px;
+  }
+
+  .cm-decade-choice .cm-roll-result-choice b {
+    font-size: clamp(42px, 7.8vw, 68px);
+    line-height: 0.92;
+  }
+
+  .cm-decade-choice .cm-dice-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .cm-decade-choice .cm-choice-card {
+    min-height: 190px;
+    padding: 14px;
+  }
+
+  .cm-decade-choice .cm-choice-card b {
+    font-size: clamp(24px, 3.5vw, 34px);
+    line-height: 0.98;
+    overflow-wrap: anywhere;
+  }
+
+  .cm-decade-choice .cm-choice-card small {
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .cm-decade-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .cm-decade-grid button {
+    min-height: 76px;
+    padding: 10px;
+    overflow: visible;
+  }
+
+  .cm-decade-grid span {
+    font-size: 9px;
+    line-height: 1;
+  }
+
+  .cm-decade-grid b {
+    font-size: clamp(22px, 3.6vw, 30px);
+    line-height: 0.95;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}
+
 @media (max-width: 380px) {
   .cm-race-live .cm-sim-controls {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4988,6 +5464,240 @@
     line-height: 1;
     white-space: nowrap;
   }
+
+  .cm-save-code-notice {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px;
+    border-left-width: 4px;
+  }
+
+  .cm-save-code-pulse {
+    width: 32px;
+    height: 32px;
+  }
+
+  .cm-save-code-pulse svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .cm-save-code-content strong {
+    font-size: clamp(17px, 5.2vw, 22px);
+  }
+
+  .cm-save-code-content p {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .cm-save-code-copy {
+    grid-column: 1 / -1;
+    min-height: 36px;
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+
+  .cm-contract-signing {
+    padding: 10px;
+  }
+
+  .cm-contract-signing .cm-panel-head {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .cm-contract-signing .cm-panel-head > svg {
+    width: 30px;
+    height: 30px;
+    padding: 6px;
+  }
+
+  .cm-contract-signing .cm-panel-head span {
+    font-size: 9px;
+    line-height: 1;
+  }
+
+  .cm-contract-signing .cm-panel-head h2 {
+    font-size: clamp(20px, 6.3vw, 27px);
+    line-height: 1;
+  }
+
+  .cm-signing-layout {
+    gap: 8px;
+  }
+
+  .cm-contract-document {
+    gap: 8px;
+    padding: 10px;
+    border-left-width: 4px;
+  }
+
+  .cm-contract-document .cm-contract-tier {
+    max-width: 100%;
+    padding: 3px 6px;
+    overflow: hidden;
+    font-size: 8px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-contract-party {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .cm-contract-party div {
+    padding: 8px;
+    border-radius: 6px;
+  }
+
+  .cm-contract-party small,
+  .cm-signature-zone span,
+  .cm-contract-document dt {
+    font-size: 8px;
+    line-height: 1;
+  }
+
+  .cm-contract-party b {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: clamp(17px, 5.3vw, 23px);
+    line-height: 0.95;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .cm-contract-party .cm-contract-link {
+    display: none;
+  }
+
+  .cm-contract-document p,
+  .cm-contract-document .cm-market-reason {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 10px;
+    line-height: 1.22;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .cm-contract-document .cm-market-reason {
+    padding: 5px 7px;
+    border-left-width: 3px;
+  }
+
+  .cm-contract-document dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .cm-contract-document dl div {
+    min-width: 0;
+    padding: 7px;
+    border-radius: 6px;
+  }
+
+  .cm-contract-document dd {
+    display: block;
+    overflow: hidden;
+    margin-top: 3px;
+    font-size: clamp(13px, 4vw, 17px);
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cm-signature-zone {
+    gap: 5px;
+    padding: 8px;
+    border-radius: 6px;
+  }
+
+  .cm-signature-line {
+    min-height: 38px;
+    border-bottom-width: 2px;
+  }
+
+  .cm-signature-line b {
+    bottom: 5px;
+    font-size: clamp(22px, 7.4vw, 31px);
+  }
+
+  .cm-signature-line i {
+    bottom: 20px;
+    width: 32px;
+    height: 8px;
+  }
+
+  .cm-link-animation {
+    grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr);
+    align-items: center;
+    gap: 6px;
+    min-height: 0;
+    padding: 8px;
+    border-radius: 6px;
+  }
+
+  .cm-link-driver,
+  .cm-link-team {
+    gap: 5px;
+    min-width: 0;
+    padding: 7px;
+    border-radius: 6px;
+  }
+
+  .cm-link-driver .cm-helmet {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .cm-link-driver b,
+  .cm-link-team b {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 11px;
+    line-height: 1;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .cm-link-team .cm-team-stripe {
+    width: 52px;
+    height: 6px;
+  }
+
+  .cm-link-beam {
+    width: 34px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--cm-gold), var(--team-color));
+  }
+
+  .cm-link-animation p {
+    grid-column: 1 / -1;
+    font-size: 10px;
+    line-height: 1.22;
+  }
+
+  .cm-signing-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 8px;
+  }
+
+  .cm-signing-actions .cm-btn {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .cm-signing-actions .cm-btn:only-child {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 360px) {
@@ -5010,5 +5720,25 @@
   .cm-silly-season .cm-market-reason,
   .cm-season-review .cm-market-reason {
     -webkit-line-clamp: 1;
+  }
+
+  .cm-contract-document dl {
+    gap: 4px;
+  }
+
+  .cm-contract-document dl div {
+    padding: 6px;
+  }
+
+  .cm-contract-document dd {
+    font-size: 13px;
+  }
+
+  .cm-link-animation {
+    grid-template-columns: 1fr;
+  }
+
+  .cm-link-beam {
+    display: none;
   }
 }

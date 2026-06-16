@@ -6,6 +6,8 @@ import {
   ArrowLeftShort,
   AwardFill,
   BriefcaseFill,
+  ClipboardCheckFill,
+  ClipboardFill,
   Dice5Fill,
   FlagFill,
   Folder2Open,
@@ -165,6 +167,30 @@ const stat = (label, value) => (
     <b>{value}</b>
   </div>
 );
+
+const SaveCodeNotice = ({ notice, copied, onCopy }) => {
+  if (!notice?.code) return null;
+  const title = notice.kind === "loaded" ? t.saveNoticeLoaded : t.saveNoticeSaved;
+  return (
+    <aside className="cm-save-code-notice" aria-live="polite">
+      <div className="cm-save-code-pulse" aria-hidden="true">
+        <ClipboardFill />
+      </div>
+      <div className="cm-save-code-content">
+        <span>{title}</span>
+        <strong>{notice.code}</strong>
+        <p>
+          <b>{t.saveCodeImportantTitle}</b>
+          {t.saveCodeImportantCopy}
+        </p>
+      </div>
+      <button className="cm-save-code-copy" type="button" onClick={onCopy}>
+        {copied ? <ClipboardCheckFill /> : <ClipboardFill />}
+        {copied ? t.saveCodeCopied : t.copySaveCode}
+      </button>
+    </aside>
+  );
+};
 
 // One attribute bar; when `delta > 0` a brighter overlay marks the points just
 // gained so the post-race growth reads at a glance.
@@ -1264,17 +1290,6 @@ const SeasonDashboard = ({
             {t.retire}
           </button>
         </section>
-        <section className="cm-panel cm-calendar">
-          <h3>{t.calendarYear(season.year)}</h3>
-          <ol>
-            {season.races.map((race, index) => (
-              <li key={`${race.round}-${race.name}`} className={index === currentRaceIndex ? "is-active" : race.completed ? "is-done" : ""}>
-                <b>{race.round}</b>
-                <span>{localizeRaceName(race.name, lang)}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
       </aside>
       <section className="cm-panel cm-next-race">
         <div className="cm-panel-head">
@@ -1303,10 +1318,21 @@ const SeasonDashboard = ({
           </section>
         )}
       </section>
-      <aside className="cm-season-standings">
+      <section className="cm-season-data-row" aria-label={t.calendarYear(season.year)}>
+        <section className="cm-panel cm-calendar">
+          <h3>{t.calendarYear(season.year)}</h3>
+          <ol>
+            {season.races.map((race, index) => (
+              <li key={`${race.round}-${race.name}`} className={index === currentRaceIndex ? "is-active" : race.completed ? "is-done" : ""}>
+                <b>{race.round}</b>
+                <span>{localizeRaceName(race.name, lang)}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
         <StandingsTable title={t.standingsDrivers} rows={season.driverStandings} isDrivers />
         <StandingsTable title={t.standingsConstructors} rows={season.constructorStandings} />
-      </aside>
+      </section>
     </div>
   );
 };
@@ -1548,11 +1574,14 @@ const CareerMode = () => {
   const [saveCodeInput, setSaveCodeInput] = useState(() => formatSaveCode(readBrowserSaveCode()));
   const [saveStatus, setSaveStatus] = useState("idle");
   const [saveMessage, setSaveMessage] = useState("");
+  const [saveNotice, setSaveNotice] = useState(null);
+  const [saveCodeCopied, setSaveCodeCopied] = useState(false);
   const [loadStatus, setLoadStatus] = useState("idle");
   const [loadError, setLoadError] = useState("");
   const headerRef = useRef(null);
   const mainRef = useRef(null);
   const raceLivePanelRef = useRef(null);
+  const seasonHeaderScrollDoneRef = useRef(false);
   const signingTimerRef = useRef(null);
   const rollTimerRef = useRef(null);
   const lang = locale;
@@ -1591,6 +1620,11 @@ const CareerMode = () => {
         "season-review": ".cm-season-review",
         retired: ".cm-retirement",
       };
+      if (phase === "season" && !seasonHeaderScrollDoneRef.current) {
+        seasonHeaderScrollDoneRef.current = true;
+        headerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
       const target = selectors[phase] ? mainRef.current?.querySelector(selectors[phase]) : null;
       (target || headerRef.current)?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
@@ -1773,6 +1807,8 @@ const CareerMode = () => {
     setManualDecadeOpen(false);
     setRollingTarget(null);
     setSaveMessage("");
+    setSaveNotice(null);
+    setSaveCodeCopied(false);
     setLoadError("");
     clearRuntimeTimers();
   };
@@ -1786,15 +1822,20 @@ const CareerMode = () => {
     if (phase === "career-menu") return;
     setSaveStatus("saving");
     setSaveMessage("");
+    setSaveNotice(null);
+    setSaveCodeCopied(false);
     try {
       const response = await saveCareerState({ code: saveCode, state: buildCareerSnapshot() });
+      const formattedCode = formatSaveCode(response.code);
       setSaveCode(response.code);
-      setSaveCodeInput(formatSaveCode(response.code));
+      setSaveCodeInput(formattedCode);
       writeBrowserSaveCode(response.code);
       setSaveStatus("saved");
-      setSaveMessage(t.saveSuccess(formatSaveCode(response.code)));
+      setSaveMessage("");
+      setSaveNotice({ kind: "saved", code: formattedCode });
     } catch (error) {
       setSaveStatus("error");
+      setSaveNotice(null);
       setSaveMessage(t.saveError);
     }
   };
@@ -1802,17 +1843,45 @@ const CareerMode = () => {
   const handleLoad = async () => {
     setLoadStatus("loading");
     setLoadError("");
+    setSaveNotice(null);
+    setSaveCodeCopied(false);
     try {
       const response = await loadCareerState(saveCodeInput);
       applyCareerSnapshot(response.state);
+      const formattedCode = formatSaveCode(response.code);
       setSaveCode(response.code);
-      setSaveCodeInput(formatSaveCode(response.code));
+      setSaveCodeInput(formattedCode);
       writeBrowserSaveCode(response.code);
-      setSaveMessage(t.loadSuccess(formatSaveCode(response.code)));
+      setSaveStatus("saved");
+      setSaveMessage("");
+      setSaveNotice({ kind: "loaded", code: formattedCode });
+      setSaveCodeCopied(false);
       setLoadStatus("idle");
     } catch (error) {
       setLoadStatus("idle");
       setLoadError(t.loadError);
+    }
+  };
+
+  const copySaveNoticeCode = async () => {
+    if (!saveNotice?.code) return;
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(saveNotice.code);
+      } else if (typeof document !== "undefined") {
+        const input = document.createElement("textarea");
+        input.value = saveNotice.code;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+      }
+      setSaveCodeCopied(true);
+    } catch (error) {
+      setSaveCodeCopied(false);
     }
   };
 
@@ -2048,6 +2117,7 @@ const CareerMode = () => {
                 : t.heroFallbackTitle}
             </h2>
             {saveMessage && <p className={`cm-save-message${saveStatus === "error" ? " is-error" : ""}`}>{saveMessage}</p>}
+            <SaveCodeNotice notice={saveNotice} copied={saveCodeCopied} onCopy={copySaveNoticeCode} />
           </div>
           {profile && (
             <div className="cm-hero-profile">
