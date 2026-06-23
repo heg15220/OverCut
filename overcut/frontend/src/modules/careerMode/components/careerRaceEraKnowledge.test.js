@@ -92,6 +92,34 @@ describe("career race era knowledge", () => {
     expect(event.text).not.toMatch(/VSC|undercut|overcut/i);
   });
 
+  test("strategy mini-stories carry the position result they describe", () => {
+    const gain = renderStrategyEvent({
+      driver: "Player",
+      rival: "Rival",
+      team: "Team",
+      lap: 20,
+      year: 2024,
+      rng: rngSequence([0]),
+      player: true,
+      state: { year: 2024, condition: "seco" },
+    });
+    const loss = renderStrategyEvent({
+      driver: "Player",
+      rival: "Rival",
+      team: "Team",
+      lap: 21,
+      year: 2024,
+      rng: rngSequence([0.42]),
+      player: true,
+      state: { year: 2024, condition: "seco" },
+    });
+
+    expect(gain.text).toMatch(/undercut|overcut|plaza|delante/i);
+    expect(gain.positionDelta).toBe(-1);
+    expect(loss.text).toMatch(/Rival|pierde|completa el undercut|cruza por delante/i);
+    expect(loss.positionDelta).toBe(1);
+  });
+
   test("only allows ERS/battery as a feature from the hybrid era onward", () => {
     expect(isEraFeatureAllowed(1985, "ers")).toBeFalsy();
     expect(isEraFeatureAllowed(2002, "ers")).toBeFalsy();

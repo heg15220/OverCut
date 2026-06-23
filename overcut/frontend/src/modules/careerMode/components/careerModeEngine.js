@@ -1337,8 +1337,9 @@ const buildBattleAtLap = ({ results, lap, lapCount, raceName, year, rng, state }
   const outcome =
     roll < passChance ? pickRandom(successOutcomes, rng) :
     roll < passChance + 0.16 ? "error" :
-    roll < passChance + 0.4 ? "defense" :
-    roll < passChance + 0.64 ? "sideBySide" :
+    roll < passChance + 0.34 ? "defense" :
+    roll < passChance + 0.54 ? "sideBySide" :
+    roll < passChance + 0.72 ? "contact" :
     "lockup";
   const gain = BATTLE_GAIN_OUTCOMES.includes(outcome);
   // On a completed pass the attacker takes the defender's slot.

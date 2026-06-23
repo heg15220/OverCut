@@ -69,6 +69,14 @@ describe("renderBattleEvent", () => {
     expect(textEn).not.toMatch(/\d+(st|nd|rd|th)/);
   });
 
+  test("a contact battle names both drivers without claiming a pass", () => {
+    const { text, textEn } = renderBattleEvent(baseArgs({ outcome: "contact" }));
+    expect(text).toMatch(/Driver X/);
+    expect(text).toMatch(/Driver Y/);
+    expect(text).not.toMatch(/\d+Âº/);
+    expect(textEn).not.toMatch(/\d+(st|nd|rd|th)/);
+  });
+
   test("never uses DRS wording before the DRS era", () => {
     const offenders = [];
     for (let i = 0; i < 300; i += 1) {

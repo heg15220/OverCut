@@ -2,9 +2,23 @@ import { chooseEraTerm, isEraFeatureAllowed, raceKnowledgeStats } from "./career
 
 const DEFAULT_CORNERS = [
   { es: "la curva 1", en: "Turn 1", type: "braking" },
+  { es: "la curva 2", en: "Turn 2", type: "traction" },
+  { es: "la curva 3", en: "Turn 3", type: "flow" },
+  { es: "la curva 4", en: "Turn 4", type: "flow" },
+  { es: "la curva 6", en: "Turn 6", type: "slow" },
+  { es: "la curva 8", en: "Turn 8", type: "commitment" },
+  { es: "la curva 10", en: "Turn 10", type: "braking" },
+  { es: "la curva 11", en: "Turn 11", type: "traction" },
+  { es: "la curva 12", en: "Turn 12", type: "braking" },
+  { es: "la curva 13", en: "Turn 13", type: "braking" },
   { es: "la horquilla", en: "the hairpin", type: "slow" },
+  { es: "la salida de la horquilla", en: "the hairpin exit", type: "traction" },
+  { es: "la curva de doble vertice", en: "the double-apex corner", type: "technical" },
+  { es: "la curva rapida del segundo sector", en: "the fast corner in sector two", type: "commitment" },
+  { es: "la frenada al final de la recta trasera", en: "the braking zone at the end of the back straight", type: "braking" },
   { es: "la chicane final", en: "the final chicane", type: "kerb" },
   { es: "la recta principal", en: "the main straight", type: "straight" },
+  { es: "la recta trasera", en: "the back straight", type: "straight" },
   { es: "la entrada a boxes", en: "pit entry", type: "pit" },
   { es: "la ultima curva", en: "the final corner", type: "traction" },
 ];
@@ -119,40 +133,70 @@ const CIRCUIT_CORNERS = [
       { es: "la curva 13", en: "Turn 13", type: "braking" },
     ],
   },
+  {
+    match: ["united states", "austin", "cota", "americas"],
+    corners: [
+      { es: "la curva 1", en: "Turn 1", type: "braking" },
+      { es: "las eses", en: "the Esses", type: "flow" },
+      { es: "la curva 9", en: "Turn 9", type: "commitment" },
+      { es: "la curva 11", en: "Turn 11", type: "traction" },
+      { es: "la recta trasera", en: "the back straight", type: "straight" },
+      { es: "la curva 12", en: "Turn 12", type: "braking" },
+      { es: "la curva 15", en: "Turn 15", type: "technical" },
+      { es: "la curva 19", en: "Turn 19", type: "commitment" },
+      { es: "la ultima curva", en: "the final corner", type: "traction" },
+    ],
+  },
 ];
 
+
 const MOVE_STYLES = [
-  { es: "por dentro", en: "down the inside" },
-  { es: "por fuera", en: "around the outside" },
-  { es: "con un cambio de trayectoria", en: "with a switchback" },
-  { es: "apurando la frenada", en: "by braking late" },
-  { es: "con DRS al final de la recta", en: "with DRS at the end of the straight", needs: "drs" },
-  { es: "traccionando antes que su rival", en: "by getting earlier traction" },
-  { es: "metiéndose en el hueco minimo", en: "by squeezing into the smallest gap" },
-  { es: "cruzando el coche en la salida", en: "by crossing over on exit" },
-  { es: "manteniendo dos curvas en paralelo", en: "after staying side by side for two corners" },
-  { es: "en una maniobra a dos bandas", en: "with a two-car move" },
-  { es: "leyendo mejor el trafico", en: "by reading traffic better" },
-  { es: "aprovechando neumaticos mas vivos", en: "on fresher tyres" },
+  { es: "se pega al rebufo y aparece por dentro", en: "gets in the slipstream and appears down the inside" },
+  { es: "aguanta por fuera con el coche completamente en paralelo", en: "hangs around the outside with the car fully alongside" },
+  { es: "vende el ataque por fuera y cambia a la contratrazada", en: "sells the move outside and cuts back underneath" },
+  { es: "retrasa la frenada medio coche mas que su rival", en: "brakes half a car length later than the rival" },
+  { es: "abre DRS, descarga bateria y llega con mas punta", en: "opens DRS, deploys battery and arrives with more top speed", needs: ["drs", "ers"] },
+  { es: "sale mejor de la curva anterior y no necesita forzar el contacto", en: "gets a better exit from the previous corner and does not need to force contact" },
+  { es: "aprovecha una pequena correccion del rival para meter el morro", en: "uses a small correction from the rival to put the nose in" },
+  { es: "se queda a la izquierda hasta el ultimo metro y luego cruza el coche", en: "stays left until the final metre and then switches the car back" },
+  { es: "mantiene la presion durante todo el sector y el ataque llega preparado", en: "keeps the pressure on for the whole sector and arrives with the move prepared" },
+  { es: "lee el trafico por delante y elige el lado limpio", en: "reads the traffic ahead and chooses the clean side" },
+  { es: "usa la goma mas fresca para frenar tarde sin bloquear", en: "uses fresher tyres to brake late without locking" },
+  { es: "obliga al rival a cubrir una linea que no queria defender", en: "forces the rival to cover a line they did not want to defend" },
+  { es: "amaga por fuera, espera la defensa y cruza hacia el interior", en: "feints outside, waits for the defence and cuts back inside" },
+  { es: "se queda escondido en el rebufo hasta el ultimo cartel de frenada", en: "stays hidden in the tow until the final braking board" },
+  { es: "prepara la contratrazada desde la curva anterior", en: "sets up the switchback from the previous corner" },
+  { es: "sale con mejor traccion de la horquilla y llega con medio coche al lado", en: "gets better traction out of the hairpin and arrives half a car alongside" },
+  { es: "usa todo el ancho de pista para abrir el angulo de salida", en: "uses the full track width to open the exit angle" },
+  { es: "cambia de lado dos veces para forzar el error defensivo", en: "changes side twice to force the defensive mistake" },
+  { es: "se coloca por el exterior para tener el interior de la siguiente curva", en: "places the car outside to own the inside of the next corner" },
 ];
 
 const MOVE_RESULTS = [
-  { es: "completa el adelantamiento sin bloquear", en: "completes the pass without locking up" },
-  { es: "sale delante por medio coche", en: "comes out ahead by half a car length" },
-  { es: "fuerza al rival a levantar", en: "forces the rival to lift" },
-  { es: "gana la posicion y estabiliza temperatura de neumaticos", en: "takes the place and keeps the tyres in the window" },
-  { es: "se queda con la cuerda para la siguiente curva", en: "keeps the apex for the next corner" },
-  { es: "roza el piano pero mantiene el coche bajo control", en: "rides the kerb but keeps the car under control" },
-  { es: "convierte la defensa en ataque y gana una plaza", en: "turns defence into attack and gains a place" },
-  { es: "supera a dos coches que peleaban entre ellos", en: "passes two cars that were fighting each other" },
-  { es: "no culmina la maniobra, pero deja tocado al rival para la siguiente recta", en: "cannot finish it, but weakens the rival for the next straight" },
-  { es: "levanta al limite para evitar contacto y conserva el impulso", en: "backs out just enough to avoid contact and keeps momentum" },
+  { es: "completa el adelantamiento y sale con aire limpio", en: "completes the pass and exits in clean air" },
+  { es: "sale delante por menos de medio coche, pero la posicion es suya", en: "comes out ahead by less than half a car length, but the place is theirs" },
+  { es: "el rival tiene que levantar para evitar el toque", en: "the rival has to lift to avoid contact" },
+  { es: "gana la posicion sin castigar de mas la goma delantera", en: "takes the place without overworking the front tyre" },
+  { es: "se queda con el interior para la siguiente curva y cierra la puerta", en: "keeps the inside for the next corner and shuts the door" },
+  { es: "roza el piano, corrige rapido y mantiene el coche bajo control", en: "clips the kerb, corrects quickly and keeps the car under control" },
+  { es: "la maniobra queda hecha antes de la zona de frenada", en: "the move is done before the braking zone" },
+  { es: "deja al rival sin respuesta antes de la siguiente recta", en: "leaves the rival without an answer before the next straight" },
+  { es: "levanta al limite para evitar contacto y aun asi completa la maniobra", en: "backs out just enough to avoid contact and still completes the move" },
+  { es: "sale mejor colocado y obliga al otro coche a abrir la trazada", en: "exits better placed and forces the other car to open the line" },
+  { es: "convierte la defensa del rival en una salida lenta y gana la posicion", en: "turns the rival's defence into a slow exit and takes the place" },
+  { es: "mantiene el coche por fuera y se queda con el interior siguiente", en: "keeps the car around the outside and owns the next inside line" },
+  { es: "la contratrazada funciona y el rival no puede responder", en: "the switchback works and the rival cannot answer" },
+  { es: "el adelantamiento queda preparado una curva antes y rematado en la salida", en: "the pass is set up one corner earlier and finished on exit" },
+  { es: "obliga al rival a elegir entre levantar o salirse de pista", en: "forces the rival to choose between lifting or running off track" },
 ];
 
 const INCIDENT_CAUSES = [
   { es: "bloqueo delantero", en: "front lock-up" },
   { es: "latigazo de sobreviraje", en: "snap oversteer" },
   { es: "toque rueda con rueda", en: "wheel-to-wheel contact" },
+  { es: "toque por detras al cerrar la trazada", en: "rear contact as the line closes" },
+  { es: "aleron delantero tocado en plena pelea", en: "front wing damage in the fight" },
+  { es: "movimiento tardio en defensa", en: "late defensive move" },
   { es: "freno sobrecalentado", en: "overheated brakes" },
   { es: "piano demasiado agresivo", en: "too much kerb" },
   { es: "aquaplaning", en: "aquaplaning", needs: "wet" },
@@ -170,6 +214,10 @@ const INCIDENT_OUTCOMES = [
   { es: "sale el safety car", en: "the safety car is deployed", needs: "safetyCar" },
   { es: "la pista queda llena de restos y se investiga el incidente", en: "debris is scattered and the incident is investigated" },
   { es: "el coche llega lento a boxes", en: "the car limps back to the pits" },
+  { es: "el piloto se queda sin carga delantera y empieza a perder ritmo", en: "the driver loses front load and starts dropping pace" },
+  { es: "el rival evita el trompo por muy poco y ambos continuan", en: "the rival narrowly avoids a spin and both continue" },
+  { es: "la maniobra queda anotada para revisar despues de carrera", en: "the move is noted for review after the race" },
+  { es: "el coche se va largo y pierde la posicion al reincorporarse", en: "the car runs wide and loses the place on rejoining" },
   { es: "los comisarios preparan doble amarilla", en: "marshals prepare double yellows" },
   { es: "se abre una ventana estrategica inesperada", en: "an unexpected strategy window opens", needs: "advancedStrategy" },
   { es: "varios pilotos aprovechan para parar", en: "several drivers dive into the pits", needs: "pitStrategy" },
@@ -177,20 +225,54 @@ const INCIDENT_OUTCOMES = [
   { es: "el peloton se compacta de golpe", en: "the field suddenly bunches up" },
 ];
 
+
 const STRATEGY_EVENTS = [
   {
-    es: "{driver} intenta el undercut sobre {rival}; la vuelta de salida sera decisiva con goma fria.",
-    en: "{driver} tries the undercut on {rival}; the out-lap on cold tyres will decide it.",
+    es: "{team} lanza el undercut con {driver}: entra antes que {rival}, clava la vuelta de salida y aparece por delante cuando el rival responde.",
+    en: "{team} launches the undercut with {driver}: they pit before {rival}, nail the out-lap and emerge ahead when the rival responds.",
+    delta: -1,
     needs: "advancedStrategy",
   },
   {
-    es: "{driver} alarga el stint buscando overcut: necesita aire limpio y no castigar el eje trasero.",
-    en: "{driver} extends the stint for an overcut: clean air and rear-tyre control are essential.",
+    es: "{driver} intenta el undercut sobre {rival}, pero sale detras de un coche lento; {rival} para una vuelta despues y conserva la posicion.",
+    en: "{driver} tries the undercut on {rival}, but exits behind a slower car; {rival} pits one lap later and keeps the place.",
+    delta: 0,
     needs: "advancedStrategy",
   },
   {
-    es: "{team} prepara doble parada; un segundo lento puede costar dos posiciones.",
-    en: "{team} prepares a double stack; one slow second could cost two places.",
+    es: "{team} pide a {driver} empujar en aire limpio y busca el overcut; {rival} responde parando, pero vuelve a pista por detras.",
+    en: "{team} asks {driver} to push in clean air and goes for the overcut; {rival} responds by stopping, but rejoins behind.",
+    delta: -1,
+    needs: "advancedStrategy",
+  },
+  {
+    es: "{driver} alarga el stint para cubrir a {rival}, pero la goma cae en la ultima vuelta antes de parar; la posicion se pierde en boxes.",
+    en: "{driver} extends the stint to cover {rival}, but the tyre drops away on the final lap before stopping; the place is lost in the pit cycle.",
+    delta: 1,
+    needs: "advancedStrategy",
+  },
+  {
+    es: "{team} prepara la parada de {driver}; {rival} entra primero, mete una vuelta de salida agresiva y completa el undercut.",
+    en: "{team} prepares {driver}'s stop; {rival} pits first, delivers an aggressive out-lap and completes the undercut.",
+    delta: 1,
+    needs: "advancedStrategy",
+  },
+  {
+    es: "{driver} para para salir con aire limpio, pero {rival} aguanta una vuelta mas y cruza por delante al reincorporarse.",
+    en: "{driver} stops to find clean air, but {rival} stays out one lap longer and crosses ahead after rejoining.",
+    delta: 1,
+    needs: "advancedStrategy",
+  },
+  {
+    es: "{team} amaga con parar a {driver}; {rival} muerde el anzuelo, entra demasiado pronto y deja a {driver} con pista libre para ganar la plaza.",
+    en: "{team} feints a stop for {driver}; {rival} takes the bait, pits too early and leaves {driver} clear track to gain the place.",
+    delta: -1,
+    needs: "advancedStrategy",
+  },
+  {
+    es: "{team} prepara doble parada; {driver} pierde un segundo esperando detras de su companero y {rival} se mete en la pelea.",
+    en: "{team} prepares a double stack; {driver} loses a second waiting behind the team-mate and {rival} gets into the fight.",
+    delta: 1,
     needs: "pitStrategy",
   },
   {
@@ -204,8 +286,14 @@ const STRATEGY_EVENTS = [
     needs: "wet",
   },
   {
-    es: "{team} ajusta el aleron delantero en la parada para recuperar estabilidad en entrada de curva.",
-    en: "{team} tweaks the front wing at the stop to recover entry stability.",
+    es: "{driver} pide adelantar la parada porque el ritmo cae en aire sucio detras de {rival}; {team} acepta y la jugada evita perder otra plaza.",
+    en: "{driver} asks to pit early because the pace is dropping in dirty air behind {rival}; {team} agrees and the call avoids losing another place.",
+    delta: 0,
+  },
+  {
+    es: "{team} deja a {driver} una vuelta mas fuera; el sector final sale limpio y la parada le devuelve por delante de {rival}.",
+    en: "{team} leaves {driver} out for one more lap; the final sector is clean and the stop returns them ahead of {rival}.",
+    delta: -1,
   },
   {
     es: "{driver} recibe orden de levantar y rodar en delta positivo durante el VSC.",
@@ -219,32 +307,36 @@ const STRATEGY_EVENTS = [
   },
 ];
 
+
 const LEADER_EVENTS = [
   {
-    es: "{leader} lidera, pero {chaser} esta a menos de un segundo y abre DRS en cada recta.",
-    en: "{leader} leads, but {chaser} is within one second and opens DRS on every straight.",
+    es: "{leader} lidera, pero {chaser} ya esta en ventana de DRS y obliga al lider a defender la recta principal.",
+    en: "{leader} leads, but {chaser} is already in DRS range and forces the leader to defend the main straight.",
     needs: "drs",
   },
   {
-    es: "{leader} marca vuelta rapida y rompe el tren de DRS.",
-    en: "{leader} sets fastest lap pace and breaks the DRS train.",
-    needs: "drs",
+    es: "{leader} responde con una vuelta rapida y rompe el rebufo antes de que {chaser} pueda preparar el ataque.",
+    en: "{leader} answers with a fast lap and breaks the tow before {chaser} can set up the attack.",
   },
   {
-    es: "{leader} informa de vibraciones; {chaser} empieza a oler sangre.",
-    en: "{leader} reports vibrations; {chaser} starts to sense an opening.",
+    es: "{leader} informa de vibraciones; {chaser} reduce la diferencia y {third} se engancha al mismo tren.",
+    en: "{leader} reports vibrations; {chaser} cuts the gap and {third} joins the same train.",
   },
   {
-    es: "La cabeza se agrupa: {leader}, {chaser} y {third} ruedan separados por menos de tres segundos.",
-    en: "The lead group compresses: {leader}, {chaser} and {third} are covered by less than three seconds.",
+    es: "La cabeza se comprime: {leader}, {chaser} y {third} ruedan en menos de tres segundos, cada uno con un plan distinto.",
+    en: "The front compresses: {leader}, {chaser} and {third} are covered by less than three seconds, each on a different plan.",
   },
   {
-    es: "{leader} gestiona goma delantera y acepta perder dos decimas por vuelta.",
-    en: "{leader} manages the front tyres and accepts losing two tenths per lap.",
+    es: "{leader} gestiona el eje delantero y acepta perder dos decimas; {chaser} necesita acercarse sin cocinar sus neumaticos.",
+    en: "{leader} manages the front axle and accepts losing two tenths; {chaser} must close without cooking the tyres.",
   },
   {
-    es: "{chaser} se acerca a {leader} despues de encontrar aire limpio tras la parada.",
-    en: "{chaser} closes on {leader} after finding clean air after the stop.",
+    es: "{chaser} encuentra aire limpio tras la parada y empieza a devolverle presion a {leader}.",
+    en: "{chaser} finds clean air after the stop and starts putting pressure back on {leader}.",
+  },
+  {
+    es: "{third} marca un sector morado y convierte el duelo de cabeza en una pelea de tres coches.",
+    en: "{third} sets a purple sector and turns the lead duel into a three-car fight.",
   },
 ];
 
@@ -284,23 +376,32 @@ const WEATHER_EVENTS = [
   },
 ];
 
+
 const RACE_RHYTHM_EVENTS = [
   {
-    es: "Carrera en ritmo verde: el grupo se estira y cada piloto protege su ventana de neumaticos.",
-    en: "Green-flag rhythm: the field stretches out and every driver protects their tyre window.",
+    es: "Carrera en ritmo verde: el grupo se estira y cada piloto protege su propia ventana de neumaticos.",
+    en: "Green-flag rhythm: the field stretches out and every driver protects their own tyre window.",
   },
   {
-    es: "Sin neutralizaciones, la carrera entra en fase de gestion pura: aire limpio, temperatura y paciencia.",
-    en: "With no neutralisation, the race moves into pure management: clean air, temperature and patience.",
+    es: "Con pista verde, la carrera entra en fase de gestion pura: aire limpio, temperatura y paciencia.",
+    en: "Under green-flag running, the race moves into pure management: clean air, temperature and patience.",
   },
   {
     es: "El peloton se ordena por ritmo real; adelantar exige preparar la maniobra varias curvas antes.",
     en: "The field settles by real pace; overtaking needs to be prepared several corners in advance.",
   },
   {
-    es: "Los muros comparan tiempos de vuelta: la amenaza ya no es el coche de delante, sino la ventana de parada.",
+    es: "Los muros comparan tiempos de vuelta: la amenaza ya no es solo el coche de delante, sino la ventana de parada.",
     en: "Pit walls compare lap times: the threat is no longer just the car ahead, but the stop window.",
     needs: "pitStrategy",
+  },
+  {
+    es: "La carrera se parte en pequenos trenes; quien pierda un segundo ahora puede pasar diez vueltas mirando al mismo aleron.",
+    en: "The race splits into small trains; anyone losing a second now may spend ten laps staring at the same rear wing.",
+  },
+  {
+    es: "Los ingenieros piden lift and coast: nadie quiere ganar una decima y pagarla con frenos al limite cinco vueltas despues.",
+    en: "Engineers ask for lift and coast: nobody wants to gain a tenth and pay for it with overheated brakes five laps later.",
   },
 ];
 
@@ -362,6 +463,7 @@ const RESTART_EVENTS = [
   },
 ];
 
+
 const EXTRA_PHASES = [
   {
     es: "en plena gestion de bateria",
@@ -374,16 +476,16 @@ const EXTRA_PHASES = [
     needs: "drs",
   },
   {
-    es: "tras una vuelta de salida complicada",
-    en: "after a tricky out-lap",
+    es: "tras una vuelta delicada",
+    en: "after a delicate lap",
   },
   {
     es: "cuando el neumatico delantero empieza a abrirse",
     en: "as the front tyre starts to grain",
   },
   {
-    es: "con el deposito mas ligero",
-    en: "with the fuel load coming down",
+    es: "con el deposito mas ligero y el coche mas reactivo",
+    en: "with the fuel load dropping and the car more responsive",
   },
   {
     es: "mientras el muro recalcula la ventana de parada",
@@ -402,8 +504,8 @@ const EXTRA_PHASES = [
     en: "on used tyres against fresh tyres",
   },
   {
-    es: "cuando la pista empieza a mejorar",
-    en: "as the track starts to improve",
+    es: "cuando la pista empieza a mejorar vuelta a vuelta",
+    en: "as the track starts improving lap by lap",
   },
 ];
 
@@ -430,8 +532,8 @@ const EXTRA_ACTIONS = [
     en: "{team} asks {driver} to protect the left-rear tyre",
   },
   {
-    es: "{driver} encuentra agarre fuera de la trazada limpia",
-    en: "{driver} finds grip away from the clean racing line",
+    es: "{driver} encuentra agarre fuera de la trazada habitual",
+    en: "{driver} finds grip away from the usual racing line",
   },
   {
     es: "{driver} salva una correccion de volante a alta velocidad",
@@ -450,24 +552,32 @@ const EXTRA_ACTIONS = [
     es: "{driver} usa el piano interior para mantener el coche dentro del limite",
     en: "{driver} uses the inside kerb to keep the car within track limits",
   },
+  {
+    es: "{driver} deja respirar el coche en el primer sector para atacar en el segundo",
+    en: "{driver} lets the car breathe in sector one to attack in sector two",
+  },
+  {
+    es: "{team} avisa a {driver} de que {rival} empieza a perder salida de curva",
+    en: "{team} warns {driver} that {rival} is starting to lose corner exit",
+  },
 ];
 
 const EXTRA_OUTCOMES = [
   {
-    es: "la maniobra cambia el ritmo del grupo durante dos vueltas",
-    en: "the move changes the pace of the group for two laps",
+    es: "la accion cambia el ritmo del grupo durante dos vueltas",
+    en: "the action changes the pace of the group for two laps",
   },
   {
-    es: "el rival queda fuera de temperatura y pierde otra posicion",
-    en: "the rival drops out of the tyre window and loses another place",
+    es: "el rival queda fuera de temperatura y debe defender antes de tiempo",
+    en: "the rival drops out of the tyre window and has to defend early",
   },
   {
     es: "el muro celebra por radio una ejecucion limpia",
     en: "the pit wall praises a clean execution over the radio",
   },
   {
-    es: "direccion de carrera anota la accion, pero no hay investigacion",
-    en: "race control notes the action, but there is no investigation",
+    es: "la accion queda al limite, pero los dos coches siguen sin danos",
+    en: "the move is right on the edge, but both cars continue without damage",
   },
   {
     es: "el coche queda vulnerable en la recta siguiente",
@@ -482,8 +592,8 @@ const EXTRA_OUTCOMES = [
     en: "the planned stop is delayed by one lap to avoid traffic",
   },
   {
-    es: "el lider recibe aviso de que la amenaza es real",
-    en: "the leader is warned that the threat is real",
+    es: "el ingeniero avisa de que la amenaza es real",
+    en: "the engineer warns that the threat is real",
   },
   {
     es: "el grupo se parte y aparece aire limpio",
@@ -522,7 +632,16 @@ const EXTRA_CONTEXTS = [
     es: "despues de pisar grava en la vuelta anterior",
     en: "after touching gravel on the previous lap",
   },
+  {
+    es: "con el rival mirando mas al retrovisor que al vertice",
+    en: "with the rival watching the mirror more than the apex",
+  },
+  {
+    es: "cuando la diferencia de goma empieza a notarse",
+    en: "as the tyre offset starts to show",
+  },
 ];
+
 
 const PRESSURE_TRIGGERS = [
   {
@@ -557,6 +676,14 @@ const PRESSURE_TRIGGERS = [
     es: "el equipo detecta vibracion en la goma delantera derecha",
     en: "the team detects vibration on the front-right tyre",
   },
+  {
+    es: "{driver} pierde dos decimas en trafico y {rival} se acerca a zona de ataque",
+    en: "{driver} loses two tenths in traffic and {rival} moves into attack range",
+  },
+  {
+    es: "el eje trasero empieza a deslizar al abrir gas",
+    en: "the rear axle starts sliding on throttle",
+  },
 ];
 
 const PRESSURE_REACTIONS = [
@@ -586,13 +713,21 @@ const PRESSURE_REACTIONS = [
     en: "{driver} prepares the braking zone with a short shift",
   },
   {
-    es: "{team} retrasa la parada para cubrir una posible neutralizacion",
-    en: "{team} delays the stop to cover a possible neutralisation",
+    es: "{team} retrasa la parada para buscar una ventana con menos trafico",
+    en: "{team} delays the stop to find a lighter traffic window",
   },
   {
     es: "{driver} acepta perder DRS para no sobrecalentar el coche",
     en: "{driver} accepts losing DRS to avoid overheating the car",
     needs: "drs",
+  },
+  {
+    es: "{driver} protege el interior y obliga al rival a recorrer mas metros",
+    en: "{driver} protects the inside and makes the rival travel the long way round",
+  },
+  {
+    es: "{team} pide cambiar objetivo: conservar ritmo antes que pelear cada curva",
+    en: "{team} changes the target: preserve pace rather than fight every corner",
   },
 ];
 
@@ -626,58 +761,212 @@ const PRESSURE_CONSEQUENCES = [
     en: "an opportunity appears if there is a mistake on corner exit",
   },
   {
-    es: "el grupo se comprime y cualquier bloqueo puede cambiar tres posiciones",
-    en: "the group compresses and any lock-up could change three positions",
+    es: "el grupo se comprime y cualquier bloqueo puede cambiar la secuencia de paradas",
+    en: "the group compresses and any lock-up could change the pit-stop sequence",
+  },
+  {
+    es: "el ritmo se estabiliza justo antes de entrar en la ventana critica",
+    en: "the pace stabilises just before entering the critical window",
   },
 ];
 
-const PLAYER_EVENT_SETUPS = [
-  { es: "{driver} mide la salida de {rival} antes de abrir DRS", en: "{driver} measures {rival}'s exit before opening DRS", delta: 0, type: "player", needs: "drs" },
-  { es: "{driver} prepara el adelantamiento sobre {rival} desde dos curvas antes", en: "{driver} sets up the pass on {rival} two corners in advance", delta: -1, type: "player" },
-  { es: "{driver} cubre el interior ante el ataque de {rival}", en: "{driver} covers the inside against {rival}'s attack", delta: 0, type: "player" },
-  { es: "{driver} queda sin bateria para defenderse de {rival}", en: "{driver} runs out of battery to defend from {rival}", delta: 1, type: "player", needs: "ers" },
-  { es: "{driver} bloquea el neumatico delantero", en: "{driver} locks the front tyre", delta: 1, type: "danger" },
-  { es: "{driver} toca ligeramente a {rival} en plena batalla", en: "{driver} makes light contact with {rival} in the fight", delta: 1, type: "danger" },
-  { es: "{driver} completa una vuelta de salida mejor que {rival}", en: "{driver} completes a better out-lap than {rival}", delta: -1, type: "player" },
-  { es: "{driver} pierde temperatura tras el safety car", en: "{driver} loses tyre temperature after the safety car", delta: 1, type: "player", needs: "safetyCar" },
-  { es: "{driver} salva un latigazo del coche", en: "{driver} catches a snap from the car", delta: 0, type: "player" },
-  { es: "{team} cambia el plan de {driver}", en: "{team} changes {driver}'s plan", delta: 0, type: "player" },
-];
 
-const PLAYER_EVENT_ACTIONS = [
-  { es: "se tira por dentro justo al soltar el freno y deja el coche colocado en el vertice", en: "dives down the inside as he releases the brake and places the car on the apex" },
-  { es: "aguanta por fuera con medio coche en paralelo y mejor traccion", en: "hangs around the outside with half a car alongside and better traction" },
-  { es: "con un contravolante al pisar el piano", en: "with opposite lock after touching the kerb" },
-  { es: "levanta lo justo para evitar contacto y vuelve a cargar bateria", en: "lifts just enough to avoid contact and starts harvesting again", needs: "ers" },
-  { es: "alarga la frenada sin bloquear y obliga al rival a dejar espacio", en: "brakes late without locking and forces the rival to leave room" },
-  { es: "protegiendo la bateria para la recta siguiente", en: "saving battery for the next straight", needs: "ers" },
-  { es: "cruza la trazada en la salida y gana el interior de la siguiente curva", en: "switches back on exit and gains the inside for the next corner" },
-  { es: "aprovecha una correccion minima del rival y mete el morro", en: "pounces on a tiny correction from the rival and gets the nose in" },
-  { es: "con neumaticos frios y poca adherencia", en: "on cold tyres with little grip" },
-  { es: "con el coche deslizando de atras", en: "with the rear of the car sliding" },
-];
-
-const PLAYER_EVENT_RESULTS = [
-  { es: "sale por delante y corta el DRS del rival al final del sector", en: "comes out ahead and breaks the rival's DRS by the end of the sector", adjust: -1, needs: "drs" },
-  { es: "mantiene la posicion por menos de medio coche y fuerza al rival a levantar", en: "keeps the place by less than half a car length and forces the rival to lift", adjust: 0 },
-  { es: "pierde una posicion y debe recomponer la vuelta", en: "loses one place and has to rebuild the lap", adjust: 1 },
-  { es: "pierde dos posiciones por salir sin traccion", en: "loses two places after exiting without traction", adjust: 2 },
-  { es: "evita el contacto pero sacrifica la trazada y queda vulnerable", en: "avoids contact but sacrifices the line and becomes vulnerable", adjust: 1 },
-  { es: "obliga al rival a levantar y mantiene aire limpio para empujar", en: "forces the rival to lift and keeps clean air to push", adjust: 0 },
-  { es: "se queda en paralelo hasta la siguiente curva y el duelo sigue abierto", en: "stays side by side until the next corner and the duel remains open", adjust: 0 },
-  { es: "aprovecha dos coches peleando y convierte la accion en ganancia doble", en: "uses two cars fighting ahead and turns it into a double gain", adjust: -2 },
-  { es: "danan ligeramente el aleron y el coche subvira", en: "slightly damages the wing and the car understeers", adjust: 2 },
-  { es: "recibe aviso de posible investigacion", en: "is warned about a possible investigation", adjust: 0 },
-];
-
-const PLAYER_EVENT_CONTEXTS = [
-  { es: "cuando el stint entra en su fase critica", en: "as the stint enters its critical phase" },
-  { es: "con lluvia fina en el visor", en: "with fine rain on the visor", needs: "wet" },
-  { es: "mientras el muro pide no exceder limites de pista", en: "while the pit wall warns about track limits" },
-  { es: "con un coche lento justo delante", en: "with a slow car just ahead" },
-  { es: "tras una radio corta y tensa", en: "after a short and tense radio call" },
-  { es: "cuando los frenos estan al limite", en: "when the brakes are on the limit" },
-  { es: "con el grupo comprimido por el DRS", en: "with the pack compressed by DRS", needs: "drs" },
+const PLAYER_RACE_EVENTS = [
+  {
+    es: "{driver} sale mejor que {rival} de {corner}, se queda en el rebufo y completa el adelantamiento antes de la frenada.",
+    en: "{driver} exits {corner} better than {rival}, stays in the tow and completes the pass before the braking zone.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{driver} espera a que {rival} defienda el interior en {corner}; cruza la trazada en la salida y gana la posicion con mejor traccion.",
+    en: "{driver} waits for {rival} to defend the inside at {corner}; the switchback on exit wins the position with better traction.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{driver} ensena el coche por fuera antes de {corner}; {rival} se protege demasiado pronto y la contratrazada deja el hueco abierto.",
+    en: "{driver} shows the car outside before {corner}; {rival} protects too early and the switchback opens the gap.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{driver} no ataca en la primera curva: obliga a {rival} a defender, sale mas recto y completa la pasada en la siguiente aceleracion.",
+    en: "{driver} does not attack at the first corner: forces {rival} to defend, exits straighter and completes the pass on the next acceleration.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{driver} abre DRS contra {rival}, llega emparejado a {corner} y deja la maniobra terminada sin bloquear.",
+    en: "{driver} opens DRS on {rival}, draws alongside into {corner} and finishes the move without locking up.",
+    delta: -1,
+    type: "player",
+    needs: "drs",
+  },
+  {
+    es: "{driver} llega a {corner} con mas velocidad que {rival}; el rival defiende tarde, deja justo un coche de ancho y el adelantamiento sale limpio.",
+    en: "{driver} arrives at {corner} faster than {rival}; the rival defends late, leaves exactly one car width and the pass is clean.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{rival} se va largo en {corner} al proteger el interior; {driver} no necesita forzar nada y gana la plaza por traccion.",
+    en: "{rival} runs deep at {corner} while protecting the inside; {driver} does not need to force it and wins the place on traction.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{driver} se queda por fuera de {rival} en {corner}, aguanta el coche por el lado dificil y completa la pasada en la salida.",
+    en: "{driver} stays around the outside of {rival} at {corner}, holds the car on the difficult side and completes the pass on exit.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{driver} coloca el coche por fuera en {corner} para tener el interior de la curva siguiente; {rival} se queda sin respuesta.",
+    en: "{driver} places the car outside at {corner} to own the inside of the next corner; {rival} has no answer.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{driver} aprovecha la salida lenta de {rival} en {corner}; no hay frenada heroica, solo mejor traccion y una pasada limpia.",
+    en: "{driver} uses {rival}'s slow exit at {corner}; no heroic braking, just better traction and a clean pass.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{driver} aprovecha que {rival} queda atrapado detras de un coche lento; cambia de lado antes de {corner} y gana la posicion sin contacto.",
+    en: "{driver} uses {rival} being trapped behind a slower car; changes side before {corner} and takes the position without contact.",
+    delta: -1,
+    type: "player",
+  },
+  {
+    es: "{driver} fuerza a {rival} a defender durante todo el sector, pero no encuentra hueco limpio en {corner}; la posicion no cambia.",
+    en: "{driver} forces {rival} to defend for the whole sector, but cannot find a clean gap at {corner}; the order does not change.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{driver} cubre el interior de {corner} ante {rival}; sacrifica entrada, gana la salida y mantiene la posicion.",
+    en: "{driver} covers the inside of {corner} against {rival}; entry is sacrificed, exit is stronger and the place is held.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{rival} asoma el coche por dentro en {corner}; {driver} deja el espacio minimo, aguanta por fuera y conserva la plaza.",
+    en: "{rival} shows the car down the inside at {corner}; {driver} leaves the minimum space, holds the outside and keeps the place.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{rival} intenta la contratrazada en {corner}, pero {driver} lee el cruce, abre la salida y conserva la posicion.",
+    en: "{rival} tries the switchback at {corner}, but {driver} reads the crossover, opens the exit and keeps the place.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{driver} protege la frenada de {corner} sin cerrar de golpe; {rival} mira por fuera, pero no encuentra agarre suficiente.",
+    en: "{driver} protects the braking zone at {corner} without moving abruptly; {rival} looks outside, but cannot find enough grip.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{driver} ve venir el ataque de {rival} al final de la recta; se queda en el centro de la pista y obliga al rival a frenar antes.",
+    en: "{driver} sees {rival}'s attack coming at the end of the straight; stays in the middle of the road and makes the rival brake earlier.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{driver} y {rival} pasan por {corner} rueda con rueda; no hay golpe, no hay cambio de posicion y la pelea sigue abierta.",
+    en: "{driver} and {rival} go through {corner} wheel to wheel; no contact, no position change and the fight stays open.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{team} pide a {driver} guardar bateria detras de {rival}; no hay ataque esta vuelta, pero el coche queda preparado para la recta siguiente.",
+    en: "{team} asks {driver} to save battery behind {rival}; there is no attack this lap, but the car is set up for the next straight.",
+    delta: 0,
+    type: "player",
+    needs: "ers",
+  },
+  {
+    es: "{driver} entra pasado en {corner} al intentar defenderse de {rival}; evita el contacto, pero pierde una posicion al salir sin traccion.",
+    en: "{driver} runs deep into {corner} while trying to defend from {rival}; contact is avoided, but one place is lost on exit.",
+    delta: 1,
+    type: "danger",
+  },
+  {
+    es: "{driver} bloquea el delantero en {corner}; {rival} cambia de linea y aprovecha la salida para pasar.",
+    en: "{driver} locks the front tyre at {corner}; {rival} changes line and uses the exit to pass.",
+    delta: 1,
+    type: "danger",
+  },
+  {
+    es: "{driver} intenta cerrar la puerta en {corner}, pero {rival} ya estaba al lado; hay un toque ligero y {driver} pierde impulso.",
+    en: "{driver} tries to close the door at {corner}, but {rival} was already alongside; there is light contact and {driver} loses momentum.",
+    delta: 1,
+    type: "danger",
+  },
+  {
+    es: "{rival} cambia de linea muy tarde antes de {corner}; {driver} levanta para evitar un golpe mayor y pierde la posicion.",
+    en: "{rival} changes line very late before {corner}; {driver} lifts to avoid a bigger hit and loses the position.",
+    delta: 1,
+    type: "danger",
+  },
+  {
+    es: "{driver} se tira desde demasiado lejos en {corner}; bloquea, se va ancho y debe devolver la plaza a {rival}.",
+    en: "{driver} launches from too far back at {corner}; locks up, runs wide and has to give the place back to {rival}.",
+    delta: 1,
+    type: "danger",
+  },
+  {
+    es: "{driver} intenta la contratrazada sobre {rival}, pero pisa el piano en la salida de {corner}; el coche se cruza y pierde impulso.",
+    en: "{driver} tries the switchback on {rival}, but hits the kerb on exit of {corner}; the car snaps sideways and loses momentum.",
+    delta: 1,
+    type: "danger",
+  },
+  {
+    es: "{rival} se queda por fuera en {corner} y {driver} no deja suficiente salida; hay que levantar y recomponer la vuelta.",
+    en: "{rival} stays around the outside at {corner} and {driver} does not leave enough exit room; it takes a lift and a reset lap.",
+    delta: 1,
+    type: "danger",
+  },
+  {
+    es: "{driver} toca el piano de {corner} con el coche descargado, corrige a tiempo y conserva la posicion frente a {rival}.",
+    en: "{driver} hits the kerb at {corner} with the car light, catches it in time and keeps the place from {rival}.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{driver} sale de {corner} con el aleron tocado tras una pelea con {rival}; el coche subvira, pero aun puede mantenerse en pista.",
+    en: "{driver} exits {corner} with a damaged wing after fighting {rival}; the car understeers, but can still stay on track.",
+    delta: 1,
+    type: "danger",
+  },
+  {
+    es: "{driver} se queda en aire sucio detras de {rival}; los frenos suben de temperatura y el equipo pide no forzar la siguiente frenada.",
+    en: "{driver} sits in dirty air behind {rival}; brake temperatures rise and the team asks not to force the next braking zone.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{driver} encuentra aire limpio al separarse medio segundo de {rival}; el ritmo vuelve antes de entrar en la ventana de parada.",
+    en: "{driver} finds clean air by dropping half a second from {rival}; the pace returns before the pit window opens.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{driver} recibe el aviso de que {rival} tiene la goma delantera castigada; mantiene presion, pero espera la recta para no arriesgar un toque.",
+    en: "{driver} is told {rival}'s front tyre is struggling; keeps the pressure on, but waits for the straight to avoid risking contact.",
+    delta: 0,
+    type: "player",
+  },
+  {
+    es: "{driver} se queda sin bateria al final de la recta y {rival} llega con mas velocidad a {corner}; toca recomponer la vuelta.",
+    en: "{driver} runs out of battery at the end of the straight and {rival} arrives faster into {corner}; the lap has to be rebuilt.",
+    delta: 1,
+    type: "player",
+    needs: "ers",
+  },
 ];
 
 const replaceVars = (template, vars) =>
@@ -764,8 +1053,7 @@ export const eventCatalogStats = () => ({
     EXTRA_PHASES.length * EXTRA_ACTIONS.length * EXTRA_OUTCOMES.length * EXTRA_CONTEXTS.length,
   pressureCombinations:
     PRESSURE_TRIGGERS.length * PRESSURE_REACTIONS.length * PRESSURE_CONSEQUENCES.length,
-  playerSpecificCombinations:
-    PLAYER_EVENT_SETUPS.length * PLAYER_EVENT_ACTIONS.length * PLAYER_EVENT_RESULTS.length * PLAYER_EVENT_CONTEXTS.length,
+  playerSpecificCombinations: PLAYER_RACE_EVENTS.length,
   eraKnowledge: raceKnowledgeStats(),
   totalMinimumCombinations:
     MOVE_STYLES.length * MOVE_RESULTS.length * DEFAULT_CORNERS.length +
@@ -777,7 +1065,7 @@ export const eventCatalogStats = () => ({
     RESTART_EVENTS.length * DEFAULT_CORNERS.length +
     EXTRA_PHASES.length * EXTRA_ACTIONS.length * EXTRA_OUTCOMES.length * EXTRA_CONTEXTS.length +
     PRESSURE_TRIGGERS.length * PRESSURE_REACTIONS.length * PRESSURE_CONSEQUENCES.length +
-    PLAYER_EVENT_SETUPS.length * PLAYER_EVENT_ACTIONS.length * PLAYER_EVENT_RESULTS.length * PLAYER_EVENT_CONTEXTS.length,
+    PLAYER_RACE_EVENTS.length,
 });
 
 export const renderOvertakeEvent = ({ driver, rival, lap, raceName, rng, player = false, year }) => {
@@ -816,16 +1104,17 @@ export const renderIncidentEvent = ({ driver, lap, raceName, rng, player = false
 };
 
 export const renderStrategyEvent = ({ driver, rival, team, lap, rng, player = false, state = {}, year }) => {
-  const template = pickEligible(STRATEGY_EVENTS, rng, state);
-  const eraStrategy = chooseEraTerm(year || state.year, "strategy", rng);
+  const strategyState = { ...state, year: year || state.year };
+  const template = pickEligible(STRATEGY_EVENTS, rng, strategyState);
   const vars = { driver, rival, team };
+  const positionDelta = player && Number.isFinite(template.delta) ? clampPositionDelta(template.delta) : undefined;
   return {
     lap,
     type: player ? "player" : "neutral",
     important: player,
-    positionDelta: player ? (rng() < 0.55 ? -1 : 0) : undefined,
-    text: `${replaceVars(template.es, vars)}${eraStrategy ? ` La clave de epoca: ${eraStrategy.es}.` : ""}`,
-    textEn: `${replaceVars(template.en, vars)}${eraStrategy ? ` Era-specific key: ${eraStrategy.en}.` : ""}`,
+    positionDelta,
+    text: replaceVars(template.es, vars),
+    textEn: replaceVars(template.en, vars),
   };
 };
 
@@ -947,30 +1236,16 @@ export const renderPressureManagementEvent = ({ driver, rival, team, lap, raceNa
 
 export const renderPlayerSpecificEvent = ({ driver, rival, team, lap, raceName, rng, state = {} }) => {
   const corner = pick(getCornersForRace(raceName), rng);
-  const setup = pickEligible(PLAYER_EVENT_SETUPS, rng, state);
-  const action = pickEligible(PLAYER_EVENT_ACTIONS, rng, state);
-  // Keep the prose coherent, not just the net number: a setup that sets up a gain
-  // (delta < 0) must not resolve into a losing result (adjust > 0), and a setup
-  // that concedes ground (delta > 0) must not resolve into a gaining one.
-  const resultPool = PLAYER_EVENT_RESULTS.filter((result) => {
-    if (!isEligible(result, state)) return false;
-    const setupDelta = setup.delta || 0;
-    const adjust = result.adjust || 0;
-    if (setupDelta < 0) return adjust <= 0;
-    if (setupDelta > 0) return adjust >= 0;
-    return true;
-  });
-  const result = pickEligible(resultPool.length ? resultPool : PLAYER_EVENT_RESULTS, rng, state);
-  const context = pickEligible(PLAYER_EVENT_CONTEXTS, rng, state);
+  const template = pickEligible(PLAYER_RACE_EVENTS, rng, state);
   const vars = { driver, rival, team };
-  const positionDelta = clampPositionDelta((setup.delta || 0) + (result.adjust || 0));
+  const positionDelta = clampPositionDelta(template.delta || 0);
   return {
     lap,
-    type: setup.type,
+    type: template.type || "player",
     important: true,
     positionDelta,
-    text: `${replaceVars(setup.es, vars)} en ${corner.es}, ${action.es}; ${result.es}, ${context.es}.`,
-    textEn: `${replaceVars(setup.en, vars)} at ${corner.en}, ${action.en}; ${result.en}, ${context.en}.`,
+    text: replaceVars(template.es, { ...vars, corner: corner.es }),
+    textEn: replaceVars(template.en, { ...vars, corner: corner.en }),
   };
 };
 
@@ -1000,66 +1275,195 @@ export const formatOrdinal = (n, lang = "es") => {
 // {corner} the corner token, {ord} the ordinal the overtaker moves into. Only
 // the success/error outcomes carry {ord}; defence and side-by-side never claim a
 // new position. DRS lines are era-gated through the standard `needs` mechanism.
+
 const BATTLE_TEMPLATES = {
   inside: [
     {
-      es: "¡{attacker} se lanza al interior de {corner} y supera a {defender} para colocarse {ord}!",
-      en: "{attacker} dives down the inside of {corner} and takes {defender} to move up to {ord}!",
+      es: "{attacker} se pega al aleron de {defender}, se lanza al interior de {corner} y gana la posicion para ponerse {ord}.",
+      en: "{attacker} gets onto {defender}'s rear wing, dives down the inside of {corner} and takes the place for {ord}.",
     },
     {
-      es: "¡{attacker} clava la frenada en {corner}, se mete por dentro de {defender} y asciende a {ord}!",
-      en: "{attacker} nails the brakes into {corner}, goes up the inside of {defender} and grabs {ord}!",
+      es: "{attacker} frena mas tarde en {corner}, deja espacio justo a {defender} y sale colocado en {ord}.",
+      en: "{attacker} brakes later into {corner}, leaves {defender} just enough room and exits in {ord}.",
+    },
+    {
+      es: "{defender} cubre tarde el interior y {attacker} ya tenia el morro dentro: adelantamiento limpio para {ord}.",
+      en: "{defender} covers the inside too late and {attacker} already had the nose in: clean pass for {ord}.",
+    },
+    {
+      es: "{attacker} aprovecha que {defender} bloquea un instante en {corner}; mete el coche por dentro y sube a {ord}.",
+      en: "{attacker} catches {defender} locking briefly at {corner}; puts the car down the inside and moves into {ord}.",
     },
   ],
   outside: [
     {
-      es: "¡{attacker} completa el adelantamiento por fuera de {corner} sobre {defender} y sube a {ord}!",
-      en: "{attacker} sweeps around the outside of {corner} past {defender} into {ord}!",
+      es: "{attacker} aguanta por fuera de {corner}, no suelta el coche y supera a {defender} para subir a {ord}.",
+      en: "{attacker} hangs around the outside of {corner}, keeps the car there and passes {defender} for {ord}.",
     },
     {
-      es: "¡{attacker} aguanta por el exterior de {corner} y sale por delante de {defender} en {ord}!",
-      en: "{attacker} holds it around the outside of {corner} and emerges ahead of {defender} in {ord}!",
+      es: "{attacker} se queda rueda con rueda por el exterior y encuentra traccion antes que {defender}: ya es {ord}.",
+      en: "{attacker} stays wheel to wheel around the outside and finds traction before {defender}: now up to {ord}.",
+    },
+    {
+      es: "{defender} protege la cuerda, pero {attacker} recorre el camino largo y aun asi completa la maniobra para {ord}.",
+      en: "{defender} protects the apex, but {attacker} takes the long way round and still completes the move for {ord}.",
+    },
+    {
+      es: "{attacker} encuentra agarre fuera de la trazada en {corner}; {defender} no puede cerrarle y el atacante sube a {ord}.",
+      en: "{attacker} finds grip off the usual line at {corner}; {defender} cannot close the door and the attacker moves into {ord}.",
+    },
+    {
+      es: "{attacker} aguanta por fuera en {corner} para quedarse con el interior siguiente; {defender} cede y el atacante sube a {ord}.",
+      en: "{attacker} hangs around the outside at {corner} to own the next inside line; {defender} yields and the attacker moves into {ord}.",
+    },
+    {
+      es: "{defender} intenta cerrar la salida de {corner}, pero {attacker} mantiene el coche en pista y completa una pasada de mucho compromiso hacia {ord}.",
+      en: "{defender} tries to close the exit of {corner}, but {attacker} keeps the car on track and completes a high-commitment pass into {ord}.",
     },
   ],
   switchback: [
     {
-      es: "¡{attacker} obliga a {defender} a abrirse en {corner} y con la contratrazada escala a {ord}!",
-      en: "{attacker} forces {defender} wide at {corner} and switches back to climb to {ord}!",
+      es: "{attacker} fuerza a {defender} a entrar pasado en {corner}, cruza la trazada y acelera hacia {ord}.",
+      en: "{attacker} forces {defender} deep into {corner}, cuts back and accelerates into {ord}.",
+    },
+    {
+      es: "{defender} se queda defendiendo la entrada y {attacker} le gana la salida con la contratrazada para ponerse {ord}.",
+      en: "{defender} is left defending entry and {attacker} wins the exit with the switchback to move into {ord}.",
+    },
+    {
+      es: "{attacker} amaga por el interior, obliga a {defender} a entrar estrecho y cruza mejor hacia {ord}.",
+      en: "{attacker} feints inside, forces {defender} into a narrow entry and switches back better into {ord}.",
+    },
+    {
+      es: "{attacker} no se precipita en {corner}: deja que {defender} cubra la cuerda, abre el angulo y acelera hacia {ord}.",
+      en: "{attacker} does not rush it at {corner}: lets {defender} cover the apex, opens the angle and accelerates into {ord}.",
+    },
+    {
+      es: "{defender} defiende la primera parte de {corner}, pero {attacker} tenia preparada la segunda y la contratrazada le da {ord}.",
+      en: "{defender} defends the first part of {corner}, but {attacker} had the second part prepared and the switchback gives them {ord}.",
+    },
+    {
+      es: "{attacker} vende el ataque por fuera, hace frenar a {defender} fuera de linea y cruza el coche para subir a {ord}.",
+      en: "{attacker} sells the outside move, makes {defender} brake off-line and crosses the car back to move into {ord}.",
     },
   ],
   drs: [
     {
-      es: "¡{attacker} abre el DRS en la recta y despacha a {defender} para colocarse {ord}!",
-      en: "{attacker} opens DRS down the straight and clears {defender} to take {ord}!",
+      es: "{attacker} abre DRS, sale del rebufo y pasa a {defender} antes de la frenada para colocarse {ord}.",
+      en: "{attacker} opens DRS, pulls out of the tow and passes {defender} before the braking zone for {ord}.",
+      needs: "drs",
+    },
+    {
+      es: "{defender} intenta romper el rebufo, pero {attacker} llega con DRS y completa el adelantamiento hacia {ord}.",
+      en: "{defender} tries to break the tow, but {attacker} arrives with DRS and completes the pass into {ord}.",
+      needs: "drs",
+    },
+    {
+      es: "{attacker} sale del rebufo con DRS y {defender} decide no pelear una frenada perdida: {ord} para el atacante.",
+      en: "{attacker} pulls out of the tow with DRS and {defender} chooses not to fight a lost braking zone: {ord} for the attacker.",
       needs: "drs",
     },
   ],
   error: [
     {
-      es: "¡{defender} comete un error en {corner} y cede la plaza a {attacker}, que sube a {ord}!",
-      en: "{defender} runs wide at {corner} and concedes the place to {attacker}, who moves up to {ord}!",
+      es: "{defender} se va largo en {corner}; {attacker} no duda, coloca el coche y sube a {ord}.",
+      en: "{defender} runs wide at {corner}; {attacker} does not hesitate, places the car and moves up to {ord}.",
+    },
+    {
+      es: "{defender} bloquea al defender {corner} y {attacker} recoge la posicion para ponerse {ord}.",
+      en: "{defender} locks up defending {corner} and {attacker} collects the position for {ord}.",
+    },
+    {
+      es: "{defender} pisa la zona sucia antes de {corner}; {attacker} lee el error, cambia de lado y gana {ord}.",
+      en: "{defender} touches the dirty line before {corner}; {attacker} reads the mistake, changes side and takes {ord}.",
     },
   ],
   defense: [
     {
-      es: "¡{defender} cierra el interior de {corner} y aguanta la posición ante {attacker}!",
-      en: "{defender} shuts the door on the inside of {corner} and holds off {attacker}!",
+      es: "{defender} lee el ataque de {attacker}, cierra el interior de {corner} y mantiene la posicion.",
+      en: "{defender} reads {attacker}'s attack, shuts the inside of {corner} and holds the place.",
     },
     {
-      es: "¡{defender} se defiende de maravilla en {corner} y {attacker} no encuentra el hueco!",
-      en: "{defender} defends brilliantly through {corner} and {attacker} can't find a way through!",
+      es: "{attacker} ensena el coche en {corner}, pero {defender} frena limpio y no deja hueco.",
+      en: "{attacker} shows the car at {corner}, but {defender} brakes cleanly and leaves no gap.",
+    },
+    {
+      es: "{defender} sacrifica la entrada, gana la salida y corta el intento de {attacker} sin contacto.",
+      en: "{defender} sacrifices entry, wins the exit and stops {attacker}'s attempt without contact.",
+    },
+    {
+      es: "{attacker} llega con mas velocidad, pero {defender} coloca el coche en el centro y le deja solo el camino largo.",
+      en: "{attacker} arrives faster, but {defender} parks the car in the middle and leaves only the long way round.",
+    },
+    {
+      es: "{defender} deja exactamente un coche de ancho en {corner}; {attacker} no puede completar la maniobra sin salirse.",
+      en: "{defender} leaves exactly one car width at {corner}; {attacker} cannot finish the move without running off.",
+    },
+    {
+      es: "{defender} cubre la frenada y despues abre el volante en la salida de {corner}; {attacker} no encuentra la contratrazada.",
+      en: "{defender} covers the braking zone and then opens the wheel on exit of {corner}; {attacker} cannot make the switchback work.",
+    },
+    {
+      es: "{attacker} intenta vender el ataque por fuera, pero {defender} no muerde el anzuelo y conserva la linea buena.",
+      en: "{attacker} tries to sell the outside move, but {defender} does not bite and keeps the better line.",
+    },
+    {
+      es: "{defender} acepta perder la entrada de {corner} para salir mas recto; {attacker} queda sin traccion para completar el ataque.",
+      en: "{defender} accepts losing entry into {corner} to exit straighter; {attacker} lacks the traction to finish the attack.",
     },
   ],
   sideBySide: [
     {
-      es: "¡{attacker} y {defender} cruzan {corner} rueda con rueda, sin ceder un palmo!",
-      en: "{attacker} and {defender} run wheel to wheel through {corner}, neither giving an inch!",
+      es: "{attacker} y {defender} cruzan {corner} rueda con rueda; ninguno cede y la pelea sigue viva.",
+      en: "{attacker} and {defender} run wheel to wheel through {corner}; neither yields and the fight stays alive.",
+    },
+    {
+      es: "Dos curvas en paralelo entre {attacker} y {defender}; el orden no cambia, pero el pulso sube.",
+      en: "Two corners side by side between {attacker} and {defender}; the order stays the same, but the pressure rises.",
+    },
+    {
+      es: "{attacker} ataca, {defender} responde y ambos llegan a {corner} con medio coche en paralelo.",
+      en: "{attacker} attacks, {defender} answers and both reach {corner} with half a car alongside.",
+    },
+  ],
+  contact: [
+    {
+      es: "{attacker} mete el morro en {corner} y {defender} cierra tarde; hay roce rueda con rueda, pero ambos siguen.",
+      en: "{attacker} gets the nose in at {corner} and {defender} closes late; wheel-to-wheel contact, but both continue.",
+    },
+    {
+      es: "{defender} se mueve para cubrir {corner} justo cuando {attacker} salia del rebufo; toque ligero y perdida de impulso para los dos.",
+      en: "{defender} moves to cover {corner} just as {attacker} pulls out of the tow; light contact and momentum lost for both.",
+    },
+    {
+      es: "{attacker} entra demasiado justo en {corner}; {defender} aguanta por fuera y los dos salen con el coche nervioso.",
+      en: "{attacker} goes in too tight at {corner}; {defender} hangs on outside and both exit with the cars unsettled.",
+    },
+    {
+      es: "{defender} deja poco espacio en {corner}; {attacker} evita el golpe fuerte, pero el aleron queda rozado.",
+      en: "{defender} leaves little room at {corner}; {attacker} avoids heavy contact, but the wing is rubbed.",
     },
   ],
   lockup: [
     {
-      es: "¡{attacker} se cuela tarde en {corner} pero se pasa de frenada y {defender} mantiene la plaza!",
-      en: "{attacker} lunges late into {corner} but locks up, and {defender} keeps the place!",
+      es: "{attacker} llega demasiado optimista a {corner}, bloquea y {defender} conserva la plaza.",
+      en: "{attacker} arrives too optimistic into {corner}, locks up and {defender} keeps the place.",
+    },
+    {
+      es: "{attacker} intenta la frenada tarde, se pasa un metro y tiene que devolver el ataque a la siguiente vuelta.",
+      en: "{attacker} tries the late brake, runs a metre too deep and has to try again next lap.",
+    },
+    {
+      es: "{attacker} gana el interior de {corner}, pero bloquea y se va ancho; {defender} recupera la trazada.",
+      en: "{attacker} wins the inside of {corner}, but locks up and runs wide; {defender} takes the line back.",
+    },
+    {
+      es: "{attacker} llega demasiado lanzado a {corner}; la rueda delantera se bloquea y la posible pasada se convierte en defensa urgente.",
+      en: "{attacker} arrives too hot into {corner}; the front locks and the possible pass turns into urgent defending.",
+    },
+    {
+      es: "{attacker} intenta frenar por la zona sucia en {corner}, se queda sin agarre y {defender} sale mejor colocado.",
+      en: "{attacker} tries to brake on the dirty side at {corner}, runs out of grip and {defender} exits better placed.",
     },
   ],
 };
