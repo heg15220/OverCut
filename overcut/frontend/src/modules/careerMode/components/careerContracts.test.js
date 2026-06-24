@@ -1,10 +1,12 @@
 import { fallbackBootstrap } from "../../overcutRacing/components/fallbackData";
 import {
   prepareCareerBootstrap,
+  createCareerSeason,
   generateContracts,
   buildContractObjectives,
   realTeamsForYear,
   maxOfferRatingForProfile,
+  sillySeasonMarketWindow,
 } from "./careerModeEngine";
 
 const MODERN = { years: "2010-2018", points: [25, 18, 15, 12, 10, 8, 6, 4, 2, 1], fastestLap: 0 };
@@ -169,5 +171,110 @@ describe("generated contracts stay within realistic bounds across decades", () =
     expect(maxOfferRatingForProfile(lowRatedProfile)).toBe(78);
     expect(contracts.length).toBeGreaterThan(0);
     expect(contracts.every((contract) => contract.team.rating <= 78)).toBe(true);
+  });
+});
+
+describe("contract offers display the same team-mate used by the simulation", () => {
+  const baseProfile = {
+    name: "Realism Tester",
+    rating: 60,
+    reputation: 30,
+    status: "rookie",
+    consistency: 58,
+    aggression: 55,
+    seasons: 0,
+    stats: { points: 0, wins: 0, podiums: 0, titles: 0, teams: [] },
+  };
+
+  const bootstrap = prepareCareerBootstrap({
+    decades: [{ key: "2010s", label: "2010s", from: 2010, to: 2019 }],
+    seasonYears: [2010, 2011],
+    teamsByDecade: {
+      "2010s": [
+        { name: "Current", rating: 72, firstYear: 2010, lastYear: 2011, decade: "2010s" },
+        { name: "Target", rating: 84, firstYear: 2010, lastYear: 2011, decade: "2010s" },
+      ],
+    },
+    driversByDecade: { "2010s": [] },
+    racesByYear: {
+      "2010": Array.from({ length: 10 }, (_, index) => ({ round: index + 1, name: `Race ${index + 1}` })),
+      "2011": Array.from({ length: 10 }, (_, index) => ({ round: index + 1, name: `Race ${index + 1}` })),
+    },
+    lineupsByYear: {
+      "2010": [
+        { id: "current", team: "Current", rating: 72, races: 10, drivers: [{ name: "Current Mate", rating: 76, races: 10 }] },
+        { id: "target", team: "Target", rating: 84, races: 10, drivers: [{ name: "Old Seat Holder", rating: 50, races: 10 }, { name: "Future Sim Mate", rating: 85, races: 10 }] },
+      ],
+      "2011": [
+        { id: "current", team: "Current", rating: 72, races: 10, drivers: [{ name: "Current Mate", rating: 76, races: 10 }] },
+        { id: "target", team: "Target", rating: 84, races: 10, drivers: [{ name: "Old Seat Holder", rating: 50, races: 10 }, { name: "Future Sim Mate", rating: 85, races: 10 }] },
+      ],
+    },
+  });
+
+  const veteranProfile = {
+    ...baseProfile,
+    name: "Contract Matcher",
+    rating: 82,
+    overall: 82,
+    reputation: 80,
+    status: "promesa",
+    seasons: 1,
+    stats: { ...baseProfile.stats, teams: ["Current"] },
+  };
+
+  const teammateFromSeason = (season, teamName) =>
+    season.grid.find((team) => team.name === teamName)?.drivers.find((driver) => !driver.isPlayer);
+
+  test("final-season contracts name the market-grid team-mate", () => {
+    const contracts = generateContracts({ bootstrap, year: 2011, playerProfile: veteranProfile });
+    const target = contracts.find((contract) => contract.team.name === "Target");
+    const season = createCareerSeason({ bootstrap, profile: veteranProfile, year: 2011, contract: target });
+    const simulatedTeammate = teammateFromSeason(season, "Target");
+
+    expect(target.teammate.name).toBe(simulatedTeammate.name);
+    expect(target.teammate.rating).toBe(simulatedTeammate.rating);
+    expect(target.team.drivers[0].name).toBe(simulatedTeammate.name);
+  });
+
+  test("precontracts forecast the next-season team-mate, not the current real lead driver", () => {
+    const rookieProfile = {
+      ...baseProfile,
+      name: "Ayrton Test",
+      rating: 88,
+      overall: 88,
+      reputation: 99,
+      status: "estrella",
+    };
+    const currentSeason = {
+      year: 2010,
+      contract: {
+        team: { name: "Current", rating: 72, color: "#0090ff" },
+        objectives: { points: 20, minimumPoints: 5, constructorPosition: 5, reputationBonus: 8 },
+      },
+      races: Array.from({ length: 10 }, (_, index) => ({ round: index + 1, completed: index < 5 })),
+      completedRaces: Array.from({ length: 5 }, (_, index) => ({ race: { name: `Race ${index + 1}` } })),
+      grid: [{ name: "Current", drivers: [{ name: "Ayrton Test", isPlayer: true }, { name: "Current Mate" }] }],
+      driverStandings: [
+        { id: "career-player", name: "Ayrton Test", team: "Current", isPlayer: true, points: 60, wins: 1, podiums: 3, position: 2 },
+        { id: "Current Mate-Current", name: "Current Mate", team: "Current", isPlayer: false, points: 6, wins: 0, podiums: 0, position: 12 },
+      ],
+      constructorStandings: [{ name: "Current", position: 2, points: 66 }],
+    };
+
+    const market = sillySeasonMarketWindow({ bootstrap, season: currentSeason, profile: rookieProfile });
+    expect(market).not.toBeNull();
+    const offer = market.offers.find((contract) => contract.team.name === "Target");
+    const nextProfile = {
+      ...rookieProfile,
+      seasons: 1,
+      stats: { ...rookieProfile.stats, teams: ["Current"] },
+    };
+    const season = createCareerSeason({ bootstrap, profile: nextProfile, year: offer.targetYear, contract: offer });
+    const simulatedTeammate = teammateFromSeason(season, "Target");
+
+    expect(offer.teammate.name).toBe(simulatedTeammate.name);
+    expect(offer.teammate.rating).toBe(simulatedTeammate.rating);
+    expect(offer.teammate.name).toBe("Future Sim Mate");
   });
 });

@@ -444,25 +444,30 @@ export const generateContracts = ({ bootstrap, year, playerProfile }) => {
       raceCount,
       playerStatus: playerProfile.status,
     });
-    return {
-      id: `${coloredTeam.id || coloredTeam.name}-${year}-${index}`,
-      team: coloredTeam,
-      duration: 1,
-      salary: `${Math.max(1, Math.round((coloredTeam.rating - 52) * 0.28 + rng() * 3))}.${Math.floor(rng() * 9)}M`,
-      objectives,
-      promise:
-        objectives.tier === "medio"
-          ? "Puntos regulares y liderar el desarrollo del coche."
-          : objectives.tier === "bajo competitivo"
-          ? "Aprovechar carreras caoticas y superar al companero."
-          : "Aprender, terminar carreras y pescar puntos cuando el caos abra la puerta.",
-      promiseEn:
-        objectives.tier === "medio"
-          ? "Regular points and leading the car's development."
-          : objectives.tier === "bajo competitivo"
-          ? "Make the most of chaotic races and beat your team-mate."
-          : "Learn, finish races and pick up points when chaos opens the door.",
-    };
+    return withSimulationTeammate({
+      bootstrap,
+      year,
+      profile: playerProfile,
+      contract: {
+        id: `${coloredTeam.id || coloredTeam.name}-${year}-${index}`,
+        team: coloredTeam,
+        duration: 1,
+        salary: `${Math.max(1, Math.round((coloredTeam.rating - 52) * 0.28 + rng() * 3))}.${Math.floor(rng() * 9)}M`,
+        objectives,
+        promise:
+          objectives.tier === "medio"
+            ? "Puntos regulares y liderar el desarrollo del coche."
+            : objectives.tier === "bajo competitivo"
+            ? "Aprovechar carreras caoticas y superar al companero."
+            : "Aprender, terminar carreras y pescar puntos cuando el caos abra la puerta.",
+        promiseEn:
+          objectives.tier === "medio"
+            ? "Regular points and leading the car's development."
+            : objectives.tier === "bajo competitivo"
+            ? "Make the most of chaotic races and beat your team-mate."
+            : "Learn, finish races and pick up points when chaos opens the door.",
+      },
+    });
   });
 };
 
@@ -541,6 +546,14 @@ export const sillySeasonMarketWindow = ({ bootstrap, season, profile, alreadySig
     .sort((a, b) => b.rating - a.rating);
   const scoring = scoringForYear(nextYear);
   const raceCount = racesForYear(bootstrap, nextYear).length || 20;
+  const forecastProfile = {
+    ...profile,
+    seasons: (profile.seasons || 0) + 1,
+    stats: {
+      ...(profile.stats || {}),
+      teams: Array.from(new Set([...(profile.stats?.teams || []), season.contract.team.name])),
+    },
+  };
   const offers = selected.map((team, index) => {
     const coloredTeam = { ...team, color: teamColor(team, index + 3) };
     const objectives = buildContractObjectives({
@@ -550,7 +563,11 @@ export const sillySeasonMarketWindow = ({ bootstrap, season, profile, alreadySig
       raceCount,
       playerStatus: signal.score > 1.2 ? "promesa" : profile.status,
     });
-    return {
+    return withSimulationTeammate({
+      bootstrap,
+      year: nextYear,
+      profile: forecastProfile,
+      contract: {
       id: `pre-${coloredTeam.id || coloredTeam.name}-${nextYear}-${signal.completed}-${index}`,
       kind: "precontract",
       team: coloredTeam,
@@ -580,7 +597,8 @@ export const sillySeasonMarketWindow = ({ bootstrap, season, profile, alreadySig
       generatedAtRound: signal.completed,
       targetYear: nextYear,
       confidence: Math.round(chance * 100),
-    };
+      },
+    });
   });
 
   return {
@@ -1045,13 +1063,18 @@ const buildRealSeasonGrid = ({ bootstrap, year, contract, profile }) => {
   });
 };
 
-export const createCareerSeason = ({ bootstrap, profile, year, contract }) => {
-  const rng = createRng(`${profile.name}|${year}|${contract.team.name}|season-${profile.seasons}`);
+function isDebutSeasonForProfile(profile) {
   const hasCareerHistory = (profile.stats?.teams || []).length > 0;
-  const isDebutSeason = !hasCareerHistory && (profile.seasons || 0) <= 1;
-  const grid = !isDebutSeason
-    ? buildMarketSeasonGrid({ bootstrap, year, contract, profile, rng })
-    : buildRealSeasonGrid({ bootstrap, year, contract, profile }) ||
+  return !hasCareerHistory && (profile.seasons || 0) <= 1;
+}
+
+function buildCareerSeasonGrid({ bootstrap, profile, year, contract }) {
+  const rng = createRng(`${profile.name}|${year}|${contract.team.name}|season-${profile.seasons}`);
+  if (!isDebutSeasonForProfile(profile)) {
+    return buildMarketSeasonGrid({ bootstrap, year, contract, profile, rng });
+  }
+  return (
+    buildRealSeasonGrid({ bootstrap, year, contract, profile }) ||
     buildSeasonDrivers({
       bootstrap,
       year,
@@ -1059,7 +1082,32 @@ export const createCareerSeason = ({ bootstrap, profile, year, contract }) => {
       contract,
       profile,
       rng,
-    });
+    })
+  );
+}
+
+function simulationTeammateForContract({ bootstrap, year, contract, profile }) {
+  const grid = buildCareerSeasonGrid({ bootstrap, year, contract, profile });
+  return grid
+    ?.find((team) => team.name === contract.team.name)
+    ?.drivers?.find((driver) => !driver.isPlayer) || null;
+}
+
+function withSimulationTeammate({ bootstrap, year, contract, profile }) {
+  const teammate = simulationTeammateForContract({ bootstrap, year, contract, profile });
+  if (!teammate) return contract;
+  return {
+    ...contract,
+    teammate,
+    team: {
+      ...contract.team,
+      drivers: [teammate],
+    },
+  };
+}
+
+export const createCareerSeason = ({ bootstrap, profile, year, contract }) => {
+  const grid = buildCareerSeasonGrid({ bootstrap, profile, year, contract });
   const entrants = grid.flatMap((team) =>
     team.drivers.map((driver) => ({
       id: driver.isPlayer ? "career-player" : `${driver.name}-${team.name}`,

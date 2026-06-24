@@ -591,39 +591,50 @@ const DicePanel = ({ decadeRoll, yearRoll, onRollYear, rolling }) => (
   </section>
 );
 
-const ContractCard = ({ contract, onSelect, badge = null }) => (
-  <button
-    className="cm-contract-card"
-    type="button"
-    onClick={() => onSelect(contract)}
-    style={{ "--team-color": normalizeColor(contract.team.color, "#0f4c81") }}
-  >
-    <span className="cm-contract-tier">{badge || tierLabel(contract.objectives.tier)}</span>
-    <div className="cm-contract-team">
-      <span className="cm-team-stripe" />
-      <div>
-        <h3>{contract.team.name}</h3>
-        <small>{t.carRatingSalary(contract.team.rating, contract.salary)}</small>
+const ContractCard = ({ contract, onSelect, badge = null }) => {
+  const teammate = contract.teammate || contract.team.drivers?.find((driver) => !driver.isPlayer);
+  return (
+    <button
+      className="cm-contract-card"
+      type="button"
+      onClick={() => onSelect(contract)}
+      style={{ "--team-color": normalizeColor(contract.team.color, "#0f4c81") }}
+    >
+      <span className="cm-contract-tier">{badge || tierLabel(contract.objectives.tier)}</span>
+      <div className="cm-contract-team">
+        <span className="cm-team-stripe" />
+        <div>
+          <h3>{contract.team.name}</h3>
+          <small>{t.carRatingSalary(contract.team.rating, contract.salary)}</small>
+        </div>
       </div>
-    </div>
-    <p>{localized(contract.promise, contract.promiseEn)}</p>
-    {contract.marketReason && <small className="cm-market-reason">{localized(contract.marketReason, contract.marketReasonEn)}</small>}
-    <dl>
-      <div>
-        <dt>{t.targetPoints}</dt>
-        <dd>{contract.objectives.points}</dd>
-      </div>
-      <div>
-        <dt>{t.constructors}</dt>
-        <dd>{t.topN(contract.objectives.constructorPosition)}</dd>
-      </div>
-      <div>
-        <dt>{t.reputation}</dt>
-        <dd>+{contract.objectives.reputationBonus}</dd>
-      </div>
-    </dl>
-  </button>
-);
+      <p>{localized(contract.promise, contract.promiseEn)}</p>
+      {contract.marketReason && <small className="cm-market-reason">{localized(contract.marketReason, contract.marketReasonEn)}</small>}
+      <dl>
+        <div>
+          <dt>{t.teammateLabel}</dt>
+          <dd>{teammate?.name || t.toBeConfirmed}</dd>
+        </div>
+        <div>
+          <dt>{t.teammateRating}</dt>
+          <dd>{Number.isFinite(teammate?.rating) ? teammate.rating : "--"}</dd>
+        </div>
+        <div>
+          <dt>{t.targetPoints}</dt>
+          <dd>{contract.objectives.points}</dd>
+        </div>
+        <div>
+          <dt>{t.constructors}</dt>
+          <dd>{t.topN(contract.objectives.constructorPosition)}</dd>
+        </div>
+        <div>
+          <dt>{t.reputation}</dt>
+          <dd>+{contract.objectives.reputationBonus}</dd>
+        </div>
+      </dl>
+    </button>
+  );
+};
 
 const PreContractNotice = ({ preContract }) => {
   if (!preContract) return null;
@@ -663,7 +674,7 @@ const ContractSigning = ({ contract, profile, year, mode, status, onSign, onCont
   if (!contract) return null;
   const isPrecontract = mode === "precontract";
   const linked = status === "linked";
-  const teammate = contract.team.drivers?.find((driver) => !driver.isPlayer);
+  const teammate = contract.teammate || contract.team.drivers?.find((driver) => !driver.isPlayer);
   return (
     <section
       className={`cm-panel cm-contract-signing${status === "signing" ? " is-signing" : ""}${linked ? " is-linked" : ""}`}
