@@ -342,4 +342,24 @@ describe("battle narration is coherent with the running order", () => {
     });
     expect(broken).toEqual([]);
   });
+
+  test("every player battle updates the live track position from the narrated battle state", () => {
+    const broken = [];
+    runs.forEach((run) => {
+      battlesOf(run)
+        .filter((event) => Number.isFinite(event.playerPositionOverride))
+        .forEach((event) => {
+          if (event.playerPosition !== event.playerPositionOverride) {
+            broken.push({
+              race: run.race.name,
+              lap: event.lap,
+              label: event.playerPosition,
+              override: event.playerPositionOverride,
+              text: event.text,
+            });
+          }
+        });
+    });
+    expect(broken).toEqual([]);
+  });
 });

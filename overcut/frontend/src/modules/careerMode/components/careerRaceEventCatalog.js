@@ -1279,6 +1279,10 @@ export const formatOrdinal = (n, lang = "es") => {
 const BATTLE_TEMPLATES = {
   inside: [
     {
+      es: "¡{attacker} se lanza al interior de {corner} y pasa a {defender} para colocarse en {ord} posicion!",
+      en: "{attacker} dives down the inside of {corner}, passes {defender} and moves into {ord}.",
+    },
+    {
       es: "{attacker} se pega al aleron de {defender}, se lanza al interior de {corner} y gana la posicion para ponerse {ord}.",
       en: "{attacker} gets onto {defender}'s rear wing, dives down the inside of {corner} and takes the place for {ord}.",
     },
@@ -1296,6 +1300,10 @@ const BATTLE_TEMPLATES = {
     },
   ],
   outside: [
+    {
+      es: "¡{attacker} se lanza por fuera de {corner} y pasa a {defender} para colocarse en {ord} posicion!",
+      en: "{attacker} launches around the outside of {corner}, passes {defender} and moves into {ord}.",
+    },
     {
       es: "{attacker} aguanta por fuera de {corner}, no suelta el coche y supera a {defender} para subir a {ord}.",
       en: "{attacker} hangs around the outside of {corner}, keeps the car there and passes {defender} for {ord}.",
@@ -1322,6 +1330,10 @@ const BATTLE_TEMPLATES = {
     },
   ],
   switchback: [
+    {
+      es: "¡{attacker} fuerza a {defender} a cubrir el interior y sale peor de {corner}; {attacker} le pasa por salir con mejor traccion y se coloca en {ord} posicion!",
+      en: "{attacker} forces {defender} to cover the inside and get a worse exit from {corner}; better traction completes the pass for {ord}.",
+    },
     {
       es: "{attacker} fuerza a {defender} a entrar pasado en {corner}, cruza la trazada y acelera hacia {ord}.",
       en: "{attacker} forces {defender} deep into {corner}, cuts back and accelerates into {ord}.",
@@ -1379,6 +1391,14 @@ const BATTLE_TEMPLATES = {
     },
   ],
   defense: [
+    {
+      es: "¡{defender} se defiende por el medio de la pista al llegar a {corner} y {attacker} no consigue pasarle!",
+      en: "{defender} defends through the middle of the track on the run to {corner} and {attacker} cannot get past.",
+    },
+    {
+      es: "¡{defender} se defiende por el interior de {corner} y {attacker} no consigue pasar!",
+      en: "{defender} defends the inside of {corner} and {attacker} cannot make the pass.",
+    },
     {
       es: "{defender} lee el ataque de {attacker}, cierra el interior de {corner} y mantiene la posicion.",
       en: "{defender} reads {attacker}'s attack, shuts the inside of {corner} and holds the place.",

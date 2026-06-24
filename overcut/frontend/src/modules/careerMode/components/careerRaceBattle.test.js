@@ -8,6 +8,11 @@ const lcg = (seed) => {
   };
 };
 
+const fixedRng = (...values) => {
+  let index = 0;
+  return () => values[index++] ?? 0;
+};
+
 describe("formatOrdinal", () => {
   test("formats Spanish ordinals with the masculine degree sign", () => {
     expect(formatOrdinal(1, "es")).toBe("1º");
@@ -67,6 +72,26 @@ describe("renderBattleEvent", () => {
     const { text, textEn } = renderBattleEvent(baseArgs({ outcome: "defense" }));
     expect(text).not.toMatch(/\d+º/);
     expect(textEn).not.toMatch(/\d+(st|nd|rd|th)/);
+  });
+
+  test("includes direct inside, outside, switchback and defense race-call phrases", () => {
+    const phraseCases = [
+      { outcome: "inside", expected: /se lanza al interior de la curva 1 y pasa a Driver Y para colocarse en 8º posicion/ },
+      { outcome: "outside", expected: /se lanza por fuera de la curva 1 y pasa a Driver Y para colocarse en 8º posicion/ },
+      { outcome: "switchback", expected: /fuerza a Driver Y a cubrir el interior y sale peor de la curva 1/ },
+      { outcome: "defense", expected: /se defiende por el medio de la pista al llegar a la curva 1 y Driver X no consigue pasarle/ },
+    ];
+
+    phraseCases.forEach(({ outcome, expected }) => {
+      const { text } = renderBattleEvent(
+        baseArgs({
+          outcome,
+          raceName: "Race A",
+          rng: fixedRng(0, 0),
+        })
+      );
+      expect(text).toMatch(expected);
+    });
   });
 
   test("a contact battle names both drivers without claiming a pass", () => {
