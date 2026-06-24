@@ -337,6 +337,15 @@ const realisticSeasonPoints = (rank, scoring, raceCount) => {
   return Math.max(floor, Math.round(expected));
 };
 
+const expectedLeadDriverFinishForTeam = (team, field, fieldSize = GRID_TEAMS * 2) => {
+  const constructorRank = clamp(
+    team?.scaledRealConstructorPosition || team?.realConstructorPosition || expectedConstructorRank(team, field),
+    1,
+    GRID_TEAMS
+  );
+  return clamp(constructorRank * 2 - 1, 1, fieldSize);
+};
+
 const realConstructorPointsForTeam = (team) => {
   const points = team?.realConstructorPoints ?? team?.constructorPoints ?? team?.points;
   return Number.isFinite(points) ? points : null;
@@ -974,6 +983,7 @@ const buildMarketSeasonGrid = ({ bootstrap, year, contract, profile, rng }) => {
       });
     }
     return {
+      ...team,
       id: team.id || team.name,
       name: team.name,
       rating: team.rating,
@@ -1025,6 +1035,7 @@ const buildRealSeasonGrid = ({ bootstrap, year, contract, profile }) => {
       drivers = realDrivers.map((driver) => realDriverEntry(driver, team.name, year));
     }
     return {
+      ...team,
       id: team.id || team.name,
       name: team.name,
       rating: team.rating,
@@ -1421,9 +1432,9 @@ const periodLengthForFlag = (flag, rng) => {
 
 const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, era, wetLevel, rng, playerId, reliabilityDnf = new Map() }) => {
   const baseCount = clamp(
-    Math.round(profileTrack.chaos * 5 + wetLevel * 7 + (plan.weather !== "seco" ? 2 : 0) + rng() * 3),
-    2,
-    10
+    Math.round(profileTrack.chaos * 3 + wetLevel * 3.5 + (plan.weather !== "seco" ? 1 : 0) + rng() * 2),
+    1,
+    6
   );
   const available = qualifying.filter((entry) => entry.id !== playerId);
   // Resolve incidents in lap order with a growing set of retired drivers, so a
@@ -1447,16 +1458,16 @@ const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, e
     const rivalPool = pool.filter((entry) => entry.id !== actor.id);
     const rival = rivalPool.length ? pickRandom(rivalPool, rng) : null;
     const rainBoost = state.wet ? 1.85 : state.rainThreat ? 1.28 : 1;
-    const mechanicalChance = clamp((1 - actor.reliability) * 0.36 * (era.scenarioWeights?.mechanical || 1), 0.06, 0.42);
+    const mechanicalChance = clamp((1 - actor.reliability) * 0.22 * (era.scenarioWeights?.mechanical || 1), 0.015, 0.18);
     const roll = rng();
     let kind =
       roll < mechanicalChance
         ? "mechanicalDnf"
-        : roll < mechanicalChance + 0.18 * rainBoost
+        : roll < mechanicalChance + 0.09 * rainBoost
         ? "soloCrash"
-        : roll < mechanicalChance + 0.36 * rainBoost
+        : roll < mechanicalChance + 0.17 * rainBoost
         ? "collisionDnf"
-        : roll < mechanicalChance + 0.6 * rainBoost
+        : roll < mechanicalChance + 0.38 * rainBoost
         ? "collisionLoss"
         : "driverError";
     // No rival left on track to collide with: fall back to a single-car version.
@@ -1477,7 +1488,7 @@ const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, e
       kind === "driverError" ? 1 + Math.floor(rng() * (state.wet ? 4 : 3)) :
       kind === "collisionLoss" || kind === "soloCrash" ? 2 + Math.floor(rng() * (state.wet ? 5 : 3)) :
       0;
-    const dnf = kind === "mechanicalDnf" || kind === "collisionDnf" || (kind === "soloCrash" && severity > 0.72);
+    const dnf = kind === "mechanicalDnf" || kind === "collisionDnf" || (kind === "soloCrash" && severity > 0.86);
     const rivalDnf = kind === "collisionDnf" && Boolean(rival);
     if (dnf) retired.add(actor.id);
     if (rivalDnf) retired.add(rival.id);
@@ -1582,15 +1593,25 @@ const renderDynamicIncidentEvent = ({ incident, playerName, playerGainCount = 0 
   );
 };
 
-const renderNeutralizationStrategyEvent = ({ incident, profile, rng, playerPosition, fieldSize }) => {
+const renderNeutralizationStrategyEvent = ({ incident, profile, rng, playerPosition, fieldSize, degradation = 0, teamExpectedFinish = null }) => {
   if (incident.type === "safetyCar") {
     const stop = rng() < 0.55;
     const carsAhead = Math.max(0, (playerPosition || fieldSize) - 1);
     const carsBehind = Math.max(0, fieldSize - (playerPosition || fieldSize));
+    const expectedFinish = Number.isFinite(teamExpectedFinish) ? teamExpectedFinish : playerPosition || fieldSize;
+    const overPerformance = Math.max(0, expectedFinish - (playerPosition || expectedFinish));
     const placesChanged = stop
       ? Math.min(carsBehind, 1 + Math.floor(rng() * Math.max(1, Math.min(4, carsBehind))))
-      : Math.min(carsAhead, 1 + Math.floor(rng() * Math.max(1, Math.min(6, carsAhead))));
+      : Math.min(
+          carsAhead,
+          Math.max(0, 1 + Math.floor(rng() * Math.max(1, Math.min(6, carsAhead))) - Math.floor(degradation * 2.2 + overPerformance / 4))
+        );
     const delta = stop ? placesChanged : -placesChanged;
+    const tyreDebt = !stop && placesChanged > 0
+      ? placesChanged * (1.4 + degradation * 3.4) + overPerformance * degradation * 0.42
+      : stop
+      ? -Math.min(1.8, degradation * 1.2)
+      : 0;
     return playerEvent(
       incident.endLap,
       stop
@@ -1608,7 +1629,10 @@ const renderNeutralizationStrategyEvent = ({ incident, profile, rng, playerPosit
         ? `Safety car bunches the whole field: ${profile.name} stays out; ${placesChanged} drivers ahead pit and they gain ${positionTextEn(placesChanged)} on track.`
         : `Safety car bunches the whole field: ${profile.name} stays out and keeps track position on older tyres.`,
       "safetycar",
-      delta !== 0 ? { positionDelta: delta } : {}
+      {
+        ...(delta !== 0 ? { positionDelta: delta } : {}),
+        ...(tyreDebt !== 0 ? { strategyTyreDebt: tyreDebt } : {}),
+      }
     );
   }
   if (incident.type === "vsc") {
@@ -1692,6 +1716,8 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
 
   const tyre = describeTyre(plan);
   let playerDelta = 0;
+  let playerStrategyDebt = 0;
+  const playerTeamExpectedFinish = expectedLeadDriverFinishForTeam(player.team, season.grid, entrants.length);
   const events = [
     renderEraContextEvent({ year: season.year, lap: 1, rng }),
     playerEvent(
@@ -1775,13 +1801,33 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
 
   if (plan.degradation > 0.66) {
     const lap = Math.floor(lapCount * (0.34 + rng() * 0.2));
-    const gain = inputs.consistency > 58 ? 2 : rng() < 0.45 ? 1 : -1;
+    const tyreManagementScore =
+      (inputs.consistency - 58) / 28 +
+      (player.team.rating - meanTeamRating) / 42 -
+      (plan.degradation - 0.66) * 2.4 +
+      (rng() - 0.5) * 1.2;
+    const gain = tyreManagementScore > 0.95 ? 1 : tyreManagementScore < -0.25 ? -1 : 0;
     playerDelta += gain;
+    const degradationText =
+      gain > 0
+        ? {
+            es: `La degradacion es alta. El ritmo de ${profile.name} crece al gestionar mejor el eje trasero.`,
+            en: `Degradation is high. ${profile.name}'s pace improves by managing the rear axle better.`,
+          }
+        : gain < 0
+        ? {
+            es: `La degradacion es alta. El ritmo de ${profile.name} cae por graining delantero.`,
+            en: `Degradation is high. ${profile.name}'s pace drops with front graining.`,
+          }
+        : {
+            es: `La degradacion es alta. ${profile.name} conserva la posicion, pero no tiene goma para atacar sin castigar el stint.`,
+            en: `Degradation is high. ${profile.name} holds position, but lacks the tyre life to attack without hurting the stint.`,
+          };
     events.push(
       playerEvent(
         lap,
-        `La degradacion es alta. El ritmo de ${profile.name} ${gain >= 0 ? "crece al gestionar mejor el eje trasero" : "cae por graining delantero"}.`,
-        `Degradation is high. ${profile.name}'s pace ${gain >= 0 ? "improves by managing the rear axle better" : "drops with front graining"}.`,
+        degradationText.es,
+        degradationText.en,
         "player",
         { positionDelta: -gain }
       )
@@ -1946,10 +1992,10 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   qualifying.forEach((entrant) => {
     if (entrant.isPlayer) return;
     const risk = clamp(
-      (0.025 + (1 - entrant.reliability) * 0.14 + profileTrack.chaos * 0.05 + wetLevel * 0.04) *
+      (0.012 + (1 - entrant.reliability) * 0.08 + profileTrack.chaos * 0.025 + wetLevel * 0.02) *
         (era.scenarioWeights?.mechanical || 1),
-      0.01,
-      0.28
+      0.003,
+      0.12
     );
     if (rng() < risk) {
       reliabilityDnf.set(entrant.id, {
@@ -2003,9 +2049,12 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       rng,
       playerPosition: currentPlayerRunningPosition(),
       fieldSize: entrants.length,
+      degradation: plan.degradation,
+      teamExpectedFinish: playerTeamExpectedFinish,
     });
     if (strategyEvent) {
       playerDelta += Number.isFinite(strategyEvent.positionDelta) ? -strategyEvent.positionDelta : 0;
+      playerStrategyDebt += Number.isFinite(strategyEvent.strategyTyreDebt) ? strategyEvent.strategyTyreDebt : 0;
       events.push(strategyEvent);
     }
     if (incident.type !== "yellow") {
@@ -2061,18 +2110,27 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       const isPlayer = entrant.isPlayer;
       const dynamicIncident = dynamicByActor.get(entrant.id);
       // Rain widens the random spread and rewards driver skill over the car.
-      const randomSwing = (rng() - 0.5) * (8 + profileTrack.chaos * 9 + wetLevel * 8);
-      const weatherSkill = ((hashString(`${entrant.driver.name}-rain`) % 100) / 100) * (1 + wetLevel * 6);
+      const randomSwing = (rng() - 0.5) * (4.2 + profileTrack.chaos * 4.8 + wetLevel * 4);
+      const weatherSkill = ((hashString(`${entrant.driver.name}-rain`) % 100) / 100) * (0.4 + wetLevel * 3.2);
       // Car advantage shrinks towards the field mean as the track gets wetter;
       // driver rating keeps its full weight.
       const adjustedTeamRating = levelledCarRating(entrant.team.rating, meanTeamRating, wetLevel);
-      const wetBase = entrant.driver.rating * 0.55 + adjustedTeamRating * 0.45;
+      const wetBase = entrant.driver.rating * 0.36 + adjustedTeamRating * 0.64;
       const teammateDuel = teammateRatingDuelModifier({
         entrant,
         player,
         teammate: teammateEntrant,
         playerRating: inputs.rating,
       });
+      const expectedFinish = expectedLeadDriverFinishForTeam(entrant.team, season.grid, entrants.length);
+      const projectedPlayerTrackPosition = clamp(playerGrid - playerDelta, 1, entrants.length);
+      const playerCarOverreach = isPlayer ? Math.max(0, expectedFinish - projectedPlayerTrackPosition - (wetLevel > 0.45 ? 2 : 1)) : 0;
+      const playerCarTierPenalty = isPlayer ? Math.max(0, expectedFinish - 7) * (0.72 + plan.degradation * 0.35) : 0;
+      const playerCarRealityPenalty = isPlayer
+        ? playerCarOverreach * (1.7 + plan.degradation * 2.05 - wetLevel * 0.35) +
+          Math.max(0, playerStrategyDebt) * 1.75 +
+          playerCarTierPenalty
+        : 0;
       // Reliability retirement was decided up front; a dynamic incident DNF takes
       // precedence and overrides the lap so the timeline stays single-sourced.
       const reliability = reliabilityDnf.get(entrant.id);
@@ -2103,10 +2161,11 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
           (profileTrack.tyre - 0.4) * ((hashString(`${entrant.driver.name}-tyre`) % 12) - 5) +
           (dynamicIncident ? -dynamicIncident.lostPositions * 3.2 - dynamicIncident.severity * 3 : 0) +
           (isPlayer
-            ? playerDelta * 2.8 +
-              profile.reputation * 0.025 +
-              (inputs.pace - inputs.rating) * 0.25 +
-              (inputs.racecraft - inputs.rating) * 0.2
+            ? playerDelta * 1.05 -
+              playerCarRealityPenalty +
+              profile.reputation * 0.015 +
+              (inputs.pace - inputs.rating) * 0.16 +
+              (inputs.racecraft - inputs.rating) * 0.14
             : 0),
       };
     });
@@ -2114,6 +2173,22 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   const finishers = classified
     .filter((entry) => !entry.dnf)
     .sort((a, b) => b.raceScore - a.raceScore);
+  const playerFinisherIndex = finishers.findIndex((entry) => entry.isPlayer);
+  if (playerFinisherIndex >= 0) {
+    const playerEntry = finishers[playerFinisherIndex];
+    const expectedFinish = expectedLeadDriverFinishForTeam(playerEntry.team, season.grid, entrants.length);
+    const exceptionalAllowance =
+      3 +
+      wetLevel * 1.4 +
+      profileTrack.chaos * 1.2 +
+      Math.max(0, inputs.rating - 74) / 12 +
+      Math.max(0, playerEntry.team.rating - meanTeamRating) / 18;
+    const bestSustainableFinish = clamp(Math.round(expectedFinish - exceptionalAllowance), 1, entrants.length);
+    if (playerFinisherIndex + 1 < bestSustainableFinish) {
+      const [playerRow] = finishers.splice(playerFinisherIndex, 1);
+      finishers.splice(Math.min(bestSustainableFinish - 1, finishers.length), 0, playerRow);
+    }
+  }
   const dnfs = classified
     .filter((entry) => entry.dnf)
     .sort((a, b) => b.raceScore - a.raceScore);

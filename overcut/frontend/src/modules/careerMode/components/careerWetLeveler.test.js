@@ -123,4 +123,32 @@ describe("weaker teams finish better in the wet than in the dry", () => {
   test("bottom-third teams average a better finishing position when it rains", () => {
     expect(weakAverageFinish(wet)).toBeLessThan(weakAverageFinish(dry));
   });
+
+  test("midfield cars do not turn safety-car track position into routine podiums", () => {
+    const profile = {
+      ...baseProfile("Midfield Reality"),
+      rating: 72,
+      reputation: 45,
+      consistency: 64,
+      aggression: 60,
+    };
+    const samples = [];
+    outer: for (const year of bootstrap.seasonYears || []) {
+      const contracts = generateContracts({ bootstrap, year, playerProfile: profile });
+      const contract = contracts.find((item) => item.team.rating >= 76 && item.team.rating <= 84) || contracts[0];
+      if (!contract) continue;
+      const season = createCareerSeason({ bootstrap, profile, year, contract });
+      for (let raceIndex = 0; raceIndex < season.races.length; raceIndex += 1) {
+        const result = simulateCareerRace({ season, raceIndex, profile });
+        if (result.playerResult.gridPosition <= 8) continue;
+        samples.push(result.playerResult.position);
+        if (samples.length >= 80) break outer;
+      }
+    }
+    const podiumRate = samples.filter((position) => position <= 3).length / samples.length;
+    const topFiveRate = samples.filter((position) => position <= 5).length / samples.length;
+    expect(samples.length).toBeGreaterThan(30);
+    expect(podiumRate).toBeLessThan(0.12);
+    expect(topFiveRate).toBeLessThan(0.35);
+  });
 });
