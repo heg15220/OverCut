@@ -1234,9 +1234,12 @@ export const renderPressureManagementEvent = ({ driver, rival, team, lap, raceNa
   };
 };
 
-export const renderPlayerSpecificEvent = ({ driver, rival, team, lap, raceName, rng, state = {} }) => {
+export const renderPlayerSpecificEvent = ({ driver, rival, team, lap, raceName, rng, state = {}, allowedDeltas = null }) => {
   const corner = pick(getCornersForRace(raceName), rng);
-  const template = pickEligible(PLAYER_RACE_EVENTS, rng, state);
+  const pool = Array.isArray(allowedDeltas)
+    ? PLAYER_RACE_EVENTS.filter((event) => allowedDeltas.includes(event.delta || 0))
+    : PLAYER_RACE_EVENTS;
+  const template = pickEligible(pool.length ? pool : PLAYER_RACE_EVENTS, rng, state);
   const vars = { driver, rival, team };
   const positionDelta = clampPositionDelta(template.delta || 0);
   return {

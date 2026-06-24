@@ -2221,31 +2221,48 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       }
     : null;
   const classifiedRivals = results.filter((result) => !result.isPlayer);
-  const getPlayerRaceRival = (lap, intent = "around") => {
-    const estimatedPosition = estimatedPlayerPositionAtLap({
-      lap,
-      lapCount,
-      startPosition: playerGrid,
-      finalPosition: playerResult.position,
-      entrantCount: entrants.length,
-      rng,
-    });
+  const adjacentRivalFromOrder = (order, playerPosition, intent = "around") => {
+    const fieldSize = order.length;
+    const targetPosition =
+      intent === "attack" ? playerPosition - 1 :
+      intent === "defend" ? playerPosition + 1 :
+      playerPosition <= 1 ? 2 :
+      playerPosition >= fieldSize ? fieldSize - 1 :
+      rng() < 0.5 ? playerPosition - 1 : playerPosition + 1;
+    if (targetPosition < 1 || targetPosition > fieldSize || targetPosition === playerPosition) return null;
+    const rivals = order
+      .filter((entry) => entry.id !== "career-player" && !entry.isPlayer)
+      .sort((a, b) => a.position - b.position);
+    const rivalIndex = targetPosition < playerPosition ? targetPosition - 1 : targetPosition - 2;
+    const rival = rivals[rivalIndex];
+    return rival ? { ...rival, position: targetPosition } : null;
+  };
+  const projectedPlayerPositionBeforeLap = (lap) => {
+    let position = playerGrid;
+    [...events]
+      .filter((event) => event.lap <= lap && !event.finalPlayerPosition)
+      .sort((a, b) => a.lap - b.lap)
+      .forEach((event) => {
+        if (Number.isFinite(event.positionDelta)) {
+          position = clamp(position + event.positionDelta, 1, entrants.length);
+        }
+      });
+    return position;
+  };
+  const getPlayerRaceRival = (lap, intent = "around", playerPosition = null) => {
+    const livePlayerPosition = playerPosition || projectedPlayerPositionBeforeLap(lap);
     return (
-      rivalNearPosition({
-        order: liveRaceOrderAtLap(results, lap),
-        position: estimatedPosition,
-        intent,
-      }) ||
-      rivalNearPosition({
-        order: qualifying.map((entry) => ({
+      adjacentRivalFromOrder(liveRaceOrderAtLap(results, lap), livePlayerPosition, intent) ||
+      adjacentRivalFromOrder(
+        qualifying.map((entry) => ({
           id: entry.id,
           driver: entry.driver.name,
           team: entry.team.name,
           position: entry.gridPosition,
         })),
-        position: estimatedPosition,
-        intent,
-      })
+        livePlayerPosition,
+        intent
+      )
     );
   };
   const neutralCount = clamp(
@@ -2308,14 +2325,18 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     16,
     34
   );
-  sample([...Array(playerSpecificCount)].map((_, index) => index), playerSpecificCount, rng).forEach((_, index) => {
-    const lap = 3 + Math.floor(rng() * Math.max(5, lapCount - 7));
-    const state = raceStateAtLap(plan, lap);
-    if (!isGreenRacingState(state)) return;
-    const intent = index % 3 === 0 ? "attack" : index % 3 === 1 ? "defend" : "around";
-    const rival = getPlayerRaceRival(lap, intent) || { driver: rivalName };
-    events.push(
-      renderPlayerSpecificEvent({
+  sample([...Array(playerSpecificCount)].map((_, index) => index), playerSpecificCount, rng)
+    .map((_, index) => ({ index, lap: 3 + Math.floor(rng() * Math.max(5, lapCount - 7)) }))
+    .sort((a, b) => a.lap - b.lap || a.index - b.index)
+    .forEach(({ index, lap }) => {
+      const state = raceStateAtLap(plan, lap);
+      if (!isGreenRacingState(state)) return;
+      const intent = index % 3 === 0 ? "attack" : index % 3 === 1 ? "defend" : "around";
+      const allowedDeltas = intent === "attack" ? [-1, 0] : intent === "defend" ? [0, 1] : [-1, 0, 1];
+      const playerPositionBeforeEvent = projectedPlayerPositionBeforeLap(lap);
+      const rival = getPlayerRaceRival(lap, intent, playerPositionBeforeEvent);
+      if (!rival) return;
+      const event = renderPlayerSpecificEvent({
         driver: profile.name,
         rival: rival.driver,
         team: player.team.name,
@@ -2324,12 +2345,29 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
         rng,
         state,
         year: season.year,
-      })
-    );
-  });
+        allowedDeltas,
+      });
+      events.push({
+        ...event,
+        playerRival: rival.driver,
+        playerRivalIntent: intent,
+        playerRivalPosition: rival.position,
+        playerPositionBeforeEvent,
+      });
+    });
 
   if (playerResult.status !== "DNF" && playerResult.position < playerGrid) {
-    const lateAttackRival = getPlayerRaceRival(Math.floor(lapCount * 0.82), "attack") || { driver: rivalName };
+    const lateAttackRival = getPlayerRaceRival(Math.floor(lapCount * 0.82), "attack");
+    if (!lateAttackRival) {
+      events.push(
+        playerEvent(
+          Math.max(3, Math.floor(lapCount * 0.82)),
+          `${profile.name} consolida la ganancia de posiciones y evita riesgos innecesarios en el tramo final.`,
+          `${profile.name} consolidates the gained positions and avoids unnecessary risks in the final stint.`,
+          "player"
+        )
+      );
+    } else {
     events.push(
       renderOvertakeEvent({
         driver: profile.name,
@@ -2365,6 +2403,7 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
         state: raceStateAtLap(plan, Math.max(5, Math.floor(lapCount * 0.9))),
       })
     );
+    }
   }
 
   events.push(

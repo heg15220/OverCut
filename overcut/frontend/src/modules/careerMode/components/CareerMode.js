@@ -1595,7 +1595,7 @@ const CareerMode = () => {
   useEffect(() => {
     if (phase !== "race-live" || !raceResult || simulationPaused) return undefined;
     if (visibleEventCount >= raceResult.events.length) return undefined;
-    const delay = simulationSpeed === "x3" ? 500 : simulationSpeed === "x2" ? 750 : 1500;
+    const delay = simulationSpeed === "x3" ? 500 : simulationSpeed === "x2" ? 750 : 1850;
     const timer = window.setTimeout(() => {
       setVisibleEventCount((count) => Math.min(raceResult.events.length, count + 1));
     }, delay);

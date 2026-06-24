@@ -444,4 +444,31 @@ describe("battle narration is coherent with the running order", () => {
     expect(checked).toBeGreaterThan(0);
     expect(broken).toEqual([]);
   });
+
+  test("player attack and defense events pick rivals from the correct side of the live position", () => {
+    const broken = [];
+    let checked = 0;
+    runs.forEach((run) => {
+      for (let i = 1; i < run.events.length; i += 1) {
+        const previous = run.events[i - 1];
+        const event = run.events[i];
+        if (!event.playerRivalIntent || !Number.isFinite(event.playerRivalPosition)) continue;
+        checked += 1;
+        const delta = Number.isFinite(event.positionDelta) ? event.positionDelta : 0;
+        const playerPosition = event.playerPositionBeforeEvent || previous.playerPosition;
+        if (event.playerRivalIntent === "attack") {
+          if (delta > 0 || event.playerRivalPosition >= playerPosition) {
+            broken.push({ race: run.race.name, lap: event.lap, intent: event.playerRivalIntent, delta, rival: event.playerRival, rivalPosition: event.playerRivalPosition, playerPosition, text: event.text });
+          }
+        }
+        if (event.playerRivalIntent === "defend") {
+          if (delta < 0 || event.playerRivalPosition <= playerPosition) {
+            broken.push({ race: run.race.name, lap: event.lap, intent: event.playerRivalIntent, delta, rival: event.playerRival, rivalPosition: event.playerRivalPosition, playerPosition, text: event.text });
+          }
+        }
+      }
+    });
+    expect(checked).toBeGreaterThan(0);
+    expect(broken).toEqual([]);
+  });
 });
