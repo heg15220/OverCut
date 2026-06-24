@@ -5,6 +5,7 @@ import { SCORING_SYSTEMS } from "../../overcutRacing/components/scoringSystems";
 import {
   BATTLE_GAIN_OUTCOMES,
   eventCatalogStats,
+  formatOrdinal,
   renderBattleEvent,
   renderExtraDynamicEvent,
   renderIncidentEvent,
@@ -1170,20 +1171,20 @@ const playerEvent = (lap, text, textEn = text, type = "player", extras = {}) => 
   ...extras,
 });
 
-// How far the narrated position is allowed to drift from the interpolated
-// baseline. Keeps event "texture" believable without letting it run away.
-const PLAYER_TIMELINE_OFFSET_CAP = 4;
+const replaceBattleOrdinal = (event, ordinal) => ({
+  ...event,
+  text: event.text?.replace(/\d+º/, formatOrdinal(ordinal, "es")),
+  textEn: event.textEn?.replace(/\d+(st|nd|rd|th)/, formatOrdinal(ordinal, "en")),
+});
 
-// The lap-by-lap position shown in the narration is anchored to the *real*
-// classification: it interpolates from the grid slot to the finishing position
-// across race distance, and event deltas only add bounded local texture that
-// decays to zero by the chequered flag. The result table is the single source
-// of truth, so the narration can no longer drift off and then "teleport" onto
-// the final position on the last lap.
-const attachPlayerPositionTimeline = ({ events, startPosition, finalPosition, entrantCount, lapCount }) => {
+// The live race marker follows the narrated events, not a hidden interpolation.
+// If a line says the player gains/loses places it carries `positionDelta`; if a
+// battle states the exact running place it carries `playerPositionOverride`.
+// Neutral narration inherits the previous position so the marker never jumps
+// without the text explaining why.
+const attachPlayerPositionTimeline = ({ events, startPosition, finalPosition, entrantCount }) => {
   const start = clamp(startPosition, 1, entrantCount);
   const final = clamp(finalPosition, 1, entrantCount);
-  const laps = Math.max(1, lapCount || 1);
   const priority = {
     redflag: 0,
     safetycar: 1,
@@ -1203,27 +1204,31 @@ const attachPlayerPositionTimeline = ({ events, startPosition, finalPosition, en
       (priority[a.type] ?? 8) - (priority[b.type] ?? 8) ||
       Number(b.important) - Number(a.important)
   );
-  let offset = 0;
+  let currentPosition = start;
   return ordered.map((event) => {
     if (event.finalPlayerPosition) {
-      offset = 0;
+      currentPosition = final;
       return { ...event, playerPosition: final };
     }
-    // A battle involving the player carries the exact rank it puts them in; anchor
-    // the label to it (the rank tracks the interpolation baseline, so no jump).
-    if (Number.isFinite(event.playerPositionOverride)) {
-      offset = 0;
-      return { ...event, playerPosition: clamp(event.playerPositionOverride, 1, entrantCount) };
+    if (event.playerBattleOrdinalRole === "playerAfter" && Number.isFinite(event.positionDelta)) {
+      currentPosition = clamp(currentPosition + event.positionDelta, 1, entrantCount);
+      return {
+        ...replaceBattleOrdinal(event, currentPosition),
+        playerPosition: currentPosition,
+        playerOvertakeOrdinal: currentPosition,
+      };
+    }
+    if (event.playerBattleOrdinalRole === "rivalAfter" && Number.isFinite(event.positionDelta)) {
+      const rivalOrdinal = currentPosition;
+      currentPosition = clamp(currentPosition + event.positionDelta, 1, entrantCount);
+      return { ...replaceBattleOrdinal(event, rivalOrdinal), playerPosition: currentPosition };
     }
     if (Number.isFinite(event.positionDelta)) {
-      offset = clamp(offset + event.positionDelta, -PLAYER_TIMELINE_OFFSET_CAP, PLAYER_TIMELINE_OFFSET_CAP);
+      currentPosition = clamp(currentPosition + event.positionDelta, 1, entrantCount);
     }
-    const progress = clamp(event.lap / laps, 0, 1);
-    const baseline = interpolateRacePosition(start, final, progress);
-    const damped = Math.round(offset * (1 - progress));
     return {
       ...event,
-      playerPosition: clamp(baseline + damped, 1, entrantCount),
+      playerPosition: currentPosition,
     };
   });
 };
@@ -1358,10 +1363,11 @@ const buildBattleAtLap = ({ results, lap, lapCount, raceName, year, rng, state }
   });
   const event = { ...base, category: "battle" };
   if (attacker.isPlayer) {
-    event.playerPositionOverride = gain ? defender.rank : attacker.rank;
-    if (gain) event.playerOvertakeOrdinal = ordinal; // the ordinal in the text is the player's
+    event.positionDelta = gain ? -1 : 0;
+    if (gain) event.playerBattleOrdinalRole = "playerAfter";
   } else if (defender.isPlayer) {
-    event.playerPositionOverride = gain ? attacker.rank : defender.rank;
+    event.positionDelta = gain ? 1 : 0;
+    if (gain) event.playerBattleOrdinalRole = "rivalAfter";
   }
   return event;
 };
@@ -1472,7 +1478,9 @@ const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, e
       kind === "collisionLoss" || kind === "soloCrash" ? 2 + Math.floor(rng() * (state.wet ? 5 : 3)) :
       0;
     const dnf = kind === "mechanicalDnf" || kind === "collisionDnf" || (kind === "soloCrash" && severity > 0.72);
+    const rivalDnf = kind === "collisionDnf" && Boolean(rival);
     if (dnf) retired.add(actor.id);
+    if (rivalDnf) retired.add(rival.id);
     incidents.push({
       id: `${actor.id}-${lap}-${index}`,
       lap,
@@ -1488,6 +1496,7 @@ const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, e
       severity,
       lostPositions,
       dnf,
+      rivalDnf,
       mechanical: kind === "mechanicalDnf" ? pickRandom(mechanicalFailuresForYear(plan.year), rng) : null,
       wet: state.wet,
     });
@@ -1496,7 +1505,7 @@ const buildDynamicRaceIncidents = ({ qualifying, plan, lapCount, profileTrack, e
   return incidents;
 };
 
-const renderDynamicIncidentEvent = ({ incident, playerName, playerNearby }) => {
+const renderDynamicIncidentEvent = ({ incident, playerName, playerGainCount = 0 }) => {
   const eventType =
     incident.type === "yellow" ? "yellow" :
     incident.type === "safetyCar" ? "safetycar" :
@@ -1512,12 +1521,13 @@ const renderDynamicIncidentEvent = ({ incident, playerName, playerNearby }) => {
     incident.type === "safetyCar" ? "safety car" :
     incident.type === "vsc" ? "VSC" :
     "yellow flag";
-  const playerEs = playerNearby
-    ? ` ${playerName} levanta, evita restos y recalcula la carrera desde su posicion.`
+  const playerEs = playerGainCount > 0
+    ? ` ${playerName} evita el incidente y hereda ${positionTextEs(playerGainCount)}.`
     : "";
-  const playerEn = playerNearby
-    ? ` ${playerName} lifts, avoids debris and recalculates the race from his position.`
+  const playerEn = playerGainCount > 0
+    ? ` ${playerName} avoids the incident and inherits ${positionTextEn(playerGainCount)}.`
     : "";
+  const gainExtras = playerGainCount > 0 ? { positionDelta: -playerGainCount } : {};
 
   if (incident.kind === "mechanicalDnf") {
     return playerEvent(
@@ -1525,7 +1535,7 @@ const renderDynamicIncidentEvent = ({ incident, playerName, playerNearby }) => {
       `${incident.actor} abandona por un problema de ${incident.mechanical.es} en el ${incident.actorTeam}; direccion muestra ${flagEs}.${playerEs}`,
       `${incident.actor} retires with a ${incident.mechanical.en} problem on the ${incident.actorTeam}; race control shows ${flagEn}.${playerEn}`,
       eventType,
-      playerNearby && incident.dnf ? { positionDelta: -1 } : {}
+      incident.dnf ? gainExtras : {}
     );
   }
   if (incident.kind === "driverError") {
@@ -1554,29 +1564,51 @@ const renderDynamicIncidentEvent = ({ incident, playerName, playerNearby }) => {
       eventType
     );
   }
+  if (incident.rivalDnf) {
+    return playerEvent(
+      incident.lap,
+      `${incident.actor} y ${incident.rival} colisionan y abandonan. Restos en pista: direccion activa ${flagEs}.${playerEs}`,
+      `${incident.actor} and ${incident.rival} collide and retire. Debris on track: race control deploys ${flagEn}.${playerEn}`,
+      eventType,
+      gainExtras
+    );
+  }
   return playerEvent(
     incident.lap,
     `${incident.actor} ${incident.kind === "soloCrash" ? "se accidenta solo" : `colisiona con ${incident.rival}`} y abandona. Restos en pista: direccion activa ${flagEs}.${playerEs}`,
     `${incident.actor} ${incident.kind === "soloCrash" ? "crashes alone" : `collides with ${incident.rival}`} and retires. Debris on track: race control deploys ${flagEn}.${playerEn}`,
     eventType,
-    playerNearby ? { positionDelta: -1 } : {}
+    gainExtras
   );
 };
 
-const renderNeutralizationStrategyEvent = ({ incident, profile, rng }) => {
+const renderNeutralizationStrategyEvent = ({ incident, profile, rng, playerPosition, fieldSize }) => {
   if (incident.type === "safetyCar") {
     const stop = rng() < 0.55;
-    const delta = stop ? 1 + Math.floor(rng() * 2) : -(1 + Math.floor(rng() * 2));
+    const carsAhead = Math.max(0, (playerPosition || fieldSize) - 1);
+    const carsBehind = Math.max(0, fieldSize - (playerPosition || fieldSize));
+    const placesChanged = stop
+      ? Math.min(carsBehind, 1 + Math.floor(rng() * Math.max(1, Math.min(4, carsBehind))))
+      : Math.min(carsAhead, 1 + Math.floor(rng() * Math.max(1, Math.min(6, carsAhead))));
+    const delta = stop ? placesChanged : -placesChanged;
     return playerEvent(
       incident.endLap,
       stop
-        ? `Safety car agrupando toda la parrilla: ${profile.name} para por gomas nuevas, pierde pista ahora pero tendra ataque limpio en la bandera verde.`
-        : `Safety car agrupando toda la parrilla: ${profile.name} se queda fuera, gana posiciones en pista y tendra que defender con neumaticos mas usados.`,
+        ? placesChanged > 0
+          ? `Safety car agrupando toda la parrilla: ${profile.name} para por gomas nuevas y ${placesChanged} pilotos le pasan al no detenerse; tendra ataque limpio en la bandera verde.`
+          : `Safety car agrupando toda la parrilla: ${profile.name} para por gomas nuevas sin perder posicion en pista.`
+        : placesChanged > 0
+        ? `Safety car agrupando toda la parrilla: ${profile.name} se queda fuera; ${placesChanged} pilotos de delante paran y gana ${positionTextEs(placesChanged)} en pista.`
+        : `Safety car agrupando toda la parrilla: ${profile.name} se queda fuera y mantiene posicion en pista con neumaticos mas usados.`,
       stop
-        ? `Safety car bunches the whole field: ${profile.name} pits for fresh tyres, loses track position now but will attack at green flag.`
-        : `Safety car bunches the whole field: ${profile.name} stays out, gains track position and will defend on older tyres.`,
+        ? placesChanged > 0
+          ? `Safety car bunches the whole field: ${profile.name} pits for fresh tyres and ${placesChanged} drivers pass by staying out; they will attack at green flag.`
+          : `Safety car bunches the whole field: ${profile.name} pits for fresh tyres without losing track position.`
+        : placesChanged > 0
+        ? `Safety car bunches the whole field: ${profile.name} stays out; ${placesChanged} drivers ahead pit and they gain ${positionTextEn(placesChanged)} on track.`
+        : `Safety car bunches the whole field: ${profile.name} stays out and keeps track position on older tyres.`,
       "safetycar",
-      { positionDelta: delta }
+      delta !== 0 ? { positionDelta: delta } : {}
     );
   }
   if (incident.type === "vsc") {
@@ -1944,15 +1976,34 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
     endLap: incident.endLap,
   }));
   const gridPositionById = new Map(qualifying.map((entry) => [entry.id, entry.gridPosition]));
+  const currentPlayerRunningPosition = () => clamp(playerGrid - playerDelta, 1, entrants.length);
+  const retiredIncidentIds = (incident) => {
+    const ids = [];
+    if (incident.dnf && incident.actorId) ids.push(incident.actorId);
+    if (incident.rivalDnf && incident.rivalId) ids.push(incident.rivalId);
+    return ids;
+  };
+  const inheritedPositionsFromIncident = (incident) => {
+    const playerPosition = currentPlayerRunningPosition();
+    return retiredIncidentIds(incident).filter((id) => {
+      const gridPosition = gridPositionById.get(id);
+      return Number.isFinite(gridPosition) && gridPosition <= playerPosition;
+    }).length;
+  };
   dynamicIncidents.forEach((incident) => {
     eventLaps.add(incident.startLap);
     eventLaps.add(Math.min(lapCount, incident.endLap + 1));
-    const actorGrid = gridPositionById.get(incident.actorId) || playerGrid;
-    const playerNearby = Math.abs(actorGrid - playerGrid) <= 5;
-    const incidentEvent = renderDynamicIncidentEvent({ incident, playerName: profile.name, playerNearby });
+    const playerGainCount = inheritedPositionsFromIncident(incident);
+    const incidentEvent = renderDynamicIncidentEvent({ incident, playerName: profile.name, playerGainCount });
     playerDelta += Number.isFinite(incidentEvent.positionDelta) ? -incidentEvent.positionDelta : 0;
     events.push(incidentEvent);
-    const strategyEvent = renderNeutralizationStrategyEvent({ incident, profile, rng });
+    const strategyEvent = renderNeutralizationStrategyEvent({
+      incident,
+      profile,
+      rng,
+      playerPosition: currentPlayerRunningPosition(),
+      fieldSize: entrants.length,
+    });
     if (strategyEvent) {
       playerDelta += Number.isFinite(strategyEvent.positionDelta) ? -strategyEvent.positionDelta : 0;
       events.push(strategyEvent);
@@ -1981,12 +2032,29 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   dynamicIncidents.forEach((incident) => {
     const previous = dynamicByActor.get(incident.actorId);
     if (!previous || incident.severity > previous.severity) dynamicByActor.set(incident.actorId, incident);
+    if (incident.rivalDnf && incident.rivalId) {
+      const rivalIncident = {
+        ...incident,
+        actorId: incident.rivalId,
+        actor: incident.rival,
+        rivalId: incident.actorId,
+        rival: incident.actor,
+      };
+      const previousRival = dynamicByActor.get(incident.rivalId);
+      if (!previousRival || incident.severity > previousRival.severity) {
+        dynamicByActor.set(incident.rivalId, rivalIncident);
+      }
+    }
   });
   // Drivers already narrated as retiring by a dynamic incident, so the result
   // table's DNF loop can avoid telling the same retirement a second time.
-  const dynamicDnfActors = new Set(
-    dynamicIncidents.filter((incident) => incident.dnf).map((incident) => incident.actorId)
-  );
+  const dynamicDnfActors = new Set();
+  dynamicIncidents
+    .filter((incident) => incident.dnf)
+    .forEach((incident) => {
+      dynamicDnfActors.add(incident.actorId);
+      if (incident.rivalDnf && incident.rivalId) dynamicDnfActors.add(incident.rivalId);
+    });
 
   const classified = qualifying
     .map((entrant) => {
@@ -2077,34 +2145,66 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
   const playerResult = results.find((result) => result.isPlayer);
   const winner = results[0];
   const podium = results.slice(0, 3);
-  results
+  const nonDynamicRetirements = results
     .filter((result) => !result.isPlayer && result.status === "DNF" && Number.isFinite(result.dnfLap))
     // Drivers who retired through a dynamic incident were already narrated there;
     // this loop only covers the remaining (reliability) DNFs, so each retirement
     // is told exactly once.
     .filter((result) => !dynamicDnfActors.has(result.id))
-    .sort((a, b) => a.dnfLap - b.dnfLap)
-    .forEach((result) => {
+    .sort((a, b) => a.dnfLap - b.dnfLap);
+  const retirementsByLap = new Map();
+  nonDynamicRetirements.forEach((result) => {
+    const bucket = retirementsByLap.get(result.dnfLap) || [];
+    bucket.push(result);
+    retirementsByLap.set(result.dnfLap, bucket);
+  });
+  [...retirementsByLap.entries()]
+    .sort(([lapA], [lapB]) => lapA - lapB)
+    .forEach(([dnfLap, retirements]) => {
       const playerEstimatedPosition = estimatedPlayerPositionAtLap({
-        lap: result.dnfLap,
+        lap: dnfLap,
         lapCount,
         startPosition: playerGrid,
         finalPosition: playerResult.position,
         entrantCount: entrants.length,
         rng,
       });
-      const gainsPlace = result.gridPosition <= playerEstimatedPosition;
+      const gainCount = retirements.filter((result) => result.gridPosition <= playerEstimatedPosition).length;
+      const gainEs =
+        gainCount > 0
+          ? `${profile.name} gana ${positionTextEs(gainCount)} automaticamente.`
+          : "La carrera queda neutralizada localmente.";
+      const gainEn =
+        gainCount > 0
+          ? `${profile.name} gains ${positionTextEn(gainCount)} automatically.`
+          : "The race is locally neutralised.";
+      const extras = gainCount > 0 ? { positionDelta: -gainCount } : {};
+      const type = retirements.some((result) => result.dnfKind === "mechanical") ? "danger" : "neutral";
+      if (retirements.length > 1) {
+        const names = retirements.map((result) => result.driver).join(", ");
+        events.push(
+          playerEvent(
+            dnfLap,
+            `${names} abandonan en la misma vuelta. ${gainEs}`,
+            `${names} retire on the same lap. ${gainEn}`,
+            type,
+            extras
+          )
+        );
+        return;
+      }
+      const [result] = retirements;
       events.push(
         playerEvent(
-          result.dnfLap,
+          dnfLap,
           result.dnfKind === "mechanical"
-            ? `${result.driver} abandona por un problema mecanico en el ${result.team}. ${gainsPlace ? `${profile.name} gana una posicion automaticamente.` : "La carrera queda neutralizada localmente."}`
-            : `${result.driver} queda fuera de carrera tras un incidente. ${gainsPlace ? `${profile.name} hereda una posicion sin pelearla en pista.` : "Los comisarios preparan banderas en el sector."}`,
+            ? `${result.driver} abandona por un problema mecanico en el ${result.team}. ${gainEs}`
+            : `${result.driver} queda fuera de carrera tras un incidente. ${gainCount > 0 ? `${profile.name} hereda ${positionTextEs(gainCount)} sin pelearla en pista.` : "Los comisarios preparan banderas en el sector."}`,
           result.dnfKind === "mechanical"
-            ? `${result.driver} retires with a mechanical issue on the ${result.team}. ${gainsPlace ? `${profile.name} gains one position automatically.` : "The race is locally neutralised."}`
-            : `${result.driver} is out after an incident. ${gainsPlace ? `${profile.name} inherits a position without fighting for it on track.` : "Marshals prepare flags in the sector."}`,
-          result.dnfKind === "mechanical" ? "danger" : "neutral",
-          gainsPlace ? { positionDelta: -1 } : {}
+            ? `${result.driver} retires with a mechanical issue on the ${result.team}. ${gainEn}`
+            : `${result.driver} is out after an incident. ${gainCount > 0 ? `${profile.name} inherits ${positionTextEn(gainCount)} without fighting for it on track.` : "Marshals prepare flags in the sector."}`,
+          type,
+          extras
         )
       );
     });
@@ -2299,7 +2399,6 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       startPosition: playerGrid,
       finalPosition: playerResult.position,
       entrantCount: entrants.length,
-      lapCount,
     }),
     results,
     playerResult,

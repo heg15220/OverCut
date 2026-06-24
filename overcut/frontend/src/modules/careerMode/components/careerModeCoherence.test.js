@@ -162,27 +162,59 @@ describe("narrated player position is a single source of truth", () => {
   // The final marker event is the one declaring the real classified position.
   const finalMarkerIndex = (run) => run.events.findIndex((event) => event.finalPlayerPosition);
 
-  test("the narrated position converges to the classified result (no end-of-race teleport)", () => {
+  test("the final marker shows the classified result", () => {
     const broken = [];
     runs.forEach((run) => {
       const finalIdx = finalMarkerIndex(run);
-      if (finalIdx <= 0) return;
+      if (finalIdx < 0) {
+        broken.push({ race: run.race.name, reason: "missing final marker" });
+        return;
+      }
       const finalPosition = run.events[finalIdx].playerPosition;
-      const before = run.events[finalIdx - 1].playerPosition;
-      const gap = Math.abs(before - finalPosition);
-      // The lap before classifying, the narrated position must already be in the
-      // neighbourhood of where the driver actually finishes.
-      if (gap > 5) broken.push({ before, finalPosition, gap, race: run.race.name });
+      if (finalPosition !== run.playerResult.position) {
+        broken.push({ race: run.race.name, finalPosition, classified: run.playerResult.position });
+      }
     });
     expect(broken).toEqual([]);
   });
 
-  test("the narrated position never teleports between consecutive events", () => {
+  test("intermediate position changes are always explained by event state", () => {
     const broken = [];
     runs.forEach((run) => {
       for (let i = 1; i < run.events.length; i += 1) {
-        const jump = Math.abs(run.events[i].playerPosition - run.events[i - 1].playerPosition);
-        if (jump > 8) broken.push({ jump, lap: run.events[i].lap, race: run.race.name });
+        const previous = run.events[i - 1];
+        const event = run.events[i];
+        if (event.finalPlayerPosition) continue;
+        const delta = event.playerPosition - previous.playerPosition;
+        if (Number.isFinite(event.positionDelta)) {
+          const expected = Math.max(1, Math.min(run.results.length, previous.playerPosition + event.positionDelta)) - previous.playerPosition;
+          if (delta !== expected) {
+            broken.push({
+              race: run.race.name,
+              lap: event.lap,
+              delta,
+              expected,
+              rawDelta: event.positionDelta,
+              text: event.text,
+            });
+          }
+          continue;
+        }
+        if (Number.isFinite(event.playerPositionOverride)) {
+          if (event.playerPosition !== event.playerPositionOverride) {
+            broken.push({
+              race: run.race.name,
+              lap: event.lap,
+              position: event.playerPosition,
+              override: event.playerPositionOverride,
+              text: event.text,
+            });
+          }
+          continue;
+        }
+        if (delta !== 0) {
+          broken.push({ race: run.race.name, lap: event.lap, delta, text: event.text });
+        }
       }
     });
     expect(broken).toEqual([]);
@@ -192,9 +224,11 @@ describe("narrated player position is a single source of truth", () => {
 describe("retirements are narrated once and drivers never revive", () => {
   const runs = collectSimulations();
 
-  // Name of the driver who retires in this event, or null if it is not a
-  // retirement. Covers every retirement template the engine can emit.
-  const retireeOf = (text) => {
+  // Names of the drivers who retire in this event. Covers every retirement
+  // template the engine can emit, including two-car terminal collisions.
+  const retireesOf = (text) => {
+    const doubleCollision = text.match(/^(.+?) y (.+?) colisionan y abandonan/);
+    if (doubleCollision) return [doubleCollision[1], doubleCollision[2]];
     const patterns = [
       /^(.+?) se accidenta solo y abandona/,
       /^(.+?) colisiona con .+? y abandona/,
@@ -204,14 +238,15 @@ describe("retirements are narrated once and drivers never revive", () => {
     ];
     for (const pattern of patterns) {
       const match = text.match(pattern);
-      if (match) return match[1];
+      if (match) return [match[1]];
     }
-    return null;
+    return [];
   };
 
   // Rivals named in an incident text but who are NOT the one retiring here, so
   // they are asserted to still be on track at this lap.
   const mentionedRivals = (text) => {
+    if (/^.+? y .+? colisionan y abandonan/.test(text)) return [];
     const collide = text.match(/^.+? colisiona con (.+?) y abandona/);
     if (collide) return [collide[1]];
     const touch = text.match(/^(.+?) y (.+?) se tocan/);
@@ -224,8 +259,9 @@ describe("retirements are narrated once and drivers never revive", () => {
     runs.forEach((run) => {
       const counts = new Map();
       run.events.forEach((event) => {
-        const name = retireeOf(event.text);
-        if (name) counts.set(name, (counts.get(name) || 0) + 1);
+        retireesOf(event.text).forEach((name) => {
+          counts.set(name, (counts.get(name) || 0) + 1);
+        });
       });
       counts.forEach((count, name) => {
         if (count > 1) broken.push({ race: run.race.name, name, count });
@@ -239,8 +275,9 @@ describe("retirements are narrated once and drivers never revive", () => {
     runs.forEach((run) => {
       const retiredAt = new Map();
       run.events.forEach((event) => {
-        const name = retireeOf(event.text);
-        if (name && !retiredAt.has(name)) retiredAt.set(name, event.lap);
+        retireesOf(event.text).forEach((name) => {
+          if (!retiredAt.has(name)) retiredAt.set(name, event.lap);
+        });
       });
       run.events.forEach((event) => {
         mentionedRivals(event.text).forEach((name) => {
@@ -343,23 +380,68 @@ describe("battle narration is coherent with the running order", () => {
     expect(broken).toEqual([]);
   });
 
-  test("every player battle updates the live track position from the narrated battle state", () => {
+  test("player battles only move the live marker by the narrated action", () => {
     const broken = [];
     runs.forEach((run) => {
-      battlesOf(run)
-        .filter((event) => Number.isFinite(event.playerPositionOverride))
-        .forEach((event) => {
-          if (event.playerPosition !== event.playerPositionOverride) {
-            broken.push({
-              race: run.race.name,
-              lap: event.lap,
-              label: event.playerPosition,
-              override: event.playerPositionOverride,
-              text: event.text,
-            });
-          }
-        });
+      for (let i = 1; i < run.events.length; i += 1) {
+        const event = run.events[i];
+        if (event.category !== "battle" || !Number.isFinite(event.positionDelta)) continue;
+        const previous = run.events[i - 1];
+        const delta = event.playerPosition - previous.playerPosition;
+        const expected = Math.max(1, Math.min(run.results.length, previous.playerPosition + event.positionDelta)) - previous.playerPosition;
+        if (delta !== expected || Math.abs(delta) > 1) {
+          broken.push({
+            race: run.race.name,
+            lap: event.lap,
+            delta,
+            expected,
+            rawDelta: event.positionDelta,
+            text: event.text,
+          });
+        }
+      }
     });
+    expect(broken).toEqual([]);
+  });
+
+  test("terminal collisions and same-lap retirements award the narrated inherited positions", () => {
+    const broken = [];
+    let checked = 0;
+    runs.forEach((run) => {
+      run.events.forEach((event) => {
+        if (!/colisionan y abandonan|abandonan en la misma vuelta/.test(event.text)) return;
+        if (!Number.isFinite(event.positionDelta)) return;
+        const inherited = event.text.match(/(?:hereda|gana) (\d+) posicion(?:es)?/);
+        if (!inherited) {
+          broken.push({ race: run.race.name, lap: event.lap, reason: "missing inherited count", text: event.text });
+          return;
+        }
+        checked += 1;
+        const expectedDelta = -Number(inherited[1]);
+        if (event.positionDelta !== expectedDelta) {
+          broken.push({ race: run.race.name, lap: event.lap, positionDelta: event.positionDelta, expectedDelta, text: event.text });
+        }
+      });
+    });
+    expect(checked).toBeGreaterThan(0);
+    expect(broken).toEqual([]);
+  });
+
+  test("staying out under safety car gains exactly the places from cars that pit ahead", () => {
+    const broken = [];
+    let checked = 0;
+    runs.forEach((run) => {
+      run.events.forEach((event) => {
+        const match = event.text.match(/se queda fuera; (\d+) pilotos de delante paran y gana \d+ posicion/);
+        if (!match) return;
+        checked += 1;
+        const expectedDelta = -Number(match[1]);
+        if (event.positionDelta !== expectedDelta) {
+          broken.push({ race: run.race.name, lap: event.lap, positionDelta: event.positionDelta, expectedDelta, text: event.text });
+        }
+      });
+    });
+    expect(checked).toBeGreaterThan(0);
     expect(broken).toEqual([]);
   });
 });
