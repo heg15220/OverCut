@@ -612,6 +612,10 @@
 
 .cm-contract-card {
   display: grid;
+  /* Single content column capped at the card width: an implicit `auto` column
+     would expand to the widest child's intrinsic size and overflow the narrow
+     two-up mobile card, so its text got clipped by `overflow: hidden`. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   min-width: 0;
   padding: 16px;
@@ -652,6 +656,13 @@
   align-items: stretch;
 }
 
+/* The text column (team name + car/salary line) must be allowed to shrink so its
+   contents wrap inside the narrow card instead of forcing it wider. */
+.cm-contract-team > div,
+.cm-winner-card > div {
+  min-width: 0;
+}
+
 .cm-team-stripe {
   width: 8px;
   min-height: 100%;
@@ -673,6 +684,9 @@
 .cm-contract-card p {
   color: var(--cm-muted);
   font-weight: 800;
+  /* Break long unbreakable tokens (e.g. the salary figure "1.500.000") so they
+     wrap instead of overflowing the narrow card and being clipped. */
+  overflow-wrap: anywhere;
 }
 
 .cm-market-reason {
@@ -692,26 +706,37 @@
 .cm-contract-card dl {
   display: grid;
   gap: 6px;
+  min-width: 0;
   margin: 0;
 }
 
 .cm-contract-card dl div {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
   gap: 10px;
+  min-width: 0;
   padding-top: 6px;
   border-top: 1px solid var(--cm-line);
 }
 
 .cm-contract-card dt {
+  min-width: 0;
   color: var(--cm-muted);
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
 }
 
+/* The value (e.g. the team-mate's full name in a tall Impact face) must be able
+   to shrink and wrap; otherwise it overflows the flex row and the card's
+   `overflow: hidden` clips it. `min-width: 0` lets the flex item shrink and
+   `overflow-wrap` breaks long values instead of cropping them. */
 .cm-contract-card dd {
+  min-width: 0;
   margin: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
   color: var(--cm-gold);
   font-family: Impact, "Arial Black", sans-serif;
   font-size: 24px;
@@ -5482,25 +5507,21 @@
     border-radius: 5px;
   }
 
+  /* Mobile two-up cards keep their reduced font sizes, but the text now WRAPS
+     instead of being clamped/ellipsised — the card grows taller rather than
+     cutting the information off. */
   .cm-contracts .cm-contract-card h3,
   .cm-silly-season .cm-contract-card h3,
   .cm-season-review .cm-contract-card h3 {
-    display: -webkit-box;
-    overflow: hidden;
     font-size: clamp(18px, 5.2vw, 23px);
     line-height: 0.95;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
   }
 
   .cm-contracts .cm-contract-card small,
   .cm-silly-season .cm-contract-card small,
   .cm-season-review .cm-contract-card small {
-    overflow: hidden;
     font-size: 9px;
     line-height: 1.15;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .cm-contracts .cm-contract-card p,
@@ -5509,12 +5530,8 @@
   .cm-contracts .cm-market-reason,
   .cm-silly-season .cm-market-reason,
   .cm-season-review .cm-market-reason {
-    display: -webkit-box;
-    overflow: hidden;
     font-size: 10px;
     line-height: 1.18;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
   }
 
   .cm-contracts .cm-market-reason,
@@ -5541,19 +5558,15 @@
   .cm-contracts .cm-contract-card dt,
   .cm-silly-season .cm-contract-card dt,
   .cm-season-review .cm-contract-card dt {
-    overflow: hidden;
     font-size: 8px;
     line-height: 1;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .cm-contracts .cm-contract-card dd,
   .cm-silly-season .cm-contract-card dd,
   .cm-season-review .cm-contract-card dd {
     font-size: 16px;
-    line-height: 1;
-    white-space: nowrap;
+    line-height: 1.05;
   }
 
   .cm-save-code-notice {
@@ -5802,15 +5815,6 @@
   .cm-silly-season .cm-contract-card,
   .cm-season-review .cm-contract-card {
     padding: 7px;
-  }
-
-  .cm-contracts .cm-contract-card p,
-  .cm-silly-season .cm-contract-card p,
-  .cm-season-review .cm-contract-card p,
-  .cm-contracts .cm-market-reason,
-  .cm-silly-season .cm-market-reason,
-  .cm-season-review .cm-market-reason {
-    -webkit-line-clamp: 1;
   }
 
   .cm-contract-document dl {

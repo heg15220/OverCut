@@ -2173,11 +2173,18 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
       const expectedFinish = expectedLeadDriverFinishForTeam(entrant.team, season.grid, entrants.length);
       const projectedPlayerTrackPosition = clamp(playerGrid - playerDelta, 1, entrants.length);
       const playerCarOverreach = isPlayer ? Math.max(0, expectedFinish - projectedPlayerTrackPosition - (wetLevel > 0.45 ? 2 : 1)) : 0;
-      const playerCarTierPenalty = isPlayer ? Math.max(0, expectedFinish - 7) * (0.72 + plan.degradation * 0.35) : 0;
+      // The car's natural finishing level limits BOTH drivers sharing the seat,
+      // so this grounding is a property of the CAR, applied equally to the
+      // player and their team-mate. Applying it to the player alone handicapped
+      // them inside their own garage: in a slow car (high expectedFinish) it
+      // dwarfed the rating duel, so a weaker team-mate finished ahead regardless
+      // of the gap. Sharing it cancels in the intra-team order while still
+      // keeping the player grounded against the field.
+      const isPlayerTeam = Boolean(player) && entrant.team.name === player.team.name;
+      const carTierPenalty = isPlayerTeam ? Math.max(0, expectedFinish - 7) * (0.72 + plan.degradation * 0.35) : 0;
       const playerCarRealityPenalty = isPlayer
         ? playerCarOverreach * (1.7 + plan.degradation * 2.05 - wetLevel * 0.35) +
-          Math.max(0, playerStrategyDebt) * 1.75 +
-          playerCarTierPenalty
+          Math.max(0, playerStrategyDebt) * 1.75
         : 0;
       // Reliability retirement was decided up front; a dynamic incident DNF takes
       // precedence and overrides the lap so the timeline stays single-sourced.
@@ -2207,7 +2214,8 @@ export const simulateCareerRace = ({ season, raceIndex, profile }) => {
           weatherSkill +
           (profileTrack.power - 0.5) * (adjustedTeamRating - 70) * 0.12 +
           (profileTrack.tyre - 0.4) * ((hashString(`${entrant.driver.name}-tyre`) % 12) - 5) +
-          (dynamicIncident ? -dynamicIncident.lostPositions * 3.2 - dynamicIncident.severity * 3 : 0) +
+          (dynamicIncident ? -dynamicIncident.lostPositions * 3.2 - dynamicIncident.severity * 3 : 0) -
+          carTierPenalty +
           (isPlayer
             ? playerDelta * 1.05 -
               playerCarRealityPenalty +
