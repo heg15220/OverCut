@@ -1409,6 +1409,8 @@ const SeasonReview = ({
             ? t.reviewFired
             : evaluation.met
             ? t.reviewObjectivesMet
+            : evaluation.outperformedCar
+            ? t.reviewOutperformedCar
             : t.reviewInsufficient}
         </h2>
       </div>
@@ -1436,6 +1438,8 @@ const SeasonReview = ({
         ? t.reviewFiredCopy
         : evaluation.overDelivered
         ? t.reviewOverDeliveredCopy
+        : evaluation.outperformedCar
+        ? t.reviewOutperformedCopy
         : t.reviewMarketCopy}
     </p>
     {preContract && !exploringMarket ? (

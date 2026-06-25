@@ -143,6 +143,93 @@ describe("evaluateSeason folds the team-mate duel into reputation/status", () =>
   });
 });
 
+// A season's verdict and firing decision must read the team-mate duel and the
+// circumstances, not only the raw points objective: crush your team-mate in a
+// car that cannot score and the season is creditable (not "insufficient") and
+// safe; lose the duel only narrowly and the seat survives; get clearly
+// out-performed and the seat is at risk.
+describe("evaluateSeason adapts the verdict/firing to the duel and circumstances", () => {
+  const duelSeason = ({ playerPoints, matePoints, raceWins, raceLosses, constructorPosition = 9, objectives }) => {
+    const win = {
+      results: [
+        { isPlayer: true, team: "Williams", name: "Player", position: 12, gridPosition: 13 },
+        { isPlayer: false, team: "Williams", name: "Mate", position: 15, gridPosition: 16 },
+      ],
+    };
+    const loss = {
+      results: [
+        { isPlayer: true, team: "Williams", name: "Player", position: 15, gridPosition: 16 },
+        { isPlayer: false, team: "Williams", name: "Mate", position: 12, gridPosition: 13 },
+      ],
+    };
+    return {
+      year: 2009,
+      contract: { team: { name: "Williams" }, objectives: objectives || { points: 30, minimumPoints: 8, constructorPosition: 8, reputationBonus: 8 } },
+      grid: [
+        { name: "Williams", drivers: [{ name: "Player", isPlayer: true, rating: 60 }, { name: "Mate", rating: 60 }] },
+        { name: "Ferrari", drivers: [{ name: "A", rating: 90 }, { name: "B", rating: 88 }] },
+      ],
+      driverStandings: [
+        { id: "career-player", name: "Player", team: "Williams", isPlayer: true, points: playerPoints, position: 14 },
+        { id: "Mate-Williams", name: "Mate", team: "Williams", isPlayer: false, points: matePoints, position: 15 },
+      ],
+      constructorStandings: [{ name: "Williams", position: constructorPosition, points: playerPoints + matePoints }],
+      completedRaces: [...Array(raceWins).fill(win), ...Array(raceLosses).fill(loss)],
+    };
+  };
+
+  test("dominating the team-mate in a car that cannot score is creditable, not insufficient, and never fired", () => {
+    const season = duelSeason({
+      playerPoints: 0,
+      matePoints: 0,
+      raceWins: 14,
+      raceLosses: 3,
+      constructorPosition: 9,
+      objectives: { points: 4, minimumPoints: 2, constructorPosition: 8, reputationBonus: 6 },
+    });
+
+    const evaluation = evaluateSeason({ season, profile });
+
+    expect(evaluation.teammateBattle.beaten).toBe(true);
+    expect(evaluation.met).toBe(false);
+    expect(evaluation.fired).toBe(false);
+    expect(evaluation.outperformedCar).toBe(true);
+  });
+
+  test("a narrow duel loss does not get you fired", () => {
+    const season = duelSeason({
+      playerPoints: 4,
+      matePoints: 6,
+      raceWins: 9,
+      raceLosses: 8,
+      constructorPosition: 9,
+      objectives: { points: 30, minimumPoints: 8, constructorPosition: 8, reputationBonus: 8 },
+    });
+
+    const evaluation = evaluateSeason({ season, profile });
+
+    expect(evaluation.teammateBattle.beaten).toBe(false);
+    expect(evaluation.fired).toBe(false);
+    expect(evaluation.outperformedCar).toBe(false);
+  });
+
+  test("being clearly out-scored and out-raced by the team-mate risks the seat", () => {
+    const season = duelSeason({
+      playerPoints: 0,
+      matePoints: 30,
+      raceWins: 3,
+      raceLosses: 14,
+      constructorPosition: 9,
+      objectives: { points: 30, minimumPoints: 8, constructorPosition: 8, reputationBonus: 8 },
+    });
+
+    const evaluation = evaluateSeason({ season, profile });
+
+    expect(evaluation.teammateBattle.beaten).toBe(false);
+    expect(evaluation.fired).toBe(true);
+  });
+});
+
 describe("integration: duel tracks the real team-mate", () => {
   const bootstrap = prepareCareerBootstrap({
     decades: [{ key: "2010s", label: "2010s", from: 2010, to: 2019 }],

@@ -2662,6 +2662,21 @@ export const evaluateSeason = ({ season, profile }) => {
   // losing the intra-team duel costs it. A tie is neutral.
   const battle = teammateBattleSummary(season, profile);
   const teammateRepDelta = !battle ? 0 : battle.tied ? 0 : battle.beaten ? 6 : -6;
+  // Firing reads the duel margin, not just the points objective. Missing the
+  // target only costs the seat when the team-mate ALSO clearly out-performed you
+  // — a big points gap or a decisive race head-to-head. A narrow loss or a tie
+  // in the same machinery is forgiven (generous threshold). With no team-mate to
+  // compare against, fall back to the raw objective failure.
+  const duelPointsDeficit = battle ? battle.teammatePoints - battle.playerPoints : 0;
+  const duelRaceDeficit = battle ? battle.raceLosses - battle.raceWins : 0;
+  const teammateClearlyAhead = !battle
+    ? true
+    : !battle.beaten &&
+      (duelPointsDeficit >= Math.max(10, objectives.minimumPoints || 0) || duelRaceDeficit >= 6);
+  const fired = failed && teammateClearlyAhead;
+  // Missed the points target but still came out ahead of the team-mate: a
+  // creditable season (you extracted what the car had) rather than a failure.
+  const outperformedCar = Boolean(battle) && battle.beaten && !met && !fired;
   const reputationDelta = (overDelivered ? objectives.reputationBonus + 6 : met ? objectives.reputationBonus : failed ? -10 : -3) + teammateRepDelta;
   const nextAge = (Number.isFinite(profile.age) ? profile.age : 18) + 1;
   const aged = profile.card
@@ -2695,7 +2710,8 @@ export const evaluateSeason = ({ season, profile }) => {
     constructorStanding,
     met,
     overDelivered,
-    fired: failed && !battle?.beaten,
+    outperformedCar,
+    fired,
     reputationDelta,
     champion: playerStanding?.position === 1,
     titleFight: playerStanding?.position <= 3 || (playerStanding?.points || 0) >= (season.driverStandings[0]?.points || 0) * 0.72,

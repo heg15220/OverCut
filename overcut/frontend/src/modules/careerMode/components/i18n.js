@@ -257,6 +257,7 @@ const STRINGS = {
     reviewEliteSeason: "Temporada de élite",
     reviewFired: "El equipo rompe el contrato",
     reviewObjectivesMet: "Objetivos cumplidos",
+    reviewOutperformedCar: "Exprimiste el coche",
     reviewInsufficient: "Temporada insuficiente",
     reviewPoints: "Puntos",
     reviewChampionship: "Mundial",
@@ -269,6 +270,8 @@ const STRINGS = {
       "La directiva considera que el rendimiento quedó lejos del mínimo. Las nuevas ofertas bajan el riesgo y el nivel.",
     reviewOverDeliveredCopy:
       "El paddock toma nota: el rendimiento supera el valor del coche y abre puertas mejores.",
+    reviewOutperformedCopy:
+      "No llegaste al objetivo de puntos, pero batiste a tu compañero con el mismo coche. La directiva lo valora y mantiene la confianza.",
     reviewMarketCopy:
       "El mercado reacciona de forma gradual: ofertas cercanas al estatus actual y alguna apuesta condicionada.",
     sillySeasonDecision: "Decisión de Silly Season",
@@ -534,6 +537,7 @@ const STRINGS = {
     reviewEliteSeason: "Elite season",
     reviewFired: "The team breaks the contract",
     reviewObjectivesMet: "Objectives met",
+    reviewOutperformedCar: "You maxed out the car",
     reviewInsufficient: "Season fell short",
     reviewPoints: "Points",
     reviewChampionship: "Championship",
@@ -546,6 +550,8 @@ const STRINGS = {
       "The board feels the performance fell well short of the minimum. The new offers lower the risk and the level.",
     reviewOverDeliveredCopy:
       "The paddock takes note: the performance beats the car's value and opens better doors.",
+    reviewOutperformedCopy:
+      "You missed the points target, but you beat your team-mate in the same car. The board values that and keeps its faith.",
     reviewMarketCopy:
       "The market reacts gradually: offers close to your current status and the odd conditional bet.",
     sillySeasonDecision: "Silly Season decision",
