@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers(mvc.pattern("/api/events/**")).permitAll()
                         .requestMatchers(mvc.pattern("/api/historic/**")).permitAll()
                         .requestMatchers(mvc.pattern("/api/overcutRacing/**")).permitAll()
+                        .requestMatchers(mvc.pattern("/api/overcutTrayectoria/**")).permitAll()
                         .requestMatchers(mvc.pattern("/api/careerMode/saves/**")).permitAll()
                         .requestMatchers(mvc.pattern("/api/quiz/**")).permitAll()
                         .requestMatchers(mvc.pattern(HttpMethod.OPTIONS, "/api/consent")).permitAll()

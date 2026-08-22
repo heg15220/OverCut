@@ -119,6 +119,14 @@ const minigames = [
   },
 
   {
+    path: "/minigames/trayectoria",
+    title: "OverCut Trayectoria",
+    description: "Una carrera de F1 entera, temporada a temporada, desde 1950",
+    img: sourceImages(`./OverCutTrayectoria.svg`),
+    isNew: true
+  },
+
+  {
     path: "/minigames/wordSearch",
     title: "Word Search F1",
     description: "Encuentra apellidos de pilotos con podios",

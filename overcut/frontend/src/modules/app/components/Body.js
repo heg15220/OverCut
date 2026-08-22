@@ -62,6 +62,7 @@ import CategoryGame from "../../categoryGame/components/CategoryGame";
 import WordSearchGame from '../../wordSearch/components/WordSearchGame';
 import OvercutRacing from "../../overcutRacing/components/OvercutRacing";
 import CareerMode from "../../careerMode/components/CareerMode";
+import OvercutTrayectoria from "../../overcutTrayectoria/components/OvercutTrayectoria";
 
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList, PostSectionEditor,
@@ -156,6 +157,7 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/categoryGame" element={withAdVignettes(<CategoryGame />, "games")} />}
                     {loggedIn && <Route path="/minigames/overcutRacing" element={withAdVignettes(<OvercutRacing />, "games", "bottom")} />}
                     {loggedIn && <Route path="/minigames/careerMode" element={withAdVignettes(<CareerMode />, "games", "bottom")} />}
+                    {loggedIn && <Route path="/minigames/trayectoria" element={withAdVignettes(<OvercutTrayectoria />, "games", "bottom")} />}
                     <Route path="/minigames/wordSearch" element={withAdVignettes(<WordSearchGame />, "games")} />
                     <Route path="/verify-email" element={<EmailVerificationPage />} />
                     <Route path="/email-confirmation" element={<EmailConfirmationPending />} />

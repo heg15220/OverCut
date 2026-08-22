@@ -569,7 +569,7 @@ CREATE TABLE CareerModeSave (
     payloadSize INT NOT NULL,
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_career_mode_save_export_code (exportCode)
+    CONSTRAINT uq_career_mode_save_export_code UNIQUE (exportCode)
 );
 
 CREATE TABLE F1WordleGame (

@@ -1,0 +1,466 @@
+/**
+ * Every string the Trayectoria UI shows.
+ *
+ * Locale is decided once from the browser language, the same way the rest of the
+ * OverCut minigames do it: anything starting with "es" gets Spanish, everything
+ * else English. The engine never holds a string - it returns keys and numbers,
+ * and this file is the only place that turns them into words.
+ */
+
+const detectLocale = () => {
+  if (typeof navigator === "undefined") return "es";
+  const lang = (navigator.language || navigator.userLanguage || "es").toLowerCase();
+  return lang.startsWith("es") ? "es" : "en";
+};
+
+export const locale = detectLocale();
+
+const STRINGS = {
+  es: {
+    kicker: "OverCut",
+    title: "Trayectoria",
+    tagline: "Una carrera entera, temporada a temporada, desde 1950",
+    back: "Volver a OverCut",
+    restart: "Empezar de nuevo",
+    dataLive: "Datos f1db",
+    dataOffline: "Modo sin conexión",
+    loading: "Cargando la historia de la Fórmula 1",
+
+    // Setup
+    setupTitle: "Crea tu piloto",
+    setupLead: "Elige quién eres y en qué año te subes por primera vez a un Fórmula 1.",
+    nameLabel: "Nombre del piloto",
+    namePlaceholder: "Tu nombre",
+    nationalityLabel: "Nacionalidad",
+    helmetLabel: "Casco",
+    decadeLabel: "Década de debut",
+    yearLabel: "Año de debut",
+    difficultyLabel: "Talento",
+    difficulty: {
+      prospect: "Promesa generacional",
+      balanced: "Piloto sólido",
+      underdog: "Nadie apuesta por ti",
+    },
+    difficultyHint: {
+      prospect: "Techo alto. Creces rápido y el mercado se fija en ti pronto.",
+      balanced: "Un piloto normal de F1. Lo que consigas dependerá del coche y de ti.",
+      underdog: "Techo bajo. Cada punto te va a costar el doble.",
+    },
+    startCareer: "Empezar la trayectoria",
+
+    // Market
+    marketTitle: "Mercado de pilotos",
+    marketLeadRookie: "Estos son los equipos dispuestos a darte tu primer volante.",
+    marketLead: "Estos equipos te quieren para la próxima temporada.",
+    noOffers: "Nadie te llama. Toca aceptar lo que haya.",
+    carRank: "Coche",
+    carRankOf: (rank, total) => `${rank}º de ${total}`,
+    salary: "Salario",
+    million: "M",
+    duration: "Duración",
+    years: (n) => (n === 1 ? "1 temporada" : `${n} temporadas`),
+    seatStatus: "Estatus",
+    status: { lead: "Primer piloto", equal: "Igualdad de trato", second: "Segundo piloto" },
+    objective: "Objetivo",
+    objectives: {
+      title: "Ganar el Mundial",
+      topThree: "Top 3 del Mundial",
+      podiums: "Subir al podio",
+      points: "Puntuar",
+      beatTeammate: "Ganar a tu compañero",
+    },
+    renewalTag: "Renovación",
+    lastResortTag: "Última opción",
+    negotiate: "Negociar",
+
+    // Negotiation
+    negotiationTitle: "Sobre la mesa",
+    negotiationLead: "Puedes pedir cosas. Cada intento gasta crédito, y si fallas el equipo lo recuerda.",
+    askLabel: "Qué pides",
+    asks: {
+      salary: "Más dinero",
+      length: "Un año más de contrato",
+      shorten: "Un año menos de contrato",
+      leadStatus: "Ser primer piloto",
+      releaseClause: "Cláusula de salida",
+      development: "Prioridad en el desarrollo",
+    },
+    askUnavailable: "No procede",
+    toneLabel: "Cómo lo pides",
+    tones: { humble: "Con humildad", firm: "Con firmeza", bold: "Sin pestañear" },
+    toneHint: {
+      humble: "Menos probabilidad, pero el equipo te lo agradece.",
+      firm: "Equilibrado.",
+      bold: "Más probabilidad. Si falla, se te acaba la paciencia del jefe.",
+    },
+    odds: (value) => `${Math.round(value * 100)}% de que digan que sí`,
+    askGranted: "Aceptado",
+    askRefused: "Rechazado",
+    trustLabel: "Confianza del equipo",
+    signContract: "Firmar",
+    backToOffers: "Ver otras ofertas",
+
+    // Cláusula
+    clauseTitle: "Han pagado tu cláusula",
+    clauseLead: (buyer, current) =>
+      `${buyer} ha pagado la cláusula de tu contrato con ${current}. Ahora decides tú.`,
+    clausePaidLabel: "Cláusula pagada",
+    clauseStayHint: (team, years) =>
+      years === 1
+        ? `Si te quedas, cumples la última temporada de tu contrato con ${team}.`
+        : `Si te quedas, te quedan ${years} temporadas de contrato con ${team}.`,
+    clauseAccept: "Escuchar su oferta",
+    clauseReject: "Cumplir mi contrato",
+
+    eventCategories: {
+      garage: "En el box",
+      market: "Mercado",
+      personal: "Personal",
+      rivalry: "Rivalidad",
+    },
+
+    // Preseason
+    preseasonTitle: (year) => `Pretemporada ${year}`,
+    preseasonLead: "Un invierno solo da para trabajar una cosa a fondo.",
+    focus: {
+      qualifying: "Vuelta rápida",
+      racecraft: "Carrera",
+      consistency: "Regularidad",
+      technical: "Trabajo técnico",
+    },
+    focusHint: {
+      qualifying: "Sábados mejores. Salir delante vale oro donde no se adelanta.",
+      racecraft: "Salidas y cuerpo a cuerpo. También te ayuda con lluvia.",
+      consistency: "Menos errores, menos abandonos por tu culpa.",
+      technical: "Tu feedback mejora el coche a lo largo del año. No corre más hoy; corre más en agosto.",
+    },
+    upgradeChance: (value) => `${Math.round(value * 100)}% de que el equipo dé un paso adelante`,
+    upgradeLocked: "Necesitas una temporada con este equipo para que te escuchen en la fábrica.",
+    upgradeGranted: (team, percent) =>
+      `El trabajo de invierno ha dado resultado: ${percent}% de prestaciones sobre el coche que ${team} iba a llevar este año.`,
+    upgradeCarStanding: (rank, previous) =>
+      `El coche arranca ${rank}º de la parrilla; el año pasado arrancaba ${previous}º.`,
+    upgradeMissed: "El trabajo técnico no ha dado el salto que buscabas. El coche es el mismo.",
+    runSeason: "Correr la temporada",
+
+    // Season
+    simulating: "Corriendo la temporada",
+    seasonTitle: (year) => `Temporada ${year}`,
+    yourSeason: "Tu temporada",
+    stats: {
+      starts: "Carreras",
+      wins: "Victorias",
+      podiums: "Podios",
+      points: "Puntos",
+      poles: "Poles",
+      fastestLaps: "Vueltas rápidas",
+      retirements: "Abandonos",
+      bestFinish: "Mejor resultado",
+      position: "Puesto final",
+    },
+    droppedPoints: (dropped, counting) =>
+      `Solo contaban los ${counting} mejores resultados: descartados ${Math.round(dropped)} puntos`,
+    duelLabel: (you, yours, them, theirs) => `${you}, ${yours} puntos. ${them}, ${theirs} puntos.`,
+    championsTable: "Mundial de pilotos",
+    constructorsTable: "Mundial de constructores",
+    calendar: "Calendario",
+    teammateDuel: "Duelo con tu compañero",
+    teammateAhead: "Por delante de ti",
+    teammateBehind: "Por detrás de ti",
+    worldChampion: "Campeón del mundo",
+    championSubtitle: (year, team) => `${year} · ${team}`,
+    continue: "Continuar",
+    objectiveMet: "Objetivo cumplido",
+    objectiveMissed: "Objetivo no cumplido",
+    savedByTeammate: "No llegaste al objetivo, pero ganaste a tu compañero. El coche era el problema y el equipo lo sabe.",
+    savedByLove: "El garaje te adora. Te dan otro año que a otro no le darían.",
+    fired: "El equipo prescinde de ti",
+
+    // Events
+    eventTitle: "Fuera de la pista",
+
+    // Press
+    pressTitle: "La prensa",
+    idolatryTitle: "En tu equipo",
+    idolatry: {
+      unknown: "Un piloto más",
+      accepted: "Aceptado",
+      trusted: "De confianza",
+      leader: "El líder del equipo",
+      idol: "Ídolo",
+      legend: "Leyenda del equipo",
+    },
+    milestones: "Hitos",
+    milestone: {
+      wins: (n) => `${n} victorias`,
+      podiums: (n) => `${n} podios`,
+      poles: (n) => `${n} poles`,
+      titles: (n) => (n === 1 ? "Primer título" : `${n} títulos`),
+      allTimeWins: (n, name) => `Superas a ${name} en victorias (${n})`,
+    },
+    nextSeason: "Siguiente temporada",
+
+    // Retirement
+    retiredTitle: "Se acabó",
+    retiredLead: (from, to) => `${from} — ${to}`,
+    careerTotals: "Tu palmarés",
+    verdictTitle: "El veredicto",
+    verdicts: {
+      immortal: "Uno de los grandes de la historia. Tu nombre se dirá en la misma frase que los de siempre.",
+      great: "Una carrera enorme. Ganaste cuando había que ganar.",
+      champion: "Campeón del mundo. Nadie te lo puede quitar.",
+      winner: "Ganaste carreras en la Fórmula 1. Muy poca gente puede decir eso.",
+      respected: "Un piloto respetado, con días que la gente recuerda.",
+      journeyman: "Estuviste ahí, temporada tras temporada. No es poco.",
+      footnote: "Una nota a pie de página. La Fórmula 1 es así de dura.",
+    },
+    overachiever: "Sacaste de tus coches más de lo que tenían.",
+    underachiever: "Tuviste coches mejores que tus resultados.",
+    recordsTitle: "En los libros",
+    recordRank: (rank, metric) => `${rank}º de la historia en ${metric}`,
+    metrics: { titles: "títulos", wins: "victorias", podiums: "podios", seasons: "temporadas" },
+    rivalTitle: "Tu rival",
+    rivalLead: (name, year) => `${name}, que debutó contigo en ${year}`,
+    rivalVerdicts: {
+      eclipsed: "Lo dejaste muy atrás.",
+      ahead: "Le ganaste la partida.",
+      even: "Nadie sabrá nunca quién de los dos fue mejor.",
+      behind: "Él llegó más lejos.",
+      overshadowed: "Siempre estuviste a su sombra.",
+    },
+    headToHead: (a, b) => `${a} — ${b} en el mundial`,
+    newCareer: "Otra trayectoria",
+
+    // Misc
+    weather: { dry: "Seco", mixed: "Cambiante", wet: "Lluvia" },
+    dnf: "ABN",
+    round: "Ronda",
+    pos: "Pos",
+    driver: "Piloto",
+    team: "Equipo",
+    pts: "Pts",
+    you: "Tú",
+    generatedSeason: "Temporada más allá de los datos reales",
+  },
+
+  en: {
+    kicker: "OverCut",
+    title: "Career",
+    tagline: "A whole career, season by season, from 1950",
+    back: "Back to OverCut",
+    restart: "Start again",
+    dataLive: "f1db data",
+    dataOffline: "Offline mode",
+    loading: "Loading the history of Formula 1",
+
+    setupTitle: "Create your driver",
+    setupLead: "Choose who you are and the year you first sit in a Formula 1 car.",
+    nameLabel: "Driver name",
+    namePlaceholder: "Your name",
+    nationalityLabel: "Nationality",
+    helmetLabel: "Helmet",
+    decadeLabel: "Debut decade",
+    yearLabel: "Debut year",
+    difficultyLabel: "Talent",
+    difficulty: {
+      prospect: "Generational talent",
+      balanced: "Solid driver",
+      underdog: "Nobody rates you",
+    },
+    difficultyHint: {
+      prospect: "High ceiling. You develop fast and the market notices early.",
+      balanced: "An ordinary F1 driver. What you get depends on the car and on you.",
+      underdog: "Low ceiling. Every point will cost you twice as much.",
+    },
+    startCareer: "Start the career",
+
+    marketTitle: "Driver market",
+    marketLeadRookie: "These teams will give you a first seat.",
+    marketLead: "These teams want you for next season.",
+    noOffers: "Nobody is calling. You take what there is.",
+    carRank: "Car",
+    carRankOf: (rank, total) => `${rank} of ${total}`,
+    salary: "Salary",
+    million: "M",
+    duration: "Length",
+    years: (n) => (n === 1 ? "1 season" : `${n} seasons`),
+    seatStatus: "Status",
+    status: { lead: "Number one", equal: "Equal terms", second: "Number two" },
+    objective: "Objective",
+    objectives: {
+      title: "Win the championship",
+      topThree: "Top three in the championship",
+      podiums: "Reach the podium",
+      points: "Score points",
+      beatTeammate: "Beat your team-mate",
+    },
+    renewalTag: "Renewal",
+    lastResortTag: "Last resort",
+    negotiate: "Negotiate",
+
+    negotiationTitle: "On the table",
+    negotiationLead: "You can ask for things. Each attempt spends credit, and a refusal is remembered.",
+    askLabel: "What you ask for",
+    asks: {
+      salary: "More money",
+      length: "One more year",
+      shorten: "One year less",
+      leadStatus: "Number one status",
+      releaseClause: "Release clause",
+      development: "Priority on development",
+    },
+    askUnavailable: "Not on the table",
+    toneLabel: "How you ask",
+    tones: { humble: "Humbly", firm: "Firmly", bold: "Without blinking" },
+    toneHint: {
+      humble: "Lower odds, but the team appreciates it.",
+      firm: "Balanced.",
+      bold: "Better odds. If it fails, your boss is done being patient.",
+    },
+    odds: (value) => `${Math.round(value * 100)}% chance they say yes`,
+    askGranted: "Granted",
+    askRefused: "Refused",
+    trustLabel: "Team trust",
+    signContract: "Sign",
+    backToOffers: "See the other offers",
+
+    clauseTitle: "Somebody paid your clause",
+    clauseLead: (buyer, current) =>
+      `${buyer} has paid the release clause in your ${current} contract. The decision is yours now.`,
+    clausePaidLabel: "Clause paid",
+    clauseStayHint: (team, years) =>
+      years === 1
+        ? `Stay, and you see out the last season of your ${team} contract.`
+        : `Stay, and you still owe ${team} ${years} seasons.`,
+    clauseAccept: "Hear them out",
+    clauseReject: "Honour my contract",
+
+    eventCategories: {
+      garage: "In the garage",
+      market: "Market",
+      personal: "Personal",
+      rivalry: "Rivalry",
+    },
+
+    preseasonTitle: (year) => `${year} preseason`,
+    preseasonLead: "One winter is only enough to work properly on one thing.",
+    focus: {
+      qualifying: "One lap",
+      racecraft: "Racecraft",
+      consistency: "Consistency",
+      technical: "Technical work",
+    },
+    focusHint: {
+      qualifying: "Better Saturdays. Starting ahead is worth everything where nobody overtakes.",
+      racecraft: "Starts and wheel-to-wheel. It helps in the rain too.",
+      consistency: "Fewer mistakes, fewer retirements that are your fault.",
+      technical: "Your feedback improves the car through the year. Not faster today; faster in August.",
+    },
+    upgradeChance: (value) => `${Math.round(value * 100)}% chance the team finds a step`,
+    upgradeLocked: "You need a season with this team before the factory listens to you.",
+    upgradeGranted: (team, percent) =>
+      `The winter in the factory paid off: ${percent}% more performance than the car ${team} would otherwise have built.`,
+    upgradeCarStanding: (rank, previous) =>
+      `The car starts the year #${rank} on the grid; last year it started #${previous}.`,
+    upgradeMissed: "The technical work did not find the step you were after. The car is the car.",
+    runSeason: "Race the season",
+
+    simulating: "Racing the season",
+    seasonTitle: (year) => `${year} season`,
+    yourSeason: "Your season",
+    stats: {
+      starts: "Races",
+      wins: "Wins",
+      podiums: "Podiums",
+      points: "Points",
+      poles: "Poles",
+      fastestLaps: "Fastest laps",
+      retirements: "Retirements",
+      bestFinish: "Best finish",
+      position: "Final position",
+    },
+    droppedPoints: (dropped, counting) =>
+      `Only the best ${counting} results counted: ${Math.round(dropped)} points dropped`,
+    duelLabel: (you, yours, them, theirs) => `${you}, ${yours} points. ${them}, ${theirs} points.`,
+    championsTable: "Drivers' championship",
+    constructorsTable: "Constructors' championship",
+    calendar: "Calendar",
+    teammateDuel: "Team-mate duel",
+    teammateAhead: "Ahead of you",
+    teammateBehind: "Behind you",
+    worldChampion: "World champion",
+    championSubtitle: (year, team) => `${year} · ${team}`,
+    continue: "Continue",
+    objectiveMet: "Objective met",
+    objectiveMissed: "Objective missed",
+    savedByTeammate: "You missed the target but beat your team-mate. The car was the problem and the team knows it.",
+    savedByLove: "The garage adores you. They give you a year they would give nobody else.",
+    fired: "The team lets you go",
+
+    eventTitle: "Away from the track",
+
+    pressTitle: "The press",
+    idolatryTitle: "At your team",
+    idolatry: {
+      unknown: "Just another driver",
+      accepted: "Accepted",
+      trusted: "Trusted",
+      leader: "The team leader",
+      idol: "Idol",
+      legend: "Club legend",
+    },
+    milestones: "Milestones",
+    milestone: {
+      wins: (n) => `${n} wins`,
+      podiums: (n) => `${n} podiums`,
+      poles: (n) => `${n} poles`,
+      titles: (n) => (n === 1 ? "First title" : `${n} titles`),
+      allTimeWins: (n, name) => `You pass ${name} on wins (${n})`,
+    },
+    nextSeason: "Next season",
+
+    retiredTitle: "That is it",
+    retiredLead: (from, to) => `${from} — ${to}`,
+    careerTotals: "Your record",
+    verdictTitle: "The verdict",
+    verdicts: {
+      immortal: "One of the greats. Your name goes in the same sentence as theirs.",
+      great: "An enormous career. You won when it mattered.",
+      champion: "World champion. Nobody can take that away.",
+      winner: "You won Formula 1 races. Very few people can say that.",
+      respected: "A respected driver, with days people still remember.",
+      journeyman: "You were there, season after season. That is not nothing.",
+      footnote: "A footnote. Formula 1 is that hard.",
+    },
+    overachiever: "You took more out of your cars than they had.",
+    underachiever: "Your cars were better than your results.",
+    recordsTitle: "In the books",
+    recordRank: (rank, metric) => `#${rank} all-time in ${metric}`,
+    metrics: { titles: "titles", wins: "wins", podiums: "podiums", seasons: "seasons" },
+    rivalTitle: "Your rival",
+    rivalLead: (name, year) => `${name}, who arrived with you in ${year}`,
+    rivalVerdicts: {
+      eclipsed: "You left him far behind.",
+      ahead: "You came out on top.",
+      even: "Nobody will ever settle which of you was better.",
+      behind: "He went further than you.",
+      overshadowed: "You spent your career in his shadow.",
+    },
+    headToHead: (a, b) => `${a} — ${b} in the championship`,
+    newCareer: "Another career",
+
+    weather: { dry: "Dry", mixed: "Mixed", wet: "Wet" },
+    dnf: "DNF",
+    round: "Round",
+    pos: "Pos",
+    driver: "Driver",
+    team: "Team",
+    pts: "Pts",
+    you: "You",
+    generatedSeason: "A season beyond the real data",
+  },
+};
+
+export const t = STRINGS[locale] || STRINGS.es;
+
+export default t;
