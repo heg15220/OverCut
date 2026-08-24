@@ -14,6 +14,15 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import OvercutTrayectoria from "./OvercutTrayectoria";
 import { SeasonStrip } from "./SeasonStrip";
+import SetupPhase from "./phases/SetupPhase";
+import {
+  HELMET_COLORS,
+  HELMET_PRESETS,
+  HELMET_STYLES,
+  helmetContrast,
+  helmetPaint,
+  randomHelmet,
+} from "./atoms";
 import { ClausePhase, NegotiationPhase } from "./phases/MarketPhase";
 import PreseasonPhase from "./phases/PreseasonPhase";
 import SeasonPhase from "./phases/SeasonPhase";
@@ -69,6 +78,8 @@ describe("OvercutTrayectoria", () => {
     fireEvent.click(screen.getByRole("button", { name: t.startCareer }));
 
     expect(await screen.findByText(t.marketTitle)).toBeInTheDocument();
+    // Designed on the first screen, then worn for the rest of the career.
+    expect(screen.getByTestId("hud-helmet")).toBeInTheDocument();
     // The market always has something, even if it is the worst car on the grid.
     expect(screen.getAllByText(t.objective).length).toBeGreaterThan(0);
     expect(screen.getByText("Ana Ferrer")).toBeInTheDocument();
@@ -102,6 +113,98 @@ describe("SeasonStrip", () => {
     render(<SeasonStrip races={season.races} revealed={4} />);
     const filled = cells().filter((cell) => cell.textContent.trim() !== "");
     expect(filled.length).toBeLessThanOrEqual(4);
+  });
+});
+
+describe("painting the helmet", () => {
+  const bootstrap = prepareBootstrap(fallbackBootstrap, { fallbackMode: true });
+  const paint = (onStart = () => {}) => render(<SetupPhase bootstrap={bootstrap} onStart={onStart} />);
+
+  const chosen = (testId) => screen.getByTestId(testId).classList.contains("is-on");
+
+  it("offers a whole helmet, a design, and either colour on its own", () => {
+    paint();
+
+    expect(screen.getByTestId("helmet-preview")).toBeInTheDocument();
+    HELMET_STYLES.forEach((style) => {
+      expect(screen.getByTestId(`helmet-design-${style}`)).toBeInTheDocument();
+    });
+    expect(screen.getAllByTestId(/^helmet-preset-/).length).toBe(HELMET_PRESETS.length);
+    expect(screen.getAllByTestId(/^helmet-primary-/).length).toBe(HELMET_COLORS.length);
+  });
+
+  it("keeps the colours when the design changes", () => {
+    const onStart = jest.fn();
+    paint(onStart);
+
+    fireEvent.click(screen.getByTestId("helmet-primary-teal"));
+    fireEvent.click(screen.getByTestId("helmet-secondary-pink"));
+    fireEvent.click(screen.getByTestId("helmet-design-halves"));
+
+    expect(chosen("helmet-primary-teal")).toBe(true);
+    expect(chosen("helmet-secondary-pink")).toBe(true);
+
+    fireEvent.change(screen.getByLabelText(t.nameLabel), { target: { value: "Ana Ferrer" } });
+    fireEvent.click(screen.getByRole("button", { name: t.startCareer }));
+
+    expect(onStart).toHaveBeenCalledWith(
+      expect.objectContaining({ helmet: { primary: "#00A19C", secondary: "#E6007E", style: "halves" } }),
+    );
+  });
+
+  it("swaps the two colours over", () => {
+    paint();
+
+    fireEvent.click(screen.getByTestId("helmet-primary-red"));
+    fireEvent.click(screen.getByTestId("helmet-secondary-bone"));
+    fireEvent.click(screen.getByRole("button", { name: t.helmetSwap }));
+
+    expect(chosen("helmet-primary-bone")).toBe(true);
+    expect(chosen("helmet-secondary-red")).toBe(true);
+  });
+
+  it("hides the second colour on a plain helmet, because it has none", () => {
+    paint();
+
+    expect(screen.getAllByTestId(/^helmet-secondary-/).length).toBe(HELMET_COLORS.length);
+    fireEvent.click(screen.getByTestId("helmet-design-solid"));
+
+    expect(screen.queryAllByTestId(/^helmet-secondary-/).length).toBe(0);
+    expect(screen.getByRole("button", { name: t.helmetSwap })).toBeDisabled();
+  });
+
+  it("never rolls a helmet whose design cannot be seen", () => {
+    // A black stripe on a navy shell is a random helmet and a plain-looking
+    // one, which reads as a broken button.
+    for (let roll = 0; roll < 200; roll += 1) {
+      const helmet = randomHelmet();
+      expect(helmet.style).not.toBe("solid");
+      expect(helmetContrast(helmet.primary, helmet.secondary)).toBeGreaterThan(0.22);
+    }
+  });
+
+  it("paints each design out of both colours", () => {
+    // The paint is a CSS background behind the helmet mask, so a design that
+    // forgets the second colour silently renders as a plain helmet.
+    const mine = { primary: "#C8102E", secondary: "#F3F1E9" };
+
+    HELMET_STYLES.filter((style) => style !== "solid").forEach((style) => {
+      const paint = helmetPaint(style, mine.primary, mine.secondary);
+      expect(paint).toContain(mine.primary);
+      expect(paint).toContain(mine.secondary);
+    });
+
+    expect(helmetPaint("solid", mine.primary, mine.secondary)).not.toContain(mine.secondary);
+  });
+
+  it("still draws a helmet saved under the old design name", () => {
+    // Careers made before the editor existed carry `gradient`.
+    expect(helmetPaint("gradient", "#C8102E", "#F3F1E9")).toBe(
+      helmetPaint("split", "#C8102E", "#F3F1E9"),
+    );
+    expect(helmetPaint("nonsense", "#C8102E", "#F3F1E9")).toBe(
+      helmetPaint("solid", "#C8102E", "#F3F1E9"),
+    );
   });
 });
 
@@ -463,7 +566,7 @@ describe("the moment you win it", () => {
 
   const champion = {
     year: 2033,
-    driver: { name: "ALO" },
+    driver: { name: "ALO", helmet: { primary: "#C8102E", secondary: "#F3F1E9", style: "flash" } },
     contract: { teamName: "Sauber" },
     history: [],
     upgrade: null,
@@ -490,6 +593,11 @@ describe("the moment you win it", () => {
     expect(screen.getByText(t.worldChampion)).toBeInTheDocument();
     expect(screen.getByText("ALO")).toBeInTheDocument();
     expect(screen.getByText(t.championSubtitle(2033, "Sauber"))).toBeInTheDocument();
+  });
+
+  it("hands over the trophy, not a number", () => {
+    render(<SeasonPhase career={champion} onContinue={() => {}} />);
+    expect(screen.getByTestId("champion-trophy")).toBeInTheDocument();
   });
 
   it("counts the wins that came with it", () => {
@@ -524,8 +632,9 @@ describe("the career, closed", () => {
       verdict: "overshadowed",
     },
     history: [
-      { year: 2020, team: "Williams", teamId: "williams", position: 16, champion: false },
-      { year: 2033, team: "Sauber", teamId: "sauber", position: 1, champion: true },
+      { year: 2020, team: "Williams", teamId: "williams", position: 16, champion: false, carRank: 9, teamCount: 10 },
+      { year: 2021, team: "Williams", teamId: "williams", position: 11, champion: false, carRank: 9, teamCount: 10 },
+      { year: 2033, team: "Sauber", teamId: "sauber", position: 1, champion: true, carRank: 4, teamCount: 10 },
     ],
   };
 
@@ -555,6 +664,56 @@ describe("the career, closed", () => {
     show();
     expect(screen.getAllByTestId("careerstrip-badge").length).toBe(career.history.length);
     expect(screen.getByTestId("careerstrip-2033")).toHaveClass("is-champion");
+  });
+
+  it("draws the career against the cars it was driven in", () => {
+    show();
+    // The retirement verdict claims you beat your machinery. The trace is where
+    // that claim is shown rather than asserted, so every season a car was
+    // recorded for has to reach the plot.
+    expect(screen.getByTestId("career-trace")).toBeInTheDocument();
+    expect(screen.getAllByTestId("trace-band").length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId("trace-crown").length).toBe(1);
+  });
+
+  it("names the season behind every point on the trace", () => {
+    show();
+    const titles = screen.getAllByTestId("trace-season").map((node) => node.textContent);
+
+    expect(titles).toContain(t.traceSeason(2020, "Williams", 16));
+    expect(titles).toContain(t.traceChampionSeason(2033, "Sauber"));
+    expect(titles.length).toBe(career.history.length);
+  });
+
+  it("marks who is ahead on each line of the rivalry", () => {
+    show();
+    // Four titles to eight, forty-five wins to sixty-eight: every line here is
+    // theirs, and none of yours may be drawn as if it were not.
+    ["titles", "wins", "podiums"].forEach((metric) => {
+      expect(screen.getByTestId(`duel-${metric}-them`)).toHaveClass("is-winning");
+      expect(screen.getByTestId(`duel-${metric}-you`)).not.toHaveClass("is-winning");
+    });
+  });
+});
+
+describe("a career that ended early", () => {
+  const oneSeason = {
+    debutYear: 2020,
+    year: 2021,
+    driver: { name: "ROO", helmet: { primary: "#f2b705", secondary: "#0e2a53", style: "solid" } },
+    totals: { titles: 0, wins: 0, podiums: 0, poles: 0, fastestLaps: 0, starts: 22, points: 4, seasons: 1, teams: ["Haas"] },
+    verdict: { tier: "footnote", overachiever: false, underachiever: false },
+    records: null,
+    rivalVerdict: null,
+    history: [{ year: 2020, team: "Haas", teamId: "haas", position: 19, champion: false, carRank: 10, teamCount: 10 }],
+  };
+
+  it("does not draw a trace through a single point", () => {
+    render(<RetiredPhase career={oneSeason} seasonsByYear={{}} onRestart={() => {}} />);
+
+    // One season is a dot, not a career. The rest of the screen still stands.
+    expect(screen.queryByTestId("career-trace")).not.toBeInTheDocument();
+    expect(screen.getByText(t.verdicts.footnote)).toBeInTheDocument();
   });
 });
 

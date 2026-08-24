@@ -12,6 +12,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Flag, StatTile, TeamLogo } from "../atoms";
+import { Trophy } from "../Trophy";
 import { SeasonStrip } from "../SeasonStrip";
 import { STAT_ICONS } from "../icons";
 import { localizeRaceName } from "../../engine/circuits";
@@ -122,6 +123,12 @@ export const SeasonPhase = ({ career, onContinue }) => {
             {t.stats.wins}
           </span>
 
+          {/* The object of the moment. The player's helmet is on the read-out
+              above this screen and on the retirement plate; what a champion
+              actually collects is this. */}
+          <span className="tr-champion__trophy" data-testid="champion-trophy">
+            <Trophy size={172} title={t.worldChampion} />
+          </span>
           <span className="tr-champion__eyebrow">{t.worldChampion}</span>
           <p className="tr-champion__driver">{career.driver.name}</p>
           <p className="tr-champion__sub">{t.championSubtitle(season.year, stats.team)}</p>

@@ -7,7 +7,16 @@
  */
 
 import React, { useMemo, useState } from "react";
-import { Flag, HELMET_PRESETS, Helmet, NATIONALITIES } from "../atoms";
+import {
+  Flag,
+  HELMET_COLORS,
+  HELMET_PRESETS,
+  HELMET_STYLES,
+  Helmet,
+  NATIONALITIES,
+  helmetStyleOf,
+  randomHelmet,
+} from "../atoms";
 import { DIFFICULTY } from "../../engine/career";
 import { playableDecades, yearsInDecade } from "../../engine/world";
 import { eraProfileFor } from "../../engine/eras";
@@ -31,8 +40,12 @@ export const SetupPhase = ({ bootstrap, onStart }) => {
   const [year, setYear] = useState(years[0]);
   const [name, setName] = useState("");
   const [nationality, setNationality] = useState("es");
-  const [helmetIndex, setHelmetIndex] = useState(0);
+  const [helmet, setHelmet] = useState(HELMET_PRESETS[0]);
   const [difficulty, setDifficulty] = useState(DIFFICULTY.BALANCED);
+
+  const paint = (part) => setHelmet((current) => ({ ...current, ...part }));
+  const swapColours = () =>
+    setHelmet((current) => ({ ...current, primary: current.secondary, secondary: current.primary }));
 
   const chooseDecade = (next) => {
     setDecade(next);
@@ -40,7 +53,6 @@ export const SetupPhase = ({ bootstrap, onStart }) => {
     setYear(nextYears[0]);
   };
 
-  const helmet = HELMET_PRESETS[helmetIndex];
   const ready = name.trim().length >= 2 && Boolean(year);
 
   return (
@@ -81,22 +93,125 @@ export const SetupPhase = ({ bootstrap, onStart }) => {
           </div>
         </div>
 
-        <div className="tr-field">
+        {/* Four ways in, in the order people actually use them: take one whole,
+            change the design, change either colour. The preview is the size the
+            helmet is worth looking at; every control under it is the same
+            helmet drawn small, so nothing here is a label for a shape you have
+            to imagine. */}
+        <div className="tr-field tr-field--wide">
           <span className="tr-label">{t.helmetLabel}</span>
-          <div className="tr-helmetpicker">
-            <Helmet {...helmet} size={78} />
-            <div className="tr-helmetpicker__swatches">
-              {HELMET_PRESETS.map((preset, index) => (
+
+          <div className="tr-helmeteditor">
+            <div className="tr-helmeteditor__stage">
+              <span className="tr-helmeteditor__preview" data-testid="helmet-preview">
+                <Helmet {...helmet} size={112} title={t.helmetStyleNames[helmetStyleOf(helmet.style)]} />
+              </span>
+              <div className="tr-helmeteditor__acts">
                 <button
                   type="button"
-                  key={`${preset.primary}-${preset.style}`}
-                  className={`tr-swatch${helmetIndex === index ? " is-on" : ""}`}
-                  style={{ background: `linear-gradient(135deg, ${preset.primary} 50%, ${preset.secondary} 50%)` }}
-                  onClick={() => setHelmetIndex(index)}
-                  aria-label={`${t.helmetLabel} ${index + 1}`}
-                  aria-pressed={helmetIndex === index}
-                />
-              ))}
+                  className="tr-ghost tr-ghost--small"
+                  onClick={swapColours}
+                  disabled={helmet.style === "solid"}
+                >
+                  {t.helmetSwap}
+                </button>
+                <button
+                  type="button"
+                  className="tr-ghost tr-ghost--small"
+                  onClick={() => setHelmet(randomHelmet())}
+                >
+                  {t.helmetRandom}
+                </button>
+              </div>
+            </div>
+
+            <div className="tr-helmeteditor__controls">
+              <div className="tr-helmetrow">
+                <span className="tr-helmetrow__label">{t.helmetPresets}</span>
+                <div className="tr-helmetrow__items" role="group" aria-label={t.helmetPresets}>
+                  {HELMET_PRESETS.map((preset) => {
+                    const on =
+                      preset.primary === helmet.primary &&
+                      preset.secondary === helmet.secondary &&
+                      preset.style === helmet.style;
+                    return (
+                      <button
+                        type="button"
+                        key={`${preset.primary}-${preset.secondary}-${preset.style}`}
+                        className={`tr-helmetpick${on ? " is-on" : ""}`}
+                        data-testid={`helmet-preset-${preset.style}-${preset.primary}`}
+                        onClick={() => setHelmet(preset)}
+                        aria-pressed={on}
+                        aria-label={t.helmetStyleNames[preset.style]}
+                      >
+                        <Helmet {...preset} size={34} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="tr-helmetrow">
+                <span className="tr-helmetrow__label">{t.helmetDesign}</span>
+                <div className="tr-helmetrow__items" role="group" aria-label={t.helmetDesign}>
+                  {HELMET_STYLES.map((style) => (
+                    <button
+                      type="button"
+                      key={style}
+                      className={`tr-helmetpick${helmetStyleOf(helmet.style) === style ? " is-on" : ""}`}
+                      data-testid={`helmet-design-${style}`}
+                      onClick={() => paint({ style })}
+                      aria-pressed={helmetStyleOf(helmet.style) === style}
+                      title={t.helmetStyleNames[style]}
+                    >
+                      <Helmet {...helmet} style={style} size={34} />
+                      <small>{t.helmetStyleNames[style]}</small>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="tr-helmetrow">
+                <span className="tr-helmetrow__label">{t.helmetPrimaryLabel}</span>
+                <div className="tr-helmetrow__items" role="group" aria-label={t.helmetPrimaryLabel}>
+                  {HELMET_COLORS.map((colour) => (
+                    <button
+                      type="button"
+                      key={colour.key}
+                      className={`tr-swatch${helmet.primary === colour.hex ? " is-on" : ""}`}
+                      style={{ background: colour.hex }}
+                      data-testid={`helmet-primary-${colour.key}`}
+                      onClick={() => paint({ primary: colour.hex })}
+                      aria-pressed={helmet.primary === colour.hex}
+                      aria-label={t.helmetColorNames[colour.key]}
+                      title={t.helmetColorNames[colour.key]}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* A plain helmet has no second colour, so the row that sets one
+                  is not there to be wondered about. */}
+              {helmetStyleOf(helmet.style) !== "solid" && (
+                <div className="tr-helmetrow">
+                  <span className="tr-helmetrow__label">{t.helmetSecondaryLabel}</span>
+                  <div className="tr-helmetrow__items" role="group" aria-label={t.helmetSecondaryLabel}>
+                    {HELMET_COLORS.map((colour) => (
+                      <button
+                        type="button"
+                        key={colour.key}
+                        className={`tr-swatch${helmet.secondary === colour.hex ? " is-on" : ""}`}
+                        style={{ background: colour.hex }}
+                        data-testid={`helmet-secondary-${colour.key}`}
+                        onClick={() => paint({ secondary: colour.hex })}
+                        aria-pressed={helmet.secondary === colour.hex}
+                        aria-label={t.helmetColorNames[colour.key]}
+                        title={t.helmetColorNames[colour.key]}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

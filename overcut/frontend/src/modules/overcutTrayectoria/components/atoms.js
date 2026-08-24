@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo } from "react";
+import racingHelmetUrl from "../../../assets/images/miniGames/RacingHelmet.png";
 import { sourceTictactoeImages } from "../../../helpers/sourceTictactoeImages";
 
 /**
@@ -61,30 +62,60 @@ export const Flag = ({ code, title, width = 21 }) => {
   );
 };
 
-/** The player's helmet, drawn rather than fetched so it can be recoloured live. */
-export const Helmet = ({ primary = "#F2B705", secondary = "#10294F", style = "solid", size = 56 }) => (
-  <svg className="tr-helmet" width={size} height={size} viewBox="0 0 64 64" role="img" aria-hidden="true">
-    <defs>
-      <linearGradient id={`tr-helmet-${style}`} x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor={primary} />
-        <stop offset="52%" stopColor={primary} />
-        <stop offset="52%" stopColor={secondary} />
-        <stop offset="100%" stopColor={secondary} />
-      </linearGradient>
-    </defs>
-    <path
-      d="M32 6c14 0 22 9 22 22 0 6-1 10-3 14H35l-2-7H16c-6 0-10-5-10-13C6 15 17 6 32 6Z"
-      fill={style === "solid" ? primary : `url(#tr-helmet-${style})`}
-    />
-    {style === "lines" && (
-      <>
-        <rect x="8" y="24" width="46" height="4" fill={secondary} />
-        <rect x="8" y="32" width="46" height="3" fill={secondary} opacity="0.7" />
-      </>
-    )}
-    <path d="M16 24h20l3 12H18c-4 0-6-3-6-7s2-5 4-5Z" fill="#0A0A0C" opacity="0.82" />
-    <path d="M32 6c14 0 22 9 22 22 0 6-1 10-3 14H35l-2-7H16c-6 0-10-5-10-13C6 15 17 6 32 6Z" fill="none" stroke="#0A0A0C" strokeWidth="2" />
-  </svg>
+/* --------------------------------------------------------------- the helmet
+ *
+ * The same helmet the older career mode wears - `RacingHelmet.png`, the full
+ * face silhouette, used as a mask - so a driver looks like the same driver in
+ * both games. The picture is only the shape; the paint is a CSS background
+ * behind it, which is what lets the editor recolour it live.
+ *
+ * Every design is a hard-stop gradient, no soft blends: the helmet is shown far
+ * more often small than large, and a soft mark turns to mud at sixteen pixels.
+ * The mask does the clipping, so a design never has to know where the shell
+ * ends.
+ */
+
+const HELMET_PAINT = {
+  solid: (a) => `linear-gradient(${a}, ${a})`,
+  // The OverCut seam, worn on the head: one hard diagonal, nothing else.
+  split: (a, b) => `linear-gradient(135deg, ${a} 0 52%, ${b} 52% 100%)`,
+  lines: (a, b) =>
+    `linear-gradient(180deg, ${a} 0 46%, ${b} 46% 58%, ${a} 58% 64%, ${b} 64% 70%, ${a} 70% 100%)`,
+  cap: (a, b) => `linear-gradient(180deg, ${b} 0 34%, ${a} 34% 100%)`,
+  halves: (a, b) => `linear-gradient(90deg, ${a} 0 52%, ${b} 52% 100%)`,
+  // A single diagonal stripe across the shell. A chevron was tried here and
+  // cut straight across the visor, where it read as damage rather than paint:
+  // every design has to survive the one hole in the silhouette.
+  flash: (a, b) => `linear-gradient(115deg, ${a} 0 38%, ${b} 38% 58%, ${a} 58% 100%)`,
+};
+
+export const HELMET_STYLES = Object.keys(HELMET_PAINT);
+
+/** `gradient` is what the diagonal was called before the editor existed. */
+const HELMET_ALIASES = { gradient: "split" };
+
+export const helmetStyleOf = (style) =>
+  HELMET_ALIASES[style] || (HELMET_PAINT[style] ? style : "solid");
+
+export const helmetPaint = (style, primary, secondary) =>
+  HELMET_PAINT[helmetStyleOf(style)](primary, secondary);
+
+/** The player's helmet. */
+export const Helmet = ({ primary = "#F2B705", secondary = "#10294F", style = "solid", size = 56, title }) => (
+  <span
+    className="tr-helmet"
+    data-testid="helmet"
+    role={title ? "img" : undefined}
+    aria-hidden={title ? undefined : "true"}
+    aria-label={title}
+    style={{
+      width: size,
+      height: size,
+      backgroundImage: helmetPaint(style, primary, secondary),
+      WebkitMaskImage: `url(${racingHelmetUrl})`,
+      maskImage: `url(${racingHelmetUrl})`,
+    }}
+  />
 );
 
 /** One number with its label. The season summary is a grid of these. */
@@ -164,11 +195,67 @@ export const NATIONALITIES = [
   { code: "mc", es: "Mónaco", en: "Monaco" },
 ];
 
-export const HELMET_PRESETS = [
-  { primary: "#F2B705", secondary: "#10294F", style: "solid" },
-  { primary: "#10294F", secondary: "#F3F1E9", style: "gradient" },
-  { primary: "#C42B2B", secondary: "#0A0A0C", style: "lines" },
-  { primary: "#F3F1E9", secondary: "#0A0A0C", style: "gradient" },
-  { primary: "#1F7A5A", secondary: "#F2B705", style: "lines" },
-  { primary: "#5B2E8C", secondary: "#FFCE3A", style: "gradient" },
+/**
+ * The paint box.
+ *
+ * Racing colours rather than a generic swatch grid: every one of these is a
+ * colour Formula 1 has actually been painted in, which is what makes a helmet
+ * built out of them look like it belongs on this grid.
+ */
+export const HELMET_COLORS = [
+  { key: "gold", hex: "#F2B705" },
+  { key: "navy", hex: "#10294F" },
+  { key: "bone", hex: "#F3F1E9" },
+  { key: "black", hex: "#14151A" },
+  { key: "red", hex: "#C8102E" },
+  { key: "green", hex: "#165A3C" },
+  { key: "blue", hex: "#0E5BB5" },
+  { key: "silver", hex: "#C6CBD2" },
+  { key: "papaya", hex: "#FF7A1A" },
+  { key: "yellow", hex: "#FFD400" },
+  { key: "teal", hex: "#00A19C" },
+  { key: "purple", hex: "#6B2FA0" },
+  { key: "pink", hex: "#E6007E" },
+  { key: "sky", hex: "#6CB4E4" },
+  { key: "maroon", hex: "#7A1B2E" },
+  { key: "sand", hex: "#C9A227" },
 ];
+
+export const HELMET_PRESETS = [
+  { primary: "#F2B705", secondary: "#10294F", style: "split" },
+  { primary: "#C8102E", secondary: "#F3F1E9", style: "lines" },
+  { primary: "#F3F1E9", secondary: "#14151A", style: "flash" },
+  { primary: "#165A3C", secondary: "#F2B705", style: "cap" },
+  { primary: "#0E5BB5", secondary: "#FF7A1A", style: "halves" },
+  { primary: "#6B2FA0", secondary: "#FFD400", style: "flash" },
+  { primary: "#C6CBD2", secondary: "#C8102E", style: "split" },
+  { primary: "#14151A", secondary: "#E6007E", style: "lines" },
+];
+
+/** Rough perceived lightness, 0..1. Enough to keep a mark off its own ground. */
+const lightnessOf = (hex) => {
+  const value = parseInt(hex.slice(1), 16);
+  const [r, g, b] = [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+};
+
+export const helmetContrast = (a, b) => Math.abs(lightnessOf(a) - lightnessOf(b));
+
+/**
+ * A whole helmet at random.
+ *
+ * The two colours have to be far enough apart in lightness or the design is
+ * invisible and the button looks broken - a black stripe on a navy shell is
+ * technically a random helmet and practically a plain one.
+ */
+export const randomHelmet = (pick = Math.random) => {
+  const styles = HELMET_STYLES.filter((style) => style !== "solid");
+  const style = styles[Math.floor(pick() * styles.length)];
+  const primary = HELMET_COLORS[Math.floor(pick() * HELMET_COLORS.length)];
+  const options = HELMET_COLORS.filter((colour) => helmetContrast(colour.hex, primary.hex) > 0.22);
+  const secondary = (options.length ? options : HELMET_COLORS)[
+    Math.floor(pick() * (options.length || HELMET_COLORS.length))
+  ];
+
+  return { primary: primary.hex, secondary: secondary.hex, style };
+};

@@ -88,7 +88,12 @@ export const CareerStrips = ({ history = [], seasonsByYear = {} }) => (
           <span className="tr-careerstrips__teamname">{season.team}</span>
         </span>
         <SeasonStrip races={seasonsByYear[season.year] || []} compact showFlags={false} />
-        <span className="tr-careerstrips__pos">{season.champion ? "C" : season.position}</span>
+        {/* The championship position closes the row. A title year gets it on a
+            gold ground rather than a letter, so the eye finds the years that
+            mattered without reading a key first. */}
+        <span className="tr-careerstrips__pos" title={t.stats.position}>
+          {season.champion ? <strong className="tr-careerstrips__crown">1</strong> : season.position}
+        </span>
       </div>
     ))}
   </div>

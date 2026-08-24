@@ -31,6 +31,10 @@
   --tr-bone: #f3f1e9;
   --tr-ink: #0a0a0c;
   --tr-flagred: #c42b2b;
+  /* The machinery. Gold is the driver, everywhere; this cold aluminium is the
+     car, and the two only ever meet on the career trace, where the whole point
+     is telling them apart. */
+  --tr-steel: #7f96bd;
 
   --tr-line: rgba(243, 241, 233, 0.16);
   --tr-line-gold: rgba(242, 183, 5, 0.42);
@@ -60,9 +64,15 @@
   opacity: 0.13;
 }
 
-.tr-root--retired .tr-cut,
 .tr-root--season .tr-cut {
   opacity: 0.2;
+}
+
+/* The closing screen draws its own seam, as the rule across the top of the
+   name plate. A second one behind it washes gold over the career trace, where
+   gold means something exact, so here the background diagonal steps back. */
+.tr-root--retired .tr-cut {
+  opacity: 0.08;
 }
 
 .tr-root > *:not(.tr-cut) {
@@ -109,26 +119,64 @@
   color: var(--tr-gold);
 }
 
-.tr-top__brand {
+/* ------------------------------------------------------------------- brand
+ * The logo, as a lockup: an emblem carrying the seam and the helmet, then the
+ * family name over the mode name. The two words used to sit side by side on one
+ * baseline, which reads as a breadcrumb rather than as a logo.
+ */
+
+.tr-brand {
   display: flex;
-  align-items: baseline;
-  gap: 0.55rem;
+  align-items: center;
+  gap: 0.7rem;
 }
 
-.tr-top__kicker {
+/* The parent logo distilled to what still reads at forty pixels: one hard
+   diagonal and one flat object on the gold. This is the one place the seam is
+   allowed to appear twice on a screen - inside forty-four pixels and a rule it
+   is read as an emblem, not as a second background. */
+.tr-brand__emblem {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(126deg, var(--tr-navy-deep) 0 50%, var(--tr-gold) 50% 100%);
+  box-shadow: inset 0 0 0 1px var(--tr-line-gold);
+}
+
+.tr-brand__words {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.tr-brand__kicker {
   font-family: var(--tr-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.28em;
+  font-size: 0.62rem;
+  line-height: 1;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--tr-gold);
 }
 
-.tr-top__title {
+.tr-brand__title {
   font-weight: 900;
-  font-size: 1.4rem;
-  letter-spacing: -0.03em;
+  font-size: 1.35rem;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
   text-transform: uppercase;
   font-stretch: expanded;
+}
+
+.tr-brand--compact .tr-brand__emblem {
+  width: 34px;
+  height: 34px;
+}
+
+.tr-brand--compact .tr-brand__title {
+  font-size: 1.05rem;
 }
 
 .tr-top__meta {
@@ -168,6 +216,12 @@
   color: var(--tr-gold);
 }
 
+.tr-hud__helmet {
+  display: inline-flex;
+  align-items: center;
+  margin-right: -0.3rem;
+}
+
 .tr-hud__driver {
   font-family: var(--tr-display);
   font-weight: 800;
@@ -176,9 +230,24 @@
   text-transform: uppercase;
 }
 
-.tr-hud__age::before {
-  content: "· ";
-  opacity: 0.5;
+/* The label rides in front of its value, small and quiet, so the row still
+   reads as a line of values rather than a form. */
+.tr-hud__field {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.38rem;
+  min-width: 0;
+}
+
+.tr-hud__field em {
+  flex: 0 0 auto;
+  font-family: var(--tr-mono);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.45);
 }
 
 .tr-hud__team {
@@ -210,12 +279,6 @@
     opacity: 0;
     transform: translateY(14px);
   }
-}
-
-.tr-phase__head--retired {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
 }
 
 .tr-eyebrow {
@@ -544,16 +607,122 @@
   border-color: var(--tr-gold);
 }
 
-.tr-helmetpicker {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+/* ------------------------------------------------------------ the helmet */
+
+/* The shape is `RacingHelmet.png` used as a mask - the same silhouette the
+   older career mode wears - and the colour is the background behind it. */
+.tr-helmet {
+  display: inline-block;
+  flex: 0 0 auto;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
 }
 
-.tr-helmetpicker__swatches {
+/* The one screen in the game where the player draws something. The preview is
+   given real size and a ground of its own; the controls sit beside it as four
+   ruled rows, coarse to fine - a whole helmet, then its design, then each of
+   its two colours. */
+.tr-helmeteditor {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.4rem;
+  align-items: start;
+  padding: 1rem;
+  background: var(--tr-panel);
+  border: 1px solid var(--tr-line);
+}
+
+.tr-helmeteditor__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.tr-helmeteditor__preview {
+  display: grid;
+  place-items: center;
+  padding: 0.6rem 0.9rem;
+  background: var(--tr-navy-deep);
+  border: 1px solid var(--tr-line-gold);
+}
+
+.tr-helmeteditor__acts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+}
+
+.tr-helmeteditor__acts .tr-ghost {
+  text-align: center;
+}
+
+.tr-helmeteditor__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.tr-helmetrow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tr-helmetrow__label {
+  font-family: var(--tr-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.5);
+}
+
+.tr-helmetrow__items {
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
+}
+
+/* A design is chosen by looking at it, not by reading its name, so every button
+   in these rows is the helmet you would get, drawn in the colours you have. */
+.tr-helmetpick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.25rem 0.3rem;
+  border: 1px solid var(--tr-line);
+  background: var(--tr-navy-deep);
+}
+
+.tr-helmetpick small {
+  font-family: var(--tr-mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.45);
+}
+
+.tr-helmetpick:hover {
+  border-color: var(--tr-line-gold);
+}
+
+.tr-helmetpick.is-on {
+  border-color: var(--tr-gold);
+  box-shadow: inset 0 0 0 1px var(--tr-gold);
+}
+
+.tr-helmetpick.is-on small {
+  color: var(--tr-gold);
 }
 
 .tr-swatch {
@@ -562,9 +731,17 @@
   border: 1px solid var(--tr-line);
 }
 
+.tr-swatch:hover {
+  border-color: var(--tr-line-gold);
+}
+
+/* The chosen colour is marked from the outside: a ring drawn clear of the
+   swatch, because a border painted on top of it changes the colour it is
+   there to show. */
 .tr-swatch.is-on {
   border-color: var(--tr-gold);
-  border-width: 2px;
+  outline: 2px solid var(--tr-gold);
+  outline-offset: 2px;
 }
 
 .tr-chiprow--years .tr-chip--year {
@@ -1319,9 +1496,30 @@
   color: var(--tr-gold);
 }
 
+/* The trophy is presented rather than dropped in: it comes up a beat before
+   the name, slower than everything else on the screen, and the gold lip lands
+   last. */
+.tr-champion__trophy {
+  display: block;
+  margin-top: 1.4rem;
+  animation: tr-lift 620ms 760ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.tr-champion__trophy .tr-trophy {
+  display: block;
+  margin: 0 auto;
+}
+
+@keyframes tr-lift {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.94);
+  }
+}
+
 .tr-champion__eyebrow {
   display: block;
-  margin-top: 1.8rem;
+  margin-top: 0.5rem;
   font-family: var(--tr-mono);
   font-size: 0.72rem;
   letter-spacing: 0.34em;
@@ -1401,41 +1599,420 @@
   color: rgba(243, 241, 233, 0.86);
 }
 
-/* ---------------------------------------------------------------- retired */
+/* ---------------------------------------------------------------- retired
+ * The closing screen is a plaque, not a dashboard: a run of plates, each with
+ * one job, separated by rules rather than boxes. The only saturated colour on
+ * it is gold, spent on the three numbers a driver is remembered by, the title
+ * years, and the verdict.
+ */
 
-.tr-block {
+.tr-retired {
+  gap: 2.4rem;
+}
+
+/* ------------------------------------------------------- the closing plate */
+
+.tr-closing {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1.4rem 2.4rem;
+  padding: 2.2rem 0 1.5rem;
+  border-bottom: 1px solid var(--tr-line);
+}
+
+/* The seam again, flattened into a rule: gold for the part of the career that
+   happened, hairline for everything that will not now. */
+.tr-closing__rule {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--tr-gold) 0 38%, var(--tr-line-gold) 38% 100%);
+}
+
+.tr-closing__id {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  min-width: 0;
+}
+
+.tr-closing__name {
+  min-width: 0;
+}
+
+.tr-closing__driver {
+  margin: 0.1rem 0 0;
+  font-weight: 900;
+  font-size: clamp(2.8rem, 9vw, 5.4rem);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+}
+
+.tr-closing__span {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.7rem 0 0;
+  font-family: var(--tr-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  color: rgba(243, 241, 233, 0.6);
+}
+
+.tr-closing__span em {
+  padding-left: 0.55rem;
+  border-left: 1px solid var(--tr-line-gold);
+  font-style: normal;
+}
+
+/* Titles, wins, podiums: the three numbers said out loud about a driver, and
+   the reason the old eight-identical-tiles grid is gone. */
+.tr-honours {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.tr-honour {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
+  padding: 0 1.2rem;
+  border-right: 1px solid var(--tr-line);
+}
+
+.tr-honour:first-child {
+  padding-left: 0;
+}
+
+.tr-honour:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.tr-honour__value {
+  font-family: var(--tr-mono);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 6vw, 3.3rem);
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  color: rgba(243, 241, 233, 0.92);
+}
+
+.tr-honour__label {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  margin-top: 0.5rem;
+  font-family: var(--tr-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.5);
+}
+
+/* A driver with a title is a different kind of driver, so the number that says
+   so is the only one on the plate wearing colour. */
+.tr-honour.is-lead .tr-honour__value,
+.tr-honour.is-lead .tr-honour__label {
+  color: var(--tr-gold);
+}
+
+/* Everything else, on one rule. These are the numbers you look up, not the ones
+   you are introduced by. */
+.tr-tally {
+  list-style: none;
+  margin: 0;
+  padding: 1px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 1px;
+}
+
+.tr-tally__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.85rem 0.9rem;
+  box-shadow: 0 0 0 1px var(--tr-line);
+}
+
+.tr-tally__value {
+  font-family: var(--tr-mono);
+  font-weight: 700;
+  font-size: 1.3rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.tr-tally__label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--tr-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.48);
+}
+
+/* -------------------------------------------------------------- the plates */
+
+.tr-block,
+.tr-plate {
+  display: flex;
+  flex-direction: column;
+}
+
+/* A gold hairline under every section head, with the label on the left and one
+   true fact about the section on the right - never a caption, always content. */
+.tr-platehead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.2rem;
+  padding-bottom: 0.55rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--tr-line-gold);
+}
+
+.tr-platehead .tr-label {
+  margin-bottom: 0;
+  color: var(--tr-gold);
+}
+
+.tr-platehead__note {
+  font-family: var(--tr-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: rgba(243, 241, 233, 0.42);
+  text-align: right;
+}
+
+/* ================================================================ the trace
+ * Two lines on the championship axis: where you finished, and where the car
+ * you were given should have put you. The gold fill is the difference.
+ */
+
+.tr-trace {
+  width: 100%;
+  padding: 0.5rem 0.4rem 0.35rem;
+  background: var(--tr-navy-deep);
+  border: 1px solid var(--tr-line);
+}
+
+.tr-trace__plot {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tr-trace__grid {
+  stroke: rgba(243, 241, 233, 0.1);
+  stroke-width: 1;
+}
+
+.tr-trace__axis,
+.tr-trace__year {
+  font-family: var(--tr-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  fill: rgba(243, 241, 233, 0.42);
+}
+
+.tr-trace__band {
+  fill: url(#tr-trace-under);
+}
+
+.tr-trace__band.is-over {
+  fill: rgba(242, 183, 5, 0.26);
+}
+
+.tr-trace__car {
+  fill: none;
+  stroke: var(--tr-steel);
+  stroke-width: 1.4;
+  stroke-dasharray: 5 4;
+}
+
+.tr-trace__you {
+  fill: none;
+  stroke: var(--tr-gold);
+  stroke-width: 2.4;
+  stroke-linejoin: miter;
+  stroke-linecap: butt;
+}
+
+.tr-trace__node {
+  fill: var(--tr-gold);
+}
+
+/* A title year is drawn to the top of the plot, because it is the one thing on
+   this chart you should be able to count from across the room. */
+.tr-trace__title {
+  stroke: var(--tr-gold);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.55;
+}
+
+.tr-trace__crown {
+  fill: var(--tr-gold-hot);
+  stroke: var(--tr-navy-deep);
+  stroke-width: 1.5;
+}
+
+.tr-trace__hit {
+  fill: transparent;
+}
+
+.tr-trace__hit:hover {
+  fill: rgba(243, 241, 233, 0.05);
+}
+
+/* The teams, as chapters: each spell as wide as the years it lasted. */
+.tr-trace__spells {
+  list-style: none;
+  display: flex;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--tr-line);
+}
+
+.tr-trace__spell {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-basis: 0;
+  min-width: 0;
+  padding: 0.42rem 0.5rem;
+  border-right: 1px solid var(--tr-line);
+  font-family: var(--tr-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  color: rgba(243, 241, 233, 0.5);
+}
+
+.tr-trace__spell:last-child {
+  border-right: 0;
+}
+
+.tr-trace__spellname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr-trace__spell .tr-badge {
+  flex: 0 0 auto;
+}
+
+.tr-trace__key {
+  display: flex;
+  gap: 1.4rem;
+  margin: 0.75rem 0 0;
+  font-family: var(--tr-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.5);
+}
+
+.tr-trace__keyitem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.tr-trace__keyitem::before {
+  content: "";
+  width: 22px;
+  border-top: 2px solid var(--tr-gold);
+}
+
+.tr-trace__keyitem--car::before {
+  border-top: 1px dashed var(--tr-steel);
+}
+
+/* ------------------------------------------------------------ the palmares */
+
+/* The sheet is a wall of cells with no words on it, so it says what a cell is
+   before the player has to guess. */
+.tr-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  font-family: var(--tr-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.45);
+}
+
+.tr-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tr-legend .tr-cell {
+  width: 12px;
+  height: 12px;
 }
 
 .tr-careerstrips {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
   overflow-x: auto;
+  border-top: 1px solid var(--tr-line);
+}
+
+.tr-careerstrips .tr-strip {
+  flex-wrap: nowrap;
 }
 
 .tr-careerstrips__row {
   display: grid;
-  grid-template-columns: 3.4rem 8.5rem 1fr 1.8rem;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+  grid-template-columns: 3.2rem 8.6rem auto 2.2rem;
   align-items: center;
   gap: 0.7rem;
-  padding: 0.25rem 0;
-  border-bottom: 1px solid var(--tr-line);
+  padding: 0.3rem 0.4rem 0.3rem 0.55rem;
+  border-bottom: 1px solid rgba(243, 241, 233, 0.07);
+  transition: background 120ms ease;
+}
+
+.tr-careerstrips__row:hover {
+  background: rgba(243, 241, 233, 0.045);
 }
 
 .tr-careerstrips__year {
   font-family: var(--tr-mono);
-  font-size: 0.78rem;
-  color: var(--tr-gold);
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  color: rgba(243, 241, 233, 0.55);
 }
 
 .tr-careerstrips__team {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   min-width: 0;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: rgba(243, 241, 233, 0.6);
 }
 
@@ -1454,57 +2031,118 @@
 /* A title year has to be findable from across the room: twenty-four rows of
    grey and then the ones that mattered. */
 .tr-careerstrips__row.is-champion {
+  background: linear-gradient(90deg, rgba(242, 183, 5, 0.15), rgba(242, 183, 5, 0.02) 46%, transparent);
   box-shadow: inset 3px 0 0 var(--tr-gold);
 }
 
+.tr-careerstrips__row.is-champion:hover {
+  background: linear-gradient(90deg, rgba(242, 183, 5, 0.22), rgba(242, 183, 5, 0.05) 46%, transparent);
+}
+
 .tr-careerstrips__row.is-champion .tr-careerstrips__year,
-.tr-careerstrips__row.is-champion .tr-careerstrips__pos {
+.tr-careerstrips__row.is-champion .tr-careerstrips__team {
   color: var(--tr-gold);
-  font-weight: 700;
 }
 
 .tr-careerstrips__pos {
   font-family: var(--tr-mono);
   font-weight: 700;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
   text-align: right;
+  color: rgba(243, 241, 233, 0.75);
 }
+
+.tr-careerstrips__crown {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  background: var(--tr-gold);
+  color: var(--tr-ink);
+  font-size: 0.72rem;
+}
+
+/* --------------------------------------------------------- the record book */
 
 .tr-records {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 1px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
+  gap: 1px;
 }
 
-.tr-records li {
+.tr-record {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "rank body"
+    "rank bar"
+    "rank ends";
+  column-gap: 0.95rem;
+  row-gap: 0.45rem;
+  padding: 1.05rem 1rem;
+  box-shadow: 0 0 0 1px var(--tr-line);
+}
+
+.tr-record__rank {
+  grid-area: rank;
+  align-self: start;
+}
+
+/* Engraved rather than printed: the rank is an outline until the day it is
+   yours outright, and then it fills in. */
+.tr-record__rank strong {
+  font-family: var(--tr-mono);
+  font-weight: 700;
+  font-size: 2.7rem;
+  line-height: 0.82;
+  font-variant-numeric: tabular-nums;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--tr-gold);
+}
+
+.tr-record.is-first .tr-record__rank strong {
+  color: var(--tr-gold);
+  -webkit-text-stroke: 0;
+}
+
+@supports not (-webkit-text-stroke: 1px red) {
+  .tr-record__rank strong {
+    color: var(--tr-gold);
+  }
+}
+
+.tr-record__body {
+  grid-area: body;
   display: flex;
   align-items: baseline;
-  gap: 0.6rem;
-  padding: 0.8rem;
-  background: var(--tr-panel);
-  border: 1px solid var(--tr-line);
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.7rem;
 }
 
-.tr-records strong {
-  font-family: var(--tr-mono);
-  font-size: 1.6rem;
-  color: var(--tr-gold);
-}
-
-.tr-records span {
+.tr-record__metric {
   font-size: 0.85rem;
+  line-height: 1.25;
+  color: rgba(243, 241, 233, 0.85);
+}
+
+.tr-record__count {
+  flex: 0 0 auto;
+  font-family: var(--tr-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
 }
 
 /* How far the book still is. The rank tells you where you stand; this tells you
    how far away the name above you actually is, which is a different question. */
 .tr-records .tr-records__bar {
+  grid-area: bar;
   position: relative;
-  flex-basis: 100%;
-  height: 5px;
-  margin-top: 0.15rem;
+  height: 6px;
   background: rgba(243, 241, 233, 0.12);
 }
 
@@ -1523,52 +2161,155 @@
   background: var(--tr-bone);
 }
 
-.tr-records em {
-  width: 100%;
+.tr-record__ends {
+  grid-area: ends;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.tr-record__ends em {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-style: normal;
   font-family: var(--tr-mono);
-  font-size: 0.68rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: rgba(243, 241, 233, 0.42);
+}
+
+/* Whoever holds the record, drawn at the far end of the same scale the bar
+   runs on - so the two lines read as the rungs above you, in order. */
+.tr-record__ends em.tr-record__leader {
+  color: rgba(242, 183, 5, 0.62);
+}
+
+/* --------------------------------------------------------------- the rival */
+
+.tr-rival {
+  padding: 1.3rem clamp(1rem, 3vw, 1.6rem) 1.5rem;
+  background: var(--tr-panel);
+  border: 1px solid var(--tr-line);
+}
+
+/* Two careers facing each other across the metric they are settled on. */
+.tr-duelsheet__names {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--tr-line-gold);
+}
+
+.tr-duelsheet__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 800;
+  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.8);
+}
+
+.tr-duelsheet__name.is-you {
+  color: var(--tr-gold);
+}
+
+.tr-duelsheet__row {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, auto) 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(243, 241, 233, 0.07);
+}
+
+.tr-duelsheet__score {
+  font-family: var(--tr-mono);
+  font-weight: 700;
+  font-size: clamp(1.45rem, 4.5vw, 2.1rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: rgba(243, 241, 233, 0.34);
+}
+
+.tr-duelsheet__row .tr-duelsheet__score:last-child {
+  text-align: right;
+}
+
+/* Whoever is ahead on that line keeps their colour; the other one loses it. */
+.tr-duelsheet__row .tr-duelsheet__score:first-child.is-winning {
+  color: var(--tr-gold);
+}
+
+.tr-duelsheet__row .tr-duelsheet__score:last-child.is-winning {
+  color: var(--tr-bone);
+}
+
+.tr-duelsheet__metric {
+  font-family: var(--tr-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
   color: rgba(243, 241, 233, 0.45);
 }
 
-.tr-rival__scores {
-  display: flex;
-  gap: 1.6rem;
-  flex-wrap: wrap;
-  margin: 0.6rem 0;
-  font-family: var(--tr-mono);
-  font-size: 1.1rem;
-  font-weight: 700;
+.tr-rival__duel {
+  margin-top: 1.2rem;
 }
 
-.tr-rival__scores em {
+.tr-rival__duellabel {
   display: block;
-  font-style: normal;
-  font-family: var(--tr-display);
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
+  margin-bottom: 0.45rem;
+  font-family: var(--tr-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(243, 241, 233, 0.55);
+  color: rgba(243, 241, 233, 0.42);
+}
+
+.tr-rival .tr-duel__bar {
+  height: 8px;
+  margin: 0;
 }
 
 .tr-rival__hh {
-  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  margin: 0.4rem 0 0;
   font-family: var(--tr-mono);
-  font-size: 0.8rem;
-  color: rgba(243, 241, 233, 0.6);
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tr-rival__hh span:first-child {
+  color: var(--tr-gold);
+}
+
+.tr-rival__hh span:last-child {
+  color: rgba(243, 241, 233, 0.7);
 }
 
 .tr-rival__verdict {
-  margin: 0.5rem 0 0;
+  margin: 1.2rem 0 0;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: clamp(1.05rem, 2.8vw, 1.35rem);
+  letter-spacing: -0.015em;
 }
 
+/* ------------------------------------------------------------- the verdict */
+
 .tr-verdict {
-  padding: 1.4rem;
+  padding: 1.8rem clamp(1.2rem, 4vw, 2.4rem) 2.4rem clamp(1.7rem, 4vw, 2.4rem);
   background: var(--tr-gold);
   color: var(--tr-ink);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 26px 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 34px 100%);
 }
 
 .tr-verdict .tr-label {
@@ -1577,16 +2318,20 @@
 
 .tr-verdict__text {
   margin: 0;
+  max-width: 26ch;
   font-weight: 900;
-  font-size: clamp(1.2rem, 3.4vw, 1.9rem);
-  line-height: 1.16;
-  letter-spacing: -0.025em;
+  font-size: clamp(1.35rem, 4vw, 2.3rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
 }
 
 .tr-verdict__note {
-  margin: 0.6rem 0 0;
+  margin: 1rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(10, 10, 12, 0.25);
   font-family: var(--tr-mono);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
 }
 
 /* ------------------------------------------------------------ a11y & mobile */
@@ -1597,6 +2342,15 @@
 }
 
 @media (max-width: 640px) {
+  .tr-brand__emblem {
+    width: 34px;
+    height: 34px;
+  }
+
+  .tr-brand__title {
+    font-size: 1.05rem;
+  }
+
   .tr-hud__record {
     margin-left: 0;
     width: 100%;
@@ -1623,11 +2377,106 @@
   }
 
   .tr-careerstrips__row {
-    grid-template-columns: 2.9rem auto 1fr 1.6rem;
+    grid-template-columns: 2.6rem auto auto 1.9rem;
+    gap: 0.5rem;
   }
 
   .tr-careerstrips__teamname {
     display: none;
+  }
+
+  .tr-strip--compact .tr-cell {
+    width: 14px;
+    height: 14px;
+    font-size: 0.48rem;
+  }
+
+  .tr-strip--compact .tr-cell--dnf {
+    font-size: 0;
+  }
+
+  /* Twenty-four races do not fit on a phone, so the sheet scrolls sideways -
+     and a scrolled row with no year on it is unreadable. The year stays. */
+  .tr-careerstrips__year {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    padding: 0.3rem 0.3rem 0.3rem 0.55rem;
+    margin: -0.3rem 0 -0.3rem -0.55rem;
+    background: var(--tr-navy-deep);
+  }
+
+  .tr-careerstrips__row.is-champion .tr-careerstrips__year {
+    background: #16203a;
+    box-shadow: inset 3px 0 0 var(--tr-gold);
+  }
+
+  /* The closing plate stacks: the name keeps the top of the screen, and the
+     three honours take the full width underneath rather than shrinking. */
+  .tr-closing {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .tr-closing__id {
+    gap: 0.9rem;
+  }
+
+  .tr-honours {
+    width: 100%;
+  }
+
+  .tr-honour {
+    flex: 1 1 0;
+    align-items: flex-start;
+    padding: 0 0.9rem;
+  }
+
+  .tr-honour:first-child {
+    padding-left: 0;
+  }
+
+  .tr-platehead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .tr-platehead__note {
+    text-align: left;
+  }
+
+  .tr-record {
+    column-gap: 0.7rem;
+    padding: 0.9rem 0.8rem;
+  }
+
+  .tr-record__rank strong {
+    font-size: 2.1rem;
+  }
+
+  .tr-record__ends {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .tr-record__ends em.tr-record__leader {
+    text-align: left;
+  }
+
+  .tr-duelsheet__row {
+    gap: 0.5rem;
+  }
+
+  /* On a phone the badge is worth the width and the spelling is not - the same
+     trade the career sheet makes one screen down. */
+  .tr-trace__spellname {
+    display: none;
+  }
+
+  .tr-trace__spell {
+    justify-content: center;
+    padding: 0.42rem 0.2rem;
   }
 
   /* Eight tiles across three columns leave a dead cell on the last row. */
@@ -1656,6 +2505,21 @@
   .tr-cta {
     align-self: stretch;
     text-align: center;
+  }
+
+  /* The editor stacks: the preview keeps the top, the controls run under it at
+     full width rather than in a squeezed second column. */
+  .tr-helmeteditor {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tr-helmeteditor__acts {
+    flex-direction: row;
+  }
+
+  .tr-helmeteditor__acts .tr-ghost {
+    flex: 1;
   }
 }
 

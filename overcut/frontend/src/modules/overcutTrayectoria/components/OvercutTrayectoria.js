@@ -35,6 +35,8 @@ import {
   signSelected,
   worldOf,
 } from "../engine/career";
+import { Helmet } from "./atoms";
+import Brand from "./Brand";
 import SetupPhase from "./phases/SetupPhase";
 import { ClausePhase, NegotiationPhase, OffersPhase } from "./phases/MarketPhase";
 import PreseasonPhase from "./phases/PreseasonPhase";
@@ -164,10 +166,7 @@ export const OvercutTrayectoria = () => {
         <Link className="tr-top__back" to="/minigames">
           {t.back}
         </Link>
-        <div className="tr-top__brand">
-          <span className="tr-top__kicker">{t.kicker}</span>
-          <span className="tr-top__title">{t.title}</span>
-        </div>
+        <Brand />
         <div className="tr-top__meta">
           <span className={`tr-source${bootstrap.fallbackMode ? " is-offline" : ""}`}>
             {bootstrap.fallbackMode ? t.dataOffline : t.dataLive}
@@ -183,9 +182,28 @@ export const OvercutTrayectoria = () => {
       {career && career.phase !== PHASES.RETIRED && (
         <aside className="tr-hud">
           <span className="tr-hud__year">{career.year}</span>
-          <span className="tr-hud__driver">{career.driver.name}</span>
-          <span className="tr-hud__age">{career.driver.age}</span>
-          {career.contract && <span className="tr-hud__team">{career.contract.teamName}</span>}
+          {/* You design a helmet on the first screen and then race twenty
+              seasons without ever seeing it again. It goes on the read-out that
+              is always there, at the size a badge is worth. */}
+          <span className="tr-hud__helmet" data-testid="hud-helmet">
+            <Helmet {...career.driver.helmet} size={26} />
+          </span>
+          {/* Every value on the read-out says what it is. "2024 ROBIN 25 Sauber"
+              made the player work out which number was which. */}
+          <span className="tr-hud__field tr-hud__driver">
+            <em>{t.hudName}</em>
+            {career.driver.name}
+          </span>
+          <span className="tr-hud__field tr-hud__age">
+            <em>{t.hudAge}</em>
+            {career.driver.age}
+          </span>
+          {career.contract && (
+            <span className="tr-hud__field tr-hud__team">
+              <em>{t.hudTeam}</em>
+              {career.contract.teamName}
+            </span>
+          )}
           <span className="tr-hud__record">
             {career.totals.wins} · {career.totals.podiums} · {career.totals.titles}
           </span>
