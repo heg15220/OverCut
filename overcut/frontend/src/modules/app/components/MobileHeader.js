@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 import { useSelector } from "react-redux";
 import users from '../../users';
-import { Lightbulb, Puzzle, GraphUp, Book, Trophy, List, X, PersonCircle, BoxArrowRight, PencilSquare } from "react-bootstrap-icons";
+import { Lightbulb, Puzzle, GraphUp, Book, Trophy, List, X, PersonCircle, BoxArrowRight, PencilSquare, Speedometer } from "react-bootstrap-icons";
 import "./MobileHeader.css";
 import image from './Resources/LogoOverCut.png';
 
@@ -46,6 +46,11 @@ const MobileHeader = () => {
               <li>
                 <Link to={isLogged ? "/minigames" : "/overcutgames-info"} onClick={handleCloseMenu}>
                   <FormattedMessage id="project.app.Header.minigames" /> <Puzzle size={16} />
+                </Link>
+              </li>
+              <li>
+                <Link to="/overcutGp" onClick={handleCloseMenu}>
+                  OverCut GP <Speedometer size={16} />
                 </Link>
               </li>
               <li>

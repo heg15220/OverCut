@@ -11,6 +11,9 @@
 # production
 /build
 
+# OverCut GP web build (copied by the Godot project's tools/export_web.sh)
+/public/games/overcut-gp/
+
 # misc
 .DS_Store
 .env.local

@@ -13,7 +13,8 @@ import {
   Puzzle,
   GraphUp,
   Book,
-  Trophy
+  Trophy,
+  Speedometer
 } from 'react-bootstrap-icons';
 import image from './Resources/LogoOverCut.png';
 import UserDetailsLink from '../../users/components/UserDetailsLink';
@@ -92,6 +93,12 @@ const Header = () => {
                     to={isLogged ? "/minigames" : "/overcutgames-info"}
                   >
                     <FormattedMessage id="project.app.Header.minigames" /> <Puzzle size={16} />
+                  </Link>
+                </li>
+
+                <li className="nav-item">
+                  <Link className="nav-link" to="/overcutGp">
+                    OverCut GP <Speedometer size={16} />
                   </Link>
                 </li>
 

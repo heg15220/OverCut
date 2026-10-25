@@ -63,6 +63,7 @@ import WordSearchGame from '../../wordSearch/components/WordSearchGame';
 import OvercutRacing from "../../overcutRacing/components/OvercutRacing";
 import CareerMode from "../../careerMode/components/CareerMode";
 import OvercutTrayectoria from "../../overcutTrayectoria/components/OvercutTrayectoria";
+import OvercutGp from "../../overcutGp/components/OvercutGp";
 
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList, PostSectionEditor,
@@ -158,6 +159,8 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/overcutRacing" element={withAdVignettes(<OvercutRacing />, "games", "bottom")} />}
                     {loggedIn && <Route path="/minigames/careerMode" element={withAdVignettes(<CareerMode />, "games", "bottom")} />}
                     {loggedIn && <Route path="/minigames/trayectoria" element={withAdVignettes(<OvercutTrayectoria />, "games", "bottom")} />}
+                    {/* OverCut GP: Godot top-down F1 game, open to everyone (no account). */}
+                    <Route path="/overcutGp" element={<OvercutGp />} />
                     <Route path="/minigames/wordSearch" element={withAdVignettes(<WordSearchGame />, "games")} />
                     <Route path="/verify-email" element={<EmailVerificationPage />} />
                     <Route path="/email-confirmation" element={<EmailConfirmationPending />} />
