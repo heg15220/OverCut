@@ -1,7 +1,7 @@
 {
- "schemaVersion": 1,
+ "schemaVersion": 2,
  "year": 2012,
- "packVersion": "1.0.0",
+ "packVersion": "2.0.0",
  "sources": [
   {
    "name": "f1db",
@@ -17,19 +17,17 @@
   }
  ],
  "regulations": {
-  "engineFormula": "2.4 V8",
-  "refuelling": false,
-  "energySystem": "kers",
-  "drs": true,
   "activeAero": false,
-  "safetyCar": true,
-  "vsc": false,
-  "tyreType": "slick",
-  "tyreChangesInRace": true,
+  "aeroTestingRestriction": false,
+  "budgetCap": null,
+  "drs": true,
+  "energySystem": "kers",
+  "engineFormula": "2.4 V8",
+  "engineFormulas": [
+   "2.4 V8"
+  ],
   "mandatoryDryCompounds": 2,
-  "qualifyingRaceFuel": false,
-  "topTenStartTyres": "Q3",
-  "rule107": true,
+  "parcFerme": true,
   "pointsScheme": {
    "race": [
     25,
@@ -48,99 +46,138 @@
    "sprint": [],
    "doubleLastRace": false,
    "bestResults": null,
-   "constructorsBestCarOnly": false
+   "bestResultsSplit": null,
+   "constructorsBestCarOnly": false,
+   "dropScoresConstructors": false
   },
-  "budgetCap": null,
-  "aeroTestingRestriction": false,
+  "qualifyingFormats": [
+   "KNOCKOUT"
+  ],
+  "qualifyingRaceFuel": false,
+  "refuelling": false,
+  "rule107": true,
+  "safetyCar": true,
+  "sprintWeekends": 0,
+  "teamOrdersBanned": false,
+  "topTenStartTyres": "Q3",
+  "tyreChangesInRace": true,
+  "tyreSuppliers": [
+   "pirelli"
+  ],
+  "tyreType": "slick",
   "unitLimits": {
    "enginesPerDriver": 8,
    "engineRaceWeekends": null,
    "gearboxRaces": 5
   },
-  "teamOrdersBanned": false,
-  "parcFerme": true,
-  "sprintWeekends": 0,
-  "tyreSuppliers": [
-   "pirelli"
-  ],
-  "qualifyingFormats": [
-   "KNOCKOUT"
-  ]
+  "vsc": false
  },
  "regulationsProvenance": {
-  "engineFormula": {
-   "status": "f1db"
+  "activeAero": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Drag_reduction_system",
+   "quote": "DRS was removed from Formula One for the 2026 season, and was replaced with an \"active aerodynamics\" system under the new 2026 regulations."
   },
-  "refuelling": {
-   "status": "pending"
+  "aeroTestingRestriction": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2022_Formula_One_World_Championship",
+   "quote": "In 2021, the championship introduced a sliding scale system to regulate aerodynamic testing."
   },
-  "energySystem": {
-   "status": "pending"
+  "budgetCap": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2021_Formula_One_World_Championship",
+   "quote": "The championship introduced a budget cap, with teams limited to spending a maximum of $145 million per year.",
+   "note": "Antes de 2021 no hubo techo de gasto"
   },
   "drs": {
    "status": "source",
-   "url": "https://en.wikipedia.org/wiki/2012_Formula_One_World_Championship",
-   "quote": "disabled the use of the Drag Reduction System (DRS) during a race"
+   "url": "https://en.wikipedia.org/wiki/Drag_reduction_system",
+   "quote": "DRS was used in Formula One from 2011 to 2025, with Jenson Button and Andrea Kimi Antonelli being the first and the last to use it, respectively."
   },
-  "activeAero": {
-   "status": "pending"
+  "energySystem": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Kinetic_energy_recovery_system",
+   "quote": "meant that KERS returned for the 2011 season.",
+   "note": "Opcional por equipo también en 2011-2013 (enmienda propuesta)"
   },
-  "safetyCar": {
-   "status": "pending"
+  "engineFormula": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2014_Formula_One_World_Championship",
+   "quote": "The traditional 2.4 litres (146 cubic inches) naturally-aspirated V8 engines that were used since 2006 (and later became mandatory for all entrants since 2007) until 2013 were permanently retired."
   },
-  "vsc": {
-   "status": "pending"
-  },
-  "tyreType": {
-   "status": "pending"
-  },
-  "tyreChangesInRace": {
-   "status": "pending"
+  "engineFormulas": {
+   "status": "f1db",
+   "note": "Conjunto de fórmulas de los motores de f1db; el generador aborta si no coincide"
   },
   "mandatoryDryCompounds": {
    "status": "source",
    "url": "https://en.wikipedia.org/wiki/2012_Formula_One_World_Championship",
    "quote": "in order to use both compounds of tyre as per the rules"
   },
+  "parcFerme": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Parc_fermé",
+   "quote": "According to the FIA Formula One regulations (used since 2003), the area must be sufficiently large and secure so as to prevent unauthorised access to the cars, while allowing technical checks to take place."
+  },
+  "pointsScheme": {
+   "status": "f1db",
+   "note": "Comprobado por el generador contra los puntos de cada resultado y las clasificaciones de f1db"
+  },
+  "qualifyingFormats": {
+   "status": "f1db"
+  },
   "qualifyingRaceFuel": {
    "status": "pending"
   },
-  "topTenStartTyres": {
-   "status": "pending",
-   "note": "Verificado Q3 para 2010-2011 en https://en.wikipedia.org/wiki/Formula_One_tyres; 2012 pendiente"
+  "refuelling": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Pit_stop",
+   "quote": "Refuelling, now banned in F1 races, was permitted until 1983, and then again from the 1994 season to the 2009 season."
   },
   "rule107": {
    "status": "source",
    "url": "https://en.wikipedia.org/wiki/2012_Formula_One_World_Championship",
    "quote": "failed to set a lap time within 107% of the fastest qualifying time"
   },
-  "pointsScheme": {
-   "status": "f1db"
-  },
-  "budgetCap": {
-   "status": "pending"
-  },
-  "aeroTestingRestriction": {
-   "status": "pending"
-  },
-  "unitLimits": {
-   "status": "pending",
-   "note": "gearboxRaces=5 verificado ('drivers only being allowed to change gearboxes once every five races', 2012_Formula_One_World_Championship); enginesPerDriver=8 pendiente"
-  },
-  "teamOrdersBanned": {
-   "status": "pending"
-  },
-  "parcFerme": {
-   "status": "pending"
+  "safetyCar": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Safety_car",
+   "quote": "Formula One officially introduced safety cars in 1993, after trials were conducted at both the French and British Grands Prix during the preceding 1992 season."
   },
   "sprintWeekends": {
-   "status": "f1db"
+   "status": "f1db",
+   "note": "Rondas con resultados de sprint en f1db"
+  },
+  "teamOrdersBanned": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Team_orders",
+   "quote": "As of 2011, the team orders rule no longer appeared in the sporting regulations."
+  },
+  "topTenStartTyres": {
+   "status": "pending",
+   "note": "Q3 como 2010-2011 (de memoria)"
+  },
+  "tyreChangesInRace": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+   "quote": "For 2006, following the dramatic and highly political 2005 United States Grand Prix, tyre changes were permitted again."
   },
   "tyreSuppliers": {
    "status": "f1db"
   },
-  "qualifyingFormats": {
-   "status": "f1db"
+  "tyreType": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+   "quote": "Slick tyres were reintroduced at the beginning of 2009, along with aerodynamic changes intended to shift the balance towards mechanical grip in an attempt to increase overtaking."
+  },
+  "unitLimits": {
+   "status": "pending",
+   "note": "gearboxRaces=5 verificado en 2011 y 2012 ('drivers only being allowed to change gearboxes once every five races', 2012); 8 motores de memoria"
+  },
+  "vsc": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Safety_car",
+   "quote": "The system was evolved taking into account drivers' feedback and was officially introduced for the 2015 season following ratification by the World Motor Sport Council (WMSC)."
   }
  },
  "calendar": [
@@ -163,7 +200,9 @@
    "scheduledLaps": null,
    "distanceKm": 307.574,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 2,
@@ -184,7 +223,9 @@
    "scheduledLaps": null,
    "distanceKm": 310.408,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 3,
@@ -205,7 +246,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.066,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 4,
@@ -226,7 +269,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.238,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 5,
@@ -247,7 +292,9 @@
    "scheduledLaps": null,
    "distanceKm": 307.104,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 6,
@@ -268,7 +315,9 @@
    "scheduledLaps": null,
    "distanceKm": 260.52,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 7,
@@ -289,7 +338,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.27,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 8,
@@ -310,7 +361,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.883,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 9,
@@ -331,7 +384,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.198,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 10,
@@ -352,7 +407,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.458,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 11,
@@ -373,7 +430,9 @@
    "scheduledLaps": 70,
    "distanceKm": 302.249,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 12,
@@ -394,7 +453,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.052,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 13,
@@ -415,7 +476,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.72,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 14,
@@ -436,7 +499,9 @@
    "scheduledLaps": 61,
    "distanceKm": 299.17,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 15,
@@ -457,7 +522,9 @@
    "scheduledLaps": null,
    "distanceKm": 307.471,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 16,
@@ -478,7 +545,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.63,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 17,
@@ -499,7 +568,9 @@
    "scheduledLaps": null,
    "distanceKm": 307.249,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 18,
@@ -520,7 +591,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.355,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 19,
@@ -541,7 +614,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.405,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 20,
@@ -562,7 +637,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.909,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   }
  ],
  "teams": [
@@ -11176,6 +11253,7 @@
    "retired": "Collision"
   }
  ],
+ "sprintResults": [],
  "standings": {
   "drivers": [
    {
@@ -11367,6 +11445,7 @@
    }
   ]
  },
+ "standingsAdjustments": [],
  "ratings": {
   "method": "v1-qualifying-gap",
   "teams": [
@@ -11858,6 +11937,24 @@
  },
  "events": [
   {
+   "id": "2012-maldonado-spain",
+   "date": "2012-05-13",
+   "round": 5,
+   "anchor": "guided",
+   "kind": "note",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "Barcelona: Maldonado da a Williams su primera victoria desde 2004",
+    "en": "Barcelona: Maldonado gives Williams their first win since 2004"
+   },
+   "body": {
+    "es": "Horas después, un incendio en el garaje de Williams obliga a atender a una treintena de personas.",
+    "en": "Hours later, a fire in the Williams garage leaves about thirty people needing treatment."
+   },
+   "source": "https://en.wikipedia.org/wiki/2012_Spanish_Grand_Prix"
+  },
+  {
    "id": "2012-seven-winners",
    "date": "2012-06-10",
    "round": 7,
@@ -11868,6 +11965,10 @@
    "title": {
     "es": "Siete ganadores distintos en las siete primeras carreras",
     "en": "Seven different winners in the first seven races"
+   },
+   "body": {
+    "es": "Hamilton gana en Montreal y es el séptimo ganador distinto del año.",
+    "en": "Hamilton wins in Montreal and is the year's seventh different winner."
    },
    "source": "https://en.wikipedia.org/wiki/2012_Formula_One_World_Championship"
   },
@@ -11883,7 +11984,29 @@
     "es": "Grosjean, sancionado con una carrera por el choque de la salida en Spa; D'Ambrosio le sustituye en Monza",
     "en": "Grosjean is banned for one race over the Spa start crash; D'Ambrosio replaces him at Monza"
    },
+   "body": {
+    "es": "El accidente de la primera curva deja fuera a varios coches, y Grosjean recibe una carrera de sanción y una multa.",
+    "en": "The first-corner crash takes out several cars, and Grosjean gets a one-race ban and a fine."
+   },
    "source": "https://en.wikipedia.org/wiki/2012_Belgian_Grand_Prix"
+  },
+  {
+   "id": "2012-raikkonen-abu-dhabi",
+   "date": "2012-11-04",
+   "round": 18,
+   "anchor": "guided",
+   "kind": "note",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "Abu Dabi: Räikkönen gana en su año de regreso",
+    "en": "Abu Dhabi: Räikkönen wins in his comeback year"
+   },
+   "body": {
+    "es": "Primera victoria de Lotus F1. Vettel remonta desde el pit lane hasta el podio.",
+    "en": "Lotus F1's first win. Vettel climbs from the pit lane to the podium."
+   },
+   "source": "https://en.wikipedia.org/wiki/2012_Abu_Dhabi_Grand_Prix"
   },
   {
    "id": "2012-austin-debut",
@@ -11896,6 +12019,10 @@
    "title": {
     "es": "El GP de Estados Unidos vuelve, en el nuevo Circuito de las Américas",
     "en": "The United States GP returns, at the new Circuit of the Americas"
+   },
+   "body": {
+    "es": "Hamilton gana la primera carrera en Austin.",
+    "en": "Hamilton wins the first race in Austin."
    },
    "source": "https://en.wikipedia.org/wiki/2012_United_States_Grand_Prix"
   },
@@ -11910,6 +12037,10 @@
    "title": {
     "es": "Vettel, tricampeón en Brasil por tres puntos sobre Alonso",
     "en": "Vettel takes his third title in Brazil, three points ahead of Alonso"
+   },
+   "body": {
+    "es": "Vettel trompea en la primera vuelta y remonta hasta el sexto puesto bajo la lluvia. Button gana la carrera.",
+    "en": "Vettel spins on the first lap and recovers to sixth in the rain. Button wins the race."
    },
    "source": "https://en.wikipedia.org/wiki/2012_Formula_One_World_Championship"
   }

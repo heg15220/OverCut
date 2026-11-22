@@ -5,7 +5,7 @@ import { markAllRead, markRead } from "../engine/inbox";
 import { resolveEvent } from "../engine/events";
 import { useManager } from "./context";
 import { Empty, Panel, Pill } from "./atoms";
-import { eventOutcome, eventText, inboxBody, inboxTitle, t } from "./texts";
+import { FINANCE_INBOX, eventOutcome, eventText, inboxBody, inboxTitle, t } from "./texts";
 
 export function EventChoices({ item, onDone }) {
   const { career, act } = useManager();
@@ -76,6 +76,13 @@ export default function Inbox() {
           <>
             <p>{inboxBody(career, open)}</p>
             {open.kind === "event" && <EventChoices item={open} />}
+            {open.kind === "history-event" && FINANCE_INBOX["history-event"].source(career, open) && (
+              <p className="mn-hint">
+                <a href={FINANCE_INBOX["history-event"].source(career, open)} target="_blank" rel="noopener noreferrer">
+                  {t("Fuente", "Source")}
+                </a>
+              </p>
+            )}
           </>
         ) : (
           <Empty>{t("Elige un mensaje.", "Pick a message.")}</Empty>

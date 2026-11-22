@@ -37,6 +37,11 @@ Reglas:
   instalaciones en `engine/hq/`, finanzas/techo de gasto/patrocinios en `engine/finance/`, junta en `board.js`
   (`data/balance/{hq,finance,sponsors,board}.json`); guardado v3 con migraciones v1→v2→v3 en `save.js`. Pendiente de
   calibrar en fase 5: junta demasiado dura con los grandes y dinero excesivo de los equipos punteros.
+- Fase 5 (cobertura) hecha el 2026-11-22: packs de las 38 temporadas jugables (schema v2, carga bajo demanda en
+  `seasonPacks.js` `ensureSeasonPack`), 238 eventos históricos con fuente y anclas fijas en `engine/history/`
+  (Indianápolis 2005, McLaren 2007, ausencias), modo estricto/libre (`career.mode`, guardado v4) con anclas por carrera
+  (`data/balance/historical-anchors.json`) y banco de validación 7.2 (`overcut/frontend/scripts/validateSeasons.js`,
+  informe en `docs/manager/validation/`): 36/38 temporadas con el campeón real como más probable, Spearman 0,93.
 - Tests del Manager: `CI=true npx react-scripts test --watchAll=false --testPathPattern overcutManager`.
   `npm install` necesita `--legacy-peer-deps` (conflicto previo de react-vis con React 18).
 - Ningún valor de balance en código (RNF-07): va a los packs de temporada con esquema JSON.

@@ -32,15 +32,33 @@ import { classificationOf, createRace, evaluatePlan, runQualifying, runToFinish,
 import { createStepRace, runStepToFinish } from "./sim";
 import { createFinance, financeAfterRace, financeSeasonEnd } from "./finance";
 import { hqAdvance } from "./hq";
+import { deliverHistoryEvents, lineupWithAbsences, raceStarters } from "./history";
 import {
   applyAreaGain, developmentAfterRace, developmentCapLeft as developmentCapLeftOf, gridPenaltiesFor, initDevelopment, raceIncidents,
   rivalDevelopmentStep, seatCar,
 } from "./development";
 import { FEELINGS, SLIDERS, feelingsOf, idealSetup, neutralSetup, practiceRun, satisfactionOf, setupLapTime } from "./setup";
+import anchorBalance from "../data/balance/historical-anchors.json";
 
 export const MANAGER_GAME = "overcut-manager";
-/** Save schema version (RNF-06). v2: parts, designs, expertise and units (RF-DEV-01..08, RF-SIM-14); save.js migrates v1. */
-export const MANAGER_VERSION = 3;
+/**
+ * Save schema version (RNF-06). v2: parts, designs, expertise and units (RF-DEV-01..08, RF-SIM-14);
+ * v3: books, sponsors, HQ (RF-FIN, RF-HQ); v4: historical mode (RF-CAR-05). save.js migrates older saves.
+ */
+export const MANAGER_VERSION = 4;
+
+/**
+ * RF-CAR-05: Histórico estricto or Libre. Strict (the default, data/balance/historical-anchors.json):
+ * rivals the player does not alter tend to their real results race by race (SRS 6.1, guided anchor)
+ * and history pulls them hard between seasons (SRS 6.5, k = seasonMix.strict); fixed-in-strict
+ * events (SRS 6.4) apply. Free: the pack is only the starting point (k = seasonMix.free).
+ */
+export const MODES = { STRICT: "strict", FREE: "free" };
+export const DEFAULT_MODE = anchorBalance.defaultMode === MODES.FREE ? MODES.FREE : MODES.STRICT;
+export const modeOf = (career) => (career?.mode === MODES.FREE ? MODES.FREE : MODES.STRICT);
+export const isStrict = (career) => modeOf(career) === MODES.STRICT;
+/** SRS 6.5: how far history pulls a rival between seasons in this career's mode. */
+export const seasonMixOf = (career) => anchorBalance.seasonMix[modeOf(career)];
 
 export const PHASES = {
   PRESEASON: "preseason",
@@ -115,7 +133,12 @@ export const buildCustomTeam = ({ world, custom, year }) => {
   };
 };
 
-export const createCareer = (context, { year, teamId = null, custom = null, managerName = "", seed = null }) => {
+/**
+ * `mode` is RF-CAR-05's historical mode (default DEFAULT_MODE). `spectator` (validation, criterio
+ * 7.2) runs the season with no principal at all: the nominal team races, develops and is guided as
+ * a rival, and no board, books, events or mail are processed.
+ */
+export const createCareer = (context, { year, teamId = null, custom = null, managerName = "", seed = null, mode = DEFAULT_MODE, spectator = false }) => {
   const careerSeed = seed || `M${year}-${teamId || "custom"}-${Date.now().toString(36)}`;
   const world = seasonWorld(context, year, careerSeed);
   let team = teamId ? world.teams[teamId] : null;
@@ -151,6 +174,8 @@ export const createCareer = (context, { year, teamId = null, custom = null, mana
     game: MANAGER_GAME,
     v: MANAGER_VERSION,
     seed: careerSeed,
+    mode: mode === MODES.FREE ? MODES.FREE : MODES.STRICT,
+    ...(spectator ? { spectator: true } : {}),
     created: new Date().toISOString(),
     managerName: String(managerName || "").trim().slice(0, 32) || "Team Principal",
     startYear: year,
@@ -201,6 +226,8 @@ export const createCareer = (context, { year, teamId = null, custom = null, mana
   addInbox(career, { kind: "objectives" });
   addNews(career, { kind: owner ? "new-team" : "new-principal", teamId: team.id, manager: career.managerName });
   if (isRegulationReset(year + 1)) addInbox(career, { kind: "regulations", year: year + 1 });
+  // RF-INB-02: historical events already due at the start of the career.
+  deliverHistoryEvents(career);
   return career;
 };
 
@@ -212,22 +239,78 @@ export const eraOf = (career) => eraWithRegulations(career.year, career.world.re
 export const currentRace = (career) => career.world.races[career.round] || null;
 
 /** Every car on the grid as the race engine wants it. */
+/** Is this team run by the player (a spectator career has no player)? */
+const playerRuns = (career, teamId) => !career.spectator && teamId === career.teamId;
+
+/**
+ * RF-CAR-05, SRS 6.1 (guided anchor): in strict mode, how many rating points each
+ * rival's car moves this Grand Prix towards the pace it really had that day. The
+ * anchor is what the team really did (car and drivers together: a qualifying gap and
+ * a race result), so it is compared with the team's car plus what its drivers of the
+ * day add, in car-rating points (the era's driver and car weights). Targets are
+ * re-centred on the guided rivals' current mean, so the anchor orders the rivals
+ * without inflating or deflating the field against the player's car. Free mode, the
+ * player's team and a custom team are never guided.
+ */
+export const guidanceFor = (career) => {
+  const anchors = career.world.anchors;
+  if (!isStrict(career) || !anchors) return {};
+  const model = anchorBalance.guidance;
+  const round = career.round;
+  const race = currentRace(career);
+  const era = eraOf(career);
+  const field = career.world.order.map((teamId) => career.world.teams[teamId]).filter(Boolean);
+  const lineups = Object.fromEntries(field.map((team) => [team.id, roundLineup({ world: career.world, team, race, isUser: playerRuns(career, team.id), userTeamId: career.spectator ? null : career.teamId })]));
+  const guided = field.filter((team) => !team.custom && !playerRuns(career, team.id) && lineups[team.id].length && Number.isFinite(anchors[team.id]?.[round]));
+  if (guided.length < 2) return {};
+  const racing = field.filter((team) => lineups[team.id].length);
+  const cars = racing.map((team) => carRatingOf(team.car));
+  const drivers = racing.flatMap((team) => lineups[team.id].map((driver) => driver.rating));
+  const sd = (values) => {
+    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+    return { mean, sd: Math.sqrt(values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / Math.max(1, values.length)) || 1 };
+  };
+  const carMoments = sd(cars);
+  const driverMoments = sd(drivers);
+  const driverToCar = model.driverShare * (era.driverWeight / era.carWeight) * (carMoments.sd / driverMoments.sd);
+  const strengthOf = (team) => {
+    const lineup = lineups[team.id];
+    const driverMean = lineup.reduce((sum, driver) => sum + driver.rating, 0) / lineup.length;
+    return carRatingOf(team.car) + driverToCar * (driverMean - driverMoments.mean);
+  };
+  const current = Object.fromEntries(guided.map((team) => [team.id, strengthOf(team)]));
+  const meanCurrent = guided.reduce((sum, team) => sum + current[team.id], 0) / guided.length;
+  const meanTarget = guided.reduce((sum, team) => sum + anchors[team.id][round], 0) / guided.length;
+  return Object.fromEntries(
+    guided.map((team) => {
+      const pace = model.strength * (anchors[team.id][round] - meanTarget - (current[team.id] - meanCurrent));
+      const reliability = Number.isFinite(team.realReliability) ? model.reliabilityStrength : 0;
+      return [team.id, { pace, reliability, target: team.realReliability }];
+    }),
+  );
+};
+
 export const entrantsFor = (career) => {
   const era = eraOf(career);
   const race = currentRace(career);
   const entrants = [];
+  const guidance = guidanceFor(career);
   career.world.order.forEach((teamId) => {
     const team = career.world.teams[teamId];
     if (!team) return;
-    const isUser = teamId === career.teamId;
+    const isUser = playerRuns(career, teamId);
+    const guide = guidance[teamId];
     // The pit crew and the factory's build quality keep cars running.
     const operations = isUser ? (career.staff.operations?.rating ?? 60) : 50 + team.prestige * 30;
     // Pack seasons: only the teams and drivers really entered in this Grand Prix (SRS 6.1, criterio 7.2).
-    roundLineup({ world: career.world, team, race, isUser }).forEach((driver, index) => {
+    const lineup = roundLineup({ world: career.world, team, race, isUser, userTeamId: career.spectator ? null : career.teamId });
+    // SRS 6.1 fixed anchors: the player's driver who really missed this GP (injury, ban) is replaced by the reserve.
+    (isUser ? lineupWithAbsences(career, team, lineup) : lineup).forEach((driver, index) => {
       // RF-DEV-01: each car races on its own loadout (the same areas as team.car on day one).
       const car = seatCar(team, driver.id, index);
       const { powerBias, aeroBias } = biasesOf(car);
-      const reliability = clamp(reliabilityOf(car, era) + (operations - 60) * 0.0009, 0.25, 0.99);
+      const own = reliabilityOf(car, era) + (operations - 60) * 0.0009;
+      const reliability = clamp(guide?.reliability ? own + guide.reliability * (guide.target - own) : own, 0.25, 0.99);
       const morale = ((driver.morale ?? 70) - 65) * (isUser ? 0.05 : 0.01);
       entrants.push({
         id: driver.id,
@@ -239,7 +322,7 @@ export const entrantsFor = (career) => {
         short: team.short,
         color: team.color,
         color2: team.color2,
-        carRating: carRatingOf(car),
+        carRating: carRatingOf(car) + (guide?.pace ?? 0),
         reliability,
         developmentSlope: 0,
         powerBias,
@@ -261,8 +344,9 @@ const crewsFor = (career) => {
   const crews = {};
   const strategists = {};
   Object.values(career.world.teams).forEach((team) => {
-    crews[team.id] = team.id === career.teamId ? career.staff.operations?.rating ?? 60 : 48 + team.prestige * 34;
-    strategists[team.id] = team.id === career.teamId ? career.staff.engineering?.rating ?? 60 : 45 + team.prestige * 35;
+    const own = playerRuns(career, team.id);
+    crews[team.id] = own ? career.staff.operations?.rating ?? 60 : 48 + team.prestige * 34;
+    strategists[team.id] = own ? career.staff.engineering?.rating ?? 60 : 45 + team.prestige * 35;
   });
   return { crews, strategists };
 };
@@ -450,7 +534,8 @@ export const weekendRaceArgs = (career) => {
   if (!weekend) return null;
   if (!weekend.qualifying) runQualifyingSession(career, {});
   const race = currentRace(career);
-  const entrants = entrantsFor(career);
+  // SRS 6.1/6.4 fixed anchors: only the real starters (Indianapolis 2005: the six Bridgestone cars).
+  const entrants = raceStarters(career, entrantsFor(career));
   const stream = substream(weekendSeed(career), "plans");
   const base = defaultPlan(career);
   const plans = {};
@@ -645,6 +730,8 @@ export const closeWeekend = (career) => {
   const summary = weekend.result;
   const raceCount = career.world.races.length;
 
+  if (career.spectator) return closeSpectatorWeekend(career, summary, raceCount);
+
   progressDevelopment(career);
   // RF-HQ-01/02: building upgrades progress, maintenance and wear.
   hqAdvance(career, 1);
@@ -667,8 +754,24 @@ export const closeWeekend = (career) => {
   career.round += 1;
   career.globalRound += 1;
   if (!career.ended) maybeEvent(career);
+  // RF-INB-02: historical events due before the next GP.
+  deliverHistoryEvents(career);
 
   if (career.round >= raceCount) endSeason(career);
+  return { stops: career.flags.stops, summary };
+};
+
+/** A spectator's weekend (criterio 7.2): the grid develops, nobody manages anything. */
+const closeSpectatorWeekend = (career, summary, raceCount) => {
+  developmentAfterRace(career);
+  rivalDevelopment(career);
+  career.weekend = null;
+  career.round += 1;
+  career.globalRound += 1;
+  if (career.round >= raceCount) {
+    career.phase = PHASES.REVIEW;
+    career.flags.stops.push({ kind: "season-review" });
+  }
   return { stops: career.flags.stops, summary };
 };
 
@@ -691,7 +794,9 @@ const progressDevelopment = (career) => {
 };
 
 /** Rivals develop through their parts with aiDevelopmentStep's season-long amount (RF-DEV-04, task 9). */
-const rivalDevelopment = (career) => rivalDevelopmentStep(career, aiDevelopmentStep);
+const rivalDevelopment = (career) =>
+  // A spectator's nominal team develops like every other rival (the shallow copy shares the world).
+  rivalDevelopmentStep(career.spectator ? { ...career, teamId: null } : career, aiDevelopmentStep);
 
 
 // ------------------------------------------------------------ R&D

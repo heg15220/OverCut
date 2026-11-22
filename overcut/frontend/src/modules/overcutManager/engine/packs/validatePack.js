@@ -14,8 +14,12 @@
  *      - "Fijo" anchors (6.1): one seat per driver per round, the tyre
  *        suppliers and qualifying formats the regulations declare are the ones
  *        the entries and calendar actually use;
- *      - the points every real result carries match the points scheme, and
- *        the constructors' table adds up;
+ *      - the points every real result and sprint carries match the points
+ *        scheme (with the round's real points factor: half points, double
+ *        points), and both tables add up under the year's rules (dropped
+ *        scores, best car only) plus the documented adjustments;
+ *      - rounds f1db has not raced yet (current season) carry only the
+ *        projected grid and no results;
  *      - RF-HIS-00: a sensitive event is only ever a note.
  *
  * Returns { ok, errors, warnings }. Warnings never block play: today they
@@ -69,7 +73,7 @@ const duplicates = (items) => {
 };
 
 const checkReferences = (pack, errors) => {
-  const { calendar, teams, drivers, entries, realResults, standings, ratings, events } = pack;
+  const { calendar, teams, drivers, entries, realResults, sprintResults, standings, standingsAdjustments, ratings, events } = pack;
   const rounds = new Set(calendar.map((race) => race.round));
   const teamIds = new Set(teams.map((team) => team.id));
   const driverIds = new Set(drivers.map((driver) => driver.id));
@@ -99,11 +103,33 @@ const checkReferences = (pack, errors) => {
     if (entries.filter((entry) => entry.round === race.round).length < 2) errors.push(`entries: la ronda ${race.round} no tiene parrilla`);
   });
 
+  const raced = new Set(calendar.filter((race) => race.resultsAvailable).map((race) => race.round));
   realResults.forEach((result) => {
     if (seat.get(`${result.round}:${result.driverId}`) !== result.teamId) {
       errors.push(`realResults: ${result.driverId} no estaba inscrito con ${result.teamId} en la ronda ${result.round}`);
     }
+    if (!raced.has(result.round)) errors.push(`realResults: la ronda ${result.round} tiene resultados pero figura sin disputar`);
   });
+  sprintResults.forEach((result) => {
+    if (seat.get(`${result.round}:${result.driverId}`) !== result.teamId) {
+      errors.push(`sprintResults: ${result.driverId} no estaba inscrito con ${result.teamId} en la ronda ${result.round}`);
+    }
+    if (!calendar.find((race) => race.round === result.round)?.sprint) errors.push(`sprintResults: la ronda ${result.round} no es un fin de semana sprint`);
+  });
+  // A round not raced yet (current season) only has the projected grid; a raced one never has a projected seat.
+  entries.forEach((entry) => {
+    if (Boolean(entry.projected) === raced.has(entry.round)) {
+      errors.push(`entries: ${entry.driverId} en la ronda ${entry.round} ${entry.projected ? "es una proyección en una ronda disputada" : "no puede ser real en una ronda sin disputar"}`);
+    }
+  });
+  standingsAdjustments.forEach((adjustment) => {
+    const known = adjustment.table === "drivers" ? driverIds : teamIds;
+    if (!known.has(adjustment.id)) errors.push(`standingsAdjustments: ${adjustment.id} no está en la temporada`);
+    if (adjustment.round !== null && !rounds.has(adjustment.round)) errors.push(`standingsAdjustments: ronda inexistente ${adjustment.round}`);
+    if (adjustment.provenance.status === "pending") errors.push(`standingsAdjustments: ${adjustment.id} no tiene fuente`);
+  });
+  duplicates(standings.drivers.map((row) => row.driverId)).forEach((id) => errors.push(`standings: piloto repetido ${id}`));
+  duplicates(standings.constructors.map((row) => row.teamId)).forEach((id) => errors.push(`standings: equipo repetido ${id}`));
   standings.drivers.forEach((row) => driverIds.has(row.driverId) || errors.push(`standings: piloto desconocido ${row.driverId}`));
   standings.constructors.forEach((row) => teamIds.has(row.teamId) || errors.push(`standings: equipo desconocido ${row.teamId}`));
   ratings.teams.forEach((row) => teamIds.has(row.teamId) || errors.push(`ratings: equipo desconocido ${row.teamId}`));
@@ -139,37 +165,90 @@ const checkRegulationsAgainstData = (pack, errors) => {
 
   teams.forEach((team) =>
     team.engines.forEach((engine) => {
-      if (engine.formula !== regulations.engineFormula) {
-        errors.push(`teams: el motor ${engine.id} de ${team.id} es ${engine.formula}, no ${regulations.engineFormula}`);
+      if (!regulations.engineFormulas.includes(engine.formula)) {
+        errors.push(`teams: el motor ${engine.id} de ${team.id} es ${engine.formula}, fuera de ${JSON.stringify(regulations.engineFormulas)}`);
       }
     })
   );
 };
 
+/** A season total under the dropped-scores rules: best N, or best N of each block of rounds (1976). */
+const counted = (byRound, scheme, lastRound) => {
+  const best = (values, n) => [...values].sort((a, b) => b - a).slice(0, n).reduce((sum, value) => sum + value, 0);
+  const span = (from, to) => Array.from({ length: to - from + 1 }, (_, index) => byRound[from + index] || 0);
+  if (scheme.bestResultsSplit) return scheme.bestResultsSplit.reduce((sum, block) => sum + best(span(block.fromRound, block.toRound), block.best), 0);
+  if (scheme.bestResults) return best(span(1, lastRound), scheme.bestResults);
+  return Object.values(byRound).reduce((sum, value) => sum + value, 0);
+};
+
+/**
+ * What the drivers' and constructors' tables must say, from the pack's own
+ * results and rules: race and sprint points, best car only, dropped scores
+ * (for the constructors only when `dropScoresConstructors`), adjustments.
+ */
+export const standingsFromResults = (pack) => {
+  const scheme = pack.regulations.pointsScheme;
+  const lastRound = pack.calendar.length;
+  const drivers = {};
+  const teams = {};
+  const add = (table, id, round, points, keepBest = false) => {
+    const row = (table[id] ||= {});
+    row[round] = keepBest ? Math.max(row[round] || 0, points) : (row[round] || 0) + points;
+  };
+  pack.realResults.forEach((result) => {
+    add(drivers, result.driverId, result.round, result.points);
+    add(teams, result.teamId, result.round, result.points, scheme.constructorsBestCarOnly);
+  });
+  pack.sprintResults.forEach((result) => {
+    add(drivers, result.driverId, result.round, result.points);
+    add(teams, result.teamId, result.round, result.points);
+  });
+  const teamScheme = scheme.dropScoresConstructors ? scheme : { ...scheme, bestResults: null, bestResultsSplit: null };
+  const totals = {
+    drivers: Object.fromEntries(Object.entries(drivers).map(([id, byRound]) => [id, counted(byRound, scheme, lastRound)])),
+    constructors: Object.fromEntries(Object.entries(teams).map(([id, byRound]) => [id, counted(byRound, teamScheme, lastRound)])),
+  };
+  pack.standingsAdjustments.forEach((adjustment) => {
+    totals[adjustment.table][adjustment.id] = (totals[adjustment.table][adjustment.id] || 0) + adjustment.points;
+  });
+  return totals;
+};
+
 const checkPoints = (pack, errors) => {
   const { pointsScheme } = pack.regulations;
   const lastRound = pack.calendar.length;
+  const factor = Object.fromEntries(pack.calendar.map((race) => [race.round, race.pointsFactor]));
+  if (pointsScheme.doubleLastRace !== (factor[lastRound] === 2)) {
+    errors.push(`points: doubleLastRace = ${pointsScheme.doubleLastRace} pero la última ronda tiene factor ${factor[lastRound]}`);
+  }
   pack.realResults.forEach((result) => {
     let expected = 0;
     if (result.position !== null && result.position <= pointsScheme.race.length) expected = pointsScheme.race[result.position - 1];
     if (result.position !== null && result.fastestLap && pointsScheme.fastestLap && result.position <= 10) expected += pointsScheme.fastestLap;
-    if (pointsScheme.doubleLastRace && result.round === lastRound) expected *= 2;
+    expected *= factor[result.round] ?? 1;
     if (Math.abs(result.points - expected) > 1e-9) {
       errors.push(`points: ${result.driverId} en la ronda ${result.round} tiene ${result.points} y el esquema da ${expected}`);
     }
   });
+  pack.sprintResults.forEach((result) => {
+    const expected = result.position !== null && result.position <= pointsScheme.sprint.length ? pointsScheme.sprint[result.position - 1] : 0;
+    if (Math.abs(result.points - expected) > 1e-9) {
+      errors.push(`points: ${result.driverId} en el sprint de la ronda ${result.round} tiene ${result.points} y el esquema da ${expected}`);
+    }
+  });
 
-  if (!pointsScheme.constructorsBestCarOnly) {
-    const totals = {};
-    pack.realResults.forEach((result) => {
-      totals[result.teamId] = (totals[result.teamId] || 0) + result.points;
-    });
-    pack.standings.constructors.forEach((row) => {
-      if (Math.abs((totals[row.teamId] || 0) - row.points) > 1e-9) {
-        errors.push(`standings: ${row.teamId} suma ${totals[row.teamId] || 0} en carreras y la tabla dice ${row.points}`);
+  const totals = standingsFromResults(pack);
+  [
+    ["drivers", "driverId"],
+    ["constructors", "teamId"],
+  ].forEach(([table, key]) =>
+    pack.standings[table].forEach((row) => {
+      const total = totals[table][row[key]] || 0;
+      if (Math.abs(total - row.points) > 1e-9) {
+        errors.push(`standings: ${row[key]} suma ${total} con el reglamento del año y la tabla dice ${row.points}`);
       }
-    });
-  }
+    }),
+  );
 };
 
 const checkProvenance = (pack, errors, warnings) => {
@@ -181,9 +260,20 @@ const checkProvenance = (pack, errors, warnings) => {
   });
 };
 
+/** Does a decade release (`coches-80s`) cover the year? */
+const decadeCovers = (release, year) => {
+  const match = /coches-(\d)0s\b/.exec(release);
+  if (!match) return false;
+  const digit = Number(match[1]);
+  const start = (digit >= 5 ? 1900 : 2000) + digit * 10;
+  return year >= start && year <= start + 9;
+};
+
 const checkAssets = (pack, errors) => {
   pack.teams.forEach((team) => {
-    if (team.car && !team.car.release.includes(String(pack.year)) && !team.car.file.includes(String(pack.year))) {
+    const named = team.car && (team.car.release.includes(String(pack.year)) || team.car.file.includes(String(pack.year)));
+    // A decade release only proves the decade: the curated entry (car-assets.json) vouches for the year.
+    if (team.car && !named && !decadeCovers(team.car.release, pack.year)) {
       errors.push(`teams: el GLB ${team.car.file} de ${team.id} no es de ${pack.year}`);
     }
   });

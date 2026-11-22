@@ -8,6 +8,7 @@
 
 import { localizeRaceName } from "../../overcutTrayectoria/engine/circuits";
 import { formatMoney } from "../engine/economy";
+import { findHistoryEvent } from "../engine/history";
 
 const detectLocale = () => {
   if (typeof navigator === "undefined") return "es";
@@ -510,7 +511,7 @@ export const newsText = (career, item) => {
     case "history":
       return t(`Arranca ${item.year}: la parrilla real de aquel año, salvo lo que tú has cambiado`, `${item.year} begins: that year's real grid, except what you changed`);
     default:
-      return "";
+      return NEWS_EXTRA[item.kind] ? NEWS_EXTRA[item.kind](career, item) : "";
   }
 };
 
@@ -754,4 +755,32 @@ export const FINANCE_INBOX = {
         `Overspend of ${item.overPct}% (${item.band}). Fine: ${money(item.fine)}. ${item.factor < 1 ? `Next year tunnel and CFD yield ${Math.round((1 - item.factor) * 100)}% less.` : ""}`,
       ),
   },
+};
+
+// ------------------------------------------------------- history (RF-INB-02)
+
+/** The curated event behind a "history-event" item, in the player's language. */
+const historyText = (item) => {
+  const event = findHistoryEvent(item.eventYear ?? item.year, item.eventId);
+  const pick = (text) => (text ? text[locale] || text.es || text.en : "");
+  return { title: pick(event?.title), body: pick(event?.body), source: event?.source || null };
+};
+
+/** Fixed facts read as history; guided ones as what happened in the real season (RF-HIS-00: sensitive ones as a sober note). */
+const historyLabel = (item) =>
+  item.sensitive ? t("En memoria", "In memoriam") : item.anchor === "guided" ? t("En la historia real", "In real history") : t("Historia", "History");
+
+FINANCE_INBOX["history-event"] = {
+  title: (career, item) => `${historyLabel(item)} · ${historyText(item).title || item.eventId}`,
+  body: (career, item) => {
+    const { body } = historyText(item);
+    const note = item.constraint ? t(" Es un hecho fijo de la temporada: la simulación lo respeta.", " It is a fixed fact of the season: the simulation follows it.") : "";
+    return `${shortDate(item.date)}. ${body}${note}`;
+  },
+  source: (career, item) => historyText(item).source,
+};
+
+/** News kinds added after the switch above. */
+const NEWS_EXTRA = {
+  "history-event": (career, item) => `${historyLabel(item)}: ${historyText(item).title || item.eventId}`,
 };

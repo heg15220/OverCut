@@ -1,7 +1,7 @@
 {
- "schemaVersion": 1,
+ "schemaVersion": 2,
  "year": 2008,
- "packVersion": "1.0.0",
+ "packVersion": "2.0.0",
  "sources": [
   {
    "name": "f1db",
@@ -17,19 +17,17 @@
   }
  ],
  "regulations": {
-  "engineFormula": "2.4 V8",
-  "refuelling": true,
-  "energySystem": "none",
-  "drs": false,
   "activeAero": false,
-  "safetyCar": true,
-  "vsc": false,
-  "tyreType": "grooved",
-  "tyreChangesInRace": true,
+  "aeroTestingRestriction": false,
+  "budgetCap": null,
+  "drs": false,
+  "energySystem": "none",
+  "engineFormula": "2.4 V8",
+  "engineFormulas": [
+   "2.4 V8"
+  ],
   "mandatoryDryCompounds": 2,
-  "qualifyingRaceFuel": true,
-  "topTenStartTyres": "none",
-  "rule107": false,
+  "parcFerme": true,
   "pointsScheme": {
    "race": [
     10,
@@ -46,96 +44,140 @@
    "sprint": [],
    "doubleLastRace": false,
    "bestResults": null,
-   "constructorsBestCarOnly": false
+   "bestResultsSplit": null,
+   "constructorsBestCarOnly": false,
+   "dropScoresConstructors": false
   },
-  "budgetCap": null,
-  "aeroTestingRestriction": false,
+  "qualifyingFormats": [
+   "KNOCKOUT"
+  ],
+  "qualifyingRaceFuel": true,
+  "refuelling": true,
+  "rule107": false,
+  "safetyCar": true,
+  "sprintWeekends": 0,
+  "teamOrdersBanned": true,
+  "topTenStartTyres": "none",
+  "tyreChangesInRace": true,
+  "tyreSuppliers": [
+   "bridgestone"
+  ],
+  "tyreType": "grooved",
   "unitLimits": {
    "enginesPerDriver": null,
    "engineRaceWeekends": 2,
    "gearboxRaces": 4
   },
-  "teamOrdersBanned": true,
-  "parcFerme": true,
-  "sprintWeekends": 0,
-  "tyreSuppliers": [
-   "bridgestone"
-  ],
-  "qualifyingFormats": [
-   "KNOCKOUT"
-  ]
+  "vsc": false
  },
  "regulationsProvenance": {
-  "engineFormula": {
-   "status": "f1db"
+  "activeAero": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Drag_reduction_system",
+   "quote": "DRS was removed from Formula One for the 2026 season, and was replaced with an \"active aerodynamics\" system under the new 2026 regulations."
   },
-  "refuelling": {
-   "status": "pending"
+  "aeroTestingRestriction": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2022_Formula_One_World_Championship",
+   "quote": "In 2021, the championship introduced a sliding scale system to regulate aerodynamic testing."
   },
-  "energySystem": {
-   "status": "pending"
+  "budgetCap": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2021_Formula_One_World_Championship",
+   "quote": "The championship introduced a budget cap, with teams limited to spending a maximum of $145 million per year.",
+   "note": "Antes de 2021 no hubo techo de gasto"
   },
   "drs": {
-   "status": "pending"
-  },
-  "activeAero": {
-   "status": "pending"
-  },
-  "safetyCar": {
-   "status": "pending"
-  },
-  "vsc": {
-   "status": "pending"
-  },
-  "tyreType": {
    "status": "source",
-   "url": "https://en.wikipedia.org/wiki/2008_Formula_One_World_Championship",
-   "quote": "This was also the last Formula One season to race with grooved tyres"
+   "url": "https://en.wikipedia.org/wiki/Drag_reduction_system",
+   "quote": "DRS was used in Formula One from 2011 to 2025, with Jenson Button and Andrea Kimi Antonelli being the first and the last to use it, respectively."
   },
-  "tyreChangesInRace": {
-   "status": "pending"
+  "energySystem": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Kinetic_energy_recovery_system",
+   "quote": "the FIA allowed the use of 60 kW (82 PS; 80 bhp) KERS in the regulations for the 2009 Formula One season.",
+   "note": "KERS se permite por primera vez en 2009"
+  },
+  "engineFormula": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2014_Formula_One_World_Championship",
+   "quote": "The traditional 2.4 litres (146 cubic inches) naturally-aspirated V8 engines that were used since 2006 (and later became mandatory for all entrants since 2007) until 2013 were permanently retired."
+  },
+  "engineFormulas": {
+   "status": "f1db",
+   "note": "Conjunto de fórmulas de los motores de f1db; el generador aborta si no coincide"
   },
   "mandatoryDryCompounds": {
-   "status": "pending"
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+   "quote": "Both compounds have to be used by each car during a race and the softer tyre had a painted white stripe in the second groove to distinguish between compounds."
+  },
+  "parcFerme": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Parc_fermé",
+   "quote": "According to the FIA Formula One regulations (used since 2003), the area must be sufficiently large and secure so as to prevent unauthorised access to the cars, while allowing technical checks to take place."
+  },
+  "pointsScheme": {
+   "status": "f1db",
+   "note": "Comprobado por el generador contra los puntos de cada resultado y las clasificaciones de f1db"
+  },
+  "qualifyingFormats": {
+   "status": "f1db"
   },
   "qualifyingRaceFuel": {
    "status": "source",
    "url": "https://en.wikipedia.org/wiki/2008_Formula_One_World_Championship",
    "quote": "Teams taking part in Q3 would no longer be allowed to add fuel back to the car after qualifying"
   },
-  "topTenStartTyres": {
-   "status": "pending"
+  "refuelling": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Pit_stop",
+   "quote": "Refuelling, now banned in F1 races, was permitted until 1983, and then again from the 1994 season to the 2009 season."
   },
   "rule107": {
-   "status": "pending"
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Formula_One_qualifying",
+   "quote": "The 107% rule was removed in 2003 since the FIA's rules indicated previously that 24 cars could take the start of a Formula One race, and a minimum of twenty cars had to enter a race."
   },
-  "pointsScheme": {
+  "safetyCar": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Safety_car",
+   "quote": "Formula One officially introduced safety cars in 1993, after trials were conducted at both the French and British Grands Prix during the preceding 1992 season."
+  },
+  "sprintWeekends": {
+   "status": "f1db",
+   "note": "Rondas con resultados de sprint en f1db"
+  },
+  "teamOrdersBanned": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Team_orders",
+   "quote": "After the 2002 season, FIA announced that \"Team Orders that could influence the outcome of a race\" were banned, although they were sometimes still implemented discreetly."
+  },
+  "topTenStartTyres": {
+   "status": "pending",
+   "note": "Sin regla de neumático de salida para los diez primeros (de memoria)"
+  },
+  "tyreChangesInRace": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+   "quote": "For 2006, following the dramatic and highly political 2005 United States Grand Prix, tyre changes were permitted again."
+  },
+  "tyreSuppliers": {
    "status": "f1db"
   },
-  "budgetCap": {
-   "status": "pending"
-  },
-  "aeroTestingRestriction": {
-   "status": "pending"
+  "tyreType": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+   "quote": "In 1998, grooved tyres were introduced with three groove lines in the front tyres and four groove lines in the rear tyres."
   },
   "unitLimits": {
    "status": "pending",
    "note": "gearboxRaces=4 verificado ('Gearboxes were required to last four races', 2008_Formula_One_World_Championship); engineRaceWeekends=2 pendiente"
   },
-  "teamOrdersBanned": {
-   "status": "pending"
-  },
-  "parcFerme": {
-   "status": "pending"
-  },
-  "sprintWeekends": {
-   "status": "f1db"
-  },
-  "tyreSuppliers": {
-   "status": "f1db"
-  },
-  "qualifyingFormats": {
-   "status": "f1db"
+  "vsc": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Safety_car",
+   "quote": "The system was evolved taking into account drivers' feedback and was officially introduced for the 2015 season following ratification by the World Motor Sport Council (WMSC)."
   }
  },
  "calendar": [
@@ -158,7 +200,9 @@
    "scheduledLaps": null,
    "distanceKm": 307.574,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 2,
@@ -179,7 +223,9 @@
    "scheduledLaps": null,
    "distanceKm": 310.408,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 3,
@@ -200,7 +246,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.238,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 4,
@@ -221,7 +269,9 @@
    "scheduledLaps": null,
    "distanceKm": 307.104,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 5,
@@ -242,7 +292,9 @@
    "scheduledLaps": null,
    "distanceKm": 309.396,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 6,
@@ -263,7 +315,9 @@
    "scheduledLaps": 78,
    "distanceKm": 253.84,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 7,
@@ -284,7 +338,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.27,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 8,
@@ -305,7 +361,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.77,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 9,
@@ -326,7 +384,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.355,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 10,
@@ -347,7 +407,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.458,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 11,
@@ -368,7 +430,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.63,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 12,
@@ -389,7 +453,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.883,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 13,
@@ -410,7 +476,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.052,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 14,
@@ -431,7 +499,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.72,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 15,
@@ -452,7 +522,9 @@
    "scheduledLaps": null,
    "distanceKm": 309.316,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 16,
@@ -473,7 +545,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.721,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 17,
@@ -494,7 +568,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.066,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 18,
@@ -515,7 +591,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.909,
    "qualifyingFormat": "KNOCKOUT",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   }
  ],
  "teams": [
@@ -8727,6 +8805,7 @@
    "retired": "Collision"
   }
  ],
+ "sprintResults": [],
  "standings": {
   "drivers": [
    {
@@ -8898,6 +8977,7 @@
    }
   ]
  },
+ "standingsAdjustments": [],
  "ratings": {
   "method": "v1-qualifying-gap",
   "teams": [
@@ -9336,6 +9416,24 @@
  },
  "events": [
   {
+   "id": "2008-no-traction-control",
+   "date": "2008-03-16",
+   "round": 1,
+   "anchor": "fixed",
+   "kind": "constraint",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "Centralita única y sin control de tracción",
+    "en": "A standard ECU and no traction control"
+   },
+   "body": {
+    "es": "Hamilton gana en Melbourne en una carrera de abandonos.",
+    "en": "Hamilton wins in Melbourne in a race of attrition."
+   },
+   "source": "https://en.wikipedia.org/wiki/2008_Australian_Grand_Prix"
+  },
+  {
    "id": "2008-super-aguri-withdraws",
    "date": "2008-05-06",
    "round": null,
@@ -9347,7 +9445,65 @@
     "es": "Super Aguri abandona la Fórmula 1 tras el GP de España por falta de financiación",
     "en": "Super Aguri leaves Formula 1 after the Spanish GP for lack of funding"
    },
+   "body": {
+    "es": "El equipo de Aguri Suzuki corre las cuatro primeras carreras y desaparece; la parrilla queda en 20 coches.",
+    "en": "Aguri Suzuki's team races the first four rounds and folds; the grid drops to 20 cars."
+   },
    "source": "https://en.wikipedia.org/wiki/Super_Aguri_F1"
+  },
+  {
+   "id": "2008-kubica-first-win",
+   "date": "2008-06-08",
+   "round": 7,
+   "anchor": "guided",
+   "kind": "note",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "Montreal: primera victoria de Kubica y de BMW Sauber",
+    "en": "Montreal: a first win for Kubica and for BMW Sauber"
+   },
+   "body": {
+    "es": "Hamilton choca con Räikkönen en la salida del pit lane.",
+    "en": "Hamilton runs into Räikkönen at the pit-lane exit."
+   },
+   "source": "https://en.wikipedia.org/wiki/2008_Canadian_Grand_Prix"
+  },
+  {
+   "id": "2008-spa-hamilton-penalty",
+   "date": "2008-09-07",
+   "round": 13,
+   "anchor": "guided",
+   "kind": "note",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "Spa: Hamilton cruza primero, pero una sanción da la victoria a Massa",
+    "en": "Spa: Hamilton finishes first, but a penalty hands the win to Massa"
+   },
+   "body": {
+    "es": "Los comisarios le añaden 25 segundos por atajar en la chicane antes de adelantar a Räikkönen.",
+    "en": "The stewards add 25 seconds for cutting the chicane before passing Räikkönen."
+   },
+   "source": "https://en.wikipedia.org/wiki/2008_Belgian_Grand_Prix"
+  },
+  {
+   "id": "2008-vettel-monza",
+   "date": "2008-09-14",
+   "round": 14,
+   "anchor": "guided",
+   "kind": "note",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "Monza: Vettel gana con Toro Rosso bajo la lluvia",
+    "en": "Monza: Vettel wins for Toro Rosso in the rain"
+   },
+   "body": {
+    "es": "Con 21 años, es el ganador más joven hasta entonces.",
+    "en": "Aged 21, he becomes the youngest winner yet."
+   },
+   "source": "https://en.wikipedia.org/wiki/2008_Italian_Grand_Prix"
   },
   {
    "id": "2008-singapore-night-race",
@@ -9356,10 +9512,14 @@
    "anchor": "fixed",
    "kind": "note",
    "sensitive": false,
-   "verification": "pending",
+   "verification": "data",
    "title": {
     "es": "Primer Gran Premio nocturno de la historia, en Marina Bay",
     "en": "The first night race in Formula 1 history, at Marina Bay"
+   },
+   "body": {
+    "es": "Alonso gana con Renault en Marina Bay.",
+    "en": "Alonso wins for Renault at Marina Bay."
    },
    "source": "https://en.wikipedia.org/wiki/2008_Singapore_Grand_Prix"
   },
@@ -9374,6 +9534,10 @@
    "title": {
     "es": "Hamilton gana el título por un punto en la última vuelta de Interlagos; Ferrari, campeón de constructores",
     "en": "Hamilton wins the title by one point on the final lap at Interlagos; Ferrari take the constructors' title"
+   },
+   "body": {
+    "es": "Massa gana en casa y es campeón durante unos segundos, hasta que Hamilton adelanta a Glock en la última curva y acaba quinto.",
+    "en": "Massa wins at home and is champion for a few seconds, until Hamilton passes Glock at the final corner to finish fifth."
    },
    "source": "https://en.wikipedia.org/wiki/2008_Formula_One_World_Championship"
   }

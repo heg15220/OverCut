@@ -1,0 +1,1337 @@
+{
+ "generated": "2026-11-22T16:33:37.381Z",
+ "mode": "free",
+ "runsPerSeason": 1000,
+ "sets": [],
+ "timing": {
+  "seconds": 855.842,
+  "runs": 38000,
+  "workers": 15
+ },
+ "verdict": {
+  "seasons": 38,
+  "championHits": 28,
+  "championShare": 0.7368421052631579,
+  "meanSpearman": 0.901215248786302,
+  "pass": true
+ },
+ "seasons": [
+  {
+   "year": 1976,
+   "runs": 1000,
+   "realChampion": "ferrari",
+   "realChampionShare": 0.041,
+   "realChampionRank": 2,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 0.94
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.041
+    },
+    {
+     "teamId": "tyrrell",
+     "share": 0.019
+    }
+   ],
+   "meanSpearman": 0.8638846153846151,
+   "sdSpearman": 0.0438415879835574,
+   "meanPosition": {
+    "mclaren": 1.071,
+    "ferrari": 2.345,
+    "tyrrell": 2.726,
+    "penske": 5.032,
+    "march": 4.599,
+    "brabham": 5.899,
+    "lotus": 6.353,
+    "ligier": 8.7,
+    "fittipaldi": 11.286,
+    "surtees": 10.665,
+    "shadow": 9.433,
+    "parnelli": 12.916,
+    "ensign": 13.457,
+    "hesketh": 14.829,
+    "wolf-williams": 13.192,
+    "boro": 16.188,
+    "maki": 18.135,
+    "kojima": 15.492,
+    "brm": 17.682
+   }
+  },
+  {
+   "year": 1986,
+   "runs": 1000,
+   "realChampion": "williams",
+   "realChampionShare": 0.814,
+   "realChampionRank": 1,
+   "mostProbable": "williams",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "williams",
+     "share": 0.814
+    },
+    {
+     "teamId": "lotus",
+     "share": 0.185
+    },
+    {
+     "teamId": "mclaren",
+     "share": 0.001
+    }
+   ],
+   "meanSpearman": 0.8778060606060583,
+   "sdSpearman": 0.05151515365633011,
+   "meanPosition": {
+    "williams": 1.189,
+    "lotus": 1.883,
+    "mclaren": 3.17,
+    "ferrari": 5.508,
+    "benetton": 4.458,
+    "ligier": 5.07,
+    "lola": 7.899,
+    "tyrrell": 8.911,
+    "brabham": 7.257,
+    "arrows": 9.91,
+    "zakspeed": 11.144,
+    "minardi": 12.048,
+    "osella": 12.681,
+    "ags": 13.872
+   }
+  },
+  {
+   "year": 1988,
+   "runs": 1000,
+   "realChampion": "mclaren",
+   "realChampionShare": 0.999,
+   "realChampionRank": 1,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 0.999
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.001
+    }
+   ],
+   "meanSpearman": 0.9245575757575802,
+   "sdSpearman": 0.03661117152148855,
+   "meanPosition": {
+    "mclaren": 1.001,
+    "ferrari": 2.003,
+    "lotus": 3.027,
+    "arrows": 6.337,
+    "benetton": 4.325,
+    "williams": 5.806,
+    "march": 5.544,
+    "lola": 10.353,
+    "minardi": 10.896,
+    "tyrrell": 9.793,
+    "ags": 11.937,
+    "rial": 10.517,
+    "coloni": 16.664,
+    "dallara": 12.225,
+    "ligier": 13.362,
+    "zakspeed": 15.551,
+    "eurobrun": 14.185,
+    "osella": 17.474
+   }
+  },
+  {
+   "year": 1990,
+   "runs": 1000,
+   "realChampion": "mclaren",
+   "realChampionShare": 1,
+   "realChampionRank": 1,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.8468484848484868,
+   "sdSpearman": 0.04505699701076334,
+   "meanPosition": {
+    "mclaren": 1,
+    "ferrari": 2.52,
+    "tyrrell": 2.777,
+    "benetton": 4.308,
+    "williams": 4.395,
+    "brabham": 7.067,
+    "minardi": 6.841,
+    "lola": 8.941,
+    "dallara": 10.587,
+    "ligier": 11.47,
+    "osella": 14.189,
+    "lotus": 9.105,
+    "leyton-house": 10.414,
+    "arrows": 12.55,
+    "life": 18.412,
+    "ags": 15.7,
+    "eurobrun": 16.301,
+    "onyx": 15.341,
+    "coloni": 18.082
+   }
+  },
+  {
+   "year": 1991,
+   "runs": 1000,
+   "realChampion": "mclaren",
+   "realChampionShare": 0.898,
+   "realChampionRank": 1,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 0.898
+    },
+    {
+     "teamId": "williams",
+     "share": 0.102
+    }
+   ],
+   "meanSpearman": 0.8757552447552478,
+   "sdSpearman": 0.04621546394765594,
+   "meanPosition": {
+    "mclaren": 1.102,
+    "williams": 1.898,
+    "tyrrell": 3.936,
+    "ferrari": 3.236,
+    "benetton": 4.859,
+    "minardi": 6.575,
+    "leyton-house": 9.006,
+    "jordan": 7.481,
+    "brabham": 10.482,
+    "dallara": 9.488,
+    "ligier": 9.676,
+    "lotus": 11.609,
+    "footwork": 14.884,
+    "fondmetal": 14.473,
+    "lola": 14.733,
+    "ags": 16.122,
+    "modena": 13.672,
+    "coloni": 17.768
+   }
+  },
+  {
+   "year": 1992,
+   "runs": 1000,
+   "realChampion": "williams",
+   "realChampionShare": 0.996,
+   "realChampionRank": 1,
+   "mostProbable": "williams",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "williams",
+     "share": 0.996
+    },
+    {
+     "teamId": "mclaren",
+     "share": 0.004
+    }
+   ],
+   "meanSpearman": 0.9032967032967041,
+   "sdSpearman": 0.044542013818192,
+   "meanPosition": {
+    "williams": 1.004,
+    "mclaren": 2.008,
+    "benetton": 3.017,
+    "ferrari": 3.973,
+    "march": 6.379,
+    "tyrrell": 8.032,
+    "footwork": 7.74,
+    "ligier": 6.847,
+    "lotus": 7.268,
+    "dallara": 11.483,
+    "venturi": 10.489,
+    "jordan": 12.606,
+    "fondmetal": 11.191,
+    "minardi": 13.575,
+    "brabham": 14.698,
+    "andrea-moda": 15.69
+   }
+  },
+  {
+   "year": 1993,
+   "runs": 1000,
+   "realChampion": "williams",
+   "realChampionShare": 1,
+   "realChampionRank": 1,
+   "mostProbable": "williams",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "williams",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.8397818181818197,
+   "sdSpearman": 0.053836064054379296,
+   "meanPosition": {
+    "williams": 1,
+    "mclaren": 2.112,
+    "ferrari": 4.013,
+    "benetton": 2.92,
+    "footwork": 7.286,
+    "sauber": 6.855,
+    "lotus": 8.571,
+    "ligier": 5.66,
+    "jordan": 6.829,
+    "larrousse": 10.448,
+    "tyrrell": 11.571,
+    "minardi": 10.872,
+    "lola": 12.863
+   }
+  },
+  {
+   "year": 1994,
+   "runs": 1000,
+   "realChampion": "williams",
+   "realChampionShare": 0.597,
+   "realChampionRank": 1,
+   "mostProbable": "williams",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "williams",
+     "share": 0.597
+    },
+    {
+     "teamId": "benetton",
+     "share": 0.396
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.007
+    }
+   ],
+   "meanSpearman": 0.8599636363636355,
+   "sdSpearman": 0.04921204590164346,
+   "meanPosition": {
+    "benetton": 1.637,
+    "williams": 1.415,
+    "ferrari": 3.126,
+    "sauber": 4.281,
+    "mclaren": 4.616,
+    "tyrrell": 7.164,
+    "ligier": 8.087,
+    "jordan": 6.709,
+    "lotus": 10.36,
+    "minardi": 9.024,
+    "footwork": 10.631,
+    "simtek": 11.716,
+    "larrousse": 12.304,
+    "pacific": 13.93
+   }
+  },
+  {
+   "year": 1995,
+   "runs": 1000,
+   "realChampion": "benetton",
+   "realChampionShare": 0.549,
+   "realChampionRank": 1,
+   "mostProbable": "benetton",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "benetton",
+     "share": 0.549
+    },
+    {
+     "teamId": "williams",
+     "share": 0.451
+    }
+   ],
+   "meanSpearman": 0.8834303030303055,
+   "sdSpearman": 0.041090377761475456,
+   "meanPosition": {
+    "benetton": 1.451,
+    "williams": 1.551,
+    "ferrari": 3.715,
+    "mclaren": 4.553,
+    "sauber": 3.783,
+    "jordan": 6.728,
+    "ligier": 6.337,
+    "footwork": 8.758,
+    "tyrrell": 8.774,
+    "minardi": 9.968,
+    "simtek": 10.97,
+    "forti": 12.38,
+    "pacific": 12.032
+   }
+  },
+  {
+   "year": 1996,
+   "runs": 1000,
+   "realChampion": "williams",
+   "realChampionShare": 1,
+   "realChampionRank": 1,
+   "mostProbable": "williams",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "williams",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.9133166666666642,
+   "sdSpearman": 0.050689273599190114,
+   "meanPosition": {
+    "williams": 1,
+    "ferrari": 2.06,
+    "mclaren": 3.585,
+    "benetton": 3.385,
+    "ligier": 5.954,
+    "sauber": 6.009,
+    "jordan": 6.45,
+    "tyrrell": 8.96,
+    "footwork": 7.697,
+    "minardi": 10.073,
+    "forti": 10.827
+   }
+  },
+  {
+   "year": 1997,
+   "runs": 1000,
+   "realChampion": "williams",
+   "realChampionShare": 1,
+   "realChampionRank": 1,
+   "mostProbable": "williams",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "williams",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.8554181818181801,
+   "sdSpearman": 0.060789985120723915,
+   "meanPosition": {
+    "williams": 1,
+    "ferrari": 2.895,
+    "mclaren": 2.841,
+    "jordan": 4.374,
+    "sauber": 7.01,
+    "prost": 4.144,
+    "benetton": 6.306,
+    "arrows": 7.657,
+    "stewart": 8.82,
+    "tyrrell": 10.533,
+    "minardi": 10.425,
+    "lola": 11.995
+   }
+  },
+  {
+   "year": 1998,
+   "runs": 1000,
+   "realChampion": "mclaren",
+   "realChampionShare": 0.974,
+   "realChampionRank": 1,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 0.974
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.026
+    }
+   ],
+   "meanSpearman": 0.9323499999999947,
+   "sdSpearman": 0.029119350055568954,
+   "meanPosition": {
+    "mclaren": 1.026,
+    "ferrari": 1.98,
+    "jordan": 3.923,
+    "williams": 3.154,
+    "benetton": 4.93,
+    "sauber": 6.265,
+    "prost": 7.553,
+    "stewart": 7.87,
+    "minardi": 10.71,
+    "tyrrell": 9.392,
+    "arrows": 9.197
+   }
+  },
+  {
+   "year": 1999,
+   "runs": 1000,
+   "realChampion": "ferrari",
+   "realChampionShare": 0.002,
+   "realChampionRank": 2,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 0.997
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.002
+    },
+    {
+     "teamId": "jordan",
+     "share": 0.001
+    }
+   ],
+   "meanSpearman": 0.9552363636363755,
+   "sdSpearman": 0.024413962218228048,
+   "meanPosition": {
+    "mclaren": 1.003,
+    "ferrari": 2.269,
+    "jordan": 2.746,
+    "stewart": 4.143,
+    "williams": 4.887,
+    "bar": 6.881,
+    "prost": 7.345,
+    "benetton": 7.318,
+    "sauber": 8.487,
+    "minardi": 10.288,
+    "arrows": 10.633
+   }
+  },
+  {
+   "year": 2000,
+   "runs": 1000,
+   "realChampion": "ferrari",
+   "realChampionShare": 0.739,
+   "realChampionRank": 1,
+   "mostProbable": "ferrari",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "ferrari",
+     "share": 0.739
+    },
+    {
+     "teamId": "mclaren",
+     "share": 0.261
+    }
+   ],
+   "meanSpearman": 0.8914181818181787,
+   "sdSpearman": 0.040908195053941575,
+   "meanPosition": {
+    "mclaren": 1.739,
+    "ferrari": 1.261,
+    "jordan": 4.171,
+    "bar": 4.935,
+    "williams": 3.064,
+    "jaguar": 6.681,
+    "arrows": 8.155,
+    "benetton": 6.55,
+    "sauber": 8.836,
+    "prost": 10.242,
+    "minardi": 10.366
+   }
+  },
+  {
+   "year": 2001,
+   "runs": 1000,
+   "realChampion": "ferrari",
+   "realChampionShare": 0.945,
+   "realChampionRank": 1,
+   "mostProbable": "ferrari",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "ferrari",
+     "share": 0.945
+    },
+    {
+     "teamId": "williams",
+     "share": 0.055
+    }
+   ],
+   "meanSpearman": 0.917772727272726,
+   "sdSpearman": 0.039337172186049874,
+   "meanPosition": {
+    "ferrari": 1.055,
+    "williams": 1.953,
+    "mclaren": 3.362,
+    "jordan": 3.632,
+    "sauber": 5.253,
+    "bar": 6.025,
+    "prost": 8.104,
+    "benetton": 8.827,
+    "jaguar": 7.515,
+    "minardi": 10.41,
+    "arrows": 9.864
+   }
+  },
+  {
+   "year": 2002,
+   "runs": 1000,
+   "realChampion": "ferrari",
+   "realChampionShare": 0.469,
+   "realChampionRank": 2,
+   "mostProbable": "williams",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "williams",
+     "share": 0.531
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.469
+    }
+   ],
+   "meanSpearman": 0.8654363636363644,
+   "sdSpearman": 0.048557136256495194,
+   "meanPosition": {
+    "williams": 1.469,
+    "ferrari": 1.531,
+    "mclaren": 3.001,
+    "jordan": 5.661,
+    "renault": 4.474,
+    "sauber": 5.498,
+    "bar": 7.05,
+    "arrows": 8.564,
+    "toyota": 8.382,
+    "jaguar": 9.69,
+    "minardi": 10.68
+   }
+  },
+  {
+   "year": 2003,
+   "runs": 1000,
+   "realChampion": "ferrari",
+   "realChampionShare": 0.328,
+   "realChampionRank": 2,
+   "mostProbable": "williams",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "williams",
+     "share": 0.67
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.328
+    },
+    {
+     "teamId": "mclaren",
+     "share": 0.002
+    }
+   ],
+   "meanSpearman": 0.8385090909090906,
+   "sdSpearman": 0.039057874797528626,
+   "meanPosition": {
+    "ferrari": 1.698,
+    "williams": 1.334,
+    "mclaren": 3.051,
+    "renault": 3.952,
+    "toyota": 5.046,
+    "jaguar": 6.055,
+    "bar": 7.703,
+    "sauber": 8.118,
+    "jordan": 8.056,
+    "minardi": 9.987
+   }
+  },
+  {
+   "year": 2004,
+   "runs": 1000,
+   "realChampion": "ferrari",
+   "realChampionShare": 0.982,
+   "realChampionRank": 1,
+   "mostProbable": "ferrari",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "ferrari",
+     "share": 0.982
+    },
+    {
+     "teamId": "williams",
+     "share": 0.018
+    }
+   ],
+   "meanSpearman": 0.8924121212121153,
+   "sdSpearman": 0.030310003747627247,
+   "meanPosition": {
+    "ferrari": 1.018,
+    "williams": 2.064,
+    "bar": 3.724,
+    "renault": 3.796,
+    "mclaren": 4.409,
+    "toyota": 6.366,
+    "jaguar": 6.658,
+    "sauber": 8.069,
+    "jordan": 8.939,
+    "minardi": 9.957
+   }
+  },
+  {
+   "year": 2005,
+   "runs": 1000,
+   "realChampion": "renault",
+   "realChampionShare": 0.181,
+   "realChampionRank": 2,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 0.819
+    },
+    {
+     "teamId": "renault",
+     "share": 0.181
+    }
+   ],
+   "meanSpearman": 0.9011999999999931,
+   "sdSpearman": 0.02700927069807912,
+   "meanPosition": {
+    "mclaren": 1.184,
+    "renault": 1.845,
+    "toyota": 2.972,
+    "bar": 4.241,
+    "williams": 5.359,
+    "ferrari": 5.472,
+    "sauber": 7.021,
+    "red-bull": 7.949,
+    "jordan": 9.29,
+    "minardi": 9.667
+   }
+  },
+  {
+   "year": 2006,
+   "runs": 1000,
+   "realChampion": "renault",
+   "realChampionShare": 0,
+   "realChampionRank": null,
+   "mostProbable": "ferrari",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "ferrari",
+     "share": 0.999
+    },
+    {
+     "teamId": "mclaren",
+     "share": 0.001
+    }
+   ],
+   "meanSpearman": 0.9118999999999933,
+   "sdSpearman": 0.027026704512507493,
+   "meanPosition": {
+    "ferrari": 1.001,
+    "mclaren": 2.445,
+    "renault": 2.567,
+    "toyota": 4.935,
+    "honda": 4.243,
+    "williams": 5.969,
+    "bmw-sauber": 7.201,
+    "red-bull": 8.267,
+    "toro-rosso": 8.431,
+    "super-aguri": 10.908,
+    "midland": 10.033
+   }
+  },
+  {
+   "year": 2007,
+   "runs": 1000,
+   "realChampion": "ferrari",
+   "realChampionShare": 0.093,
+   "realChampionRank": 2,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 0.907
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.093
+    }
+   ],
+   "meanSpearman": 0.8909818181818157,
+   "sdSpearman": 0.04115770648920748,
+   "meanPosition": {
+    "mclaren": 1.093,
+    "ferrari": 1.907,
+    "bmw-sauber": 3.024,
+    "renault": 5.503,
+    "williams": 4.904,
+    "red-bull": 7.244,
+    "toyota": 4.681,
+    "honda": 8.207,
+    "super-aguri": 8.942,
+    "toro-rosso": 9.519,
+    "spyker": 10.976
+   }
+  },
+  {
+   "year": 2008,
+   "runs": 1000,
+   "realChampion": "ferrari",
+   "realChampionShare": 0.961,
+   "realChampionRank": 1,
+   "mostProbable": "ferrari",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "ferrari",
+     "share": 0.961
+    },
+    {
+     "teamId": "mclaren",
+     "share": 0.039
+    }
+   ],
+   "meanSpearman": 0.981772727272735,
+   "sdSpearman": 0.017168444871360763,
+   "meanPosition": {
+    "ferrari": 1.039,
+    "mclaren": 1.961,
+    "bmw-sauber": 3.398,
+    "toyota": 5.096,
+    "renault": 4.103,
+    "red-bull": 6.801,
+    "toro-rosso": 5.616,
+    "williams": 8.135,
+    "honda": 8.887,
+    "force-india": 10.022,
+    "super-aguri": 10.942
+   }
+  },
+  {
+   "year": 2009,
+   "runs": 1000,
+   "realChampion": "brawn",
+   "realChampionShare": 0,
+   "realChampionRank": null,
+   "mostProbable": "red-bull",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "red-bull",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.8304000000000024,
+   "sdSpearman": 0.03916554092773145,
+   "meanPosition": {
+    "red-bull": 1,
+    "ferrari": 3.259,
+    "mclaren": 2.11,
+    "brawn": 3.734,
+    "renault": 5.117,
+    "toyota": 6.307,
+    "williams": 6.524,
+    "bmw-sauber": 7.954,
+    "toro-rosso": 9.09,
+    "force-india": 9.905
+   }
+  },
+  {
+   "year": 2010,
+   "runs": 1000,
+   "realChampion": "red-bull",
+   "realChampionShare": 0.977,
+   "realChampionRank": 1,
+   "mostProbable": "red-bull",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "red-bull",
+     "share": 0.977
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.019
+    },
+    {
+     "teamId": "mclaren",
+     "share": 0.003
+    },
+    {
+     "teamId": "renault",
+     "share": 0.001
+    }
+   ],
+   "meanSpearman": 0.9641328671328645,
+   "sdSpearman": 0.014150178933989737,
+   "meanPosition": {
+    "red-bull": 1.025,
+    "mclaren": 2.802,
+    "ferrari": 2.285,
+    "renault": 3.894,
+    "mercedes": 5.09,
+    "williams": 6.343,
+    "force-india": 6.634,
+    "sauber": 8.247,
+    "toro-rosso": 8.683,
+    "virgin": 10.588,
+    "lotus-racing": 10.617,
+    "hrt": 11.792
+   }
+  },
+  {
+   "year": 2011,
+   "runs": 1000,
+   "realChampion": "red-bull",
+   "realChampionShare": 0.999,
+   "realChampionRank": 1,
+   "mostProbable": "red-bull",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "red-bull",
+     "share": 0.999
+    },
+    {
+     "teamId": "mclaren",
+     "share": 0.001
+    }
+   ],
+   "meanSpearman": 0.9722867132867111,
+   "sdSpearman": 0.013841117521135246,
+   "meanPosition": {
+    "red-bull": 1.001,
+    "mclaren": 2.324,
+    "ferrari": 2.675,
+    "mercedes": 4.007,
+    "renault": 5.028,
+    "force-india": 6.282,
+    "toro-rosso": 6.852,
+    "sauber": 8.253,
+    "williams": 8.58,
+    "lotus-racing": 10.31,
+    "virgin": 11.028,
+    "hrt": 11.66
+   }
+  },
+  {
+   "year": 2012,
+   "runs": 1000,
+   "realChampion": "red-bull",
+   "realChampionShare": 0.288,
+   "realChampionRank": 2,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 0.712
+    },
+    {
+     "teamId": "red-bull",
+     "share": 0.288
+    }
+   ],
+   "meanSpearman": 0.8850839160839173,
+   "sdSpearman": 0.03207385752329527,
+   "meanPosition": {
+    "red-bull": 1.713,
+    "mclaren": 1.288,
+    "williams": 4.123,
+    "lotus-f1": 3.681,
+    "ferrari": 4.196,
+    "sauber": 7.341,
+    "mercedes": 6.66,
+    "force-india": 7.093,
+    "toro-rosso": 8.909,
+    "caterham": 10.07,
+    "marussia": 11.1,
+    "hrt": 11.826
+   }
+  },
+  {
+   "year": 2013,
+   "runs": 1000,
+   "realChampion": "red-bull",
+   "realChampionShare": 0.88,
+   "realChampionRank": 1,
+   "mostProbable": "red-bull",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "red-bull",
+     "share": 0.88
+    },
+    {
+     "teamId": "mercedes",
+     "share": 0.12
+    }
+   ],
+   "meanSpearman": 0.9380454545454573,
+   "sdSpearman": 0.019287464940330762,
+   "meanPosition": {
+    "red-bull": 1.12,
+    "mercedes": 1.88,
+    "lotus-f1": 3.011,
+    "ferrari": 4.001,
+    "sauber": 5.004,
+    "mclaren": 6.743,
+    "force-india": 6.862,
+    "toro-rosso": 7.403,
+    "williams": 8.995,
+    "caterham": 10.354,
+    "marussia": 10.627
+   }
+  },
+  {
+   "year": 2014,
+   "runs": 1000,
+   "realChampion": "mercedes",
+   "realChampionShare": 0.999,
+   "realChampionRank": 1,
+   "mostProbable": "mercedes",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mercedes",
+     "share": 0.999
+    },
+    {
+     "teamId": "williams",
+     "share": 0.001
+    }
+   ],
+   "meanSpearman": 0.9520909090909148,
+   "sdSpearman": 0.01929245046451895,
+   "meanPosition": {
+    "mercedes": 1.001,
+    "williams": 2.002,
+    "red-bull": 3.029,
+    "ferrari": 3.973,
+    "mclaren": 5.01,
+    "toro-rosso": 6.282,
+    "lotus-f1": 8.785,
+    "force-india": 6.761,
+    "sauber": 8.29,
+    "caterham": 10.6,
+    "marussia": 10.267
+   }
+  },
+  {
+   "year": 2016,
+   "runs": 1000,
+   "realChampion": "mercedes",
+   "realChampionShare": 1,
+   "realChampionRank": 1,
+   "mostProbable": "mercedes",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mercedes",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.9616363636363732,
+   "sdSpearman": 0.01770603248135664,
+   "meanPosition": {
+    "mercedes": 1,
+    "red-bull": 2.003,
+    "ferrari": 2.997,
+    "williams": 4.158,
+    "force-india": 4.854,
+    "haas": 6.984,
+    "toro-rosso": 7.613,
+    "mclaren": 6.406,
+    "manor": 9.878,
+    "renault": 9.75,
+    "sauber": 10.357
+   }
+  },
+  {
+   "year": 2018,
+   "runs": 1000,
+   "realChampion": "mercedes",
+   "realChampionShare": 0.807,
+   "realChampionRank": 1,
+   "mostProbable": "mercedes",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mercedes",
+     "share": 0.807
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.193
+    }
+   ],
+   "meanSpearman": 0.8369333333333383,
+   "sdSpearman": 0.041872998283705214,
+   "meanPosition": {
+    "mercedes": 1.193,
+    "ferrari": 1.807,
+    "red-bull": 3,
+    "haas": 4.17,
+    "force-india": 5.519,
+    "sauber": 5.766,
+    "renault": 6.556,
+    "toro-rosso": 8.177,
+    "mclaren": 8.952,
+    "williams": 9.86
+   }
+  },
+  {
+   "year": 2019,
+   "runs": 1000,
+   "realChampion": "mercedes",
+   "realChampionShare": 0.977,
+   "realChampionRank": 1,
+   "mostProbable": "mercedes",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mercedes",
+     "share": 0.977
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.023
+    }
+   ],
+   "meanSpearman": 0.8715030303030273,
+   "sdSpearman": 0.037570686669383846,
+   "meanPosition": {
+    "mercedes": 1.024,
+    "ferrari": 2.049,
+    "red-bull": 2.927,
+    "renault": 4.306,
+    "mclaren": 4.98,
+    "alfa-romeo": 6.422,
+    "haas": 6.451,
+    "racing-point": 8.601,
+    "toro-rosso": 8.249,
+    "williams": 9.991
+   }
+  },
+  {
+   "year": 2020,
+   "runs": 1000,
+   "realChampion": "mercedes",
+   "realChampionShare": 1,
+   "realChampionRank": 1,
+   "mostProbable": "mercedes",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mercedes",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.8794909090909094,
+   "sdSpearman": 0.03722231834634621,
+   "meanPosition": {
+    "mercedes": 1,
+    "red-bull": 2,
+    "renault": 3.387,
+    "racing-point": 3.645,
+    "alphatauri": 5.693,
+    "mclaren": 5.875,
+    "ferrari": 6.4,
+    "haas": 9.807,
+    "alfa-romeo": 8.763,
+    "williams": 8.43
+   }
+  },
+  {
+   "year": 2021,
+   "runs": 1000,
+   "realChampion": "mercedes",
+   "realChampionShare": 1,
+   "realChampionRank": 1,
+   "mostProbable": "mercedes",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mercedes",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.9125454545454439,
+   "sdSpearman": 0.020062398581507292,
+   "meanPosition": {
+    "mercedes": 1,
+    "red-bull": 2,
+    "alphatauri": 3.114,
+    "mclaren": 4.699,
+    "ferrari": 4.188,
+    "alpine": 6.038,
+    "aston-martin": 7.352,
+    "alfa-romeo": 8.243,
+    "williams": 8.38,
+    "haas": 9.986
+   }
+  },
+  {
+   "year": 2022,
+   "runs": 1000,
+   "realChampion": "red-bull",
+   "realChampionShare": 0.937,
+   "realChampionRank": 1,
+   "mostProbable": "red-bull",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "red-bull",
+     "share": 0.937
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.063
+    }
+   ],
+   "meanSpearman": 0.9213454545454551,
+   "sdSpearman": 0.030215857871943065,
+   "meanPosition": {
+    "red-bull": 1.063,
+    "ferrari": 1.937,
+    "mercedes": 3,
+    "alpine": 4.121,
+    "mclaren": 4.881,
+    "haas": 7.893,
+    "alfa-romeo": 6.493,
+    "alphatauri": 6.754,
+    "aston-martin": 9.261,
+    "williams": 9.597
+   }
+  },
+  {
+   "year": 2023,
+   "runs": 1000,
+   "realChampion": "red-bull",
+   "realChampionShare": 0.999,
+   "realChampionRank": 1,
+   "mostProbable": "red-bull",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "red-bull",
+     "share": 0.999
+    },
+    {
+     "teamId": "ferrari",
+     "share": 0.001
+    }
+   ],
+   "meanSpearman": 0.9100484848484778,
+   "sdSpearman": 0.021433942807201685,
+   "meanPosition": {
+    "red-bull": 1.001,
+    "ferrari": 2.007,
+    "mercedes": 2.992,
+    "mclaren": 4.173,
+    "aston-martin": 4.835,
+    "alpine": 6.019,
+    "haas": 7.171,
+    "williams": 8.059,
+    "alphatauri": 9.218,
+    "alfa-romeo": 9.525
+   }
+  },
+  {
+   "year": 2024,
+   "runs": 1000,
+   "realChampion": "mclaren",
+   "realChampionShare": 0,
+   "realChampionRank": null,
+   "mostProbable": "red-bull",
+   "realChampionMostProbable": false,
+   "distribution": [
+    {
+     "teamId": "red-bull",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.8675030303030318,
+   "sdSpearman": 0.03425443656339304,
+   "meanPosition": {
+    "red-bull": 1,
+    "ferrari": 2.898,
+    "mclaren": 2.285,
+    "mercedes": 3.817,
+    "aston-martin": 5.045,
+    "rb": 5.995,
+    "haas": 7.467,
+    "williams": 7.956,
+    "kick-sauber": 9.86,
+    "alpine": 8.677
+   }
+  },
+  {
+   "year": 2025,
+   "runs": 1000,
+   "realChampion": "mclaren",
+   "realChampionShare": 0.993,
+   "realChampionRank": 1,
+   "mostProbable": "mclaren",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mclaren",
+     "share": 0.993
+    },
+    {
+     "teamId": "red-bull",
+     "share": 0.007
+    }
+   ],
+   "meanSpearman": 0.9439757575757697,
+   "sdSpearman": 0.019723576486618974,
+   "meanPosition": {
+    "mclaren": 1.007,
+    "red-bull": 1.994,
+    "mercedes": 2.999,
+    "ferrari": 4,
+    "racing-bulls": 5.163,
+    "williams": 6.183,
+    "aston-martin": 6.681,
+    "haas": 8.551,
+    "alpine": 8.525,
+    "kick-sauber": 9.897
+   }
+  },
+  {
+   "year": 2026,
+   "runs": 1000,
+   "realChampion": "mercedes",
+   "realChampionShare": 1,
+   "realChampionRank": 1,
+   "mostProbable": "mercedes",
+   "realChampionMostProbable": true,
+   "distribution": [
+    {
+     "teamId": "mercedes",
+     "share": 1
+    }
+   ],
+   "meanSpearman": 0.9761090909091031,
+   "sdSpearman": 0.01126374697704565,
+   "meanPosition": {
+    "mercedes": 1,
+    "red-bull": 2.662,
+    "ferrari": 2.341,
+    "mclaren": 4,
+    "alpine": 5.204,
+    "audi": 7.12,
+    "racing-bulls": 5.828,
+    "haas": 7.893,
+    "williams": 9.042,
+    "aston-martin": 10.259,
+    "cadillac": 10.651
+   }
+  }
+ ]
+}

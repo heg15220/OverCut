@@ -54,7 +54,8 @@ describe("RF-DEV-01 parts by era, mapped onto the four areas", () => {
 
   it("seeds every real team's parts so day-one race pace is exactly the old one", () => {
     [2005, 2008, 2012].forEach((year) => {
-      const career = createCareer(context, { year, teamId: Object.values(context.packs[year].teams)[3].id, seed: `seed-${year}` });
+      // Free mode: strict guidance (RF-CAR-05) moves rivals' race pace on purpose; here only the parts count.
+      const career = createCareer(context, { year, teamId: Object.values(context.packs[year].teams)[3].id, seed: `seed-${year}`, mode: "free" });
       Object.values(career.world.teams).forEach((team) => {
         const raw = rawAreasOf(team.parts, 0);
         AREA_LIST.forEach((area) => expect(Math.abs(raw[area] - team.car[area])).toBeLessThan(1e-3));
@@ -310,9 +311,9 @@ describe("task 9: rivals develop through their parts with the old season-long pr
 
 describe("RNF-06 save migration v1 -> v2", () => {
   it("loads a v1 career, gives it parts, expertise and units, and keeps its race pace", () => {
-    expect(MANAGER_VERSION).toBe(3);
+    expect(MANAGER_VERSION).toBe(4);
     const career = validateCareer(JSON.parse(JSON.stringify(fixture.career)));
-    expect(career.v).toBe(3);
+    expect(career.v).toBe(4);
     expect(own(career).parts.items.length).toBeGreaterThan(0);
     expect(own(career).parts.expertise.floor).toBeTruthy();
     expect(career.units.components.map((comp) => comp.id)).toEqual(["engine", "gearbox"]);

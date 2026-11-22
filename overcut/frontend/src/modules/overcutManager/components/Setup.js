@@ -6,7 +6,7 @@
  * grid, next to the teams that really raced it.
  */
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LuArrowLeft, LuArrowRight, LuCheck, LuFlag, LuPlay, LuShuffle, LuSparkles, LuTrash2, LuUpload, LuWrench } from "react-icons/lu";
 import { NATIONALITIES } from "../../overcutTrayectoria/components/atoms";
 import { eraFeaturesFor, pointsTableFor } from "../../overcutTrayectoria/engine/eras";
@@ -15,6 +15,7 @@ import { AREAS, carRatingOf, fieldBestOf } from "../engine/car";
 import { driverSalary, moneyScale } from "../engine/economy";
 import { BACKERS, CUSTOM_COLORS, HEADQUARTERS, enginesFor, inkOn, shortCode } from "../engine/identity";
 import { seasonWorld, startableYears } from "../engine/career";
+import { ensureSeasonPack, hasSeasonPack, seasonPackYears } from "../engine/packs/seasonPacks";
 import { importCareer, importFile } from "../engine/save";
 import { Flag, Livery, ManagerBackLink, Pill, Rating, Sheet, TeamBadge } from "./atoms";
 import { AREA, BACKER, TIER, locale, money, t } from "./texts";
@@ -35,7 +36,8 @@ const Steps = ({ steps, current }) => (
 const stars = (rank, total) => Math.max(1, Math.min(5, Math.round(5 - ((rank - 1) / Math.max(1, total - 1)) * 4)));
 
 export default function Setup({ backTo, engine, summary, fallbackMode, onStart, onResume, onDelete, onImported }) {
-  const years = useMemo(() => startableYears(engine), [engine]);
+  // Pack years are listed without loading them (SRS 6.3): the chosen season's pack is fetched below.
+  const years = useMemo(() => [...new Set([...startableYears(engine), ...seasonPackYears()])].sort((a, b) => a - b), [engine]);
   const [mode, setMode] = useState("home");
   const [step, setStep] = useState(0);
   const [year, setYear] = useState(() => years[years.length - 1]);
@@ -49,7 +51,28 @@ export default function Setup({ backTo, engine, summary, fallbackMode, onStart, 
   const fileRef = useRef(null);
   const [custom, setCustom] = useState({ name: "", short: "", color: CUSTOM_COLORS[0], color2: CUSTOM_COLORS[1], country: locale === "es" ? "es" : "gb", hq: "oxon", engineId: null, backer: "corporate", driverIds: [] });
 
-  const world = useMemo(() => (mode === "wizard" ? seasonWorld(engine, year, seed) : null), [engine, year, seed, mode]);
+  // RF-CAR-02: a season with a pack is built from it, so the wizard waits for the pack (spinner) instead
+  // of showing the bootstrap world first. A pack that fails to load falls back to the bootstrap world
+  // when the bootstrap has that season.
+  const [packState, setPackState] = useState({});
+  const packPending = mode === "wizard" && hasSeasonPack(year) && !engine.packs?.[year] && packState[year] !== "failed";
+  useEffect(() => {
+    if (!packPending) return undefined;
+    let active = true;
+    ensureSeasonPack(engine, year).then((pack) => {
+      if (active) setPackState((current) => ({ ...current, [year]: pack ? "ready" : "failed" }));
+    });
+    return () => {
+      active = false;
+    };
+  }, [engine, year, packPending]);
+  const fielded = Boolean(engine.packs?.[year]) || startableYears(engine).includes(year);
+  const world = useMemo(
+    () => (mode === "wizard" && !packPending && fielded ? seasonWorld(engine, year, seed) : null),
+    // packState re-runs the memo once the pack has been added to engine.packs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [engine, year, seed, mode, packPending, fielded, packState],
+  );
   // Teams that did not enter every Grand Prix (Super Aguri 2008) cannot be taken over (SRS 6.1).
   const ranked = useMemo(() => (world ? teamsByPace(world).filter((team) => !team.partial) : []), [world]);
   const engines = useMemo(() => enginesFor(year), [year]);

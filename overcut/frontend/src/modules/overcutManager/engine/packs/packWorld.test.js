@@ -139,4 +139,32 @@ describe("criterio 7.2 · regulations of the pack", () => {
       });
     });
   });
+
+  it("criterio 7.2: a rival fields its real substitute even when his home team is another (Ferrari, Adelaide 1991)", () => {
+    const career = createCareer(context, { year: 1991, teamId: "williams", seed: "sub-91" });
+    career.round = 15;
+    const ferrari = entrantsFor(career).filter((entrant) => entrant.teamId === "ferrari").map((entrant) => entrant.driverId).sort();
+    expect(ferrari).toEqual(["gianni-morbidelli", "jean-alesi"]);
+    // Every rival car of that Grand Prix is one of its real entries.
+    const entries = entered(packs[1991], 16);
+    entrantsFor(career).filter((entrant) => entrant.teamId !== "williams").forEach((entrant) => {
+      expect(entries[entrant.teamId]).toContain(entrant.driverId);
+    });
+  });
+
+  it("a driver the player has signed is not fielded by his old team", () => {
+    const career = createCareer(context, { year: 1991, teamId: "minardi", seed: "sub-91b" });
+    career.round = 15;
+    const ferrari = entrantsFor(career).filter((entrant) => entrant.teamId === "ferrari").map((entrant) => entrant.driverId);
+    expect(ferrari).not.toContain("gianni-morbidelli");
+    expect(entrantsFor(career).filter((entrant) => entrant.driverId === "gianni-morbidelli").map((entrant) => entrant.teamId)).toEqual(["minardi"]);
+  });
+
+  it("only a team that arrived late or left early is partial, not one that skipped a Grand Prix (SRS 6.1)", () => {
+    const ids = (year) => selectableTeams(buildPackWorld({ pack: packs[year], bootstrap: fallbackBootstrap, reference, seed: "partial" })).map((team) => team.id);
+    expect(ids(1976)).toContain("ferrari");
+    expect(ids(2008)).not.toContain("super-aguri");
+    expect(ids(2002)).not.toContain("arrows");
+    expect(createCareer(context, { year: 1976, teamId: "ferrari", seed: "f76" }).teamId).toBe("ferrari");
+  });
 });

@@ -18,7 +18,7 @@ import { fallbackBootstrap } from "../../overcutTrayectoria/data/fallbackBootstr
 import { prepareBootstrap } from "../../overcutTrayectoria/engine/world";
 import { closeWeekend, createCareer, createContext, nextAction, openOffseason, simulateWeekend, startWeekend } from "../engine/career";
 import { acceptJob, startNextSeason } from "../engine/offseason";
-import { loadSeasonPack, seasonPackYears } from "../engine/packs/seasonPacks";
+import { ensureSeasonPack, ensureSeasonPacks, seasonPackYears } from "../engine/packs/seasonPacks";
 import { unreadCount } from "../engine/inbox";
 import { deleteLocal, loadLocal, loadLocalSummary, saveLocal } from "../engine/save";
 import { ManagerContext } from "./context";
@@ -41,23 +41,14 @@ const loadBootstrap = async () => {
 const loadReference = () => import("../data/reference").then((module) => module.reference || module.default);
 
 /**
- * Every validated season pack, by year (RF-CAR-02). A pack that fails its
- * schema or its era rules is left out, so that season falls back to the
- * bootstrap world instead of starting from bad data.
+ * Season packs load on demand (SRS 6.3, RF-CAR-02): at startup only the
+ * latest one, the season Setup opens on; then the season chosen in Setup
+ * (Setup.js), a saved career's season and the next one on resume or import,
+ * and the next season before the off-season turns the year. `ensureSeasonPack`
+ * adds each validated pack to `context.packs`; a pack that fails is left out
+ * and that season falls back to the bootstrap world.
  */
-const loadPacks = () =>
-  Promise.all(
-    seasonPackYears().map((year) =>
-      loadSeasonPack(year).then(
-        ({ pack }) => [year, pack],
-        (failure) => {
-          // eslint-disable-next-line no-console
-          console.warn(String(failure?.message || failure));
-          return null;
-        },
-      ),
-    ),
-  ).then((rows) => Object.fromEntries(rows.filter(Boolean)));
+const careerPacks = (context, career) => ensureSeasonPacks(context, [career.year, career.year + 1]);
 
 /** Stops from the engine -> the moments the player sees, in order. */
 export const momentsFromStops = (career, stops = []) => {
@@ -129,12 +120,18 @@ export const OvercutManager = ({ backTo = "/careerMode" }) => {
 
   useEffect(() => {
     let active = true;
-    Promise.all([loadBootstrap(), loadReference(), loadPacks()]).then(([bootstrap, reference, packs]) => {
-      if (!active) return;
-      contextRef.current = createContext(bootstrap, reference, packs);
-      setFallbackMode(Boolean(bootstrap.fallbackMode));
-      setReady(true);
-    });
+    Promise.all([loadBootstrap(), loadReference()])
+      .then(([bootstrap, reference]) => {
+        const context = createContext(bootstrap, reference);
+        // The wizard opens on the latest season: have its pack ready, and only that one.
+        return ensureSeasonPack(context, Math.max(...seasonPackYears())).then(() => [context, bootstrap]);
+      })
+      .then(([context, bootstrap]) => {
+        if (!active) return;
+        contextRef.current = context;
+        setFallbackMode(Boolean(bootstrap.fallbackMode));
+        setReady(true);
+      });
     return () => {
       active = false;
     };
@@ -201,11 +198,24 @@ export const OvercutManager = ({ backTo = "/careerMode" }) => {
 
   const start = useCallback(
     (options) => {
-      try {
-        enterCareer(createCareer(contextRef.current, options));
-      } catch (failure) {
-        setError(String(failure?.message || failure));
-      }
+      // Setup has already loaded the season's pack; this is a no-op then, and the safety net otherwise.
+      ensureSeasonPack(contextRef.current, options.year).then(() => {
+        try {
+          const career = createCareer(contextRef.current, options);
+          enterCareer(career);
+          ensureSeasonPack(contextRef.current, career.year + 1);
+        } catch (failure) {
+          setError(String(failure?.message || failure));
+        }
+      });
+    },
+    [enterCareer],
+  );
+
+  /** A saved or imported career: its season's pack and the next one before the hub opens. */
+  const enterLoaded = useCallback(
+    (career) => {
+      careerPacks(contextRef.current, career).then(() => enterCareer(career, false));
     },
     [enterCareer],
   );
@@ -216,8 +226,8 @@ export const OvercutManager = ({ backTo = "/careerMode" }) => {
       setError("load");
       return;
     }
-    enterCareer(career, false);
-  }, [enterCareer]);
+    enterLoaded(career);
+  }, [enterLoaded]);
 
   const leave = useCallback(() => {
     if (careerRef.current) saveLocal(careerRef.current);
@@ -263,21 +273,36 @@ export const OvercutManager = ({ backTo = "/careerMode" }) => {
     } else if (action.kind === "review") {
       pushMoments([{ type: "review" }]);
     } else if (action.kind === "new-season") {
-      act((c) => startNextSeason(contextRef.current, c));
-      pushMoments([{ type: "new-season" }]);
-      go("central");
+      // startNextSeason is sync and reads context.packs[year + 1]: load that pack first (it is usually
+      // preloaded already). Without it, the next season falls back to the bootstrap world.
+      ensureSeasonPack(contextRef.current, career.year + 1).then(() => {
+        act((c) => startNextSeason(contextRef.current, c));
+        pushMoments([{ type: "new-season" }]);
+        go("central");
+        if (careerRef.current) ensureSeasonPack(contextRef.current, careerRef.current.year + 1);
+      });
     } else if (action.kind === "ended") {
       pushMoments([{ type: "ended" }]);
     }
   }, [act, go, pushMoments]);
 
-  const toOffseason = useCallback(() => act((c) => openOffseason(c)), [act]);
+  const toOffseason = useCallback(() => {
+    const result = act((c) => openOffseason(c));
+    // Warm the next season's pack while the player is in the off-season screens.
+    if (careerRef.current) ensureSeasonPack(contextRef.current, careerRef.current.year + 1);
+    return result;
+  }, [act]);
 
   const takeJob = useCallback(
     (teamId) => {
-      act((c) => (c.ended ? acceptJob(contextRef.current, c, teamId, { simulateWeekend, closeWeekend }) : startNextSeason(contextRef.current, c, { teamId })));
-      setMoments([{ type: "new-season" }]);
-      go("central");
+      const career = careerRef.current;
+      if (!career) return;
+      ensureSeasonPack(contextRef.current, career.year + 1).then(() => {
+        act((c) => (c.ended ? acceptJob(contextRef.current, c, teamId, { simulateWeekend, closeWeekend }) : startNextSeason(contextRef.current, c, { teamId })));
+        setMoments([{ type: "new-season" }]);
+        go("central");
+        if (careerRef.current) ensureSeasonPack(contextRef.current, careerRef.current.year + 1);
+      });
     },
     [act, go],
   );
@@ -336,7 +361,7 @@ export const OvercutManager = ({ backTo = "/careerMode" }) => {
             onStart={start}
             onResume={resume}
             onDelete={removeSave}
-            onImported={(imported) => enterCareer(imported, false)}
+            onImported={enterLoaded}
           />
         ) : (
           <Hub backTo={backTo} fallbackMode={fallbackMode} />

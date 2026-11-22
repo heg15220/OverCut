@@ -269,7 +269,10 @@ export const buildManagerWorld = ({ bootstrap, reference: rawReference, year, se
     };
   });
 
-  const world = { year, races, teams, order: Object.keys(teams), drivers, generated: false };
+  // RF-CAR-05, SRS 6.1: without a pack there is no race-by-race record, so the guided anchor
+  // of a rival is the car history gives it for the whole year.
+  const anchors = Object.fromEntries(Object.values(teams).map((team) => [team.id, races.map(() => Math.round(carRatingOf(team.car) * 10) / 10)]));
+  const world = { year, races, teams, order: Object.keys(teams), drivers, generated: false, anchors };
   addMarketPool({ world, bootstrap, reference, year, seed });
   fillEmptySeats(world, year);
   return world;

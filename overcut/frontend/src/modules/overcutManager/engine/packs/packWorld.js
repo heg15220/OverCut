@@ -20,6 +20,7 @@ import { clamp } from "../../../overcutTrayectoria/engine/rng";
 import { eraProfileFor } from "../../../overcutTrayectoria/engine/eras";
 import { circuitProfile } from "../../../overcutTrayectoria/engine/circuits";
 import balance from "../../data/balance/pack-world.json";
+import anchorBalance from "../../data/balance/historical-anchors.json";
 import { carFromRating } from "../car";
 import { driverSalary } from "../economy";
 import { shortCode, teamIdentity } from "../identity";
@@ -168,6 +169,91 @@ export const developmentFromPack = (pack, teamId) => {
   return Math.round(clamp((early - late) * perGapPct, min, max) * 100) / 100;
 };
 
+/**
+ * The guided anchor of every team, Grand Prix by Grand Prix (RF-CAR-05, SRS 6.1):
+ * the car rating the team really had that day, read from the pack's realResults.
+ * Two signals, both smoothed over ±window rounds so a single crash or a wet
+ * Saturday does not move the target: the best qualifying gap to pole of the
+ * team's cars (the pack's own pace scale, 0 = slowest median of the year, 1 =
+ * quickest), and where the team's best classified car finished among the teams
+ * (race pace and race-day strategy, which qualifying on race fuel hides). The
+ * weights live in data/balance/historical-anchors.json (RNF-07).
+ *
+ * Returns { teamId: [rating of round 1, round 2, ...] } (null where the team
+ * did not race and no neighbouring round says anything).
+ */
+export const anchorsFromPack = (pack) => {
+  const model = anchorBalance.guidance;
+  const rounds = pack.calendar.map((event) => event.round);
+  const medians = Object.fromEntries(pack.ratings.teams.map((team) => [team.teamId, team.medianQualifyingGapPct]));
+  const paces = pack.ratings.teams.map((team) => team.paceIndex);
+  const best = pack.ratings.teams.find((team) => team.paceIndex === Math.max(...paces));
+  const worst = pack.ratings.teams.find((team) => team.paceIndex === Math.min(...paces));
+  const gapBest = best?.medianQualifyingGapPct ?? 0;
+  const gapWorst = worst?.medianQualifyingGapPct ?? 1;
+  const span = gapWorst - gapBest > 0 ? gapWorst - gapBest : 1;
+
+  // Per round: each team's best qualifying gap, and its race: the best classified car
+  // ("best") or every car it started, a retirement scoring nothing ("cars").
+  const gaps = {};
+  const finishes = {};
+  const starters = {};
+  pack.realResults.forEach((row) => {
+    starters[row.round] = (starters[row.round] || 0) + 1;
+  });
+  pack.realResults.forEach((row) => {
+    const round = (gaps[row.teamId] = gaps[row.teamId] || {});
+    if (row.qualifyingGapPct !== null && row.qualifyingGapPct !== undefined) round[row.round] = Math.min(round[row.round] ?? Infinity, row.qualifyingGapPct);
+    const finish = (finishes[row.round] = finishes[row.round] || {});
+    const classified = row.position !== null && row.position !== undefined && !row.retired;
+    if (model.raceSignal === "cars") {
+      const field = Math.max(2, starters[row.round]);
+      const value = classified ? 1 - (row.position - 1) / (field - 1) : 0;
+      const entry = (finish[row.teamId] = finish[row.teamId] || { sum: 0, cars: 0 });
+      entry.sum += value;
+      entry.cars += 1;
+    } else if (classified) {
+      const entry = (finish[row.teamId] = finish[row.teamId] || { best: Infinity });
+      entry.best = Math.min(entry.best, row.position);
+    }
+  });
+  // Race score of a round: the team's rank among the teams that raced, 1 (best) to 0.
+  const raceScores = {};
+  Object.entries(finishes).forEach(([round, byTeam]) => {
+    const ranked = Object.entries(byTeam)
+      .map(([teamId, entry]) => [teamId, model.raceSignal === "cars" ? -entry.sum / entry.cars : entry.best])
+      .sort((a, b) => a[1] - b[1]);
+    ranked.forEach(([teamId], index) => {
+      (raceScores[teamId] = raceScores[teamId] || {})[round] = ranked.length > 1 ? 1 - index / (ranked.length - 1) : 0.5;
+    });
+  });
+
+  const near = (series, round) =>
+    rounds.filter((other) => Math.abs(other - round) <= model.window && series?.[other] !== undefined && Number.isFinite(series[other])).map((other) => series[other]);
+  const mean = (values) => (values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null);
+
+  const anchors = {};
+  pack.teams.forEach((team) => {
+    anchors[team.id] = rounds.map((round) => {
+      const gap = median(near(gaps[team.id], round)) ?? medians[team.id];
+      if (gap === null || gap === undefined) return null;
+      const qualiScore = (gapWorst - gap) / span;
+      const race = mean(near(raceScores[team.id], round));
+      const score = race === null ? qualiScore : (1 - model.raceWeight) * qualiScore + model.raceWeight * race;
+      return Math.round(carRatingFromPack(pack.year, clamp(score, model.scoreMin, model.scoreMax)) * 10) / 10;
+    });
+  });
+  return anchors;
+};
+
+/** Real finishing rate of a team's cars, smoothed towards the era (the strict reliability anchor). */
+export const reliabilityAnchorFromPack = (rating, era) => {
+  const { starts = 0, mechanicalDnf = 0 } = rating?.reliability || {};
+  const prior = anchorBalance.guidance.reliabilityPrior;
+  const finishes = starts - mechanicalDnf + prior * era.finishRate;
+  return clamp(finishes / Math.max(1, starts + prior), balance.reliability.min, balance.reliability.max);
+};
+
 export const driverRatingFromPack = (teamScore, driverRating) => {
   const model = balance.driver;
   const mate = driverRating?.teammateIndex ?? model.mateNeutral;
@@ -196,6 +282,15 @@ const realTenure = (bootstrap, teamName, driverName, year) => {
 };
 
 // -------------------------------------------------------------------- world
+
+/**
+ * A team is partial when it missed the first or the last Grand Prix of the year
+ * (it arrived late or folded), not when it skipped one in between.
+ */
+export const isPartialEntry = (entered, rounds) => {
+  if (!entered || !entered.size || !rounds.length) return true;
+  return !entered.has(rounds[0]) || !entered.has(rounds[rounds.length - 1]);
+};
 
 /**
  * Every team of the pack, with its real drivers: the two who started most
@@ -302,8 +397,11 @@ export const buildPackWorld = ({ pack, bootstrap, reference: rawReference, seed 
       tyreSuppliers: team.tyreSuppliers,
       asset: team.car || null,
       rounds,
-      // Withdrew or joined mid-season (Super Aguri 2008): a fixed anchor, so the player cannot take it over.
-      partial: rounds < races.length,
+      // Strict-mode reliability anchor (RF-CAR-05): the real finishing rate of its cars.
+      realReliability: Math.round(reliabilityAnchorFromPack(teamRatings[team.id], era) * 1000) / 1000,
+      // Joined late or withdrew before the end (Super Aguri 2008, Arrows 2002): a fixed anchor, so the
+      // player cannot take it over. Skipping a single Grand Prix in mid-season (Ferrari, Austria 1976) is not.
+      partial: isPartialEntry(teamRounds[team.id], races.map((race) => race.round)),
     };
   });
 
@@ -315,6 +413,8 @@ export const buildPackWorld = ({ pack, bootstrap, reference: rawReference, seed 
     drivers,
     generated: false,
     regulations: pack.regulations,
+    // RF-CAR-05, SRS 6.1: the guided anchor of every team, Grand Prix by Grand Prix.
+    anchors: anchorsFromPack(pack),
     pack: { year, schemaVersion: pack.schemaVersion, packVersion: pack.packVersion, ratings: pack.ratings.method, balance: balance.version },
   };
   if (bootstrap?.driverProfiles) addMarketPool({ world, bootstrap, reference, year, seed });
@@ -334,10 +434,13 @@ export const selectableTeams = (world) => Object.values(world.teams).filter((tea
 
 /**
  * The cars of one team in one Grand Prix. A rival fields the drivers it really
- * entered that day (substitutes included) unless the player has signed one of
- * them away; the player's team and a custom team field their own.
+ * entered that day (substitutes included, even a driver whose home team is
+ * another: Morbidelli for Ferrari at Adelaide 1991) unless the player's team or
+ * a custom team has signed him, or his own team also enters him that day; the
+ * player's team and a custom team field their own. `userTeamId` is the
+ * player's team (null for a spectator).
  */
-export const roundLineup = ({ world, team, race, isUser }) => {
+export const roundLineup = ({ world, team, race, isUser, userTeamId = null }) => {
   const regulars = (team.drivers || []).map((id) => world.drivers[id]).filter(Boolean);
   if (!race?.entries || team.custom || isUser) return regulars;
   const entered = race.entries[team.id];
@@ -346,7 +449,12 @@ export const roundLineup = ({ world, team, race, isUser }) => {
   entered.forEach((driverId) => {
     const driver = world.drivers[driverId];
     if (!driver) return;
-    if (driver.status === "grid" && driver.teamId !== team.id) return;
+    const elsewhere = driver.teamId && driver.teamId !== team.id && (driver.status === "grid" || driver.status === "reserve");
+    if (elsewhere) {
+      const signedAway = driver.teamId === userTeamId || world.teams[driver.teamId]?.custom;
+      const racingForOwn = (race.entries[driver.teamId] || []).includes(driverId);
+      if (signedAway || racingForOwn) return;
+    }
     lineup.push(driver);
   });
   regulars.forEach((driver) => {

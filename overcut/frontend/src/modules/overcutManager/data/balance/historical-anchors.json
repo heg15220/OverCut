@@ -1,0 +1,22 @@
+{
+  "$comment": "RNF-07: anclas guiadas del modo Histórico estricto y del modo Libre (RF-CAR-05, SRS 6.1 y 6.5). Las calibra el arnés de validación del criterio 7.2 (overcut/frontend/scripts/validateSeasons.js, informe en docs/manager/validation/). Ningún valor de estos está en el código.",
+  "version": 1,
+  "defaultMode": "strict",
+  "seasonMix": {
+    "$comment": "SRS 6.5: rendimiento de un rival al empezar una temporada = simulado × (1 − k) + real × k (engine/offseason.js, coche y pilotos). Valores del SRS: 0,6 estricto y 0,2 Libre; la validación de una temporada (criterio 7.2) no depende de k, así que se quedan en los del SRS hasta que haya pruebas de balance de varias temporadas.",
+    "strict": 0.6,
+    "free": 0.2
+  },
+  "guidance": {
+    "$comment": "Ancla guiada por GP (SRS 6.1), solo en modo estricto y solo para rivales que el jugador no controla (career.guidanceFor). Objetivo de cada equipo y GP, desde el pack (packWorld.anchorsFromPack): score = (1 − raceWeight) × hueco a la pole de su mejor coche (mediana de ±window GP, escala del pack: 0 = peor mediana del año, 1 = mejor) + raceWeight × su rango entre equipos en carrera (media de ±window GP). raceSignal 'cars' puntúa cada coche que salió por su puesto (0 si abandonó) y promedia el equipo; 'best' usa solo su mejor coche clasificado. score se limita a [scoreMin, scoreMax] y pasa a rating con los coeficientes car de pack-world.json. Se compara con la fuerza actual del equipo = coche + driverShare × aportación de sus pilotos del día (pesos de piloto y coche de la era), y el rating de coche de carrera se mueve strength × (objetivo − actual), ambos re-centrados en la media de los guiados (no infla ni desinfla la parrilla frente al jugador). reliabilityStrength (0 = apagado) acercaría la fiabilidad a la real del pack (1 − abandonos mecánicos/salidas con reliabilityPrior salidas de la media de la era); en la validación empeoró el criterio, por eso queda a 0. Calibración (fase 5, 2026-11-22, 38 temporadas × 200): strength 0,7→0,85 y raceWeight 0,5→0,6; ver docs/manager/validation/report.md.",
+    "strength": 0.85,
+    "window": 2,
+    "raceWeight": 0.6,
+    "raceSignal": "cars",
+    "driverShare": 1,
+    "scoreMin": -0.25,
+    "scoreMax": 1.15,
+    "reliabilityStrength": 0,
+    "reliabilityPrior": 12
+  }
+}

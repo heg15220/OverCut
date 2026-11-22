@@ -37,7 +37,8 @@ const startRace = (year, seed) => {
   const base = FIELDED.reduce((best, candidate) => (Math.abs(candidate - year) < Math.abs(best - year) ? candidate : best), FIELDED[0]);
   const world = seasonWorld(context, base, seed);
   const teamId = world.order.find((id) => !world.teams[id].partial);
-  const career = createCareer(context, { year: base, teamId, seed });
+  // Free mode: the golden pins race.js itself, not the strict anchors (RF-CAR-05) on top of it.
+  const career = createCareer(context, { year: base, teamId, seed, mode: "free" });
   runPractice(career, {});
   runQualifyingSession(career, {});
   if (base === year) return createWeekendRace(career);

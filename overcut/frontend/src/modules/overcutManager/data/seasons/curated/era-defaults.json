@@ -3,7 +3,8 @@
   "_amendments": [
     "2026: race.js leía era.features.drs (year >= 2011) y daba DRS en 2026; aquí drs=false y activeAero=true, como dice SRS 6.2 y era-rules.json.",
     "1982-1983: el repostaje era legal (Brabham lo usó); SRS 6.2 dice 'prohibido desde 1984'. El modelo lo deja desactivado, como hacía race.js; enmienda propuesta: refuelling=true opcional en 1982-1983 cuando haya pack.",
-    "2010-2013: los diez primeros salen con el neumático de Q3 (no Q2), ya propuesto en CLAUDE.md."
+    "2010-2013: los diez primeros salen con el neumático de Q3 (no Q2), ya propuesto en CLAUDE.md.",
+    "Fase 5 (packs de todas las temporadas): teamOrdersBanned pasa a 2003-2010 (la prohibición se anunció tras la temporada 2002) y los proveedores de 1976 son los de f1db (Bridgestone y Dunlop corrieron en Japón); techo de gasto 2021-2023, 2025 y 2026 verificado."
   ],
   "fields": {
     "refuelling": [
@@ -46,7 +47,7 @@
       { "from": 1950, "to": 1958, "value": ["pirelli", "englebert", "dunlop", "firestone", "continental"], "status": "pending" },
       { "from": 1959, "to": 1963, "value": ["dunlop"], "status": "pending" },
       { "from": 1964, "to": 1975, "value": ["goodyear", "firestone", "dunlop"], "status": "pending" },
-      { "from": 1976, "to": 1976, "value": ["goodyear"] },
+      { "from": 1976, "to": 1976, "value": ["bridgestone", "dunlop", "goodyear"], "note": "f1db: Bridgestone y Dunlop con los inscritos locales del GP de Japón; antes decía solo goodyear" },
       { "from": 1977, "to": 1980, "value": ["goodyear", "michelin"], "status": "pending" },
       { "from": 1981, "to": 1984, "value": ["goodyear", "michelin", "pirelli"], "status": "pending" },
       { "from": 1985, "to": 1986, "value": ["goodyear", "pirelli"], "status": "pending" },
@@ -98,8 +99,8 @@
       { "from": 2011, "to": 2026, "value": true }
     ],
     "teamOrdersBanned": [
-      { "from": 1950, "to": 2001, "value": false },
-      { "from": 2002, "to": 2010, "value": true },
+      { "from": 1950, "to": 2002, "value": false },
+      { "from": 2003, "to": 2010, "value": true, "note": "Prohibidas tras la temporada 2002 (https://en.wikipedia.org/wiki/Team_orders); antes decía 2002-2010" },
       { "from": 2011, "to": 2026, "value": false }
     ],
     "parcFerme": [
@@ -108,10 +109,12 @@
     ],
     "budgetCap": [
       { "from": 1950, "to": 2020, "value": null },
-      { "from": 2021, "to": 2021, "value": 145, "status": "pending" },
-      { "from": 2022, "to": 2022, "value": 140, "status": "pending" },
-      { "from": 2023, "to": 2025, "value": 135, "status": "pending" },
-      { "from": 2026, "to": 2026, "value": 215, "status": "pending", "note": "SRS 6.2: 'cifra por verificar'" }
+      { "from": 2021, "to": 2021, "value": 145 },
+      { "from": 2022, "to": 2022, "value": 140 },
+      { "from": 2023, "to": 2023, "value": 135 },
+      { "from": 2024, "to": 2024, "value": 135, "status": "pending" },
+      { "from": 2025, "to": 2025, "value": 135 },
+      { "from": 2026, "to": 2026, "value": 215, "note": "Verificado: 'increased from $135 million to $215 million' (2026_Formula_One_World_Championship)" }
     ],
     "unitLimits": [
       { "from": 1950, "to": 2003, "value": { "enginesPerDriver": null, "engineRaceWeekends": null, "gearboxRaces": null } },

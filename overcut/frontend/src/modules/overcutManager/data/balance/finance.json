@@ -2,14 +2,14 @@
   "$comment": "RF-FIN-01..03, RNF-07: dinero del Manager. Estructura inspirada en Finance_TeamBudget / Finance_Transactions de F1 Manager 24 (SRS 2.2, 4.1 Transaction); ningún valor copiado. Importes en USD de 2024, escalados al año con economy.moneyScale salvo el techo de gasto, que es nominal.",
   "version": 1,
   "economy": {
-    "$comment": "Antes en economy.js (mismos valores). moneyScale(year) = max(floor, growth^(year-2024)).",
+    "$comment": "Antes en economy.js. moneyScale(year) = max(floor, growth^(year-2024)). Fase 5 (balance, 2026-11-22): sponsorBase 40→47 M, sponsorPerPrestige 230→160 M, operationsBase 70→56 M, operationsPerPrestige 60→215 M: los grandes cobran algo menos y, sobre todo, cuestan mucho más (plantilla de fábrica de ~1.000 personas dentro de operaciones). Un equipo en piloto automático (sin I+D) acaba la temporada entre ×0,8 y ×1,5 de su caja inicial (antes ×2,5-×2,7 en los punteros: McLaren 2024 157→399 M); lo que sobra es su presupuesto de desarrollo. Los equipos de cola quedan igual (p≈0,1). Lo comprueban los tests de engine/finance/seasonBalance.test.js.",
     "moneyGrowth": 1.068,
     "moneyFloor": 0.0045,
-    "sponsorBase": 40000000,
-    "sponsorPerPrestige": 230000000,
+    "sponsorBase": 47000000,
+    "sponsorPerPrestige": 160000000,
     "commercialPerPoint": 0.004,
-    "operationsBase": 70000000,
-    "operationsPerPrestige": 60000000,
+    "operationsBase": 56000000,
+    "operationsPerPrestige": 215000000,
     "driverSalary": { "base": 800000, "ratingFrom": 60, "ratingSlope": 0.13, "prestigeFloor": 0.7, "prestigeSlope": 0.6 },
     "staffSalary": { "base": 500000, "ratingFrom": 50, "ratingSlope": 0.062 }
   },
@@ -23,7 +23,7 @@
     { "id": "facilities", "direction": "out", "es": "Instalaciones", "en": "Facilities", "countsForCap": false },
     { "id": "engine", "direction": "out", "es": "Motor", "en": "Engine", "countsForCap": false },
     { "id": "incidents", "direction": "out", "es": "Incidentes y daños", "en": "Incidents and damage", "countsForCap": true },
-    { "id": "operations", "direction": "out", "es": "Operaciones y viajes", "en": "Operations and travel", "countsForCap": true, "capShare": 0.45 },
+    { "id": "operations", "direction": "out", "es": "Operaciones y viajes", "en": "Operations and travel", "countsForCap": true, "capShare": 0.25, "$capShare": "Fase 5: 0,45→0,25 al subir el coste de operaciones de los grandes (la mayor parte, viajes, hospitality y marketing, queda fuera del techo); deja ~60 M de margen de I+D bajo el techo de 2024 a un equipo puntero." },
     { "id": "penalties", "direction": "out", "es": "Multas", "en": "Fines", "countsForCap": false },
     { "id": "other", "direction": "both", "es": "Varios", "en": "Other", "countsForCap": false }
   ],

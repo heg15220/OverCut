@@ -14,7 +14,7 @@
  */
 
 import { config } from "../../../config/constants";
-import { MANAGER_GAME, MANAGER_VERSION } from "./career";
+import { DEFAULT_MODE, MANAGER_GAME, MANAGER_VERSION, MODES } from "./career";
 import { ensureDevelopment } from "./development";
 import { ensureFinance } from "./finance";
 import { ensureHq } from "./hq";
@@ -42,6 +42,13 @@ export const MIGRATIONS = {
   2: (career) => {
     ensureFinance(career);
     ensureHq(career);
+    return career;
+  },
+  // v3 -> v4 (RF-CAR-05, RNF-06): the historical mode. Saves made before it get the default (strict:
+  // its season-to-season pull, k = 0.6, is the one every v3 career already had). A world saved without
+  // guided anchors is simply not guided until the next season brings them.
+  3: (career) => {
+    if (career.mode !== MODES.STRICT && career.mode !== MODES.FREE) career.mode = DEFAULT_MODE;
     return career;
   },
 };

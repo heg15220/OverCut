@@ -1,7 +1,7 @@
 {
- "schemaVersion": 1,
+ "schemaVersion": 2,
  "year": 2005,
- "packVersion": "1.0.0",
+ "packVersion": "2.0.0",
  "sources": [
   {
    "name": "f1db",
@@ -17,19 +17,17 @@
   }
  ],
  "regulations": {
-  "engineFormula": "3.0 V10",
-  "refuelling": true,
-  "energySystem": "none",
-  "drs": false,
   "activeAero": false,
-  "safetyCar": true,
-  "vsc": false,
-  "tyreType": "grooved",
-  "tyreChangesInRace": false,
+  "aeroTestingRestriction": false,
+  "budgetCap": null,
+  "drs": false,
+  "energySystem": "none",
+  "engineFormula": "3.0 V10",
+  "engineFormulas": [
+   "3.0 V10"
+  ],
   "mandatoryDryCompounds": 0,
-  "qualifyingRaceFuel": true,
-  "topTenStartTyres": "none",
-  "rule107": false,
+  "parcFerme": true,
   "pointsScheme": {
    "race": [
     10,
@@ -46,101 +44,142 @@
    "sprint": [],
    "doubleLastRace": false,
    "bestResults": null,
-   "constructorsBestCarOnly": false
+   "bestResultsSplit": null,
+   "constructorsBestCarOnly": false,
+   "dropScoresConstructors": false
   },
-  "budgetCap": null,
-  "aeroTestingRestriction": false,
+  "qualifyingFormats": [
+   "AGGREGATE",
+   "ONE_LAP"
+  ],
+  "qualifyingRaceFuel": true,
+  "refuelling": true,
+  "rule107": false,
+  "safetyCar": true,
+  "sprintWeekends": 0,
+  "teamOrdersBanned": true,
+  "topTenStartTyres": "none",
+  "tyreChangesInRace": false,
+  "tyreSuppliers": [
+   "bridgestone",
+   "michelin"
+  ],
+  "tyreType": "grooved",
   "unitLimits": {
    "enginesPerDriver": null,
    "engineRaceWeekends": 2,
    "gearboxRaces": null
   },
-  "teamOrdersBanned": true,
-  "parcFerme": true,
-  "sprintWeekends": 0,
-  "tyreSuppliers": [
-   "bridgestone",
-   "michelin"
-  ],
-  "qualifyingFormats": [
-   "AGGREGATE",
-   "ONE_LAP"
-  ]
+  "vsc": false
  },
  "regulationsProvenance": {
-  "engineFormula": {
-   "status": "f1db"
+  "activeAero": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Drag_reduction_system",
+   "quote": "DRS was removed from Formula One for the 2026 season, and was replaced with an \"active aerodynamics\" system under the new 2026 regulations."
   },
-  "refuelling": {
-   "status": "pending"
+  "aeroTestingRestriction": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2022_Formula_One_World_Championship",
+   "quote": "In 2021, the championship introduced a sliding scale system to regulate aerodynamic testing."
   },
-  "energySystem": {
-   "status": "pending"
+  "budgetCap": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2021_Formula_One_World_Championship",
+   "quote": "The championship introduced a budget cap, with teams limited to spending a maximum of $145 million per year.",
+   "note": "Antes de 2021 no hubo techo de gasto"
   },
   "drs": {
-   "status": "pending"
-  },
-  "activeAero": {
-   "status": "pending"
-  },
-  "safetyCar": {
-   "status": "pending"
-  },
-  "vsc": {
-   "status": "pending"
-  },
-  "tyreType": {
    "status": "source",
-   "url": "https://en.wikipedia.org/wiki/Formula_One_tyres",
-   "quote": "regulations required the tyres to feature a minimum of four 14 mm"
+   "url": "https://en.wikipedia.org/wiki/Drag_reduction_system",
+   "quote": "DRS was used in Formula One from 2011 to 2025, with Jenson Button and Andrea Kimi Antonelli being the first and the last to use it, respectively."
   },
-  "tyreChangesInRace": {
+  "energySystem": {
    "status": "source",
-   "url": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship",
-   "quote": "A major change in 2005 was the outlawing of tyre changes during pit stops."
+   "url": "https://en.wikipedia.org/wiki/Kinetic_energy_recovery_system",
+   "quote": "the FIA allowed the use of 60 kW (82 PS; 80 bhp) KERS in the regulations for the 2009 Formula One season.",
+   "note": "KERS se permite por primera vez en 2009"
+  },
+  "engineFormula": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2000_Formula_One_World_Championship",
+   "quote": "To keep costs down, the V10 engine configuration was made fully mandatory in 2000"
+  },
+  "engineFormulas": {
+   "status": "f1db",
+   "note": "Conjunto de fórmulas de los motores de f1db; el generador aborta si no coincide"
   },
   "mandatoryDryCompounds": {
-   "status": "pending"
+   "status": "pending",
+   "note": "Sin obligación de usar dos compuestos antes de 2007 (de memoria)"
+  },
+  "parcFerme": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Parc_fermé",
+   "quote": "According to the FIA Formula One regulations (used since 2003), the area must be sufficiently large and secure so as to prevent unauthorised access to the cars, while allowing technical checks to take place."
+  },
+  "pointsScheme": {
+   "status": "f1db",
+   "note": "Comprobado por el generador contra los puntos de cada resultado y las clasificaciones de f1db"
+  },
+  "qualifyingFormats": {
+   "status": "f1db"
   },
   "qualifyingRaceFuel": {
    "status": "source",
    "url": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship",
    "quote": "a single, one-lap qualifying run on Saturday on race fuel and race tyres"
   },
-  "topTenStartTyres": {
-   "status": "pending"
+  "refuelling": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Pit_stop",
+   "quote": "Refuelling, now banned in F1 races, was permitted until 1983, and then again from the 1994 season to the 2009 season."
   },
   "rule107": {
-   "status": "pending"
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Formula_One_qualifying",
+   "quote": "The 107% rule was removed in 2003 since the FIA's rules indicated previously that 24 cars could take the start of a Formula One race, and a minimum of twenty cars had to enter a race."
   },
-  "pointsScheme": {
+  "safetyCar": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Safety_car",
+   "quote": "Formula One officially introduced safety cars in 1993, after trials were conducted at both the French and British Grands Prix during the preceding 1992 season."
+  },
+  "sprintWeekends": {
+   "status": "f1db",
+   "note": "Rondas con resultados de sprint en f1db"
+  },
+  "teamOrdersBanned": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Team_orders",
+   "quote": "After the 2002 season, FIA announced that \"Team Orders that could influence the outcome of a race\" were banned, although they were sometimes still implemented discreetly."
+  },
+  "topTenStartTyres": {
+   "status": "pending",
+   "note": "Sin regla de neumático de salida para los diez primeros (de memoria)"
+  },
+  "tyreChangesInRace": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship",
+   "quote": "A major change in 2005 was the outlawing of tyre changes during pit stops."
+  },
+  "tyreSuppliers": {
    "status": "f1db"
   },
-  "budgetCap": {
-   "status": "pending"
-  },
-  "aeroTestingRestriction": {
-   "status": "pending"
+  "tyreType": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+   "quote": "In 1998, grooved tyres were introduced with three groove lines in the front tyres and four groove lines in the rear tyres."
   },
   "unitLimits": {
    "status": "source",
    "url": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship",
    "quote": "Formula One engines had to last two race weekends, double that demanded by 2004 regulations."
   },
-  "teamOrdersBanned": {
-   "status": "pending"
-  },
-  "parcFerme": {
-   "status": "pending"
-  },
-  "sprintWeekends": {
-   "status": "f1db"
-  },
-  "tyreSuppliers": {
-   "status": "f1db"
-  },
-  "qualifyingFormats": {
-   "status": "f1db"
+  "vsc": {
+   "status": "source",
+   "url": "https://en.wikipedia.org/wiki/Safety_car",
+   "quote": "The system was evolved taking into account drivers' feedback and was officially introduced for the 2015 season following ratification by the World Motor Sport Council (WMSC)."
   }
  },
  "calendar": [
@@ -163,7 +202,9 @@
    "scheduledLaps": 58,
    "distanceKm": 302.271,
    "qualifyingFormat": "AGGREGATE",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 2,
@@ -184,7 +225,9 @@
    "scheduledLaps": null,
    "distanceKm": 310.408,
    "qualifyingFormat": "AGGREGATE",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 3,
@@ -205,7 +248,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.238,
    "qualifyingFormat": "AGGREGATE",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 4,
@@ -226,7 +271,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.609,
    "qualifyingFormat": "AGGREGATE",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 5,
@@ -247,7 +294,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.256,
    "qualifyingFormat": "AGGREGATE",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 6,
@@ -268,7 +317,9 @@
    "scheduledLaps": null,
    "distanceKm": 260.52,
    "qualifyingFormat": "AGGREGATE",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 7,
@@ -289,7 +340,9 @@
    "scheduledLaps": 60,
    "distanceKm": 303.732,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 8,
@@ -310,7 +363,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.27,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 9,
@@ -331,7 +386,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.016,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 10,
@@ -352,7 +409,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.77,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 11,
@@ -373,7 +432,9 @@
    "scheduledLaps": null,
    "distanceKm": 308.355,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 12,
@@ -394,7 +455,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.458,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 13,
@@ -415,7 +478,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.663,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 14,
@@ -436,7 +501,9 @@
    "scheduledLaps": null,
    "distanceKm": 309.396,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 15,
@@ -457,7 +524,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.72,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 16,
@@ -478,7 +547,9 @@
    "scheduledLaps": null,
    "distanceKm": 306.927,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 17,
@@ -499,7 +570,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.909,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 18,
@@ -520,7 +593,9 @@
    "scheduledLaps": null,
    "distanceKm": 307.573,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   },
   {
    "round": 19,
@@ -541,7 +616,9 @@
    "scheduledLaps": null,
    "distanceKm": 305.066,
    "qualifyingFormat": "ONE_LAP",
-   "sprint": false
+   "sprint": false,
+   "pointsFactor": 1,
+   "resultsAvailable": true
   }
  ],
  "teams": [
@@ -8953,6 +9030,7 @@
    "retired": "Spun off"
   }
  ],
+ "sprintResults": [],
  "standings": {
   "drivers": [
    {
@@ -9134,6 +9212,7 @@
    }
   ]
  },
+ "standingsAdjustments": [],
  "ratings": {
   "method": "v1-qualifying-gap",
   "teams": [
@@ -9631,6 +9710,42 @@
  },
  "events": [
   {
+   "id": "2005-tyres-for-the-race",
+   "date": "2005-03-06",
+   "round": 1,
+   "anchor": "fixed",
+   "kind": "constraint",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "Un juego de neumáticos para toda la carrera y un motor para dos",
+    "en": "One set of tyres for the whole race and one engine for two"
+   },
+   "body": {
+    "es": "Solo se cambian ruedas por pinchazo o lluvia. Fisichella gana en Melbourne.",
+    "en": "Tyres may be changed only for a puncture or rain. Fisichella wins in Melbourne."
+   },
+   "source": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship"
+  },
+  {
+   "id": "2005-bar-ban",
+   "date": "2005-05-05",
+   "round": null,
+   "anchor": "fixed",
+   "kind": "constraint",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "BAR, descalificado en Imola y sancionado con dos carreras",
+    "en": "BAR disqualified at Imola and banned for two races"
+   },
+   "body": {
+    "es": "El Tribunal de Apelación concluye que el combustible se usaba como lastre; BAR se pierde España y Mónaco.",
+    "en": "The Court of Appeal finds that fuel was used as ballast; BAR miss Spain and Monaco."
+   },
+   "source": "https://en.wikipedia.org/wiki/2005_San_Marino_Grand_Prix"
+  },
+  {
    "id": "2005-qualifying-one-lap",
    "date": "2005-05-29",
    "round": 7,
@@ -9641,6 +9756,10 @@
    "title": {
     "es": "La clasificación deja de sumar dos sesiones: desde el GP de Europa es una sola vuelta el sábado",
     "en": "Qualifying stops aggregating two runs: from the European GP it is a single Saturday lap"
+   },
+   "body": {
+    "es": "La suma de la vuelta del sábado y la del domingo por la mañana se abandona tras seis carreras.",
+    "en": "The aggregate of a Saturday lap and a Sunday-morning lap is dropped after six races."
    },
    "source": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship"
   },
@@ -9656,7 +9775,38 @@
     "es": "Indianápolis: los equipos con Michelin se retiran tras la vuelta de formación y solo corren 6 coches",
     "en": "Indianapolis: the Michelin teams pull out after the formation lap and only 6 cars race"
    },
+   "body": {
+    "es": "Tras los fallos de neumáticos en la curva peraltada, Michelin no garantiza sus gomas y sus siete equipos entran en el box al acabar la vuelta de formación. Solo Ferrari, Jordan y Minardi, con Bridgestone, toman la salida.",
+    "en": "After tyre failures in the banked turn, Michelin cannot vouch for its tyres and its seven teams pull into the pits at the end of the formation lap. Only Ferrari, Jordan and Minardi, on Bridgestones, take the start."
+   },
+   "effect": {
+    "type": "race-starters",
+    "tyreSupplier": "bridgestone",
+    "teams": [
+     "ferrari",
+     "jordan",
+     "minardi"
+    ]
+   },
    "source": "https://en.wikipedia.org/wiki/2005_United_States_Grand_Prix"
+  },
+  {
+   "id": "2005-turkey-first",
+   "date": "2005-08-21",
+   "round": 14,
+   "anchor": "fixed",
+   "kind": "note",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "Primer Gran Premio de Turquía, en Istanbul Park",
+    "en": "The first Turkish GP, at Istanbul Park"
+   },
+   "body": {
+    "es": "Räikkönen gana.",
+    "en": "Räikkönen wins."
+   },
+   "source": "https://en.wikipedia.org/wiki/2005_Turkish_Grand_Prix"
   },
   {
    "id": "2005-alonso-champion",
@@ -9670,7 +9820,29 @@
     "es": "Alonso se proclama campeón en Brasil y Renault gana después el título de constructores",
     "en": "Alonso clinches the title in Brazil and Renault later takes the constructors' crown"
    },
+   "body": {
+    "es": "Con 24 años, el campeón más joven hasta entonces; pone fin a cinco años de títulos de Schumacher.",
+    "en": "Aged 24, the youngest champion yet; it ends Schumacher's five-year run of titles."
+   },
    "source": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship"
+  },
+  {
+   "id": "2005-suzuka-raikkonen",
+   "date": "2005-10-09",
+   "round": 18,
+   "anchor": "guided",
+   "kind": "note",
+   "sensitive": false,
+   "verification": "data",
+   "title": {
+    "es": "Suzuka: Räikkönen gana desde el 17.º adelantando en la última vuelta",
+    "en": "Suzuka: Räikkönen wins from 17th with a last-lap pass"
+   },
+   "body": {
+    "es": "Supera a Fisichella en la primera curva de la vuelta final.",
+    "en": "He passes Fisichella into the first corner of the final lap."
+   },
+   "source": "https://en.wikipedia.org/wiki/2005_Japanese_Grand_Prix"
   }
  ]
 }

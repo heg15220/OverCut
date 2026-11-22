@@ -27,11 +27,9 @@ import { constructorStandings, emptySeason, driverStandings } from "./standings"
 import { developmentNewSeason, pendingNextGains, regulationCutCar } from "./development";
 import { worldForSeason } from "./packs/packWorld";
 import { financeNewSeason } from "./finance";
+import { deliverHistoryEvents } from "./history";
 import { addInventedJuniors, buildManagerWorld, fillEmptySeats, prestigeFor, refreshRating, signForTeam, teamsByPace } from "./world";
-import { PHASES } from "./career";
-
-/** How hard real history pulls a rival's car and its drivers. */
-const HISTORY_PULL = 0.6;
+import { PHASES, seasonMixOf } from "./career";
 
 const realWorldFor = (context, year, seed) => {
   const { bootstrap } = context;
@@ -79,8 +77,8 @@ const ageAndGrow = (career, scores) => {
 };
 
 /** Nudge a driver's attributes towards the rating history gives him next year. */
-const pullTowards = (driver, rating) => {
-  const delta = (rating - driver.rating) * HISTORY_PULL;
+const pullTowards = (driver, rating, pull) => {
+  const delta = (rating - driver.rating) * pull;
   Object.keys(driver.attributes).forEach((key) => {
     driver.attributes[key] = clamp(driver.attributes[key] + delta, 30, 99);
   });
@@ -96,6 +94,9 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
   const stream = substream(career.seed, "turnover", year);
   const previous = career.world;
   const real = realWorldFor(context, year, career.seed);
+  // How hard real history pulls a rival's car and its drivers: SRS 6.5's k, by the career's
+  // historical mode (RF-CAR-05; data/balance/historical-anchors.json seasonMix: 0.6 strict, 0.2 free).
+  const HISTORY_PULL = seasonMixOf(career);
   const scores = seasonScores(career);
   ageAndGrow(career, scores);
   // RF-DEV-03/04/06: what the parts layer needs from the year that ends.
@@ -199,7 +200,8 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
   });
   Object.values(signed).forEach((deal) => userNext.add(deal.driverId));
 
-  const world = { year, races: [], teams, order: [], drivers, generated: !real };
+  // The new year's fixed rules and guided anchors come with history (RF-CAR-02, RF-CAR-05).
+  const world = { year, races: [], teams, order: [], drivers, generated: !real, ...(real?.regulations ? { regulations: real.regulations, pack: real.pack } : {}), ...(real?.anchors ? { anchors: real.anchors } : {}) };
   Object.values(drivers).forEach((driver) => {
     if (userNext.has(driver.id)) return;
     driver.status = driver.status === "retired" ? "retired" : driver.status === "junior" ? "junior" : "free";
@@ -254,7 +256,7 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
         const driver = drivers[realId];
         if (!driver || userNext.has(realId) || driver.status === "retired" || team.drivers.length >= 2) return;
         const realDriver = real.drivers[realId];
-        if (realDriver && driver !== realDriver) pullTowards(driver, realDriver.rating);
+        if (realDriver && driver !== realDriver) pullTowards(driver, realDriver.rating, HISTORY_PULL);
         seat(driver, team, year, realDriver?.contract?.until ?? year, realDriver?.contract?.role ?? "equal");
       });
     } else {
@@ -363,6 +365,8 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
   addInbox(career, { kind: "new-season", year, regulations: Boolean(real === null && year % 5 === 0) });
   addInbox(career, { kind: "objectives" });
   if (real) addNews(career, { kind: "history", year });
+  // RF-INB-02: the new season's first historical events.
+  deliverHistoryEvents(career);
   // RF-FIN-01..05, RF-HQ-01: new books, finished deals dropped, new offers, HQ into the new season.
   financeNewSeason(career);
   return career;

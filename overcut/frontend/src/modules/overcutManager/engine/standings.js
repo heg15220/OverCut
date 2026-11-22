@@ -13,6 +13,7 @@
  */
 
 import { countingRoundsFor, eraProfileFor } from "../../overcutTrayectoria/engine/eras";
+import { adjustConstructorStandings, adjustDriverStandings } from "./history";
 
 export const emptySeason = (year) => ({ year, results: [], drivers: {}, teams: {} });
 
@@ -90,7 +91,7 @@ const compare = (a, b) => b.total - a.total || b.wins - a.wins || b.podiums - a.
 export const driverStandings = (career) => {
   const season = career.season;
   const counting = countingRoundsFor(season.year, career.world.races.length || 1);
-  return Object.values(season.drivers)
+  const rows = Object.values(season.drivers)
     .map((row) => {
       const sorted = [...row.points].sort((a, b) => b - a);
       const total = sorted.slice(0, counting).reduce((sum, value) => sum + value, 0);
@@ -99,15 +100,19 @@ export const driverStandings = (career) => {
     })
     .sort(compare)
     .map((row, index) => ({ ...row, position: index + 1 }));
+  // SRS 6.4: real exclusions (1997 Schumacher, only if the situation reproduces; strict mode only).
+  return adjustDriverStandings(career, rows);
 };
 
 export const constructorStandings = (career) => {
   const season = career.season;
-  return Object.keys(career.world.teams)
+  const rows = Object.keys(career.world.teams)
     .map((teamId) => {
       const row = season.teams[teamId] || { teamId, points: 0, wins: 0, podiums: 0, best: null };
       return { ...row, teamId, total: row.points };
     })
     .sort(compare)
     .map((row, index) => ({ ...row, position: index + 1 }));
+  // SRS 6.4: real exclusions (2007 McLaren from the constructors', strict mode only).
+  return adjustConstructorStandings(career, rows);
 };
