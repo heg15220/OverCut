@@ -1,7 +1,7 @@
 """Pipeline offline de assets de OverCut Manager (ADR-001, SRS 4.3, fase 2).
 
 Uso (desde la raíz del repo OverCut o desde tools/assets):
-  python tools/assets/build_assets.py [cars] [heroes] [circuits] [manifest] [--only <id>] [--jobs 3] [--force]
+  python tools/assets/build_assets.py [cars] [heroes] [circuits] [splines] [manifest] [--only <id>] [--jobs 3] [--force]
 
 Sin etapas, ejecuta las tres. Cada paso se salta si su salida ya existe y es más nueva que su entrada
 (--force lo repite). Necesita: gh (GitHub CLI), Blender 5.2 (BLENDER_BIN), Node con las dependencias de
@@ -11,9 +11,12 @@ Etapas:
   cars      descarga los GLB de las temporadas configuradas, normaliza y genera LOD con Blender, comprime con
             gltf-transform (Meshopt + KTX2) y renderiza la miniatura del showroom.
   circuits  extrae la spline del asfalto, la alinea (sentido f1db, meta, reflexión), prepara el GLB del
-            circuito y lo comprime; deja una vista cenital de revisión en .cache/preview/.
+            circuito y lo comprime, saca la calle de boxes, mide la anchura y calcula la trazada (racing_line.mjs);
+            deja vistas cenitales de revisión en .cache/preview/.
   heroes    solo el nivel hero del showroom (texturas de hasta 2048 px sobre la geometría del LOD0), sin Blender;
             la etapa cars ya lo incluye.
+  splines   solo data/splines.json (motor): bucle, calle de boxes y datos de pista (anchura, trazada, curvatura,
+            marcas del pit lane; docs/manager/SIM-FISICA.md WP1), sin tocar el manifiesto.
   manifest  escribe manager-assets.json (SRS 4.3) con licencia y autor sacados de cada GLB, el fichero
             compacto de splines que lee el motor y copia las splines completas junto a los GLB.
 
@@ -400,7 +403,44 @@ def build_circuit(item, force):
         log("boxes", sid)
         blender("extract_pitlane.py", prepared, aligned, pitlane, "--preview", CACHE / "preview" / f"{sid}.pit.png",
                 logfile=work / f"{sid}.pitlane.log")
+    # Datos de pista (docs/manager/SIM-FISICA.md §3.1 y §3.8, WP1): anchura medida en la malla, trazada de
+    # curvatura mínima, curvatura y marcas del pit lane; vistas de revisión en .cache/preview/<id>.track*.png.
+    widths = work / f"{sid}.widths.json"
+    background = work / f"{sid}.bg.png"
+    if force or not newer(widths, prepared, aligned) or not background.exists():
+        log("anchura", sid)
+        painted = painted_names(sid, item)
+        blender("extract_spline.py", prepared, widths, "--widths", aligned,
+                *(["--group", item["group"]] if item.get("group") else []),
+                *(["--painted", ",".join(painted)] if painted else []),
+                "--preview-bg", background, logfile=work / f"{sid}.widths.log")
+    log("trazada", sid)
+    run(["node", str(HERE / "racing_line.mjs"), sid, "--spline", str(aligned), "--widths", str(widths),
+         "--pit", str(pitlane), "--out", str(work / f"{sid}.track.json"), "--preview", str(CACHE / "preview")],
+        logfile=work / f"{sid}.track.log")
     return sid
+
+
+def painted_names(sid, item):
+    """Mallas (o materiales) de las líneas pintadas de los bordes, las mismas que eligió extract_spline.py:
+    de la spline bruta si las guarda, o de su registro (las anteriores a paintedObjects). Si el registro es de
+    otra ejecución, se aplica la misma regla de forma a sus líneas «esqueleto L m, ancho W m»."""
+    work = CACHE / "splines"
+    raw = json.loads((work / f"{sid}.raw.json").read_text(encoding="utf-8"))
+    if raw.get("paintedObjects") is not None:
+        return raw["paintedObjects"]
+    logfile = work / f"{sid}.log"
+    if not logfile.exists():
+        return []
+    text = logfile.read_text(encoding="utf-8", errors="replace")
+    import ast
+    import re
+    found = re.findall(r"líneas pintadas (\[.*?\]): ambos bordes", text)
+    if found:
+        return ast.literal_eval(found[-1])
+    target = float(item["km"]) * 1000.0
+    return [name for name, length, width in re.findall(r"\]\s{3}(\S.*?): esqueleto (\d+) m, ancho ([\d.]+) m", text)
+            if 0.4 <= float(width) <= 2.5 and float(length) >= 1.3 * target]
 
 
 def stage_circuits(only, force):
@@ -487,6 +527,66 @@ def compact_pit(pitlane_path, step=6.0):
     }
 
 
+def engine_spline(item, data):
+    """Entrada de splines.json para el motor (RF-3D-03): bucle, calle de boxes y datos de pista (WP1)."""
+    sid = item["splineId"]
+    entry = {
+        "circuitRef": item["circuitId"], "layoutRef": item["layoutRef"], "layoutId": item["layoutId"],
+        "validFrom": item["validFrom"], "validTo": item["validTo"], "km": item["km"],
+        "direction": item["direction"], "lengthM": data["lengthM"], "stepM": 6,
+        "startConfidence": (data.get("start") or {}).get("confidence"),
+        "points": compact_spline(data),
+    }
+    pit = compact_pit(CACHE / "splines" / f"{sid}.pitlane.json")
+    # Datos de pista de racing_line.mjs (docs/manager/SIM-FISICA.md §3.1 y §3.8): campos nuevos; los de antes no
+    # cambian (engine/trackGeometry.js, venue.circuitFor y three/racingLine.js no leen los nuevos).
+    track_path = CACHE / "splines" / f"{sid}.track.json"
+    if track_path.exists():
+        track = json.loads(track_path.read_text(encoding="utf-8"))
+        if track["count"] * 2 != len(entry["points"]):
+            raise RuntimeError(f"{sid}: {sid}.track.json tiene {track['count']} puntos y la spline {len(entry['points']) // 2}")
+        entry.update({"trackMarginM": track["trackMarginM"], "wl": track["wl"], "wr": track["wr"],
+                      "line": track["line"], "kappa": track["kappa"]})
+        marks = track.get("pit")
+        if pit and marks:
+            pit.update({k: marks[k] for k in ("entryLine", "limitFrom", "limitTo", "exitBlend", "marksSource")})
+    if pit:
+        entry["pit"] = pit
+    return entry
+
+
+def write_engine_splines(engine):
+    td = CONFIG["trackData"]
+    defaults = {
+        "$comment": "Circuitos sin malla (trazado procedural de engine/layouts.js): engine/trackData.js usa esta anchura y resuelve la trazada con el mismo código (engine/racingLineSolver.js). Sale de tools/assets/assets.config.json trackData.",
+        "halfWidthM": td["procedural"]["halfWidthM"], "halfWidthSource": td["procedural"]["source"],
+        "marginM": round(td["carHalfWidthM"] + td["clearanceM"], 2), "curvatureSpan": td["curvatureSpan"],
+        "solver": td["solver"],
+    }
+    splines = {
+        "$comment": "GENERADO por tools/assets/build_assets.py desde las splines calibradas (RF-3D-03). Puntos (x, z) glTF en decímetros, cada 6 m, empezando en la meta y en el sentido de carrera. Por punto (docs/manager/SIM-FISICA.md §3.1, tools/assets/racing_line.mjs): wl/wr media anchura a izquierda/derecha del sentido de carrera (dm), line trazada de curvatura mínima como desplazamiento lateral (dm, + = derecha, el sentido de three/racingLine.js), kappa curvatura de la trazada (1e-4/m, + = hacia la derecha). pit.entryLine/limitFrom/limitTo/exitBlend: fracciones de la calle de boxes, como boxFrom/boxTo.",
+        "defaults": defaults,
+        "splines": engine,
+    }
+    (ROOT / CONFIG["engineSplines"]).write_text(json.dumps(splines, separators=(",", ":")) + "\n", encoding="utf-8")
+    log(f"splines del motor: {len(engine)}")
+
+
+def stage_splines():
+    """Solo data/splines.json (motor), sin tocar el manifiesto: mismas reglas de aprobación que stage_manifest."""
+    engine = {}
+    for item in CONFIG["circuits"]:
+        sid = item["splineId"]
+        aligned = CACHE / "splines" / f"{sid}.json"
+        if not aligned.exists() or not (PUBLIC / "circuits" / f"{sid}.glb").exists():
+            continue
+        data = json.loads(aligned.read_text(encoding="utf-8"))
+        usable = (data["deviation"]["maxM"] <= 2.0 and data["deviation"]["measuredShare"] >= 0.6) or item.get("review", {}).get("approved")
+        if usable:
+            engine[sid] = engine_spline(item, data)
+    write_engine_splines(engine)
+
+
 def stage_manifest():
     copy_transcoder()
     car_risk, circuit_risk = load_provenance()
@@ -552,16 +652,7 @@ def stage_manifest():
             "riskRipped": None,
             **(circuit_risk.get(sid) or circuit_risk.get(item["release"]) or {}),
         })
-        engine[sid] = {
-            "circuitRef": item["circuitId"], "layoutRef": item["layoutRef"], "layoutId": item["layoutId"],
-            "validFrom": item["validFrom"], "validTo": item["validTo"], "km": item["km"],
-            "direction": item["direction"], "lengthM": data["lengthM"], "stepM": 6,
-            "startConfidence": (data.get("start") or {}).get("confidence"),
-            "points": compact_spline(data),
-        }
-        pit = compact_pit(CACHE / "splines" / f"{sid}.pitlane.json")
-        if pit:
-            engine[sid]["pit"] = pit
+        engine[sid] = engine_spline(item, data)
     digest = hashlib.sha256(json.dumps([cars, circuits], sort_keys=True).encode()).hexdigest()[:16]
     manifest = {
         "$comment": "GENERADO por tools/assets/build_assets.py: no editar a mano (SRS 4.3, RF-3D-01). Las rutas son relativas a /manager-assets/.",
@@ -570,14 +661,13 @@ def stage_manifest():
         "circuits": sorted(circuits, key=lambda c: (c["circuitRef"], c["validFrom"])),
     }
     (ROOT / CONFIG["manifest"]).write_text(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    splines = {"$comment": "GENERADO por tools/assets/build_assets.py desde las splines calibradas (RF-3D-03). Puntos (x, z) glTF en decímetros, cada 6 m, empezando en la meta y en el sentido de carrera.", "splines": engine}
-    (ROOT / CONFIG["engineSplines"]).write_text(json.dumps(splines, separators=(",", ":")) + "\n", encoding="utf-8")
+    write_engine_splines(engine)
     log(f"manifiesto: {len(cars)} coches, {len(circuits)} circuitos, hash {digest}")
 
 
 def main():
     args = sys.argv[1:]
-    stages = [a for a in args if a in ("cars", "heroes", "circuits", "manifest")] or ["cars", "circuits", "manifest"]
+    stages = [a for a in args if a in ("cars", "heroes", "circuits", "splines", "manifest")] or ["cars", "circuits", "manifest"]
     only = args[args.index("--only") + 1] if "--only" in args else None
     jobs_n = int(args[args.index("--jobs") + 1]) if "--jobs" in args else 3
     force = "--force" in args
@@ -590,6 +680,8 @@ def main():
         failures += stage_heroes(only, jobs_n, force)
     if "manifest" in stages:
         stage_manifest()
+    elif "splines" in stages:
+        stage_splines()
     if failures:
         log("FALLOS:")
         for ident, error in failures:

@@ -82,6 +82,26 @@ amarillo. Lo revisado se anota en `assets.config.json`, en el campo `review` del
 "review": { "approved": true, "mirror": true, "startShiftM": -180, "startReviewed": true, "note": "…" }
 ```
 
+### Datos de pista (WP1 de `docs/manager/SIM-FISICA.md`, RF-3D-03)
+
+Tras la calle de boxes, la etapa `circuits` sigue con:
+
+1. `blender/extract_spline.py --widths <spline alineada>` sobre el GLB preparado: distancia de cada punto (cada 2 m)
+   a las líneas pintadas y al borde del asfalto, a izquierda y derecha del sentido de carrera, y la vista cenital
+   `.cache/splines/<id>.bg.png` para las vistas de revisión. No vuelve a extraer la spline.
+2. `racing_line.mjs`: limpia la anchura (mediana móvil, topes respecto a la vuelta, la calle de boxes como muro),
+   resuelve la trazada de curvatura mínima dentro de `[-wl + margen, wr - margen]` con el mismo código que el motor
+   (`engine/racingLineSolver.js`), su curvatura y las marcas del pit lane, y deja `.cache/splines/<id>.track.json`
+   y las vistas `.cache/preview/<id>.track.png` (vuelta), `<id>.track-zoom.png` (las cuatro curvas más cerradas y los
+   dos tramos más anchos) y `<id>.track-pit.png` (calle: entrada verde, limitador naranja, boxes amarillo, salida
+   magenta). Bordes en blanco, eje en azul, trazada en rojo.
+
+`python tools/assets/build_assets.py splines` reescribe solo `data/splines.json`, que añade por spline `wl`, `wr`,
+`line` (dm, + = derecha), `kappa` (1e-4/m), `trackMarginM` y en `pit` `entryLine/limitFrom/limitTo/exitBlend`
+(fracciones de la calle), más `defaults` para los circuitos procedurales (`engine/trackData.js`). Los parámetros
+están en `assets.config.json` `trackData` (por circuito, `review.track`). Las líneas del limitador no están pintadas
+en los modelos: salen de la geometría (`marksSource: "geometry"`) y piden revisión.
+
 Una spline entra en el motor solo si cumple el criterio 7.2 (desviación máxima ≤ 2 m medida en ≥ 60 % de la
 vuelta) o si tiene `approved: true`. El manifiesto guarda `meetsCriterion` y `reviewApproved` por separado.
 

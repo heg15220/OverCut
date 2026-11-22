@@ -6,7 +6,8 @@
  */
 
 import { CORNER_RADIUS, buildCircuit, buildCircuitFromPath, pitPoseAt, poseAt } from "./trackGeometry";
-import { layoutFor } from "./layouts";
+import { LAYOUT_REFS, layoutFor } from "./layouts";
+import { lineCurvature, pitMarksFor, trackDataFor } from "./trackData";
 import { circuitFor, circuitRefFor, namedLike, splineFor } from "./venue";
 import calibrated from "../data/splines.json";
 import { loadSeasonPack } from "./packs/seasonPacks";
@@ -396,5 +397,145 @@ describe("RF-3D-03 · corner numbering on a calibrated circuit", () => {
       if (Number(number) <= count) expect(named[Number(number) - 1].name).toBe(name);
     });
     expect(namedLike(corners(count + 1), sketch, 2012).every((corner) => corner.name === null)).toBe(true);
+  });
+});
+
+/**
+ * WP1 "Datos de pista" (docs/manager/SIM-FISICA.md §3.1, §3.8; RF-3D-03, criterio 7.2): anchura wl/wr medida en
+ * la malla, trazada de curvatura mínima `line`, su curvatura `kappa` y las marcas del pit lane, en splines.json
+ * (tools/assets/racing_line.mjs); y la misma trazada resuelta en el motor para los circuitos procedurales.
+ */
+describe("RF-3D-03 · track data per point: widths, racing line, curvature, pit marks (SIM-FISICA WP1)", () => {
+  const real = Object.entries(calibrated.splines || {});
+  const withTrack = real.filter(([, spline]) => spline.line);
+  const circuitOf = ([id, spline]) => {
+    const circuit = circuitFor({ name: "x", layoutId: spline.layoutId }, spline.validFrom);
+    expect(circuit.splineId).toBe(id);
+    return circuit;
+  };
+  const sumSq = (values) => values.reduce((s, v) => s + v * v, 0);
+
+  it("every calibrated spline carries wl, wr, line and kappa, one per point, next to the fields it always had", () => {
+    expect(real.length).toBeGreaterThan(0);
+    expect(withTrack.length).toBe(real.length);
+    withTrack.forEach(([id, spline]) => {
+      const n = spline.points.length / 2;
+      ["wl", "wr", "line", "kappa"].forEach((key) => {
+        expect([id, key, spline[key].length]).toEqual([id, key, n]);
+        expect(spline[key].every(Number.isInteger)).toBe(true);
+      });
+      // Backward compatible: the compact format keeps its fields.
+      ["circuitRef", "layoutRef", "layoutId", "validFrom", "validTo", "km", "direction", "lengthM", "stepM", "points"].forEach((key) => expect(spline[key]).toBeDefined());
+      expect(spline.trackMarginM).toBeGreaterThan(0.5);
+    });
+  });
+
+  it("has positive, plausible widths: each side >= 1.5 m, the track 6-25 m wide, median 8-18 m (criterio 7.2)", () => {
+    withTrack.forEach(([id, spline]) => {
+      const total = spline.wl.map((w, i) => (w + spline.wr[i]) / 10);
+      const sorted = [...total].sort((a, b) => a - b);
+      expect([id, Math.min(...spline.wl, ...spline.wr) >= 15]).toEqual([id, true]);
+      expect([id, sorted[0] >= 6]).toEqual([id, true]);
+      expect([id, sorted[sorted.length - 1] <= 25]).toEqual([id, true]);
+      const median = sorted[Math.floor(sorted.length / 2)];
+      expect([id, median >= 8 && median <= 18]).toEqual([id, true]);
+    });
+  });
+
+  it("keeps the racing line inside the asphalt with the car's margin on every point of every circuit", () => {
+    withTrack.forEach(([id, spline]) => {
+      const margin = spline.trackMarginM * 10;
+      // A decimetre of rounding on each of the three values.
+      const worst = Math.min(...spline.line.map((l, i) => Math.min(spline.wr[i] - l, spline.wl[i] + l)));
+      expect([id, worst >= margin - 2]).toEqual([id, true]);
+      // And it uses the road: it leaves the centre by metres, not centimetres.
+      expect([id, Math.max(...spline.line.map(Math.abs)) >= 25]).toEqual([id, true]);
+    });
+  });
+
+  it("is the line of the very circuit the engine builds: same points, and its curvature matches", () => {
+    withTrack.forEach((entry) => {
+      const [id, spline] = entry;
+      const circuit = circuitOf(entry);
+      const data = trackDataFor(circuit);
+      expect([id, data.source, data.line.length]).toEqual([id, "mesh", circuit.points.length]);
+      const kappa = lineCurvature(circuit.points, data.line, calibrated.defaults.curvatureSpan);
+      let off = 0;
+      kappa.forEach((k, i) => { if (Math.abs(k - spline.kappa[i] / 1e4) > 0.002) off += 1; });
+      // Only the decimetre rounding of the line separates them.
+      expect([id, off / kappa.length < 0.02]).toEqual([id, true]);
+    });
+  });
+
+  it("takes the inside at the apexes and opens the corners: less curvature than the centre line", () => {
+    withTrack.forEach((entry) => {
+      const [id] = entry;
+      const circuit = circuitOf(entry);
+      const { line, kappa } = trackDataFor(circuit);
+      const n = line.length;
+      const centre = lineCurvature(circuit.points, new Float64Array(n), 4);
+      let apexes = 0;
+      let inside = 0;
+      for (let i = 0; i < n; i += 1) {
+        const a = Math.abs(centre[i]);
+        if (a < 1 / 60 || a < Math.abs(centre[(i + 1) % n]) || a < Math.abs(centre[(i - 1 + n) % n])) continue;
+        apexes += 1;
+        if (line[i] * centre[i] > 0) inside += 1;
+      }
+      expect([id, inside / apexes >= 0.85]).toEqual([id, true]);
+      const centreKappa = lineCurvature(circuit.points, new Float64Array(n), calibrated.defaults.curvatureSpan);
+      expect([id, sumSq(kappa) < 0.95 * sumSq(centreKappa)]).toEqual([id, true]);
+    });
+  });
+
+  it("orders the pit-lane marks: entry line < limiter on <= garages < limiter off < exit blend (SIM-FISICA §3.8)", () => {
+    const withMarks = withTrack.filter(([, spline]) => spline.pit && Number.isFinite(spline.pit.limitFrom));
+    expect(withMarks.length).toBeGreaterThan(0);
+    withMarks.forEach((entry) => {
+      const [id, { pit }] = entry;
+      const order = [0, pit.entryLine, pit.limitFrom, pit.boxFrom, pit.boxTo, pit.limitTo, pit.exitBlend, 1];
+      for (let k = 1; k < order.length; k += 1) expect([id, k, order[k] >= order[k - 1]]).toEqual([id, k, true]);
+      expect(pit.entryLine).toBeLessThan(pit.limitFrom);
+      expect(pit.limitTo).toBeLessThan(pit.exitBlend);
+      // The engine reads them wherever it races on the mesh's lane (it may still fall back to the procedural one).
+      const circuit = circuitOf(entry);
+      const marks = pitMarksFor(circuit);
+      if (circuit.pit.source === "mesh") expect([id, marks.source, marks.limitFrom, marks.limitTo]).toEqual([id, "mesh", pit.limitFrom, pit.limitTo]);
+      else expect([id, marks.source]).toEqual([id, "procedural"]);
+    });
+  });
+
+  it("gives procedural circuits a line too, with the default widths from data, deterministically (RF-3D-02, RNF-05)", () => {
+    const { halfWidthM, marginM } = calibrated.defaults;
+    expect(halfWidthM).toBeGreaterThan(marginM);
+    const sketch = layoutFor("monza", 2012);
+    const circuit = buildCircuit(sketch, 2012);
+    const data = trackDataFor(circuit);
+    expect(data.source).toBe("procedural");
+    expect(data.line.length).toBe(circuit.points.length);
+    expect(Math.max(...data.line.map(Math.abs))).toBeLessThanOrEqual(halfWidthM - marginM + 1e-9);
+    expect(Math.max(...data.line.map(Math.abs))).toBeGreaterThan(1);
+    const again = trackDataFor(buildCircuit(sketch, 2012));
+    expect(Array.from(again.line)).toEqual(Array.from(data.line));
+    expect(sumSq(data.kappa)).toBeLessThan(sumSq(lineCurvature(circuit.points, new Float64Array(data.line.length))));
+    const marks = pitMarksFor(circuit);
+    expect(marks.source).toBe("procedural");
+    [marks.entryLine, marks.limitFrom, marks.limitTo, marks.exitBlend].forEach((v) => expect(Number.isFinite(v)).toBe(true));
+    expect(marks.entryLine).toBeLessThanOrEqual(marks.limitFrom);
+    expect(marks.limitFrom).toBeLessThanOrEqual(circuit.pit.boxAt);
+    expect(marks.limitTo).toBeGreaterThanOrEqual(circuit.pit.lineAt);
+    expect(marks.limitTo).toBeLessThanOrEqual(marks.exitBlend);
+  });
+
+  it("solves sketch layouts inside their bounds, fast enough to do when a race starts (RNF-01)", () => {
+    const { halfWidthM, marginM } = calibrated.defaults;
+    // One in three: building every sketch circuit takes ~10 s; only the solve is timed.
+    const circuits = LAYOUT_REFS.filter((_, index) => index % 3 === 0).map((ref) => [ref, buildCircuit(layoutFor(ref, 2012), 2012)]);
+    const started = Date.now();
+    circuits.forEach(([ref, circuit]) => {
+      const { line } = trackDataFor(circuit);
+      expect([ref, line.every((v) => Number.isFinite(v) && Math.abs(v) <= halfWidthM - marginM + 1e-9)]).toEqual([ref, true]);
+    });
+    expect((Date.now() - started) / circuits.length).toBeLessThan(100);
   });
 });

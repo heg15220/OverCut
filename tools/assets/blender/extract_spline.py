@@ -4,6 +4,12 @@ Uso:
   blender -b --python extract_spline.py -- <circuito.glb> <salida.json> --km <longitud real> [--res 1.0]
       [--geo <f1-circuits.geojson> --geo-id <id>] [--method auto|cycle|cycle-geo|cycle-geo-2pass]
       [--group object|material] [--road <malla,...>] [--geo-scale] [--guide-reach <m>]
+  blender -b --python extract_spline.py -- <circuito preparado.glb> <salida.widths.json> --widths <spline alineada.json>
+      [--group object|material] [--painted <malla,...>] [--preview-bg <fondo.png> [--bg-size 6144]]
+
+  --widths (WP1 de docs/manager/SIM-FISICA.md): no extrae nada; mide la distancia de cada punto de la spline
+           alineada a los bordes izquierdo y derecho (líneas pintadas y asfalto) y, con --preview-bg, renderiza la
+           vista cenital que usa tools/assets/racing_line.mjs para las vistas de revisión.
 
   --method auto (por defecto): con trazado real, se ajusta y se ciñe al esqueleto; si no, ciclos.
            cycle: ciclos del grafo, el de longitud más cercana a la real.
@@ -40,6 +46,7 @@ queda alineada con la malla sin transformar nada. El sentido de giro y la línea
 `align_spline.mjs` contra el boceto del circuito.
 """
 
+import json
 import math
 import os
 import sys
@@ -63,10 +70,21 @@ WIDTH_RANGE = (6.0, 30.0)
 def parse():
     args = script_args()
     source, target = args[0], args[1]
-    options = {"km": None, "res": 1.0, "min_share": 0.6, "geo": None, "geo_id": None, "method": "auto", "group": "object", "geo_scale": False, "road": None, "guide_reach": 30.0}
+    options = {"km": None, "res": 1.0, "min_share": 0.6, "geo": None, "geo_id": None, "method": "auto", "group": "object", "geo_scale": False, "road": None, "guide_reach": 30.0,
+               "widths": None, "painted": None, "preview_bg": None, "bg_size": 6144}
     i = 2
     while i < len(args):
-        if args[i] == "--km":
+        if args[i] == "--widths":
+            # Modo anchura (SIM-FISICA §3.1, WP1): mide los bordes de la spline ALINEADA que se pasa, sin
+            # volver a extraerla. <circuito.glb> es entonces el GLB preparado (mismas coordenadas glTF).
+            options["widths"] = args[i + 1]; i += 2
+        elif args[i] == "--painted":
+            options["painted"] = [name for name in args[i + 1].split(",") if name]; i += 2
+        elif args[i] == "--preview-bg":
+            options["preview_bg"] = args[i + 1]; i += 2
+        elif args[i] == "--bg-size":
+            options["bg_size"] = int(args[i + 1]); i += 2
+        elif args[i] == "--km":
             options["km"] = float(args[i + 1]); i += 2
         elif args[i] == "--geo":
             options["geo"] = args[i + 1]; i += 2
@@ -89,7 +107,7 @@ def parse():
             options["res"] = float(args[i + 1]); i += 2
         else:
             raise SystemExit(f"argumento desconocido {args[i]}")
-    if not options["km"]:
+    if not options["km"] and not options["widths"]:
         raise SystemExit("--km es obligatorio: la longitud real elige el ciclo del GP")
     return source, target, options
 
@@ -1096,10 +1114,116 @@ def measure(bvh, line, top):
     return normal, left, right
 
 
+# ------------------------------------------------------------ widths (WP1)
+
+def render_background(meshes, line, target, size):
+    """Vista cenital (Workbench, color de textura sin luz) para las vistas de revisión de racing_line.mjs.
+    Encuadre igual que preview_spline.py: cuadrado centrado en la caja de la spline, lado 1,1 x su mayor lado.
+    Devuelve el encuadre en coordenadas de Blender para pasar de metros a píxeles."""
+    lo, hi = line.min(axis=0), line.max(axis=0)
+    span = float(max(hi - lo))
+    for ob in meshes:
+        corners = [ob.matrix_world @ Vector(c) for c in ob.bound_box]
+        if max(c.x for c in corners) - min(c.x for c in corners) > 3 * span:
+            ob.hide_render = True
+    scene = bpy.context.scene
+    cam = bpy.data.objects.new("widths_bg", bpy.data.cameras.new("widths_bg"))
+    scene.collection.objects.link(cam)
+    cam.data.type = "ORTHO"
+    cam.data.ortho_scale = span * 1.1
+    cam.data.clip_end = 1e6
+    centre = (lo + hi) / 2
+    cam.location = (float(centre[0]), float(centre[1]), 20000)
+    scene.camera = cam
+    scene.render.engine = "BLENDER_WORKBENCH"
+    scene.display.shading.light = "FLAT"
+    scene.display.shading.color_type = "TEXTURE"
+    scene.render.resolution_x = scene.render.resolution_y = size
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.image_settings.color_mode = "RGB"
+    scene.render.image_settings.color_depth = "8"
+    scene.render.image_settings.compression = 15
+    scene.render.filepath = target
+    bpy.ops.render.render(write_still=True)
+    return {"file": os.path.basename(target), "size": size, "cx": round(float(centre[0]), 3), "cy": round(float(centre[1]), 3),
+            "scale": round(span * 1.1, 3), "frame": "blender (x, -z_gltf)"}
+
+
+def measure_widths(source, target, options):
+    """Anchura de pista de la spline alineada (SIM-FISICA §3.1, WP1; RF-3D-03, criterio 7.2).
+
+    Por cada punto (cada 2 m, desde la meta en el sentido de carrera) mide con rayos verticales la distancia
+    a los bordes a la izquierda y a la derecha del sentido de carrera, con las mismas funciones que el
+    recentrado: hasta las líneas pintadas (`measure_lines`) si cubren ambos bordes en >= 60 % de la vuelta (son
+    los límites de pista) y siempre hasta el borde del asfalto (`measure`). No rellena huecos ni filtra: eso
+    lo hace racing_line.mjs, que es quien decide qué anchura usa la trazada."""
+    data = json.load(open(options["widths"], encoding="utf-8"))
+    meshes = import_glb(source)
+    parts = material_parts(meshes) if options["group"] == "material" else meshes
+    by_name = {ob.name: ob for ob in parts}
+    road = [by_name[name] for name in data["roadObjects"] if name in by_name]
+    if len(road) != len(data["roadObjects"]):
+        missing = [name for name in data["roadObjects"] if name not in by_name]
+        raise SystemExit(f"el GLB no tiene las mallas del asfalto de la spline: {missing}")
+    painted = [by_name[name] for name in (options["painted"] or []) if name in by_name]
+    # glTF (x, y arriba, z) -> Blender (x, -z, y)
+    pts = np.array(data["points"], dtype=np.float64)
+    line = np.stack([pts[:, 0], -pts[:, 2]], axis=1)
+    heights = pts[:, 1]
+    bvh = make_bvh(road)
+    top = top_of(road + painted) + 50
+    multilevel = bool(data.get("multiLevel")) or level_heights(bvh, line, top)[1]
+    # En cruces a distinto nivel los rayos se ciñen a la capa de la propia spline (su altura ya es la de la
+    # calzada, road_heights), igual que en la extracción.
+    probe = (top, heights) if multilevel else top
+    log(f"anchura: {len(line)} puntos, asfalto {[ob.name for ob in road]}, líneas {[ob.name for ob in painted]}"
+        + (", varios niveles" if multilevel else ""))
+    # `measure` devuelve (normal, izquierda, derecha) con normal = tangente girada +90 grados en el plano de
+    # Blender (Z arriba): la izquierda del sentido de carrera.
+    _, asphalt_left, asphalt_right = measure(bvh, line, probe)
+    reference = "asfalto"
+    left, right = asphalt_left, asphalt_right
+    painted_share = None
+    if painted:
+        _, line_left, line_right = measure_lines(make_bvh(painted), line, probe)
+        painted_share = float(np.mean(~np.isnan(line_left + line_right)))
+        log(f"líneas pintadas: ambos bordes en el {painted_share * 100:.0f} %")
+        if painted_share >= 0.6:
+            reference, left, right = "líneas pintadas", line_left, line_right
+
+    def rounded(values):
+        return [None if np.isnan(v) else round(float(v), 2) for v in values]
+
+    result = {
+        "generator": f"extract_spline.py v{VERSION} --widths",
+        "source": os.path.basename(source),
+        "spline": os.path.basename(options["widths"]),
+        "frame": "gltf",
+        "stepM": data.get("stepM", 2.0),
+        "count": len(line),
+        "edgeReference": reference,
+        "paintedObjects": [ob.name for ob in painted],
+        "paintedShare": None if painted_share is None else round(painted_share, 3),
+        "multiLevel": bool(multilevel),
+        "side": "left/right del sentido de carrera, en metros desde la spline",
+        "left": rounded(left),
+        "right": rounded(right),
+        "asphaltLeft": rounded(asphalt_left),
+        "asphaltRight": rounded(asphalt_right),
+    }
+    if options["preview_bg"]:
+        result["background"] = render_background(meshes, line, options["preview_bg"], options["bg_size"])
+    write_json(target, result)
+    both = ~np.isnan(left + right)
+    log("anchura", target, f"{reference}: medida en el {both.mean() * 100:.0f} %, mediana {np.nanmedian(left + right):.1f} m")
+
+
 # --------------------------------------------------------------------- main
 
 def main():
     source, target, options = parse()
+    if options["widths"]:
+        return measure_widths(source, target, options)
     res = options["res"]
     target_m = options["km"] * 1000.0
     rng = np.random.default_rng(7)
@@ -1496,6 +1620,7 @@ def main():
         "cycleShapeRmsM": None if geo_rms is None else round(geo_rms, 1),
         "geoFit": geo_fit,
         "roadObjects": [ob.name for ob in road_objects],
+        "paintedObjects": [ob.name for ob in painted],
         "pitLane": pit_hint,
         "medianWidthM": round(median, 2),
         "edgeReference": reference,

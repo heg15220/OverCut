@@ -220,6 +220,22 @@
       }
     }
   },
+  "trackData": {
+    "$comment": "Datos de pista de las splines calibradas (docs/manager/SIM-FISICA.md §3.1 y §3.8, WP1; RF-3D-03): racing_line.mjs los usa para la anchura wl/wr, la trazada de curvatura mínima, la curvatura y las marcas del pit lane, y build_assets.py copia 'procedural' a splines.json 'defaults' para los circuitos sin malla. Se pueden ajustar por circuito en circuits[].review.track. Son parámetros geométricos del pipeline, no de balance (RNF-07).",
+    "engineStepM": 6,
+    "carHalfWidthM": 1.0,
+    "carHalfWidthSource": "Anchura máxima del coche 2,0 m (reglamento técnico FIA desde 2017; 1,8 m de 1998 a 2016): se toma la mayor para todas las eras. NV",
+    "clearanceM": 0.3,
+    "widthFilter": { "windowM": 100, "lowRatio": 0.75, "highRatio": 1.3, "minHalfM": 2.0, "maxHalfM": null, "globalRatio": 1.6, "globalLowRatio": 0.6, "smoothM": 8, "pitLaneHalfM": 3.0 },
+    "solver": { "centre": 1e-6, "passes": 8, "tolerance": 1e-4, "reweight": 4 },
+    "curvatureSpan": 2,
+    "pitMarks": { "parallelToleranceM": 2.5, "minLeadM": 20, "minTrailM": 20 },
+    "procedural": {
+      "halfWidthM": 6.0,
+      "source": "Ancho mínimo de 12 m para circuitos nuevos de grado 1 (FIA, Anexo O); trazados sin malla. NV"
+    },
+    "preview": { "overviewPx": 1400, "zoomM": 300, "zoomPx": 640, "pitPx": 1100 }
+  },
   "circuits": [
     {
       "splineId": "monza-7",
