@@ -232,6 +232,113 @@ export const buildCircuit = (layout, year = 2020) => {
 };
 
 /**
+ * Build a circuit from a calibrated spline (RF-3D-03) instead of a sketch: the
+ * centre line of the real asphalt, already starting at the line and running in
+ * the race direction (see tools/assets/align_spline.mjs).
+ *
+ * `path` is `{ id, km, points: [x0, y0, x1, y1, ...] in decimetres, names?, drs? }`.
+ * Corners come from the curvature itself: wherever the radius, smoothed over
+ * about 40 m, drops under 350 m a corner starts, and it lasts until the radius
+ * opens past 490 m or the turn changes hand (the hysteresis keeps a long arc
+ * near the threshold from flickering into many corners); its turn is the
+ * curvature integrated along it. Everything after that - speed trace, numbered corners,
+ * braking zones, DRS, sectors, pit lane - is the same code as a sketch's, so a
+ * race on a calibrated circuit is the same kind of race.
+ */
+export const CORNER_RADIUS = 350;
+const CORNER_EXIT_RADIUS = CORNER_RADIUS * 1.4;
+
+export const buildCircuitFromPath = (path, year = 2020) => {
+  const raw = [];
+  for (let i = 0; i + 1 < path.points.length; i += 2) raw.push({ x: path.points[i] / 10, y: path.points[i + 1] / 10 });
+  // A spline written as an explicitly closed loop repeats its first point at the end: drop it.
+  if (raw.length > 2 && Math.hypot(raw[raw.length - 1].x - raw[0].x, raw[raw.length - 1].y - raw[0].y) < 0.5) raw.pop();
+  // The extracted centre line carries a few decimetres of noise; at racing speed that reads as lateral
+  // jerks. Three binomial passes ([1, 2, 1] / 4) take it out while closing even a hairpin by under a metre.
+  for (let pass = 0; pass < 3; pass += 1) {
+    const copy = raw.map((p) => ({ ...p }));
+    const m = copy.length;
+    for (let i = 0; i < m; i += 1) {
+      const a = copy[(i - 1 + m) % m];
+      const b = copy[(i + 1) % m];
+      raw[i] = { x: (a.x + 2 * copy[i].x + b.x) / 4, y: (a.y + 2 * copy[i].y + b.y) / 4 };
+    }
+  }
+  const n = raw.length;
+  const s0 = accumulate(raw);
+  // Curvature from the turn of the heading over two samples, smoothed.
+  const heading = raw.map((_, i) => {
+    const a = raw[(i - 1 + n) % n];
+    const b = raw[(i + 1) % n];
+    return Math.atan2(b.y - a.y, b.x - a.x);
+  });
+  const wrap = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
+  const segment = (i) => s0[i + 1] - s0[i];
+  const kappa = raw.map((_, i) => {
+    const ds = segment(i) + segment((i - 1 + n) % n);
+    return wrap(heading[(i + 1) % n] - heading[(i - 1 + n) % n]) / Math.max(1, ds);
+  });
+  const half = 3;
+  const smooth = kappa.map((_, i) => {
+    let sum = 0;
+    for (let k = -half; k <= half; k += 1) sum += kappa[(i + k + n) % n];
+    return sum / (2 * half + 1);
+  });
+  const enters = (i) => Math.abs(smooth[i]) > 1 / CORNER_RADIUS;
+  const stays = (i, sign) => Math.sign(smooth[i]) === sign && Math.abs(smooth[i]) > 1 / CORNER_EXIT_RADIUS;
+  // Group consecutive corner samples of the same sign; gaps of a sample or two are noise and belong to the corner.
+  const id = new Array(n).fill(-1);
+  const corners = [];
+  let startAt = smooth.findIndex((k) => Math.abs(k) <= 1 / CORNER_EXIT_RADIUS);
+  if (startAt === -1) startAt = smooth.findIndex((_, i) => !enters(i));
+  if (startAt === -1) throw new Error("spline-without-straights");
+  let current = null;
+  const add = (i) => {
+    current.turn += smooth[i] * (s0[i + 1] - s0[i]);
+    current.samples.push(i);
+  };
+  for (let k = 1; k <= n; k += 1) {
+    const i = (startAt + k) % n;
+    if (current && stays(i, current.sign)) add(i);
+    else if (enters(i)) {
+      current = { sign: Math.sign(smooth[i]), turn: 0, samples: [] };
+      corners.push(current);
+      add(i);
+    } else if (current) {
+      const resumes = stays((i + 1) % n, current.sign) || stays((i + 2) % n, current.sign);
+      if (resumes && k < n) add(i);
+      else current = null;
+    }
+  }
+  const kept = corners.filter((corner) => Math.abs(corner.turn) > 0.12);
+  kept.forEach((corner, k) => corner.samples.forEach((i) => { id[i] = k; }));
+  const samples = raw.map((p, i) => ({
+    x: p.x,
+    y: p.y,
+    radius: id[i] === -1 ? Infinity : 1 / Math.max(1e-6, Math.abs(smooth[i])),
+    sign: id[i] === -1 ? 0 : kept[id[i]].sign,
+    corner: id[i],
+  }));
+  const points = raw;
+  const s = s0;
+  const total = s[n];
+  const ds = points.map((_, i) => s[i + 1] - s[i]);
+  const env = envelopeFor(year);
+  const speed = speedTrace(samples.map((sample) => sample.radius), ds, env);
+  const time = [0];
+  for (let i = 0; i < n; i += 1) time.push(time[i] + ds[i] / Math.max(8, (speed[i] + speed[(i + 1) % n]) / 2));
+  const lapTime = time[time.length - 1];
+  const clockwise = signedArea(points) > 0;
+  const xs = points.map((p) => p.x);
+  const ys = points.map((p) => p.y);
+  const box = { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+  const layout = { id: path.id, km: path.km, names: path.names || {}, drs: path.drs };
+  const cornerTurns = kept.map((corner) => ({ turn: corner.turn }));
+  const built = finishCircuit({ layout, points, s, total, speed, time, lapTime, heading, samples, corners: cornerTurns, clockwise, box, lineAt: 0, env, year });
+  return { ...built, calibrated: true };
+};
+
+/**
  * Re-express everything from the start line, and derive what races need:
  * numbered corners, braking zones, full-throttle straights, DRS zones, three
  * sectors split by time and a pit lane alongside the main straight.

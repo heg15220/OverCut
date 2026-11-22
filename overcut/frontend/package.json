@@ -94,5 +94,10 @@
       "@babel/preset-react"
     ]
   },
-  "proxy": "http://localhost:8080"
+  "proxy": "http://localhost:8080",
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!three/examples/jsm/)"
+    ]
+  }
 }

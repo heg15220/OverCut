@@ -27,7 +27,7 @@ export default function Car() {
     <div className="mn-grid mn-grid--car">
       <Panel title={t(`El coche de ${career.year}`, `The ${career.year} car`)}>
         <div className="mn-car-hero">
-          <Livery color={team.color} color2={team.color2} width={560} height={300} year={career.year} name={team.name} />
+          <Livery color={team.color} color2={team.color2} width={560} height={300} year={career.year} name={team.name} teamRef={team.custom ? null : team.id} />
         </div>
         <div className="mn-car-head">
           <Rating value={carRatingOf(team.car)} size="lg" />

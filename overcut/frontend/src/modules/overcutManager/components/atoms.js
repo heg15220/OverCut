@@ -61,12 +61,12 @@ export const Flag = ({ code, width = 18, title }) =>
  * The car in the team's colours, as the cars of that era looked: a 3D model on
  * a turntable where the browser can draw one, the side view otherwise.
  */
-export const Livery = ({ color = "#f2b705", color2 = "#10294f", width = 120, year = 2024, name = "", height }) => {
+export const Livery = ({ color = "#f2b705", color2 = "#10294f", width = 120, year = 2024, name = "", height, teamRef = null }) => {
   const side = <CarSide year={year} color={color} color2={color2} width={width} />;
   if (!canRender3D()) return side;
   return (
     <React.Suspense fallback={side}>
-      <Showroom year={year} color={color} color2={color2} name={name} height={height || Math.round(width * 0.62)} label={name} />
+      <Showroom year={year} color={color} color2={color2} name={name} height={height || Math.round(width * 0.62)} label={name} teamRef={teamRef} />
     </React.Suspense>
   );
 };

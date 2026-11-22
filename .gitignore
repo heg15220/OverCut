@@ -38,3 +38,13 @@ build/
 .DS_Store
 
 .idea/sonarlint/issuestore/*
+
+
+### OverCut Manager assets (SRS fase 2, ADR-001) ###
+# Descargas y dependencias del pipeline offline
+tools/assets/.cache/
+tools/assets/node_modules/
+# GLB/KTX2 generados, servidos por nginx; manager-assets.json y splines.json en src/ sí se versionan
+overcut/frontend/public/manager-assets/
+# Bytecode de los scripts de Blender
+tools/assets/**/__pycache__/

@@ -1,40 +1,457 @@
 {
-  "_doc": "GLB de f1-3d-assets por temporada y equipo (id de constructor de f1db). status: ok = coincide con el chasis; review = el nombre o el modelo no encaja con el chasis real (SRS 3.1). Un equipo sin entrada usa el coche procedural de su era (RF-3D-02). Comprobado contra las releases el 2026-11-22.",
+  "_doc": "GLB de f1-3d-assets por temporada y equipo (id de constructor de f1db). status: ok = coincide con el chasis; review = el nombre o el modelo no encaja con el chasis real (SRS 3.1). Un equipo sin entrada usa el coche procedural de su era (RF-3D-02). Comprobado contra las releases el 2026-11-22. Entradas con split.index: el GLB de la release es un pack de varios coches; tools/assets/blender/split_pack.py lo separa y el índice es la posición del coche en el pack (de izquierda a derecha). Reparto 2010/2013/2014 identificado por libreas y nombres de nodo, revisado a ojo el 2026-11-22.",
   "2005": {
-    "bar": { "release": "coches-2005", "file": "2005_bar_007.glb", "status": "ok" },
-    "ferrari": { "release": "coches-2005", "file": "2005_ferrari_f2005.glb", "status": "ok", "note": "Las dos primeras carreras se corrieron con el F2004M" },
-    "jordan": { "release": "coches-2005", "file": "2005_jordan_ej15.glb", "status": "ok" },
-    "mclaren": { "release": "coches-2005", "file": "2005_mclaren_mp4-20.glb", "status": "ok" },
-    "minardi": { "release": "coches-2005", "file": "2005_minardi_ps05.glb", "status": "ok", "note": "Las primeras carreras se corrieron con el PS04B" },
-    "renault": { "release": "coches-2005", "file": "2005_renault_r25.glb", "status": "ok" },
-    "sauber": { "release": "coches-2005", "file": "2005_sauber_c24.glb", "status": "ok" },
-    "toyota": { "release": "coches-2005", "file": "2005__toyota_tf105.glb", "status": "ok" },
-    "williams": { "release": "coches-2005", "file": "2005_williams_fw27.glb", "status": "ok" }
+    "bar": {
+      "release": "coches-2005",
+      "file": "2005_bar_007.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2005",
+      "file": "2005_ferrari_f2005.glb",
+      "status": "ok",
+      "note": "Las dos primeras carreras se corrieron con el F2004M"
+    },
+    "jordan": {
+      "release": "coches-2005",
+      "file": "2005_jordan_ej15.glb",
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2005",
+      "file": "2005_mclaren_mp4-20.glb",
+      "status": "ok"
+    },
+    "minardi": {
+      "release": "coches-2005",
+      "file": "2005_minardi_ps05.glb",
+      "status": "ok",
+      "note": "Las primeras carreras se corrieron con el PS04B"
+    },
+    "renault": {
+      "release": "coches-2005",
+      "file": "2005_renault_r25.glb",
+      "status": "ok"
+    },
+    "sauber": {
+      "release": "coches-2005",
+      "file": "2005_sauber_c24.glb",
+      "status": "ok"
+    },
+    "toyota": {
+      "release": "coches-2005",
+      "file": "2005__toyota_tf105.glb",
+      "status": "ok"
+    },
+    "williams": {
+      "release": "coches-2005",
+      "file": "2005_williams_fw27.glb",
+      "status": "ok"
+    }
+  },
+  "2007": {
+    "ferrari": {
+      "release": "coches-2007",
+      "file": "2007.glb",
+      "status": "ok",
+      "note": "Ferrari F2007 (nodo cim_2007_ferrari, materiales ferrari_f2007_*); el único coche de la carpeta 2007"
+    }
   },
   "2008": {
-    "bmw-sauber": { "release": "coches-2008", "file": "2008_bmw_sauber_f1.08.glb", "status": "ok" },
-    "ferrari": { "release": "coches-2008", "file": "2008_ferrari_f2008.glb", "status": "ok" },
-    "force-india": { "release": "coches-2008", "file": "2008_force_india_vjm01.glb", "status": "ok" },
-    "honda": { "release": "coches-2008", "file": "2008_honda_ra108.glb", "status": "ok" },
-    "mclaren": { "release": "coches-2008", "file": "2008_mclaren_mp423.glb", "status": "ok" },
-    "red-bull": { "release": "coches-2008", "file": "2008_redbull_rb3.glb", "status": "review", "note": "El archivo dice RB3; el coche de 2008 es el RB4" },
-    "renault": { "release": "coches-2008", "file": "2008_renault_r28.glb", "status": "ok" },
-    "super-aguri": { "release": "coches-2008", "file": "2008_super_aguri_sa08.glb", "status": "ok" },
-    "toro-rosso": { "release": "coches-2008", "file": "2008_toro_rosso_str3.glb", "status": "ok", "note": "Las primeras carreras se corrieron con el STR2B" },
-    "williams": { "release": "coches-2008", "file": "2008_williams_fw30.glb", "status": "ok" }
+    "bmw-sauber": {
+      "release": "coches-2008",
+      "file": "2008_bmw_sauber_f1.08.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2008",
+      "file": "2008_ferrari_f2008.glb",
+      "status": "ok"
+    },
+    "force-india": {
+      "release": "coches-2008",
+      "file": "2008_force_india_vjm01.glb",
+      "status": "ok"
+    },
+    "honda": {
+      "release": "coches-2008",
+      "file": "2008_honda_ra108.glb",
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2008",
+      "file": "2008_mclaren_mp423.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2008",
+      "file": "2008_redbull_rb3.glb",
+      "status": "review",
+      "note": "El archivo dice RB3; el coche de 2008 es el RB4"
+    },
+    "renault": {
+      "release": "coches-2008",
+      "file": "2008_renault_r28.glb",
+      "status": "ok"
+    },
+    "super-aguri": {
+      "release": "coches-2008",
+      "file": "2008_super_aguri_sa08.glb",
+      "status": "ok"
+    },
+    "toro-rosso": {
+      "release": "coches-2008",
+      "file": "2008_toro_rosso_str3.glb",
+      "status": "ok",
+      "note": "Las primeras carreras se corrieron con el STR2B"
+    },
+    "williams": {
+      "release": "coches-2008",
+      "file": "2008_williams_fw30.glb",
+      "status": "ok"
+    }
+  },
+  "2010": {
+    "virgin": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 1
+      },
+      "status": "ok"
+    },
+    "toro-rosso": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 2
+      },
+      "status": "ok"
+    },
+    "sauber": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 3
+      },
+      "status": "ok",
+      "note": "Identificado por descarte: C29 blanco y negro sin logotipos legibles"
+    },
+    "renault": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 4
+      },
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 5
+      },
+      "status": "ok"
+    },
+    "mercedes": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 6
+      },
+      "status": "review",
+      "note": "El modelo del pack no trae tapa motor ni pontones"
+    },
+    "mclaren": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 7
+      },
+      "status": "ok"
+    },
+    "hrt": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 8
+      },
+      "status": "ok"
+    },
+    "force-india": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 9
+      },
+      "status": "ok"
+    },
+    "lotus-racing": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 10
+      },
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 11
+      },
+      "status": "ok"
+    },
+    "williams": {
+      "release": "coches-2010",
+      "file": "free_f1_2010_pack.glb",
+      "split": {
+        "index": 12
+      },
+      "status": "ok"
+    }
   },
   "2012": {
-    "caterham": { "release": "coches-2012", "file": "2012_caterham_ct01.glb", "status": "ok" },
-    "ferrari": { "release": "coches-2012", "file": "2012_ferrari_f2012.glb", "status": "ok" },
-    "force-india": { "release": "coches-2012", "file": "2012_force_india_vjm05.glb", "status": "ok" },
-    "hrt": { "release": "coches-2012", "file": "2012_hrt_f112.glb", "status": "ok" },
-    "lotus-f1": { "release": "coches-2012", "file": "2012_lotus_e20.glb", "status": "ok" },
-    "marussia": { "release": "coches-2012", "file": "2012_marussia_mr01.glb", "status": "ok" },
-    "mclaren": { "release": "coches-2012", "file": "2012_mclaren_mp427.glb", "status": "ok" },
-    "mercedes": { "release": "coches-2012", "file": "2012_mercedes_f1_w03.glb", "status": "ok" },
-    "red-bull": { "release": "coches-2012", "file": "2012_red_bull_rb8.glb", "status": "ok" },
-    "sauber": { "release": "coches-2012", "file": "2012_sauber_c31.glb", "status": "ok" },
-    "toro-rosso": { "release": "coches-2012", "file": "2012_toro_rosso_str7.glb", "status": "ok" },
-    "williams": { "release": "coches-2012", "file": "2012_williams_fw34.glb", "status": "ok" }
+    "caterham": {
+      "release": "coches-2012",
+      "file": "2012_caterham_ct01.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2012",
+      "file": "2012_ferrari_f2012.glb",
+      "status": "ok"
+    },
+    "force-india": {
+      "release": "coches-2012",
+      "file": "2012_force_india_vjm05.glb",
+      "status": "ok"
+    },
+    "hrt": {
+      "release": "coches-2012",
+      "file": "2012_hrt_f112.glb",
+      "status": "ok"
+    },
+    "lotus-f1": {
+      "release": "coches-2012",
+      "file": "2012_lotus_e20.glb",
+      "status": "ok"
+    },
+    "marussia": {
+      "release": "coches-2012",
+      "file": "2012_marussia_mr01.glb",
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2012",
+      "file": "2012_mclaren_mp427.glb",
+      "status": "ok"
+    },
+    "mercedes": {
+      "release": "coches-2012",
+      "file": "2012_mercedes_f1_w03.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2012",
+      "file": "2012_red_bull_rb8.glb",
+      "status": "ok"
+    },
+    "sauber": {
+      "release": "coches-2012",
+      "file": "2012_sauber_c31.glb",
+      "status": "ok"
+    },
+    "toro-rosso": {
+      "release": "coches-2012",
+      "file": "2012_toro_rosso_str7.glb",
+      "status": "ok"
+    },
+    "williams": {
+      "release": "coches-2012",
+      "file": "2012_williams_fw34.glb",
+      "status": "ok"
+    }
+  },
+  "2013": {
+    "marussia": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 1
+      },
+      "status": "ok"
+    },
+    "toro-rosso": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 2
+      },
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 3
+      },
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 4
+      },
+      "status": "ok"
+    },
+    "caterham": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 5
+      },
+      "status": "ok"
+    },
+    "williams": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 6
+      },
+      "status": "ok"
+    },
+    "lotus-f1": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 7
+      },
+      "status": "ok"
+    },
+    "force-india": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 8
+      },
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 9
+      },
+      "status": "ok"
+    },
+    "mercedes": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 10
+      },
+      "status": "ok"
+    },
+    "sauber": {
+      "release": "coches-2013",
+      "file": "free_2013_f1_pack.glb",
+      "split": {
+        "index": 11
+      },
+      "status": "ok"
+    }
+  },
+  "2014": {
+    "caterham": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 1
+      },
+      "status": "ok",
+      "note": "Librea de final de temporada (nodo caterham_late_2014_10)"
+    },
+    "toro-rosso": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 2
+      },
+      "status": "ok"
+    },
+    "sauber": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 3
+      },
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 4
+      },
+      "status": "ok"
+    },
+    "mercedes": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 5
+      },
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 6
+      },
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 7
+      },
+      "status": "ok"
+    },
+    "lotus-f1": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 8
+      },
+      "status": "ok"
+    },
+    "williams": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 9
+      },
+      "status": "ok"
+    },
+    "force-india": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 10
+      },
+      "status": "ok"
+    },
+    "marussia": {
+      "release": "coches-2014",
+      "file": "free_2014_f1_pack.glb",
+      "split": {
+        "index": 11
+      },
+      "status": "ok"
+    }
   }
 }

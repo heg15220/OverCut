@@ -7,8 +7,12 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
 import { createRenderer, environmentFor } from "./studio";
+import { carAssetFor } from "./assets/manifest";
+import { createAssetCar } from "./assets/assetCar";
 
-export default function Showroom({ year = 2024, color = "#c8102e", color2, name = "", number = null, height = 220, className = "", label }) {
+export default function Showroom({ year = 2024, color = "#c8102e", color2, name = "", number = null, height = 220, className = "", label, teamRef = null }) {
+  // The team's real car of that season when the manifest has it (RF-3D-01), with its author and licence (RF-3D-06).
+  const asset = teamRef ? carAssetFor(year, teamRef) : null;
   const mount = useRef(null);
   const state = useRef({});
 
@@ -127,13 +131,33 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
   useEffect(() => {
     const s = state.current;
     if (!s.turntable) return undefined;
-    const car = buildCar({ year, color, color2, name, number, compound: year >= 2007 ? "soft" : null });
+    const procedural = buildCar({ year, color, color2, name, number, compound: year >= 2007 ? "soft" : null });
+    const car = asset ? createAssetCar({ asset, placeholder: procedural, renderer: s.renderer, year }) : procedural;
     car.position.x = 0.1;
     s.turntable.add(car);
     // Geometry and materials are cached and shared between cars; only the group goes.
     return () => s.turntable.remove(car);
-  }, [year, color, color2, name, number]);
+  }, [year, color, color2, name, number, asset]);
 
-  return <div ref={mount} className={`mn-showroom ${className}`} style={{ height }} role="img" aria-label={label || name} />;
+  return (
+    <figure className={`mn-showroom-frame ${className}`}>
+      <div ref={mount} className="mn-showroom" style={{ height }} role="img" aria-label={label || name} />
+      {asset && (
+        <figcaption className="mn-showroom__credit">
+          {asset.chassis ? `${asset.chassis} · ` : ""}
+          {asset.source ? (
+            <a href={asset.source} target="_blank" rel="noopener noreferrer">
+              {asset.author || "?"}
+            </a>
+          ) : (
+            asset.author || "?"
+          )}
+          {" · "}
+          {asset.license || "?"}
+          {asset.status === "review" ? " · por revisar" : ""}
+        </figcaption>
+      )}
+    </figure>
+  );
 }
 

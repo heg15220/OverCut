@@ -23,6 +23,10 @@ import { buildRig, frame } from "./cameras";
 import { onRacingLine } from "./racingLine";
 import { poseAt } from "../engine/trackGeometry";
 import { createRenderer, environmentFor } from "./studio";
+import { carAssetFor, circuitAssetFor } from "./assets/manifest";
+import { createAssetCar } from "./assets/assetCar";
+import { loadCircuitAsset } from "./assets/assetCircuit";
+import { pruneOldCaches } from "./assets/loader";
 
 
 const unwrap = (from, to) => {
@@ -115,7 +119,9 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     scene.add(rain);
     const seeds = Array.from({ length: dropCount }, () => [Math.random() * 80 - 40, Math.random() * 40, Math.random() * 80 - 40]);
 
+    pruneOldCaches();
     const state = {
+      heightAt: null,
       renderer, scene, camera, sun, hemi, sky, rain, drops, seeds, overlay,
       track: null, carObjects: new Map(), tags: new Map(), crews: new Map(), safetyCar: null, rig: [], camState: {},
       cam: { pos: new THREE.Vector3(0, 50, 0), look: new THREE.Vector3(), heading: 0 }, last: performance.now(),
@@ -181,7 +187,26 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     state.rig = buildRig(circuit);
     state.camState = {};
     state.circuit = circuit;
+    // The real circuit, when the pipeline calibrated one for this layout (RF-3D-01, RF-3D-03); the
+    // procedural track stays on screen until it arrives, and if it never does (RF-3D-02).
+    let disposed = false;
+    let assetScene = null;
+    const asset = circuit.splineId ? circuitAssetFor({ splineId: circuit.splineId }) : null;
+    if (asset) {
+      loadCircuitAsset(asset, state.renderer)
+        .then(({ scene, heightAt }) => {
+          if (disposed) return;
+          assetScene = scene;
+          state.scene.add(scene);
+          track.group.visible = false;
+          state.heightAt = heightAt;
+        })
+        .catch(() => {});
+    }
     return () => {
+      disposed = true;
+      if (assetScene) state.scene.remove(assetScene);
+      state.heightAt = null;
       state.scene.remove(track.group);
       track.group.traverse((node) => {
         if (node.geometry) node.geometry.dispose();
@@ -202,7 +227,10 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
       if (state.carObjects.has(car.id)) return;
       const mate = seenTeams.get(car.teamId) || 0;
       seenTeams.set(car.teamId, mate + 1);
-      const object = buildCar({ year, color: car.color, color2: car.color2, name: car.teamName || car.short || "", number: index + 1, compound: car.compound, tcam: mate ? "#f5e400" : "#111318" });
+      const procedural = buildCar({ year, color: car.color, color2: car.color2, name: car.teamName || car.short || "", number: index + 1, compound: car.compound, tcam: mate ? "#f5e400" : "#111318" });
+      // The team's real car when the manifest has one for this season (RF-3D-01); its era's procedural car otherwise.
+      const asset = carAssetFor(year, car.teamId);
+      const object = asset ? createAssetCar({ asset, placeholder: procedural, renderer: state.renderer, year }) : procedural;
       object.userData.carId = car.id;
       state.scene.add(object);
       // F1-game name tag: position on the team colour, flag, surname, gap.
@@ -331,17 +359,19 @@ function step(state, props, dt) {
         wheel.spin.rotation.z = -entry.spin / wheel.radius;
         if (wheel.steer) wheel.pivot.rotation.y = -entry.steer;
       });
+      object.userData.sync?.();
       entry.turn = yawRate;
     } else if (!entry.last) entry.yaw = pose.heading;
     entry.last = { x, z };
-    object.position.set(x, 0, z);
+    const ground = state.heightAt && Number.isFinite(pose.progress) ? state.heightAt(pose.progress) : 0;
+    object.position.set(x, ground, z);
     object.rotation.order = "YXZ";
     object.rotation.y = -entry.yaw;
     if (entry.compound !== car.compound) {
       object.userData.setCompound(car.compound);
       entry.compound = car.compound;
     }
-    if (car.id === focusId) focus = { x, z, heading: entry.yaw, speed: entry.speed || 0, share: pose.progress, turn: entry.turn, spec, item: { ...item, pose } };
+    if (car.id === focusId) focus = { x, z, y: ground, heading: entry.yaw, speed: entry.speed || 0, share: pose.progress, turn: entry.turn, spec, item: { ...item, pose } };
 
     // The pit crew around a car stopped in its box during the race.
     let crew = state.crews.get(car.id);
@@ -352,13 +382,13 @@ function step(state, props, dt) {
         state.scene.add(crew);
       }
       crew.visible = true;
-      crew.position.set(x, 0, z);
+      crew.position.set(x, ground, z);
       crew.rotation.y = -pose.heading;
     } else if (crew) crew.visible = false;
   });
   if (!focus && ordered[0]) {
     const lead = state.carObjects.get(ordered[0].car.id);
-    if (lead) focus = { x: lead.object.position.x, z: lead.object.position.z, heading: lead.yaw, speed: lead.speed || 0, share: ordered[0].pose.progress, spec: lead.object.userData.spec, item: ordered[0] };
+    if (lead) focus = { x: lead.object.position.x, y: lead.object.position.y, z: lead.object.position.z, heading: lead.yaw, speed: lead.speed || 0, share: ordered[0].pose.progress, spec: lead.object.userData.spec, item: ordered[0] };
   }
 
   // Safety car: given, or running 90 m ahead of the leader.
@@ -396,6 +426,13 @@ function step(state, props, dt) {
           return { pos: car.clone().add(dir.clone().multiplyScalar(9)).setY(2.4), look: car.clone().setY(0.6), fov: 45, snap: true };
         })()
       : frame(mode, focus, circuit, state.rig, state.camState, dt);
+    // On a real circuit the road climbs and falls: the shot follows the car's height.
+    if (focus.y) {
+      shot.pos = shot.pos.clone();
+      shot.look = shot.look.clone();
+      shot.pos.y += focus.y;
+      shot.look.y += focus.y;
+    }
     if (shot.snap || cam.pos.distanceTo(shot.pos) > 120) {
       cam.pos.copy(shot.pos);
       cam.look.copy(shot.look);

@@ -1,0 +1,17 @@
+{
+  "name": "overcut-manager-assets",
+  "private": true,
+  "description": "Pipeline offline de assets de OverCut Manager (ADR-001): Blender headless + gltf-transform (Meshopt, KTX2).",
+  "type": "module",
+  "scripts": {
+    "build": "python build_assets.py",
+    "inspect": "node inspect_glb.mjs"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "4.5.1",
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
+    "meshoptimizer": "1.3.0"
+  }
+}

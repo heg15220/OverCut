@@ -1,0 +1,6005 @@
+{
+ "$comment": "GENERADO por tools/assets/build_assets.py: no editar a mano (SRS 4.3, RF-3D-01). Las rutas son relativas a /manager-assets/.",
+ "version": 1,
+ "hash": "9e9d97a0beb0c7f4",
+ "baseUrl": "/manager-assets/",
+ "cars": [
+  {
+   "season": 2005,
+   "teamRef": "bar",
+   "chassis": "006",
+   "release": "coches-2005",
+   "sourceFile": "2005_bar_007.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2005/2005-bar.lod0.glb",
+     "bytes": 4245948,
+     "sha256": "a0fb0cdbec052d97",
+     "triangles": 128062
+    },
+    {
+     "file": "cars/2005/2005-bar.lod1.glb",
+     "bytes": 2526344,
+     "sha256": "14fb57944869bd10",
+     "triangles": 51224
+    },
+    {
+     "file": "cars/2005/2005-bar.lod2.glb",
+     "bytes": 1070604,
+     "sha256": "f1667c6818570356",
+     "triangles": 15363
+    }
+   ],
+   "thumb": "thumbs/2005-bar.png",
+   "metrics": {
+    "lengthM": 4.642,
+    "widthM": 1.81,
+    "heightM": 1.067,
+    "wheelbaseM": 3.041,
+    "trackFrontM": 1.45,
+    "trackRearM": 1.438,
+    "wheelRadiusM": {
+     "wheel_fl": 0.326,
+     "wheel_fr": 0.326,
+     "wheel_rl": 0.326,
+     "wheel_rr": 0.326
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7248,
+      0.3303,
+      -3.041
+     ],
+     "wheel_fr": [
+      0.7248,
+      0.3294,
+      -3.041
+     ],
+     "wheel_rl": [
+      -0.7191,
+      0.3299,
+      0.0
+     ],
+     "wheel_rr": [
+      0.7191,
+      0.3299,
+      -0.0
+     ]
+    },
+    "noseZ": -3.992,
+    "tailZ": 0.65,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2005-bar-007-271096708f244c5eba56f7a3c53fe375",
+   "title": "2005 BAR 007",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2005,
+   "teamRef": "ferrari",
+   "chassis": "F2004M / F2005",
+   "release": "coches-2005",
+   "sourceFile": "2005_ferrari_f2005.glb",
+   "status": "ok",
+   "note": "Las dos primeras carreras se corrieron con el F2004M",
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2005/2005-ferrari.lod0.glb",
+     "bytes": 4012756,
+     "sha256": "8253a4b6e9b80550",
+     "triangles": 156052
+    },
+    {
+     "file": "cars/2005/2005-ferrari.lod1.glb",
+     "bytes": 2323704,
+     "sha256": "719114c5a57caadd",
+     "triangles": 62418
+    },
+    {
+     "file": "cars/2005/2005-ferrari.lod2.glb",
+     "bytes": 1042780,
+     "sha256": "e0abe22d3fc2178e",
+     "triangles": 18724
+    }
+   ],
+   "thumb": "thumbs/2005-ferrari.png",
+   "metrics": {
+    "lengthM": 4.699,
+    "widthM": 1.81,
+    "heightM": 1.114,
+    "wheelbaseM": 3.097,
+    "trackFrontM": 1.45,
+    "trackRearM": 1.438,
+    "wheelRadiusM": {
+     "wheel_fl": 0.326,
+     "wheel_fr": 0.326,
+     "wheel_rl": 0.326,
+     "wheel_rr": 0.326
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7248,
+      0.3294,
+      -3.097
+     ],
+     "wheel_fr": [
+      0.7248,
+      0.3303,
+      -3.097
+     ],
+     "wheel_rl": [
+      -0.7191,
+      0.3299,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7191,
+      0.3299,
+      0.0
+     ]
+    },
+    "noseZ": -4.076,
+    "tailZ": 0.624,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2005-ferrari-f2005-630908b3713e4dde818d5af3e43ebda4",
+   "title": "2005 Ferrari F2005",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2005,
+   "teamRef": "jordan",
+   "chassis": "EJ15 / EJ15B",
+   "release": "coches-2005",
+   "sourceFile": "2005_jordan_ej15.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2005/2005-jordan.lod0.glb",
+     "bytes": 3748228,
+     "sha256": "b9fba7a835657e15",
+     "triangles": 112375
+    },
+    {
+     "file": "cars/2005/2005-jordan.lod1.glb",
+     "bytes": 2217728,
+     "sha256": "4a14f9bce2fcb264",
+     "triangles": 44948
+    },
+    {
+     "file": "cars/2005/2005-jordan.lod2.glb",
+     "bytes": 983340,
+     "sha256": "599d55a9bc251a30",
+     "triangles": 13479
+    }
+   ],
+   "thumb": "thumbs/2005-jordan.png",
+   "metrics": {
+    "lengthM": 4.652,
+    "widthM": 1.819,
+    "heightM": 1.087,
+    "wheelbaseM": 3.058,
+    "trackFrontM": 1.477,
+    "trackRearM": 1.426,
+    "wheelRadiusM": {
+     "wheel_fl": 0.326,
+     "wheel_fr": 0.326,
+     "wheel_rl": 0.326,
+     "wheel_rr": 0.326
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7389,
+      0.3294,
+      -3.058
+     ],
+     "wheel_fr": [
+      0.7383,
+      0.3294,
+      -3.058
+     ],
+     "wheel_rl": [
+      -0.7132,
+      0.328,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7129,
+      0.328,
+      -0.0
+     ]
+    },
+    "noseZ": -4.059,
+    "tailZ": 0.593,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2005-jordan-ej15-42587147465547eeba3a80d0fd21d459",
+   "title": "2005 Jordan EJ15",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2005,
+   "teamRef": "mclaren",
+   "chassis": "MP4-20",
+   "release": "coches-2005",
+   "sourceFile": "2005_mclaren_mp4-20.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2005/2005-mclaren.lod0.glb",
+     "bytes": 4301992,
+     "sha256": "468457315f992c12",
+     "triangles": 104656
+    },
+    {
+     "file": "cars/2005/2005-mclaren.lod1.glb",
+     "bytes": 2264716,
+     "sha256": "ee3c31aaa629b10c",
+     "triangles": 41860
+    },
+    {
+     "file": "cars/2005/2005-mclaren.lod2.glb",
+     "bytes": 992424,
+     "sha256": "e7f5d2ee5330022d",
+     "triangles": 12552
+    }
+   ],
+   "thumb": "thumbs/2005-mclaren.png",
+   "metrics": {
+    "lengthM": 4.559,
+    "widthM": 1.791,
+    "heightM": 1.087,
+    "wheelbaseM": 2.971,
+    "trackFrontM": 1.449,
+    "trackRearM": 1.374,
+    "wheelRadiusM": {
+     "wheel_fl": 0.326,
+     "wheel_fr": 0.326,
+     "wheel_rl": 0.326,
+     "wheel_rr": 0.326
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7249,
+      0.331,
+      -2.971
+     ],
+     "wheel_fr": [
+      0.7242,
+      0.3319,
+      -2.971
+     ],
+     "wheel_rl": [
+      -0.6873,
+      0.3277,
+      0.0
+     ],
+     "wheel_rr": [
+      0.6868,
+      0.3277,
+      -0.0
+     ]
+    },
+    "noseZ": -3.97,
+    "tailZ": 0.589,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2005-mclaren-mp4-20-95e5c4c4fc8542bcb98e6b33ecf6c2f2",
+   "title": "2005 McLaren MP4-20",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2005,
+   "teamRef": "minardi",
+   "chassis": "PS04B / PS05",
+   "release": "coches-2005",
+   "sourceFile": "2005_minardi_ps05.glb",
+   "status": "ok",
+   "note": "Las primeras carreras se corrieron con el PS04B",
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2005/2005-minardi.lod0.glb",
+     "bytes": 3365244,
+     "sha256": "164e871116da32e1",
+     "triangles": 75812
+    },
+    {
+     "file": "cars/2005/2005-minardi.lod1.glb",
+     "bytes": 1979916,
+     "sha256": "05221ce4701b3652",
+     "triangles": 30321
+    },
+    {
+     "file": "cars/2005/2005-minardi.lod2.glb",
+     "bytes": 921500,
+     "sha256": "3cf47f3777a885c3",
+     "triangles": 9094
+    }
+   ],
+   "thumb": "thumbs/2005-minardi.png",
+   "metrics": {
+    "lengthM": 4.693,
+    "widthM": 1.772,
+    "heightM": 1.094,
+    "wheelbaseM": 3.069,
+    "trackFrontM": 1.418,
+    "trackRearM": 1.393,
+    "wheelRadiusM": {
+     "wheel_fl": 0.326,
+     "wheel_fr": 0.326,
+     "wheel_rl": 0.326,
+     "wheel_rr": 0.326
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7088,
+      0.3294,
+      -3.069
+     ],
+     "wheel_fr": [
+      0.7095,
+      0.3303,
+      -3.069
+     ],
+     "wheel_rl": [
+      -0.6959,
+      0.3299,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.6967,
+      0.3299,
+      0.0
+     ]
+    },
+    "noseZ": -4.069,
+    "tailZ": 0.624,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2005-minardi-ps05-d3ff4f90affc49eb92ab0b456bf62c77",
+   "title": "2005 Minardi PS05",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2005,
+   "teamRef": "renault",
+   "chassis": "R25",
+   "release": "coches-2005",
+   "sourceFile": "2005_renault_r25.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2005/2005-renault.lod0.glb",
+     "bytes": 4117980,
+     "sha256": "ce5c50535caa5b7e",
+     "triangles": 92551
+    },
+    {
+     "file": "cars/2005/2005-renault.lod1.glb",
+     "bytes": 2469204,
+     "sha256": "685dec6ca881e272",
+     "triangles": 37017
+    },
+    {
+     "file": "cars/2005/2005-renault.lod2.glb",
+     "bytes": 1098780,
+     "sha256": "9844ea3ee9075d80",
+     "triangles": 11103
+    }
+   ],
+   "thumb": "thumbs/2005-renault.png",
+   "metrics": {
+    "lengthM": 4.63,
+    "widthM": 1.772,
+    "heightM": 1.083,
+    "wheelbaseM": 3.076,
+    "trackFrontM": 1.418,
+    "trackRearM": 1.393,
+    "wheelRadiusM": {
+     "wheel_fl": 0.326,
+     "wheel_fr": 0.326,
+     "wheel_rl": 0.326,
+     "wheel_rr": 0.326
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7088,
+      0.3303,
+      -3.076
+     ],
+     "wheel_fr": [
+      0.7095,
+      0.3294,
+      -3.076
+     ],
+     "wheel_rl": [
+      -0.6959,
+      0.3299,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.6967,
+      0.3299,
+      -0.0
+     ]
+    },
+    "noseZ": -4.047,
+    "tailZ": 0.583,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2005-renault-r25-0d58fe125f5b41a2b8482576723120c4",
+   "title": "2005 Renault R25",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2005,
+   "teamRef": "sauber",
+   "chassis": "C24",
+   "release": "coches-2005",
+   "sourceFile": "2005_sauber_c24.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2005/2005-sauber.lod0.glb",
+     "bytes": 4356796,
+     "sha256": "694d95e9e26452bb",
+     "triangles": 75439
+    },
+    {
+     "file": "cars/2005/2005-sauber.lod1.glb",
+     "bytes": 2372052,
+     "sha256": "795ef40b68e37bbe",
+     "triangles": 30172
+    },
+    {
+     "file": "cars/2005/2005-sauber.lod2.glb",
+     "bytes": 1024736,
+     "sha256": "d25c53c161398e2f",
+     "triangles": 9049
+    }
+   ],
+   "thumb": "thumbs/2005-sauber.png",
+   "metrics": {
+    "lengthM": 4.556,
+    "widthM": 1.772,
+    "heightM": 1.083,
+    "wheelbaseM": 3.047,
+    "trackFrontM": 1.418,
+    "trackRearM": 1.393,
+    "wheelRadiusM": {
+     "wheel_fl": 0.326,
+     "wheel_fr": 0.326,
+     "wheel_rl": 0.326,
+     "wheel_rr": 0.326
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7088,
+      0.3303,
+      -3.047
+     ],
+     "wheel_fr": [
+      0.7095,
+      0.3294,
+      -3.047
+     ],
+     "wheel_rl": [
+      -0.6959,
+      0.3309,
+      0.0
+     ],
+     "wheel_rr": [
+      0.6967,
+      0.3309,
+      -0.0
+     ]
+    },
+    "noseZ": -3.989,
+    "tailZ": 0.567,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2005-sauber-c24-2422962ebf87496b8497ab19789a88e0",
+   "title": "2005 Sauber C24",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2005,
+   "teamRef": "toyota",
+   "chassis": "TF105 / TF105B",
+   "release": "coches-2005",
+   "sourceFile": "2005__toyota_tf105.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2005/2005-toyota.lod0.glb",
+     "bytes": 5445864,
+     "sha256": "d3f26f87ac125e5e",
+     "triangles": 135551
+    },
+    {
+     "file": "cars/2005/2005-toyota.lod1.glb",
+     "bytes": 2727896,
+     "sha256": "364995323fc97670",
+     "triangles": 54216
+    },
+    {
+     "file": "cars/2005/2005-toyota.lod2.glb",
+     "bytes": 1125684,
+     "sha256": "2ef577fc319d84c2",
+     "triangles": 16258
+    }
+   ],
+   "thumb": "thumbs/2005-toyota.png",
+   "metrics": {
+    "lengthM": 4.579,
+    "widthM": 1.788,
+    "heightM": 1.097,
+    "wheelbaseM": 3.04,
+    "trackFrontM": 1.446,
+    "trackRearM": 1.416,
+    "wheelRadiusM": {
+     "wheel_fl": 0.326,
+     "wheel_fr": 0.326,
+     "wheel_rl": 0.326,
+     "wheel_rr": 0.326
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7229,
+      0.3303,
+      -3.04
+     ],
+     "wheel_fr": [
+      0.7226,
+      0.3303,
+      -3.04
+     ],
+     "wheel_rl": [
+      -0.7082,
+      0.3299,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7078,
+      0.3299,
+      -0.0
+     ]
+    },
+    "noseZ": -3.951,
+    "tailZ": 0.628,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2005-toyota-tf105-ec338073ad854a639636f2e6b8b75698",
+   "title": "2005  Toyota TF105",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2005,
+   "teamRef": "williams",
+   "chassis": "FW27",
+   "release": "coches-2005",
+   "sourceFile": "2005_williams_fw27.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2005/2005-williams.lod0.glb",
+     "bytes": 4292992,
+     "sha256": "bb1db0523a36c24d",
+     "triangles": 65232
+    },
+    {
+     "file": "cars/2005/2005-williams.lod1.glb",
+     "bytes": 2320856,
+     "sha256": "febc287242bf0969",
+     "triangles": 26089
+    },
+    {
+     "file": "cars/2005/2005-williams.lod2.glb",
+     "bytes": 973492,
+     "sha256": "00dfda45489b6fe2",
+     "triangles": 7822
+    }
+   ],
+   "thumb": "thumbs/2005-williams.png",
+   "metrics": {
+    "lengthM": 4.596,
+    "widthM": 1.811,
+    "heightM": 1.099,
+    "wheelbaseM": 3.047,
+    "trackFrontM": 1.448,
+    "trackRearM": 1.432,
+    "wheelRadiusM": {
+     "wheel_fl": 0.326,
+     "wheel_fr": 0.326,
+     "wheel_rl": 0.326,
+     "wheel_rr": 0.326
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.724,
+      0.3294,
+      -3.047
+     ],
+     "wheel_fr": [
+      0.724,
+      0.3303,
+      -3.047
+     ],
+     "wheel_rl": [
+      -0.7161,
+      0.3299,
+      0.0
+     ],
+     "wheel_rr": [
+      0.7161,
+      0.3299,
+      -0.0
+     ]
+    },
+    "noseZ": -3.971,
+    "tailZ": 0.625,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2005-williams-fw27-4dae6d39b2854884b14b1cfcb2708fbf",
+   "title": "2005 Williams FW27",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2007,
+   "teamRef": "ferrari",
+   "chassis": null,
+   "release": "coches-2007",
+   "sourceFile": "2007.glb",
+   "status": "ok",
+   "note": "Ferrari F2007 (nodo cim_2007_ferrari, materiales ferrari_f2007_*); el único coche de la carpeta 2007",
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2007/2007-ferrari.lod0.glb",
+     "bytes": 4373872,
+     "sha256": "d9565f1b36dadd6c",
+     "triangles": 166740
+    },
+    {
+     "file": "cars/2007/2007-ferrari.lod1.glb",
+     "bytes": 2529620,
+     "sha256": "0df1fffe8fc83545",
+     "triangles": 66694
+    },
+    {
+     "file": "cars/2007/2007-ferrari.lod2.glb",
+     "bytes": 955144,
+     "sha256": "21a2dd437aa1a0cc",
+     "triangles": 20005
+    }
+   ],
+   "thumb": "thumbs/2007-ferrari.png",
+   "metrics": {
+    "lengthM": 4.566,
+    "widthM": 1.805,
+    "heightM": 1.081,
+    "wheelbaseM": 3.102,
+    "trackFrontM": 1.442,
+    "trackRearM": 1.411,
+    "wheelRadiusM": {
+     "wheel_fl": 0.305,
+     "wheel_fr": 0.313,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.719,
+      0.3228,
+      -3.0948
+     ],
+     "wheel_fr": [
+      0.7227,
+      0.3237,
+      -3.109
+     ],
+     "wheel_rl": [
+      -0.706,
+      0.3224,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.705,
+      0.3246,
+      0.0
+     ]
+    },
+    "noseZ": -4.023,
+    "tailZ": 0.543,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2007-e2e1ba3963f44ded852fe7cf146d7fba",
+   "title": "2007",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "bmw-sauber",
+   "chassis": "F1.08",
+   "release": "coches-2008",
+   "sourceFile": "2008_bmw_sauber_f1.08.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [],
+   "lods": [
+    {
+     "file": "cars/2008/2008-bmw-sauber.lod0.glb",
+     "bytes": 6267656,
+     "sha256": "ae097c9a6cff9bb7",
+     "triangles": 172812
+    },
+    {
+     "file": "cars/2008/2008-bmw-sauber.lod1.glb",
+     "bytes": 2547012,
+     "sha256": "51d3c1e34769f773",
+     "triangles": 69124
+    },
+    {
+     "file": "cars/2008/2008-bmw-sauber.lod2.glb",
+     "bytes": 850732,
+     "sha256": "c136c10455a793a5",
+     "triangles": 20737
+    }
+   ],
+   "thumb": "thumbs/2008-bmw-sauber.png",
+   "metrics": {
+    "lengthM": 4.592,
+    "widthM": 1.821,
+    "heightM": 1.071,
+    "wheelbaseM": 2.847,
+    "trackFrontM": null,
+    "trackRearM": null,
+    "wheelRadiusM": {},
+    "wheelHubs": {},
+    "noseZ": -3.903,
+    "tailZ": 0.689,
+    "scaleApplied": 1.0,
+    "wheels": "static"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-bmw-sauber-f108-5bf3feb19ea24856af8deae8789c088e",
+   "title": "2008 BMW Sauber F1.08",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "ferrari",
+   "chassis": "F2008",
+   "release": "coches-2008",
+   "sourceFile": "2008_ferrari_f2008.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2008/2008-ferrari.lod0.glb",
+     "bytes": 3521884,
+     "sha256": "2ee6b5dac59a5b27",
+     "triangles": 174202
+    },
+    {
+     "file": "cars/2008/2008-ferrari.lod1.glb",
+     "bytes": 1947036,
+     "sha256": "d01f5603979d2f9b",
+     "triangles": 69676
+    },
+    {
+     "file": "cars/2008/2008-ferrari.lod2.glb",
+     "bytes": 725040,
+     "sha256": "6244f9b29c6c7b10",
+     "triangles": 20900
+    }
+   ],
+   "thumb": "thumbs/2008-ferrari.png",
+   "metrics": {
+    "lengthM": 4.736,
+    "widthM": 1.813,
+    "heightM": 1.086,
+    "wheelbaseM": 3.17,
+    "trackFrontM": 1.423,
+    "trackRearM": 1.393,
+    "wheelRadiusM": {
+     "wheel_fl": 0.329,
+     "wheel_fr": 0.329,
+     "wheel_rl": 0.329,
+     "wheel_rr": 0.329
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7113,
+      0.3303,
+      -3.1705
+     ],
+     "wheel_fr": [
+      0.7113,
+      0.3303,
+      -3.1699
+     ],
+     "wheel_rl": [
+      -0.6966,
+      0.3286,
+      0.0
+     ],
+     "wheel_rr": [
+      0.6966,
+      0.3312,
+      -0.0
+     ]
+    },
+    "noseZ": -4.15,
+    "tailZ": 0.586,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-ferrari-f2008-0476bd73b8d84e0e99d5197140bc22d6",
+   "title": "2008 Ferrari F2008",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "force-india",
+   "chassis": "VJM01",
+   "release": "coches-2008",
+   "sourceFile": "2008_force_india_vjm01.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2008/2008-force-india.lod0.glb",
+     "bytes": 6478288,
+     "sha256": "d56b6b94a51d6463",
+     "triangles": 164943
+    },
+    {
+     "file": "cars/2008/2008-force-india.lod1.glb",
+     "bytes": 2948716,
+     "sha256": "b7afbe4adb725710",
+     "triangles": 65974
+    },
+    {
+     "file": "cars/2008/2008-force-india.lod2.glb",
+     "bytes": 1082852,
+     "sha256": "b33ce2eb0a080306",
+     "triangles": 19787
+    }
+   ],
+   "thumb": "thumbs/2008-force-india.png",
+   "metrics": {
+    "lengthM": 4.944,
+    "widthM": 1.823,
+    "heightM": 1.071,
+    "wheelbaseM": 3.238,
+    "trackFrontM": 1.453,
+    "trackRearM": 1.427,
+    "wheelRadiusM": {
+     "wheel_fl": 0.329,
+     "wheel_fr": 0.329,
+     "wheel_rl": 0.329,
+     "wheel_rr": 0.329
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7268,
+      0.3318,
+      -3.2379
+     ],
+     "wheel_fr": [
+      0.7267,
+      0.3318,
+      -3.2373
+     ],
+     "wheel_rl": [
+      -0.7135,
+      0.3286,
+      0.0
+     ],
+     "wheel_rr": [
+      0.7135,
+      0.3312,
+      -0.0
+     ]
+    },
+    "noseZ": -4.328,
+    "tailZ": 0.616,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-force-india-vjm01-2827f7db24474ee9ae9a1c10286efc0a",
+   "title": "2008 Force India VJM01",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "honda",
+   "chassis": "RA108",
+   "release": "coches-2008",
+   "sourceFile": "2008_honda_ra108.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2008/2008-honda.lod0.glb",
+     "bytes": 7020600,
+     "sha256": "d34cec043ea598cf",
+     "triangles": 174392
+    },
+    {
+     "file": "cars/2008/2008-honda.lod1.glb",
+     "bytes": 3189444,
+     "sha256": "d02ddcc7403157f3",
+     "triangles": 69754
+    },
+    {
+     "file": "cars/2008/2008-honda.lod2.glb",
+     "bytes": 1182552,
+     "sha256": "8d969047ed40d94e",
+     "triangles": 20922
+    }
+   ],
+   "thumb": "thumbs/2008-honda.png",
+   "metrics": {
+    "lengthM": 4.684,
+    "widthM": 1.802,
+    "heightM": 1.099,
+    "wheelbaseM": 3.213,
+    "trackFrontM": 1.424,
+    "trackRearM": 1.406,
+    "wheelRadiusM": {
+     "wheel_fl": 0.329,
+     "wheel_fr": 0.329,
+     "wheel_rl": 0.329,
+     "wheel_rr": 0.329
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7118,
+      0.3305,
+      -3.2136
+     ],
+     "wheel_fr": [
+      0.7118,
+      0.3305,
+      -3.213
+     ],
+     "wheel_rl": [
+      -0.7031,
+      0.3289,
+      0.0
+     ],
+     "wheel_rr": [
+      0.7031,
+      0.3312,
+      -0.0
+     ]
+    },
+    "noseZ": -4.149,
+    "tailZ": 0.535,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-honda-ra108-4c33e6f7501041cc99f19c2447732403",
+   "title": "2008 Honda RA108",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "mclaren",
+   "chassis": "MP4-23",
+   "release": "coches-2008",
+   "sourceFile": "2008_mclaren_mp423.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [],
+   "lods": [
+    {
+     "file": "cars/2008/2008-mclaren.lod0.glb",
+     "bytes": 5009752,
+     "sha256": "6eb78896c052714b",
+     "triangles": 125327
+    },
+    {
+     "file": "cars/2008/2008-mclaren.lod1.glb",
+     "bytes": 2459920,
+     "sha256": "d0856ef83f8d671d",
+     "triangles": 50130
+    },
+    {
+     "file": "cars/2008/2008-mclaren.lod2.glb",
+     "bytes": 927664,
+     "sha256": "5186ff64ee35e4ed",
+     "triangles": 15039
+    }
+   ],
+   "thumb": "thumbs/2008-mclaren.png",
+   "metrics": {
+    "lengthM": 4.7,
+    "widthM": 1.79,
+    "heightM": 1.107,
+    "wheelbaseM": 2.914,
+    "trackFrontM": null,
+    "trackRearM": null,
+    "wheelRadiusM": {},
+    "wheelHubs": {},
+    "noseZ": -3.995,
+    "tailZ": 0.705,
+    "scaleApplied": 98.50455,
+    "wheels": "static"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-mclaren-mp423-bf1096b47dab4cefaedb46006125670e",
+   "title": "2008 Mclaren MP4/23",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "red-bull",
+   "chassis": "RB4",
+   "release": "coches-2008",
+   "sourceFile": "2008_redbull_rb3.glb",
+   "status": "review",
+   "note": "El archivo dice RB3; el coche de 2008 es el RB4",
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2008/2008-red-bull.lod0.glb",
+     "bytes": 6148968,
+     "sha256": "ea02b7c48b3c9f04",
+     "triangles": 170858
+    },
+    {
+     "file": "cars/2008/2008-red-bull.lod1.glb",
+     "bytes": 2867152,
+     "sha256": "fe3ee1e5d61ecaa9",
+     "triangles": 68340
+    },
+    {
+     "file": "cars/2008/2008-red-bull.lod2.glb",
+     "bytes": 1074620,
+     "sha256": "c01abf3a3c753e4d",
+     "triangles": 20499
+    }
+   ],
+   "thumb": "thumbs/2008-red-bull.png",
+   "metrics": {
+    "lengthM": 4.726,
+    "widthM": 1.852,
+    "heightM": 1.091,
+    "wheelbaseM": 3.096,
+    "trackFrontM": 1.454,
+    "trackRearM": 1.456,
+    "wheelRadiusM": {
+     "wheel_fl": 0.329,
+     "wheel_fr": 0.329,
+     "wheel_rl": 0.327,
+     "wheel_rr": 0.329
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7269,
+      0.3303,
+      -3.096
+     ],
+     "wheel_fr": [
+      0.7269,
+      0.3303,
+      -3.0954
+     ],
+     "wheel_rl": [
+      -0.728,
+      0.3286,
+      0.0018
+     ],
+     "wheel_rr": [
+      0.728,
+      0.331,
+      -0.0018
+     ]
+    },
+    "noseZ": -4.076,
+    "tailZ": 0.65,
+    "scaleApplied": 1.0
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-redbull-rb3-29d106867882476da70c3d9164f1bdb3",
+   "title": "2008 Redbull RB3",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "renault",
+   "chassis": "R28",
+   "release": "coches-2008",
+   "sourceFile": "2008_renault_r28.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2008/2008-renault.lod0.glb",
+     "bytes": 4572960,
+     "sha256": "392cc92b2db43d9e",
+     "triangles": 172476
+    },
+    {
+     "file": "cars/2008/2008-renault.lod1.glb",
+     "bytes": 2342896,
+     "sha256": "a71127494a95395b",
+     "triangles": 68988
+    },
+    {
+     "file": "cars/2008/2008-renault.lod2.glb",
+     "bytes": 927056,
+     "sha256": "0ef6ceeb9061a670",
+     "triangles": 20694
+    }
+   ],
+   "thumb": "thumbs/2008-renault.png",
+   "metrics": {
+    "lengthM": 4.8,
+    "widthM": 1.821,
+    "heightM": 1.101,
+    "wheelbaseM": 3.245,
+    "trackFrontM": 1.454,
+    "trackRearM": 1.426,
+    "wheelRadiusM": {
+     "wheel_fl": 0.329,
+     "wheel_fr": 0.329,
+     "wheel_rl": 0.32,
+     "wheel_rr": 0.329
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7269,
+      0.3304,
+      -3.2452
+     ],
+     "wheel_fr": [
+      0.7269,
+      0.3304,
+      -3.2446
+     ],
+     "wheel_rl": [
+      -0.7128,
+      0.3286,
+      0.0084
+     ],
+     "wheel_rr": [
+      0.7128,
+      0.3312,
+      -0.0084
+     ]
+    },
+    "noseZ": -4.241,
+    "tailZ": 0.559,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-renault-r28-ce19a4094d7c4003ba7adeee79ea0900",
+   "title": "2008 Renault R28",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "super-aguri",
+   "chassis": "SA08",
+   "release": "coches-2008",
+   "sourceFile": "2008_super_aguri_sa08.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2008/2008-super-aguri.lod0.glb",
+     "bytes": 4372580,
+     "sha256": "6a95875002f1696f",
+     "triangles": 169615
+    },
+    {
+     "file": "cars/2008/2008-super-aguri.lod1.glb",
+     "bytes": 2312432,
+     "sha256": "c0dc94fd2fc1b4fc",
+     "triangles": 67844
+    },
+    {
+     "file": "cars/2008/2008-super-aguri.lod2.glb",
+     "bytes": 912184,
+     "sha256": "7515b455613528e9",
+     "triangles": 20350
+    }
+   ],
+   "thumb": "thumbs/2008-super-aguri.png",
+   "metrics": {
+    "lengthM": 4.732,
+    "widthM": 1.816,
+    "heightM": 1.099,
+    "wheelbaseM": 3.13,
+    "trackFrontM": 1.45,
+    "trackRearM": 1.421,
+    "wheelRadiusM": {
+     "wheel_fl": 0.329,
+     "wheel_fr": 0.329,
+     "wheel_rl": 0.328,
+     "wheel_rr": 0.329
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.725,
+      0.3303,
+      -3.1307
+     ],
+     "wheel_fr": [
+      0.7249,
+      0.3303,
+      -3.1301
+     ],
+     "wheel_rl": [
+      -0.7104,
+      0.3289,
+      -0.0003
+     ],
+     "wheel_rr": [
+      0.7104,
+      0.3312,
+      0.0003
+     ]
+    },
+    "noseZ": -4.125,
+    "tailZ": 0.607,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-super-aguri-sa08-6a2c798d6fc44b57893c04dc74922111",
+   "title": "2008 Super Aguri SA08",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "toro-rosso",
+   "chassis": "STR2B / STR3",
+   "release": "coches-2008",
+   "sourceFile": "2008_toro_rosso_str3.glb",
+   "status": "ok",
+   "note": "Las primeras carreras se corrieron con el STR2B",
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2008/2008-toro-rosso.lod0.glb",
+     "bytes": 5365888,
+     "sha256": "f5a4bc1ef98cd7b0",
+     "triangles": 173034
+    },
+    {
+     "file": "cars/2008/2008-toro-rosso.lod1.glb",
+     "bytes": 2643404,
+     "sha256": "2f8a142605816be5",
+     "triangles": 69210
+    },
+    {
+     "file": "cars/2008/2008-toro-rosso.lod2.glb",
+     "bytes": 1010360,
+     "sha256": "db22412aa5acc296",
+     "triangles": 20761
+    }
+   ],
+   "thumb": "thumbs/2008-toro-rosso.png",
+   "metrics": {
+    "lengthM": 4.726,
+    "widthM": 1.852,
+    "heightM": 1.091,
+    "wheelbaseM": 3.096,
+    "trackFrontM": 1.454,
+    "trackRearM": 1.456,
+    "wheelRadiusM": {
+     "wheel_fl": 0.329,
+     "wheel_fr": 0.329,
+     "wheel_rl": 0.327,
+     "wheel_rr": 0.329
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7269,
+      0.3303,
+      -3.096
+     ],
+     "wheel_fr": [
+      0.7269,
+      0.3303,
+      -3.0954
+     ],
+     "wheel_rl": [
+      -0.728,
+      0.3286,
+      0.0018
+     ],
+     "wheel_rr": [
+      0.728,
+      0.331,
+      -0.0018
+     ]
+    },
+    "noseZ": -4.076,
+    "tailZ": 0.65,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-toro-rosso-str3-35f64cdaf8cd48b78ae7e0beb41814af",
+   "title": "2008 Toro Rosso STR3",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2008,
+   "teamRef": "williams",
+   "chassis": "FW30",
+   "release": "coches-2008",
+   "sourceFile": "2008_williams_fw30.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2008/2008-williams.lod0.glb",
+     "bytes": 3438656,
+     "sha256": "c277d693a421d67d",
+     "triangles": 168264
+    },
+    {
+     "file": "cars/2008/2008-williams.lod1.glb",
+     "bytes": 1974212,
+     "sha256": "9338a962785cb5c4",
+     "triangles": 67304
+    },
+    {
+     "file": "cars/2008/2008-williams.lod2.glb",
+     "bytes": 775380,
+     "sha256": "1006b9afe55977ed",
+     "triangles": 20188
+    }
+   ],
+   "thumb": "thumbs/2008-williams.png",
+   "metrics": {
+    "lengthM": 4.613,
+    "widthM": 1.825,
+    "heightM": 1.063,
+    "wheelbaseM": 3.099,
+    "trackFrontM": 1.453,
+    "trackRearM": 1.429,
+    "wheelRadiusM": {
+     "wheel_fl": 0.329,
+     "wheel_fr": 0.329,
+     "wheel_rl": 0.329,
+     "wheel_rr": 0.329
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7268,
+      0.3302,
+      -3.0989
+     ],
+     "wheel_fr": [
+      0.7267,
+      0.3302,
+      -3.0983
+     ],
+     "wheel_rl": [
+      -0.7146,
+      0.3289,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7146,
+      0.3312,
+      0.0
+     ]
+    },
+    "noseZ": -4.051,
+    "tailZ": 0.563,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2008-williams-fw30-cc94e533747e4edbb4a5b698a9fc25e2",
+   "title": "2008 Williams FW30",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "ferrari",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-ferrari.lod0.glb",
+     "bytes": 1084280,
+     "sha256": "daf774a1a4f4f93a",
+     "triangles": 38903
+    },
+    {
+     "file": "cars/2010/2010-ferrari.lod1.glb",
+     "bytes": 588432,
+     "sha256": "d50c8b10da188a58",
+     "triangles": 15560
+    },
+    {
+     "file": "cars/2010/2010-ferrari.lod2.glb",
+     "bytes": 221524,
+     "sha256": "ac217d2b7ae73af2",
+     "triangles": 4666
+    }
+   ],
+   "thumb": "thumbs/2010-ferrari.png",
+   "metrics": {
+    "lengthM": 5.214,
+    "widthM": 1.81,
+    "heightM": 1.067,
+    "wheelbaseM": 3.276,
+    "trackFrontM": 1.357,
+    "trackRearM": 1.359,
+    "wheelRadiusM": {
+     "wheel_fl": 0.336,
+     "wheel_fr": 0.335,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6402,
+      0.3696,
+      -3.2755
+     ],
+     "wheel_fr": [
+      0.7168,
+      0.3697,
+      -3.2764
+     ],
+     "wheel_rl": [
+      -0.6548,
+      0.3873,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7046,
+      0.3873,
+      -0.0
+     ]
+    },
+    "noseZ": -4.509,
+    "tailZ": 0.706,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "force-india",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-force-india.lod0.glb",
+     "bytes": 997752,
+     "sha256": "22cbcdf028d0e392",
+     "triangles": 37974
+    },
+    {
+     "file": "cars/2010/2010-force-india.lod1.glb",
+     "bytes": 546624,
+     "sha256": "26291bd372869a83",
+     "triangles": 15186
+    },
+    {
+     "file": "cars/2010/2010-force-india.lod2.glb",
+     "bytes": 207204,
+     "sha256": "4e6c13b19f014e37",
+     "triangles": 4552
+    }
+   ],
+   "thumb": "thumbs/2010-force-india.png",
+   "metrics": {
+    "lengthM": 5.095,
+    "widthM": 1.8,
+    "heightM": 1.044,
+    "wheelbaseM": 3.276,
+    "trackFrontM": 1.357,
+    "trackRearM": 1.359,
+    "wheelRadiusM": {
+     "wheel_fl": 0.335,
+     "wheel_fr": 0.335,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.645,
+      0.3455,
+      -3.2759
+     ],
+     "wheel_fr": [
+      0.7121,
+      0.3456,
+      -3.2759
+     ],
+     "wheel_rl": [
+      -0.6595,
+      0.3632,
+      0.0005
+     ],
+     "wheel_rr": [
+      0.6998,
+      0.3632,
+      -0.0005
+     ]
+    },
+    "noseZ": -4.48,
+    "tailZ": 0.615,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "hrt",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-hrt.lod0.glb",
+     "bytes": 984484,
+     "sha256": "6b97fcf5b0d1b5df",
+     "triangles": 34968
+    },
+    {
+     "file": "cars/2010/2010-hrt.lod1.glb",
+     "bytes": 527544,
+     "sha256": "c91ed6fb5dad21ac",
+     "triangles": 13985
+    },
+    {
+     "file": "cars/2010/2010-hrt.lod2.glb",
+     "bytes": 199176,
+     "sha256": "60b624f682d1f5d8",
+     "triangles": 4193
+    }
+   ],
+   "thumb": "thumbs/2010-hrt.png",
+   "metrics": {
+    "lengthM": 4.836,
+    "widthM": 1.783,
+    "heightM": 1.072,
+    "wheelbaseM": 3.114,
+    "trackFrontM": 1.398,
+    "trackRearM": 1.358,
+    "wheelRadiusM": {
+     "wheel_fl": 0.335,
+     "wheel_fr": 0.336,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6706,
+      0.3843,
+      -3.1134
+     ],
+     "wheel_fr": [
+      0.7271,
+      0.3844,
+      -3.1144
+     ],
+     "wheel_rl": [
+      -0.6851,
+      0.4021,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.6725,
+      0.4021,
+      -0.0
+     ]
+    },
+    "noseZ": -4.165,
+    "tailZ": 0.67,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "lotus-racing",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-lotus-racing.lod0.glb",
+     "bytes": 952932,
+     "sha256": "fe2ff7a036c0f718",
+     "triangles": 37948
+    },
+    {
+     "file": "cars/2010/2010-lotus-racing.lod1.glb",
+     "bytes": 565868,
+     "sha256": "f42a298f778e5b27",
+     "triangles": 15173
+    },
+    {
+     "file": "cars/2010/2010-lotus-racing.lod2.glb",
+     "bytes": 201732,
+     "sha256": "523214aeb99e04c2",
+     "triangles": 4550
+    }
+   ],
+   "thumb": "thumbs/2010-lotus-racing.png",
+   "metrics": {
+    "lengthM": 5.004,
+    "widthM": 1.795,
+    "heightM": 1.128,
+    "wheelbaseM": 3.276,
+    "trackFrontM": 1.357,
+    "trackRearM": 1.359,
+    "wheelRadiusM": {
+     "wheel_fl": 0.335,
+     "wheel_fr": 0.335,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6476,
+      0.3355,
+      -3.2764
+     ],
+     "wheel_fr": [
+      0.7094,
+      0.3356,
+      -3.2764
+     ],
+     "wheel_rl": [
+      -0.6622,
+      0.3533,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.6972,
+      0.3533,
+      -0.0
+     ]
+    },
+    "noseZ": -4.345,
+    "tailZ": 0.659,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "mclaren",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-mclaren.lod0.glb",
+     "bytes": 1031132,
+     "sha256": "4ff588b0e29013ea",
+     "triangles": 36609
+    },
+    {
+     "file": "cars/2010/2010-mclaren.lod1.glb",
+     "bytes": 556492,
+     "sha256": "df513f66c2cf64dc",
+     "triangles": 14639
+    },
+    {
+     "file": "cars/2010/2010-mclaren.lod2.glb",
+     "bytes": 212324,
+     "sha256": "b7597e4356a9c55f",
+     "triangles": 4390
+    }
+   ],
+   "thumb": "thumbs/2010-mclaren.png",
+   "metrics": {
+    "lengthM": 5.17,
+    "widthM": 1.784,
+    "heightM": 1.082,
+    "wheelbaseM": 3.276,
+    "trackFrontM": 1.357,
+    "trackRearM": 1.359,
+    "wheelRadiusM": {
+     "wheel_fl": 0.335,
+     "wheel_fr": 0.335,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.653,
+      0.3552,
+      -3.2758
+     ],
+     "wheel_fr": [
+      0.7042,
+      0.3553,
+      -3.2758
+     ],
+     "wheel_rl": [
+      -0.6674,
+      0.3729,
+      0.0005
+     ],
+     "wheel_rr": [
+      0.6919,
+      0.3729,
+      -0.0005
+     ]
+    },
+    "noseZ": -4.421,
+    "tailZ": 0.749,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "mercedes",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "review",
+   "note": "El modelo del pack no trae tapa motor ni pontones",
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-mercedes.lod0.glb",
+     "bytes": 930448,
+     "sha256": "674914fc4be29c09",
+     "triangles": 31178
+    },
+    {
+     "file": "cars/2010/2010-mercedes.lod1.glb",
+     "bytes": 492464,
+     "sha256": "56a490fbb9c8542e",
+     "triangles": 12467
+    },
+    {
+     "file": "cars/2010/2010-mercedes.lod2.glb",
+     "bytes": 191104,
+     "sha256": "e184847326aae24a",
+     "triangles": 3737
+    }
+   ],
+   "thumb": "thumbs/2010-mercedes.png",
+   "metrics": {
+    "lengthM": 4.854,
+    "widthM": 1.769,
+    "heightM": 1.065,
+    "wheelbaseM": 3.114,
+    "trackFrontM": 1.398,
+    "trackRearM": 1.357,
+    "wheelRadiusM": {
+     "wheel_fl": 0.335,
+     "wheel_fr": 0.336,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6696,
+      0.3544,
+      -3.1134
+     ],
+     "wheel_fr": [
+      0.728,
+      0.3545,
+      -3.1144
+     ],
+     "wheel_rl": [
+      -0.684,
+      0.3721,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.6734,
+      0.3721,
+      -0.0
+     ]
+    },
+    "noseZ": -4.129,
+    "tailZ": 0.725,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "red-bull",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-red-bull.lod0.glb",
+     "bytes": 1041528,
+     "sha256": "24ca95b645668d4c",
+     "triangles": 37611
+    },
+    {
+     "file": "cars/2010/2010-red-bull.lod1.glb",
+     "bytes": 547844,
+     "sha256": "6ff4c4ac3b915a9d",
+     "triangles": 15042
+    },
+    {
+     "file": "cars/2010/2010-red-bull.lod2.glb",
+     "bytes": 206776,
+     "sha256": "49779a96c5768ea1",
+     "triangles": 4510
+    }
+   ],
+   "thumb": "thumbs/2010-red-bull.png",
+   "metrics": {
+    "lengthM": 5.107,
+    "widthM": 1.835,
+    "heightM": 1.082,
+    "wheelbaseM": 3.276,
+    "trackFrontM": 1.398,
+    "trackRearM": 1.4,
+    "wheelRadiusM": {
+     "wheel_fl": 0.335,
+     "wheel_fr": 0.335,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6874,
+      0.3394,
+      -3.2758
+     ],
+     "wheel_fr": [
+      0.7103,
+      0.3395,
+      -3.2758
+     ],
+     "wheel_rl": [
+      -0.7019,
+      0.3571,
+      0.0005
+     ],
+     "wheel_rr": [
+      0.6979,
+      0.3571,
+      -0.0005
+     ]
+    },
+    "noseZ": -4.368,
+    "tailZ": 0.739,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "renault",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-renault.lod0.glb",
+     "bytes": 1018732,
+     "sha256": "cda7c54cd8e70ec3",
+     "triangles": 38116
+    },
+    {
+     "file": "cars/2010/2010-renault.lod1.glb",
+     "bytes": 537008,
+     "sha256": "2713fbffc22186e1",
+     "triangles": 15244
+    },
+    {
+     "file": "cars/2010/2010-renault.lod2.glb",
+     "bytes": 205728,
+     "sha256": "717220eefdb46394",
+     "triangles": 4569
+    }
+   ],
+   "thumb": "thumbs/2010-renault.png",
+   "metrics": {
+    "lengthM": 4.959,
+    "widthM": 1.817,
+    "heightM": 1.064,
+    "wheelbaseM": 3.276,
+    "trackFrontM": 1.398,
+    "trackRearM": 1.4,
+    "wheelRadiusM": {
+     "wheel_fl": 0.335,
+     "wheel_fr": 0.335,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6936,
+      0.3467,
+      -3.2758
+     ],
+     "wheel_fr": [
+      0.7041,
+      0.3468,
+      -3.2758
+     ],
+     "wheel_rl": [
+      -0.708,
+      0.3644,
+      0.0005
+     ],
+     "wheel_rr": [
+      0.6918,
+      0.3644,
+      -0.0005
+     ]
+    },
+    "noseZ": -4.318,
+    "tailZ": 0.642,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "sauber",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": "Identificado por descarte: C29 blanco y negro sin logotipos legibles",
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-sauber.lod0.glb",
+     "bytes": 999364,
+     "sha256": "6626d1d4e13d8457",
+     "triangles": 37050
+    },
+    {
+     "file": "cars/2010/2010-sauber.lod1.glb",
+     "bytes": 532312,
+     "sha256": "602761feec470973",
+     "triangles": 14814
+    },
+    {
+     "file": "cars/2010/2010-sauber.lod2.glb",
+     "bytes": 203672,
+     "sha256": "81fd46c54b8b1510",
+     "triangles": 4441
+    }
+   ],
+   "thumb": "thumbs/2010-sauber.png",
+   "metrics": {
+    "lengthM": 5.05,
+    "widthM": 1.8,
+    "heightM": 1.044,
+    "wheelbaseM": 3.276,
+    "trackFrontM": 1.4,
+    "trackRearM": 1.394,
+    "wheelRadiusM": {
+     "wheel_fl": 0.335,
+     "wheel_fr": 0.335,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6868,
+      0.4046,
+      -3.2758
+     ],
+     "wheel_fr": [
+      0.7134,
+      0.4047,
+      -3.2758
+     ],
+     "wheel_rl": [
+      -0.6972,
+      0.4223,
+      0.0005
+     ],
+     "wheel_rr": [
+      0.6972,
+      0.4223,
+      -0.0005
+     ]
+    },
+    "noseZ": -4.368,
+    "tailZ": 0.682,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "toro-rosso",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-toro-rosso.lod0.glb",
+     "bytes": 1125652,
+     "sha256": "51969bebd3c3d3ce",
+     "triangles": 38190
+    },
+    {
+     "file": "cars/2010/2010-toro-rosso.lod1.glb",
+     "bytes": 592576,
+     "sha256": "5fda81b2e2805159",
+     "triangles": 15274
+    },
+    {
+     "file": "cars/2010/2010-toro-rosso.lod2.glb",
+     "bytes": 222376,
+     "sha256": "c37c4eacd93ef11f",
+     "triangles": 4579
+    }
+   ],
+   "thumb": "thumbs/2010-toro-rosso.png",
+   "metrics": {
+    "lengthM": 4.925,
+    "widthM": 1.807,
+    "heightM": 1.055,
+    "wheelbaseM": 3.276,
+    "trackFrontM": 1.398,
+    "trackRearM": 1.394,
+    "wheelRadiusM": {
+     "wheel_fl": 0.335,
+     "wheel_fr": 0.335,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6878,
+      0.3878,
+      -3.2758
+     ],
+     "wheel_fr": [
+      0.7099,
+      0.3879,
+      -3.2758
+     ],
+     "wheel_rl": [
+      -0.6995,
+      0.4055,
+      0.0005
+     ],
+     "wheel_rr": [
+      0.6949,
+      0.4055,
+      -0.0005
+     ]
+    },
+    "noseZ": -4.257,
+    "tailZ": 0.668,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "virgin",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-virgin.lod0.glb",
+     "bytes": 976136,
+     "sha256": "5ed8f00e2e4cb0e5",
+     "triangles": 34473
+    },
+    {
+     "file": "cars/2010/2010-virgin.lod1.glb",
+     "bytes": 528072,
+     "sha256": "04ae3b30a4aa395e",
+     "triangles": 13786
+    },
+    {
+     "file": "cars/2010/2010-virgin.lod2.glb",
+     "bytes": 202732,
+     "sha256": "c2b90ac1df300895",
+     "triangles": 4134
+    }
+   ],
+   "thumb": "thumbs/2010-virgin.png",
+   "metrics": {
+    "lengthM": 4.848,
+    "widthM": 1.767,
+    "heightM": 1.043,
+    "wheelbaseM": 3.113,
+    "trackFrontM": 1.398,
+    "trackRearM": 1.357,
+    "wheelRadiusM": {
+     "wheel_fl": 0.336,
+     "wheel_fr": 0.336,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6688,
+      0.3355,
+      -3.1134
+     ],
+     "wheel_fr": [
+      0.7287,
+      0.3356,
+      -3.1134
+     ],
+     "wheel_rl": [
+      -0.6833,
+      0.3533,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.6741,
+      0.3533,
+      -0.0
+     ]
+    },
+    "noseZ": -4.239,
+    "tailZ": 0.609,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2010,
+   "teamRef": "williams",
+   "chassis": null,
+   "release": "coches-2010",
+   "sourceFile": "free_f1_2010_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2010/2010-williams.lod0.glb",
+     "bytes": 1060796,
+     "sha256": "43266239ab354808",
+     "triangles": 39180
+    },
+    {
+     "file": "cars/2010/2010-williams.lod1.glb",
+     "bytes": 581940,
+     "sha256": "2d0d26bc9c744c32",
+     "triangles": 15669
+    },
+    {
+     "file": "cars/2010/2010-williams.lod2.glb",
+     "bytes": 207608,
+     "sha256": "653e05e31058e51d",
+     "triangles": 4698
+    }
+   ],
+   "thumb": "thumbs/2010-williams.png",
+   "metrics": {
+    "lengthM": 5.164,
+    "widthM": 1.785,
+    "heightM": 1.056,
+    "wheelbaseM": 3.276,
+    "trackFrontM": 1.357,
+    "trackRearM": 1.359,
+    "wheelRadiusM": {
+     "wheel_fl": 0.336,
+     "wheel_fr": 0.335,
+     "wheel_rl": 0.353,
+     "wheel_rr": 0.353
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6525,
+      0.3841,
+      -3.2755
+     ],
+     "wheel_fr": [
+      0.7046,
+      0.3842,
+      -3.2764
+     ],
+     "wheel_rl": [
+      -0.667,
+      0.4019,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.6923,
+      0.4019,
+      -0.0
+     ]
+    },
+    "noseZ": -4.494,
+    "tailZ": 0.669,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+   "title": "[FREE!] F1 2010 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "caterham",
+   "chassis": "CT01",
+   "release": "coches-2012",
+   "sourceFile": "2012_caterham_ct01.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-caterham.lod0.glb",
+     "bytes": 3406752,
+     "sha256": "09412e75863838a0",
+     "triangles": 63074
+    },
+    {
+     "file": "cars/2012/2012-caterham.lod1.glb",
+     "bytes": 1673192,
+     "sha256": "87e8eaa4b6cf763c",
+     "triangles": 25226
+    },
+    {
+     "file": "cars/2012/2012-caterham.lod2.glb",
+     "bytes": 580492,
+     "sha256": "7c60d38b9f1d615d",
+     "triangles": 7565
+    }
+   ],
+   "thumb": "thumbs/2012-caterham.png",
+   "metrics": {
+    "lengthM": 5.297,
+    "widthM": 1.8,
+    "heightM": 1.108,
+    "wheelbaseM": 3.497,
+    "trackFrontM": 1.478,
+    "trackRearM": 1.44,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.739,
+      0.3239,
+      -3.497
+     ],
+     "wheel_fr": [
+      0.739,
+      0.3239,
+      -3.497
+     ],
+     "wheel_rl": [
+      -0.72,
+      0.3219,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.72,
+      0.3219,
+      -0.0
+     ]
+    },
+    "noseZ": -4.697,
+    "tailZ": 0.599,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-caterham-ct01-4eebc03336bf4316809216b1cb20a1f0",
+   "title": "2012 Caterham CT01",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "ferrari",
+   "chassis": "F2012",
+   "release": "coches-2012",
+   "sourceFile": "2012_ferrari_f2012.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-ferrari.lod0.glb",
+     "bytes": 4283372,
+     "sha256": "319deaab26358e05",
+     "triangles": 64337
+    },
+    {
+     "file": "cars/2012/2012-ferrari.lod1.glb",
+     "bytes": 2025292,
+     "sha256": "4349daca21214959",
+     "triangles": 25733
+    },
+    {
+     "file": "cars/2012/2012-ferrari.lod2.glb",
+     "bytes": 718908,
+     "sha256": "7f97cfb6eb1c82bb",
+     "triangles": 7718
+    }
+   ],
+   "thumb": "thumbs/2012-ferrari.png",
+   "metrics": {
+    "lengthM": 5.046,
+    "widthM": 1.809,
+    "heightM": 1.094,
+    "wheelbaseM": 3.431,
+    "trackFrontM": 1.459,
+    "trackRearM": 1.426,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7297,
+      0.3218,
+      -3.431
+     ],
+     "wheel_fr": [
+      0.7295,
+      0.3218,
+      -3.431
+     ],
+     "wheel_rl": [
+      -0.7131,
+      0.323,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7129,
+      0.323,
+      -0.0
+     ]
+    },
+    "noseZ": -4.435,
+    "tailZ": 0.611,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-ferrari-f2012-a2d73741f6fc4357bd508297d084f909",
+   "title": "2012 Ferrari F2012",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "force-india",
+   "chassis": "VJM05",
+   "release": "coches-2012",
+   "sourceFile": "2012_force_india_vjm05.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-force-india.lod0.glb",
+     "bytes": 4266640,
+     "sha256": "6cb02bb7fcfc5025",
+     "triangles": 65651
+    },
+    {
+     "file": "cars/2012/2012-force-india.lod1.glb",
+     "bytes": 2024860,
+     "sha256": "3059acb03ce7ed69",
+     "triangles": 26258
+    },
+    {
+     "file": "cars/2012/2012-force-india.lod2.glb",
+     "bytes": 719960,
+     "sha256": "3606979d70b94ad5",
+     "triangles": 7874
+    }
+   ],
+   "thumb": "thumbs/2012-force-india.png",
+   "metrics": {
+    "lengthM": 5.116,
+    "widthM": 1.797,
+    "heightM": 1.086,
+    "wheelbaseM": 3.409,
+    "trackFrontM": 1.431,
+    "trackRearM": 1.42,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7156,
+      0.3218,
+      -3.409
+     ],
+     "wheel_fr": [
+      0.7156,
+      0.3218,
+      -3.409
+     ],
+     "wheel_rl": [
+      -0.71,
+      0.3228,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.71,
+      0.3228,
+      -0.0
+     ]
+    },
+    "noseZ": -4.514,
+    "tailZ": 0.602,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-force-india-vjm05-763643baf84549bfb091e55c7c538ea1",
+   "title": "2012 Force India VJM05",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "hrt",
+   "chassis": "F112",
+   "release": "coches-2012",
+   "sourceFile": "2012_hrt_f112.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-hrt.lod0.glb",
+     "bytes": 4135352,
+     "sha256": "99ba4494620e25b5",
+     "triangles": 60686
+    },
+    {
+     "file": "cars/2012/2012-hrt.lod1.glb",
+     "bytes": 1919592,
+     "sha256": "c257866a2be818cf",
+     "triangles": 24271
+    },
+    {
+     "file": "cars/2012/2012-hrt.lod2.glb",
+     "bytes": 678272,
+     "sha256": "169807bec84e34ff",
+     "triangles": 7277
+    }
+   ],
+   "thumb": "thumbs/2012-hrt.png",
+   "metrics": {
+    "lengthM": 5.12,
+    "widthM": 1.823,
+    "heightM": 1.104,
+    "wheelbaseM": 3.437,
+    "trackFrontM": 1.414,
+    "trackRearM": 1.386,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.707,
+      0.3218,
+      -3.437
+     ],
+     "wheel_fr": [
+      0.707,
+      0.3218,
+      -3.437
+     ],
+     "wheel_rl": [
+      -0.693,
+      0.3225,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.693,
+      0.3225,
+      0.0
+     ]
+    },
+    "noseZ": -4.503,
+    "tailZ": 0.617,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-hrt-f112-f4c3597a701b4812aa3f928f033ad0c8",
+   "title": "2012 HRT F112",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "lotus-f1",
+   "chassis": "E20",
+   "release": "coches-2012",
+   "sourceFile": "2012_lotus_e20.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-lotus-f1.lod0.glb",
+     "bytes": 4177924,
+     "sha256": "1b40e1b26fc2aa93",
+     "triangles": 63738
+    },
+    {
+     "file": "cars/2012/2012-lotus-f1.lod1.glb",
+     "bytes": 1979576,
+     "sha256": "5be1d0cbc01df75a",
+     "triangles": 25493
+    },
+    {
+     "file": "cars/2012/2012-lotus-f1.lod2.glb",
+     "bytes": 718400,
+     "sha256": "0743db29b54d0dbd",
+     "triangles": 7646
+    }
+   ],
+   "thumb": "thumbs/2012-lotus-f1.png",
+   "metrics": {
+    "lengthM": 4.979,
+    "widthM": 1.782,
+    "heightM": 1.081,
+    "wheelbaseM": 3.248,
+    "trackFrontM": 1.414,
+    "trackRearM": 1.39,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7094,
+      0.3227,
+      -3.248
+     ],
+     "wheel_fr": [
+      0.7046,
+      0.3227,
+      -3.248
+     ],
+     "wheel_rl": [
+      -0.6974,
+      0.3219,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.6926,
+      0.3219,
+      -0.0
+     ]
+    },
+    "noseZ": -4.364,
+    "tailZ": 0.614,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-lotus-e20-5eb582824df349be970af27042d1d4f9",
+   "title": "2012 Lotus E20",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "marussia",
+   "chassis": "MR01",
+   "release": "coches-2012",
+   "sourceFile": "2012_marussia_mr01.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-marussia.lod0.glb",
+     "bytes": 4202232,
+     "sha256": "dfb0b6fb32b6921a",
+     "triangles": 63627
+    },
+    {
+     "file": "cars/2012/2012-marussia.lod1.glb",
+     "bytes": 1973768,
+     "sha256": "caee9d064f376a71",
+     "triangles": 25447
+    },
+    {
+     "file": "cars/2012/2012-marussia.lod2.glb",
+     "bytes": 693488,
+     "sha256": "b2ee75f3ee8d1fb4",
+     "triangles": 7632
+    }
+   ],
+   "thumb": "thumbs/2012-marussia.png",
+   "metrics": {
+    "lengthM": 5.165,
+    "widthM": 1.799,
+    "heightM": 1.079,
+    "wheelbaseM": 3.368,
+    "trackFrontM": 1.48,
+    "trackRearM": 1.428,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.74,
+      0.3226,
+      -3.368
+     ],
+     "wheel_fr": [
+      0.74,
+      0.3226,
+      -3.368
+     ],
+     "wheel_rl": [
+      -0.714,
+      0.3219,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.714,
+      0.3219,
+      -0.0
+     ]
+    },
+    "noseZ": -4.566,
+    "tailZ": 0.599,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-marussia-mr01-a0222429b1ff4f0086a078ca00bf85ba",
+   "title": "2012 Marussia MR01",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "mclaren",
+   "chassis": "MP4-27",
+   "release": "coches-2012",
+   "sourceFile": "2012_mclaren_mp427.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-mclaren.lod0.glb",
+     "bytes": 4383028,
+     "sha256": "eed1d13f19da71ba",
+     "triangles": 63570
+    },
+    {
+     "file": "cars/2012/2012-mclaren.lod1.glb",
+     "bytes": 2110656,
+     "sha256": "54b5c66ca799fa8a",
+     "triangles": 25425
+    },
+    {
+     "file": "cars/2012/2012-mclaren.lod2.glb",
+     "bytes": 762440,
+     "sha256": "fd97d26ff54e64c8",
+     "triangles": 7625
+    }
+   ],
+   "thumb": "thumbs/2012-mclaren.png",
+   "metrics": {
+    "lengthM": 5.215,
+    "widthM": 1.792,
+    "heightM": 1.102,
+    "wheelbaseM": 3.534,
+    "trackFrontM": 1.448,
+    "trackRearM": 1.422,
+    "wheelRadiusM": {
+     "wheel_fl": 0.32,
+     "wheel_fr": 0.32,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7241,
+      0.3225,
+      -3.534
+     ],
+     "wheel_fr": [
+      0.7241,
+      0.3225,
+      -3.534
+     ],
+     "wheel_rl": [
+      -0.7111,
+      0.3207,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7111,
+      0.3207,
+      -0.0
+     ]
+    },
+    "noseZ": -4.598,
+    "tailZ": 0.617,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-mclaren-mp427-51d0817a4e954600934d37cd9ee7a78c",
+   "title": "2012 Mclaren MP4/27",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "mercedes",
+   "chassis": "F1 W03",
+   "release": "coches-2012",
+   "sourceFile": "2012_mercedes_f1_w03.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-mercedes.lod0.glb",
+     "bytes": 3953464,
+     "sha256": "d319b105e0daa8cb",
+     "triangles": 63981
+    },
+    {
+     "file": "cars/2012/2012-mercedes.lod1.glb",
+     "bytes": 1934308,
+     "sha256": "d2e652ce5da3bc18",
+     "triangles": 25591
+    },
+    {
+     "file": "cars/2012/2012-mercedes.lod2.glb",
+     "bytes": 686700,
+     "sha256": "a241f46aff510c46",
+     "triangles": 7673
+    }
+   ],
+   "thumb": "thumbs/2012-mercedes.png",
+   "metrics": {
+    "lengthM": 5.097,
+    "widthM": 1.799,
+    "heightM": 1.078,
+    "wheelbaseM": 3.438,
+    "trackFrontM": 1.436,
+    "trackRearM": 1.42,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.718,
+      0.3218,
+      -3.438
+     ],
+     "wheel_fr": [
+      0.718,
+      0.3218,
+      -3.438
+     ],
+     "wheel_rl": [
+      -0.71,
+      0.3224,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.71,
+      0.3224,
+      0.0
+     ]
+    },
+    "noseZ": -4.495,
+    "tailZ": 0.602,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-mercedes-f1-w03-05652f9048174f0493e61d4e8dbc5703",
+   "title": "2012 Mercedes F1 W03",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "red-bull",
+   "chassis": "RB8",
+   "release": "coches-2012",
+   "sourceFile": "2012_red_bull_rb8.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-red-bull.lod0.glb",
+     "bytes": 3506992,
+     "sha256": "3fc1d5b1f213c8d3",
+     "triangles": 63870
+    },
+    {
+     "file": "cars/2012/2012-red-bull.lod1.glb",
+     "bytes": 1592328,
+     "sha256": "9c288dc5c5bbe1e8",
+     "triangles": 25543
+    },
+    {
+     "file": "cars/2012/2012-red-bull.lod2.glb",
+     "bytes": 556148,
+     "sha256": "d8af47472edbfb8d",
+     "triangles": 7662
+    }
+   ],
+   "thumb": "thumbs/2012-red-bull.png",
+   "metrics": {
+    "lengthM": 5.092,
+    "widthM": 1.8,
+    "heightM": 1.088,
+    "wheelbaseM": 3.43,
+    "trackFrontM": 1.438,
+    "trackRearM": 1.442,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.719,
+      0.3226,
+      -3.43
+     ],
+     "wheel_fr": [
+      0.719,
+      0.3226,
+      -3.43
+     ],
+     "wheel_rl": [
+      -0.721,
+      0.3219,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.721,
+      0.3219,
+      0.0
+     ]
+    },
+    "noseZ": -4.459,
+    "tailZ": 0.633,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-red-bull-rb8-60ee17feb97e45fbb28d37d0462c4f3d",
+   "title": "2012 Red Bull RB8",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "sauber",
+   "chassis": "C31",
+   "release": "coches-2012",
+   "sourceFile": "2012_sauber_c31.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-sauber.lod0.glb",
+     "bytes": 4189560,
+     "sha256": "e8d50e0d04986336",
+     "triangles": 63862
+    },
+    {
+     "file": "cars/2012/2012-sauber.lod1.glb",
+     "bytes": 1935688,
+     "sha256": "555135a79c6718c6",
+     "triangles": 25541
+    },
+    {
+     "file": "cars/2012/2012-sauber.lod2.glb",
+     "bytes": 678432,
+     "sha256": "aebd26f59db40eb8",
+     "triangles": 7660
+    }
+   ],
+   "thumb": "thumbs/2012-sauber.png",
+   "metrics": {
+    "lengthM": 5.051,
+    "widthM": 1.746,
+    "heightM": 1.062,
+    "wheelbaseM": 3.292,
+    "trackFrontM": 1.392,
+    "trackRearM": 1.366,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.696,
+      0.3226,
+      -3.292
+     ],
+     "wheel_fr": [
+      0.696,
+      0.3226,
+      -3.292
+     ],
+     "wheel_rl": [
+      -0.683,
+      0.3219,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.683,
+      0.3219,
+      0.0
+     ]
+    },
+    "noseZ": -4.456,
+    "tailZ": 0.595,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-sauber-c31-7df0190e75f2430298cb816001a67779",
+   "title": "2012 Sauber C31",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "toro-rosso",
+   "chassis": "STR7",
+   "release": "coches-2012",
+   "sourceFile": "2012_toro_rosso_str7.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-toro-rosso.lod0.glb",
+     "bytes": 4046520,
+     "sha256": "3d1bfe27d8c56210",
+     "triangles": 65249
+    },
+    {
+     "file": "cars/2012/2012-toro-rosso.lod1.glb",
+     "bytes": 1976684,
+     "sha256": "57400c655b9645a4",
+     "triangles": 26094
+    },
+    {
+     "file": "cars/2012/2012-toro-rosso.lod2.glb",
+     "bytes": 714368,
+     "sha256": "fb2a3c68bdf15750",
+     "triangles": 7826
+    }
+   ],
+   "thumb": "thumbs/2012-toro-rosso.png",
+   "metrics": {
+    "lengthM": 5.039,
+    "widthM": 1.8,
+    "heightM": 1.081,
+    "wheelbaseM": 3.39,
+    "trackFrontM": 1.434,
+    "trackRearM": 1.438,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.717,
+      0.3218,
+      -3.39
+     ],
+     "wheel_fr": [
+      0.717,
+      0.3218,
+      -3.39
+     ],
+     "wheel_rl": [
+      -0.719,
+      0.3222,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.719,
+      0.3222,
+      -0.0
+     ]
+    },
+    "noseZ": -4.434,
+    "tailZ": 0.605,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-toro-rosso-str7-1d3b28e636a7488dbaea1e869e58d6a6",
+   "title": "2012 Toro Rosso STR7",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2012,
+   "teamRef": "williams",
+   "chassis": "FW34",
+   "release": "coches-2012",
+   "sourceFile": "2012_williams_fw34.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2012/2012-williams.lod0.glb",
+     "bytes": 4125192,
+     "sha256": "2fca5c0e710c5e49",
+     "triangles": 64552
+    },
+    {
+     "file": "cars/2012/2012-williams.lod1.glb",
+     "bytes": 2017652,
+     "sha256": "3bccf3eddcc821d4",
+     "triangles": 25819
+    },
+    {
+     "file": "cars/2012/2012-williams.lod2.glb",
+     "bytes": 735272,
+     "sha256": "d8457b8655435ee4",
+     "triangles": 7743
+    }
+   ],
+   "thumb": "thumbs/2012-williams.png",
+   "metrics": {
+    "lengthM": 5.052,
+    "widthM": 1.801,
+    "heightM": 1.079,
+    "wheelbaseM": 3.436,
+    "trackFrontM": 1.452,
+    "trackRearM": 1.424,
+    "wheelRadiusM": {
+     "wheel_fl": 0.322,
+     "wheel_fr": 0.322,
+     "wheel_rl": 0.322,
+     "wheel_rr": 0.322
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.726,
+      0.3224,
+      -3.436
+     ],
+     "wheel_fr": [
+      0.726,
+      0.3224,
+      -3.436
+     ],
+     "wheel_rl": [
+      -0.712,
+      0.3219,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.712,
+      0.3219,
+      -0.0
+     ]
+    },
+    "noseZ": -4.449,
+    "tailZ": 0.603,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/2012-williams-fw34-217528e834cd4c3997ae6f88fcfa9ba8",
+   "title": "2012 Williams FW34",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "caterham",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-caterham.lod0.glb",
+     "bytes": 958892,
+     "sha256": "8ca4a734fc36c1ee",
+     "triangles": 37422
+    },
+    {
+     "file": "cars/2013/2013-caterham.lod1.glb",
+     "bytes": 492904,
+     "sha256": "c5f528d131702240",
+     "triangles": 14967
+    },
+    {
+     "file": "cars/2013/2013-caterham.lod2.glb",
+     "bytes": 186820,
+     "sha256": "c30476e42a33acbf",
+     "triangles": 4487
+    }
+   ],
+   "thumb": "thumbs/2013-caterham.png",
+   "metrics": {
+    "lengthM": 5.045,
+    "widthM": 1.793,
+    "heightM": 1.041,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.375,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6733,
+      0.3477,
+      -3.2907
+     ],
+     "wheel_fr": [
+      0.7014,
+      0.3479,
+      -3.2907
+     ],
+     "wheel_rl": [
+      -0.6885,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.6885,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.421,
+    "tailZ": 0.625,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "ferrari",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-ferrari.lod0.glb",
+     "bytes": 931776,
+     "sha256": "ead8e4a6619d5382",
+     "triangles": 35472
+    },
+    {
+     "file": "cars/2013/2013-ferrari.lod1.glb",
+     "bytes": 476848,
+     "sha256": "98ad01f9113be447",
+     "triangles": 14187
+    },
+    {
+     "file": "cars/2013/2013-ferrari.lod2.glb",
+     "bytes": 186200,
+     "sha256": "3c2c5d871ffeae3d",
+     "triangles": 4254
+    }
+   ],
+   "thumb": "thumbs/2013-ferrari.png",
+   "metrics": {
+    "lengthM": 5.102,
+    "widthM": 1.837,
+    "heightM": 1.12,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.375,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6967,
+      0.3477,
+      -3.2907
+     ],
+     "wheel_fr": [
+      0.678,
+      0.3479,
+      -3.2907
+     ],
+     "wheel_rl": [
+      -0.7118,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.665,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.245,
+    "tailZ": 0.857,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "force-india",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-force-india.lod0.glb",
+     "bytes": 955420,
+     "sha256": "ff1643aef6e1ece7",
+     "triangles": 37424
+    },
+    {
+     "file": "cars/2013/2013-force-india.lod1.glb",
+     "bytes": 488508,
+     "sha256": "ccf24e8226336f1e",
+     "triangles": 14965
+    },
+    {
+     "file": "cars/2013/2013-force-india.lod2.glb",
+     "bytes": 187876,
+     "sha256": "52e1c13f4f08b6fe",
+     "triangles": 4487
+    }
+   ],
+   "thumb": "thumbs/2013-force-india.png",
+   "metrics": {
+    "lengthM": 4.956,
+    "widthM": 1.809,
+    "heightM": 1.05,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.375,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6815,
+      0.3477,
+      -3.2907
+     ],
+     "wheel_fr": [
+      0.6931,
+      0.3479,
+      -3.2907
+     ],
+     "wheel_rl": [
+      -0.6967,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.6802,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.347,
+    "tailZ": 0.609,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "lotus-f1",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-lotus-f1.lod0.glb",
+     "bytes": 1023320,
+     "sha256": "73582a6b93708e38",
+     "triangles": 38014
+    },
+    {
+     "file": "cars/2013/2013-lotus-f1.lod1.glb",
+     "bytes": 508248,
+     "sha256": "f1973a23038d568a",
+     "triangles": 15203
+    },
+    {
+     "file": "cars/2013/2013-lotus-f1.lod2.glb",
+     "bytes": 193152,
+     "sha256": "5c5e50aaf0525d6b",
+     "triangles": 4558
+    }
+   ],
+   "thumb": "thumbs/2013-lotus-f1.png",
+   "metrics": {
+    "lengthM": 5.188,
+    "widthM": 1.81,
+    "heightM": 1.071,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.373,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6814,
+      0.3477,
+      -3.2907
+     ],
+     "wheel_fr": [
+      0.692,
+      0.3479,
+      -3.2907
+     ],
+     "wheel_rl": [
+      -0.6979,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.6791,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.437,
+    "tailZ": 0.751,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "marussia",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-marussia.lod0.glb",
+     "bytes": 967016,
+     "sha256": "66c085aa095f13fb",
+     "triangles": 35316
+    },
+    {
+     "file": "cars/2013/2013-marussia.lod1.glb",
+     "bytes": 482384,
+     "sha256": "2ae8d053804c1639",
+     "triangles": 14124
+    },
+    {
+     "file": "cars/2013/2013-marussia.lod2.glb",
+     "bytes": 184484,
+     "sha256": "03c39bce21a0f652",
+     "triangles": 4234
+    }
+   ],
+   "thumb": "thumbs/2013-marussia.png",
+   "metrics": {
+    "lengthM": 5.152,
+    "widthM": 1.793,
+    "heightM": 1.04,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.375,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6733,
+      0.3477,
+      -3.2907
+     ],
+     "wheel_fr": [
+      0.7013,
+      0.3479,
+      -3.2907
+     ],
+     "wheel_rl": [
+      -0.6885,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.6885,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.497,
+    "tailZ": 0.655,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "mclaren",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-mclaren.lod0.glb",
+     "bytes": 963164,
+     "sha256": "2efa719b0c42c093",
+     "triangles": 35805
+    },
+    {
+     "file": "cars/2013/2013-mclaren.lod1.glb",
+     "bytes": 478780,
+     "sha256": "36a2f28d00bf3b54",
+     "triangles": 14320
+    },
+    {
+     "file": "cars/2013/2013-mclaren.lod2.glb",
+     "bytes": 180972,
+     "sha256": "72e17b46b58f7008",
+     "triangles": 4293
+    }
+   ],
+   "thumb": "thumbs/2013-mclaren.png",
+   "metrics": {
+    "lengthM": 5.155,
+    "widthM": 1.823,
+    "heightM": 1.088,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.375,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6885,
+      0.3477,
+      -3.2908
+     ],
+     "wheel_fr": [
+      0.6862,
+      0.3479,
+      -3.2908
+     ],
+     "wheel_rl": [
+      -0.7036,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.6733,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.298,
+    "tailZ": 0.857,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "mercedes",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-mercedes.lod0.glb",
+     "bytes": 985232,
+     "sha256": "9b86d0ee2f707475",
+     "triangles": 35595
+    },
+    {
+     "file": "cars/2013/2013-mercedes.lod1.glb",
+     "bytes": 490108,
+     "sha256": "774ae7fef48a5e91",
+     "triangles": 14235
+    },
+    {
+     "file": "cars/2013/2013-mercedes.lod2.glb",
+     "bytes": 185060,
+     "sha256": "6971a97c3d686cd2",
+     "triangles": 4267
+    }
+   ],
+   "thumb": "thumbs/2013-mercedes.png",
+   "metrics": {
+    "lengthM": 4.925,
+    "widthM": 1.8,
+    "heightM": 1.042,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.375,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6768,
+      0.3477,
+      -3.2906
+     ],
+     "wheel_fr": [
+      0.6979,
+      0.3479,
+      -3.2906
+     ],
+     "wheel_rl": [
+      -0.692,
+      0.3661,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.6849,
+      0.3661,
+      -0.0
+     ]
+    },
+    "noseZ": -4.313,
+    "tailZ": 0.612,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "red-bull",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-red-bull.lod0.glb",
+     "bytes": 991972,
+     "sha256": "5d3a4df83b8d79b3",
+     "triangles": 36137
+    },
+    {
+     "file": "cars/2013/2013-red-bull.lod1.glb",
+     "bytes": 490160,
+     "sha256": "c615263e995222a3",
+     "triangles": 14453
+    },
+    {
+     "file": "cars/2013/2013-red-bull.lod2.glb",
+     "bytes": 185976,
+     "sha256": "1e2224c1852e047c",
+     "triangles": 4334
+    }
+   ],
+   "thumb": "thumbs/2013-red-bull.png",
+   "metrics": {
+    "lengthM": 5.099,
+    "widthM": 1.807,
+    "heightM": 1.091,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.375,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6803,
+      0.3477,
+      -3.2907
+     ],
+     "wheel_fr": [
+      0.6943,
+      0.3479,
+      -3.2907
+     ],
+     "wheel_rl": [
+      -0.6955,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.6815,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.381,
+    "tailZ": 0.718,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "sauber",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-sauber.lod0.glb",
+     "bytes": 938008,
+     "sha256": "8241cbb932f3e397",
+     "triangles": 36497
+    },
+    {
+     "file": "cars/2013/2013-sauber.lod1.glb",
+     "bytes": 479604,
+     "sha256": "14ab922638f63fff",
+     "triangles": 14596
+    },
+    {
+     "file": "cars/2013/2013-sauber.lod2.glb",
+     "bytes": 182112,
+     "sha256": "3b220c65ba2616b2",
+     "triangles": 4376
+    }
+   ],
+   "thumb": "thumbs/2013-sauber.png",
+   "metrics": {
+    "lengthM": 5.001,
+    "widthM": 1.793,
+    "heightM": 0.999,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.375,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6733,
+      0.3477,
+      -3.2907
+     ],
+     "wheel_fr": [
+      0.7014,
+      0.3479,
+      -3.2907
+     ],
+     "wheel_rl": [
+      -0.6885,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.6885,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.473,
+    "tailZ": 0.528,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "toro-rosso",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-toro-rosso.lod0.glb",
+     "bytes": 1000704,
+     "sha256": "baeb164af9303d50",
+     "triangles": 37975
+    },
+    {
+     "file": "cars/2013/2013-toro-rosso.lod1.glb",
+     "bytes": 502044,
+     "sha256": "f8cb704c6bc894db",
+     "triangles": 15186
+    },
+    {
+     "file": "cars/2013/2013-toro-rosso.lod2.glb",
+     "bytes": 191428,
+     "sha256": "15d3475ca317c593",
+     "triangles": 4554
+    }
+   ],
+   "thumb": "thumbs/2013-toro-rosso.png",
+   "metrics": {
+    "lengthM": 5.03,
+    "widthM": 1.791,
+    "heightM": 1.031,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.375,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6733,
+      0.3477,
+      -3.2907
+     ],
+     "wheel_fr": [
+      0.7014,
+      0.3479,
+      -3.2907
+     ],
+     "wheel_rl": [
+      -0.6884,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.6885,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.422,
+    "tailZ": 0.608,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2013,
+   "teamRef": "williams",
+   "chassis": null,
+   "release": "coches-2013",
+   "sourceFile": "free_2013_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2013/2013-williams.lod0.glb",
+     "bytes": 973636,
+     "sha256": "2e51b1d1abbc87aa",
+     "triangles": 35477
+    },
+    {
+     "file": "cars/2013/2013-williams.lod1.glb",
+     "bytes": 481448,
+     "sha256": "c74afc275823d1d1",
+     "triangles": 14189
+    },
+    {
+     "file": "cars/2013/2013-williams.lod2.glb",
+     "bytes": 182376,
+     "sha256": "ecbc9cd5618ce0e4",
+     "triangles": 4254
+    }
+   ],
+   "thumb": "thumbs/2013-williams.png",
+   "metrics": {
+    "lengthM": 4.903,
+    "widthM": 1.791,
+    "heightM": 1.041,
+    "wheelbaseM": 3.291,
+    "trackFrontM": 1.373,
+    "trackRearM": 1.377,
+    "wheelRadiusM": {
+     "wheel_fl": 0.348,
+     "wheel_fr": 0.348,
+     "wheel_rl": 0.366,
+     "wheel_rr": 0.366
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.6732,
+      0.3477,
+      -3.2907
+     ],
+     "wheel_fr": [
+      0.7002,
+      0.3479,
+      -3.2907
+     ],
+     "wheel_rl": [
+      -0.6885,
+      0.3661,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.6885,
+      0.3661,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.311,
+    "tailZ": 0.592,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+   "title": "[FREE!] 2013 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "caterham",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": "Librea de final de temporada (nodo caterham_late_2014_10)",
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-caterham.lod0.glb",
+     "bytes": 2364172,
+     "sha256": "43749b1aec877e1b",
+     "triangles": 49394
+    },
+    {
+     "file": "cars/2014/2014-caterham.lod1.glb",
+     "bytes": 1139508,
+     "sha256": "c1779569d72cae13",
+     "triangles": 19755
+    },
+    {
+     "file": "cars/2014/2014-caterham.lod2.glb",
+     "bytes": 418920,
+     "sha256": "ad0805b01f54509c",
+     "triangles": 5925
+    }
+   ],
+   "thumb": "thumbs/2014-caterham.png",
+   "metrics": {
+    "lengthM": 5.009,
+    "widthM": 1.809,
+    "heightM": 1.093,
+    "wheelbaseM": 3.504,
+    "trackFrontM": 1.457,
+    "trackRearM": 1.438,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7273,
+      0.3346,
+      -3.504
+     ],
+     "wheel_fr": [
+      0.7301,
+      0.3403,
+      -3.5041
+     ],
+     "wheel_rl": [
+      -0.719,
+      0.3444,
+      0.0002
+     ],
+     "wheel_rr": [
+      0.719,
+      0.3448,
+      -0.0002
+     ]
+    },
+    "noseZ": -4.443,
+    "tailZ": 0.566,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "ferrari",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-ferrari.lod0.glb",
+     "bytes": 2170344,
+     "sha256": "ff62d5e263e73d2b",
+     "triangles": 48425
+    },
+    {
+     "file": "cars/2014/2014-ferrari.lod1.glb",
+     "bytes": 1083092,
+     "sha256": "25c478d017e7e424",
+     "triangles": 19367
+    },
+    {
+     "file": "cars/2014/2014-ferrari.lod2.glb",
+     "bytes": 419400,
+     "sha256": "57ac321647e9e024",
+     "triangles": 5808
+    }
+   ],
+   "thumb": "thumbs/2014-ferrari.png",
+   "metrics": {
+    "lengthM": 5.046,
+    "widthM": 1.823,
+    "heightM": 1.112,
+    "wheelbaseM": 3.449,
+    "trackFrontM": 1.452,
+    "trackRearM": 1.452,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.726,
+      0.3248,
+      -3.4492
+     ],
+     "wheel_fr": [
+      0.726,
+      0.324,
+      -3.4493
+     ],
+     "wheel_rl": [
+      -0.726,
+      0.3214,
+      0.0002
+     ],
+     "wheel_rr": [
+      0.726,
+      0.3218,
+      -0.0002
+     ]
+    },
+    "noseZ": -4.447,
+    "tailZ": 0.6,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "force-india",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-force-india.lod0.glb",
+     "bytes": 1983792,
+     "sha256": "0d5a9bd2e5f02975",
+     "triangles": 46687
+    },
+    {
+     "file": "cars/2014/2014-force-india.lod1.glb",
+     "bytes": 1021420,
+     "sha256": "706423ede93d13c7",
+     "triangles": 18672
+    },
+    {
+     "file": "cars/2014/2014-force-india.lod2.glb",
+     "bytes": 404724,
+     "sha256": "879313e888d24a76",
+     "triangles": 5599
+    }
+   ],
+   "thumb": "thumbs/2014-force-india.png",
+   "metrics": {
+    "lengthM": 5.213,
+    "widthM": 1.794,
+    "heightM": 1.117,
+    "wheelbaseM": 3.412,
+    "trackFrontM": 1.453,
+    "trackRearM": 1.423,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7261,
+      0.3215,
+      -3.4115
+     ],
+     "wheel_fr": [
+      0.7273,
+      0.3215,
+      -3.4115
+     ],
+     "wheel_rl": [
+      -0.7117,
+      0.3214,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7117,
+      0.3214,
+      -0.0
+     ]
+    },
+    "noseZ": -4.609,
+    "tailZ": 0.604,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "lotus-f1",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-lotus-f1.lod0.glb",
+     "bytes": 1868372,
+     "sha256": "a6f6eabf38a97314",
+     "triangles": 40967
+    },
+    {
+     "file": "cars/2014/2014-lotus-f1.lod1.glb",
+     "bytes": 944240,
+     "sha256": "a0fe0190568c9f6e",
+     "triangles": 16384
+    },
+    {
+     "file": "cars/2014/2014-lotus-f1.lod2.glb",
+     "bytes": 370972,
+     "sha256": "428bb1a3ed86d225",
+     "triangles": 4914
+    }
+   ],
+   "thumb": "thumbs/2014-lotus-f1.png",
+   "metrics": {
+    "lengthM": 5.434,
+    "widthM": 1.79,
+    "heightM": 1.13,
+    "wheelbaseM": 3.461,
+    "trackFrontM": 1.451,
+    "trackRearM": 1.419,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7246,
+      0.3214,
+      -3.4613
+     ],
+     "wheel_fr": [
+      0.7267,
+      0.3214,
+      -3.4613
+     ],
+     "wheel_rl": [
+      -0.7097,
+      0.322,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7097,
+      0.322,
+      -0.0
+     ]
+    },
+    "noseZ": -4.784,
+    "tailZ": 0.651,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "marussia",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-marussia.lod0.glb",
+     "bytes": 1751396,
+     "sha256": "b4cdd1d06a275f27",
+     "triangles": 39049
+    },
+    {
+     "file": "cars/2014/2014-marussia.lod1.glb",
+     "bytes": 947540,
+     "sha256": "9683bb7adf4c45c0",
+     "triangles": 15618
+    },
+    {
+     "file": "cars/2014/2014-marussia.lod2.glb",
+     "bytes": 377380,
+     "sha256": "a96a63b21fb41045",
+     "triangles": 4683
+    }
+   ],
+   "thumb": "thumbs/2014-marussia.png",
+   "metrics": {
+    "lengthM": 5.483,
+    "widthM": 1.818,
+    "heightM": 1.096,
+    "wheelbaseM": 3.683,
+    "trackFrontM": 1.466,
+    "trackRearM": 1.432,
+    "wheelRadiusM": {
+     "wheel_fl": 0.323,
+     "wheel_fr": 0.323,
+     "wheel_rl": 0.323,
+     "wheel_rr": 0.323
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7346,
+      0.3319,
+      -3.6835
+     ],
+     "wheel_fr": [
+      0.7315,
+      0.3314,
+      -3.6835
+     ],
+     "wheel_rl": [
+      -0.7159,
+      0.3244,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7159,
+      0.3241,
+      -0.0
+     ]
+    },
+    "noseZ": -4.84,
+    "tailZ": 0.644,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "mclaren",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-mclaren.lod0.glb",
+     "bytes": 2153504,
+     "sha256": "eee7aff09d811ab9",
+     "triangles": 48518
+    },
+    {
+     "file": "cars/2014/2014-mclaren.lod1.glb",
+     "bytes": 1078212,
+     "sha256": "984cb70f921e3495",
+     "triangles": 19404
+    },
+    {
+     "file": "cars/2014/2014-mclaren.lod2.glb",
+     "bytes": 412148,
+     "sha256": "300d19b50925a2c3",
+     "triangles": 5819
+    }
+   ],
+   "thumb": "thumbs/2014-mclaren.png",
+   "metrics": {
+    "lengthM": 5.192,
+    "widthM": 1.803,
+    "heightM": 1.456,
+    "wheelbaseM": 3.442,
+    "trackFrontM": 1.455,
+    "trackRearM": 1.434,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7279,
+      0.3244,
+      -3.4434
+     ],
+     "wheel_fr": [
+      0.7273,
+      0.3214,
+      -3.4404
+     ],
+     "wheel_rl": [
+      -0.7163,
+      0.3719,
+      -0.0002
+     ],
+     "wheel_rr": [
+      0.7179,
+      0.3786,
+      0.0002
+     ]
+    },
+    "noseZ": -4.522,
+    "tailZ": 0.67,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "mercedes",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-mercedes.lod0.glb",
+     "bytes": 2020172,
+     "sha256": "29b2443d74e944ce",
+     "triangles": 45109
+    },
+    {
+     "file": "cars/2014/2014-mercedes.lod1.glb",
+     "bytes": 1007844,
+     "sha256": "82fda43d8f8b1e90",
+     "triangles": 18040
+    },
+    {
+     "file": "cars/2014/2014-mercedes.lod2.glb",
+     "bytes": 385824,
+     "sha256": "68a4c457b7712685",
+     "triangles": 5408
+    }
+   ],
+   "thumb": "thumbs/2014-mercedes.png",
+   "metrics": {
+    "lengthM": 5.113,
+    "widthM": 1.812,
+    "heightM": 1.212,
+    "wheelbaseM": 3.512,
+    "trackFrontM": 1.474,
+    "trackRearM": 1.441,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7369,
+      0.3214,
+      -3.5124
+     ],
+     "wheel_fr": [
+      0.737,
+      0.3214,
+      -3.5124
+     ],
+     "wheel_rl": [
+      -0.7206,
+      0.3545,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7205,
+      0.3545,
+      -0.0
+     ]
+    },
+    "noseZ": -4.444,
+    "tailZ": 0.669,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "red-bull",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-red-bull.lod0.glb",
+     "bytes": 1923016,
+     "sha256": "a87b19a6640fbfaa",
+     "triangles": 41467
+    },
+    {
+     "file": "cars/2014/2014-red-bull.lod1.glb",
+     "bytes": 984576,
+     "sha256": "fce2676509898f7c",
+     "triangles": 16586
+    },
+    {
+     "file": "cars/2014/2014-red-bull.lod2.glb",
+     "bytes": 381312,
+     "sha256": "f3e60dbeb61900f1",
+     "triangles": 4973
+    }
+   ],
+   "thumb": "thumbs/2014-red-bull.png",
+   "metrics": {
+    "lengthM": 5.002,
+    "widthM": 1.797,
+    "heightM": 1.186,
+    "wheelbaseM": 3.269,
+    "trackFrontM": 1.448,
+    "trackRearM": 1.426,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7233,
+      0.3253,
+      -3.2692
+     ],
+     "wheel_fr": [
+      0.7249,
+      0.3241,
+      -3.2691
+     ],
+     "wheel_rl": [
+      -0.7132,
+      0.3214,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.7132,
+      0.3214,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.346,
+    "tailZ": 0.657,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "sauber",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-sauber.lod0.glb",
+     "bytes": 2086280,
+     "sha256": "f196a252635de513",
+     "triangles": 39605
+    },
+    {
+     "file": "cars/2014/2014-sauber.lod1.glb",
+     "bytes": 1059044,
+     "sha256": "8c7654a0d5dfb418",
+     "triangles": 15840
+    },
+    {
+     "file": "cars/2014/2014-sauber.lod2.glb",
+     "bytes": 400904,
+     "sha256": "bae0dae59a0744cf",
+     "triangles": 4749
+    }
+   ],
+   "thumb": "thumbs/2014-sauber.png",
+   "metrics": {
+    "lengthM": 5.432,
+    "widthM": 1.778,
+    "heightM": 1.201,
+    "wheelbaseM": 3.522,
+    "trackFrontM": 1.458,
+    "trackRearM": 1.407,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7289,
+      0.3214,
+      -3.5216
+     ],
+     "wheel_fr": [
+      0.7289,
+      0.3214,
+      -3.5216
+     ],
+     "wheel_rl": [
+      -0.7036,
+      0.3262,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.7036,
+      0.3262,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.765,
+    "tailZ": 0.666,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "toro-rosso",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-toro-rosso.lod0.glb",
+     "bytes": 1773064,
+     "sha256": "d10c5a38a01a365e",
+     "triangles": 38889
+    },
+    {
+     "file": "cars/2014/2014-toro-rosso.lod1.glb",
+     "bytes": 989152,
+     "sha256": "514347f64d002973",
+     "triangles": 15553
+    },
+    {
+     "file": "cars/2014/2014-toro-rosso.lod2.glb",
+     "bytes": 370356,
+     "sha256": "ba92f7e660c5ef46",
+     "triangles": 4664
+    }
+   ],
+   "thumb": "thumbs/2014-toro-rosso.png",
+   "metrics": {
+    "lengthM": 5.306,
+    "widthM": 1.791,
+    "heightM": 1.111,
+    "wheelbaseM": 3.51,
+    "trackFrontM": 1.438,
+    "trackRearM": 1.42,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7194,
+      0.3219,
+      -3.5099
+     ],
+     "wheel_fr": [
+      0.7186,
+      0.3219,
+      -3.5099
+     ],
+     "wheel_rl": [
+      -0.7099,
+      0.3214,
+      -0.0
+     ],
+     "wheel_rr": [
+      0.7099,
+      0.3214,
+      -0.0
+     ]
+    },
+    "noseZ": -4.705,
+    "tailZ": 0.601,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  },
+  {
+   "season": 2014,
+   "teamRef": "williams",
+   "chassis": null,
+   "release": "coches-2014",
+   "sourceFile": "free_2014_f1_pack.glb",
+   "status": "ok",
+   "note": null,
+   "scale": 1.0,
+   "forwardAxis": "-Z",
+   "origin": "rear-axle-ground",
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "lods": [
+    {
+     "file": "cars/2014/2014-williams.lod0.glb",
+     "bytes": 1814944,
+     "sha256": "b067ec2b933ca152",
+     "triangles": 38283
+    },
+    {
+     "file": "cars/2014/2014-williams.lod1.glb",
+     "bytes": 920832,
+     "sha256": "76703460a24a69ca",
+     "triangles": 15311
+    },
+    {
+     "file": "cars/2014/2014-williams.lod2.glb",
+     "bytes": 362364,
+     "sha256": "7149d53dad4abba1",
+     "triangles": 4592
+    }
+   ],
+   "thumb": "thumbs/2014-williams.png",
+   "metrics": {
+    "lengthM": 5.295,
+    "widthM": 1.79,
+    "heightM": 1.119,
+    "wheelbaseM": 3.498,
+    "trackFrontM": 1.451,
+    "trackRearM": 1.419,
+    "wheelRadiusM": {
+     "wheel_fl": 0.321,
+     "wheel_fr": 0.321,
+     "wheel_rl": 0.321,
+     "wheel_rr": 0.321
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7257,
+      0.3218,
+      -3.4983
+     ],
+     "wheel_fr": [
+      0.7257,
+      0.3218,
+      -3.4983
+     ],
+     "wheel_rl": [
+      -0.7096,
+      0.3214,
+      0.0001
+     ],
+     "wheel_rr": [
+      0.7096,
+      0.3214,
+      -0.0001
+     ]
+    },
+    "noseZ": -4.695,
+    "tailZ": 0.599,
+    "scaleApplied": 1.0,
+    "wheels": "nodes"
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+   "title": "[FREE!] 2014 F1 Pack",
+   "allowRecolor": true,
+   "riskRipped": null
+  }
+ ],
+ "circuits": [
+  {
+   "circuitRef": "bahrain",
+   "layoutId": "bahrain-1",
+   "layoutRef": "bahrain",
+   "validFrom": 2004,
+   "validTo": 2025,
+   "release": "circuitos-bahrain-international-circuit",
+   "sourceFile": "bahrain_international_circuit.glb",
+   "file": "circuits/bahrain-1.glb",
+   "bytes": 17831192,
+   "sha256": "4fcb67b5eb6028c1",
+   "splineId": "bahrain-1",
+   "spline": "splines/bahrain-1.json",
+   "lengthM": 5334.5,
+   "realKm": 5.412,
+   "lengthError": -0.0143,
+   "deviation": {
+    "maxM": 13.625,
+    "p95M": 9.254,
+    "meanM": 2.284,
+    "measuredShare": 0.182,
+    "rawMaxM": 14.906,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": false,
+   "reviewApproved": true,
+   "edgeReference": "asfalto",
+   "geoFit": {
+    "meanM": 10.3,
+    "reflected": false
+   },
+   "start": {
+    "source": "sketch",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "bh-2002",
+    "rmsAsIs": 15,
+    "rmsMirrored": 170,
+    "mirrored": false
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/bahrain-international-circuit-e93b0a1892c44efebbe0a92bf1ff479d",
+   "title": "Bahrain International Circuit",
+   "allowRecolor": false,
+   "riskRipped": null
+  },
+  {
+   "circuitRef": "hungaroring",
+   "layoutId": "hungaroring-3",
+   "layoutRef": "hungaroring",
+   "validFrom": 2003,
+   "validTo": 2026,
+   "release": "circuitos-hungaroring-2020-layout",
+   "sourceFile": "hungaroring_2020_layout.glb",
+   "file": "circuits/hungaroring-3.glb",
+   "bytes": 20525016,
+   "sha256": "d3faee4d1ea5e034",
+   "splineId": "hungaroring-3",
+   "spline": "splines/hungaroring-3.json",
+   "lengthM": 4428.8,
+   "realKm": 4.381,
+   "lengthError": 0.0109,
+   "deviation": {
+    "maxM": 2.7,
+    "p95M": 0.15,
+    "meanM": 0.035,
+    "measuredShare": 0.753,
+    "rawMaxM": 3.5,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (líneas pintadas), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": false,
+   "reviewApproved": true,
+   "edgeReference": "líneas pintadas",
+   "geoFit": null,
+   "start": {
+    "source": "pit-lane",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "hu-1986",
+    "rmsAsIs": 15,
+    "rmsMirrored": 163,
+    "mirrored": false
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/hungaroring-2020-layout-33392c9fe6884df6b696ab84053fd0c7",
+   "title": "Hungaroring 2020 layout",
+   "allowRecolor": false,
+   "riskRipped": null
+  },
+  {
+   "circuitRef": "interlagos",
+   "layoutId": "interlagos-2",
+   "layoutRef": "interlagos",
+   "validFrom": 1990,
+   "validTo": 2026,
+   "release": "circuitos-interlagos-circuit-2023-layout",
+   "sourceFile": "interlagos_circuit_2023_layout.glb",
+   "file": "circuits/interlagos-2.glb",
+   "bytes": 12610564,
+   "sha256": "eacfe43ee0533296",
+   "splineId": "interlagos-2",
+   "spline": "splines/interlagos-2.json",
+   "lengthM": 4280.1,
+   "realKm": 4.309,
+   "lengthError": -0.0067,
+   "deviation": {
+    "maxM": 7.016,
+    "p95M": 6.5,
+    "meanM": 3.637,
+    "measuredShare": 0.056,
+    "rawMaxM": 15.141,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": false,
+   "reviewApproved": true,
+   "edgeReference": "asfalto",
+   "geoFit": {
+    "meanM": 14.7,
+    "reflected": false
+   },
+   "start": {
+    "source": "manual",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "br-1940",
+    "rmsAsIs": 17,
+    "rmsMirrored": 228,
+    "mirrored": false
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/failed-import-interlagos-circuit-2023-layout-4e5f0ebb2f2b48d289d5f6231c22512b",
+   "title": "(failed import) Interlagos Circuit 2023 layout",
+   "allowRecolor": false,
+   "riskRipped": null
+  },
+  {
+   "circuitRef": "montreal",
+   "layoutId": "montreal-6",
+   "layoutRef": "villeneuve",
+   "validFrom": 2002,
+   "validTo": 2026,
+   "release": "circuitos-circuit-gilles-villeneuve-montreal-2019-layout",
+   "sourceFile": "circuit_gilles_villeneuve_montreal_2019_layout.glb",
+   "file": "circuits/montreal-6.glb",
+   "bytes": 12693448,
+   "sha256": "6fb6c103a3603dc5",
+   "splineId": "montreal-6",
+   "spline": "splines/montreal-6.json",
+   "lengthM": 4375.2,
+   "realKm": 4.361,
+   "lengthError": 0.0032,
+   "deviation": {
+    "maxM": 0.656,
+    "p95M": 0.078,
+    "meanM": 0.013,
+    "measuredShare": 0.813,
+    "rawMaxM": 6.172,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": true,
+   "reviewApproved": false,
+   "edgeReference": "asfalto",
+   "geoFit": null,
+   "start": {
+    "source": "pit-complex",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "ca-1978",
+    "rmsAsIs": 15,
+    "rmsMirrored": 70,
+    "mirrored": false
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/circuit-gilles-villeneuve-montreal-2019-layout-5875d33d5ddb44f4a6c1188ed6776fa8",
+   "title": "Circuit Gilles Villeneuve Montreal 2019 layout",
+   "allowRecolor": false,
+   "riskRipped": null
+  },
+  {
+   "circuitRef": "monza",
+   "layoutId": "monza-7",
+   "layoutRef": "monza",
+   "validFrom": 2000,
+   "validTo": 2026,
+   "release": "circuitos-autodromo-nazionale-monza-circuit-2020-layout",
+   "sourceFile": "autodromo_nazionale_monza_circuit_2020_layout.glb",
+   "file": "circuits/monza-7.glb",
+   "bytes": 24443336,
+   "sha256": "ca238124c187e819",
+   "splineId": "monza-7",
+   "spline": "splines/monza-7.json",
+   "lengthM": 5840.1,
+   "realKm": 5.793,
+   "lengthError": 0.0081,
+   "deviation": {
+    "maxM": 4.35,
+    "p95M": 2.1,
+    "meanM": 0.286,
+    "measuredShare": 0.676,
+    "rawMaxM": 4.9,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (líneas pintadas), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": false,
+   "reviewApproved": true,
+   "edgeReference": "líneas pintadas",
+   "geoFit": {
+    "meanM": 5.7,
+    "reflected": false
+   },
+   "start": {
+    "source": "manual",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "it-1922",
+    "rmsAsIs": 12,
+    "rmsMirrored": 155,
+    "mirrored": false
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/autodromo-nazionale-monza-circuit-2020-layout-25ed955115094de382935aa6d1a1e9c6",
+   "title": "Autodromo Nazionale Monza Circuit 2020 layout",
+   "allowRecolor": false,
+   "riskRipped": null
+  },
+  {
+   "circuitRef": "shanghai",
+   "layoutId": "shanghai-1",
+   "layoutRef": "shanghai",
+   "validFrom": 2004,
+   "validTo": 2026,
+   "release": "circuitos-shanghai-international-circuit-2018-layout",
+   "sourceFile": "shanghai_international_circuit_2018_layout.glb",
+   "file": "circuits/shanghai-1.glb",
+   "bytes": 22133084,
+   "sha256": "bb1bb6c04925267f",
+   "splineId": "shanghai-1",
+   "spline": "splines/shanghai-1.json",
+   "lengthM": 5348.5,
+   "realKm": 5.451,
+   "lengthError": -0.0188,
+   "deviation": {
+    "maxM": 15.609,
+    "p95M": 8.862,
+    "meanM": 1.708,
+    "measuredShare": 0.162,
+    "rawMaxM": 19.203,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": false,
+   "reviewApproved": true,
+   "edgeReference": "asfalto",
+   "geoFit": {
+    "meanM": 13,
+    "reflected": false
+   },
+   "start": {
+    "source": "manual",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "cn-2004",
+    "rmsAsIs": 19,
+    "rmsMirrored": 261,
+    "mirrored": false
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/shanghai-international-circuit-2018-layout-4d3365f4de6442a5ae56e8807c518c4f",
+   "title": "Shanghai International Circuit 2018 layout",
+   "allowRecolor": false,
+   "riskRipped": null
+  },
+  {
+   "circuitRef": "silverstone",
+   "layoutId": "silverstone-7",
+   "layoutRef": "silverstone",
+   "validFrom": 1997,
+   "validTo": 2009,
+   "release": "circuitos-silverstone-circuit-1999-layout",
+   "sourceFile": "silverstone_circuit_1999_layout.glb",
+   "file": "circuits/silverstone-7.glb",
+   "bytes": 4740396,
+   "sha256": "cca054a50ec38734",
+   "splineId": "silverstone-7",
+   "spline": "splines/silverstone-7.json",
+   "lengthM": 5063.2,
+   "realKm": 5.141,
+   "lengthError": -0.0151,
+   "deviation": {
+    "maxM": 0.875,
+    "p95M": 0.062,
+    "meanM": 0.018,
+    "measuredShare": 0.882,
+    "rawMaxM": 4.953,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": true,
+   "reviewApproved": false,
+   "edgeReference": "asfalto",
+   "geoFit": null,
+   "start": {
+    "source": "pit-complex",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": null,
+   "author": "Dave Bored SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/silverstone-circuit-1999-layout-cad872e65ded4292a2061a7cc3b48d78",
+   "title": "Silverstone Circuit 1999 layout",
+   "allowRecolor": false,
+   "riskRipped": null
+  },
+  {
+   "circuitRef": "spa-francorchamps",
+   "layoutId": "spa-francorchamps-4",
+   "layoutRef": "spa",
+   "validFrom": 2007,
+   "validTo": 2026,
+   "release": "circuitos-circuit-de-spa-francorchamps-2009-layout",
+   "sourceFile": "circuit_de_spa_francorchamps_2009_layout.glb",
+   "file": "circuits/spa-francorchamps-4.glb",
+   "bytes": 23261888,
+   "sha256": "8229f010c3949e39",
+   "splineId": "spa-francorchamps-4",
+   "spline": "splines/spa-francorchamps-4.json",
+   "lengthM": 6969.6,
+   "realKm": 7.004,
+   "lengthError": -0.0049,
+   "deviation": {
+    "maxM": 10,
+    "p95M": 1.25,
+    "meanM": 0.344,
+    "measuredShare": 0.441,
+    "rawMaxM": 13.219,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": false,
+   "reviewApproved": true,
+   "edgeReference": "asfalto",
+   "geoFit": {
+    "meanM": 15.2,
+    "reflected": false
+   },
+   "start": {
+    "source": "manual",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "be-1925",
+    "rmsAsIs": 20,
+    "rmsMirrored": 257,
+    "mirrored": false
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/circuit-de-spa-francorchamps-2009-layout-6f29b8a493ff4f5683836688c4c7bd71",
+   "title": "Circuit de Spa-Francorchamps 2009 layout",
+   "allowRecolor": false,
+   "riskRipped": null
+  }
+ ]
+}

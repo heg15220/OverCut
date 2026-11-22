@@ -8,8 +8,9 @@
  * time, which is all a fictional race needs.
  */
 
-import { buildCircuit } from "./trackGeometry";
+import { buildCircuit, buildCircuitFromPath } from "./trackGeometry";
 import { LAYOUTS, LAYOUT_REFS, layoutFor } from "./layouts";
+import calibrated from "../data/splines.json";
 
 const GP_VENUES = {
   "70th Anniversary Grand Prix": "silverstone",
@@ -121,9 +122,37 @@ const bucketYear = (year) => {
 
 const cache = new Map();
 
-/** The built circuit a race runs on in a given year (cached: geometry is pure). */
-export const circuitFor = (race = {}, year = 2020) => {
+/**
+ * The calibrated spline of a race, if the asset pipeline produced one for its
+ * layout (RF-3D-03): matched by the pack's f1db layout id when the race has
+ * one, otherwise by the sketch reference and the years that layout was used.
+ */
+export const splineFor = (race = {}, year = 2020, splines = calibrated.splines || {}) => {
+  const entries = Object.entries(splines);
+  const byLayout = race.layoutId && entries.find(([, spline]) => spline.layoutId === race.layoutId);
+  if (byLayout) return { id: byLayout[0], ...byLayout[1] };
+  if (race.layoutId) return null;
   const ref = circuitRefFor(race, year);
+  const match = entries.find(([, spline]) => spline.layoutRef === ref && spline.validFrom <= year && year <= spline.validTo);
+  return match ? { id: match[0], ...match[1] } : null;
+};
+
+/**
+ * The built circuit a race runs on in a given year (cached: geometry is pure).
+ * `splines` defaults to data/splines.json; tests inject their own.
+ */
+export const circuitFor = (race = {}, year = 2020, splines = undefined) => {
+  const ref = circuitRefFor(race, year);
+  const spline = splineFor(race, year, splines);
+  if (spline) {
+    const key = `spline:${spline.id}@${bucketYear(year)}`;
+    if (!cache.has(key)) {
+      const sketch = layoutFor(ref, year);
+      const built = buildCircuitFromPath({ id: `spline:${spline.id}`, km: spline.km, points: spline.points, drs: sketch?.drs }, bucketYear(year));
+      cache.set(key, { ref, splineId: spline.id, ...built });
+    }
+    return cache.get(key);
+  }
   const layout = layoutFor(ref, year);
   const key = `${layout.id}@${bucketYear(year)}`;
   if (!cache.has(key)) cache.set(key, { ref, ...buildCircuit(layout, bucketYear(year)) });

@@ -1,0 +1,239 @@
+{
+  "$comment": "Qué assets de f1-3d-assets pasan por el pipeline (ADR-001, SRS 4.3). Los coches salen de curated/car-assets.json para las temporadas listadas; los circuitos se asignan por layoutId de f1db (validFrom/validTo = años de ese layout en f1db v2026.20.0). geoId = trazado real de bacinger/f1-circuits (MIT) para detectar modelos reflejados; solo se usa si el layout coincide con el actual.",
+  "repo": "heg15220/f1-3d-assets",
+  "publicDir": "overcut/frontend/public/manager-assets",
+  "manifest": "overcut/frontend/src/modules/overcutManager/data/manager-assets.json",
+  "engineSplines": "overcut/frontend/src/modules/overcutManager/data/splines.json",
+  "cars": {
+    "seasons": [
+      2005,
+      2007,
+      2008,
+      2010,
+      2012,
+      2013,
+      2014
+    ],
+    "lods": [
+      1,
+      0.4,
+      0.12
+    ],
+    "textureSize": [
+      1024,
+      512,
+      256
+    ],
+    "lengthBySeason": {
+      "2005": 4.6,
+      "2008": 4.7,
+      "2012": 5.1,
+      "2007": 4.7,
+      "2010": 5.1,
+      "2013": 5.1,
+      "2014": 5.1
+    }
+  },
+  "circuits": [
+    {
+      "splineId": "monza-7",
+      "circuitId": "monza",
+      "layoutRef": "monza",
+      "layoutId": "monza-7",
+      "validFrom": 2000,
+      "validTo": 2026,
+      "km": 5.793,
+      "direction": "CLOCKWISE",
+      "geoId": "it-1922",
+      "release": "circuitos-autodromo-nazionale-monza-circuit-2020-layout",
+      "file": "autodromo_nazionale_monza_circuit_2020_layout.glb",
+      "review": {
+        "approved": true,
+        "startNear": [
+          -142.8,
+          122.5
+        ],
+        "note": "Forma correcta (Parabolica, Curva Grande, Lesmo, Ascari); meta movida a la recta de boxes (el boceto la ponía en Ascari). Sin reflejar (ICP recortado 5,4 m frente a 59,5 m reflejado)."
+      }
+    },
+    {
+      "splineId": "spa-francorchamps-4",
+      "circuitId": "spa-francorchamps",
+      "layoutRef": "spa",
+      "layoutId": "spa-francorchamps-4",
+      "validFrom": 2007,
+      "validTo": 2026,
+      "km": 7.004,
+      "direction": "CLOCKWISE",
+      "geoId": "be-1925",
+      "release": "circuitos-circuit-de-spa-francorchamps-2009-layout",
+      "file": "circuit_de_spa_francorchamps_2009_layout.glb",
+      "review": {
+        "approved": true,
+        "startNear": [
+          -293.1,
+          -702.6
+        ],
+        "note": "Forma correcta; meta entre la Bus Stop y La Source (±100 m). Desviación medible solo en el 44 %: asfalto partido en varias mallas."
+      }
+    },
+    {
+      "splineId": "silverstone-7",
+      "circuitId": "silverstone",
+      "layoutRef": "silverstone",
+      "layoutId": "silverstone-7",
+      "validFrom": 1997,
+      "validTo": 2009,
+      "km": 5.141,
+      "direction": "CLOCKWISE",
+      "geoId": null,
+      "release": "circuitos-silverstone-circuit-1999-layout",
+      "file": "silverstone_circuit_1999_layout.glb",
+      "review": {
+        "startReviewed": true,
+        "note": "Cumple el criterio 7.2. Meta en la recta Woodcote-Copse (detectada junto a boxes). Sin reflejar: ICP recortado contra el trazado actual 4,6 m frente a 35,8 m reflejado."
+      }
+    },
+    {
+      "splineId": "shanghai-1",
+      "circuitId": "shanghai",
+      "layoutRef": "shanghai",
+      "layoutId": "shanghai-1",
+      "validFrom": 2004,
+      "validTo": 2026,
+      "km": 5.451,
+      "direction": "CLOCKWISE",
+      "geoId": "cn-2004",
+      "release": "circuitos-shanghai-international-circuit-2018-layout",
+      "file": "shanghai_international_circuit_2018_layout.glb",
+      "review": {
+        "approved": true,
+        "startNear": [
+          8.7,
+          341.1
+        ],
+        "note": "Forma correcta (caracola T1-T2, contrarrecta, horquilla T14); meta en la recta de boxes. Escapatorias de asfalto: desviación medible en el 16 %."
+      }
+    },
+    {
+      "splineId": "hungaroring-3",
+      "circuitId": "hungaroring",
+      "layoutRef": "hungaroring",
+      "layoutId": "hungaroring-3",
+      "validFrom": 2003,
+      "validTo": 2026,
+      "km": 4.381,
+      "direction": "CLOCKWISE",
+      "geoId": "hu-1986",
+      "release": "circuitos-hungaroring-2020-layout",
+      "file": "hungaroring_2020_layout.glb",
+      "method": "cycle",
+      "review": {
+        "approved": true,
+        "startReviewed": true,
+        "note": "Método de ciclos. Forma correcta (recta principal en diagonal hacia la horquilla de la T1); meta por la calle de boxes. Desviación máx 2,7 m (p95 0,15 m) en el 75 %: algo por encima del criterio, aprobada a ojo."
+      }
+    },
+    {
+      "splineId": "interlagos-2",
+      "circuitId": "interlagos",
+      "layoutRef": "interlagos",
+      "layoutId": "interlagos-2",
+      "validFrom": 1990,
+      "validTo": 2026,
+      "km": 4.309,
+      "direction": "ANTI_CLOCKWISE",
+      "geoId": "br-1940",
+      "release": "circuitos-interlagos-circuit-2023-layout",
+      "file": "interlagos_circuit_2023_layout.glb",
+      "review": {
+        "approved": true,
+        "startNear": [
+          -387.2,
+          231.6
+        ],
+        "note": "Forma correcta (S do Senna, Reta Oposta, infield); antihorario; meta en la recta de boxes antes de la S do Senna."
+      }
+    },
+    {
+      "splineId": "montreal-6",
+      "circuitId": "montreal",
+      "layoutRef": "villeneuve",
+      "layoutId": "montreal-6",
+      "validFrom": 2002,
+      "validTo": 2026,
+      "km": 4.361,
+      "direction": "CLOCKWISE",
+      "geoId": "ca-1978",
+      "release": "circuitos-circuit-gilles-villeneuve-montreal-2019-layout",
+      "file": "circuit_gilles_villeneuve_montreal_2019_layout.glb",
+      "review": {
+        "startReviewed": true,
+        "note": "Método de ciclos (cumple el criterio 7.2). Forma correcta (isla Notre-Dame, horquilla); meta en la recta de boxes tras la chicane final."
+      },
+      "method": "cycle"
+    },
+    {
+      "splineId": "bahrain-1",
+      "circuitId": "bahrain",
+      "layoutRef": "bahrain",
+      "layoutId": "bahrain-1",
+      "validFrom": 2004,
+      "validTo": 2025,
+      "km": 5.412,
+      "direction": "CLOCKWISE",
+      "geoId": "bh-2002",
+      "release": "circuitos-bahrain-international-circuit",
+      "file": "bahrain_international_circuit.glb",
+      "review": {
+        "approved": true,
+        "startReviewed": true,
+        "note": "Trazado GP elegido por el trazado real (la malla tiene también los trazados interior, exterior y de resistencia); meta del boceto en la recta de boxes, correcta. Escapatorias de asfalto: desviación medible en el 18 %."
+      }
+    },
+    {
+      "splineId": "monaco-6",
+      "circuitId": "monaco",
+      "layoutRef": "monaco",
+      "layoutId": "monaco-6",
+      "validFrom": 2003,
+      "validTo": 2026,
+      "km": 3.337,
+      "direction": "CLOCKWISE",
+      "geoId": "mc-1929",
+      "release": "circuitos-circuit-de-monaco",
+      "file": "circuit_de_monaco.glb",
+      "review": {
+        "approved": false,
+        "note": "No aprobada: la línea ondula y túnel y puente se superponen en la vista cenital; -8 % de longitud."
+      }
+    }
+  ],
+  "pending": [
+    {
+      "splineId": "suzuka-1",
+      "reason": "Trazado en ocho: la vuelta cruza el puente y no es un ciclo simple del esqueleto 2D; hace falta separar por altura en extract_spline.py"
+    },
+    {
+      "splineId": "nurburgring-4",
+      "reason": "Falla la extracción: el trazado real ajusta a 28 m de media y ningún ciclo se acerca a 5,148 km.",
+      "entry": {
+        "splineId": "nurburgring-4",
+        "circuitId": "nurburgring",
+        "layoutRef": "nurburgring",
+        "layoutId": "nurburgring-4",
+        "validFrom": 2002,
+        "validTo": 2020,
+        "km": 5.148,
+        "direction": "CLOCKWISE",
+        "geoId": "de-1927",
+        "release": "circuitos-nurburgring-gp-2016-layout",
+        "file": "nurburgring_gp_2016_layout.glb"
+      }
+    },
+    {
+      "splineId": "monaco-6",
+      "reason": "Extracción no aprobada (ver review); el circuito sigue en la lista para reintentar."
+    }
+  ]
+}

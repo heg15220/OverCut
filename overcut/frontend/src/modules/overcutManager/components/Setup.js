@@ -405,7 +405,7 @@ function TeamPreview({ world, team, rank, total, year }) {
         </div>
       </div>
       <div className="mn-team-preview__stage">
-        <Livery color={team.color} color2={team.color2} width={380} height={220} year={year} name={team.name} />
+        <Livery color={team.color} color2={team.color2} width={380} height={220} year={year} name={team.name} teamRef={team.custom ? null : team.id} />
       </div>
       <div className="mn-car-bars">
         {AREAS.map((area, index) => {
@@ -636,7 +636,7 @@ function ContractCard({ world, kind, teamId, custom, customName, year, name, eng
         </div>
       </div>
       <div className="mn-contract__car">
-        <Livery color={team.color} color2={team.color2} width={520} height={250} year={year} name={team.name} />
+        <Livery color={team.color} color2={team.color2} width={520} height={250} year={year} name={team.name} teamRef={team.custom ? null : team.id} />
       </div>
       <div className="mn-contract__sign">
         <span>{t("Firma", "Signature")}</span>

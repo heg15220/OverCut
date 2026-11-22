@@ -25,6 +25,14 @@ Reglas:
   `overcut/src/main/resources/scripts/generate_season_packs.py` desde f1db v2026.20.0; validador y cargador en
   `engine/packs/`. Los packs no se editan a mano. RF-CAR-02 hecho el 2026-11-22: `engine/packs/packWorld.js` (`worldForSeason`) construye el mundo desde el pack cuando el año lo tiene (inscritos por GP, sustitutos reales, equipos parciales no elegibles, calendario, reglamento y puntos vía `eraOf`); los coeficientes de rating están en `data/balance/pack-world.json` (RNF-07). Los packs se cargan en `createContext(bootstrap, reference, packs)`. `race.js` aún lee algunas reglas por año (fase 3); un test comprueba que no contradicen al pack.
   Enmienda propuesta al SRS 6.2: en 2010–2013 los diez primeros salen con el neumático de Q3 (no Q2).
+- Fase 2 (assets) hecha el 2026-11-22: pipeline offline en `tools/assets/` (ver su README: Blender 5.2 headless +
+  gltf-transform/KTX2; `python tools/assets/build_assets.py`). Genera `data/manager-assets.json` (66 coches de 2005,
+  2007, 2008, 2010, 2012, 2013, 2014; 8 circuitos) y `data/splines.json` (motor), versionados; los GLB van a
+  `overcut/frontend/public/manager-assets/` (ignorado por git, servido por nginx). Runtime en `three/assets/`
+  (manifiesto, cargador con Cache Storage, LOD, adaptador de ruedas); `venue.circuitFor` usa la spline calibrada.
+  Una spline entra solo si cumple el criterio 7.2 o tiene `review.approved` en `tools/assets/assets.config.json`.
+  Enmienda propuesta al criterio 7.2: en circuitos con escapatorias de asfalto el "centro de la malla" no es el centro
+  de la pista; medir contra líneas pintadas o trazado real y exigir revisión manual.
 - Tests del Manager: `CI=true npx react-scripts test --watchAll=false --testPathPattern overcutManager`.
   `npm install` necesita `--legacy-peer-deps` (conflicto previo de react-vis con React 18).
 - Ningún valor de balance en código (RNF-07): va a los packs de temporada con esquema JSON.

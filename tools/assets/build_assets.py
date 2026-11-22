@@ -1,0 +1,400 @@
+"""Pipeline offline de assets de OverCut Manager (ADR-001, SRS 4.3, fase 2).
+
+Uso (desde la raíz del repo OverCut o desde tools/assets):
+  python tools/assets/build_assets.py [cars] [circuits] [manifest] [--only <id>] [--jobs 3] [--force]
+
+Sin etapas, ejecuta las tres. Cada paso se salta si su salida ya existe y es más nueva que su entrada
+(--force lo repite). Necesita: gh (GitHub CLI), Blender 5.2 (BLENDER_BIN), Node con las dependencias de
+tools/assets (npm install) y toktx de KTX-Software (KTX_BIN o tools/assets/.cache/ktx/bin).
+
+Etapas:
+  cars      descarga los GLB de las temporadas configuradas, normaliza y genera LOD con Blender, comprime con
+            gltf-transform (Meshopt + KTX2) y renderiza la miniatura del showroom.
+  circuits  extrae la spline del asfalto, la alinea (sentido f1db, meta, reflexión), prepara el GLB del
+            circuito y lo comprime; deja una vista cenital de revisión en .cache/preview/.
+  manifest  escribe manager-assets.json (SRS 4.3) con licencia y autor sacados de cada GLB, el fichero
+            compacto de splines que lee el motor y copia las splines completas junto a los GLB.
+
+Los binarios generados van a overcut/frontend/public/manager-assets/ (ignorado por git; se sirven con nginx).
+El manifiesto y las splines del motor sí se versionan.
+"""
+
+import concurrent.futures
+import hashlib
+import json
+import os
+import shutil
+import struct
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent.parent
+CACHE = HERE / ".cache"
+RAW = CACHE / "raw"
+OUT = CACHE / "out"
+CONFIG = json.loads((HERE / "assets.config.json").read_text(encoding="utf-8"))
+CURATED = ROOT / "overcut/frontend/src/modules/overcutManager/data/seasons/curated/car-assets.json"
+PUBLIC = ROOT / CONFIG["publicDir"]
+BLENDER = os.environ.get("BLENDER_BIN", r"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe")
+KTX_BIN = os.environ.get("KTX_BIN", str(CACHE / "ktx" / "bin"))
+GEO = CACHE / "geo" / "f1-circuits.geojson"
+NPX = "npx.cmd" if os.name == "nt" else "npx"
+PIPELINE_VERSION = 1
+
+
+def log(*parts):
+    print(time.strftime("%H:%M:%S"), *parts, flush=True)
+
+
+def newer(target, *sources):
+    target = Path(target)
+    return target.exists() and all(target.stat().st_mtime >= Path(s).stat().st_mtime for s in sources if Path(s).exists())
+
+
+def run(cmd, logfile=None):
+    env = dict(os.environ)
+    env["PATH"] = KTX_BIN + os.pathsep + env.get("PATH", "")
+    with open(logfile, "w", encoding="utf-8", errors="replace") if logfile else open(os.devnull, "w") as handle:
+        result = subprocess.run(cmd, stdout=handle, stderr=subprocess.STDOUT, env=env, cwd=HERE)
+    if result.returncode != 0:
+        raise RuntimeError(f"falló ({result.returncode}): {' '.join(map(str, cmd))}" + (f" — ver {logfile}" if logfile else ""))
+
+
+def blender(script, *args, logfile=None):
+    run([BLENDER, "-b", "--python", str(HERE / "blender" / script), "--", *map(str, args)], logfile)
+
+
+def download(release, file):
+    target = RAW / release / file
+    if not target.exists():
+        target.parent.mkdir(parents=True, exist_ok=True)
+        log("descarga", release, file)
+        run(["gh", "release", "download", release, "-R", CONFIG["repo"], "-D", str(target.parent), "-p", file, "--skip-existing"])
+    return target
+
+
+def glb_json(path):
+    with open(path, "rb") as handle:
+        header = handle.read(20)
+        magic, _, _, length, _ = struct.unpack("<IIIII", header)
+        if magic != 0x46546C67:
+            raise ValueError(f"{path} no es GLB")
+        return json.loads(handle.read(length))
+
+
+def sha256(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def provenance(path):
+    """Autor, licencia y fuente: Sketchfab los deja en asset.extras de cada GLB."""
+    extras = glb_json(path).get("asset", {}).get("extras", {}) or {}
+    license_text = extras.get("license", "")
+    spdx = license_text.split(" ")[0] if license_text else None
+    author = extras.get("author") or None
+    if author and " (http" in author:
+        # Sketchfab escribe "Nombre (https://sketchfab.com/usuario)": el enlace ya va en `source`.
+        author = author.split(" (http")[0]
+    return {
+        "author": author,
+        "license": spdx,
+        "licenseText": license_text or None,
+        "source": extras.get("source"),
+        "title": extras.get("title"),
+    }
+
+
+def compress(src, dst, texture_size, keep_nodes):
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    cmd = [NPX, "gltf-transform", "optimize", str(src), str(dst), "--compress", "meshopt", "--texture-compress", "ktx2",
+           "--texture-size", str(texture_size), "--simplify", "false"]
+    if keep_nodes:
+        # Las ruedas tienen que seguir siendo nodos con nombre.
+        cmd += ["--flatten", "false", "--join", "false", "--instance", "false", "--palette", "false"]
+    run(cmd, logfile=str(dst) + ".log")
+
+
+# ---------------------------------------------------------------------- cars
+
+def car_jobs(only):
+    curated = json.loads(CURATED.read_text(encoding="utf-8"))
+    jobs = []
+    for season in CONFIG["cars"]["seasons"]:
+        for team_ref, entry in curated.get(str(season), {}).items():
+            ident = f"{season}-{team_ref}"
+            if only and only not in (ident, team_ref, str(season)):
+                continue
+            jobs.append({"id": ident, "season": season, "teamRef": team_ref, **entry})
+    return jobs
+
+
+import threading
+
+_split_locks = {}
+_split_guard = threading.Lock()
+
+
+def split_source(job, pack):
+    """Coche de un pack de varios (2010, 2013, 2014): blender/split_pack.py lo separa una vez por pack."""
+    season = job["season"]
+    out = CACHE / "split" / str(season)
+    prefix = f"{season}-pack"
+    with _split_guard:
+        lock = _split_locks.setdefault(str(pack), threading.Lock())
+    with lock:
+        if not newer(out / f"{prefix}.split.json", pack):
+            expect = sum(1 for e in json.loads(CURATED.read_text(encoding="utf-8")).get(str(season), {}).values() if e.get("split"))
+            log("separa pack", pack.name, f"({expect} coches)")
+            out.mkdir(parents=True, exist_ok=True)
+            blender("split_pack.py", pack, out, prefix, "--expect", expect, logfile=CACHE / f"split-{season}.log")
+    return out / f"{prefix}-{job['split']['index']}.glb"
+
+
+def build_car(job, force):
+    source = download(job["release"], job["file"])
+    if job.get("split"):
+        source = split_source(job, source)
+    work = OUT / "cars"
+    work.mkdir(parents=True, exist_ok=True)
+    info_path = work / f"{job['id']}.json"
+    if force or not newer(info_path, source):
+        log("normaliza", job["id"])
+        length = CONFIG["cars"]["lengthBySeason"].get(str(job["season"]))
+        blender("normalize_car.py", source, work, job["id"], "--length", length, "--lods", ",".join(map(str, CONFIG["cars"]["lods"])),
+                logfile=work / f"{job['id']}.blender.log")
+    info = json.loads(info_path.read_text(encoding="utf-8"))
+    dest = PUBLIC / "cars" / str(job["season"])
+    for lod, size in zip(info["lods"], CONFIG["cars"]["textureSize"]):
+        src = work / lod["file"]
+        dst = dest / lod["file"]
+        if force or not newer(dst, src):
+            log("comprime", lod["file"])
+            compress(src, dst, size, keep_nodes=True)
+    thumb = PUBLIC / "thumbs" / f"{job['id']}.png"
+    if force or not newer(thumb, work / info["lods"][0]["file"]):
+        thumb.parent.mkdir(parents=True, exist_ok=True)
+        blender("thumbnails.py", work / info["lods"][0]["file"], thumb, "--size", "640x360", logfile=work / f"{job['id']}.thumb.log")
+    return job["id"]
+
+
+def stage_cars(only, jobs_n, force):
+    jobs = car_jobs(only)
+    log(f"coches: {len(jobs)}")
+    failures = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs_n) as pool:
+        futures = {pool.submit(build_car, job, force): job for job in jobs}
+        for future in concurrent.futures.as_completed(futures):
+            job = futures[future]
+            try:
+                log("listo", future.result())
+            except Exception as error:  # se informa y se sigue con el resto
+                failures.append((job["id"], str(error)))
+                log("ERROR", job["id"], error)
+    return failures
+
+
+# ------------------------------------------------------------------ circuits
+
+def build_circuit(item, force):
+    sid = item["splineId"]
+    source = download(item["release"], item["file"])
+    work = CACHE / "splines"
+    work.mkdir(parents=True, exist_ok=True)
+    raw = work / f"{sid}.raw.json"
+    if force or not newer(raw, source):
+        log("spline", sid)
+        geo = ["--geo", GEO, "--geo-id", item["geoId"]] if item.get("geoId") and GEO.exists() else []
+        method = ["--method", item["method"]] if item.get("method") else []
+        blender("extract_spline.py", source, raw, "--km", item["km"], *geo, *method, logfile=work / f"{sid}.log")
+    review = item.get("review", {})
+    aligned = work / f"{sid}.json"
+    cmd = ["node", str(HERE / "align_spline.mjs"), str(raw), str(aligned), item["layoutRef"], str(item["validFrom"]), item["direction"]]
+    if item.get("geoId") and GEO.exists():
+        cmd += ["--geo", str(GEO), "--geo-id", item["geoId"]]
+    if "mirror" in review:
+        cmd += ["--force-mirror", "true" if review["mirror"] else "false"]
+    if review.get("startNear"):
+        cmd += ["--start-near", ",".join(str(v) for v in review["startNear"])]
+    if review.get("startShiftM"):
+        cmd += ["--start-shift", str(review["startShiftM"])]
+    if review.get("startReviewed"):
+        cmd += ["--start-reviewed"]
+    run(cmd, logfile=work / f"{sid}.align.log")
+    data = json.loads(aligned.read_text(encoding="utf-8"))
+    preview = CACHE / "preview" / f"{sid}.png"
+    preview.parent.mkdir(parents=True, exist_ok=True)
+    prepared = OUT / "circuits" / f"{sid}.glb"
+    prepared.parent.mkdir(parents=True, exist_ok=True)
+    mirror_flag = ["--mirror"] if data.get("mirroredFromSource") else []
+    stamp = OUT / "circuits" / f"{sid}.mirror-{bool(mirror_flag)}"
+    if force or not newer(prepared, source) or not stamp.exists():
+        log("prepara", sid, "(reflejado)" if mirror_flag else "")
+        for old in (OUT / "circuits").glob(f"{sid}.mirror-*"):
+            old.unlink()
+        blender("prepare_circuit.py", source, prepared, *mirror_flag, logfile=OUT / "circuits" / f"{sid}.blender.log")
+        stamp.write_text("")
+    blender("preview_spline.py", prepared, aligned, preview, "--size", "1200", logfile=work / f"{sid}.preview.log")
+    dst = PUBLIC / "circuits" / f"{sid}.glb"
+    if force or not newer(dst, prepared):
+        log("comprime", sid)
+        compress(prepared, dst, 2048, keep_nodes=False)
+    return sid
+
+
+def stage_circuits(only, force):
+    failures = []
+    for item in CONFIG["circuits"]:
+        if only and only != item["splineId"]:
+            continue
+        try:
+            log("listo", build_circuit(item, force))
+        except Exception as error:
+            failures.append((item["splineId"], str(error)))
+            log("ERROR", item["splineId"], error)
+    return failures
+
+
+# ------------------------------------------------------------------ manifest
+
+def compact_spline(data, step=6.0):
+    """Lo que necesita el motor: el bucle en el plano (x, z) cada `step` m, en decímetros enteros."""
+    pts = data["points"]
+    stride = max(1, int(round(step / data.get("stepM", 2.0))))
+    flat = []
+    for x, _, z in pts[::stride]:
+        flat += [int(round(x * 10)), int(round(z * 10))]
+    return flat
+
+
+def chassis_names():
+    """Nombre del chasis por temporada y equipo, de los packs de temporada (fuente: f1db)."""
+    names = {}
+    seasons = ROOT / "overcut/frontend/src/modules/overcutManager/data/seasons"
+    for season in CONFIG["cars"]["seasons"]:
+        pack = seasons / f"{season}.json"
+        if pack.exists():
+            for team in json.loads(pack.read_text(encoding="utf-8"))["teams"]:
+                names[(season, team["id"])] = " / ".join(c["name"] for c in team.get("chassis", [])) or None
+    return names
+
+
+def copy_transcoder():
+    """KTX2Loader necesita el transcodificador Basis servido junto a los assets."""
+    source = ROOT / "overcut/frontend/node_modules/three/examples/jsm/libs/basis"
+    target = PUBLIC / "basis"
+    target.mkdir(parents=True, exist_ok=True)
+    for name in ("basis_transcoder.js", "basis_transcoder.wasm"):
+        if (source / name).exists():
+            shutil.copy2(source / name, target / name)
+
+
+def stage_manifest():
+    copy_transcoder()
+    chassis = chassis_names()
+    curated = json.loads(CURATED.read_text(encoding="utf-8"))
+    cars, circuits, engine = [], [], {}
+    for job in car_jobs(None):
+        info_path = OUT / "cars" / f"{job['id']}.json"
+        lods = [PUBLIC / "cars" / str(job["season"]) / f"{job['id']}.lod{k}.glb" for k in range(len(CONFIG["cars"]["lods"]))]
+        if not info_path.exists() or not all(p.exists() for p in lods):
+            continue
+        info = json.loads(info_path.read_text(encoding="utf-8"))
+        prov = provenance(RAW / job["release"] / job["file"])
+        allow = prov["license"] in ("CC-BY-4.0", "CC-BY-SA-4.0", "CC0-1.0", "CC-BY-3.0")
+        entry = curated[str(job["season"])][job["teamRef"]]
+        cars.append({
+            "season": job["season"], "teamRef": job["teamRef"], "chassis": chassis.get((job["season"], job["teamRef"])),
+            "release": job["release"], "sourceFile": job["file"], "status": entry.get("status", "ok"), "note": entry.get("note"),
+            "scale": 1.0, "forwardAxis": "-Z", "origin": "rear-axle-ground",
+            # Ruedas soldadas a la suspensión en el modelo: sin nodos de giro (metrics.wheels = "static").
+            "wheelNodes": [] if info.get("wheels") == "static" else ["wheel_fl", "wheel_fr", "wheel_rl", "wheel_rr"],
+            "lods": [{"file": f"cars/{job['season']}/{p.name}", "bytes": p.stat().st_size, "sha256": sha256(p)[:16],
+                      "triangles": lod["triangles"]} for p, lod in zip(lods, info["lods"])],
+            "thumb": f"thumbs/{job['id']}.png" if (PUBLIC / "thumbs" / f"{job['id']}.png").exists() else None,
+            "metrics": {k: info[k] for k in ("lengthM", "widthM", "heightM", "wheelbaseM", "trackFrontM", "trackRearM", "wheelRadiusM", "wheelHubs", "noseZ", "tailZ", "scaleApplied", "wheels") if k in info},
+            **prov, "allowRecolor": allow and "ND" not in (prov["license"] or ""),
+            # Sin verificar: el autor publica con licencia abierta, pero el README del repo avisa de modelos extraídos de juegos.
+            "riskRipped": None,
+        })
+    for item in CONFIG["circuits"]:
+        sid = item["splineId"]
+        aligned = CACHE / "splines" / f"{sid}.json"
+        glb = PUBLIC / "circuits" / f"{sid}.glb"
+        if not aligned.exists() or not glb.exists():
+            continue
+        data = json.loads(aligned.read_text(encoding="utf-8"))
+        usable = (data["deviation"]["maxM"] <= 2.0 and data["deviation"]["measuredShare"] >= 0.6) or item.get("review", {}).get("approved")
+        if not usable:
+            log("spline sin aprobar (fuera del manifiesto y del motor):", sid)
+            continue
+        prov = provenance(RAW / item["release"] / item["file"])
+        public_spline = PUBLIC / "splines" / f"{sid}.json"
+        public_spline.parent.mkdir(parents=True, exist_ok=True)
+        slim = {k: data[k] for k in ("points", "widths", "stepM", "lengthM", "direction", "frame")}
+        public_spline.write_text(json.dumps(slim, separators=(",", ":")) + "\n", encoding="utf-8")
+        circuits.append({
+            "circuitRef": item["circuitId"], "layoutId": item["layoutId"], "layoutRef": item["layoutRef"],
+            "validFrom": item["validFrom"], "validTo": item["validTo"],
+            "release": item["release"], "sourceFile": item["file"], "file": f"circuits/{sid}.glb",
+            "bytes": glb.stat().st_size, "sha256": sha256(glb)[:16],
+            "splineId": sid, "spline": f"splines/{sid}.json",
+            "lengthM": data["lengthM"], "realKm": item["km"], "lengthError": data["lengthError"],
+            "deviation": data["deviation"], "mirroredFromSource": data.get("mirroredFromSource", False),
+            # Criterio 7.2: desviación <= 2 m medida en la mayor parte de la vuelta. Si no se puede medir (escapatorias
+            # de asfalto), solo una revisión manual (assets.config.json review.approved) la deja entrar en el motor.
+            "meetsCriterion": data["deviation"]["maxM"] <= 2.0 and data["deviation"]["measuredShare"] >= 0.6,
+            "reviewApproved": bool(item.get("review", {}).get("approved")),
+            "edgeReference": data.get("edgeReference"), "geoFit": data.get("geoFit"),
+            "start": data.get("start"), "geoCheck": data.get("geoCheck"),
+            **prov, "allowRecolor": False,
+            "riskRipped": item.get("riskRipped"),
+        })
+        engine[sid] = {
+            "circuitRef": item["circuitId"], "layoutRef": item["layoutRef"], "layoutId": item["layoutId"],
+            "validFrom": item["validFrom"], "validTo": item["validTo"], "km": item["km"],
+            "direction": item["direction"], "lengthM": data["lengthM"], "stepM": 6,
+            "startConfidence": (data.get("start") or {}).get("confidence"),
+            "points": compact_spline(data),
+        }
+    digest = hashlib.sha256(json.dumps([cars, circuits], sort_keys=True).encode()).hexdigest()[:16]
+    manifest = {
+        "$comment": "GENERADO por tools/assets/build_assets.py: no editar a mano (SRS 4.3, RF-3D-01). Las rutas son relativas a /manager-assets/.",
+        "version": PIPELINE_VERSION, "hash": digest, "baseUrl": "/manager-assets/",
+        "cars": sorted(cars, key=lambda c: (c["season"], c["teamRef"])),
+        "circuits": sorted(circuits, key=lambda c: (c["circuitRef"], c["validFrom"])),
+    }
+    (ROOT / CONFIG["manifest"]).write_text(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    splines = {"$comment": "GENERADO por tools/assets/build_assets.py desde las splines calibradas (RF-3D-03). Puntos (x, z) glTF en decímetros, cada 6 m, empezando en la meta y en el sentido de carrera.", "splines": engine}
+    (ROOT / CONFIG["engineSplines"]).write_text(json.dumps(splines, separators=(",", ":")) + "\n", encoding="utf-8")
+    log(f"manifiesto: {len(cars)} coches, {len(circuits)} circuitos, hash {digest}")
+
+
+def main():
+    args = sys.argv[1:]
+    stages = [a for a in args if a in ("cars", "circuits", "manifest")] or ["cars", "circuits", "manifest"]
+    only = args[args.index("--only") + 1] if "--only" in args else None
+    jobs_n = int(args[args.index("--jobs") + 1]) if "--jobs" in args else 3
+    force = "--force" in args
+    failures = []
+    if "circuits" in stages:
+        failures += stage_circuits(only, force)
+    if "cars" in stages:
+        failures += stage_cars(only, jobs_n, force)
+    if "manifest" in stages:
+        stage_manifest()
+    if failures:
+        log("FALLOS:")
+        for ident, error in failures:
+            log("  ", ident, error)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

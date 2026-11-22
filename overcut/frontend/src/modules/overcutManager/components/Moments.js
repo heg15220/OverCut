@@ -52,7 +52,7 @@ export default function Moments() {
       >
         <div className="mn-welcome">
           <TeamBadge team={team} size={64} />
-          <Livery color={team.color} color2={team.color2} width={340} height={200} year={career.year} name={team.name} />
+          <Livery color={team.color} color2={team.color2} width={340} height={200} year={career.year} name={team.name} teamRef={team.custom ? null : team.id} />
         </div>
         <p>
           {career.owner
