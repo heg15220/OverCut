@@ -1,0 +1,119 @@
+{
+  "$comment": "RF-HQ-01..03, RNF-07: instalaciones del cuartel general. Idea y estructura tomadas de Buildings/Buildings_HQ/Buildings_Effects de F1 Manager 24 (SRS 2.2); ningún valor copiado. Importes en USD de 2024 (se escalan con economy.moneyScale). Cada efecto tiene un valor por nivel 1..5; el estado (condition 0..100) lo acerca al valor neutro cuando baja de goodCondition. Un edificio no disponible en el año (availableFrom) vale el neutro.",
+  "version": 1,
+  "maxLevel": 5,
+  "maxConcurrentUpgrades": 2,
+  "condition": {
+    "$comment": "Estado al crear la partida, umbral a partir del cual el edificio rinde al 100 %, y rendimiento mínimo (share del efecto) con condición 0. repairCostPerPoint: USD 2024 por punto de estado y nivel.",
+    "start": 90,
+    "goodCondition": 70,
+    "effectAtZero": 0.4,
+    "repairCostPerPoint": 60000
+  },
+  "startingLevels": {
+    "$comment": "RF-HQ-03: tamaño real del equipo en el año de inicio. size = prestige·wPrestige + posición real (1 = mejor)·wPosition + presupuesto relativo·wBudget; nivel = 1 + size·4 + offset del edificio. Equipo propio: backer.facility como size (nivel de fábrica) con el mismo offset.",
+    "wPrestige": 0.45,
+    "wPosition": 0.4,
+    "wBudget": 0.15
+  },
+  "forecast": {
+    "$comment": "hq.forecastWithAccuracy: pronóstico (% de lluvia) = verdad·acc + clima del circuito·(1−acc) + N(0, noiseAtZero·(1−acc)). truthByKind por tipo de tiempo de overcutTrayectoria/engine/weather (dry/mixed/wet). Con acc 0,7 reproduce el peso de race.js (0,7/0,3).",
+    "truthByKind": { "dry": 0, "mixed": 55, "wet": 85 },
+    "noiseAtZero": 24,
+    "max": 98
+  },
+  "upgradeRule": "upgradeCost[i] y upgradeRounds[i] llevan del nivel i+1 al i+2; construir desde 0 (edificio nuevo en su era) usa el índice 0.",
+  "effectKeys": {
+    "$comment": "Claves que leen otros módulos con hq.hqEffect(subject, key). neutral = valor sin edificio. integer = se redondea.",
+    "manufacturingSlots": { "neutral": 2, "integer": true, "es": "Proyectos en paralelo en fábrica", "en": "Parallel factory projects" },
+    "manufacturingCost": { "neutral": 1, "es": "Multiplicador del coste de fabricación (menos es mejor)", "en": "Manufacturing cost multiplier (lower is better)" },
+    "designSpeed": { "neutral": 1, "es": "Multiplicador de velocidad de diseño (más es mejor)", "en": "Design speed multiplier (higher is better)" },
+    "expertiseGain": { "neutral": 1, "es": "Multiplicador de ganancia de expertise", "en": "Expertise gain multiplier" },
+    "tunnelEfficiency": { "neutral": 1, "es": "Rendimiento del túnel de viento sobre la ganancia aerodinámica", "en": "Wind tunnel yield on aero gains" },
+    "cfdEfficiency": { "neutral": 1, "es": "Rendimiento del CFD sobre la ganancia aerodinámica", "en": "CFD yield on aero gains" },
+    "setupKnowledge": { "neutral": 0, "es": "Puntos extra de conocimiento del reglaje por sesión de libres", "en": "Extra setup knowledge per practice run" },
+    "forecastAccuracy": { "neutral": 0.5, "es": "Precisión del pronóstico (0..1): peso de la verdad frente al ruido", "en": "Forecast accuracy (0..1): weight of the truth over noise" },
+    "hospitalityIncome": { "neutral": 0, "es": "Ingresos de hospitality por GP (USD 2024)", "en": "Hospitality income per GP (2024 USD)" },
+    "fanGrowth": { "neutral": 0, "es": "Afición extra por GP", "en": "Extra fans per GP" },
+    "pitStopBonus": { "neutral": 0, "es": "Puntos extra de rating del equipo de boxes", "en": "Extra pit crew rating points" },
+    "reliabilityGain": { "neutral": 0, "es": "Puntos de fiabilidad ganados por temporada", "en": "Reliability points gained per season" }
+  },
+  "buildings": [
+    {
+      "id": "factory", "es": "Fábrica", "en": "Factory", "availableFrom": 1950, "startOffset": 0,
+      "upgradeCost": [14000000, 22000000, 34000000, 50000000],
+      "upgradeRounds": [3, 4, 5, 6],
+      "maintenancePerSeason": [1200000, 1800000, 2600000, 3600000, 4800000],
+      "degradationPerRound": 0.7,
+      "effects": { "manufacturingSlots": [2, 3, 4, 5, 6], "manufacturingCost": [1.12, 1.06, 1, 0.95, 0.9] }
+    },
+    {
+      "id": "designCentre", "es": "Centro de diseño", "en": "Design centre", "availableFrom": 1950, "startOffset": 0,
+      "upgradeCost": [10000000, 16000000, 26000000, 38000000],
+      "upgradeRounds": [3, 4, 4, 5],
+      "maintenancePerSeason": [800000, 1200000, 1800000, 2500000, 3300000],
+      "degradationPerRound": 0.5,
+      "effects": { "designSpeed": [0.85, 0.93, 1, 1.08, 1.16], "expertiseGain": [0.9, 0.95, 1, 1.05, 1.1] }
+    },
+    {
+      "id": "windTunnel", "es": "Túnel de viento", "en": "Wind tunnel", "availableFrom": 1970, "startOffset": 0,
+      "$note": "Túneles a escala en F1 desde los primeros coches de alerones (finales de los 60) y generalizados con el efecto suelo (1977-78). Año aproximado.",
+      "upgradeCost": [16000000, 26000000, 40000000, 58000000],
+      "upgradeRounds": [4, 5, 6, 7],
+      "maintenancePerSeason": [1000000, 1600000, 2400000, 3400000, 4500000],
+      "degradationPerRound": 0.8,
+      "effects": { "tunnelEfficiency": [0.9, 0.96, 1.02, 1.08, 1.14] }
+    },
+    {
+      "id": "cfd", "es": "CFD", "en": "CFD", "availableFrom": 1997, "startOffset": -1,
+      "$note": "RF-HQ-01: CFD desde finales de los 90 (clústeres propios en los equipos grandes a partir de 1997-2000). Año aproximado, por verificar.",
+      "upgradeCost": [8000000, 14000000, 22000000, 32000000],
+      "upgradeRounds": [2, 3, 4, 5],
+      "maintenancePerSeason": [700000, 1100000, 1600000, 2300000, 3100000],
+      "degradationPerRound": 0.9,
+      "effects": { "cfdEfficiency": [0.95, 0.99, 1.03, 1.07, 1.11] }
+    },
+    {
+      "id": "simulator", "es": "Simulador", "en": "Simulator", "availableFrom": 2004, "startOffset": -1,
+      "$note": "Simuladores con piloto (driver-in-the-loop) en los equipos punteros desde mediados de los 2000. Año aproximado.",
+      "upgradeCost": [6000000, 10000000, 16000000, 24000000],
+      "upgradeRounds": [2, 3, 3, 4],
+      "maintenancePerSeason": [500000, 800000, 1200000, 1700000, 2300000],
+      "degradationPerRound": 0.6,
+      "effects": { "setupKnowledge": [0, 2, 4, 6, 8] }
+    },
+    {
+      "id": "weatherCentre", "es": "Centro meteorológico", "en": "Weather centre", "availableFrom": 1950, "startOffset": -1,
+      "upgradeCost": [3000000, 5000000, 8000000, 12000000],
+      "upgradeRounds": [2, 2, 3, 3],
+      "maintenancePerSeason": [200000, 350000, 550000, 800000, 1100000],
+      "degradationPerRound": 0.5,
+      "effects": { "forecastAccuracy": [0.55, 0.64, 0.73, 0.82, 0.9] }
+    },
+    {
+      "id": "hospitality", "es": "Hospitality", "en": "Hospitality", "availableFrom": 1950, "startOffset": 0,
+      "upgradeCost": [4000000, 7000000, 11000000, 16000000],
+      "upgradeRounds": [2, 2, 3, 3],
+      "maintenancePerSeason": [600000, 1000000, 1500000, 2100000, 2800000],
+      "degradationPerRound": 0.6,
+      "effects": { "hospitalityIncome": [80000, 160000, 260000, 380000, 520000], "fanGrowth": [0, 0.05, 0.1, 0.15, 0.2] }
+    },
+    {
+      "id": "pitCrewCentre", "es": "Centro de entrenamiento de boxes", "en": "Pit crew centre", "availableFrom": 1994, "startOffset": -1,
+      "$note": "Entrenamiento específico de paradas desde la vuelta del repostaje (1994). Año aproximado.",
+      "upgradeCost": [2000000, 3500000, 5500000, 8000000],
+      "upgradeRounds": [1, 2, 2, 3],
+      "maintenancePerSeason": [150000, 250000, 400000, 600000, 850000],
+      "degradationPerRound": 0.5,
+      "effects": { "pitStopBonus": [0, 1, 2, 3, 4] }
+    },
+    {
+      "id": "reliabilityLab", "es": "Banco de pruebas", "en": "Dyno and rig lab", "availableFrom": 1950, "startOffset": -1,
+      "upgradeCost": [4000000, 7000000, 11000000, 16000000],
+      "upgradeRounds": [2, 3, 3, 4],
+      "maintenancePerSeason": [300000, 500000, 800000, 1100000, 1500000],
+      "degradationPerRound": 0.6,
+      "effects": { "reliabilityGain": [0, 0.5, 1, 1.5, 2] }
+    }
+  ]
+}

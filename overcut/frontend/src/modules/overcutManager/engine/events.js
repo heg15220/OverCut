@@ -13,6 +13,7 @@
 import { clamp, substream } from "../../overcutTrayectoria/engine/rng";
 import { PACE_AREAS } from "./car";
 import { moneyScale, roundMoney } from "./economy";
+import { ensureHq, syncFacility } from "./hq";
 import { addInbox } from "./inbox";
 import { inventPerson } from "./names";
 import { ledger, userTeam } from "./market";
@@ -174,6 +175,14 @@ const TEMPLATES = {
         ledger(career, -params.cost, "facility");
         const team = userTeam(career);
         team.facility = clamp((team.facility ?? 2) + 1, 1, 5);
+        // RF-HQ-01: the factory building is the source of truth once the HQ exists.
+        const factory = ensureHq(career)?.buildings?.factory;
+        if (factory) {
+          factory.level = clamp(Math.max(factory.level, team.facility), 1, 5);
+          factory.condition = 100;
+          factory.upgrade = null;
+          syncFacility(career);
+        }
         return { outcome: "built" };
       },
       later: () => ({ outcome: "later" }),

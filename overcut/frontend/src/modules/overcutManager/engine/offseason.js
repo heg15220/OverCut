@@ -23,8 +23,10 @@ import { driverSalary, prizeMoney, sponsorIncome } from "./economy";
 import { addInbox, addNews } from "./inbox";
 import { setObjectives } from "./board";
 import { startingStaff } from "./market";
-import { emptySeason, driverStandings } from "./standings";
+import { constructorStandings, emptySeason, driverStandings } from "./standings";
+import { developmentNewSeason, pendingNextGains, regulationCutCar } from "./development";
 import { worldForSeason } from "./packs/packWorld";
+import { financeNewSeason } from "./finance";
 import { addInventedJuniors, buildManagerWorld, fillEmptySeats, prestigeFor, refreshRating, signForTeam, teamsByPace } from "./world";
 import { PHASES } from "./career";
 
@@ -96,6 +98,11 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
   const real = realWorldFor(context, year, career.seed);
   const scores = seasonScores(career);
   ageAndGrow(career, scores);
+  // RF-DEV-03/04/06: what the parts layer needs from the year that ends.
+  const previousTeamId = career.teamId;
+  const previousParts = previous.teams[previousTeamId]?.parts || null;
+  const lastStandings = constructorStandings(career);
+  const pendingNext = pendingNextGains(career);
 
   // ---------------------------------------------------------- cars
   const previousTeams = Object.values(previous.teams);
@@ -110,8 +117,14 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
         // Winter work is delivered in full; in-season work for next year that ran out of time, mostly.
         nextGains[project.area] = (nextGains[project.area] || 0) + project.expected * (project.winter ? 1 : 0.8);
       });
+      // RF-DEV-06: next year's designs still in the factory.
+      Object.entries(pendingNext).forEach(([area, gain]) => {
+        nextGains[area] = (nextGains[area] || 0) + gain;
+      });
     }
-    teams[team.id] = { ...team, car: nextYearCar({ car: team.car, fieldMean: mean, nextGains, year, stream: substream(career.seed, "next-car", year, team.id) }) };
+    // RF-DEV-07: a real rule change cuts the advantage carried into the new era (data/balance/development.json).
+    const carried = regulationCutCar({ car: team.car, fieldMean: mean, year, list: team.parts?.list });
+    teams[team.id] = { ...team, car: nextYearCar({ car: carried, fieldMean: mean, nextGains, year, stream: substream(career.seed, "next-car", year, team.id) }) };
   });
 
   if (real) {
@@ -338,6 +351,9 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
     addInbox(career, { kind: "welcome", teamId: target, year, owner: false });
   }
 
+  // RF-DEV-01..08, RF-SIM-14: new parts for every team, the player's expertise, units and the ATR order.
+  developmentNewSeason(career, { previousTeamId, previousParts, lastStandings });
+
   const team = world.teams[career.teamId];
   const teamCount = Object.keys(world.teams).length;
   career.finances.seasonIncome = sponsorIncome(team.prestige, year) + prizeMoney(career.finances.lastPosition, teamCount, year);
@@ -347,6 +363,8 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
   addInbox(career, { kind: "new-season", year, regulations: Boolean(real === null && year % 5 === 0) });
   addInbox(career, { kind: "objectives" });
   if (real) addNews(career, { kind: "history", year });
+  // RF-FIN-01..05, RF-HQ-01: new books, finished deals dropped, new offers, HQ into the new season.
+  financeNewSeason(career);
   return career;
 };
 

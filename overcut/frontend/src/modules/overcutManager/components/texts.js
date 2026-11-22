@@ -123,6 +123,71 @@ export const AREA_HINT = {
   reliability: () => t("Cuántas veces ves la bandera a cuadros.", "How often you see the chequered flag."),
 };
 
+// RF-DEV-01..08, RF-SIM-14: parts, stats, paces, damage and power-unit elements.
+export const PART = {
+  frontWing: () => t("Alerón delantero", "Front wing"),
+  rearWing: () => t("Alerón trasero", "Rear wing"),
+  chassis: () => t("Chasis", "Chassis"),
+  sidepods: () => t("Pontones", "Sidepods"),
+  floor: () => t("Suelo", "Floor"),
+  suspension: () => t("Suspensión", "Suspension"),
+  engine: () => t("Motor", "Engine"),
+  gearbox: () => t("Caja de cambios", "Gearbox"),
+  ers: () => t("ERS", "ERS"),
+  kers: () => t("KERS", "KERS"),
+};
+
+export const STAT = {
+  lowSpeedDownforce: () => t("Carga en curva lenta", "Low-speed downforce"),
+  mediumSpeedDownforce: () => t("Carga en curva media", "Medium-speed downforce"),
+  highSpeedDownforce: () => t("Carga en curva rápida", "High-speed downforce"),
+  dirtyAir: () => t("Aire sucio", "Dirty air"),
+  enginePower: () => t("Potencia", "Power"),
+  dragEfficiency: () => t("Resistencia al avance", "Drag efficiency"),
+  energyDeploy: () => t("Despliegue de energía", "Energy deployment"),
+  shiftQuality: () => t("Cambio de marcha", "Gear shift"),
+  mechanicalGrip: () => t("Agarre mecánico", "Mechanical grip"),
+  braking: () => t("Frenada", "Braking"),
+  kerbRide: () => t("Pianos", "Kerb riding"),
+  tyreCare: () => t("Trato del neumático", "Tyre care"),
+  balance: () => t("Equilibrio", "Balance"),
+  engineDurability: () => t("Durabilidad del motor", "Engine durability"),
+  gearboxDurability: () => t("Durabilidad de la caja", "Gearbox durability"),
+  energyDurability: () => t("Durabilidad eléctrica", "Electrical durability"),
+  cooling: () => t("Refrigeración", "Cooling"),
+  structure: () => t("Estructura", "Structure"),
+};
+
+export const PACE = {
+  normal: () => t("Normal", "Normal"),
+  accelerated: () => t("Acelerado", "Accelerated"),
+  intense: () => t("Intenso", "Intense"),
+  emergency: () => t("Emergencia", "Emergency"),
+};
+
+export const CONDITION = {
+  perfect: () => t("Perfecta", "Perfect"),
+  light: () => t("Daño leve", "Light damage"),
+  heavy: () => t("Daño grave", "Heavy damage"),
+  destroyed: () => t("Destruida", "Destroyed"),
+};
+
+export const UNIT_COMPONENT = {
+  engine: () => t("Motor", "Engine"),
+  gearbox: () => t("Caja", "Gearbox"),
+  ice: () => t("Motor térmico (ICE)", "Combustion engine (ICE)"),
+  tc: () => t("Turbo (TC)", "Turbocharger (TC)"),
+  mguh: () => t("MGU-H", "MGU-H"),
+  mguk: () => t("MGU-K", "MGU-K"),
+  es: () => t("Batería (ES)", "Energy store (ES)"),
+  ce: () => t("Electrónica (CE)", "Control electronics (CE)"),
+};
+
+const areaGainText = (areas = {}) =>
+  Object.entries(areas)
+    .map(([area, gain]) => `${AREA[area]()} ${gain > 0 ? "+" : ""}${Number(gain).toFixed(1)}`)
+    .join(" · ");
+
 export const SIZE = {
   small: () => t("Mejora menor", "Small update"),
   medium: () => t("Paquete", "Package"),
@@ -216,6 +281,18 @@ export const inboxTitle = (career, item) => {
       return t(`${AREA[item.area]()}: ${item.target === "next" ? "trabajo para el año que viene listo" : "nueva pieza en el coche"}`, `${AREA[item.area]()}: ${item.target === "next" ? "next year's work delivered" : "new part on the car"}`);
     case "rd-failed":
       return t(`${AREA[item.area]()}: el proyecto no funcionó`, `${AREA[item.area]()}: the project did not work`);
+    case "design-done":
+      return item.target === "next"
+        ? t(`${PART[item.part]()}: diseño del coche del año que viene listo`, `${PART[item.part]()}: next year's design is ready`)
+        : t(`${PART[item.part]()}: nuevo diseño listo para fabricar`, `${PART[item.part]()}: new design ready to build`);
+    case "design-failed":
+      return t(`${PART[item.part]()}: el diseño no salió como se esperaba`, `${PART[item.part]()}: the design did not work out`);
+    case "parts-built":
+      return t(`Piezas fabricadas: ${(item.parts || []).map((part) => PART[part]()).join(", ")}`, `Parts built: ${(item.parts || []).map((part) => PART[part]()).join(", ")}`);
+    case "part-damage":
+      return t("Daños en el coche", "Damage to the cars");
+    case "unit-penalty":
+      return t("Penalización en parrilla por unidades", "Grid penalty for power-unit elements");
     case "market-open":
       return t(`Se abre el mercado de pilotos para ${item.year}`, `The driver market opens for ${item.year}`);
     case "expiring":
@@ -237,7 +314,7 @@ export const inboxTitle = (career, item) => {
     case "event":
       return eventText(career, item.event).title;
     default:
-      return item.kind;
+      return FINANCE_INBOX[item.kind] ? FINANCE_INBOX[item.kind].title(career, item) : item.kind;
   }
 };
 
@@ -253,6 +330,19 @@ export const inboxBody = (career, item) => {
       return t("El año que viene el reglamento cambia mucho: lo que lleves de ventaja apenas se conserva, y el trabajo en el coche nuevo rinde más que nunca.", "Next year the rules change hard: little of any advantage carries over, and work on the new car pays more than ever.");
     case "rd-done":
       return t(`Ganancia: ${item.gain > 0 ? "+" : ""}${item.gain.toFixed(1)} puntos.`, `Gain: ${item.gain > 0 ? "+" : ""}${item.gain.toFixed(1)} points.`);
+    case "design-done":
+    case "design-failed":
+      return `${areaGainText(item.areas) || t("Sin cambios", "No change")}. ${PART[item.part] && item.target !== "next" ? t("Fabrica unidades y móntalas en la pantalla del coche.", "Build units and fit them on the car screen.") : t("Entrará en el coche del año que viene.", "It goes into next year's car.")}`;
+    case "parts-built":
+      return t(`${item.count} unidad(es) lista(s) en el almacén o montadas.`, `${item.count} unit(s) ready in stores or fitted.`);
+    case "part-damage":
+      return (item.damage || [])
+        .map((row) => `${driverName(career, row.driverId)}: ${PART[row.part]()} - ${CONDITION[row.condition]()}${row.replaced === "spare" ? t(" (montado el repuesto)", " (spare fitted)") : row.replaced === "emergency" ? t(` (pieza de urgencia, ${money(row.cost)})`, ` (emergency part, ${money(row.cost)})`) : ""}`)
+        .join(". ");
+    case "unit-penalty":
+      return (item.penalties || [])
+        .map((row) => t(`${driverName(career, row.driverId)} perderá ${row.places} puestos en la próxima parrilla`, `${driverName(career, row.driverId)} drops ${row.places} places on the next grid`) + ` (${(row.items || []).map((entry) => UNIT_COMPONENT[entry.comp]?.() || entry.comp).join(", ")})`)
+        .join(". ");
     case "rd-failed":
       return t(`El resultado: ${item.gain > 0 ? "+" : ""}${item.gain.toFixed(1)} puntos. A veces el túnel de viento miente.`, `The outcome: ${item.gain > 0 ? "+" : ""}${item.gain.toFixed(1)} points. Sometimes the wind tunnel lies.`);
     case "market-open":
@@ -276,7 +366,7 @@ export const inboxBody = (career, item) => {
     case "event":
       return eventText(career, item.event).body;
     default:
-      return "";
+      return FINANCE_INBOX[item.kind] ? FINANCE_INBOX[item.kind].body(career, item) : "";
   }
 };
 
@@ -579,4 +669,89 @@ export const commentary = (event, names, track) => {
     default:
       return "";
   }
+};
+
+// ---------------------------------------------- facilities, finances, board (RF-HQ, RF-FIN)
+
+/** Labels that live in data (es/en pairs in data/balance/*.json). */
+export const pick = (entry, fallback = "") => (entry ? t(entry.es ?? fallback, entry.en ?? fallback) : fallback);
+
+export const TX_KIND = {
+  "sponsor-base": () => t("Patrocinio base", "Base sponsorship"),
+  "sponsor-deal": () => t("Contrato de patrocinio", "Sponsor deal"),
+  "sponsor-bonus": () => t("Bonus de patrocinador", "Sponsor bonus"),
+  "prize-instalment": () => t("Plazo de premios", "Prize instalment"),
+  hospitality: () => t("Hospitality", "Hospitality"),
+  "engine-supply": () => t("Venta de motores", "Engine supply"),
+  "race-operations": () => t("Operaciones del GP", "Race operations"),
+  "driver-salaries": () => t("Salarios de pilotos", "Driver salaries"),
+  "staff-salaries": () => t("Salarios del personal", "Staff salaries"),
+  "engine-lease": () => t("Motor cliente", "Customer engine"),
+  "hq-maintenance": () => t("Mantenimiento de instalaciones", "Facility maintenance"),
+  "hq-upgrade": () => t("Mejora de instalación", "Facility upgrade"),
+  "hq-repair": () => t("Reparación de instalación", "Facility repair"),
+  "crash-damage": () => t("Daños por accidente", "Crash damage"),
+  "cost-cap-fine": () => t("Multa del techo de gasto", "Cost cap fine"),
+  "race-income": () => t("Ingresos del GP", "Race income"),
+  "race-costs": () => t("Gastos del GP", "Race costs"),
+  development: () => t("Desarrollo", "Development"),
+  release: () => t("Indemnización", "Compensation"),
+  buyout: () => t("Cláusula", "Release fee"),
+  severance: () => t("Despido", "Severance"),
+  "staff-fee": () => t("Traspaso de personal", "Staff fee"),
+  appeal: () => t("Recurso", "Appeal"),
+  supplier: () => t("Proveedor", "Supplier"),
+  facility: () => t("Fábrica", "Factory"),
+  test: () => t("Test", "Test"),
+  fans: () => t("Aficionados", "Fans"),
+  rebuild: () => t("Reconstrucción", "Rebuild"),
+  "transfer-fee": () => t("Traspaso", "Transfer fee"),
+  investment: () => t("Inversión", "Investment"),
+};
+
+export const SPONSOR_BONUS = {
+  win: () => t("Victoria", "Win"),
+  podium: () => t("Podio", "Podium"),
+  points: () => t("Puntos", "Points"),
+  bothFinish: () => t("Los dos coches en meta", "Both cars finish"),
+  beatRival: () => t("Batir al rival", "Beat the rival"),
+  topTenGrid: () => t("Salir entre los diez primeros", "Top-ten grid slot"),
+};
+
+export const CAP_STATE = {
+  free: () => t("Sin techo de gasto", "No cost cap"),
+  ok: () => t("Dentro del techo", "Within the cap"),
+  tight: () => t("Al límite", "Tight"),
+  over: () => t("Proyección por encima del techo", "Projected over the cap"),
+  breach: () => t("Techo superado", "Cap breached"),
+};
+
+export const CONFIDENCE_REASON = {
+  above: () => t("Por encima de lo esperado", "Above expectations"),
+  below: () => t("Por debajo de lo esperado", "Below expectations"),
+  par: () => t("Lo esperado", "As expected"),
+  "mid-season": () => t("Revisión de mitad de temporada", "Mid-season review"),
+  season: () => t("Balance de la temporada", "Season review"),
+  "cost-cap": () => t("Techo de gasto", "Cost cap"),
+};
+
+/** Inbox items added with the finance and board modules. */
+export const FINANCE_INBOX = {
+  "board-midseason": {
+    title: () => t("Revisión de mitad de temporada", "Mid-season review"),
+    body: (career, item) =>
+      t(`La directiva ha revisado los objetivos: ${item.delta >= 0 ? "+" : ""}${item.delta} de confianza (ahora ${item.confidence}%).`, `The board has reviewed the objectives: ${item.delta >= 0 ? "+" : ""}${item.delta} confidence (now ${item.confidence}%).`),
+  },
+  "sponsor-offers": {
+    title: () => t("Nuevas ofertas de patrocinio", "New sponsor offers"),
+    body: (career, item) => t(`${item.count} marcas quieren estar en el coche. Las tienes en la Oficina, pestaña Patrocinio.`, `${item.count} brands want to be on the car. See the Office, Sponsors tab.`),
+  },
+  "cost-cap-breach": {
+    title: (career, item) => t(`Techo de gasto ${item.year} superado`, `${item.year} cost cap breached`),
+    body: (career, item) =>
+      t(
+        `Exceso del ${item.overPct}% (${item.band === "material" ? "grave" : "leve"}). Multa: ${money(item.fine)}. ${item.factor < 1 ? `El año que viene el túnel y el CFD rinden un ${Math.round((1 - item.factor) * 100)}% menos.` : ""}`,
+        `Overspend of ${item.overPct}% (${item.band}). Fine: ${money(item.fine)}. ${item.factor < 1 ? `Next year tunnel and CFD yield ${Math.round((1 - item.factor) * 100)}% less.` : ""}`,
+      ),
+  },
 };

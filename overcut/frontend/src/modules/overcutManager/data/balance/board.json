@@ -1,0 +1,75 @@
+{
+  "$comment": "RF-FIN-04, RNF-07: la junta. Idea tomada de Board_Confidence / Board_Objectives / Board_TeamRating de F1 Manager 24 (SRS 2.2: bandas 600-1000 / 450-599 / 0-449; −6 por debajo de lo esperado y +8 por superarlo en más de una posición). La confianza va de 0 a 100.",
+  "version": 1,
+  "rating": {
+    "$comment": "Rating del equipo 0..1000 = 1000·(wPace·ritmo + wPrestige·prestigio), ritmo = 1 − (puesto esperado − 1)/(equipos − 1).",
+    "wPace": 0.7,
+    "wPrestige": 0.3
+  },
+  "bands": [
+    { "id": "champion", "es": "Aspirante al título", "en": "Title contender", "min": 600, "max": 1000,
+      "objectives": [
+        { "type": "constructors", "offset": 0, "weight": 3 },
+        { "type": "wins", "targetIfLeader": 4, "target": 1, "weight": 2 },
+        { "type": "rival", "weight": 1 },
+        { "type": "budget", "weight": 1 }
+      ] },
+    { "id": "podium", "es": "Aspirante a podio", "en": "Podium contender", "min": 450, "max": 599,
+      "objectives": [
+        { "type": "constructors", "offset": 1, "weight": 3 },
+        { "type": "podium", "target": 1, "weight": 2 },
+        { "type": "rival", "weight": 1 },
+        { "type": "budget", "weight": 1 }
+      ] },
+    { "id": "points", "es": "Aspirante a puntos", "en": "Points contender", "min": 0, "max": 449,
+      "objectives": [
+        { "type": "constructors", "offset": 1, "weight": 3 },
+        { "type": "points", "target": 1, "weight": 2 },
+        { "type": "rival", "weight": 1 },
+        { "type": "budget", "weight": 1 }
+      ] }
+  ],
+  "race": {
+    "$comment": "Por GP: mejor coche propio frente a su puesto esperado (par). belowTolerance: puestos peor que par sin castigo (F1M24 usa 0; aquí 1 porque par es el mejor de dos coches y el reparto es más ruidoso). aboveMargin: hay que superar par en más de esta cantidad para el premio. scale multiplica −6/+8 (valores de F1M24 en su escala) porque aquí hay además tabla, deriva y revisiones; parFloor: el mejor coche de la parrilla no se espera que gane siempre. La deriva hacia driftTo es driftRate por encima y driftRateBelow por debajo: la confianza perdida cuesta recuperarla y así puede llegar a cero (RF-FIN-04).",
+    "belowExpected": -6,
+    "scale": 0.5,
+    "parFloor": 2,
+    "belowTolerance": 1,
+    "aboveExpected": 8,
+    "aboveMargin": 1,
+    "winBonus": 3,
+    "tableFromRound": 3,
+    "tableOnTrack": 0.6,
+    "tableClose": -0.5,
+    "tableOffTrack": -1.4,
+    "negativeBalance": -1.2,
+    "driftTo": 60,
+    "driftRate": 0.06,
+    "driftRateBelow": 0.02,
+    "fansPerDelta": 0.1
+  },
+  "midSeason": {
+    "$comment": "Revisión a mitad de temporada (ronda ceil(n·share)): por objetivo ponderado.",
+    "share": 0.5,
+    "onTrack": 2,
+    "close": -1,
+    "offTrack": -4
+  },
+  "season": {
+    "$comment": "seasonReview: delta = round((nota − neutralGrade)·scale). beatTargetBonus multiplica el peso si se mejora el objetivo de constructores.",
+    "neutralGrade": 0.6,
+    "scale": 40,
+    "beatTargetBonus": 1.25,
+    "closeCredit": 0.4
+  },
+  "security": {
+    "$comment": "RF-FIN-04: despido al llegar a cero. warnBelow avisa; reArmAbove rearma el aviso. Inversores: retiran el dinero al llegar a investorsOutAt. bankruptFloorShare × ingresos de temporada = caja mínima de un equipo propio.",
+    "warnBelow": 25,
+    "reArmAbove": 38,
+    "sackAt": 0,
+    "investorsOutAt": 0,
+    "bankruptFloorShare": -0.35
+  },
+  "start": { "board": 62, "investors": 70 },
+  "historyLimit": 240
+}

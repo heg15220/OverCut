@@ -15,15 +15,53 @@
 
 import { config } from "../../../config/constants";
 import { MANAGER_GAME, MANAGER_VERSION } from "./career";
+import { ensureDevelopment } from "./development";
+import { ensureFinance } from "./finance";
+import { ensureHq } from "./hq";
 
 const LOCAL_KEY = "overcutManagerSave.v1";
 const CLOUD_KEY = "overcutManagerCloudCode";
+
+/**
+ * RNF-06: schema migrations, oldest first. Each takes a career of version
+ * `from` and leaves it at `from + 1`; validateCareer runs every one a save needs.
+ *
+ *   1 -> 2  parts, designs, expertise, engine supply and units (RF-DEV-01..08,
+ *           RF-SIM-14): every team's parts are seeded from its current car (so
+ *           the race pace does not move), the R&D queue gets its new lists, and
+ *           a mid-season save gets the units a nominal rotation would have used.
+ *           Area projects already in the factory keep running (legacy path).
+ */
+export const MIGRATIONS = {
+  1: (career) => {
+    ensureDevelopment(career, { backfill: true });
+    return career;
+  },
+  // v2 -> v3 (RF-HQ-01..03, RF-FIN-01..05, RNF-06): books by category with auditable transactions, sponsor
+  // offers, cost-cap reports, the board's history and the HQ buildings, all derived in place from the save.
+  2: (career) => {
+    ensureFinance(career);
+    ensureHq(career);
+    return career;
+  },
+};
+
+export const migrateCareer = (career) => {
+  while (career.v < MANAGER_VERSION) {
+    const step = MIGRATIONS[career.v];
+    if (!step) throw new Error("incompatible_save");
+    step(career);
+    career.v += 1;
+  }
+  return career;
+};
 
 export const validateCareer = (career) => {
   if (!career || career.game !== MANAGER_GAME) throw new Error("invalid_save");
   if (typeof career.v !== "number" || career.v > MANAGER_VERSION) throw new Error("incompatible_save");
   if (!career.world?.teams || !career.season || !career.teamId) throw new Error("invalid_save");
   career.flags = career.flags || { stops: [] };
+  migrateCareer(career);
   return career;
 };
 

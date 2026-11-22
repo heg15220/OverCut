@@ -1,0 +1,167 @@
+{
+  "$comment": "RNF-07: balance del coche por piezas e I+D (SRS 5.5 RF-DEV-01..08, RF-SIM-14, 6.5). Estructura inspirada en Parts_Designs / Parts_Items / Parts_CarLoadout / Parts_TeamExpertise de F1 Manager 24 (solo la idea; ningún valor, texto ni código suyo). Importes en dólares de 2024 (se escalan con economy.moneyScale). Las cifras se ajustan en las pruebas de balance de la fase 5. 'status: pending' = valor de memoria pendiente de verificar contra el reglamento FIA, como en curated/regulations.json.",
+  "version": 1,
+
+  "stats": {
+    "$comment": "RF-DEV-01: estadísticas del coche. Cada una alimenta exactamente una de las 4 áreas que lee el motor de carrera (aero, power, chassis, reliability); así el reparto pieza → área es determinista y exacto al sembrar.",
+    "lowSpeedDownforce": { "area": "aero" },
+    "mediumSpeedDownforce": { "area": "aero" },
+    "highSpeedDownforce": { "area": "aero" },
+    "dirtyAir": { "area": "aero" },
+    "enginePower": { "area": "power" },
+    "dragEfficiency": { "area": "power" },
+    "energyDeploy": { "area": "power" },
+    "shiftQuality": { "area": "power" },
+    "mechanicalGrip": { "area": "chassis" },
+    "braking": { "area": "chassis" },
+    "kerbRide": { "area": "chassis" },
+    "tyreCare": { "area": "chassis" },
+    "balance": { "area": "chassis" },
+    "engineDurability": { "area": "reliability" },
+    "gearboxDurability": { "area": "reliability" },
+    "energyDurability": { "area": "reliability" },
+    "cooling": { "area": "reliability" },
+    "structure": { "area": "reliability" }
+  },
+
+  "parts": {
+    "$comment": "RF-DEV-01/02. stats = peso de cada estadística en la pieza (el área es la media ponderada de las piezas montadas). kind 'body' = se diseña, fabrica por unidades, se monta y se daña; kind 'unit' = motor/caja/energía: la especificación se diseña y entra con la siguiente unidad (RF-SIM-14). era: 'always', 'kers' o 'ers' según rulesFor(era).energy. supplied = la pone el proveedor de motor (clientes no la desarrollan, RF-DEV-05). areaGain = puntos de área que da un diseño a ritmo Normal con un director técnico medio. aero = consume recursos de túnel/CFD (RF-DEV-04).",
+    "frontWing": { "kind": "body", "era": "always", "aero": true, "stats": { "lowSpeedDownforce": 1, "mediumSpeedDownforce": 0.8, "dirtyAir": 0.6, "balance": 0.4 }, "designRounds": 2, "designCost": 3.0e6, "unitCost": 0.25e6, "buildRounds": 1, "maxUnits": 6, "spares": 2, "areaGain": { "aero": 1.1, "chassis": 0.2 }, "risk": 0.1 },
+    "rearWing": { "kind": "body", "era": "always", "aero": true, "stats": { "highSpeedDownforce": 1, "mediumSpeedDownforce": 0.5, "dragEfficiency": 0.8 }, "designRounds": 2, "designCost": 2.6e6, "unitCost": 0.2e6, "buildRounds": 1, "maxUnits": 6, "spares": 1, "areaGain": { "aero": 0.7, "power": 0.5 }, "risk": 0.1 },
+    "chassis": { "kind": "body", "era": "always", "aero": true, "stats": { "structure": 1, "balance": 0.6, "mediumSpeedDownforce": 0.3, "tyreCare": 0.3 }, "designRounds": 4, "designCost": 7.0e6, "unitCost": 1.8e6, "buildRounds": 2, "maxUnits": 3, "spares": 1, "areaGain": { "chassis": 0.9, "reliability": 2.2, "aero": 0.4 }, "risk": 0.16 },
+    "sidepods": { "kind": "body", "era": "always", "aero": true, "stats": { "cooling": 1, "dragEfficiency": 0.5, "highSpeedDownforce": 0.4 }, "designRounds": 2, "designCost": 2.4e6, "unitCost": 0.3e6, "buildRounds": 1, "maxUnits": 4, "spares": 1, "areaGain": { "aero": 0.5, "power": 0.3, "reliability": 1.6 }, "risk": 0.1 },
+    "floor": { "kind": "body", "era": "always", "aero": true, "stats": { "lowSpeedDownforce": 0.8, "mediumSpeedDownforce": 1, "highSpeedDownforce": 1, "dirtyAir": 0.5 }, "designRounds": 3, "designCost": 5.0e6, "unitCost": 0.6e6, "buildRounds": 1, "maxUnits": 4, "spares": 1, "areaGain": { "aero": 2.0 }, "risk": 0.14 },
+    "suspension": { "kind": "body", "era": "always", "aero": false, "stats": { "mechanicalGrip": 1, "kerbRide": 1, "tyreCare": 0.8, "braking": 0.6 }, "designRounds": 2, "designCost": 3.0e6, "unitCost": 0.35e6, "buildRounds": 1, "maxUnits": 4, "spares": 1, "areaGain": { "chassis": 1.6 }, "risk": 0.1 },
+    "engine": { "kind": "unit", "era": "always", "supplied": true, "unit": "engine", "stats": { "enginePower": 1.6, "engineDurability": 1.4 }, "designRounds": 4, "designCost": 9.0e6, "areaGain": { "power": 1.8, "reliability": 2.0 }, "risk": 0.18 },
+    "gearbox": { "kind": "unit", "era": "always", "unit": "gearbox", "stats": { "shiftQuality": 0.6, "gearboxDurability": 1 }, "designRounds": 3, "designCost": 3.5e6, "areaGain": { "power": 0.4, "reliability": 2.2 }, "risk": 0.12 },
+    "ers": { "kind": "unit", "era": "ers", "supplied": true, "unit": "ers", "stats": { "energyDeploy": 1, "energyDurability": 0.8 }, "designRounds": 3, "designCost": 5.0e6, "areaGain": { "power": 1.0, "reliability": 1.6 }, "risk": 0.16 },
+    "kers": { "kind": "unit", "era": "kers", "supplied": true, "unit": "kers", "stats": { "energyDeploy": 0.5, "energyDurability": 0.4 }, "designRounds": 2, "designCost": 2.5e6, "areaGain": { "power": 0.5, "reliability": 0.8 }, "risk": 0.14 }
+  },
+
+  "seed": {
+    "$comment": "RF-DEV-01: piezas de partida sembradas desde las 4 áreas del coche actual. spread = carácter por pieza y estadística (desviación en puntos), recentrado para que cada área dé exactamente su valor de antes.",
+    "spread": 2.2
+  },
+
+  "paces": {
+    "$comment": "RF-DEV-02: ritmos de desarrollo. cost ×1 / ×1,5 / ×3 / ×4 y +50 % de expertise en Intenso (SRS 2.2). rounds = factor sobre las carreras de diseño (mínimo 1). quality = factor de la ganancia; risk = factor del riesgo de fallo; aero = factor de túnel/CFD consumido.",
+    "normal": { "cost": 1, "rounds": 1, "expertise": 1, "quality": 1, "risk": 1, "aero": 1 },
+    "accelerated": { "cost": 1.5, "rounds": 0.7, "expertise": 1, "quality": 1, "risk": 1.15, "aero": 1.15 },
+    "intense": { "cost": 3, "rounds": 0.6, "expertise": 1.5, "quality": 1.05, "risk": 1.1, "aero": 1.4 },
+    "emergency": { "cost": 4, "rounds": 0.35, "expertise": 0.8, "quality": 0.9, "risk": 1.6, "aero": 1.2 }
+  },
+
+  "design": {
+    "$comment": "Ganancia = areaGain × personal × fábrica × techo × saturación × expertise × suerte (como los antiguos proyectos de car.js). nextYear: el trabajo para el coche del año siguiente rinde más, y más en año de cambio de reglamento (RF-DEV-06). focus: la estadística elegida gana más y las demás algo menos.",
+    "staffBase": 0.7, "staffPerPoint": 0.00588,
+    "factoryBase": 0.92, "factoryPerLevel": 0.04,
+    "leadSoftness": 6, "ceilingMin": 0.15,
+    "saturation": 3, "saturationReliability": 9,
+    "luckSd": 0.22, "luckMin": 0.45, "luckMax": 1.6,
+    "failedBad": -0.4, "failedGood": 0.15,
+    "riskStaffBase": 1.45, "riskMin": 0.02, "riskMax": 0.4,
+    "nextYear": 1.25, "nextYearReset": 1.5,
+    "nextYearUnfinished": 0.8,
+    "focusBoost": 1.4, "focusOthers": 0.8,
+    "historyKept": 16
+  },
+
+  "expertise": {
+    "$comment": "RF-DEV-03: expertise por equipo, pieza y estadística (0..100). base + prestige × perPrestige al empezar. Crece al diseñar (growth por diseño, ×1,5 en Intenso, ×focusGrowth en la estadística elegida). quality: ±factor de la ganancia por cada punto sobre/bajo 50. ceiling: puntos de ventaja sobre el mejor de la parrilla que el techo tolera de más por cada punto sobre 50. resetDecay: lo que se pierde en un cambio de reglamento (RF-DEV-07).",
+    "base": 35, "perPrestige": 35, "max": 100,
+    "growth": 4, "focusGrowth": 1.5, "failedGrowth": 0.5,
+    "quality": 0.006, "ceiling": 0.05,
+    "resetDecay": 0.3
+  },
+
+  "damage": {
+    "$comment": "RF-DEV-08: daño por pieza en 4 estados. Incidentes de race.js: contact (evento), collision/accident (abandono), mistake (trompo, con probabilidad chance). hits = piezas tocadas; parts = probabilidad de cada pieza; severity = reparto leve/grave/destruida. penalty = puntos de estadística que pierde una pieza dañada. Una pieza destruida exige repuesto; sin repuesto se fabrica una de urgencia al coste × paces.emergency.cost.",
+    "states": ["perfect", "light", "heavy", "destroyed"],
+    "penalty": { "perfect": 0, "light": 1.5, "heavy": 4, "destroyed": 12 },
+    "incidents": {
+      "contact": { "chance": 1, "hits": 1, "parts": { "frontWing": 0.6, "floor": 0.15, "suspension": 0.15, "sidepods": 0.1 }, "severity": { "light": 0.6, "heavy": 0.3, "destroyed": 0.1 } },
+      "collision": { "chance": 1, "hits": 2, "parts": { "frontWing": 0.4, "suspension": 0.25, "floor": 0.2, "sidepods": 0.1, "rearWing": 0.05 }, "severity": { "light": 0.25, "heavy": 0.4, "destroyed": 0.35 } },
+      "accident": { "chance": 1, "hits": 2, "parts": { "frontWing": 0.3, "rearWing": 0.15, "suspension": 0.25, "floor": 0.15, "sidepods": 0.1, "chassis": 0.05 }, "severity": { "light": 0.2, "heavy": 0.4, "destroyed": 0.4 } },
+      "mistake": { "chance": 0.25, "hits": 1, "parts": { "frontWing": 0.5, "floor": 0.5 }, "severity": { "light": 0.85, "heavy": 0.15, "destroyed": 0 } }
+    }
+  },
+
+  "aeroResources": {
+    "$comment": "RF-DEV-04: reparto de túnel de viento y CFD inverso a la posición de constructores, solo desde 2021 (ATR) o cuando el reglamento del pack trae aeroTestingRestriction=true. allocation = % de la base por posición (1.º primero). Base por periodo de pruebas: runs de túnel y piezas de CFD; cada diseño aerodinámico consume cost[pieza] × paces[ritmo].aero. Antes de 2021: sin reparto, limitado solo por dinero; testingBan sube el riesgo de fallo de todo diseño en las eras sin test en temporada.",
+    "from": 2021,
+    "periodsPerSeason": 6,
+    "recalcAtShare": 0.5,
+    "base": { "windTunnelRuns": 320, "cfdItems": 2000, "status": "pending", "note": "De memoria: 40 runs de túnel por semana en un periodo de 8 semanas y ~2000 geometrías de CFD al 100 %. Verificar contra el Apéndice 7 del Reglamento Deportivo FIA." },
+    "allocation": [
+      { "from": 2021, "to": 2021, "percent": [90, 92.5, 95, 97.5, 100, 102.5, 105, 107.5, 110, 112.5], "status": "pending", "note": "2021, año de transición: 90 % el campeón y +2,5 % por puesto. De memoria." },
+      { "from": 2022, "to": 2026, "percent": [70, 75, 80, 85, 90, 95, 100, 105, 110, 115], "status": "pending", "note": "Desde 2022: 70 % el campeón y +5 % por puesto hasta 115 %. 2026 con 11 equipos: el 11.º toma el último valor (pendiente)." }
+    ],
+    "cost": {
+      "frontWing": { "windTunnelRuns": 90, "cfdItems": 520 },
+      "rearWing": { "windTunnelRuns": 80, "cfdItems": 450 },
+      "chassis": { "windTunnelRuns": 60, "cfdItems": 380 },
+      "sidepods": { "windTunnelRuns": 70, "cfdItems": 400 },
+      "floor": { "windTunnelRuns": 120, "cfdItems": 700 }
+    },
+    "aiElasticity": 1,
+    "testingBan": [
+      { "from": 1950, "to": 2008, "ban": false },
+      { "from": 2009, "to": 2100, "ban": true, "status": "pending", "note": "Prohibición de test en temporada desde 2009 (de memoria)." }
+    ],
+    "testingBanRisk": 1.2
+  },
+
+  "engineSupply": {
+    "$comment": "RF-DEV-05: works = el equipo desarrolla el motor (y el KERS/ERS); cliente = paga una cuota anual y recibe las piezas del proveedor. Se decide con teams[].engines del pack (fabricante) contra el nombre/id del equipo y los pares de fábrica conocidos; sin pack, por el nombre del equipo. fee en dólares de 2024 por año; customerUpgrade = puntos de potencia por temporada que el proveedor entrega a sus clientes.",
+    "manufacturers": {
+      "ferrari": ["ferrari"], "renault": ["renault", "alpine"], "mercedes": ["mercedes"], "honda": ["honda"], "toyota": ["toyota"], "bmw": ["bmw"],
+      "alfa": ["alfa romeo"], "maserati": ["maserati"], "brm": ["brm"], "matra": ["matra"], "lancia": ["lancia"], "vanwall": ["vanwall"], "porsche": ["porsche"], "audi": ["audi"], "cosworth": [], "petronas": []
+    },
+    "worksPairs": [
+      { "team": "mclaren", "manufacturer": "mercedes", "from": 1995, "to": 2009, "status": "pending", "note": "Mercedes tuvo el 40 % de McLaren y desarrollaba con ella (de memoria)." },
+      { "team": "williams", "manufacturer": "bmw", "from": 2000, "to": 2005, "status": "pending", "note": "Asociación de fábrica BMW-Williams." },
+      { "team": "bar", "manufacturer": "honda", "from": 2001, "to": 2005, "status": "pending", "note": "Honda socio de fábrica (45 % de BAR en 2005)." },
+      { "team": "lotus", "manufacturer": "cosworth", "from": 1967, "to": 1969, "status": "pending", "note": "DFV desarrollado con Lotus; desde 1968 vendido a clientes." },
+      { "team": "red-bull", "manufacturer": "honda", "from": 2019, "to": 2025, "status": "pending", "note": "Socio de fábrica de Honda; RBPT desde 2022." },
+      { "team": "red-bull", "manufacturer": "rbford", "from": 2026, "to": 2100, "status": "pending", "note": "Red Bull Powertrains con Ford." }
+    ],
+    "fee": [
+      { "from": 1950, "to": 2013, "value": 12e6, "status": "pending", "note": "Cuota de cliente V8/V10 aproximada, de memoria." },
+      { "from": 2014, "to": 2100, "value": 17e6, "status": "pending", "note": "Unidad de potencia híbrida de cliente, de memoria." }
+    ],
+    "customerUpgrade": 1.2
+  },
+
+  "nextYear": {
+    "$comment": "RF-DEV-06/6.5: arrastre del coche al año siguiente (antes en car.js). carry = fracción de la ventaja de área que sobrevive; noise = desviación del diseño nuevo.",
+    "carry": 0.72, "carryReset": 0.38, "noise": 1.3, "noiseReset": 3.4,
+    "reliabilityCarry": 0.6, "reliabilityCarryReset": 0.3, "reliabilityResetLoss": 4, "reliabilityNoise": 2.5
+  },
+
+  "regulationChanges": {
+    "$comment": "RF-DEV-07: reducciones por cambio reglamentario real al cambiar de era. headline = cambio de la cifra física para todos (informativo, para la UI). edgeCut = fracción de la ventaja sobre la media de la parrilla que se pierde en esas estadísticas: como los ratings de OverCut son relativos a la temporada, un recorte igual para todos solo cambia el orden a través de la ventaja arrastrada. Se aplica a todos los equipos antes de construir el coche del año siguiente; el equipo del jugador conserva el resto de su estado simulado (6.5). Valores de memoria salvo los marcados.",
+    "2009": { "changes": [ { "stats": ["lowSpeedDownforce", "mediumSpeedDownforce", "highSpeedDownforce", "dirtyAir"], "headline": -0.3, "edgeCut": 0.3 }, { "stats": ["mechanicalGrip", "tyreCare"], "headline": 0, "edgeCut": 0.15 } ], "status": "pending", "note": "SRS 6.2: −30 % de carga (el objetivo del OWG se citaba como hasta −50 %); vuelven los slicks, alerón delantero ancho y trasero alto y estrecho, KERS." },
+    "2014": { "changes": [ { "stats": ["enginePower", "engineDurability", "energyDeploy", "energyDurability"], "headline": 0, "edgeCut": 0.6 }, { "stats": ["lowSpeedDownforce", "mediumSpeedDownforce", "highSpeedDownforce"], "headline": -0.15, "edgeCut": 0.2 } ], "status": "pending", "note": "1,6 V6 turbo híbrido (MGU-K + MGU-H); alerón delantero más estrecho y sin beam wing." },
+    "2017": { "changes": [ { "stats": ["lowSpeedDownforce", "mediumSpeedDownforce", "highSpeedDownforce"], "headline": 0.25, "edgeCut": 0.3 }, { "stats": ["mechanicalGrip", "tyreCare"], "headline": 0, "edgeCut": 0.15 } ], "status": "pending", "note": "Coches y neumáticos más anchos; más carga (se citaba +25-30 %)." },
+    "2022": { "changes": [ { "stats": ["lowSpeedDownforce", "mediumSpeedDownforce", "highSpeedDownforce", "dirtyAir"], "headline": -0.1, "edgeCut": 0.5 }, { "stats": ["mechanicalGrip", "kerbRide", "tyreCare"], "headline": 0, "edgeCut": 0.25 } ], "status": "pending", "note": "Efecto suelo, llantas de 18\", menos sensibilidad al aire sucio." },
+    "2026": { "changes": [ { "stats": ["lowSpeedDownforce", "mediumSpeedDownforce", "highSpeedDownforce", "dragEfficiency"], "headline": -0.3, "edgeCut": 0.45 }, { "stats": ["enginePower", "engineDurability", "energyDeploy", "energyDurability"], "headline": 0, "edgeCut": 0.55 } ], "status": "pending", "note": "Unidad de potencia ~50 % eléctrica sin MGU-H, aero activa; la FIA anunció ~30 % menos carga y ~55 % menos resistencia (de memoria)." }
+  },
+
+  "units": {
+    "$comment": "RF-SIM-14: unidades por piloto y temporada. Componentes por era: engine si unitLimits limita motores, gearbox si limita cajas, y desde 2014 los elementos de la unidad de potencia (elements). Límite por temporada: vida = carreras × lifeMargin / límite; límite por fines de semana (engineRaceWeekends, gearboxRaces): la unidad debe durar esas carreras seguidas y cambiarla antes penaliza (salvo tras abandono si freeChangeAfterDnf). practiceFailure = probabilidad por fin de semana de romper la unidad antes de la carrera, × (1 + desgaste) × fiabilidad. mechanical = a qué componente se atribuye un abandono por avería. backOfGridOver: más de tantos puestos = salir el último.",
+    "lifeMargin": 1.08,
+    "dnfWear": 0.6,
+    "freeChangeAfterDnf": true,
+    "freeChangeAfterDnfStatus": "pending",
+    "practiceFailure": 0.012,
+    "reliabilityScale": 40,
+    "backOfGridOver": 15,
+    "backOfGridPlaces": 99,
+    "mechanical": { "engine": 0.55, "gearbox": 0.25, "energy": 0.2 },
+    "elements": [
+      { "from": 2014, "to": 2025, "list": ["ice", "tc", "mguh", "mguk", "es", "ce"], "limits": { "es": "enginesMinus", "ce": "enginesMinus" }, "status": "pending", "note": "Seis elementos; desde 2018 batería y electrónica con un límite menor (2 cuando los motores son 3). De memoria." },
+      { "from": 2026, "to": 2100, "list": ["ice", "tc", "mguk", "es", "ce"], "limits": { "es": "enginesMinus", "ce": "enginesMinus" }, "status": "pending", "note": "Sin MGU-H desde 2026." }
+    ],
+    "enginesMinusFrom": 2018
+  }
+}

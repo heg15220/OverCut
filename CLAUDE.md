@@ -33,6 +33,10 @@ Reglas:
   Una spline entra solo si cumple el criterio 7.2 o tiene `review.approved` en `tools/assets/assets.config.json`.
   Enmienda propuesta al criterio 7.2: en circuitos con escapatorias de asfalto el "centro de la malla" no es el centro
   de la pista; medir contra líneas pintadas o trazado real y exigir revisión manual.
+- Fase 4 (gestión) hecha el 2026-11-22: coche por piezas e I+D en `engine/development/` (`data/balance/development.json`),
+  instalaciones en `engine/hq/`, finanzas/techo de gasto/patrocinios en `engine/finance/`, junta en `board.js`
+  (`data/balance/{hq,finance,sponsors,board}.json`); guardado v3 con migraciones v1→v2→v3 en `save.js`. Pendiente de
+  calibrar en fase 5: junta demasiado dura con los grandes y dinero excesivo de los equipos punteros.
 - Tests del Manager: `CI=true npx react-scripts test --watchAll=false --testPathPattern overcutManager`.
   `npm install` necesita `--legacy-peer-deps` (conflicto previo de react-vis con React 18).
 - Ningún valor de balance en código (RNF-07): va a los packs de temporada con esquema JSON.

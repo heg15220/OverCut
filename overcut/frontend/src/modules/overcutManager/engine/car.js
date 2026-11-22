@@ -14,7 +14,12 @@
  * always used; their balance becomes the power/aero bias that makes a car love
  * Monza and hate Budapest.
  *
- * Development is projects: pick an area, a size and a season - this car or next
+ * Underneath the four areas the car is made of parts (engine/development,
+ * RF-DEV-01..08): the areas are a deterministic function of the fitted parts, so
+ * the race engines keep reading only these four numbers. The area projects
+ * below are the v1 development model, kept so v1 saves finish what they started.
+ *
+ * Legacy development is projects: pick an area, a size and a season - this car or next
  * year's - pay, wait some rounds, and find out. Projects can fail, gains shrink
  * as an area pulls clear of the field, and from 2021 the cost cap limits how much
  * of it there can be. Rival teams develop too, on their own budget, all season.
@@ -22,6 +27,7 @@
 
 import { clamp, substream } from "../../overcutTrayectoria/engine/rng";
 import { moneyScale, roundMoney } from "./economy";
+import DEV from "../data/balance/development.json";
 
 export const AREAS = ["aero", "power", "chassis", "reliability"];
 export const PACE_AREAS = ["aero", "power", "chassis"];
@@ -173,15 +179,16 @@ export const isRegulationReset = (year) => REGULATION_RESETS.includes(year) || (
  */
 export const nextYearCar = ({ car, fieldMean, nextGains = {}, year, stream }) => {
   const reset = isRegulationReset(year);
-  const carry = reset ? 0.38 : 0.72;
-  const noise = reset ? 3.4 : 1.3;
+  const N = DEV.nextYear;
+  const carry = reset ? N.carryReset : N.carry;
+  const noise = reset ? N.noiseReset : N.noise;
   const next = {};
   PACE_AREAS.forEach((area) => {
     const edge = car[area] - fieldMean[area];
     next[area] = clamp(fieldMean[area] + edge * carry + (nextGains[area] || 0) + stream.normal(0, noise), 20, 100);
   });
   const reliabilityEdge = car.reliability - fieldMean.reliability;
-  next.reliability = clamp(fieldMean.reliability + reliabilityEdge * (reset ? 0.3 : 0.6) + (nextGains.reliability || 0) - (reset ? 4 : 0) + stream.normal(0, 2.5), 5, 99);
+  next.reliability = clamp(fieldMean.reliability + reliabilityEdge * (reset ? N.reliabilityCarryReset : N.reliabilityCarry) + (nextGains.reliability || 0) - (reset ? N.reliabilityResetLoss : 0) + stream.normal(0, N.reliabilityNoise), 5, 99);
   return roundCar(next);
 };
 

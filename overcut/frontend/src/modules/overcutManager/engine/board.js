@@ -10,31 +10,77 @@
 
 import { clamp, substream } from "../../overcutTrayectoria/engine/rng";
 import { eraProfileFor } from "../../overcutTrayectoria/engine/eras";
+import boardData from "../data/balance/board.json";
 import { addInbox, addNews } from "./inbox";
 import { constructorStandings, driverStandings } from "./standings";
 import { expectedRankOf, teamsByPace } from "./world";
 
+// ------------------------------------------------------------ rating (RF-FIN-04)
+
+/**
+ * The team's rating, 0..1000, from where its car should finish and the weight
+ * of its name (board.json `rating`). Bands: champion 600–1000, podium 450–599,
+ * points 0–449 (SRS 2.2).
+ */
+export const teamRating = (career, teamId = career.teamId) => {
+  const world = career.world;
+  const teams = Object.keys(world.teams).length;
+  const expected = expectedRankOf(world, teamId);
+  const pace = teams > 1 ? 1 - (expected - 1) / (teams - 1) : 1;
+  const prestige = world.teams[teamId]?.prestige ?? 0.4;
+  const w = boardData.rating;
+  return Math.round(1000 * clamp(w.wPace * pace + w.wPrestige * prestige, 0, 1));
+};
+
+export const BOARD_BANDS = boardData.bands;
+
+export const ratingBand = (rating) => BOARD_BANDS.find((band) => rating >= band.min && rating <= band.max) || BOARD_BANDS[BOARD_BANDS.length - 1];
+
+/** RNF-06: board fields added after version 1 (idempotent). */
+export const ensureBoard = (career) => {
+  const board = career.board || (career.board = { objectives: [], confidence: boardData.start.board, warned: false, expected: 5 });
+  if (!Array.isArray(board.history)) board.history = [];
+  if (!board.band && career.world?.teams?.[career.teamId]) {
+    board.rating = teamRating(career);
+    board.band = ratingBand(board.rating).id;
+  }
+  return board;
+};
+
+/** Move confidence by `delta` (clamped 0..100) and remember why (board.history). */
+export const adjustConfidence = (career, delta, reason) => {
+  const board = ensureBoard(career);
+  board.confidence = clamp(board.confidence + delta, 0, 100);
+  board.history.push({ year: career.year, round: career.round, confidence: Math.round(board.confidence * 10) / 10, delta: Math.round(delta * 10) / 10, reason });
+  if (board.history.length > boardData.historyLimit) board.history.splice(0, board.history.length - boardData.historyLimit);
+  return board.confidence;
+};
+
+/** Objectives by the team's rating band (RF-FIN-04, board.json `bands`). */
 export const setObjectives = (career) => {
   const world = career.world;
   const teams = Object.keys(world.teams).length;
   const expected = expectedRankOf(world, career.teamId);
   const ranked = teamsByPace(world);
+  const rating = teamRating(career);
+  const band = ratingBand(rating);
   const objectives = [];
 
-  const target = clamp(expected <= 3 ? expected : expected + 1, 1, teams);
-  objectives.push({ id: "constructors", type: "constructors", target, weight: 3 });
-
-  if (expected <= 3) objectives.push({ id: "wins", type: "wins", target: expected === 1 ? 4 : 1, weight: 2 });
-  else if (expected <= Math.ceil(teams / 2)) objectives.push({ id: "podium", type: "podium", target: 1, weight: 2 });
-  else objectives.push({ id: "points", type: "points", target: 1, weight: 2 });
-
-  const rival = expected > 1 ? ranked[expected - 2] : ranked[1];
-  if (rival) objectives.push({ id: "rival", type: "rival", teamId: rival.id, ahead: expected > 1, weight: 1 });
-
-  objectives.push({ id: "budget", type: "budget", weight: 1 });
+  band.objectives.forEach((spec) => {
+    if (spec.type === "constructors") objectives.push({ id: "constructors", type: "constructors", target: clamp(expected + (spec.offset || 0), 1, teams), weight: spec.weight });
+    else if (spec.type === "wins") objectives.push({ id: "wins", type: "wins", target: expected === 1 ? spec.targetIfLeader ?? spec.target : spec.target, weight: spec.weight });
+    else if (spec.type === "podium" || spec.type === "points") objectives.push({ id: spec.type, type: spec.type, target: spec.target, weight: spec.weight });
+    else if (spec.type === "rival") {
+      const rival = expected > 1 ? ranked[expected - 2] : ranked[1];
+      if (rival) objectives.push({ id: "rival", type: "rival", teamId: rival.id, ahead: expected > 1, weight: spec.weight });
+    } else if (spec.type === "budget") objectives.push({ id: "budget", type: "budget", weight: spec.weight });
+  });
 
   career.board.objectives = objectives;
   career.board.expected = expected;
+  career.board.rating = rating;
+  career.board.band = band.id;
+  ensureBoard(career);
   return objectives;
 };
 
@@ -67,31 +113,68 @@ export const objectiveStatus = (career) => {
   });
 };
 
-/** After every Grand Prix the board looks at the result and the table. */
-export const boardAfterRace = (career, summary) => {
+/** The expected best finish of the player's cars in one race (par). */
+export const racePar = (career) => {
   const expected = career.board.expected || 5;
-  const ownRows = summary.rows.filter((row) => row.teamId === career.teamId);
-  const best = Math.min(...ownRows.map((row) => (row.position && row.status === "finished" ? row.position : 30)));
   // A car expected fifth should put its better driver around ninth, a little
   // higher in eras when half the field broke down in front of it.
   const finishRate = eraProfileFor(career.year).finishRate;
-  const par = Math.max(1, expected * 2 - 1 - (1 - finishRate) * expected * 2);
-  const raceDelta = clamp((par - best) * 0.15, -2, 2) + (best === 1 ? 1.2 : 0);
+  return Math.max(boardData.race.parFloor, expected * 2 - 1 - (1 - finishRate) * expected * 2);
+};
+
+/**
+ * After every Grand Prix the board looks at the result and the table
+ * (RF-FIN-04): −6 below what was expected, +8 above it by more than one
+ * position (board.json `race`), the table from round 3, money, and a drift
+ * back to neutral. Half way through the year it reviews the objectives.
+ */
+export const boardAfterRace = (career, summary) => {
+  ensureBoard(career);
+  const r = boardData.race;
+  const ownRows = summary.rows.filter((row) => row.teamId === career.teamId);
+  const best = Math.min(...ownRows.map((row) => (row.position && row.status === "finished" ? row.position : 30)));
+  const par = racePar(career);
+  let raceDelta = 0;
+  if (best > par + r.belowTolerance) raceDelta = r.belowExpected * r.scale;
+  else if (best < par - r.aboveMargin) raceDelta = r.aboveExpected * r.scale;
+  if (best === 1) raceDelta += r.winBonus;
   let tableDelta = 0;
   const status = objectiveStatus(career).find((objective) => objective.type === "constructors");
-  if (career.season.results.length >= 3 && status) tableDelta = status.state === "on-track" ? 0.6 : status.state === "close" ? -0.8 : -2.2;
-  const money = career.finances.balance < 0 ? -1.2 : 0;
+  if (career.season.results.length >= r.tableFromRound && status) tableDelta = status.state === "on-track" ? r.tableOnTrack : status.state === "close" ? r.tableClose : r.tableOffTrack;
+  const money = career.finances.balance < 0 ? r.negativeBalance : 0;
   // Boards have short memories in both directions: confidence drifts back to neutral.
-  const drift = (60 - career.board.confidence) * 0.06;
-  career.board.confidence = clamp(career.board.confidence + raceDelta + tableDelta + money + drift, 0, 100);
-  career.fans = clamp((career.fans ?? 60) + raceDelta * 0.8, 0, 100);
+  const gap = r.driftTo - career.board.confidence;
+  const drift = gap * (gap > 0 ? r.driftRateBelow : r.driftRate);
+  adjustConfidence(career, raceDelta + tableDelta + money + drift, raceDelta > 0 ? "above" : raceDelta < 0 ? "below" : "par");
+  career.fans = clamp((career.fans ?? 60) + raceDelta * r.fansPerDelta, 0, 100);
+  const raceCount = career.world.races.length;
+  if (raceCount > 2 && career.round + 1 === Math.ceil(raceCount * boardData.midSeason.share)) midSeasonReview(career);
   return checkJobSecurity(career);
+};
+
+/** Half-way review of the objectives (RF-FIN-04): a small move and a letter. */
+export const midSeasonReview = (career) => {
+  const m = boardData.midSeason;
+  const status = objectiveStatus(career);
+  let delta = 0;
+  let weight = 0;
+  status.forEach((objective) => {
+    if (objective.state === "pending") return;
+    weight += objective.weight;
+    delta += objective.weight * (objective.state === "done" || objective.state === "on-track" ? m.onTrack : objective.state === "close" ? m.close : m.offTrack);
+  });
+  const change = weight ? Math.round((delta / weight) * 10) / 10 : 0;
+  adjustConfidence(career, change, "mid-season");
+  career.board.midSeason = { year: career.year, round: career.round, delta: change, status: status.map((objective) => ({ id: objective.id, state: objective.state })) };
+  addInbox(career, { kind: "board-midseason", delta: change, confidence: Math.round(career.board.confidence) });
+  return career.board.midSeason;
 };
 
 export const checkJobSecurity = (career) => {
   if (career.ended) return null;
+  const sec = boardData.security;
   if (career.owner) {
-    const floor = -0.35 * career.finances.seasonIncome;
+    const floor = sec.bankruptFloorShare * career.finances.seasonIncome;
     if (career.finances.balance < floor) {
       career.ended = { reason: "bankrupt", year: career.year, round: career.round };
       addInbox(career, { kind: "bankrupt", stop: true });
@@ -99,19 +182,20 @@ export const checkJobSecurity = (career) => {
     }
   }
   const confidence = career.board.confidence;
-  if (confidence < 25 && !career.board.warned) {
+  if (confidence < sec.warnBelow && !career.board.warned) {
     career.board.warned = true;
     addInbox(career, { kind: career.owner ? "investors-warning" : "board-warning", confidence: Math.round(confidence), stop: true });
     return "warning";
   }
-  if (confidence >= 38) career.board.warned = false;
-  if (!career.owner && confidence < 10 && career.board.warned) {
+  if (confidence >= sec.reArmAbove) career.board.warned = false;
+  // RF-FIN-04: sacked when confidence reaches zero, always after one warning.
+  if (!career.owner && confidence <= sec.sackAt && career.board.warned) {
     career.ended = { reason: "sacked", year: career.year, round: career.round };
     addInbox(career, { kind: "sacked", stop: true });
     addNews(career, { kind: "sacked", teamId: career.teamId, manager: career.managerName });
     return "sacked";
   }
-  if (career.owner && confidence < 6 && career.board.warned) {
+  if (career.owner && confidence <= sec.investorsOutAt && career.board.warned) {
     career.ended = { reason: "investors", year: career.year, round: career.round };
     addInbox(career, { kind: "investors-out", stop: true });
     return "investors";
@@ -128,11 +212,11 @@ export const seasonReview = (career) => {
     total += objective.weight;
     const met = objective.state === "done" || objective.state === "on-track";
     const beat = objective.type === "constructors" && objective.current < objective.target;
-    score += objective.weight * (met ? (beat ? 1.25 : 1) : objective.state === "close" ? 0.4 : 0);
+    score += objective.weight * (met ? (beat ? boardData.season.beatTargetBonus : 1) : objective.state === "close" ? boardData.season.closeCredit : 0);
   });
   const grade = total ? score / total : 0.5;
-  const confidenceDelta = Math.round((grade - 0.6) * 40);
-  career.board.confidence = clamp(career.board.confidence + confidenceDelta, 0, 100);
+  const confidenceDelta = Math.round((grade - boardData.season.neutralGrade) * boardData.season.scale);
+  adjustConfidence(career, confidenceDelta, "season");
 
   const constructors = constructorStandings(career);
   const drivers = driverStandings(career);

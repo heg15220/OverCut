@@ -18,6 +18,7 @@
 import { clamp, substream } from "../../overcutTrayectoria/engine/rng";
 import { carRatingOf } from "./car";
 import { driverSalary, moneyScale, roundMoney, staffSalary } from "./economy";
+import { legacyLedger } from "./finance/ledger";
 import { inventPerson } from "./names";
 import { driversOf, releaseDriver, signForTeam, teamsByPace } from "./world";
 
@@ -311,13 +312,13 @@ export const hireStaff = (career, candidate) => {
 
 // ---------------------------------------------------------------- ledger
 
-export const ledger = (career, amount, kind, extra = {}) => {
-  career.finances.ledger.unshift({ year: career.year, round: career.round, amount: Math.round(amount), kind, ...extra });
-  if (career.finances.ledger.length > 90) career.finances.ledger.length = 90;
-  const season = career.finances.season;
-  if (amount >= 0) season.income += amount;
-  else season.spend -= amount;
-};
+/**
+ * Record a movement the caller has already applied to the balance. Thin
+ * wrapper over engine/finance/ledger (RF-FIN-01): the old kind is mapped to a
+ * budget category (data/balance/finance.json `legacyKinds`) and the row becomes
+ * an auditable transaction; `extra` goes to `meta`.
+ */
+export const ledger = (career, amount, kind, extra = {}) => legacyLedger(career, amount, kind, extra);
 
 /** How fast the car is, against the field, as a share: 1 = the best car. */
 export const competitiveness = (career, teamId) => carRankScore(career, teamId);

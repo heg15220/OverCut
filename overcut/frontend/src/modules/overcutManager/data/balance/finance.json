@@ -1,0 +1,99 @@
+{
+  "$comment": "RF-FIN-01..03, RNF-07: dinero del Manager. Estructura inspirada en Finance_TeamBudget / Finance_Transactions de F1 Manager 24 (SRS 2.2, 4.1 Transaction); ningún valor copiado. Importes en USD de 2024, escalados al año con economy.moneyScale salvo el techo de gasto, que es nominal.",
+  "version": 1,
+  "economy": {
+    "$comment": "Antes en economy.js (mismos valores). moneyScale(year) = max(floor, growth^(year-2024)).",
+    "moneyGrowth": 1.068,
+    "moneyFloor": 0.0045,
+    "sponsorBase": 40000000,
+    "sponsorPerPrestige": 230000000,
+    "commercialPerPoint": 0.004,
+    "operationsBase": 70000000,
+    "operationsPerPrestige": 60000000,
+    "driverSalary": { "base": 800000, "ratingFrom": 60, "ratingSlope": 0.13, "prestigeFloor": 0.7, "prestigeSlope": 0.6 },
+    "staffSalary": { "base": 500000, "ratingFrom": 50, "ratingSlope": 0.062 }
+  },
+  "categories": [
+    { "id": "sponsorship", "direction": "in", "es": "Patrocinio", "en": "Sponsorship", "countsForCap": false },
+    { "id": "prize", "direction": "in", "es": "Premios", "en": "Prize money", "countsForCap": false },
+    { "id": "engineSupply", "direction": "in", "es": "Venta de motores", "en": "Engine supply", "countsForCap": false },
+    { "id": "hospitality", "direction": "in", "es": "Hospitality", "en": "Hospitality", "countsForCap": false },
+    { "id": "salaries", "direction": "out", "es": "Salarios", "en": "Salaries", "countsForCap": false },
+    { "id": "development", "direction": "out", "es": "Desarrollo", "en": "Development", "countsForCap": true },
+    { "id": "facilities", "direction": "out", "es": "Instalaciones", "en": "Facilities", "countsForCap": false },
+    { "id": "engine", "direction": "out", "es": "Motor", "en": "Engine", "countsForCap": false },
+    { "id": "incidents", "direction": "out", "es": "Incidentes y daños", "en": "Incidents and damage", "countsForCap": true },
+    { "id": "operations", "direction": "out", "es": "Operaciones y viajes", "en": "Operations and travel", "countsForCap": true, "capShare": 0.45 },
+    { "id": "penalties", "direction": "out", "es": "Multas", "en": "Fines", "countsForCap": false },
+    { "id": "other", "direction": "both", "es": "Varios", "en": "Other", "countsForCap": false }
+  ],
+  "legacyKinds": {
+    "$comment": "ledger(career, amount, kind) antiguo → categoría. countsForCap omitido = el de la categoría.",
+    "race-income": { "category": "sponsorship" },
+    "race-costs": { "category": "operations" },
+    "development": { "category": "development", "byMeta": [{ "key": "stage", "value": "emergency", "category": "incidents", "note": "Pieza de emergencia tras un accidente (engine/development): daño de carrera, cuenta para el techo." }] },
+    "release": { "category": "salaries", "countsForCap": false },
+    "buyout": { "category": "salaries", "countsForCap": false },
+    "severance": { "category": "salaries", "countsForCap": false },
+    "staff-fee": { "category": "other" },
+    "appeal": { "category": "penalties" },
+    "supplier": { "category": "operations", "countsForCap": true },
+    "facility": { "category": "facilities" },
+    "test": { "category": "development" },
+    "fans": { "category": "hospitality" },
+    "rebuild": { "category": "incidents" },
+    "transfer-fee": { "category": "other" },
+    "investment": { "category": "other" }
+  },
+  "ledgerLimit": 1200,
+  "ledgerKeepYears": 1,
+  "$ledgerKeepYears": "Años de filas que se guardan al abrir una temporada (1 = solo la nueva, ~30 KB por año). Los totales por año y por techo quedan en finances.byYear / capSpend para siempre (RNF-06: tamaño del guardado).",
+  "costCap": {
+    "$comment": "RF-FIN-02, SRS 6.2. Importe nominal en M USD por año; la fuente primaria es rulesFor(era).budgetCap (pack o era-defaults.json) y esta tabla solo cubre su ausencia. Antes de introducedIn: presupuesto libre. Fuentes: formula1.com 'Explained: what is the F1 cost cap' (145/140/135, 215 en 2026), motorsportmagazine.com 'What is Formula 1's cost cap'. Ajustes por inflación y carreras extra del reglamento real omitidos (simplificación).",
+    "introducedIn": 2021,
+    "byYear": [
+      { "from": 2021, "to": 2021, "amountM": 145, "status": "verified" },
+      { "from": 2022, "to": 2022, "amountM": 140, "status": "verified" },
+      { "from": 2023, "to": 2025, "amountM": 135, "status": "verified" },
+      { "from": 2026, "to": 2026, "amountM": 215, "status": "pending", "note": "Cifra pública 215 M; incluye partidas antes excluidas (amortización de capex, todo el personal F1). Por verificar contra el Reglamento Financiero 2026." }
+    ],
+    "growthAfterLast": 0.03,
+    "legacyDevelopmentShare": 0.45,
+    "$exclusions": "Simplificación del Reglamento Financiero FIA: no cuentan salarios de pilotos, los tres salarios más altos del personal, marketing/hospitality, motor (tiene su propio régimen), multas, capex (hasta 2025). Cuentan desarrollo, daños, una parte de operaciones (capShare) y el resto del personal.",
+    "staffTopExcluded": 3,
+    "overrides": [
+      { "from": 2026, "to": null, "category": "facilities", "countsForCap": true, "note": "Desde 2026 la amortización de inversiones entra en el techo (simplificado: el gasto en instalaciones cuenta)." }
+    ],
+    "breaches": {
+      "$comment": "Por tramo de exceso sobre el techo (en %). Inspirado en el caso real de 2021 (exceso <5 %: multa de 7 M USD y −10 % de túnel/CFD). fineFixed en USD nominales; fineMultiplier × exceso; developmentFactor multiplica tunnelEfficiency/cfdEfficiency la temporada siguiente.",
+      "bands": [
+        { "id": "procedural", "maxOverPct": 0, "fineFixed": 0, "fineMultiplier": 0, "developmentFactor": 1, "confidence": 0 },
+        { "id": "minor", "maxOverPct": 5, "fineFixed": 7000000, "fineMultiplier": 1, "developmentFactor": 0.9, "confidence": -8 },
+        { "id": "material", "maxOverPct": null, "fineFixed": 15000000, "fineMultiplier": 2, "developmentFactor": 0.75, "confidence": -20 }
+      ]
+    }
+  },
+  "freeBudget": {
+    "$comment": "RF-FIN-02 antes de 2021: sin techo; el plan de gasto lo marca el tamaño del equipo (ingresos previstos menos costes fijos). reserveShare = parte de la caja que la directiva quiere conservar.",
+    "reserveShare": 0.15
+  },
+  "prizeFund": {
+    "$comment": "RF-FIN-03: premio por posición en constructores del año anterior, pagado a plazos por GP. Reparto real confidencial; aquí la forma: top − (top − bottom)·share^exponent, share = (pos−1)/(equipos−1). bottomLargeGrid si hay más de largeGridTeams equipos.",
+    "largeGridTeams": 10,
+    "eras": [
+      { "from": 1950, "to": 1980, "top": 120000000, "bottom": 60000000, "bottomLargeGrid": 40000000, "exponent": 1.0, "note": "Antes del primer Pacto de la Concordia (1981): premios y dinero de salida por carrera, más planos." },
+      { "from": 1981, "to": 2020, "top": 140000000, "bottom": 55000000, "bottomLargeGrid": 30000000, "exponent": 0.85, "note": "Valores previos de economy.js." },
+      { "from": 2021, "to": null, "top": 140000000, "bottom": 65000000, "bottomLargeGrid": 40000000, "exponent": 0.9, "note": "Pacto de 2021: reparto algo más igualado." }
+    ]
+  },
+  "engineSupply": {
+    "$comment": "RF-FIN-03: un equipo de fábrica cobra a sus clientes. team.engineSupply.customers (ids) o team.engine.customers; feePerCustomer en USD 2024 por temporada, o team.engineSupply.fee si viene dado.",
+    "feePerCustomer": 18000000
+  },
+  "incidents": {
+    "$comment": "Cargo plano por coche tras un accidente o colisión (USD 2024). Desactivado: el daño lo cobra engine/development pieza a pieza (repuestos de stock o pieza de emergencia, que ledger lleva a la categoría incidents vía legacyKinds.development.byMeta). Activar solo en un modo sin ciclo de piezas.",
+    "enabled": false,
+    "accident": 900000,
+    "collision": 500000
+  }
+}

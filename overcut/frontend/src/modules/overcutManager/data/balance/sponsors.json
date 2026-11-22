@@ -1,0 +1,40 @@
+{
+  "$comment": "RF-FIN-03, RF-FIN-05, RNF-07: patrocinadores. Por defecto todos son ficticios (nombre = raíz inventada + sector); los reales solo llegan con un pack de datos del usuario (career.sponsorPack, ver engine/finance/sponsors.js). Idea de paquetes y bonus por objetivo de carrera tomada de Sponsorship_ActivePackages / Sponsorship_RaceBonuses de F1 Manager 24; ningún nombre, texto ni valor copiado. Importes como fracción del patrocinio base del equipo (economy.sponsorIncome).",
+  "version": 1,
+  "slots": 3,
+  "offersPerSeason": 3,
+  "midSeasonOffers": 1,
+  "tiers": [
+    { "id": "major", "es": "Socio principal", "en": "Major partner", "feeShare": 0.05, "minPrestige": 0.45, "years": [2, 3], "bonusCount": 2 },
+    { "id": "partner", "es": "Socio oficial", "en": "Official partner", "feeShare": 0.025, "minPrestige": 0, "years": [1, 2], "bonusCount": 1 },
+    { "id": "supplier", "es": "Proveedor oficial", "en": "Official supplier", "feeShare": 0.012, "minPrestige": 0, "years": [1, 1], "bonusCount": 1 }
+  ],
+  "bonuses": {
+    "$comment": "Bonus por GP cuando se cumple el objetivo, en múltiplos del pago por GP del contrato. band = bandas de la junta en las que se ofrece (rating del equipo).",
+    "win": { "multiple": 3, "bands": ["champion"] },
+    "podium": { "multiple": 1.5, "bands": ["champion", "podium"] },
+    "points": { "multiple": 0.8, "bands": ["podium", "points"] },
+    "bothFinish": { "multiple": 0.4, "bands": ["champion", "podium", "points"] },
+    "beatRival": { "multiple": 0.6, "bands": ["champion", "podium", "points"] },
+    "topTenGrid": { "multiple": 0.5, "bands": ["podium", "points"], "gridTarget": 10 }
+  },
+  "names": {
+    "roots": ["Aldervane", "Brisca", "Corvel", "Dunmoor", "Elvaro", "Fennick", "Gravelle", "Hallisk", "Istrel", "Jorvane", "Kelvra", "Lomarck", "Merivale", "Norrance", "Orvesto", "Pellwyn", "Quarnel", "Rossvik", "Sallowby", "Tervane", "Ulvesta", "Varnholt", "Wendrick", "Yselle", "Zanetto"],
+    "sectors": [
+      { "id": "fuel", "es": "Combustibles", "en": "Fuels", "from": 1950 },
+      { "id": "watches", "es": "Relojes", "en": "Watches", "from": 1950 },
+      { "id": "bank", "es": "Banca", "en": "Bank", "from": 1950 },
+      { "id": "tyresRetail", "es": "Recambios", "en": "Parts", "from": 1950 },
+      { "id": "airline", "es": "Líneas Aéreas", "en": "Airways", "from": 1955 },
+      { "id": "beverage", "es": "Bebidas", "en": "Beverages", "from": 1968 },
+      { "id": "electronics", "es": "Electrónica", "en": "Electronics", "from": 1970 },
+      { "id": "insurance", "es": "Seguros", "en": "Insurance", "from": 1970 },
+      { "id": "logistics", "es": "Logística", "en": "Logistics", "from": 1975 },
+      { "id": "computing", "es": "Informática", "en": "Computing", "from": 1982 },
+      { "id": "telecom", "es": "Telecom", "en": "Telecom", "from": 1990 },
+      { "id": "software", "es": "Software", "en": "Software", "from": 1995 },
+      { "id": "energy", "es": "Energía", "en": "Energy", "from": 2005 },
+      { "id": "cloud", "es": "Cloud", "en": "Cloud", "from": 2012 }
+    ]
+  }
+}

@@ -19,7 +19,7 @@ import {
   biasesOf, carFromRating, carRatingOf, expectedGain, failureChance, fieldBestOf, progressProjects,
   aiDevelopmentStep, projectCost, reliabilityOf, slotsFor, isRegulationReset, PROJECT_SIZES, AREAS,
 } from "./car";
-import { costCapFor, driverSalary, moneyScale, operatingCostPerRace, prizeMoney, roundMoney, sponsorIncome } from "./economy";
+import { driverSalary, prizeMoney, roundMoney, sponsorIncome } from "./economy";
 import { BACKERS, HEADQUARTERS, enginesFor, shortCode } from "./identity";
 import { addInbox, addNews } from "./inbox";
 import { ledger, startingStaff, userTeam } from "./market";
@@ -30,10 +30,17 @@ import { driversOf, fillEmptySeats, prepareReference, signForTeam, teamsByPace }
 import { eraWithRegulations, roundLineup, worldForSeason } from "./packs/packWorld";
 import { classificationOf, createRace, evaluatePlan, runQualifying, runToFinish, suggestPlan, weatherTimeline } from "./race";
 import { createStepRace, runStepToFinish } from "./sim";
+import { createFinance, financeAfterRace, financeSeasonEnd } from "./finance";
+import { hqAdvance } from "./hq";
+import {
+  applyAreaGain, developmentAfterRace, developmentCapLeft as developmentCapLeftOf, gridPenaltiesFor, initDevelopment, raceIncidents,
+  rivalDevelopmentStep, seatCar,
+} from "./development";
 import { FEELINGS, SLIDERS, feelingsOf, idealSetup, neutralSetup, practiceRun, satisfactionOf, setupLapTime } from "./setup";
 
 export const MANAGER_GAME = "overcut-manager";
-export const MANAGER_VERSION = 1;
+/** Save schema version (RNF-06). v2: parts, designs, expertise and units (RF-DEV-01..08, RF-SIM-14); save.js migrates v1. */
+export const MANAGER_VERSION = 3;
 
 export const PHASES = {
   PRESEASON: "preseason",
@@ -184,6 +191,10 @@ export const createCareer = (context, { year, teamId = null, custom = null, mana
     version: 0,
   };
   if (signingCosts) ledger(career, -signingCosts, "buyout");
+  // RF-DEV-01..08, RF-SIM-14: every team's parts seeded from its car, the player's R&D and the grid's units.
+  initDevelopment(career);
+  // RF-HQ-01..03, RF-FIN-01..05: buildings by real size, books, sponsor offers and the board.
+  createFinance(career);
 
   setObjectives(career);
   addInbox(career, { kind: "welcome", teamId: team.id, year, owner });
@@ -208,13 +219,15 @@ export const entrantsFor = (career) => {
   career.world.order.forEach((teamId) => {
     const team = career.world.teams[teamId];
     if (!team) return;
-    const { powerBias, aeroBias } = biasesOf(team.car);
     const isUser = teamId === career.teamId;
     // The pit crew and the factory's build quality keep cars running.
     const operations = isUser ? (career.staff.operations?.rating ?? 60) : 50 + team.prestige * 30;
-    const reliability = clamp(reliabilityOf(team.car, era) + (operations - 60) * 0.0009, 0.25, 0.99);
     // Pack seasons: only the teams and drivers really entered in this Grand Prix (SRS 6.1, criterio 7.2).
-    roundLineup({ world: career.world, team, race, isUser }).forEach((driver) => {
+    roundLineup({ world: career.world, team, race, isUser }).forEach((driver, index) => {
+      // RF-DEV-01: each car races on its own loadout (the same areas as team.car on day one).
+      const car = seatCar(team, driver.id, index);
+      const { powerBias, aeroBias } = biasesOf(car);
+      const reliability = clamp(reliabilityOf(car, era) + (operations - 60) * 0.0009, 0.25, 0.99);
       const morale = ((driver.morale ?? 70) - 65) * (isUser ? 0.05 : 0.01);
       entrants.push({
         id: driver.id,
@@ -226,7 +239,7 @@ export const entrantsFor = (career) => {
         short: team.short,
         color: team.color,
         color2: team.color2,
-        carRating: carRatingOf(team.car),
+        carRating: carRatingOf(car),
         reliability,
         developmentSlope: 0,
         powerBias,
@@ -465,6 +478,8 @@ export const weekendRaceArgs = (career) => {
     seed: weekendSeed(career),
     crews,
     strategists,
+    // RF-SIM-14: places lost for units over the era's allocation, set after the previous race.
+    gridPenalties: gridPenaltiesFor(career, entrants),
   };
 };
 
@@ -553,7 +568,8 @@ export const completeRace = (career, state) => {
   };
   recordRace(career.season, summary);
   // The lap chart lives on the weekend only - the season keeps the summary, saves stay small.
-  weekend.result = { ...summary, chart: lapChartOf(state) };
+  // RF-DEV-08: the race's incidents, for the damage closeWeekend applies.
+  weekend.result = { ...summary, chart: lapChartOf(state), incidents: raceIncidents(state) };
   weekend.stage = "result";
   afterRaceMorale(career, summary, state);
 
@@ -630,8 +646,13 @@ export const closeWeekend = (career) => {
   const raceCount = career.world.races.length;
 
   progressDevelopment(career);
+  // RF-HQ-01/02: building upgrades progress, maintenance and wear.
+  hqAdvance(career, 1);
+  // RF-DEV-02/03/08, RF-SIM-14: designs and builds, race damage, supplier upgrades, units and next grid penalties.
+  developmentAfterRace(career);
   rivalDevelopment(career);
-  raceFinances(career);
+  // RF-FIN-01/03: sponsorship, prize instalment, bonuses, hospitality, engine sales, fixed costs and damage.
+  financeAfterRace(career, summary);
   boardAfterRace(career, summary);
   if (career.ended && !career.jobOffers.length) career.jobOffers = generateJobOffers(career, "sacked");
 
@@ -659,7 +680,7 @@ const progressDevelopment = (career) => {
     if (project.target === "next") {
       career.rd.nextGains[project.area] = (career.rd.nextGains[project.area] || 0) + project.gain;
     } else {
-      team.car[project.area] = clamp(team.car[project.area] + project.gain, 5, 100);
+      applyAreaGain(team, project.area, project.gain);
       career.rd.seasonGain[project.area] = (career.rd.seasonGain[project.area] || 0) + Math.max(0, project.gain);
     }
     career.rd.done.unshift({ ...project, year: career.year, round: career.round + 1 });
@@ -669,38 +690,9 @@ const progressDevelopment = (career) => {
   career.rd.projects = active;
 };
 
-const rivalDevelopment = (career) => {
-  const raceCount = career.world.races.length;
-  Object.values(career.world.teams).forEach((team) => {
-    if (team.id === career.teamId) return;
-    const stream = substream(career.seed, "ai-dev", career.year, career.round, team.id);
-    team.car = aiDevelopmentStep({ team, raceCount, stream });
-  });
-};
+/** Rivals develop through their parts with aiDevelopmentStep's season-long amount (RF-DEV-04, task 9). */
+const rivalDevelopment = (career) => rivalDevelopmentStep(career, aiDevelopmentStep);
 
-/** One Grand Prix worth of money in and out. */
-const raceFinances = (career) => {
-  const team = userTeam(career);
-  const year = career.year;
-  const raceCount = career.world.races.length || 1;
-  const teamCount = Object.keys(career.world.teams).length;
-  const commercial = (career.staff.commercial?.rating ?? 60) - 60;
-  const sponsors = sponsorIncome(team.prestige, year) * (1 + commercial * 0.004);
-  const prize = prizeMoney(career.finances.lastPosition, teamCount, year);
-  const extras = career.finances.sponsors.filter((deal) => deal.until >= year).reduce((sum, deal) => sum + deal.perRace, 0);
-  const income = roundMoney((sponsors + prize) / raceCount + extras);
-
-  const salaries = driversOf(career.world, team.id).reduce((sum, driver) => sum + (driver.contract?.salary || 0), 0);
-  const reserve = team.reserve ? career.world.drivers[team.reserve]?.contract?.salary || 0 : 0;
-  const staff = Object.values(career.staff).reduce((sum, person) => sum + (person?.salary || 0), 0);
-  const engine = team.engine ? team.engine.price * moneyScale(year) : 0;
-  const running = operatingCostPerRace(team.prestige, raceCount, year);
-  const costs = roundMoney(running + (salaries + reserve + staff + engine) / raceCount);
-
-  career.finances.balance += income - costs;
-  ledger(career, income, "race-income");
-  ledger(career, -costs, "race-costs");
-};
 
 // ------------------------------------------------------------ R&D
 
@@ -708,12 +700,7 @@ const raceFinances = (career) => {
  * What is left under the cost cap. Money spent in the winter is next season's
  * money, so the off-season cannot be used to dodge the cap.
  */
-export const developmentCapLeft = (career) => {
-  const winter = career.phase === PHASES.OFFSEASON || career.phase === PHASES.REVIEW;
-  const cap = costCapFor(winter ? career.year + 1 : career.year);
-  const spent = winter ? career.rd.nextSpend || 0 : career.rd.spend;
-  return cap === null ? null : Math.max(0, cap - spent);
-};
+export const developmentCapLeft = (career) => developmentCapLeftOf(career);
 
 export const projectQuote = (career, { area, size, target = "now" }) => {
   const team = userTeam(career);
@@ -744,7 +731,8 @@ export const startProject = (career, request) => {
   if (career.phase === PHASES.ENDED) return { error: "ended" };
   if (!AREAS.includes(request.area) || !PROJECT_SIZES[request.size]) return { error: "invalid" };
   const team = userTeam(career);
-  if (career.rd.projects.length >= slotsFor(team.facility)) return { error: "slots" };
+  // Area projects (v1) and part designs share the factory's slots (RF-DEV-02).
+  if (career.rd.projects.length + (career.rd.designs?.length || 0) >= slotsFor(team.facility)) return { error: "slots" };
   const quote = projectQuote(career, request);
   if (quote.late) return { error: "late" };
   if (career.finances.balance < quote.cost) return { error: "money" };
@@ -764,6 +752,8 @@ export const startProject = (career, request) => {
 
 const endSeason = (career) => {
   const review = seasonReview(career);
+  // RF-FIN-02: the cost cap is assessed (fine and next-year aero penalty on a breach).
+  financeSeasonEnd(career);
   settlePromises(career);
   const drivers = driverStandings(career);
   const constructors = constructorStandings(career);

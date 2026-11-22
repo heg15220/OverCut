@@ -6087,3 +6087,152 @@ button.mn-driver-row {
     min-height: 480px;
   }
 }
+
+/* ------------------------------------------- car: parts and R&D (RF-DEV-01..08, RF-SIM-14) */
+
+.mn-area-pick--parts {
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+}
+
+.mn-loadout td {
+  vertical-align: top;
+}
+
+.mn-loadout td .mn-pill {
+  margin: 0 0.25rem 0.25rem 0;
+}
+
+.mn-loadout__spec {
+  font-family: var(--mn-mono);
+  color: var(--mn-gold);
+}
+
+.mn-loadout__swap {
+  display: block;
+  margin-top: 0.3rem;
+  max-width: 100%;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--mn-line);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--mn-bone);
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.mn-loadout__swap option {
+  background: var(--mn-navy-deep);
+}
+
+.mn-car-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.mn-car-split div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.45rem 0.6rem;
+  border-left: 3px solid var(--mn-gold);
+  background: rgba(8, 24, 50, 0.5);
+}
+
+.mn-car-split b {
+  font-family: var(--mn-mono);
+}
+
+.mn-design {
+  border-bottom: 1px solid var(--mn-line);
+  padding: 0.35rem 0;
+}
+
+.mn-design summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.mn-design summary .mn-bar {
+  flex: 1;
+}
+
+.mn-design summary span {
+  color: rgba(243, 241, 233, 0.62);
+  font-size: 0.82rem;
+}
+
+.mn-design__row {
+  margin: 0.5rem 0 0.6rem;
+  padding: 0.5rem 0.6rem;
+  background: rgba(8, 24, 50, 0.5);
+}
+
+.mn-design__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+  font-size: 0.84rem;
+}
+
+.mn-design__head b {
+  font-family: var(--mn-mono);
+  color: var(--mn-gold);
+}
+
+.mn-design__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.2rem 0.9rem;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+}
+
+.mn-design__stats li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mn-design__stats span {
+  color: rgba(243, 241, 233, 0.66);
+}
+
+.mn-design__stats b {
+  font-family: var(--mn-mono);
+}
+
+.mn-design__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+
+.mn-units + .mn-units {
+  margin-top: 0.8rem;
+}
+
+.mn-units h4 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mn-units__wear {
+  min-width: 90px;
+}
+
+@media (max-width: 760px) {
+  .mn-car-split {
+    grid-template-columns: 1fr;
+  }
+}
