@@ -1,0 +1,135 @@
+{
+  "$comment": "RNF-07: balance de la simulación por pasos (RF-SIM-01, SRS 4.2). Lo que es igual en los dos modos (neumáticos, combustible, energía, ritmo, fiabilidad) sigue saliendo del modelo de race.js; aquí solo lo que el modo por pasos añade: avance sobre la trazada, aire sucio y rebufo por distancia (RF-SIM-06), duelos en curva (RF-SIM-07), DRS físico (RF-SIM-08), coche de seguridad en tren y desplazamiento lateral. Se ajusta en las pruebas de balance (fase 5), no en el código.",
+  "version": 1,
+  "step": {
+    "$comment": "Paso fijo en segundos (SRS 4.2 paso 1) y resolución de las tablas tiempo↔distancia de la trazada.",
+    "dt": 0.25,
+    "tableSize": 2048
+  },
+  "grid": {
+    "$comment": "Igual que components/raceClock.js para que la parrilla física y la dibujada coincidan.",
+    "gapMetres": 8,
+    "poleBackMetres": 6
+  },
+  "lapOne": {
+    "$comment": "El modo rápido suma 0,22 s por puesto de salida para representar el tráfico de la primera vuelta; aquí el tráfico es real, así que solo se conserva esta fracción.",
+    "scrumShare": 0.5
+  },
+  "traffic": {
+    "$comment": "Distancia mínima de morro a morro detrás de otro coche (no se puede atravesar al de delante) y ventana en la que se lee el intervalo.",
+    "minGapMetres": 7.5,
+    "followWindowSec": 1.0
+  },
+  "dirtyAir": {
+    "$comment": "RF-SIM-06. La pérdida por vuelta a 0 s del de delante es la de la era (engine/rules.js rulesFor(era).dirtyAir, data/balance/race-eras.json), la misma que usa el modo rápido; aquí solo cómo se reparte: lineal hasta windowSec y solo en curva.",
+    "windowSec": 1.0
+  },
+  "slipstream": {
+    "$comment": "RF-SIM-06. Segundos por vuelta que gana en recta un coche pegado al de delante, lineal hasta windowSec; mayor con poca carga aerodinámica.",
+    "windowSec": 1.0,
+    "byEra": [
+      { "from": 1900, "to": 1967, "gainPerLap": 0.32 },
+      { "from": 1968, "to": 1976, "gainPerLap": 0.26 },
+      { "from": 1977, "to": 2021, "gainPerLap": 0.18 },
+      { "from": 2022, "to": 2100, "gainPerLap": 0.22 }
+    ]
+  },
+  "drs": {
+    "$comment": "RF-SIM-08. Cuándo hay DRS (era, vuelta, agua, hueco de detección) lo decide rules.drsOpen con el reglamento de la temporada; aquí, lo que el DRS hace en el modo por pasos: ganancia de velocidad en la zona y bonificación en la frenada que la sigue.",
+    "speedGain": 0.03,
+    "duelBonus": 0.12
+  },
+  "duel": {
+    "$comment": "RF-SIM-07. Se abre un duelo cuando el atacante llega al punto de ataque (approachMetres antes de una frenada) a menos de triggerSec del de delante. Probabilidad = clamp(base + overtaking×perfil + pace×(Δritmo − paceThreshold) + … , min, max) × peso de la frenada (metros de su recta / metros de todas las rectas con frenada, para que la probabilidad por vuelta sea la del modo rápido). Δritmo en s/vuelta sin ruido, como en el modo rápido.",
+    "approachMetres": 160,
+    "triggerSec": 0.5,
+    "cooldownSec": 5,
+    "maxClaim": 3,
+    "base": 0.01,
+    "overtaking": 0.2,
+    "pace": 0.36,
+    "paceThreshold": 0.25,
+    "racecraft": 0.004,
+    "wet": 0.06,
+    "wetFrom": 0.3,
+    "ersAttack": 0.06,
+    "ersDefend": 0.05,
+    "ersMinCharge": 8,
+    "coldTyre": 0.12,
+    "coldTyreTemp": 0.38,
+    "min": 0.02,
+    "max": 0.9,
+    "thirdCarFactor": 0.5,
+    "passBoost": 0.08,
+    "passDefenderLoss": 0.04,
+    "passMaxSeconds": 6,
+    "incident": {
+      "base": 0.012,
+      "wet": 1,
+      "threeWide": 1.8,
+      "onDefended": 0.1,
+      "retireShare": 0.4,
+      "damageMin": 0.3,
+      "damageMax": 1.2,
+      "delayMin": 3,
+      "delayMax": 9
+    },
+    "switchback": {
+      "$comment": "Contraataque del que pierde la curva, a la salida, si sigue a menos de gapMetres.",
+      "gapMetres": 10,
+      "base": 0.03,
+      "pace": 0.15,
+      "racecraft": 0.004,
+      "max": 0.4
+    }
+  },
+  "defence": {
+    "$comment": "RF-CMD-01 estilos de defensa (SRS 2.3). chance se suma a la probabilidad del atacante; losses son fracciones de velocidad perdidas en la curva disputada; incident multiplica el riesgo de toque.",
+    "default": "holdCarBehind",
+    "styles": {
+      "holdCarBehind": { "chance": 0, "attackerLoss": 0.03, "defenderLoss": 0.01, "incident": 1 },
+      "block": { "chance": -0.08, "attackerLoss": 0.06, "defenderLoss": 0.03, "incident": 1.7 },
+      "holdRacingLine": { "chance": 0.05, "attackerLoss": 0.01, "defenderLoss": 0, "incident": 0.7 }
+    }
+  },
+  "risk": {
+    "$comment": "RF-CMD-01 riesgo de adelantamiento del atacante.",
+    "default": "normal",
+    "levels": {
+      "low": { "chance": -0.04, "incident": 0.6 },
+      "normal": { "chance": 0, "incident": 1 },
+      "high": { "chance": 0.06, "incident": 1.8 }
+    }
+  },
+  "teamOrders": {
+    "swapGapSec": 2.5
+  },
+  "blueFlags": {
+    "$comment": "Un coche que va a ser doblado se aparta cuando el que le dobla llega a windowMetres: pierde lappedDelay segundos y el otro lapperDelay (los del modo rápido), una vez por pareja cada cooldownSec, a slowFactor de su velocidad hasta pagarlos.",
+    "windowMetres": 60,
+    "lappedDelay": 0.35,
+    "lapperDelay": 0.12,
+    "slowFactor": 0.8,
+    "cooldownSec": 8
+  },
+  "safetyCar": {
+    "$comment": "Ritmo bajo SC y VSC como múltiplo de la vuelta base (los mismos que el modo rápido). Bajo SC el que está a más de trainGapMetres del de delante recupera a catchUp veces el ritmo del SC sin superar el suyo.",
+    "lapFactor": 1.42,
+    "virtualLapFactor": 1.36,
+    "trainGapMetres": 25,
+    "catchUp": 1.6
+  },
+  "mistake": {
+    "$comment": "Un error cuesta su tiempo en la curva donde ocurre: el coche va a slowFactor de su velocidad hasta pagarlo.",
+    "slowFactor": 0.35
+  },
+  "lateral": {
+    "$comment": "Desplazamiento lateral respecto a la trazada (solo presentación): el atacante va al interior, Block cierra el interior, nadie se solapa.",
+    "attackMetres": 2.6,
+    "blockMetres": 1.8,
+    "carWidth": 2.0,
+    "carLength": 5.6,
+    "halfWidth": 5.5,
+    "rate": 2.0
+  }
+}

@@ -14,7 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LuFastForward, LuSkipForward } from "react-icons/lu";
 import {
-  ERS_KEYS, MIX_KEYS, MODE_KEYS, cancelPit, compoundsFor, energyEra, refuellingEra, requestPit, runToFinish, setErs, setMix, setMode, setTeamOrder,
+  MIX_KEYS, MODE_KEYS, cancelPit, commandsFor, drsOpen, energyEra, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder,
   stepLap, tyreLifeUsed,
 } from "../engine/race";
 import { circuitFor } from "../engine/venue";
@@ -270,9 +270,11 @@ export default function LiveRace({ state, onFinished }) {
     setFrame((value) => value + 1);
   };
 
-  const compounds = [...compoundsFor(current.year), "inter", "wet"];
-  const refuel = refuellingEra(current.year);
-  const energy = energyEra(current.year);
+  // RF-CMD-01/02: only the orders the era has (engine/rules.js).
+  const commands = commandsFor(rulesOf(current.era, current.year));
+  const compounds = commands.pit.compounds;
+  const refuel = commands.pit.fuel;
+  const energy = energyEra(rulesOf(current.era, current.year));
   const userTeam = userCars[0]?.teamId;
   const lightsOn = introDone.current ? 0 : Math.min(5, Math.floor(intro.current / 0.8) + 1);
   const teams = useMemo(() => {
@@ -467,13 +469,14 @@ const TEMP_LABEL = (temp) => (temp < 0.4 ? { label: t("Fríos", "Cold"), tone: "
  */
 function DriverCard({ car, row, state, compounds, refuel, energy, call, focused, onFocus }) {
   const running = car.status === "running";
-  const life = Math.max(0, 1 - tyreLifeUsed(car, state.year));
+  const rules = rulesOf(state.era, state.year);
+  const life = Math.max(0, 1 - tyreLifeUsed(car, rules));
   const temp = TEMP_LABEL(car.tyreTemp ?? 0.5);
   const remaining = Math.max(0, state.laps - state.lap);
   const burn = { lean: 0.93, standard: 1, rich: 1.07 }[car.fuelMode] ?? 1;
   const fuelMargin = refuel ? null : car.fuel / burn - remaining;
   const position = row && !row.out ? row.position : car.position;
-  const drs = state.era.features.drs && running && car.gapAhead !== null && car.gapAhead < 1 && state.lap > 2;
+  const drs = running && drsOpen(rules, { lap: state.lap, wetness: state.weather.wetness[Math.min(state.lap, state.laps)] ?? 0, zones: state.track?.drs ?? 0, restartLap: state.restartLap || 0, gapAhead: car.gapAhead });
   const surname = (car.name || "").split(" ").filter((part) => !/^(jr|sr)\.?$/i.test(part)).pop()?.toUpperCase();
   return (
     <section className={`bc-card${running ? "" : " is-out"}${focused ? " is-focus" : ""}`} style={{ "--team": car.color }} aria-label={car.name}>
@@ -531,7 +534,7 @@ function DriverCard({ car, row, state, compounds, refuel, energy, call, focused,
                   <div className="bc-meter bc-meter--ers">
                     <i style={{ width: `${Math.round(car.battery)}%` }} />
                   </div>
-                  <Dots tone="cyan" label="ERS" value={car.ersMode} onChange={(mode) => call((s) => setErs(s, car.id, mode))} options={ERS_KEYS.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
+                  <Dots tone="cyan" label="ERS" value={car.ersMode} onChange={(mode) => call((s) => setErs(s, car.id, mode))} options={rules.energy.modes.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
                 </>
               ) : (
                 <>

@@ -8,7 +8,7 @@ import { fallbackBootstrap } from "../../../overcutTrayectoria/data/fallbackBoot
 import { reference } from "../../data/reference";
 import { PHASES, closeWeekend, createCareer, createContext, entrantsFor, eraOf, simulateWeekend, startableYears } from "../career";
 import { carRatingOf } from "../car";
-import { energyEra, refuellingEra } from "../race";
+import { energyEra, refuellingEra, rulesFor } from "../race";
 import { scoreRace } from "../standings";
 import { validateCareer } from "../save";
 import { loadSeasonPack, seasonPackYears } from "./seasonPacks";
@@ -125,13 +125,18 @@ describe("criterio 7.2 · regulations of the pack", () => {
     expect(Object.values(driverPoints)).toEqual(packs[2005].regulations.pointsScheme.race);
   });
 
-  it("agrees with the race engine's year rules for every pack season", () => {
-    // race.js still reads some rules by year (fase 3 moves them to the pack); they must not contradict it.
+  it("agrees with the race engine's rules for every pack season", () => {
+    // Fase 3: race.js reads its rules from the era (engine/rules.js); with the pack's era they are the pack's,
+    // and the era-defaults of the bare year must not contradict the pack either.
     Object.values(packs).forEach((pack) => {
       const { regulations, year } = pack;
-      expect(refuellingEra(year)).toBe(regulations.refuelling);
-      expect(energyEra(year) || "none").toBe(regulations.energySystem);
-      expect(year >= 2007).toBe(regulations.mandatoryDryCompounds >= 2);
+      [eraWithRegulations(year, regulations), year].forEach((era) => {
+        expect(refuellingEra(era)).toBe(regulations.refuelling);
+        expect(energyEra(era) || "none").toBe(regulations.energySystem);
+        expect(rulesFor(era).tyres.mandatoryDryCompounds).toBe(regulations.mandatoryDryCompounds);
+        expect(rulesFor(era).tyres.changesInRace).toBe(regulations.tyreChangesInRace);
+        expect(rulesFor(era).drs.enabled).toBe(regulations.drs);
+      });
     });
   });
 });

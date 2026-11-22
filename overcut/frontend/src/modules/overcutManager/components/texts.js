@@ -67,6 +67,23 @@ export const ERS = {
   harvest: () => t("Recargar", "Harvest"),
   balanced: () => t("Neutro", "Neutral"),
   deploy: () => t("Desplegar", "Deploy"),
+  overtake: () => t("Adelantar", "Overtake"),
+};
+
+/** Race-control penalties (RF-SIM-10). */
+export const PENALTY = {
+  time5: () => t("+5 s", "+5 s"),
+  time10: () => t("+10 s", "+10 s"),
+  driveThrough: () => t("drive-through", "drive-through"),
+  stopGo: () => t("stop & go", "stop-go"),
+  postRaceTime: () => t("tiempo añadido al final", "time added after the race"),
+};
+
+const OFFENCE = {
+  collision: () => t("provocar una colisión", "causing a collision"),
+  pitSpeeding: () => t("exceso de velocidad en el pit lane", "speeding in the pit lane"),
+  unsafeRelease: () => t("salida insegura del box", "unsafe release"),
+  jumpStart: () => t("salida en falso", "a jump start"),
 };
 
 /** A corner by number and, where it has one, its name: "curva 1 (Tarzan)". */
@@ -450,6 +467,10 @@ export const radioText = (career, message, names) => {
       return t(`${who}: «Algo no va bien, pierdo potencia». Ingeniero: «Lo vemos, ${message.loss.toFixed(1)}s por vuelta».`, `${who}: "Something's wrong, I'm losing power." Engineer: "We see it, ${message.loss.toFixed(1)}s a lap."`);
     case "drs":
       return t(`Ingeniero a ${who}: «Estás en DRS. Ataca».`, `Engineer to ${who}: "You're in DRS range. Go for it."`);
+    case "overtake":
+      return t(`Ingeniero a ${who}: «A menos de un segundo: modo adelantamiento disponible».`, `Engineer to ${who}: "Within a second: overtake mode is available."`);
+    case "penalty":
+      return t(`Ingeniero a ${who}: «Tenemos sanción, entra a cumplirla».`, `Engineer to ${who}: "We've got a penalty, box to serve it."`);
     default:
       return "";
   }
@@ -486,6 +507,28 @@ export const commentary = (event, names, track) => {
       return t("Coche de seguridad virtual", "Virtual safety car");
     case "sc-in":
       return t("El coche de seguridad se retira: ¡se reanuda la carrera!", "Safety car in: racing resumes!");
+    case "yellow":
+      return t(`Bandera amarilla${at}`, `Yellow flag${at}`);
+    case "red":
+      return event.reason === "rain"
+        ? t("¡Bandera roja! Demasiada agua en pista", "Red flag! Too much water on track")
+        : t("¡Bandera roja! Hay que reparar las barreras", "Red flag! The barriers need repairing");
+    case "restart":
+      return event.procedure === "rolling"
+        ? t("La carrera se reanuda tras el coche de seguridad", "The race resumes behind the safety car")
+        : event.aggregate
+          ? t("Nueva salida: los tiempos se suman a los de la primera parte", "Restart: times are added to the first part")
+          : t("Nueva salida parada", "Standing restart");
+    case "investigation":
+      return t(`Los comisarios investigan a ${a} por ${OFFENCE[event.offence]?.() ?? event.offence}`, `The stewards are investigating ${a} for ${OFFENCE[event.offence]?.() ?? event.offence}`);
+    case "no-action":
+      return t(`Sin sanción para ${a}`, `No further action for ${a}`);
+    case "penalty":
+      return t(`Sanción para ${a}: ${PENALTY[event.penalty]?.() ?? event.penalty} por ${OFFENCE[event.offence]?.() ?? event.offence}`, `Penalty for ${a}: ${PENALTY[event.penalty]?.() ?? event.penalty} for ${OFFENCE[event.offence]?.() ?? event.offence}`);
+    case "penalty-served":
+      return t(`${a} cumple su sanción`, `${a} serves the penalty`);
+    case "penalty-applied":
+      return t(`${a}: ${event.seconds.toFixed(0)} s añadidos por sanción`, `${a}: ${event.seconds.toFixed(0)} s added in penalties`);
     case "rain":
       return t("Empieza a llover", "Rain is falling");
     case "drying":

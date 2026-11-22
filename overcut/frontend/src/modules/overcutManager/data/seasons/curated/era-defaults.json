@@ -1,0 +1,147 @@
+{
+  "_doc": "Reglamento por defecto para los años SIN pack de temporada (SRS 6.2, RNF-07, criterio 7.2). Mismas claves cerradas que `regulations` del pack (season-pack.schema.json) más `compounds`, `penaltyTypes`, `redFlag` y `unitPenalties`, que el pack aún no describe. engine/rules.js lo lee cuando la era no trae `regulations`; con pack, manda el pack y de aquí solo salen los campos que el pack no tiene. Cada campo es una lista de tramos {from, to, value}; los años fuera de 1950-2026 usan el tramo más cercano. Los umbrales de refuelling, energySystem, drs, safetyCar, vsc, mandatoryDryCompounds, qualifyingFormats y compounds reproducen los que race.js tenía en código antes de la fase 3 (salvo DRS 2026: aero activa, ver `_amendments`). Valores 'pending' = de memoria, por verificar contra el reglamento FIA antes de fijarlos en un pack. Un test (engine/rules.test.js) comprueba que cada año cumple curated/era-rules.json.",
+  "_amendments": [
+    "2026: race.js leía era.features.drs (year >= 2011) y daba DRS en 2026; aquí drs=false y activeAero=true, como dice SRS 6.2 y era-rules.json.",
+    "1982-1983: el repostaje era legal (Brabham lo usó); SRS 6.2 dice 'prohibido desde 1984'. El modelo lo deja desactivado, como hacía race.js; enmienda propuesta: refuelling=true opcional en 1982-1983 cuando haya pack.",
+    "2010-2013: los diez primeros salen con el neumático de Q3 (no Q2), ya propuesto en CLAUDE.md."
+  ],
+  "fields": {
+    "refuelling": [
+      { "from": 1950, "to": 1993, "value": false },
+      { "from": 1994, "to": 2009, "value": true },
+      { "from": 2010, "to": 2026, "value": false }
+    ],
+    "energySystem": [
+      { "from": 1950, "to": 2008, "value": "none" },
+      { "from": 2009, "to": 2009, "value": "kers" },
+      { "from": 2010, "to": 2010, "value": "none" },
+      { "from": 2011, "to": 2013, "value": "kers" },
+      { "from": 2014, "to": 2025, "value": "ers" },
+      { "from": 2026, "to": 2026, "value": "ers2026" }
+    ],
+    "drs": [
+      { "from": 1950, "to": 2010, "value": false },
+      { "from": 2011, "to": 2025, "value": true },
+      { "from": 2026, "to": 2026, "value": false }
+    ],
+    "activeAero": [
+      { "from": 1950, "to": 2025, "value": false },
+      { "from": 2026, "to": 2026, "value": true }
+    ],
+    "safetyCar": [
+      { "from": 1950, "to": 1992, "value": false },
+      { "from": 1993, "to": 2026, "value": true }
+    ],
+    "vsc": [
+      { "from": 1950, "to": 2014, "value": false },
+      { "from": 2015, "to": 2026, "value": true }
+    ],
+    "tyreType": [
+      { "from": 1950, "to": 1970, "value": "treaded", "status": "pending" },
+      { "from": 1971, "to": 1997, "value": "slick" },
+      { "from": 1998, "to": 2008, "value": "grooved" },
+      { "from": 2009, "to": 2026, "value": "slick" }
+    ],
+    "tyreSuppliers": [
+      { "from": 1950, "to": 1958, "value": ["pirelli", "englebert", "dunlop", "firestone", "continental"], "status": "pending" },
+      { "from": 1959, "to": 1963, "value": ["dunlop"], "status": "pending" },
+      { "from": 1964, "to": 1975, "value": ["goodyear", "firestone", "dunlop"], "status": "pending" },
+      { "from": 1976, "to": 1976, "value": ["goodyear"] },
+      { "from": 1977, "to": 1980, "value": ["goodyear", "michelin"], "status": "pending" },
+      { "from": 1981, "to": 1984, "value": ["goodyear", "michelin", "pirelli"], "status": "pending" },
+      { "from": 1985, "to": 1986, "value": ["goodyear", "pirelli"], "status": "pending" },
+      { "from": 1987, "to": 1988, "value": ["goodyear"], "status": "pending" },
+      { "from": 1989, "to": 1991, "value": ["goodyear", "pirelli"], "status": "pending" },
+      { "from": 1992, "to": 1996, "value": ["goodyear"], "status": "pending" },
+      { "from": 1997, "to": 1998, "value": ["goodyear", "bridgestone"], "status": "pending" },
+      { "from": 1999, "to": 2000, "value": ["bridgestone"], "status": "pending" },
+      { "from": 2001, "to": 2006, "value": ["bridgestone", "michelin"], "status": "pending" },
+      { "from": 2007, "to": 2010, "value": ["bridgestone"] },
+      { "from": 2011, "to": 2026, "value": ["pirelli"] }
+    ],
+    "compounds": [
+      { "from": 1950, "to": 1981, "value": ["dry"] },
+      { "from": 1982, "to": 2006, "value": ["soft", "hard"] },
+      { "from": 2007, "to": 2026, "value": ["soft", "medium", "hard"] }
+    ],
+    "tyreChangesInRace": [
+      { "from": 1950, "to": 2004, "value": true },
+      { "from": 2005, "to": 2005, "value": false },
+      { "from": 2006, "to": 2026, "value": true }
+    ],
+    "mandatoryDryCompounds": [
+      { "from": 1950, "to": 2006, "value": 0 },
+      { "from": 2007, "to": 2026, "value": 2 }
+    ],
+    "topTenStartTyres": [
+      { "from": 1950, "to": 2009, "value": "none" },
+      { "from": 2010, "to": 2013, "value": "Q3" },
+      { "from": 2014, "to": 2021, "value": "Q2" },
+      { "from": 2022, "to": 2026, "value": "none" }
+    ],
+    "qualifyingFormats": [
+      { "from": 1950, "to": 1995, "value": ["TWO_SESSION"], "status": "pending" },
+      { "from": 1996, "to": 2002, "value": ["ONE_SESSION"], "status": "pending" },
+      { "from": 2003, "to": 2004, "value": ["ONE_LAP"] },
+      { "from": 2005, "to": 2005, "value": ["AGGREGATE", "ONE_LAP"] },
+      { "from": 2006, "to": 2026, "value": ["KNOCKOUT"] }
+    ],
+    "qualifyingRaceFuel": [
+      { "from": 1950, "to": 2002, "value": false },
+      { "from": 2003, "to": 2009, "value": true },
+      { "from": 2010, "to": 2026, "value": false }
+    ],
+    "rule107": [
+      { "from": 1950, "to": 1995, "value": false, "status": "pending" },
+      { "from": 1996, "to": 2002, "value": true, "status": "pending" },
+      { "from": 2003, "to": 2010, "value": false },
+      { "from": 2011, "to": 2026, "value": true }
+    ],
+    "teamOrdersBanned": [
+      { "from": 1950, "to": 2001, "value": false },
+      { "from": 2002, "to": 2010, "value": true },
+      { "from": 2011, "to": 2026, "value": false }
+    ],
+    "parcFerme": [
+      { "from": 1950, "to": 2002, "value": false, "status": "pending" },
+      { "from": 2003, "to": 2026, "value": true }
+    ],
+    "budgetCap": [
+      { "from": 1950, "to": 2020, "value": null },
+      { "from": 2021, "to": 2021, "value": 145, "status": "pending" },
+      { "from": 2022, "to": 2022, "value": 140, "status": "pending" },
+      { "from": 2023, "to": 2025, "value": 135, "status": "pending" },
+      { "from": 2026, "to": 2026, "value": 215, "status": "pending", "note": "SRS 6.2: 'cifra por verificar'" }
+    ],
+    "unitLimits": [
+      { "from": 1950, "to": 2003, "value": { "enginesPerDriver": null, "engineRaceWeekends": null, "gearboxRaces": null } },
+      { "from": 2004, "to": 2004, "value": { "enginesPerDriver": null, "engineRaceWeekends": 1, "gearboxRaces": null }, "status": "pending" },
+      { "from": 2005, "to": 2007, "value": { "enginesPerDriver": null, "engineRaceWeekends": 2, "gearboxRaces": null }, "status": "pending" },
+      { "from": 2008, "to": 2008, "value": { "enginesPerDriver": null, "engineRaceWeekends": 2, "gearboxRaces": 4 } },
+      { "from": 2009, "to": 2009, "value": { "enginesPerDriver": 8, "engineRaceWeekends": null, "gearboxRaces": 4 }, "status": "pending" },
+      { "from": 2010, "to": 2013, "value": { "enginesPerDriver": 8, "engineRaceWeekends": null, "gearboxRaces": 5 }, "status": "pending" },
+      { "from": 2014, "to": 2014, "value": { "enginesPerDriver": 5, "engineRaceWeekends": null, "gearboxRaces": 6 }, "status": "pending" },
+      { "from": 2015, "to": 2016, "value": { "enginesPerDriver": 4, "engineRaceWeekends": null, "gearboxRaces": 6 }, "status": "pending" },
+      { "from": 2017, "to": 2017, "value": { "enginesPerDriver": 4, "engineRaceWeekends": null, "gearboxRaces": 6 }, "status": "pending" },
+      { "from": 2018, "to": 2023, "value": { "enginesPerDriver": 3, "engineRaceWeekends": null, "gearboxRaces": null }, "status": "pending" },
+      { "from": 2024, "to": 2026, "value": { "enginesPerDriver": 4, "engineRaceWeekends": null, "gearboxRaces": null }, "status": "pending" }
+    ],
+    "unitPenalties": [
+      { "from": 1950, "to": 2003, "value": null },
+      { "from": 2004, "to": 2013, "value": { "engine": 10, "engineRepeat": 10, "gearbox": 5 }, "status": "pending" },
+      { "from": 2014, "to": 2026, "value": { "engine": 10, "engineRepeat": 5, "gearbox": 5 }, "status": "pending" }
+    ],
+    "penaltyTypes": [
+      { "from": 1950, "to": 1988, "value": ["postRaceTime"], "status": "pending", "note": "Antes de 1989 las sanciones de carrera eran tiempo añadido al final (p. ej. 1 min por salida en falso) o la bandera negra." },
+      { "from": 1989, "to": 1993, "value": ["driveThrough", "postRaceTime"], "status": "pending" },
+      { "from": 1994, "to": 2013, "value": ["driveThrough", "stopGo", "postRaceTime"], "status": "pending" },
+      { "from": 2014, "to": 2026, "value": ["time5", "time10", "driveThrough", "stopGo"], "status": "pending", "note": "Tarea fase 3: +5/+10 s desde 2014 (el +10 s podría ser de 2016; por verificar)." }
+    ],
+    "redFlag": [
+      { "from": 1950, "to": 2004, "value": { "restart": "standing", "aggregate": true, "tyreChanges": true }, "status": "pending", "note": "Carrera reanudada como segunda parte con tiempos agregados." },
+      { "from": 2005, "to": 2005, "value": { "restart": "rolling", "aggregate": false, "tyreChanges": false }, "status": "pending", "note": "Reanudación tras el coche de seguridad; 2005 prohibía cambiar neumáticos." },
+      { "from": 2006, "to": 2017, "value": { "restart": "rolling", "aggregate": false, "tyreChanges": true }, "status": "pending" },
+      { "from": 2018, "to": 2026, "value": { "restart": "standing", "aggregate": false, "tyreChanges": true }, "status": "pending", "note": "Salida parada tras bandera roja (año exacto del cambio por verificar)." }
+    ]
+  }
+}

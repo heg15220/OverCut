@@ -44,6 +44,9 @@ const satisfies = (rule, value) => {
   throw new Error(`era rule for ${rule.field} has no condition`);
 };
 
+/** Exported for engine/rules.test.js: the era-defaults of years without a pack must pass the same rules. */
+export const satisfiesEraRule = (rule, value) => satisfies(rule, value);
+
 export const eraRulesFor = (year, rules = eraRules.rules) => rules.filter((rule) => year >= rule.from && year <= rule.to);
 
 const checkEra = (pack, errors, rules) => {

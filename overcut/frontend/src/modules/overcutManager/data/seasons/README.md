@@ -10,6 +10,7 @@ ratings y eventos de esa temporada. Sin pack válido, la temporada no se puede j
 | `season-pack.schema.json` | Esquema JSON del pack (v1) | A mano, subiendo `schemaVersion` si rompe compatibilidad |
 | `curated/regulations.json` | Reglamento por año con procedencia de cada campo (`f1db`, `source` con cita, `pending`) | A mano; al verificar un campo, pasar `pending` → `source` con URL y cita |
 | `curated/era-rules.json` | Restricciones por era que el validador aplica a cualquier año (criterio 7.2) | A mano |
+| `curated/era-defaults.json` | Reglamento por defecto de los años **sin** pack (mismas claves que `regulations`, más compuestos, sanciones, bandera roja y penalizaciones de unidades). Lo lee `engine/rules.js`; un test exige que cumpla `era-rules.json` en 1950-2026 | A mano; `status: pending` = de memoria |
 | `curated/events.json` | Eventos históricos con nivel de ancla y fuente (RF-INB-02, RF-HIS-00) | A mano |
 | `curated/car-assets.json` | GLB de `f1-3d-assets` por equipo y año (RF-3D-02) | A mano, comprobando la release |
 

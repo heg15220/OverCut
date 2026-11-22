@@ -1,0 +1,159 @@
+{
+  "$comment": "RNF-07: números de equilibrio del motor de carrera (engine/race.js y el simulador por pasos) por era. Las reglas (qué existe en cada año) NO están aquí: vienen del pack de temporada o de data/seasons/curated/era-defaults.json a través de engine/rules.js. Los tramos {from, to} son años inclusivos; un año fuera de todos usa el más cercano. Los valores son los que race.js tenía en código antes de la fase 3, salvo los marcados 'new' (modelos nuevos de dirección de carrera RF-SIM-10 y energía RF-SIM-05), que se ajustan en las pruebas de balance (fase 5).",
+  "version": 1,
+  "start": { "gridSpacing": 0.32 },
+  "tyres": {
+    "$comment": "offset y wear en s por vuelta de edad; life en vueltas antes del cliff (RF-SIM-03). eraScale suaviza 1982-2006: dos compuestos más parecidos y más duraderos. 'dry' (antes de 1982) no se escala.",
+    "dry": {
+      "dry": { "offset": 0, "wear": 0.012, "life": 400 },
+      "soft": { "offset": -0.75, "wear": 0.075, "life": 17 },
+      "medium": { "offset": -0.38, "wear": 0.05, "life": 27 },
+      "hard": { "offset": 0, "wear": 0.032, "life": 40 }
+    },
+    "eraScale": [
+      { "from": 1950, "to": 2006, "offset": 0.7, "wear": 0.75, "life": 1.35 },
+      { "from": 2007, "to": 2026, "offset": 1, "wear": 1, "life": 1 }
+    ],
+    "cliffPerLap": 0.28,
+    "wetLifeLaps": 45,
+    "tempTarget": { "save": 0.46, "normal": 0.56, "push": 0.68 },
+    "outLapTemp": [
+      { "from": 1950, "to": 1994, "value": 0.22 },
+      { "from": 1995, "to": 2026, "value": 0.36, "note": "mantas térmicas desde mediados de los 90" }
+    ]
+  },
+  "modes": {
+    "save": { "time": 0.38, "wear": 0.72, "risk": 0.7, "mistake": 0.6 },
+    "normal": { "time": 0, "wear": 1, "risk": 1, "mistake": 1 },
+    "push": { "time": -0.3, "wear": 1.38, "risk": 1.25, "mistake": 1.6 }
+  },
+  "fuel": {
+    "$comment": "RF-SIM-04: s por vuelta de combustible a bordo; margen en vueltas fuera de las eras de repostaje; mezcla (fuera del repostaje).",
+    "perLap": 0.032,
+    "margin": 1.2,
+    "mixes": {
+      "lean": { "time": 0.24, "burn": 0.93 },
+      "standard": { "time": 0, "burn": 1 },
+      "rich": { "time": -0.18, "burn": 1.07 }
+    }
+  },
+  "dirtyAir": {
+    "$comment": "RF-SIM-06: s perdidos por vuelta por cada segundo de hueco por debajo de 1 s al coche de delante.",
+    "byYear": [
+      { "from": 1950, "to": 1967, "value": 0.12 },
+      { "from": 1968, "to": 1976, "value": 0.22 },
+      { "from": 1977, "to": 2021, "value": 0.42 },
+      { "from": 2022, "to": 2026, "value": 0.24 }
+    ]
+  },
+  "pit": {
+    "$comment": "RF-SIM-12. Pérdida en el pit lane = clamp(baseLap × laneShare, laneMin, laneMax), reducida bajo SC/VSC. Tiempo parado = (base + perFuelLap × vueltas de combustible) × habilidad + extra, con habilidad = crewBase − crew / crewDivisor.",
+    "laneShare": 0.21, "laneMin": 14, "laneMax": 34,
+    "laneUnderSc": 0.5, "laneUnderVsc": 0.62,
+    "crewBase": 1.3, "crewDivisor": 200,
+    "stationary": [
+      { "from": 1950, "to": 1981, "base": 24, "perFuelLap": 0, "extra": 0 },
+      { "from": 1982, "to": 1993, "base": 8.5, "perFuelLap": 0, "extra": 0 },
+      { "from": 1994, "to": 2009, "base": 6, "perFuelLap": 0.11, "extra": 0 },
+      { "from": 2010, "to": 2026, "base": 2.5, "perFuelLap": 0, "extra": 0.2 }
+    ],
+    "fuelOnlyStop": { "base": 4.5, "perFuelLap": 0.11, "note": "new: 2005, repostaje sin cambio de ruedas" },
+    "slowStop": { "chance": 0.04, "crewBase": 1.4, "min": 2.5, "max": 8 },
+    "doubleStackWait": 0.8
+  },
+  "strategy": {
+    "maxStops": [
+      { "from": 1950, "to": 1981, "value": 0 },
+      { "from": 1982, "to": 2026, "value": 3 }
+    ],
+    "twoCompoundPenalty": 30,
+    "refuelNoStopCost": 200,
+    "fastestLapStopWindow": 3
+  },
+  "energy": {
+    "$comment": "RF-SIM-05. kers: presupuesto de despliegue por vuelta (400 kJ a 60 kW ≈ 6,67 s), se repone en cada vuelta; 'use' es la parte del presupuesto gastada y gainPerSecond los s de vuelta ganados por s de despliegue. ers: batería (MGU-K + MGU-H) con carga entre vueltas. ers2026: reparto ~50 % eléctrico, oscilaciones mayores y modo de adelantamiento manual a menos de overtakeGap s del coche de delante (sustituye al DRS).",
+    "kers": {
+      "powerKw": 60,
+      "perLapDeploySeconds": 6.67,
+      "gainPerSecond": 0.045,
+      "modes": {
+        "harvest": { "use": 0, "passBonus": 0 },
+        "balanced": { "use": 0.7, "passBonus": 0 },
+        "deploy": { "use": 1, "passBonus": 0.06 }
+      },
+      "defendBonus": 0.05,
+      "optOut": {
+        "2009": ["brawn", "red-bull", "toro-rosso", "toyota", "williams", "force-india"],
+        "2011": ["hrt", "virgin", "lotus-racing"],
+        "2012": ["hrt", "marussia"]
+      },
+      "optOutNote": "pending: equipos que corrieron sin KERS. 2009: solo McLaren, Ferrari, Renault y BMW Sauber lo usaron (BMW lo dejó a mitad de año). 2011: HRT, Virgin y Team Lotus sin KERS. 2012: HRT y Marussia sin KERS. 2013: todos con KERS."
+    },
+    "ers": {
+      "mguKkW": 120,
+      "storeMJ": 4,
+      "modes": {
+        "harvest": { "time": 0.3, "charge": 26, "passBonus": 0 },
+        "balanced": { "time": 0, "charge": 3, "passBonus": 0 },
+        "deploy": { "time": -0.34, "charge": -30, "passBonus": 0.06 }
+      },
+      "defendBonus": 0.05,
+      "minChargeToAttack": 8
+    },
+    "ers2026": {
+      "mguKkW": 350,
+      "electricShare": 0.5,
+      "overtakeGap": 1.0,
+      "modes": {
+        "harvest": { "time": 0.42, "charge": 30, "passBonus": 0 },
+        "balanced": { "time": 0, "charge": 2, "passBonus": 0 },
+        "deploy": { "time": -0.46, "charge": -34, "passBonus": 0.06 },
+        "overtake": { "time": -0.62, "charge": -42, "passBonus": 0.13 }
+      },
+      "defendBonus": 0.05,
+      "minChargeToAttack": 8
+    }
+  },
+  "drs": {
+    "$comment": "RF-SIM-08: activo desde la vuelta fromLap, y restartLaps vueltas después de cada reanudación; a menos de detectionGap s; no con agua por encima de wetLimit. passBonus para la primera zona y extraPerZone por cada zona más.",
+    "fromLap": 3,
+    "restartLaps": 2,
+    "detectionGap": 1.0,
+    "wetLimit": 0.3,
+    "passBonus": 0.12,
+    "extraPerZone": 0.1
+  },
+  "raceControl": {
+    "$comment": "RF-SIM-10. deployChance: probabilidad de SC/VSC tras un accidente; los primeros años del SC lo usaban poco. yellow: un trompo o un accidente sin SC pone amarillas en esa curva y baja la probabilidad de adelantar esa vuelta (new). redFlag: accidente grave o lluvia torrencial (new). RF-HIS-00: ningún accidente es mortal; un accidente grave solo retira el coche.",
+    "safetyCar": [
+      { "from": 1993, "to": 1999, "deployChance": 0.3 },
+      { "from": 2000, "to": 2026, "deployChance": 0.45 }
+    ],
+    "vscShare": 0.38,
+    "scLaps": [3, 5],
+    "vscLaps": [1, 3],
+    "vscOnFailure": 0.1,
+    "yellow": { "passFactor": 0.7, "mistakeKinds": ["spin", "wide"] },
+    "redFlag": {
+      "crashChance": 0.02,
+      "rainWetness": 0.86,
+      "rainChance": 0.2,
+      "maxPerRace": 1,
+      "rollingScLaps": [2, 3],
+      "standingSpacing": 0.32
+    }
+  },
+  "penalties": {
+    "$comment": "RF-SIM-10, new. Cada infracción toma la primera sanción de su lista que exista en la era (era-defaults.json penaltyTypes); si ninguna existe, sin acción. Las de pasar por boxes se cumplen en serveWithinLaps vueltas o se convierten en tiempo al final.",
+    "seconds": { "time5": 5, "time10": 10, "stopGo": 10 },
+    "unserved": { "driveThrough": 20, "stopGo": 30 },
+    "serveWithinLaps": 3,
+    "decisionLaps": [1, 3],
+    "offences": {
+      "collision": { "from": 1950, "investigate": 0.55, "guilty": 0.55, "penalties": ["time10", "driveThrough", "stopGo"] },
+      "pitSpeeding": { "from": 1994, "chancePerStop": 0.005, "penalties": ["time5", "driveThrough"] },
+      "unsafeRelease": { "from": 2011, "chancePerStop": 0.003, "chanceStacked": 0.06, "penalties": ["time5", "driveThrough"] },
+      "jumpStart": { "from": 1950, "chancePerCar": 0.002, "penalties": ["time5", "driveThrough", "postRaceTime"], "postRaceSeconds": 60 }
+    }
+  }
+}

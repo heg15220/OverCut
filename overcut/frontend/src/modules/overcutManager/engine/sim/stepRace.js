@@ -1,0 +1,783 @@
+/**
+ * The race in fixed time steps (RF-SIM-01, SRS 4.2), the mode the live view will watch;
+ * race.js stays as the quick mode.
+ *
+ * Each step (`step.dt`, 0.25 s) every car advances along the circuit's speed trace:
+ *
+ *   1. pace       at each line crossing the car's lap-time budget is planned with the
+ *                 quick mode's own model (lapModel.planLap: pace, tyres, heat, fuel,
+ *                 battery, rubber, mode, problems, scatter). With nothing in the way the
+ *                 car covers the lap in exactly that budget, slowing where the trace
+ *                 slows (trackTables). Both modes therefore share balance (SRS 4.2).
+ *   2. air        dirty air in corners and the tow on straights, by the time gap to the
+ *                 car ahead and by era (RF-SIM-06); DRS opens on its zones (RF-SIM-08).
+ *   3. traffic    nobody drives through the car in front: a follower is held a car's
+ *                 length back unless it wins a duel for a corner (duel.js, RF-SIM-07).
+ *   4. the lap    wear, fuel, battery and reliability move per lap at the line, as in the
+ *                 quick mode; failures and mistakes are rolled there but happen at a real
+ *                 point of the lap (a corner apex for accidents and mistakes).
+ *   5. control    the safety car (from 1993) runs a real train, the VSC (from 2015) a
+ *                 pace cap; their laps count down on the leader's crossings.
+ *   6. strategy   every pit wall decides at pit entry (lapModel.pitDecision, the quick
+ *                 mode's); the stop is spent in the lane on the in-lap, as the race clock
+ *                 draws it.
+ *   7. timing     line crossings are interpolated inside the step and written to each
+ *                 car's `history` exactly as the quick mode writes it, so raceClock,
+ *                 LiveRace and career.completeRace read a step race unchanged.
+ *
+ * Determinism (RF-SIM-15, RNF-05): four seeded streams (laps, duels, pits, incidents),
+ * a fixed step and a fixed processing order; the same seed and the same commands at the
+ * same race time give byte-identical output. Hot loops run on typed arrays with no
+ * per-step allocation (RNF-01).
+ */
+
+import balanceData from "../../data/balance/race-sim.json";
+import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
+import {
+  cancelPit as quickCancelPit, createRace, requestPit as quickRequestPit, setErs as quickSetErs, setMix as quickSetMix, setMode as quickSetMode,
+  setTeamOrder as quickSetTeamOrder,
+} from "../race";
+import { rulesFor } from "../rules";
+import { circuitFor } from "../venue";
+import { ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
+import {
+  ERS_MODES, MIXES, MODES, START_SPACING, beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, servicePit,
+} from "./lapModel";
+import { buildTrackTables, dAt, inCorner, tauAtD } from "./trackTables";
+
+export const SIM_BALANCE = balanceData;
+
+const frac = (value) => value - Math.floor(value);
+
+/** The era's value from a `byEra` table of the balance data. */
+const byEra = (table, year, key) => {
+  const row = table.find((entry) => year >= entry.from && year <= entry.to);
+  return row ? row[key] : 0;
+};
+
+// ----------------------------------------------------------------- set up
+
+/**
+ * Wrap a fresh quick-mode race (createRace output, lap 0) as a step race. `race` is the
+ * calendar entry createRace was given (for the circuit); `circuit` may be passed directly.
+ */
+export const fromQuickRace = (state, { race, circuit, balance = balanceData } = {}) => {
+  if (state.lap !== 0 || state.finished) throw new Error("fromQuickRace needs a race that has not started");
+  const track = circuit || circuitFor(race || state.race, state.year);
+  const tables = buildTrackTables(track, { size: balance.step.tableSize, approachMetres: balance.duel.approachMetres });
+  const n = state.cars.length;
+  const laps = state.laps;
+  const rules = rulesFor(state.era && typeof state.era === "object" ? state.era : state.year);
+  const seed = state.seed;
+  const sim = {
+    balance,
+    tables,
+    circuitRef: track.ref || track.id,
+    dt: balance.step.dt,
+    n,
+    clock: 0,
+    steps: 0,
+    requested: 0,
+    leaderLap: 1,
+    started: false,
+    streams: {
+      laps: createStream(`${seed}::step::laps`),
+      duel: createStream(`${seed}::step::duels`),
+      pits: createStream(`${seed}::step::pits`),
+      incidents: createStream(`${seed}::step::incidents`),
+    },
+    rules,
+    // RF-SIM-06: the era's dirty air is the quick mode's (rules.js), the tow is step-only data.
+    dirtyLoss: rules.dirtyAir,
+    slipGain: byEra(balance.slipstream.byEra, state.year, "gainPerLap"),
+    tau: new Float64Array(n),
+    laps: new Int32Array(n),
+    P: new Float64Array(n),
+    P0: new Float64Array(n),
+    tau0: new Float64Array(n),
+    budget: new Float64Array(n),
+    lapStart: new Float64Array(n),
+    active: new Uint8Array(n),
+    inPit: new Uint8Array(n),
+    pitRate: new Float64Array(n),
+    delay: new Float64Array(n),
+    failTau: new Float64Array(n).fill(-1),
+    failReason: new Array(n).fill(null),
+    failCorner: new Int32Array(n),
+    mistakeTau: new Float64Array(n).fill(-1),
+    mistakeCorner: new Int32Array(n),
+    lapFlags: new Uint8Array(n),
+    lat: new Float64Array(n),
+    latTarget: new Float64Array(n),
+    cooldownUntil: new Float64Array(n),
+    duelOther: new Int32Array(n).fill(-1),
+    duelRole: new Uint8Array(n),
+    duelMult: new Float64Array(n),
+    duelUntil: new Float64Array(n),
+    switchTarget: new Int32Array(n).fill(-1),
+    switchTau: new Float64Array(n),
+    switchCorner: new Int32Array(n),
+    drsOpen: new Int8Array(n),
+    blueUntil: new Float64Array(n),
+    blueBy: new Int32Array(n).fill(-1),
+    blueDelay: new Float64Array(n),
+    ahead: new Int32Array(n).fill(-1),
+    behind: new Int32Array(n).fill(-1),
+    gapM: new Float64Array(n),
+    gapS: new Float64Array(n),
+    lapDiff: new Int32Array(n),
+    ring: new Int32Array(n),
+    ringSize: 0,
+    order: new Int32Array(n),
+    firstCross: new Float64Array(laps + 2).fill(-1),
+    firstCrossCar: new Int32Array(laps + 2).fill(-1),
+    lastCross: new Float64Array(laps + 2).fill(-1),
+    lastCrossCar: new Int32Array(laps + 2).fill(-1),
+    boxFree: {},
+    retireAt: null,
+    scOpen: null,
+  };
+  for (let i = 0; i < n; i += 1) sim.order[i] = i;
+  state._sim = sim;
+  state.mode = "step";
+  state.clock = 0;
+  state.duels = [];
+  state.safetyCarSpells = [];
+  sim.retireAt = (i, reason, corner) => retireCar(state, i, reason, corner);
+  state.cars.forEach((car) => {
+    car.defence = car.defence || balance.defence.default;
+    car.overtakeRisk = car.overtakeRisk || balance.risk.default;
+  });
+  return state;
+};
+
+/** A step race from the same arguments as race.js createRace (RF-SIM-01). */
+export const createStepRace = (args) => fromQuickRace(createRace(args), { race: args.race });
+
+/** The lights go out: grid slots behind the line and every car's first lap planned. */
+const start = (state) => {
+  const sim = state._sim;
+  const { tables, balance } = sim;
+  sim.started = true;
+  beginLeaderLap(state, 1);
+  state.cars.forEach((car, i) => {
+    const back = (balance.grid.poleBackMetres + i * balance.grid.gapMetres) / tables.length;
+    sim.P[i] = -back;
+    sim.tau[i] = tauAtD(tables, 1 - back) - 1;
+    sim.laps[i] = 0;
+    sim.active[i] = car.status === "running" ? 1 : 0;
+    sim.lat[i] = (car.grid % 2 ? -1 : 1) * 2.6;
+    beginLap(state, i, 1, 0);
+  });
+};
+
+// ------------------------------------------------------------------ laps
+
+/** Weighted pick of a corner for a mistake or an accident (race.js spotOn, "mistake"). */
+const mistakeCorner = (state, stream) => {
+  const corners = state.track?.corners || [];
+  if (!corners.length) return null;
+  let total = 0;
+  for (let k = 0; k < corners.length; k += 1) total += corners[k].kind === "slow" ? 2 : corners[k].kind === "fast" ? 3 : 1;
+  let pick = stream.int(0, total - 1);
+  for (let k = 0; k < corners.length; k += 1) {
+    pick -= corners[k].kind === "slow" ? 2 : corners[k].kind === "fast" ? 3 : 1;
+    if (pick < 0) return corners[k].number;
+  }
+  return corners[corners.length - 1].number;
+};
+
+const apexTauOf = (sim, corner, stream) => {
+  const known = corner !== null && sim.tables.apexTau.get(corner);
+  return known !== undefined && known !== false ? known : stream.range(0.08, 0.95);
+};
+
+/** Plan car `i`'s lap `lap`, starting at race time `t`. */
+const beginLap = (state, i, lap, t) => {
+  const sim = state._sim;
+  const car = state.cars[i];
+  const stream = sim.streams.laps;
+  sim.lapStart[i] = t;
+  sim.lapFlags[i] = state.safetyCar ? 1 : 0;
+  if (!car.isUser) rivalCalls(state, car, lap);
+  let budget = planLap(state, car, lap, stream, { gridIndex: i, scrumShare: sim.balance.lapOne.scrumShare });
+  if (lap === 1) {
+    // The quick mode staggers the start by START_SPACING a slot; here the slot is physical.
+    budget = (budget + i * START_SPACING) / (1 - sim.tau[i]);
+  }
+  sim.budget[i] = Math.max(1, budget);
+  sim.mistakeTau[i] = -1;
+  if (car.pendingMistake) {
+    const corner = mistakeCorner(state, stream);
+    sim.mistakeCorner[i] = corner ?? 0;
+    sim.mistakeTau[i] = apexTauOf(sim, corner, stream);
+  }
+  sim.failTau[i] = -1;
+  const failure = rollFailure(state, car, lap, sim.streams.incidents);
+  if (failure) {
+    const inc = sim.streams.incidents;
+    let at;
+    let corner = null;
+    if (failure.at === "early") at = inc.range(0.02, 0.18);
+    else if (failure.at === "mistake" && sim.mistakeTau[i] >= 0) {
+      at = Math.min(0.999, sim.mistakeTau[i] + 1e-6);
+      corner = sim.mistakeCorner[i];
+    } else if (failure.at === "corner" || failure.at === "mistake") {
+      corner = mistakeCorner(state, inc);
+      at = apexTauOf(sim, corner, inc);
+    } else at = inc.range(0.08, 0.95);
+    sim.failTau[i] = at;
+    sim.failReason[i] = failure.reason;
+    sim.failCorner[i] = corner ?? 0;
+  }
+};
+
+/** Order of the running cars by distance covered (the timing tower's order). */
+const runningCars = (state) => {
+  const sim = state._sim;
+  const out = [];
+  for (let k = 0; k < sim.n; k += 1) {
+    const car = state.cars[sim.order[k]];
+    if (car.status === "running") out.push(car);
+  }
+  return out;
+};
+
+/** Car `i` crossed the line at race time `tc`, ending lap `lap`. */
+const endLap = (state, i, lap, tc) => {
+  const sim = state._sim;
+  const car = state.cars[i];
+  const lapTime = tc - sim.lapStart[i];
+  car.time = tc;
+  car.lastLap = lapTime;
+  car.lapTime = lapTime;
+  car.lastLapRaced = lap;
+  const pit = sim.inPit[i] === 1 ? car.pit || null : null;
+  if (sim.inPit[i] === 1) sim.inPit[i] = 2;
+  const entry = { lap, start: sim.lapStart[i], end: tc, pit, compound: car.compound };
+  // A lap spent in someone's air, held up or in a fight (not visible at the line).
+  if (sim.lapFlags[i] & 24) entry.held = true;
+  car.history.push(entry);
+  car.pit = null;
+  if (!(sim.lapFlags[i] & 7) && (car.bestLap === null || lapTime < car.bestLap)) car.bestLap = lapTime;
+
+  // Timing at the line: who crossed this line just before, and the leader.
+  const baseLap = state.race.baseLap;
+  if (sim.firstCross[lap] < 0) {
+    sim.firstCross[lap] = tc;
+    sim.firstCrossCar[lap] = i;
+    state.lap = lap;
+    sim.leaderLap = lap + 1;
+    const sc = state.safetyCar;
+    if (sc && lap > sc.since) {
+      sc.laps -= 1;
+      if (sc.laps <= 0) {
+        state.safetyCar = null;
+        pushEvent(state, lap, { type: "sc-in", virtual: sc.virtual });
+      }
+    }
+    if (lap > 1 && sim.firstCrossCar[lap - 1] !== i) pushEvent(state, lap, { type: "lead", carId: car.id });
+    if (lap < state.laps) beginLeaderLap(state, lap + 1);
+    car.gapAhead = null;
+  } else {
+    const gap = tc - sim.lastCross[lap];
+    car.gapAhead = gap < baseLap * 0.5 ? gap : null;
+    const ahead = state.cars[sim.lastCrossCar[lap]];
+    if (ahead) ahead.gapBehind = gap;
+  }
+  sim.lastCross[lap] = tc;
+  sim.lastCrossCar[lap] = i;
+  car.gap = tc - sim.firstCross[lap];
+  car.lapsDown = Math.max(0, state.lap - lap);
+
+  if (car.bestLap !== null && (!state.fastestLap || car.bestLap < state.fastestLap.time)) {
+    const changed = state.fastestLap && state.fastestLap.carId !== car.id;
+    state.fastestLap = { carId: car.id, time: car.bestLap, lap };
+    if (changed && lap > 3) pushEvent(state, lap, { type: "fastest", carId: car.id, time: car.bestLap });
+  }
+  if (car.isUser) radioFor(state, car, lap);
+
+  if (lap >= state.laps) {
+    car.status = "finished";
+    sim.active[i] = 0;
+    return false;
+  }
+  beginLap(state, i, lap + 1, tc);
+  return true;
+};
+
+/** Car `i` stops for good where it is. */
+const retireCar = (state, i, reason, corner) => {
+  const sim = state._sim;
+  const car = state.cars[i];
+  if (car.status !== "running") return;
+  const lap = sim.laps[i] + 1;
+  retire(state, car, lap, reason, corner || null, sim.streams.incidents);
+  if (state.safetyCar && state.safetyCar.since === undefined) state.safetyCar.since = sim.leaderLap;
+  const share = clamp(frac(sim.tau[i]), 0.001, 0.999);
+  car.retireShare = share;
+  car.history.push({ lap, start: sim.lapStart[i], end: sim.clock, retired: true, share });
+  sim.active[i] = 0;
+  sim.inPit[i] = 0;
+  if (sim.duelOther[i] >= 0) endDuel(sim, i);
+};
+
+// ------------------------------------------------------------------ a step
+
+/** Insertion sort of `keys`-ordered indices (nearly sorted already: cheap). */
+const sortRing = (sim) => {
+  const ring = sim.ring;
+  const P = sim.P;
+  for (let a = 1; a < sim.ringSize; a += 1) {
+    const value = ring[a];
+    const key = frac(P[value]);
+    let b = a - 1;
+    while (b >= 0 && frac(P[ring[b]]) > key) {
+      ring[b + 1] = ring[b];
+      b -= 1;
+    }
+    ring[b + 1] = value;
+  }
+};
+
+const raceKey = (state, i) => {
+  const car = state.cars[i];
+  if (car.status === "finished") return 1e6 - car.time * 1e-3;
+  if (car.status === "running") return state._sim.P[i];
+  return -1e6 + (car.retiredLap ?? 0);
+};
+
+const sortOrder = (state) => {
+  const sim = state._sim;
+  const order = sim.order;
+  for (let a = 1; a < sim.n; a += 1) {
+    const value = order[a];
+    const key = raceKey(state, value);
+    let b = a - 1;
+    while (b >= 0 && raceKey(state, order[b]) < key) {
+      order[b + 1] = order[b];
+      b -= 1;
+    }
+    order[b + 1] = value;
+  }
+  for (let k = 0; k < sim.n; k += 1) state.cars[order[k]].position = k + 1;
+};
+
+/** Rebuild the ring of cars on track (not retired, finished or in the pit lane). */
+const buildRing = (sim) => {
+  let size = 0;
+  // Keep the previous ring order for the cars still in it, then add rejoining ones.
+  const seen = sim.seen || (sim.seen = new Uint8Array(sim.n));
+  seen.fill(0);
+  for (let k = 0; k < sim.ringSize; k += 1) {
+    const i = sim.ring[k];
+    if (sim.active[i] && sim.inPit[i] === 0) {
+      sim.ring[size] = i;
+      size += 1;
+      seen[i] = 1;
+    }
+  }
+  for (let i = 0; i < sim.n; i += 1) {
+    if (!seen[i] && sim.active[i] && sim.inPit[i] === 0) {
+      sim.ring[size] = i;
+      size += 1;
+    }
+  }
+  sim.ringSize = size;
+  sortRing(sim);
+};
+
+/** Who is in front of whom on the road, at the start of the step. */
+const measureGaps = (sim) => {
+  const { ring, ringSize, P, tau, budget, tables } = sim;
+  sim.ahead.fill(-1);
+  sim.behind.fill(-1);
+  let best = -1;
+  let bestGap = -1;
+  for (let k = 0; k < ringSize; k += 1) {
+    const i = ring[k];
+    if (ringSize < 2) {
+      sim.gapM[i] = Infinity;
+      sim.gapS[i] = Infinity;
+      best = k;
+      break;
+    }
+    const a = ring[(k + 1) % ringSize];
+    sim.ahead[i] = a;
+    sim.behind[a] = i;
+    const gapD = frac(P[a] - P[i]);
+    sim.gapM[i] = gapD * tables.length;
+    sim.gapS[i] = frac(tauAtD(tables, frac(P[a])) - frac(tau[i])) * budget[i];
+    sim.lapDiff[i] = Math.round(P[a] - P[i] - gapD);
+    if (sim.gapM[i] > bestGap) {
+      bestGap = sim.gapM[i];
+      best = k;
+    }
+  }
+  return best;
+};
+
+/**
+ * RF-SIM-06: the change in speed (a fraction) for a car `gapSec` behind another, in a
+ * corner (dirty air: the era's loss per lap, spent in the corners) or on a straight (the
+ * tow: the era's gain per lap, spent on the straights). Zero outside the windows.
+ */
+export const airEffect = (sim, budget, gapSec, corner) => {
+  const { dirtyAir, slipstream } = sim.balance;
+  if (corner) return gapSec < dirtyAir.windowSec ? -(sim.dirtyLoss * (1 - gapSec / dirtyAir.windowSec)) / budget / sim.tables.cornerTime : 0;
+  return gapSec < slipstream.windowSec ? (sim.slipGain * (1 - gapSec / slipstream.windowSec)) / budget / sim.tables.straightTime : 0;
+};
+
+/** Advance car `i` one step. */
+const advance = (state, i) => {
+  const sim = state._sim;
+  const { balance, tables, dt } = sim;
+  const car = state.cars[i];
+  const sc = state.safetyCar;
+  const baseLap = state.race.baseLap;
+  const a = sim.ahead[i];
+  const gapS = sim.gapS[i];
+  const gapM = sim.gapM[i];
+  const d0 = frac(sim.P[i]);
+  let rate = 1 / sim.budget[i];
+  let mult = 1;
+
+  if (sc && sim.inPit[i] === 0) {
+    const scRate = 1 / (baseLap * (sc.virtual ? balance.safetyCar.virtualLapFactor : balance.safetyCar.lapFactor));
+    if (sc.virtual) rate = Math.min(rate, scRate);
+    else if (a >= 0 && sim.lapDiff[i] >= 0 && gapM > balance.safetyCar.trainGapMetres && car.position > 1) rate = Math.min(rate, scRate * balance.safetyCar.catchUp);
+    else rate = Math.min(rate, scRate);
+    sim.lapFlags[i] |= 1;
+  } else if (a >= 0 && sim.inPit[i] === 0) {
+    mult += airEffect(sim, sim.budget[i], gapS, inCorner(tables, d0));
+    if (gapS < balance.traffic.followWindowSec) sim.lapFlags[i] |= 8;
+    if (sim.drsOpen[i] > 0) mult += balance.drs.speedGain;
+    // Blue flags: a car about to be lapped moves over, once per car lapping it; both
+    // lose the quick mode's time for it (race.js blueFlags).
+    if (sim.lapDiff[i] < 0 && gapM < balance.blueFlags.windowMetres && !(sim.blueBy[a] === i && sim.blueUntil[a] > sim.clock)) {
+      sim.blueBy[a] = i;
+      sim.blueUntil[a] = sim.clock + balance.blueFlags.cooldownSec;
+      sim.blueDelay[a] += balance.blueFlags.lappedDelay;
+      sim.blueDelay[i] += balance.blueFlags.lapperDelay;
+    }
+  }
+  if (sim.duelUntil[i] > sim.clock) {
+    mult += sim.duelMult[i];
+    sim.lapFlags[i] |= 16;
+  }
+  if (sim.inPit[i] === 1) mult *= sim.pitRate[i];
+  if (sim.delay[i] > 0) {
+    const slow = balance.mistake.slowFactor;
+    mult *= slow;
+    sim.delay[i] = Math.max(0, sim.delay[i] - dt * (1 - slow));
+    sim.lapFlags[i] |= 16;
+  } else if (sim.blueDelay[i] > 0) {
+    const slow = balance.blueFlags.slowFactor;
+    mult *= slow;
+    sim.blueDelay[i] = Math.max(0, sim.blueDelay[i] - dt * (1 - slow));
+    sim.lapFlags[i] |= 16;
+  }
+  const tau0 = sim.tau[i];
+  let tau1 = tau0 + rate * Math.max(0, mult) * dt;
+  const laps = sim.laps[i];
+  let P1 = laps + dAt(tables, tau1);
+
+  // Nobody drives through the car in front (unless passing it or lapping it).
+  if (a >= 0 && sim.inPit[i] === 0) {
+    const exempt =
+      (sim.duelOther[i] === a && (sim.duelRole[i] === ROLE.PASSING || sim.duelRole[i] === ROLE.YIELDING)) ||
+      (sim.lapDiff[i] < 0 && !sc) ||
+      (sim.lapDiff[i] > 0 && !sc && gapM < balance.traffic.minGapMetres);
+    if (!exempt) {
+      const limit = sim.P0[i] + frac(sim.P[a] - sim.P0[i]) - balance.traffic.minGapMetres / tables.length;
+      if (P1 > limit) {
+        P1 = Math.max(sim.P0[i], limit);
+        tau1 = tauAtD(tables, P1 - laps);
+        if (tau1 < tau0) tau1 = tau0;
+        sim.lapFlags[i] |= 8;
+      }
+    }
+  }
+  sim.P[i] = P1;
+  sim.tau[i] = tau1;
+  checkpoints(state, i, tau0, Math.min(tau1, 1));
+  if (sim.active[i] && tau1 >= 1) {
+    const tc = sim.clock - dt + (dt * (1 - tau0)) / Math.max(1e-12, tau1 - tau0);
+    sim.laps[i] = laps + 1;
+    sim.tau[i] = tau1 - 1;
+    const going = endLap(state, i, laps + 1, tc);
+    if (going) checkpoints(state, i, 0, sim.tau[i]);
+  }
+};
+
+/** Everything that happens between time shares `from` and `to` of car `i`'s lap. */
+const checkpoints = (state, i, from, to) => {
+  const sim = state._sim;
+  const { tables } = sim;
+  const car = state.cars[i];
+  const lap = sim.laps[i] + 1;
+  if (to <= from) return;
+
+  if (sim.failTau[i] >= 0 && (sim.failTau[i] > from && sim.failTau[i] <= to)) {
+    const corner = sim.failCorner[i] || null;
+    sim.failTau[i] = -1;
+    retireCar(state, i, sim.failReason[i], corner);
+    return;
+  }
+  if (sim.mistakeTau[i] >= 0 && (sim.mistakeTau[i] > from && sim.mistakeTau[i] <= to)) {
+    sim.mistakeTau[i] = -1;
+    sim.delay[i] += car.pendingMistake;
+    sim.lapFlags[i] |= 2;
+    pushEvent(state, lap, { type: "mistake", carId: car.id, kind: car.mistakeKind, corner: sim.mistakeCorner[i] || null, loss: Math.round(car.pendingMistake * 10) / 10 });
+  }
+  if (sim.inPit[i] === 0 && (tables.pitEntryTau > from && tables.pitEntryTau <= to)) enterPit(state, i, lap);
+  if (sim.inPit[i] === 2 && (tables.pitExitTau > from && tables.pitExitTau <= to)) sim.inPit[i] = 0;
+  if (sim.inPit[i] !== 0) return;
+
+  // DRS: detection at the start of each zone, closed at its end.
+  for (let z = 0; z < tables.drsZones.length; z += 1) {
+    const zone = tables.drsZones[z];
+    if (zone.tauFrom > from && zone.tauFrom <= to) sim.drsOpen[i] = sim.ahead[i] >= 0 && drsAllowed(state, lap, sim.gapS[i]) ? z + 1 : 0;
+    if ((zone.tauTo > from && zone.tauTo <= to) && sim.drsOpen[i] === z + 1) sim.drsOpen[i] = 0;
+  }
+  // Attack points before the braking zones.
+  if (!state.safetyCar) {
+    for (let z = 0; z < tables.attacks.length; z += 1) {
+      if (!(tables.attacks[z].tau > from && tables.attacks[z].tau <= to)) continue;
+      const a = sim.ahead[i];
+      if (a >= 0 && sim.lapDiff[i] === 0) {
+        const b = sim.behind[i];
+        const behindGap = b >= 0 && sim.lapDiff[b] === 0 ? sim.gapS[b] : Infinity;
+        openDuel(state, i, z, a, sim.gapS[i], b, behindGap);
+      }
+    }
+  }
+  // The exit of a corner lost: the switchback.
+  if (sim.switchTarget[i] >= 0 && (sim.switchTau[i] > from && sim.switchTau[i] <= to)) {
+    const target = sim.switchTarget[i];
+    const gap = sim.active[target] && sim.inPit[target] === 0 ? (frac(sim.P[target] - sim.P[i]) * tables.length) : Infinity;
+    trySwitchback(state, i, target, gap);
+  }
+};
+
+/** Car `i` reaches pit entry on lap `lap`: does it come in? */
+const enterPit = (state, i, lap) => {
+  const sim = state._sim;
+  const car = state.cars[i];
+  const stream = sim.streams.pits;
+  const decision = pitDecision(state, car, lap, runningCars(state), stream);
+  if (!decision) return;
+  const segTau = 1 - sim.tables.pitEntryTau;
+  const segTime = segTau * sim.budget[i];
+  const arrival = sim.clock + segTime * 0.6;
+  const free = sim.boxFree[car.teamId] ?? -Infinity;
+  const queue = free > arrival ? free - arrival + 0.8 : 0;
+  const pit = servicePit(state, car, lap, decision, stream, queue);
+  sim.boxFree[car.teamId] = arrival + queue + pit.ownStationary;
+  car.pit = { lane: pit.lane, stationary: pit.stationary };
+  const extra = pit.lane + pit.stationary;
+  sim.pitRate[i] = segTime / (segTime + extra);
+  sim.inPit[i] = 1;
+  sim.lapFlags[i] |= 4;
+  sim.drsOpen[i] = 0;
+  if (sim.duelOther[i] >= 0) endDuel(sim, i);
+};
+
+/** Passes in progress: done once clear by a car's length, or when time runs out. */
+const settleDuels = (state) => {
+  const sim = state._sim;
+  const minGap = sim.balance.traffic.minGapMetres / sim.tables.length;
+  for (let i = 0; i < sim.n; i += 1) {
+    if (sim.duelRole[i] === ROLE.NONE) continue;
+    const other = sim.duelOther[i];
+    if (sim.duelRole[i] === ROLE.PASSING && other >= 0) {
+      const lead = sim.P[i] - sim.P[other];
+      if (lead > minGap || !sim.active[other] || !sim.active[i]) {
+        endDuel(sim, i);
+        continue;
+      }
+      if (sim.clock >= sim.duelUntil[i]) {
+        // Out of road: the move is made by the end of the corner, so put it there.
+        if (lead > -0.01) sim.P[i] = sim.P[other] + minGap * 1.05;
+        sim.tau[i] = Math.min(0.9999, tauAtD(sim.tables, sim.P[i] - sim.laps[i]));
+        endDuel(sim, i);
+      }
+    } else if (sim.duelRole[i] !== ROLE.YIELDING && sim.clock >= sim.duelUntil[i]) {
+      endDuel(sim, i);
+    }
+  }
+};
+
+/** Sideways: the attacker on the inside, nobody on top of anybody (presentation only). */
+const lateral = (sim) => {
+  const { lateral: L } = sim.balance;
+  const stepMove = L.rate * sim.dt;
+  for (let k = 0; k < sim.ringSize; k += 1) {
+    const i = sim.ring[k];
+    const target = sim.duelRole[i] === ROLE.NONE ? 0 : sim.latTarget[i];
+    const diff = target - sim.lat[i];
+    sim.lat[i] += Math.abs(diff) <= stepMove ? diff : Math.sign(diff) * stepMove;
+  }
+  for (let k = 0; k < sim.ringSize; k += 1) {
+    const i = sim.ring[k];
+    const a = sim.ahead[i];
+    if (a < 0) continue;
+    const gap = frac(sim.P[a] - sim.P[i]) * sim.tables.length;
+    if (gap > L.carLength && gap < sim.tables.length - L.carLength) continue;
+    const apart = sim.lat[i] - sim.lat[a];
+    if (Math.abs(apart) >= L.carWidth) continue;
+    const side = apart !== 0 ? Math.sign(apart) : sim.latTarget[i] !== 0 ? Math.sign(sim.latTarget[i]) : 1;
+    sim.lat[i] = clamp(sim.lat[a] + side * L.carWidth, -L.halfWidth, L.halfWidth);
+    if (Math.abs(sim.lat[i] - sim.lat[a]) < L.carWidth) sim.lat[a] = clamp(sim.lat[i] - side * L.carWidth, -L.halfWidth, L.halfWidth);
+  }
+};
+
+/** One fixed step of `dt` seconds for the whole field. */
+export const stepOnce = (state) => {
+  const sim = state._sim;
+  if (state.finished) return;
+  if (!sim.started) start(state);
+  sim.clock += sim.dt;
+  sim.steps += 1;
+  if (state.safetyCar && state.safetyCar.since === undefined) state.safetyCar.since = sim.leaderLap;
+
+  buildRing(sim);
+  const first = measureGaps(sim);
+  for (let i = 0; i < sim.n; i += 1) {
+    sim.P0[i] = sim.P[i];
+    sim.tau0[i] = sim.tau[i];
+  }
+  // Front to back around the loop, starting behind the biggest gap, so each car sees
+  // the car ahead where it already is this step.
+  for (let k = 0; k < sim.ringSize; k += 1) {
+    const i = sim.ring[(first - k + sim.ringSize) % sim.ringSize];
+    if (sim.active[i]) advance(state, i);
+  }
+  // Cars in the pit lane run on their own.
+  for (let i = 0; i < sim.n; i += 1) {
+    if (sim.active[i] && sim.inPit[i] !== 0 && sim.P0[i] === sim.P[i] && sim.tau0[i] === sim.tau[i]) {
+      sim.ahead[i] = -1;
+      advance(state, i);
+    }
+  }
+  settleDuels(state);
+  lateral(sim);
+  sortOrder(state);
+  state.clock = sim.clock;
+  // Safety-car spells in race time, for the view and the timing.
+  if (state.safetyCar && !sim.scOpen) {
+    sim.scOpen = { from: sim.clock - sim.dt, to: null, virtual: Boolean(state.safetyCar.virtual) };
+    state.safetyCarSpells.push(sim.scOpen);
+  } else if (!state.safetyCar && sim.scOpen) {
+    sim.scOpen.to = sim.clock;
+    sim.scOpen = null;
+  }
+
+  let running = 0;
+  for (let i = 0; i < sim.n; i += 1) if (sim.active[i]) running += 1;
+  const guard = state.laps * state.race.baseLap * 4;
+  if (running === 0 || sim.clock > guard) finishRace(state);
+};
+
+// ------------------------------------------------------------------ API
+
+/** Run the race clock forward `seconds` (RF-CMD-04: the view picks ×1…×16 by how much it asks for). */
+export const stepFor = (state, seconds) => {
+  const sim = state._sim;
+  sim.requested += seconds;
+  const target = Math.floor(sim.requested / sim.dt + 1e-9);
+  while (sim.steps < target && !state.finished) stepOnce(state);
+  return state;
+};
+
+/** Run until the next event the view should not miss (RF-CMD-04 "saltar al siguiente evento"). */
+export const stepToNextEvent = (state, types = ["pass", "pit", "dnf", "sc", "vsc", "rain", "lead", "contact", "flag"]) => {
+  const sim = state._sim;
+  const from = state.events.length;
+  while (!state.finished) {
+    stepOnce(state);
+    if (state.events.slice(from).some((event) => types.includes(event.type))) break;
+  }
+  sim.requested = sim.steps * sim.dt;
+  return state;
+};
+
+/** Headless: the whole race (RNF-01). */
+export const runStepToFinish = (state) => {
+  const sim = state._sim;
+  while (!state.finished) stepOnce(state);
+  sim.requested = sim.steps * sim.dt;
+  return state;
+};
+
+/** Where every car is right now, for a live view that reads the step sim directly. */
+export const snapshot = (state) => {
+  const sim = state._sim;
+  return state.cars.map((car, i) => ({
+    id: car.id,
+    lap: sim.laps[i] + 1,
+    progress: sim.P[i],
+    share: frac(sim.P[i]),
+    lateral: sim.lat[i],
+    inPit: sim.inPit[i] !== 0,
+    status: car.status,
+    position: car.position,
+    duel: sim.duelRole[i],
+  }));
+};
+
+/**
+ * The state as the UI and career read it (classificationOf, completeRace, raceClock): the
+ * same object without the simulator's internals.
+ */
+export const toRaceState = (state) => {
+  const { _sim, _stream, ...rest } = state;
+  return rest;
+};
+
+// ------------------------------------------------------------- commands
+
+const indexOf = (state, carId) => state.cars.findIndex((car) => car.id === carId);
+
+/**
+ * RF-CMD-01: the quick mode's setters, with the pace change felt from now on rather than
+ * from the next line (the rest of the lap's budget moves by the change).
+ */
+const retimed = (state, carId, apply, termOf) => {
+  const i = indexOf(state, carId);
+  if (i < 0) return state;
+  const car = state.cars[i];
+  const before = termOf(car);
+  apply();
+  const delta = termOf(car) - before;
+  if (delta && state._sim && state._sim.started && car.status === "running") {
+    state._sim.budget[i] = Math.max(1, state._sim.budget[i] + delta);
+    car.expected = (car.expected ?? 0) + delta;
+  }
+  return state;
+};
+
+export const setMode = (state, carId, mode) => retimed(state, carId, () => quickSetMode(state, carId, mode), (car) => (MODES[car.mode] || MODES.normal).time);
+export const setMix = (state, carId, mix) => retimed(state, carId, () => quickSetMix(state, carId, mix), (car) => (MIXES[car.fuelMode] || MIXES.standard).time);
+export const setErs = (state, carId, mode) =>
+  retimed(state, carId, () => quickSetErs(state, carId, mode), (car) => (car.battery === null ? 0 : (ERS_MODES[car.ersMode] || ERS_MODES.balanced).time * (state.energy === "kers" ? 0.45 : 1)));
+export const requestPit = (state, carId, compound) => quickRequestPit(state, carId, compound);
+export const cancelPit = (state, carId) => quickCancelPit(state, carId);
+export const setTeamOrder = (state, teamId, order) => quickSetTeamOrder(state, teamId, order);
+
+/** RF-CMD-01 defence style: "holdCarBehind", "block" or "holdRacingLine". */
+export const setDefence = (state, carId, style) => {
+  const car = state.cars.find((entry) => entry.id === carId);
+  if (car && state._sim.balance.defence.styles[style]) car.defence = style;
+  return state;
+};
+
+/** RF-CMD-01 overtaking risk: "low", "normal" or "high". */
+export const setOvertakeRisk = (state, carId, level) => {
+  const car = state.cars.find((entry) => entry.id === carId);
+  if (car && state._sim.balance.risk.levels[level]) car.overtakeRisk = level;
+  return state;
+};
+
+export const DEFENCE_KEYS = Object.keys(balanceData.defence.styles);
+export const RISK_KEYS = Object.keys(balanceData.risk.levels);

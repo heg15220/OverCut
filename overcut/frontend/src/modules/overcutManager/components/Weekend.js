@@ -6,7 +6,7 @@
 import React, { useMemo, useState } from "react";
 import { LuCloudRain, LuFastForward, LuFlag, LuPlay, LuX } from "react-icons/lu";
 import {
-  PRACTICE_PROGRAMS, PRACTICE_RUNS, QUALI_STYLES, completeRace, createWeekendRace, currentRace, defaultPlan, entrantsFor, planDelta, runPractice,
+  PRACTICE_PROGRAMS, PRACTICE_RUNS, QUALI_STYLES, completeRace, createWeekendRace, currentRace, defaultPlan, entrantsFor, eraOf, planDelta, runPractice,
   runQualifyingSession, runSetupLap, setPlan, setSetup, setupStateOf, weekendForecast,
 } from "../engine/career";
 import { FEELINGS, SLIDERS } from "../engine/setup";
@@ -15,7 +15,7 @@ import SessionLive from "./SessionLive";
 import { practiceTimeline, qualifyingTimeline } from "../engine/sessions";
 import { circuitFor } from "../engine/venue";
 import LapChart from "./LapChart";
-import { compoundsFor, refuellingEra, runToFinish, spacedStops, stintLengths } from "../engine/race";
+import { rulesFor, runToFinish, spacedStops, stintLengths } from "../engine/race";
 import { driversOf } from "../engine/world";
 import { useManager } from "./context";
 import { Flag, Panel, Segmented, TeamBadge, Tyre } from "./atoms";
@@ -296,7 +296,7 @@ function Qualifying({ onQualified }) {
           );
         })}
       </Panel>
-      <Panel title={career.year >= 2006 ? t("Clasificación: Q1, Q2 y Q3", "Qualifying: Q1, Q2 and Q3") : t("Clasificación", "Qualifying")}>
+      <Panel title={rulesFor(eraOf(career)).qualifying.knockout ? t("Clasificación: Q1, Q2 y Q3", "Qualifying: Q1, Q2 and Q3") : t("Clasificación", "Qualifying")}>
         {drivers.map((driver) => (
           <div key={driver.id} className="mn-program">
             <strong>{driver.name}</strong>
@@ -340,9 +340,11 @@ function PlanEditor({ driver }) {
   const { career, act } = useManager();
   const race = currentRace(career);
   const plan = career.weekend.plans[driver.id] || defaultPlan(career);
-  const compounds = compoundsFor(career.year);
-  const minStops = refuellingEra(career.year) ? 1 : 0;
-  const maxStops = career.year < 1982 ? 1 : 3;
+  // The era's rules (pack or era-defaults, engine/rules.js): compounds, refuelling, stops (SRS 6.2).
+  const rules = rulesFor(eraOf(career));
+  const compounds = rules.tyres.compounds;
+  const minStops = rules.strategy.minStops;
+  const maxStops = Math.max(1, rules.strategy.maxStops);
   const delta = useMemo(() => planDelta(career, plan), [career, plan]);
   const update = (next) => act((c) => setPlan(c, driver.id, next));
 
@@ -399,6 +401,7 @@ function Strategy({ onStart }) {
   const drivers = driversOf(career.world, career.teamId);
   const quali = career.weekend.qualifying;
   const own = quali.order.map((id, index) => ({ id, index })).filter((entry) => quali.teams[entry.id] === career.teamId);
+  const rules = rulesFor(eraOf(career));
   return (
     <div className="mn-grid mn-grid--weekend">
       <Panel title={t("Parrilla de salida", "Starting grid")}>
@@ -409,7 +412,7 @@ function Strategy({ onStart }) {
         <Grid />
       </Panel>
       <Panel title={t("Estrategia", "Strategy")}>
-        <p className="mn-hint">{refuellingEra(career.year) ? t("Época de repostajes: cada parada llena el depósito para el siguiente tramo; ir ligero es ir rápido.", "Refuelling era: every stop fills the tank for the next stint; light is fast.") : career.year >= 2007 ? t("En seco es obligatorio usar dos compuestos distintos.", "In the dry two different compounds are mandatory.") : t("Elige cuándo cambiar neumáticos, si es que hace falta.", "Choose when to change tyres, if at all.")}</p>
+        <p className="mn-hint">{rules.refuelling && !rules.tyres.changesInRace ? t("Época de repostajes sin cambio de neumáticos: cada parada es solo combustible y un juego debe durar toda la carrera.", "Refuelling without tyre changes: every stop is fuel only and one set must last the race.") : rules.refuelling ? t("Época de repostajes: cada parada llena el depósito para el siguiente tramo; ir ligero es ir rápido.", "Refuelling era: every stop fills the tank for the next stint; light is fast.") : rules.tyres.mandatoryDryCompounds >= 2 ? t("En seco es obligatorio usar dos compuestos distintos.", "In the dry two different compounds are mandatory.") : t("Elige cuándo cambiar neumáticos, si es que hace falta.", "Choose when to change tyres, if at all.")}</p>
         {drivers.map((driver) => (
           <PlanEditor key={driver.id} driver={driver} />
         ))}
