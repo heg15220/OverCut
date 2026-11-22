@@ -1,17 +1,30 @@
 /**
  * The car on a turntable: the team's livery on the shape of its era, lit like
  * a launch, turning slowly. Drag to spin it; it settles back into its turn.
+ *
+ * Look (RF-3D-06, DESIGN.md "pit wall at night"): a dark studio environment
+ * with soft panels for the paint to reflect, PBR Neutral tone mapping so the
+ * livery keeps its colours, a cool rim light to cut the silhouette out of the
+ * dark card, a baked contact shadow, and the hero level of the GLB (LOD0
+ * geometry, textures up to 2048 px), drawn at >= 1.5x pixel ratio with MSAA.
  */
 
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
-import { createRenderer, environmentFor } from "./studio";
+import { createRenderer, studioEnvironmentFor } from "./studio";
+import { createContactShadow } from "./contactShadow";
 import { carAssetFor } from "./assets/manifest";
 import { createAssetCar } from "./assets/assetCar";
 import { frameTurntable } from "./showroomFraming";
 
+// Mounted turntables, oldest first. Only the newest one on screen draws (RNF-02): a moment's showroom over
+// Central's car card, or a card scrolled out of view, keeps its last frame and costs no GPU time.
+const stages = [];
+const drawing = () => [...stages].reverse().find((stage) => stage.onScreen);
+
 const FOV = 24;
+const HERO_MIN_PX = 700;
 // A low three-quarter view, the angle of a launch photo.
 const VIEW = new THREE.Vector3(6.8, 2.6, 6.8).normalize();
 const ELEVATION = Math.asin(VIEW.y);
@@ -28,7 +41,7 @@ const measure = (turntable, car) => {
   const box = new THREE.Box3();
   const part = new THREE.Box3();
   car.traverseVisible((node) => {
-    if (!node.isMesh || !node.geometry) return;
+    if (!node.isMesh || !node.geometry || node.name === "contact-shadow") return;
     if (!node.geometry.boundingBox) node.geometry.computeBoundingBox();
     part.copy(node.geometry.boundingBox).applyMatrix4(node.matrixWorld);
     box.union(part);
@@ -56,40 +69,40 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
     const canvas = document.createElement("canvas");
     canvas.className = "mn-showroom__canvas";
     host.appendChild(canvas);
-    const renderer = createRenderer(canvas, { alpha: true });
+    const renderer = createRenderer(canvas, { alpha: true, shadows: false, tone: "neutral", supersample: true });
     renderer.setClearColor(0x000000, 0);
     const scene = new THREE.Scene();
-    scene.environment = environmentFor(renderer);
-    scene.add(new THREE.HemisphereLight("#dfe9ff", "#20242c", 0.6));
-    const key = new THREE.DirectionalLight("#ffffff", 2.2);
+    scene.environment = studioEnvironmentFor(renderer);
+    scene.environmentIntensity = 1.5;
+    scene.add(new THREE.HemisphereLight("#c9d8f2", "#14181f", 0.5));
+    // Key from the front-left above, a cool rim from behind (the silhouette against the dark card), a weak warm fill.
+    const key = new THREE.DirectionalLight("#fff6ea", 1.1);
     key.position.set(4, 7, 5);
-    key.castShadow = true;
-    key.shadow.mapSize.set(1024, 1024);
-    Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 1, far: 20 });
-    key.shadow.radius = 6;
     scene.add(key);
-    const rim = new THREE.DirectionalLight("#9fc2ff", 1.2);
-    rim.position.set(-6, 3, -4);
+    const rim = new THREE.DirectionalLight("#a9c8ff", 2.2);
+    rim.position.set(-6, 3.5, -5);
     scene.add(rim);
+    const fill = new THREE.DirectionalLight("#ffd9a0", 0.6);
+    fill.position.set(6, 1, -2);
+    scene.add(fill);
     // A soft round floor that fades to nothing.
     const floorCanvas = document.createElement("canvas");
     floorCanvas.width = 256;
     floorCanvas.height = 256;
     const g = floorCanvas.getContext("2d");
     const gradient = g.createRadialGradient(128, 128, 10, 128, 128, 128);
-    gradient.addColorStop(0, "rgba(255,255,255,0.16)");
-    gradient.addColorStop(0.6, "rgba(255,255,255,0.05)");
-    gradient.addColorStop(1, "rgba(255,255,255,0)");
+    gradient.addColorStop(0, "rgba(190,210,255,0.13)");
+    gradient.addColorStop(0.6, "rgba(190,210,255,0.04)");
+    gradient.addColorStop(1, "rgba(190,210,255,0)");
     g.fillStyle = gradient;
     g.fillRect(0, 0, 256, 256);
-    const floor = new THREE.Mesh(new THREE.CircleGeometry(4.2, 64), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(floorCanvas), transparent: true, depthWrite: false }));
+    const floorTexture = new THREE.CanvasTexture(floorCanvas);
+    floorTexture.colorSpace = THREE.SRGBColorSpace;
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(4.2, 64), new THREE.MeshBasicMaterial({ map: floorTexture, transparent: true, depthWrite: false }));
     floor.rotation.x = -Math.PI / 2;
     scene.add(floor);
-    const shadow = new THREE.Mesh(new THREE.CircleGeometry(4, 48), new THREE.ShadowMaterial({ opacity: 0.45 }));
-    shadow.rotation.x = -Math.PI / 2;
-    shadow.position.y = 0.002;
-    shadow.receiveShadow = true;
-    scene.add(shadow);
+    // Baked under each car (and again when a sharper level of the GLB arrives); it turns with the car.
+    const contact = createContactShadow();
     const camera = new THREE.PerspectiveCamera(FOV, 2, 0.1, 100);
     camera.position.copy(VIEW).multiplyScalar(7.4);
     camera.lookAt(0, 0.35, 0);
@@ -97,7 +110,11 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
     scene.add(turntable);
 
     const s = state.current;
-    Object.assign(s, { renderer, scene, camera, turntable, angle: -1.05, velocity: 0.0025, dragging: false, lastX: 0, fit: null, aspect: 2 });
+    Object.assign(s, { renderer, scene, camera, turntable, contact, baked: null, angle: -1.05, velocity: 0.0025, dragging: false, lastX: 0, fit: null, aspect: 2 });
+    s.onScreen = true;
+    stages.push(s);
+    const seen = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver(([entry]) => { s.onScreen = entry.isIntersecting; }) : null;
+    seen?.observe(host);
 
     // Frame the car by its own size for the box's shape (any aspect, phone to ultra-wide).
     s.frame = () => {
@@ -144,6 +161,10 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
     let frame = 0;
     let tick = 0;
     const loop = () => {
+      if (drawing() !== s) {
+        frame = requestAnimationFrame(loop);
+        return;
+      }
       // The GLB arrives after the placeholder (lightest LOD first): re-measure now and then.
       tick += 1;
       if (s.car && tick % 20 === 0) {
@@ -154,6 +175,9 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
           s.frame();
         }
       }
+      // Re-bake the contact shadow for a new car or a newly arrived level.
+      const stamp = s.car ? `${s.car.id}:${s.car.userData.loaded ?? 0}` : null;
+      if (s.car && stamp !== s.baked && contact.bake(renderer, s.car)) s.baked = stamp;
       if (!s.dragging) {
         // Ease back into a slow turn after a flick.
         s.velocity += (0.0025 - s.velocity) * 0.03;
@@ -168,14 +192,15 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
     return () => {
       cancelAnimationFrame(frame);
       observer?.disconnect();
+      seen?.disconnect();
+      stages.splice(stages.indexOf(s), 1);
       canvas.removeEventListener("pointerdown", down);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
       floor.geometry.dispose();
       floor.material.map.dispose();
       floor.material.dispose();
-      shadow.geometry.dispose();
-      shadow.material.dispose();
+      contact.dispose();
       renderer.dispose();
       host.removeChild(canvas);
     };
@@ -191,7 +216,10 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
     const s = state.current;
     if (!s.turntable) return undefined;
     const procedural = buildCar({ year, color, color2, name, number, compound: year >= 2007 ? "soft" : null });
-    const car = asset ? createAssetCar({ asset, placeholder: procedural, renderer: s.renderer, year }) : procedural;
+    // The hero level (2048 px textures) only where it shows: a canvas at least ~700 device pixels wide (Car
+    // screen, phone at 2x). Small cards (Central at 1x) get LOD0, which the race needs anyway.
+    const devicePixels = (mount.current?.clientWidth || 0) * (window.devicePixelRatio || 1);
+    const car = asset ? createAssetCar({ asset, placeholder: procedural, renderer: s.renderer, year, closeUp: true, hero: devicePixels >= HERO_MIN_PX }) : procedural;
     s.turntable.add(car);
     s.car = car;
     s.fit = measure(s.turntable, car);

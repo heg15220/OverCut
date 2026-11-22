@@ -30,6 +30,10 @@ import { driversOf, fillEmptySeats, prepareReference, signForTeam, teamsByPace }
 import { eraWithRegulations, roundLineup, worldForSeason } from "./packs/packWorld";
 import { classificationOf, createRace, evaluatePlan, runQualifying, runToFinish, suggestPlan, weatherTimeline } from "./race";
 import { createStepRace, runStepToFinish } from "./sim";
+import { createSession, sessionFormat, sprintLaps } from "./sessionSim";
+import { circuitFor } from "./venue";
+import { timeShareAtDistance } from "./trackGeometry";
+import { rulesFor } from "./rules";
 import { createFinance, financeAfterRace, financeSeasonEnd } from "./finance";
 import { hqAdvance } from "./hq";
 import { deliverHistoryEvents, lineupWithAbsences, raceStarters } from "./history";
@@ -497,17 +501,242 @@ export const runQualifyingSession = (career, risk = {}) => {
   if (!weekend.practice) runPractice(career, {});
   const race = currentRace(career);
   const stream = substream(weekendSeed(career), "qualifying");
-  const forecast = substream(weekendSeed(career), "quali-weather");
-  const wetness = forecast.chance((race.profile.rain ?? 0.15) * 0.8) ? forecast.range(0.2, 0.8) : 0;
+  const wetness = qualifyingWetness(career);
   const entrants = entrantsFor(career);
   const result = runQualifying({ entrants, race, era: eraOf(career), year: career.year, wetness, practice: weekend.practice, risk, stream });
   weekend.qualifying = { ...result, wetness, teams: Object.fromEntries(entrants.map((entrant) => [entrant.id, entrant.teamId])) };
-  weekend.stage = "strategy";
+  weekend.stage = afterQualifyingStage(career);
   // The strategist's plan for both cars, which the player may change.
   driversOf(career.world, career.teamId).forEach((driver) => {
     weekend.plans[driver.id] = defaultPlan(career);
   });
   return weekend.qualifying;
+};
+
+/** Saturday's weather: the same seeded draw for the quick and the played qualifying. */
+const qualifyingWetness = (career) => {
+  const race = currentRace(career);
+  const forecast = substream(weekendSeed(career), "quali-weather");
+  return forecast.chance((race.profile.rain ?? 0.15) * 0.8) ? forecast.range(0.2, 0.8) : 0;
+};
+
+/** Friday's weather for the played practice (its own draw: the quick practice has none). */
+const practiceWetness = (career) => {
+  const race = currentRace(career);
+  const forecast = substream(weekendSeed(career), "practice-weather");
+  return forecast.chance((race.profile.rain ?? 0.15) * 0.6) ? forecast.range(0.2, 0.7) : 0;
+};
+
+/** RF-WKD-01: is this a sprint weekend in an era that has them (2021-)? */
+export const isSprintWeekend = (career) => {
+  const race = currentRace(career);
+  return Boolean(race?.sprint) && career.year >= 2021;
+};
+
+/** 2023-: a sprint shootout sets the sprint grid; 2021-2022: qualifying does, and the sprint sets Sunday's. */
+export const sprintHasShootout = (career) => isSprintWeekend(career) && career.year >= 2023;
+
+const afterQualifyingStage = (career) => (isSprintWeekend(career) ? "sprint" : "strategy");
+
+/**
+ * The arguments of a playable session (engine/sessionSim createSession, RF-WKD-02/03):
+ * every entrant, the circuit's sector lines and pit entry, the day's weather, the
+ * practice preparation, the race fuel each rival will declare where the era fuels for
+ * the race in qualifying (its strategist's first stint), the single-lap run order
+ * (reverse of the last race, else of car pace) and the tyre sets left (RF-WKD-05).
+ */
+export const sessionOptions = (career, kind) => {
+  const weekend = startWeekend(career);
+  if (!weekend) return null;
+  const race = currentRace(career);
+  const era = eraOf(career);
+  const rules = rulesFor(era);
+  const entrants = entrantsFor(career);
+  const circuit = circuitFor(race, career.year);
+  const seed = weekendSeed(career);
+  const raceFuel = {};
+  if (kind === "qualifying" && rules.qualifying.raceFuel) {
+    const base = defaultPlan(career);
+    const first = base.stops[0] ?? Math.round(race.laps / 3);
+    const stream = substream(seed, "quali-fuel");
+    entrants.forEach((entrant) => {
+      const spread = stream.int(-3, 3);
+      // Rivals declare their strategist's first stint; the player starts from the plain one and may change it.
+      raceFuel[entrant.id] = clamp(first + (entrant.isUser ? 0 : spread), 4, race.laps - 2);
+    });
+  }
+  const last = career.season.results[career.season.results.length - 1];
+  const previous = last ? last.rows.slice().sort((a, b) => (a.status === "finished" ? a.position : 99) - (b.status === "finished" ? b.position : 99)).map((row) => row.driverId) : [];
+  const byPace = entrants.slice().sort((a, b) => b.carRating + b.driverRating * 0.3 - (a.carRating + a.driverRating * 0.3)).map((entrant) => entrant.id);
+  const ranked = [...previous.filter((id) => byPace.includes(id)), ...byPace.filter((id) => !previous.includes(id))];
+  return {
+    kind,
+    entrants,
+    race,
+    era,
+    seed: `${seed}::${kind}`,
+    wetness: kind === "practice" ? practiceWetness(career) : qualifyingWetness(career),
+    practice: kind === "practice" ? {} : weekend.practice || {},
+    raceFuel,
+    runOrder: ranked.slice().reverse(),
+    sectorShares: [timeShareAtDistance(circuit, 1 / 3), timeShareAtDistance(circuit, 2 / 3)],
+    pitEntryShare: timeShareAtDistance(circuit, circuit.pit.entry),
+    tyres: kind === "practice" ? null : weekend.tyres || null,
+  };
+};
+
+/** A playable session for the current weekend (practice, qualifying or the sprint shootout). */
+export const createWeekendSession = (career, kind) => {
+  const options = sessionOptions(career, kind);
+  return options ? createSession(options) : null;
+};
+
+/** The format of this weekend's qualifying or shootout, for the screens (RF-WKD-01). */
+export const weekendSessionFormat = (career, kind) => sessionFormat({ kind, era: eraOf(career), race: currentRace(career), field: entrantsFor(career).length });
+
+/**
+ * Friday, played: the tyre sets the session left, the runs your drivers did, then the
+ * practice the weekend keeps (runPractice with the programme each driver ran most).
+ */
+export const commitPracticeSession = (career, result, programmes = {}) => {
+  const weekend = startWeekend(career);
+  if (!weekend || weekend.practice) return weekend?.feedback || null;
+  weekend.tyres = result.tyres;
+  weekend.practiceRuns = Object.fromEntries(entrantsFor(career).filter((entrant) => entrant.isUser).map((entrant) => [entrant.id, result.runs[entrant.id] || []]));
+  return runPractice(career, programmes);
+};
+
+/**
+ * Saturday, played (engine/sessionSim sessionResult): the grid in runQualifying's shape,
+ * plus the race fuel declared (2003-2009: the first stint, parc fermé) and the tyre the
+ * top ten start on (2010-2021).
+ */
+export const commitQualifyingSession = (career, result) => {
+  const weekend = startWeekend(career);
+  if (!weekend) return null;
+  if (!weekend.practice) runPractice(career, {});
+  const entrants = entrantsFor(career);
+  const { tyres, runs, ...kept } = result;
+  weekend.tyres = tyres;
+  weekend.qualifying = { ...kept, wetness: qualifyingWetness(career), teams: Object.fromEntries(entrants.map((entrant) => [entrant.id, entrant.teamId])) };
+  weekend.stage = afterQualifyingStage(career);
+  driversOf(career.world, career.teamId).forEach((driver) => {
+    weekend.plans[driver.id] = lockedPlan(career, driver.id, defaultPlan(career));
+  });
+  return weekend.qualifying;
+};
+
+/**
+ * SRS 6.2 parc fermé: in the eras that qualified on race fuel, the first stop is the fuel
+ * declared on Saturday; where the top ten start on their qualifying tyre, that is the
+ * first set. A plan is held to both.
+ */
+const lockedPlan = (career, driverId, plan) => {
+  const quali = career.weekend?.qualifying;
+  const race = currentRace(career);
+  if (!quali || !race) return plan;
+  const next = { stops: [...(plan.stops || [])], compounds: [...(plan.compounds || [])] };
+  const fuel = quali.fuel?.[driverId];
+  if (Number.isFinite(fuel) && rulesFor(eraOf(career)).refuelling && next.stops.length) {
+    next.stops[0] = clamp(Math.round(fuel), 2, race.laps - 2);
+    next.stops = [...new Set(next.stops)].sort((a, b) => a - b);
+  }
+  const tyre = quali.startTyres?.[driverId];
+  if (tyre && next.compounds.length) next.compounds[0] = tyre;
+  return next;
+};
+
+/** What Saturday fixed for a driver's race plan (the strategy screen shows it locked). */
+export const parcFermeOf = (career, driverId) => {
+  const quali = career.weekend?.qualifying;
+  return { fuel: quali?.fuel?.[driverId] ?? null, tyre: quali?.startTyres?.[driverId] ?? null };
+};
+
+/** The shootout, played or simulated: the sprint grid (2023-). */
+export const commitShootout = (career, result) => {
+  const weekend = startWeekend(career);
+  if (!weekend) return null;
+  const { tyres, runs, ...kept } = result;
+  if (tyres) weekend.tyres = tyres;
+  weekend.shootout = kept;
+  return weekend.shootout;
+};
+
+/** The shootout in one go (RF-WKD-02): the quick qualifying model on the shootout's own stream. */
+export const runShootout = (career) => {
+  const weekend = startWeekend(career);
+  if (!weekend) return null;
+  const race = currentRace(career);
+  const entrants = entrantsFor(career);
+  const result = runQualifying({ entrants, race, era: eraOf(career), year: career.year, wetness: qualifyingWetness(career), practice: weekend.practice || {}, risk: {}, stream: substream(weekendSeed(career), "shootout") });
+  return commitShootout(career, result);
+};
+
+/** The sprint's one set: the middle compound of the era (it has to last 100 km flat out). */
+const sprintCompound = (rules) => {
+  const options = rules.tyres.compounds;
+  return options[Math.floor((options.length - 1) / 2)] || options[0];
+};
+
+/**
+ * The sprint (2021-): about 100 km, no compulsory stop, the shootout's grid (2023-) or
+ * qualifying's (2021-2022), the sprint's own seed. Same shape as weekendRaceArgs.
+ */
+export const sprintRaceArgs = (career) => {
+  const weekend = startWeekend(career);
+  if (!weekend || !isSprintWeekend(career)) return null;
+  if (!weekend.qualifying) runQualifyingSession(career, {});
+  if (sprintHasShootout(career) && !weekend.shootout) runShootout(career);
+  const base = currentRace(career);
+  const laps = sprintLaps(base);
+  const race = { ...base, laps };
+  const era = eraOf(career);
+  const rules = rulesFor(era);
+  const entrants = raceStarters(career, entrantsFor(career));
+  const compound = sprintCompound(rules);
+  const plans = Object.fromEntries(entrants.map((entrant) => [entrant.id, { stops: [], compounds: [compound] }]));
+  const { crews, strategists } = crewsFor(career);
+  const order = (sprintHasShootout(career) ? weekend.shootout.order : weekend.qualifying.order).filter((id) => entrants.some((entrant) => entrant.id === id));
+  entrants.forEach((entrant) => {
+    if (!order.includes(entrant.id)) order.push(entrant.id);
+  });
+  return { race, era, year: career.year, entrants, grid: order, plans, practice: weekend.practice, seed: `${weekendSeed(career)}::sprint`, crews, strategists, gridPenalties: {}, sprint: true };
+};
+
+/** The sprint quick: to the flag at once (RF-WKD-02). */
+export const createSprintRace = (career) => {
+  const args = sprintRaceArgs(career);
+  return args ? createRace(args) : null;
+};
+
+/** Commit a finished sprint: its points (the pack's sprint scheme) and, in 2021-2022, Sunday's grid. */
+export const completeSprint = (career, state) => {
+  const weekend = startWeekend(career);
+  if (!weekend || weekend.sprint) return weekend?.sprint || null;
+  if (!state.finished) {
+    if (state._sim) runStepToFinish(state);
+    else if (state.mode === "step") throw new Error("completeSprint: a step race must be run to the flag in its simulator first");
+    else runToFinish(state);
+  }
+  const era = eraOf(career);
+  const scheme = era.sprintPoints || [];
+  const names = Object.fromEntries(state.cars.map((car) => [car.id, car.name]));
+  const classification = classificationOf(state);
+  const driverPoints = {};
+  const teamPoints = {};
+  const rows = classification.map((row) => {
+    const points = row.status === "finished" ? scheme[row.position - 1] ?? 0 : 0;
+    if (points) {
+      driverPoints[row.driverId] = (driverPoints[row.driverId] || 0) + points;
+      teamPoints[row.teamId] = (teamPoints[row.teamId] || 0) + points;
+    }
+    return { driverId: row.driverId, teamId: row.teamId, name: names[row.id], position: row.position, grid: row.grid, status: row.status, gap: row.gap === null ? null : Math.round(row.gap * 10) / 10, lapsDown: row.lapsDown, points };
+  });
+  const finished = rows.filter((row) => row.status === "finished").map((row) => row.driverId);
+  const others = rows.filter((row) => row.status !== "finished").map((row) => row.driverId);
+  weekend.sprint = { laps: state.laps, rows, driverPoints, teamPoints, order: [...finished, ...others], setsGrid: !sprintHasShootout(career) };
+  weekend.stage = "strategy";
+  return weekend.sprint;
 };
 
 export const defaultPlan = (career) => {
@@ -518,7 +747,7 @@ export const defaultPlan = (career) => {
 
 export const setPlan = (career, driverId, plan) => {
   if (!career.weekend) return career;
-  career.weekend.plans[driverId] = { stops: [...(plan.stops || [])], compounds: [...(plan.compounds || [])] };
+  career.weekend.plans[driverId] = lockedPlan(career, driverId, { stops: [...(plan.stops || [])], compounds: [...(plan.compounds || [])] });
   return career;
 };
 
@@ -545,10 +774,16 @@ export const weekendRaceArgs = (career) => {
       return;
     }
     plans[entrant.id] = { stops: base.stops.map((lap) => clamp(lap + stream.int(-3, 3), 2, race.laps - 2)), compounds: base.compounds };
+    // A played qualifying on race fuel: the rival's first stop is the fuel it declared (parc fermé).
+    const declared = weekend.qualifying.fuel?.[entrant.id];
+    if (Number.isFinite(declared) && plans[entrant.id].stops.length) {
+      plans[entrant.id] = { ...plans[entrant.id], stops: [clamp(declared, 2, race.laps - 2), ...plans[entrant.id].stops.slice(1)].sort((a, b) => a - b) };
+    }
   });
   const { crews, strategists } = crewsFor(career);
-  // Anyone who has lost their seat since Saturday starts from the back.
-  const grid = weekend.qualifying.order.filter((id) => entrants.some((entrant) => entrant.id === id));
+  // Anyone who has lost their seat since Saturday starts from the back. 2021-2022: the sprint sets the grid.
+  const source = weekend.sprint?.setsGrid ? weekend.sprint.order : weekend.qualifying.order;
+  const grid = source.filter((id) => entrants.some((entrant) => entrant.id === id));
   entrants.forEach((entrant) => {
     if (!grid.includes(entrant.id)) grid.push(entrant.id);
   });
@@ -565,6 +800,8 @@ export const weekendRaceArgs = (career) => {
     strategists,
     // RF-SIM-14: places lost for units over the era's allocation, set after the previous race.
     gridPenalties: gridPenaltiesFor(career, entrants),
+    // A played qualifying: the tyre each of the top ten set its time on (2010-2021).
+    ...(weekend.qualifying.startTyres && Object.keys(weekend.qualifying.startTyres).length ? { startTyres: weekend.qualifying.startTyres } : {}),
   };
 };
 
@@ -624,7 +861,19 @@ export const completeRace = (career, state) => {
   const names = Object.fromEntries(state.cars.map((car) => [car.id, car.name]));
   const classification = classificationOf(state);
   const fastestLap = state.fastestLap?.carId || null;
-  const { driverPoints, teamPoints } = scoreRace({ rows: classification, fastestLapDriverId: fastestLap, year: career.year, era: eraOf(career) });
+  const scored = scoreRace({ rows: classification, fastestLapDriverId: fastestLap, year: career.year, era: eraOf(career) });
+  // The sprint's points count for the round they were scored in (2021-).
+  const sprint = weekend.sprint || null;
+  const driverPoints = { ...scored.driverPoints };
+  const teamPoints = { ...scored.teamPoints };
+  if (sprint) {
+    Object.entries(sprint.driverPoints).forEach(([id, points]) => {
+      driverPoints[id] = (driverPoints[id] || 0) + points;
+    });
+    Object.entries(sprint.teamPoints).forEach(([id, points]) => {
+      teamPoints[id] = (teamPoints[id] || 0) + points;
+    });
+  }
   const rows = classification.map((row) => ({
     driverId: row.driverId,
     teamId: row.teamId,
@@ -637,6 +886,7 @@ export const completeRace = (career, state) => {
     stops: row.stops,
     points: driverPoints[row.driverId] || 0,
     penalty: row.penalty || 0,
+    ...(sprint ? { sprintPoints: sprint.driverPoints[row.driverId] || 0 } : {}),
   }));
   const summary = {
     round: career.round + 1,
@@ -650,6 +900,7 @@ export const completeRace = (career, state) => {
     pole: weekend.qualifying?.order?.[0] || null,
     teamPoints,
     safetyCars: state.events.filter((event) => event.type === "sc").length,
+    ...(sprint ? { sprint: { laps: sprint.laps, winner: sprint.rows[0]?.driverId || null } } : {}),
   };
   recordRace(career.season, summary);
   // The lap chart lives on the weekend only - the season keeps the summary, saves stay small.

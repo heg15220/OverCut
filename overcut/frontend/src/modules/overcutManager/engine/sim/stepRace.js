@@ -40,7 +40,7 @@
 import balanceData from "../../data/balance/race-sim.json";
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
 import {
-  cancelPit as quickCancelPit, createRace, decideInvestigations, duePitPenalty, energyStep, jumpStartChecks, markPenaltyServed, mixEffect, modeEffect, pitLaneLoss,
+  cancelPit as quickCancelPit, createRace, decideInvestigations, delayStop as quickDelayStop, skipStop as quickSkipStop, duePitPenalty, energyStep, jumpStartChecks, markPenaltyServed, mixEffect, modeEffect, pitLaneLoss,
   rainRedFlagCheck, redFlagRestart, redFlagTyres, requestPit as quickRequestPit, restartProcedureOf, setErs as quickSetErs, setMix as quickSetMix,
   setMode as quickSetMode, setTeamOrder as quickSetTeamOrder, showRedFlag, spotOn, stateRules, waveYellow,
 } from "../race";
@@ -953,7 +953,10 @@ export const setMix = (state, carId, mix) => retimed(state, carId, () => quickSe
 export const setErs = (state, carId, mode) =>
   retimed(state, carId, () => quickSetErs(state, carId, mode), (car) =>
     car.battery === null || car.battery === undefined ? 0 : energyStep({ rules: stateRules(state), mode: car.ersMode, battery: 100, gapAhead: null }).time);
-export const requestPit = (state, carId, compound) => quickRequestPit(state, carId, compound);
+export const requestPit = (state, carId, compound, options) => quickRequestPit(state, carId, compound, options);
+/** RF-CMD-02: the next planned stop a lap later, or not at all (read at pit entry, so it holds until the car gets there). */
+export const delayStop = (state, carId) => quickDelayStop(state, carId);
+export const skipStop = (state, carId) => quickSkipStop(state, carId);
 export const cancelPit = (state, carId) => quickCancelPit(state, carId);
 export const setTeamOrder = (state, teamId, order) => quickSetTeamOrder(state, teamId, order);
 

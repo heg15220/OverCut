@@ -1,12 +1,19 @@
 /**
  * The podium after the flag: the first three cars on their steps, gold, silver
  * and bronze, confetti coming down and the camera circling slowly.
+ *
+ * Each car is the team's real GLB of that season when the manifest has it
+ * (RF-3D-01; LOD0, already cached by the race), its era's procedural car
+ * otherwise (RF-3D-02). Lit like the showroom: studio reflections, PBR Neutral
+ * tone mapping, a cool rim light.
  */
 
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
-import { createRenderer, environmentFor } from "./studio";
+import { createRenderer, studioEnvironmentFor } from "./studio";
+import { carAssetFor } from "./assets/manifest";
+import { createAssetCar } from "./assets/assetCar";
 
 const STEP = [
   { place: 1, x: 0, height: 0.9, colour: "#d4af37" },
@@ -40,12 +47,16 @@ export default function Podium({ year = 2024, cars = [], height = 260, label }) 
     const canvas = document.createElement("canvas");
     canvas.className = "mn-showroom__canvas";
     host.appendChild(canvas);
-    const renderer = createRenderer(canvas, { alpha: true });
+    const renderer = createRenderer(canvas, { alpha: true, tone: "neutral", supersample: true });
     renderer.setClearColor(0x000000, 0);
     const scene = new THREE.Scene();
-    scene.environment = environmentFor(renderer);
-    scene.add(new THREE.HemisphereLight("#e6eeff", "#1c2230", 0.7));
-    const key = new THREE.DirectionalLight("#ffffff", 2.4);
+    scene.environment = studioEnvironmentFor(renderer);
+    scene.environmentIntensity = 1.4;
+    scene.add(new THREE.HemisphereLight("#e6eeff", "#1c2230", 0.45));
+    const rim = new THREE.DirectionalLight("#a9c8ff", 1.8);
+    rim.position.set(-8, 6, -10);
+    scene.add(rim);
+    const key = new THREE.DirectionalLight("#fff6ea", 1.8);
     key.position.set(6, 12, 8);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
@@ -73,7 +84,9 @@ export default function Podium({ year = 2024, cars = [], height = 260, label }) 
       scene.add(block);
       disposables.push(block.geometry, ...block.material);
       if (!entry) return;
-      const car = buildCar({ year, color: entry.color, color2: entry.color2, name: entry.name, compound: year >= 2007 ? "soft" : null });
+      const procedural = buildCar({ year, color: entry.color, color2: entry.color2, name: entry.name, compound: year >= 2007 ? "soft" : null });
+      const asset = entry.teamRef ? carAssetFor(year, entry.teamRef) : null;
+      const car = asset ? createAssetCar({ asset, placeholder: procedural, renderer, year, closeUp: true, hero: false }) : procedural;
       car.position.set(step.x, step.height, 0);
       car.rotation.y = -Math.PI / 2 + (index === 0 ? 0 : index === 1 ? 0.25 : -0.25);
       car.scale.setScalar(0.92);

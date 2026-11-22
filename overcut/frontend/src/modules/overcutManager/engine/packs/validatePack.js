@@ -30,8 +30,13 @@ import Ajv from "ajv";
 import schema from "../../data/seasons/season-pack.schema.json";
 import eraRules from "../../data/seasons/curated/era-rules.json";
 
-const ajv = new Ajv({ allErrors: true, strict: true });
-const validateShape = ajv.compile(schema);
+// Compiled on the first validation, not when the module loads: the manager's first screen does not
+// pay for building the schema's validator (RNF-03).
+let compiled = null;
+const shapeValidator = () => {
+  if (!compiled) compiled = new Ajv({ allErrors: true, strict: true }).compile(schema);
+  return compiled;
+};
 
 const NEVER_IN_CALENDAR = new Set(["hanoi"]);
 
@@ -283,6 +288,7 @@ const checkAssets = (pack, errors) => {
 export const validateSeasonPack = (pack, options = {}) => {
   const errors = [];
   const warnings = [];
+  const validateShape = shapeValidator();
   if (!validateShape(pack)) {
     validateShape.errors.forEach((error) => errors.push(`schema: ${error.instancePath || "/"} ${error.message}`));
     return { ok: false, errors, warnings };

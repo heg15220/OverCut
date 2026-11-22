@@ -7,9 +7,12 @@
  * weekend and the moments open over all of it.
  */
 
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { PHASES, currentRace } from "../engine/career";
+import { circuitFor } from "../engine/venue";
+import { canRender3D } from "../three/support";
+import { prefetchForCareer } from "../three/assets/prefetch";
 import ContinueButton from "./ContinueButton";
 import { useManager } from "./context";
 import { Flag, Meter, Sheet, TeamBadge } from "./atoms";
@@ -28,9 +31,12 @@ import Staff from "./Staff";
 import Standings from "./Standings";
 import Calendar from "./Calendar";
 import Office from "./Office";
-import Weekend from "./Weekend";
 import Moments from "./Moments";
 import SaveSheet from "./SaveSheet";
+
+// The weekend (sessions, live race, broadcast) is the heaviest screen: its own chunk, prefetched once the hub is idle.
+const loadWeekend = () => import(/* webpackChunkName: "manager-weekend" */ "./Weekend");
+const Weekend = React.lazy(loadWeekend);
 
 export const SECTIONS = [
   { id: "central", group: "desk", icon: IconHome, label: () => t("Central", "Home") },
@@ -227,8 +233,58 @@ function ContextBar({ onSave, saveState }) {
   );
 }
 
+/** Run `fn` once the browser is idle (at the latest after `timeout` ms); returns the cancel. */
+const whenIdle = (fn, timeout) => {
+  if (typeof window === "undefined") return () => {};
+  if (window.requestIdleCallback) {
+    const handle = window.requestIdleCallback(fn, { timeout });
+    return () => window.cancelIdleCallback(handle);
+  }
+  const handle = window.setTimeout(fn, 1500);
+  return () => window.clearTimeout(handle);
+};
+
+/**
+ * While the player reads the hub: fetch the weekend's code, then put the GLB files
+ * of the next Grand Prix in Cache Storage (own car, circuit, the grid's lightest LOD),
+ * so opening the weekend neither waits for code nor downloads (RNF-03, RNF-04).
+ */
+const usePrefetch = (career) => {
+  const year = career?.year;
+  const round = career?.round;
+  useEffect(() => whenIdle(() => loadWeekend().catch(() => {}), 4000), []);
+  useEffect(() => {
+    if (!career || career.ended || !canRender3D()) return undefined;
+    let cancelled = false;
+    const cancel = whenIdle(() => {
+      if (cancelled) return;
+      const race = currentRace(career);
+      const team = career.world.teams[career.teamId];
+      let splineId = null;
+      try {
+        splineId = race ? circuitFor(race, career.year)?.splineId || null : null;
+      } catch {
+        splineId = null;
+      }
+      prefetchForCareer({
+        year: career.year,
+        teamRef: team && !team.custom ? team.id : null,
+        gridTeamRefs: Object.values(career.world.teams).filter((entry) => !entry.custom && !entry.partial).map((entry) => entry.id),
+        splineId,
+      });
+    }, 6000);
+    return () => {
+      cancelled = true;
+      cancel();
+    };
+    // The plan changes with the season and the round, not with every career mutation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [year, round]);
+};
+
 export default function Hub({ backTo, fallbackMode }) {
-  const { section, go, unread, saveState, leave, weekendOpen } = useManager();
+  const { career, section, go, unread, saveState, leave, weekendOpen } = useManager();
+  usePrefetch(career);
   const [more, setMore] = useState(false);
   const [saving, setSaving] = useState(false);
   const host = useRef(null);
@@ -294,7 +350,11 @@ export default function Hub({ backTo, fallbackMode }) {
       </Sheet>
 
       <SaveSheet open={saving} onClose={() => setSaving(false)} />
-      {weekendOpen && <Weekend />}
+      {weekendOpen && (
+        <React.Suspense fallback={<p className="mn-loading">{t("Llegando al circuito", "Arriving at the circuit")}</p>}>
+          <Weekend />
+        </React.Suspense>
+      )}
       <Moments />
     </div>
   );

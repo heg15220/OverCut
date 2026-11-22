@@ -42,6 +42,7 @@ Reglas:
   (Indianápolis 2005, McLaren 2007, ausencias), modo estricto/libre (`career.mode`, guardado v4) con anclas por carrera
   (`data/balance/historical-anchors.json`) y banco de validación 7.2 (`overcut/frontend/scripts/validateSeasons.js`,
   informe en `docs/manager/validation/`): 36/38 temporadas con el campeón real como más probable, Spearman 0,93.
+- Fin de semana jugable (2026-11-22): sesiones interactivas de libres/clasificación/shootout en `engine/sessionSim/` (pasos de 0,5 s, órdenes del jugador, formatos por era, balance en `data/balance/sessions.json`, pendiente de verificar contra la FIA); órdenes de carrera de 5 ritmos y parada con combustible/retrasar/saltar. Assets: nivel `hero` (texturas 2048) solo para primeros planos; carga diferida por LOD, caché `three/assets/cacheStore.js` y shaders en segundo plano (`compileGate.js`).
 - Tests del Manager: `CI=true npx react-scripts test --watchAll=false --testPathPattern overcutManager`.
   `npm install` necesita `--legacy-peer-deps` (conflicto previo de react-vis con React 18).
 - Ningún valor de balance en código (RNF-07): va a los packs de temporada con esquema JSON.

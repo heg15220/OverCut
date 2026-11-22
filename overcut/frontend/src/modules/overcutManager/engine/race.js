@@ -326,31 +326,36 @@ const forecastFor = (profile, kind, stream) => {
  * Saturday. One flying lap per session, the car's pace plus a qualifying skill
  * and a mistake term that the player's risk choice trades against speed.
  */
-export const runQualifying = ({ entrants, race, era, year, wetness = 0, practice = {}, risk = {}, stream }) => {
-  const moments = fieldMomentsOf(entrants);
+/**
+ * The deterministic part of a qualifying lap (no style, mistake or scatter): the car's
+ * pace on the day, the driver's one-lap skill and what practice prepared. Shared by the
+ * quick qualifying below and the playable sessions (engine/sessionSim), so both read the
+ * same field (RF-WKD-02).
+ */
+export const qualifyingPaceOf = ({ entrant, race, era, wetness = 0, practice = {}, moments }) => {
   const weather = wetness >= 0.55 ? WEATHER.WET : wetness >= 0.2 ? WEATHER.MIXED : WEATHER.DRY;
   const spp = race.baseLap * 0.0012;
+  const pace = paceOf({ entrant, race, era, seasonProgress: 0.5, weather, moments });
+  const skill = (((entrant.qualifying ?? 50) - 50) / 20) * era.fieldSigma * 0.32;
+  const prep = practice[entrant.id] || {};
+  return race.baseLap * (0.985 + 0.1 * wetness) - (pace + skill) * spp + (prep.setup ?? 0) + (prep.quali ?? 0);
+};
+
+export { fieldMomentsOf };
+
+export const runQualifying = ({ entrants, race, era, year, wetness = 0, practice = {}, risk = {}, stream }) => {
+  const moments = fieldMomentsOf(entrants);
   // Knockout Q1-Q3 or a single session, as the era's qualifying format says (RF-WKD-01).
   const sessions = rulesOf(era, year).qualifying.knockout ? knockoutSplit(entrants.length) : null;
 
   const lapOf = (entrant) => {
-    const pace = paceOf({ entrant, race, era, seasonProgress: 0.5, weather, moments });
-    const skill = (((entrant.qualifying ?? 50) - 50) / 20) * era.fieldSigma * 0.32;
-    const prep = practice[entrant.id] || {};
+    const base = qualifyingPaceOf({ entrant, race, era, wetness, practice, moments });
     const style = risk[entrant.id] || "normal";
     const styleGain = style === "push" ? -0.14 : style === "safe" ? 0.12 : 0;
     const mistakeChance = (style === "push" ? 0.09 : style === "safe" ? 0.02 : 0.045) * (1 + wetness);
     const mistake = stream.chance(mistakeChance) ? stream.range(0.6, 2.4) : 0;
     const noise = stream.normal(0, era.paceVolatility * 0.042 * (1 + wetness));
-    return (
-      race.baseLap * (0.985 + 0.1 * wetness) -
-      (pace + skill) * spp +
-      (prep.setup ?? 0) +
-      (prep.quali ?? 0) +
-      styleGain +
-      mistake +
-      noise
-    );
+    return base + styleGain + mistake + noise;
   };
 
   if (!sessions) {
@@ -382,7 +387,7 @@ export const runQualifying = ({ entrants, race, era, year, wetness = 0, practice
 };
 
 /** How many cars drop out of Q1 and Q2 for a field of this size. */
-const knockoutSplit = (size) => {
+export const knockoutSplit = (size) => {
   if (size <= 12) return [Math.max(1, size - 10), 0];
   const q3 = 10;
   const rest = size - q3;
@@ -504,7 +509,7 @@ export const energyPush = (rules, car) => {
  * `entrants` are the cars in grid order; `plans` maps an entrant id to its
  * strategy; `practice` carries the Friday work (setup, long-run tyre feel).
  */
-export const createRace = ({ race, era, year, entrants, grid, plans = {}, practice = {}, seed, crews = {}, strategists = {}, gridPenalties = {} }) => {
+export const createRace = ({ race, era, year, entrants, grid, plans = {}, practice = {}, seed, crews = {}, strategists = {}, gridPenalties = {}, startTyres = null, sprint = false }) => {
   const stream = createStream(`${seed}::race`);
   const laps = Math.max(5, race.laps || 60);
   const timeline = weatherTimeline({ profile: race.profile, era, laps, stream });
@@ -537,13 +542,15 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
     .filter((id) => byId[id])
     .map((id, index) => {
       const entrant = byId[id];
-      const startsOnQualifyingTyre = qualifyingTyre && index < 10;
+      // A played qualifying knows the tyre each of the top ten set its time on (engine/sessionSim).
+      const ownTyre = qualifyingTyre && startTyres?.[id] && rules.tyres.compounds.includes(startTyres[id]) ? startTyres[id] : qualifyingTyre;
+      const startsOnQualifyingTyre = ownTyre && index < 10;
       const suggested = () =>
-        suggestPlan({ year, era: rules, laps, baseLap: race.baseLap, profile: race.profile, crew: crews[entrant.teamId], firstCompound: startsOnQualifyingTyre ? qualifyingTyre : null });
+        suggestPlan({ year, era: rules, laps, baseLap: race.baseLap, profile: race.profile, crew: crews[entrant.teamId], firstCompound: startsOnQualifyingTyre ? ownTyre : null });
       let plan = normalisePlan(plans[id] || suggested(), laps, rules);
-      if (startsOnQualifyingTyre && plan.compounds[0] !== qualifyingTyre) {
+      if (startsOnQualifyingTyre && plan.compounds[0] !== ownTyre) {
         // The player's plan keeps its stops; a rival re-plans around the tyre it must start on.
-        plan = entrant.isUser ? normalisePlan({ ...plan, compounds: [qualifyingTyre, ...plan.compounds.slice(1)] }, laps, rules) : normalisePlan(suggested(), laps, rules);
+        plan = entrant.isUser ? normalisePlan({ ...plan, compounds: [ownTyre, ...plan.compounds.slice(1)] }, laps, rules) : normalisePlan(suggested(), laps, rules);
       }
       const wetStart = tyreForWetness(startWet);
       // KERS was optional for some teams (2009, and the new teams of 2011-12): those cars carry none.
@@ -640,6 +647,7 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
     finished: false,
     seed,
     streamState: 0,
+    ...(sprint ? { sprint: true } : {}),
     _stream: stream,
   };
 };
@@ -745,9 +753,43 @@ export const setErs = (state, carId, mode) => {
   return state;
 };
 
-export const requestPit = (state, carId, compound) => {
+/**
+ * RF-CMD-02: box at the next pit entry. `options.fuel` (laps, refuelling eras only) sets
+ * the load instead of the strategist's; `options.frontWing: false` keeps the nose (the
+ * crew otherwise changes a damaged one); `options.replace` makes it the next planned stop
+ * brought forward instead of an extra one.
+ */
+export const requestPit = (state, carId, compound, options = {}) => {
   const car = state.cars.find((entry) => entry.id === carId);
-  if (car && car.status === "running") car.pitRequest = { compound, lap: state.lap + 1 };
+  if (!car || car.status !== "running") return state;
+  const request = { compound, lap: state.lap + 1 };
+  if (Number.isFinite(options?.fuel) && rulesOf(state.era, state.year).refuelling) request.fuel = Math.max(1, Math.round(options.fuel));
+  if (options?.frontWing === false) request.frontWing = false;
+  if (options?.replace) request.replace = true;
+  car.pitRequest = request;
+  return state;
+};
+
+/** RF-CMD-02 "retrasar una vuelta": the next planned stop one lap later (never past the last lap). */
+export const delayStop = (state, carId) => {
+  const car = state.cars.find((entry) => entry.id === carId);
+  if (!car || car.status !== "running") return state;
+  const next = car.plan.stops.find((stop) => stop >= state.lap);
+  if (next === undefined || next + 1 >= state.laps) return state;
+  car.plan = { ...car.plan, stops: car.plan.stops.map((stop) => (stop === next ? next + 1 : stop)).sort((a, b) => a - b) };
+  return state;
+};
+
+/** RF-CMD-02: cancel the next planned stop (its stint runs on; in a refuelling era, mind the fuel). */
+export const skipStop = (state, carId) => {
+  const car = state.cars.find((entry) => entry.id === carId);
+  if (!car || car.status !== "running") return state;
+  const next = car.plan.stops.find((stop) => stop >= state.lap);
+  if (next === undefined) return state;
+  // The stint that stop would have started goes with it.
+  const drop = Math.min(car.plan.compounds.length - 1, car.stint + 1);
+  const compounds = car.plan.compounds.length > 1 ? car.plan.compounds.filter((_, position) => position !== drop) : car.plan.compounds;
+  car.plan = { ...car.plan, stops: car.plan.stops.filter((stop) => stop !== next), compounds };
   return state;
 };
 
@@ -979,7 +1021,7 @@ export const endLapWear = (state, car, plan, { wetness, sc = state.safetyCar, ru
   const trackTemp = state.trackTemp ?? 30;
   car.tyreAge += 1;
   if (rules.refuelling) car.fuel = Math.max(0, car.fuel - 1);
-  else car.fuel -= plan.mix.burn * (car.mode === "push" ? 1.02 : car.mode === "save" ? 0.97 : 1) * (sc ? 0.62 : 1);
+  else car.fuel -= plan.mix.burn * (MODES[car.mode]?.burn ?? (car.mode === "push" ? 1.02 : car.mode === "save" ? 0.97 : 1)) * (sc ? 0.62 : 1);
 
   // Temperature drifts toward what the driving asks of it.
   const target = sc ? 0.3 : TEMP_TARGET[car.mode] + plan.dirty * 0.1 + (trackTemp - 30) / 220 - wetness * 0.12;
@@ -1520,7 +1562,15 @@ export const pitDecision = (state, car, wetness, stream, { lap = state.lap, orde
   if (car.pitRequest) {
     const compound = car.pitRequest.compound || nextPlannedCompound(car, rules);
     const stintsLeft = Math.max(1, car.plan.stops.filter((stop) => stop > lap).length + 1);
-    return { compound, planned: car.plan.stops.some((stop) => stop >= lap), fuel: refuel ? Math.ceil(remaining / stintsLeft) : 0, repair: true };
+    const fuel = refuel ? (Number.isFinite(car.pitRequest.fuel) ? Math.min(remaining + 1, car.pitRequest.fuel) : Math.ceil(remaining / stintsLeft)) : 0;
+    const planned = car.plan.stops.some((stop) => stop >= lap);
+    // RF-CMD-02 (`replace`): the player's stop takes the place of the next planned one, not one more on top of it.
+    const next = car.pitRequest.replace ? car.plan.stops.find((stop) => stop >= lap) : undefined;
+    if (next !== undefined && next !== lap) {
+      const compounds = car.plan.compounds.map((value, position) => (position === car.stint + 1 ? compound : value));
+      car.plan = { ...car.plan, stops: car.plan.stops.map((stop) => (stop === next ? lap : stop)).sort((a, b) => a - b), compounds };
+    }
+    return { compound, planned, fuel, repair: car.pitRequest.frontWing !== false };
   }
 
   // Out of fuel is not a strategy question.
@@ -1830,7 +1880,8 @@ export const finishRace = (state) => {
     if (car.status === "running") car.status = "finished";
   });
   // The two-compound rule (from 2007): a dry race finished on one compound is a penalty.
-  const mandatory = rules.tyres.mandatoryDryCompounds;
+  // The two-compound rule is the Grand Prix's, not the sprint's.
+  const mandatory = state.sprint ? 0 : rules.tyres.mandatoryDryCompounds;
   if (mandatory >= 2) {
     const wetRace = state.weather.wetness.some((value) => value >= 0.2);
     state.cars.forEach((car) => {

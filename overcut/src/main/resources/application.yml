@@ -61,6 +61,10 @@ spring:
 server:
   servlet:
     context-path: '@project.contextPath@'
+  compression:
+    enabled: true
+    mime-types: application/json,text/plain,text/css,application/javascript
+    min-response-size: 2048
 project:
   jwt:
     signKey: WzROun12eUiDvko3UrJ74gNeJz2TWEWPMTh6DxyE8HWXIf4hETUrkM4IUGqqHq66PuVS

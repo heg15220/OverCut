@@ -5,15 +5,15 @@
  * post-race screens (classification, lap chart, pit stops, standings moves).
  */
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
-  PRACTICE_PROGRAMS, PRACTICE_RUNS, QUALI_STYLES, completeRace, createWeekendRace, currentRace, defaultPlan, entrantsFor, eraOf, planDelta, runPractice,
-  runQualifyingSession, runSetupLap, setPlan, setSetup, setupStateOf, weekendForecast, weekendRaceArgs,
+  PRACTICE_PROGRAMS, PRACTICE_RUNS, QUALI_STYLES, commitPracticeSession, commitQualifyingSession, commitShootout, completeRace, completeSprint, createSprintRace,
+  createWeekendRace, currentRace, defaultPlan, entrantsFor, eraOf, isSprintWeekend, parcFermeOf, planDelta, runPractice, runQualifyingSession, runSetupLap, runShootout,
+  sessionOptions, setPlan, setSetup, setupStateOf, sprintHasShootout, sprintRaceArgs, weekendForecast, weekendRaceArgs, weekendSessionFormat,
 } from "../engine/career";
 import { FEELINGS, SLIDERS } from "../engine/setup";
 import CircuitCard from "./CircuitCard";
 import SessionLive from "./SessionLive";
-import { practiceTimeline, qualifyingTimeline } from "../engine/sessions";
 import { circuitFor } from "../engine/venue";
 import LapChart from "./LapChart";
 import { rulesFor, runToFinish, spacedStops, stintLengths } from "../engine/race";
@@ -21,7 +21,7 @@ import { constructorStandings, driverStandings } from "../engine/standings";
 import { driversOf } from "../engine/world";
 import { useManager } from "./context";
 import { Badge, DataTable, Flag, Meter, Panel, Segmented, StatTile, Tabs, TeamBadge, TeamStripe, Tyre, readableOn } from "./atoms";
-import { IconArrowDown, IconArrowUp, IconCheck, IconClose, IconFastForward, IconFlag, IconPlay, IconRadio } from "./icons";
+import { IconArrowDown, IconArrowUp, IconCheck, IconClose, IconFastForward, IconFlag, IconLock, IconPlay, IconRadio } from "./icons";
 import { COMPOUND, PROGRAM, PROGRAM_HINT, QUALI_STYLE, gapText, lapTime, ordinal, raceName, shortDate, t } from "./texts";
 import LiveRace from "./LiveRace";
 import { canRender3D } from "../three/support";
@@ -31,45 +31,65 @@ import "./styles/weekend.css";
 const Podium = React.lazy(() => import("../three/Podium"));
 
 const STAGES = ["practice", "qualifying", "strategy", "race", "result"];
+const SPRINT_STAGES = ["practice", "qualifying", "sprint", "strategy", "race", "result"];
 
-/** The era's qualifying format, in words (SRS 6.2, rules.qualifying.formats). */
-const qualifyingFormat = (rules) => {
-  const formats = rules.qualifying.formats || [];
-  if (formats.includes("KNOCKOUT")) return "Q1 · Q2 · Q3";
-  if (formats.includes("AGGREGATE")) return t("Agregada", "Aggregate");
-  if (formats.includes("ONE_LAP")) return t("Vuelta única", "Single lap");
-  if (formats.includes("ONE_SESSION")) return t("Una hora", "One hour");
+/** This Grand Prix's qualifying format, in words (SRS 6.2; the calendar's, else the era's). */
+const qualifyingFormat = (career) => {
+  const format = weekendSessionFormat(career, "qualifying");
+  if (format.format === "KNOCKOUT") return format.segments.map((segment) => segment.name).join(" · ");
+  if (format.format === "AGGREGATE") return t("Agregada", "Aggregate");
+  if (format.format === "ONE_LAP") return t("Vuelta única", "Single lap");
+  if (format.format === "ONE_SESSION") return t("Una hora, 12 vueltas", "One hour, 12 laps");
   return t("Dos sesiones", "Two sessions");
 };
 
 /** RF-WKD-01: the weekend as this era runs it. */
-const sessionPlan = (rules, race) => ({
-  practice: [t("Libres", "Practice"), t("Puesta a punto", "Setup")],
-  qualifying: [t("Clasificación", "Qualifying"), qualifyingFormat(rules)],
+const sessionPlan = (rules, race, career) => ({
+  practice: [t("Libres", "Practice"), t("Tandas y puesta a punto", "Runs and setup")],
+  qualifying: [t("Clasificación", "Qualifying"), qualifyingFormat(career)],
+  sprint: [t("Sprint", "Sprint"), sprintHasShootout(career) ? t("Shootout y sprint", "Shootout and sprint") : t("Decide la parrilla", "Sets the grid")],
   strategy: [t("Estrategia", "Strategy"), rules.refuelling ? t("Con repostaje", "Refuelling") : rules.tyres.mandatoryDryCompounds >= 2 ? t("Dos compuestos", "Two compounds") : t("Paradas", "Pit stops")],
   race: [t("Carrera", "Race"), t(`${race.laps} vueltas`, `${race.laps} laps`)],
   result: [t("Resultado", "Result"), t("Puntos y Mundial", "Points and standings")],
 });
+
+/** A session for the weekend's circuit, built once (the career object is the same between renders). */
+const useSessionSetup = (career, kind) => {
+  const ref = useRef(null);
+  if (!ref.current) {
+    const race = currentRace(career);
+    const options = sessionOptions(career, kind);
+    ref.current = {
+      options,
+      entrants: sessionEntrants(career),
+      circuit: circuitFor(race, career.year),
+      baseLap: race.baseLap,
+      rainChance: Math.round((race.profile.rain ?? 0.15) * 100),
+    };
+  }
+  return ref.current;
+};
 
 export default function Weekend() {
   const { career, act, setWeekendOpen, finishWeekend } = useManager();
   const weekend = career.weekend;
   const race = currentRace(career);
   const [live, setLive] = useState(null);
-  const [watchQuali, setWatchQuali] = useState(false);
+  const [liveSession, setLiveSession] = useState(null);
   if (!weekend || !race) return null;
-  const stage = live ? "race" : weekend.stage;
+  const stage = live ? live.stage : weekend.stage;
   const rules = rulesFor(eraOf(career));
-  const plan = sessionPlan(rules, race);
+  const plan = sessionPlan(rules, race, career);
   const team = career.world.teams[career.teamId];
-  const isLive = Boolean(live) || (stage === "strategy" && watchQuali);
+  const isLive = Boolean(live) || Boolean(liveSession);
+  const stages = isSprintWeekend(career) ? SPRINT_STAGES : STAGES;
 
   // RF-WKD-02: live, the step race runs in the race worker from the weekend's arguments
   // (SRS 4); instant, the quick mode runs to the flag here and now (RNF-01).
   const startRace = (watch) => {
     if (watch) {
       const args = act((c) => weekendRaceArgs(c));
-      if (args) setLive({ args });
+      if (args) setLive({ args, stage: "race" });
       return;
     }
     const state = act((c) => createWeekendRace(c));
@@ -78,8 +98,22 @@ export default function Weekend() {
     act((c) => completeRace(c, state));
   };
 
+  // RF-WKD-01/02: the sprint (2021-), live in the race worker or simulated.
+  const startSprint = (watch) => {
+    if (watch) {
+      const args = act((c) => sprintRaceArgs(c));
+      if (args) setLive({ args, stage: "sprint", sprint: true });
+      return;
+    }
+    const state = act((c) => createSprintRace(c));
+    if (!state) return;
+    runToFinish(state);
+    act((c) => completeSprint(c, state));
+  };
+
   const onFinished = (state) => {
-    act((c) => completeRace(c, state));
+    if (live?.sprint) act((c) => completeSprint(c, state));
+    else act((c) => completeRace(c, state));
     setLive(null);
   };
 
@@ -96,8 +130,8 @@ export default function Weekend() {
           </div>
         </div>
         <ol className="wk-steps" aria-label={t("Programa del fin de semana", "Weekend programme")}>
-          {STAGES.map((entry, index) => {
-            const state = entry === stage ? "is-active" : STAGES.indexOf(stage) > index ? "is-done" : "";
+          {stages.map((entry, index) => {
+            const state = entry === stage ? "is-active" : stages.indexOf(stage) > index ? "is-done" : "";
             return (
               <li key={entry} className={state} aria-current={entry === stage ? "step" : undefined}>
                 <span className="wk-steps__n" aria-hidden="true">
@@ -125,12 +159,13 @@ export default function Weekend() {
         )}
       </header>
       <div className={`wk-body${isLive ? " is-live" : ""}`} key={`${stage}-${isLive}`}>
-        {stage === "practice" && <Practice rules={rules} />}
-        {stage === "qualifying" && <Qualifying rules={rules} onQualified={() => canRender3D() && setWatchQuali(true)} />}
-        {stage === "strategy" && watchQuali && <QualifyingLive onDone={() => setWatchQuali(false)} />}
-        {stage === "strategy" && !watchQuali && <Strategy rules={rules} onStart={startRace} />}
-        {stage === "race" && live && <LiveRace args={live.args} onFinished={onFinished} />}
-        {stage === "result" && <Result onContinue={finishWeekend} />}
+        {liveSession && <WeekendSessionLive kind={liveSession} onDone={() => setLiveSession(null)} />}
+        {!liveSession && stage === "practice" && <Practice rules={rules} />}
+        {!liveSession && stage === "qualifying" && <Qualifying rules={rules} onLive={() => setLiveSession("qualifying")} />}
+        {!liveSession && stage === "sprint" && !live && <Sprint onShootout={() => setLiveSession("shootout")} onStart={startSprint} />}
+        {!liveSession && stage === "strategy" && <Strategy rules={rules} onStart={startRace} />}
+        {live && <LiveRace args={live.args} onFinished={onFinished} title={live.sprint ? t("Sprint", "Sprint") : undefined} />}
+        {!liveSession && stage === "result" && <Result onContinue={finishWeekend} />}
       </div>
     </div>
   );
@@ -161,15 +196,18 @@ const DriverName = ({ name, color }) => (
 );
 
 /**
- * One driver's setup work: the programme, the five settings, and the driver's last
- * report on the five feelings - where each is now (the tick) and where the engineers
- * now think the driver wants it (the band). Each run narrows the band (RF-WKD-03).
+ * One driver's setup work: the five settings, and the driver's last report on the five
+ * feelings - where each is now (the tick) and where the engineers now think the driver
+ * wants it (the band). Each run in the session narrows the band (RF-WKD-03); the sliders
+ * only move while the car is in the garage.
  */
-function SetupBench({ driver, color, program, onProgram }) {
+function SetupBench({ driver, color, phase }) {
   const { career, act } = useManager();
   const { setup, runs } = setupStateOf(career, driver.id);
-  const maxRuns = PRACTICE_RUNS + (program === "setup" ? 1 : 0);
+  const maxRuns = PRACTICE_RUNS + 1;
   const report = runs.report;
+  const inGarage = !phase || phase === "garage";
+  const sessionRuns = career.weekend.practiceRuns?.[driver.id];
   return (
     <section className="wk-bench" aria-label={driver.name}>
       <header className="wk-bench__head">
@@ -178,25 +216,38 @@ function SetupBench({ driver, color, program, onProgram }) {
           {driver.name}
         </strong>
         <span className="wk-bench__meta">
-          {t("Tandas", "Runs")} {runs.count}/{maxRuns}
-          {runs.history?.length ? ` · ${t("satisfacción", "satisfaction")} ${runs.history.join(" → ")}%` : ""}
+          {inGarage ? (
+            <Badge tone="neutral">{t("En el garaje", "In the garage")}</Badge>
+          ) : (
+            <Badge tone="warn" dot>
+              {t("En pista: ajustes bloqueados", "On track: setup locked")}
+            </Badge>
+          )}
+          <span>
+            {t("Informes", "Reports")} {Math.min(runs.count, maxRuns)}/{maxRuns}
+            {runs.history?.length ? ` · ${t("satisfacción", "satisfaction")} ${runs.history.join(" → ")}%` : ""}
+          </span>
         </span>
       </header>
-      <div className="wk-bench__program">
-        <Segmented label={t(`Programa de ${driver.name}`, `${driver.name}'s programme`)} value={program} onChange={onProgram} options={PRACTICE_PROGRAMS.map((value) => ({ value, label: PROGRAM[value]() }))} />
-        <small>{PROGRAM_HINT[program]()}</small>
-      </div>
       <div className="wk-bench__grid">
         <div className="wk-bench__col">
           <h4>{t("Ajustes", "Settings")}</h4>
           {SLIDERS.map((slider) => {
             const [label, hint] = SLIDER_TEXT[slider]();
             return (
-              <label key={slider} className="wk-slider" title={hint}>
+              <label key={slider} className={`wk-slider${inGarage ? "" : " is-locked"}`} title={hint}>
                 <span>
                   {label} <b>{setup[slider]}</b>
                 </span>
-                <input type="range" min={0} max={100} value={setup[slider]} aria-label={`${label} ${driver.name}`} onChange={(event) => act((c) => setSetup(c, driver.id, { ...setup, [slider]: Number(event.target.value) }))} />
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={setup[slider]}
+                  disabled={!inGarage}
+                  aria-label={`${label} ${driver.name}`}
+                  onChange={(event) => act((c) => setSetup(c, driver.id, { ...setup, [slider]: Number(event.target.value) }))}
+                />
               </label>
             );
           })}
@@ -216,14 +267,10 @@ function SetupBench({ driver, color, program, onProgram }) {
               </div>
             );
           })}
-          {!report && <p className="wk-note">{t("Saca al piloto a rodar para que te cuente cómo va el coche.", "Send the driver out to hear how the car feels.")}</p>}
+          {!report && <p className="wk-note">{t("Saca al piloto a pista: al volver al box cuenta cómo va el coche.", "Send the driver out: back in the garage he reports how the car feels.")}</p>}
+          {runs.count >= maxRuns && <p className="wk-note">{t("Los ingenieros ya no sacan más de las tandas: el resto es ritmo y neumáticos.", "The engineers learn nothing more from runs: the rest is pace and tyres.")}</p>}
+          {sessionRuns?.length ? <p className="wk-note">{t(`${sessionRuns.length} tandas en libres`, `${sessionRuns.length} practice runs`)}</p> : null}
         </div>
-      </div>
-      <div>
-        <button type="button" className="mn-btn mn-btn--sm" disabled={runs.count >= maxRuns} onClick={() => act((c) => runSetupLap(c, driver.id, program))}>
-          <IconPlay size={16} />
-          {runs.count >= maxRuns ? t("Sin tandas", "No runs left") : t("Rodar una tanda", "Do a run")}
-        </button>
       </div>
     </section>
   );
@@ -244,62 +291,95 @@ const sessionEntrants = (career) =>
     driverRating: entrant.driverRating,
   }));
 
-const weekendSeedOf = (career) => `${career.seed}::${career.year}::${career.round}`;
+/** The programme a driver ran most laps of (what Friday counts for Sunday). */
+const mostRun = (runs = []) => {
+  const laps = {};
+  runs.forEach((run) => {
+    laps[run.programme] = (laps[run.programme] || 0) + Math.max(1, run.laps);
+  });
+  const best = Object.entries(laps).sort((a, b) => b[1] - a[1])[0];
+  return best ? best[0] : "setup";
+};
 
-/** Qualifying, watched: Q1 to Q3 (or the single hour) live, then the grid. */
-function QualifyingLive({ onDone }) {
-  const { career } = useManager();
-  const race = currentRace(career);
-  const quali = career.weekend.qualifying;
-  const entrants = useMemo(() => sessionEntrants(career), [career]);
-  const timeline = useMemo(
-    () => qualifyingTimeline({ quali, baseLap: race.baseLap * (1 + 0.1 * (quali.wetness || 0)), seed: weekendSeedOf(career), ids: entrants.map((entry) => entry.id) }),
-    [quali, race.baseLap, career, entrants],
+/** Qualifying or the sprint shootout, played full screen (RF-WKD-02): Q1 to Q3, the hour or the single laps, then the grid. */
+function WeekendSessionLive({ kind, onDone }) {
+  const { career, act } = useManager();
+  const setup = useSessionSetup(career, kind);
+  const done = (result) => {
+    act((c) => (kind === "shootout" ? commitShootout(c, result) : commitQualifyingSession(c, result)));
+    onDone();
+  };
+  return (
+    <SessionLive
+      kind={kind}
+      options={setup.options}
+      entrants={setup.entrants}
+      circuit={setup.circuit}
+      year={career.year}
+      baseLap={setup.baseLap}
+      trackTemp={34}
+      rainChance={setup.rainChance}
+      onDone={done}
+      doneLabel={kind === "shootout" ? t("Ver la parrilla del sprint", "See the sprint grid") : undefined}
+    />
   );
-  const circuit = useMemo(() => circuitFor(race, career.year), [race, career.year]);
-  return <SessionLive kind="qualifying" timeline={timeline} entrants={entrants} circuit={circuit} year={career.year} baseLap={race.baseLap} wetness={quali.wetness || 0} trackTemp={34} rainChance={Math.round((race.profile.rain ?? 0.15) * 100)} onDone={onDone} />;
 }
 
-/** Practice, watched: the field out on long runs while you work on the setup. */
-function PracticeLive({ onHide }) {
-  const { career } = useManager();
-  const race = currentRace(career);
-  const entrants = useMemo(() => sessionEntrants(career), [career]);
-  const timeline = useMemo(() => {
-    const paces = Object.fromEntries(entrants.map((entry) => [entry.id, race.baseLap * 0.985 - ((entry.carRating ?? 70) - 70) * 0.05 - ((entry.driverRating ?? 70) - 70) * 0.025]));
-    return practiceTimeline({ ids: entrants.map((entry) => entry.id), paces, baseLap: race.baseLap, seed: weekendSeedOf(career) });
-  }, [entrants, race.baseLap, career]);
-  const circuit = useMemo(() => circuitFor(race, career.year), [race, career.year]);
-  return <SessionLive kind="practice" compact timeline={timeline} entrants={entrants} circuit={circuit} year={career.year} baseLap={race.baseLap} trackTemp={30} rainChance={Math.round((race.profile.rain ?? 0.15) * 100)} onDone={onHide} />;
-}
-
-/** Friday: the circuit, the forecast and the setup work, with the field live on top when 3D is available. */
+/**
+ * Friday: the session itself - your drivers go out on the plan you give them (RF-WKD-03) -
+ * with the setup bench underneath (each run back in the garage brings a report), the
+ * circuit and the forecast.
+ */
 function Practice({ rules }) {
   const { career, act } = useManager();
   const race = currentRace(career);
   const drivers = driversOf(career.world, career.teamId);
   const color = career.world.teams[career.teamId]?.color;
-  const has3D = useMemo(() => canRender3D(), []);
-  const [showLive, setShowLive] = useState(has3D);
-  const [programs, setPrograms] = useState(() => Object.fromEntries(drivers.map((driver) => [driver.id, "setup"])));
+  const setup = useSessionSetup(career, "practice");
+  const [phases, setPhases] = useState({});
   const forecast = weekendForecast(career);
   const overtaking = race.profile.overtaking >= 0.7 ? t("Fácil", "Easy") : race.profile.overtaking >= 0.4 ? t("Posible", "Possible") : t("Casi imposible", "Nearly impossible");
+  const onRun = (event) => {
+    if (event.laps > 0) act((c) => runSetupLap(c, event.carId, event.programme));
+  };
+  const onDone = (result) => {
+    const programmes = Object.fromEntries(drivers.map((driver) => [driver.id, mostRun(result.runs[driver.id])]));
+    act((c) => commitPracticeSession(c, result, programmes));
+  };
   return (
     <div className="wk-page">
-      {showLive && (
-        <div className="wk-live-slot">
-          <PracticeLive onHide={() => setShowLive(false)} />
-        </div>
-      )}
-      <div className="wk-c5 wk-stack">
-        {/* One 3D scene at a time (RNF-02): the real circuit only while the live practice is hidden. */}
-        <Panel title={t("El circuito", "The circuit")} meta={race.track || undefined}>
-          <CircuitCard race={race} year={career.year} preview3D={!showLive} drs={rules.drs.enabled} />
+      <div className="wk-live-slot">
+        <SessionLive
+          kind="practice"
+          compact
+          options={setup.options}
+          entrants={setup.entrants}
+          circuit={setup.circuit}
+          year={career.year}
+          baseLap={setup.baseLap}
+          trackTemp={30}
+          rainChance={setup.rainChance}
+          onRun={onRun}
+          onPhase={(id, phase) => setPhases((current) => ({ ...current, [id]: phase }))}
+          onDone={onDone}
+        />
+      </div>
+      <div className="wk-c7">
+        <Panel title={t("Puesta a punto", "Setup")} meta={t("Solo con el coche en el garaje", "Only with the car in the garage")}>
+          {drivers.map((driver) => (
+            <SetupBench key={driver.id} driver={driver} color={color} phase={phases[driver.id]} />
+          ))}
+          <div className="wk-actions">
+            <p className="mn-hint">{t("Sin salir a pista, los ingenieros montan su propia puesta a punto.", "Skip the running and the engineers fit their own setup.")}</p>
+            <button type="button" className="mn-btn" onClick={() => act((c) => runPractice(c, Object.fromEntries(drivers.map((driver) => [driver.id, "setup"]))))}>
+              <IconFastForward size={16} />
+              {t("Saltar los libres", "Skip practice")}
+            </button>
+          </div>
         </Panel>
-        <Panel
-          title={t("Previsión y carácter", "Forecast and character")}
-          action={!showLive && has3D ? <button type="button" className="mn-link" onClick={() => setShowLive(true)}>{t("Ver los libres en directo", "Watch practice live")}</button> : null}
-        >
+      </div>
+      <div className="wk-c5 wk-stack">
+        <Panel title={t("Previsión y carácter", "Forecast and character")}>
           <div className="wk-tiles">
             <StatTile label={t("Lluvia el domingo", "Rain on Sunday")} value={forecast ?? "—"} unit="%" hint={t("previsión del equipo", "team forecast")} />
             <StatTile label={t("Vuelta de referencia", "Reference lap")} value={lapTime(race.baseLap)} hint={t("en seco, coche medio", "dry, average car")} />
@@ -307,19 +387,13 @@ function Practice({ rules }) {
             <StatTile label={t("Premia", "Rewards")} value={race.profile.power > race.profile.aero ? t("Motor", "Power") : t("Aerodinámica", "Downforce")} hint={t("perfil del circuito", "circuit profile")} />
           </div>
         </Panel>
-      </div>
-      <div className="wk-c7">
-        <Panel title={t("Libres: puesta a punto", "Practice: setup")} meta={t(`${drivers.length} pilotos`, `${drivers.length} drivers`)}>
-          {drivers.map((driver) => (
-            <SetupBench key={driver.id} driver={driver} color={color} program={programs[driver.id]} onProgram={(value) => setPrograms((current) => ({ ...current, [driver.id]: value }))} />
+        <Panel title={t("Programas", "Programmes")}>
+          {PRACTICE_PROGRAMS.map((program) => (
+            <p key={program} className="wk-note">
+              <b>{PROGRAM[program]()}</b> · {PROGRAM_HINT[program]()}
+            </p>
           ))}
-          <div className="wk-actions">
-            <p className="mn-hint">{t("Si no tocas nada, los ingenieros montan su propia puesta a punto.", "Leave it alone and the engineers run their own setup.")}</p>
-            <button type="button" className="mn-btn mn-btn--primary mn-btn--xl" onClick={() => act((c) => runPractice(c, programs))}>
-              <IconPlay size={16} />
-              {t("Rodar en libres", "Run practice")}
-            </button>
-          </div>
+          <p className="wk-note">{rules.drs.enabled ? t("Zonas de DRS abiertas en libres.", "DRS zones open in practice.") : t("Sin DRS en esta época.", "No DRS in this era.")}</p>
         </Panel>
       </div>
     </div>
@@ -328,14 +402,24 @@ function Practice({ rules }) {
 
 const feelTone = (value) => (value >= 70 ? "is-good" : value >= 40 ? "" : "is-warn");
 
-/** Saturday: what practice says, and how hard each driver goes in qualifying. */
-function Qualifying({ rules, onQualified }) {
+/** Saturday: what practice says, then qualifying - played live on the pit wall, or simulated with a risk per driver. */
+function Qualifying({ rules, onLive }) {
   const { career, act } = useManager();
   const drivers = driversOf(career.world, career.teamId);
   const color = career.world.teams[career.teamId]?.color;
   const feedback = career.weekend.feedback || {};
   const [risk, setRisk] = useState(() => Object.fromEntries(drivers.map((driver) => [driver.id, "normal"])));
   const BALANCE = { good: t("Coche equilibrado", "Well balanced"), understeer: t("Subviraje en curva lenta", "Understeer in slow corners"), oversteer: t("Sobreviraje a la salida", "Oversteer on exit") };
+  const format = weekendSessionFormat(career, "qualifying");
+  const segments = format.segments;
+  const describe = segments[0].singleLap
+    ? t("Cada piloto sale solo, en su turno, a dar una vuelta lanzada.", "Each driver goes out alone, in turn, for one flying lap.")
+    : format.combine === "knockout"
+      ? t(`${segments.map((segment) => `${segment.name} ${Math.round(segment.duration / 60)} min`).join(" · ")}. Los más lentos quedan fuera al final de cada tanda.`, `${segments.map((segment) => `${segment.name} ${Math.round(segment.duration / 60)} min`).join(" · ")}. The slowest drop out at the end of each part.`)
+      : t(`${segments.length > 1 ? "Dos sesiones de" : "Una sesión de"} ${Math.round(segments[0].duration / 60)} min${segments[0].lapLimit ? `, ${segments[0].lapLimit} vueltas por piloto` : ""}.`, `${segments.length > 1 ? "Two sessions of" : "One session of"} ${Math.round(segments[0].duration / 60)} min${segments[0].lapLimit ? `, ${segments[0].lapLimit} laps per driver` : ""}.`);
+  const fuelNote = rules.qualifying.raceFuel
+    ? t("Época de combustible de carrera: lo que cargues en la última tanda es con lo que sales el domingo (parque cerrado).", "Race-fuel era: what you carry in the last part is what you start the race with (parc fermé).")
+    : null;
   return (
     <div className="wk-page">
       <div className="wk-c7">
@@ -376,8 +460,18 @@ function Qualifying({ rules, onQualified }) {
         </Panel>
       </div>
       <div className="wk-c5 wk-stack">
-        <Panel title={t("Clasificación", "Qualifying")} meta={qualifyingFormat(rules)}>
-          <div>
+        <Panel title={t("Clasificación", "Qualifying")} meta={qualifyingFormat(career)}>
+          <p className="wk-note">{describe}</p>
+          {fuelNote && <p className="wk-note">{fuelNote}</p>}
+          {rules.parcFerme && <p className="wk-note">{t("Parque cerrado: la puesta a punto queda fijada hasta la carrera.", "Parc fermé: the setup is fixed until the race.")}</p>}
+          <div className="wk-actions">
+            <button type="button" className="mn-btn mn-btn--primary mn-btn--xl" onClick={onLive}>
+              <IconFlag size={16} />
+              {t("Clasificación en directo", "Qualifying live")}
+            </button>
+          </div>
+          <details className="wk-quick">
+            <summary>{t("O simularla de una vez", "Or simulate it in one go")}</summary>
             {drivers.map((driver) => (
               <div key={driver.id} className="wk-choice">
                 <strong>
@@ -387,17 +481,100 @@ function Qualifying({ rules, onQualified }) {
                 <Segmented label={driver.name} value={risk[driver.id]} onChange={(value) => setRisk((current) => ({ ...current, [driver.id]: value }))} options={QUALI_STYLES.map((value) => ({ value, label: QUALI_STYLE[value]() }))} />
               </div>
             ))}
-          </div>
-          <div className="wk-actions">
-            <p className="mn-hint">{t("Al límite se gana una décima y se arriesga una vuelta perdida.", "On the limit you gain a tenth and risk a ruined lap.")}</p>
-            <button type="button" className="mn-btn mn-btn--primary mn-btn--xl" onClick={() => { act((c) => runQualifyingSession(c, risk)); onQualified?.(); }}>
-              <IconFlag size={16} />
-              {t("Salir a clasificar", "Go qualifying")}
-            </button>
-          </div>
+            <div className="wk-actions">
+              <p className="mn-hint">{t("Al límite se gana una décima y se arriesga una vuelta perdida.", "On the limit you gain a tenth and risk a ruined lap.")}</p>
+              <button type="button" className="mn-btn" onClick={() => act((c) => runQualifyingSession(c, risk))}>
+                <IconFastForward size={16} />
+                {t("Simular la clasificación", "Simulate qualifying")}
+              </button>
+            </div>
+          </details>
         </Panel>
         <Panel title={t("El circuito", "The circuit")}>
           <CircuitCard race={currentRace(career)} year={career.year} preview3D drs={rules.drs.enabled} />
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A sprint weekend (2021-, RF-WKD-01): the shootout where the era has it (2023-), then the
+ * sprint itself, live or simulated; its points count for the round and in 2021-2022 its
+ * result is Sunday's grid.
+ */
+function Sprint({ onShootout, onStart }) {
+  const { career, act } = useManager();
+  const weekend = career.weekend;
+  const race = currentRace(career);
+  const needsShootout = sprintHasShootout(career) && !weekend.shootout;
+  const shootout = weekendSessionFormat(career, "shootout");
+  const grid = (sprintHasShootout(career) ? weekend.shootout?.order : weekend.qualifying?.order) || [];
+  const drivers = career.world.drivers;
+  const teamOf = weekend.qualifying?.teams || {};
+  const scheme = eraOf(career).sprintPoints || [];
+  return (
+    <div className="wk-page">
+      <div className="wk-c7">
+        <Panel title={t("Sprint", "Sprint")} meta={t(`${race.name} · unos 100 km`, `${race.name} · about 100 km`)}>
+          {needsShootout ? (
+            <>
+              <p className="wk-note">
+                {t(
+                  `El shootout decide la parrilla del sprint: ${shootout.segments.map((segment) => `${segment.name} ${Math.round(segment.duration / 60)} min con ${COMPOUND[segment.tyre]().toLowerCase()} nuevo`).join(" · ")}.`,
+                  `The shootout sets the sprint grid: ${shootout.segments.map((segment) => `${segment.name} ${Math.round(segment.duration / 60)} min on new ${COMPOUND[segment.tyre]().toLowerCase()}`).join(" · ")}.`,
+                )}
+              </p>
+              <div className="wk-actions">
+                <button type="button" className="mn-btn mn-btn--primary mn-btn--xl" onClick={onShootout}>
+                  <IconFlag size={16} />
+                  {t("Shootout en directo", "Shootout live")}
+                </button>
+                <button type="button" className="mn-btn" onClick={() => act((c) => runShootout(c))}>
+                  <IconFastForward size={16} />
+                  {t("Simular el shootout", "Simulate the shootout")}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="wk-note">
+                {sprintHasShootout(career)
+                  ? t("Sin parada obligatoria. Puntúan los ocho primeros; la parrilla del domingo es la de la clasificación.", "No compulsory stop. The top eight score; Sunday's grid is qualifying's.")
+                  : t("Sin parada obligatoria. Su resultado es la parrilla del domingo.", "No compulsory stop. Its result is Sunday's grid.")}
+                {scheme.length ? ` ${t("Puntos", "Points")}: ${scheme.join("-")}.` : ""}
+              </p>
+              <div className="wk-actions">
+                <button type="button" className="mn-btn mn-btn--primary mn-btn--xl" onClick={() => onStart(true)}>
+                  <IconPlay size={16} />
+                  {t("Dirigir el sprint", "Run the sprint")}
+                </button>
+                <button type="button" className="mn-btn" onClick={() => onStart(false)}>
+                  <IconFastForward size={16} />
+                  {t("Simular el sprint", "Simulate the sprint")}
+                </button>
+              </div>
+            </>
+          )}
+        </Panel>
+      </div>
+      <div className="wk-c5">
+        <Panel flush title={t("Parrilla del sprint", "Sprint grid")} meta={needsShootout ? t("tras el shootout", "after the shootout") : undefined}>
+          {needsShootout ? (
+            <p className="wk-note wk-pad">{t("La decide el shootout.", "The shootout decides it.")}</p>
+          ) : (
+            <DataTable
+              dense
+              caption={t("Parrilla del sprint", "Sprint grid")}
+              rows={grid.map((id, index) => ({ id, index, team: career.world.teams[teamOf[id]] }))}
+              highlight={(row) => teamOf[row.id] === career.teamId}
+              columns={[
+                { key: "pos", label: t("Pos", "Pos"), width: 44, mono: true, render: (row) => row.index + 1 },
+                { key: "driver", label: t("Piloto", "Driver"), render: (row) => <DriverName name={drivers[row.id]?.name} color={row.team?.color} /> },
+                { key: "team", label: t("Equipo", "Team"), className: "wk-hide-sm", render: (row) => <span className="mn-muted">{row.team?.name}</span> },
+              ]}
+            />
+          )}
         </Panel>
       </div>
     </div>
@@ -408,8 +585,11 @@ function Qualifying({ rules, onQualified }) {
 function Grid() {
   const { career } = useManager();
   const quali = career.weekend.qualifying;
+  const sprint = career.weekend.sprint;
+  // 2021-2022: the sprint's result is the grid.
+  const order = sprint?.setsGrid ? sprint.order : quali.order;
   const pole = quali.times[quali.order[0]];
-  const rows = quali.order.map((id, index) => ({ id, index, driver: career.world.drivers[id], team: career.world.teams[quali.teams[id]], own: quali.teams[id] === career.teamId }));
+  const rows = order.map((id, index) => ({ id, index, driver: career.world.drivers[id], team: career.world.teams[quali.teams[id]], own: quali.teams[id] === career.teamId }));
   return (
     <DataTable
       dense
@@ -420,7 +600,9 @@ function Grid() {
         { key: "pos", label: t("Pos", "Pos"), width: 44, mono: true, render: (row) => row.index + 1 },
         { key: "driver", label: t("Piloto", "Driver"), render: (row) => <DriverName name={row.driver?.name} color={row.team?.color} /> },
         { key: "team", label: t("Equipo", "Team"), className: "wk-hide-sm", render: (row) => <span className="mn-muted">{row.team?.name}</span> },
-        { key: "time", label: t("Tiempo", "Time"), align: "right", mono: true, render: (row) => (row.index === 0 ? lapTime(pole) : Number.isFinite(quali.times[row.id]) ? `+${(quali.times[row.id] - pole).toFixed(3)}` : "—") },
+        sprint?.setsGrid
+          ? { key: "sprint", label: t("Sprint", "Sprint"), align: "right", mono: true, render: (row) => { const entry = sprint.rows.find((item) => item.driverId === row.id); return entry?.status === "finished" ? `P${entry.position}${entry.points ? ` · ${entry.points} pts` : ""}` : t("Ab.", "DNF"); } }
+          : { key: "time", label: t("Tiempo", "Time"), align: "right", mono: true, render: (row) => (row.id === quali.order[0] ? lapTime(pole) : Number.isFinite(quali.times[row.id]) ? `+${(quali.times[row.id] - pole).toFixed(3)}` : "—") },
       ]}
     />
   );
@@ -437,6 +619,9 @@ function PlanEditor({ driver, color }) {
   const maxStops = Math.max(1, rules.strategy.maxStops);
   const delta = useMemo(() => planDelta(career, plan), [career, plan]);
   const update = (next) => act((c) => setPlan(c, driver.id, next));
+  // SRS 6.2: what Saturday fixed - the race fuel (first stop) and the top ten's start tyre.
+  const locked = parcFermeOf(career, driver.id);
+  const fuelLocked = Number.isFinite(locked.fuel) && rules.refuelling;
 
   const setStops = (count) => {
     const stops = spacedStops(count, race.laps);
@@ -469,7 +654,7 @@ function PlanEditor({ driver, color }) {
           <div key={`${index}-${compound}`} className="wk-stint" style={{ flex: stints[index] || 1, "--tyre": TYRE_VAR[compound] }}>
             <div className="wk-stint__tyres">
               {compounds.map((option) => (
-                <button type="button" key={option} className={option === compound ? "is-active" : ""} onClick={() => setCompound(index, option)} aria-label={COMPOUND[option]()} aria-pressed={option === compound} title={COMPOUND[option]()}>
+                <button type="button" key={option} className={option === compound ? "is-active" : ""} onClick={() => setCompound(index, option)} disabled={index === 0 && Boolean(locked.tyre) && option !== locked.tyre} aria-label={COMPOUND[option]()} aria-pressed={option === compound} title={COMPOUND[option]()}>
                   <Tyre compound={option} size={20} />
                 </button>
               ))}
@@ -483,14 +668,21 @@ function PlanEditor({ driver, color }) {
       {plan.stops.length > 0 && (
         <div className="wk-stops">
           {plan.stops.map((lap, index) => (
-            <label key={`stop-${index}`} className="wk-slider">
+            <label key={`stop-${index}`} className={`wk-slider${index === 0 && fuelLocked ? " is-locked" : ""}`}>
               <span>
                 {t(`Parada ${index + 1}`, `Stop ${index + 1}`)} <b>{t(`V${lap}`, `L${lap}`)}</b>
+                {index === 0 && fuelLocked && <small> · {t("combustible de clasificación", "qualifying fuel")}</small>}
               </span>
-              <input type="range" min={2} max={race.laps - 2} value={lap} aria-label={t(`Vuelta de la parada ${index + 1} de ${driver.name}`, `${driver.name} stop ${index + 1} lap`)} onChange={(event) => setStopLap(index, Number(event.target.value))} />
+              <input type="range" min={2} max={race.laps - 2} value={lap} disabled={index === 0 && fuelLocked} aria-label={t(`Vuelta de la parada ${index + 1} de ${driver.name}`, `${driver.name} stop ${index + 1} lap`)} onChange={(event) => setStopLap(index, Number(event.target.value))} />
             </label>
           ))}
         </div>
+      )}
+      {(fuelLocked || locked.tyre) && (
+        <p className="wk-note">
+          <IconLock size={14} /> {t("Parque cerrado", "Parc fermé")}:{" "}
+          {[fuelLocked && t(`sale con ${locked.fuel} v de combustible`, `starts with ${locked.fuel} laps of fuel`), locked.tyre && t(`sale con el ${COMPOUND[locked.tyre]().toLowerCase()} de la clasificación`, `starts on the ${COMPOUND[locked.tyre]().toLowerCase()} he qualified on`)].filter(Boolean).join(" · ")}
+        </p>
       )}
     </section>
   );
@@ -503,7 +695,8 @@ function Strategy({ rules, onStart }) {
   const drivers = driversOf(career.world, career.teamId);
   const color = career.world.teams[career.teamId]?.color;
   const quali = career.weekend.qualifying;
-  const own = quali.order.map((id, index) => ({ id, index })).filter((entry) => quali.teams[entry.id] === career.teamId);
+  const sprint = career.weekend.sprint;
+  const own = (sprint?.setsGrid ? sprint.order : quali.order).map((id, index) => ({ id, index })).filter((entry) => quali.teams[entry.id] === career.teamId);
   const best = own[0];
   const forecast = weekendForecast(career);
   const eraHint = rules.refuelling && !rules.tyres.changesInRace
@@ -528,6 +721,11 @@ function Strategy({ rules, onStart }) {
       </div>
       <div className="wk-c7">
         <Panel title={t("Estrategia", "Strategy")}>
+          {sprint && (
+            <p className="wk-note">
+              {t("Sprint", "Sprint")}: {sprint.rows.filter((row) => row.teamId === career.teamId).map((row) => `${row.name} ${row.status === "finished" ? `P${row.position}` : t("Ab.", "DNF")}${row.points ? ` (${row.points} pts)` : ""}`).join(" · ")}
+            </p>
+          )}
           <p className="wk-note">{eraHint}</p>
           {drivers.map((driver) => (
             <PlanEditor key={driver.id} driver={driver} color={color} />
@@ -715,8 +913,9 @@ function Result({ onContinue }) {
               { key: "gain", label: "±", align: "right", width: 48, render: (row) => (row.status === "finished" ? <Move value={row.grid - row.position} /> : "") },
               { key: "stops", label: t("Par.", "Stops"), align: "right", mono: true, width: 52, className: "wk-hide-sm", render: (row) => row.stops },
               { key: "gap", label: t("Diferencia", "Gap"), align: "right", mono: true, render: (row) => `${row.position === 1 && row.status === "finished" ? t("Ganador", "Winner") : gapText(row)}${row.penalty ? ` (+${row.penalty} s)` : ""}` },
+              summary.sprint && { key: "spr", label: t("Sprint", "Sprint"), align: "right", width: 56, mono: true, className: "wk-hide-sm", render: (row) => (row.sprintPoints ? `+${row.sprintPoints}` : "") },
               { key: "pts", label: t("Pts", "Pts"), align: "right", width: 48, render: (row) => (row.points ? <b>{row.points}</b> : "") },
-            ]}
+            ].filter(Boolean)}
           />
         </Panel>
       </div>

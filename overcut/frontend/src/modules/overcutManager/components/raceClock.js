@@ -40,6 +40,18 @@ const entryIndex = (history, tau) => {
 };
 
 /**
+ * Share of a lap's time gone at `tau`. A session lap aborted mid-way (engine/sessionSim
+ * `warp`) keeps its pace up to the abort and covers the rest at cool-down pace, so the
+ * car never jumps.
+ */
+const lapShareAt = (entry, tau) => {
+  const warp = entry.warp;
+  if (!warp) return (tau - entry.start) / (entry.end - entry.start);
+  if (tau <= warp.at) return ((tau - entry.start) / Math.max(1e-6, warp.at - entry.start)) * warp.share;
+  return warp.share + ((tau - warp.at) / Math.max(1e-6, entry.end - warp.at)) * (1 - warp.share);
+};
+
+/**
  * Where a car is at race time `tau` (seconds since the lights went out).
  * Returns a pose plus `progress` (laps covered, fractional) and flags.
  */
@@ -108,7 +120,11 @@ export const carAt = (car, tau, circuit, lapRef = 90) => {
     let share;
     let stopped = false;
     if (inLane < toBox) share = (inLane / toBox) * pitBox;
-    else if (inLane < toBox + stationary) {
+    else if (entry.box) {
+      // A session in-lap ends in the team's box: the car stays there until it is pushed in.
+      share = pitBox;
+      stopped = true;
+    } else if (inLane < toBox + stationary) {
       share = pitBox;
       stopped = true;
     } else share = pitBox + ((inLane - toBox - stationary) / Math.max(0.5, laneTime - toBox)) * (pit.lineAt - pitBox);
@@ -117,12 +133,14 @@ export const carAt = (car, tau, circuit, lapRef = 90) => {
     return { ...pose, progress: laps + d, laps, inPit: true, stopped, stopLeft: stopped ? toBox + stationary - inLane : 0 };
   }
 
-  const d = fromGrid(distanceAtTimeShare(circuit, elapsed / total));
+  const d = fromGrid(distanceAtTimeShare(circuit, entry.warp ? lapShareAt(entry, tau) : elapsed / total));
   // Leaving the pits: the start of the lap after a stop is on the exit road.
   const previous = history[index - 1];
   if ((previous?.pit || (index === 0 && car.garage)) && d < circuit.pit.exit) {
     const pit = circuit.pit;
-    const share = pit.lineAt + (d / pit.exit) * (1 - pit.lineAt);
+    // Out of a session garage the car starts from its own box, not from the line.
+    const from = car.garage && (index === 0 || previous?.box) ? pitBox : pit.lineAt;
+    const share = from + (d / pit.exit) * (1 - from);
     return { ...pitPoseAt(circuit, share), progress: laps + d, laps, inPit: true };
   }
   return { ...poseAt(circuit, d), progress: laps + d, laps };

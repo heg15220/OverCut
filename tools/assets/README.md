@@ -19,6 +19,7 @@ Blender solo se usa aquí, sin conexión; el juego carga el resultado con three.
 ```bash
 python tools/assets/build_assets.py                 # coches, circuitos y manifiesto
 python tools/assets/build_assets.py cars --jobs 3   # solo coches
+python tools/assets/build_assets.py heroes --jobs 5 # solo el nivel hero del showroom (sin Blender)
 python tools/assets/build_assets.py circuits --only monza-7
 python tools/assets/build_assets.py manifest        # reescribe el manifiesto con lo que haya
 ```
@@ -42,6 +43,15 @@ buje. Las ruedas se encuentran por geometría, porque los GLB no las nombran: pi
 agrupando flancos y banda si vienen partidos. Si los neumáticos están soldados a la suspensión, el coche sale
 con ruedas fijas (`metrics.wheels = "static"`). LOD con Decimate (1 / 0,4 / 0,12) y texturas de 1024 / 512 / 256.
 Autor y licencia salen de `asset.extras` de cada GLB (Sketchfab los guarda ahí).
+
+**Nivel hero (solo showroom, RF-3D-06).** `<id>.hero.glb`: la geometría del LOD0 con el color base hasta 2048 px
+(ETC1S) y los mapas normales/rugosidad/oclusión a 1024 (UASTC). Lo carga solo el showroom cuando el lienzo tiene
+al menos ~700 px de dispositivo (pantalla Coche, móvil a 2x); la carrera sigue con LOD0-2 a 1024/512/256, así que
+no cambia la descarga del GP ni la memoria de vídeo de los 22 coches. Escalera 2048/1024 → 1536/1024: el primero
+que cabe en 7,6 MiB (contrato de 8 MiB por fichero, RNF-03). No hay hero si el original no tiene texturas mayores
+que las del LOD0 (packs de 2010 y 2013, a 1024) o si el LOD0 ya pasa de 6,8 MiB (la geometría llena el
+presupuesto: McLaren 1988, Arrows 1999…); entonces el showroom usa el LOD0. El manifiesto lo publica como
+`hero: { file, bytes, sha256, triangles, textureSize: [base, mapas] }`.
 
 ## Circuitos (`blender/extract_spline.py` → `align_spline.mjs` → `blender/prepare_circuit.py`)
 

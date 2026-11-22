@@ -59,7 +59,7 @@ export const STATUS = {
 };
 
 export const MIX = {
-  lean: () => t("Pobre", "Lean"),
+  lean: () => t("Lift & coast", "Lift & coast"),
   standard: () => t("Estándar", "Standard"),
   rich: () => t("Rica", "Rich"),
 };
@@ -227,10 +227,13 @@ export const COMPOUND = {
 export const COMPOUND_LETTER = { dry: "S", soft: "B", medium: "M", hard: "D", inter: "I", wet: "LL" };
 if (locale === "en") Object.assign(COMPOUND_LETTER, { soft: "S", hard: "H", wet: "W", dry: "D" });
 
+/** RF-CMD-01: five pace levels (race-eras.json modes). */
 export const MODE = {
+  conserve: () => t("Conservar mucho", "Conserve hard"),
   save: () => t("Conservar", "Conserve"),
   normal: () => t("Normal", "Standard"),
   push: () => t("Atacar", "Push"),
+  attack: () => t("Al ataque", "Attack"),
 };
 
 export const WEATHER = {

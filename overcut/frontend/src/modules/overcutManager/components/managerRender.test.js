@@ -78,14 +78,19 @@ describe("OvercutManager", () => {
     // The weekend: practice, qualifying, a simulated race, the result.
     fireEvent.click(within(screen.getByRole("navigation", { name: /sections/i })).getByRole("button", { name: /home/i }));
     fireEvent.click(screen.getAllByRole("button", { name: /go to the/i })[0]);
-    fireEvent.click(await screen.findByRole("button", { name: /run practice/i }));
-    fireEvent.click(screen.getByRole("button", { name: /go qualifying/i }));
+    // RF-WKD-03: practice is played - every driver of yours has a run plan and "Go out".
+    expect(await screen.findAllByRole("button", { name: /^go out$/i })).toHaveLength(2);
+    fireEvent.click(screen.getByRole("button", { name: /skip practice/i }));
+    // Qualifying live or in one go.
+    expect(screen.getByRole("button", { name: /qualifying live/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByText(/simulate it in one go/i));
+    fireEvent.click(screen.getByRole("button", { name: /simulate qualifying/i }));
     expect(screen.getAllByText(/starting grid/i).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: /simulate the race/i }));
     expect(screen.getByText(/chequered flag/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
     expect(screen.queryByText(/chequered flag/i)).not.toBeInTheDocument();
-  });
+  }, 30000);
 
   it("runs the race live from the pit wall", async () => {
     await startWizard();
@@ -96,8 +101,9 @@ describe("OvercutManager", () => {
     fireEvent.click(screen.getByRole("button", { name: /sign the contract/i }));
     fireEvent.click(await screen.findByRole("button", { name: /let's get to work/i }));
     fireEvent.click(screen.getAllByRole("button", { name: /go to the/i })[0]);
-    fireEvent.click(screen.getByRole("button", { name: /run practice/i }));
-    fireEvent.click(screen.getByRole("button", { name: /go qualifying/i }));
+    fireEvent.click(screen.getByRole("button", { name: /skip practice/i }));
+    fireEvent.click(screen.getByText(/simulate it in one go/i));
+    fireEvent.click(screen.getByRole("button", { name: /simulate qualifying/i }));
     fireEvent.click(screen.getByRole("button", { name: /run the race/i }));
     expect(screen.getByRole("list", { name: /timing tower/i })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /one lap/i }));

@@ -18,7 +18,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  cancelPit, commandsFor, drsOpen, energyEra, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder,
+  cancelPit, commandsFor, delayStop, drsOpen, energyEra, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder, skipStop,
   stepLap, tyreLifeUsed,
 } from "../engine/race";
 import { DEFENCE_KEYS, RISK_KEYS } from "../engine/sim";
@@ -111,7 +111,7 @@ const NEXT_TYPES = ["pass", "pit", "dnf", "sc", "vsc", "sc-in", "rain", "lead", 
 // ------------------------------------------------------------------ sources
 
 /** The quick-mode orders by name (race.js setters), for a replayed quick race. */
-const QUICK_COMMANDS = { setMode, setMix, setErs, requestPit, cancelPit, setTeamOrder };
+const QUICK_COMMANDS = { setMode, setMix, setErs, requestPit, cancelPit, delayStop, skipStop, setTeamOrder };
 
 /**
  * A quick-mode race (race.js), run lap by lap just ahead of the pictures and replayed
@@ -245,17 +245,17 @@ const stepSource = (client, mirror) => {
 
 // ------------------------------------------------------------------ the view
 
-export default function LiveRace({ state, args, onFinished }) {
-  return args ? <LiveStepRace args={args} onFinished={onFinished} /> : <LiveQuickRace state={state} onFinished={onFinished} />;
+export default function LiveRace({ state, args, onFinished, title }) {
+  return args ? <LiveStepRace args={args} onFinished={onFinished} title={title} /> : <LiveQuickRace state={state} onFinished={onFinished} title={title} />;
 }
 
-function LiveQuickRace({ state, onFinished }) {
+function LiveQuickRace({ state, onFinished, title }) {
   const source = useMemo(() => quickSource(state), [state]);
-  return <RaceView source={source} onFinished={onFinished} />;
+  return <RaceView source={source} onFinished={onFinished} title={title} />;
 }
 
 /** RF-WKD-02 live: the step race built and run in the race worker from the career's arguments. */
-function LiveStepRace({ args, onFinished }) {
+function LiveStepRace({ args, onFinished, title }) {
   const [source, setSource] = useState(null);
   const [error, setError] = useState(null);
   useEffect(() => {
@@ -284,10 +284,10 @@ function LiveStepRace({ args, onFinished }) {
   }, [args]);
   if (error) return <div className="lv-loading">{t(`Error del motor de carrera: ${error}`, `Race engine error: ${error}`)}</div>;
   if (!source) return <div className="lv-loading">{t("Preparando la carrera…", "Preparing the race…")}</div>;
-  return <RaceView source={source} onFinished={onFinished} />;
+  return <RaceView source={source} onFinished={onFinished} title={title} />;
 }
 
-function RaceView({ source, onFinished }) {
+function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const { career } = useManager();
   const current = source.current;
   const { circuit, lapRef } = source;
@@ -630,7 +630,7 @@ function RaceView({ source, onFinished }) {
 
       <TimingTower
         label={t("Torre de tiempos", "Timing tower")}
-        title={t("Carrera", "Race")}
+        title={title}
         subtitle={
           <>
             {t("Vuelta", "Lap")} <b>{displayLap}</b>/{current.laps}
@@ -666,6 +666,7 @@ function RaceView({ source, onFinished }) {
               energy={energy}
               command={command}
               steps={source.steps}
+              pitThisLap={(((rowOf[car.id]?.pose?.progress ?? 0) % 1) + 1) % 1 < circuit.pit.entry}
               focused={focusId === car.id}
               onFocus={() => setFocusId(car.id)}
             />
@@ -711,7 +712,8 @@ const TEMP_LABEL = (temp) => (temp < 0.4 ? { label: t("Fríos", "Cold"), tone: "
  * or fuel only when tyres may not be changed). Every order goes through `command`
  * (the race worker for a step race).
  */
-function DriverCard({ car, row, state, commands, energy, command, steps, focused, onFocus }) {
+function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus }) {
+  const [fuelLoad, setFuelLoad] = useState(null);
   const running = car.status === "running";
   const rules = rulesOf(state.era, state.year);
   const refuel = commands.pit.fuel;
@@ -726,6 +728,12 @@ function DriverCard({ car, row, state, commands, energy, command, steps, focused
   const mixKeys = commands.fuelMix.filter((key) => MIX[key]);
   const energyModes = commands.energy.filter((key) => ERS[key]);
   const hasBattery = car.battery !== null && car.battery !== undefined && energyModes.length > 0;
+  // RF-CMD-02: the next stop of the plan (delay it a lap or drop it) and, with refuelling, the load.
+  const nextStop = car.plan.stops.find((lap) => lap >= state.lap);
+  const nextCompound = car.plan.compounds[Math.min(car.plan.compounds.length - 1, (car.stint ?? 0) + 1)];
+  // A stop called now replaces the next planned one: fuel to the stop after it, or to the flag.
+  const after = car.plan.stops.find((lap) => lap > (nextStop ?? state.lap));
+  const defaultFuel = Math.max(1, Math.min(remaining + 1, (after ?? state.laps) - state.lap));
   return (
     <section className={`lv-card${running ? "" : " is-out"}${focused ? " is-focus" : ""}`} aria-label={car.name}>
       <button type="button" className="lv-card__head" onClick={onFocus}>
@@ -807,15 +815,13 @@ function DriverCard({ car, row, state, commands, energy, command, steps, focused
           <div className="lv-box">
             {car.pitRequest ? (
               <button type="button" className="mn-btn mn-btn--sm lv-box__called" onClick={() => command("cancelPit", car.id)}>
-                {commands.pit.tyres
-                  ? t(`Box en la V${car.pitRequest.lap} · ${COMPOUND[car.pitRequest.compound]()} · cancelar`, `Box on L${car.pitRequest.lap} · ${COMPOUND[car.pitRequest.compound]()} · cancel`)
-                  : t(`Box en la V${car.pitRequest.lap} · combustible · cancelar`, `Box on L${car.pitRequest.lap} · fuel · cancel`)}
+                {`${pitThisLap ? t("Box esta vuelta", "Box this lap") : t("Box la próxima vuelta", "Box next lap")} · ${commands.pit.tyres ? COMPOUND[car.pitRequest.compound || car.compound]() : t("combustible", "fuel")}${Number.isFinite(car.pitRequest.fuel) ? ` · ${car.pitRequest.fuel} v` : ""} · ${t("cancelar", "cancel")}`}
               </button>
             ) : commands.pit.tyres ? (
               <>
-                <span>{t("Parada", "Pit stop")}</span>
+                <span>{pitThisLap ? t("Box esta vuelta", "Box this lap") : t("Box la próxima", "Box next lap")}</span>
                 {commands.pit.compounds.map((compound) => (
-                  <button type="button" key={compound} className="lv-box__tyre" onClick={() => command("requestPit", car.id, compound)} aria-label={t(`Parar y montar ${COMPOUND[compound]().toLowerCase()}`, `Box for ${COMPOUND[compound]()}`)} title={t(`Box: ${COMPOUND[compound]()}`, `Box: ${COMPOUND[compound]()}`)}>
+                  <button type="button" key={compound} className="lv-box__tyre" onClick={() => command("requestPit", car.id, compound, refuel ? { fuel: fuelLoad ?? defaultFuel, replace: true } : { replace: true })} aria-label={t(`Parar y montar ${COMPOUND[compound]().toLowerCase()}`, `Box for ${COMPOUND[compound]()}`)} title={t(`Box: ${COMPOUND[compound]()}`, `Box: ${COMPOUND[compound]()}`)}>
                     <Tyre compound={compound} size={22} />
                   </button>
                 ))}
@@ -823,13 +829,42 @@ function DriverCard({ car, row, state, commands, energy, command, steps, focused
             ) : (
               <>
                 <span>{t("Parada", "Pit stop")}</span>
-                <button type="button" className="mn-btn mn-btn--sm" onClick={() => command("requestPit", car.id, car.compound)}>
-                  {t("Box: solo combustible", "Box: fuel only")}
+                <button type="button" className="mn-btn mn-btn--sm" onClick={() => command("requestPit", car.id, car.compound, refuel ? { fuel: fuelLoad ?? defaultFuel, replace: true } : { replace: true })}>
+                  {pitThisLap ? t("Box esta vuelta: combustible", "Box this lap: fuel") : t("Box la próxima: combustible", "Box next lap: fuel")}
                 </button>
               </>
             )}
+            {refuel && !car.pitRequest && (
+              <div className="lv-step" role="group" aria-label={t("Combustible a cargar", "Fuel to load")}>
+                <button type="button" className="mn-icon-btn" onClick={() => setFuelLoad(Math.max(1, (fuelLoad ?? defaultFuel) - 1))} aria-label={t("Menos combustible", "Less fuel")}>
+                  −
+                </button>
+                <b>
+                  {fuelLoad ?? defaultFuel}
+                  <small> v</small>
+                </b>
+                <button type="button" className="mn-icon-btn" onClick={() => setFuelLoad(Math.min(remaining + 1, (fuelLoad ?? defaultFuel) + 1))} aria-label={t("Más combustible", "More fuel")}>
+                  +
+                </button>
+              </div>
+            )}
             {car.issue ? <em className="lv-box__issue">{t("Problema", "Issue")} +{car.issue.toFixed(1)} s</em> : null}
           </div>
+          {nextStop !== undefined && !car.pitRequest && (
+            <div className="lv-box lv-box--plan">
+              <span>{t("Plan", "Plan")}</span>
+              <small>
+                {t(`Parada prevista V${nextStop}`, `Planned stop L${nextStop}`)}
+                {nextCompound && commands.pit.tyres ? ` · ${COMPOUND[nextCompound]()}` : ""}
+              </small>
+              <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={() => command("delayStop", car.id)} disabled={nextStop + 1 >= state.laps}>
+                {t("Retrasar 1 v", "Delay 1 lap")}
+              </button>
+              <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={() => command("skipStop", car.id)}>
+                {t("Quitar", "Drop")}
+              </button>
+            </div>
+          )}
         </>
       ) : (
         <p className="lv-card__status">{car.status === "finished" ? t("Terminado", "Finished") : STATUS[car.retireReason] ? STATUS[car.retireReason]() : ""}</p>

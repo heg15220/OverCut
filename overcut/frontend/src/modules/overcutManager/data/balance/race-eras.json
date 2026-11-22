@@ -16,16 +16,18 @@
     ],
     "cliffPerLap": 0.28,
     "wetLifeLaps": 45,
-    "tempTarget": { "save": 0.46, "normal": 0.56, "push": 0.68 },
+    "tempTarget": { "conserve": 0.42, "save": 0.46, "normal": 0.56, "push": 0.68, "attack": 0.74 },
     "outLapTemp": [
       { "from": 1950, "to": 1994, "value": 0.22 },
       { "from": 1995, "to": 2026, "value": 0.36, "note": "mantas térmicas desde mediados de los 90" }
     ]
   },
   "modes": {
+    "conserve": { "time": 0.75, "wear": 0.55, "risk": 0.5, "mistake": 0.45, "burn": 0.94 },
     "save": { "time": 0.38, "wear": 0.72, "risk": 0.7, "mistake": 0.6 },
     "normal": { "time": 0, "wear": 1, "risk": 1, "mistake": 1 },
-    "push": { "time": -0.3, "wear": 1.38, "risk": 1.25, "mistake": 1.6 }
+    "push": { "time": -0.3, "wear": 1.38, "risk": 1.25, "mistake": 1.6 },
+    "attack": { "time": -0.52, "wear": 1.75, "risk": 1.5, "mistake": 2.2, "burn": 1.04 }
   },
   "fuel": {
     "$comment": "RF-SIM-04: s por vuelta de combustible a bordo; margen en vueltas fuera de las eras de repostaje; mezcla (fuera del repostaje).",

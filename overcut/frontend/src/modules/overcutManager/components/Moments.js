@@ -82,7 +82,7 @@ const teamCars = (career, teamIds) =>
   teamIds
     .map((id) => career.world.teams[id])
     .filter(Boolean)
-    .map((team) => ({ color: team.color, color2: team.color2, name: team.name }));
+    .map((team) => ({ color: team.color, color2: team.color2, name: team.name, teamRef: team.custom ? null : team.id }));
 
 export default function Moments() {
   const { career, moments, setMoments, toOffseason, takeJob, leave, go } = useManager();

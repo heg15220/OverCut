@@ -1,7 +1,7 @@
 {
  "$comment": "GENERADO por tools/assets/build_assets.py: no editar a mano (SRS 4.3, RF-3D-01). Las rutas son relativas a /manager-assets/.",
  "version": 1,
- "hash": "167e30d0a6ba085d",
+ "hash": "1a182cd81009fa63",
  "baseUrl": "/manager-assets/",
  "cars": [
   {
@@ -133,6 +133,16 @@
      "triangles": 6815
     }
    ],
+   "hero": {
+    "file": "cars/1986/1986-benetton.hero.glb",
+    "bytes": 4863440,
+    "sha256": "7d249a4f161630f7",
+    "triangles": 56814,
+    "textureSize": [
+     2048,
+     2048
+    ]
+   },
    "thumb": "thumbs/1986-benetton.png",
    "metrics": {
     "lengthM": 4.342,
@@ -317,6 +327,16 @@
      "triangles": 8245
     }
    ],
+   "hero": {
+    "file": "cars/1986/1986-tyrrell.hero.glb",
+    "bytes": 6764472,
+    "sha256": "ebafa1e762428e7d",
+    "triangles": 68730,
+    "textureSize": [
+     2048,
+     2048
+    ]
+   },
    "thumb": "thumbs/1986-tyrrell.png",
    "metrics": {
     "lengthM": 4.399,
@@ -501,6 +521,16 @@
      "triangles": 7925
     }
    ],
+   "hero": {
+    "file": "cars/1990/1990-benetton.hero.glb",
+    "bytes": 3339776,
+    "sha256": "d8d54dbe37781683",
+    "triangles": 66087,
+    "textureSize": [
+     2048,
+     2048
+    ]
+   },
    "thumb": "thumbs/1990-benetton.png",
    "metrics": {
     "lengthM": 4.499,
@@ -961,6 +991,16 @@
      "triangles": 35750
     }
    ],
+   "hero": {
+    "file": "cars/1994/1994-benetton.hero.glb",
+    "bytes": 7676692,
+    "sha256": "83901d1f253fd054",
+    "triangles": 264659,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/1994-benetton.png",
    "metrics": {
     "lengthM": 4.518,
@@ -1053,6 +1093,16 @@
      "triangles": 24649
     }
    ],
+   "hero": {
+    "file": "cars/1994/1994-ferrari.hero.glb",
+    "bytes": 4983944,
+    "sha256": "75aa9b703c204ad7",
+    "triangles": 205433,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/1994-ferrari.png",
    "metrics": {
     "lengthM": 4.498,
@@ -1145,6 +1195,16 @@
      "triangles": 8528
     }
    ],
+   "hero": {
+    "file": "cars/1997/1997-benetton.hero.glb",
+    "bytes": 3085728,
+    "sha256": "9fa6c4280c281f92",
+    "triangles": 71098,
+    "textureSize": [
+     2048,
+     2048
+    ]
+   },
    "thumb": "thumbs/1997-benetton.png",
    "metrics": {
     "lengthM": 4.678,
@@ -1237,6 +1297,16 @@
      "triangles": 6423
     }
    ],
+   "hero": {
+    "file": "cars/1997/1997-ferrari.hero.glb",
+    "bytes": 1815212,
+    "sha256": "55a1b0fc14e53dd5",
+    "triangles": 53562,
+    "textureSize": [
+     2048,
+     256
+    ]
+   },
    "thumb": "thumbs/1997-ferrari.png",
    "metrics": {
     "lengthM": 4.615,
@@ -1329,6 +1399,16 @@
      "triangles": 7136
     }
    ],
+   "hero": {
+    "file": "cars/1997/1997-mclaren.hero.glb",
+    "bytes": 4481928,
+    "sha256": "27a1687629f0d763",
+    "triangles": 59516,
+    "textureSize": [
+     2048,
+     2048
+    ]
+   },
    "thumb": "thumbs/1997-mclaren.png",
    "metrics": {
     "lengthM": 4.608,
@@ -1421,6 +1501,16 @@
      "triangles": 6414
     }
    ],
+   "hero": {
+    "file": "cars/1997/1997-williams.hero.glb",
+    "bytes": 1395736,
+    "sha256": "cb7fc023612069cd",
+    "triangles": 53516,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/1997-williams.png",
    "metrics": {
     "lengthM": 4.654,
@@ -1513,6 +1603,16 @@
      "triangles": 18140
     }
    ],
+   "hero": {
+    "file": "cars/1998/1998-mclaren.hero.glb",
+    "bytes": 4850892,
+    "sha256": "ec92e372245a88f1",
+    "triangles": 151222,
+    "textureSize": [
+     2048,
+     2048
+    ]
+   },
    "thumb": "thumbs/1998-mclaren.png",
    "metrics": {
     "lengthM": 4.545,
@@ -1697,6 +1797,16 @@
      "triangles": 39358
     }
    ],
+   "hero": {
+    "file": "cars/2000/2000-ferrari.hero.glb",
+    "bytes": 7913176,
+    "sha256": "5c0363feeba80238",
+    "triangles": 328009,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2000-ferrari.png",
    "metrics": {
     "lengthM": 4.506,
@@ -1789,6 +1899,16 @@
      "triangles": 25715
     }
    ],
+   "hero": {
+    "file": "cars/2001/2001-ferrari.hero.glb",
+    "bytes": 7121228,
+    "sha256": "627b08acd7800729",
+    "triangles": 214317,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2001-ferrari.png",
    "metrics": {
     "lengthM": 4.423,
@@ -1881,6 +2001,16 @@
      "triangles": 13993
     }
    ],
+   "hero": {
+    "file": "cars/2002/2002-bar.hero.glb",
+    "bytes": 5137812,
+    "sha256": "1c7bb810f419b057",
+    "triangles": 92032,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2002-bar.png",
    "metrics": {
     "lengthM": 4.3,
@@ -2065,6 +2195,16 @@
      "triangles": 13147
     }
    ],
+   "hero": {
+    "file": "cars/2002/2002-jaguar.hero.glb",
+    "bytes": 3618408,
+    "sha256": "fa5a7828bb49d2b4",
+    "triangles": 85981,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2002-jaguar.png",
    "metrics": {
     "lengthM": 4.579,
@@ -2157,6 +2297,16 @@
      "triangles": 13713
     }
    ],
+   "hero": {
+    "file": "cars/2002/2002-jordan.hero.glb",
+    "bytes": 4832620,
+    "sha256": "354ae71d6861f388",
+    "triangles": 94734,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2002-jordan.png",
    "metrics": {
     "lengthM": 4.311,
@@ -2249,6 +2399,16 @@
      "triangles": 9946
     }
    ],
+   "hero": {
+    "file": "cars/2002/2002-mclaren.hero.glb",
+    "bytes": 7103308,
+    "sha256": "9f8f5eafded102ec",
+    "triangles": 82934,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2002-mclaren.png",
    "metrics": {
     "lengthM": 4.317,
@@ -2341,6 +2501,16 @@
      "triangles": 12786
     }
    ],
+   "hero": {
+    "file": "cars/2002/2002-minardi.hero.glb",
+    "bytes": 4658168,
+    "sha256": "63e5c4ca41ddd1da",
+    "triangles": 106615,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2002-minardi.png",
    "metrics": {
     "lengthM": 4.275,
@@ -2433,6 +2603,16 @@
      "triangles": 13174
     }
    ],
+   "hero": {
+    "file": "cars/2002/2002-renault.hero.glb",
+    "bytes": 3050720,
+    "sha256": "8474c85e36d1c6c4",
+    "triangles": 109864,
+    "textureSize": [
+     2048,
+     64
+    ]
+   },
    "thumb": "thumbs/2002-renault.png",
    "metrics": {
     "lengthM": 4.142,
@@ -2525,6 +2705,16 @@
      "triangles": 13232
     }
    ],
+   "hero": {
+    "file": "cars/2002/2002-sauber.hero.glb",
+    "bytes": 4129548,
+    "sha256": "29291e34f70ce542",
+    "triangles": 110302,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2002-sauber.png",
    "metrics": {
     "lengthM": 4.604,
@@ -2617,6 +2807,16 @@
      "triangles": 13327
     }
    ],
+   "hero": {
+    "file": "cars/2002/2002-toyota.hero.glb",
+    "bytes": 5286256,
+    "sha256": "33d99314c8eca7c7",
+    "triangles": 111102,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2002-toyota.png",
    "metrics": {
     "lengthM": 4.306,
@@ -2709,6 +2909,16 @@
      "triangles": 21002
     }
    ],
+   "hero": {
+    "file": "cars/2002/2002-williams.hero.glb",
+    "bytes": 2987492,
+    "sha256": "3004cd50ac25eabe",
+    "triangles": 151034,
+    "textureSize": [
+     2048,
+     64
+    ]
+   },
    "thumb": "thumbs/2002-williams.png",
    "metrics": {
     "lengthM": 4.357,
@@ -2985,6 +3195,16 @@
      "triangles": 35166
     }
    ],
+   "hero": {
+    "file": "cars/2004/2004-mclaren.hero.glb",
+    "bytes": 6222332,
+    "sha256": "8550eb3d80b3f8d4",
+    "triangles": 293813,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2004-mclaren.png",
    "metrics": {
     "lengthM": 4.69,
@@ -3077,6 +3297,16 @@
      "triangles": 22182
     }
    ],
+   "hero": {
+    "file": "cars/2004/2004-renault.hero.glb",
+    "bytes": 3724996,
+    "sha256": "a2bf8e72dfa62d2a",
+    "triangles": 184874,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2004-renault.png",
    "metrics": {
     "lengthM": 4.6,
@@ -3169,6 +3399,16 @@
      "triangles": 15363
     }
    ],
+   "hero": {
+    "file": "cars/2005/2005-bar.hero.glb",
+    "bytes": 4510068,
+    "sha256": "9ddcd43d8a823dfc",
+    "triangles": 128062,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2005-bar.png",
    "metrics": {
     "lengthM": 4.642,
@@ -3442,6 +3682,16 @@
      "triangles": 12552
     }
    ],
+   "hero": {
+    "file": "cars/2005/2005-mclaren.hero.glb",
+    "bytes": 4669172,
+    "sha256": "227240754ebab752",
+    "triangles": 104656,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2005-mclaren.png",
    "metrics": {
     "lengthM": 4.559,
@@ -3988,6 +4238,16 @@
      "triangles": 24481
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-ferrari.hero.glb",
+    "bytes": 7737928,
+    "sha256": "b2d9d895fc39e789",
+    "triangles": 204037,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-ferrari.png",
    "metrics": {
     "lengthM": 4.64,
@@ -4080,6 +4340,16 @@
      "triangles": 20542
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-honda.hero.glb",
+    "bytes": 5553412,
+    "sha256": "bdda87b8b21fde5c",
+    "triangles": 171196,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-honda.png",
    "metrics": {
     "lengthM": 4.778,
@@ -4172,6 +4442,16 @@
      "triangles": 7989
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-mclaren.hero.glb",
+    "bytes": 4809916,
+    "sha256": "4c1eb2a85b0bd4c8",
+    "triangles": 66653,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-mclaren.png",
    "metrics": {
     "lengthM": 4.651,
@@ -4264,6 +4544,16 @@
      "triangles": 20322
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-midland.hero.glb",
+    "bytes": 5866416,
+    "sha256": "47c0ea06032907a6",
+    "triangles": 169384,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-midland.png",
    "metrics": {
     "lengthM": 4.761,
@@ -4356,6 +4646,16 @@
      "triangles": 20376
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-red-bull.hero.glb",
+    "bytes": 5434108,
+    "sha256": "7d189de4c2208544",
+    "triangles": 169829,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-red-bull.png",
    "metrics": {
     "lengthM": 4.695,
@@ -4448,6 +4748,16 @@
      "triangles": 20834
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-renault.hero.glb",
+    "bytes": 5768324,
+    "sha256": "cd4568bd597bd074",
+    "triangles": 173643,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-renault.png",
    "metrics": {
     "lengthM": 4.585,
@@ -4540,6 +4850,16 @@
      "triangles": 20578
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-super-aguri.hero.glb",
+    "bytes": 5172264,
+    "sha256": "4a5ccf623fe42e8b",
+    "triangles": 171516,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-super-aguri.png",
    "metrics": {
     "lengthM": 4.684,
@@ -4632,6 +4952,16 @@
      "triangles": 7139
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-toro-rosso.hero.glb",
+    "bytes": 3328160,
+    "sha256": "1bc05682002a245e",
+    "triangles": 59550,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-toro-rosso.png",
    "metrics": {
     "lengthM": 4.65,
@@ -4724,6 +5054,16 @@
      "triangles": 20520
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-toyota.hero.glb",
+    "bytes": 5425288,
+    "sha256": "b02aed6a08d9e020",
+    "triangles": 171038,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-toyota.png",
    "metrics": {
     "lengthM": 4.69,
@@ -4816,6 +5156,16 @@
      "triangles": 20253
     }
    ],
+   "hero": {
+    "file": "cars/2006/2006-williams.hero.glb",
+    "bytes": 5463832,
+    "sha256": "cec6aa326c77dca9",
+    "triangles": 168805,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2006-williams.png",
    "metrics": {
     "lengthM": 4.698,
@@ -4908,6 +5258,16 @@
      "triangles": 20005
     }
    ],
+   "hero": {
+    "file": "cars/2007/2007-ferrari.hero.glb",
+    "bytes": 4830920,
+    "sha256": "d5f4c66576e6d9d2",
+    "triangles": 166740,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2007-ferrari.png",
    "metrics": {
     "lengthM": 4.566,
@@ -5000,6 +5360,16 @@
      "triangles": 20735
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-bmw-sauber.hero.glb",
+    "bytes": 7216456,
+    "sha256": "d8f9bf9eca7b5a1c",
+    "triangles": 172812,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2008-bmw-sauber.png",
    "metrics": {
     "lengthM": 4.592,
@@ -5092,6 +5462,16 @@
      "triangles": 20900
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-ferrari.hero.glb",
+    "bytes": 4617500,
+    "sha256": "4159fb94f33be78f",
+    "triangles": 174202,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2008-ferrari.png",
    "metrics": {
     "lengthM": 4.736,
@@ -5183,6 +5563,16 @@
      "triangles": 19787
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-force-india.hero.glb",
+    "bytes": 7335988,
+    "sha256": "7800a299e209f05f",
+    "triangles": 164943,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2008-force-india.png",
    "metrics": {
     "lengthM": 4.944,
@@ -5274,6 +5664,16 @@
      "triangles": 20922
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-honda.hero.glb",
+    "bytes": 7498552,
+    "sha256": "53c9329b4761c238",
+    "triangles": 174392,
+    "textureSize": [
+     1536,
+     1024
+    ]
+   },
    "thumb": "thumbs/2008-honda.png",
    "metrics": {
     "lengthM": 4.684,
@@ -5365,6 +5765,16 @@
      "triangles": 15036
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-mclaren.hero.glb",
+    "bytes": 6342740,
+    "sha256": "c30c64669f41fa79",
+    "triangles": 125327,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2008-mclaren.png",
    "metrics": {
     "lengthM": 4.7,
@@ -5457,6 +5867,16 @@
      "triangles": 20499
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-red-bull.hero.glb",
+    "bytes": 7530648,
+    "sha256": "be3ef29d50bd86ec",
+    "triangles": 170858,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2008-red-bull.png",
    "metrics": {
     "lengthM": 4.726,
@@ -5548,6 +5968,16 @@
      "triangles": 20694
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-renault.hero.glb",
+    "bytes": 5589592,
+    "sha256": "471233b4b19dcfcc",
+    "triangles": 172476,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2008-renault.png",
    "metrics": {
     "lengthM": 4.8,
@@ -5640,6 +6070,16 @@
      "triangles": 20350
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-super-aguri.hero.glb",
+    "bytes": 5453528,
+    "sha256": "5d2f2c747b431386",
+    "triangles": 169615,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2008-super-aguri.png",
    "metrics": {
     "lengthM": 4.732,
@@ -5732,6 +6172,16 @@
      "triangles": 20761
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-toro-rosso.hero.glb",
+    "bytes": 6712124,
+    "sha256": "f4d1f3d9d050fe9f",
+    "triangles": 173034,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2008-toro-rosso.png",
    "metrics": {
     "lengthM": 4.726,
@@ -5824,6 +6274,16 @@
      "triangles": 20188
     }
    ],
+   "hero": {
+    "file": "cars/2008/2008-williams.hero.glb",
+    "bytes": 4397012,
+    "sha256": "3d884f43822a8814",
+    "triangles": 168264,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2008-williams.png",
    "metrics": {
     "lengthM": 4.613,
@@ -6008,6 +6468,16 @@
      "triangles": 4171
     }
    ],
+   "hero": {
+    "file": "cars/2009/2009-brawn.hero.glb",
+    "bytes": 2175728,
+    "sha256": "c9f29c5daeec5f34",
+    "triangles": 34796,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2009-brawn.png",
    "metrics": {
     "lengthM": 4.598,
@@ -7480,6 +7950,16 @@
      "triangles": 5375
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-ferrari.hero.glb",
+    "bytes": 2132428,
+    "sha256": "bdd349567b55fdb9",
+    "triangles": 44845,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2011-ferrari.png",
    "metrics": {
     "lengthM": 5.131,
@@ -7572,6 +8052,16 @@
      "triangles": 5403
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-force-india.hero.glb",
+    "bytes": 1309840,
+    "sha256": "64d148c6467abf8e",
+    "triangles": 45053,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2011-force-india.png",
    "metrics": {
     "lengthM": 5.115,
@@ -7664,6 +8154,16 @@
      "triangles": 5351
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-hrt.hero.glb",
+    "bytes": 2640948,
+    "sha256": "f56ea2352dd476f8",
+    "triangles": 44618,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2011-hrt.png",
    "metrics": {
     "lengthM": 4.875,
@@ -7756,6 +8256,16 @@
      "triangles": 5405
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-lotus-racing.hero.glb",
+    "bytes": 2728524,
+    "sha256": "b9d8c0325c30a7f0",
+    "triangles": 45067,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2011-lotus-racing.png",
    "metrics": {
     "lengthM": 5.048,
@@ -7848,6 +8358,16 @@
      "triangles": 5423
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-mclaren.hero.glb",
+    "bytes": 2917364,
+    "sha256": "cfaee8537555076a",
+    "triangles": 45231,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2011-mclaren.png",
    "metrics": {
     "lengthM": 5.16,
@@ -7940,6 +8460,16 @@
      "triangles": 5348
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-mercedes.hero.glb",
+    "bytes": 2764764,
+    "sha256": "8a5eac6855d53fa8",
+    "triangles": 44598,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2011-mercedes.png",
    "metrics": {
     "lengthM": 4.893,
@@ -8032,6 +8562,16 @@
      "triangles": 6663
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-red-bull.hero.glb",
+    "bytes": 1847828,
+    "sha256": "eafc272a0c2e190b",
+    "triangles": 55579,
+    "textureSize": [
+     2048,
+     512
+    ]
+   },
    "thumb": "thumbs/2011-red-bull.png",
    "metrics": {
     "lengthM": 5.1,
@@ -8124,6 +8664,16 @@
      "triangles": 5457
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-renault.hero.glb",
+    "bytes": 3225572,
+    "sha256": "08d6cea5a3db1924",
+    "triangles": 45505,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2011-renault.png",
    "metrics": {
     "lengthM": 5.04,
@@ -8216,6 +8766,16 @@
      "triangles": 5453
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-sauber.hero.glb",
+    "bytes": 2593128,
+    "sha256": "e95b6d24a6c98198",
+    "triangles": 45462,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2011-sauber.png",
    "metrics": {
     "lengthM": 5.043,
@@ -8308,6 +8868,16 @@
      "triangles": 5369
     }
    ],
+   "hero": {
+    "file": "cars/2011/2011-toro-rosso.hero.glb",
+    "bytes": 2753092,
+    "sha256": "e41e11486b5f3481",
+    "triangles": 44783,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2011-toro-rosso.png",
    "metrics": {
     "lengthM": 4.996,
@@ -8400,6 +8970,16 @@
      "triangles": 7565
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-caterham.hero.glb",
+    "bytes": 3468084,
+    "sha256": "233c0379049125c0",
+    "triangles": 63074,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-caterham.png",
    "metrics": {
     "lengthM": 5.297,
@@ -8492,6 +9072,16 @@
      "triangles": 7718
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-ferrari.hero.glb",
+    "bytes": 4287584,
+    "sha256": "a5ea06a8316b1621",
+    "triangles": 64337,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-ferrari.png",
    "metrics": {
     "lengthM": 5.046,
@@ -8584,6 +9174,16 @@
      "triangles": 7874
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-force-india.hero.glb",
+    "bytes": 4386716,
+    "sha256": "940038d76eb568dc",
+    "triangles": 65651,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-force-india.png",
    "metrics": {
     "lengthM": 5.116,
@@ -8676,6 +9276,16 @@
      "triangles": 7277
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-hrt.hero.glb",
+    "bytes": 4282788,
+    "sha256": "4e4f2fead1ea0ddf",
+    "triangles": 60686,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-hrt.png",
    "metrics": {
     "lengthM": 5.12,
@@ -8768,6 +9378,16 @@
      "triangles": 7646
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-lotus-f1.hero.glb",
+    "bytes": 4267456,
+    "sha256": "bd4edf88ec2004c5",
+    "triangles": 63738,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-lotus-f1.png",
    "metrics": {
     "lengthM": 4.979,
@@ -8860,6 +9480,16 @@
      "triangles": 7632
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-marussia.hero.glb",
+    "bytes": 4198368,
+    "sha256": "2268bf85dad688a4",
+    "triangles": 63627,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-marussia.png",
    "metrics": {
     "lengthM": 5.165,
@@ -8952,6 +9582,16 @@
      "triangles": 7625
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-mclaren.hero.glb",
+    "bytes": 4641636,
+    "sha256": "807a7af6413c0982",
+    "triangles": 63570,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-mclaren.png",
    "metrics": {
     "lengthM": 5.215,
@@ -9044,6 +9684,16 @@
      "triangles": 7673
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-mercedes.hero.glb",
+    "bytes": 4017384,
+    "sha256": "15080edbdb82dfef",
+    "triangles": 63981,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-mercedes.png",
    "metrics": {
     "lengthM": 5.097,
@@ -9136,6 +9786,16 @@
      "triangles": 7662
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-red-bull.hero.glb",
+    "bytes": 4017960,
+    "sha256": "6dc716dd6586fd83",
+    "triangles": 63870,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-red-bull.png",
    "metrics": {
     "lengthM": 5.092,
@@ -9228,6 +9888,16 @@
      "triangles": 7660
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-sauber.hero.glb",
+    "bytes": 4343468,
+    "sha256": "8780e5e04ff0e2fd",
+    "triangles": 63862,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-sauber.png",
    "metrics": {
     "lengthM": 5.051,
@@ -9320,6 +9990,16 @@
      "triangles": 7826
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-toro-rosso.hero.glb",
+    "bytes": 4097936,
+    "sha256": "5cddd4033ebb659b",
+    "triangles": 65249,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-toro-rosso.png",
    "metrics": {
     "lengthM": 5.039,
@@ -9412,6 +10092,16 @@
      "triangles": 7743
     }
    ],
+   "hero": {
+    "file": "cars/2012/2012-williams.hero.glb",
+    "bytes": 4152404,
+    "sha256": "d46e7041a73d4a32",
+    "triangles": 64552,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2012-williams.png",
    "metrics": {
     "lengthM": 5.052,
@@ -10516,6 +11206,16 @@
      "triangles": 5925
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-caterham.hero.glb",
+    "bytes": 2770732,
+    "sha256": "1127fb37ba9e6bd1",
+    "triangles": 49394,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-caterham.png",
    "metrics": {
     "lengthM": 5.009,
@@ -10608,6 +11308,16 @@
      "triangles": 5808
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-ferrari.hero.glb",
+    "bytes": 2292884,
+    "sha256": "36934f833da85410",
+    "triangles": 48425,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-ferrari.png",
    "metrics": {
     "lengthM": 5.046,
@@ -10700,6 +11410,16 @@
      "triangles": 5599
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-force-india.hero.glb",
+    "bytes": 2134456,
+    "sha256": "e8ecf7d53725f8e8",
+    "triangles": 46687,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-force-india.png",
    "metrics": {
     "lengthM": 5.213,
@@ -10792,6 +11512,16 @@
      "triangles": 4914
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-lotus-f1.hero.glb",
+    "bytes": 2053796,
+    "sha256": "e17a0e7bf2bff6dc",
+    "triangles": 40967,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-lotus-f1.png",
    "metrics": {
     "lengthM": 5.434,
@@ -10884,6 +11614,16 @@
      "triangles": 4683
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-marussia.hero.glb",
+    "bytes": 1904132,
+    "sha256": "e389191437147856",
+    "triangles": 39049,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-marussia.png",
    "metrics": {
     "lengthM": 5.483,
@@ -10976,6 +11716,16 @@
      "triangles": 5819
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-mclaren.hero.glb",
+    "bytes": 2580376,
+    "sha256": "7111c3d3c5883538",
+    "triangles": 48518,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-mclaren.png",
    "metrics": {
     "lengthM": 5.192,
@@ -11068,6 +11818,16 @@
      "triangles": 5408
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-mercedes.hero.glb",
+    "bytes": 2150244,
+    "sha256": "e963e069daaf8d86",
+    "triangles": 45109,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-mercedes.png",
    "metrics": {
     "lengthM": 5.113,
@@ -11160,6 +11920,16 @@
      "triangles": 4973
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-red-bull.hero.glb",
+    "bytes": 2079128,
+    "sha256": "6080b3d21f157a4b",
+    "triangles": 41467,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-red-bull.png",
    "metrics": {
     "lengthM": 5.002,
@@ -11252,6 +12022,16 @@
      "triangles": 4749
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-sauber.hero.glb",
+    "bytes": 2261580,
+    "sha256": "852db894ff4be9fb",
+    "triangles": 39605,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-sauber.png",
    "metrics": {
     "lengthM": 5.432,
@@ -11344,6 +12124,16 @@
      "triangles": 4664
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-toro-rosso.hero.glb",
+    "bytes": 2000816,
+    "sha256": "2b12591c545b0967",
+    "triangles": 38889,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-toro-rosso.png",
    "metrics": {
     "lengthM": 5.306,
@@ -11436,6 +12226,16 @@
      "triangles": 4592
     }
    ],
+   "hero": {
+    "file": "cars/2014/2014-williams.hero.glb",
+    "bytes": 2044300,
+    "sha256": "119b74edf4d5af0c",
+    "triangles": 38283,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2014-williams.png",
    "metrics": {
     "lengthM": 5.295,
@@ -11620,6 +12420,16 @@
      "triangles": 18813
     }
    ],
+   "hero": {
+    "file": "cars/2016/2016-red-bull.hero.glb",
+    "bytes": 5251456,
+    "sha256": "cefc8cc9c71f7dda",
+    "triangles": 156801,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2016-red-bull.png",
    "metrics": {
     "lengthM": 5.057,
@@ -11712,6 +12522,16 @@
      "triangles": 36127
     }
    ],
+   "hero": {
+    "file": "cars/2018/2018-ferrari.hero.glb",
+    "bytes": 6739492,
+    "sha256": "8a8acd26f38b7a35",
+    "triangles": 301081,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2018-ferrari.png",
    "metrics": {
     "lengthM": 5.693,
@@ -11804,6 +12624,16 @@
      "triangles": 17949
     }
    ],
+   "hero": {
+    "file": "cars/2018/2018-red-bull.hero.glb",
+    "bytes": 3862268,
+    "sha256": "fe44b2ae507696a0",
+    "triangles": 149606,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2018-red-bull.png",
    "metrics": {
     "lengthM": 5.394,
@@ -11896,6 +12726,16 @@
      "triangles": 20222
     }
    ],
+   "hero": {
+    "file": "cars/2018/2018-renault.hero.glb",
+    "bytes": 5520160,
+    "sha256": "bcb0eecf4c865f8a",
+    "triangles": 168541,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2018-renault.png",
    "metrics": {
     "lengthM": 5.499,
@@ -11988,6 +12828,16 @@
      "triangles": 78553
     }
    ],
+   "hero": {
+    "file": "cars/2019/2019-ferrari.hero.glb",
+    "bytes": 4549556,
+    "sha256": "987d81491ac7ee5f",
+    "triangles": 654656,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2019-ferrari.png",
    "metrics": {
     "lengthM": 5.5,
@@ -12141,6 +12991,16 @@
      "triangles": 20617
     }
    ],
+   "hero": {
+    "file": "cars/2020/2020-mercedes.hero.glb",
+    "bytes": 5069560,
+    "sha256": "0ac559427fafb2ea",
+    "triangles": 171860,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2020-mercedes.png",
    "metrics": {
     "lengthM": 5.699,
@@ -12228,6 +13088,16 @@
      "triangles": 28005
     }
    ],
+   "hero": {
+    "file": "cars/2021/2021-alpine.hero.glb",
+    "bytes": 4839592,
+    "sha256": "3b1167810a4b0165",
+    "triangles": 233433,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2021-alpine.png",
    "metrics": {
     "lengthM": 5.605,
@@ -12294,6 +13164,16 @@
      "triangles": 12246
     }
    ],
+   "hero": {
+    "file": "cars/2021/2021-mclaren.hero.glb",
+    "bytes": 3570428,
+    "sha256": "63ddca1c89cc4ad5",
+    "triangles": 102079,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2021-mclaren.png",
    "metrics": {
     "lengthM": 5.68,
@@ -12386,6 +13266,16 @@
      "triangles": 28891
     }
    ],
+   "hero": {
+    "file": "cars/2021/2021-red-bull.hero.glb",
+    "bytes": 3775964,
+    "sha256": "b4eafd4b55c2e33d",
+    "triangles": 240779,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2021-red-bull.png",
    "metrics": {
     "lengthM": 5.497,
@@ -12478,6 +13368,16 @@
      "triangles": 32400
     }
    ],
+   "hero": {
+    "file": "cars/2022/2022-ferrari.hero.glb",
+    "bytes": 3781356,
+    "sha256": "09ef1781240c0321",
+    "triangles": 270034,
+    "textureSize": [
+     2048,
+     256
+    ]
+   },
    "thumb": "thumbs/2022-ferrari.png",
    "metrics": {
     "lengthM": 5.586,
@@ -12570,6 +13470,16 @@
      "triangles": 82906
     }
    ],
+   "hero": {
+    "file": "cars/2023/2023-alphatauri.hero.glb",
+    "bytes": 5227904,
+    "sha256": "2f7c5fd3765af565",
+    "triangles": 690928,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2023-alphatauri.png",
    "metrics": {
     "lengthM": 5.6,
@@ -12662,6 +13572,16 @@
      "triangles": 77711
     }
    ],
+   "hero": {
+    "file": "cars/2023/2023-alpine.hero.glb",
+    "bytes": 4799796,
+    "sha256": "3628c244b4eeebe4",
+    "triangles": 647648,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2023-alpine.png",
    "metrics": {
     "lengthM": 5.6,
@@ -12754,6 +13674,16 @@
      "triangles": 77363
     }
    ],
+   "hero": {
+    "file": "cars/2023/2023-aston-martin.hero.glb",
+    "bytes": 5383420,
+    "sha256": "1dcc3cf691b182c7",
+    "triangles": 644736,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2023-aston-martin.png",
    "metrics": {
     "lengthM": 5.6,
@@ -12846,6 +13776,16 @@
      "triangles": 85565
     }
    ],
+   "hero": {
+    "file": "cars/2023/2023-ferrari.hero.glb",
+    "bytes": 5470340,
+    "sha256": "b76674ccf5f1b1a9",
+    "triangles": 713064,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2023-ferrari.png",
    "metrics": {
     "lengthM": 5.6,
@@ -12938,6 +13878,16 @@
      "triangles": 89002
     }
    ],
+   "hero": {
+    "file": "cars/2023/2023-mclaren.hero.glb",
+    "bytes": 5602464,
+    "sha256": "cbdced8ba32d1d69",
+    "triangles": 741712,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2023-mclaren.png",
    "metrics": {
     "lengthM": 5.6,
@@ -13030,6 +13980,16 @@
      "triangles": 36261
     }
    ],
+   "hero": {
+    "file": "cars/2023/2023-mercedes.hero.glb",
+    "bytes": 5277948,
+    "sha256": "fe8d9ad4ed271110",
+    "triangles": 302212,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2023-mercedes.png",
    "metrics": {
     "lengthM": 5.63,
@@ -13122,6 +14082,16 @@
      "triangles": 80996
     }
    ],
+   "hero": {
+    "file": "cars/2023/2023-red-bull.hero.glb",
+    "bytes": 4879768,
+    "sha256": "bcbf973b826f2d15",
+    "triangles": 674992,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2023-red-bull.png",
    "metrics": {
     "lengthM": 5.6,
@@ -13214,6 +14184,16 @@
      "triangles": 244431
     }
    ],
+   "hero": {
+    "file": "cars/2024/2024-rb.hero.glb",
+    "bytes": 7196248,
+    "sha256": "273fdd41b8bd70b4",
+    "triangles": 335684,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2024-rb.png",
    "metrics": {
     "lengthM": 5.6,
@@ -13306,6 +14286,16 @@
      "triangles": 30136
     }
    ],
+   "hero": {
+    "file": "cars/2024/2024-red-bull.hero.glb",
+    "bytes": 4208904,
+    "sha256": "6f59828036007c33",
+    "triangles": 251160,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2024-red-bull.png",
    "metrics": {
     "lengthM": 5.6,
@@ -13490,6 +14480,16 @@
      "triangles": 32113
     }
    ],
+   "hero": {
+    "file": "cars/2025/2025-aston-martin.hero.glb",
+    "bytes": 5140076,
+    "sha256": "c5f003e602d1dd80",
+    "triangles": 267632,
+    "textureSize": [
+     2048,
+     512
+    ]
+   },
    "thumb": "thumbs/2025-aston-martin.png",
    "metrics": {
     "lengthM": 5.32,
@@ -13766,6 +14766,16 @@
      "triangles": 32728
     }
    ],
+   "hero": {
+    "file": "cars/2025/2025-red-bull.hero.glb",
+    "bytes": 6438256,
+    "sha256": "4b4b28718722404b",
+    "triangles": 272770,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2025-red-bull.png",
    "metrics": {
     "lengthM": 5.6,
@@ -13858,6 +14868,16 @@
      "triangles": 15326
     }
    ],
+   "hero": {
+    "file": "cars/2025/2025-williams.hero.glb",
+    "bytes": 3214048,
+    "sha256": "9aac07d4678fe1f7",
+    "triangles": 106912,
+    "textureSize": [
+     2048,
+     0
+    ]
+   },
    "thumb": "thumbs/2025-williams.png",
    "metrics": {
     "lengthM": 5.557,
@@ -13950,6 +14970,16 @@
      "triangles": 31807
     }
    ],
+   "hero": {
+    "file": "cars/2026/2026-audi.hero.glb",
+    "bytes": 7156684,
+    "sha256": "65300a19a67ea526",
+    "triangles": 265092,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2026-audi.png",
    "metrics": {
     "lengthM": 5.361,
@@ -14042,6 +15072,16 @@
      "triangles": 31162
     }
    ],
+   "hero": {
+    "file": "cars/2026/2026-cadillac.hero.glb",
+    "bytes": 5835892,
+    "sha256": "eb4b4018d5e37895",
+    "triangles": 259715,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2026-cadillac.png",
    "metrics": {
     "lengthM": 5.446,
@@ -14134,6 +15174,16 @@
      "triangles": 32639
     }
    ],
+   "hero": {
+    "file": "cars/2026/2026-ferrari.hero.glb",
+    "bytes": 6176112,
+    "sha256": "c4d8958e054e08f0",
+    "triangles": 272038,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2026-ferrari.png",
    "metrics": {
     "lengthM": 5.527,
@@ -14226,6 +15276,16 @@
      "triangles": 32116
     }
    ],
+   "hero": {
+    "file": "cars/2026/2026-mercedes.hero.glb",
+    "bytes": 6314068,
+    "sha256": "981943908e955b00",
+    "triangles": 267658,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2026-mercedes.png",
    "metrics": {
     "lengthM": 5.39,
@@ -14318,6 +15378,16 @@
      "triangles": 33708
     }
    ],
+   "hero": {
+    "file": "cars/2026/2026-red-bull.hero.glb",
+    "bytes": 6089952,
+    "sha256": "1bd5dc55dc8db566",
+    "triangles": 280931,
+    "textureSize": [
+     2048,
+     1024
+    ]
+   },
    "thumb": "thumbs/2026-red-bull.png",
    "metrics": {
     "lengthM": 5.397,

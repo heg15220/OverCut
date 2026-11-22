@@ -2179,3 +2179,283 @@
     min-width: 112px;
   }
 }
+
+/* ============================================================ playable sessions (engine/sessionSim) */
+
+/* Practice plays inside the page: room for the run plans of both drivers. */
+.lv.is-compact {
+  height: 640px;
+}
+
+/* A - n + stepper: laps, fuel, attempts. */
+.lv-step {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mn-s-1);
+}
+
+.lv-step .mn-icon-btn {
+  width: 28px;
+  height: 28px;
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-14);
+}
+
+.lv-step b {
+  min-width: 40px;
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-13);
+  font-weight: 600;
+  text-align: center;
+}
+
+.lv-step b small {
+  font-family: var(--mn-font);
+  font-size: var(--mn-fs-11);
+  font-weight: 500;
+  color: var(--mn-text-3);
+}
+
+/* Tyre sets left (RF-WKD-05): compound, how many new, new or used. */
+.lv-tyres {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-2);
+  min-width: 0;
+}
+
+.lv-tyres__row {
+  display: flex;
+  gap: var(--mn-s-1);
+}
+
+.lv-tyres__pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 32px;
+  padding: 0 var(--mn-s-1);
+  border: 1px solid var(--mn-hairline);
+  border-radius: var(--mn-r-2);
+  background: var(--mn-surface-2);
+  color: var(--mn-text-2);
+  cursor: pointer;
+  transition: border-color var(--mn-dur-1) var(--mn-ease), background-color var(--mn-dur-1) var(--mn-ease);
+}
+
+.lv-tyres__pick small {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+}
+
+.lv-tyres__pick:hover:not(:disabled) {
+  border-color: var(--mn-hairline-strong);
+}
+
+.lv-tyres__pick.is-active {
+  border-color: var(--mn-accent-line);
+  background: var(--mn-accent-soft);
+  color: var(--mn-text);
+}
+
+.lv-tyres__pick:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.lv-tyres .mn-seg button {
+  min-height: 28px;
+  padding: 0 var(--mn-s-2);
+  font-size: var(--mn-fs-12);
+}
+
+/* Sectors of the lap under way: purple session best, green personal best, yellow slower. */
+.lv-sectors {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mn-s-1);
+  padding-left: calc(76px + var(--mn-s-2));
+}
+
+.lv-sectors__chip {
+  padding: 2px var(--mn-s-1);
+  border-radius: var(--mn-r-1);
+  background: var(--mn-surface-3);
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+  text-align: center;
+}
+
+.lv-sectors__chip.is-best {
+  background: rgba(176, 124, 242, 0.22);
+  color: var(--mn-best);
+}
+
+.lv-sectors__chip.is-pb {
+  background: var(--mn-pos-soft);
+  color: var(--mn-pos);
+}
+
+.lv-sectors__chip.is-slow {
+  background: rgba(242, 183, 5, 0.14);
+  color: var(--mn-accent);
+}
+
+.lv-box__go {
+  border-color: var(--mn-accent-line);
+  color: var(--mn-accent);
+}
+
+.lv-box__slot {
+  width: auto !important;
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2) !important;
+}
+
+.lv-box--plan small {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.lv-box .lv-step {
+  margin-left: auto;
+}
+
+.lv-card .mn-seg {
+  min-width: 0;
+}
+
+.lv-card .lv-ctl .mn-seg button {
+  min-height: 28px;
+  padding: 0 var(--mn-s-2);
+  font-size: var(--mn-fs-12);
+}
+
+/* End of a segment: who was quickest, who is out, and the way on. */
+.lv-endcard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--mn-s-2);
+  max-width: min(440px, 100%);
+  padding: var(--mn-s-4);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-3);
+  background: var(--lv-glass);
+  box-shadow: var(--mn-e-2);
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+  pointer-events: auto;
+}
+
+.lv-endcard strong {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-16);
+  font-weight: 600;
+  color: var(--mn-text);
+}
+
+.lv-endcard__own {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text);
+}
+
+.lv-endcard .mn-btn {
+  margin-top: var(--mn-s-2);
+}
+
+/* Setup only in the garage (RF-WKD-03). */
+.wk-slider.is-locked {
+  opacity: 0.55;
+}
+
+.wk-bench__meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-2);
+}
+
+.wk-quick {
+  margin-top: var(--mn-s-4);
+  padding-top: var(--mn-s-3);
+  border-top: 1px solid var(--mn-hairline);
+}
+
+.wk-quick summary {
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+  cursor: pointer;
+}
+
+.wk-quick summary:hover {
+  color: var(--mn-text);
+}
+
+.wk-pad {
+  padding: 0 var(--mn-s-5) var(--mn-s-5);
+}
+
+@media (max-width: 1100px) {
+  .lv.is-compact {
+    height: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .lv-sectors {
+    padding-left: 0;
+  }
+
+  .lv-endcard {
+    max-width: 100%;
+  }
+}
+
+/* The run plan in the garage: each control under its label, so the column never overflows. */
+.lv-ctl.lv-ctl--stack {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mn-s-1);
+}
+
+.lv-ctl--stack .mn-seg {
+  width: 100%;
+}
+
+.lv-ctl--stack .mn-seg button {
+  flex: 1;
+}
+
+.lv--session .lv-feed {
+  flex: 0 1 180px;
+  min-height: 120px;
+}
+
+/* The end card sits over the 3D name tags. */
+.lv--session .lv-overlay {
+  z-index: 6;
+}
+
+.wk-note svg {
+  display: inline-block;
+  vertical-align: -2px;
+}
+
+@media (max-width: 760px) {
+  /* In a session your cars' plans come right under the picture; the tower after them. */
+  .lv--session .lv-orders {
+    order: 4;
+  }
+
+  .lv--session .lv-tower {
+    order: 5;
+  }
+}

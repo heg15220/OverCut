@@ -59,12 +59,14 @@ describe("RF-3D-05 · asset car", () => {
     expect(Object.keys(level.userData.wheelNodes).sort()).toEqual([...WHEELS].sort());
   });
 
-  it("shows the procedural car until a level arrives, then the GLB, lightest level first", async () => {
+  it("shows the procedural car until a level arrives, then the GLB; the race asks only for the lightest level (RNF-03)", async () => {
     loadGltf.mockImplementation(() => Promise.resolve(fakeGltf()));
     const proc = placeholder();
     const car = createAssetCar({ asset, placeholder: proc, renderer: null, year: 2012 });
     expect(proc.visible).toBe(true);
     expect(car.userData.wheels).toBe(proc.userData.wheels);
+    expect(loadGltf.mock.calls.map(([file]) => file)).toEqual(["lod2.glb"]);
+    car.userData.upgradeFor(5);
     expect(loadGltf.mock.calls.map(([file]) => file)).toEqual(["lod2.glb", "lod1.glb", "lod0.glb"]);
     await flush();
     expect(proc.visible).toBe(false);
@@ -76,9 +78,67 @@ describe("RF-3D-05 · asset car", () => {
     expect(car.userData.spec).toMatchObject({ front: 1.7, rear: -1.7 });
   });
 
+  it("the race fetches LOD1 and LOD0 only when the camera comes near (RNF-02, RNF-03)", async () => {
+    loadGltf.mockImplementation(() => Promise.resolve(fakeGltf()));
+    const car = createAssetCar({ asset, placeholder: placeholder(), renderer: null, year: 2012 });
+    await flush();
+    const lod = car.children.find((child) => child.isLOD);
+    const camera = new THREE.PerspectiveCamera();
+    const at = (x) => {
+      camera.position.set(x, 0, 0);
+      camera.updateMatrixWorld(true);
+      car.updateMatrixWorld(true);
+      lod.update(camera);
+      return loadGltf.mock.calls.map(([file]) => file);
+    };
+    camera.lookAt(-1000, 0, 0); // facing the car from +X
+    expect(at(300)).toEqual(["lod2.glb"]);
+    expect(at(90)).toEqual(["lod2.glb", "lod1.glb"]);
+    expect(at(40)).toEqual(["lod2.glb", "lod1.glb"]);
+    expect(at(30)).toEqual(["lod2.glb", "lod1.glb", "lod0.glb"]);
+    expect(at(5)).toHaveLength(3);
+    await flush();
+    expect(lod.levels.map((level) => level.distance)).toEqual([0, 28, 80]);
+  });
+
+  it("a car behind the camera does not upgrade, however close", async () => {
+    loadGltf.mockImplementation(() => Promise.resolve(fakeGltf()));
+    const car = createAssetCar({ asset, placeholder: placeholder(), renderer: null, year: 2012 });
+    await flush();
+    const lod = car.children.find((child) => child.isLOD);
+    const camera = new THREE.PerspectiveCamera(55, 16 / 9, 0.3, 4000);
+    camera.position.set(10, 0, 0);
+    camera.lookAt(1000, 0, 0); // looking away
+    camera.updateMatrixWorld(true);
+    car.updateMatrixWorld(true);
+    lod.update(camera);
+    expect(loadGltf.mock.calls.map(([file]) => file)).toEqual(["lod2.glb"]);
+  });
+
+  it("close-ups (RF-3D-06) load LOD2 then the hero level, and keep the best one in view whatever the distance", async () => {
+    loadGltf.mockImplementation(() => Promise.resolve(fakeGltf()));
+    const car = createAssetCar({ asset: { ...asset, hero: { file: "hero.glb" } }, placeholder: placeholder(), renderer: null, year: 2012, closeUp: true });
+    expect(loadGltf.mock.calls.map(([file]) => file)).toEqual(["lod2.glb", "hero.glb"]);
+    await flush();
+    const lod = car.children.find((child) => child.isLOD);
+    expect(lod.levels.map((level) => level.distance)).toEqual([0, Infinity]);
+    expect(car.userData.loaded).toBe(2);
+  });
+
+  it("close-ups without a hero level fall back to LOD0, and the race never asks for the hero", () => {
+    loadGltf.mockImplementation(() => Promise.resolve(fakeGltf()));
+    createAssetCar({ asset, placeholder: placeholder(), renderer: null, year: 2012, closeUp: true });
+    expect(loadGltf.mock.calls.map(([file]) => file)).toEqual(["lod2.glb", "lod0.glb"]);
+    loadGltf.mockClear();
+    const race = createAssetCar({ asset: { ...asset, hero: { file: "hero.glb" } }, placeholder: placeholder(), renderer: null, year: 2012 });
+    race.userData.upgradeFor(0);
+    expect(loadGltf.mock.calls.map(([file]) => file)).toEqual(["lod2.glb", "lod1.glb", "lod0.glb"]);
+  });
+
   it("copies spin and steer onto the wheel nodes of every level", async () => {
     loadGltf.mockImplementation(() => Promise.resolve(fakeGltf()));
     const car = createAssetCar({ asset, placeholder: placeholder(), renderer: null, year: 2012 });
+    car.userData.upgradeFor(0);
     await flush();
     car.userData.wheels.forEach((wheel) => {
       wheel.spin.rotation.z = -2.5;

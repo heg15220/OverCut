@@ -1,5 +1,5 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import './App.css'
 
@@ -61,11 +61,7 @@ import CategoryGame from "../../categoryGame/components/CategoryGame";
 
 import WordSearchGame from '../../wordSearch/components/WordSearchGame';
 import OvercutRacing from "../../overcutRacing/components/OvercutRacing";
-import CareerMode from "../../careerMode/components/CareerMode";
 import CareerModeHome from "../../careerMode/components/CareerModeHome";
-import OvercutTrayectoria from "../../overcutTrayectoria/components/OvercutTrayectoria";
-import OvercutManager from "../../overcutManager/components/OvercutManager";
-
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList, PostSectionEditor,
  PostSectionModifier } from "../../posts";
@@ -94,9 +90,40 @@ import CookiesPolicy from "../../app/components/CookiesPolicy";
 import IntellectualProperty from "../../app/components/IntellectualProperty";
 import LegalHub from "../../app/components/LegalHub";
 
+/*
+ * The career games are code-split: the rest of the site does not download them,
+ * and each one (deep career, Trayectoria, OverCut Manager with its engine and
+ * data) is its own chunk, fetched when its route opens. The hub at /careerMode
+ * is light and prefetches the manager while the player reads it (SRS RNF-03).
+ */
+const loadCareerMode = () => import(/* webpackChunkName: "career-deep" */ "../../careerMode/components/CareerMode");
+const loadTrayectoria = () => import(/* webpackChunkName: "career-trayectoria" */ "../../overcutTrayectoria/components/OvercutTrayectoria");
+const loadOvercutManager = () => import(/* webpackChunkName: "overcut-manager" */ "../../overcutManager/components/OvercutManager");
+const CareerMode = React.lazy(loadCareerMode);
+const OvercutTrayectoria = React.lazy(loadTrayectoria);
+const OvercutManager = React.lazy(loadOvercutManager);
+
+const RouteFallback = () => <div className="Body-route-loading" aria-busy="true" style={{ minHeight: "60vh" }} />;
+const lazyRoute = (element) => <React.Suspense fallback={<RouteFallback />}>{element}</React.Suspense>;
+
+/** Prefetch the manager's chunk once the hub has painted and the browser is idle. */
+const usePrefetchOnHub = () => {
+    const { pathname } = useLocation();
+    useEffect(() => {
+        if (pathname !== "/careerMode" || typeof window === "undefined") return undefined;
+        const idle = window.requestIdleCallback || ((fn) => window.setTimeout(fn, 1200));
+        const cancel = window.cancelIdleCallback || window.clearTimeout;
+        const handle = idle(() => { loadOvercutManager().catch(() => {}); }, { timeout: 4000 });
+        return () => cancel(handle);
+    }, [pathname]);
+};
+
+
+
 const Body = () => {
 
     const loggedIn = useSelector(users.selectors.isLoggedIn);
+    usePrefetchOnHub();
     const withAdVignettes = (element, page, placement = "auto") => (
         <AdVignetteLayout page={page} placement={placement}>{element}</AdVignetteLayout>
     );
@@ -158,8 +185,8 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/orderDrivers" element={withAdVignettes(<OrderDriverGame />, "games")} />}
                     {loggedIn && <Route path="/minigames/categoryGame" element={withAdVignettes(<CategoryGame />, "games")} />}
                     {loggedIn && <Route path="/minigames/overcutRacing" element={withAdVignettes(<OvercutRacing />, "games", "bottom")} />}
-                    {loggedIn && <Route path="/minigames/careerMode" element={withAdVignettes(<CareerMode />, "games", "bottom")} />}
-                    {loggedIn && <Route path="/minigames/trayectoria" element={withAdVignettes(<OvercutTrayectoria />, "games", "bottom")} />}
+                    {loggedIn && <Route path="/minigames/careerMode" element={withAdVignettes(lazyRoute(<CareerMode />), "games", "bottom")} />}
+                    {loggedIn && <Route path="/minigames/trayectoria" element={withAdVignettes(lazyRoute(<OvercutTrayectoria />), "games", "bottom")} />}
                     <Route path="/minigames/wordSearch" element={withAdVignettes(<WordSearchGame />, "games")} />
 
                     {/* Career Mode hub (SRS fase 0): two driver careers and the
@@ -171,15 +198,15 @@ const Body = () => {
                     />
                     <Route
                         path="/careerMode/deep"
-                        element={withAdVignettes(<CareerMode />, "games", "bottom")}
+                        element={withAdVignettes(lazyRoute(<CareerMode />), "games", "bottom")}
                     />
                     <Route
                         path="/careerMode/trayectoria"
-                        element={withAdVignettes(<OvercutTrayectoria backTo="/careerMode" />, "games", "bottom")}
+                        element={withAdVignettes(lazyRoute(<OvercutTrayectoria backTo="/careerMode" />), "games", "bottom")}
                     />
                     <Route
                         path="/careerMode/manager"
-                        element={withAdVignettes(<OvercutManager backTo="/careerMode" />, "games", "bottom")}
+                        element={withAdVignettes(lazyRoute(<OvercutManager backTo="/careerMode" />), "games", "bottom")}
                     />
                     <Route path="/verify-email" element={<EmailVerificationPage />} />
                     <Route path="/email-confirmation" element={<EmailConfirmationPending />} />

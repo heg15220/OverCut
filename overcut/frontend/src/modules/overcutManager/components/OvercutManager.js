@@ -14,16 +14,14 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { config } from "../../../config/constants";
-import { fallbackBootstrap } from "../../overcutTrayectoria/data/fallbackBootstrap";
 import { prepareBootstrap } from "../../overcutTrayectoria/engine/world";
 import { closeWeekend, createCareer, createContext, nextAction, openOffseason, simulateWeekend, startWeekend } from "../engine/career";
 import { acceptJob, startNextSeason } from "../engine/offseason";
-import { ensureSeasonPack, ensureSeasonPacks, seasonPackYears } from "../engine/packs/seasonPacks";
+import { ensureSeasonPack, ensureSeasonPacks, loadSeasonPack, seasonPackYears } from "../engine/packs/seasonPacks";
 import { unreadCount } from "../engine/inbox";
 import { deleteLocal, loadLocal, loadLocalSummary, saveLocal } from "../engine/save";
 import { ManagerContext } from "./context";
 import Setup from "./Setup";
-import Hub from "./Hub";
 import { t } from "./texts";
 import "./OvercutManager.css";
 
@@ -33,9 +31,29 @@ const loadBootstrap = async () => {
     if (!response.ok) throw new Error(`bootstrap ${response.status}`);
     return prepareBootstrap(await response.json(), { fallbackMode: false });
   } catch {
-    // Playable offline: one real season per decade ships in the bundle.
+    // Playable offline: one real season per decade ships with the game, in its own chunk (150 KB) that
+    // only downloads when the server cannot be reached.
+    const { fallbackBootstrap } = await import(/* webpackChunkName: "manager-fallback-bootstrap" */ "../../overcutTrayectoria/data/fallbackBootstrap");
     return prepareBootstrap(fallbackBootstrap, { fallbackMode: true });
   }
+};
+
+/*
+ * The hub (every screen of a running career) is its own chunk: the first screen,
+ * Setup, does not wait for it, and it is prefetched while the player is on Setup.
+ */
+const loadHub = () => import(/* webpackChunkName: "manager-hub" */ "./Hub");
+const Hub = React.lazy(loadHub);
+
+/** Run `fn` when the browser has nothing better to do (or after `timeout` ms at the latest). */
+const whenIdle = (fn, timeout = 3000) => {
+  if (typeof window === "undefined") return () => {};
+  if (window.requestIdleCallback) {
+    const handle = window.requestIdleCallback(fn, { timeout });
+    return () => window.cancelIdleCallback(handle);
+  }
+  const handle = window.setTimeout(fn, 600);
+  return () => window.clearTimeout(handle);
 };
 
 const loadReference = () => import("../data/reference").then((module) => module.reference || module.default);
@@ -120,22 +138,26 @@ export const OvercutManager = ({ backTo = "/careerMode" }) => {
 
   useEffect(() => {
     let active = true;
-    Promise.all([loadBootstrap(), loadReference()])
-      .then(([bootstrap, reference]) => {
-        const context = createContext(bootstrap, reference);
-        // The wizard opens on the latest season: have its pack ready, and only that one.
-        return ensureSeasonPack(context, Math.max(...seasonPackYears())).then(() => [context, bootstrap]);
-      })
-      .then(([context, bootstrap]) => {
-        if (!active) return;
-        contextRef.current = context;
-        setFallbackMode(Boolean(bootstrap.fallbackMode));
-        setReady(true);
-      });
+    // The wizard opens on the latest season: start downloading its pack now, alongside the bootstrap,
+    // but do not hold the first screen for it. Setup waits for the pack itself when the wizard opens
+    // (RF-CAR-02), and by then it is usually here.
+    const latest = Math.max(...seasonPackYears());
+    loadSeasonPack(latest).catch(() => null);
+    Promise.all([loadBootstrap(), loadReference()]).then(([bootstrap, reference]) => {
+      if (!active) return;
+      const context = createContext(bootstrap, reference);
+      contextRef.current = context;
+      ensureSeasonPack(context, latest);
+      setFallbackMode(Boolean(bootstrap.fallbackMode));
+      setReady(true);
+    });
     return () => {
       active = false;
     };
   }, []);
+
+  // Once the first screen is up, fetch the hub's code while the player reads it.
+  useEffect(() => (ready ? whenIdle(() => loadHub().catch(() => {})) : undefined), [ready]);
 
   const bump = useCallback(() => setVersion((value) => value + 1), []);
 
@@ -373,7 +395,9 @@ export const OvercutManager = ({ backTo = "/careerMode" }) => {
             onImported={enterLoaded}
           />
         ) : (
-          <Hub backTo={backTo} fallbackMode={fallbackMode} />
+          <React.Suspense fallback={<p className="mn-loading">{t("Abriendo la fábrica", "Opening the factory")}</p>}>
+            <Hub backTo={backTo} fallbackMode={fallbackMode} />
+          </React.Suspense>
         )}
         {error && (
           <div className="mn-toast mn-toast--bad" role="alert">

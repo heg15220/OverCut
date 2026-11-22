@@ -186,6 +186,18 @@ describe("manifest contract: data/manager-assets.json as the pipeline wrote it",
     });
   });
 
+  it("the showroom-only hero level (RF-3D-06) stays within 8 MB (RNF-03), sits next to the LODs and is never sharper geometry than LOD0", () => {
+    cars
+      .filter((entry) => entry.hero)
+      .forEach((entry) => {
+        const name = `${entry.season} ${entry.teamRef}`;
+        expect([name, entry.hero.bytes <= 8 * MB]).toEqual([name, true]);
+        expect(entry.hero.file).toMatch(new RegExp(`^cars/${entry.season}/.+\\.hero\\.glb$`));
+        expect(entry.hero.triangles).toBe(entry.lods[0].triangles);
+        expect(Math.max(...entry.hero.textureSize)).toBeGreaterThan(512);
+      });
+  });
+
   it("every circuit: author and licence, within 60 MB (RNF-03), spline within 2 m of the mesh (criterio 7.2), a sane year range", () => {
     circuits.forEach((entry) => {
       const name = entry.layoutId || entry.splineId;

@@ -1,7 +1,7 @@
 """Pipeline offline de assets de OverCut Manager (ADR-001, SRS 4.3, fase 2).
 
 Uso (desde la raíz del repo OverCut o desde tools/assets):
-  python tools/assets/build_assets.py [cars] [circuits] [manifest] [--only <id>] [--jobs 3] [--force]
+  python tools/assets/build_assets.py [cars] [heroes] [circuits] [manifest] [--only <id>] [--jobs 3] [--force]
 
 Sin etapas, ejecuta las tres. Cada paso se salta si su salida ya existe y es más nueva que su entrada
 (--force lo repite). Necesita: gh (GitHub CLI), Blender 5.2 (BLENDER_BIN), Node con las dependencias de
@@ -12,6 +12,8 @@ Etapas:
             gltf-transform (Meshopt + KTX2) y renderiza la miniatura del showroom.
   circuits  extrae la spline del asfalto, la alinea (sentido f1db, meta, reflexión), prepara el GLB del
             circuito y lo comprime; deja una vista cenital de revisión en .cache/preview/.
+  heroes    solo el nivel hero del showroom (texturas de hasta 2048 px sobre la geometría del LOD0), sin Blender;
+            la etapa cars ya lo incluye.
   manifest  escribe manager-assets.json (SRS 4.3) con licencia y autor sacados de cada GLB, el fichero
             compacto de splines que lee el motor y copia las splines completas junto a los GLB.
 
@@ -121,6 +123,146 @@ def compress(src, dst, texture_size, keep_nodes):
     run(cmd, logfile=str(dst) + ".log")
 
 
+# ---------------------------------------------------------------------- hero
+
+# Nivel "hero" (RF-3D-06, RNF-03): la geometría del LOD0 con texturas de hasta 2048 px. Solo lo carga el showroom
+# (un coche en primer plano), así que no pesa en la descarga del GP ni en la memoria de vídeo de los 22 coches de
+# la carrera, que siguen con LOD0-2 a 1024/512/256. Escalera de tamaños (color base ETC1S, mapas normales /
+# rugosidad / oclusión UASTC): el primero que cabe en el presupuesto; si ninguno mejora el LOD0, no hay hero.
+HERO_BUDGET = 8 * 1024 * 1024 - 384 * 1024   # 7,6 MiB: margen bajo el contrato de 8 MiB por fichero
+# El color base es lo que se nota de cerca (logos, números, patrocinadores); los mapas normales a 1024 ya dan el relieve.
+HERO_LADDER = [(2048, 1024), (1536, 1024)]
+# Si el LOD0 ya pesa esto, es la geometría la que llena el presupuesto: no cabe un hero con más textura.
+HERO_SKIP_LOD0 = 6.8 * 1024 * 1024
+UASTC_SLOTS = "{normalTexture,occlusionTexture,metallicRoughnessTexture}"
+
+
+def _image_dims(raw):
+    if raw[:4] == b"\x89PNG":
+        return struct.unpack(">II", raw[16:24])
+    i = 2
+    while i + 9 < len(raw):
+        if raw[i] != 0xFF:
+            return None
+        marker, size = raw[i + 1], struct.unpack(">H", raw[i + 2:i + 4])[0]
+        if 0xC0 <= marker <= 0xC3:
+            h, w = struct.unpack(">HH", raw[i + 5:i + 9])
+            return w, h
+        i += 2 + size
+    return None
+
+
+def glb_texture_sizes(path):
+    """Lado mayor de las texturas de un GLB sin comprimir, por grupo: {"base": px, "data": px} (PNG/JPEG)."""
+    with open(path, "rb") as handle:
+        blob = handle.read()
+    length = struct.unpack_from("<I", blob, 12)[0]
+    doc = json.loads(blob[20:20 + length])
+    binary = blob[20 + length + 8:]
+
+    def side(tex_index):
+        image = doc["images"][doc["textures"][tex_index]["source"]]
+        if "bufferView" not in image:
+            return 0
+        view = doc["bufferViews"][image["bufferView"]]
+        start = view.get("byteOffset", 0)
+        found = _image_dims(binary[start:start + view["byteLength"]])
+        return max(found) if found else 0
+
+    out = {"base": 0, "data": 0}
+    for material in doc.get("materials", []):
+        pbr = material.get("pbrMetallicRoughness", {})
+        for group, ref in (("base", pbr.get("baseColorTexture")), ("base", material.get("emissiveTexture")),
+                           ("data", pbr.get("metallicRoughnessTexture")), ("data", material.get("normalTexture")),
+                           ("data", material.get("occlusionTexture"))):
+            if ref and "index" in ref:
+                out[group] = max(out[group], side(ref["index"]))
+    return out
+
+
+def compress_hero(src, dst, lod0_size):
+    """Comprime el hero; devuelve (base, data) en px o None si no cabe o no mejora el LOD0."""
+    sizes = glb_texture_sizes(src)
+    work = OUT / "cars" / (dst.stem + ".tmp")
+    work.mkdir(parents=True, exist_ok=True)
+    keep = ["--flatten", "false", "--join", "false", "--instance", "false", "--palette", "false"]
+    try:
+        for base, data in HERO_LADDER:
+            base_px, data_px = min(base, sizes["base"]), min(data, sizes["data"])
+            if base_px <= lod0_size and data_px <= lod0_size:
+                break  # el original no tiene más detalle que el LOD0
+            a, b, c = work / "a.glb", work / "b.glb", work / "c.glb"
+            log_path = str(OUT / "cars" / dst.name) + ".log"
+            run([NPX, "gltf-transform", "optimize", str(src), str(a), "--compress", "false", "--texture-compress", "false",
+                 "--simplify", "false", *keep], logfile=log_path)
+            run([NPX, "gltf-transform", "uastc", str(a), str(b), "--slots", UASTC_SLOTS, "--resize", str(data),
+                 "--level", "2", "--rdo", "--rdo-lambda", "4", "--zstd", "18"], logfile=log_path + ".uastc")
+            run([NPX, "gltf-transform", "etc1s", str(b), str(c), "--resize", str(base), "--quality", "255"],
+                logfile=log_path + ".etc1s")
+            run([NPX, "gltf-transform", "meshopt", str(c), str(dst)], logfile=log_path + ".meshopt")
+            if dst.stat().st_size <= HERO_BUDGET:
+                return base_px, data_px
+            log("hero grande", dst.name, f"{dst.stat().st_size / 1048576:.2f} MiB con {base}/{data}")
+        dst.unlink(missing_ok=True)
+        return None
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def build_hero(job, force):
+    """Hero de un coche ya normalizado (sin Blender). Deja <id>.hero.json con lo que se hizo."""
+    work = OUT / "cars"
+    src = work / f"{job['id']}.lod0.glb"
+    if not src.exists():
+        raise RuntimeError(f"falta {src}: ejecutar antes la etapa cars")
+    dst = PUBLIC / "cars" / str(job["season"]) / f"{job['id']}.hero.glb"
+    stamp = work / f"{job['id']}.hero.json"
+    if not force and newer(stamp, src):
+        return job["id"]
+    override = CONFIG["cars"].get("overrides", {}).get(job["id"], {})
+    lod0_size = override.get("textureSize", CONFIG["cars"]["textureSize"])[0]
+    lod0 = PUBLIC / "cars" / str(job["season"]) / f"{job['id']}.lod0.glb"
+    if lod0.exists() and lod0.stat().st_size > HERO_SKIP_LOD0:
+        dst.unlink(missing_ok=True)
+        stamp.write_text(json.dumps({"hero": False, "textureSize": None, "reason": "lod0 heavy"}) + "\n", encoding="utf-8")
+        return job["id"]
+    log("hero", job["id"])
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    used = compress_hero(src, dst, lod0_size)
+    stamp.write_text(json.dumps({"hero": bool(used), "textureSize": list(used) if used else None}) + "\n", encoding="utf-8")
+    return job["id"]
+
+
+def stage_heroes(only, jobs_n, force):
+    jobs = car_jobs(only)
+    log(f"heroes: {len(jobs)}")
+    failures = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs_n) as pool:
+        futures = {pool.submit(build_hero, job, force): job for job in jobs}
+        for future in concurrent.futures.as_completed(futures):
+            job = futures[future]
+            try:
+                log("listo hero", future.result())
+            except Exception as error:
+                failures.append((job["id"], str(error)))
+                log("ERROR hero", job["id"], error)
+    return failures
+
+
+def hero_entry(job):
+    """{"hero": {...}} si el coche tiene nivel hero (solo showroom); {} si no."""
+    hero = PUBLIC / "cars" / str(job["season"]) / f"{job['id']}.hero.glb"
+    stamp = OUT / "cars" / f"{job['id']}.hero.json"
+    if not hero.exists() or not stamp.exists():
+        return {}
+    meta = json.loads(stamp.read_text(encoding="utf-8"))
+    if not meta.get("hero"):
+        return {}
+    info = json.loads((OUT / "cars" / f"{job['id']}.json").read_text(encoding="utf-8"))
+    return {"hero": {"file": f"cars/{job['season']}/{hero.name}", "bytes": hero.stat().st_size, "sha256": sha256(hero)[:16],
+                     "triangles": info["lods"][0]["triangles"], "textureSize": meta["textureSize"]}}
+
+
 # ---------------------------------------------------------------------- cars
 
 def car_jobs(only):
@@ -186,6 +328,7 @@ def build_car(job, force):
     if force or not newer(thumb, work / info["lods"][0]["file"]):
         thumb.parent.mkdir(parents=True, exist_ok=True)
         blender("thumbnails.py", work / info["lods"][0]["file"], thumb, "--size", "640x360", logfile=work / f"{job['id']}.thumb.log")
+    build_hero(job, force)
     return job["id"]
 
 
@@ -367,6 +510,7 @@ def stage_manifest():
             "wheelNodes": [] if info.get("wheels") == "static" else ["wheel_fl", "wheel_fr", "wheel_rl", "wheel_rr"],
             "lods": [{"file": f"cars/{job['season']}/{p.name}", "bytes": p.stat().st_size, "sha256": sha256(p)[:16],
                       "triangles": lod["triangles"]} for p, lod in zip(lods, info["lods"])],
+            **hero_entry(job),
             "thumb": f"thumbs/{job['id']}.png" if (PUBLIC / "thumbs" / f"{job['id']}.png").exists() else None,
             "metrics": {k: info[k] for k in ("lengthM", "widthM", "heightM", "wheelbaseM", "trackFrontM", "trackRearM", "wheelRadiusM", "wheelHubs", "noseZ", "tailZ", "scaleApplied", "wheels") if k in info},
             **prov, "allowRecolor": allow and "ND" not in (prov["license"] or ""),
@@ -433,7 +577,7 @@ def stage_manifest():
 
 def main():
     args = sys.argv[1:]
-    stages = [a for a in args if a in ("cars", "circuits", "manifest")] or ["cars", "circuits", "manifest"]
+    stages = [a for a in args if a in ("cars", "heroes", "circuits", "manifest")] or ["cars", "circuits", "manifest"]
     only = args[args.index("--only") + 1] if "--only" in args else None
     jobs_n = int(args[args.index("--jobs") + 1]) if "--jobs" in args else 3
     force = "--force" in args
@@ -442,6 +586,8 @@ def main():
         failures += stage_circuits(only, force)
     if "cars" in stages:
         failures += stage_cars(only, jobs_n, force)
+    elif "heroes" in stages:
+        failures += stage_heroes(only, jobs_n, force)
     if "manifest" in stages:
         stage_manifest()
     if failures:

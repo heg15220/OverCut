@@ -31,13 +31,13 @@
  */
 
 import {
-  cancelPit, createStepRace, requestPit, runStepToFinish, setDefence, setErs, setMix, setMode, setOvertakeRisk, setTeamOrder, snapshot, stepFor, stepOnce,
+  cancelPit, createStepRace, delayStop, requestPit, skipStop, runStepToFinish, setDefence, setErs, setMix, setMode, setOvertakeRisk, setTeamOrder, snapshot, stepFor, stepOnce,
   stepToNextEvent, toRaceState,
 } from "../sim";
 import { commandsFor, rulesOf } from "../race";
 
 /** RF-CMD-01/02: the orders the view may send, by name (the sim setters). */
-export const COMMANDS = { setMode, setMix, setErs, requestPit, cancelPit, setTeamOrder, setDefence, setOvertakeRisk };
+export const COMMANDS = { setMode, setMix, setErs, requestPit, cancelPit, delayStop, skipStop, setTeamOrder, setDefence, setOvertakeRisk };
 
 /** Events "saltar al siguiente evento" stops at (RF-CMD-04): passes, stops, incidents, flags. */
 export const NEXT_EVENT_TYPES = ["pass", "pit", "dnf", "sc", "vsc", "sc-in", "rain", "lead", "contact", "mistake", "flag", "yellow", "red", "restart", "penalty", "swap"];
