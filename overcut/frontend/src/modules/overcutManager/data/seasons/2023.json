@@ -717,11 +717,7 @@
    "tyreSuppliers": [
     "pirelli"
    ],
-   "car": {
-    "release": "coches-2023",
-    "file": "alfaromeo_f1_team_kick_c43_24_zhou.glb",
-    "status": "ok"
-   }
+   "car": null
   },
   {
    "id": "alphatauri",

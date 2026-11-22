@@ -153,7 +153,8 @@ def split_source(job, pack):
             expect = sum(1 for e in json.loads(CURATED.read_text(encoding="utf-8")).get(str(season), {}).values() if e.get("split"))
             log("separa pack", pack.name, f"({expect} coches)")
             out.mkdir(parents=True, exist_ok=True)
-            blender("split_pack.py", pack, out, prefix, "--expect", expect, logfile=CACHE / f"split-{season}.log")
+            # split.args: opciones extra de split_pack.py para ese pack (p. ej. --min-aspect en los coches de los 80).
+            blender("split_pack.py", pack, out, prefix, "--expect", expect, *job["split"].get("args", []), logfile=CACHE / f"split-{season}.log")
     return out / f"{prefix}-{job['split']['index']}.glb"
 
 
@@ -164,14 +165,18 @@ def build_car(job, force):
     work = OUT / "cars"
     work.mkdir(parents=True, exist_ok=True)
     info_path = work / f"{job['id']}.json"
+    # cars.overrides.<id>: LOD y texturas propios para coches muy pesados (RNF-03: <= 8 MB por LOD).
+    override = CONFIG["cars"].get("overrides", {}).get(job["id"], {})
     if force or not newer(info_path, source):
         log("normaliza", job["id"])
         length = CONFIG["cars"]["lengthBySeason"].get(str(job["season"]))
-        blender("normalize_car.py", source, work, job["id"], "--length", length, "--lods", ",".join(map(str, CONFIG["cars"]["lods"])),
+        lods = override.get("lods", CONFIG["cars"]["lods"])
+        extra = ["--force-length"] if override.get("forceLength") else []
+        blender("normalize_car.py", source, work, job["id"], "--length", length, "--lods", ",".join(map(str, lods)), *extra,
                 logfile=work / f"{job['id']}.blender.log")
     info = json.loads(info_path.read_text(encoding="utf-8"))
     dest = PUBLIC / "cars" / str(job["season"])
-    for lod, size in zip(info["lods"], CONFIG["cars"]["textureSize"]):
+    for lod, size in zip(info["lods"], override.get("textureSize", CONFIG["cars"]["textureSize"])):
         src = work / lod["file"]
         dst = dest / lod["file"]
         if force or not newer(dst, src):

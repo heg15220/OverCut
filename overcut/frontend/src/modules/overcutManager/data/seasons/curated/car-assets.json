@@ -1,5 +1,220 @@
 {
-  "_doc": "GLB de f1-3d-assets por temporada y equipo (id de constructor de f1db). status: ok = coincide con el chasis; review = el nombre o el modelo no encaja con el chasis real (SRS 3.1). Un equipo sin entrada usa el coche procedural de su era (RF-3D-02). Comprobado contra las releases el 2026-11-22. Entradas con split.index: el GLB de la release es un pack de varios coches; tools/assets/blender/split_pack.py lo separa y el índice es la posición del coche en el pack (de izquierda a derecha). Reparto 2010/2013/2014 identificado por libreas y nombres de nodo, revisado a ojo el 2026-11-22.",
+  "_doc": "GLB de f1-3d-assets por temporada y equipo (id de constructor de f1db). status: ok = coincide con el chasis; review = el nombre o el modelo no encaja con el chasis real (SRS 3.1). Un equipo sin entrada usa el coche procedural de su era (RF-3D-02). Comprobado contra las releases el 2026-11-22. Entradas con split.index: el GLB de la release es un pack de varios coches; tools/assets/blender/split_pack.py lo separa y el índice es la posición del coche en el pack (de izquierda a derecha). Reparto 2010/2013/2014 identificado por libreas y nombres de nodo, revisado a ojo el 2026-11-22. Ampliado el 2026-11-22 a todas las temporadas jugables (1976-2026). Sin entrada a propósito: f1_2021_car (coche genérico de 2021, sin equipo) y lego_f1_ferrari_fs24_2 (Ferrari 2024 de LEGO, no es un coche de carrera) y alfaromeo_f1_team_kick_c43_24_zhou (fotogrametría de una miniatura MINIGT 1/64 escaneada junto con su caja expositora: la caja no se puede separar del coche).",
+  "1976": {
+    "ferrari": {
+      "release": "coches-70s",
+      "file": "1976_ferrari_312t.glb",
+      "status": "ok",
+      "note": "312T: Ferrari corrió con el 312T las tres primeras carreras de 1976 y con el 312T2 desde el GP de España"
+    }
+  },
+  "1986": {
+    "tyrrell": {
+      "release": "coches-80s",
+      "file": "1986_tyrrell_015.glb",
+      "status": "ok"
+    },
+    "benetton": {
+      "release": "coches-80s",
+      "file": "for_vecarz_1986_benetton_b168.glb",
+      "status": "ok",
+      "note": "El archivo dice B168; es el Benetton B186 de 1986"
+    },
+    "lotus": {
+      "release": "coches-80s",
+      "file": "lotus_98t.glb",
+      "split": {
+        "index": 1,
+        "args": [
+          "--min-aspect",
+          "1.8"
+        ]
+      },
+      "status": "ok",
+      "note": "Lotus 98T de Dumfries (n.º 11). El GLB trae al lado un segundo chasis sin carrocería ni ruedas (coche 2 del split), que se descarta"
+    }
+  },
+  "1988": {
+    "mclaren": {
+      "release": "coches-80s",
+      "file": "1988_mclaren_mp44.glb",
+      "status": "ok"
+    }
+  },
+  "1990": {
+    "benetton": {
+      "release": "coches-90s",
+      "file": "1990_benetton_b190.glb",
+      "status": "ok"
+    }
+  },
+  "1991": {
+    "jordan": {
+      "release": "coches-90s",
+      "file": "1991_jordan_191.glb",
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-90s",
+      "file": "1991_mclaren_mp46.glb",
+      "status": "ok"
+    }
+  },
+  "1992": {
+    "williams": {
+      "release": "coches-90s",
+      "file": "1992_williams_fw14.glb",
+      "status": "ok",
+      "note": "El archivo dice FW14 (1991); en 1992 Williams corrió con el FW14B, casi igual por fuera"
+    }
+  },
+  "1993": {
+    "mclaren": {
+      "release": "coches-90s",
+      "file": "1993_mclaren_mp48.glb",
+      "status": "ok"
+    }
+  },
+  "1994": {
+    "benetton": {
+      "release": "coches-90s",
+      "file": "1994_benetton_b194.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-90s",
+      "file": "1994_ferrari_412_t1.glb",
+      "status": "ok"
+    }
+  },
+  "1997": {
+    "benetton": {
+      "release": "coches-90s",
+      "file": "1997_benetton_b197.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-90s",
+      "file": "1997_ferrari_f310.glb",
+      "status": "review",
+      "note": "El archivo dice F310 (1996); el coche de 1997 es el F310B"
+    },
+    "mclaren": {
+      "release": "coches-90s",
+      "file": "1997_mclaren_mp412.glb",
+      "status": "ok"
+    },
+    "williams": {
+      "release": "coches-90s",
+      "file": "1997_williams_fw19.glb",
+      "status": "ok"
+    }
+  },
+  "1998": {
+    "mclaren": {
+      "release": "coches-2000-2001-1999-1998",
+      "file": "1998_mclaren_mp413.glb",
+      "status": "ok"
+    }
+  },
+  "1999": {
+    "arrows": {
+      "release": "coches-2000-2001-1999-1998",
+      "file": "1999_arrows_a20.glb",
+      "status": "ok"
+    }
+  },
+  "2000": {
+    "ferrari": {
+      "release": "coches-2000-2001-1999-1998",
+      "file": "2000_ferrari_f2000.glb",
+      "status": "ok"
+    }
+  },
+  "2001": {
+    "ferrari": {
+      "release": "coches-2000-2001-1999-1998",
+      "file": "ferrari_f2001.glb",
+      "status": "ok"
+    }
+  },
+  "2002": {
+    "bar": {
+      "release": "coches-2002",
+      "file": "2002_bar_004.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2002",
+      "file": "2002_ferrari_f2002.glb",
+      "status": "ok"
+    },
+    "jaguar": {
+      "release": "coches-2002",
+      "file": "2002_jaguar_r3.glb",
+      "status": "ok"
+    },
+    "jordan": {
+      "release": "coches-2002",
+      "file": "2002_jordan_ej12.glb",
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2002",
+      "file": "2002_mclaren_mp4-17.glb",
+      "status": "ok"
+    },
+    "minardi": {
+      "release": "coches-2002",
+      "file": "2002_minardi_ps02.glb",
+      "status": "ok"
+    },
+    "renault": {
+      "release": "coches-2002",
+      "file": "2002_renault_r202.glb",
+      "status": "ok"
+    },
+    "sauber": {
+      "release": "coches-2002",
+      "file": "2002_sauber_c21.glb",
+      "status": "ok"
+    },
+    "toyota": {
+      "release": "coches-2002",
+      "file": "2002_toyota_tf102.glb",
+      "status": "ok"
+    },
+    "williams": {
+      "release": "coches-2002",
+      "file": "2002_williams_fw24.glb",
+      "status": "ok"
+    }
+  },
+  "2003": {
+    "renault": {
+      "release": "coches-2003",
+      "file": "2003_renault_r23.glb",
+      "status": "review",
+      "note": "Los nodos se llaman f2004_body / f2004_wheel_*: es un modelo de Ferrari F2004 con la librea del R23, no la forma del R23"
+    }
+  },
+  "2004": {
+    "ferrari": {
+      "release": "coches-2004",
+      "file": "2004_ferrari_f2004.glb",
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2004",
+      "file": "2004_mclaren_mp419.glb",
+      "status": "ok"
+    },
+    "renault": {
+      "release": "coches-2004",
+      "file": "2004_renault_r24.glb",
+      "status": "ok"
+    }
+  },
   "2005": {
     "bar": {
       "release": "coches-2005",
@@ -46,6 +261,59 @@
     "williams": {
       "release": "coches-2005",
       "file": "2005_williams_fw27.glb",
+      "status": "ok"
+    }
+  },
+  "2006": {
+    "ferrari": {
+      "release": "coches-2006",
+      "file": "2006_ferrari_f2006.glb",
+      "status": "ok"
+    },
+    "honda": {
+      "release": "coches-2006",
+      "file": "2006_honda_ra106.glb",
+      "status": "ok",
+      "note": "La página de Sketchfab dice \"2008 Honda RA106\"; la librea Lucky Strike y el chasis son los del RA106 de 2006"
+    },
+    "mclaren": {
+      "release": "coches-2006",
+      "file": "2006_mclaren_mp421.glb",
+      "status": "ok"
+    },
+    "midland": {
+      "release": "coches-2006",
+      "file": "2006_midland_m16.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2006",
+      "file": "2006_redbull_rb2.glb",
+      "status": "ok"
+    },
+    "renault": {
+      "release": "coches-2006",
+      "file": "2006_renault_r26.glb",
+      "status": "ok"
+    },
+    "toro-rosso": {
+      "release": "coches-2006",
+      "file": "2006_scuderia_toro_rosso_str1.glb",
+      "status": "ok"
+    },
+    "super-aguri": {
+      "release": "coches-2006",
+      "file": "2006_super_aguri_sa06.glb",
+      "status": "ok"
+    },
+    "toyota": {
+      "release": "coches-2006",
+      "file": "2006_toyota_tf106.glb",
+      "status": "ok"
+    },
+    "williams": {
+      "release": "coches-2006",
+      "file": "2006_williams_fw28.glb",
       "status": "ok"
     }
   },
@@ -108,6 +376,33 @@
     "williams": {
       "release": "coches-2008",
       "file": "2008_williams_fw30.glb",
+      "status": "ok"
+    }
+  },
+  "2009": {
+    "bmw-sauber": {
+      "release": "coches-2009",
+      "file": "2009_bmw_sauber_f1.09.glb",
+      "status": "ok"
+    },
+    "brawn": {
+      "release": "coches-2009",
+      "file": "2009_brawn_gp.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2009",
+      "file": "2009_ferrari_f60.glb",
+      "status": "ok"
+    },
+    "renault": {
+      "release": "coches-2009",
+      "file": "2009_renault_r29.glb",
+      "status": "ok"
+    },
+    "toro-rosso": {
+      "release": "coches-2009",
+      "file": "2009_toro_rosso_str4.glb",
       "status": "ok"
     }
   },
@@ -208,6 +503,59 @@
       "split": {
         "index": 12
       },
+      "status": "ok"
+    }
+  },
+  "2011": {
+    "ferrari": {
+      "release": "coches-2011",
+      "file": "2011_ferrari_150o_italia.glb",
+      "status": "ok"
+    },
+    "force-india": {
+      "release": "coches-2011",
+      "file": "2011_force_india_vjm04.glb",
+      "status": "ok"
+    },
+    "hrt": {
+      "release": "coches-2011",
+      "file": "2011_hrt_f111.glb",
+      "status": "ok"
+    },
+    "lotus-racing": {
+      "release": "coches-2011",
+      "file": "2011_lotus_t128.glb",
+      "status": "ok",
+      "note": "Team Lotus T128; los logotipos de Caterham ya estaban en el coche de 2011 (la descripción de Sketchfab habla del CT01 de 2012)"
+    },
+    "mclaren": {
+      "release": "coches-2011",
+      "file": "2011_mclaren_mp4-26.glb",
+      "status": "ok"
+    },
+    "mercedes": {
+      "release": "coches-2011",
+      "file": "2011_mercedes_mgp_w02.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2011",
+      "file": "2011_redbull_rb7.glb",
+      "status": "ok"
+    },
+    "renault": {
+      "release": "coches-2011",
+      "file": "2011_renault_r31.glb",
+      "status": "ok"
+    },
+    "sauber": {
+      "release": "coches-2011",
+      "file": "2011_sauber_c30.glb",
+      "status": "ok"
+    },
+    "toro-rosso": {
+      "release": "coches-2011",
+      "file": "2011_toro_rosso_str6.glb",
       "status": "ok"
     }
   },
@@ -451,6 +799,192 @@
       "split": {
         "index": 11
       },
+      "status": "ok"
+    }
+  },
+  "2016": {
+    "mclaren": {
+      "release": "coches-2016",
+      "file": "2016_mclaren_mp431.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2016",
+      "file": "2016_redbull_rb12.glb",
+      "status": "ok"
+    }
+  },
+  "2018": {
+    "ferrari": {
+      "release": "coches-2018",
+      "file": "2018_ferrari_sf71h.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2018",
+      "file": "2018_redbull_rb14.glb",
+      "status": "ok"
+    },
+    "renault": {
+      "release": "coches-2018",
+      "file": "2018_renault_r.s.18.glb",
+      "status": "ok"
+    }
+  },
+  "2019": {
+    "red-bull": {
+      "release": "coches-2019",
+      "file": "2019_redbull_rb15.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2019",
+      "file": "ferrari_f1_2019.glb",
+      "status": "review",
+      "note": "Ferrari SF90 (título \"Ferrari F1 2019\"). Los neumáticos del GLB son casi transparentes: solo se ven las llantas"
+    }
+  },
+  "2020": {
+    "mercedes": {
+      "release": "coches-2020",
+      "file": "mercedec_f1_2020.glb",
+      "status": "ok",
+      "note": "Mercedes W11 (el archivo dice \"mercedec\")"
+    }
+  },
+  "2021": {
+    "alpine": {
+      "release": "coches-2021",
+      "file": "2021_alpine_a521.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2021",
+      "file": "2021_redbull_rb16b.glb",
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2021",
+      "file": "f1_2021_mclaren_mcl35m.glb",
+      "status": "ok"
+    }
+  },
+  "2022": {
+    "ferrari": {
+      "release": "coches-2022",
+      "file": "2022_ferrari_f1-75.glb",
+      "status": "ok"
+    }
+  },
+  "2023": {
+    "mercedes": {
+      "release": "coches-2023",
+      "file": "2023_mercedes_f1_car.glb",
+      "status": "ok",
+      "note": "Mercedes W14"
+    },
+    "alphatauri": {
+      "release": "coches-2023",
+      "file": "alphatauri_at04__2023.glb",
+      "status": "ok"
+    },
+    "alpine": {
+      "release": "coches-2023",
+      "file": "alpine_a523_2023.glb",
+      "status": "ok"
+    },
+    "aston-martin": {
+      "release": "coches-2023",
+      "file": "aston_martin_f1_amr23_2023.glb",
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2023",
+      "file": "mclaren_mcl60_f1_2023.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2023",
+      "file": "oracle_red_bull_f1_car_rb19_2023.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2023",
+      "file": "scuderia_ferrari_f1_sf23_2023.glb",
+      "status": "ok"
+    }
+  },
+  "2024": {
+    "red-bull": {
+      "release": "coches-2024",
+      "file": "rb20.glb",
+      "status": "ok"
+    },
+    "rb": {
+      "release": "coches-2024",
+      "file": "visa_cash_app_red_bull_racing_vcarb01.glb",
+      "status": "ok",
+      "note": "VCARB 01 de RB (el título dice Red Bull Racing)"
+    }
+  },
+  "2025": {
+    "alpine": {
+      "release": "coches-2025",
+      "file": "2025_alpine_a525.glb",
+      "status": "ok"
+    },
+    "williams": {
+      "release": "coches-2025",
+      "file": "2025_williams_f1_car.glb",
+      "status": "ok",
+      "note": "Williams FW47"
+    },
+    "aston-martin": {
+      "release": "coches-2025",
+      "file": "aston_martin_aramco_amr25.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2025",
+      "file": "f1-2025_redbull_rb21.glb",
+      "status": "ok"
+    },
+    "mclaren": {
+      "release": "coches-2025",
+      "file": "f1_2025_mclaren_mcl39.glb",
+      "status": "review",
+      "note": "Concepto propio del autor con la librea del MCL39, no la forma real del coche (\"not based on any existing chassis\", página de Sketchfab). 116 MB de origen: LOD y texturas reducidas (RNF-03)"
+    },
+    "ferrari": {
+      "release": "coches-2025",
+      "file": "ferrari_sf-25.glb",
+      "status": "ok"
+    }
+  },
+  "2026": {
+    "audi": {
+      "release": "coches-2026",
+      "file": "2026_audi_r26.glb",
+      "status": "ok"
+    },
+    "cadillac": {
+      "release": "coches-2026",
+      "file": "2026_cadillac_mac-26.glb",
+      "status": "ok"
+    },
+    "ferrari": {
+      "release": "coches-2026",
+      "file": "2026_ferrari_sf-26.glb",
+      "status": "ok"
+    },
+    "mercedes": {
+      "release": "coches-2026",
+      "file": "2026_mercedes_w17.glb",
+      "status": "ok"
+    },
+    "red-bull": {
+      "release": "coches-2026",
+      "file": "2026_redbull_rb22.glb",
       "status": "ok"
     }
   }

@@ -1,5 +1,5 @@
 {
-  "$comment": "Provenance and rip-risk check of every asset in manager-assets.json plus the Suzuka/Monaco/Nürburgring candidates in the f1-3d-assets repo. Method, 2026-11-22: read each Sketchfab model (title, description, tags, licence, uploader) through the public API https://api.sketchfab.com/v3/models/<uid>, the uploader profiles (/v3/users/<uid>) and a sample of each main uploader's other uploads (/v3/search?type=models&user=<username>; 403 for Tyler_Dave, 24 for SidewalkNZ), at about 1 request per second. Combined with offline GLB evidence (material, node and source-file names read from the JSON chunk of tools/assets/.cache/raw/*). riskRipped: true = rip, or a re-upload of third-party work by someone who is not the author; false = positive evidence of own work and no rip signs; null = cannot decide. All 63 checked pages are still online and still say CC Attribution 4.0, so the licence matches the manifest and ATTRIBUTION files everywhere. Cars are keyed by season+teamRef and circuits by splineId+release, as in the manifest; candidates have candidate=true, candidateFor and release (circuitos-<folder slug>).",
+  "$comment": "Provenance and rip-risk check of every asset in manager-assets.json plus the Suzuka/Monaco/Nürburgring candidates in the f1-3d-assets repo. Method, 2026-11-22: read each Sketchfab model (title, description, tags, licence, uploader) through the public API https://api.sketchfab.com/v3/models/<uid>, the uploader profiles (/v3/users/<uid>) and a sample of each main uploader's other uploads (/v3/search?type=models&user=<username>; 403 for Tyler_Dave, 24 for SidewalkNZ), at about 1 request per second. Combined with offline GLB evidence (material, node and source-file names read from the JSON chunk of tools/assets/.cache/raw/*). riskRipped: true = rip, or a re-upload of third-party work by someone who is not the author; false = positive evidence of own work and no rip signs; null = cannot decide. All 63 checked pages are still online and still say CC Attribution 4.0, so the licence matches the manifest and ATTRIBUTION files everywhere. Cars are keyed by season+teamRef and circuits by splineId+release, as in the manifest; candidates have candidate=true, candidateFor and release (circuitos-<folder slug>). Extended on 2026-11-22 with the 91 cars of the other playable seasons (1976-2026), same method: Sketchfab model API, uploader profiles and the names inside each GLB (gMotor/rFactor, Codemasters F1, Assetto Corsa and Roblox signatures).",
   "generatedAt": "2026-11-22",
   "authors": {
     "Dave Love SketchFab": {
@@ -1658,6 +1658,1462 @@
       "note": "Tagged Ripped + asseto-corsa. GLB materials 282_n (merged).",
       "licenseOnSketchfab": "CC Attribution",
       "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "car",
+      "season": 1976,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/1976-ferrari-312t-b82c13cee0d24966ae66d0324ac12054",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1976-ferrari-312t-b82c13cee0d24966ae66d0324ac12054: title '1976 Ferrari 312T', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-29",
+        "GLB names: Meshpart10Mtl, Meshpart12Mtl, Meshpart13Mtl, Meshpart1Mtl.005 (Roblox MeshPart export)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1986,
+      "teamRef": "tyrrell",
+      "source": "https://sketchfab.com/3d-models/1986-tyrrell-015-17fa9b71321647bf99545328bd1e0ddd",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1986-tyrrell-015-17fa9b71321647bf99545328bd1e0ddd: title '1986 Tyrrell 015', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-20",
+        "GLB names: WCCARBODY (ISI gMotor / rFactor livery slots); RIM_BLUR (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1986,
+      "teamRef": "benetton",
+      "source": "https://sketchfab.com/3d-models/for-vecarz-1986-benetton-b168-312b6cbc60724667910ca3cadb83fb9a",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/for-vecarz-1986-benetton-b168-312b6cbc60724667910ca3cadb83fb9a: title '(FOR VECARZ) 1986 Benetton B168', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-23",
+        "GLB names: WCCARBODY (ISI gMotor / rFactor livery slots)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1986,
+      "teamRef": "lotus",
+      "source": "https://sketchfab.com/3d-models/lotus-98t-f46eed62ec6f4027b358330ed8edb798",
+      "riskRipped": false,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/lotus-98t-f46eed62ec6f4027b358330ed8edb798: title 'Lotus 98T', licence 'CC Attribution', uploader Tiaan.Pretorius (Tiaan.Pretorius), published 2023-01-03",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader Tiaan.Pretorius (3D artist, 7 models; bio \"started using blender in 2020\") presents it as one of \"the last few models that i have been working on the past few months\"; no game or mod names in the GLB. Own work."
+      ],
+      "note": "Uploader Tiaan.Pretorius (3D artist, 7 models; bio \"started using blender in 2020\") presents it as one of \"the last few models that i have been working on the past few months\"; no game or mod names in the GLB. Own work.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1988,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/1988-mclaren-mp44-4473b9dc02be4e69be67bb25269ad8cb",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1988-mclaren-mp44-4473b9dc02be4e69be67bb25269ad8cb: title '1988 Mclaren MP4/4', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-18",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads and repaints other people's models (bio, tags), so the licence chain is unverified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1990,
+      "teamRef": "benetton",
+      "source": "https://sketchfab.com/3d-models/1990-benetton-b190-058b376937df4eb88193f3024bf6455d",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1990-benetton-b190-058b376937df4eb88193f3024bf6455d: title '1990 Benetton B190', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-20",
+        "GLB names: WCCARBODY.003 (ISI gMotor / rFactor livery slots); RIM_BLUR.003 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1991,
+      "teamRef": "jordan",
+      "source": "https://sketchfab.com/3d-models/1991-jordan-191-5202bca7872d403888c595a84dc0776f",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1991-jordan-191-5202bca7872d403888c595a84dc0776f: title '1991 Jordan 191', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-20",
+        "GLB names: RIM_BLUR_LF_56_78, RIM_BLUR_LF_mesh1_54_79, RIM_BLUR_LF_mesh2_55_81, RIM_BLUR_LR_16_20 (rFactor-style mod part names); COCKPIT_HR_244_241 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1991,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/1991-mclaren-mp46-f70ebfa6e11d41a595b3c82d8a0cdc55",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1991-mclaren-mp46-f70ebfa6e11d41a595b3c82d8a0cdc55: title '1991 McLaren MP4/6', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-08",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads and repaints other people's models (bio, tags), so the licence chain is unverified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1992,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/1992-williams-fw14-3f5bce9286154ac38f2010ea931a9fb2",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1992-williams-fw14-3f5bce9286154ac38f2010ea931a9fb2: title '1992 Williams FW14', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-20",
+        "GLB names: CARBFBD, WCCARBODY, WCCARBODY_IN (ISI gMotor / rFactor livery slots); FW14-TCAM (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1993,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/1993-mclaren-mp48-bff5ac39599f4927b55d7a4b54b56938",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1993-mclaren-mp48-bff5ac39599f4927b55d7a4b54b56938: title '1993 Mclaren MP4/8', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-03",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads and repaints other people's models (bio, tags), so the licence chain is unverified. Tag amogusstrikesback2 credits another creator.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1994,
+      "teamRef": "benetton",
+      "source": "https://sketchfab.com/3d-models/1994-benetton-b194-55056ddc80ff4da7be35ff0c79953c34",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1994-benetton-b194-55056ddc80ff4da7be35ff0c79953c34: title '1994 Benetton B194', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: EXT_Cerchioni.002, EXT_Decals.002, EXT_Decals_Opache.002, EXT_DiscoFreni.002 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1994,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/1994-ferrari-412-t1-9f0e3609278143dd908e52305cca475f",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1994-ferrari-412-t1-9f0e3609278143dd908e52305cca475f: title '1994 Ferrari 412 T1', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-08",
+        "GLB names: EXT_Cerchioni, EXT_Cerchioni_Blur, EXT_Decals, EXT_Decals_Opache (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1997,
+      "teamRef": "benetton",
+      "source": "https://sketchfab.com/3d-models/1997-benetton-b197-d4747f8373a6405aa8d5d187a05fee76",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1997-benetton-b197-d4747f8373a6405aa8d5d187a05fee76: title '1997 Benetton B197', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-18",
+        "GLB names: WCCARBODY (ISI gMotor / rFactor livery slots); RIM_BLUR, rim_blurred (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1997,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/1997-ferrari-f310-b484d18bf1de40f5b664e30ac5e55efa",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1997-ferrari-f310-b484d18bf1de40f5b664e30ac5e55efa: title '1997 Ferrari F310', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-20",
+        "GLB names: CARBFBD, WCCARBODY (ISI gMotor / rFactor livery slots); RIM_BLUR, RIM_BLURRED (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1997,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/1997-mclaren-mp412-08f50f9c28624a63b772a7a1d1f49b60",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1997-mclaren-mp412-08f50f9c28624a63b772a7a1d1f49b60: title '1997 Mclaren MP4/12', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-21",
+        "GLB names: CARBFBD, LAPSBK, PLACEBK, WCCARBODY (ISI gMotor / rFactor livery slots); RIM_BLUR, RIM_BLURRED (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1997,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/1997-williams-fw19-19831266941a4a7697fe29a3f9154e47",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1997-williams-fw19-19831266941a4a7697fe29a3f9154e47: title '1997 Williams FW19', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-25",
+        "GLB names: CARBFBD.001, WCCARBODY.009, WCCARBODY_IN.001, WCEXTRA1.001 (ISI gMotor / rFactor livery slots); RIM_BLUR.009, RIM_BLURRED.001 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1998,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/1998-mclaren-mp413-9d5de03c27ee42f498245e810f87af9c",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1998-mclaren-mp413-9d5de03c27ee42f498245e810f87af9c: title '1998 Mclaren MP4/13', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-24",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads and repaints other people's models (bio, tags), so the licence chain is unverified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 1999,
+      "teamRef": "arrows",
+      "source": "https://sketchfab.com/3d-models/1999-arrows-a20-47fdc5f77e7b4f2591d4156f5181b08a",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/1999-arrows-a20-47fdc5f77e7b4f2591d4156f5181b08a: title '1999 Arrows A20', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-14",
+        "GLB names: CALIPER_LF_SUB0_rtt_carbon_0_119, CALIPER_LF_SUB1_rtt_caliper_0_117, CALIPER_LR_SUB0_rtt_carbon_0_85, CALIPER_LR_SUB1_rtt_caliper_0_83 (rFactor-style mod part names); COCKPIT_HR_170, COCKPIT_LR_198 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2000,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2000-ferrari-f2000-bb2ef06bdc2f43a189547f42cf77a8a2",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2000-ferrari-f2000-bb2ef06bdc2f43a189547f42cf77a8a2: title '2000 Ferrari F2000', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-01",
+        "GLB names: WCCARBODY.001 (ISI gMotor / rFactor livery slots); rim_blur.001, rim_blur_int.001, tcam.001 (rFactor-style mod part names); INT_DISC.001 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2001,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/ferrari-f2001-dafd84748fa44e49bc2bbe9411b52ac6",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/ferrari-f2001-dafd84748fa44e49bc2bbe9411b52ac6: title 'ferrari_f2001', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-09-19",
+        "GLB names: CARBFBD_1.001 (ISI gMotor / rFactor livery slots); EXT_BODY_MAIN.001, EXT_BODY_NOSE_CONE.001, EXT_CF_CLEARCOAT.001, EXT_CF_RAW.001 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "bar",
+      "source": "https://sketchfab.com/3d-models/2002-bar-004-dc15caec6e864c189749376186a3740f",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-bar-004-dc15caec6e864c189749376186a3740f: title '2002 BAR 004', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC (ISI gMotor / rFactor livery slots); RIM_BLUR (rFactor-style mod part names); INT_Carbon2_Mult150, INT_Styrofoam (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2002-ferrari-f2002-cf638e7ccd4d42a4bcfdbd4de7eaeddf",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-ferrari-f2002-cf638e7ccd4d42a4bcfdbd4de7eaeddf: title '2002 Ferrari F2002', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC.002, WCEXTRA7 (ISI gMotor / rFactor livery slots); INT_Carbon2_Mult150.002, INT_Styrofoam.002 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "jaguar",
+      "source": "https://sketchfab.com/3d-models/2002-jaguar-r3-c092255c5031416e82b6f6c3ef79c2b1",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-jaguar-r3-c092255c5031416e82b6f6c3ef79c2b1: title '2002 Jaguar R3', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC.003 (ISI gMotor / rFactor livery slots); RIM_BLUR.002 (rFactor-style mod part names); INT_Carbon2_Mult150.003, INT_Styrofoam.003 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "jordan",
+      "source": "https://sketchfab.com/3d-models/2002-jordan-ej12-bce93554b3dd46ed9e80b79d299d10b6",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-jordan-ej12-bce93554b3dd46ed9e80b79d299d10b6: title '2002 Jordan EJ12', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC.004 (ISI gMotor / rFactor livery slots); RIM_BLUR.003 (rFactor-style mod part names); INT_Carbon2_Mult150.004, INT_Styrofoam.004 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/2002-mclaren-mp4-17-bf74904934284bbbb5e3c69f1650bdba",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-mclaren-mp4-17-bf74904934284bbbb5e3c69f1650bdba: title '2002 McLaren MP4-17', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC.005 (ISI gMotor / rFactor livery slots); vehicle_revs_type1 (Codemasters F1 game shader names); RIM_BLUR.004, RIM_BLURRED (rFactor-style mod part names); INT_Carbon2_Mult150.005, INT_Styrofoam.005 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "minardi",
+      "source": "https://sketchfab.com/3d-models/2002-minardi-ps02-05caa6f052f3475793c704ee12b924c8",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-minardi-ps02-05caa6f052f3475793c704ee12b924c8: title '2002 Minardi PS02', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC.006 (ISI gMotor / rFactor livery slots); INT_Carbon2_Mult150.006, INT_Styrofoam.006 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/2002-renault-r202-cbe7eb771ead4589adc2ff3264275a00",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-renault-r202-cbe7eb771ead4589adc2ff3264275a00: title '2002 Renault R202', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC.007 (ISI gMotor / rFactor livery slots); INT_Carbon2_Mult150.007, INT_Styrofoam.007 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "sauber",
+      "source": "https://sketchfab.com/3d-models/2002-sauber-c21-1c441316437d43e3b9a4f1b65c0e1547",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-sauber-c21-1c441316437d43e3b9a4f1b65c0e1547: title '2002 Sauber C21', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC.008 (ISI gMotor / rFactor livery slots); INT_Carbon2_Mult150.008, INT_Styrofoam.008 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "toyota",
+      "source": "https://sketchfab.com/3d-models/2002-toyota-tf102-bc7a8682038c46c8adc975f38d3da0d2",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-toyota-tf102-bc7a8682038c46c8adc975f38d3da0d2: title '2002 Toyota TF102', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC.009 (ISI gMotor / rFactor livery slots); INT_Carbon2_Mult150.009, INT_Styrofoam.009 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2002,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/2002-williams-fw24-126f423e5bda4361b274bc9e974e5770",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2002-williams-fw24-126f423e5bda4361b274bc9e974e5770: title '2002 Williams FW24', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-12",
+        "GLB names: CARBFBDNOSPEC.010 (ISI gMotor / rFactor livery slots); RIM_BLUR.005 (rFactor-style mod part names); INT_Carbon2_Mult150.010, INT_Styrofoam.010 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2003,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/2003-renault-r23-bfc4b8cb1422443b8ea76a9fb172bd49",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2003-renault-r23-bfc4b8cb1422443b8ea76a9fb172bd49: title '2003 Renault R23', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-03",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads and repaints other people's models (bio, tags), so the licence chain is unverified. Nodes are named f2004_body / f2004_wheel_*: the mesh is a repainted Ferrari F2004 model, not an R23.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2004,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2004-ferrari-f2004-827e64acecba4f008759ae30a5bfeecc",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2004-ferrari-f2004-827e64acecba4f008759ae30a5bfeecc: title '2004 Ferrari F2004', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-04",
+        "GLB names: Meshpart10Mtl.001, Meshpart11Mtl.001, Meshpart12Mtl.001, Meshpart13Mtl.001 (Roblox MeshPart export)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2004,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/2004-mclaren-mp419-0bd6ab9a9e284de5b103a34be3fff371",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2004-mclaren-mp419-0bd6ab9a9e284de5b103a34be3fff371: title '2004 Mclaren MP4/19', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-24",
+        "GLB names: WCCARBODY, WCEXTRA (ISI gMotor / rFactor livery slots)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2004,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/2004-renault-r24-e2e0866d169f4a19bc0feea7d963f301",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2004-renault-r24-e2e0866d169f4a19bc0feea7d963f301: title '2004 Renault R24', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-14",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads and repaints other people's models (bio, tags), so the licence chain is unverified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2006-ferrari-f2006-03caa91b72504f9c975b12c1944ebeb2",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2006-ferrari-f2006-03caa91b72504f9c975b12c1944ebeb2: title '2006 Ferrari F2006', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+        "GLB names: CARBFBD.023, CARBFBDNOSPEC.023, CTDPBLACK.005, CTDP_AMD.003 (ISI gMotor / rFactor livery slots); F248_RIM_BLUR.003, cim_2006_ferrari_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "honda",
+      "source": "https://sketchfab.com/3d-models/2008-honda-ra106-f6b9ce724c054b93af6e8acaede6aadf",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-honda-ra106-f6b9ce724c054b93af6e8acaede6aadf: title '2008 Honda RA106', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+        "GLB names: CARBFBD.017, CARBFBDNOSPEC.017, CTDP_BLACK.005, WCCARBODY.017 (ISI gMotor / rFactor livery slots); cim_2006_honda_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/2006-mclaren-mp421-131a0c6ec09743aba9e5b2abf80c83ba",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2006-mclaren-mp421-131a0c6ec09743aba9e5b2abf80c83ba: title '2006 Mclaren MP4/21', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-24",
+        "GLB names: WCCARBODY.002, WCEXTRA0.001 (ISI gMotor / rFactor livery slots); MCLRIM_BLUR.001 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "midland",
+      "source": "https://sketchfab.com/3d-models/2006-midland-m16-ce46bed4535149febd5d7ebb042a4681",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2006-midland-m16-ce46bed4535149febd5d7ebb042a4681: title '2006 Midland M16', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+        "GLB names: CARBFBD.017, CARBFBDNOSPEC.017, WCCARBODY.015, WCEXTRA0.017 (ISI gMotor / rFactor livery slots); cim_2006_midland_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/2006-redbull-rb2-7832bf9ea39d44c296d5c14bbf85759c",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2006-redbull-rb2-7832bf9ea39d44c296d5c14bbf85759c: title '2006 Redbull RB2', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+        "GLB names: CARBFBD.011, CARBFBDNOSPEC.011, WCCARBODY.011, WCEXTRA0.011 (ISI gMotor / rFactor livery slots); cim_2006_redbull_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/2006-renault-r26-23a73ec3a9234017b393362fc58b6c10",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2006-renault-r26-23a73ec3a9234017b393362fc58b6c10: title '2006 Renault R26', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+        "GLB names: CARBFBD.017, CARBFBDNOSPEC.017, WCCARBODY.015, WCEXTRA0.017 (ISI gMotor / rFactor livery slots); cim_2006_renault_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "toro-rosso",
+      "source": "https://sketchfab.com/3d-models/2006-scuderia-toro-rosso-str1-4b244d24f9b447598917597a6178eb34",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2006-scuderia-toro-rosso-str1-4b244d24f9b447598917597a6178eb34: title '2006 Scuderia Toro Rosso STR1', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "GLB names: CARBFBD, CARBFBDNOSPEC, WCCARBODY, WCEXTRA0 (ISI gMotor / rFactor livery slots); MCLRIM_BLUR, RIM_BLUR_LF_104, RIM_BLUR_LR_10, RIM_BLUR_RF_139 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "super-aguri",
+      "source": "https://sketchfab.com/3d-models/2006-super-aguri-sa06-c1de968c94ce4a8296c77874c6625725",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2006-super-aguri-sa06-c1de968c94ce4a8296c77874c6625725: title '2006 Super Aguri SA06', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+        "GLB names: CARBFBD.011, CARBFBDNOSPEC.011, WCCARBODY.009, WCEXTRA0.011 (ISI gMotor / rFactor livery slots); cim_2006_superaguri_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "toyota",
+      "source": "https://sketchfab.com/3d-models/2006-toyota-tf106-f7364bc4c6a848ba8b3c56a8b1a0e30d",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2006-toyota-tf106-f7364bc4c6a848ba8b3c56a8b1a0e30d: title '2006 Toyota TF106', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+        "GLB names: CARBFBD.005, CARBFBDNOSPEC.005, WCCARBODY.005, WCEXTRA0.005 (ISI gMotor / rFactor livery slots); cim_2006_toyota_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2006,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/2006-williams-fw28-9a92ae63616b41019b0059a428d8f6f5",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2006-williams-fw28-9a92ae63616b41019b0059a428d8f6f5: title '2006 Williams FW28', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+        "GLB names: CARBFBD.005, CARBFBDNOSPEC.005, WCCARBODY.005, WCEXTRA0.005 (ISI gMotor / rFactor livery slots); cim_2006_williams_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2009,
+      "teamRef": "bmw-sauber",
+      "source": "https://sketchfab.com/3d-models/2009-bmw-sauber-f109-8a9b80a1a2544537b8917049dc1aa7f5",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2009-bmw-sauber-f109-8a9b80a1a2544537b8917049dc1aa7f5: title '2009 BMW Sauber F1.09', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-15",
+        "GLB names: RIM_BLUR, RIM_BLURRED, RIM_BLUR_LF_278, RIM_BLUR_LF_SUB0_285 (rFactor-style mod part names); COCKPIT_HR_148, COCKPIT_LR_191, EXT_disc (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2009,
+      "teamRef": "brawn",
+      "source": "https://sketchfab.com/3d-models/2009-brawn-gp-4c02d48be0104a79b657e732890e6d54",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2009-brawn-gp-4c02d48be0104a79b657e732890e6d54: title '2009 Brawn GP', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "GLB names: WCCARBODY, WCEXTRA0, WCEXTRA1, WCEXTRA9 (ISI gMotor / rFactor livery slots); REDTCAM, RIM_BLUR_L, RIM_BLUR_R (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2009,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2009-ferrari-f60-d16c0497b3f548cd89d1d5d8eb544c60",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2009-ferrari-f60-d16c0497b3f548cd89d1d5d8eb544c60: title '2009 Ferrari F60', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-14",
+        "GLB names: RIM_BLUR, RIM_BLUR_LF_69, RIM_BLUR_LF_SUB0_74, RIM_BLUR_LF_SUB0_RIM_0_75 (rFactor-style mod part names); COCKPIT_HR_185, COCKPIT_LR_285 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2009,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/2009-renault-r29-0986bda764f04e3b8c8597186b07cda9",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2009-renault-r29-0986bda764f04e3b8c8597186b07cda9: title '2009 Renault R29', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-31",
+        "GLB names: RIM_BLUR.003, RIM_BLURRED.003 (rFactor-style mod part names); EXT_disc.003 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2009,
+      "teamRef": "toro-rosso",
+      "source": "https://sketchfab.com/3d-models/2009-toro-rosso-str4-4f26608bbee54724ac05bd917c7a400f",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2009-toro-rosso-str4-4f26608bbee54724ac05bd917c7a400f: title '2009 Toro Rosso STR4', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-14",
+        "GLB names: RIM_BLUR, RIM_BLURRED, RIM_BLUR_LF_121, RIM_BLUR_LF_SUB0_124 (rFactor-style mod part names); COCKPIT_HR_245, COCKPIT_LR_300, EXT_disc (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2011-ferrari-150o-italia-9c39c3309a18400392529f53ece89cf2",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-ferrari-150o-italia-9c39c3309a18400392529f53ece89cf2: title '2011 Ferrari 150º Italia', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-21",
+        "GLB names: lapsbk (ISI gMotor / rFactor livery slots); cim_2011_ferrari_0 (rFactor-style mod part names); int_led, int_led_alpha (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "force-india",
+      "source": "https://sketchfab.com/3d-models/2011-force-india-vjm04-3a2b5b58f67e46aa8fc7aa216b253328",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-force-india-vjm04-3a2b5b58f67e46aa8fc7aa216b253328: title '2011 Force India VJM04', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-22",
+        "GLB names: cim_2011_forceindia_0 (rFactor-style mod part names); int_led.006, int_led_alpha.006 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "hrt",
+      "source": "https://sketchfab.com/3d-models/2011-hrt-f111-3bb0f476ca5e409e928864e856097ab8",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-hrt-f111-3bb0f476ca5e409e928864e856097ab8: title '2011 HRT F111', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-23",
+        "GLB names: cim_2011_hrt_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "lotus-racing",
+      "source": "https://sketchfab.com/3d-models/2011-lotus-t128-3d158f34ec824115b353824b8500bda1",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-lotus-t128-3d158f34ec824115b353824b8500bda1: title '2011 Lotus T128', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-23",
+        "GLB names: cim_2011_lotus_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/2011-mclaren-mp4-26-90c7cc319392442c97beb5b968657476",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-mclaren-mp4-26-90c7cc319392442c97beb5b968657476: title '2011 McLaren MP4-26', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-23",
+        "GLB names: cim_2011_mclaren_0 (rFactor-style mod part names); int_led.002, int_led_alpha.002 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "mercedes",
+      "source": "https://sketchfab.com/3d-models/2011-mercedes-mgp-w02-4dea11419d754486bed43e9190fcf957",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-mercedes-mgp-w02-4dea11419d754486bed43e9190fcf957: title '2011 Mercedes MGP W02', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-22",
+        "GLB names: cim_2011_mercedes_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/2011-redbull-rb7-8fea3279f3134f64904c1187ebb9dcf8",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-redbull-rb7-8fea3279f3134f64904c1187ebb9dcf8: title '2011 Redbull RB7', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-14",
+        "GLB names: 1_sw_decals_0_102, generic_lcd, rb_cockpit_details_SUB3_generic_lcd_0_70, sw_decals (Codemasters F1 game shader names); GEO_TYRE_LF_001_001_14, GEO_TYRE_LF_001_001_tyre_side_0_15, GEO_TYRE_LF_001_13, GEO_TYRE_LF_11 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/2011-renault-r31-5016dd981afa484493aad6d291051e01",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-renault-r31-5016dd981afa484493aad6d291051e01: title '2011 Renault R31', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-22",
+        "GLB names: cim_2011_renault_0 (rFactor-style mod part names); int_led.004, int_led_alpha.004 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "sauber",
+      "source": "https://sketchfab.com/3d-models/2011-sauber-c30-77c2c734249e4bbfadba189c98881356",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-sauber-c30-77c2c734249e4bbfadba189c98881356: title '2011 Sauber C30', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-22",
+        "GLB names: cim_2011_sauber_0 (rFactor-style mod part names); int_led.008, int_led_alpha.008 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2011,
+      "teamRef": "toro-rosso",
+      "source": "https://sketchfab.com/3d-models/2011-toro-rosso-str6-18c734c84cc1433d8edb68fb41da37dc",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2011-toro-rosso-str6-18c734c84cc1433d8edb68fb41da37dc: title '2011 Toro Rosso STR6', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-22",
+        "GLB names: cim_2011_tororosso_0 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2016,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/2016-mclaren-mp431-9ae094da549849659a5964f6a6baf0aa",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2016-mclaren-mp431-9ae094da549849659a5964f6a6baf0aa: title '2016 Mclaren MP4/31', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads and repaints other people's models (bio, tags), so the licence chain is unverified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2016,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/2016-redbull-rb12-d9b5ce8c5d234deeb9cb57f5029dad57",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2016-redbull-rb12-d9b5ce8c5d234deeb9cb57f5029dad57: title '2016 Redbull RB12', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-20",
+        "GLB names: kers_green.001, kers_red.001, sw_decals.001 (Codemasters F1 game shader names); Rim_Blurred.001, Rim_Blurred_Spokes.001 (rFactor-style mod part names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2018,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2018-ferrari-sf71h-e54b896bd21f478f8309eecf3726700e",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2018-ferrari-sf71h-e54b896bd21f478f8309eecf3726700e: title '2018 Ferrari SF71H', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-03",
+        "GLB names: EXT_TCAM.001 (rFactor-style mod part names); Cockpit_LR.001, EXT_Caliper.001, EXT_Caliper_Logo.001, EXT_Decals.001 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2018,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/2018-redbull-rb14-65e1f548c47247cd932d2c751c413601",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2018-redbull-rb14-65e1f548c47247cd932d2c751c413601: title '2018 Redbull RB14', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-05",
+        "GLB names: kers_green, sw_decals (Codemasters F1 game shader names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2018,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/2018-renault-rs18-36ff37c900c8472c98da40a7f7256fc7",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2018-renault-rs18-36ff37c900c8472c98da40a7f7256fc7: title '2018 Renault R.S.18', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-05",
+        "GLB names: KERS_YELLOW, generic_lcd, indicator_lights, vehicle_revs_type2 (Codemasters F1 game shader names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2019,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/2019-redbull-rb15-0658bbd909f840afb8e32274b1e57662",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2019-redbull-rb15-0658bbd909f840afb8e32274b1e57662: title '2019 Redbull RB15', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-20",
+        "GLB names: Meshpart15Mtl.001, Meshpart1Mtl.004, Meshpart20Mtl, Meshpart21Mtl (Roblox MeshPart export)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2019,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/ferrari-f1-2019-1b050bffe4e749b586b4782ee7ff4fd0",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/ferrari-f1-2019-1b050bffe4e749b586b4782ee7ff4fd0: title 'Ferrari F1 2019', licence 'CC Attribution', uploader valvetin (valvetin), published 2024-03-12",
+        "GLB names: 47a8b515224a4b809b219a5de1957e3e.fbx (source file name)",
+        "Uploader valvetin (15 models, no bio): \"High Poly, feel free to use it\"; only an FBX hash as node name. No rip signs and no evidence of authorship."
+      ],
+      "note": "Uploader valvetin (15 models, no bio): \"High Poly, feel free to use it\"; only an FBX hash as node name. No rip signs and no evidence of authorship.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2020,
+      "teamRef": "mercedes",
+      "source": "https://sketchfab.com/3d-models/mercedec-f1-2020-0d97207d829441ba95952598f84e8d63",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/mercedec-f1-2020-0d97207d829441ba95952598f84e8d63: title 'Mercedec F1 2020', licence 'CC Attribution', uploader Kevin Love SketchFab (Tyler_Kevin), published 2026-08-07",
+        "GLB names: kers_green, kers_red, vehicle_revs_type2 (Codemasters F1 game shader names); RIM_BLUR (rFactor-style mod part names); EXT_Caliper, EXT_Caliper_Logo, EXT_Decals_Lights, EXT_Disc (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Uploader profile Tyler_Kevin ('Kevin Love SketchFab', joined 2026-08-06, 34 models): \"im love sketchfab and my dream is to get 1000 follower pls help me,  im make an account in 2026 becuse i love how i need\" - same naming as Tyler_Dave."
+      ],
+      "note": "Codemasters/Assetto Corsa names in the GLB: game or mod rip re-uploaded under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2021,
+      "teamRef": "alpine",
+      "source": "https://sketchfab.com/3d-models/2021-alpine-a521-e0641b0906824717af785eaf96c54d2b",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2021-alpine-a521-e0641b0906824717af785eaf96c54d2b: title '2021 Alpine A521', licence 'CC Attribution', uploader Abu Saif (abuhossain844), published 2026-04-01",
+        "GLB names: INDICATOR_LIGHTS, VEHICLE_REVS_TYPE2 (Codemasters F1 game shader names); TCAM (rFactor-style mod part names); EXT_Caliper_Logo, GEO_RIM_LOGOS_RF_121_221, GEO_TYRE_LF.001_127_233, GEO_TYRE_LF_126_231 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Uploader Abu Saif (abuhossain844, joined 2021-01-09, 67 models, no bio)."
+      ],
+      "note": "Codemasters F1 / Assetto Corsa names in the GLB: extracted from a game or a sim mod and re-uploaded under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2021,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/2021-redbull-rb16b-81f071aa2dd04403b0b408c1b0d7b813",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2021-redbull-rb16b-81f071aa2dd04403b0b408c1b0d7b813: title '2021 Redbull RB16B', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-18",
+        "GLB names: kers_green, sw_decals.002, sw_decals_001_142, sw_decals_002_141 (Codemasters F1 game shader names); EXT_disc.001, GEO_TYRE_LF_001_001_551, GEO_TYRE_LF_550, GEO_TYRE_LR_001_001_573 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2021,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/f1-2021-mclaren-mcl35m-967ecec37468412083c40c62b3d7234d",
+      "riskRipped": false,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/f1-2021-mclaren-mcl35m-967ecec37468412083c40c62b3d7234d: title 'F1 2021 McLaren MCL35M', licence 'CC Attribution', uploader Excalibur (excalibur), published 2021-04-23",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader Excalibur (since 2013, 61 models) is the author of the model, made for the Grand Prix 4 game: \"For public use, I will just ask you to credit me as the original author\"; no game-rip names in the GLB. Own work; the description forbids reselling the model."
+      ],
+      "note": "Uploader Excalibur (since 2013, 61 models) is the author of the model, made for the Grand Prix 4 game: \"For public use, I will just ask you to credit me as the original author\"; no game-rip names in the GLB. Own work; the description forbids reselling the model.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2022,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2022-ferrari-f1-75-ce53f6bd404c41ceaebb29813e87cfb9",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2022-ferrari-f1-75-ce53f6bd404c41ceaebb29813e87cfb9: title '2022 Ferrari F1-75', licence 'CC Attribution', uploader asdasfwefsfwsef (jordansingh2008), published 2026-02-03",
+        "GLB names: SW_DECALS, SW_DECALS_178, SW_DECALS_2_179 (Codemasters F1 game shader names); COCKPIT_HR_185 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Uploader asdasfwefsfwsef (jordansingh2008, joined 2020-10-08, 9 models, no bio)."
+      ],
+      "note": "Codemasters F1 / Assetto Corsa names in the GLB: extracted from a game or a sim mod and re-uploaded under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2023,
+      "teamRef": "mercedes",
+      "source": "https://sketchfab.com/3d-models/2023-mercedes-f1-car-1d5f76c72a9c44d2a8515e1323d690da",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2023-mercedes-f1-car-1d5f76c72a9c44d2a8515e1323d690da: title '2023 Mercedes F1 car', licence 'CC Attribution', uploader Abu Saif (abuhossain844), published 2026-01-25",
+        "GLB names: SW_DECALS, SW_DECALS_136_230 (Codemasters F1 game shader names); TCAM, tcam_color.001_208_362, tcam_color_207_360 (rFactor-style mod part names)",
+        "Uploader Abu Saif (abuhossain844, joined 2021-01-09, 67 models, no bio)."
+      ],
+      "note": "Codemasters F1 / Assetto Corsa names in the GLB: extracted from a game or a sim mod and re-uploaded under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2023,
+      "teamRef": "alphatauri",
+      "source": "https://sketchfab.com/3d-models/alphatauri-at04-2023-a8003f86f7a24dfbad6cbc1c90069eaf",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/alphatauri-at04-2023-a8003f86f7a24dfbad6cbc1c90069eaf: title 'AlphaTauri AT04  2023', licence 'CC Attribution', uploader Redgrund (redgrund), published 2024-04-12",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship."
+      ],
+      "note": "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2023,
+      "teamRef": "alpine",
+      "source": "https://sketchfab.com/3d-models/alpine-a523-2023-e97c2bb620d8461c92a03d007d63188c",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/alpine-a523-2023-e97c2bb620d8461c92a03d007d63188c: title 'Alpine A523 2023', licence 'CC Attribution', uploader Redgrund (redgrund), published 2024-04-20",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship."
+      ],
+      "note": "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2023,
+      "teamRef": "aston-martin",
+      "source": "https://sketchfab.com/3d-models/aston-martin-f1-amr23-2023-f6ba825a43b146a9b669934a4e1fd529",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/aston-martin-f1-amr23-2023-f6ba825a43b146a9b669934a4e1fd529: title 'Aston Martin F1 AMR23 2023', licence 'CC Attribution', uploader Redgrund (redgrund), published 2024-04-05",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship."
+      ],
+      "note": "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2023,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/mclaren-mcl60-f1-2023-8340e27c325345e4aa92a6a31cc34b1e",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/mclaren-mcl60-f1-2023-8340e27c325345e4aa92a6a31cc34b1e: title 'McLaren MCL60 F1 2023', licence 'CC Attribution', uploader Redgrund (redgrund), published 2024-03-25",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship."
+      ],
+      "note": "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2023,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/oracle-red-bull-f1-car-rb19-2023-e4afe46f3aab4b23a418da06fc163821",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/oracle-red-bull-f1-car-rb19-2023-e4afe46f3aab4b23a418da06fc163821: title 'Oracle Red Bull F1 Car RB19 2023', licence 'CC Attribution', uploader Redgrund (redgrund), published 2024-02-21",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship."
+      ],
+      "note": "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2023,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/scuderia-ferrari-f1-sf23-2023-ecb0f812bc454331bbe721655b0780ec",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/scuderia-ferrari-f1-sf23-2023-ecb0f812bc454331bbe721655b0780ec: title 'Scuderia Ferrari F1 SF23 2023', licence 'CC Attribution', uploader Redgrund (redgrund), published 2024-03-12",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship."
+      ],
+      "note": "Uploader Redgrund (8 models, no bio): one baked mesh per car (Body_Baked), short descriptions (\"Download and enjoy!\"). No rip signs, no evidence of authorship.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2024,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/rb20-72731472c2b649eaaaa5b7e0a00761fb",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/rb20-72731472c2b649eaaaa5b7e0a00761fb: title 'Rb20', licence 'CC Attribution', uploader Abu Saif (abuhossain844), published 2026-03-30",
+        "GLB names: LED_KERS_10_kers_green_0_362, LED_KERS_11_kers_green_0_360, LED_KERS_12_kers_green_0_358, LED_KERS_13_kers_green_0_356 (Codemasters F1 game shader names); TCAM, camera_wing_005_001_TCAM_0_482 (rFactor-style mod part names)",
+        "Uploader Abu Saif (abuhossain844, joined 2021-01-09, 67 models, no bio)."
+      ],
+      "note": "Codemasters F1 / Assetto Corsa names in the GLB: extracted from a game or a sim mod and re-uploaded under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2024,
+      "teamRef": "rb",
+      "source": "https://sketchfab.com/3d-models/visa-cash-app-red-bull-racing-vcarb01-b9fd0d3d26e349cebfceed712b577f97",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/visa-cash-app-red-bull-racing-vcarb01-b9fd0d3d26e349cebfceed712b577f97: title 'Visa Cash App Red Bull Racing VCARB01', licence 'CC Attribution', uploader bachlamanh406 (bachlamanh406), published 2025-01-17",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader bachlamanh406 (9 models, no bio): generic node names (model_0..n, Material.00n) and a promotional description. No rip signs, no evidence of authorship."
+      ],
+      "note": "Uploader bachlamanh406 (9 models, no bio): generic node names (model_0..n, Material.00n) and a promotional description. No rip signs, no evidence of authorship.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2025,
+      "teamRef": "alpine",
+      "source": "https://sketchfab.com/3d-models/2025-alpine-a525-5f029644bc2d4eaebbec88712ea46dfa",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2025-alpine-a525-5f029644bc2d4eaebbec88712ea46dfa: title '2025 alpine A525', licence 'CC Attribution', uploader Abu Saif (abuhossain844), published 2026-03-30",
+        "GLB names: RIM_BLURRED, RIM_BLUR_LF_393_453, RIM_BLUR_LF_SUB0_390_454, RIM_BLUR_LF_SUB2_391_456 (rFactor-style mod part names); COCKPIT_HR_001_379_411, COCKPIT_HR_366_408 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Uploader Abu Saif (abuhossain844, joined 2021-01-09, 67 models, no bio)."
+      ],
+      "note": "Codemasters F1 / Assetto Corsa names in the GLB: extracted from a game or a sim mod and re-uploaded under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2025,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/2025-williams-f1-car-36c9e213064741e681b414e40ac3078b",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2025-williams-f1-car-36c9e213064741e681b414e40ac3078b: title '2025 Williams f1 car', licence 'CC Attribution', uploader bachlamanh406 (bachlamanh406), published 2025-08-16",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader bachlamanh406 (9 models, no bio): generic node names (model_0..n, Material.00n) and a promotional description. No rip signs, no evidence of authorship."
+      ],
+      "note": "Uploader bachlamanh406 (9 models, no bio): generic node names (model_0..n, Material.00n) and a promotional description. No rip signs, no evidence of authorship.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2025,
+      "teamRef": "aston-martin",
+      "source": "https://sketchfab.com/3d-models/aston-martin-aramco-amr25-be45a8647a8d4770a85acecfee77e781",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/aston-martin-aramco-amr25-be45a8647a8d4770a85acecfee77e781: title 'Aston Martin Aramco AMR25', licence 'CC Attribution', uploader Abu Saif (abuhossain844), published 2026-01-25",
+        "GLB names: indicator_lights, indicator_lights_back, vehicle_revs_type1 (Codemasters F1 game shader names); tcam (rFactor-style mod part names); COCKPIT_HR_78 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Uploader Abu Saif (abuhossain844, joined 2021-01-09, 67 models, no bio)."
+      ],
+      "note": "Codemasters F1 / Assetto Corsa names in the GLB: extracted from a game or a sim mod and re-uploaded under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2025,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/f1-2025-redbull-rb21-418c3b3cdf9d41ea8beb15076d875a86",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/f1-2025-redbull-rb21-418c3b3cdf9d41ea8beb15076d875a86: title 'F1-2025 Redbull RB21', licence 'CC Attribution', uploader Abu Saif (abuhossain844), published 2026-01-23",
+        "GLB names: sw_decals.001, vehicle_revs_type2a (Codemasters F1 game shader names); COCKPIT_HR_22, COCKPIT_LR_24 (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Uploader Abu Saif (abuhossain844, joined 2021-01-09, 67 models, no bio)."
+      ],
+      "note": "Codemasters F1 / Assetto Corsa names in the GLB: extracted from a game or a sim mod and re-uploaded under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2025,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/f1-2025-mclaren-mcl39-c6194270002b401bb25be7e35ab56e34",
+      "riskRipped": false,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/f1-2025-mclaren-mcl39-c6194270002b401bb25be7e35ab56e34: title 'F1 2025 McLaren MCL39', licence 'CC Attribution', uploader shunqi (shunqi), published 2025-05-08",
+        "GLB names: no game or mod signatures found (materials, nodes, images).",
+        "Uploader shunqi: \"a fully original F1 2025 concept car, designed from scratch in Blender ... not based on any existing chassis. The livery included is inspired by the McLaren MCL39\"; clean part names (main_body, front_wing...). Own work, but the shape is not the real MCL39."
+      ],
+      "note": "Uploader shunqi: \"a fully original F1 2025 concept car, designed from scratch in Blender ... not based on any existing chassis. The livery included is inspired by the McLaren MCL39\"; clean part names (main_body, front_wing...). Own work, but the shape is not the real MCL39.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2025,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/ferrari-sf-25-11b53fd8dc324ab7b7fed6b43c62e398",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/ferrari-sf-25-11b53fd8dc324ab7b7fed6b43c62e398: title 'Ferrari SF-25', licence 'CC Attribution', uploader Abu Saif (abuhossain844), published 2026-03-31",
+        "GLB names: GENERIC_LCD, SW_DECALS, VEHICLE_REVS_TYPE2 (Codemasters F1 game shader names); COCKPIT_HR_319_386, EXT_Decals_Lights (Assetto Corsa mod naming (EXT_/INT_/GEO_/COCKPIT_HR))",
+        "Uploader Abu Saif (abuhossain844, joined 2021-01-09, 67 models, no bio)."
+      ],
+      "note": "Codemasters F1 / Assetto Corsa names in the GLB: extracted from a game or a sim mod and re-uploaded under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2026,
+      "teamRef": "audi",
+      "source": "https://sketchfab.com/3d-models/2026-audi-r26-32bf228264b047669b100b0f1b8769ac",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2026-audi-r26-32bf228264b047669b100b0f1b8769ac: title '2026 Audi R26', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-01",
+        "GLB names: generic_lcd.004, indicator_lights.007, indicator_lights.008, kers_green.003 (Codemasters F1 game shader names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2026,
+      "teamRef": "cadillac",
+      "source": "https://sketchfab.com/3d-models/2026-cadillac-mac-26-95bcd37aa7c649779efc33b90b6c023e",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2026-cadillac-mac-26-95bcd37aa7c649779efc33b90b6c023e: title '2026 Cadillac MAC-26', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-02",
+        "GLB names: generic_lcd, gm_cadillac_sw_decals, indicator_lights, kers_green.006 (Codemasters F1 game shader names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2026,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2026-ferrari-sf-26-e5ca6cecdc42449283f4bed27360f2a7",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2026-ferrari-sf-26-e5ca6cecdc42449283f4bed27360f2a7: title '2026 Ferrari SF-26', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-02",
+        "GLB names: kers_green.004, kers_red.004, sf25_sw_decals (Codemasters F1 game shader names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2026,
+      "teamRef": "mercedes",
+      "source": "https://sketchfab.com/3d-models/2026-mercedes-w17-b806f1e70aa343219e7158169549b97b",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2026-mercedes-w17-b806f1e70aa343219e7158169549b97b: title '2026 Mercedes W17', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-02",
+        "GLB names: indicator_lights.004, kers_green.003, kers_red.003, sidewall.007 (Codemasters F1 game shader names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2026,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/2026-redbull-rb22-0a3d24a58e0549d591a5a48c22eec383",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2026-redbull-rb22-0a3d24a58e0549d591a5a48c22eec383: title '2026 Redbull RB22', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-01",
+        "GLB names: sidewall.007, sw_decals.004 (Codemasters F1 game shader names)",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Re-upload by Tyler_Dave of a car built from a sim/game mod (names in the GLB); the uploader is not the author, so the CC BY label is not a grant from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
     }
   ]
 }

@@ -2,6 +2,10 @@
 
 Uso:
   blender -b --python normalize_car.py -- <coche.glb> <carpeta salida> <id> [--length <m>] [--lods 1,0.4,0.12]
+                                         [--force-length]
+
+  --force-length: escala siempre a --length, aunque la longitud del GLB ya parezca la de un F1 (modelos a escala
+  reducida, como los de 3,7 m de 2023).
 
 Resultado en la carpeta de salida:
   <id>.lod0.glb, <id>.lod1.glb, <id>.lod2.glb   coche normalizado, cada vez más ligero
@@ -45,11 +49,13 @@ WHEELS = ("wheel_fl", "wheel_fr", "wheel_rl", "wheel_rr")
 def parse():
     args = script_args()
     source, out_dir, ident = args[0], args[1], args[2]
-    options = {"length": None, "lods": [1.0, 0.4, 0.12]}
+    options = {"length": None, "lods": [1.0, 0.4, 0.12], "force_length": False}
     i = 3
     while i < len(args):
         if args[i] == "--length":
             options["length"] = float(args[i + 1]); i += 2
+        elif args[i] == "--force-length":
+            options["force_length"] = True; i += 1
         elif args[i] == "--lods":
             options["lods"] = [float(v) for v in args[i + 1].split(",")]; i += 2
         else:
@@ -103,7 +109,7 @@ def vertex_bbox(meshes):
     return Vector(pts.min(axis=0)), Vector(pts.max(axis=0))
 
 
-def orient(meshes, wanted_length):
+def orient(meshes, wanted_length, force_length=False):
     """Longitud sobre +Y de Blender (= -Z glTF), morro delante, suelo en z=0, centrado en x."""
     lo, hi = vertex_bbox(meshes)
     size = hi - lo
@@ -126,7 +132,7 @@ def orient(meshes, wanted_length):
     lo, hi = vertex_bbox(meshes)
     length = hi.y - lo.y
     factor = 1.0
-    if not 3.0 <= length <= 6.5:
+    if force_length or not 3.0 <= length <= 6.5:
         if not wanted_length:
             raise SystemExit(f"longitud {length:.3f} fuera de rango y sin --length")
         factor = wanted_length / length
@@ -472,10 +478,10 @@ def join(objects, name):
     return ob
 
 
-def build(meshes, wanted_length):
+def build(meshes, wanted_length, force_length=False):
     flatten(meshes)
     log("aplanado", len(meshes), "mallas")
-    factor = orient(meshes, wanted_length)
+    factor = orient(meshes, wanted_length, force_length)
     log("orientado")
     try:
         corners, groups = separate_wheels(meshes)
@@ -585,7 +591,7 @@ def main():
     source, out_dir, ident, options = parse()
     os.makedirs(out_dir, exist_ok=True)
     meshes = import_glb(source)
-    body, wheels, factor = build(meshes, options["length"])
+    body, wheels, factor = build(meshes, options["length"], options["force_length"])
     info = {"generator": f"normalize_car.py v{VERSION}", "source": os.path.basename(source), "id": ident, **metrics(body, wheels, factor), "lods": []}
     meshes_now = [body] + [w["object"] for w in wheels.values()]
     base = triangles(meshes_now)

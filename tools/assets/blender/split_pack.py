@@ -2,7 +2,10 @@
 
 Uso:
   blender -b --python split_pack.py -- <pack.glb> <carpeta salida> <prefijo> [--expect N] [--gap <unidades>]
-                                       [--no-metres] [--size 640x360]
+                                       [--no-metres] [--size 640x360] [--min-aspect 2.0]
+
+  --min-aspect: largo/ancho mínimo de un grupo con forma de coche (2,0 por defecto). Los coches de los 80, con
+  pontones anchos y sin morro largo, se quedan por debajo (Lotus 98T: 1,98).
 
 Resultado en la carpeta de salida:
   <prefijo>-<k>.glb          un coche por archivo (k = 1..n, ordenado por posición en el pack), centrado en el
@@ -42,6 +45,7 @@ from normalize_car import flatten, islands_of, select_only, triangles  # noqa: E
 
 VERSION = 1
 CAR_WIDTH_M = 1.8
+MIN_ASPECT = [2.0]  # lo cambia --min-aspect
 TEAMS = {
     "red-bull": ["redbull", "red_bull", "red bull", "rb6", "rb9", "rb10", "infiniti"],
     "mclaren": ["mclaren", "mp4", "vodafone"],
@@ -73,6 +77,8 @@ def parse():
             options["expect"] = int(args[i + 1]); i += 2
         elif args[i] == "--gap":
             options["gap"] = float(args[i + 1]); i += 2
+        elif args[i] == "--min-aspect":
+            MIN_ASPECT[0] = float(args[i + 1]); i += 2
         elif args[i] == "--no-metres":
             options["metres"] = False; i += 1
         elif args[i] == "--size":
@@ -107,7 +113,7 @@ def car_shaped(lo, hi):
     length, width, height = plan_dims(lo, hi)
     if length <= 0 or width <= 0:
         return False
-    return 2.0 <= length / width <= 4.0 and 0.1 <= height / length <= 0.35
+    return MIN_ASPECT[0] <= length / width <= 4.0 and 0.1 <= height / length <= 0.35
 
 
 # --- 1. Jerarquía ------------------------------------------------------------------------------------------

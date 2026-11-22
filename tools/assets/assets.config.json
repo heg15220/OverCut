@@ -6,13 +6,42 @@
   "engineSplines": "overcut/frontend/src/modules/overcutManager/data/splines.json",
   "cars": {
     "seasons": [
+      1976,
+      1986,
+      1988,
+      1990,
+      1991,
+      1992,
+      1993,
+      1994,
+      1997,
+      1998,
+      1999,
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
       2005,
+      2006,
       2007,
       2008,
+      2009,
       2010,
+      2011,
       2012,
       2013,
-      2014
+      2014,
+      2016,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025,
+      2026
     ],
     "lods": [
       1,
@@ -25,13 +54,170 @@
       256
     ],
     "lengthBySeason": {
+      "1976": 4.4,
+      "1986": 4.5,
+      "1988": 4.5,
+      "1990": 4.45,
+      "1991": 4.45,
+      "1992": 4.4,
+      "1993": 4.4,
+      "1994": 4.45,
+      "1997": 4.5,
+      "1998": 4.55,
+      "1999": 4.55,
+      "2000": 4.55,
+      "2001": 4.55,
+      "2002": 4.6,
+      "2003": 4.6,
+      "2004": 4.6,
       "2005": 4.6,
-      "2008": 4.7,
-      "2012": 5.1,
+      "2006": 4.65,
       "2007": 4.7,
+      "2008": 4.7,
+      "2009": 4.7,
       "2010": 5.1,
+      "2011": 5.1,
+      "2012": 5.1,
       "2013": 5.1,
-      "2014": 5.1
+      "2014": 5.1,
+      "2016": 5.1,
+      "2018": 5.45,
+      "2019": 5.5,
+      "2020": 5.5,
+      "2021": 5.6,
+      "2022": 5.6,
+      "2023": 5.6,
+      "2024": 5.6,
+      "2025": 5.6,
+      "2026": 5.3
+    },
+    "overrides": {
+      "1988-mclaren": {
+        "lods": [
+          0.3,
+          0.12,
+          0.04
+        ],
+        "note": "1,7 M triángulos de origen: LOD0 al 30 % para quedar en 8 MB (RNF-03)"
+      },
+      "1994-benetton": {
+        "lods": [
+          0.6,
+          0.25,
+          0.08
+        ],
+        "note": "441.000 triángulos de origen: LOD0 al 60 % para quedar en 8 MB (RNF-03)"
+      },
+      "2009-bmw-sauber": {
+        "lods": [
+          0.55,
+          0.2,
+          0.06
+        ],
+        "note": "473.000 triángulos: LOD0 al 55 % (RNF-03, 8 MB); texturas a la mitad (mapas normales UASTC)",
+        "textureSize": [
+          512,
+          256,
+          128
+        ]
+      },
+      "2009-ferrari": {
+        "lods": [
+          0.5,
+          0.2,
+          0.06
+        ],
+        "note": "575.000 triángulos: LOD0 al 50 % (RNF-03); texturas a la mitad (mapas normales UASTC)",
+        "textureSize": [
+          512,
+          256,
+          128
+        ]
+      },
+      "2009-toro-rosso": {
+        "lods": [
+          0.5,
+          0.2,
+          0.06
+        ],
+        "note": "529.000 triángulos: LOD0 al 50 % (RNF-03); texturas a la mitad (mapas normales UASTC)",
+        "textureSize": [
+          512,
+          256,
+          128
+        ]
+      },
+      "2024-rb": {
+        "lods": [
+          0.4,
+          0.15,
+          0.04
+        ],
+        "note": "839.000 triángulos y texturas pesadas: LOD0 al 40 % y texturas a la mitad (RNF-03)",
+        "textureSize": [
+          512,
+          256,
+          128
+        ]
+      },
+      "2025-alpine": {
+        "lods": [
+          0.5,
+          0.2,
+          0.06
+        ],
+        "note": "456.000 triángulos: LOD0 al 50 % (RNF-03); texturas a la mitad (mapas normales UASTC)",
+        "textureSize": [
+          512,
+          256,
+          128
+        ]
+      },
+      "2025-mclaren": {
+        "lods": [
+          0.35,
+          0.15,
+          0.05
+        ],
+        "note": "1,1 M triángulos (116 MB de origen): LOD0 al 35 % (RNF-03); texturas a la mitad (mapas normales UASTC)",
+        "textureSize": [
+          512,
+          256,
+          128
+        ]
+      },
+      "2023-alphatauri": {
+        "forceLength": true,
+        "note": "Modelo a escala reducida (3,7 m): se escala a la longitud de la temporada"
+      },
+      "2023-alpine": {
+        "forceLength": true,
+        "note": "Modelo a escala reducida (3,7 m): se escala a la longitud de la temporada"
+      },
+      "2023-aston-martin": {
+        "forceLength": true,
+        "note": "Modelo a escala reducida (3,7 m): se escala a la longitud de la temporada"
+      },
+      "2023-mclaren": {
+        "forceLength": true,
+        "note": "Modelo a escala reducida (3,7 m): se escala a la longitud de la temporada"
+      },
+      "2023-red-bull": {
+        "forceLength": true,
+        "note": "Modelo a escala reducida (3,7 m): se escala a la longitud de la temporada"
+      },
+      "2023-ferrari": {
+        "forceLength": true,
+        "note": "Modelo a escala reducida (4,8 m): se escala a la longitud de la temporada"
+      },
+      "1986-lotus": {
+        "textureSize": [
+          512,
+          256,
+          128
+        ],
+        "note": "Mapas normales UASTC pesados: texturas a la mitad (RNF-03, 8 MB)"
+      }
     }
   },
   "circuits": [

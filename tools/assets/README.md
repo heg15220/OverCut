@@ -77,7 +77,7 @@ vuelta) o si tiene `approved: true`. El manifiesto guarda `meetsCriterion` y `re
 
 ## Estado (2026-11-22)
 
-- Coches: 66, de las temporadas 2005, 2007, 2008, 2010, 2012, 2013 y 2014. Todos tienen ruedas giratorias: para mallas
+- Coches: 157 de 455 equipos en las 38 temporadas (completas 2010, 2012, 2013, 2014; sin modelos en 1995 y 1996; ver carCoverage.test.js). Casi todos tienen ruedas giratorias: para mallas
   troceadas en miles de piezas (BMW Sauber y McLaren de 2008), `normalize_car.py` ajusta el cilindro de cada neumático
   y recorta sus caras.
 - Circuitos (11): Monza, Spa, Silverstone 1999, Shanghái, Hungaroring, Interlagos, Montreal, Bahrain, Mónaco, Suzuka y
