@@ -1,0 +1,270 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://overcut.gp/schemas/season-pack-v1.json",
+  "title": "OverCut Manager season pack v1 (SRS 6.3)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "year", "packVersion", "sources", "regulations", "regulationsProvenance", "calendar", "teams", "drivers", "entries", "realResults", "standings", "ratings", "events"],
+  "definitions": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "country": { "type": ["string", "null"], "pattern": "^[a-z]{2}$" },
+    "text": { "type": "object", "additionalProperties": false, "required": ["es", "en"], "properties": { "es": { "type": "string", "minLength": 1 }, "en": { "type": "string", "minLength": 1 } } },
+    "nullableInt": { "type": ["integer", "null"], "minimum": 0 },
+    "nullableNumber": { "type": ["number", "null"] },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["f1db", "source", "pending"] },
+        "url": { "type": "string", "pattern": "^https?://" },
+        "quote": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    }
+  },
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "year": { "type": "integer", "minimum": 1950, "maximum": 2026 },
+    "packVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "sources": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "object", "additionalProperties": false, "required": ["name", "version", "license", "url"],
+        "properties": { "name": { "type": "string" }, "version": { "type": "string" }, "license": { "type": "string" }, "url": { "type": "string", "pattern": "^https?://" } } }
+    },
+    "regulations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engineFormula", "refuelling", "energySystem", "drs", "activeAero", "safetyCar", "vsc", "tyreType", "tyreSuppliers", "tyreChangesInRace", "mandatoryDryCompounds", "qualifyingFormats", "qualifyingRaceFuel", "topTenStartTyres", "rule107", "pointsScheme", "budgetCap", "aeroTestingRestriction", "unitLimits", "teamOrdersBanned", "parcFerme", "sprintWeekends"],
+      "properties": {
+        "engineFormula": { "type": "string" },
+        "refuelling": { "type": "boolean" },
+        "energySystem": { "enum": ["none", "kers", "ers", "ers2026"] },
+        "drs": { "type": "boolean" },
+        "activeAero": { "type": "boolean" },
+        "safetyCar": { "type": "boolean" },
+        "vsc": { "type": "boolean" },
+        "tyreType": { "enum": ["slick", "grooved"] },
+        "tyreSuppliers": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/definitions/id" } },
+        "tyreChangesInRace": { "type": "boolean" },
+        "mandatoryDryCompounds": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "qualifyingFormats": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["ONE_SESSION", "TWO_SESSION", "ONE_LAP", "AGGREGATE", "FOUR_LAPS", "KNOCKOUT", "SPRINT_RACE"] } },
+        "qualifyingRaceFuel": { "type": "boolean" },
+        "topTenStartTyres": { "enum": ["none", "Q2", "Q3"] },
+        "rule107": { "type": "boolean" },
+        "pointsScheme": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["race", "fastestLap", "pole", "sprint", "doubleLastRace", "bestResults", "constructorsBestCarOnly"],
+          "properties": {
+            "race": { "type": "array", "minItems": 1, "items": { "type": "number", "minimum": 0 } },
+            "fastestLap": { "type": "number", "minimum": 0 },
+            "pole": { "type": "number", "minimum": 0 },
+            "sprint": { "type": "array", "items": { "type": "number", "minimum": 0 } },
+            "doubleLastRace": { "type": "boolean" },
+            "bestResults": { "$ref": "#/definitions/nullableInt" },
+            "constructorsBestCarOnly": { "type": "boolean" }
+          }
+        },
+        "budgetCap": { "type": ["number", "null"], "minimum": 0 },
+        "aeroTestingRestriction": { "type": "boolean" },
+        "unitLimits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enginesPerDriver", "engineRaceWeekends", "gearboxRaces"],
+          "properties": {
+            "enginesPerDriver": { "$ref": "#/definitions/nullableInt" },
+            "engineRaceWeekends": { "$ref": "#/definitions/nullableInt" },
+            "gearboxRaces": { "$ref": "#/definitions/nullableInt" }
+          }
+        },
+        "teamOrdersBanned": { "type": "boolean" },
+        "parcFerme": { "type": "boolean" },
+        "sprintWeekends": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "regulationsProvenance": {
+      "type": "object",
+      "propertyNames": { "enum": ["engineFormula", "refuelling", "energySystem", "drs", "activeAero", "safetyCar", "vsc", "tyreType", "tyreSuppliers", "tyreChangesInRace", "mandatoryDryCompounds", "qualifyingFormats", "qualifyingRaceFuel", "topTenStartTyres", "rule107", "pointsScheme", "budgetCap", "aeroTestingRestriction", "unitLimits", "teamOrdersBanned", "parcFerme", "sprintWeekends"] },
+      "additionalProperties": { "$ref": "#/definitions/provenance" }
+    },
+    "calendar": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["round", "grandPrixId", "name", "officialName", "date", "circuitId", "circuitName", "place", "country", "layoutId", "circuitType", "direction", "lengthKm", "turns", "laps", "scheduledLaps", "distanceKm", "qualifyingFormat", "sprint"],
+        "properties": {
+          "round": { "type": "integer", "minimum": 1 },
+          "grandPrixId": { "$ref": "#/definitions/id" },
+          "name": { "type": "string" },
+          "officialName": { "type": "string" },
+          "date": { "$ref": "#/definitions/date" },
+          "circuitId": { "$ref": "#/definitions/id" },
+          "circuitName": { "type": "string" },
+          "place": { "type": "string" },
+          "country": { "$ref": "#/definitions/country" },
+          "layoutId": { "$ref": "#/definitions/id" },
+          "circuitType": { "enum": ["RACE", "STREET", "ROAD"] },
+          "direction": { "enum": ["CLOCKWISE", "ANTI_CLOCKWISE"] },
+          "lengthKm": { "type": "number", "exclusiveMinimum": 0 },
+          "turns": { "type": "integer", "minimum": 1 },
+          "laps": { "type": "integer", "minimum": 1 },
+          "scheduledLaps": { "$ref": "#/definitions/nullableInt" },
+          "distanceKm": { "type": "number", "exclusiveMinimum": 0 },
+          "qualifyingFormat": { "type": "string" },
+          "sprint": { "type": "boolean" }
+        }
+      }
+    },
+    "teams": {
+      "type": "array", "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "entrant", "country", "chassis", "engines", "tyreSuppliers", "car"],
+        "properties": {
+          "id": { "$ref": "#/definitions/id" },
+          "name": { "type": "string" },
+          "entrant": { "type": "string" },
+          "country": { "$ref": "#/definitions/country" },
+          "chassis": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["id", "name"], "properties": { "id": { "$ref": "#/definitions/id" }, "name": { "type": "string" } } } },
+          "engines": {
+            "type": "array", "minItems": 1,
+            "items": { "type": "object", "additionalProperties": false, "required": ["id", "name", "manufacturer", "manufacturerName", "formula"],
+              "properties": { "id": { "$ref": "#/definitions/id" }, "name": { "type": "string" }, "manufacturer": { "$ref": "#/definitions/id" }, "manufacturerName": { "type": "string" }, "formula": { "type": ["string", "null"] } } }
+          },
+          "tyreSuppliers": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/id" } },
+          "car": {
+            "oneOf": [
+              { "type": "null" },
+              { "type": "object", "additionalProperties": false, "required": ["release", "file", "status"],
+                "properties": { "release": { "type": "string", "pattern": "^coches-" }, "file": { "type": "string", "pattern": "\\.glb$" }, "status": { "enum": ["ok", "review"] } } }
+            ]
+          }
+        }
+      }
+    },
+    "drivers": {
+      "type": "array", "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "code", "nationality", "dateOfBirth"],
+        "properties": {
+          "id": { "$ref": "#/definitions/id" },
+          "name": { "type": "string" },
+          "code": { "type": ["string", "null"] },
+          "nationality": { "$ref": "#/definitions/country" },
+          "dateOfBirth": { "$ref": "#/definitions/date" }
+        }
+      }
+    },
+    "entries": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["round", "teamId", "driverId", "carNumber", "tyreSupplier"],
+        "properties": {
+          "round": { "type": "integer", "minimum": 1 },
+          "teamId": { "$ref": "#/definitions/id" },
+          "driverId": { "$ref": "#/definitions/id" },
+          "carNumber": { "$ref": "#/definitions/nullableInt" },
+          "tyreSupplier": { "$ref": "#/definitions/id" }
+        }
+      }
+    },
+    "realResults": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["round", "driverId", "teamId", "position", "status", "laps", "grid", "qualifying", "qualifyingGapPct", "points", "fastestLap", "retired"],
+        "properties": {
+          "round": { "type": "integer", "minimum": 1 },
+          "driverId": { "$ref": "#/definitions/id" },
+          "teamId": { "$ref": "#/definitions/id" },
+          "position": { "type": ["integer", "null"], "minimum": 1 },
+          "status": { "type": "string" },
+          "laps": { "$ref": "#/definitions/nullableInt" },
+          "grid": { "$ref": "#/definitions/nullableInt" },
+          "qualifying": { "$ref": "#/definitions/nullableInt" },
+          "qualifyingGapPct": { "type": ["number", "null"], "minimum": 0 },
+          "points": { "type": "number", "minimum": 0 },
+          "fastestLap": { "type": "boolean" },
+          "retired": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "standings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["drivers", "constructors"],
+      "properties": {
+        "drivers": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["driverId", "position", "points"], "properties": { "driverId": { "$ref": "#/definitions/id" }, "position": { "$ref": "#/definitions/nullableInt" }, "points": { "type": "number" } } } },
+        "constructors": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["teamId", "position", "points"], "properties": { "teamId": { "$ref": "#/definitions/id" }, "position": { "$ref": "#/definitions/nullableInt" }, "points": { "type": "number" } } } }
+      }
+    },
+    "ratings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "teams", "drivers"],
+      "properties": {
+        "method": { "const": "v1-qualifying-gap" },
+        "teams": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["teamId", "medianQualifyingGapPct", "paceIndex", "reliability"],
+            "properties": {
+              "teamId": { "$ref": "#/definitions/id" },
+              "medianQualifyingGapPct": { "$ref": "#/definitions/nullableNumber" },
+              "paceIndex": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+              "reliability": { "type": "object", "additionalProperties": false, "required": ["starts", "mechanicalDnf", "accidentDnf", "otherDnf"],
+                "properties": { "starts": { "type": "integer", "minimum": 0 }, "mechanicalDnf": { "type": "integer", "minimum": 0 }, "accidentDnf": { "type": "integer", "minimum": 0 }, "otherDnf": { "type": "integer", "minimum": 0 } } }
+            }
+          }
+        },
+        "drivers": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["driverId", "teamId", "starts", "points", "wins", "podiums", "teammateQualifying", "medianGapToTeammatePct", "teammateIndex"],
+            "properties": {
+              "driverId": { "$ref": "#/definitions/id" },
+              "teamId": { "oneOf": [{ "$ref": "#/definitions/id" }, { "type": "null" }] },
+              "starts": { "type": "integer", "minimum": 0 },
+              "points": { "type": "number", "minimum": 0 },
+              "wins": { "type": "integer", "minimum": 0 },
+              "podiums": { "type": "integer", "minimum": 0 },
+              "teammateQualifying": { "type": "object", "additionalProperties": false, "required": ["won", "lost"], "properties": { "won": { "type": "integer", "minimum": 0 }, "lost": { "type": "integer", "minimum": 0 } } },
+              "medianGapToTeammatePct": { "$ref": "#/definitions/nullableNumber" },
+              "teammateIndex": { "type": ["number", "null"], "minimum": 40, "maximum": 99 }
+            }
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "date", "round", "anchor", "kind", "sensitive", "verification", "title", "source"],
+        "properties": {
+          "id": { "$ref": "#/definitions/id" },
+          "date": { "$ref": "#/definitions/date" },
+          "round": { "$ref": "#/definitions/nullableInt" },
+          "anchor": { "enum": ["fixed", "guided"] },
+          "kind": { "enum": ["constraint", "note"] },
+          "sensitive": { "type": "boolean" },
+          "verification": { "enum": ["data", "pending"] },
+          "title": { "$ref": "#/definitions/text" },
+          "source": { "type": "string", "pattern": "^https?://" }
+        }
+      }
+    }
+  }
+}

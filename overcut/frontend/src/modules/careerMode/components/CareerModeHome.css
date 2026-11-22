@@ -1,0 +1,331 @@
+/**
+ * The Career Mode door.
+ *
+ * OverCut's own colours and its one hard diagonal, because this screen belongs
+ * to neither of the two modes behind it. Each card carries a swatch of the
+ * palette you are about to walk into - paddock cream for the deep career, the
+ * navy read-out for the quick one - so the choice is visible as well as read.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;800;900&family=Chivo+Mono:wght@400;600;700&display=swap");
+
+.cmh-root {
+  --cmh-navy: #10294f;
+  --cmh-navy-deep: #081832;
+  --cmh-gold: #f2b705;
+  --cmh-gold-hot: #ffce3a;
+  --cmh-bone: #f3f1e9;
+  --cmh-ink: #0a0a0c;
+  --cmh-cream: #f4efe1;
+  --cmh-line: rgba(243, 241, 233, 0.16);
+  --cmh-line-gold: rgba(242, 183, 5, 0.42);
+
+  --cmh-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --cmh-mono: "Chivo Mono", "SFMono-Regular", Consolas, monospace;
+
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--cmh-navy-deep);
+  color: var(--cmh-bone);
+  font-family: var(--cmh-display);
+  line-height: 1.5;
+}
+
+/* The seam. Once, behind everything. */
+.cmh-cut {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(112deg, var(--cmh-navy) 0 52%, var(--cmh-gold) 52% 100%);
+  opacity: 0.1;
+}
+
+.cmh-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(1.4rem, 4vw, 2.6rem) clamp(1rem, 4vw, 2.4rem) 5rem;
+}
+
+.cmh-back {
+  display: inline-block;
+  font-family: var(--cmh-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.66);
+  text-decoration: none;
+}
+
+.cmh-back:hover {
+  color: var(--cmh-gold);
+}
+
+/* ------------------------------------------------------------------- head */
+
+.cmh-head {
+  padding: 2.2rem 0 1.6rem;
+  border-bottom: 1px solid var(--cmh-line-gold);
+  margin-bottom: 2rem;
+}
+
+.cmh-kicker {
+  display: block;
+  font-family: var(--cmh-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--cmh-gold);
+}
+
+.cmh-title {
+  margin: 0.5rem 0 0;
+  font-weight: 900;
+  font-size: clamp(2.2rem, 7vw, 4rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.cmh-lead {
+  margin: 0.9rem 0 0;
+  max-width: 54ch;
+  color: rgba(243, 241, 233, 0.72);
+}
+
+/* ------------------------------------------------------------------ cards */
+
+.cmh-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.2rem;
+}
+
+.cmh-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.5rem clamp(1.1rem, 3vw, 1.6rem) 1.6rem;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--cmh-line);
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.cmh-card:hover {
+  border-color: var(--cmh-line-gold);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* The palette you are walking into, as a bar across the top of the card. */
+.cmh-card__swatch {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.cmh-card--deep .cmh-card__swatch {
+  background: linear-gradient(90deg, var(--cmh-cream) 0 62%, #d8a11d 62% 100%);
+}
+
+.cmh-card--quick .cmh-card__swatch {
+  background: linear-gradient(90deg, var(--cmh-navy) 0 62%, var(--cmh-gold) 62% 100%);
+}
+
+.cmh-card--manager .cmh-card__swatch {
+  background: linear-gradient(90deg, var(--cmh-navy) 0 38%, var(--cmh-gold) 38% 46%, var(--cmh-navy) 46% 100%);
+}
+
+.cmh-card__name {
+  margin: 0;
+  font-weight: 900;
+  font-size: clamp(1.3rem, 3.4vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.cmh-card__tag {
+  margin: 0.45rem 0 0;
+  font-family: var(--cmh-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cmh-gold);
+}
+
+/* ----------------------------------------------------------------- tokens */
+
+/* The two grains, drawn rather than described: thirty laps of one race, or
+   four seasons of Grands Prix. */
+.cmh-card__token {
+  display: flex;
+  align-items: center;
+  min-height: 74px;
+  padding: 0.7rem 0.8rem;
+  background: var(--cmh-navy-deep);
+  border: 1px solid var(--cmh-line);
+}
+
+.cmh-laps {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  width: 100%;
+}
+
+.cmh-laps i {
+  flex: 1;
+  height: 26px;
+  background: rgba(243, 241, 233, 0.22);
+}
+
+.cmh-laps i.is-now {
+  height: 40px;
+  background: var(--cmh-gold);
+}
+
+.cmh-seasons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.cmh-seasons__row {
+  display: flex;
+  gap: 3px;
+}
+
+.cmh-seasons i {
+  flex: 1;
+  height: 9px;
+  border: 1px solid rgba(243, 241, 233, 0.28);
+}
+
+.cmh-seasons i.is-p {
+  background: rgba(243, 241, 233, 0.22);
+  border-color: rgba(243, 241, 233, 0.45);
+}
+
+.cmh-seasons i.is-P {
+  border-color: var(--cmh-gold);
+}
+
+.cmh-seasons i.is-W {
+  background: var(--cmh-gold);
+  border-color: var(--cmh-gold);
+}
+
+.cmh-grid {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  width: 100%;
+  height: 48px;
+}
+
+.cmh-grid i {
+  flex: 1;
+  background: rgba(243, 241, 233, 0.22);
+}
+
+.cmh-grid i.is-mine {
+  background: var(--cmh-gold);
+}
+
+/* ------------------------------------------------------------------ copy */
+
+.cmh-card__copy {
+  margin: 0;
+  font-size: 0.92rem;
+  color: rgba(243, 241, 233, 0.78);
+}
+
+.cmh-card__points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cmh-card__points li {
+  position: relative;
+  padding-left: 1rem;
+  font-family: var(--cmh-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: rgba(243, 241, 233, 0.6);
+}
+
+.cmh-card__points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 6px;
+  height: 1px;
+  background: var(--cmh-gold);
+}
+
+.cmh-cta {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.85rem 1.8rem;
+  background: var(--cmh-gold);
+  color: var(--cmh-ink);
+  font-weight: 900;
+  font-size: 0.86rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  transition: background 140ms ease, transform 140ms ease;
+}
+
+.cmh-cta:hover {
+  background: var(--cmh-gold-hot);
+  color: var(--cmh-ink);
+  transform: translateX(3px);
+}
+
+.cmh-free {
+  margin: 1.6rem 0 0;
+  font-family: var(--cmh-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(243, 241, 233, 0.45);
+}
+
+.cmh-root :focus-visible {
+  outline: 2px solid var(--cmh-gold-hot);
+  outline-offset: 2px;
+}
+
+/* The route reserves room for the page-level ad bar the same way the games do. */
+.overcut-ad-layout--bottom .cmh-root {
+  padding-bottom: 6.5rem;
+}
+
+@media (max-width: 640px) {
+  .cmh-cta {
+    align-self: stretch;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmh-root *,
+  .cmh-root *::before,
+  .cmh-root *::after {
+    transition-duration: 0.001ms !important;
+  }
+}

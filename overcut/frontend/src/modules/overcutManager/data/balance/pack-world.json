@@ -1,0 +1,33 @@
+{
+  "$comment": "RNF-07: coeficientes que convierten los ratings v1-qualifying-gap de un pack de temporada (SRS 6.3) en el mundo del Manager (RF-CAR-02, RF-STF-03). Se ajustan en las pruebas de balance (fase 5), no en el código.",
+  "version": 1,
+  "car": {
+    "$comment": "carRating = base(año) + spread(año) × score, con score = posición del paceIndex entre el peor (0) y el mejor (1) del pack. base y spread siguen la escala de Trayectoria para que un año con pack y uno sin pack sean comparables.",
+    "baseFrom": 48, "baseTo": 68, "baseMin": 46, "baseMax": 70,
+    "spreadFrom": 46, "spreadTo": 22, "spreadMin": 20, "spreadMax": 48,
+    "yearFrom": 1950, "yearSpan": 75,
+    "ratingMin": 30, "ratingMax": 100
+  },
+  "reliability": {
+    "$comment": "Probabilidad de acabar = 1 − (abandonos mecánicos + otros) / salidas, con un suavizado bayesiano hacia la media de la era (priorStarts salidas ficticias).",
+    "priorStarts": 12,
+    "min": 0.28,
+    "max": 0.985
+  },
+  "development": {
+    "$comment": "devSlope (escala de Trayectoria, σ≈2,4) = (gap mediano de la 1.ª mitad − gap de la 2.ª mitad, en % a la pole) × perGapPct. Positivo = el coche mejoró durante el año (ancla guiada, SRS 6.1).",
+    "perGapPct": 3.0,
+    "min": -6,
+    "max": 6
+  },
+  "driver": {
+    "$comment": "rating = base + carWeight × score del equipo + mateWeight × (teammateIndex − mateNeutral). Sin duelo con compañero (un solo piloto o sin clasificaciones), teammateIndex = mateNeutral.",
+    "base": 63,
+    "carWeight": 13,
+    "mateWeight": 0.55,
+    "mateNeutral": 75,
+    "min": 45,
+    "max": 96,
+    "reserveSalaryShare": 0.35
+  }
+}

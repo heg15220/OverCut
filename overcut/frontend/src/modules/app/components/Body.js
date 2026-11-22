@@ -62,7 +62,9 @@ import CategoryGame from "../../categoryGame/components/CategoryGame";
 import WordSearchGame from '../../wordSearch/components/WordSearchGame';
 import OvercutRacing from "../../overcutRacing/components/OvercutRacing";
 import CareerMode from "../../careerMode/components/CareerMode";
+import CareerModeHome from "../../careerMode/components/CareerModeHome";
 import OvercutTrayectoria from "../../overcutTrayectoria/components/OvercutTrayectoria";
+import OvercutManager from "../../overcutManager/components/OvercutManager";
 
 
 import { AddImage, CreatePost, ModifyPost, PostDetails, UserPostList, PostSectionEditor,
@@ -159,6 +161,26 @@ const Body = () => {
                     {loggedIn && <Route path="/minigames/careerMode" element={withAdVignettes(<CareerMode />, "games", "bottom")} />}
                     {loggedIn && <Route path="/minigames/trayectoria" element={withAdVignettes(<OvercutTrayectoria />, "games", "bottom")} />}
                     <Route path="/minigames/wordSearch" element={withAdVignettes(<WordSearchGame />, "games")} />
+
+                    {/* Career Mode hub (SRS fase 0): two driver careers and the
+                        team manager hang off /careerMode. Open, no account. The
+                        /minigames routes above stay as they were. */}
+                    <Route
+                        path="/careerMode"
+                        element={withAdVignettes(<CareerModeHome />, "games", "bottom")}
+                    />
+                    <Route
+                        path="/careerMode/deep"
+                        element={withAdVignettes(<CareerMode />, "games", "bottom")}
+                    />
+                    <Route
+                        path="/careerMode/trayectoria"
+                        element={withAdVignettes(<OvercutTrayectoria backTo="/careerMode" />, "games", "bottom")}
+                    />
+                    <Route
+                        path="/careerMode/manager"
+                        element={withAdVignettes(<OvercutManager backTo="/careerMode" />, "games", "bottom")}
+                    />
                     <Route path="/verify-email" element={<EmailVerificationPage />} />
                     <Route path="/email-confirmation" element={<EmailConfirmationPending />} />
                     {loggedIn && <Route path="/users/profile" element={<UserDetails />} />}

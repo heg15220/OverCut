@@ -58,7 +58,7 @@ const loadBootstrap = async () => {
   }
 };
 
-export const OvercutTrayectoria = () => {
+export const OvercutTrayectoria = ({ backTo = "/minigames" }) => {
   const [bootstrap, setBootstrap] = useState(null);
   const [career, setCareer] = useState(null);
   const contextRef = useRef(null);
@@ -163,7 +163,7 @@ export const OvercutTrayectoria = () => {
       <div className="tr-cut" aria-hidden="true" />
 
       <header className="tr-top">
-        <Link className="tr-top__back" to="/minigames">
+        <Link className="tr-top__back" to={backTo}>
           {t.back}
         </Link>
         <Brand />

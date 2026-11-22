@@ -1,0 +1,66 @@
+{
+  "_doc": "Restricciones de coherencia por era (SRS 6.2, criterio 7.2: ninguna regla fuera de su era). El validador comprueba el reglamento de cada pack contra todas las reglas cuyo rango de años incluye la temporada. Valores de memoria salvo los marcados 'source'. Corrección respecto al SRS: en 2010-2013 los diez primeros salen con el neumático de Q3, no de Q2.",
+  "rules": [
+    { "field": "refuelling", "from": 1984, "to": 1993, "equals": false },
+    { "field": "refuelling", "from": 1994, "to": 2009, "equals": true },
+    { "field": "refuelling", "from": 2010, "to": 2026, "equals": false },
+
+    { "field": "energySystem", "from": 1950, "to": 2008, "equals": "none" },
+    { "field": "energySystem", "from": 2009, "to": 2009, "oneOf": ["none", "kers"] },
+    { "field": "energySystem", "from": 2010, "to": 2010, "equals": "none" },
+    { "field": "energySystem", "from": 2011, "to": 2013, "equals": "kers" },
+    { "field": "energySystem", "from": 2014, "to": 2025, "equals": "ers" },
+    { "field": "energySystem", "from": 2026, "to": 2026, "equals": "ers2026" },
+
+    { "field": "drs", "from": 1950, "to": 2010, "equals": false },
+    { "field": "drs", "from": 2011, "to": 2025, "equals": true },
+    { "field": "drs", "from": 2026, "to": 2026, "equals": false },
+    { "field": "activeAero", "from": 1950, "to": 2025, "equals": false },
+    { "field": "activeAero", "from": 2026, "to": 2026, "equals": true },
+
+    { "field": "safetyCar", "from": 1993, "to": 2026, "equals": true },
+    { "field": "vsc", "from": 1950, "to": 2014, "equals": false },
+    { "field": "vsc", "from": 2015, "to": 2026, "equals": true },
+
+    { "field": "tyreType", "from": 1976, "to": 1997, "equals": "slick" },
+    { "field": "tyreType", "from": 1998, "to": 2008, "equals": "grooved", "source": "https://en.wikipedia.org/wiki/2008_Formula_One_World_Championship" },
+    { "field": "tyreType", "from": 2009, "to": 2026, "equals": "slick" },
+    { "field": "tyreChangesInRace", "from": 2005, "to": 2005, "equals": false, "source": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship" },
+    { "field": "tyreChangesInRace", "from": 2006, "to": 2026, "equals": true },
+    { "field": "mandatoryDryCompounds", "from": 1950, "to": 2006, "equals": 0 },
+    { "field": "mandatoryDryCompounds", "from": 2007, "to": 2026, "equals": 2 },
+    { "field": "topTenStartTyres", "from": 1950, "to": 2009, "equals": "none" },
+    { "field": "topTenStartTyres", "from": 2010, "to": 2013, "equals": "Q3", "source": "https://en.wikipedia.org/wiki/Formula_One_tyres" },
+    { "field": "topTenStartTyres", "from": 2014, "to": 2021, "equals": "Q2" },
+    { "field": "topTenStartTyres", "from": 2022, "to": 2026, "equals": "none" },
+
+    { "field": "pointsScheme.race", "from": 1991, "to": 2002, "equals": [10, 6, 4, 3, 2, 1] },
+    { "field": "pointsScheme.race", "from": 2003, "to": 2009, "equals": [10, 8, 6, 5, 4, 3, 2, 1] },
+    { "field": "pointsScheme.race", "from": 2010, "to": 2026, "equals": [25, 18, 15, 12, 10, 8, 6, 4, 2, 1] },
+    { "field": "pointsScheme.fastestLap", "from": 1960, "to": 2018, "equals": 0 },
+    { "field": "pointsScheme.fastestLap", "from": 2019, "to": 2024, "equals": 1 },
+    { "field": "pointsScheme.fastestLap", "from": 2025, "to": 2026, "equals": 0 },
+    { "field": "pointsScheme.constructorsBestCarOnly", "from": 1979, "to": 2026, "equals": false },
+    { "field": "pointsScheme.bestResults", "from": 1991, "to": 2026, "equals": null },
+
+    { "field": "budgetCap", "from": 1950, "to": 2020, "equals": null },
+    { "field": "budgetCap", "from": 2021, "to": 2026, "notNull": true },
+    { "field": "aeroTestingRestriction", "from": 1950, "to": 2020, "equals": false },
+    { "field": "aeroTestingRestriction", "from": 2021, "to": 2026, "equals": true },
+
+    { "field": "teamOrdersBanned", "from": 2002, "to": 2010, "equals": true },
+    { "field": "teamOrdersBanned", "from": 2011, "to": 2026, "equals": false },
+    { "field": "rule107", "from": 2003, "to": 2010, "equals": false },
+    { "field": "rule107", "from": 2011, "to": 2026, "equals": true },
+    { "field": "parcFerme", "from": 2003, "to": 2026, "equals": true },
+    { "field": "sprintWeekends", "from": 1950, "to": 2020, "equals": 0 },
+
+    { "field": "engineFormula", "from": 2000, "to": 2005, "equals": "3.0 V10" },
+    { "field": "engineFormula", "from": 2006, "to": 2013, "equals": "2.4 V8" },
+    { "field": "engineFormula", "from": 2014, "to": 2025, "equals": "1.6 V6 turbo hybrid" },
+
+    { "field": "qualifyingFormats", "from": 2003, "to": 2004, "subsetOf": ["ONE_LAP"] },
+    { "field": "qualifyingFormats", "from": 2005, "to": 2005, "subsetOf": ["AGGREGATE", "ONE_LAP"] },
+    { "field": "qualifyingFormats", "from": 2006, "to": 2026, "subsetOf": ["KNOCKOUT"] }
+  ]
+}

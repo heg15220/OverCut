@@ -1,0 +1,39 @@
+{
+  "_doc": "Eventos históricos curados a mano (SRS 6.3/6.4, RF-INB-02). anchor: fixed = no se puede alterar; guided = la simulación tiende a ello en modo estricto. kind: constraint = condiciona la simulación (se comprueba contra los datos en packs.test.js); note = solo noticia. sensitive=true obliga a tratarlo como nota sobria (RF-HIS-00). verification: 'data' = comprobado contra f1db en los tests; 'pending' = de memoria, falta abrir la fuente.",
+  "2005": [
+    { "id": "2005-qualifying-one-lap", "date": "2005-05-29", "round": 7, "anchor": "fixed", "kind": "constraint", "sensitive": false, "verification": "data",
+      "title": { "es": "La clasificación deja de sumar dos sesiones: desde el GP de Europa es una sola vuelta el sábado", "en": "Qualifying stops aggregating two runs: from the European GP it is a single Saturday lap" },
+      "source": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship" },
+    { "id": "2005-usa-michelin", "date": "2005-06-19", "round": 9, "anchor": "fixed", "kind": "constraint", "sensitive": false, "verification": "data",
+      "title": { "es": "Indianápolis: los equipos con Michelin se retiran tras la vuelta de formación y solo corren 6 coches", "en": "Indianapolis: the Michelin teams pull out after the formation lap and only 6 cars race" },
+      "source": "https://en.wikipedia.org/wiki/2005_United_States_Grand_Prix" },
+    { "id": "2005-alonso-champion", "date": "2005-09-25", "round": 17, "anchor": "guided", "kind": "note", "sensitive": false, "verification": "data",
+      "title": { "es": "Alonso se proclama campeón en Brasil y Renault gana después el título de constructores", "en": "Alonso clinches the title in Brazil and Renault later takes the constructors' crown" },
+      "source": "https://en.wikipedia.org/wiki/2005_Formula_One_World_Championship" }
+  ],
+  "2008": [
+    { "id": "2008-super-aguri-withdraws", "date": "2008-05-06", "round": null, "anchor": "fixed", "kind": "constraint", "sensitive": false, "verification": "data",
+      "title": { "es": "Super Aguri abandona la Fórmula 1 tras el GP de España por falta de financiación", "en": "Super Aguri leaves Formula 1 after the Spanish GP for lack of funding" },
+      "source": "https://en.wikipedia.org/wiki/Super_Aguri_F1" },
+    { "id": "2008-singapore-night-race", "date": "2008-09-28", "round": 15, "anchor": "fixed", "kind": "note", "sensitive": false, "verification": "pending",
+      "title": { "es": "Primer Gran Premio nocturno de la historia, en Marina Bay", "en": "The first night race in Formula 1 history, at Marina Bay" },
+      "source": "https://en.wikipedia.org/wiki/2008_Singapore_Grand_Prix" },
+    { "id": "2008-hamilton-champion", "date": "2008-11-02", "round": 18, "anchor": "guided", "kind": "note", "sensitive": false, "verification": "data",
+      "title": { "es": "Hamilton gana el título por un punto en la última vuelta de Interlagos; Ferrari, campeón de constructores", "en": "Hamilton wins the title by one point on the final lap at Interlagos; Ferrari take the constructors' title" },
+      "source": "https://en.wikipedia.org/wiki/2008_Formula_One_World_Championship" }
+  ],
+  "2012": [
+    { "id": "2012-seven-winners", "date": "2012-06-10", "round": 7, "anchor": "guided", "kind": "note", "sensitive": false, "verification": "data",
+      "title": { "es": "Siete ganadores distintos en las siete primeras carreras", "en": "Seven different winners in the first seven races" },
+      "source": "https://en.wikipedia.org/wiki/2012_Formula_One_World_Championship" },
+    { "id": "2012-grosjean-ban", "date": "2012-09-02", "round": 12, "anchor": "fixed", "kind": "constraint", "sensitive": false, "verification": "data",
+      "title": { "es": "Grosjean, sancionado con una carrera por el choque de la salida en Spa; D'Ambrosio le sustituye en Monza", "en": "Grosjean is banned for one race over the Spa start crash; D'Ambrosio replaces him at Monza" },
+      "source": "https://en.wikipedia.org/wiki/2012_Belgian_Grand_Prix" },
+    { "id": "2012-austin-debut", "date": "2012-11-18", "round": 19, "anchor": "fixed", "kind": "note", "sensitive": false, "verification": "data",
+      "title": { "es": "El GP de Estados Unidos vuelve, en el nuevo Circuito de las Américas", "en": "The United States GP returns, at the new Circuit of the Americas" },
+      "source": "https://en.wikipedia.org/wiki/2012_United_States_Grand_Prix" },
+    { "id": "2012-vettel-champion", "date": "2012-11-25", "round": 20, "anchor": "guided", "kind": "note", "sensitive": false, "verification": "data",
+      "title": { "es": "Vettel, tricampeón en Brasil por tres puntos sobre Alonso", "en": "Vettel takes his third title in Brazil, three points ahead of Alonso" },
+      "source": "https://en.wikipedia.org/wiki/2012_Formula_One_World_Championship" }
+  ]
+}

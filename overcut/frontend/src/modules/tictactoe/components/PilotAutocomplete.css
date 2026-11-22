@@ -62,7 +62,7 @@
   color: #ffffff;
 }
 
-/@media (max-width: 600px) {
+@media (max-width: 600px) {
    .autocomplete-container {
      max-width: 90%;
      padding: 1rem;
