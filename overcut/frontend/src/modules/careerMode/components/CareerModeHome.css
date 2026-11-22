@@ -1,175 +1,172 @@
 /**
  * The Career Mode door.
  *
- * OverCut's own colours and its one hard diagonal, because this screen belongs
- * to neither of the two modes behind it. Each card carries a swatch of the
- * palette you are about to walk into - paddock cream for the deep career, the
- * navy read-out for the quick one - so the choice is visible as well as read.
+ * OverCut's identity as docs/manager/DESIGN.md sets it: surfaces of a
+ * navy-tinted graphite, bone text, gold as the one accent, hairlines instead
+ * of shadows, Archivo with its width axis for the headings and Chivo Mono only
+ * for figures. Both families are linked once from public/index.html. The
+ * values below mirror the manager's tokens (this screen lives outside
+ * .mn-root, so it keeps its own copy under the cmh- prefix).
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;800;900&family=Chivo+Mono:wght@400;600;700&display=swap");
-
 .cmh-root {
-  --cmh-navy: #10294f;
-  --cmh-navy-deep: #081832;
-  --cmh-gold: #f2b705;
-  --cmh-gold-hot: #ffce3a;
-  --cmh-bone: #f3f1e9;
-  --cmh-ink: #0a0a0c;
+  --cmh-bg: #0b111b;
+  --cmh-surface-0: #0e1520;
+  --cmh-surface-1: #131c2b;
+  --cmh-surface-2: #1a2436;
+  --cmh-surface-3: #222e43;
+  --cmh-hairline: rgba(226, 232, 242, 0.08);
+  --cmh-hairline-strong: rgba(226, 232, 242, 0.14);
+  --cmh-text: #f1efe8;
+  --cmh-text-2: #a9b2c1;
+  --cmh-text-3: #808ca2;
+  --cmh-accent: #f2b705;
+  --cmh-accent-hover: #ffc933;
+  --cmh-accent-ink: #111317;
   --cmh-cream: #f4efe1;
-  --cmh-line: rgba(243, 241, 233, 0.16);
-  --cmh-line-gold: rgba(242, 183, 5, 0.42);
+  --cmh-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --cmh-cut: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 
-  --cmh-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --cmh-mono: "Chivo Mono", "SFMono-Regular", Consolas, monospace;
+  --cmh-font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cmh-mono: "Chivo Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
 
   position: relative;
   min-height: 100vh;
   overflow-x: hidden;
-  background: var(--cmh-navy-deep);
-  color: var(--cmh-bone);
-  font-family: var(--cmh-display);
+  background: var(--cmh-bg);
+  color: var(--cmh-text);
+  font-family: var(--cmh-font);
+  font-size: 0.875rem;
   line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* The seam. Once, behind everything. */
-.cmh-cut {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(112deg, var(--cmh-navy) 0 52%, var(--cmh-gold) 52% 100%);
-  opacity: 0.1;
+.cmh-root *,
+.cmh-root *::before,
+.cmh-root *::after {
+  box-sizing: border-box;
 }
 
 .cmh-shell {
-  position: relative;
-  z-index: 1;
-  max-width: 1080px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: clamp(1.4rem, 4vw, 2.6rem) clamp(1rem, 4vw, 2.4rem) 5rem;
+  padding: 24px 24px 64px;
+  animation: cmh-rise 280ms var(--cmh-ease) both;
+}
+
+@keyframes cmh-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
 }
 
 .cmh-back {
-  display: inline-block;
-  font-family: var(--cmh-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(243, 241, 233, 0.66);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  color: var(--cmh-text-2);
+  font-size: 0.8125rem;
   text-decoration: none;
+  transition: color 120ms var(--cmh-ease);
 }
 
 .cmh-back:hover {
-  color: var(--cmh-gold);
+  color: var(--cmh-text);
 }
 
 /* ------------------------------------------------------------------- head */
 
 .cmh-head {
-  padding: 2.2rem 0 1.6rem;
-  border-bottom: 1px solid var(--cmh-line-gold);
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 32px 0 32px;
 }
 
 .cmh-kicker {
-  display: block;
-  font-family: var(--cmh-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--cmh-gold);
+  color: var(--cmh-accent);
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 .cmh-title {
-  margin: 0.5rem 0 0;
-  font-weight: 900;
-  font-size: clamp(2.2rem, 7vw, 4rem);
-  line-height: 0.9;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-stretch: 112%;
+  line-height: 1.05;
+  letter-spacing: 0;
 }
 
 .cmh-lead {
-  margin: 0.9rem 0 0;
-  max-width: 54ch;
-  color: rgba(243, 241, 233, 0.72);
+  max-width: 56ch;
+  margin: 4px 0 0;
+  color: var(--cmh-text-2);
+  font-size: 1rem;
 }
 
 /* ------------------------------------------------------------------ cards */
 
 .cmh-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .cmh-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-  padding: 1.5rem clamp(1.1rem, 3vw, 1.6rem) 1.6rem;
-  background: rgba(255, 255, 255, 0.045);
-  border: 1px solid var(--cmh-line);
-  transition: border-color 140ms ease, background 140ms ease;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--cmh-hairline);
+  border-radius: 6px;
+  background: var(--cmh-surface-1);
+  transition: border-color 120ms var(--cmh-ease), background-color 120ms var(--cmh-ease);
 }
 
-.cmh-card:hover {
-  border-color: var(--cmh-line-gold);
-  background: rgba(255, 255, 255, 0.07);
+.cmh-card:hover,
+.cmh-card:focus-within {
+  border-color: var(--cmh-hairline-strong);
+  background: var(--cmh-surface-2);
 }
 
-/* The palette you are walking into, as a bar across the top of the card. */
-.cmh-card__swatch {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-}
-
-.cmh-card--deep .cmh-card__swatch {
-  background: linear-gradient(90deg, var(--cmh-cream) 0 62%, #d8a11d 62% 100%);
-}
-
-.cmh-card--quick .cmh-card__swatch {
-  background: linear-gradient(90deg, var(--cmh-navy) 0 62%, var(--cmh-gold) 62% 100%);
-}
-
-.cmh-card--manager .cmh-card__swatch {
-  background: linear-gradient(90deg, var(--cmh-navy) 0 38%, var(--cmh-gold) 38% 46%, var(--cmh-navy) 46% 100%);
+.cmh-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .cmh-card__name {
   margin: 0;
-  font-weight: 900;
-  font-size: clamp(1.3rem, 3.4vw, 1.75rem);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
+  font-size: 1.75rem;
+  font-weight: 600;
+  font-stretch: 110%;
+  line-height: 1.1;
+  letter-spacing: 0;
 }
 
 .cmh-card__tag {
-  margin: 0.45rem 0 0;
-  font-family: var(--cmh-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--cmh-gold);
+  margin: 0;
+  color: var(--cmh-text-2);
+  font-size: 0.8125rem;
 }
 
 /* ----------------------------------------------------------------- tokens */
 
-/* The two grains, drawn rather than described: thirty laps of one race, or
-   four seasons of Grands Prix. */
+/* The grain of each mode, drawn: thirty laps of one race, four seasons of
+   Grands Prix, or a grid of cars with yours in gold. */
 .cmh-card__token {
   display: flex;
   align-items: center;
-  min-height: 74px;
-  padding: 0.7rem 0.8rem;
-  background: var(--cmh-navy-deep);
-  border: 1px solid var(--cmh-line);
+  min-height: 88px;
+  padding: 16px;
+  border: 1px solid var(--cmh-hairline);
+  border-radius: 4px;
+  background: var(--cmh-surface-0);
 }
 
 .cmh-laps {
@@ -177,17 +174,19 @@
   align-items: flex-end;
   gap: 3px;
   width: 100%;
+  height: 48px;
 }
 
 .cmh-laps i {
   flex: 1;
-  height: 26px;
-  background: rgba(243, 241, 233, 0.22);
+  height: 28px;
+  border-radius: 1px;
+  background: var(--cmh-surface-3);
 }
 
 .cmh-laps i.is-now {
-  height: 40px;
-  background: var(--cmh-gold);
+  height: 48px;
+  background: var(--cmh-accent);
 }
 
 .cmh-seasons {
@@ -205,108 +204,118 @@
 .cmh-seasons i {
   flex: 1;
   height: 9px;
-  border: 1px solid rgba(243, 241, 233, 0.28);
+  border-radius: 1px;
+  background: var(--cmh-surface-3);
+}
+
+.cmh-seasons i.is-none {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--cmh-hairline-strong);
 }
 
 .cmh-seasons i.is-p {
-  background: rgba(243, 241, 233, 0.22);
-  border-color: rgba(243, 241, 233, 0.45);
+  background: #3a4860;
 }
 
 .cmh-seasons i.is-P {
-  border-color: var(--cmh-gold);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--cmh-accent);
 }
 
 .cmh-seasons i.is-W {
-  background: var(--cmh-gold);
-  border-color: var(--cmh-gold);
+  background: var(--cmh-accent);
 }
 
 .cmh-grid {
   display: flex;
   align-items: flex-end;
-  gap: 5px;
+  gap: 6px;
   width: 100%;
-  height: 48px;
+  height: 52px;
 }
 
 .cmh-grid i {
   flex: 1;
-  background: rgba(243, 241, 233, 0.22);
+  border-radius: 1px;
+  background: var(--cmh-surface-3);
 }
 
 .cmh-grid i.is-mine {
-  background: var(--cmh-gold);
+  background: var(--cmh-accent);
 }
 
 /* ------------------------------------------------------------------ copy */
 
 .cmh-card__copy {
   margin: 0;
-  font-size: 0.92rem;
-  color: rgba(243, 241, 233, 0.78);
+  color: var(--cmh-text-2);
+  font-size: 0.875rem;
+  line-height: 1.55;
 }
 
 .cmh-card__points {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--cmh-hairline);
+  list-style: none;
 }
 
 .cmh-card__points li {
-  position: relative;
-  padding-left: 1rem;
-  font-family: var(--cmh-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
-  color: rgba(243, 241, 233, 0.6);
-}
-
-.cmh-card__points li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.5em;
-  width: 6px;
-  height: 1px;
-  background: var(--cmh-gold);
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--cmh-hairline);
+  color: var(--cmh-text);
+  font-size: 0.8125rem;
 }
 
 .cmh-cta {
-  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: auto;
-  padding: 0.85rem 1.8rem;
-  background: var(--cmh-gold);
-  color: var(--cmh-ink);
-  font-weight: 900;
-  font-size: 0.86rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  min-height: 44px;
+  padding: 0 22px 0 16px;
+  border: 1px solid var(--cmh-hairline-strong);
+  border-radius: 4px 0 0 4px;
+  background: var(--cmh-surface-2);
+  color: var(--cmh-text);
+  font-size: 0.875rem;
+  font-weight: 600;
   text-decoration: none;
-  clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
-  transition: background 140ms ease, transform 140ms ease;
+  clip-path: var(--cmh-cut);
+  transition: background-color 120ms var(--cmh-ease), border-color 120ms var(--cmh-ease), color 120ms var(--cmh-ease);
+}
+
+/* The card you are on lends its action the gold. */
+.cmh-card:hover .cmh-cta,
+.cmh-cta:focus-visible {
+  border-color: var(--cmh-accent);
+  background: var(--cmh-accent);
+  color: var(--cmh-accent-ink);
 }
 
 .cmh-cta:hover {
-  background: var(--cmh-gold-hot);
-  color: var(--cmh-ink);
-  transform: translateX(3px);
+  background: var(--cmh-accent-hover);
+  color: var(--cmh-accent-ink);
+}
+
+.cmh-cta:active {
+  transform: translateY(1px);
 }
 
 .cmh-free {
-  margin: 1.6rem 0 0;
-  font-family: var(--cmh-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(243, 241, 233, 0.45);
+  margin: 24px 0 0;
+  color: var(--cmh-text-3);
+  font-size: 0.8125rem;
 }
 
 .cmh-root :focus-visible {
-  outline: 2px solid var(--cmh-gold-hot);
+  outline: 2px solid var(--cmh-accent);
   outline-offset: 2px;
 }
 
@@ -315,10 +324,44 @@
   padding-bottom: 6.5rem;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1100px) {
+  .cmh-cards {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 640px;
+  }
+}
+
+@media (max-width: 760px) {
+  .cmh-shell {
+    padding: 16px 16px 48px;
+  }
+
+  .cmh-head {
+    padding: 20px 0 24px;
+  }
+
+  .cmh-title {
+    font-size: 1.75rem;
+  }
+
+  .cmh-lead {
+    font-size: 0.875rem;
+  }
+
+  .cmh-cards {
+    gap: 12px;
+  }
+
+  .cmh-card {
+    padding: 16px;
+  }
+
+  .cmh-card__name {
+    font-size: 1.25rem;
+  }
+
   .cmh-cta {
-    align-self: stretch;
-    text-align: center;
+    width: 100%;
   }
 }
 
@@ -326,6 +369,7 @@
   .cmh-root *,
   .cmh-root *::before,
   .cmh-root *::after {
+    animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
 }

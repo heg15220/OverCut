@@ -784,3 +784,63 @@ FINANCE_INBOX["history-event"] = {
 const NEWS_EXTRA = {
   "history-event": (career, item) => `${historyLabel(item)}: ${historyText(item).title || item.eventId}`,
 };
+
+// ------------------------------------------------ game mode (RF-CAR-05, append-only)
+
+/** The two historical modes of a career, as the wizard and the desk name them. */
+export const GAME_MODE = {
+  strict: {
+    name: () => t("Histórico estricto", "Strict history"),
+    copy: () =>
+      t(
+        "Los rivales que no alteres corren como en la realidad: sus resultados, fichajes y retiradas tienden a los de aquel año.",
+        "The rivals you leave alone race as they really did: their results, signings and retirements lean toward that year's.",
+      ),
+  },
+  free: {
+    name: () => t("Libre", "Free"),
+    copy: () =>
+      t(
+        "La historia solo marca la salida: desde la primera carrera los rivales evolucionan según la simulación y tus decisiones.",
+        "History is only the starting grid: from the first race the rivals evolve with the simulation and your decisions.",
+      ),
+  },
+  fixed: () =>
+    t(
+      "En los dos modos la parrilla de cada Gran Premio, el calendario, el reglamento y los puntos son los reales.",
+      "In both modes each Grand Prix's entry list, the calendar, the regulations and the points are the real ones.",
+    ),
+};
+
+// ------------------------------------------------ data screens (Office, Market, Calendar)
+
+/** Short names for the HQ effect keys; the long description stays in hq.json for the tooltip. */
+export const HQ_EFFECT_SHORT = {
+  manufacturingSlots: () => t("Proyectos en paralelo", "Parallel projects"),
+  manufacturingCost: () => t("Coste de fabricación", "Manufacturing cost"),
+  designSpeed: () => t("Velocidad de diseño", "Design speed"),
+  expertiseGain: () => t("Ganancia de expertise", "Expertise gain"),
+  tunnelEfficiency: () => t("Rendimiento del túnel", "Tunnel yield"),
+  cfdEfficiency: () => t("Rendimiento del CFD", "CFD yield"),
+  setupKnowledge: () => t("Reglaje por tanda", "Setup per run"),
+  forecastAccuracy: () => t("Precisión del pronóstico", "Forecast accuracy"),
+  hospitalityIncome: () => t("Hospitality por GP", "Hospitality per GP"),
+  fanGrowth: () => t("Afición por GP", "Fans per GP"),
+  pitStopBonus: () => t("Equipo de boxes", "Pit crew"),
+  reliabilityGain: () => t("Fiabilidad por temporada", "Reliability per season"),
+};
+
+/** Driver attribute names for the market card (ATTRIBUTE_KEYS of overcutTrayectoria). */
+export const DRIVER_ATTRIBUTE = {
+  pace: () => t("Ritmo", "Pace"),
+  qualifying: () => t("Clasificación", "Qualifying"),
+  racecraft: () => t("Pelea en carrera", "Racecraft"),
+  consistency: () => t("Regularidad", "Consistency"),
+  wet: () => t("Lluvia", "Wet"),
+  technical: () => t("Técnica", "Technical"),
+};
+
+/** Tyre makers by pack id. */
+export const TYRE_SUPPLIER = {
+  goodyear: "Goodyear", pirelli: "Pirelli", michelin: "Michelin", bridgestone: "Bridgestone", avon: "Avon", firestone: "Firestone", dunlop: "Dunlop",
+};

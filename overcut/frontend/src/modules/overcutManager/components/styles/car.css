@@ -1,0 +1,977 @@
+/**
+ * Car & R&D (components/Car.js). DESIGN.md §6.4 "Detail screen": the car on its
+ * stage is the screen's one moment; everything else is quiet tokens. All rules
+ * are scoped under .mn-carx and read the tokens of OvercutManager.css layer 1.
+ */
+
+.mn-carx {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-6);
+  min-width: 0;
+}
+
+.mn-carx__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--mn-s-4);
+  align-items: stretch;
+}
+
+.mn-carx-stage { grid-column: span 8; }
+.mn-carx-perf { grid-column: span 4; }
+.mn-carx-loadout { grid-column: span 5; }
+.mn-carx-part { grid-column: span 7; }
+.mn-carx-factory { grid-column: span 7; }
+.mn-carx-units { grid-column: span 5; }
+.mn-carx-supply,
+.mn-carx-expertise,
+.mn-carx-grid { grid-column: span 4; }
+.mn-carx__wide { grid-column: 1 / -1; }
+
+.mn-carx h4 {
+  font-size: var(--mn-fs-12);
+  font-weight: 500;
+  color: var(--mn-text-3);
+}
+
+.mn-carx-note {
+  font-size: var(--mn-fs-12);
+  line-height: 1.5;
+  color: var(--mn-text-3);
+}
+
+/* ------------------------------------------------------------ the stage */
+
+.mn-carx-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--mn-hairline);
+  border-top: 3px solid var(--team);
+  border-radius: var(--mn-r-3);
+  background: var(--mn-surface-0);
+}
+
+.mn-carx-stage__head {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--mn-s-4);
+  padding: var(--mn-s-5) var(--mn-s-6);
+  pointer-events: none;
+}
+
+.mn-carx-stage__head > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-1);
+  min-width: 0;
+}
+
+.mn-carx-stage__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.mn-carx-stage__head h2 {
+  font-size: var(--mn-fs-40);
+  font-weight: 700;
+  font-stretch: 112%;
+  line-height: 1;
+  color: var(--mn-text);
+}
+
+.mn-carx-stage__head p {
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-carx-stage__rating {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--mn-s-1);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-stage__floor {
+  position: relative;
+  height: clamp(360px, 34vw, 480px);
+  padding-top: 64px; /* room for the title block above the car */
+  display: grid;
+  place-items: center;
+}
+
+.mn-carx-stage__floor > svg,
+.mn-carx-stage__floor .mn-livery {
+  max-width: 88%;
+  height: auto;
+  margin-top: var(--mn-s-12);
+}
+
+.mn-carx-stage__floor .mn-showroom-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.mn-carx-stage__floor .mn-showroom {
+  height: 100% !important; /* Livery sets a pixel height inline; the stage decides it */
+}
+
+/* RF-3D-06: author and licence of the model on show. */
+.mn-carx-stage__floor .mn-showroom__credit,
+.mn-carx-stage__note {
+  position: absolute;
+  right: var(--mn-s-6);
+  bottom: var(--mn-s-4);
+  margin: 0;
+  font-size: var(--mn-fs-11);
+  line-height: 1.3;
+  color: var(--mn-text-3);
+  opacity: 1;
+  text-align: right;
+}
+
+.mn-carx-stage__floor .mn-showroom__credit a {
+  color: var(--mn-text-2);
+}
+
+.mn-carx-stage__note {
+  left: var(--mn-s-6);
+}
+
+/* ------------------------------------------------------- performance */
+
+.mn-carx-areas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mn-carx-areas li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mn-carx-areas__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text);
+}
+
+.mn-carx-areas__head small {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-areas__head b {
+  margin-left: auto;
+  font-size: var(--mn-fs-16);
+  font-weight: 600;
+}
+
+.mn-carx-areas p {
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.mn-carx-areas p span {
+  color: var(--mn-text-3);
+}
+
+.mn-carx-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--mn-s-2);
+  margin-top: auto;
+  padding-top: var(--mn-s-4);
+  border-top: 1px solid var(--mn-hairline);
+}
+
+.mn-carx-split div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mn-carx-split small {
+  overflow: hidden;
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mn-carx-split b {
+  font-size: var(--mn-fs-20);
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------- loadout */
+
+.mn-carx-loadout__cols,
+.mn-carx-loadout__list button {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: var(--mn-s-2);
+  padding: 0 var(--mn-s-5);
+}
+
+.mn-carx-loadout__cols {
+  min-height: 32px;
+  border-bottom: 1px solid var(--mn-hairline-strong);
+  font-size: var(--mn-fs-11);
+  font-weight: 500;
+  color: var(--mn-text-3);
+}
+
+.mn-carx-loadout__cols span:last-child,
+.mn-carx-loadout__delta {
+  text-align: right;
+}
+
+.mn-carx-loadout__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mn-carx-loadout__list button {
+  min-height: 40px;
+  border: 0;
+  border-bottom: 1px solid var(--mn-hairline);
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: var(--mn-text);
+  font: inherit;
+  font-size: var(--mn-fs-13);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--mn-dur-1) var(--mn-ease), border-color var(--mn-dur-1) var(--mn-ease);
+}
+
+.mn-carx-loadout__list button:hover {
+  background: var(--mn-surface-2);
+}
+
+.mn-carx-loadout__list button.is-active {
+  border-left-color: var(--mn-accent);
+  background: var(--mn-surface-3);
+}
+
+.mn-carx-loadout__list button:focus-visible {
+  outline: 2px solid var(--mn-accent);
+  outline-offset: -2px;
+}
+
+.mn-carx-loadout__part {
+  font-weight: 500;
+}
+
+.mn-carx-loadout__car {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.mn-carx-loadout__car b {
+  font-weight: 500;
+}
+
+.mn-carx-loadout__car small {
+  font-family: var(--mn-font);
+  font-size: var(--mn-fs-11);
+  color: var(--mn-info);
+}
+
+.mn-carx-loadout__delta {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+}
+
+.mn-carx-loadout__delta.is-neg { color: var(--mn-neg); }
+.mn-carx-loadout__delta.is-pos { color: var(--mn-pos); }
+
+.mn-carx-loadout .mn-carx-note {
+  padding: var(--mn-s-3) var(--mn-s-5) var(--mn-s-4);
+}
+
+.mn-carx-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--mn-text-3);
+}
+
+.mn-carx-dot.is-pos { background: var(--mn-pos); }
+.mn-carx-dot.is-warn { background: var(--mn-warn); }
+.mn-carx-dot.is-neg { background: var(--mn-neg); }
+
+/* ---------------------------------------------------------- the part */
+
+.mn-carx-part__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: var(--mn-s-6);
+}
+
+.mn-carx-part__stats,
+.mn-carx-part__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-3);
+  min-width: 0;
+}
+
+.mn-carx-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mn-carx-stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mn-carx-stats__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-13);
+}
+
+.mn-carx-stats__head b {
+  font-weight: 600;
+}
+
+.mn-carx-stats p {
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-stats em,
+.mn-carx-designs small {
+  font-style: normal;
+  font-family: var(--mn-mono);
+}
+
+.mn-carx .is-pos { color: var(--mn-pos); }
+.mn-carx .is-neg { color: var(--mn-neg); }
+
+.mn-carx-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-legend i {
+  width: 2px;
+  height: 12px;
+  background: var(--mn-text);
+}
+
+.mn-carx-designs,
+.mn-carx-fitted,
+.mn-carx-done,
+.mn-carx-rules,
+.mn-carx-exp,
+.mn-carx-pace,
+.mn-carx-unitset ul {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mn-carx-designs {
+  gap: var(--mn-s-2);
+}
+
+.mn-carx-designs li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-2);
+  padding: var(--mn-s-3);
+  border: 1px solid var(--mn-hairline);
+  border-radius: var(--mn-r-2);
+  background: var(--mn-surface-2);
+}
+
+.mn-carx-designs li.is-fitted {
+  border-color: var(--mn-accent-line);
+}
+
+.mn-carx-designs__head {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-13);
+}
+
+.mn-carx-designs__head b {
+  font-family: var(--mn-mono);
+  font-weight: 600;
+}
+
+.mn-carx-designs__head span {
+  color: var(--mn-text-2);
+}
+
+.mn-carx-designs__head .mn-tag2 {
+  margin-left: auto;
+}
+
+.mn-carx-designs__units {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+}
+
+.mn-carx-designs__units small {
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-designs__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mn-s-2);
+}
+
+.mn-carx-pips {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.mn-carx-pips i {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-1);
+  background: transparent;
+}
+
+.mn-carx-pips i.is-on {
+  border-color: transparent;
+  background: var(--mn-data);
+}
+
+.mn-carx-pips i.is-over {
+  border-color: transparent;
+  background: var(--mn-neg);
+}
+
+.mn-carx-fitted li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-2);
+  min-height: 40px;
+  border-bottom: 1px solid var(--mn-hairline);
+  font-size: var(--mn-fs-13);
+}
+
+.mn-carx-fitted li > span:first-child {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+.mn-carx-select {
+  min-height: 28px;
+  padding: 0 var(--mn-s-2);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  background: var(--mn-surface-0);
+  color: var(--mn-text);
+  font: inherit;
+  font-size: var(--mn-fs-12);
+}
+
+.mn-carx-select:focus-visible {
+  outline: 2px solid var(--mn-accent);
+  outline-offset: 1px;
+}
+
+.mn-carx-select option {
+  background: var(--mn-surface-1);
+  color: var(--mn-text);
+}
+
+/* New design */
+.mn-carx-new {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-3);
+  padding-top: var(--mn-s-5);
+  border-top: 1px solid var(--mn-hairline);
+}
+
+.mn-carx-paces {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--mn-s-2);
+}
+
+.mn-carx-paces button {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 52px;
+  padding: var(--mn-s-2) var(--mn-s-3);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  background: var(--mn-surface-0);
+  color: var(--mn-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--mn-dur-1) var(--mn-ease), border-color var(--mn-dur-1) var(--mn-ease);
+}
+
+.mn-carx-paces button:hover {
+  background: var(--mn-surface-2);
+}
+
+.mn-carx-paces button.is-active {
+  border-color: var(--mn-accent);
+  background: var(--mn-accent-soft);
+}
+
+.mn-carx-paces button:focus-visible {
+  outline: 2px solid var(--mn-accent);
+  outline-offset: 1px;
+}
+
+.mn-carx-paces b {
+  font-size: var(--mn-fs-13);
+  font-weight: 600;
+}
+
+.mn-carx-paces span {
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-new__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-3);
+}
+
+.mn-carx-field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-quote,
+.mn-carx-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--mn-s-3) var(--mn-s-4);
+  margin: 0;
+}
+
+.mn-carx-quote div,
+.mn-carx-facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mn-carx-quote .is-wide {
+  grid-column: 1 / -1;
+}
+
+.mn-carx-quote dt,
+.mn-carx-facts dt {
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-quote dd,
+.mn-carx-facts dd {
+  margin: 0;
+  font-size: var(--mn-fs-14);
+  font-weight: 500;
+  color: var(--mn-text);
+}
+
+.mn-carx-new__go {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-4);
+}
+
+.mn-carx-new__go small {
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+/* ----------------------------------------------------------- factory */
+
+.mn-carx-timeline {
+  --label-w: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-2);
+}
+
+.mn-carx-timeline__axis,
+.mn-carx-timeline li {
+  display: grid;
+  grid-template-columns: var(--label-w) minmax(0, 1fr) 150px;
+  align-items: center;
+  gap: var(--mn-s-3);
+}
+
+.mn-carx-timeline__axis {
+  grid-template-columns: var(--label-w) minmax(0, 1fr) 150px;
+  padding-bottom: var(--mn-s-1);
+  border-bottom: 1px solid var(--mn-hairline-strong);
+}
+
+.mn-carx-timeline__axis > div,
+.mn-carx-timeline__track {
+  display: grid;
+  grid-template-columns: repeat(var(--span), minmax(0, 1fr));
+}
+
+.mn-carx-timeline__axis > div span {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+  border-left: 1px solid var(--mn-hairline);
+  padding-left: var(--mn-s-1);
+}
+
+.mn-carx-timeline ul {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mn-carx-timeline li {
+  min-height: 44px;
+  border-bottom: 1px solid var(--mn-hairline);
+}
+
+.mn-carx-timeline__label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mn-carx-timeline__label b {
+  font-size: var(--mn-fs-13);
+  font-weight: 500;
+}
+
+.mn-carx-timeline__label span {
+  overflow: hidden;
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mn-carx-timeline__track {
+  height: 20px;
+}
+
+.mn-carx-timeline__track i {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 var(--mn-s-2);
+  border-radius: var(--mn-r-1);
+  background: var(--mn-data);
+  color: var(--mn-text-inverse);
+  font-style: normal;
+}
+
+.mn-carx-timeline__track i.is-design {
+  background: var(--mn-accent);
+  clip-path: var(--mn-cut);
+}
+
+.mn-carx-timeline__track i.is-project {
+  background: var(--mn-info);
+}
+
+.mn-carx-timeline__track i span {
+  overflow: hidden;
+  font-size: var(--mn-fs-11);
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mn-carx-timeline__gain {
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+  text-align: right;
+}
+
+.mn-carx-done li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--mn-s-3);
+  min-height: 32px;
+  border-bottom: 1px solid var(--mn-hairline);
+  font-size: var(--mn-fs-13);
+}
+
+.mn-carx-done b {
+  font-weight: 500;
+}
+
+.mn-carx-done span {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-done em {
+  font-style: normal;
+  font-size: var(--mn-fs-12);
+  color: var(--mn-pos);
+}
+
+/* ------------------------------------------------------------- units */
+
+.mn-carx-unitset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-2);
+}
+
+.mn-carx-unitset h4 {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text);
+}
+
+.mn-carx-unitset li {
+  display: grid;
+  grid-template-columns: minmax(64px, 0.9fr) 112px 40px minmax(72px, 1fr);
+  align-items: center;
+  gap: var(--mn-s-3);
+  min-height: 36px;
+  border-bottom: 1px solid var(--mn-hairline);
+  font-size: var(--mn-fs-13);
+}
+
+.mn-carx-unitset li b {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+  font-weight: 500;
+  text-align: right;
+}
+
+.mn-carx-unitset li.is-over b {
+  color: var(--mn-neg);
+}
+
+.mn-carx-unitset__wear {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+}
+
+.mn-carx-unitset__wear .mn-meter2 {
+  flex: 1 1 auto;
+}
+
+.mn-carx-unitset__wear small,
+.mn-carx-unitset__mode {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-unitset__mode,
+.mn-carx-unitset li .mn-btn {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-bottom: var(--mn-s-2);
+}
+
+/* ------------------------------------------------- supply, expertise */
+
+.mn-carx-rules li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mn-s-3);
+  min-height: 32px;
+  padding: var(--mn-s-1) 0;
+  border-bottom: 1px solid var(--mn-hairline);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.mn-carx-rules b {
+  font-weight: 500;
+  color: var(--mn-text);
+  white-space: nowrap;
+}
+
+.mn-carx-exp button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40% 28px;
+  align-items: center;
+  gap: var(--mn-s-3);
+  width: 100%;
+  min-height: 32px;
+  padding: 0 var(--mn-s-2);
+  border: 0;
+  border-radius: var(--mn-r-1);
+  background: transparent;
+  color: var(--mn-text-2);
+  font: inherit;
+  font-size: var(--mn-fs-13);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--mn-dur-1) var(--mn-ease), color var(--mn-dur-1) var(--mn-ease);
+}
+
+.mn-carx-exp button:hover {
+  background: var(--mn-surface-2);
+  color: var(--mn-text);
+}
+
+.mn-carx-exp li.is-active button {
+  background: var(--mn-surface-2);
+  color: var(--mn-text);
+}
+
+.mn-carx-exp button:focus-visible {
+  outline: 2px solid var(--mn-accent);
+  outline-offset: -2px;
+}
+
+.mn-carx-exp b {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+  font-weight: 500;
+  text-align: right;
+  color: var(--mn-text);
+}
+
+.mn-carx-exp .mn-meter2 {
+  width: 100%;
+}
+
+/* -------------------------------------------------------------- grid */
+
+.mn-carx-pace li {
+  display: grid;
+  grid-template-columns: 20px 20px minmax(0, 1fr) minmax(48px, 1fr) 40px;
+  align-items: center;
+  gap: var(--mn-s-2);
+  min-height: 30px;
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-carx-pace li small {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-carx-pace li span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mn-carx-pace li b {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+  font-weight: 500;
+  text-align: right;
+}
+
+.mn-carx-pace li.is-own span,
+.mn-carx-pace li.is-own b {
+  color: var(--mn-text);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------- responsive */
+
+@media (max-width: 1200px) {
+  .mn-carx-stage,
+  .mn-carx-part,
+  .mn-carx-factory { grid-column: 1 / -1; }
+  .mn-carx-perf,
+  .mn-carx-loadout,
+  .mn-carx-units,
+  .mn-carx-supply,
+  .mn-carx-expertise,
+  .mn-carx-grid { grid-column: span 6; }
+  .mn-carx-timeline { --label-w: 160px; }
+}
+
+@media (max-width: 760px) {
+  .mn-carx { gap: var(--mn-s-4); }
+  .mn-carx__grid { gap: var(--mn-s-3); }
+  .mn-carx__grid > * { grid-column: 1 / -1; }
+  .mn-carx-stage__head { padding: var(--mn-s-4); }
+  .mn-carx-stage__head h2 { font-size: var(--mn-fs-28); }
+  .mn-carx-stage__head p { display: none; }
+  .mn-carx-stage__floor { height: 280px; padding-top: 72px; }
+  .mn-carx-stage__floor .mn-showroom__credit,
+  .mn-carx-stage__note { right: var(--mn-s-4); bottom: var(--mn-s-3); }
+  .mn-carx-stage__note { left: var(--mn-s-4); }
+  .mn-carx-loadout__cols,
+  .mn-carx-loadout__list button { padding: 0 var(--mn-s-4); grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 52px; }
+  .mn-carx-part__body { grid-template-columns: 1fr; }
+  .mn-carx-paces { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mn-carx-timeline { --label-w: 1fr; }
+  .mn-carx-timeline__axis { display: none; }
+  .mn-carx-timeline li { grid-template-columns: minmax(0, 1fr) 96px; padding: var(--mn-s-2) 0; }
+  .mn-carx-timeline__gain { grid-column: 1 / -1; text-align: left; }
+  .mn-carx-timeline__track { grid-template-columns: repeat(var(--span), minmax(0, 1fr)); }
+}

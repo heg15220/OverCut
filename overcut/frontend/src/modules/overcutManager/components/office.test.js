@@ -30,7 +30,7 @@ const mount = (career) => {
   );
 };
 
-const tab = (name) => fireEvent.click(screen.getByRole("radio", { name }));
+const tab = (name) => fireEvent.click(screen.getByRole("tab", { name }));
 
 describe("Office", () => {
   it("renders every tab for an old save and books an upgrade and a sponsor", () => {
@@ -39,7 +39,7 @@ describe("Office", () => {
     // Money in through the books, so the audit stays square.
     postTransaction(career, { amount: 400e6, category: "other", kind: "investment" });
     mount(career);
-    expect(screen.getByText(/confidence|confianza/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/confidence|confianza/i).length).toBeGreaterThan(0);
     tab(/budget|presupuesto/i);
     expect(screen.getAllByText(/cost cap|techo de gasto/i).length).toBeGreaterThan(0);
     tab(/transactions|movimientos/i);

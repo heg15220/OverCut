@@ -1,0 +1,487 @@
+/**
+ * Drivers (components/Drivers.js) and the contract negotiation sheet
+ * (components/Negotiation.js). DESIGN.md §6.4. Scoped under .mn-pp and
+ * .mn-nego; tokens from OvercutManager.css layer 1 only.
+ */
+
+/* ------------------------------------------------------------ drivers */
+
+.mn-pp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-6);
+  min-width: 0;
+}
+
+.mn-pp__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--mn-s-4);
+  align-items: stretch;
+}
+
+.mn-pp-panel {
+  grid-column: span 6;
+  border-top: 3px solid var(--team);
+}
+
+.mn-pp-reserve {
+  grid-column: 1 / -1;
+}
+
+.mn-pp h4 {
+  font-size: var(--mn-fs-12);
+  font-weight: 500;
+  color: var(--mn-text-3);
+}
+
+.mn-pp-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-5);
+  min-width: 0;
+}
+
+.mn-pp-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-4);
+}
+
+.mn-pp-card__head > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-1);
+  min-width: 0;
+}
+
+.mn-pp-card__head h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-28);
+  font-weight: 600;
+  font-stretch: 112%;
+  line-height: 1.1;
+}
+
+.mn-pp-card__head p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-pp-attrs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mn-s-4) var(--mn-s-6);
+}
+
+.mn-pp-attr {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-1);
+  min-width: 0;
+}
+
+.mn-pp-attr .mn-bar__head {
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text);
+}
+
+.mn-pp-attr small {
+  overflow: hidden;
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mn-pp-attr small.is-pos {
+  color: var(--mn-pos);
+}
+
+.mn-pp-morale {
+  display: grid;
+  grid-template-columns: auto minmax(80px, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--mn-s-3);
+  padding-top: var(--mn-s-3);
+  border-top: 1px solid var(--mn-hairline);
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-pp-morale .mn-meter2 {
+  width: 100%;
+}
+
+.mn-pp-morale b {
+  font-weight: 600;
+  color: var(--mn-text);
+}
+
+.mn-pp-morale small {
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-pp-season {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--mn-s-2);
+  margin: 0;
+}
+
+.mn-pp-season div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mn-pp-season dt {
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-pp-season dd {
+  margin: 0;
+  font-size: var(--mn-fs-20);
+  font-weight: 600;
+}
+
+.mn-pp-contract {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-3);
+  margin-top: auto;
+  padding-top: var(--mn-s-4);
+  border-top: 1px solid var(--mn-hairline);
+}
+
+.mn-pp-contract > .mn-tag2 {
+  align-self: flex-start;
+}
+
+.mn-pp-contract__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-3);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-pp-contract__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-2);
+}
+
+.mn-pp-panel .mn-pp-card {
+  flex: 1 1 auto;
+}
+
+.mn-pp-card.is-compact {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr);
+  align-items: start;
+  gap: var(--mn-s-4) var(--mn-s-6);
+}
+
+.mn-pp-card.is-compact .mn-pp-card__head h3 {
+  font-size: var(--mn-fs-20);
+}
+
+.mn-pp-card.is-compact .mn-pp-attrs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mn-pp-card.is-compact .mn-pp-morale {
+  grid-column: 1;
+  grid-row: 2;
+  border-bottom: 0;
+}
+
+.mn-pp-card.is-compact .mn-pp-attrs {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+}
+
+.mn-pp-note {
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-pp-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-pp-legend i {
+  width: 2px;
+  height: 12px;
+  background: var(--mn-text);
+}
+
+@media (max-width: 1100px) {
+  .mn-pp-panel { grid-column: 1 / -1; }
+}
+
+@media (max-width: 760px) {
+  .mn-pp { gap: var(--mn-s-4); }
+  .mn-pp__grid { gap: var(--mn-s-3); }
+  .mn-pp-card__head h3 { font-size: var(--mn-fs-20); }
+  .mn-pp-attrs { grid-template-columns: 1fr; gap: var(--mn-s-3); }
+  .mn-pp-morale { grid-template-columns: auto minmax(60px, 1fr) auto; }
+  .mn-pp-morale small { grid-column: 1 / -1; }
+  .mn-pp-season dd { font-size: var(--mn-fs-16); }
+  .mn-pp-card.is-compact { grid-template-columns: 1fr; }
+  .mn-pp-card.is-compact .mn-pp-attrs,
+  .mn-pp-card.is-compact .mn-pp-morale { grid-column: 1; grid-row: auto; }
+  .mn-pp-card.is-compact .mn-pp-attrs { grid-template-columns: 1fr; }
+}
+
+/* -------------------------------------------------------- negotiation */
+
+.mn-nego {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: var(--mn-s-6);
+}
+
+.mn-nego__ask,
+.mn-nego__offer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-4);
+  min-width: 0;
+}
+
+.mn-nego__ask {
+  padding-right: var(--mn-s-6);
+  border-right: 1px solid var(--mn-hairline);
+}
+
+.mn-nego h4 {
+  font-size: var(--mn-fs-12);
+  font-weight: 500;
+  color: var(--mn-text-3);
+}
+
+.mn-nego__driver {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-3);
+}
+
+.mn-nego__driver > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mn-nego__driver h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-20);
+  font-weight: 600;
+  font-stretch: 108%;
+}
+
+.mn-nego__driver p {
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-nego__interest {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px var(--mn-s-2);
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-nego__interest b {
+  font-weight: 600;
+  color: var(--mn-text);
+}
+
+.mn-nego__interest .mn-meter2 {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.mn-nego__terms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mn-s-3) var(--mn-s-4);
+  margin: 0;
+}
+
+.mn-nego__terms div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mn-nego__terms dt {
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+}
+
+.mn-nego__terms dd {
+  margin: 0;
+  font-size: var(--mn-fs-16);
+  font-weight: 600;
+}
+
+.mn-nego__terms dd small {
+  font-size: var(--mn-fs-12);
+  font-weight: 400;
+  color: var(--mn-text-3);
+}
+
+.mn-nego__patience {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-2) var(--mn-s-3);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-nego__pips {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.mn-nego__pips i {
+  width: 14px;
+  height: 6px;
+  border-radius: var(--mn-r-1);
+  background: var(--mn-pos);
+}
+
+.mn-nego__pips i.is-used {
+  background: var(--mn-surface-3);
+}
+
+.mn-nego__answer {
+  padding: var(--mn-s-3);
+  border-left: 2px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-1);
+  background: var(--mn-surface-2);
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text);
+}
+
+.mn-nego__answer.is-pos { border-left-color: var(--mn-pos); }
+.mn-nego__answer.is-warn { border-left-color: var(--mn-warn); }
+.mn-nego__answer.is-neg { border-left-color: var(--mn-neg); }
+
+.mn-nego__label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-nego__label b {
+  font-size: var(--mn-fs-20);
+  font-weight: 600;
+  color: var(--mn-text);
+}
+
+.mn-nego__label small {
+  font-size: var(--mn-fs-12);
+}
+
+.mn-nego .is-pos { color: var(--mn-pos); }
+.mn-nego .is-neg { color: var(--mn-neg); }
+
+.mn-nego__salary,
+.mn-nego__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-2);
+  min-width: 0;
+}
+
+.mn-nego__range {
+  position: relative;
+  display: block;
+  padding: var(--mn-s-2) 0;
+}
+
+.mn-nego__range input {
+  display: block;
+  width: 100%;
+  accent-color: var(--mn-accent);
+}
+
+/* What he asks, as a tick on the slider track. */
+.mn-nego__range i {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: calc(8px + (100% - 16px) * var(--ask) / 100);
+  width: 2px;
+  background: var(--mn-text);
+  pointer-events: none;
+}
+
+.mn-nego__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mn-s-4);
+}
+
+.mn-nego__select {
+  min-height: 36px;
+  padding: 0 var(--mn-s-3);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  background: var(--mn-surface-0);
+  color: var(--mn-text);
+  font: inherit;
+  font-size: var(--mn-fs-13);
+}
+
+.mn-nego__select option {
+  background: var(--mn-surface-1);
+}
+
+.mn-nego__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-3);
+  padding-top: var(--mn-s-4);
+  border-top: 1px solid var(--mn-hairline);
+}
+
+.mn-nego__actions small {
+  margin-left: auto;
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+@media (max-width: 760px) {
+  .mn-nego { grid-template-columns: 1fr; gap: var(--mn-s-5); }
+  .mn-nego__ask { padding-right: 0; padding-bottom: var(--mn-s-5); border-right: 0; border-bottom: 1px solid var(--mn-hairline); }
+  .mn-nego__pair { grid-template-columns: 1fr; }
+  .mn-nego__actions small { margin-left: 0; flex-basis: 100%; }
+}

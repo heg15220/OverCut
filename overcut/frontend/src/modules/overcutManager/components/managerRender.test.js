@@ -80,7 +80,7 @@ describe("OvercutManager", () => {
     fireEvent.click(screen.getAllByRole("button", { name: /go to the/i })[0]);
     fireEvent.click(await screen.findByRole("button", { name: /run practice/i }));
     fireEvent.click(screen.getByRole("button", { name: /go qualifying/i }));
-    expect(screen.getByText(/starting grid/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/starting grid/i).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: /simulate the race/i }));
     expect(screen.getByText(/chequered flag/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
@@ -113,7 +113,7 @@ describe("OvercutManager", () => {
     fireEvent.change(screen.getByPlaceholderText("OverCut Racing"), { target: { value: "Seam Racing" } });
     fireEvent.click(screen.getByRole("button", { name: /garagiste/i }));
     fireEvent.click(screen.getByRole("button", { name: /next/i }));
-    const rows = screen.getAllByRole("listitem").filter((element) => element.classList.contains("mn-driver-row"));
+    const rows = screen.getAllByRole("button").filter((element) => element.classList.contains("mn-su-driver"));
     fireEvent.click(rows[0]);
     fireEvent.click(rows[1]);
     fireEvent.click(screen.getByRole("button", { name: /next/i }));
@@ -122,8 +122,36 @@ describe("OvercutManager", () => {
     expect(await screen.findByRole("dialog", { name: "Seam Racing" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /let's get to work/i }));
     fireEvent.click(within(screen.getByRole("navigation", { name: /sections/i })).getByRole("button", { name: /standings/i }));
-    fireEvent.click(screen.getByRole("radio", { name: /constructors/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /constructors/i }));
     expect(screen.getAllByText("Seam Racing").length).toBeGreaterThan(0);
     await waitFor(() => expect(JSON.parse(window.localStorage.getItem("overcutManagerSave.v1") || "null")).toBeTruthy());
+  });
+
+  // RF-CAR-05: the game mode picked in the wizard is the mode of the career it creates.
+  it("passes the chosen game mode to the new career", async () => {
+    await startWizard();
+    expect(screen.getByRole("button", { name: /strict history/i })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: /^free/i }));
+    expect(screen.getByRole("button", { name: /^free/i })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^ferrari/i }));
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    expect(screen.getByText("Free", { selector: "dd" })).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText(/your name/i), { target: { value: "Fred" } });
+    fireEvent.click(screen.getByRole("button", { name: /sign the contract/i }));
+    expect(await screen.findByRole("dialog", { name: "Ferrari" })).toHaveTextContent(/free/i);
+    fireEvent.click(screen.getByRole("button", { name: /let's get to work/i }));
+    await waitFor(() => expect(JSON.parse(window.localStorage.getItem("overcutManagerSave.v1") || "null")?.career?.mode).toBe("free"));
+  });
+
+  it("keeps strict history as the default mode", async () => {
+    await startWizard();
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^mclaren/i }));
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    fireEvent.change(screen.getByPlaceholderText(/your name/i), { target: { value: "Zak" } });
+    fireEvent.click(screen.getByRole("button", { name: /sign the contract/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /let's get to work/i }));
+    await waitFor(() => expect(JSON.parse(window.localStorage.getItem("overcutManagerSave.v1") || "null")?.career?.mode).toBe("strict"));
   });
 });

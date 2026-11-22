@@ -1,0 +1,367 @@
+/* Office (Office.js): board, budget, cost cap, transactions, facilities,
+   sponsors. Layout from datascreen.css; tokens only; scoped to .mn-of-*. */
+
+.mn-of-pad {
+  padding: 0 var(--mn-s-5) var(--mn-s-3);
+}
+
+.mn-dt td.mn-of-wrap {
+  white-space: normal;
+  line-height: 1.35;
+  padding-top: var(--mn-s-2);
+  padding-bottom: var(--mn-s-2);
+}
+
+/* Record */
+.mn-of-trophies {
+  display: grid;
+  gap: var(--mn-s-1);
+  margin: 0;
+  padding: 0 var(--mn-s-5) var(--mn-s-3);
+  list-style: none;
+  font-size: var(--mn-fs-13);
+}
+
+.mn-of-trophies li {
+  display: flex;
+  gap: var(--mn-s-3);
+}
+
+.mn-of-trophies b {
+  font-family: var(--mn-mono);
+  font-weight: 500;
+  color: var(--mn-accent);
+}
+
+/* Budget: a thin share bar per category, in = data colour, out = muted. */
+.mn-of-share {
+  display: block;
+  height: 6px;
+  border-radius: var(--mn-r-1);
+  background: var(--mn-surface-3);
+  overflow: hidden;
+}
+
+.mn-of-share i {
+  display: block;
+  height: 100%;
+  border-radius: var(--mn-r-1);
+  background: var(--mn-pos);
+  opacity: 0.8;
+}
+
+.mn-of-share.is-out i {
+  background: var(--mn-neg);
+}
+
+/* Cost cap gauge: spent + committed on the cap's track. */
+.mn-of-cap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-3);
+}
+
+.mn-of-cap__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: var(--mn-s-1) var(--mn-s-3);
+}
+
+.mn-of-cap__head span {
+  grid-column: 1 / -1;
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-of-cap__head strong {
+  font-size: var(--mn-fs-28);
+  font-weight: 600;
+  font-stretch: 108%;
+  line-height: 1.1;
+}
+
+.mn-of-cap__track {
+  position: relative;
+  height: 12px;
+  border-radius: var(--mn-r-1);
+  background: var(--mn-surface-3);
+  overflow: hidden;
+}
+
+.mn-of-cap__track i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.mn-of-cap__track i.is-spent,
+.mn-of-cap__legend i.is-spent {
+  background: var(--mn-data);
+}
+
+.mn-of-cap__track i.is-committed,
+.mn-of-cap__legend i.is-committed {
+  background: var(--mn-data);
+  opacity: 0.4;
+}
+
+.mn-of-cap__track i.is-committed {
+  border-left: 2px solid var(--mn-surface-1);
+}
+
+.mn-of-cap.is-tight .mn-of-cap__track i {
+  background: var(--mn-warn);
+}
+
+.mn-of-cap.is-over .mn-of-cap__track i,
+.mn-of-cap.is-breach .mn-of-cap__track i {
+  background: var(--mn-neg);
+}
+
+.mn-of-cap__track em {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--mn-text);
+}
+
+.mn-of-cap__legend {
+  display: grid;
+  gap: var(--mn-s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.mn-of-cap__legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+}
+
+.mn-of-cap__legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--mn-r-1);
+}
+
+.mn-of-cap__legend b {
+  margin-left: auto;
+  font-family: var(--mn-mono);
+  font-weight: 500;
+  color: var(--mn-text);
+}
+
+/* Ledger */
+.mn-of-ledger .mn-panel__head .mn-tag2 {
+  margin-left: auto;
+}
+
+/* Facilities: a card per building, three across. */
+.mn-of-hq-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mn-s-2) var(--mn-s-4);
+  margin-bottom: var(--mn-s-3);
+}
+
+.mn-of-buildings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mn-s-4);
+}
+
+.mn-of-building {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-3);
+  min-width: 0;
+  padding: var(--mn-s-4) var(--mn-s-5);
+  border: 1px solid var(--mn-hairline);
+  border-radius: var(--mn-r-3);
+  background: var(--mn-surface-1);
+}
+
+.mn-of-building.is-locked {
+  background: var(--mn-surface-0);
+}
+
+.mn-of-building.is-locked h3,
+.mn-of-building.is-locked .mn-of-effects dd {
+  color: var(--mn-text-3);
+}
+
+.mn-of-building header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-2) var(--mn-s-3);
+}
+
+.mn-of-building h3 {
+  flex: 1 1 auto;
+  font-size: var(--mn-fs-16);
+  font-weight: 600;
+}
+
+.mn-of-building__level {
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-of-levels {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.mn-of-levels i {
+  width: 12px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--mn-surface-3);
+}
+
+.mn-of-levels i.is-on {
+  background: var(--mn-accent);
+}
+
+.mn-of-building__cond {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: var(--mn-s-3);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.mn-of-building__cond b {
+  font-family: var(--mn-mono);
+  font-weight: 500;
+  text-align: right;
+  color: var(--mn-text);
+}
+
+.mn-of-effects {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--mn-hairline);
+}
+
+.mn-of-effects div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mn-s-3);
+  min-height: 28px;
+  padding: var(--mn-s-1) 0;
+  border-bottom: 1px solid var(--mn-hairline);
+}
+
+.mn-of-effects dt {
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-of-effects dd {
+  margin: 0;
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text);
+  white-space: nowrap;
+}
+
+.mn-of-effects small {
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.mn-of-building__works {
+  margin: 0;
+}
+
+.mn-of-building footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-2);
+  margin-top: auto;
+}
+
+.mn-of-building footer .mn-btn {
+  gap: var(--mn-s-2);
+}
+
+.mn-of-building__cost {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+  font-weight: 400;
+  color: var(--mn-text-3);
+}
+
+/* Sponsor offers */
+.mn-of-offers {
+  display: grid;
+  gap: var(--mn-s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mn-of-offers li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-2);
+  padding-bottom: var(--mn-s-4);
+  border-bottom: 1px solid var(--mn-hairline);
+}
+
+.mn-of-offers li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.mn-of-offers__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mn-s-3);
+}
+
+.mn-of-offers__head strong {
+  font-weight: 600;
+}
+
+.mn-of-offers__actions {
+  display: flex;
+  gap: var(--mn-s-2);
+}
+
+@media (max-width: 1200px) {
+  .mn-of-buildings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .mn-of-buildings {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--mn-s-3);
+  }
+
+  .mn-of-building {
+    padding: var(--mn-s-4);
+  }
+
+  .mn-of-pad,
+  .mn-of-trophies {
+    padding-left: var(--mn-s-4);
+    padding-right: var(--mn-s-4);
+  }
+}

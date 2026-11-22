@@ -1,0 +1,91 @@
+/* Market and Staff (Market.js, Staff.js). Layout from datascreen.css; tokens
+   only; scoped to .mn-mk-*. */
+
+.mn-mk-pad {
+  padding: 0 var(--mn-s-5) var(--mn-s-3);
+}
+
+/* The person card at the side. */
+.mn-mk-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-4);
+}
+
+.mn-mk-card__id {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-3);
+  min-width: 0;
+}
+
+.mn-mk-card__id > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mn-mk-card__id strong {
+  font-size: var(--mn-fs-20);
+  font-weight: 600;
+  font-stretch: 108%;
+  line-height: 1.15;
+}
+
+.mn-mk-card__id small {
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.mn-mk-attrs {
+  display: grid;
+  gap: var(--mn-s-3);
+}
+
+.mn-mk-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mn-s-2);
+}
+
+.mn-mk-card__actions .mn-btn {
+  gap: var(--mn-s-2);
+}
+
+/* Shortlist star: quiet until on, then the accent (a selection). */
+.mn-mk-star.mn-icon-btn {
+  width: 28px;
+  height: 28px;
+  color: var(--mn-text-3);
+}
+
+.mn-mk-star.mn-icon-btn.is-on {
+  color: var(--mn-accent);
+}
+
+/* Race seats for next year. */
+.mn-mk-seats {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: var(--mn-s-3);
+  padding: 0 var(--mn-s-5) var(--mn-s-3);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.mn-mk-seats b {
+  font-family: var(--mn-mono);
+  font-weight: 500;
+  text-align: right;
+  color: var(--mn-text);
+}
+
+@media (max-width: 760px) {
+  .mn-mk-pad,
+  .mn-mk-seats {
+    padding-left: var(--mn-s-4);
+    padding-right: var(--mn-s-4);
+  }
+}

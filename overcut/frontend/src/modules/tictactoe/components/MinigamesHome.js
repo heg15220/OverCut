@@ -111,9 +111,9 @@ const minigames = [
   },
 
   {
-    path: "/minigames/careerMode",
-    title: "Modo Trayectoria",
-    description: "Crea un piloto, firma contratos y simula su carrera F1",
+    path: "/careerMode",
+    title: "Modo Carrera",
+    description: "Trayectoria de piloto, carrera a fondo o mánager de escudería (OverCut Manager)",
     img: sourceImages(`./OverCutDraft.png`),
     isNew: true
   },

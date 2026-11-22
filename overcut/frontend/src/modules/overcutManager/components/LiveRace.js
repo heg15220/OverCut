@@ -17,9 +17,8 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { LuFastForward, LuSkipForward, LuStepForward } from "react-icons/lu";
 import {
-  MIX_KEYS, MODE_KEYS, cancelPit, commandsFor, drsOpen, energyEra, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder,
+  cancelPit, commandsFor, drsOpen, energyEra, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder,
   stepLap, tyreLifeUsed,
 } from "../engine/race";
 import { DEFENCE_KEYS, RISK_KEYS } from "../engine/sim";
@@ -27,8 +26,11 @@ import { applyTick, createRaceClient, mirrorOf } from "../engine/worker/raceClie
 import { circuitFor } from "../engine/venue";
 import { poseAt } from "../engine/trackGeometry";
 import { useManager } from "./context";
-import { Tyre } from "./atoms";
-import { ConditionsPanel, Dots, PlaybackBar, TimingTower } from "./Broadcast";
+import { Meter, Segmented, Tyre, readableOn } from "./atoms";
+import { Dots, Feed, PlaybackBar, StatusStrip, TimingTower } from "./Broadcast";
+import { IconFastForward, IconFlag } from "./icons";
+import { IconLap, IconNextEvent } from "./icons";
+import "./styles/weekend.css";
 import { COMPOUND, DEFENCE, ERS, MIX, MODE, RISK, STATUS, commentary, duelEvent, lapTime, radioText, t } from "./texts";
 import RaceStage, { MiniMap } from "./RaceStage";
 import { canRender3D } from "../three/support";
@@ -101,6 +103,9 @@ const cycle = (list, value, step) => list[(list.indexOf(value) + step + list.len
 const TOWER_MODES = ["interval", "gap", "tyres"];
 
 /** RF-CMD-04 "saltar al siguiente evento": what the skip button stops at. */
+/** Feed lines worth a second look: race control and retirements. */
+const ALERTS = ["sc", "vsc", "sc-in", "red", "restart", "dnf", "contact", "penalty", "investigation", "rain"];
+
 const NEXT_TYPES = ["pass", "pit", "dnf", "sc", "vsc", "sc-in", "rain", "lead", "contact", "mistake", "flag", "yellow", "red", "restart", "penalty", "swap"];
 
 // ------------------------------------------------------------------ sources
@@ -277,8 +282,8 @@ function LiveStepRace({ args, onFinished }) {
     client.create(args);
     return () => client.dispose();
   }, [args]);
-  if (error) return <div className="mn-stage__loading">{t(`Error del motor de carrera: ${error}`, `Race engine error: ${error}`)}</div>;
-  if (!source) return <div className="mn-stage__loading">{t("Preparando la carrera…", "Preparing the race…")}</div>;
+  if (error) return <div className="lv-loading">{t(`Error del motor de carrera: ${error}`, `Race engine error: ${error}`)}</div>;
+  if (!source) return <div className="lv-loading">{t("Preparando la carrera…", "Preparing the race…")}</div>;
   return <RaceView source={source} onFinished={onFinished} />;
 }
 
@@ -394,7 +399,6 @@ function RaceView({ source, onFinished }) {
   // A step race: in race-time order (events and duels come from two logs).
   if (source.steps) feed.sort((a, b) => (a.at ?? 0) - (b.at ?? 0));
   const recent = feed.slice(-16).reverse();
-  const radio = current.radio.filter((message) => source.radioTime(message) <= tau.current).slice(-3).reverse();
   const scWindow = source.scWindows(leader?.car.id).find((w) => tau.current >= w.from && tau.current < w.to);
   const fastest = visibleEvents.filter((event) => event.type === "fastest").pop();
   // RF-SIM-10: a red-flag neutralisation is a spell with `red` (step race) or a red flag
@@ -461,7 +465,6 @@ function RaceView({ source, onFinished }) {
 
   // RF-CMD-01/02: only the orders the era has (engine/rules.js).
   const commands = commandsFor(rulesOf(current.era, current.year));
-  const compounds = commands.pit.compounds;
   const refuel = commands.pit.fuel;
   const energy = energyEra(rulesOf(current.era, current.year));
   const userTeam = userCars[0]?.teamId;
@@ -491,16 +494,15 @@ function RaceView({ source, onFinished }) {
 
   const cameraList = has3D ? CAMERAS_3D : ["follow", "tv", "map"];
   const cameraLabel = cameraMode === "map" ? t("Mapa", "Map") : cameraMode === "tv" ? "TV" : CAMERA_NAME[cameraMode]?.() ?? "";
-  const towerLabel = { interval: t("Intervalo", "Interval"), gap: t("Líder", "Leader"), tyres: t("Neumáticos", "Tyres") }[towerMode];
 
   const towerRows = rows.map((row, index) => {
     const { car, pose } = row;
     const out = row.out;
     let value;
     if (out) value = STATUS[car.retireReason] ? STATUS[car.retireReason]() : t("Ab", "Out");
-    else if (pose.inPit) value = t("EN BOXES", "IN PIT");
+    else if (pose.inPit) value = t("En boxes", "In pit");
     else if (towerMode === "tyres") value = <Tyre compound={car.compound} age={car.tyreAge} size={18} />;
-    else if (index === 0) value = pose.finished ? "🏁" : towerMode === "gap" ? t("Líder", "Leader") : row.completed > 0 ? `${t("V", "L")}${row.completed + 1}` : t("Líder", "Leader");
+    else if (index === 0) value = pose.finished ? t("Meta", "Finish") : towerMode === "gap" ? t("Líder", "Leader") : row.completed > 0 ? `${t("V", "L")}${row.completed + 1}` : t("Líder", "Leader");
     else if (row.lapsDown > 0) value = `+${row.lapsDown} ${t("V", "L")}`;
     else {
       const gap = towerMode === "gap" ? row.gap : row.interval;
@@ -523,14 +525,53 @@ function RaceView({ source, onFinished }) {
     };
   });
 
-  const ticker = recent.slice(0, 3);
   const over = current.finished && tau.current >= raceEnd;
 
+  // ---- the feed: radio and commentary, newest first (RF-CMD-03)
+  const leaderId = leader?.car.id;
+  const feedEntries = [
+    ...current.radio
+      .filter((message) => source.radioTime(message) <= tau.current)
+      .slice(-8)
+      .map((message, index) => ({ key: `r-${message.lap}-${message.kind}-${index}`, at: source.radioTime(message), lap: message.lap, kind: "radio", alert: false, text: radioText(career, message, names) })),
+    ...recent.map((event, index) => ({
+      key: `e-${event.lap}-${event.type}-${event.carId}-${index}`,
+      at: event.at ?? source.eventTime(event, leaderId),
+      lap: event.lap,
+      kind: "race",
+      alert: ALERTS.includes(event.type) || Boolean(byId[event.carId]?.isUser),
+      text: commentary(event, names, current.track),
+    })),
+  ]
+    .sort((a, b) => (b.at ?? 0) - (a.at ?? 0))
+    .slice(0, 24);
+
+  // ---- the flag state over the picture (RF-SIM-10): colour and words, never colour alone
+  const flag = redFlag
+    ? { kind: "red", label: t("Bandera roja", "Red flag") }
+    : scWindow
+      ? scWindow.virtual
+        ? { kind: "vsc", label: t("Coche de seguridad virtual", "Virtual safety car") }
+        : { kind: "sc", label: t("Coche de seguridad", "Safety car") }
+      : leaderFinished
+        ? { kind: "chequered", label: t("Bandera a cuadros", "Chequered flag") }
+        : yellows.length > 0
+          ? { kind: "yellow", label: `${t("Amarilla", "Yellow")} · ${yellows.map((zone) => `${t("C", "T")}${zone.corner}`).join(" ")}` }
+          : !introDone.current
+            ? { kind: "session", label: t("Salida", "Start") }
+            : { kind: "green", label: t("Bandera verde", "Green flag") };
+
+  const eraNotes = [commands.drs && "DRS", commands.activeAero && t("Aero activa", "Active aero"), energy === "kers" ? "KERS" : energy ? "ERS" : null, refuel && t("Repostaje", "Refuelling")].filter(Boolean);
+  const orderOptions = commands.teamOrders;
+  const ORDER_LABEL = { free: t("Libres", "Race"), hold: t("Mantener", "Hold"), swap: t("Intercambiar", "Swap") };
+
   return (
-    <div className={`bc bc--race${in3D ? " is-3d" : ""}`} data-engine={source.kind}>
-      <div className="bc__stage">
+    <div className={`lv lv--race${in3D ? " is-3d" : ""}`} data-engine={source.kind}>
+      <StatusStrip flag={flag} clock={clock} airTemp={trackTemp * 0.62 + 4} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} rubber={rubber} />
+
+      <div className="lv-stage">
         {in3D ? (
-          <React.Suspense fallback={<div className="mn-stage__loading">{t("Cargando el circuito en 3D…", "Loading the circuit in 3D…")}</div>}>
+          <React.Suspense fallback={<div className="lv-loading">{t("Cargando el circuito en 3D…", "Loading the circuit in 3D…")}</div>}>
             <Race3D
               circuit={circuit}
               year={current.year}
@@ -558,134 +599,122 @@ function RaceView({ source, onFinished }) {
             safetyCar={safetyCar}
             focusId={cameraMode === "tv" ? director.current.id : focusId}
             onPick={setFocusId}
-            labels={{ map: t("Mapa del circuito", "Circuit map"), near: t("Cámara cenital", "Overhead camera"), box: "BOX" }}
+            labels={{ map: t("Mapa del circuito", "Circuit map"), near: t("Cámara cenital", "Overhead camera"), box: "Box", sc: t("Coche de seguridad", "Safety car") }}
           />
         )}
-        {wetness > 0.2 && !in3D && <div className="mn-stage__rain" style={{ opacity: Math.min(0.85, wetness + 0.15) }} aria-hidden="true" />}
+        {wetness > 0.2 && !in3D && <div className="lv-rain" style={{ opacity: Math.min(0.85, wetness + 0.15) }} aria-hidden="true" />}
         {!introDone.current && !in3D && (
-          <div className="mn-lights" aria-label={t("Semáforo de salida", "Start lights")}>
+          <div className="lv-lights" aria-label={t("Semáforo de salida", "Start lights")}>
             {[0, 1, 2, 3, 4].map((index) => (
               <span key={index} className={index < lightsOn ? "is-on" : ""} />
             ))}
           </div>
         )}
-        <div className="bc__banners">
-          {redFlag ? (
-            <span className="bc-flag is-sc" style={{ background: "#d7262b", color: "#fff" }}>{t("BANDERA ROJA", "RED FLAG")}</span>
-          ) : (
-            scWindow && <span className={`bc-flag ${scWindow.virtual ? "is-vsc" : "is-sc"}`}>{scWindow.virtual ? "VIRTUAL SAFETY CAR" : "SAFETY CAR"}</span>
-          )}
-          {!redFlag && !scWindow && yellows.length > 0 && (
-            <span className="bc-flag is-vsc">
-              {t("AMARILLA", "YELLOW")} · {yellows.map((zone) => `${t("C", "T")}${zone.corner}`).join(" ")}
-            </span>
-          )}
-          {introDone.current && tau.current < 3 && <div className="mn-stage__banner mn-stage__banner--go">{t("¡Se apagan los semáforos!", "Lights out and away we go!")}</div>}
+        <div className="lv-overlay">
+          {introDone.current && tau.current < 3 && <div className="lv-banner is-go">{t("Se apagan los semáforos", "Lights out")}</div>}
           {leaderFinished && (
-            <div className="mn-stage__banner mn-stage__banner--flag">
-              <span className="mn-checker" aria-hidden="true" />
+            <div className="lv-banner">
+              <IconFlag size={16} />
               {t("Bandera a cuadros", "Chequered flag")} · {leader?.car.name}
             </div>
           )}
-          {!leaderFinished && battles[0] && cameraMode !== "tv" && (
-            <div className="bc-battle">
-              {t(`Lucha por P${battles[0].position}`, `Battle for P${battles[0].position}`)}: <b>{code(battles[0].attacker.car.name)}</b> → <b>{code(battles[0].defender.car.name)}</b> · {battles[0].gap.toFixed(1)}s
-            </div>
-          )}
         </div>
-        <ol className="bc-ticker" aria-live="polite" aria-label={t("Comentarios", "Commentary")}>
-          {ticker.map((event, index) => (
-            <li key={`${event.lap}-${event.type}-${event.carId}-${index}`} className={`is-${event.type}`}>
-              <b>{t("V", "L")}{event.lap}</b> {commentary(event, names, current.track)}
-            </li>
-          ))}
-        </ol>
-        <div className="bc-radio" aria-live="polite">
-          {radio.slice(0, 2).map((message, index) => (
-            <p key={`${message.lap}-${message.kind}-${index}`}>
-              <b>RADIO</b> {radioText(career, message, names)}
-            </p>
-          ))}
-        </div>
+        {!leaderFinished && battles[0] && cameraMode !== "tv" && (
+          <div className="lv-chip">
+            <i aria-hidden="true" />
+            {t(`Lucha por P${battles[0].position}`, `Battle for P${battles[0].position}`)} · <b>{code(battles[0].attacker.car.name)}</b> → <b>{code(battles[0].defender.car.name)}</b> · {battles[0].gap.toFixed(1)} s
+          </div>
+        )}
+        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={cameraMode === "tv" ? director.current.id : focusId} label={t("Minimapa", "Mini map")} />}
       </div>
 
       <TimingTower
         label={t("Torre de tiempos", "Timing tower")}
-        title={t("CARRERA", "RACE")}
+        title={t("Carrera", "Race")}
         subtitle={
           <>
-            {t("VUELTA", "LAP")} <b>{displayLap}</b> / {current.laps}
+            {t("Vuelta", "Lap")} <b>{displayLap}</b>/{current.laps}
           </>
         }
-        modeLabel={towerLabel}
-        onMode={(step) => setTowerMode((value) => cycle(TOWER_MODES, value, step))}
+        modes={{ value: towerMode, onChange: setTowerMode, options: TOWER_MODES.map((value) => ({ value, label: { interval: t("Intervalo", "Interval"), gap: t("Líder", "Leader"), tyres: t("Neumáticos", "Tyres") }[value] })) }}
         rows={towerRows}
         onPick={setFocusId}
       />
 
-      <ConditionsPanel title={t("VISTA DE CARRERA", "RACE VIEW")} clock={clock} airTemp={trackTemp * 0.62 + 4} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} rubber={rubber}>
-        <MiniMap circuit={circuit} cars={stageCars} focusId={cameraMode === "tv" ? director.current.id : focusId} label={t("Minimapa", "Mini map")} />
-      </ConditionsPanel>
-
-      <div className="bc-cards">
-        {userCars.map((car) => (
-          <DriverCard
-            key={car.id}
-            car={car}
-            row={rowOf[car.id]}
-            state={current}
-            compounds={compounds}
-            refuel={refuel}
-            energy={energy}
-            command={command}
-            steps={source.steps}
-            focused={focusId === car.id}
-            onFocus={() => setFocusId(car.id)}
-          />
-        ))}
-      </div>
+      <aside className="lv-orders" aria-label={t("Órdenes", "Orders")}>
+        <header className="lv-orders__head">
+          <strong>{t("Órdenes", "Orders")}</strong>
+          <small>
+            {current.year}
+            {eraNotes.length ? ` · ${eraNotes.join(" · ")}` : ""}
+          </small>
+        </header>
+        {userCars.length === 2 && !current.finished && !commands.teamOrdersBanned && (
+          <div className="lv-orders__team">
+            <span>{t("Órdenes de equipo", "Team orders")}</span>
+            <Segmented label={t("Órdenes de equipo", "Team orders")} value={current.teamOrders[userTeam] || "free"} onChange={(value) => command("setTeamOrder", userTeam, value)} options={orderOptions.map((value) => ({ value, label: ORDER_LABEL[value] }))} />
+          </div>
+        )}
+        <div className="lv-orders__cards">
+          {userCars.map((car) => (
+            <DriverCard
+              key={car.id}
+              car={car}
+              row={rowOf[car.id]}
+              state={current}
+              commands={commands}
+              energy={energy}
+              command={command}
+              steps={source.steps}
+              focused={focusId === car.id}
+              onFocus={() => setFocusId(car.id)}
+            />
+          ))}
+        </div>
+        <Feed entries={feedEntries} />
+      </aside>
 
       <PlaybackBar
         playing={playing}
         onPlay={() => setPlaying((value) => !value)}
         disabled={done}
-        speedLabel={`×${speed}`}
-        onSpeed={(step) => setSpeed((value) => SPEEDS[Math.max(0, Math.min(SPEEDS.length - 1, SPEEDS.indexOf(value) + step))])}
+        speeds={SPEEDS}
+        speed={speed}
+        onSpeed={setSpeed}
         cameraLabel={cameraMode === "tv" ? `TV · ${directorLabel}` : `${cameraLabel}${cameraMode !== "map" ? ` · ${code(focusName)}` : ""}`}
         onCamera={(step) => setCameraMode((value) => cycle(cameraList, value, step))}
       >
-        <button type="button" className="bc-playback__btn" onClick={skip(source.next)} aria-label={t("Siguiente evento", "Next event")} title={t("Saltar al siguiente evento", "Skip to the next event")} disabled={over}>
-          <LuStepForward />
+        <button type="button" className="mn-btn mn-btn--sm" onClick={skip(source.next)} aria-label={t("Siguiente evento", "Next event")} title={t("Saltar al siguiente evento", "Skip to the next event")} disabled={over}>
+          <IconNextEvent size={16} />
+          <span className="wk-hide-md">{t("Siguiente evento", "Next event")}</span>
         </button>
-        <button type="button" className="bc-playback__btn" onClick={skip(source.oneLap)} aria-label={t("Una vuelta", "One lap")} disabled={over}>
-          <LuSkipForward />
+        <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={skip(source.oneLap)} aria-label={t("Una vuelta", "One lap")} title={t("Una vuelta", "One lap")} disabled={over}>
+          <IconLap size={16} />
+          <span className="wk-hide-md">{t("Una vuelta", "One lap")}</span>
         </button>
-        <button type="button" className="bc-playback__text" onClick={skip(source.toFlag)} disabled={over}>
-          <LuFastForward aria-hidden="true" />
+        <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={skip(source.toFlag)} disabled={over}>
+          <IconFastForward size={16} />
           {t("Al final", "To the flag")}
         </button>
-        {userCars.length === 2 && !current.finished && (
-          <button type="button" className="bc-playback__text" onClick={() => command("setTeamOrder", userTeam, cycle(["free", "hold", "swap"], current.teamOrders[userTeam] || "free", 1))} title={t("Órdenes de equipo", "Team orders")}>
-            {t("Órdenes", "Orders")}: {{ free: t("Libres", "Race"), hold: t("Mantener", "Hold"), swap: t("Intercambiar", "Swap") }[current.teamOrders[userTeam] || "free"]}
-          </button>
-        )}
       </PlaybackBar>
     </div>
   );
 }
 
-const TEMP_LABEL = (temp) => (temp < 0.4 ? { label: t("Fríos", "Cold"), tone: "cold" } : temp > 0.72 ? { label: t("Sobrecalentados", "Overheating"), tone: "hot" } : { label: t("En ventana", "In window"), tone: "ok" });
+const TEMP_LABEL = (temp) => (temp < 0.4 ? { label: t("Fríos", "Cold"), tone: "info" } : temp > 0.72 ? { label: t("Sobrecalentados", "Overheating"), tone: "neg" } : { label: t("En ventana", "In window"), tone: "pos" });
 
 /**
- * One of the player's cars, the way the F1 Manager pit wall shows it: position
- * and name, then three columns - pace (tyres and how hard to push), fuel (the
- * margin and the mixture) and the battery - then, in a step race, defence style and
- * overtaking risk (RF-CMD-01), and the stop call underneath (RF-CMD-02). Every order
- * goes through `command` (the race worker for a step race).
+ * One of the player's cars on the pit wall: position and name, then one row per order
+ * the era allows (RF-CMD-01, commandsFor): tyres and pace, fuel and its mixture when
+ * there is no refuelling, the battery when the era has KERS or ERS, defence and
+ * overtaking risk in a step race, and the stop call underneath (RF-CMD-02: compounds,
+ * or fuel only when tyres may not be changed). Every order goes through `command`
+ * (the race worker for a step race).
  */
-function DriverCard({ car, row, state, compounds, refuel, energy, command, steps, focused, onFocus }) {
+function DriverCard({ car, row, state, commands, energy, command, steps, focused, onFocus }) {
   const running = car.status === "running";
   const rules = rulesOf(state.era, state.year);
+  const refuel = commands.pit.fuel;
   const life = Math.max(0, 1 - tyreLifeUsed(car, rules));
   const temp = TEMP_LABEL(car.tyreTemp ?? 0.5);
   const remaining = Math.max(0, state.laps - state.lap);
@@ -693,111 +722,117 @@ function DriverCard({ car, row, state, compounds, refuel, energy, command, steps
   const fuelMargin = refuel ? null : car.fuel / burn - remaining;
   const position = row && !row.out ? row.position : car.position;
   const drs = running && drsOpen(rules, { lap: state.lap, wetness: state.weather.wetness[Math.min(state.lap, state.laps)] ?? 0, zones: state.track?.drs ?? 0, restartLap: state.restartLap || 0, gapAhead: car.gapAhead });
-  const surname = (car.name || "").split(" ").filter((part) => !/^(jr|sr)\.?$/i.test(part)).pop()?.toUpperCase();
+  const paceKeys = commands.pace.filter((key) => MODE[key]);
+  const mixKeys = commands.fuelMix.filter((key) => MIX[key]);
+  const energyModes = commands.energy.filter((key) => ERS[key]);
+  const hasBattery = car.battery !== null && car.battery !== undefined && energyModes.length > 0;
   return (
-    <section className={`bc-card${running ? "" : " is-out"}${focused ? " is-focus" : ""}`} style={{ "--team": car.color }} aria-label={car.name}>
-      <header onClick={onFocus}>
-        <b>{position}</b>
-        <i />
-        <strong>{surname}</strong>
-        {rules.drs.enabled ? <span className={`bc-card__drs${drs ? " is-on" : ""}`}>DRS</span> : rules.activeAero ? <span className="bc-card__drs">{t("AERO", "AERO")}</span> : null}
-        {car.lastLap && <small>{lapTime(car.lastLap)}</small>}
-      </header>
+    <section className={`lv-card${running ? "" : " is-out"}${focused ? " is-focus" : ""}`} aria-label={car.name}>
+      <button type="button" className="lv-card__head" onClick={onFocus}>
+        <span className="lv-card__pos">{position}</span>
+        <i className="lv-card__stripe" style={{ "--stripe": readableOn(car.color) }} aria-hidden="true" />
+        <span className="lv-card__name">{car.name}</span>
+        {commands.drs ? <span className={`lv-flagword${drs ? " is-on" : ""}`}>DRS</span> : commands.activeAero ? <span className="lv-flagword">{t("Aero", "Aero")}</span> : <span />}
+        <span className="lv-card__lap">{car.lastLap ? lapTime(car.lastLap) : ""}</span>
+      </button>
       {running ? (
         <>
-          <div className="bc-card__grid">
-            <div className="bc-card__col">
-              <span className="bc-card__title">{t("Ritmo", "Pace")}</span>
-              <div className="bc-card__line">
-                <Tyre compound={car.compound} age={car.tyreAge} size={22} />
-                <b className={life < 0.2 ? "is-bad" : life < 0.4 ? "is-warn" : ""}>{Math.round(life * 100)}%</b>
-              </div>
-              <div className={`bc-meter bc-meter--${temp.tone}`} title={temp.label}>
-                <i style={{ width: `${Math.round((car.tyreTemp ?? 0.5) * 100)}%` }} />
-              </div>
-              <Dots label={t("Ritmo", "Pace")} value={car.mode} onChange={(mode) => command("setMode", car.id, mode)} options={MODE_KEYS.map((mode) => ({ value: mode, label: MODE[mode]() }))} />
-            </div>
-            <div className="bc-card__col">
-              <span className="bc-card__title">{t("Combustible", "Fuel")}</span>
-              <div className="bc-card__line">
-                {fuelMargin !== null ? (
-                  <b className={fuelMargin < 0 ? "is-bad" : fuelMargin < 0.6 ? "is-warn" : "is-good"}>
-                    {fuelMargin >= 0 ? "+" : ""}
-                    {fuelMargin.toFixed(2)} {t("v", "laps")}
-                  </b>
-                ) : (
-                  <b>
-                    {Math.max(0, Math.round(car.fuel))} {t("v", "laps")}
-                  </b>
-                )}
-              </div>
-              <div className="bc-meter bc-meter--fuel">
-                <i style={{ width: `${Math.round(Math.min(1, car.fuel / Math.max(1, refuel ? 30 : state.fuelStart)) * 100)}%` }} />
-              </div>
-              {!refuel ? (
-                <Dots label={t("Mezcla", "Fuel mix")} value={car.fuelMode} onChange={(mix) => command("setMix", car.id, mix)} options={MIX_KEYS.map((mix) => ({ value: mix, label: MIX[mix]() }))} />
-              ) : (
-                <small className="bc-card__note">{t("Repostaje en cada parada", "Refuel at every stop")}</small>
-              )}
-            </div>
-            <div className="bc-card__col">
-              <span className="bc-card__title">{energy === "kers" ? "KERS" : energy ? "ERS" : t("Estrategia", "Strategy")}</span>
-              {car.battery !== null && car.battery !== undefined ? (
-                <>
-                  <div className="bc-card__line">
-                    <b>{Math.round(car.battery)}%</b>
-                  </div>
-                  <div className="bc-meter bc-meter--ers">
-                    <i style={{ width: `${Math.round(car.battery)}%` }} />
-                  </div>
-                  <Dots tone="cyan" label="ERS" value={car.ersMode} onChange={(mode) => command("setErs", car.id, mode)} options={rules.energy.modes.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
-                </>
-              ) : (
-                <>
-                  <div className="bc-card__line">
-                    <b>
-                      {car.stops} {t("paradas", "stops")}
-                    </b>
-                  </div>
-                  <small className="bc-card__note">
-                    {t("Plan", "Plan")}: {car.plan.stops.filter((lap) => lap > state.lap).map((lap) => `${t("V", "L")}${lap}`).join(" · ") || "—"}
-                  </small>
-                </>
-              )}
+          <div className="lv-ctl">
+            <span>{t("Neumático", "Tyre")}</span>
+            <div className="lv-ctl__value" title={temp.label}>
+              <Tyre compound={car.compound} age={car.tyreAge} size={20} />
+              <b className={life < 0.2 ? "is-bad" : life < 0.4 ? "is-warn" : ""}>{Math.round(life * 100)}%</b>
+              <Meter value={Math.round((car.tyreTemp ?? 0.5) * 100)} tone={temp.tone} label={t("Temperatura", "Temperature")} />
+              <small>{temp.label}</small>
             </div>
           </div>
-          {steps && (
-            <div className="bc-card__grid bc-card__grid--duel">
-              <div className="bc-card__col">
-                <span className="bc-card__title">{t("Defensa", "Defence")}</span>
-                <Dots label={t("Defensa", "Defence")} value={car.defence} onChange={(style) => command("setDefence", car.id, style)} options={DEFENCE_KEYS.map((style) => ({ value: style, label: DEFENCE[style]() }))} />
+          <div className="lv-ctl">
+            <span>{t("Ritmo", "Pace")}</span>
+            <Dots label={t("Ritmo", "Pace")} value={car.mode} onChange={(mode) => command("setMode", car.id, mode)} options={paceKeys.map((mode) => ({ value: mode, label: MODE[mode]() }))} />
+          </div>
+          <div className="lv-ctl">
+            <span>{t("Combustible", "Fuel")}</span>
+            <div className="lv-ctl__value">
+              {fuelMargin !== null ? (
+                <b className={fuelMargin < 0 ? "is-bad" : fuelMargin < 0.6 ? "is-warn" : "is-good"}>
+                  {fuelMargin >= 0 ? "+" : ""}
+                  {fuelMargin.toFixed(2)} {t("v", "laps")}
+                </b>
+              ) : (
+                <b>
+                  {Math.max(0, Math.round(car.fuel))} {t("v", "laps")}
+                </b>
+              )}
+              <Meter value={Math.round(Math.min(1, car.fuel / Math.max(1, refuel ? 30 : state.fuelStart)) * 100)} tone="accent" label={t("Combustible", "Fuel")} />
+              {refuel && <small>{t("Repostaje en cada parada", "Refuel at every stop")}</small>}
+            </div>
+          </div>
+          {mixKeys.length > 0 && (
+            <div className="lv-ctl">
+              <span>{t("Mezcla", "Fuel mix")}</span>
+              <Dots label={t("Mezcla", "Fuel mix")} value={car.fuelMode} onChange={(mix) => command("setMix", car.id, mix)} options={mixKeys.map((mix) => ({ value: mix, label: MIX[mix]() }))} />
+            </div>
+          )}
+          {hasBattery ? (
+            <div className="lv-ctl">
+              <span>{energy === "kers" ? "KERS" : "ERS"}</span>
+              <div className="lv-ctl__value">
+                <b>{Math.round(car.battery)}%</b>
+                <Dots label={energy === "kers" ? "KERS" : "ERS"} value={car.ersMode} onChange={(mode) => command("setErs", car.id, mode)} options={energyModes.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
               </div>
-              <div className="bc-card__col">
-                <span className="bc-card__title">{t("Ataque", "Attack")}</span>
-                <Dots tone="cyan" label={t("Riesgo al adelantar", "Overtaking risk")} value={car.overtakeRisk} onChange={(level) => command("setOvertakeRisk", car.id, level)} options={RISK_KEYS.map((level) => ({ value: level, label: RISK[level]() }))} />
+            </div>
+          ) : (
+            <div className="lv-ctl">
+              <span>{t("Plan", "Plan")}</span>
+              <div className="lv-ctl__value">
+                <b>
+                  {car.stops} {t("paradas", "stops")}
+                </b>
+                <small>{car.plan.stops.filter((lap) => lap > state.lap).map((lap) => `${t("V", "L")}${lap}`).join(" · ") || "—"}</small>
               </div>
             </div>
           )}
-          <div className="bc-card__box">
+          {steps && (
+            <>
+              <div className="lv-ctl">
+                <span>{t("Defensa", "Defence")}</span>
+                <Dots label={t("Defensa", "Defence")} value={car.defence} onChange={(style) => command("setDefence", car.id, style)} options={DEFENCE_KEYS.map((style) => ({ value: style, label: DEFENCE[style]() }))} />
+              </div>
+              <div className="lv-ctl">
+                <span>{t("Ataque", "Attack")}</span>
+                <Dots label={t("Riesgo al adelantar", "Overtaking risk")} value={car.overtakeRisk} onChange={(level) => command("setOvertakeRisk", car.id, level)} options={RISK_KEYS.map((level) => ({ value: level, label: RISK[level]() }))} />
+              </div>
+            </>
+          )}
+          <div className="lv-box">
             {car.pitRequest ? (
-              <button type="button" className="bc-box is-called" onClick={() => command("cancelPit", car.id)}>
-                {t(`BOX V${car.pitRequest.lap} · ${COMPOUND[car.pitRequest.compound]()} · cancelar`, `BOX L${car.pitRequest.lap} · ${COMPOUND[car.pitRequest.compound]()} · cancel`)}
+              <button type="button" className="mn-btn mn-btn--sm lv-box__called" onClick={() => command("cancelPit", car.id)}>
+                {commands.pit.tyres
+                  ? t(`Box en la V${car.pitRequest.lap} · ${COMPOUND[car.pitRequest.compound]()} · cancelar`, `Box on L${car.pitRequest.lap} · ${COMPOUND[car.pitRequest.compound]()} · cancel`)
+                  : t(`Box en la V${car.pitRequest.lap} · combustible · cancelar`, `Box on L${car.pitRequest.lap} · fuel · cancel`)}
               </button>
-            ) : (
+            ) : commands.pit.tyres ? (
               <>
-                <span>BOX</span>
-                {compounds.map((compound) => (
-                  <button type="button" key={compound} className="mn-pit-tyre" onClick={() => command("requestPit", car.id, compound)} aria-label={t(`Parar y montar ${COMPOUND[compound]().toLowerCase()}`, `Box for ${COMPOUND[compound]()}`)} title={t(`Box: ${COMPOUND[compound]()}`, `Box: ${COMPOUND[compound]()}`)}>
+                <span>{t("Parada", "Pit stop")}</span>
+                {commands.pit.compounds.map((compound) => (
+                  <button type="button" key={compound} className="lv-box__tyre" onClick={() => command("requestPit", car.id, compound)} aria-label={t(`Parar y montar ${COMPOUND[compound]().toLowerCase()}`, `Box for ${COMPOUND[compound]()}`)} title={t(`Box: ${COMPOUND[compound]()}`, `Box: ${COMPOUND[compound]()}`)}>
                     <Tyre compound={compound} size={22} />
                   </button>
                 ))}
               </>
+            ) : (
+              <>
+                <span>{t("Parada", "Pit stop")}</span>
+                <button type="button" className="mn-btn mn-btn--sm" onClick={() => command("requestPit", car.id, car.compound)}>
+                  {t("Box: solo combustible", "Box: fuel only")}
+                </button>
+              </>
             )}
-            {car.issue ? <em className="bc-card__issue">{t("Problema", "Issue")} +{car.issue.toFixed(1)}s</em> : null}
+            {car.issue ? <em className="lv-box__issue">{t("Problema", "Issue")} +{car.issue.toFixed(1)} s</em> : null}
           </div>
         </>
       ) : (
-        <p className="bc-card__status">{car.status === "finished" ? t("Terminado", "Finished") : STATUS[car.retireReason] ? STATUS[car.retireReason]() : ""}</p>
+        <p className="lv-card__status">{car.status === "finished" ? t("Terminado", "Finished") : STATUS[car.retireReason] ? STATUS[car.retireReason]() : ""}</p>
       )}
     </section>
   );

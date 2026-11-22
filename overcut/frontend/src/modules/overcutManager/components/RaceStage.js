@@ -16,6 +16,8 @@
 import React, { useId, useMemo } from "react";
 import { offsetSpan, pathOf, poseAt } from "../engine/trackGeometry";
 import { CarTop } from "./carShapes";
+import { readableOn } from "./atoms";
+import "./styles/weekend.css";
 
 const VIEW_W = 1000;
 const VIEW_H = 600;
@@ -33,30 +35,30 @@ const useTrackArt = (circuit, near, wet, teams, uid) =>
     if (!near) {
       const width = span / 52;
       return (
-        <g className="mn-art mn-art--map">
-          <path d={loop} className="mn-art__map-edge" strokeWidth={width * 1.9} />
-          <path d={loop} className={`mn-art__map-road${wet ? " is-wet" : ""}`} strokeWidth={width} />
-          <path d={pathOf(circuit.pit.path, false)} className="mn-art__map-pit" strokeWidth={width * 0.45} />
+        <g className="lv-art lv-art--map">
+          <path d={loop} className="lv-art__map-edge" strokeWidth={width * 1.9} />
+          <path d={loop} className={`lv-art__map-road${wet ? " is-wet" : ""}`} strokeWidth={width} />
+          <path d={pathOf(circuit.pit.path, false)} className="lv-art__map-pit" strokeWidth={width * 0.45} />
           {circuit.drsZones.map((zone, index) => (
-            <path key={`drs-${index}`} d={pathOf(offsetSpan(circuit, zone.from, zone.to, 0), false)} className="mn-art__map-drs" strokeWidth={width * 0.35} />
+            <path key={`drs-${index}`} d={pathOf(offsetSpan(circuit, zone.from, zone.to, 0), false)} className="lv-art__map-drs" strokeWidth={width * 0.35} />
           ))}
           {circuit.sectors.slice(1).map((share, index) => {
             const pose = poseAt(circuit, share);
-            return <circle key={`s-${index}`} cx={pose.x} cy={pose.y} r={width * 0.7} className={`mn-art__sector mn-art__sector--${index + 2}`} />;
+            return <circle key={`s-${index}`} cx={pose.x} cy={pose.y} r={width * 0.7} className={`lv-art__sector lv-art__sector--${index + 2}`} />;
           })}
           {corners.map((corner) => {
             const apex = circuit.points[corner.apexIndex];
             const heading = circuit.heading[corner.apexIndex];
             const out = -corner.sign * width * 2.6;
             return (
-              <text key={corner.number} x={apex.x - Math.sin(heading) * out} y={apex.y + Math.cos(heading) * out} className="mn-art__map-corner" fontSize={width * 1.5}>
+              <text key={corner.number} x={apex.x - Math.sin(heading) * out} y={apex.y + Math.cos(heading) * out} className="lv-art__map-corner" fontSize={width * 1.5}>
                 {corner.number}
               </text>
             );
           })}
           {(() => {
             const pose = poseAt(circuit, 0);
-            return <line x1={pose.x - Math.sin(pose.heading) * width} y1={pose.y + Math.cos(pose.heading) * width} x2={pose.x + Math.sin(pose.heading) * width} y2={pose.y - Math.cos(pose.heading) * width} className="mn-art__map-line" strokeWidth={width * 0.45} />;
+            return <line x1={pose.x - Math.sin(pose.heading) * width} y1={pose.y + Math.cos(pose.heading) * width} x2={pose.x + Math.sin(pose.heading) * width} y2={pose.y - Math.cos(pose.heading) * width} className="lv-art__map-line" strokeWidth={width * 0.45} />;
           })()}
         </g>
       );
@@ -69,7 +71,7 @@ const useTrackArt = (circuit, near, wet, teams, uid) =>
       // Gravel or tarmac run-off on the outside, wider for the fast ones.
       const runoff = corner.kind === "fast" ? 26 : corner.kind === "medium" ? 20 : 15;
       ribbons.push(
-        <path key={`g-${corner.number}`} d={pathOf(offsetSpan(circuit, corner.from - 0.002, corner.to + 0.008, -inside * (half + runoff / 2)), false)} className={corner.kind === "slow" ? "mn-art__gravel" : "mn-art__runoff"} strokeWidth={runoff} />,
+        <path key={`g-${corner.number}`} d={pathOf(offsetSpan(circuit, corner.from - 0.002, corner.to + 0.008, -inside * (half + runoff / 2)), false)} className={corner.kind === "slow" ? "lv-art__gravel" : "lv-art__runoff"} strokeWidth={runoff} />,
       );
     });
     const kerbs = [];
@@ -82,8 +84,8 @@ const useTrackArt = (circuit, near, wet, teams, uid) =>
         offsetSpan(circuit, corner.to - (corner.to - corner.apex) * 0.3, corner.to + 0.004, -inside * (half + 0.7)),
       ].forEach((points, index) => {
         const d = pathOf(points, false);
-        kerbs.push(<path key={`kw-${corner.number}-${index}`} d={d} className="mn-art__kerb-base" />);
-        kerbs.push(<path key={`kr-${corner.number}-${index}`} d={d} className="mn-art__kerb" />);
+        kerbs.push(<path key={`kw-${corner.number}-${index}`} d={d} className="lv-art__kerb-base" />);
+        kerbs.push(<path key={`kr-${corner.number}-${index}`} d={d} className="lv-art__kerb" />);
       });
     });
     const start = poseAt(circuit, 0);
@@ -93,7 +95,7 @@ const useTrackArt = (circuit, near, wet, teams, uid) =>
       const side = slot % 2 ? -1 : 1;
       const x = pose.x - Math.sin(pose.heading) * side * 2.6;
       const y = pose.y + Math.cos(pose.heading) * side * 2.6;
-      gridSlots.push(<rect key={`grid-${slot}`} x={x + 2.4} y={y - 1.3} width={0.35} height={2.6} transform={`rotate(${deg(pose.heading)} ${x} ${y})`} className="mn-art__grid" />);
+      gridSlots.push(<rect key={`grid-${slot}`} x={x + 2.4} y={y - 1.3} width={0.35} height={2.6} transform={`rotate(${deg(pose.heading)} ${x} ${y})`} className="lv-art__grid" />);
     }
     // Garages along the pit lane, in the colours of the teams.
     const garages = [];
@@ -114,7 +116,7 @@ const useTrackArt = (circuit, near, wet, teams, uid) =>
     });
 
     return (
-      <g className={`mn-art mn-art--near${wet ? " is-wet" : ""}`}>
+      <g className={`lv-art lv-art--near${wet ? " is-wet" : ""}`}>
         <defs>
           <pattern id={`${uid}-checker`} width="1.6" height="1.6" patternUnits="userSpaceOnUse">
             <rect width="1.6" height="1.6" fill="#f3f1e9" />
@@ -122,23 +124,23 @@ const useTrackArt = (circuit, near, wet, teams, uid) =>
             <rect x="0.8" y="0.8" width="0.8" height="0.8" fill="#0a0a0c" />
           </pattern>
         </defs>
-        <rect x={box.minX - 3000} y={box.minY - 3000} width={box.maxX - box.minX + 6000} height={box.maxY - box.minY + 6000} className="mn-art__grass" />
+        <rect x={box.minX - 3000} y={box.minY - 3000} width={box.maxX - box.minX + 6000} height={box.maxY - box.minY + 6000} className="lv-art__grass" />
         {ribbons}
-        <path d={pathOf(pitPath, false)} className="mn-art__pit" />
-        <path d={pathOf(pitPath, false)} className="mn-art__pit-line" />
+        <path d={pathOf(pitPath, false)} className="lv-art__pit" />
+        <path d={pathOf(pitPath, false)} className="lv-art__pit-line" />
         {garages}
-        <path d={loop} className="mn-art__road" />
+        <path d={loop} className="lv-art__road" />
         {circuit.drsZones.map((zone, index) => (
-          <path key={`drs-${index}`} d={pathOf(offsetSpan(circuit, zone.from, zone.to, -(half - 1.2)), false)} className="mn-art__drs" />
+          <path key={`drs-${index}`} d={pathOf(offsetSpan(circuit, zone.from, zone.to, -(half - 1.2)), false)} className="lv-art__drs" />
         ))}
-        <path d={pathOf(offsetSpan(circuit, 0, 0.9999, half))} className="mn-art__edge" />
-        <path d={pathOf(offsetSpan(circuit, 0, 0.9999, -half))} className="mn-art__edge" />
+        <path d={pathOf(offsetSpan(circuit, 0, 0.9999, half))} className="lv-art__edge" />
+        <path d={pathOf(offsetSpan(circuit, 0, 0.9999, -half))} className="lv-art__edge" />
         {kerbs}
         {gridSlots}
         <rect x={start.x - 0.8} y={start.y - half} width={1.6} height={half * 2} fill={`url(#${uid}-checker)`} transform={`rotate(${deg(start.heading)} ${start.x} ${start.y})`} />
         {circuit.sectors.slice(1).map((share, index) => {
           const pose = poseAt(circuit, share);
-          return <rect key={`sec-${index}`} x={pose.x - 0.3} y={pose.y - half} width={0.6} height={half * 2} className={`mn-art__sector-line mn-art__sector-line--${index + 2}`} transform={`rotate(${deg(pose.heading)} ${pose.x} ${pose.y})`} />;
+          return <rect key={`sec-${index}`} x={pose.x - 0.3} y={pose.y - half} width={0.6} height={half * 2} className={`lv-art__sector-line lv-art__sector-line--${index + 2}`} transform={`rotate(${deg(pose.heading)} ${pose.x} ${pose.y})`} />;
         })}
         {corners.map((corner) => {
           const apex = circuit.points[corner.apexIndex];
@@ -148,8 +150,8 @@ const useTrackArt = (circuit, near, wet, teams, uid) =>
           const y = apex.y + Math.cos(heading) * at;
           return (
             <g key={`board-${corner.number}`} transform={`translate(${x} ${y})`}>
-              <circle r={4.2} className="mn-art__board" />
-              <text className="mn-art__board-text" fontSize={4.4} y={1.5}>
+              <circle r={4.2} className="lv-art__board" />
+              <text className="lv-art__board-text" fontSize={4.4} y={1.5}>
                 {corner.number}
               </text>
             </g>
@@ -186,7 +188,7 @@ export default function RaceStage({ circuit, year, cars, camera, wet, teams, saf
     const pad = span * 0.07;
     const carScale = Math.max(2.6, span / 180);
     return (
-      <svg className="mn-stage__svg" viewBox={`${box.minX - pad} ${box.minY - pad} ${box.maxX - box.minX + pad * 2} ${box.maxY - box.minY + pad * 2}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={labels.map}>
+      <svg className="lv-svg" viewBox={`${box.minX - pad} ${box.minY - pad} ${box.maxX - box.minX + pad * 2} ${box.maxY - box.minY + pad * 2}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={labels.map}>
         {art}
         {safetyCar && (
           <g transform={`translate(${safetyCar.x} ${safetyCar.y}) rotate(${deg(safetyCar.heading)}) scale(${carScale})`}>
@@ -195,14 +197,14 @@ export default function RaceStage({ circuit, year, cars, camera, wet, teams, saf
         )}
         {ordered.map(({ car, pose }) =>
           pose.gone ? null : (
-            <g key={car.id} transform={`translate(${pose.x.toFixed(1)} ${pose.y.toFixed(1)}) rotate(${deg(pose.heading).toFixed(1)}) scale(${carScale})`} onClick={() => onPick(car.id)} className="mn-stage__car">
+            <g key={car.id} transform={`translate(${pose.x.toFixed(1)} ${pose.y.toFixed(1)}) rotate(${deg(pose.heading).toFixed(1)}) scale(${carScale})`} onClick={() => onPick(car.id)} className="lv-car">
               <CarTop year={year} color={car.color} compound={car.compound} ghost={pose.parked} highlight={car.isUser || car.id === focusId} />
             </g>
           ),
         )}
         {ordered.map(({ car, code, pose, row }) =>
           pose.gone || !(car.isUser || car.id === focusId || (row && row.position <= 3)) ? null : (
-            <text key={`l-${car.id}`} x={pose.x} y={pose.y - carScale * 2.4} className={`mn-stage__map-label${car.isUser ? " is-user" : ""}`} fontSize={span / 62}>
+            <text key={`l-${car.id}`} x={pose.x} y={pose.y - carScale * 2.4} className={`lv-map-label${car.isUser ? " is-user" : ""}`} fontSize={span / 62}>
               {row ? `${row.position} ` : ""}
               {code}
             </text>
@@ -225,7 +227,7 @@ export default function RaceStage({ circuit, year, cars, camera, wet, teams, saf
   };
 
   return (
-    <svg className="mn-stage__svg is-near" viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="xMidYMid slice" role="img" aria-label={labels.near}>
+    <svg className="lv-svg is-near" viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="xMidYMid slice" role="img" aria-label={labels.near}>
       <g transform={transform}>
         {art}
         {safetyCar && (
@@ -235,7 +237,7 @@ export default function RaceStage({ circuit, year, cars, camera, wet, teams, saf
         )}
         {ordered.map(({ car, pose }) =>
           pose.gone ? null : (
-            <g key={car.id} transform={`translate(${pose.x.toFixed(2)} ${pose.y.toFixed(2)}) rotate(${deg(pose.heading).toFixed(1)})`} onClick={() => onPick(car.id)} className="mn-stage__car">
+            <g key={car.id} transform={`translate(${pose.x.toFixed(2)} ${pose.y.toFixed(2)}) rotate(${deg(pose.heading).toFixed(1)})`} onClick={() => onPick(car.id)} className="lv-car">
               <CarTop year={year} color={car.color} compound={car.compound} ghost={pose.parked} highlight={car.id === focusId} />
             </g>
           ),
@@ -246,14 +248,15 @@ export default function RaceStage({ circuit, year, cars, camera, wet, teams, saf
         const [sx, sy] = toScreen(pose.x, pose.y);
         if (sx < -40 || sx > VIEW_W + 40 || sy < -40 || sy > VIEW_H + 40) return null;
         return (
-          <g key={`tag-${car.id}`} transform={`translate(${sx.toFixed(1)} ${(sy - 34).toFixed(1)})`} className={`mn-stage__tag${car.isUser ? " is-user" : ""}${car.id === focusId ? " is-focus" : ""}`} onClick={() => onPick(car.id)}>
-            <rect x={-30} y={-11} width={60} height={18} rx={2} style={{ "--team": car.color }} />
-            <text y={3}>
+          <g key={`tag-${car.id}`} transform={`translate(${sx.toFixed(1)} ${(sy - 34).toFixed(1)})`} className={`lv-tag${car.isUser ? " is-user" : ""}${car.id === focusId ? " is-focus" : ""}`} onClick={() => onPick(car.id)}>
+            <rect x={-30} y={-11} width={60} height={18} rx={2} />
+            <rect x={-30} y={-11} width={3} height={18} className="lv-tag__stripe" style={{ "--team": readableOn(car.color, "#0e1520") }} />
+            <text x={2} y={3} textAnchor="middle">
               {row ? `P${row.position} ` : ""}
               {code}
             </text>
             {pose.stopped && (
-              <text y={-16} className="mn-stage__tag-pit">
+              <text y={-16} className="lv-tag__pit">
                 {labels.box} {pose.stopLeft.toFixed(1)}s
               </text>
             )}
@@ -263,8 +266,8 @@ export default function RaceStage({ circuit, year, cars, camera, wet, teams, saf
       {safetyCar && (() => {
         const [sx, sy] = toScreen(safetyCar.x, safetyCar.y);
         return (
-          <text x={sx} y={sy - 30} className="mn-stage__sc-tag">
-            SAFETY CAR
+          <text x={sx} y={sy - 30} className="lv-sc-tag">
+            {labels.sc || "Safety car"}
           </text>
         );
       })()}
@@ -279,13 +282,23 @@ export const MiniMap = ({ circuit, cars, focusId, label }) => {
   const pad = span * 0.06;
   const loop = useMemo(() => pathOf(circuit.points), [circuit]);
   return (
-    <svg className="mn-minimap" viewBox={`${box.minX - pad} ${box.minY - pad} ${box.maxX - box.minX + pad * 2} ${box.maxY - box.minY + pad * 2}`} role="img" aria-label={label}>
-      <path d={loop} className="mn-minimap__road" strokeWidth={span / 40} />
-      {cars.map(({ car, pose }) =>
-        pose.gone ? null : (
-          <circle key={car.id} cx={pose.x} cy={pose.y} r={car.id === focusId ? span / 36 : car.isUser ? span / 48 : span / 70} fill={pose.parked ? "#5d6470" : car.color} stroke={car.id === focusId || car.isUser ? "#f2b705" : "#081832"} strokeWidth={span / 260} />
-        ),
-      )}
-    </svg>
+    <div className="lv-minimap">
+      <svg viewBox={`${box.minX - pad} ${box.minY - pad} ${box.maxX - box.minX + pad * 2} ${box.maxY - box.minY + pad * 2}`} role="img" aria-label={label}>
+        <path d={loop} className="lv-minimap__road" strokeWidth={span / 40} />
+        {cars.map(({ car, pose }) =>
+          pose.gone ? null : (
+            <circle
+              key={car.id}
+              cx={pose.x}
+              cy={pose.y}
+              r={car.id === focusId ? span / 36 : car.isUser ? span / 48 : span / 70}
+              fill={pose.parked ? "#5d6470" : car.color}
+              stroke={car.id === focusId || car.isUser ? "#f2b705" : "#0b111b"}
+              strokeWidth={span / 260}
+            />
+          ),
+        )}
+      </svg>
+    </div>
   );
 };

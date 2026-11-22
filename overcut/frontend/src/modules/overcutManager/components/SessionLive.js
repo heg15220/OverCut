@@ -1,20 +1,22 @@
 /**
- * Practice and qualifying, live: the same broadcast as the race - the circuit
- * in 3D, the timing tower, the conditions and your drivers - over a session
- * clock instead of laps. Cars leave their garages, set times, come back in;
- * the tower orders them by best lap, the knockout zone glows red as the clock
- * runs down, and at the flag the slowest are out and the next session starts.
+ * Practice and qualifying, live (DESIGN.md §6.5): the same pit wall as the race -
+ * timing tower left, the circuit in 3D or the 2D map in the centre, your drivers
+ * right, playback underneath - over a session clock instead of laps. Cars leave
+ * their garages, set times, come back in; the tower orders them by best lap, the
+ * knockout cut is marked as the clock runs down, and at the flag the slowest are
+ * out and the next session starts.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LuFastForward, LuFlag } from "react-icons/lu";
 import { sessionStatus } from "../engine/sessions";
-import { Tyre } from "./atoms";
-import { ConditionsPanel, PlaybackBar, TimingTower } from "./Broadcast";
+import { Meter, Tyre, readableOn } from "./atoms";
+import { PlaybackBar, StatusStrip, TimingTower } from "./Broadcast";
+import { IconFlag, IconNextEvent } from "./icons";
 import { carAt } from "./raceClock";
 import RaceStage, { MiniMap } from "./RaceStage";
 import { lapTime, t } from "./texts";
 import { canRender3D } from "../three/support";
+import "./styles/weekend.css";
 
 const Race3D = React.lazy(() => import("../three/Race3D"));
 
@@ -36,10 +38,10 @@ const clockOf = (seconds) => {
 };
 
 const STATE_LABEL = {
-  garage: () => t("EN BOXES", "IN PIT"),
-  out: () => t("SALIDA", "OUT LAP"),
-  in: () => t("ENTRANDO", "IN LAP"),
-  flying: () => t("LANZADA", "FLYING"),
+  garage: () => t("En boxes", "In pit"),
+  out: () => t("Salida", "Out lap"),
+  in: () => t("Entrando", "In lap"),
+  flying: () => t("Lanzada", "Flying"),
 };
 
 const cycle = (list, value, step) => list[(list.indexOf(value) + step + list.length) % list.length];
@@ -163,13 +165,26 @@ export default function SessionLive({ kind, timeline, entrants, circuit, year, b
   const in3D = has3D && cameraMode !== "map";
   in3DRef.current = in3D;
   const focusPose = stageCars.find((item) => item.car.id === focusId)?.pose || stageCars[0]?.pose || { x: 0, y: 0, heading: 0 };
-  const title = kind === "practice" ? t("LIBRES", "PRACTICE") : session.name === "Q" ? t("CLASIFICACIÓN", "QUALIFYING") : session.name;
+  const title = kind === "practice" ? t("Libres", "Practice") : session.name === "Q" ? t("Clasificación", "Qualifying") : session.name;
+  const remaining = over ? "0:00" : mmss(session.duration - now);
+  const flag = over ? { kind: "chequered", label: t("Bandera a cuadros", "Chequered flag") } : { kind: "green", label: t(`${title} · pista abierta`, `${title} · track open`) };
 
   return (
-    <div className={`bc bc--session${compact ? " is-compact" : ""}${in3D ? " is-3d" : ""}`}>
-      <div className="bc__stage">
+    <div className={`lv lv--session${compact ? " is-compact" : ""}${in3D ? " is-3d" : ""}`}>
+      <StatusStrip
+        flag={flag}
+        clock={clockOf((kind === "practice" ? 11 : 14) * 3600 + now + sessionIndex * 1200)}
+        airTemp={trackTemp * 0.62 + 4}
+        rainChance={rainChance}
+        change={t("Condiciones estables", "Settled conditions")}
+        trackTemp={trackTemp}
+        wetness={wetness}
+        rubber={Math.min(1, 0.2 + (now / Math.max(1, session.duration)) * 0.6 + sessionIndex * 0.15)}
+      />
+
+      <div className="lv-stage">
         {in3D ? (
-          <React.Suspense fallback={<div className="mn-stage__loading">{t("Cargando el circuito en 3D…", "Loading the circuit in 3D…")}</div>}>
+          <React.Suspense fallback={<div className="lv-loading">{t("Cargando el circuito en 3D…", "Loading the circuit in 3D…")}</div>}>
             <Race3D circuit={circuit} year={year} cars={stageCars} focusId={focusId} mode={cameraMode} wet={wetness > 0.2} lights={0} safetyCar={null} teams={teams} onPick={setFocusId} labels={{ near: title }} clock={tau} sample={sample} />
           </React.Suspense>
         ) : (
@@ -183,111 +198,94 @@ export default function SessionLive({ kind, timeline, entrants, circuit, year, b
             safetyCar={null}
             focusId={focusId}
             onPick={setFocusId}
-            labels={{ map: t("Mapa del circuito", "Circuit map"), near: title, box: "BOX" }}
+            labels={{ map: t("Mapa del circuito", "Circuit map"), near: title, box: "Box" }}
           />
         )}
-        <div className="bc__banners">
+        <div className="lv-overlay">
           {over && (
-            <div className="mn-stage__banner mn-stage__banner--flag">
-              <span className="mn-checker" aria-hidden="true" />
-              {t(`Bandera a cuadros · fin de ${title}`, `Chequered flag · end of ${title}`)}
+            <div className="lv-banner">
+              <IconFlag size={16} />
+              {t(`Fin de ${title}`, `End of ${title}`)}
             </div>
           )}
           {over && (allIn || now > session.duration + 200) && (
-            <button type="button" className="bc-continue" onClick={advance}>
+            <button type="button" className="mn-btn mn-btn--primary" onClick={advance}>
               {next ? t(`Ir a ${next.name}`, `On to ${next.name}`) : kind === "practice" ? t("Cerrar libres", "Close practice") : t("Ver la parrilla", "See the grid")}
             </button>
           )}
         </div>
+        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={focusId} label={t("Minimapa", "Mini map")} />}
       </div>
 
-      <TimingTower
-        label={t("Torre de tiempos", "Timing tower")}
-        title={title}
-        subtitle={<b>{over ? "0:00" : mmss(session.duration - now)}</b>}
-        modeLabel={t("Mejor vuelta", "Best lap")}
-        onMode={() => {}}
-        rows={rows}
-        onPick={setFocusId}
-      />
+      <TimingTower label={t("Torre de tiempos", "Timing tower")} title={title} subtitle={<b>{remaining}</b>} modes={null} rows={rows} onPick={setFocusId} />
 
-      <ConditionsPanel
-        title={kind === "practice" ? t("ENTRENAMIENTOS LIBRES", "FREE PRACTICE") : t("CLASIFICACIÓN", "QUALIFYING")}
-        clock={clockOf((kind === "practice" ? 11 : 14) * 3600 + now + sessionIndex * 1200)}
-        airTemp={trackTemp * 0.62 + 4}
-        rainChance={rainChance}
-        change={t("Condiciones estables", "Settled conditions")}
-        trackTemp={trackTemp}
-        wetness={wetness}
-        rubber={Math.min(1, 0.2 + now / Math.max(1, session.duration) * 0.6 + sessionIndex * 0.15)}
-      >
-        <MiniMap circuit={circuit} cars={stageCars} focusId={focusId} label={t("Minimapa", "Mini map")} />
-      </ConditionsPanel>
-
-      <div className="bc-cards">
-        {users
-          .filter((user) => session.ids.includes(user.id))
-          .map((user) => {
-            const st = status[user.id];
-            const position = positionOf[user.id];
-            const danger = position > cut;
-            return (
-              <section key={user.id} className={`bc-card${focusId === user.id ? " is-focus" : ""}`} style={{ "--team": user.color }} aria-label={user.name}>
-                <header onClick={() => setFocusId(user.id)}>
-                  <b>{position}</b>
-                  <i />
-                  <strong>{(user.name || "").split(" ").pop().toUpperCase()}</strong>
-                  <span className={`bc-card__drs${danger ? " is-danger" : ""}`}>{danger ? t("ELIMINADO", "OUT") : session.name}</span>
-                  <small>{mmss(session.duration - now)}</small>
-                </header>
-                <div className="bc-card__grid">
-                  <div className="bc-card__col">
-                    <span className="bc-card__title">{t("Mejor vuelta", "Best lap")}</span>
-                    <div className="bc-card__line">
-                      <Tyre compound={compound} size={22} />
-                      <b className="is-good">{st.best !== null ? lapTime(st.best) : "—"}</b>
-                    </div>
-                    <small className="bc-card__note">{st.best !== null && pole && st.best > pole ? `+${(st.best - pole).toFixed(3)}` : st.best !== null ? t("Mejor tiempo", "Fastest") : ""}</small>
-                  </div>
-                  <div className="bc-card__col">
-                    <span className="bc-card__title">{t("Vuelta en curso", "Current lap")}</span>
-                    <div className="bc-card__line">
-                      <b className={st.state === "flying" ? "is-warn" : ""}>{st.lapClock !== null ? lapTime(st.lapClock) : STATE_LABEL[st.state]()}</b>
-                    </div>
-                    <div className="bc-meter bc-meter--fuel">
-                      <i style={{ width: `${st.lapClock !== null ? Math.min(100, Math.round((st.lapClock / baseLap) * 100)) : 0}%` }} />
+      <aside className="lv-orders" aria-label={t("Tus pilotos", "Your drivers")}>
+        <header className="lv-orders__head">
+          <strong>{t("Tus pilotos", "Your drivers")}</strong>
+          <small>{kind === "practice" ? t("Tandas largas con combustible", "Long runs on fuel") : t("Neumático blando nuevo", "New soft tyres")}</small>
+        </header>
+        <div className="lv-orders__cards">
+          {users
+            .filter((user) => session.ids.includes(user.id))
+            .map((user) => {
+              const st = status[user.id];
+              const position = positionOf[user.id];
+              const danger = position > cut;
+              return (
+                <section key={user.id} className={`lv-card${focusId === user.id ? " is-focus" : ""}`} aria-label={user.name}>
+                  <button type="button" className="lv-card__head" onClick={() => setFocusId(user.id)}>
+                    <span className="lv-card__pos">{position}</span>
+                    <i className="lv-card__stripe" style={{ "--stripe": readableOn(user.color) }} aria-hidden="true" />
+                    <span className="lv-card__name">{user.name}</span>
+                    <span className={`lv-flagword${danger ? " is-danger" : ""}`}>
+                      {danger ? (over ? t("Eliminado", "Out") : t("Zona de corte", "Drop zone")) : session.name === "Q" || kind === "practice" ? title : session.name}
+                    </span>
+                    <span className="lv-card__lap">{remaining}</span>
+                  </button>
+                  <div className="lv-ctl">
+                    <span>{t("Mejor vuelta", "Best lap")}</span>
+                    <div className="lv-ctl__value">
+                      <Tyre compound={compound} size={20} />
+                      <b className={st.best !== null && st.best === pole ? "wk-best" : ""}>{st.best !== null ? lapTime(st.best) : "—"}</b>
+                      <small>{st.best !== null && pole && st.best > pole ? `+${(st.best - pole).toFixed(3)}` : st.best !== null ? t("Mejor tiempo", "Fastest") : ""}</small>
                     </div>
                   </div>
-                  <div className="bc-card__col">
-                    <span className="bc-card__title">{t("Vueltas", "Laps")}</span>
-                    <div className="bc-card__line">
+                  <div className="lv-ctl">
+                    <span>{t("En curso", "Current")}</span>
+                    <div className="lv-ctl__value">
+                      <b className={st.lapClock === null ? "is-text" : st.state === "flying" ? "is-warn" : ""}>{st.lapClock !== null ? lapTime(st.lapClock) : STATE_LABEL[st.state]()}</b>
+                      <Meter value={st.lapClock !== null ? Math.min(100, Math.round((st.lapClock / baseLap) * 100)) : 0} tone="accent" label={t("Vuelta en curso", "Current lap")} />
+                    </div>
+                  </div>
+                  <div className="lv-ctl">
+                    <span>{t("Vueltas", "Laps")}</span>
+                    <div className="lv-ctl__value">
                       <b>{st.laps}</b>
                     </div>
-                    <small className="bc-card__note">{kind === "practice" ? t("Tandas largas con combustible", "Long runs on fuel") : t("Neumático blando nuevo", "New soft tyres")}</small>
                   </div>
-                </div>
-              </section>
-            );
-          })}
-      </div>
+                </section>
+              );
+            })}
+        </div>
+      </aside>
 
       <PlaybackBar
         playing={playing}
         onPlay={() => setPlaying((value) => !value)}
-        speedLabel={`${speed}×`}
-        onSpeed={(step) => setSpeed((value) => SPEEDS[Math.max(0, Math.min(SPEEDS.length - 1, SPEEDS.indexOf(value) + step))])}
+        speeds={SPEEDS}
+        speed={speed}
+        onSpeed={setSpeed}
         cameraLabel={`${CAMERA[cameraMode]}${cameraMode !== "map" ? ` · ${code(entrants.find((entry) => entry.id === focusId)?.name || "")}` : ""}`}
         onCamera={(step) => setCameraMode((value) => cycle(cameraList, value, step))}
       >
         {!over && (
-          <button type="button" className="bc-playback__text" onClick={() => { tau.current = session.duration + 201; }}>
-            <LuFastForward aria-hidden="true" />
+          <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={() => { tau.current = session.duration + 201; }}>
+            <IconNextEvent size={16} />
             {t("Saltar sesión", "Skip session")}
           </button>
         )}
         {kind === "practice" && (
-          <button type="button" className="bc-playback__text" onClick={onDone}>
-            <LuFlag aria-hidden="true" />
+          <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={onDone}>
             {t("Ocultar", "Hide")}
           </button>
         )}

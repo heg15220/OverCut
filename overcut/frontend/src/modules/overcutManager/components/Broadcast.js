@@ -1,144 +1,241 @@
 /**
- * The broadcast furniture shared by practice, qualifying and the race - the
- * way a modern F1 game frames a session: the picture fills the screen and the
- * data sits on it.
+ * The furniture shared by practice, qualifying and the race (DESIGN.md §6.5,
+ * "Live session"): the pit wall's own monitors, not a TV clone.
  *
- *   TimingTower      top left: session and lap or clock, the order with team
- *                    colour bars, your drivers lit, cars in the pits, the
- *                    fastest lap in purple, the knockout zone in red.
- *   ConditionsPanel  top right: time of day, air and track, rain, rubber and
- *                    grip, and the circuit with the cars on it.
- *   PlaybackBar      bottom centre: play, speed and camera, each stepped with
- *                    arrows.
- *   Dots             a level picked by tapping one of a row of dots - pace,
- *                    mixture, battery.
+ *   TimingTower   left column: session and lap or clock, the order with a team
+ *                 stripe and a three-letter code, your drivers in gold, cars in
+ *                 the pits, the fastest lap in purple, the knockout cut, and an
+ *                 arrow for three seconds when a car gains or loses a place
+ *                 (§5.5). On phones it folds to the five rows around your car.
+ *   StatusStrip   over the picture: the flag state (colour and words, never
+ *                 colour alone) and the conditions - clock, air, track, rain,
+ *                 rubber and grip.
+ *   PlaybackBar   under the picture: play, speed (RF-CMD-04), camera
+ *                 (RF-3D-04) and the skips the session allows.
+ *   Feed          the engineer on the radio and the commentary (RF-CMD-03),
+ *                 filterable.
+ *   Dots          a level picked from a row of steps - pace, mixture, battery.
  */
 
-import React from "react";
-import { LuChevronLeft, LuChevronRight, LuCloudRain, LuCloudSun, LuDroplets, LuPause, LuPlay, LuSun, LuThermometer, LuTimer, LuVideo } from "react-icons/lu";
-import { Flag } from "./atoms";
+import React, { useRef, useState } from "react";
+import { Flag, Segmented, Tabs, readableOn } from "./atoms";
+import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPlay, IconRadio } from "./icons";
+import { IconCamera, IconCloud, IconDroplet, IconPause, IconRain, IconSun, IconThermometer, IconTimer } from "./icons";
 import { t } from "./texts";
+import "./styles/weekend.css";
 
-/** The tower. `rows` are { id, position, code, color, value, nat, flags: { user, out, pit, eliminated, fastest, focus, battle, danger } }. */
-export const TimingTower = ({ title, subtitle, modeLabel, onMode, rows, onPick, label }) => (
-  <section className="bc-tower" aria-label={label}>
-    <header className="bc-tower__head">
-      <strong>OVERCUT</strong>
-      <span>{title}</span>
-    </header>
-    {subtitle && <div className="bc-tower__sub">{subtitle}</div>}
-    {modeLabel && (
-      <div className="bc-tower__mode">
-        <button type="button" onClick={() => onMode(-1)} aria-label={t("Modo anterior", "Previous mode")}>
-          <LuChevronLeft />
-        </button>
-        <span>{modeLabel}</span>
-        <button type="button" onClick={() => onMode(1)} aria-label={t("Modo siguiente", "Next mode")}>
-          <LuChevronRight />
-        </button>
-      </div>
-    )}
-    <ol className="bc-tower__rows" aria-label={label}>
-      {rows.map((row) => {
-        const f = row.flags || {};
-        return (
-          <li
-            key={row.id}
-            className={`${f.user ? " is-user" : ""}${f.out ? " is-out" : ""}${f.pit ? " is-pit" : ""}${f.eliminated ? " is-eliminated" : ""}${f.danger ? " is-danger" : ""}${f.focus ? " is-focus" : ""}${f.battle ? " is-battle" : ""}`}
-            style={{ "--team": row.color }}
-            onClick={() => onPick?.(row.id)}
-          >
-            <b>{row.position}</b>
-            <i className="bc-tower__bar" />
-            <span className="bc-tower__code">{row.code}</span>
-            <span className="bc-tower__value">{row.value}</span>
-            {f.fastest && <em className="bc-tower__fastest" title={t("Vuelta rápida", "Fastest lap")}><LuTimer aria-hidden="true" /></em>}
-            {row.extra}
-          </li>
-        );
-      })}
-    </ol>
-  </section>
-);
+const MOVE_MS = 3000;
 
-const rubberLabel = (level) => (level < 0.2 ? t("Muy bajo", "Very low") : level < 0.45 ? t("Bajo", "Low") : level < 0.75 ? t("Medio", "Medium") : t("Alto", "High"));
+/** Remembers each car's last position and when it last changed, for the tower's arrows. */
+const useMoves = (rows) => {
+  const memory = useRef(new Map());
+  const clock = typeof performance !== "undefined" ? performance.now() : Date.now();
+  const moves = {};
+  rows.forEach((row) => {
+    const seen = memory.current.get(row.id);
+    if (!seen) memory.current.set(row.id, { position: row.position, at: -Infinity, dir: 0 });
+    else if (seen.position !== row.position) {
+      seen.dir = row.position < seen.position ? 1 : -1;
+      seen.at = clock;
+      seen.position = row.position;
+    }
+    const entry = memory.current.get(row.id);
+    if (clock - entry.at < MOVE_MS && !row.flags?.out) moves[row.id] = entry.dir;
+  });
+  return moves;
+};
+
+/**
+ * The tower. `rows` are { id, position, code, color, value, flags: { user, out, pit, eliminated,
+ * fastest, focus, battle, danger } }; `modes` is { options, value, onChange } or null.
+ */
+export const TimingTower = ({ title, subtitle, modes, rows, onPick, label }) => {
+  const [collapsed, setCollapsed] = useState(true);
+  const moves = useMoves(rows);
+  const userIndex = rows.findIndex((row) => row.flags?.user);
+  const anchor = userIndex < 0 ? 0 : userIndex;
+  const firstCut = rows.findIndex((row) => row.flags?.danger || row.flags?.eliminated);
+  return (
+    <section className={`lv-tower${collapsed ? " is-collapsed" : ""}`} aria-label={label}>
+      <header className="lv-tower__head">
+        <strong>{title}</strong>
+        {subtitle && <span className="lv-tower__sub">{subtitle}</span>}
+      </header>
+      {modes && (
+        <div className="lv-tower__modes">
+          <Segmented label={t("Dato de la torre", "Tower data")} value={modes.value} onChange={modes.onChange} options={modes.options} />
+        </div>
+      )}
+      <ol className="lv-tower__rows" aria-label={label}>
+        {rows.map((row, index) => {
+          const f = row.flags || {};
+          const move = moves[row.id];
+          const far = Math.abs(index - anchor) > 2 && index > 2;
+          const classes = [
+            "lv-row",
+            f.user && "is-user",
+            f.out && "is-out",
+            f.pit && "is-pit",
+            f.eliminated && "is-eliminated",
+            f.danger && "is-danger",
+            f.focus && "is-focus",
+            f.battle && "is-battle",
+            index === firstCut && index > 0 && "is-cut",
+            far && "is-far",
+          ].filter(Boolean).join(" ");
+          return (
+            <li
+              key={row.id}
+              className={classes}
+              style={{ "--stripe": readableOn(row.color, "#0e1520") }}
+              onClick={() => onPick?.(row.id)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onPick?.(row.id);
+                }
+              }}
+              tabIndex={0}
+              aria-current={f.focus ? "true" : undefined}
+            >
+              <span className="lv-row__pos">{row.position}</span>
+              <i className="lv-row__stripe" aria-hidden="true" />
+              <span className="lv-row__code">
+                {row.code}
+                {move ? (
+                  <span className={`lv-row__move ${move > 0 ? "is-up" : "is-down"}`} title={move > 0 ? t("Gana un puesto", "Gained a place") : t("Pierde un puesto", "Lost a place")}>
+                    {move > 0 ? <IconArrowUp size={12} /> : <IconArrowDown size={12} />}
+                  </span>
+                ) : null}
+              </span>
+              <span className={`lv-row__value${typeof row.value === "string" && /^\p{L}/u.test(row.value) ? " is-text" : ""}`}>{row.value}</span>
+              <span className="lv-row__mark">{f.fastest ? <IconTimer size={14} title={t("Vuelta rápida", "Fastest lap")} /> : null}</span>
+            </li>
+          );
+        })}
+      </ol>
+      {rows.length > 5 && (
+        <div className="lv-tower__more">
+          <button type="button" className="mn-link" onClick={() => setCollapsed((value) => !value)}>
+            {collapsed ? t(`Ver los ${rows.length}`, `Show all ${rows.length}`) : t("Ver solo mi zona", "Show my part only")}
+          </button>
+        </div>
+      )}
+    </section>
+  );
+};
+
+const rubberLabel = (level) => (level < 0.2 ? t("Muy poca", "Very low") : level < 0.45 ? t("Poca", "Low") : level < 0.75 ? t("Media", "Medium") : t("Mucha", "High"));
 const gripLabel = (wet, rubber) => (wet > 0.55 ? t("Muy bajo", "Very low") : wet > 0.2 ? t("Bajo", "Low") : rubber > 0.6 ? t("Alto", "High") : t("Normal", "Normal"));
 
-/** Conditions: clock, air, rain, the track, and the circuit map underneath. */
-export const ConditionsPanel = ({ title, clock, airTemp, rainChance, change, trackTemp, wetness = 0, rubber = 0, children }) => (
-  <section className="bc-conditions" aria-label={t("Condiciones", "Conditions")}>
-    <header>{title}</header>
-    <div className="bc-conditions__row">
-      <strong>{clock}</strong>
-      <span>
-        {wetness > 0.2 ? <LuCloudRain aria-hidden="true" /> : rainChance > 30 ? <LuCloudSun aria-hidden="true" /> : <LuSun aria-hidden="true" />} {airTemp.toFixed(1)} °C
-      </span>
-    </div>
-    <div className="bc-conditions__row">
-      <span>{change}</span>
-      <span>
-        <LuDroplets aria-hidden="true" /> {rainChance}%
-      </span>
-    </div>
-    <div className="bc-conditions__track">
-      <div>
-        <strong>{t("Pista", "Track")}</strong>
-        <span>
-          <LuThermometer aria-hidden="true" /> {trackTemp.toFixed(1)} °C
-        </span>
-      </div>
-      <div>
-        <span>{wetness > 0.05 ? t("Lluvia", "Rainfall") : t("Seca", "Dry")}</span>
-        <b className={wetness > 0.05 ? "is-wet" : ""}>{(wetness * 3).toFixed(2)} mm</b>
-      </div>
-      <div>
-        <span>{t("Caucho", "Rubber")}</span>
-        <b className={rubber < 0.45 ? "is-low" : "is-good"}>{rubberLabel(rubber)}</b>
-      </div>
-      <div>
-        <span>{t("Agarre", "Grip")}</span>
-        <b className={wetness > 0.2 ? "is-low" : "is-good"}>{gripLabel(wetness, rubber)}</b>
-      </div>
-    </div>
-    {children && <div className="bc-conditions__map">{children}</div>}
-  </section>
-);
-
-/** Play, speed and camera - the bar under the picture. */
-export const PlaybackBar = ({ playing, onPlay, speedLabel, onSpeed, cameraLabel, onCamera, children, disabled }) => (
-  <div className="bc-playback">
-    <button type="button" className="bc-playback__btn" onClick={onPlay} aria-label={playing ? t("Pausa", "Pause") : t("Seguir", "Play")} disabled={disabled}>
-      {playing ? <LuPause /> : <LuPlay />}
-    </button>
-    <div className="bc-playback__step" role="group" aria-label={t("Velocidad", "Speed")}>
-      <button type="button" onClick={() => onSpeed(-1)} aria-label={t("Más lento", "Slower")}>
-        <LuChevronLeft />
-      </button>
-      <span>{speedLabel}</span>
-      <button type="button" onClick={() => onSpeed(1)} aria-label={t("Más rápido", "Faster")}>
-        <LuChevronRight />
-      </button>
-    </div>
-    <div className="bc-playback__step is-camera" role="group" aria-label={t("Cámara", "Camera")}>
-      <button type="button" onClick={() => onCamera(-1)} aria-label={t("Cámara anterior", "Previous camera")}>
-        <LuChevronLeft />
-      </button>
-      <span>
-        <LuVideo aria-hidden="true" /> {cameraLabel}
-      </span>
-      <button type="button" onClick={() => onCamera(1)} aria-label={t("Cámara siguiente", "Next camera")}>
-        <LuChevronRight />
-      </button>
-    </div>
-    {children}
+/**
+ * The strip over the picture. `flag` is { kind: green|yellow|sc|vsc|red|chequered|session, label }.
+ */
+export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTemp, wetness = 0, rubber = 0 }) => (
+  <div className="lv-status" data-flag={flag.kind} role="status" aria-label={t("Estado de la pista", "Track status")}>
+    <span className="lv-status__flag">
+      <i aria-hidden="true" />
+      {flag.label}
+    </span>
+    <span className="lv-status__item is-mono">{clock}</span>
+    <span className="lv-status__spacer" />
+    <span className="lv-status__item" title={t("Aire", "Air")}>
+      {wetness > 0.2 ? <IconRain size={16} /> : rainChance > 30 ? <IconCloud size={16} /> : <IconSun size={16} />}
+      <b>{airTemp.toFixed(0)} °C</b>
+    </span>
+    <span className="lv-status__item" title={t("Pista", "Track")}>
+      <IconThermometer size={16} />
+      {t("Pista", "Track")} <b>{trackTemp.toFixed(0)} °C</b>
+    </span>
+    <span className={`lv-status__item${wetness > 0.05 ? " is-wet" : ""}`} title={t("Probabilidad de lluvia", "Chance of rain")}>
+      <IconDroplet size={16} />
+      <b>{wetness > 0.05 ? `${(wetness * 3).toFixed(1)} mm` : `${rainChance}%`}</b>
+    </span>
+    <span className="lv-status__item is-extra">{change}</span>
+    <span className="lv-status__item is-extra">
+      {t("Goma", "Rubber")} <b>{rubberLabel(rubber)}</b>
+    </span>
+    <span className="lv-status__item">
+      {t("Agarre", "Grip")} <b>{gripLabel(wetness, rubber)}</b>
+    </span>
   </div>
 );
 
-/** A level picked from a row of dots: `options` are { value, label }. */
-export const Dots = ({ value, options, onChange, label, tone = "gold" }) => {
+/**
+ * Play, speed and camera - the bar under the picture. `speeds` are numbers; `children`
+ * are the skips and calls the session allows.
+ */
+export const PlaybackBar = ({ playing, onPlay, speeds, speed, onSpeed, speedText = (value) => `×${value}`, cameraLabel, onCamera, children, disabled }) => (
+  <div className="lv-play">
+    <button type="button" className="mn-icon-btn lv-play__toggle" onClick={onPlay} aria-label={playing ? t("Pausa", "Pause") : t("Seguir", "Play")} title={playing ? t("Pausa", "Pause") : t("Seguir", "Play")} disabled={disabled}>
+      {playing ? <IconPause size={18} /> : <IconPlay size={18} />}
+    </button>
+    <Segmented label={t("Velocidad", "Speed")} value={speed} onChange={onSpeed} options={speeds.map((value) => ({ value, label: speedText(value) }))} />
+    <div className="lv-play__camera" role="group" aria-label={t("Cámara", "Camera")}>
+      <button type="button" className="mn-icon-btn" onClick={() => onCamera(-1)} aria-label={t("Cámara anterior", "Previous camera")} title={t("Cámara anterior", "Previous camera")}>
+        <IconChevronLeft size={16} />
+      </button>
+      <span data-camera-label="">
+        <IconCamera size={16} />
+        {cameraLabel}
+      </span>
+      <button type="button" className="mn-icon-btn" onClick={() => onCamera(1)} aria-label={t("Cámara siguiente", "Next camera")} title={t("Cámara siguiente", "Next camera")}>
+        <IconChevronRight size={16} />
+      </button>
+    </div>
+    <span className="lv-play__spacer" />
+    <div className="lv-play__skips">{children}</div>
+  </div>
+);
+
+/**
+ * The engineer and the commentary. `entries` are { key, lap, kind: "radio"|"race", alert, text },
+ * newest first.
+ */
+export const Feed = ({ entries, title = t("Radio y carrera", "Radio and race") }) => {
+  const [filter, setFilter] = useState("all");
+  const shown = filter === "all" ? entries : entries.filter((entry) => entry.kind === filter);
+  return (
+    <section className="lv-feed" aria-label={title}>
+      <header className="lv-feed__head">
+        <strong>{title}</strong>
+        <Tabs
+          label={t("Filtrar", "Filter")}
+          value={filter}
+          onChange={setFilter}
+          options={[
+            { value: "all", label: t("Todo", "All") },
+            { value: "radio", label: t("Radio", "Radio") },
+            { value: "race", label: t("Pista", "Track") },
+          ]}
+        />
+      </header>
+      <ol aria-live="polite">
+        {shown.length === 0 && <li className="lv-feed__empty">{t("Nada todavía", "Nothing yet")}</li>}
+        {shown.map((entry) => (
+          <li key={entry.key} className={`${entry.kind === "radio" ? "is-radio" : ""}${entry.alert ? " is-alert" : ""}`}>
+            <b>{entry.lap ? `${t("V", "L")}${entry.lap}` : ""}</b>
+            <span>
+              {entry.kind === "radio" && (
+                <em>
+                  <IconRadio size={14} />
+                  {t("Radio", "Radio")}
+                </em>
+              )}
+              {entry.text}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+};
+
+/** A level picked from a row of steps: `options` are { value, label }. */
+export const Dots = ({ value, options, onChange, label }) => {
   const index = Math.max(0, options.findIndex((option) => option.value === value));
   return (
-    <div className={`bc-dots bc-dots--${tone}`} role="radiogroup" aria-label={label}>
+    <div className="lv-dots" role="radiogroup" aria-label={label}>
       {options.map((option, position) => (
         <button
           type="button"
@@ -156,9 +253,9 @@ export const Dots = ({ value, options, onChange, label, tone = "gold" }) => {
   );
 };
 
-/** Name tag content used by the 2D stage and the 3D tags: position, flag, name, gap. */
+/** Name tag content: position, flag, name, gap. */
 export const DriverLabel = ({ position, nat, name, gap }) => (
-  <span className="bc-label">
+  <span className="lv-label">
     <b>{position}</b>
     {nat && <Flag code={nat} width={16} />}
     <strong>{name}</strong>

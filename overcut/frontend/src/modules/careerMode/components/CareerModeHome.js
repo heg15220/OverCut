@@ -8,8 +8,9 @@
  * presented as what you actually hold: a single race's worth of laps, a stack of
  * seasons, or a grid of cars with yours among them.
  *
- * The shell wears the OverCut seam because it belongs to neither mode: each
- * card previews its own palette instead, so you can see where you are going.
+ * It wears OverCut's own identity (docs/manager/DESIGN.md: navy graphite, one
+ * gold accent, Archivo with its width axis) because it belongs to none of the
+ * three modes; each card shows the grain of its mode, drawn rather than said.
  *
  * Open to anyone. This screen is not part of OverCutGames and asks for no
  * account, which is why it links home rather than to the minigames hub.
@@ -56,9 +57,9 @@ const STRINGS = {
     manager: {
       name: "Modo mánager",
       tag: "Diriges el equipo",
-      copy: "Eres el jefe de equipo: desarrollas el coche, fichas pilotos, decides la estrategia en directo y respondes ante la directiva. O creas tu propio equipo desde cero y lo sumas a la parrilla.",
+      copy: "Eres el jefe de equipo: desarrollas el coche, fichas pilotos, decides la estrategia en directo y respondes ante la directiva. O creas tu propio equipo y lo inscribes en la parrilla de aquel año.",
       points: [
-        "Cualquier temporada desde 1950, con su parrilla real",
+        "38 temporadas jugables, de 1976 a 2026, con su parrilla real",
         "Crea tu equipo: nombre, colores, motor y pilotos",
         "Carrera en directo: paradas, lluvia y órdenes de equipo",
       ],
@@ -96,9 +97,9 @@ const STRINGS = {
     manager: {
       name: "Manager mode",
       tag: "You run the team",
-      copy: "You are the team principal: you develop the car, sign drivers, call the strategy live and answer to the board. Or build your own team from scratch and add it to the grid.",
+      copy: "You are the team principal: you develop the car, sign drivers, call the strategy live and answer to the board. Or build your own team and enter it on that year's grid.",
       points: [
-        "Any season since 1950, with its real grid",
+        "38 playable seasons, 1976 to 2026, with their real grids",
         "Create your team: name, colours, engine and drivers",
         "Live race: pit stops, rain and team orders",
       ],
@@ -127,7 +128,6 @@ const MINE = 5;
 
 const Card = ({ to, mode, tone, children }) => (
   <article className={`cmh-card cmh-card--${tone}`}>
-    <span className="cmh-card__swatch" aria-hidden="true" />
     <div className="cmh-card__head">
       <h2 className="cmh-card__name">{mode.name}</h2>
       <p className="cmh-card__tag">{mode.tag}</p>
@@ -146,17 +146,21 @@ const Card = ({ to, mode, tone, children }) => (
     </ul>
 
     <Link className="cmh-cta" to={to}>
-      {mode.cta}
+      <span>{mode.cta}</span>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M5 12h14M13.5 6.5 19 12l-5.5 5.5" />
+      </svg>
     </Link>
   </article>
 );
 
 export const CareerModeHome = () => (
   <main className="cmh-root">
-    <div className="cmh-cut" aria-hidden="true" />
-
     <div className="cmh-shell">
       <Link className="cmh-back" to="/">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M19 12H5M10.5 6.5 5 12l5.5 5.5" />
+        </svg>
         {t.back}
       </Link>
 

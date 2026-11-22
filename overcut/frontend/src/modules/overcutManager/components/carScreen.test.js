@@ -43,6 +43,8 @@ describe("Car screen", () => {
     expect(screen.getByText(/design office expertise/i)).toBeInTheDocument();
     expect(screen.getByText(/customer: cannot develop the engine/i)).toBeInTheDocument();
     expect(screen.getAllByText(/MGU-H/).length).toBeGreaterThan(0);
+    // RF-3D-06 stage: Williams 2016 has no GLB in the manifest, so the procedural car says so.
+    expect(screen.getByText(/procedural model of the 2016 era/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("radio", { name: /front wing/i }));
     fireEvent.click(screen.getByRole("radio", { name: /intense/i }));
     fireEvent.click(screen.getByRole("button", { name: /commission design/i }));
@@ -54,8 +56,9 @@ describe("Car screen", () => {
     const career = createCareer(context, { year: 2024, teamId: "williams", seed: "ui-car-2" });
     const { unmount } = render(<Harness career={career} />);
     expect(screen.getByText(/allocation by position/i)).toBeInTheDocument();
+    // The part picked in the loadout drives the detail panel: stats, designs, units and a new design.
+    fireEvent.click(screen.getByRole("radio", { name: /front wing/i }));
     const row = screen.getByTestId("design-frontWing");
-    row.open = true;
     fireEvent.click(within(row).getByRole("button", { name: /build 2 and fit/i }));
     expect(career.rd.built).toHaveLength(2);
     unmount();

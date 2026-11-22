@@ -1,0 +1,345 @@
+/* DESIGN.md §6.3 "Data screen": PageHeader, view tabs, a main table (8) and a
+   side panel (4). Shared by Office, Staff, Market, Calendar and Standings.
+   Tokens only; every rule is scoped to .mn-ds*. */
+
+.mn-ds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-5);
+}
+
+.mn-ds > .mn-tabs {
+  margin-top: calc(var(--mn-s-1) * -1);
+}
+
+.mn-ds__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--mn-s-4);
+  align-items: start;
+}
+
+.mn-ds__main {
+  grid-column: span 8;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-4);
+  min-width: 0;
+}
+
+.mn-ds__side {
+  grid-column: span 4;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-4);
+  min-width: 0;
+}
+
+.mn-ds__full {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.mn-ds__tiles {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--mn-s-4);
+}
+
+/* A side column of tiles, stacked. */
+.mn-ds__stack {
+  display: grid;
+  gap: var(--mn-s-3);
+}
+
+/* Filters inside a flush panel head: tabs left, controls right. */
+.mn-ds__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mn-s-3);
+  padding: 0 var(--mn-s-5) var(--mn-s-3);
+}
+
+.mn-ds__filters .mn-tabs {
+  flex: 1 1 auto;
+  border-bottom: 0;
+}
+
+.mn-ds__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mn-s-2);
+}
+
+.mn-ds-select {
+  height: 28px;
+  padding: 0 var(--mn-s-6) 0 var(--mn-s-2);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  background: var(--mn-surface-0)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23a9b2c1' stroke-width='1.4'/%3E%3C/svg%3E")
+    no-repeat right 8px center;
+  color: var(--mn-text);
+  font: inherit;
+  font-size: var(--mn-fs-12);
+  appearance: none;
+  cursor: pointer;
+}
+
+.mn-ds-select:focus-visible,
+.mn-ds-check input:focus-visible {
+  outline: 2px solid var(--mn-accent);
+  outline-offset: 1px;
+}
+
+.mn-ds-check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+  cursor: pointer;
+}
+
+.mn-ds-check input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--mn-accent);
+}
+
+/* Signed money and deltas: right-aligned, mono, green in, red out. */
+.mn-ds-amount {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.mn-ds-amount.is-pos {
+  color: var(--mn-pos);
+}
+
+.mn-ds-amount.is-neg {
+  color: var(--mn-neg);
+}
+
+.mn-ds-amount.is-zero {
+  color: var(--mn-text-3);
+}
+
+.mn-ds-muted {
+  color: var(--mn-text-3);
+}
+
+.mn-ds-mono {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+}
+
+/* Two-line identity cell: name over a quiet line. */
+.mn-ds-who {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  min-width: 0;
+}
+
+.mn-ds-who > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.mn-ds-who strong {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mn-ds-who small {
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tables whose last row is the total: strong rule above, 600. */
+.mn-ds-totals tbody tr:last-child td {
+  border-top: 1px solid var(--mn-hairline-strong);
+  background: var(--mn-surface-0);
+  font-weight: 600;
+}
+
+.mn-ds-totals tbody tr:last-child:hover td {
+  background: var(--mn-surface-0);
+}
+
+/* A table where the highlighted row is a selection, not "yours". */
+.mn-ds-selectable .mn-dt tr.is-own td {
+  background: var(--mn-surface-3);
+}
+
+.mn-ds-selectable .mn-dt tr.is-own td:first-child {
+  box-shadow: inset 2px 0 0 var(--mn-text-2);
+}
+
+/* Key/value facts. */
+.mn-ds-facts {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.mn-ds-facts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mn-s-3);
+  min-height: 32px;
+  padding: var(--mn-s-1) 0;
+  border-bottom: 1px solid var(--mn-hairline);
+}
+
+.mn-ds-facts > div:last-child {
+  border-bottom: 0;
+}
+
+.mn-ds-facts dt {
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-ds-facts dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+}
+
+.mn-ds-note {
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+  max-width: 72ch;
+}
+
+.mn-ds-flash {
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text-2);
+}
+
+.mn-ds-flash.is-bad {
+  color: var(--mn-neg);
+}
+
+.mn-ds-more {
+  padding: var(--mn-s-3) var(--mn-s-5);
+  border-top: 1px solid var(--mn-hairline);
+}
+
+/* Table edges line up with the panel title: 20px in a flush panel, 0 inside a padded one. */
+.mn-ds .mn-panel--flush > .mn-dt-wrap .mn-dt th:first-child,
+.mn-ds .mn-panel--flush > .mn-dt-wrap .mn-dt td:first-child {
+  padding-left: var(--mn-s-5);
+}
+
+.mn-ds .mn-panel--flush > .mn-dt-wrap .mn-dt th:last-child,
+.mn-ds .mn-panel--flush > .mn-dt-wrap .mn-dt td:last-child {
+  padding-right: var(--mn-s-5);
+}
+
+.mn-ds .mn-panel:not(.mn-panel--flush) .mn-dt th:first-child,
+.mn-ds .mn-panel:not(.mn-panel--flush) .mn-dt td:first-child {
+  padding-left: 0;
+}
+
+.mn-ds .mn-panel:not(.mn-panel--flush) .mn-dt th:last-child,
+.mn-ds .mn-panel:not(.mn-panel--flush) .mn-dt td:last-child {
+  padding-right: 0;
+}
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 1200px) {
+  .mn-ds__main,
+  .mn-ds__side {
+    grid-column: 1 / -1;
+  }
+
+  .mn-ds__side {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .mn-ds__stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .mn-ds {
+    gap: var(--mn-s-4);
+  }
+
+  .mn-ds__grid {
+    gap: var(--mn-s-3);
+  }
+
+  .mn-ds__tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--mn-s-3);
+  }
+
+  .mn-ds__side {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .mn-ds .mn-panel--flush {
+    padding: 0;
+  }
+
+  .mn-ds .mn-panel--flush > .mn-panel__head {
+    padding: var(--mn-s-4) var(--mn-s-4) var(--mn-s-3);
+  }
+
+  .mn-ds .mn-panel--flush > .mn-dt-wrap .mn-dt th:first-child,
+  .mn-ds .mn-panel--flush > .mn-dt-wrap .mn-dt td:first-child {
+    padding-left: var(--mn-s-4);
+  }
+
+  .mn-ds .mn-panel--flush > .mn-dt-wrap .mn-dt th:last-child,
+  .mn-ds .mn-panel--flush > .mn-dt-wrap .mn-dt td:last-child {
+    padding-right: var(--mn-s-4);
+  }
+
+  .mn-ds__side.is-first-sm {
+    order: -1;
+  }
+
+  .mn-ds__filters {
+    padding: 0 var(--mn-s-4) var(--mn-s-3);
+  }
+
+  .mn-ds-hide-sm {
+    display: none;
+  }
+
+  .mn-ds .mn-tile {
+    padding: var(--mn-s-3) var(--mn-s-4);
+  }
+
+  .mn-ds .mn-tile__value {
+    font-size: var(--mn-fs-20);
+  }
+}
+
+/* revealOnPhone lands the side panel below the site's fixed header and context bar. */
+.mn-ds__side {
+  scroll-margin-top: calc(var(--mn-site-top, 0px) + 96px);
+}

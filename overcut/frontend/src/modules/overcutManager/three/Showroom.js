@@ -9,8 +9,41 @@ import { buildCar } from "./carModel";
 import { createRenderer, environmentFor } from "./studio";
 import { carAssetFor } from "./assets/manifest";
 import { createAssetCar } from "./assets/assetCar";
+import { frameTurntable } from "./showroomFraming";
 
-export default function Showroom({ year = 2024, color = "#c8102e", color2, name = "", number = null, height = 220, className = "", label, teamRef = null }) {
+const FOV = 24;
+// A low three-quarter view, the angle of a launch photo.
+const VIEW = new THREE.Vector3(6.8, 2.6, 6.8).normalize();
+const ELEVATION = Math.asin(VIEW.y);
+
+/**
+ * The car's footprint about the turntable axis, measured with the turntable
+ * square-on so the answer does not depend on where it is in its turn. The car
+ * is re-centred on the axis so it spins in place.
+ */
+const measure = (turntable, car) => {
+  const angle = turntable.rotation.y;
+  turntable.rotation.y = 0;
+  turntable.updateMatrixWorld(true);
+  const box = new THREE.Box3();
+  const part = new THREE.Box3();
+  car.traverseVisible((node) => {
+    if (!node.isMesh || !node.geometry) return;
+    if (!node.geometry.boundingBox) node.geometry.computeBoundingBox();
+    part.copy(node.geometry.boundingBox).applyMatrix4(node.matrixWorld);
+    box.union(part);
+  });
+  turntable.rotation.y = angle;
+  turntable.updateMatrixWorld(true);
+  if (box.isEmpty()) return null;
+  const centre = box.getCenter(new THREE.Vector3());
+  car.position.x -= centre.x;
+  car.position.z -= centre.z;
+  const size = box.getSize(new THREE.Vector3());
+  return { radius: Math.hypot(size.x, size.z) / 2, minY: box.min.y, maxY: box.max.y };
+};
+
+export default function Showroom({ year = 2024, color = "#c8102e", color2, name = "", number = null, height = 220, className = "", label, teamRef = null, margin = 0.06 }) {
   // The team's real car of that season when the manifest has it (RF-3D-01), with its author and licence (RF-3D-06).
   const asset = teamRef ? carAssetFor(year, teamRef) : null;
   const mount = useRef(null);
@@ -57,23 +90,33 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
     shadow.position.y = 0.002;
     shadow.receiveShadow = true;
     scene.add(shadow);
-    const camera = new THREE.PerspectiveCamera(24, 2, 0.1, 100);
-    camera.position.set(6.8, 2.6, 6.8);
+    const camera = new THREE.PerspectiveCamera(FOV, 2, 0.1, 100);
+    camera.position.copy(VIEW).multiplyScalar(7.4);
     camera.lookAt(0, 0.35, 0);
     const turntable = new THREE.Group();
     scene.add(turntable);
 
     const s = state.current;
-    Object.assign(s, { renderer, scene, camera, turntable, angle: -1.05, velocity: 0.0025, dragging: false, lastX: 0 });
+    Object.assign(s, { renderer, scene, camera, turntable, angle: -1.05, velocity: 0.0025, dragging: false, lastX: 0, fit: null, aspect: 2 });
+
+    // Frame the car by its own size for the box's shape (any aspect, phone to ultra-wide).
+    s.frame = () => {
+      const fit = s.fit || { radius: 2.9, minY: 0, maxY: 1 };
+      const { distance, targetY } = frameTurntable({ ...fit, aspect: s.aspect, fov: FOV, elevation: ELEVATION, margin: s.margin ?? 0.06 });
+      camera.position.copy(VIEW).multiplyScalar(distance);
+      camera.position.y += targetY;
+      camera.lookAt(0, targetY, 0);
+      camera.far = Math.max(100, distance * 4);
+      camera.updateProjectionMatrix();
+    };
 
     const resize = () => {
       const width = host.clientWidth || 300;
-      const h = host.clientHeight || height;
+      const h = host.clientHeight || (typeof height === "number" ? height : 220);
       renderer.setSize(width, h, false);
       camera.aspect = width / h;
-      // Frame the whole car whatever the box's shape.
-      camera.position.setLength(width / h < 1.4 ? 9.6 : 7.4);
-      camera.updateProjectionMatrix();
+      s.aspect = width / h;
+      s.frame();
     };
     resize();
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
@@ -99,7 +142,18 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
     window.addEventListener("pointerup", up);
 
     let frame = 0;
+    let tick = 0;
     const loop = () => {
+      // The GLB arrives after the placeholder (lightest LOD first): re-measure now and then.
+      tick += 1;
+      if (s.car && tick % 20 === 0) {
+        const fit = measure(turntable, s.car);
+        const old = s.fit;
+        if (fit && (!old || Math.abs(fit.radius - old.radius) > old.radius * 0.01 || Math.abs(fit.maxY - old.maxY) > 0.02 || Math.abs(fit.minY - old.minY) > 0.02)) {
+          s.fit = fit;
+          s.frame();
+        }
+      }
       if (!s.dragging) {
         // Ease back into a slow turn after a flick.
         s.velocity += (0.0025 - s.velocity) * 0.03;
@@ -127,17 +181,27 @@ export default function Showroom({ year = 2024, color = "#c8102e", color2, name 
     };
   }, [height]);
 
+  useEffect(() => {
+    state.current.margin = margin;
+    state.current.frame?.();
+  }, [margin]);
+
   // The car itself, rebuilt when the season or the livery changes.
   useEffect(() => {
     const s = state.current;
     if (!s.turntable) return undefined;
     const procedural = buildCar({ year, color, color2, name, number, compound: year >= 2007 ? "soft" : null });
     const car = asset ? createAssetCar({ asset, placeholder: procedural, renderer: s.renderer, year }) : procedural;
-    car.position.x = 0.1;
     s.turntable.add(car);
+    s.car = car;
+    s.fit = measure(s.turntable, car);
+    s.frame?.();
     // Geometry and materials are cached and shared between cars; only the group goes.
-    return () => s.turntable.remove(car);
-  }, [year, color, color2, name, number, asset]);
+    return () => {
+      s.turntable.remove(car);
+      if (s.car === car) s.car = null;
+    };
+  }, [year, color, color2, name, number, asset, height]);
 
   return (
     <figure className={`mn-showroom-frame ${className}`}>

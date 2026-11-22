@@ -1,0 +1,149 @@
+/* lineChart.js - DESIGN.md "dataviz": hairline grid, mono ticks, 2px lines,
+   one emphasised series, crosshair + tooltip. Tokens only. */
+
+.mn-lc {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.mn-lc svg {
+  display: block;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+.mn-lc svg:focus-visible {
+  outline: 2px solid var(--mn-accent);
+  outline-offset: 2px;
+  border-radius: var(--mn-r-1);
+}
+
+.mn-lc__grid {
+  stroke: var(--mn-hairline);
+  stroke-width: 1;
+}
+
+.mn-lc__threshold {
+  stroke: var(--mn-warn);
+  stroke-opacity: 0.5;
+  stroke-width: 1;
+}
+
+.mn-lc__tick {
+  fill: var(--mn-text-3);
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+}
+
+.mn-lc__line {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-opacity: 0.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.mn-lc__line.is-emphasis {
+  stroke-width: 2;
+  stroke-opacity: 1;
+}
+
+.mn-lc__label {
+  fill: var(--mn-text-2);
+  font-size: var(--mn-fs-11);
+  font-weight: 500;
+}
+
+.mn-lc__cross {
+  stroke: var(--mn-hairline-strong);
+  stroke-width: 1;
+}
+
+.mn-lc__dot {
+  stroke: var(--mn-surface-1);
+  stroke-width: 2;
+}
+
+.mn-lc__tip {
+  position: absolute;
+  z-index: 2;
+  min-width: 160px;
+  max-width: 240px;
+  margin-left: 12px;
+  padding: var(--mn-s-2) var(--mn-s-3);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  background: var(--mn-surface-2);
+  box-shadow: var(--mn-e-2);
+  pointer-events: none;
+  font-size: var(--mn-fs-12);
+}
+
+.mn-lc__tip.is-flip {
+  transform: translateX(calc(-100% - 24px));
+}
+
+.mn-lc__tip strong {
+  display: block;
+  margin-bottom: var(--mn-s-1);
+  font-weight: 600;
+  color: var(--mn-text);
+}
+
+.mn-lc__tip ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mn-lc__tip li {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--mn-s-2);
+  color: var(--mn-text-2);
+}
+
+.mn-lc__tip li i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.mn-lc__tip li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mn-lc__tip li b {
+  font-family: var(--mn-mono);
+  font-weight: 500;
+  color: var(--mn-text);
+}
+
+.mn-lc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mn-s-1) var(--mn-s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.mn-lc-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+}
+
+.mn-lc-legend i {
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+}

@@ -19,11 +19,11 @@ const numberTexture = (place, colour) => {
   canvas.width = 256;
   canvas.height = 128;
   const g = canvas.getContext("2d");
-  g.fillStyle = "#0d1a30";
+  g.fillStyle = "#0e1520";
   g.fillRect(0, 0, 256, 128);
   g.fillStyle = colour;
   g.fillRect(0, 0, 256, 10);
-  g.font = "900 92px Arial, sans-serif";
+  g.font = "700 92px Archivo, Arial, sans-serif";
   g.textAlign = "center";
   g.textBaseline = "middle";
   g.fillText(String(place), 128, 74);
@@ -60,12 +60,12 @@ export default function Podium({ year = 2024, cars = [], height = 260, label }) 
     STEP.forEach((step, index) => {
       const entry = cars[index];
       const block = new THREE.Mesh(new THREE.BoxGeometry(5.2, step.height, 3.2), [
-        new THREE.MeshStandardMaterial({ color: "#0d1a30", roughness: 0.5 }),
-        new THREE.MeshStandardMaterial({ color: "#0d1a30", roughness: 0.5 }),
+        new THREE.MeshStandardMaterial({ color: "#0e1520", roughness: 0.5 }),
+        new THREE.MeshStandardMaterial({ color: "#0e1520", roughness: 0.5 }),
         new THREE.MeshStandardMaterial({ color: step.colour, roughness: 0.25, metalness: 0.7 }),
-        new THREE.MeshStandardMaterial({ color: "#0d1a30" }),
+        new THREE.MeshStandardMaterial({ color: "#0e1520" }),
         new THREE.MeshStandardMaterial({ map: numberTexture(step.place, step.colour), roughness: 0.5 }),
-        new THREE.MeshStandardMaterial({ color: "#0d1a30" }),
+        new THREE.MeshStandardMaterial({ color: "#0e1520" }),
       ]);
       block.position.set(step.x, step.height / 2, 0);
       block.castShadow = true;
@@ -85,7 +85,7 @@ export default function Podium({ year = 2024, cars = [], height = 260, label }) 
     const confettiGeometry = new THREE.PlaneGeometry(0.12, 0.07);
     const confettiMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
     const confetti = new THREE.InstancedMesh(confettiGeometry, confettiMaterial, count);
-    const palette = ["#d4af37", "#f3f1e9", "#c8102e", cars[0]?.color || "#f2b705", "#3e8ed8"].map((c) => new THREE.Color(c));
+    const palette = ["#d4af37", "#f1efe8", "#c0c6cc", cars[0]?.color || "#f2b705", cars[0]?.color2 || "#10294f"].map((c) => new THREE.Color(c));
     const pieces = Array.from({ length: count }, (_, i) => ({
       x: (Math.random() - 0.5) * 18, y: Math.random() * 10 + 2, z: (Math.random() - 0.5) * 8,
       speed: 0.6 + Math.random() * 1.2, spin: Math.random() * 6, phase: Math.random() * 6,

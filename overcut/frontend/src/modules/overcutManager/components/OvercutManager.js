@@ -243,23 +243,32 @@ export const OvercutManager = ({ backTo = "/careerMode" }) => {
     setSummary(null);
   }, []);
 
-  /** Close the weekend and show whatever it left on the desk. */
-  const finishWeekend = useCallback(() => {
-    const career = careerRef.current;
-    if (!career) return;
-    const { stops } = closeWeekend(career);
-    setWeekendOpen(false);
-    pushMoments(momentsFromStops(career, stops));
-    bump();
-    persist();
-  }, [bump, persist, pushMoments]);
+  /**
+   * Close the weekend and show whatever it left on the desk. A weekend the
+   * player never opened (simulated from the desk) shows its result first, since
+   * nothing else on screen told it.
+   */
+  const finishWeekend = useCallback(
+    (options) => {
+      const career = careerRef.current;
+      if (!career) return;
+      const { stops } = closeWeekend(career);
+      setWeekendOpen(false);
+      const index = career.season.results.length - 1;
+      const result = options?.showResult === true && index >= 0 ? [{ type: "race", index }] : [];
+      pushMoments([...result, ...momentsFromStops(career, stops)]);
+      bump();
+      persist();
+    },
+    [bump, persist, pushMoments],
+  );
 
   /** Simulate the next weekend without opening it. */
   const quickWeekend = useCallback(() => {
     const career = careerRef.current;
     if (!career || career.ended) return;
     simulateWeekend(career);
-    finishWeekend();
+    finishWeekend({ showResult: true });
   }, [finishWeekend]);
 
   /** The Continue button: whatever comes next in the season. */
