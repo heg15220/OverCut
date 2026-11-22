@@ -168,7 +168,22 @@
         },
         "teamOrdersBanned": {"type": "boolean"},
         "parcFerme": {"type": "boolean"},
-        "sprintWeekends": {"type": "integer", "minimum": 0}
+        "sprintWeekends": {"type": "integer", "minimum": 0},
+        "pitLaneSpeed": {
+          "$comment": "RF-SIM-12 / SRS 6.2 (WP6): límite de velocidad del pit lane en carrera, km/h (null = sin límite), por periodos con fecha de inicio y excepciones por id de circuito de f1db. Sale de curated/era-defaults.json.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fromDate", "race", "circuits"],
+            "properties": {
+              "fromDate": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/date"}]},
+              "race": {"type": ["number", "null"], "minimum": 20, "maximum": 200},
+              "circuits": {"type": "object", "additionalProperties": {"type": ["number", "null"], "minimum": 20, "maximum": 200}}
+            }
+          }
+        }
       }
     },
     "regulationsProvenance": {
@@ -197,7 +212,8 @@
           "unitLimits",
           "teamOrdersBanned",
           "parcFerme",
-          "sprintWeekends"
+          "sprintWeekends",
+          "pitLaneSpeed"
         ]
       },
       "additionalProperties": {"$ref": "#/definitions/provenance"}
@@ -229,7 +245,8 @@
           "qualifyingFormat",
           "sprint",
           "pointsFactor",
-          "resultsAvailable"
+          "resultsAvailable",
+          "refLaps"
         ],
         "properties": {
           "round": {"type": "integer", "minimum": 1},
@@ -252,7 +269,18 @@
           "qualifyingFormat": {"type": "string"},
           "sprint": {"type": "boolean"},
           "pointsFactor": {"type": "number", "exclusiveMinimum": 0},
-          "resultsAvailable": {"type": "boolean"}
+          "resultsAvailable": {"type": "boolean"},
+          "refLaps": {
+            "$comment": "SIM-FISICA §3.10 (WP10; RF-SIM-02, RF-WKD-02): vueltas reales de referencia del GP en segundos, de f1db: pole (mejor vuelta individual de clasificación; en la agregada de 2005, la de las sesiones de una vuelta), vuelta rápida de carrera y media por vuelta del ganador. null si f1db no tiene el tiempo.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["pole", "fastestRaceLap", "winnerAvg"],
+            "properties": {
+              "pole": {"$ref": "#/definitions/nullableNumber"},
+              "fastestRaceLap": {"$ref": "#/definitions/nullableNumber"},
+              "winnerAvg": {"$ref": "#/definitions/nullableNumber"}
+            }
+          }
         }
       }
     },

@@ -160,7 +160,26 @@ const resolve = (eraOrYear) => {
     },
     dirtyAir: byYear(balance.dirtyAir.byYear, year).value,
     stationary: byYear(balance.pit.stationary, year),
+    // RF-SIM-12 / SRS 6.2: the pit-lane speed limit, as dated periods with per-circuit
+    // exceptions (pack regulations.pitLaneSpeed or era-defaults); read with pitLaneSpeedFor.
+    pitLaneSpeed: regs.pitLaneSpeed || [{ fromDate: null, race: null, circuits: {} }],
   };
+};
+
+/**
+ * RF-SIM-12 / SRS 6.2: the pit-lane speed limit (km/h, or null before there was one) for a
+ * race: the last period of `rules.pitLaneSpeed` that started on or before the race's `date`
+ * (2013 changed at the Hungarian GP), then that period's exception for `circuitId` (f1db id).
+ */
+export const pitLaneSpeedFor = (rulesOrEra, { circuitId = null, date = null } = {}) => {
+  const periods = rulesFor(rulesOrEra).pitLaneSpeed;
+  let period = periods[0];
+  for (let k = 1; k < periods.length; k += 1) {
+    if (!periods[k].fromDate || (date && date >= periods[k].fromDate)) period = periods[k];
+  }
+  if (!period) return null;
+  if (circuitId && period.circuits && period.circuits[circuitId] !== undefined) return period.circuits[circuitId];
+  return period.race ?? null;
 };
 
 const cacheByEra = new WeakMap();

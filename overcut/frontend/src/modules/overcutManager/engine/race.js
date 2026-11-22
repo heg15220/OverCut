@@ -60,7 +60,9 @@ import { clamp, createStream } from "../../overcutTrayectoria/engine/rng";
 import { fieldMomentsOf, paceOf } from "../../overcutTrayectoria/engine/race";
 import { WEATHER, drawWeather } from "../../overcutTrayectoria/engine/weather";
 import { circuitFor } from "./venue";
-import { commandsFor, drsOpen, penaltyFor, raceBalance as BALANCE, rulesFor } from "./rules";
+import { commandsFor, drsOpen, penaltyFor, pitLaneSpeedFor, raceBalance as BALANCE, rulesFor } from "./rules";
+import { circuitIdOf, pitLaneFor } from "./sim/pitLane";
+import { expectedStationary, planStop } from "./sim/pitStop";
 
 export { commandsFor, drsOpen, rulesFor };
 
@@ -131,20 +133,47 @@ const REFERENCE_ATTRITION = 1.15;
 
 const PIT = BALANCE.pit;
 
-/** Time lost in the pit lane at racing speed (RF-SIM-12), less under a safety car or VSC. */
-export const pitLaneLoss = (baseLap, sc = null) =>
-  clamp(baseLap * PIT.laneShare, PIT.laneMin, PIT.laneMax) * (sc ? (sc.virtual ? PIT.laneUnderVsc : PIT.laneUnderSc) : 1);
+/**
+ * RF-SIM-12 / SRS 6.2 (WP6): the pit lane of a race - its speed limit for the era, circuit and
+ * date (rules.js pitLaneSpeedFor), and what driving it costs against the track
+ * (engine/sim/pitLane.js pitLaneFor: the lane's geometry, the limit, braking into the box and
+ * the launch out of it). Computed once in createRace and kept on `state.pitLane`, so the quick
+ * mode charges exactly the loss the step mode drives (SRS 4.2).
+ */
+export const pitLaneOf = ({ circuit, race, rules, baseLap = race.baseLap }) => {
+  const circuitId = circuitIdOf(race, circuit.ref);
+  const kmh = pitLaneSpeedFor(rules, { circuitId, date: race.date || null });
+  const lane = pitLaneFor(circuit, { kmh, baseLap, circuitId });
+  const r = (x) => Math.round(x * 1000) / 1000;
+  return { kmh, circuitId, stop: r(lane.stop), through: r(lane.through), sc: r(lane.sc), vsc: r(lane.vsc) };
+};
 
 /**
- * Seconds stationary in the box (RF-SIM-12): the era's stop, plus the fuel in
- * the refuelling years, scaled by the crew. `fuelOnly` is a stop that changes no
- * tyres (2005). Takes `year` or `era`.
+ * Time lost in the pit lane at racing speed (RF-SIM-12), less under a safety car or VSC.
+ * Takes the race state (its physical pit lane, `state.pitLane`) or, for callers without a
+ * circuit (strategy read-outs, old saves), a base lap: then the old share-of-the-lap estimate.
+ * `through` = a drive-through (no braking to a stop in the box).
  */
-export const stationaryTime = ({ year, era, refuel = 0, crew = 60, fuelOnly = false }) => {
-  const skill = PIT.crewBase - crew / PIT.crewDivisor;
-  if (fuelOnly) return (PIT.fuelOnlyStop.base + refuel * PIT.fuelOnlyStop.perFuelLap) * skill;
-  const stop = rulesFor(era ?? year).stationary;
-  return (stop.base + refuel * stop.perFuelLap) * skill + stop.extra;
+export const pitLaneLoss = (stateOrBaseLap, sc = null, { through = false } = {}) => {
+  const lane = stateOrBaseLap && typeof stateOrBaseLap === "object" ? stateOrBaseLap.pitLane : null;
+  if (lane) return sc ? (sc.virtual ? lane.vsc : lane.sc) : through ? lane.through : lane.stop;
+  const baseLap = typeof stateOrBaseLap === "number" ? stateOrBaseLap : stateOrBaseLap.race.baseLap;
+  return clamp(baseLap * PIT.laneShare, PIT.laneMin, PIT.laneMax) * (sc ? (sc.virtual ? PIT.laneUnderVsc : PIT.laneUnderSc) : 1);
+};
+
+/**
+ * Seconds a strategist expects the car to stand in the box (RF-SIM-12, RF-STF-07): the era's
+ * stop by stages (engine/sim/pitStop.js expectedStationary, race-pit.json `pitStop`) with the
+ * fuel in the refuelling years running alongside the wheels, scaled by the crew. `fuelOnly` is
+ * a stop that changes no tyres (2005). Takes `year` or `era`.
+ */
+export const stationaryTime = ({ year, era, refuel = 0, crew = 60, fuelOnly = false }) =>
+  expectedStationary({ rules: rulesFor(era ?? year), crew, tyres: !fuelOnly, refuelLaps: refuel });
+
+/** The crew's own stream (RF-SIM-12, RNF-05): same seed, its own draws, so a stop never reshuffles the race. */
+export const crewStream = (state) => {
+  if (!state._crew) state._crew = createStream(`${state.seed}::crew`);
+  return state._crew;
 };
 
 /** RF-SIM-04: does this era refuel in the race? Takes a year or an era. */
@@ -166,7 +195,7 @@ export const fuelTime = ({ fuel, refuel, fuelStart }) => (refuel ? fuel * FUEL_P
  * Total tyre-and-fuel cost of a plan, in seconds, against a perfect car - the
  * number the strategist compares candidate plans on.
  */
-const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60 }) => {
+const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60, laneLoss = null }) => {
   const rules = rulesFor(era ?? year);
   const stints = stintLengths(plan, laps);
   const refuelling = rules.refuelling;
@@ -198,7 +227,7 @@ const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60 }) => 
   if (mandatory >= 2 && new Set(plan.compounds).size < mandatory) cost += rules.strategy.twoCompoundPenalty;
   if (refuelling && stops === 0) cost += rules.strategy.refuelNoStopCost;
   const refuel = refuelling ? laps / Math.max(1, stops + 1) : 0;
-  cost += stops * (pitLaneLoss(baseLap) + stationaryTime({ era: era ?? year, refuel, crew, fuelOnly: refuelling && !tyreChanges }));
+  cost += stops * ((laneLoss ?? pitLaneLoss(baseLap)) + stationaryTime({ era: era ?? year, refuel, crew, fuelOnly: refuelling && !tyreChanges }));
   return cost;
 };
 
@@ -255,18 +284,18 @@ const candidatePlans = (eraOrYear, laps, firstCompound = null) => {
 export const wearFactorFor = (profile) => clamp(0.75 + (profile.aero ?? 0.6) * 0.35 + ((profile.attrition ?? 1) - 1) * 0.4, 0.6, 1.35);
 
 /** The best plan for a dry race, plus its cost so alternatives can be compared. */
-export const suggestPlan = ({ year, era, laps, baseLap, profile, crew = 60, firstCompound = null }) => {
+export const suggestPlan = ({ year, era, laps, baseLap, profile, crew = 60, firstCompound = null, laneLoss = null }) => {
   const wearFactor = wearFactorFor(profile);
   const ranked = candidatePlans(era ?? year, laps, firstCompound)
-    .map((plan) => ({ plan, cost: planCost({ plan, laps, year, era, baseLap, wearFactor, crew }) }))
+    .map((plan) => ({ plan, cost: planCost({ plan, laps, year, era, baseLap, wearFactor, crew, laneLoss }) }))
     .sort((a, b) => a.cost - b.cost);
-  if (!ranked[0] && firstCompound) return suggestPlan({ year, era, laps, baseLap, profile, crew });
+  if (!ranked[0] && firstCompound) return suggestPlan({ year, era, laps, baseLap, profile, crew, laneLoss });
   return ranked[0] ? { ...ranked[0].plan, cost: ranked[0].cost } : { stops: [], compounds: [compoundsFor(era ?? year)[0]], cost: 0 };
 };
 
 /** The cost of any plan the player builds, for the "+4.2 s against the best" read-out. */
-export const evaluatePlan = ({ plan, year, era, laps, baseLap, profile, crew }) =>
-  planCost({ plan, laps, year, era, baseLap, wearFactor: wearFactorFor(profile), crew });
+export const evaluatePlan = ({ plan, year, era, laps, baseLap, profile, crew, laneLoss = null }) =>
+  planCost({ plan, laps, year, era, baseLap, wearFactor: wearFactorFor(profile), crew, laneLoss });
 
 // ------------------------------------------------------------- weather
 
@@ -332,24 +361,45 @@ const forecastFor = (profile, kind, stream) => {
  * quick qualifying below and the playable sessions (engine/sessionSim), so both read the
  * same field (RF-WKD-02).
  */
-export const qualifyingPaceOf = ({ entrant, race, era, wetness = 0, practice = {}, moments }) => {
-  const weather = wetness >= 0.55 ? WEATHER.WET : wetness >= 0.2 ? WEATHER.MIXED : WEATHER.DRY;
+export const qualifyingPaceOf = ({ entrant, race, era, wetness = 0, practice = {}, moments, anchor = null }) => {
   const spp = race.baseLap * 0.0012;
+  const edge = qualifyingEdgeOf({ entrant, race, era, wetness, moments });
+  const prep = practice[entrant.id] || {};
+  // WP10 (RF-WKD-02): with the real pole of the pack, the field's quickest car in the dry is
+  // anchored to it and everyone else keeps their gap; otherwise the old reference.
+  const reference = anchor ? anchor.pole + anchor.top * spp + 0.1 * wetness * race.baseLap : race.baseLap * (0.985 + 0.1 * wetness);
+  return reference - edge * spp + (prep.setup ?? 0) + (prep.quali ?? 0);
+};
+
+/** Pace plus one-lap skill, in pace points: what separates cars in qualifying. */
+const qualifyingEdgeOf = ({ entrant, race, era, wetness = 0, moments }) => {
+  const weather = wetness >= 0.55 ? WEATHER.WET : wetness >= 0.2 ? WEATHER.MIXED : WEATHER.DRY;
   const pace = paceOf({ entrant, race, era, seasonProgress: 0.5, weather, moments });
   const skill = (((entrant.qualifying ?? 50) - 50) / 20) * era.fieldSigma * 0.32;
-  const prep = practice[entrant.id] || {};
-  return race.baseLap * (0.985 + 0.1 * wetness) - (pace + skill) * spp + (prep.setup ?? 0) + (prep.quali ?? 0);
+  return pace + skill;
+};
+
+/**
+ * WP10 (SIM-FISICA §5; RF-SIM-02, RF-WKD-02): the pole the field is anchored to - the pack's
+ * real pole (race.qualifyingRef, engine/packs/refLaps.js) for the best dry edge of these
+ * entrants - or null without a reference (seasons without a pack, older saves).
+ */
+export const qualifyingAnchorOf = ({ entrants, race, era, moments = fieldMomentsOf(entrants) }) => {
+  if (!(race.qualifyingRef > 0) || !entrants.length) return null;
+  const top = Math.max(...entrants.map((entrant) => qualifyingEdgeOf({ entrant, race, era, wetness: 0, moments })));
+  return { pole: race.qualifyingRef, top };
 };
 
 export { fieldMomentsOf };
 
 export const runQualifying = ({ entrants, race, era, year, wetness = 0, practice = {}, risk = {}, stream }) => {
   const moments = fieldMomentsOf(entrants);
+  const anchor = qualifyingAnchorOf({ entrants, race, era, moments });
   // Knockout Q1-Q3 or a single session, as the era's qualifying format says (RF-WKD-01).
   const sessions = rulesOf(era, year).qualifying.knockout ? knockoutSplit(entrants.length) : null;
 
   const lapOf = (entrant) => {
-    const base = qualifyingPaceOf({ entrant, race, era, wetness, practice, moments });
+    const base = qualifyingPaceOf({ entrant, race, era, wetness, practice, moments, anchor });
     const style = risk[entrant.id] || "normal";
     const styleGain = style === "push" ? -0.14 : style === "safe" ? 0.12 : 0;
     const mistakeChance = (style === "push" ? 0.09 : style === "safe" ? 0.02 : 0.045) * (1 + wetness);
@@ -516,6 +566,8 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
   const moments = fieldMomentsOf(entrants);
   const circuit = circuitFor(race, year);
   const rules = rulesOf(era, year);
+  // RF-SIM-12: the physical pit lane's loss on this circuit, era and date (WP6).
+  const pitLane = pitLaneOf({ circuit, race, rules });
   const refuel = rules.refuelling;
   const energy = rules.energy.system === "none" ? null : rules.energy.system;
   // Track temperature: dry venues bake, wet days are cool.
@@ -546,7 +598,7 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
       const ownTyre = qualifyingTyre && startTyres?.[id] && rules.tyres.compounds.includes(startTyres[id]) ? startTyres[id] : qualifyingTyre;
       const startsOnQualifyingTyre = ownTyre && index < 10;
       const suggested = () =>
-        suggestPlan({ year, era: rules, laps, baseLap: race.baseLap, profile: race.profile, crew: crews[entrant.teamId], firstCompound: startsOnQualifyingTyre ? ownTyre : null });
+        suggestPlan({ year, era: rules, laps, baseLap: race.baseLap, profile: race.profile, crew: crews[entrant.teamId], firstCompound: startsOnQualifyingTyre ? ownTyre : null, laneLoss: pitLane.stop });
       let plan = normalisePlan(plans[id] || suggested(), laps, rules);
       if (startsOnQualifyingTyre && plan.compounds[0] !== ownTyre) {
         // The player's plan keeps its stops; a rival re-plans around the tyre it must start on.
@@ -615,6 +667,7 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
 
   return {
     race: { name: race.name, round: race.round, country: race.country, laps, baseLap: race.baseLap, profile: race.profile, circuit: race.circuit || null },
+    pitLane,
     year,
     era,
     laps,
@@ -1063,21 +1116,22 @@ export const failureOf = (state, car, { lap = state.lap, wetness, sc = state.saf
 };
 
 /**
- * RF-SIM-12: the time a stop takes in the box - the era's stationary time (fuel only in
- * 2005 unless the weather or damage needs tyres), a slow stop the crew may make - and
- * whether the tyres are changed.
+ * RF-SIM-12, RF-STF-07 (WP7): the time a stop takes in the box, stage by stage
+ * (engine/sim/pitStop.js planStop: marks, jacks, four wheels in parallel with the wing and,
+ * in refuelling eras, the fuel, then the release, each with its crew role and its error roll)
+ * - fuel only in 2005 unless the weather or damage needs tyres - and whether the tyres are
+ * changed. The draws come from the crew's own stream (`crew`; the quick mode passes
+ * crewStream(state), the step mode its `crew` stream), never from the race's.
  */
-export const pitStopTime = (car, decision, { rules, stream }) => {
+export const pitStopTime = (car, decision, { rules, stream, crew = stream }) => {
   const refuelLoad = rules.refuelling ? decision.fuel : 0;
   // 2005: no tyre changes in the race - a planned stop is fuel only, unless the
   // weather changed (wet <-> dry) or the car is damaged.
   const weatherSwitch = isWetTyre(decision.compound) !== isWetTyre(car.compound) || (isWetTyre(decision.compound) && decision.compound !== car.compound);
   const tyresChanged = rules.tyres.changesInRace || weatherSwitch || (decision.repair && car.damage > 0);
-  let stationary = stationaryTime({ era: rules, refuel: refuelLoad, crew: car.crew, fuelOnly: !tyresChanged });
-  const slowStop = PIT.slowStop;
-  const slow = stream.chance(slowStop.chance * (slowStop.crewBase - car.crew / 100)) ? stream.range(slowStop.min, slowStop.max) : 0;
-  stationary += slow;
-  return { stationary, slow, tyresChanged, refuelLoad };
+  const wing = decision.repair && car.damage > 0 ? "change" : null;
+  const plan = planStop({ rules, crew: car.crew, tyres: tyresChanged, refuelLaps: refuelLoad, wing, stream: crew });
+  return { stationary: plan.stationary, slow: plan.slow, tyresChanged, refuelLoad, stages: plan.stages, mistake: plan.mistake };
 };
 
 /** The wait for a team-mate already in the box (double stack), in seconds (race-eras.json `pit.doubleStackWait`). */
@@ -1209,8 +1263,8 @@ export const stepLap = (state) => {
   running.forEach((car) => {
     const decision = pitDecision(state, car, wetness, stream);
     if (!decision) return;
-    const laneLoss = pitLaneLoss(baseLap, sc);
-    const stop = pitStopTime(car, decision, { rules, stream });
+    const laneLoss = pitLaneLoss(state, sc);
+    const stop = pitStopTime(car, decision, { rules, stream, crew: crewStream(state) });
     const { stationary } = stop;
     // Double stack: the second car of a team waits for the first to leave the box.
     const queue = stationaryByTeam[car.teamId] !== undefined ? stationaryByTeam[car.teamId] + DOUBLE_STACK_WAIT : 0;
@@ -1395,13 +1449,15 @@ export const markPenaltyServed = (state, car, penalty, loss, lap = state.lap) =>
 const servePitPenalty = (state, car, rules, sc) => {
   const penalty = duePitPenalty(state, car, sc);
   if (!penalty) return;
-  const loss = pitLaneLoss(state.race.baseLap) + penalty.seconds;
+  const loss = pitLaneLoss(state, null, { through: penalty.type !== "stopGo" }) + penalty.seconds;
   car.lapTime += loss;
   markPenaltyServed(state, car, penalty, loss);
 };
 
 /** Offences of the pit lane (RF-SIM-10): speeding (pit speed limit from 1994) and an unsafe release. */
 const pitLaneOffences = (state, car, stacked, lap = state.lap) => {
+  // The step simulator judges these with their cause, in the lane itself (engine/sim/pitLane.js).
+  if (state._sim && state._sim.lane) return;
   const control = controlStream(state);
   const { pitSpeeding, unsafeRelease } = BALANCE.penalties.offences;
   const year = stateRules(state).year;
@@ -1658,7 +1714,7 @@ export const strategyCall = (state, car, stream, { lap = state.lap, order: given
   const ahead = order[index - 1];
   const behind = order[index + 1];
   const nextStop = car.plan.stops.find((stop) => stop >= lap);
-  const lane = pitLaneLoss(state.race.baseLap) + stationaryTime({ era: rules, crew: car.crew });
+  const lane = pitLaneLoss(state) + stationaryTime({ era: rules, crew: car.crew });
 
   // Overcut: the car ahead has just stopped, we are in clean air on good tyres.
   if (nextStop === lap && ahead && ahead.lastPitLap >= lap - 1 && life < 0.68 && remaining > 8 && sees(0.6)) {

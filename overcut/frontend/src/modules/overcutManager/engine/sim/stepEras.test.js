@@ -246,7 +246,7 @@ describe("RF-SIM-10 · race control on the track", () => {
     expect(served).toBeTruthy();
     const entry = car.history.slice(laps).find((item) => item.pit && item.pit.penalty === "driveThrough");
     expect(entry).toBeTruthy();
-    expect(entry.pit.lane).toBeCloseTo(pitLaneLoss(state.race.baseLap), 6);
+    expect(entry.pit.lane).toBeCloseTo(pitLaneLoss(state, null, { through: true }), 6);
     expect(car.penalties[car.penalties.length - 1].served).toBe(true);
   });
 

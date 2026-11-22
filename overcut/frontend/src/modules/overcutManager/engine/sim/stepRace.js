@@ -25,8 +25,10 @@
  *                 the SC, tyres by the rules) and drive-through / stop-go penalties
  *                 driven through the pit lane. SC laps count down on the leader's line.
  *   6. strategy   every pit wall decides at pit entry (lapModel.pitDecision, the quick
- *                 mode's); the stop is spent in the lane on the in-lap, as the race clock
- *                 draws it.
+ *                 mode's); the car then drives the physical pit lane (pitLane.js, RF-SIM-12):
+ *                 limiter, a real stop in its own box (v = 0, stages from pitStop.js on the
+ *                 `crew` stream), release and exit, with speeding and unsafe releases judged
+ *                 by their cause. Its loss is the one the quick mode charges (SRS 4.2).
  *   7. timing     line crossings are interpolated inside the step and written to each
  *                 car's `history` exactly as the quick mode writes it, so raceClock,
  *                 LiveRace and career.completeRace read a step race unchanged.
@@ -40,15 +42,17 @@
 import balanceData from "../../data/balance/race-sim.json";
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
 import {
-  cancelPit as quickCancelPit, createRace, decideInvestigations, delayStop as quickDelayStop, skipStop as quickSkipStop, duePitPenalty, energyStep, jumpStartChecks, markPenaltyServed, mixEffect, modeEffect, pitLaneLoss,
+  applyPitStop, cancelPit as quickCancelPit, createRace, decideInvestigations, investigate, pitStopTime, delayStop as quickDelayStop, skipStop as quickSkipStop, duePitPenalty, energyStep, jumpStartChecks, markPenaltyServed, mixEffect, modeEffect, pitLaneLoss,
   rainRedFlagCheck, redFlagRestart, redFlagTyres, requestPit as quickRequestPit, restartProcedureOf, setErs as quickSetErs, setMix as quickSetMix,
   setMode as quickSetMode, setTeamOrder as quickSetTeamOrder, showRedFlag, spotOn, stateRules, waveYellow,
 } from "../race";
 import { byYear, raceBalance } from "../rules";
 import { circuitFor } from "../venue";
 import { ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
-import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, servicePit, wetnessAt } from "./lapModel";
+import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
 import { buildTrackTables, dAt, inCorner, tauAtD } from "./trackTables";
+import { PHASE, PHASE_NAMES, PIT_LANE_BALANCE, boxPosition, buildProfile, createLaneState, laneGeometry, limitSpeed, sampleProfile, timeAtS } from "./pitLane";
+import { stageAt } from "./pitStop";
 
 export const SIM_BALANCE = balanceData;
 
@@ -89,6 +93,8 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
       duel: createStream(`${seed}::step::duels`),
       pits: createStream(`${seed}::step::pits`),
       incidents: createStream(`${seed}::step::incidents`),
+      // RF-SIM-12 / RNF-05: the crew's own stream (stop stages, release, the limiter).
+      crew: createStream(`${seed}::step::crew`),
     },
     rules,
     // RF-SIM-06: the era's dirty air is the quick mode's (rules.js), the tow is step-only data.
@@ -152,6 +158,8 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     lastCross: new Float64Array(laps + 2).fill(-1),
     lastCrossCar: new Int32Array(laps + 2).fill(-1),
     boxFree: {},
+    // RF-SIM-12 (WP6): the physical pit lane - geometry, limit, garages and per-car state.
+    lane: laneSetup(state, track, n),
     retireAt: null,
     scOpen: null,
   };
@@ -463,6 +471,10 @@ export const airEffect = (sim, budget, gapSec, corner) => {
 /** Advance car `i` one step. */
 const advance = (state, i) => {
   const sim = state._sim;
+  if (sim.inPit[i] !== 0 && sim.lane.cars.prof[i]) {
+    advanceInLane(state, i);
+    return;
+  }
   const { balance, tables, dt } = sim;
   const car = state.cars[i];
   const sc = state.safetyCar;
@@ -619,16 +631,6 @@ const checkpoints = (state, i, from, to) => {
   }
 };
 
-/** Car `i` takes the pit lane for `extra` seconds more than the track would have cost. */
-const intoLane = (state, i, segTime, extra) => {
-  const sim = state._sim;
-  sim.pitRate[i] = segTime / (segTime + extra);
-  sim.inPit[i] = 1;
-  sim.lapFlags[i] |= 4;
-  sim.drsOpen[i] = 0;
-  if (sim.duelOther[i] >= 0) endDuel(sim, i);
-};
-
 /** Car `i` reaches pit entry on lap `lap`: a penalty to serve, a stop, or neither? */
 const enterPit = (state, i, lap) => {
   const sim = state._sim;
@@ -636,30 +638,239 @@ const enterPit = (state, i, lap) => {
   // Under the red flag the field comes round to line up; nobody stops on the way.
   if (sim.red) return;
   const stream = sim.streams.pits;
-  const segTau = 1 - sim.tables.pitEntryTau;
-  const segTime = segTau * sim.budget[i];
+  // The moment the car crossed the entry inside this step.
+  const tau0 = sim.tau0[i];
+  const tau1 = sim.tau[i];
+  const entered = sim.clock - sim.dt + (tau1 > tau0 ? (sim.dt * (sim.tables.pitEntryTau - tau0)) / (tau1 - tau0) : 0);
 
   // RF-SIM-10: a drive-through or stop-go is driven through the pit lane (race.js duePitPenalty).
   const penalty = duePitPenalty(state, car, state.safetyCar, lap);
   if (penalty) {
-    const lane = pitLaneLoss(state.race.baseLap);
+    const stopGo = penalty.type === "stopGo";
+    const lane = pitLaneLoss(state, null, { through: !stopGo });
     markPenaltyServed(state, car, penalty, lane + penalty.seconds, lap);
     // The lane cannot serve a penalty and a stop at once: a stop planned for this lap waits one.
     if (car.plan.stops.includes(lap) && lap + 1 < state.laps) car.plan = { ...car.plan, stops: car.plan.stops.map((stop) => (stop === lap ? lap + 1 : stop)) };
     car.pit = { lane, stationary: penalty.seconds, penalty: penalty.type };
-    intoLane(state, i, segTime, lane + penalty.seconds);
+    intoLane(state, i, entered, { stop: stopGo, stationary: penalty.seconds, queue: 0, plan: null });
     return;
   }
 
   const decision = pitDecision(state, car, lap, runningCars(state), stream);
   if (!decision) return;
-  const arrival = sim.clock + segTime * 0.6;
+  const L = sim.lane;
+  const box = L.boxOf[car.teamId] ?? (L.geo.slotFrom + L.geo.slotTo) / 2;
+  const arrival = entered + timeAtS(buildProfile(L.circuit, { vLimit: L.vLimit, baseLap: L.baseLap, stopAt: box }), box);
   const free = sim.boxFree[car.teamId] ?? -Infinity;
   const queue = free > arrival ? free - arrival + raceBalance.pit.doubleStackWait : 0;
-  const pit = servicePit(state, car, lap, decision, stream, queue);
-  sim.boxFree[car.teamId] = arrival + queue + pit.ownStationary;
-  car.pit = { lane: pit.lane, stationary: pit.stationary };
-  intoLane(state, i, segTime, pit.lane + pit.stationary);
+  // The quick mode's servicePit, with the stop by stages on the crew stream (RF-SIM-12, WP7).
+  const stop = pitStopTime(car, decision, { rules: sim.rules, stream, crew: sim.streams.crew });
+  const served = applyPitStop(state, car, decision, stop, { lap, queue, rules: sim.rules });
+  const own = stop.stationary + served;
+  sim.boxFree[car.teamId] = arrival + queue + own;
+  car.pit = { lane: pitLaneLoss(state, state.safetyCar), stationary: own + queue };
+  intoLane(state, i, entered, { stop: true, stationary: own + queue, queue, plan: stop, served });
+};
+
+// ------------------------------------------------------------ the pit lane (WP6)
+
+/**
+ * RF-SIM-12 / SRS 6.2: the race's pit lane for the step simulator - the circuit's lane
+ * geometry (pitLane.laneGeometry), the era's limit for this circuit and date (state.pitLane,
+ * set by createRace), and one garage per team between the first and last box, in entry order.
+ */
+const laneSetup = (state, circuit, n) => {
+  const geo = laneGeometry(circuit);
+  const kmh = state.pitLane ? state.pitLane.kmh : null;
+  const vLimit = limitSpeed(circuit, kmh, state.race.baseLap);
+  const teams = [];
+  state.cars.forEach((car) => {
+    if (!teams.includes(car.teamId)) teams.push(car.teamId);
+  });
+  const boxOf = {};
+  teams.forEach((teamId, slot) => {
+    boxOf[teamId] = boxPosition(geo, slot, teams.length);
+  });
+  // A limit only counts where the era had one and the stewards judged it (race-eras.json offences).
+  const offences = raceBalance.penalties.offences;
+  const year = stateRules(state).year;
+  return {
+    circuit,
+    geo,
+    kmh,
+    vLimit,
+    baseLap: state.race.baseLap,
+    boxOf,
+    judgesSpeeding: kmh !== null && year >= offences.pitSpeeding.from,
+    judgesRelease: year >= offences.unsafeRelease.from,
+    cars: createLaneState(n),
+  };
+};
+
+/** Car `i` leaves the track into the lane at race time `entered`: its profile for this pass. */
+const intoLane = (state, i, entered, { stop, stationary, queue, plan }) => {
+  const sim = state._sim;
+  const L = sim.lane;
+  const cars = L.cars;
+  const car = state.cars[i];
+  const crew = sim.streams.crew;
+  // RF-SIM-10 with a cause: late on the limiter (same rate as the quick mode's blind roll).
+  const late = crew.next() < PIT_LANE_BALANCE.speeding.chancePerPass;
+  const overKmh = PIT_LANE_BALANCE.speeding.overKmh[0] + crew.next() * (PIT_LANE_BALANCE.speeding.overKmh[1] - PIT_LANE_BALANCE.speeding.overKmh[0]);
+  const over = late && L.kmh !== null ? { kmh: overKmh, metres: PIT_LANE_BALANCE.speeding.metres } : null;
+  const boxS = stop ? Math.max(L.geo.limitFromS + 1, (L.boxOf[car.teamId] ?? (L.geo.slotFrom + L.geo.slotTo) / 2) - (queue > 0 ? PIT_LANE_BALANCE.queueOffsetMetres : 0)) : -1;
+  cars.prof[i] = buildProfile(L.circuit, { vLimit: L.vLimit, baseLap: L.baseLap, stopAt: stop ? boxS : null, over });
+  cars.plan[i] = plan;
+  cars.boxS[i] = boxS;
+  cars.enteredAt[i] = entered;
+  cars.stopFor[i] = stop ? stationary : 0;
+  cars.queue[i] = queue;
+  cars.s[i] = 0;
+  cars.v[i] = cars.prof[i].v[0];
+  cars.maxInZone[i] = 0;
+  cars.stage[i] = null;
+  cars.phase[i] = PHASE.ENTRY_ROAD;
+  cars.over[i] = over;
+  sim.inPit[i] = 1;
+  sim.lapFlags[i] |= 4;
+  sim.drsOpen[i] = 0;
+  if (sim.duelOther[i] >= 0) endDuel(sim, i);
+};
+
+/** Time-share of the lap equivalent to `s` metres along the lane (entry → line → exit). */
+const laneTau = (sim, s) => {
+  const { geo } = sim.lane;
+  const { pitEntryTau, pitExitTau } = sim.tables;
+  if (s < geo.lineS) return Math.min(0.999999, pitEntryTau + (1 - pitEntryTau) * (s / geo.lineS));
+  return pitExitTau * ((s - geo.lineS) / Math.max(1e-9, geo.total - geo.lineS));
+};
+
+/** Seconds of driving (the stop excluded) car `i` has done at race time `t`. */
+const drivenAt = (cars, i, t) => {
+  const e = t - cars.enteredAt[i];
+  const tStop = cars.prof[i].tStop;
+  if (tStop < 0 || e <= tStop) return e;
+  return e < tStop + cars.stopFor[i] ? tStop : e - cars.stopFor[i];
+};
+
+/** RF-SIM-10: is a car coming down the fast lane within `gapMetres` behind `i`'s box? */
+const carComing = (state, i) => {
+  const sim = state._sim;
+  const cars = sim.lane.cars;
+  const gap = PIT_LANE_BALANCE.unsafeRelease.gapMetres;
+  for (let j = 0; j < sim.n; j += 1) {
+    if (j === i || sim.inPit[j] === 0 || !cars.prof[j]) continue;
+    if (cars.phase[j] === PHASE.STATIONARY || cars.phase[j] === PHASE.QUEUE) continue;
+    const d = cars.boxS[i] - cars.s[j];
+    if (d > 0 && d < gap) return true;
+  }
+  return false;
+};
+
+/** RF-SIM-10: the stewards look at a pit-lane offence (race.js investigate), with what the lane saw. */
+const investigateWithCause = (state, car, offence, cause) => {
+  investigate(state, car, offence, null, state._sim.leaderLap);
+  state.investigations[state.investigations.length - 1].cause = cause;
+  const event = state.events[state.events.length - 1];
+  if (event && event.type === "investigation" && event.carId === car.id) event.cause = cause;
+};
+
+/** One step of car `i` in the pit lane: the profile, the stop, the line, the release and the exit. */
+const advanceInLane = (state, i) => {
+  const sim = state._sim;
+  const L = sim.lane;
+  const cars = L.cars;
+  const prof = cars.prof[i];
+  const car = state.cars[i];
+  const t1 = sim.clock;
+  const s0 = cars.s[i];
+  const tau0 = sim.tau[i];
+  const tStop = prof.tStop;
+  const e1 = t1 - cars.enteredAt[i];
+  const stoppedNow = tStop >= 0 && e1 >= tStop && e1 < tStop + cars.stopFor[i];
+  const wasStopped = cars.phase[i] === PHASE.STATIONARY || cars.phase[i] === PHASE.QUEUE;
+
+  // The release (RF-SIM-10): the crew holds the car while one comes down the fast lane, unless it misses it.
+  if (!stoppedNow && wasStopped && tStop >= 0 && carComing(state, i)) {
+    const miss = sim.streams.crew.next() < PIT_LANE_BALANCE.unsafeRelease.crewMissChance * Math.max(0, 1.4 - car.crew / 100);
+    if (miss) {
+      if (L.judgesRelease) investigateWithCause(state, car, "unsafeRelease", { metres: PIT_LANE_BALANCE.unsafeRelease.gapMetres });
+    } else {
+      const hold = PIT_LANE_BALANCE.unsafeRelease.holdSeconds;
+      cars.stopFor[i] += hold;
+      if (car.pit) car.pit.stationary += hold;
+      cars.phase[i] = PHASE.STATIONARY;
+      return;
+    }
+  }
+
+  let s1;
+  let v1;
+  if (stoppedNow) {
+    s1 = cars.boxS[i];
+    v1 = 0;
+    const inStop = e1 - tStop;
+    const queue = cars.queue[i];
+    cars.phase[i] = inStop < queue ? PHASE.QUEUE : PHASE.STATIONARY;
+    cars.stage[i] = inStop < queue || !cars.plan[i] ? null : stageAt(cars.plan[i], inStop - queue);
+  } else {
+    const at = sampleProfile(prof, drivenAt(cars, i, t1));
+    s1 = at.s;
+    v1 = at.v;
+    const afterBox = tStop < 0 ? -1 : s1 >= cars.boxS[i] ? 1 : s1 >= L.geo.limitFromS ? 0 : -1;
+    cars.phase[i] = s1 < L.geo.limitFromS ? PHASE.ENTRY_ROAD : s1 > L.geo.limitToS ? PHASE.EXIT_ROAD : afterBox === 1 ? PHASE.RELEASE : afterBox === 0 ? PHASE.BOX_APPROACH : PHASE.LIMITER;
+    cars.stage[i] = null;
+  }
+  cars.s[i] = s1;
+  cars.v[i] = v1;
+  if (s1 >= L.geo.limitFromS && s1 <= L.geo.limitToS && v1 > cars.maxInZone[i]) cars.maxInZone[i] = v1;
+
+  // The line, inside the lane: the lap ends when the car passes it (exact time from the profile).
+  const lineS = L.geo.lineS;
+  if (s0 < lineS && s1 >= lineS && sim.inPit[i] === 1) {
+    checkpoints(state, i, tau0, 1);
+    if (!sim.active[i]) return;
+    const tc = cars.enteredAt[i] + timeAtS(prof, lineS) + (tStop >= 0 && cars.boxS[i] <= lineS ? cars.stopFor[i] : 0);
+    sim.laps[i] += 1;
+    sim.tau[i] = 0;
+    sim.P[i] = sim.laps[i];
+    const going = endLap(state, i, sim.laps[i], Math.min(t1, tc));
+    if (!going) {
+      sim.inPit[i] = 0;
+      cars.prof[i] = null;
+      return;
+    }
+  }
+
+  const fromTau = sim.tau[i];
+  if (s1 >= L.geo.total - 1e-9) {
+    // Out of the lane: back on the track at the exit, with the rest of the step at race pace.
+    const tEnd = cars.enteredAt[i] + prof.T + (tStop >= 0 ? cars.stopFor[i] : 0);
+    const tau = sim.tables.pitExitTau + Math.max(0, t1 - tEnd) / sim.budget[i];
+    sim.tau[i] = tau;
+    sim.P[i] = sim.laps[i] + dAt(sim.tables, tau);
+    checkpoints(state, i, fromTau, tau);
+    if (cars.over[i] && L.judgesSpeeding) investigateWithCause(state, car, "pitSpeeding", { kmh: Math.round(cars.maxInZone[i] * 3.6 * 10) / 10, limit: L.kmh });
+    sim.inPit[i] = 0;
+    cars.prof[i] = null;
+    cars.plan[i] = null;
+    cars.stage[i] = null;
+    cars.phase[i] = PHASE.TRACK;
+    return;
+  }
+  const tau = laneTau(sim, s1);
+  sim.tau[i] = tau;
+  sim.P[i] = sim.laps[i] + dAt(sim.tables, tau);
+  if (tau > fromTau) checkpoints(state, i, fromTau, tau);
+};
+
+/** For the view and the tests: where car `i` is in the pit lane (null on the track). */
+export const laneStateOf = (state, carId) => {
+  const sim = state._sim;
+  const i = state.cars.findIndex((car) => car.id === carId);
+  if (i < 0 || sim.inPit[i] === 0 || !sim.lane.cars.prof[i]) return null;
+  const cars = sim.lane.cars;
+  return { phase: PHASE_NAMES[cars.phase[i]], s: cars.s[i], v: cars.v[i], stage: cars.stage[i], boxS: cars.boxS[i], vLimit: sim.lane.vLimit, kmh: sim.lane.kmh, geometry: sim.lane.geo };
 };
 
 // ------------------------------------------------------------ race control
@@ -910,6 +1121,8 @@ export const snapshot = (state) => {
     share: frac(sim.P[i]),
     lateral: sim.lat[i],
     inPit: sim.inPit[i] !== 0,
+    // RF-SIM-12 (WP6/WP7): where in the pit lane, how fast, and the stage of the stop.
+    pit: sim.inPit[i] !== 0 && sim.lane.cars.prof[i] ? { phase: PHASE_NAMES[sim.lane.cars.phase[i]], v: sim.lane.cars.v[i], stage: sim.lane.cars.stage[i] } : null,
     status: car.status,
     position: car.position,
     duel: sim.duelRole[i],

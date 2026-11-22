@@ -24,6 +24,7 @@ import anchorBalance from "../../data/balance/historical-anchors.json";
 import { carFromRating } from "../car";
 import { driverSalary } from "../economy";
 import { shortCode, teamIdentity } from "../identity";
+import { referenceLapsOf } from "./refLaps";
 import { addMarketPool, buildManagerWorld, fillEmptySeats, makeDriver, prepareReference, prestigeFor } from "../world";
 
 const lerp = (from, to, t) => from + (to - from) * t;
@@ -95,15 +96,21 @@ export const packCalendar = ({ pack, reference }) => {
     const facts = byDate[event.date.slice(5)] || {};
     const name = facts.name || `${event.name} Grand Prix`;
     const profile = circuitProfile(name);
+    // WP10 (RF-SIM-02, RF-WKD-02): the race and qualifying reference from the real pole and
+    // fastest race lap of the pack (engine/packs/refLaps.js); without them the old reference -
+    // the winner's average lap x 0.985 - and, without that either, the distance over an
+    // era-typical average speed.
+    const real = referenceLapsOf(event.refLaps);
     const avgLap = facts.avgLap && facts.avgLap > 40 ? facts.avgLap : null;
-    // Without a reference lap, the distance over an era-typical average speed.
     const fallbackLap = event.lengthKm ? Math.round((event.lengthKm / lerp(180, 215, clamp((pack.year - 1990) / 30, 0, 1))) * 3600 * 100) / 100 : 90;
     return {
       round: event.round,
       name,
       country: event.country || profile.country,
       date: event.date,
-      baseLap: avgLap ? Math.round(avgLap * 0.985 * 100) / 100 : fallbackLap,
+      baseLap: real ? real.baseLap : avgLap ? Math.round(avgLap * 0.985 * 100) / 100 : fallbackLap,
+      qualifyingRef: real ? real.qualifyingRef : null,
+      refLaps: event.refLaps || null,
       laps: event.laps,
       circuit: facts.circuit || null,
       location: event.place || facts.location || null,

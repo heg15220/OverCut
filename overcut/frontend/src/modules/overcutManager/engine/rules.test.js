@@ -41,13 +41,6 @@ const legacy = {
   compounds: (year) => (year < 1982 ? ["dry"] : year < 2007 ? ["soft", "hard"] : ["soft", "medium", "hard"]),
   refuelling: (year) => year >= 1994 && year <= 2009,
   energy: (year) => (year >= 2014 ? "ers" : year === 2009 || (year >= 2011 && year <= 2013) ? "kers" : null),
-  stationary: (year, refuel, crew) => {
-    const skill = 1.3 - crew / 200;
-    if (year < 1982) return 24 * skill;
-    if (year < 1994) return 8.5 * skill;
-    if (year < 2010) return (6 + refuel * 0.11) * skill;
-    return 2.5 * skill + 0.2;
-  },
   dirtyAir: (year) => (year < 1968 ? 0.12 : year < 1977 ? 0.22 : year < 2022 ? 0.42 : 0.24),
   outLap: (year) => (year >= 1995 ? 0.36 : 0.22),
 };
@@ -97,7 +90,11 @@ describe("SRS 6.2 / RNF-07 · the resolver reads data, not years", () => {
       expect(rules.tyres.mandatoryDryCompounds >= 2).toBe(year >= 2007);
       expect(rules.dirtyAir).toBe(legacy.dirtyAir(year));
       expect(rules.tyres.outLapTemp).toBe(legacy.outLap(year));
-      [0, 12].forEach((refuel) => expect(stationaryTime({ year, refuel, crew: 70 })).toBeCloseTo(legacy.stationary(year, refuel, 70), 10));
+      // WP7 (RF-SIM-12): the stop is by stages now (engine/sim/pitStop.test.js calibrates it per era);
+      // here only the era rule: fuel lengthens the stop only where refuelling is legal.
+      const dry = stationaryTime({ year, refuel: 0, crew: 70 });
+      const fuelled = stationaryTime({ year, refuel: 12, crew: 70 });
+      expect(fuelled - dry > 1e-9).toBe(legacy.refuelling(year));
       if (year <= 2025) {
         expect(rules.drs.enabled).toBe(features.drs);
         expect(energyEra(year)).toBe(legacy.energy(year));

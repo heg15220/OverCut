@@ -162,6 +162,57 @@ def standings_totals(real_results, sprint_results, scheme, last_round, adjustmen
     return totals
 
 
+def pit_lane_speed(year, calendar):
+    """RF-SIM-12 / SRS 6.2 (WP6): the pit-lane speed limit of a season, from
+    curated/era-defaults.json `pitLaneSpeed` (dated periods in km/h with per-circuit
+    exceptions by f1db circuit id), with its provenance. Periods that start after the last
+    race are dropped."""
+    entries = load_json("era-defaults.json")["fields"]["pitLaneSpeed"]
+    entry = next((e for e in entries if e["from"] <= year <= e["to"]), None)
+    if entry is None:
+        fail(f"{year}: era-defaults.json pitLaneSpeed has no range for this year")
+    last = calendar[-1]["date"] if calendar else f"{year}-12-31"
+    periods = [dict(p) for p in entry["value"] if not p.get("fromDate") or p["fromDate"] <= last]
+    for p in periods:
+        if set(p) - {"fromDate", "race", "circuits"}:
+            fail(f"{year}: pitLaneSpeed period has unknown keys {sorted(set(p) - {'fromDate', 'race', 'circuits'})}")
+        if p.get("fromDate") and not str(p["fromDate"]).startswith(f"{year}-"):
+            fail(f"{year}: pitLaneSpeed period starts on {p['fromDate']}, outside the season")
+        p["circuits"] = {k: p["circuits"][k] for k in sorted(p.get("circuits") or {})}
+    provenance = {k: entry[k] for k in ("status", "url", "quote", "note") if k in entry}
+    return periods, provenance_of(year, "pitLaneSpeed", provenance)
+
+
+def ref_laps(con, race_id, qualifying_format):
+    """Real reference laps of one Grand Prix (SIM-FISICA §3.10, WP10; RF-SIM-02, RF-WKD-02).
+
+    pole            fastest single qualifying lap of the weekend, in seconds. Under the
+                    aggregate format (2005, rounds 1-6) the qualifying_result time is the sum
+                    of two laps, so only the single-lap sessions count.
+    fastestRaceLap  fastest lap of the race (f1db fastest_lap).
+    winnerAvg       the winner's race time over his laps (includes stops and safety cars).
+    Any of them is null when f1db has no time (early years, cancelled sessions).
+    """
+    singles = []
+    tables = ["qualifying_1_result", "qualifying_2_result"]
+    if qualifying_format != "AGGREGATE":
+        singles += [x for row in con.execute(
+            "select q1_millis, q2_millis, q3_millis, time_millis from qualifying_result where race_id = ?", (race_id,))
+            for x in row if x]
+    for table in tables:
+        singles += [row[0] for row in con.execute(f"select time_millis from {table} where race_id = ?", (race_id,)) if row[0]]
+    fastest = con.execute("select min(time_millis) from fastest_lap where race_id = ?", (race_id,)).fetchone()[0]
+    winner = con.execute("""select time_millis, laps from race_result
+                            where race_id = ? and position_number = 1 order by position_display_order limit 1""",
+                         (race_id,)).fetchone()
+    seconds = lambda ms: round(ms / 1000, 3) if ms else None
+    return {
+        "pole": seconds(min(singles)) if singles else None,
+        "fastestRaceLap": seconds(fastest),
+        "winnerAvg": seconds(winner[0] / winner[1]) if winner and winner[0] and winner[1] else None,
+    }
+
+
 def build_pack(con, year, regs_cur, events_cur, assets_cur):
     if str(year) not in regs_cur:
         fail(f"{year}: no curated regulations in curated/regulations.json")
@@ -365,6 +416,7 @@ def build_pack(con, year, regs_cur, events_cur, assets_cur):
         "sprint": r["sprint_race_date"] is not None or r["round"] in sprint_rounds,
         "pointsFactor": factors.get(r["round"], 1),
         "resultsAvailable": r["round"] in rounds_with_results,
+        "refLaps": ref_laps(con, r["id"], r["qualifying_format"]),
     } for r in races]
 
     # ---------------------------------------------------------------- standings
@@ -481,6 +533,7 @@ def build_pack(con, year, regs_cur, events_cur, assets_cur):
         provenance[key] = provenance_of(year, key, cur["provenance"][key])
     provenance["tyreSuppliers"] = {"status": "f1db"}
     provenance["qualifyingFormats"] = {"status": "f1db"}
+    regs["pitLaneSpeed"], provenance["pitLaneSpeed"] = pit_lane_speed(year, calendar)
     regs = {k: regs[k] for k in sorted(regs)}
     provenance = {k: provenance[k] for k in sorted(provenance)}
 

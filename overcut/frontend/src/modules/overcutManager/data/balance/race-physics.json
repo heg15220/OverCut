@@ -1,0 +1,513 @@
+{
+  "$comment": "RNF-07: física de traza (WP2 de docs/manager/SIM-FISICA.md, §3.2; RF-SIM-01, RF-SIM-02). Coche de punto cuasi estático sobre la trazada: carga, agarre por banda, tracción y frenada dentro de la elipse de fricción, punta por potencia y resistencia. Cada bloque de era describe el MEJOR coche del año en una vuelta de clasificación (pole); los demás se alejan de él con carStats. Calibración contra f1db (pole), punta y mínimas reales (SIM-FISICA §4.1, §4.2): test engine/sim/physics.test.js. Esquema: engine/packs/schema/race-physics.schema.json.",
+  "version": 1,
+  "constants": {
+    "$comment": "g estándar; densidad del aire a ~25 °C y nivel del mar (ISA corregida).",
+    "g": 9.81,
+    "rho": 1.18
+  },
+  "bands": {
+    "$comment": "Bandas de velocidad del agarre (SIM-FISICA §3.2): lenta por debajo de slowMaxKmh, rápida por encima de fastMinKmh, media en medio (interpolación lineal con la media en el punto central). Mismos límites que la clasificación de curvas lenta/media/rápida de trackGeometry (110/190 km/h) redondeados a los de §3.2.",
+    "slowMaxKmh": 120,
+    "fastMinKmh": 200
+  },
+  "trace": {
+    "$comment": "Curvatura por muestra (6 m): con `line` en splines.json (WP1) se usa su `kappa` (1e-4/m, calculada sin conexión: idéntica en todos los motores JS) con media móvil de ±lineCurvature.half muestras; sin `line`, curvatura de Menger (puntos a ±span muestras, media de ±half) sobre una trazada sustituta: banda elástica de mínima curvatura dentro de ±corridorM del eje (pista FIA de 12 m: media anchura 6 m − media anchura del coche 1 m − 0,3 m de margen = 4,7 m; corridorByLayoutRef para un circuito concreto). minSpeed: velocidad mínima de integración (m/s).",
+    "curvature": {
+      "span": 2,
+      "half": 2
+    },
+    "lineCurvature": {
+      "span": 2,
+      "half": 2
+    },
+    "centreline": {
+      "corridorM": 4.7,
+      "corridorByLayoutRef": {},
+      "relax": 1,
+      "iterations": 1000
+    },
+    "minSpeed": 8
+  },
+  "eras": [
+    {
+      "from": 1950,
+      "to": 1960,
+      "mass": 700,
+      "fuelQualifyingKg": 10,
+      "power": 200,
+      "CdA": 0.8,
+      "ClA": 0,
+      "mu": {
+        "slow": 1,
+        "medium": 1.007,
+        "fast": 0.893
+      },
+      "muBrake": 1,
+      "muTraction": 1.1,
+      "brakeMax": 12,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "NV: orden de magnitud (motores de 2,5 l)",
+        "aeroAndGrip": "NV: sin pole real en circuito con spline calibrada (ninguna spline vale antes de 1990); valores de orden de magnitud interpolados entre eras.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "NV"
+      }
+    },
+    {
+      "from": 1961,
+      "to": 1965,
+      "mass": 520,
+      "fuelQualifyingKg": 10,
+      "power": 140,
+      "CdA": 0.6,
+      "ClA": 0,
+      "mu": {
+        "slow": 1.15,
+        "medium": 1.158,
+        "fast": 1.027
+      },
+      "muBrake": 1.1,
+      "muTraction": 1.1,
+      "brakeMax": 13,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "NV: 1,5 l atmosférico",
+        "aeroAndGrip": "NV: sin pole real en circuito con spline calibrada (ninguna spline vale antes de 1990); valores de orden de magnitud interpolados entre eras.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "NV"
+      }
+    },
+    {
+      "from": 1966,
+      "to": 1967,
+      "mass": 570,
+      "fuelQualifyingKg": 10,
+      "power": 290,
+      "CdA": 0.65,
+      "ClA": 0.2,
+      "mu": {
+        "slow": 1.3,
+        "medium": 1.309,
+        "fast": 1.161
+      },
+      "muBrake": 1.15,
+      "muTraction": 1.1,
+      "brakeMax": 15,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "NV: 3,0 l atmosférico",
+        "aeroAndGrip": "NV: sin pole real en circuito con spline calibrada (ninguna spline vale antes de 1990); valores de orden de magnitud interpolados entre eras.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "NV"
+      }
+    },
+    {
+      "from": 1968,
+      "to": 1976,
+      "mass": 645,
+      "fuelQualifyingKg": 10,
+      "power": 360,
+      "CdA": 1,
+      "ClA": 1.8,
+      "mu": {
+        "slow": 1.45,
+        "medium": 1.461,
+        "fast": 1.294
+      },
+      "muBrake": 1.2,
+      "muTraction": 1.1,
+      "brakeMax": 25,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "NV: Cosworth DFV ~480 cv",
+        "aeroAndGrip": "NV: sin pole real en circuito con spline calibrada (ninguna spline vale antes de 1990); valores de orden de magnitud interpolados entre eras.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "NV"
+      }
+    },
+    {
+      "from": 1977,
+      "to": 1982,
+      "mass": 655,
+      "fuelQualifyingKg": 10,
+      "power": 380,
+      "CdA": 1,
+      "ClA": 3.5,
+      "mu": {
+        "slow": 1.6,
+        "medium": 1.612,
+        "fast": 1.428
+      },
+      "muBrake": 1.2,
+      "muTraction": 1.1,
+      "brakeMax": 35,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "NV: DFV evolucionado",
+        "aeroAndGrip": "NV: sin pole real en circuito con spline calibrada (ninguna spline vale antes de 1990); valores de orden de magnitud interpolados entre eras.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "NV"
+      }
+    },
+    {
+      "from": 1983,
+      "to": 1988,
+      "mass": 610,
+      "fuelQualifyingKg": 10,
+      "power": 600,
+      "CdA": 1.1,
+      "ClA": 3,
+      "mu": {
+        "slow": 1.6,
+        "medium": 1.612,
+        "fast": 1.428
+      },
+      "muBrake": 1.2,
+      "muTraction": 1.1,
+      "brakeMax": 40,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "NV: turbo 1,5 l (potencia de carrera, no de clasificación)",
+        "aeroAndGrip": "NV: sin pole real en circuito con spline calibrada (ninguna spline vale antes de 1990); valores de orden de magnitud interpolados entre eras.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "NV"
+      }
+    },
+    {
+      "from": 1989,
+      "to": 1994,
+      "mass": 575,
+      "fuelQualifyingKg": 10,
+      "power": 530,
+      "CdA": 1.075,
+      "ClA": 3.025,
+      "mu": {
+        "slow": 1.583,
+        "medium": 1.595,
+        "fast": 1.414
+      },
+      "muBrake": 1.25,
+      "muTraction": 1.1,
+      "brakeMax": 45,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "NV: 3,5 l atmosférico ~700 cv",
+        "aeroAndGrip": "Ajustados μ, ClA y CdA (masa y potencia fijas) contra las poles en seco f1db de la era en los circuitos calibrados (pole/vuelta rápida ≤ 1,035), con prior hacia la era vecina. Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "NV"
+      }
+    },
+    {
+      "from": 1995,
+      "to": 1997,
+      "mass": 595,
+      "fuelQualifyingKg": 10,
+      "power": 540,
+      "CdA": 1.085,
+      "ClA": 2.818,
+      "mu": {
+        "slow": 1.605,
+        "medium": 1.618,
+        "fast": 1.433
+      },
+      "muBrake": 1.3,
+      "muTraction": 1.1,
+      "brakeMax": 50,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "NV: 3,0 l ~730 cv",
+        "aeroAndGrip": "Ajustados μ, ClA y CdA (masa y potencia fijas) contra las poles en seco f1db de la era en los circuitos calibrados (pole/vuelta rápida ≤ 1,035), con prior hacia la era vecina. Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 1998,
+      "to": 2000,
+      "mass": 595,
+      "fuelQualifyingKg": 10,
+      "power": 600,
+      "CdA": 1.054,
+      "ClA": 2.591,
+      "mu": {
+        "slow": 1.615,
+        "medium": 1.627,
+        "fast": 1.441
+      },
+      "muBrake": 1.4,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: V10 3,0 ~800 cv",
+        "aeroAndGrip": "Ajustados μ, ClA y CdA (masa y potencia fijas) contra las poles en seco f1db de la era en los circuitos calibrados (pole/vuelta rápida ≤ 1,035), con prior hacia la era vecina. Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 2001,
+      "to": 2002,
+      "mass": 595,
+      "fuelQualifyingKg": 10,
+      "power": 630,
+      "CdA": 1.046,
+      "ClA": 2.941,
+      "mu": {
+        "slow": 1.727,
+        "medium": 1.739,
+        "fast": 1.54
+      },
+      "muBrake": 1.4,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: V10 ~850 cv",
+        "aeroAndGrip": "Ajustados μ, ClA y CdA (masa y potencia fijas) contra las poles en seco f1db de la era en los circuitos calibrados (pole/vuelta rápida ≤ 1,035), con prior hacia la era vecina. Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 2003,
+      "to": 2004,
+      "mass": 595,
+      "fuelQualifyingKg": 10,
+      "fuelRaceQualifyingKg": 55,
+      "power": 680,
+      "CdA": 1.039,
+      "ClA": 3.2,
+      "mu": {
+        "slow": 1.763,
+        "medium": 1.776,
+        "fast": 1.573
+      },
+      "muBrake": 1.4,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: V10 ~900 cv",
+        "aeroAndGrip": "Ajustados μ, ClA y CdA (masa y potencia fijas) contra las poles en seco f1db de la era en los circuitos calibrados (pole/vuelta rápida ≤ 1,035), con prior hacia la era vecina. Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 2005,
+      "to": 2005,
+      "mass": 595,
+      "fuelQualifyingKg": 10,
+      "fuelRaceQualifyingKg": 63.565,
+      "power": 690,
+      "CdA": 1.1,
+      "ClA": 3.4,
+      "mu": {
+        "slow": 1.67,
+        "medium": 1.644,
+        "fast": 1.513
+      },
+      "muBrake": 1.501,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: V10 2005 > 900 cv (Wikipedia, Ferrari V10; SIM-FISICA §4.6)",
+        "aeroAndGrip": "Ajustado (scratchpad fit2, Nelder-Mead) contra pole f1db de los circuitos calibrados de 2005/2012/2024, punta (Monza 2012 342,7; Baréin 2024 327,3; Mónaco 2012 285,1; Monza 2005 372,6) y mínima de Monza T1 (SIM-FISICA §4.2); frenada de Baréin T1 2025: 313 → 66 km/h en 124 m (f1-fansite, S). Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 2006,
+      "to": 2008,
+      "mass": 595,
+      "fuelQualifyingKg": 10,
+      "fuelRaceQualifyingKg": 55,
+      "power": 560,
+      "CdA": 1.17,
+      "ClA": 3.809,
+      "mu": {
+        "slow": 1.739,
+        "medium": 1.753,
+        "fast": 1.553
+      },
+      "muBrake": 1.4,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: V8 2,4 ~750 cv (Goodwood; SIM-FISICA §4.6)",
+        "aeroAndGrip": "Ajustados μ, ClA y CdA (masa y potencia fijas) contra las poles en seco f1db de la era en los circuitos calibrados (pole/vuelta rápida ≤ 1,035), con prior hacia la era vecina. Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 2009,
+      "to": 2013,
+      "mass": 640,
+      "fuelQualifyingKg": 10,
+      "fuelRaceQualifyingKg": 55,
+      "power": 575,
+      "CdA": 1.335,
+      "ClA": 4.3,
+      "mu": {
+        "slow": 1.706,
+        "medium": 1.68,
+        "fast": 1.546
+      },
+      "muBrake": 1.3,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: V8 ~750 cv + KERS 60 kW durante 6,7 s/vuelta (2009, 2011-13), media efectiva",
+        "aeroAndGrip": "Ajustado (scratchpad fit2, Nelder-Mead) contra pole f1db de los circuitos calibrados de 2005/2012/2024, punta (Monza 2012 342,7; Baréin 2024 327,3; Mónaco 2012 285,1; Monza 2005 372,6) y mínima de Monza T1 (SIM-FISICA §4.2); frenada de Baréin T1 2025: 313 → 66 km/h en 124 m (f1-fansite, S). Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 2014,
+      "to": 2016,
+      "mass": 700,
+      "fuelQualifyingKg": 10,
+      "power": 700,
+      "CdA": 1.443,
+      "ClA": 5.625,
+      "mu": {
+        "slow": 1.448,
+        "medium": 1.459,
+        "fast": 1.294
+      },
+      "muBrake": 1.5,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: híbrido ~950 cv",
+        "aeroAndGrip": "Ajustados μ, ClA y CdA (masa y potencia fijas) contra las poles en seco f1db de la era en los circuitos calibrados (pole/vuelta rápida ≤ 1,035), con prior hacia la era vecina. Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 2017,
+      "to": 2021,
+      "mass": 740,
+      "fuelQualifyingKg": 10,
+      "power": 735,
+      "CdA": 1.45,
+      "ClA": 7.416,
+      "mu": {
+        "slow": 1.44,
+        "medium": 1.451,
+        "fast": 1.285
+      },
+      "muBrake": 1.8,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: híbrido ~1000 cv (Red Bull, F1.com; SIM-FISICA §4.6)",
+        "aeroAndGrip": "Ajustados μ, ClA y CdA (masa y potencia fijas) contra las poles en seco f1db de la era en los circuitos calibrados (pole/vuelta rápida ≤ 1,035), con prior hacia la era vecina. Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 2022,
+      "to": 2025,
+      "mass": 798,
+      "fuelQualifyingKg": 10,
+      "power": 735,
+      "CdA": 1.616,
+      "ClA": 4.62,
+      "mu": {
+        "slow": 1.9,
+        "medium": 1.871,
+        "fast": 1.721
+      },
+      "muBrake": 1.496,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: híbrido ~1000 cv (SIM-FISICA §4.6)",
+        "aeroAndGrip": "Ajustado (scratchpad fit2, Nelder-Mead) contra pole f1db de los circuitos calibrados de 2005/2012/2024, punta (Monza 2012 342,7; Baréin 2024 327,3; Mónaco 2012 285,1; Monza 2005 372,6) y mínima de Monza T1 (SIM-FISICA §4.2); frenada de Baréin T1 2025: 313 → 66 km/h en 124 m (f1-fansite, S). Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    },
+    {
+      "from": 2026,
+      "to": 2100,
+      "mass": 768,
+      "fuelQualifyingKg": 10,
+      "power": 700,
+      "CdA": 1.36,
+      "ClA": 7.402,
+      "mu": {
+        "slow": 1.425,
+        "medium": 1.435,
+        "fast": 1.272
+      },
+      "muBrake": 1.8,
+      "muTraction": 1.1,
+      "brakeMax": 54,
+      "crr": 0.015,
+      "source": {
+        "mass": "Masa mínima con piloto, f1technical.net/news/28346 (SIM-FISICA §4.6, V/S); antes de 1995 sin piloto + 70 kg (NV).",
+        "power": "S: ~750 kW total con reparto 50 % eléctrico, limitado por energía (F1.com)",
+        "aeroAndGrip": "Ajustados μ, ClA y CdA (masa y potencia fijas) contra las poles en seco f1db de la era en los circuitos calibrados (pole/vuelta rápida ≤ 1,035), con prior hacia la era vecina. Sobre la trazada de WP1 (splines.json line/kappa), sin Monza (eje con saltos en la recta). Límites físicos: 4-6 g laterales a 280 km/h (Mercedes AMG F1 2024, SIM-FISICA §4.2), carga igual al peso entre 150 y 200 km/h (ClA ≥ 4,3 m² desde 2009), μ de neumático ≤ 1,9.",
+        "fuel": "NV: ~10 kg en clasificación con poco combustible; con combustible de carrera (regulations.qualifyingRaceFuel) la carga del primer relevo, ajustada contra las poles de 2005 (sin cifra pública).",
+        "brakeMax": "Pico 4,2-5,5 g en frenada (Brembo Monza 2014/2022, Baréin 2025; SIM-FISICA §4.2)"
+      }
+    }
+  ],
+  "downforce": {
+    "$comment": "Nivel de carga por circuito (layoutRef de layouts.js / splines.json): factor sobre ClA del coche de la era; CdA cambia en dragPerLevel de lo que cambia ClA (el ala que da la carga también frena). Monza y Spa con alas de baja carga, Mónaco, Hungaroring y Singapur con máxima (práctica habitual documentada en la prensa técnica; valores absolutos sin fuente pública, calibrados contra pole y punta reales, SIM-FISICA §4.6 'NV').",
+    "default": 1,
+    "dragPerLevel": 0.6,
+    "byLayoutRef": {
+      "monza": 0.787,
+      "spa": 0.933,
+      "monaco": 1.1,
+      "hungaroring": 1.232,
+      "villeneuve": 0.8
+    }
+  },
+  "carStats": {
+    "$comment": "Cuánto se separa un coche del mejor de su era con estadísticas de −1 a 1 (engine/development, ECarStat agrupadas): fracción de cambio en potencia, resistencia (positivo = menos CdA), carga (ClA), agarre (μ de todas las bandas y tracción) y frenada (μ de frenada y techo).",
+    "power": 0.06,
+    "drag": 0.05,
+    "downforce": 0.08,
+    "grip": 0.04,
+    "braking": 0.05
+  },
+  "calibration": {
+    "$comment": "Qué poles de f1db cuentan para calibrar y testear (engine/sim/physics.test.js): una pole más lenta que la vuelta rápida de carrera en más de wetPoleRatio es una clasificación en mojado o interrumpida; una vuelta rápida de carrera por debajo de disruptedRaceRatio × pole (Spa 2021) es una carrera sin vueltas de verdad.",
+    "wetPoleRatio": 1.035,
+    "disruptedRaceRatio": 0.9
+  }
+}

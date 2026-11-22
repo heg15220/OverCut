@@ -1,0 +1,146 @@
+{
+  "$comment": "WP6 (pit lane físico) y WP7 (parada por etapas) de docs/manager/SIM-FISICA.md §3.8, §3.9, §4.3-4.5. RF-SIM-12, RF-SIM-10, RF-STF-07, SRS §6.2, RNF-05, RNF-07. Son los bloques `pitLane` y `pitStop` que §3.10 pone en race-physics.json; viven aquí aparte para no pisar el fichero de WP2 mientras se escribe en paralelo (se pueden fusionar tal cual). Esquema: race-pit.schema.json. El límite de velocidad NO está aquí: es reglamento y va en data/seasons/curated/era-defaults.json `pitLaneSpeed` (y en los packs). Leyenda de fuentes: V = página leída; S = cifra citada por el buscador o derivada de f1db; NV = sin fuente (estimación de orden de magnitud, ajustable).",
+  "version": 1,
+  "pitLane": {
+    "$comment": "engine/sim/pitLane.js. El coche recorre la trazada del pit lane (malla de extract_pitlane.py o la procedural) con un perfil de velocidad v(s) en una rejilla de gridMetres: tope por curvatura sqrt(lateralAccel·r) (radio con puntos a ±curvatureSpanMetres), roadMaxKmh fuera de la zona limitada, vLimit dentro (limitFrom-limitTo), v = 0 en su box, frenada brakeDecel (desde pista) y boxDecel (hasta el box), aceleración a(v) = accel.max·(1 − (v/accel.topKmh)²), y al final (desde exitBlend) no más que la velocidad de pista. La pérdida = tiempo del recorrido − tiempo del mismo tramo en pista (tramo × vuelta base); bajo SC/VSC el tramo de pista se escala por race-sim.json safetyCar.lapFactor/virtualLapFactor (el mismo factor que usan los dos modos). Las marcas limitFrom/limitTo/exitBlend salen de splines.json (WP1) si están; si no, se derivan: la línea de límite limitMarginMetres antes del primer garaje y después del último, con al menos entryRoadMinMetres/exitRoadMinMetres de carretera de entrada/salida. Sin límite (antes de 1994) la zona va a la velocidad de pista en la línea menos noLimitMarginKmh.",
+    "gridMetres": 1,
+    "curvatureSpanMetres": 12,
+    "lateralAccel": 24,
+    "lateralAccelSource": "NV: coche de F1 a baja velocidad (poca carga), 2,4 g; los 5 g de curva rápida (mercedesamgf1.com, V) necesitan carga aerodinámica",
+    "roadMaxKmh": 250,
+    "brakeDecel": 30,
+    "brakeDecelSource": "S: Brembo, 4,2-4,3 g en Monza T1 y Baréin T1 (SIM-FISICA §4.2); en la carretera de entrada se frena por debajo del máximo: 3 g (NV)",
+    "boxDecel": 12,
+    "accel": { "max": 12, "topKmh": 340, "source": "NV: 0-100 km/h en ~2,6 s de un F1 moderno (≈ 10,7 m/s²); topKmh ≈ punta de Monza (SIM-FISICA §4.2)" },
+    "limitMarginMetres": 40,
+    "entryRoadMinMetres": 80,
+    "exitRoadMinMetres": 80,
+    "noLimitMarginKmh": 90,
+    "queueOffsetMetres": 7,
+    "boxSlotMarginMetres": 8,
+    "speeding": {
+      "$comment": "RF-SIM-10 con causa física: con chancePerPass por paso por el pit lane el piloto conecta tarde el limitador y cruza la línea de límite a vLimit + overKmh durante los primeros metres. Mismo número que la tirada a ciegas del modo rápido (race-eras.json penalties.offences.pitSpeeding.chancePerStop) para que los dos modos sancionen igual. Solo en eras con límite y con la infracción (pitSpeeding.from).",
+      "chancePerPass": 0.005,
+      "overKmh": [1, 8],
+      "metres": 30
+    },
+    "unsafeRelease": {
+      "$comment": "RF-SIM-10 con causa física: al soltar se mira si viene un coche por el carril rápido a menos de gapMetres detrás del box. El equipo retiene el coche holdSeconds cada vez (y vuelve a mirar) salvo un fallo de la suelta (crewMissChance × factor de error del equipo); un fallo con coche cerca es una suelta insegura que investigan los comisarios (desde race-eras.json unsafeRelease.from).",
+      "gapMetres": 35,
+      "crewMissChance": 0.06,
+      "holdSeconds": 0.25
+    },
+    "circuitAliases": {
+      "$comment": "Referencias de los bocetos (layouts.js, estilo Ergast) → id de circuito de f1db, para las excepciones de límite por circuito.",
+      "albert_park": "melbourne",
+      "marina_bay": "marina-bay",
+      "spa": "spa-francorchamps",
+      "villeneuve": "montreal",
+      "red_bull_ring": "spielberg",
+      "rodriguez": "mexico-city",
+      "americas": "austin",
+      "yas_marina": "yas-marina",
+      "ricard": "paul-ricard",
+      "magny_cours": "magny-cours",
+      "losail": "lusail",
+      "las_vegas": "las-vegas",
+      "vegas": "las-vegas"
+    },
+    "extraLoss": {
+      "$comment": "Corrección por circuito (s) cuando la geometría no basta (SIM-FISICA §3.8: se corrige la geometría o esto, nunca el código). Provisional (2026-11-22): residuos de la calibración contra `calibration` con las marcas limitFrom/limitTo/exitBlend de WP1 (`marksSource: geometry`, aún sin revisión manual) y la traza de velocidad de WP2 de ese día. Monza +4,8: la malla del pit lane acaba antes de la incorporación real tras la primera chicana (el tramo de pista equivalente sale corto); Baréin −3,3: la malla pone garajes después de la línea y la zona limitada (683 de 801 m) sale larga; Hungaroring −1,8: zona limitada de 503 m de 640. Suzuka cuadra sin corrección (−0,35 s). Si cambian las marcas o la traza hay que recalibrar: engine/sim/pitLane.test.js lo detecta.",
+      "default": 0,
+      "circuits": { "monza": 4.8, "bahrain": -3.3, "hungaroring": -1.8 }
+    },
+    "calibration": [
+      { "circuit": "monza", "layoutId": "monza-7", "year": 2025, "winnerAvgLap": 83.100, "winnerAvgLapSource": "f1db v2026.20.0 (tiempo del ganador / vueltas)", "realLoss": 25.1, "method": "A: vuelta de entrada + salida − 2 × mediana (FastF1), parada incluida", "source": "https://www.formuladream.app/blog/f1-pit-stop-cost-measured", "ver": "V" },
+      { "circuit": "bahrain", "layoutId": "bahrain-1", "year": 2025, "winnerAvgLap": 100.692, "winnerAvgLapSource": "f1db v2026.20.0 (tiempo del ganador / vueltas)", "realLoss": 23.0, "method": "A", "source": "https://www.formuladream.app/blog/f1-pit-stop-cost-measured", "ver": "V" },
+      { "circuit": "hungaroring", "layoutId": "hungaroring-3", "year": 2025, "winnerAvgLap": 81.732, "winnerAvgLapSource": "f1db v2026.20.0 (tiempo del ganador / vueltas)", "realLoss": 20.5, "method": "A", "source": "https://www.formuladream.app/blog/f1-pit-stop-cost-measured", "ver": "V" },
+      { "circuit": "suzuka", "layoutId": "suzuka-2", "year": 2025, "winnerAvgLap": 92.962, "winnerAvgLapSource": "f1db v2026.20.0 (tiempo del ganador / vueltas)", "realLoss": 23.5, "method": "A", "source": "https://www.formuladream.app/blog/f1-pit-stop-cost-measured", "ver": "V" }
+    ]
+  },
+  "pitStop": {
+    "$comment": "engine/sim/pitStop.js. Parada por etapas ordenadas con rol (idea de Staff_Enum_PitStopStage/EPitStopRole de F1M24, sin ningún valor suyo): marcas (piloto) → gatos arriba → ruedas ×4 en paralelo (pistola + quitar + poner + pistola; manda la más lenta) en paralelo con alerón y repostaje → gatos abajo → suelta. Tiempo de cada etapa = media + sd × z (z ≈ normal con 4 uniformes, solo + y ×, RNF-05), por el factor del equipo crew.base − crew/crew.divisor (RF-STF-07). Cada etapa tira un error con su probabilidad × (crew.errorBase − crew/crew.errorDivisor) y su retraso [min, max]. Todo en el flujo propio `crew` de la semilla. `target` es la mediana real de la parada por era (test ±0,2 s) con su procedencia.",
+    "crew": { "base": 1.3, "divisor": 200, "errorBase": 1.4, "errorDivisor": 100 },
+    "litresPerFuelLap": 3.6,
+    "litresPerFuelLapSource": "NV: ~2,7 kg/vuelta de un V10/V8 (densidad 0,75 kg/l)",
+    "eras": [
+      {
+        "from": 1950, "to": 1981,
+        "target": { "median": 24, "ver": "NV", "note": "sin dato publicado (SIM-FISICA §4.5); mismo valor que tenía race-eras.json pit.stationary. Paradas raras (cambio de ruedas con tuerca central o reparación)." },
+        "marks": { "mean": 0, "sd": 0, "errorChance": 0.01, "delay": [0.5, 2] },
+        "jackUp": { "mean": 2.0, "sd": 0.3, "errorChance": 0.004, "delay": [2, 5] },
+        "wheel": { "mean": 18.0, "sd": 1.5, "errorChance": 0.005, "delay": [3, 10] },
+        "wing": { "adjust": 4, "change": 20 },
+        "refuel": null,
+        "jackDown": { "mean": 1.0, "sd": 0.2 },
+        "release": { "mean": 2.5, "sd": 0.4, "errorChance": 0.004, "delay": [1, 4] }
+      },
+      {
+        "from": 1982, "to": 1993,
+        "target": { "median": 8.5, "ver": "NV", "note": "sin dato publicado (§4.5); valor que tenía race-eras.json pit.stationary. Ruedas con pistola neumática, sin repostaje (1982-83 opcional: el modelo lo deja desactivado, era-defaults)." },
+        "marks": { "mean": 0, "sd": 0, "errorChance": 0.008, "delay": [0.3, 1.2] },
+        "jackUp": { "mean": 0.89, "sd": 0.12, "errorChance": 0.003, "delay": [1, 3] },
+        "wheel": { "mean": 5.36, "sd": 0.5, "errorChance": 0.005, "delay": [1.5, 8] },
+        "wing": { "adjust": 2.5, "change": 12 },
+        "refuel": null,
+        "jackDown": { "mean": 0.49, "sd": 0.1 },
+        "release": { "mean": 1.19, "sd": 0.2, "errorChance": 0.003, "delay": [0.5, 2.5] }
+      },
+      {
+        "from": 1994, "to": 2009,
+        "target": { "median": 8.2, "ver": "S", "note": "Derivada de f1db v2026.20.0 (tiempo de pit lane, mismo límite de 100 km/h): mediana de 2004-2009 menos 2010 en 12 circuitos sin cambios ≈ +3,5 s sobre la parada de 2010 (4,6 s). Rango real 6-12 s según combustible (https://en.wikipedia.org/wiki/Pit_stop, V). El repostaje manda: corre en paralelo con las ruedas." },
+        "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
+        "jackUp": { "mean": 0.45, "sd": 0.06, "errorChance": 0.002, "delay": [1, 3] },
+        "wheel": { "mean": 3.4, "sd": 0.3, "errorChance": 0.005, "delay": [1, 6] },
+        "wing": { "adjust": 1.5, "change": 8 },
+        "refuel": { "engage": 1.3, "flowLps": 12.1, "flowSource": "NV: ~12 l/s (memoria, SIM-FISICA §4.5)", "sd": 0.25, "errorChance": 0.006, "delay": [2, 6] },
+        "jackDown": { "mean": 0.3, "sd": 0.05 },
+        "release": { "mean": 0.6, "sd": 0.1, "errorChance": 0.003, "delay": [0.5, 2] }
+      },
+      {
+        "from": 2010, "to": 2010,
+        "target": { "median": 4.6, "ver": "S", "note": "Derivada de f1db: el tiempo de pit lane de 2010 es ~1,0 s más que el de 2012 y ~1,7 s más que el de 2013 antes de Hungría en los mismos circuitos y a 100 km/h; parada de 2013 ≈ 2014 (mismo tiempo de pit lane a 80 km/h, 2,9 s). Primer año sin repostaje: objetivo < 3 s solo para los mejores (https://www.motorsportmagazine.com/archive/article/april-2010/72/return-of-the-slick-pitstop/, V)." },
+        "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
+        "jackUp": { "mean": 0.54, "sd": 0.06, "errorChance": 0.002, "delay": [1, 3] },
+        "wheel": { "mean": 2.85, "sd": 0.25, "errorChance": 0.006, "delay": [1, 6] },
+        "wing": { "adjust": 1.2, "change": 8 },
+        "refuel": null,
+        "jackDown": { "mean": 0.33, "sd": 0.05 },
+        "release": { "mean": 0.65, "sd": 0.1, "errorChance": 0.003, "delay": [0.5, 2] }
+      },
+      {
+        "from": 2011, "to": 2012,
+        "target": { "median": 3.6, "ver": "S", "note": "Derivada de f1db: tiempo de pit lane 2011-2012 ≈ 0,7 s más que 2013 antes de Hungría (Baréin, Barcelona, Shanghái, Mónaco, Melbourne, Sepang, Montreal, Silverstone)." },
+        "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
+        "jackUp": { "mean": 0.44, "sd": 0.05, "errorChance": 0.002, "delay": [1, 3] },
+        "wheel": { "mean": 2.15, "sd": 0.2, "errorChance": 0.006, "delay": [1, 6] },
+        "wing": { "adjust": 1.0, "change": 8 },
+        "refuel": null,
+        "jackDown": { "mean": 0.27, "sd": 0.04 },
+        "release": { "mean": 0.49, "sd": 0.08, "errorChance": 0.003, "delay": [0.5, 2] }
+      },
+      {
+        "from": 2013, "to": 2018,
+        "target": { "median": 2.9, "ver": "S", "note": "Derivada de f1db: el tiempo de pit lane a 80 km/h de 2019-2024 es ~0,4 s menor que el de 2014 en los mismos circuitos (Monza, Barcelona, Baréin, Hungaroring, Spielberg); 2013 tras Hungría ≈ 2014." },
+        "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
+        "jackUp": { "mean": 0.36, "sd": 0.04, "errorChance": 0.002, "delay": [1, 3] },
+        "wheel": { "mean": 1.77, "sd": 0.16, "errorChance": 0.006, "delay": [1, 6] },
+        "wing": { "adjust": 0.9, "change": 8 },
+        "refuel": null,
+        "jackDown": { "mean": 0.22, "sd": 0.03 },
+        "release": { "mean": 0.39, "sd": 0.06, "errorChance": 0.003, "delay": [0.5, 2] }
+      },
+      {
+        "from": 2019, "to": 2026,
+        "target": { "median": 2.5, "ver": "S", "note": "Mejor parada por GP 1,90-2,52 s, media ~2,1 s en 2024 (https://www.formula1.com/en/results/2024/awards/fastest-pit-stops, V); récord 1,80 s en 2023 (Guinness, S). La mediana de todas las paradas (≈ mejor + 0,4 s) es inferencia: no hay serie publicada (NV)." },
+        "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
+        "jackUp": { "mean": 0.30, "sd": 0.03, "errorChance": 0.002, "delay": [1, 3] },
+        "wheel": { "mean": 1.55, "sd": 0.14, "errorChance": 0.006, "delay": [1, 6] },
+        "wing": { "adjust": 0.8, "change": 8 },
+        "refuel": null,
+        "jackDown": { "mean": 0.18, "sd": 0.03 },
+        "release": { "mean": 0.33, "sd": 0.05, "errorChance": 0.003, "delay": [0.5, 2] }
+      }
+    ]
+  }
+}

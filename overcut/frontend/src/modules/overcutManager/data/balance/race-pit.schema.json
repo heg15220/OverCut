@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "Esquema de data/balance/race-pit.json (RNF-07): bloques pitLane (WP6) y pitStop (WP7) de docs/manager/SIM-FISICA.md §3.10.",
+  "type": "object",
+  "required": ["version", "pitLane", "pitStop"],
+  "properties": {
+    "$comment": {"type": "string"},
+    "version": {"type": "integer", "minimum": 1},
+    "pitLane": {
+      "type": "object",
+      "required": ["gridMetres", "curvatureSpanMetres", "lateralAccel", "roadMaxKmh", "brakeDecel", "boxDecel", "accel", "limitMarginMetres", "entryRoadMinMetres", "exitRoadMinMetres", "noLimitMarginKmh", "queueOffsetMetres", "boxSlotMarginMetres", "speeding", "unsafeRelease", "circuitAliases", "extraLoss", "calibration"],
+      "properties": {
+        "gridMetres": {"type": "number", "exclusiveMinimum": 0, "maximum": 5},
+        "curvatureSpanMetres": {"type": "number", "exclusiveMinimum": 0},
+        "lateralAccel": {"type": "number", "exclusiveMinimum": 0, "maximum": 60},
+        "roadMaxKmh": {"type": "number", "exclusiveMinimum": 0},
+        "brakeDecel": {"type": "number", "exclusiveMinimum": 0, "maximum": 60},
+        "boxDecel": {"type": "number", "exclusiveMinimum": 0, "maximum": 60},
+        "accel": {
+          "type": "object",
+          "required": ["max", "topKmh"],
+          "properties": {"max": {"type": "number", "exclusiveMinimum": 0}, "topKmh": {"type": "number", "exclusiveMinimum": 0}, "source": {"type": "string"}}
+        },
+        "limitMarginMetres": {"type": "number", "minimum": 0},
+        "entryRoadMinMetres": {"type": "number", "minimum": 0},
+        "exitRoadMinMetres": {"type": "number", "minimum": 0},
+        "noLimitMarginKmh": {"type": "number", "minimum": 0},
+        "queueOffsetMetres": {"type": "number", "minimum": 0},
+        "boxSlotMarginMetres": {"type": "number", "minimum": 0},
+        "speeding": {
+          "type": "object",
+          "required": ["chancePerPass", "overKmh", "metres"],
+          "properties": {
+            "chancePerPass": {"type": "number", "minimum": 0, "maximum": 1},
+            "overKmh": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "minimum": 0}},
+            "metres": {"type": "number", "minimum": 0}
+          }
+        },
+        "unsafeRelease": {
+          "type": "object",
+          "required": ["gapMetres", "crewMissChance", "holdSeconds"],
+          "properties": {
+            "gapMetres": {"type": "number", "minimum": 0},
+            "crewMissChance": {"type": "number", "minimum": 0, "maximum": 1},
+            "holdSeconds": {"type": "number", "exclusiveMinimum": 0}
+          }
+        },
+        "circuitAliases": {"type": "object", "additionalProperties": {"type": "string"}},
+        "extraLoss": {
+          "type": "object",
+          "required": ["default", "circuits"],
+          "properties": {"default": {"type": "number"}, "circuits": {"type": "object", "additionalProperties": {"type": "number", "minimum": -10, "maximum": 10}}}
+        },
+        "calibration": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["circuit", "layoutId", "year", "winnerAvgLap", "realLoss", "method", "source", "ver"],
+            "properties": {
+              "circuit": {"type": "string"},
+              "layoutId": {"type": "string"},
+              "year": {"type": "integer"},
+              "winnerAvgLap": {"type": "number", "exclusiveMinimum": 0},
+              "realLoss": {"type": "number", "exclusiveMinimum": 0},
+              "source": {"type": "string", "pattern": "^https?://"},
+              "ver": {"enum": ["V", "S", "NV"]}
+            }
+          }
+        }
+      }
+    },
+    "pitStop": {
+      "type": "object",
+      "required": ["crew", "litresPerFuelLap", "eras"],
+      "properties": {
+        "crew": {
+          "type": "object",
+          "required": ["base", "divisor", "errorBase", "errorDivisor"],
+          "properties": {"base": {"type": "number"}, "divisor": {"type": "number", "exclusiveMinimum": 0}, "errorBase": {"type": "number"}, "errorDivisor": {"type": "number", "exclusiveMinimum": 0}}
+        },
+        "litresPerFuelLap": {"type": "number", "exclusiveMinimum": 0},
+        "eras": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["from", "to", "target", "marks", "jackUp", "wheel", "wing", "refuel", "jackDown", "release"],
+            "properties": {
+              "from": {"type": "integer"},
+              "to": {"type": "integer"},
+              "target": {
+                "type": "object",
+                "required": ["median", "ver", "note"],
+                "properties": {"median": {"type": "number", "exclusiveMinimum": 0}, "ver": {"enum": ["V", "S", "NV"]}, "note": {"type": "string"}}
+              },
+              "marks": {"$ref": "#/definitions/stage"},
+              "jackUp": {"$ref": "#/definitions/stage"},
+              "wheel": {"$ref": "#/definitions/stage"},
+              "wing": {"type": ["object", "null"], "required": ["adjust", "change"], "properties": {"adjust": {"type": "number", "minimum": 0}, "change": {"type": "number", "minimum": 0}}},
+              "refuel": {
+                "type": ["object", "null"],
+                "required": ["engage", "flowLps", "sd", "errorChance", "delay"],
+                "properties": {
+                  "engage": {"type": "number", "minimum": 0},
+                  "flowLps": {"type": "number", "exclusiveMinimum": 0},
+                  "sd": {"type": "number", "minimum": 0},
+                  "errorChance": {"type": "number", "minimum": 0, "maximum": 1},
+                  "delay": {"$ref": "#/definitions/range"}
+                }
+              },
+              "jackDown": {"$ref": "#/definitions/stage"},
+              "release": {"$ref": "#/definitions/stage"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "range": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "minimum": 0}},
+    "stage": {
+      "type": "object",
+      "required": ["mean", "sd"],
+      "properties": {
+        "mean": {"type": "number", "minimum": 0},
+        "sd": {"type": "number", "minimum": 0},
+        "errorChance": {"type": "number", "minimum": 0, "maximum": 1},
+        "delay": {"$ref": "#/definitions/range"}
+      }
+    }
+  }
+}

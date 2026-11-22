@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/race-physics.json (física de traza, WP2 de docs/manager/SIM-FISICA.md; RF-SIM-01, RF-SIM-02). Lo comprueba engine/sim/physics.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "constants", "bands", "trace", "eras", "downforce", "carStats", "calibration"],
+  "definitions": {
+    "positive": {"type": "number", "exclusiveMinimum": 0},
+    "share": {"type": "number", "minimum": 0, "maximum": 1},
+    "curvature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["span", "half"],
+      "properties": {"span": {"type": "integer", "minimum": 1, "maximum": 20}, "half": {"type": "integer", "minimum": 0, "maximum": 20}}
+    },
+    "text": {"type": "string", "minLength": 1}
+  },
+  "properties": {
+    "$comment": {"type": "string"},
+    "version": {"const": 1},
+    "constants": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["g", "rho"],
+      "properties": {"$comment": {"type": "string"}, "g": {"$ref": "#/definitions/positive"}, "rho": {"$ref": "#/definitions/positive"}}
+    },
+    "bands": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slowMaxKmh", "fastMinKmh"],
+      "properties": {"$comment": {"type": "string"}, "slowMaxKmh": {"$ref": "#/definitions/positive"}, "fastMinKmh": {"$ref": "#/definitions/positive"}}
+    },
+    "trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["curvature", "lineCurvature", "centreline", "minSpeed"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "curvature": {"$ref": "#/definitions/curvature"},
+        "lineCurvature": {"$ref": "#/definitions/curvature"},
+        "centreline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["corridorM", "corridorByLayoutRef", "relax", "iterations"],
+          "properties": {
+            "corridorM": {"type": "number", "minimum": 0, "maximum": 15},
+            "corridorByLayoutRef": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0, "maximum": 15}},
+            "relax": {"type": "number", "exclusiveMinimum": 0, "maximum": 1.9},
+            "iterations": {"type": "integer", "minimum": 0, "maximum": 5000}
+          }
+        },
+        "minSpeed": {"$ref": "#/definitions/positive"}
+      }
+    },
+    "eras": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "mass", "fuelQualifyingKg", "power", "CdA", "ClA", "mu", "muBrake", "muTraction", "brakeMax", "crr", "source"],
+        "properties": {
+          "from": {"type": "integer"},
+          "to": {"type": "integer"},
+          "mass": {"type": "number", "minimum": 400, "maximum": 1000},
+          "fuelQualifyingKg": {"type": "number", "minimum": 0, "maximum": 200},
+          "fuelRaceQualifyingKg": {"type": "number", "minimum": 0, "maximum": 200},
+          "power": {"type": "number", "minimum": 50, "maximum": 1200},
+          "CdA": {"type": "number", "minimum": 0.3, "maximum": 3},
+          "ClA": {"type": "number", "minimum": 0, "maximum": 15},
+          "mu": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["slow", "medium", "fast"],
+            "properties": {"slow": {"$ref": "#/definitions/positive"}, "medium": {"$ref": "#/definitions/positive"}, "fast": {"$ref": "#/definitions/positive"}}
+          },
+          "muBrake": {"$ref": "#/definitions/positive"},
+          "muTraction": {"$ref": "#/definitions/positive"},
+          "brakeMax": {"type": "number", "minimum": 5, "maximum": 80},
+          "crr": {"type": "number", "minimum": 0, "maximum": 0.05},
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["mass", "power", "aeroAndGrip", "fuel", "brakeMax"],
+            "properties": {
+              "mass": {"$ref": "#/definitions/text"}, "power": {"$ref": "#/definitions/text"}, "aeroAndGrip": {"$ref": "#/definitions/text"},
+              "fuel": {"$ref": "#/definitions/text"}, "brakeMax": {"$ref": "#/definitions/text"}
+            }
+          }
+        }
+      }
+    },
+    "downforce": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default", "dragPerLevel", "byLayoutRef"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "default": {"$ref": "#/definitions/positive"},
+        "dragPerLevel": {"type": "number", "minimum": 0, "maximum": 2},
+        "byLayoutRef": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0.3, "maximum": 2}}
+      }
+    },
+    "carStats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["power", "drag", "downforce", "grip", "braking"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "power": {"$ref": "#/definitions/share"}, "drag": {"$ref": "#/definitions/share"}, "downforce": {"$ref": "#/definitions/share"},
+        "grip": {"$ref": "#/definitions/share"}, "braking": {"$ref": "#/definitions/share"}
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wetPoleRatio", "disruptedRaceRatio"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "wetPoleRatio": {"type": "number", "minimum": 1, "maximum": 1.5},
+        "disruptedRaceRatio": {"type": "number", "minimum": 0.5, "maximum": 1}
+      }
+    }
+  }
+}

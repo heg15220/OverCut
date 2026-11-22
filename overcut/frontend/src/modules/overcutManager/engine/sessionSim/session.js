@@ -27,7 +27,7 @@
  */
 
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
-import { fieldMomentsOf, qualifyingPaceOf, tyreTime } from "../race";
+import { fieldMomentsOf, qualifyingAnchorOf, qualifyingPaceOf, tyreTime } from "../race";
 import { raceBalance, rulesFor } from "../rules";
 import { SESSION_BALANCE as B, sessionFormat, tyreAllocation } from "./formats";
 
@@ -49,13 +49,15 @@ export const createSession = ({
   const rules = rulesFor(era);
   const format = sessionFormat({ kind, era, race, field: entrants.length });
   const moments = fieldMomentsOf(entrants);
+  // WP10 (RF-WKD-02): the same anchor to the real pole as the quick qualifying.
+  const anchor = qualifyingAnchorOf({ entrants, race, era, moments });
   const allocation = tyreAllocation(era);
   const cars = entrants.map((entrant, index) => ({
     id: entrant.id,
     index,
     teamId: entrant.teamId,
     isUser: Boolean(entrant.isUser),
-    base: qualifyingPaceOf({ entrant, race, era, wetness, practice, moments }),
+    base: qualifyingPaceOf({ entrant, race, era, wetness, practice, moments, anchor }),
     tyres: (tyres?.[entrant.id] || allocation).map((set) => ({ ...set })),
     raceFuel: Number.isFinite(raceFuel[entrant.id]) ? raceFuel[entrant.id] : null,
     declaredFuel: null,

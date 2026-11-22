@@ -159,7 +159,7 @@ export const circuitFor = (race = {}, year = 2020, splines = undefined) => {
     const key = `spline:${spline.id}@${bucketYear(year)}`;
     if (!cache.has(key)) {
       const sketch = layoutFor(ref, year);
-      const built = buildCircuitFromPath({ id: `spline:${spline.id}`, km: spline.km, points: spline.points, drs: sketch?.drs, pit: spline.pit }, bucketYear(year));
+      const built = buildCircuitFromPath({ id: `spline:${spline.id}`, km: spline.km, points: spline.points, drs: sketch?.drs, pit: spline.pit, layoutRef: spline.layoutRef, line: spline.line }, bucketYear(year));
       cache.set(key, { ref, splineId: spline.id, ...built, corners: namedLike(built.corners, sketch, bucketYear(year)) });
     }
     return cache.get(key);

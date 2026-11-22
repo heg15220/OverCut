@@ -17,9 +17,11 @@
  *                the full-throttle straights are, and - normalised - where a car
  *                is at any fraction of its lap time.
  *
- * Nothing here knows about races; it is pure geometry, deterministic, with no
- * imports, so a layout can also be checked from a script.
+ * Nothing here knows about races; it is pure geometry, deterministic, with no other
+ * imports but the point-mass car (sim/physics.js), so a layout can also be checked from a script.
  */
+
+import { carFor, splineGeometry, topSpeedOf, traceOf } from "./sim/physics";
 
 const TAU = Math.PI * 2;
 
@@ -120,60 +122,32 @@ const accumulate = (points) => {
 };
 
 /**
- * Car performance envelope by era, in SI units: top speed, lateral grip (g),
- * how much of that grip is downforce (it grows with speed), traction and
- * braking. Only the shape of the lap matters downstream - lap times are scaled
- * to the real ones - but the shape changes a lot: a 1955 car is slow through
- * fast corners, a 2020 car barely lifts.
+ * Car performance envelope by era (RF-SIM-01, WP2 of SIM-FISICA.md): the best car of the year
+ * on a qualifying lap, from engine/sim/physics.js and data/balance/race-physics.json (RNF-07).
+ * `vmax` is its top speed on an endless straight, `car` the full point-mass model. The old
+ * envelope here had `aero` as a share of grip per v², so v² = g·grip·r / (1 − g·aero·r) blew up
+ * at r ≥ 46 m (2017+) and every corner wider than that was flat out; the physical model has
+ * downforce from ClA and a flat-out radius of m / (μ·½ρ·ClA), ≈ 150-250 m depending on the era.
  */
-export const envelopeFor = (year = 2020) => {
-  if (year < 1961) return { vmax: 78, grip: 1.05, aero: 0, accel: 5.2, brake: 8.5 };
-  if (year < 1968) return { vmax: 80, grip: 1.25, aero: 0, accel: 5.8, brake: 9.5 };
-  if (year < 1977) return { vmax: 84, grip: 1.45, aero: 0.0006, accel: 6.4, brake: 11 };
-  if (year < 1983) return { vmax: 85, grip: 1.75, aero: 0.0012, accel: 6.6, brake: 13 };
-  if (year < 1989) return { vmax: 90, grip: 1.7, aero: 0.0011, accel: 8.2, brake: 14 };
-  if (year < 2009) return { vmax: 91, grip: 1.85, aero: 0.0016, accel: 8.4, brake: 18 };
-  if (year < 2017) return { vmax: 92, grip: 1.9, aero: 0.0017, accel: 8.6, brake: 19 };
-  return { vmax: 95, grip: 2.05, aero: 0.0021, accel: 9.2, brake: 21 };
+export const envelopeFor = (year = 2020, layoutRef = null) => {
+  const car = carFor({ year, layoutRef });
+  return { vmax: topSpeedOf(car), car };
 };
 
-const G = 9.81;
-
-/** Fastest a corner of radius r can be taken: grip plus speed-dependent downforce. */
-const cornerSpeed = (radius, env) => {
-  if (radius === Infinity) return env.vmax;
-  // v^2 / r = g * (grip + aero * v^2)  =>  v^2 = g*grip*r / (1 - g*aero*r)
-  const denom = 1 - G * env.aero * radius;
-  if (denom <= 0.05) return env.vmax;
-  return Math.min(env.vmax, Math.sqrt((G * env.grip * radius) / denom));
-};
+/** The circuit reference of a sketched layout ("monza#0" -> "monza"), for its downforce level. */
+const refOf = (layout) => layout.ref || String(layout.id || "").split("#")[0] || null;
 
 /**
- * Speed trace around a lap: a closed-loop point-mass simulation run twice so
- * the start of the lap inherits the exit of the last corner.
+ * Speed trace around a lap: the point-mass simulation of physics.traceOf (corner limits, then
+ * traction and braking passes inside the friction ellipse, twice round the loop so the start
+ * of the lap inherits the exit of the last corner). `kappa` (1/m per sample) wins over the
+ * radii when given: calibrated circuits pass the curvature of their racing line.
  */
-const speedTrace = (sampleRadii, ds, env) => {
+const speedTrace = (sampleRadii, ds, env, kappa = null) => {
   const n = sampleRadii.length;
-  const limit = sampleRadii.map((radius) => cornerSpeed(radius, env));
-  const v = limit.slice();
-  for (let pass = 0; pass < 2; pass += 1) {
-    for (let k = 1; k <= n; k += 1) {
-      const i = k % n;
-      const prev = (k - 1) % n;
-      // Traction fades with speed: drag eats into what the engine can give.
-      const accel = env.accel * Math.max(0.15, 1 - (v[prev] / env.vmax) ** 2);
-      v[i] = Math.min(v[i], Math.sqrt(v[prev] ** 2 + 2 * accel * ds[prev]));
-    }
-  }
-  for (let pass = 0; pass < 2; pass += 1) {
-    for (let k = n - 1; k >= -1; k -= 1) {
-      const i = ((k % n) + n) % n;
-      const next = (i + 1) % n;
-      const brake = env.brake + G * env.aero * v[next] ** 2 * 0.8;
-      v[i] = Math.min(v[i], Math.sqrt(v[next] ** 2 + 2 * brake * ds[i]));
-    }
-  }
-  return v;
+  const k = kappa && kappa.length === n ? kappa : Float64Array.from(sampleRadii, (radius) => (radius === Infinity ? 0 : 1 / Math.max(1, radius)));
+  const trace = traceOf(env.car, k, Float64Array.from(ds));
+  return Array.from(trace.v);
 };
 
 /**
@@ -201,7 +175,7 @@ export const buildCircuit = (layout, year = 2020) => {
   const ds = points.map((_, i) => s[i + 1] - s[i]);
 
   // Rotate the start of the lap to the start line: `start` along the first leg.
-  const env = envelopeFor(year);
+  const env = envelopeFor(year, refOf(layout));
   const speed = speedTrace(samples.map((sample) => sample.radius), ds, env);
   const time = [0];
   for (let i = 0; i < points.length; i += 1) time.push(time[i] + ds[i] / Math.max(8, (speed[i] + speed[(i + 1) % points.length]) / 2));
@@ -444,8 +418,11 @@ export const buildCircuitFromPath = (path, year = 2020) => {
   const s = s0;
   const total = s[n];
   const ds = points.map((_, i) => s[i + 1] - s[i]);
-  const env = envelopeFor(year);
-  const speed = speedTrace(samples.map((sample) => sample.radius), ds, env);
+  // The speed trace runs on the racing line when the spline has one (`line`, WP1), otherwise on
+  // physics' stand-in line inside the track (SIM-FISICA §3.1-3.2); same samples as here.
+  const env = envelopeFor(year, path.layoutRef);
+  const line = splineGeometry({ points: path.points, line: path.line, layoutRef: path.layoutRef });
+  const speed = speedTrace(samples.map((sample) => sample.radius), ds, env, line.kappa.length === n ? line.kappa : null);
   const time = [0];
   for (let i = 0; i < n; i += 1) time.push(time[i] + ds[i] / Math.max(8, (speed[i] + speed[(i + 1) % n]) / 2));
   const lapTime = time[time.length - 1];
@@ -530,7 +507,7 @@ const finishCircuit = ({ layout, points, s, total, speed, time, lapTime, heading
       // Calibrated circuits say which corners carry a number; sketches keep the old rule.
       if (known && known.numbered !== undefined) return known.numbered;
       const turn = Math.abs(known?.turn ?? 0);
-      return turn > 0.35 || corner.minSpeed < 0.8 * envelopeFor(year).vmax;
+      return turn > 0.35 || corner.minSpeed < 0.8 * envelopeFor(year, refOf(layout)).vmax;
     })
     .map((corner, index) => {
       const apex = corner.apex ?? Math.round((corner.from + corner.to) / 2);

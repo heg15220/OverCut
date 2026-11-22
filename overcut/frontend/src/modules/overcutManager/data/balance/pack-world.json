@@ -20,6 +20,14 @@
     "min": -6,
     "max": 6
   },
+  "refLaps": {
+    "$comment": "WP10 de docs/manager/SIM-FISICA.md (RF-SIM-02, RF-WKD-02): baseLap (vuelta de carrera en seco del coche medio, race.js lapBudget) y referencia de clasificación desde las vueltas reales del pack (calendar[].refLaps, f1db), no desde la media de carrera × 0,985. baseLap = vuelta rápida de carrera × raceFromFastest; raceFromFastest = 1,027 es la mediana de (media del ganador × 0,985) / vuelta rápida en los 647 GP con ambos datos (1976-2026), así el ritmo medio de carrera calibrado en la fase 5 no se mueve. Si la vuelta rápida es más lenta que la pole × wetRaceRatio (carrera en mojado o interrumpida) o falta, baseLap = pole × raceFromPole (misma mediana contra la pole, 1,067). La clasificación del coche más rápido del campo va a la pole real (race.js qualifyingAnchorOf); si la pole es más lenta que la vuelta rápida × wetPoleRatio (clasificación en mojado), se usa vuelta rápida × poleFromFastest (mediana pole / vuelta rápida, 0,962).",
+    "raceFromFastest": 1.027,
+    "raceFromPole": 1.067,
+    "poleFromFastest": 0.962,
+    "wetPoleRatio": 1.035,
+    "wetRaceRatio": 1.1
+  },
   "driver": {
     "$comment": "rating = base + carWeight × score del equipo + mateWeight × (teammateIndex − mateNeutral). Sin duelo con compañero (un solo piloto o sin clasificaciones), teammateIndex = mateNeutral.",
     "base": 63,

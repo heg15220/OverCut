@@ -29,6 +29,13 @@
   ],
   "mandatoryDryCompounds": 0,
   "parcFerme": true,
+  "pitLaneSpeed": [
+   {
+    "fromDate": null,
+    "race": 100,
+    "circuits": {}
+   }
+  ],
   "pointsScheme": {
    "race": [
     10,
@@ -118,6 +125,10 @@
    "url": "https://en.wikipedia.org/wiki/Parc_fermé",
    "quote": "According to the FIA Formula One regulations (used since 2003), the area must be sufficiently large and secure so as to prevent unauthorised access to the cars, while allowing technical checks to take place."
   },
+  "pitLaneSpeed": {
+   "status": "pending",
+   "note": "100 km/h desde 2004 (https://formula1-dictionary.net/pitlane_speed_limiter.html, V para 2010 art. 30.12; S para 2004). Sin excepciones por circuito conocidas (NV)."
+  },
   "pointsScheme": {
    "status": "f1db",
    "note": "Comprobado por el generador contra los puntos de cada resultado y las clasificaciones de f1db"
@@ -203,7 +214,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 91.215,
+    "fastestRaceLap": 92.408,
+    "winnerAvg": 94.495
+   }
   },
   {
    "round": 2,
@@ -226,7 +242,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 93.527,
+    "fastestRaceLap": 94.803,
+    "winnerAvg": 97.152
+   }
   },
   {
    "round": 3,
@@ -249,7 +270,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 85.229,
+    "fastestRaceLap": 86.045,
+    "winnerAvg": 99.436
+   }
   },
   {
    "round": 4,
@@ -272,7 +298,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 82.579,
+    "fastestRaceLap": 84.569,
+    "winnerAvg": 88.169
+   }
   },
   {
    "round": 5,
@@ -295,7 +326,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 89.819,
+    "fastestRaceLap": 92.099,
+    "winnerAvg": 95.979
+   }
   },
   {
    "round": 6,
@@ -318,7 +354,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 74.637,
+    "fastestRaceLap": 76.648,
+    "winnerAvg": 78.511
+   }
   },
   {
    "round": 7,
@@ -341,7 +382,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 73.532,
+    "fastestRaceLap": 75.143,
+    "winnerAvg": 79.784
+   }
   },
   {
    "round": 8,
@@ -364,7 +410,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 80.253,
+    "fastestRaceLap": 81.599,
+    "winnerAvg": 85.865
+   }
   },
   {
    "round": 9,
@@ -387,7 +438,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 74.726,
+    "fastestRaceLap": 75.841,
+    "winnerAvg": 81.104
+   }
   },
   {
    "round": 10,
@@ -410,7 +466,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 70.636,
+    "fastestRaceLap": 72.719,
+    "winnerAvg": 77.742
+   }
   },
   {
    "round": 11,
@@ -433,7 +494,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 75.111,
+    "fastestRaceLap": 77.111,
+    "winnerAvg": 78.969
+   }
   },
   {
    "round": 12,
@@ -456,7 +522,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 73.778,
+    "fastestRaceLap": 76.357,
+    "winnerAvg": 78.682
+   }
   },
   {
    "round": 13,
@@ -479,7 +550,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 79.504,
+    "fastestRaceLap": 83.516,
+    "winnerAvg": 96.299
+   }
   },
   {
    "round": 14,
@@ -502,7 +578,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 85.85,
+    "fastestRaceLap": 88.005,
+    "winnerAvg": 91.915
+   }
   },
   {
    "round": 15,
@@ -525,7 +606,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 81.225,
+    "fastestRaceLap": 82.559,
+    "winnerAvg": 84.754
+   }
   },
   {
    "round": 16,
@@ -548,7 +634,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 103.951,
+    "fastestRaceLap": 97.586,
+    "winnerAvg": 104.513
+   }
   },
   {
    "round": 17,
@@ -571,7 +662,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 88.954,
+    "fastestRaceLap": 92.676,
+    "winnerAvg": 94.97
+   }
   },
   {
    "round": 18,
@@ -594,7 +690,12 @@
    "qualifyingFormat": "KNOCKOUT",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 70.313,
+    "fastestRaceLap": 72.162,
+    "winnerAvg": 77.658
+   }
   }
  ],
  "teams": [

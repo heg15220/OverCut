@@ -30,6 +30,18 @@
   ],
   "mandatoryDryCompounds": 0,
   "parcFerme": false,
+  "pitLaneSpeed": [
+   {
+    "fromDate": null,
+    "race": null,
+    "circuits": {}
+   },
+   {
+    "fromDate": "1994-05-15",
+    "race": 80,
+    "circuits": {}
+   }
+  ],
   "pointsScheme": {
    "race": [
     10,
@@ -117,6 +129,10 @@
    "url": "https://en.wikipedia.org/wiki/Parc_fermé",
    "quote": "According to the FIA Formula One regulations (used since 2003), the area must be sufficiently large and secure so as to prevent unauthorised access to the cars, while allowing technical checks to take place."
   },
+  "pitLaneSpeed": {
+   "status": "pending",
+   "note": "Límite tras Imola 1994: 80 km/h todo el fin de semana desde Mónaco 1994 (https://www.motorpasion.com/formula1/limite-velocidad-boxes-formula-1-llego-1994-antes-habia-escenas-brutales-como-esta-jean-alesi-a-fondo-pit-lane-gp-espana, S); otra versión da 120 km/h en carrera (https://fia.com/node/51351, S): conflicto."
+  },
   "pointsScheme": {
    "status": "f1db",
    "note": "Comprobado por el generador contra los puntos de cada resultado y las clasificaciones de f1db"
@@ -202,7 +218,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 75.962,
+    "fastestRaceLap": 78.455,
+    "winnerAvg": 80.828
+   }
   },
   {
    "round": 2,
@@ -225,7 +246,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 70.218,
+    "fastestRaceLap": 74.023,
+    "winnerAvg": 76.647
+   }
   },
   {
    "round": 3,
@@ -248,7 +274,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 81.548,
+    "fastestRaceLap": 84.335,
+    "winnerAvg": 91.528
+   }
   },
   {
    "round": 4,
@@ -271,7 +302,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 78.56,
+    "fastestRaceLap": 81.076,
+    "winnerAvg": 84.556
+   }
   },
   {
    "round": 5,
@@ -294,7 +330,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 81.908,
+    "fastestRaceLap": 85.155,
+    "winnerAvg": 88.837
+   }
   },
   {
    "round": 6,
@@ -317,7 +358,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 86.178,
+    "fastestRaceLap": 88.927,
+    "winnerAvg": 90.897
+   }
   },
   {
    "round": 7,
@@ -340,7 +386,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 76.282,
+    "fastestRaceLap": 79.678,
+    "winnerAvg": 82.163
+   }
   },
   {
    "round": 8,
@@ -363,7 +414,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 84.96,
+    "fastestRaceLap": 87.1,
+    "winnerAvg": 90.061
+   }
   },
   {
    "round": 9,
@@ -386,7 +442,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 103.582,
+    "fastestRaceLap": 106.211,
+    "winnerAvg": 110.162
+   }
   },
   {
    "round": 10,
@@ -409,7 +470,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 78.258,
+    "fastestRaceLap": 80.881,
+    "winnerAvg": 84.158
+   }
   },
   {
    "round": 11,
@@ -432,7 +498,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 141.163,
+    "fastestRaceLap": 117.117,
+    "winnerAvg": 121.072
+   }
   },
   {
    "round": 12,
@@ -455,7 +526,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 83.844,
+    "fastestRaceLap": 85.93,
+    "winnerAvg": 88.354
+   }
   },
   {
    "round": 13,
@@ -478,7 +554,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 80.608,
+    "fastestRaceLap": 82.446,
+    "winnerAvg": 85.495
+   }
   },
   {
    "round": 14,
@@ -501,7 +582,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 82.762,
+    "fastestRaceLap": 85.04,
+    "winnerAvg": 87.343
+   }
   },
   {
    "round": 15,
@@ -524,7 +610,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 97.209,
+    "fastestRaceLap": 116.597,
+    "winnerAvg": 139.071
+   }
   },
   {
    "round": 16,
@@ -547,7 +638,12 @@
    "qualifyingFormat": "TWO_SESSION",
    "sprint": false,
    "pointsFactor": 1,
-   "resultsAvailable": true
+   "resultsAvailable": true,
+   "refLaps": {
+    "pole": 76.179,
+    "fastestRaceLap": 77.14,
+    "winnerAvg": 79.895
+   }
   }
  ],
  "teams": [
