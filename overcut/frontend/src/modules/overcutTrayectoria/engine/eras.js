@@ -138,7 +138,10 @@ export const eraFeaturesFor = (year) => ({
   year,
   safetyCar: year >= 1993,
   virtualSafetyCar: year >= 2015,
-  drs: year >= 2011,
+  // SRS 6.2 (amended): DRS 2011-2025 (RF-SIM-08); from 2026 active aero and a manual overtake mode instead.
+  drs: year >= 2011 && year <= 2025,
+  activeAero: year >= 2026,
+  overtakeMode: year >= 2026,
   refuelling: year >= 1994 && year <= 2009,
   knockoutQualifying: year >= 2006,
   singleLapQualifying: year >= 2003 && year <= 2005,

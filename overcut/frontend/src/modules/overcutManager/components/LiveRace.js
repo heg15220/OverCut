@@ -1,41 +1,51 @@
 /**
  * The race, live from the pit wall.
  *
- * The engine computes the Grand Prix a lap at a time, always just ahead of the
- * pictures; a race clock then plays it back at the speed the player chooses,
- * every car where its own lap says it is (see `raceClock.js`). On top of that
- * sit the cameras (the whole map, the overhead camera locked to a driver, or a
- * TV director hunting for fights), a timing tower read at the line, and the pit
- * wall: pace, fuel mixture and battery for each car, the stop calls and team
- * orders, the engineer on the radio and the commentary - all in time with what
- * is on screen.
+ * Two ways in. A live Sunday (`args`, career.weekendRaceArgs) is a step race
+ * (engine/sim, RF-SIM-01) run in the race worker (SRS 4, engine/worker): every
+ * animation frame the view asks the engine for `dt × speed` seconds of race
+ * (RF-CMD-04: ×1, ×2, ×4, ×8, ×16) a little ahead of the pictures, and draws every car
+ * between the per-step positions the worker sends back (raceClock.liveCarAt), so passes,
+ * duels and the safety car happen on the road. A finished or quick-mode race (`state`)
+ * is replayed from its lap history (raceClock.carAt), as before.
+ *
+ * On top sit the cameras (the whole map, the overhead camera locked to a driver, or a
+ * TV director hunting for fights; RNF-09: the 2D map and the timing tower work without
+ * 3D), a timing tower read at the line, and the pit wall: pace, fuel mixture, battery,
+ * defence and overtaking risk for each car, the stop calls and team orders (RF-CMD-01/02,
+ * the era's orders from rules.commandsFor), the engineer on the radio and the commentary.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LuFastForward, LuSkipForward } from "react-icons/lu";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { LuFastForward, LuSkipForward, LuStepForward } from "react-icons/lu";
 import {
   MIX_KEYS, MODE_KEYS, cancelPit, commandsFor, drsOpen, energyEra, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder,
   stepLap, tyreLifeUsed,
 } from "../engine/race";
+import { DEFENCE_KEYS, RISK_KEYS } from "../engine/sim";
+import { applyTick, createRaceClient, mirrorOf } from "../engine/worker/raceClient";
 import { circuitFor } from "../engine/venue";
 import { poseAt } from "../engine/trackGeometry";
 import { useManager } from "./context";
 import { Tyre } from "./atoms";
 import { ConditionsPanel, Dots, PlaybackBar, TimingTower } from "./Broadcast";
-import { COMPOUND, ERS, MIX, MODE, STATUS, commentary, lapTime, radioText, t } from "./texts";
+import { COMPOUND, DEFENCE, ERS, MIX, MODE, RISK, STATUS, commentary, duelEvent, lapTime, radioText, t } from "./texts";
 import RaceStage, { MiniMap } from "./RaceStage";
 import { canRender3D } from "../three/support";
 
-import { battlesIn, carAt, computedUntil, eventTime, leaderLap, raceEndTime, safetyCarWindows, standingsAt } from "./raceClock";
+import { battlesIn, carAt, computedUntil, eventTime, leaderLap, liveCarAt, liveSafetyCarWindows, liveYellowsAt, raceEndTime, safetyCarWindows, standingsAt } from "./raceClock";
 
 // three.js is only fetched when a race is watched in 3D, so the rest of OverCut stays light.
 const Race3D = React.lazy(() => import("../three/Race3D"));
 
-/** Playback speeds against real time: 1x is a real lap, 100x a race in a minute or two. */
-const SPEEDS = [1, 4, 10, 30, 100];
+/** RF-CMD-04: simulation speeds against real time; ×1 is a real lap. */
+export const SPEEDS = [1, 2, 4, 8, 16];
 
 /** Overhead camera widths, in metres of track across the screen. */
 const ZOOMS = [70, 130, 280];
+
+/** Seconds of the start-lights sequence before the race clock runs. */
+const INTRO_SECONDS = 4.6;
 
 /** Three-letter timing code from the surname ("Nelson Piquet Jr." is PIQ, not JR.). */
 const code = (name = "") => {
@@ -59,13 +69,13 @@ const CAMERA_NAME = {
 /** The 3D cameras in the order the arrows step through them, as F1 Manager offers its views. */
 const CAMERAS_3D = ["tv", "chase", "drone", "heli", "tcam", "visor", "nose", "tcamRear", "map"];
 
-/** Events the feed shows: everything at the front, everything about you. */
+/** Events the feed shows: everything at the front, everything about you, every race-control call. */
 const worthTelling = (event, carsById, positions) => {
-  if (["sc", "vsc", "sc-in", "rain", "drying", "flag", "lead"].includes(event.type)) return true;
+  if (["sc", "vsc", "sc-in", "rain", "drying", "flag", "lead", "yellow", "red", "restart"].includes(event.type)) return true;
   const car = carsById[event.carId];
   const other = carsById[event.otherId];
   if (car?.isUser || other?.isUser) return true;
-  if (event.type === "dnf" || event.type === "contact") return true;
+  if (["dnf", "contact", "penalty", "investigation", "grid-penalty"].includes(event.type)) return true;
   if (event.type === "pass") return (positions[event.otherId] ?? 99) <= 8;
   if (event.type === "mistake") return event.kind === "spin" || (positions[event.carId] ?? 99) <= 5;
   return event.type === "fastest" && event.lap > 5;
@@ -90,23 +100,204 @@ const cycle = (list, value, step) => list[(list.indexOf(value) + step + list.len
 
 const TOWER_MODES = ["interval", "gap", "tyres"];
 
-export default function LiveRace({ state, onFinished }) {
-  const { career } = useManager();
-  const stateRef = useRef(state);
-  const circuit = useMemo(() => circuitFor(state.race, state.year), [state.race, state.year]);
+/** RF-CMD-04 "saltar al siguiente evento": what the skip button stops at. */
+const NEXT_TYPES = ["pass", "pit", "dnf", "sc", "vsc", "sc-in", "rain", "lead", "contact", "mistake", "flag", "yellow", "red", "restart", "penalty", "swap"];
+
+// ------------------------------------------------------------------ sources
+
+/** The quick-mode orders by name (race.js setters), for a replayed quick race. */
+const QUICK_COMMANDS = { setMode, setMix, setErs, requestPit, cancelPit, setTeamOrder };
+
+/**
+ * A quick-mode race (race.js), run lap by lap just ahead of the pictures and replayed
+ * from its line crossings (raceClock.carAt).
+ */
+const quickSource = (state) => {
+  const circuit = circuitFor(state.race, state.year);
   const lapRef = state.race.baseLap;
-  const userCars = state.cars.filter((car) => car.isUser);
+  const times = new Map();
+  const ensure = (tau) => {
+    if (state.lap === 0) stepLap(state);
+    let guard = 0;
+    while (!state.finished && tau >= computedUntil(state) && guard < 60) {
+      stepLap(state);
+      guard += 1;
+    }
+  };
+  ensure(0);
+  const leaderOf = (tau) => standingsAt(state.cars, tau, circuit, lapRef).find((row) => !row.out);
+  const timeOf = (event, leaderId) => {
+    if (!times.has(event)) times.set(event, eventTime(event, Object.fromEntries(state.cars.map((car) => [car.id, car])), circuit, leaderId));
+    return times.get(event);
+  };
+  const source = {
+    kind: "quick",
+    current: state,
+    circuit,
+    lapRef,
+    steps: false,
+    limit: (tau) => tau,
+    advance: (tau) => ensure(tau),
+    rows: (tau) => standingsAt(state.cars, tau, circuit, lapRef),
+    sample: (car, tau) => carAt(car, tau, circuit, lapRef),
+    eventTime: (event, leaderId) => timeOf(event, leaderId),
+    radioTime: (message) => state.cars.find((car) => car.id === message.carId)?.history?.[message.lap - 1]?.end ?? Infinity,
+    scWindows: (leaderId) => safetyCarWindows(state.events, Object.fromEntries(state.cars.map((car) => [car.id, car])), circuit, leaderId),
+    duels: () => [],
+    yellows: () => [],
+    command: (name, ...args) => QUICK_COMMANDS[name]?.(state, ...args),
+    next: (tau) => {
+      for (let guard = 0; guard < 80; guard += 1) {
+        ensure(tau);
+        const leader = leaderOf(tau)?.car.id;
+        const ahead = state.events.filter((event) => NEXT_TYPES.includes(event.type)).map((event) => timeOf(event, leader)).filter((time) => time > tau + 0.05);
+        if (ahead.length) {
+          source.jump(Math.min(...ahead));
+          return;
+        }
+        if (state.finished) break;
+        stepLap(state);
+      }
+      source.jump(raceEndTime(state) + 0.01);
+    },
+    oneLap: (tau) => {
+      ensure(tau);
+      const lead = leaderOf(tau);
+      const entry = lead?.car.history?.[lead.completed];
+      source.jump(entry ? entry.end + 0.01 : raceEndTime(state));
+      ensure(entry ? entry.end + 0.01 : raceEndTime(state));
+    },
+    toFlag: () => {
+      runToFinish(state);
+      source.jump(raceEndTime(state) + 0.01);
+    },
+    finalState: () => state,
+    jump: () => {},
+  };
+  return source;
+};
+
+/**
+ * A step race behind the race worker: the view's mirror of it (raceClient), a clock
+ * that never runs ahead of the engine, and requests sized so the engine stays a little
+ * ahead of the pictures at every speed.
+ */
+const stepSource = (client, mirror) => {
+  const circuit = circuitFor(mirror.race, mirror.year);
+  const lapRef = mirror.race.baseLap;
+  const pose = (car, tau) => liveCarAt(mirror, car, tau, circuit, lapRef);
+  const jumps = new Map();
+  // Register the skip before sending: the in-thread engine replies synchronously.
+  const awaitJump = (kind, send) => {
+    jumps.set(client.upcomingId, kind);
+    send();
+  };
+  const source = {
+    kind: client.kind,
+    current: mirror,
+    circuit,
+    lapRef,
+    steps: true,
+    requested: 0,
+    final: null,
+    // The pictures wait for the engine (never draw a race that is not computed yet).
+    limit: (tau) => (mirror.finished ? tau : Math.min(tau, mirror.clock)),
+    advance: (tau, speed) => {
+      if (mirror.finished || client.busy || jumps.size) return;
+      // Ask for a chunk of race once less than half a chunk is left ahead of the clock.
+      const chunk = Math.max(0.5, speed * 0.25);
+      if (source.requested - tau > chunk / 2) return;
+      const target = Math.max(source.requested, tau) + chunk;
+      client.step(target - source.requested);
+      source.requested = target;
+    },
+    rows: (tau) => standingsAt(mirror.cars, tau, circuit, lapRef, pose),
+    sample: pose,
+    eventTime: (event) => event.at ?? 0,
+    radioTime: (message) => message.at ?? 0,
+    scWindows: () => liveSafetyCarWindows(mirror),
+    yellows: (tau) => liveYellowsAt(mirror, tau),
+    duels: () => mirror.duels,
+    command: (name, ...args) => client.command(name, ...args),
+    next: () => awaitJump("next", () => client.next(NEXT_TYPES)),
+    oneLap: () => awaitJump("lap", () => client.lap()),
+    toFlag: () => awaitJump("finish", () => client.finish()),
+    finalState: () => source.final,
+    jump: () => {},
+    /** A reply arrived (already folded into the mirror). */
+    replied: (reply) => {
+      if (reply.final) source.final = reply.final.state;
+      if (reply.type === "finished") source.final = reply.state;
+      const kind = jumps.get(reply.id);
+      if (!kind) return;
+      jumps.delete(reply.id);
+      source.requested = mirror.clock;
+      source.jump(kind === "finish" ? Math.max(raceEndTime(mirror), mirror.clock) + 0.01 : mirror.clock);
+    },
+  };
+  return source;
+};
+
+// ------------------------------------------------------------------ the view
+
+export default function LiveRace({ state, args, onFinished }) {
+  return args ? <LiveStepRace args={args} onFinished={onFinished} /> : <LiveQuickRace state={state} onFinished={onFinished} />;
+}
+
+function LiveQuickRace({ state, onFinished }) {
+  const source = useMemo(() => quickSource(state), [state]);
+  return <RaceView source={source} onFinished={onFinished} />;
+}
+
+/** RF-WKD-02 live: the step race built and run in the race worker from the career's arguments. */
+function LiveStepRace({ args, onFinished }) {
+  const [source, setSource] = useState(null);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    let mirror = null;
+    let current = null;
+    const client = createRaceClient({
+      listener: (reply) => {
+        if (reply.type === "created") {
+          mirror = mirrorOf(reply);
+          current = stepSource(client, mirror);
+          setSource(current);
+          return;
+        }
+        if (reply.type === "error") {
+          setError(reply.message);
+          return;
+        }
+        if (!mirror) return;
+        const view = reply.type === "tick" ? reply : reply.view;
+        if (view) applyTick(mirror, view);
+        current.replied(reply);
+      },
+    });
+    client.create(args);
+    return () => client.dispose();
+  }, [args]);
+  if (error) return <div className="mn-stage__loading">{t(`Error del motor de carrera: ${error}`, `Race engine error: ${error}`)}</div>;
+  if (!source) return <div className="mn-stage__loading">{t("Preparando la carrera…", "Preparing the race…")}</div>;
+  return <RaceView source={source} onFinished={onFinished} />;
+}
+
+function RaceView({ source, onFinished }) {
+  const { career } = useManager();
+  const current = source.current;
+  const { circuit, lapRef } = source;
+  const userCars = current.cars.filter((car) => car.isUser);
 
   const [, setFrame] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState(10);
+  const [speed, setSpeed] = useState(source.steps ? 4 : 8);
   const has3D = useMemo(() => canRender3D(), []);
   const [cameraMode, setCameraMode] = useState(() => (canRender3D() ? "tv" : "follow"));
   const in3D = has3D && cameraMode !== "map";
   const in3DRef = useRef(in3D);
   in3DRef.current = in3D;
   const zoom = 1;
-  const [focusId, setFocusId] = useState(userCars[0]?.id ?? state.cars[0]?.id);
+  const [focusId, setFocusId] = useState(userCars[0]?.id ?? current.cars[0]?.id);
   const [towerMode, setTowerMode] = useState("interval");
 
   const tau = useRef(0);
@@ -115,27 +306,23 @@ export default function LiveRace({ state, onFinished }) {
   const camera = useRef(null);
   const director = useRef({ id: null, until: 0 });
   const finishedRef = useRef(false);
-  const eventTimes = useRef(new Map());
   const playRef = useRef({ playing, speed });
   playRef.current = { playing, speed };
+  const repaint = () => setFrame((value) => (value + 1) % 1e9);
 
-  const ensure = useCallback(() => {
-    const current = stateRef.current;
-    if (current.lap === 0) stepLap(current);
-    let guard = 0;
-    while (!current.finished && tau.current >= computedUntil(current) && guard < 60) {
-      stepLap(current);
-      guard += 1;
-    }
-  }, []);
+  // Skips (next event, one lap, to the flag) land here, whenever the engine answers.
+  source.jump = (time) => {
+    introDone.current = true;
+    tau.current = Math.max(tau.current, time);
+    repaint();
+  };
 
-  // The first lap exists before anything is drawn.
-  if (stateRef.current.lap === 0) stepLap(stateRef.current);
-
-  // The clock: real time times the playback speed, after the start lights.
+  // The clock: real time times the playback speed, after the start lights; the engine
+  // is asked for what the clock is about to need (RF-CMD-04).
   useEffect(() => {
     let last = now();
     let handle = null;
+    let lastPaint = 0;
     const raf = typeof requestAnimationFrame !== "undefined" ? requestAnimationFrame : (fn) => setTimeout(() => fn(now()), 50);
     const cancel = typeof cancelAnimationFrame !== "undefined" ? cancelAnimationFrame : clearTimeout;
     const tick = () => {
@@ -146,28 +333,24 @@ export default function LiveRace({ state, onFinished }) {
       if (isPlaying && !finishedRef.current) {
         if (!introDone.current) {
           intro.current += dt;
-          if (intro.current >= 4.6) introDone.current = true;
+          if (intro.current >= INTRO_SECONDS) introDone.current = true;
         } else {
-          tau.current += dt * rate;
-          ensure();
+          tau.current = source.limit(tau.current + dt * rate);
         }
       }
+      if (introDone.current && !finishedRef.current) source.advance(tau.current, rate);
       // The 3D view samples the clock itself every frame; the data around it
       // only needs repainting a dozen times a second.
       if (!in3DRef.current || time - lastPaint >= 90) {
         lastPaint = time;
-        setFrame((value) => (value + 1) % 1e9);
+        repaint();
       }
       handle = raf(tick);
     };
-    let lastPaint = 0;
     handle = raf(tick);
     return () => cancel(handle);
-  }, [ensure]);
+  }, [source]);
 
-  const sample = useCallback((car, at) => carAt(car, at, circuit, lapRef), [circuit, lapRef]);
-
-  const current = stateRef.current;
   const raceEnd = raceEndTime(current);
   const done = tau.current >= raceEnd + 2;
 
@@ -178,11 +361,11 @@ export default function LiveRace({ state, onFinished }) {
   useEffect(() => {
     if (!done) return undefined;
     finishedRef.current = true;
-    const id = setTimeout(() => finish.current(stateRef.current), 1800);
+    const id = setTimeout(() => finish.current(source.finalState()), 1800);
     return () => clearTimeout(id);
-  }, [done]);
+  }, [done, source]);
 
-  const rows = standingsAt(current.cars, tau.current, circuit, lapRef);
+  const rows = source.rows(tau.current);
   const byId = Object.fromEntries(current.cars.map((car) => [car.id, car]));
   const rowOf = Object.fromEntries(rows.map((row) => [row.car.id, row]));
   const positions = Object.fromEntries(rows.map((row) => [row.car.id, row.position]));
@@ -192,15 +375,33 @@ export default function LiveRace({ state, onFinished }) {
   const wetness = current.weather.wetness[Math.min(displayLap, current.laps)] ?? 0;
   const leaderFinished = Boolean(leader?.pose.finished);
 
-  const timeOf = (event) => {
-    if (!eventTimes.current.has(event)) eventTimes.current.set(event, eventTime(event, byId, circuit, leader?.car.id));
-    return eventTimes.current.get(event);
-  };
-  const visibleEvents = current.events.filter((event) => timeOf(event) <= tau.current);
-  const feed = visibleEvents.filter((event) => worthTelling(event, byId, positions)).slice(-16).reverse();
-  const radio = current.radio.filter((message) => (byId[message.carId]?.history?.[message.lap - 1]?.end ?? Infinity) <= tau.current).slice(-3).reverse();
-  const scWindow = safetyCarWindows(current.events, byId, circuit, leader?.car.id).find((w) => tau.current >= w.from && tau.current < w.to);
+  const visibleEvents = current.events.filter((event) => source.eventTime(event, leader?.car.id) <= tau.current);
+  // Duels the defender won (step race): a line in the commentary when the player's car
+  // is in it, once per pair and lap (a fight is retried at every corner).
+  const told = new Set();
+  const held = source
+    .duels()
+    .filter((duel) => (duel.t ?? duel.at ?? 0) <= tau.current && (byId[duel.attacker]?.isUser || byId[duel.defender]?.isUser))
+    .map((duel) => {
+      const event = duelEvent(duel);
+      const key = event && `${event.carId}:${event.otherId}:${event.lap}`;
+      if (!event || told.has(key)) return null;
+      told.add(key);
+      return { ...event, at: duel.t ?? duel.at ?? 0 };
+    })
+    .filter(Boolean);
+  const feed = [...visibleEvents, ...held].filter((event) => worthTelling(event, byId, positions));
+  // A step race: in race-time order (events and duels come from two logs).
+  if (source.steps) feed.sort((a, b) => (a.at ?? 0) - (b.at ?? 0));
+  const recent = feed.slice(-16).reverse();
+  const radio = current.radio.filter((message) => source.radioTime(message) <= tau.current).slice(-3).reverse();
+  const scWindow = source.scWindows(leader?.car.id).find((w) => tau.current >= w.from && tau.current < w.to);
   const fastest = visibleEvents.filter((event) => event.type === "fastest").pop();
+  // RF-SIM-10: a red-flag neutralisation is a spell with `red` (step race) or a red flag
+  // not yet restarted (quick mode); local yellows by corner (step race).
+  const flags = visibleEvents.filter((event) => event.type === "red" || event.type === "restart");
+  const redFlag = Boolean(scWindow?.red) || (flags.length > 0 && flags[flags.length - 1].type === "red");
+  const yellows = source.yellows(tau.current);
 
   // ---- the camera
   const battles = battlesIn(rows);
@@ -240,34 +441,22 @@ export default function LiveRace({ state, onFinished }) {
 
   // The safety car runs a little ahead of the leader on the road.
   let safetyCar = null;
-  if (scWindow && !scWindow.virtual && leader && !leader.pose.inPit) {
+  if (scWindow && !scWindow.virtual && !scWindow.red && leader && !leader.pose.inPit) {
     const share = ((leader.pose.progress % 1) + 1) % 1;
     safetyCar = poseAt(circuit, share + 90 / circuit.length);
   }
 
   const stageCars = rows.map((row) => ({ car: row.car, code: code(row.car.name), pose: row.pose, row: row.out ? null : row }));
 
-  // ---- player calls
-  const call = (fn) => {
-    fn(stateRef.current);
-    setFrame((value) => value + 1);
+  // ---- player calls: through the engine (the worker for a step race), RF-CMD-01/02
+  const command = (name, ...callArgs) => {
+    source.command(name, ...callArgs);
+    repaint();
   };
-
-  const oneLap = () => {
+  const skip = (fn) => () => {
     introDone.current = true;
-    ensure();
-    const lead = standingsAt(current.cars, tau.current, circuit, lapRef).find((row) => !row.out);
-    const entry = lead?.car.history?.[lead.completed];
-    tau.current = entry ? entry.end + 0.01 : raceEndTime(current);
-    ensure();
-    setFrame((value) => value + 1);
-  };
-
-  const toFlag = () => {
-    introDone.current = true;
-    runToFinish(stateRef.current);
-    tau.current = raceEndTime(stateRef.current) + 0.01;
-    setFrame((value) => value + 1);
+    fn(tau.current);
+    repaint();
   };
 
   // RF-CMD-01/02: only the orders the era has (engine/rules.js).
@@ -279,11 +468,11 @@ export default function LiveRace({ state, onFinished }) {
   const lightsOn = introDone.current ? 0 : Math.min(5, Math.floor(intro.current / 0.8) + 1);
   const teams = useMemo(() => {
     const seen = new Map();
-    state.cars.forEach((car) => {
+    current.cars.forEach((car) => {
       if (!seen.has(car.teamId)) seen.set(car.teamId, { id: car.teamId, color: car.color, slot: car.boxSlot });
     });
     return [...seen.values()].sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0));
-  }, [state.cars]);
+  }, [current.cars]);
   const focusName = focusRow?.car.name || "";
 
   // ---- the conditions panel
@@ -328,16 +517,17 @@ export default function LiveRace({ state, onFinished }) {
         out,
         pit: pose.inPit && !out,
         focus: car.id === focusId,
-        battle: battles.some((entry) => entry.attacker === row || entry.defender === row),
+        battle: (pose.duel ?? 0) > 0 || battles.some((entry) => entry.attacker === row || entry.defender === row),
         fastest: fastest?.carId === car.id,
       },
     };
   });
 
-  const ticker = feed.slice(0, 3);
+  const ticker = recent.slice(0, 3);
+  const over = current.finished && tau.current >= raceEnd;
 
   return (
-    <div className={`bc bc--race${in3D ? " is-3d" : ""}`}>
+    <div className={`bc bc--race${in3D ? " is-3d" : ""}`} data-engine={source.kind}>
       <div className="bc__stage">
         {in3D ? (
           <React.Suspense fallback={<div className="mn-stage__loading">{t("Cargando el circuito en 3D…", "Loading the circuit in 3D…")}</div>}>
@@ -349,9 +539,9 @@ export default function LiveRace({ state, onFinished }) {
               mode={cameraMode}
               wet={wetness > 0.2}
               lights={lightsOn}
-              safetyCarOn={Boolean(scWindow && !scWindow.virtual)}
+              safetyCarOn={Boolean(scWindow && !scWindow.virtual && !scWindow.red)}
               clock={tau}
-              sample={sample}
+              sample={source.sample}
               teams={teams}
               onPick={setFocusId}
               labels={{ near: t("Retransmisión en 3D", "3D broadcast") }}
@@ -380,7 +570,16 @@ export default function LiveRace({ state, onFinished }) {
           </div>
         )}
         <div className="bc__banners">
-          {scWindow && <span className={`bc-flag ${scWindow.virtual ? "is-vsc" : "is-sc"}`}>{scWindow.virtual ? "VIRTUAL SAFETY CAR" : "SAFETY CAR"}</span>}
+          {redFlag ? (
+            <span className="bc-flag is-sc" style={{ background: "#d7262b", color: "#fff" }}>{t("BANDERA ROJA", "RED FLAG")}</span>
+          ) : (
+            scWindow && <span className={`bc-flag ${scWindow.virtual ? "is-vsc" : "is-sc"}`}>{scWindow.virtual ? "VIRTUAL SAFETY CAR" : "SAFETY CAR"}</span>
+          )}
+          {!redFlag && !scWindow && yellows.length > 0 && (
+            <span className="bc-flag is-vsc">
+              {t("AMARILLA", "YELLOW")} · {yellows.map((zone) => `${t("C", "T")}${zone.corner}`).join(" ")}
+            </span>
+          )}
           {introDone.current && tau.current < 3 && <div className="mn-stage__banner mn-stage__banner--go">{t("¡Se apagan los semáforos!", "Lights out and away we go!")}</div>}
           {leaderFinished && (
             <div className="mn-stage__banner mn-stage__banner--flag">
@@ -430,7 +629,19 @@ export default function LiveRace({ state, onFinished }) {
 
       <div className="bc-cards">
         {userCars.map((car) => (
-          <DriverCard key={car.id} car={car} row={rowOf[car.id]} state={current} compounds={compounds} refuel={refuel} energy={energy} call={call} focused={focusId === car.id} onFocus={() => setFocusId(car.id)} />
+          <DriverCard
+            key={car.id}
+            car={car}
+            row={rowOf[car.id]}
+            state={current}
+            compounds={compounds}
+            refuel={refuel}
+            energy={energy}
+            command={command}
+            steps={source.steps}
+            focused={focusId === car.id}
+            onFocus={() => setFocusId(car.id)}
+          />
         ))}
       </div>
 
@@ -438,20 +649,23 @@ export default function LiveRace({ state, onFinished }) {
         playing={playing}
         onPlay={() => setPlaying((value) => !value)}
         disabled={done}
-        speedLabel={`${speed}×`}
+        speedLabel={`×${speed}`}
         onSpeed={(step) => setSpeed((value) => SPEEDS[Math.max(0, Math.min(SPEEDS.length - 1, SPEEDS.indexOf(value) + step))])}
         cameraLabel={cameraMode === "tv" ? `TV · ${directorLabel}` : `${cameraLabel}${cameraMode !== "map" ? ` · ${code(focusName)}` : ""}`}
         onCamera={(step) => setCameraMode((value) => cycle(cameraList, value, step))}
       >
-        <button type="button" className="bc-playback__btn" onClick={oneLap} aria-label={t("Una vuelta", "One lap")} disabled={current.finished && tau.current >= raceEnd}>
+        <button type="button" className="bc-playback__btn" onClick={skip(source.next)} aria-label={t("Siguiente evento", "Next event")} title={t("Saltar al siguiente evento", "Skip to the next event")} disabled={over}>
+          <LuStepForward />
+        </button>
+        <button type="button" className="bc-playback__btn" onClick={skip(source.oneLap)} aria-label={t("Una vuelta", "One lap")} disabled={over}>
           <LuSkipForward />
         </button>
-        <button type="button" className="bc-playback__text" onClick={toFlag} disabled={current.finished && tau.current >= raceEnd}>
+        <button type="button" className="bc-playback__text" onClick={skip(source.toFlag)} disabled={over}>
           <LuFastForward aria-hidden="true" />
           {t("Al final", "To the flag")}
         </button>
         {userCars.length === 2 && !current.finished && (
-          <button type="button" className="bc-playback__text" onClick={() => call((s) => setTeamOrder(s, userTeam, cycle(["free", "hold", "swap"], s.teamOrders[userTeam] || "free", 1)))} title={t("Órdenes de equipo", "Team orders")}>
+          <button type="button" className="bc-playback__text" onClick={() => command("setTeamOrder", userTeam, cycle(["free", "hold", "swap"], current.teamOrders[userTeam] || "free", 1))} title={t("Órdenes de equipo", "Team orders")}>
             {t("Órdenes", "Orders")}: {{ free: t("Libres", "Race"), hold: t("Mantener", "Hold"), swap: t("Intercambiar", "Swap") }[current.teamOrders[userTeam] || "free"]}
           </button>
         )}
@@ -465,9 +679,11 @@ const TEMP_LABEL = (temp) => (temp < 0.4 ? { label: t("Fríos", "Cold"), tone: "
 /**
  * One of the player's cars, the way the F1 Manager pit wall shows it: position
  * and name, then three columns - pace (tyres and how hard to push), fuel (the
- * margin and the mixture) and the battery - and the stop call underneath.
+ * margin and the mixture) and the battery - then, in a step race, defence style and
+ * overtaking risk (RF-CMD-01), and the stop call underneath (RF-CMD-02). Every order
+ * goes through `command` (the race worker for a step race).
  */
-function DriverCard({ car, row, state, compounds, refuel, energy, call, focused, onFocus }) {
+function DriverCard({ car, row, state, compounds, refuel, energy, command, steps, focused, onFocus }) {
   const running = car.status === "running";
   const rules = rulesOf(state.era, state.year);
   const life = Math.max(0, 1 - tyreLifeUsed(car, rules));
@@ -484,7 +700,7 @@ function DriverCard({ car, row, state, compounds, refuel, energy, call, focused,
         <b>{position}</b>
         <i />
         <strong>{surname}</strong>
-        <span className={`bc-card__drs${drs ? " is-on" : ""}`}>DRS</span>
+        {rules.drs.enabled ? <span className={`bc-card__drs${drs ? " is-on" : ""}`}>DRS</span> : rules.activeAero ? <span className="bc-card__drs">{t("AERO", "AERO")}</span> : null}
         {car.lastLap && <small>{lapTime(car.lastLap)}</small>}
       </header>
       {running ? (
@@ -499,7 +715,7 @@ function DriverCard({ car, row, state, compounds, refuel, energy, call, focused,
               <div className={`bc-meter bc-meter--${temp.tone}`} title={temp.label}>
                 <i style={{ width: `${Math.round((car.tyreTemp ?? 0.5) * 100)}%` }} />
               </div>
-              <Dots label={t("Ritmo", "Pace")} value={car.mode} onChange={(mode) => call((s) => setMode(s, car.id, mode))} options={MODE_KEYS.map((mode) => ({ value: mode, label: MODE[mode]() }))} />
+              <Dots label={t("Ritmo", "Pace")} value={car.mode} onChange={(mode) => command("setMode", car.id, mode)} options={MODE_KEYS.map((mode) => ({ value: mode, label: MODE[mode]() }))} />
             </div>
             <div className="bc-card__col">
               <span className="bc-card__title">{t("Combustible", "Fuel")}</span>
@@ -519,7 +735,7 @@ function DriverCard({ car, row, state, compounds, refuel, energy, call, focused,
                 <i style={{ width: `${Math.round(Math.min(1, car.fuel / Math.max(1, refuel ? 30 : state.fuelStart)) * 100)}%` }} />
               </div>
               {!refuel ? (
-                <Dots label={t("Mezcla", "Fuel mix")} value={car.fuelMode} onChange={(mix) => call((s) => setMix(s, car.id, mix))} options={MIX_KEYS.map((mix) => ({ value: mix, label: MIX[mix]() }))} />
+                <Dots label={t("Mezcla", "Fuel mix")} value={car.fuelMode} onChange={(mix) => command("setMix", car.id, mix)} options={MIX_KEYS.map((mix) => ({ value: mix, label: MIX[mix]() }))} />
               ) : (
                 <small className="bc-card__note">{t("Repostaje en cada parada", "Refuel at every stop")}</small>
               )}
@@ -534,7 +750,7 @@ function DriverCard({ car, row, state, compounds, refuel, energy, call, focused,
                   <div className="bc-meter bc-meter--ers">
                     <i style={{ width: `${Math.round(car.battery)}%` }} />
                   </div>
-                  <Dots tone="cyan" label="ERS" value={car.ersMode} onChange={(mode) => call((s) => setErs(s, car.id, mode))} options={rules.energy.modes.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
+                  <Dots tone="cyan" label="ERS" value={car.ersMode} onChange={(mode) => command("setErs", car.id, mode)} options={rules.energy.modes.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
                 </>
               ) : (
                 <>
@@ -550,16 +766,28 @@ function DriverCard({ car, row, state, compounds, refuel, energy, call, focused,
               )}
             </div>
           </div>
+          {steps && (
+            <div className="bc-card__grid bc-card__grid--duel">
+              <div className="bc-card__col">
+                <span className="bc-card__title">{t("Defensa", "Defence")}</span>
+                <Dots label={t("Defensa", "Defence")} value={car.defence} onChange={(style) => command("setDefence", car.id, style)} options={DEFENCE_KEYS.map((style) => ({ value: style, label: DEFENCE[style]() }))} />
+              </div>
+              <div className="bc-card__col">
+                <span className="bc-card__title">{t("Ataque", "Attack")}</span>
+                <Dots tone="cyan" label={t("Riesgo al adelantar", "Overtaking risk")} value={car.overtakeRisk} onChange={(level) => command("setOvertakeRisk", car.id, level)} options={RISK_KEYS.map((level) => ({ value: level, label: RISK[level]() }))} />
+              </div>
+            </div>
+          )}
           <div className="bc-card__box">
             {car.pitRequest ? (
-              <button type="button" className="bc-box is-called" onClick={() => call((s) => cancelPit(s, car.id))}>
+              <button type="button" className="bc-box is-called" onClick={() => command("cancelPit", car.id)}>
                 {t(`BOX V${car.pitRequest.lap} · ${COMPOUND[car.pitRequest.compound]()} · cancelar`, `BOX L${car.pitRequest.lap} · ${COMPOUND[car.pitRequest.compound]()} · cancel`)}
               </button>
             ) : (
               <>
                 <span>BOX</span>
                 {compounds.map((compound) => (
-                  <button type="button" key={compound} className="mn-pit-tyre" onClick={() => call((s) => requestPit(s, car.id, compound))} aria-label={t(`Parar y montar ${COMPOUND[compound]().toLowerCase()}`, `Box for ${COMPOUND[compound]()}`)} title={t(`Box: ${COMPOUND[compound]()}`, `Box: ${COMPOUND[compound]()}`)}>
+                  <button type="button" key={compound} className="mn-pit-tyre" onClick={() => command("requestPit", car.id, compound)} aria-label={t(`Parar y montar ${COMPOUND[compound]().toLowerCase()}`, `Box for ${COMPOUND[compound]()}`)} title={t(`Box: ${COMPOUND[compound]()}`, `Box: ${COMPOUND[compound]()}`)}>
                     <Tyre compound={compound} size={22} />
                   </button>
                 ))}

@@ -21,7 +21,11 @@ const stepRaceOf = (options) => {
   return { ...w, state: fromQuickRace(w.make(), { race: w.race }) };
 };
 
-const KNOWN_EVENTS = new Set(["pass", "mistake", "issue", "lead", "pit", "dnf", "sc", "vsc", "sc-in", "rain", "drying", "fastest", "contact", "swap", "flag", "call"]);
+const KNOWN_EVENTS = new Set([
+  "pass", "mistake", "issue", "lead", "pit", "dnf", "sc", "vsc", "sc-in", "rain", "drying", "fastest", "contact", "swap", "flag", "call",
+  // RF-SIM-10 race control, shared with the quick mode.
+  "yellow", "investigation", "no-action", "penalty", "penalty-served", "penalty-applied", "red", "restart", "grid-penalty",
+]);
 
 describe("RF-SIM-01 a race in fixed steps on the circuit", () => {
   const { career, race, state } = stepRaceOf({ seed: "shape" });

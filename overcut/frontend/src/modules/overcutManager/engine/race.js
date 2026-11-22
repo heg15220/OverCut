@@ -484,8 +484,8 @@ export const energyStep = ({ rules, mode, battery, gapAhead = null }) => {
   return { time: gain, battery: clamp(battery + charge, 0, 100), overtake };
 };
 
-/** Does this car have energy to attack or defend with this lap (RF-SIM-07 modifiers)? */
-const energyPush = (rules, car) => {
+/** Does this car have energy to attack or defend with this lap (RF-SIM-07 modifiers)? Shared with the step simulator's duels. */
+export const energyPush = (rules, car) => {
   if (car.battery === null || car.battery === undefined || !rules.energy.balance) return { attack: 0, defend: 0 };
   const spec = rules.energy.balance;
   if (rules.energy.kers) {
@@ -683,23 +683,27 @@ export const runningOrder = (state) =>
     return a.time - b.time;
   });
 
-const weatherClass = (wetness) => (wetness >= 0.55 ? WEATHER.WET : wetness >= 0.2 ? WEATHER.MIXED : WEATHER.DRY);
+export const weatherClass = (wetness) => (wetness >= 0.55 ? WEATHER.WET : wetness >= 0.2 ? WEATHER.MIXED : WEATHER.DRY);
 
-const pushEvent = (state, event) => {
-  state.events.push({ lap: state.lap, ...event });
+/**
+ * Events carry a lap: the race's lap in this mode; the step simulator passes the lap of
+ * the car the event is about (its cars are on different laps at the same moment).
+ */
+export const pushEvent = (state, event, lap = state.lap) => {
+  state.events.push({ lap, ...event });
 };
 
 /** Laps before the engineer repeats the same message to the same driver. */
 const RADIO_COOLDOWN = { drs: 15, overtake: 15, hot: 8, fuel: 6, battery: 6, issue: 12, cliff: 6, penalty: 3 };
 
-const pushRadio = (state, car, kind, extra = {}) => {
+const pushRadio = (state, car, kind, extra = {}, lap = state.lap) => {
   const last = state.radio.filter((message) => message.carId === car.id && message.kind === kind).pop();
-  if (last && state.lap - last.lap < (RADIO_COOLDOWN[kind] ?? 4)) return;
-  state.radio.push({ lap: state.lap, carId: car.id, kind, ...extra });
+  if (last && lap - last.lap < (RADIO_COOLDOWN[kind] ?? 4)) return;
+  state.radio.push({ lap, carId: car.id, kind, ...extra });
 };
 
 /** A corner on this circuit where a move or a mistake happens: the big stops after long straights first. */
-const spotOn = (state, stream, kind = "pass") => {
+export const spotOn = (state, stream, kind = "pass") => {
   const track = state.track;
   if (!track) return null;
   if (kind === "pass" && track.spots?.length) {
@@ -719,7 +723,7 @@ const spotOn = (state, stream, kind = "pass") => {
 
 // ----------------------------------------------------------- player calls
 
-const stateRules = (state) => rulesOf(state.era, state.year);
+export const stateRules = (state) => rulesOf(state.era, state.year);
 
 export const setMode = (state, carId, mode) => {
   const car = state.cars.find((entry) => entry.id === carId);
@@ -765,19 +769,20 @@ export const setTeamOrder = (state, teamId, order) => {
 /**
  * The rival pit walls. Every team manages its cars the way the player can:
  * pace by tyre life and heat, mixture by what is left in the tank, the
- * battery by who is in front.
+ * battery by who is in front. `lap` is the lap about to be run (the step simulator
+ * calls it at each car's own line crossing).
  */
-const rivalCalls = (state, car) => {
+export const rivalCalls = (state, car, lap = state.lap) => {
   const rules = stateRules(state);
   // Called at the start of a lap: the lap about to be run still counts.
-  const remaining = state.laps - state.lap + 1;
+  const remaining = state.laps - lap + 1;
   const life = tyreLifeUsed(car, rules);
   const attacking = car.gapAhead !== null && car.gapAhead < 1.2;
   const defending = car.gapBehind !== null && car.gapBehind < 1;
   const lonely = (car.gapAhead === null || car.gapAhead > 3) && (car.gapBehind === null || car.gapBehind > 4);
   // How far the tyres must still go: to the next stop, or the flag.
-  const nextStop = car.plan.stops.find((stop) => stop >= state.lap);
-  const stintLeft = (nextStop ?? state.laps) - state.lap + 1;
+  const nextStop = car.plan.stops.find((stop) => stop >= lap);
+  const stintLeft = (nextStop ?? state.laps) - lap + 1;
   const spare = 1 - life - stintLeft / Math.max(1, tyreSpec(car.compound, rules).life);
   if (car.tyreTemp > 0.74 || life > 0.92) car.mode = "save";
   else if (car.outLap) car.mode = "push";
@@ -850,10 +855,241 @@ export const passChanceOf = ({ overtaking = 0.55, delta, drs = 0, racecraft = 50
 /** RF-SIM-08: the DRS bonus on this circuit, more for more zones. */
 export const drsBonusFor = (rules, zones) => (zones > 0 ? rules.drs.passBonus * (1 + rules.drs.extraPerZone * (zones - 1)) : 0);
 
-/** The race-control stream: same seed, its own draws, so it never reshuffles the race. */
-const controlStream = (state) => {
+/** The race-control stream: same seed, its own draws, so it never reshuffles the race. Shared with the step simulator (RF-SIM-10). */
+export const controlStream = (state) => {
   if (!state._control) state._control = createStream(`${state.seed}::control`);
   return state._control;
+};
+
+/** Wetness of the track on lap `lap` (the weather timeline is per lap). */
+export const wetnessOn = (state, lap) => state.weather.wetness[Math.min(Math.max(0, lap), state.laps)] ?? 0;
+
+/**
+ * The race as a whole at the start of lap `lap` (RF-SIM-11): the track temperature,
+ * the rubber going down or washed off, and the rain or drying message. The quick mode
+ * calls it as the field starts a lap, the step simulator as the leader does.
+ */
+export const beginLapWorld = (state, lap) => {
+  const wetness = state.weather.wetness[Math.min(lap, state.laps)] ?? 0;
+  const previousWetness = state.weather.wetness[Math.max(0, lap - 1)] ?? 0;
+  const climate = weatherClass(wetness);
+  // The track: the sun works on it through the afternoon, cloud and rain cool it.
+  if (state.trackTempBase !== undefined) {
+    const drift = Math.sin((lap / state.laps) * Math.PI) * 3 - (lap / state.laps) * 2;
+    const target = state.trackTempBase + drift - wetness * 16;
+    state.trackTemp = Math.round((state.trackTemp + (target - state.trackTemp) * (wetness > previousWetness ? 0.35 : 0.12)) * 10) / 10;
+    state.trackTemps.push(state.trackTemp);
+  }
+
+  // Rubber goes down through a dry race and the track quickens; rain washes it off.
+  state.evolution = wetness > 0.3 ? 0 : Math.min(1, (state.evolution || 0) + 1 / Math.max(10, state.laps * 0.55));
+
+  if (weatherClass(previousWetness) !== climate && lap > 1) {
+    pushEvent(state, { type: wetness > previousWetness ? "rain" : "drying", wetness }, lap);
+  }
+};
+
+/** KERS (RF-SIM-05): the deploy budget is restored at the line every lap. */
+export const restoreKers = (rules, car) => {
+  if (rules.energy.kers && car.battery !== null && car.battery !== undefined) car.battery = 100;
+};
+
+/**
+ * RF-SIM-02..06: one car's lap before traffic, the model both modes share (SRS 4.2).
+ * Wears the tyres for the lap, spends the battery, and returns the parts: `expected`
+ * (the lap with no scatter: pace, tyres, heat, fuel, battery, rubber, mode, mix, setup,
+ * damage, problems, wing in the wet), `wake` (the quick mode's dirty air for the gap at
+ * the line; the step simulator applies dirty air by distance instead), `volatility`
+ * (the driver's scatter) and the terms the end of the lap needs. `energyGap` overrides the
+ * gap the 2026 overtake mode reads at the line (the step simulator passes null and runs
+ * the overtake mode by distance during the lap).
+ */
+export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.safetyCar, rules = stateRules(state), energyGap } = {}) => {
+  const climate = weatherClass(wetness);
+  const baseLap = state.race.baseLap;
+  const spp = baseLap * 0.0012;
+  const trackTemp = state.trackTemp ?? 30;
+  const fuelStart = state.fuelStart ?? state.laps + FUEL_MARGIN;
+  const evolution = -0.55 * (state.evolution || 0);
+  const refuel = rules.refuelling;
+  const mode = modeEffect(car.mode);
+  const mix = mixEffect(car.fuelMode);
+  const pace = car.pace[climate] ?? car.pace.dry;
+
+  // Tyres: their heat at the start of the lap decides how they grip and wear.
+  const overheat = Math.max(0, car.tyreTemp - 0.72);
+  const cold = Math.max(0, 0.4 - car.tyreTemp);
+  const dirty = car.gapAhead !== null && car.gapAhead !== undefined && car.gapAhead < 1 && lap > 1 && !sc ? 1 - car.gapAhead : 0;
+  const wing = car.wing ?? 0;
+  const wearRate = car.wearFactor * mode.wear * (1 + overheat * 2.2 + dirty * 0.18 + Math.max(0, -wing) * 0.6) * (1 + (trackTemp - 30) * 0.008);
+  car.tyreWear += wearRate * (sc ? 0.35 : 1);
+  const tyre = isWetTyre(car.compound)
+    ? tyreTime({ compound: car.compound, age: car.tyreAge, wetness, era: rules })
+    : tyreTime({ compound: car.compound, age: car.tyreWear, wetness, era: rules, wearFactor: 1 });
+
+  // Fuel weight: in the refuelling years the stint's load, otherwise the race's
+  // load measured against the half-tank the reference lap was run on.
+  const fuel = fuelTime({ fuel: car.fuel, refuel, fuelStart });
+
+  // The battery (RF-SIM-05).
+  let energyTime = 0;
+  car.overtakeActive = false;
+  if (car.battery !== null && car.battery !== undefined) {
+    const step = energyStep({ rules, mode: car.ersMode, battery: car.battery, gapAhead: sc ? null : energyGap !== undefined ? energyGap : car.gapAhead });
+    car.battery = step.battery;
+    car.overtakeActive = step.overtake;
+    energyTime = step.time;
+  }
+
+  const thermal = cold * 3.2 + overheat * 2.5;
+  const wake = dirty * rules.dirtyAir;
+  const volatility = baseLap * 0.0036 * (1 + (55 - car.consistency) * 0.01) * (1 + wetness * 0.6);
+  // What the car would do with no scatter: the speed a following driver can actually use to pass.
+  const expected =
+    baseLap * (1 + 0.11 * wetness) - pace * spp + tyre + fuel + mode.time + mix.time + energyTime + thermal + evolution + car.setup + car.damage + car.issue -
+    wing * wetness * baseLap * 0.012;
+  car.expected = expected;
+  return { expected, wake, volatility, dirty, cold, wing, wetness, mix, energyTime };
+};
+
+/**
+ * The start (lap 1 only): a launch is a skill and the first lap is a scrum - the further
+ * back (`gridIndex`), the more of it you are stuck in, so the field strings out. The step
+ * simulator keeps only `scrumShare` of the scrum, because its traffic is real.
+ */
+export const startTerm = (car, gridIndex, stream, scrumShare = 1) =>
+  stream.normal(0, 0.55) - ((car.racecraft - 50) / 20) * 0.25 + 1.5 + gridIndex * 0.22 * scrumShare;
+
+/**
+ * A mistake this lap (RF-SIM-09): a lock-up, a trip wide, a spin. Sets
+ * `car.pendingMistake` (seconds) and returns its kind, or null. Where it happens is the
+ * caller's (a corner of the circuit); a lock-up flat-spots the tyre (+0.8 laps of wear).
+ */
+export const rollMistake = (car, { wetness, wing, cold }, stream) => {
+  const mistakeChance = mistakeChanceOf({ consistency: car.consistency, mode: car.mode, compound: car.compound, wetness, wing, cold });
+  car.pendingMistake = stream.chance(mistakeChance) ? stream.range(1.2, 5) : 0;
+  if (!car.pendingMistake) return null;
+  const kind = car.pendingMistake > 3.4 ? "spin" : car.pendingMistake > 2.2 ? "wide" : "lockup";
+  if (kind === "lockup") car.tyreWear += 0.8;
+  return kind;
+};
+
+/** The end of a car's lap: tyre age, fuel burnt (or the stint's lap of it), tyre heat drifting toward what the driving asks. */
+export const endLapWear = (state, car, plan, { wetness, sc = state.safetyCar, rules = stateRules(state) } = {}) => {
+  const trackTemp = state.trackTemp ?? 30;
+  car.tyreAge += 1;
+  if (rules.refuelling) car.fuel = Math.max(0, car.fuel - 1);
+  else car.fuel -= plan.mix.burn * (car.mode === "push" ? 1.02 : car.mode === "save" ? 0.97 : 1) * (sc ? 0.62 : 1);
+
+  // Temperature drifts toward what the driving asks of it.
+  const target = sc ? 0.3 : TEMP_TARGET[car.mode] + plan.dirty * 0.1 + (trackTemp - 30) / 220 - wetness * 0.12;
+  car.tyreTemp = clamp(car.tyreTemp + (target - car.tyreTemp) * 0.55, 0.1, 1);
+};
+
+/** Race control watches the lights (RF-SIM-10): a jump start is investigated. */
+export const jumpStartChecks = (state, cars, lap = state.lap) => {
+  const control = controlStream(state);
+  const jump = BALANCE.penalties.offences.jumpStart;
+  cars.forEach((car) => {
+    if (control.chance(jump.chancePerCar)) investigate(state, car, "jumpStart", null, lap);
+  });
+};
+
+/**
+ * RF-SIM-09 / RF-SIM-14: does this lap end the car's race - a failure, an accident, a
+ * spin into the wall, an empty tank? Returns `{ reason, fromMistake }` or null; a
+ * problem that only slows the car (a misfire, a stuck gear) is booked here with its event.
+ */
+export const failureOf = (state, car, { lap = state.lap, wetness, sc = state.safetyCar, rules = stateRules(state), stream } = {}) => {
+  const attrition = (state.race.profile.attrition ?? 1) / REFERENCE_ATTRITION;
+  const risk = incidentChanceOf({
+    reliability: car.reliability, attrition, wetness, laps: state.laps, mode: car.mode, sc: Boolean(sc), issue: car.issue, consistency: car.consistency, compound: car.compound,
+  });
+  if (stream.chance(risk.retire)) {
+    const accident = stream.chance(risk.incidentShare);
+    const reason = accident ? (lap === 1 && stream.chance(0.5) ? "collision" : "accident") : "mechanical";
+    return { reason, fromMistake: false };
+  }
+  if (car.pendingMistake > 3.8 && stream.chance(0.18 * risk.mismatch)) return { reason: "accident", fromMistake: true };
+  // A problem that does not stop the car but slows it: a misfire, a gearbox stuck in a gear.
+  if (!car.issue && stream.chance(risk.perLap * 0.22)) {
+    car.issue = Math.round(stream.range(0.5, 2.2) * 10) / 10;
+    pushEvent(state, { type: "issue", carId: car.id, loss: car.issue }, lap);
+  }
+  if (!rules.refuelling && car.fuel < 0) return { reason: "fuel", fromMistake: false };
+  return null;
+};
+
+/**
+ * RF-SIM-12: the time a stop takes in the box - the era's stationary time (fuel only in
+ * 2005 unless the weather or damage needs tyres), a slow stop the crew may make - and
+ * whether the tyres are changed.
+ */
+export const pitStopTime = (car, decision, { rules, stream }) => {
+  const refuelLoad = rules.refuelling ? decision.fuel : 0;
+  // 2005: no tyre changes in the race - a planned stop is fuel only, unless the
+  // weather changed (wet <-> dry) or the car is damaged.
+  const weatherSwitch = isWetTyre(decision.compound) !== isWetTyre(car.compound) || (isWetTyre(decision.compound) && decision.compound !== car.compound);
+  const tyresChanged = rules.tyres.changesInRace || weatherSwitch || (decision.repair && car.damage > 0);
+  let stationary = stationaryTime({ era: rules, refuel: refuelLoad, crew: car.crew, fuelOnly: !tyresChanged });
+  const slowStop = PIT.slowStop;
+  const slow = stream.chance(slowStop.chance * (slowStop.crewBase - car.crew / 100)) ? stream.range(slowStop.min, slowStop.max) : 0;
+  stationary += slow;
+  return { stationary, slow, tyresChanged, refuelLoad };
+};
+
+/** The wait for a team-mate already in the box (double stack), in seconds (race-eras.json `pit.doubleStackWait`). */
+export const DOUBLE_STACK_WAIT = PIT.doubleStackWait;
+
+/**
+ * RF-SIM-12 / RF-SIM-10: the work done in the box - tyres, fuel, repairs, a +5/+10 s
+ * penalty served before the crew touches the car - with its events and the pit-lane
+ * offences the stewards may look at. `stop` is pitStopTime's answer, `queue` the
+ * double-stack wait. Returns the penalty seconds served at this stop.
+ */
+export const applyPitStop = (state, car, decision, stop, { lap = state.lap, queue = 0, rules = stateRules(state) } = {}) => {
+  const { stationary, slow, tyresChanged, refuelLoad } = stop;
+  const refuel = rules.refuelling;
+  const served = car.pendingTime || 0;
+  if (tyresChanged) {
+    car.compound = decision.compound;
+    if (!car.compoundsUsed.includes(decision.compound)) car.compoundsUsed.push(decision.compound);
+    car.tyreAge = 0;
+    car.tyreWear = 0;
+    car.tyreTemp = outLapTemp(rules);
+  }
+  car.stops += 1;
+  car.lastPitLap = lap;
+  car.outLap = true;
+  car.stint += decision.planned ? 1 : 0;
+  if (decision.call) pushEvent(state, { type: "call", carId: car.id, call: decision.call }, lap);
+  if (decision.repair) {
+    car.damage = 0;
+    car.issue = car.issue > 1.2 ? car.issue * 0.5 : 0;
+  }
+  if (refuel) car.fuel = decision.fuel;
+  car.pitRequest = null;
+  pushEvent(state, {
+    type: "pit", carId: car.id, compound: car.compound, stationary: Math.round((stationary + queue) * 10) / 10, slow: slow > 0, stacked: queue > 0,
+    ...(refuel ? { refuel: refuelLoad } : {}),
+    ...(tyresChanged ? {} : { tyres: false }),
+    ...(served ? { penalty: served } : {}),
+  }, lap);
+  if (served) {
+    car.pendingTime = 0;
+    car.penalties.filter((penalty) => penalty.kind === "time" && !penalty.served).forEach((penalty) => (penalty.served = true));
+    pushEvent(state, { type: "penalty-served", carId: car.id, seconds: served }, lap);
+  }
+  pitLaneOffences(state, car, queue > 0, lap);
+  return served;
+};
+
+/** RF-SIM-10: rain no car can race in stops the race (decided on the race-control stream). */
+export const rainRedFlagCheck = (state, wetness, lap = state.lap) => {
+  const redCfg = BALANCE.raceControl.redFlag;
+  if (!state.pendingRed && wetness >= redCfg.rainWetness && (state.redFlags || 0) < redCfg.maxPerRace && lap < state.laps && controlStream(state).chance(redCfg.rainChance)) {
+    state.pendingRed = "rain";
+  }
 };
 
 /**
@@ -864,37 +1100,16 @@ export const stepLap = (state) => {
   if (state.finished) return [];
   const stream = state._stream || createStream(`${state.seed}::race`);
   state._stream = stream;
-  const control = controlStream(state);
+  controlStream(state);
   const rules = stateRules(state);
   const firstEvent = state.events.length;
   state.lap += 1;
   const lap = state.lap;
   const wetness = state.weather.wetness[Math.min(lap, state.laps)] ?? 0;
-  const previousWetness = state.weather.wetness[Math.max(0, lap - 1)] ?? 0;
-  const climate = weatherClass(wetness);
   const baseLap = state.race.baseLap;
-  const spp = baseLap * 0.0012;
-  const attrition = (state.race.profile.attrition ?? 1) / REFERENCE_ATTRITION;
-  const refuel = rules.refuelling;
   state.yellow = null;
   if (!state.investigations) state.investigations = [];
-  // The track: the sun works on it through the afternoon, cloud and rain cool it.
-  if (state.trackTempBase !== undefined) {
-    const drift = Math.sin((lap / state.laps) * Math.PI) * 3 - (lap / state.laps) * 2;
-    const target = state.trackTempBase + drift - wetness * 16;
-    state.trackTemp = Math.round((state.trackTemp + (target - state.trackTemp) * (wetness > previousWetness ? 0.35 : 0.12)) * 10) / 10;
-    state.trackTemps.push(state.trackTemp);
-  }
-  const trackTemp = state.trackTemp ?? 30;
-  const fuelStart = state.fuelStart ?? state.laps + FUEL_MARGIN;
-
-  // Rubber goes down through a dry race and the track quickens; rain washes it off.
-  state.evolution = wetness > 0.3 ? 0 : Math.min(1, (state.evolution || 0) + 1 / Math.max(10, state.laps * 0.55));
-  const evolution = -0.55 * state.evolution;
-
-  if (weatherClass(previousWetness) !== climate && lap > 1) {
-    pushEvent(state, { type: wetness > previousWetness ? "rain" : "drying", wetness });
-  }
+  beginLapWorld(state, lap);
 
   const sc = state.safetyCar;
   const before = runningOrder(state).filter((car) => car.status === "running");
@@ -903,11 +1118,7 @@ export const stepLap = (state) => {
   const leaderBefore = before[0];
 
   // KERS: the deploy budget is restored at the line every lap.
-  if (rules.energy.kers) {
-    before.forEach((car) => {
-      if (car.battery !== null && car.battery !== undefined) car.battery = 100;
-    });
-  }
+  before.forEach((car) => restoreKers(rules, car));
 
   before.forEach((car) => {
     if (!car.isUser) rivalCalls(state, car);
@@ -915,58 +1126,18 @@ export const stepLap = (state) => {
 
   // ---- lap times
   before.forEach((car) => {
-    const mode = modeEffect(car.mode);
-    const mix = mixEffect(car.fuelMode);
-    const pace = car.pace[climate] ?? car.pace.dry;
+    const plan = lapBudget(state, car, { lap, wetness, sc, rules });
+    let time = plan.expected + plan.wake + stream.normal(0, plan.volatility);
 
-    // Tyres: their heat at the start of the lap decides how they grip and wear.
-    const overheat = Math.max(0, car.tyreTemp - 0.72);
-    const cold = Math.max(0, 0.4 - car.tyreTemp);
-    const dirty = car.gapAhead !== null && car.gapAhead < 1 && lap > 1 && !sc ? 1 - car.gapAhead : 0;
-    const wing = car.wing ?? 0;
-    const wearRate = car.wearFactor * mode.wear * (1 + overheat * 2.2 + dirty * 0.18 + Math.max(0, -wing) * 0.6) * (1 + (trackTemp - 30) * 0.008);
-    car.tyreWear += wearRate * (sc ? 0.35 : 1);
-    const tyre = isWetTyre(car.compound)
-      ? tyreTime({ compound: car.compound, age: car.tyreAge, wetness, era: rules })
-      : tyreTime({ compound: car.compound, age: car.tyreWear, wetness, era: rules, wearFactor: 1 });
-
-    // Fuel weight: in the refuelling years the stint's load, otherwise the race's
-    // load measured against the half-tank the reference lap was run on.
-    const fuel = fuelTime({ fuel: car.fuel, refuel, fuelStart });
-
-    // The battery (RF-SIM-05).
-    let energyTime = 0;
-    car.overtakeActive = false;
-    if (car.battery !== null && car.battery !== undefined) {
-      const step = energyStep({ rules, mode: car.ersMode, battery: car.battery, gapAhead: sc ? null : car.gapAhead });
-      car.battery = step.battery;
-      car.overtakeActive = step.overtake;
-      energyTime = step.time;
-    }
-
-    const thermal = cold * 3.2 + overheat * 2.5;
-    const wake = dirty * rules.dirtyAir;
-    const volatility = baseLap * 0.0036 * (1 + (55 - car.consistency) * 0.01) * (1 + wetness * 0.6);
-    // What the car would do with no scatter: the speed a following driver can actually use to pass.
-    const expected =
-      baseLap * (1 + 0.11 * wetness) - pace * spp + tyre + fuel + mode.time + mix.time + energyTime + thermal + evolution + car.setup + car.damage + car.issue -
-      wing * wetness * baseLap * 0.012;
-    car.expected = expected;
-    let time = expected + wake + stream.normal(0, volatility);
-
-    // The start: a launch is a skill and the first lap is a scrum - the further
-    // back, the more of it you are stuck in, so the field strings out.
-    if (lap === 1) time += stream.normal(0, 0.55) - ((car.racecraft - 50) / 20) * 0.25 + 1.5 + (beforeIndex[car.id] ?? 0) * 0.22;
+    // The start: a launch is a skill and the first lap is a scrum.
+    if (lap === 1) time += startTerm(car, beforeIndex[car.id] ?? 0, stream);
 
     // A mistake: a lock-up, a trip wide, a spin - at a corner of this circuit.
-    const mistakeChance = mistakeChanceOf({ consistency: car.consistency, mode: car.mode, compound: car.compound, wetness, wing, cold });
-    car.pendingMistake = stream.chance(mistakeChance) ? stream.range(1.2, 5) : 0;
+    const kind = rollMistake(car, plan, stream);
     time += car.pendingMistake;
-    if (car.pendingMistake) {
-      const kind = car.pendingMistake > 3.4 ? "spin" : car.pendingMistake > 2.2 ? "wide" : "lockup";
+    if (kind) {
       const corner = spotOn(state, stream, "mistake");
       pushEvent(state, { type: "mistake", carId: car.id, kind, corner, loss: Math.round(car.pendingMistake * 10) / 10 });
-      if (kind === "lockup") car.tyreWear += 0.8;
       // A car stopped or off the road at a corner: yellow flags there (RF-SIM-10).
       if (!sc && BALANCE.raceControl.yellow.mistakeKinds.includes(kind)) waveYellow(state, corner, car.id);
     }
@@ -974,44 +1145,16 @@ export const stepLap = (state) => {
     if (sc) time = Math.max(time, baseLap * (sc.virtual ? 1.36 : 1.42));
 
     car.lapTime = time;
-    car.tyreAge += 1;
-    if (refuel) car.fuel = Math.max(0, car.fuel - 1);
-    else car.fuel -= mix.burn * (car.mode === "push" ? 1.02 : car.mode === "save" ? 0.97 : 1) * (sc ? 0.62 : 1);
-
-    // Temperature drifts toward what the driving asks of it.
-    const target = sc ? 0.3 : TEMP_TARGET[car.mode] + dirty * 0.1 + (trackTemp - 30) / 220 - wetness * 0.12;
-    car.tyreTemp = clamp(car.tyreTemp + (target - car.tyreTemp) * 0.55, 0.1, 1);
+    endLapWear(state, car, plan, { wetness, sc, rules });
   });
 
   // ---- jump starts: race control watches the lights (RF-SIM-10)
-  if (lap === 1) {
-    const jump = BALANCE.penalties.offences.jumpStart;
-    before.forEach((car) => {
-      if (control.chance(jump.chancePerCar)) investigate(state, car, "jumpStart");
-    });
-  }
+  if (lap === 1) jumpStartChecks(state, before);
 
   // ---- failures, accidents, problems and empty tanks
   before.forEach((car) => {
-    const risk = incidentChanceOf({
-      reliability: car.reliability, attrition, wetness, laps: state.laps, mode: car.mode, sc: Boolean(sc), issue: car.issue, consistency: car.consistency, compound: car.compound,
-    });
-    if (stream.chance(risk.retire)) {
-      const accident = stream.chance(risk.incidentShare);
-      const reason = accident ? (lap === 1 && stream.chance(0.5) ? "collision" : "accident") : "mechanical";
-      retire(state, car, reason);
-      return;
-    }
-    if (car.pendingMistake > 3.8 && stream.chance(0.18 * risk.mismatch)) {
-      retire(state, car, "accident");
-      return;
-    }
-    // A problem that does not stop the car but slows it: a misfire, a gearbox stuck in a gear.
-    if (!car.issue && stream.chance(risk.perLap * 0.22)) {
-      car.issue = Math.round(stream.range(0.5, 2.2) * 10) / 10;
-      pushEvent(state, { type: "issue", carId: car.id, loss: car.issue });
-    }
-    if (!refuel && car.fuel < 0) retire(state, car, "fuel");
+    const failure = failureOf(state, car, { lap, wetness, sc, rules, stream });
+    if (failure) retire(state, car, failure.reason);
   });
 
   const running = before.filter((car) => car.status === "running");
@@ -1025,52 +1168,16 @@ export const stepLap = (state) => {
     const decision = pitDecision(state, car, wetness, stream);
     if (!decision) return;
     const laneLoss = pitLaneLoss(baseLap, sc);
-    const refuelLoad = refuel ? decision.fuel : 0;
-    // 2005: no tyre changes in the race - a planned stop is fuel only, unless the
-    // weather changed (wet <-> dry) or the car is damaged.
-    const weatherSwitch = isWetTyre(decision.compound) !== isWetTyre(car.compound) || (isWetTyre(decision.compound) && decision.compound !== car.compound);
-    const tyresChanged = rules.tyres.changesInRace || weatherSwitch || (decision.repair && car.damage > 0);
-    let stationary = stationaryTime({ era: rules, refuel: refuelLoad, crew: car.crew, fuelOnly: !tyresChanged });
-    const slowStop = PIT.slowStop;
-    const slow = stream.chance(slowStop.chance * (slowStop.crewBase - car.crew / 100)) ? stream.range(slowStop.min, slowStop.max) : 0;
-    stationary += slow;
+    const stop = pitStopTime(car, decision, { rules, stream });
+    const { stationary } = stop;
     // Double stack: the second car of a team waits for the first to leave the box.
-    const queue = stationaryByTeam[car.teamId] !== undefined ? stationaryByTeam[car.teamId] + PIT.doubleStackWait : 0;
+    const queue = stationaryByTeam[car.teamId] !== undefined ? stationaryByTeam[car.teamId] + DOUBLE_STACK_WAIT : 0;
     stationaryByTeam[car.teamId] = stationary;
     // A time penalty (+5/+10 s, from 2014) is served before the crew touches the car.
     const served = car.pendingTime || 0;
     car.lapTime += laneLoss + stationary + queue + served;
     car.pit = { lane: laneLoss, stationary: stationary + queue + served };
-    if (tyresChanged) {
-      car.compound = decision.compound;
-      if (!car.compoundsUsed.includes(decision.compound)) car.compoundsUsed.push(decision.compound);
-      car.tyreAge = 0;
-      car.tyreWear = 0;
-      car.tyreTemp = outLapTemp(rules);
-    }
-    car.stops += 1;
-    car.lastPitLap = lap;
-    car.outLap = true;
-    car.stint += decision.planned ? 1 : 0;
-    if (decision.call) pushEvent(state, { type: "call", carId: car.id, call: decision.call });
-    if (decision.repair) {
-      car.damage = 0;
-      car.issue = car.issue > 1.2 ? car.issue * 0.5 : 0;
-    }
-    if (refuel) car.fuel = decision.fuel;
-    car.pitRequest = null;
-    pushEvent(state, {
-      type: "pit", carId: car.id, compound: car.compound, stationary: Math.round((stationary + queue) * 10) / 10, slow: slow > 0, stacked: queue > 0,
-      ...(refuel ? { refuel: refuelLoad } : {}),
-      ...(tyresChanged ? {} : { tyres: false }),
-      ...(served ? { penalty: served } : {}),
-    });
-    if (served) {
-      car.pendingTime = 0;
-      car.penalties.filter((penalty) => penalty.kind === "time" && !penalty.served).forEach((penalty) => (penalty.served = true));
-      pushEvent(state, { type: "penalty-served", carId: car.id, seconds: served });
-    }
-    pitLaneOffences(state, car, queue > 0);
+    applyPitStop(state, car, decision, stop, { lap, queue, rules });
   });
 
   // ---- elapsed time
@@ -1086,10 +1193,7 @@ export const stepLap = (state) => {
   blueFlags(state, running, baseLap);
 
   // ---- red flag: a heavy crash this lap, or rain no car can race in (RF-SIM-10)
-  const redCfg = BALANCE.raceControl.redFlag;
-  if (!state.pendingRed && wetness >= redCfg.rainWetness && (state.redFlags || 0) < redCfg.maxPerRace && lap < state.laps && control.chance(redCfg.rainChance)) {
-    state.pendingRed = "rain";
-  }
+  rainRedFlagCheck(state, wetness, lap);
   if (state.pendingRed) {
     redFlag(state, running.filter((car) => car.status === "running"), state.pendingRed, wetness, lapStart);
     state.pendingRed = null;
@@ -1155,32 +1259,44 @@ export const stepLap = (state) => {
 
 // ----------------------------------------------------------- race control
 
-/** Yellow flags at a corner this lap (RF-SIM-10): passes there are rarer. */
-const waveYellow = (state, corner, carId) => {
-  if (!state.yellow) state.yellow = { lap: state.lap, corners: [] };
+/**
+ * Yellow flags at a corner this lap (RF-SIM-10): passes there are rarer. The step
+ * simulator reads `state.yellow` after each incident and turns it into a timed local
+ * yellow on that corner (slow down, no passing).
+ */
+export const waveYellow = (state, corner, carId, lap = state.lap) => {
+  if (!state.yellow) state.yellow = { lap, corners: [] };
   if (state.yellow.corners.includes(corner)) return;
   state.yellow.corners.push(corner);
-  pushEvent(state, { type: "yellow", carId, corner });
+  pushEvent(state, { type: "yellow", carId, corner }, lap);
 };
 
 /**
  * RF-SIM-10: the stewards open an investigation; the decision comes a lap or
  * three later, and only a penalty the era has can be given (era-defaults
- * `penaltyTypes`). `otherId` is the other car in a collision.
+ * `penaltyTypes`). `otherId` is the other car in a collision. `lap` is the race's lap
+ * the stewards count from (the step simulator passes the leader's).
  */
-const investigate = (state, car, offence, otherId = null) => {
+export const investigate = (state, car, offence, otherId = null, lap = state.lap) => {
   const control = controlStream(state);
   const [from, to] = BALANCE.penalties.decisionLaps;
   if (!state.investigations) state.investigations = [];
-  state.investigations.push({ carId: car.id, offence, lap: state.lap, decideLap: state.lap + control.int(from, to), otherId });
-  pushEvent(state, { type: "investigation", carId: car.id, otherId, offence });
+  state.investigations.push({ carId: car.id, offence, lap, decideLap: lap + control.int(from, to), otherId });
+  pushEvent(state, { type: "investigation", carId: car.id, otherId, offence }, lap);
 };
 
-const decideInvestigations = (state, rules) => {
+/** RF-SIM-10: a contact in a fight - the stewards may look at the attacker (race-control stream). */
+export const collisionInvestigation = (state, car, otherId, lap = state.lap) => {
+  const collision = BALANCE.penalties.offences.collision;
+  if (car.status === "running" && controlStream(state).chance(collision.investigate)) investigate(state, car, "collision", otherId, lap);
+};
+
+/** RF-SIM-10: the stewards decide every investigation due by race lap `lap`, with the era's penalties only. */
+export const decideInvestigations = (state, rules, lap = state.lap) => {
   if (!state.investigations?.length) return;
   const control = controlStream(state);
-  const due = state.investigations.filter((item) => item.decideLap <= state.lap);
-  state.investigations = state.investigations.filter((item) => item.decideLap > state.lap);
+  const due = state.investigations.filter((item) => item.decideLap <= lap);
+  state.investigations = state.investigations.filter((item) => item.decideLap > lap);
   due.forEach((item) => {
     const car = state.cars.find((entry) => entry.id === item.carId);
     if (!car || car.status !== "running") return;
@@ -1188,17 +1304,17 @@ const decideInvestigations = (state, rules) => {
     const guilty = spec.guilty === undefined || control.chance(spec.guilty);
     const type = guilty ? penaltyFor(rules, item.offence) : null;
     if (!type) {
-      pushEvent(state, { type: "no-action", carId: car.id, offence: item.offence });
+      pushEvent(state, { type: "no-action", carId: car.id, offence: item.offence }, lap);
       return;
     }
-    givePenalty(state, car, item.offence, type);
+    givePenalty(state, car, item.offence, type, lap);
   });
 };
 
 /** Book a penalty on a car (RF-SIM-10): pit-lane penalties wait for the box, time penalties for the next stop or the flag. */
-const givePenalty = (state, car, offence, type) => {
+const givePenalty = (state, car, offence, type, lap = state.lap) => {
   const seconds = BALANCE.penalties.seconds;
-  const penalty = { type, offence, lap: state.lap, served: false };
+  const penalty = { type, offence, lap, served: false };
   if (type === "time5" || type === "time10") {
     penalty.kind = "time";
     penalty.seconds = seconds[type];
@@ -1209,31 +1325,46 @@ const givePenalty = (state, car, offence, type) => {
   } else {
     penalty.kind = "pit";
     penalty.seconds = type === "stopGo" ? seconds.stopGo : 0;
-    penalty.dueLap = state.lap + BALANCE.penalties.serveWithinLaps;
+    penalty.dueLap = lap + BALANCE.penalties.serveWithinLaps;
   }
   if (!car.penalties) car.penalties = [];
   car.penalties.push(penalty);
-  pushEvent(state, { type: "penalty", carId: car.id, offence, penalty: type, seconds: penalty.seconds });
+  pushEvent(state, { type: "penalty", carId: car.id, offence, penalty: type, seconds: penalty.seconds }, lap);
+};
+
+/**
+ * RF-SIM-10: the drive-through or stop-go a car must serve on lap `lap`, if any: given
+ * on an earlier lap, never behind the safety car, never on the last lap.
+ */
+export const duePitPenalty = (state, car, sc = state.safetyCar, lap = state.lap) => {
+  if (sc || !car.penalties?.length) return null;
+  const penalty = car.penalties.find((item) => item.kind === "pit" && !item.served && item.lap < lap);
+  if (!penalty || lap >= state.laps) return null;
+  return penalty;
+};
+
+/** Mark a pit-lane penalty served (`loss` = the seconds it cost) with its event. */
+export const markPenaltyServed = (state, car, penalty, loss, lap = state.lap) => {
+  penalty.served = true;
+  pushEvent(state, { type: "penalty-served", carId: car.id, penalty: penalty.type, seconds: Math.round(loss * 10) / 10 }, lap);
 };
 
 /** A drive-through or stop-go is served the lap after it is given, never behind the safety car. */
 const servePitPenalty = (state, car, rules, sc) => {
-  if (sc || !car.penalties?.length) return;
-  const penalty = car.penalties.find((item) => item.kind === "pit" && !item.served && item.lap < state.lap);
-  if (!penalty || state.lap >= state.laps) return;
+  const penalty = duePitPenalty(state, car, sc);
+  if (!penalty) return;
   const loss = pitLaneLoss(state.race.baseLap) + penalty.seconds;
   car.lapTime += loss;
-  penalty.served = true;
-  pushEvent(state, { type: "penalty-served", carId: car.id, penalty: penalty.type, seconds: Math.round(loss * 10) / 10 });
+  markPenaltyServed(state, car, penalty, loss);
 };
 
 /** Offences of the pit lane (RF-SIM-10): speeding (pit speed limit from 1994) and an unsafe release. */
-const pitLaneOffences = (state, car, stacked) => {
+const pitLaneOffences = (state, car, stacked, lap = state.lap) => {
   const control = controlStream(state);
   const { pitSpeeding, unsafeRelease } = BALANCE.penalties.offences;
   const year = stateRules(state).year;
-  if (year >= pitSpeeding.from && control.chance(pitSpeeding.chancePerStop)) investigate(state, car, "pitSpeeding");
-  else if (year >= unsafeRelease.from && control.chance(stacked ? unsafeRelease.chanceStacked : unsafeRelease.chancePerStop)) investigate(state, car, "unsafeRelease");
+  if (year >= pitSpeeding.from && control.chance(pitSpeeding.chancePerStop)) investigate(state, car, "pitSpeeding", null, lap);
+  else if (year >= unsafeRelease.from && control.chance(stacked ? unsafeRelease.chanceStacked : unsafeRelease.chancePerStop)) investigate(state, car, "unsafeRelease", null, lap);
 };
 
 /**
@@ -1253,26 +1384,10 @@ export const redFlag = (state, running, reason, wetness = 0, lapStart = {}) => {
   const red = rules.raceControl.redFlag;
   const cfg = BALANCE.raceControl.redFlag;
   const baseLap = state.race.baseLap;
-  state.redFlags = (state.redFlags || 0) + 1;
-  state.safetyCar = null;
-  pushEvent(state, { type: "red", reason });
-
-  if (red.tyreChanges && rules.tyres.changesInRace) {
-    const wanted = tyreForWetness(wetness);
-    running.forEach((car) => {
-      const requested = car.pitRequest?.compound;
-      const compound = requested || (car.isUser ? car.compound : wanted || (isWetTyre(car.compound) ? dryCompoundFor(state.laps - state.lap, rules) : car.compound));
-      car.compound = compound;
-      if (!car.compoundsUsed.includes(compound)) car.compoundsUsed.push(compound);
-      car.tyreAge = 0;
-      car.tyreWear = 0;
-      car.pitRequest = null;
-    });
-  }
+  showRedFlag(state, reason);
+  redFlagTyres(state, running, wetness);
 
   const ordered = [...running].sort((a, b) => a.time - b.time);
-  let procedure = red.restart;
-  if (procedure === "rolling" && !rules.raceControl.safetyCar) procedure = "standing";
   if (!red.aggregate) {
     // Line the field up: each car a grid slot behind the one ahead, lapped cars stay lapped.
     for (let index = 1; index < ordered.length; index += 1) {
@@ -1282,52 +1397,108 @@ export const redFlag = (state, running, reason, wetness = 0, lapStart = {}) => {
       if (gap < baseLap * 0.6) car.time = Math.max(ahead.time + cfg.standingSpacing, (lapStart[car.id] ?? -Infinity) + baseLap * 0.5);
     }
   }
-  ordered.forEach((car) => {
+  redFlagRestart(state);
+};
+
+/** RF-SIM-10: the red flag is shown (the race is stopped; any safety car is withdrawn). */
+export const showRedFlag = (state, reason, lap = state.lap) => {
+  state.redFlags = (state.redFlags || 0) + 1;
+  state.safetyCar = null;
+  pushEvent(state, { type: "red", reason }, lap);
+};
+
+/**
+ * RF-SIM-10: in the pit lane under the red flag - fresh tyres where the era allows it
+ * (era-defaults `redFlag.tyreChanges`, and only in eras that change tyres at all), and
+ * every tyre cools to the era's out-lap temperature.
+ */
+export const redFlagTyres = (state, running, wetness = 0, lap = state.lap) => {
+  const rules = stateRules(state);
+  const red = rules.raceControl.redFlag;
+  if (red.tyreChanges && rules.tyres.changesInRace) {
+    const wanted = tyreForWetness(wetness);
+    running.forEach((car) => {
+      const requested = car.pitRequest?.compound;
+      const compound = requested || (car.isUser ? car.compound : wanted || (isWetTyre(car.compound) ? dryCompoundFor(state.laps - lap, rules) : car.compound));
+      car.compound = compound;
+      if (!car.compoundsUsed.includes(compound)) car.compoundsUsed.push(compound);
+      car.tyreAge = 0;
+      car.tyreWear = 0;
+      car.pitRequest = null;
+    });
+  }
+  running.forEach((car) => {
     car.tyreTemp = rules.tyres.outLapTemp;
   });
+};
+
+/** RF-SIM-10: the era's restart procedure after a red flag ("aggregate", "standing", "rolling"; rolling falls back to standing without a safety car). */
+export const restartProcedureOf = (rules) => {
+  const procedure = rules.raceControl.redFlag.restart;
+  return procedure === "rolling" && !rules.raceControl.safetyCar ? "standing" : procedure;
+};
+
+/**
+ * RF-SIM-10: the restart after a red flag - behind the safety car for a rolling restart
+ * (its laps from the race-control stream), otherwise from the grid, with DRS waiting
+ * after it. Returns the procedure.
+ */
+export const redFlagRestart = (state, lap = state.lap) => {
+  const rules = stateRules(state);
+  const red = rules.raceControl.redFlag;
+  const cfg = BALANCE.raceControl.redFlag;
+  const procedure = restartProcedureOf(rules);
   if (procedure === "rolling") {
     const [from, to] = cfg.rollingScLaps;
     state.safetyCar = { laps: controlStream(state).int(from, to), virtual: false };
-    pushEvent(state, { type: "restart", procedure, aggregate: Boolean(red.aggregate) });
-    pushEvent(state, { type: "sc" });
+    pushEvent(state, { type: "restart", procedure, aggregate: Boolean(red.aggregate) }, lap);
+    pushEvent(state, { type: "sc" }, lap);
   } else {
-    state.restartLap = state.lap;
-    pushEvent(state, { type: "restart", procedure, aggregate: Boolean(red.aggregate) });
+    state.restartLap = lap;
+    pushEvent(state, { type: "restart", procedure, aggregate: Boolean(red.aggregate) }, lap);
   }
+  return procedure;
 };
 
-const retire = (state, car, reason) => {
+/**
+ * A car's race is over (RF-SIM-09), and race control answers (RF-SIM-10): a heavy
+ * crash may stop the race (red flag, on the race-control stream), an accident brings
+ * the safety car or the VSC as the era allows, otherwise yellows at the corner; a
+ * failure may bring a VSC. The step simulator passes where it happened (`corner`,
+ * `share` of the lap), the car's `lap`, the race's `raceLap` and its own `stream`; the
+ * quick mode draws them.
+ */
+export const retire = (state, car, reason, { lap = state.lap, raceLap = lap, stream = state._stream, corner: at, share } = {}) => {
   car.status = "retired";
-  car.retiredLap = state.lap;
+  car.retiredLap = lap;
   car.retireReason = reason;
-  const stream = state._stream;
   const rules = stateRules(state);
   const control = BALANCE.raceControl;
   // Where on the lap it ended: first-lap contact happens early, a failure anywhere.
-  car.retireShare = reason === "collision" && state.lap === 1 ? stream.range(0.02, 0.18) : stream.range(0.08, 0.95);
-  const corner = reason === "mechanical" || reason === "fuel" ? null : spotOn(state, stream, "mistake");
-  pushEvent(state, { type: "dnf", carId: car.id, reason, corner });
+  car.retireShare = share !== undefined ? share : reason === "collision" && lap === 1 ? stream.range(0.02, 0.18) : stream.range(0.08, 0.95);
+  const corner = reason === "mechanical" || reason === "fuel" ? null : at !== undefined ? at : spotOn(state, stream, "mistake");
+  pushEvent(state, { type: "dnf", carId: car.id, reason, corner }, lap);
   const crash = reason !== "mechanical" && reason !== "fuel";
   // A heavy crash that leaves the barriers to repair stops the race (RF-SIM-10). RF-HIS-00: never a fatal one.
-  if (crash && !state.pendingRed && (state.redFlags || 0) < control.redFlag.maxPerRace && state.lap < state.laps - 1 && controlStream(state).chance(control.redFlag.crashChance)) {
+  if (crash && !state.pendingRed && (state.redFlags || 0) < control.redFlag.maxPerRace && raceLap < state.laps - 1 && controlStream(state).chance(control.redFlag.crashChance)) {
     state.pendingRed = "crash";
     return;
   }
   // An accident in the safety-car era brings out the safety car most of the time.
-  if (crash && rules.raceControl.safetyCar && !state.safetyCar && state.lap < state.laps - 1) {
+  if (crash && rules.raceControl.safetyCar && !state.safetyCar && raceLap < state.laps - 1) {
     // Early safety-car years used it sparingly; modern race control is quicker to call one.
     if (stream.chance(rules.raceControl.scDeployChance)) {
       const virtual = rules.raceControl.vsc && stream.chance(control.vscShare);
       state.safetyCar = { laps: virtual ? stream.int(control.vscLaps[0], control.vscLaps[1]) : stream.int(control.scLaps[0], control.scLaps[1]), virtual };
-      pushEvent(state, { type: virtual ? "vsc" : "sc" });
+      pushEvent(state, { type: virtual ? "vsc" : "sc" }, raceLap);
       return;
     }
-    if (!state.safetyCar) waveYellow(state, corner, car.id);
+    if (!state.safetyCar) waveYellow(state, corner, car.id, lap);
   } else if (!crash && rules.raceControl.vsc && !state.safetyCar && stream.chance(control.vscOnFailure)) {
     state.safetyCar = { laps: 1, virtual: true };
-    pushEvent(state, { type: "vsc" });
+    pushEvent(state, { type: "vsc" }, raceLap);
   } else if (crash && !state.safetyCar) {
-    waveYellow(state, corner, car.id);
+    waveYellow(state, corner, car.id, lap);
   }
 };
 
@@ -1336,10 +1507,10 @@ const retire = (state, car, reason) => {
  *
  * The plan comes first; then the weather, which overrides any plan; then the
  * opportunistic stop under the safety car that every strategist dreams of. A
- * player's call (`pitRequest`) beats all of it.
+ * player's call (`pitRequest`) beats all of it. The step simulator asks at pit entry,
+ * with the car's own `lap` and its running `order` (by distance covered).
  */
-const pitDecision = (state, car, wetness, stream) => {
-  const lap = state.lap;
+export const pitDecision = (state, car, wetness, stream, { lap = state.lap, order } = {}) => {
   const remaining = state.laps - lap;
   if (remaining <= 0) return null;
   const rules = stateRules(state);
@@ -1384,7 +1555,7 @@ const pitDecision = (state, car, wetness, stream) => {
 
   const plannedStop = car.plan.stops.find((stop) => stop === lap);
   if (!car.isUser && !isWetTyre(car.compound)) {
-    const call = strategyCall(state, car, stream);
+    const call = strategyCall(state, car, stream, { lap, order });
     if (call) return call;
   }
   if (plannedStop && !isWetTyre(car.compound)) {
@@ -1426,14 +1597,13 @@ const pitDecision = (state, car, wetness, stream) => {
  *
  * The better the strategist, the more often the call is seen and made.
  */
-const strategyCall = (state, car, stream) => {
-  const lap = state.lap;
+export const strategyCall = (state, car, stream, { lap = state.lap, order: given } = {}) => {
   const remaining = state.laps - lap;
   const rules = stateRules(state);
   if (rules.refuelling || state.safetyCar || !rules.tyres.changesInRace) return null;
   const life = tyreLifeUsed(car, rules);
   const sees = (chance) => stream.chance(clamp(chance * (0.5 + car.strategist / 100), 0, 0.95));
-  const order = runningOrder(state).filter((other) => other.status === "running");
+  const order = given || runningOrder(state).filter((other) => other.status === "running");
   const index = order.findIndex((other) => other.id === car.id);
   const ahead = order[index - 1];
   const behind = order[index + 1];
@@ -1443,7 +1613,7 @@ const strategyCall = (state, car, stream) => {
   // Overcut: the car ahead has just stopped, we are in clean air on good tyres.
   if (nextStop === lap && ahead && ahead.lastPitLap >= lap - 1 && life < 0.68 && remaining > 8 && sees(0.6)) {
     car.plan = { ...car.plan, stops: car.plan.stops.map((stop) => (stop === lap ? lap + 2 : stop)) };
-    pushEvent(state, { type: "call", carId: car.id, call: "overcut" });
+    pushEvent(state, { type: "call", carId: car.id, call: "overcut" }, lap);
     return null;
   }
   if (!nextStop || remaining <= 6) {
@@ -1470,7 +1640,8 @@ const strategyCall = (state, car, stream) => {
   return null;
 };
 
-const nextPlannedCompound = (car, eraOrRules) => {
+/** The next set of the plan, or another compound while the two-compound rule is still owed. */
+export const nextPlannedCompound = (car, eraOrRules) => {
   const rules = rulesFor(eraOrRules);
   const compounds = rules.tyres.compounds;
   const sequence = car.plan.compounds;
@@ -1481,7 +1652,7 @@ const nextPlannedCompound = (car, eraOrRules) => {
 };
 
 /** The dry tyre that gets you to the flag from here: the softest one that lasts. */
-const dryCompoundFor = (remaining, eraOrRules) => {
+export const dryCompoundFor = (remaining, eraOrRules) => {
   const rules = rulesFor(eraOrRules);
   const options = rules.tyres.compounds;
   const fits = options.filter((compound) => tyreSpec(compound, rules).life >= remaining * 0.9);
@@ -1489,7 +1660,7 @@ const dryCompoundFor = (remaining, eraOrRules) => {
 };
 
 /** Laps of fuel to the next planned stop, or to the flag. */
-const fuelToNextStop = (car, lap, laps) => {
+export const fuelToNextStop = (car, lap, laps) => {
   const next = car.plan.stops.find((stop) => stop > lap);
   return Math.max(1, (next || laps) - lap);
 };
@@ -1568,8 +1739,7 @@ const resolveTraffic = (state, running, beforeIndex, stream, wetness) => {
           pushEvent(state, { type: "contact", carId: victim.id, otherId: victim === car ? ahead.id : car.id, corner });
         }
         // The stewards look at the move: the attacker is the one under investigation (RF-SIM-10).
-        const collision = BALANCE.penalties.offences.collision;
-        if (car.status === "running" && controlStream(state).chance(collision.investigate)) investigate(state, car, "collision", ahead.id);
+        collisionInvestigation(state, car, ahead.id);
       } else {
         ahead.time = Math.max(ahead.time, car.time + 0.15);
         pushEvent(state, {
@@ -1620,36 +1790,40 @@ const blueFlags = (state, running, baseLap) => {
   });
 };
 
-/** What the race engineer tells the player's drivers. */
-const radioFor = (state, car, wetness) => {
+/** What the race engineer tells the player's drivers (RF-CMD-03), after lap `lap`. */
+export const radioFor = (state, car, wetness, lap = state.lap) => {
   const rules = stateRules(state);
   const wanted = tyreForWetness(wetness);
-  const remaining = state.laps - state.lap;
-  if (wanted && !isWetTyre(car.compound)) pushRadio(state, car, "box-wet", { compound: wanted });
-  else if (wanted === "wet" && car.compound === "inter" && wetness > 0.72) pushRadio(state, car, "box-wet", { compound: "wet" });
-  else if (!wanted && isWetTyre(car.compound) && wetness < 0.16) pushRadio(state, car, "box-dry");
-  else if (!isWetTyre(car.compound) && tyreLifeUsed(car, rules) > 1 && remaining > 5) pushRadio(state, car, "cliff");
-  if (car.tyreTemp > 0.76) pushRadio(state, car, "hot");
+  const remaining = state.laps - lap;
+  if (wanted && !isWetTyre(car.compound)) pushRadio(state, car, "box-wet", { compound: wanted }, lap);
+  else if (wanted === "wet" && car.compound === "inter" && wetness > 0.72) pushRadio(state, car, "box-wet", { compound: "wet" }, lap);
+  else if (!wanted && isWetTyre(car.compound) && wetness < 0.16) pushRadio(state, car, "box-dry", {}, lap);
+  else if (!isWetTyre(car.compound) && tyreLifeUsed(car, rules) > 1 && remaining > 5) pushRadio(state, car, "cliff", {}, lap);
+  if (car.tyreTemp > 0.76) pushRadio(state, car, "hot", {}, lap);
   if (!rules.refuelling && car.fuel < remaining * (MIXES[car.fuelMode]?.burn ?? 1) + 0.15 && remaining > 1) {
-    pushRadio(state, car, "fuel", { short: Math.round((remaining - car.fuel) * 10) / 10 });
+    pushRadio(state, car, "fuel", { short: Math.round((remaining - car.fuel) * 10) / 10 }, lap);
   }
   // A battery to run flat is a hybrid's (the KERS budget comes back every lap).
-  if (rules.energy.ers && car.battery !== null && car.battery < 10 && (car.ersMode === "deploy" || car.ersMode === "overtake")) pushRadio(state, car, "battery");
-  if (car.issue) pushRadio(state, car, "issue", { loss: car.issue });
-  if (state.safetyCar && !state.safetyCar.virtual && car.plan.stops.some((stop) => stop > state.lap && stop - state.lap <= 10)) {
-    pushRadio(state, car, "sc-window");
+  if (rules.energy.ers && car.battery !== null && car.battery < 10 && (car.ersMode === "deploy" || car.ersMode === "overtake")) pushRadio(state, car, "battery", {}, lap);
+  if (car.issue) pushRadio(state, car, "issue", { loss: car.issue }, lap);
+  if (state.safetyCar && !state.safetyCar.virtual && car.plan.stops.some((stop) => stop > lap && stop - lap <= 10)) {
+    pushRadio(state, car, "sc-window", {}, lap);
   }
   const zones = state.track?.drs ?? 0;
-  if (drsOpen(rules, { lap: state.lap + 1, wetness, zones, restartLap: state.restartLap || 0, gapAhead: car.gapAhead })) pushRadio(state, car, "drs");
+  if (drsOpen(rules, { lap: lap + 1, wetness, zones, restartLap: state.restartLap || 0, gapAhead: car.gapAhead })) pushRadio(state, car, "drs", {}, lap);
   if (rules.energy.overtakeMode && car.battery !== null && car.gapAhead !== null && car.gapAhead < rules.energy.balance.overtakeGap && car.ersMode !== "overtake") {
-    pushRadio(state, car, "overtake");
+    pushRadio(state, car, "overtake", {}, lap);
   }
-  if (car.penalties?.some((penalty) => !penalty.served && penalty.kind === "pit")) pushRadio(state, car, "penalty");
-  const nextStop = car.plan.stops.find((stop) => stop > state.lap);
-  if (nextStop && nextStop - state.lap === 1 && !isWetTyre(car.compound)) pushRadio(state, car, "box-plan", { compound: nextPlannedCompound(car, rules) });
+  if (car.penalties?.some((penalty) => !penalty.served && penalty.kind === "pit")) pushRadio(state, car, "penalty", {}, lap);
+  const nextStop = car.plan.stops.find((stop) => stop > lap);
+  if (nextStop && nextStop - lap === 1 && !isWetTyre(car.compound)) pushRadio(state, car, "box-plan", { compound: nextPlannedCompound(car, rules) }, lap);
 };
 
-const finishRace = (state) => {
+/**
+ * The flag (both modes): the two-compound rule, penalties still owed become time,
+ * the final order and gaps.
+ */
+export const finishRace = (state) => {
   const rules = stateRules(state);
   state.finished = true;
   state.cars.forEach((car) => {

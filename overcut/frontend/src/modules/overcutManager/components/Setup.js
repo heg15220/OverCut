@@ -241,6 +241,7 @@ function SeasonStep({ years, year, onYear, world, engine }) {
     features.refuelling && t("Repostajes", "Refuelling"),
     features.safetyCar && t("Coche de seguridad", "Safety car"),
     features.drs && "DRS",
+    features.activeAero && t("Aerodinámica activa y modo adelantamiento", "Active aero and overtake mode"),
     features.hybrid && t("Motores híbridos", "Hybrid engines"),
     features.turbo && !features.hybrid && "Turbo",
     year >= 2021 && t("Límite presupuestario", "Cost cap"),

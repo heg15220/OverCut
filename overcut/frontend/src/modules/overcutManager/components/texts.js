@@ -70,6 +70,20 @@ export const ERS = {
   overtake: () => t("Adelantar", "Overtake"),
 };
 
+/** RF-CMD-01 defence style (step race). */
+export const DEFENCE = {
+  holdCarBehind: () => t("Contener", "Hold behind"),
+  block: () => t("Cerrar", "Block"),
+  holdRacingLine: () => t("Trazada", "Racing line"),
+};
+
+/** RF-CMD-01 overtaking risk (step race). */
+export const RISK = {
+  low: () => t("Bajo", "Low"),
+  normal: () => t("Normal", "Normal"),
+  high: () => t("Alto", "High"),
+};
+
 /** Race-control penalties (RF-SIM-10). */
 export const PENALTY = {
   time5: () => t("+5 s", "+5 s"),
@@ -476,6 +490,14 @@ export const radioText = (career, message, names) => {
   }
 };
 
+/**
+ * A duel of the step race (engine/sim duel.js log) as a commentary event, or null
+ * when it is not worth a line: kept defences and failed switchbacks (passes and
+ * contacts already have their own events).
+ */
+export const duelEvent = (duel) =>
+  duel.outcome === "defended" || duel.outcome === "switchback-failed" ? { type: "defended", lap: duel.lap, carId: duel.attacker, otherId: duel.defender, corner: duel.corner ?? null } : null;
+
 export const commentary = (event, names, track) => {
   const a = names[event.carId] || "";
   const b = names[event.otherId] || "";
@@ -483,7 +505,12 @@ export const commentary = (event, names, track) => {
   const at = where ? t(` en la ${where}`, ` at ${where}`) : "";
   switch (event.type) {
     case "pass":
+      if (event.switchback) return t(`¡${a} devuelve el golpe a ${b}${at}!`, `${a} switches back on ${b}${at}!`);
       return t(`${a} adelanta a ${b}${at}${event.drs ? " con DRS" : ""}`, `${a} passes ${b}${at}${event.drs ? " with DRS" : ""}`);
+    case "grid-penalty":
+      return t(`${a} pierde ${event.places} puestos en la parrilla`, `${a} drops ${event.places} places on the grid`);
+    case "defended":
+      return t(`${b} resiste el ataque de ${a}${at}`, `${b} holds off ${a}${at}`);
     case "mistake":
       return event.kind === "spin"
         ? t(`¡Trompo de ${a}${at}! Pierde ${event.loss.toFixed(1)}s`, `${a} spins${at}! ${event.loss.toFixed(1)}s lost`)

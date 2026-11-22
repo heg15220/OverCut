@@ -10,6 +10,11 @@
  * parks where it happened. Timing - gaps, intervals, who is fighting whom - is
  * read the way real timing reads it: at the line.
  *
+ * A step race (engine/sim, RF-SIM-01) running live in the race worker is drawn
+ * from the simulator's own positions instead: `liveCarAt` interpolates between the
+ * per-step snapshots the worker sends each tick (engine/worker/raceClient mirror), and the
+ * same `standingsAt` times it at the line from the crossings it has sent.
+ *
  * Pure functions only; the view calls them every frame.
  */
 
@@ -133,9 +138,9 @@ const lineTime = (car, lap) => {
  * The running order and timing at `tau`: who is where, laps completed, the gap
  * to the leader and the interval to the car ahead, both measured at the line.
  */
-export const standingsAt = (cars, tau, circuit, lapRef) => {
+export const standingsAt = (cars, tau, circuit, lapRef, poseOf = carAt) => {
   const rows = cars.map((car) => {
-    const pose = carAt(car, tau, circuit, lapRef);
+    const pose = poseOf(car, tau, circuit, lapRef);
     const completed = (car.history || []).filter((entry) => !entry.retired && entry.end <= tau).length;
     const out = (car.history || []).some((entry) => entry.retired && entry.end <= tau);
     return { car, pose, completed, out };
@@ -247,6 +252,77 @@ export const battlesIn = (rows) => {
   }
   return battles;
 };
+
+// ------------------------------------------------------------ live (step race)
+
+const frac = (value) => value - Math.floor(value);
+
+/** The two snapshots around `tau` and how far between them it is. */
+const bracket = (snapshots, tau) => {
+  const n = snapshots.length;
+  if (!n) return null;
+  if (tau <= snapshots[0].clock) return { a: snapshots[0], b: snapshots[0], f: 0 };
+  for (let k = n - 1; k >= 0; k -= 1) {
+    const a = snapshots[k];
+    if (a.clock <= tau) {
+      const b = snapshots[k + 1] || a;
+      const span = b.clock - a.clock;
+      return { a, b, f: span > 0 ? Math.min(1, (tau - a.clock) / span) : 0 };
+    }
+  }
+  return { a: snapshots[0], b: snapshots[0], f: 0 };
+};
+
+/** Pit-lane pose for a car whose road position is `d` (lap share) while it is in the lane. */
+const laneAt = (circuit, d) => {
+  const pit = circuit.pit;
+  if (d >= pit.entry) return pitPoseAt(circuit, ((d - pit.entry) / Math.max(1e-6, 1 - pit.entry)) * pit.lineAt);
+  if (d <= pit.exit) return pitPoseAt(circuit, pit.lineAt + (d / Math.max(1e-6, pit.exit)) * (1 - pit.lineAt));
+  return null;
+};
+
+/**
+ * Where a car of a live step race is at race time `tau`: between the two worker
+ * snapshots around it (progress and lateral offset eased linearly), on the pit lane
+ * while it is in it, parked where it stopped, rolling on after the flag. `mirror` is
+ * the raceClient mirror (cars, snapshots, indexOf).
+ */
+export const liveCarAt = (mirror, car, tau, circuit, lapRef = 90) => {
+  const history = car.history || [];
+  const last = history[history.length - 1];
+  const around = bracket(mirror.snapshots, tau);
+  const index = mirror.indexOf[car.id];
+  // Before the lights (or before the first step): on the grid, as the quick replay draws it.
+  if (!around || around.b.clock <= 0 || tau <= 0) return carAt({ ...car, history: [] }, -1, circuit, lapRef);
+  const { a, b, f } = around;
+  const done = history.filter((entry) => !entry.retired && entry.end <= tau).length;
+  if (last && last.retired && last.end <= tau) {
+    const parked = lateral(poseAt(circuit, frac(b.p[index])), 10);
+    return { ...parked, progress: b.p[index], laps: done, parked: true, gone: tau - last.end > lapRef * 1.2 };
+  }
+  if (car.status === "finished" && last && !last.retired && last.end <= tau && done >= history.length) {
+    const d = Math.min(0.55, (tau - last.end) / (lapRef * 1.8));
+    return { ...poseAt(circuit, d), progress: done + d, laps: done, finished: true };
+  }
+  let progress = a.p[index] + (b.p[index] - a.p[index]) * f;
+  // Never ahead of a line crossing the view has not reached yet.
+  if (progress > done + 1) progress = done + 0.9999;
+  const lat = a.l[index] + (b.l[index] - a.l[index]) * f;
+  const d = frac(progress);
+  const inPit = (f < 0.5 ? a.pit[index] : b.pit[index]) === 1;
+  if (inPit) {
+    const lane = laneAt(circuit, d);
+    if (lane) return { ...lane, progress, laps: done, inPit: true, lateral: 0 };
+  }
+  return { ...lateral(poseAt(circuit, d), lat), progress, laps: done, lateral: lat, duel: b.duel[index] };
+};
+
+/** Safety-car spells of a live step race, as race-clock windows (`red` for a red-flag neutralisation). */
+export const liveSafetyCarWindows = (mirror) =>
+  (mirror.safetyCarSpells || []).map((spell) => ({ from: spell.from, to: spell.to ?? Infinity, virtual: Boolean(spell.virtual), red: Boolean(spell.red) }));
+
+/** Local yellows (RF-SIM-10) of a live step race still waved at race time `tau`. */
+export const liveYellowsAt = (mirror, tau) => (mirror.yellowZones || []).filter((zone) => zone.until === undefined || zone.until === null || zone.until > tau);
 
 /** Offset a pose sideways (positive = right of travel). */
 export const offsetPose = lateral;

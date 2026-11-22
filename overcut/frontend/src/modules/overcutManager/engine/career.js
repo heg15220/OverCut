@@ -29,6 +29,7 @@ import { constructorStandings, driverStandings, emptySeason, recordRace, scoreRa
 import { driversOf, fillEmptySeats, prepareReference, signForTeam, teamsByPace } from "./world";
 import { eraWithRegulations, roundLineup, worldForSeason } from "./packs/packWorld";
 import { classificationOf, createRace, evaluatePlan, runQualifying, runToFinish, suggestPlan, weatherTimeline } from "./race";
+import { createStepRace, runStepToFinish } from "./sim";
 import { FEELINGS, SLIDERS, feelingsOf, idealSetup, neutralSetup, practiceRun, satisfactionOf, setupLapTime } from "./setup";
 
 export const MANAGER_GAME = "overcut-manager";
@@ -414,7 +415,7 @@ export const runQualifyingSession = (career, risk = {}) => {
 
 export const defaultPlan = (career) => {
   const race = currentRace(career);
-  const plan = suggestPlan({ year: career.year, laps: race.laps, baseLap: race.baseLap, profile: race.profile, crew: career.staff.operations?.rating ?? 60 });
+  const plan = suggestPlan({ year: career.year, era: eraOf(career), laps: race.laps, baseLap: race.baseLap, profile: race.profile, crew: career.staff.operations?.rating ?? 60 });
   return { stops: plan.stops, compounds: plan.compounds };
 };
 
@@ -425,11 +426,13 @@ export const setPlan = (career, driverId, plan) => {
 };
 
 /**
- * Sunday, ready to run: the live view steps it lap by lap, a quick sim runs it
- * to the flag. Rival strategies are the strategist's best plan with a little
- * spread on the stop laps, so the field does not pit in formation.
+ * Sunday's race arguments (race.js createRace / sim createStepRace take the same):
+ * the grid, every car's plan, crews and strategists, the weekend seed. Plain data
+ * that survives postMessage, so the live race can be built inside the race worker
+ * (SRS 4, engine/worker). Rival strategies are the strategist's best plan with a
+ * little spread on the stop laps, so the field does not pit in formation.
  */
-export const createWeekendRace = (career) => {
+export const weekendRaceArgs = (career) => {
   const weekend = startWeekend(career);
   if (!weekend) return null;
   if (!weekend.qualifying) runQualifyingSession(career, {});
@@ -451,7 +454,7 @@ export const createWeekendRace = (career) => {
   entrants.forEach((entrant) => {
     if (!grid.includes(entrant.id)) grid.push(entrant.id);
   });
-  return createRace({
+  return {
     race,
     era: eraOf(career),
     year: career.year,
@@ -462,7 +465,27 @@ export const createWeekendRace = (career) => {
     seed: weekendSeed(career),
     crews,
     strategists,
-  });
+  };
+};
+
+/**
+ * Sunday in the quick mode (race.js, lap by lap): what "simulate" runs to the flag
+ * at once (RF-WKD-02, RNF-01).
+ */
+export const createWeekendRace = (career) => {
+  const args = weekendRaceArgs(career);
+  return args ? createRace(args) : null;
+};
+
+/**
+ * Sunday in fixed steps (RF-SIM-01): the race the live view watches, where passes,
+ * duels and the safety car happen on the road. The live view builds the same race
+ * inside the race worker from `weekendRaceArgs`; this in-thread twin gives the same
+ * race for the same seed (RF-SIM-15, RNF-05).
+ */
+export const createLiveWeekendRace = (career) => {
+  const args = weekendRaceArgs(career);
+  return args ? createStepRace(args) : null;
 };
 
 /**
@@ -482,7 +505,7 @@ export const planDelta = (career, plan) => {
   const race = currentRace(career);
   if (!race) return 0;
   const crew = career.staff.operations?.rating ?? 60;
-  const args = { year: career.year, laps: race.laps, baseLap: race.baseLap, profile: race.profile, crew };
+  const args = { year: career.year, era: eraOf(career), laps: race.laps, baseLap: race.baseLap, profile: race.profile, crew };
   const best = suggestPlan(args);
   return Math.max(0, evaluatePlan({ ...args, plan }) - best.cost);
 };
@@ -491,7 +514,13 @@ export const planDelta = (career, plan) => {
 export const completeRace = (career, state) => {
   const weekend = startWeekend(career);
   if (!weekend || weekend.result) return weekend?.result || null;
-  if (!state.finished) runToFinish(state);
+  if (!state.finished) {
+    // A step race (RF-SIM-01) finishes in its own simulator; one that has lost it
+    // (toRaceState, a postMessage copy) cannot be finished here.
+    if (state._sim) runStepToFinish(state);
+    else if (state.mode === "step") throw new Error("completeRace: a step race must be run to the flag in its simulator first");
+    else runToFinish(state);
+  }
   const names = Object.fromEntries(state.cars.map((car) => [car.id, car.name]));
   const classification = classificationOf(state);
   const fastestLap = state.fastestLap?.carId || null;

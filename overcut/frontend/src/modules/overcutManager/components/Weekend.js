@@ -7,7 +7,7 @@ import React, { useMemo, useState } from "react";
 import { LuCloudRain, LuFastForward, LuFlag, LuPlay, LuX } from "react-icons/lu";
 import {
   PRACTICE_PROGRAMS, PRACTICE_RUNS, QUALI_STYLES, completeRace, createWeekendRace, currentRace, defaultPlan, entrantsFor, eraOf, planDelta, runPractice,
-  runQualifyingSession, runSetupLap, setPlan, setSetup, setupStateOf, weekendForecast,
+  runQualifyingSession, runSetupLap, setPlan, setSetup, setupStateOf, weekendForecast, weekendRaceArgs,
 } from "../engine/career";
 import { FEELINGS, SLIDERS } from "../engine/setup";
 import CircuitCard from "./CircuitCard";
@@ -38,14 +38,18 @@ export default function Weekend() {
   if (!weekend || !race) return null;
   const stage = live ? "race" : weekend.stage;
 
+  // RF-WKD-02: live, the step race runs in the race worker from the weekend's arguments
+  // (SRS 4); instant, the quick mode runs to the flag here and now (RNF-01).
   const startRace = (watch) => {
+    if (watch) {
+      const args = act((c) => weekendRaceArgs(c));
+      if (args) setLive({ args });
+      return;
+    }
     const state = act((c) => createWeekendRace(c));
     if (!state) return;
-    if (watch) setLive(state);
-    else {
-      runToFinish(state);
-      act((c) => completeRace(c, state));
-    }
+    runToFinish(state);
+    act((c) => completeRace(c, state));
   };
 
   const onFinished = (state) => {
@@ -81,7 +85,7 @@ export default function Weekend() {
         {stage === "qualifying" && <Qualifying onQualified={() => canRender3D() && setWatchQuali(true)} />}
         {stage === "strategy" && watchQuali && <QualifyingLive onDone={() => setWatchQuali(false)} />}
         {stage === "strategy" && !watchQuali && <Strategy onStart={startRace} />}
-        {stage === "race" && live && <LiveRace state={live} onFinished={onFinished} />}
+        {stage === "race" && live && <LiveRace args={live.args} onFinished={onFinished} />}
         {stage === "result" && <Result onContinue={finishWeekend} />}
       </div>
     </div>

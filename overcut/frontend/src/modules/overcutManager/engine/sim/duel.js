@@ -6,8 +6,9 @@
  * lap, it claims the corner. Up to `duel.maxClaim` cars take part: the defender, the
  * attacker and, if it is right there too, the car behind the attacker.
  *
- * The attacker's chance is the quick mode's pass chance (race.js resolveTraffic: circuit,
- * underlying pace difference, DRS, battery, racecraft, a cold tyre ahead, rain) plus the
+ * The attacker's chance is the quick mode's pass chance (race.js passChanceOf: circuit,
+ * underlying pace difference, DRS, battery via race.js energyPush, racecraft, a cold tyre
+ * ahead, rain) plus the
  * attacker's risk order and the defender's style (RF-CMD-01), weighted by how good a
  * place to pass this braking zone is (the length of the straight before it). Outcomes:
  *
@@ -21,19 +22,20 @@
  *
  * Whoever loses the corner may try a switchback at its exit if still within
  * `switchback.gapMetres`. The third car of a claim attacks whoever is in front of it once
- * the first pair is settled, at a reduced chance.
+ * the first pair is settled, at a reduced chance. No duel is fought for a corner under a
+ * local yellow (RF-SIM-10), and a contact is looked at by the stewards exactly as in the
+ * quick mode (race.js collisionInvestigation, race-control stream).
  *
  * Every number comes from data/balance/race-sim.json (RNF-07); every roll from the duel
  * stream (RF-SIM-15).
  */
 
 import { clamp } from "../../../overcutTrayectoria/engine/rng";
+import { collisionInvestigation, energyPush } from "../race";
 import { drsOpen } from "../rules";
 import { pushEvent, wetnessAt } from "./lapModel";
 
 export const ROLE = { NONE: 0, PASSING: 1, YIELDING: 2, LOST: 3, HELD: 4 };
-
-const deploys = (car, minCharge) => car.ersMode === "deploy" && (car.battery ?? 0) > minCharge;
 
 export const styleOf = (balance, car) => balance.defence.styles[car.defence] || balance.defence.styles[balance.defence.default];
 export const riskOf = (balance, car) => balance.risk.levels[car.overtakeRisk] || balance.risk.levels[balance.risk.default];
@@ -54,6 +56,9 @@ export const duelChance = (state, attacker, defender, zone, { drs = false, lap }
   const d = balance.duel;
   const delta = (defender.expected ?? 0) - (attacker.expected ?? 0);
   const wet = wetnessAt(state, lap) > d.wetFrom;
+  // RF-SIM-05 / RF-SIM-07: the battery to attack or defend with, as the quick mode reads it (KERS, ERS, 2026 overtake mode).
+  const attack = energyPush(state._sim.rules, attacker).attack;
+  const defend = energyPush(state._sim.rules, defender).defend;
   const raw =
     d.base +
     (state.race.profile.overtaking ?? 0.55) * d.overtaking +
@@ -61,8 +66,8 @@ export const duelChance = (state, attacker, defender, zone, { drs = false, lap }
     (drs ? balance.drs.duelBonus : 0) +
     (attacker.racecraft - defender.racecraft) * d.racecraft +
     (wet ? d.wet : 0) +
-    (deploys(attacker, d.ersMinCharge) ? d.ersAttack : 0) -
-    (deploys(defender, d.ersMinCharge) ? d.ersDefend : 0) +
+    attack -
+    defend +
     (defender.tyreTemp < d.coldTyreTemp ? d.coldTyre : 0) +
     riskOf(balance, attacker).chance +
     styleOf(balance, defender).chance;
@@ -90,7 +95,11 @@ export const startPass = (state, a, b, sign, extra = {}) => {
   sim.latTarget[b] = -sign * lateral.attackMetres * 0.4;
   sim.switchTarget[a] = -1;
   if (extra.event !== false) {
-    pushEvent(state, sim.laps[a] + 1, { type: extra.type || "pass", carId: state.cars[a].id, otherId: state.cars[b].id, corner: extra.corner ?? null, drs: Boolean(extra.drs), ...(extra.switchback ? { switchback: true } : {}) });
+    pushEvent(state, sim.laps[a] + 1, {
+      type: extra.type || "pass", carId: state.cars[a].id, otherId: state.cars[b].id, corner: extra.corner ?? null, drs: Boolean(extra.drs),
+      ...(extra.switchback ? { switchback: true } : {}),
+      ...(state.cars[a].overtakeActive ? { overtakeMode: true } : {}),
+    });
   }
 };
 
@@ -119,13 +128,18 @@ const contact = (state, a, b, corner, stream, lap) => {
   logDuel(state, { t: round(sim.clock), lap, corner, attacker: state.cars[a].id, defender: state.cars[b].id, outcome: "incident", victim: state.cars[victim].id });
   if (stream.chance(inc.retireShare)) {
     sim.retireAt(victim, "collision", corner);
+    stewards(state, a, b);
     return;
   }
   const car = state.cars[victim];
   car.damage += stream.range(inc.damageMin, inc.damageMax);
   sim.delay[victim] += stream.range(inc.delayMin, inc.delayMax);
   pushEvent(state, sim.laps[victim] + 1, { type: "contact", carId: car.id, otherId: state.cars[other].id, corner });
+  stewards(state, a, b);
 };
+
+/** RF-SIM-10: after a contact the stewards may look at the attacker (the quick mode's rule and stream). */
+const stewards = (state, a, b) => collisionInvestigation(state, state.cars[a], state.cars[b].id, state._sim.leaderLap);
 
 const round = (value) => Math.round(value * 100) / 100;
 
@@ -140,6 +154,8 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
   if (ahead < 0 || gapSec > d.triggerSec) return;
   if (sim.cooldownUntil[i] > sim.clock || sim.duelRole[i] !== ROLE.NONE || sim.duelRole[ahead] === ROLE.PASSING || sim.duelRole[ahead] === ROLE.YIELDING) return;
   const zone = sim.tables.attacks[z];
+  // RF-SIM-10: no passing under a local yellow at this corner.
+  if (sim.yellows.length && sim.yellows.some((flag) => flag.corner === zone.corner)) return;
   const attacker = state.cars[i];
   const defender = state.cars[ahead];
   const lap = sim.laps[i] + 1;
@@ -218,6 +234,8 @@ export const trySwitchback = (state, i, target, gapMetres) => {
   const sb = sim.balance.duel.switchback;
   const corner = sim.switchCorner[i];
   sim.switchTarget[i] = -1;
+  // RF-SIM-10: no switchback under a local yellow either.
+  if (sim.yellows.length && sim.yellows.some((flag) => flag.corner === corner)) return;
   if (target < 0 || gapMetres > sb.gapMetres || sim.duelRole[target] === ROLE.PASSING || sim.duelRole[target] === ROLE.YIELDING) return;
   const me = state.cars[i];
   const them = state.cars[target];

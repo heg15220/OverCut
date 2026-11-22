@@ -37,12 +37,13 @@ const safetyCarLaps = (state) => {
 };
 
 /**
- * Clean-air lap times per car: not lap 1, not an in-lap or out-lap, not under a safety
- * car, no mistake or contact, and at least `clear` seconds to the cars ahead and behind
- * at both lines of the lap. The same filter for both modes, read only from history and
- * events.
+ * Clean-air laps per car, keyed by lap number: not lap 1, not an in-lap or out-lap, not
+ * under (or next to) a safety car or red flag, not through a local yellow, no mistake or
+ * contact, not held up or fighting mid-lap (step sim), and at least `clear` seconds to
+ * the cars ahead and behind at both lines of the lap. The same filter for both modes,
+ * read only from history and events.
  */
-export const cleanLaps = (state, clear = 1.5) => {
+export const cleanLapsByLap = (state, clear = 1.5) => {
   const sc = safetyCarLaps(state);
   const troubled = new Set(state.events.filter((event) => event.type === "mistake" || event.type === "contact").map((event) => `${event.carId}:${event.lap}`));
   // Crossing times at every line, sorted, to read intervals ahead and behind.
@@ -65,15 +66,37 @@ export const cleanLaps = (state, clear = 1.5) => {
   const spells = state.safetyCarSpells || [];
   const out = {};
   state.cars.forEach((car) => {
-    const laps = [];
+    const laps = {};
     car.history.forEach((entry, index) => {
       const previous = car.history[index - 1];
       if (spells.some((spell) => spell.from < entry.end + 2 && (spell.to ?? Infinity) > entry.start - 2)) return;
-      if (entry.lap < 2 || entry.retired || entry.held || entry.pit || previous?.pit || sc.has(entry.lap) || troubled.has(`${car.id}:${entry.lap}`)) return;
+      if (entry.lap < 2 || entry.retired || entry.held || entry.yellow || entry.pit || previous?.pit || sc.has(entry.lap) || troubled.has(`${car.id}:${entry.lap}`)) return;
       if (!isolated(entry.lap - 1, previous.end) || !isolated(entry.lap, entry.end)) return;
-      laps.push(entry.end - entry.start);
+      laps[entry.lap] = entry.end - entry.start;
     });
     out[car.id] = laps;
+  });
+  return out;
+};
+
+/** Clean-air lap times per car (cleanLapsByLap, as lists). */
+export const cleanLaps = (state, clear = 1.5) => {
+  const byLap = cleanLapsByLap(state, clear);
+  return Object.fromEntries(Object.entries(byLap).map(([id, laps]) => [id, Object.values(laps)]));
+};
+
+/**
+ * Cars whose race carried an incident that changes their pace for good - damage from a
+ * contact or a problem (a misfire, a stuck gear) - in this race. Those are rare discrete
+ * draws (a handful per race), so their count, not the lap model, would decide the spread.
+ */
+export const carsWithIncidents = (state) => {
+  const out = new Set();
+  state.events.forEach((event) => {
+    if (event.type === "issue" || event.type === "contact") out.add(event.carId);
+  });
+  state.cars.forEach((car) => {
+    if (car.damage > 0 || car.issue > 0) out.add(car.id);
   });
   return out;
 };

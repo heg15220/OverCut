@@ -16,8 +16,14 @@
  *   4. the lap    wear, fuel, battery and reliability move per lap at the line, as in the
  *                 quick mode; failures and mistakes are rolled there but happen at a real
  *                 point of the lap (a corner apex for accidents and mistakes).
- *   5. control    the safety car (from 1993) runs a real train, the VSC (from 2015) a
- *                 pace cap; their laps count down on the leader's crossings.
+ *   5. control    race control is the quick mode's (race.js retire, investigate,
+ *                 decideInvestigations, redFlag pieces, on its `seed::control` stream),
+ *                 played out on the track (RF-SIM-10): a local yellow at the incident's
+ *                 corner (slower there, no duel for that corner), the safety car where
+ *                 the era has it as a real train, the VSC as a delta (pace cap), the red
+ *                 flag with the era's restart (aggregate, standing grid or rolling behind
+ *                 the SC, tyres by the rules) and drive-through / stop-go penalties
+ *                 driven through the pit lane. SC laps count down on the leader's line.
  *   6. strategy   every pit wall decides at pit entry (lapModel.pitDecision, the quick
  *                 mode's); the stop is spent in the lane on the in-lap, as the race clock
  *                 draws it.
@@ -34,26 +40,22 @@
 import balanceData from "../../data/balance/race-sim.json";
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
 import {
-  cancelPit as quickCancelPit, createRace, requestPit as quickRequestPit, setErs as quickSetErs, setMix as quickSetMix, setMode as quickSetMode,
-  setTeamOrder as quickSetTeamOrder,
+  cancelPit as quickCancelPit, createRace, decideInvestigations, duePitPenalty, energyStep, jumpStartChecks, markPenaltyServed, mixEffect, modeEffect, pitLaneLoss,
+  rainRedFlagCheck, redFlagRestart, redFlagTyres, requestPit as quickRequestPit, restartProcedureOf, setErs as quickSetErs, setMix as quickSetMix,
+  setMode as quickSetMode, setTeamOrder as quickSetTeamOrder, showRedFlag, spotOn, stateRules, waveYellow,
 } from "../race";
-import { rulesFor } from "../rules";
+import { byYear, raceBalance } from "../rules";
 import { circuitFor } from "../venue";
 import { ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
-import {
-  ERS_MODES, MIXES, MODES, START_SPACING, beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, servicePit,
-} from "./lapModel";
+import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, servicePit, wetnessAt } from "./lapModel";
 import { buildTrackTables, dAt, inCorner, tauAtD } from "./trackTables";
 
 export const SIM_BALANCE = balanceData;
 
 const frac = (value) => value - Math.floor(value);
 
-/** The era's value from a `byEra` table of the balance data. */
-const byEra = (table, year, key) => {
-  const row = table.find((entry) => year >= entry.from && year <= entry.to);
-  return row ? row[key] : 0;
-};
+/** The quick mode's start stagger per grid slot (race-eras.json `start.gridSpacing`); here the slot is physical. */
+const START_SPACING = raceBalance.start.gridSpacing;
 
 // ----------------------------------------------------------------- set up
 
@@ -67,8 +69,10 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
   const tables = buildTrackTables(track, { size: balance.step.tableSize, approachMetres: balance.duel.approachMetres });
   const n = state.cars.length;
   const laps = state.laps;
-  const rules = rulesFor(state.era && typeof state.era === "object" ? state.era : state.year);
+  // The season's rules (pack regulations or era-defaults), never a bare year (RNF-07, criterio 7.2).
+  const rules = stateRules(state);
   const seed = state.seed;
+  const cornerRange = new Map((track.corners || []).map((corner) => [corner.number, { from: frac(corner.from), to: frac(corner.to) }]));
   const sim = {
     balance,
     tables,
@@ -89,7 +93,21 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     rules,
     // RF-SIM-06: the era's dirty air is the quick mode's (rules.js), the tow is step-only data.
     dirtyLoss: rules.dirtyAir,
-    slipGain: byEra(balance.slipstream.byEra, state.year, "gainPerLap"),
+    slipGain: byYear(balance.slipstream.byEra, rules.year)?.gainPerLap ?? 0,
+    // RF-SIM-05: 2026's overtake mode, run by distance: the extra over "deploy" per lap, from the era's energy balance.
+    overtake: rules.energy.overtakeMode
+      ? {
+          gap: rules.energy.balance.overtakeGap,
+          gain: rules.energy.balance.modes.deploy.time - rules.energy.balance.modes.overtake.time,
+          drain: rules.energy.balance.modes.deploy.charge - rules.energy.balance.modes.overtake.charge,
+          minCharge: rules.energy.balance.minChargeToAttack,
+        }
+      : null,
+    overtakeOn: new Uint8Array(n),
+    // RF-SIM-10: local yellows ({ corner, from, to, until }) and the red flag in progress.
+    cornerRange,
+    yellows: [],
+    red: null,
     tau: new Float64Array(n),
     laps: new Int32Array(n),
     P: new Float64Array(n),
@@ -143,7 +161,9 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
   state.clock = 0;
   state.duels = [];
   state.safetyCarSpells = [];
+  if (!state.investigations) state.investigations = [];
   sim.retireAt = (i, reason, corner) => retireCar(state, i, reason, corner);
+  sim.raceControl = () => raceControl(state);
   state.cars.forEach((car) => {
     car.defence = car.defence || balance.defence.default;
     car.overtakeRisk = car.overtakeRisk || balance.risk.default;
@@ -169,23 +189,14 @@ const start = (state) => {
     sim.lat[i] = (car.grid % 2 ? -1 : 1) * 2.6;
     beginLap(state, i, 1, 0);
   });
+  // RF-SIM-10: race control watches the lights (the quick mode's check and stream).
+  jumpStartChecks(state, state.cars.filter((car) => car.status === "running"), 1);
 };
 
 // ------------------------------------------------------------------ laps
 
 /** Weighted pick of a corner for a mistake or an accident (race.js spotOn, "mistake"). */
-const mistakeCorner = (state, stream) => {
-  const corners = state.track?.corners || [];
-  if (!corners.length) return null;
-  let total = 0;
-  for (let k = 0; k < corners.length; k += 1) total += corners[k].kind === "slow" ? 2 : corners[k].kind === "fast" ? 3 : 1;
-  let pick = stream.int(0, total - 1);
-  for (let k = 0; k < corners.length; k += 1) {
-    pick -= corners[k].kind === "slow" ? 2 : corners[k].kind === "fast" ? 3 : 1;
-    if (pick < 0) return corners[k].number;
-  }
-  return corners[corners.length - 1].number;
-};
+const mistakeCorner = (state, stream) => spotOn(state, stream, "mistake");
 
 const apexTauOf = (sim, corner, stream) => {
   const known = corner !== null && sim.tables.apexTau.get(corner);
@@ -199,7 +210,7 @@ const beginLap = (state, i, lap, t) => {
   const stream = sim.streams.laps;
   sim.lapStart[i] = t;
   sim.lapFlags[i] = state.safetyCar ? 1 : 0;
-  if (!car.isUser) rivalCalls(state, car, lap);
+  rivalCalls(state, car, lap);
   let budget = planLap(state, car, lap, stream, { gridIndex: i, scrumShare: sim.balance.lapOne.scrumShare });
   if (lap === 1) {
     // The quick mode staggers the start by START_SPACING a slot; here the slot is physical.
@@ -257,6 +268,8 @@ const endLap = (state, i, lap, tc) => {
   const entry = { lap, start: sim.lapStart[i], end: tc, pit, compound: car.compound };
   // A lap spent in someone's air, held up or in a fight (not visible at the line).
   if (sim.lapFlags[i] & 24) entry.held = true;
+  // A lap through a local yellow (RF-SIM-10).
+  if (sim.lapFlags[i] & 32) entry.yellow = true;
   car.history.push(entry);
   car.pit = null;
   if (!(sim.lapFlags[i] & 7) && (car.bestLap === null || lapTime < car.bestLap)) car.bestLap = lapTime;
@@ -269,14 +282,22 @@ const endLap = (state, i, lap, tc) => {
     state.lap = lap;
     sim.leaderLap = lap + 1;
     const sc = state.safetyCar;
-    if (sc && lap > sc.since) {
+    if (sim.red) {
+      // RF-SIM-10: the field has come round behind the red flag; restart by the era's procedure.
+      sim.red.lineUpLap = lap;
+    } else if (sc && lap > sc.since) {
       sc.laps -= 1;
       if (sc.laps <= 0) {
         state.safetyCar = null;
+        // DRS waits after a restart (RF-SIM-08), as in the quick mode.
+        state.restartLap = lap;
         pushEvent(state, lap, { type: "sc-in", virtual: sc.virtual });
       }
     }
     if (lap > 1 && sim.firstCrossCar[lap - 1] !== i) pushEvent(state, lap, { type: "lead", carId: car.id });
+    // RF-SIM-10: the stewards decide at the leader's line, and rain no car can race in stops the race.
+    decideInvestigations(state, sim.rules, lap);
+    if (!sim.red) rainRedFlagCheck(state, wetnessAt(state, lap), lap);
     if (lap < state.laps) beginLeaderLap(state, lap + 1);
     car.gapAhead = null;
   } else {
@@ -306,16 +327,27 @@ const endLap = (state, i, lap, tc) => {
   return true;
 };
 
+/**
+ * The leader's lap after which a new safety car's laps count down (SRS 4.2): the quick
+ * mode neutralises exactly `laps` whole laps; here the SC comes out mid-lap and goes in at
+ * the line, so the partial lap counts when the leader was in its first half - on average
+ * the same neutralised time.
+ */
+const scSince = (state) => {
+  const sim = state._sim;
+  return frac(sim.P[sim.order[0]]) < 0.5 ? sim.leaderLap - 1 : sim.leaderLap;
+};
+
 /** Car `i` stops for good where it is. */
 const retireCar = (state, i, reason, corner) => {
   const sim = state._sim;
   const car = state.cars[i];
   if (car.status !== "running") return;
   const lap = sim.laps[i] + 1;
-  retire(state, car, lap, reason, corner || null, sim.streams.incidents);
-  if (state.safetyCar && state.safetyCar.since === undefined) state.safetyCar.since = sim.leaderLap;
   const share = clamp(frac(sim.tau[i]), 0.001, 0.999);
-  car.retireShare = share;
+  retire(state, car, lap, reason, corner || null, sim.streams.incidents, share);
+  if (state.safetyCar && state.safetyCar.since === undefined) state.safetyCar.since = scSince(state);
+  syncYellows(state);
   car.history.push({ lap, start: sim.lapStart[i], end: sim.clock, retired: true, share });
   sim.active[i] = 0;
   sim.inPit[i] = 0;
@@ -477,6 +509,27 @@ const advance = (state, i) => {
     sim.blueDelay[i] = Math.max(0, sim.blueDelay[i] - dt * (1 - slow));
     sim.lapFlags[i] |= 16;
   }
+  // RF-SIM-05: 2026's overtake mode, by distance - within the era's gap of the car ahead
+  // on the same lap, more deployment (the era's overtake row against deploy), more drain.
+  const ot = sim.overtake;
+  if (ot) {
+    const on = !sc && a >= 0 && sim.inPit[i] === 0 && car.ersMode === "overtake" && sim.lapDiff[i] === 0 && gapS < ot.gap && (car.battery ?? 0) > ot.minCharge;
+    if (on) {
+      mult += ot.gain / sim.budget[i];
+      car.battery = Math.max(0, car.battery - (ot.drain * dt) / sim.budget[i]);
+    }
+    car.overtakeActive = on;
+  }
+  // RF-SIM-10: a local yellow - everyone lifts through that corner.
+  if (sim.yellows.length && !sc) {
+    for (let k = 0; k < sim.yellows.length; k += 1) {
+      if (inZone(d0, sim.yellows[k])) {
+        mult *= balance.raceControl.yellow.slowFactor;
+        sim.lapFlags[i] |= 32;
+        break;
+      }
+    }
+  }
   const tau0 = sim.tau[i];
   let tau1 = tau0 + rate * Math.max(0, mult) * dt;
   const laps = sim.laps[i];
@@ -528,7 +581,13 @@ const checkpoints = (state, i, from, to) => {
     sim.mistakeTau[i] = -1;
     sim.delay[i] += car.pendingMistake;
     sim.lapFlags[i] |= 2;
-    pushEvent(state, lap, { type: "mistake", carId: car.id, kind: car.mistakeKind, corner: sim.mistakeCorner[i] || null, loss: Math.round(car.pendingMistake * 10) / 10 });
+    const corner = sim.mistakeCorner[i] || null;
+    pushEvent(state, lap, { type: "mistake", carId: car.id, kind: car.mistakeKind, corner, loss: Math.round(car.pendingMistake * 10) / 10 });
+    // A car stopped or off the road at a corner: yellow flags there, as in the quick mode (RF-SIM-10).
+    if (!state.safetyCar && raceBalance.raceControl.yellow.mistakeKinds.includes(car.mistakeKind)) {
+      waveYellow(state, corner, car.id, lap);
+      syncYellows(state);
+    }
   }
   if (sim.inPit[i] === 0 && (tables.pitEntryTau > from && tables.pitEntryTau <= to)) enterPit(state, i, lap);
   if (sim.inPit[i] === 2 && (tables.pitExitTau > from && tables.pitExitTau <= to)) sim.inPit[i] = 0;
@@ -560,28 +619,153 @@ const checkpoints = (state, i, from, to) => {
   }
 };
 
-/** Car `i` reaches pit entry on lap `lap`: does it come in? */
-const enterPit = (state, i, lap) => {
+/** Car `i` takes the pit lane for `extra` seconds more than the track would have cost. */
+const intoLane = (state, i, segTime, extra) => {
   const sim = state._sim;
-  const car = state.cars[i];
-  const stream = sim.streams.pits;
-  const decision = pitDecision(state, car, lap, runningCars(state), stream);
-  if (!decision) return;
-  const segTau = 1 - sim.tables.pitEntryTau;
-  const segTime = segTau * sim.budget[i];
-  const arrival = sim.clock + segTime * 0.6;
-  const free = sim.boxFree[car.teamId] ?? -Infinity;
-  const queue = free > arrival ? free - arrival + 0.8 : 0;
-  const pit = servicePit(state, car, lap, decision, stream, queue);
-  sim.boxFree[car.teamId] = arrival + queue + pit.ownStationary;
-  car.pit = { lane: pit.lane, stationary: pit.stationary };
-  const extra = pit.lane + pit.stationary;
   sim.pitRate[i] = segTime / (segTime + extra);
   sim.inPit[i] = 1;
   sim.lapFlags[i] |= 4;
   sim.drsOpen[i] = 0;
   if (sim.duelOther[i] >= 0) endDuel(sim, i);
 };
+
+/** Car `i` reaches pit entry on lap `lap`: a penalty to serve, a stop, or neither? */
+const enterPit = (state, i, lap) => {
+  const sim = state._sim;
+  const car = state.cars[i];
+  // Under the red flag the field comes round to line up; nobody stops on the way.
+  if (sim.red) return;
+  const stream = sim.streams.pits;
+  const segTau = 1 - sim.tables.pitEntryTau;
+  const segTime = segTau * sim.budget[i];
+
+  // RF-SIM-10: a drive-through or stop-go is driven through the pit lane (race.js duePitPenalty).
+  const penalty = duePitPenalty(state, car, state.safetyCar, lap);
+  if (penalty) {
+    const lane = pitLaneLoss(state.race.baseLap);
+    markPenaltyServed(state, car, penalty, lane + penalty.seconds, lap);
+    // The lane cannot serve a penalty and a stop at once: a stop planned for this lap waits one.
+    if (car.plan.stops.includes(lap) && lap + 1 < state.laps) car.plan = { ...car.plan, stops: car.plan.stops.map((stop) => (stop === lap ? lap + 1 : stop)) };
+    car.pit = { lane, stationary: penalty.seconds, penalty: penalty.type };
+    intoLane(state, i, segTime, lane + penalty.seconds);
+    return;
+  }
+
+  const decision = pitDecision(state, car, lap, runningCars(state), stream);
+  if (!decision) return;
+  const arrival = sim.clock + segTime * 0.6;
+  const free = sim.boxFree[car.teamId] ?? -Infinity;
+  const queue = free > arrival ? free - arrival + raceBalance.pit.doubleStackWait : 0;
+  const pit = servicePit(state, car, lap, decision, stream, queue);
+  sim.boxFree[car.teamId] = arrival + queue + pit.ownStationary;
+  car.pit = { lane: pit.lane, stationary: pit.stationary };
+  intoLane(state, i, segTime, pit.lane + pit.stationary);
+};
+
+// ------------------------------------------------------------ race control
+
+/** Circular "d is inside the zone" on the unit lap. */
+const inZone = (d, zone) => (zone.from <= zone.to ? d >= zone.from && d <= zone.to : d >= zone.from || d <= zone.to);
+
+/**
+ * RF-SIM-10: race.js waveYellow marks a corner on `state.yellow`; here it becomes a
+ * local yellow on the track - from `approachMetres` before the corner to `afterMetres`
+ * after it, for `durationSec` - where cars lift and no duel is fought for that corner.
+ */
+const syncYellows = (state) => {
+  const sim = state._sim;
+  const flagged = state.yellow;
+  if (!flagged) return;
+  const cfg = sim.balance.raceControl.yellow;
+  flagged.corners.forEach((corner) => {
+    const range = sim.cornerRange.get(corner);
+    if (!range) return;
+    const until = sim.clock + cfg.durationSec;
+    const known = sim.yellows.find((zone) => zone.corner === corner);
+    if (known) known.until = until;
+    else sim.yellows.push({ corner, from: frac(range.from - cfg.approachMetres / sim.tables.length), to: frac(range.to + cfg.afterMetres / sim.tables.length), until });
+  });
+  state.yellow = null;
+  state.yellowZones = sim.yellows.map((zone) => ({ corner: zone.corner, until: zone.until }));
+};
+
+/** Is the corner of attack zone `corner` under a local yellow (no passing there)? */
+export const yellowAt = (sim, corner) => {
+  for (let k = 0; k < sim.yellows.length; k += 1) if (sim.yellows[k].corner === corner) return true;
+  return false;
+};
+
+/**
+ * RF-SIM-10: race.js decided the race must stop (`state.pendingRed`, from a heavy crash
+ * or rain, on the race-control stream). Aggregate eras restart at once with the gaps
+ * standing; otherwise the field is neutralised (a train, no passing, no stops) until
+ * the leader reaches the line, where it lines up and restarts by the era's procedure.
+ */
+const startRed = (state) => {
+  const sim = state._sim;
+  const reason = state.pendingRed;
+  state.pendingRed = null;
+  const lap = sim.leaderLap;
+  showRedFlag(state, reason, lap);
+  sim.yellows.length = 0;
+  state.yellowZones = [];
+  if (sim.rules.raceControl.redFlag.aggregate) {
+    redFlagTyres(state, runningCars(state), wetnessAt(state, lap), lap);
+    redFlagRestart(state, lap);
+    if (state.safetyCar) state.safetyCar.since = scSince(state);
+    return;
+  }
+  sim.red = { reason, lineUpLap: null };
+  state.safetyCar = { laps: 0, virtual: false, red: true, since: lap };
+  for (let i = 0; i < sim.n; i += 1) if (sim.duelOther[i] >= 0) endDuel(sim, i);
+};
+
+/** The leader is at the line behind the red flag: tyres by the rules, the grid formation, the restart. */
+const finishRed = (state) => {
+  const sim = state._sim;
+  const { tables, balance } = sim;
+  const lap = sim.red.lineUpLap;
+  const running = runningCars(state);
+  redFlagTyres(state, running, wetnessAt(state, lap), lap);
+  // Line up behind the line in race order: cars on the leader's lap only (lapped cars stay lapped).
+  const ordered = [];
+  for (let k = 0; k < sim.n; k += 1) {
+    const i = sim.order[k];
+    if (state.cars[i].status === "running" && sim.active[i] && sim.inPit[i] === 0) ordered.push(i);
+  }
+  ordered.sort((x, y) => sim.P[y] - sim.P[x]);
+  const front = ordered.length ? sim.P[ordered[0]] : 0;
+  ordered.forEach((i, k) => {
+    if (k === 0 || sim.laps[i] >= lap || front - sim.P[i] >= 1) return;
+    const slot = lap - (balance.grid.poleBackMetres + k * balance.grid.gapMetres) / tables.length;
+    if (slot <= sim.laps[i]) return;
+    sim.P[i] = slot;
+    sim.tau[i] = Math.min(0.9999, tauAtD(tables, slot - sim.laps[i]));
+  });
+  sim.red = null;
+  state.safetyCar = null;
+  redFlagRestart(state, lap);
+  if (state.safetyCar) state.safetyCar.since = lap;
+};
+
+/** Race control's moves after a step: a red flag to show or to restart from, yellows to expire. */
+const raceControl = (state) => {
+  const sim = state._sim;
+  if (state.yellow) syncYellows(state);
+  if (state.pendingRed && !sim.red) startRed(state);
+  if (sim.red && sim.red.lineUpLap !== null) finishRed(state);
+  if (sim.yellows.length) {
+    let kept = 0;
+    for (let k = 0; k < sim.yellows.length; k += 1) if (sim.yellows[k].until > sim.clock) sim.yellows[kept++] = sim.yellows[k];
+    if (kept !== sim.yellows.length) {
+      sim.yellows.length = kept;
+      state.yellowZones = sim.yellows.map((zone) => ({ corner: zone.corner, until: zone.until }));
+    }
+  }
+};
+
+/** The restart procedure the era uses after a red flag (race.js restartProcedureOf), for the view. */
+export const restartProcedure = (state) => restartProcedureOf(state._sim.rules);
 
 /** Passes in progress: done once clear by a car's length, or when time runs out. */
 const settleDuels = (state) => {
@@ -639,7 +823,7 @@ export const stepOnce = (state) => {
   if (!sim.started) start(state);
   sim.clock += sim.dt;
   sim.steps += 1;
-  if (state.safetyCar && state.safetyCar.since === undefined) state.safetyCar.since = sim.leaderLap;
+  if (state.safetyCar && state.safetyCar.since === undefined) state.safetyCar.since = scSince(state);
 
   buildRing(sim);
   const first = measureGaps(sim);
@@ -661,12 +845,18 @@ export const stepOnce = (state) => {
     }
   }
   settleDuels(state);
+  raceControl(state);
   lateral(sim);
   sortOrder(state);
   state.clock = sim.clock;
   // Safety-car spells in race time, for the view and the timing.
+  if (state.safetyCar && sim.scOpen && Boolean(sim.scOpen.red) !== Boolean(state.safetyCar.red)) {
+    // A red flag replacing a safety car, or a rolling restart after one: a new spell.
+    sim.scOpen.to = sim.clock;
+    sim.scOpen = null;
+  }
   if (state.safetyCar && !sim.scOpen) {
-    sim.scOpen = { from: sim.clock - sim.dt, to: null, virtual: Boolean(state.safetyCar.virtual) };
+    sim.scOpen = { from: sim.clock - sim.dt, to: null, virtual: Boolean(state.safetyCar.virtual), ...(state.safetyCar.red ? { red: true } : {}) };
     state.safetyCarSpells.push(sim.scOpen);
   } else if (!state.safetyCar && sim.scOpen) {
     sim.scOpen.to = sim.clock;
@@ -731,7 +921,7 @@ export const snapshot = (state) => {
  * same object without the simulator's internals.
  */
 export const toRaceState = (state) => {
-  const { _sim, _stream, ...rest } = state;
+  const { _sim, _stream, _control, ...rest } = state;
   return rest;
 };
 
@@ -757,10 +947,12 @@ const retimed = (state, carId, apply, termOf) => {
   return state;
 };
 
-export const setMode = (state, carId, mode) => retimed(state, carId, () => quickSetMode(state, carId, mode), (car) => (MODES[car.mode] || MODES.normal).time);
-export const setMix = (state, carId, mix) => retimed(state, carId, () => quickSetMix(state, carId, mix), (car) => (MIXES[car.fuelMode] || MIXES.standard).time);
+export const setMode = (state, carId, mode) => retimed(state, carId, () => quickSetMode(state, carId, mode), (car) => modeEffect(car.mode).time);
+export const setMix = (state, carId, mix) => retimed(state, carId, () => quickSetMix(state, carId, mix), (car) => mixEffect(car.fuelMode).time);
+/** RF-CMD-01 energy mode (race.js setErs, era-checked): the lap time it is worth on a charged battery (race.js energyStep); 2026's overtake mode is run by distance. */
 export const setErs = (state, carId, mode) =>
-  retimed(state, carId, () => quickSetErs(state, carId, mode), (car) => (car.battery === null ? 0 : (ERS_MODES[car.ersMode] || ERS_MODES.balanced).time * (state.energy === "kers" ? 0.45 : 1)));
+  retimed(state, carId, () => quickSetErs(state, carId, mode), (car) =>
+    car.battery === null || car.battery === undefined ? 0 : energyStep({ rules: stateRules(state), mode: car.ersMode, battery: 100, gapAhead: null }).time);
 export const requestPit = (state, carId, compound) => quickRequestPit(state, carId, compound);
 export const cancelPit = (state, carId) => quickCancelPit(state, carId);
 export const setTeamOrder = (state, teamId, order) => quickSetTeamOrder(state, teamId, order);
