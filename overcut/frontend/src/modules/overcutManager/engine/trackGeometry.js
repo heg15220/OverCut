@@ -236,17 +236,41 @@ export const buildCircuit = (layout, year = 2020) => {
  * centre line of the real asphalt, already starting at the line and running in
  * the race direction (see tools/assets/align_spline.mjs).
  *
- * `path` is `{ id, km, points: [x0, y0, x1, y1, ...] in decimetres, names?, drs? }`.
+ * `path` is `{ id, km, points: [x0, y0, x1, y1, ...] in decimetres, names?, drs?, pit? }`.
  * Corners come from the curvature itself: wherever the radius, smoothed over
- * about 40 m, drops under 350 m a corner starts, and it lasts until the radius
+ * about 50 m, drops under 350 m a corner starts, and it lasts until the radius
  * opens past 490 m or the turn changes hand (the hysteresis keeps a long arc
  * near the threshold from flickering into many corners); its turn is the
- * curvature integrated along it. Everything after that - speed trace, numbered corners,
- * braking zones, DRS, sectors, pit lane - is the same code as a sketch's, so a
- * race on a calibrated circuit is the same kind of race.
+ * curvature integrated along it. Then, to count corners the way official turn
+ * numbers do: two apexes with an almost straight stretch between them are two
+ * corners; a corner is numbered when it turns more than ~23 degrees or is a fast
+ * sweeping kink (~15 degrees at 130-170 m); a slalom of small alternating pieces
+ * is the spline weaving and carries no number; a corner turning more than ~206
+ * degrees (a snail) carries two. Unnumbered corners still shape the speed trace.
+ * Everything after that - speed trace, braking zones, DRS, sectors - is the
+ * same code as a sketch's, so a race on a calibrated circuit is the same kind of race.
+ *
+ * `pit` (optional) is the real pit lane from the mesh (tools/assets/blender/extract_pitlane.py):
+ * `{ points: [x0, y0, ...] in decimetres in the same plane, from the entry to the exit,
+ * entryShare?, exitShare?, lineShare?, boxFrom?, boxTo? }` (box shares are fractions of the
+ * pit lane's length). Without it, or if it does not cross the line, the pit lane is the
+ * procedural one, as on a sketch.
  */
 export const CORNER_RADIUS = 350;
 const CORNER_EXIT_RADIUS = CORNER_RADIUS * 1.4;
+/** An almost straight stretch (radius over this, m) between two apexes splits a corner in two... */
+const CORNER_SPLIT_RADIUS = 250;
+/** ...if each piece turns more than this (rad, ~34°). */
+const SPLIT_PIECE_TURN = 0.6;
+/** A calibrated corner gets a number if it turns more than this (rad, ~23°)... */
+const NUMBERED_TURN = 0.4;
+/** ...or if it is a fast sweeping kink: more than this (rad, ~15°) with a radius in this range (m). */
+const KINK_TURN = 0.26;
+const KINK_RADIUS = [130, 170];
+/** Pieces of a slalom (alternating hands, < 30 m apart) turning less than this (rad) are the spline weaving. */
+const SLALOM_MAX_TURN = 0.7;
+/** A corner turning more than this (rad, ~206°) carries one number per this much turn (a snail). */
+const DOUBLE_TURN = 3.6;
 
 export const buildCircuitFromPath = (path, year = 2020) => {
   const raw = [];
@@ -278,30 +302,43 @@ export const buildCircuitFromPath = (path, year = 2020) => {
     const ds = segment(i) + segment((i - 1 + n) % n);
     return wrap(heading[(i + 1) % n] - heading[(i - 1 + n) % n]) / Math.max(1, ds);
   });
-  const half = 3;
-  const smooth = kappa.map((_, i) => {
+  const average = (values, half) => values.map((_, i) => {
     let sum = 0;
-    for (let k = -half; k <= half; k += 1) sum += kappa[(i + k + n) % n];
+    for (let k = -half; k <= half; k += 1) sum += values[(i + k + n) % n];
     return sum / (2 * half + 1);
   });
-  const enters = (i) => Math.abs(smooth[i]) > 1 / CORNER_RADIUS;
-  const stays = (i, sign) => Math.sign(smooth[i]) === sign && Math.abs(smooth[i]) > 1 / CORNER_EXIT_RADIUS;
+  // Radius for the speed trace: curvature smoothed over ~40 m.
+  const smooth = average(kappa, 3);
+  // Corner detection: the heading over four samples (~24 m), its turn smoothed over ~50 m,
+  // so the spline's lateral noise does not break an arc into pieces or make kinks out of nothing.
+  const wide = raw.map((_, i) => {
+    const a = raw[(i - 2 + n) % n];
+    const b = raw[(i + 2) % n];
+    return Math.atan2(b.y - a.y, b.x - a.x);
+  });
+  const wideKappa = raw.map((_, i) => wrap(wide[(i + 1) % n] - wide[(i - 1 + n) % n]) / Math.max(1, segment(i) + segment((i - 1 + n) % n)));
+  const detect = average(wideKappa, 4);
+  // ...and lightly smoothed (~30 m), to see two apexes inside one corner.
+  const sharp = average(wideKappa, 2);
+  const enters = (i) => Math.abs(detect[i]) > 1 / CORNER_RADIUS;
+  const stays = (i, sign) => Math.sign(detect[i]) === sign && Math.abs(detect[i]) > 1 / CORNER_EXIT_RADIUS;
   // Group consecutive corner samples of the same sign; gaps of a sample or two are noise and belong to the corner.
   const id = new Array(n).fill(-1);
   const corners = [];
-  let startAt = smooth.findIndex((k) => Math.abs(k) <= 1 / CORNER_EXIT_RADIUS);
-  if (startAt === -1) startAt = smooth.findIndex((_, i) => !enters(i));
+  let startAt = detect.findIndex((k) => Math.abs(k) <= 1 / CORNER_EXIT_RADIUS);
+  if (startAt === -1) startAt = detect.findIndex((_, i) => !enters(i));
   if (startAt === -1) throw new Error("spline-without-straights");
   let current = null;
   const add = (i) => {
-    current.turn += smooth[i] * (s0[i + 1] - s0[i]);
+    current.turn += detect[i] * segment(i);
+    current.minRadius = Math.min(current.minRadius, 1 / Math.max(1e-6, Math.abs(detect[i])));
     current.samples.push(i);
   };
   for (let k = 1; k <= n; k += 1) {
     const i = (startAt + k) % n;
     if (current && stays(i, current.sign)) add(i);
     else if (enters(i)) {
-      current = { sign: Math.sign(smooth[i]), turn: 0, samples: [] };
+      current = { sign: Math.sign(detect[i]), turn: 0, minRadius: Infinity, samples: [] };
       corners.push(current);
       add(i);
     } else if (current) {
@@ -310,7 +347,91 @@ export const buildCircuitFromPath = (path, year = 2020) => {
       else current = null;
     }
   }
-  const kept = corners.filter((corner) => Math.abs(corner.turn) > 0.12);
+  // Two apexes with an almost straight stretch between them (radius over CORNER_SPLIT_RADIUS) are
+  // two corners, as long as each turns more than SPLIT_PIECE_TURN; smaller pieces stay with a neighbour.
+  const split = [];
+  corners.filter((corner) => Math.abs(corner.turn) > 0.08).forEach((corner) => {
+    const a = corner.samples.map((i) => Math.abs(sharp[i]));
+    const peaks = [];
+    for (let k = 0; k < a.length; k += 1) {
+      let top = a[k] > 1 / CORNER_RADIUS;
+      for (let j = Math.max(0, k - 2); j <= Math.min(a.length - 1, k + 2) && top; j += 1) if (a[j] > a[k]) top = false;
+      if (top && (!peaks.length || k - peaks[peaks.length - 1] > 2)) peaks.push(k);
+    }
+    const cuts = [];
+    let last = peaks[0];
+    for (let q = 1; q < peaks.length; q += 1) {
+      let low = last;
+      for (let k = last; k <= peaks[q]; k += 1) if (a[k] < a[low]) low = k;
+      if (a[low] < 1 / CORNER_SPLIT_RADIUS) {
+        cuts.push(low);
+        last = peaks[q];
+      } else if (a[peaks[q]] > a[last]) last = peaks[q];
+    }
+    const bounds = [0, ...cuts, a.length];
+    const parts = [];
+    for (let q = 0; q + 1 < bounds.length; q += 1) {
+      const part = { sign: corner.sign, turn: 0, minRadius: Infinity, samples: corner.samples.slice(bounds[q], bounds[q + 1]) };
+      part.samples.forEach((i, k) => {
+        part.turn += detect[i] * segment(i);
+        part.minRadius = Math.min(part.minRadius, 1 / Math.max(1e-6, a[bounds[q] + k]));
+      });
+      parts.push(part);
+    }
+    const good = parts.filter((part) => Math.abs(part.turn) > SPLIT_PIECE_TURN);
+    if (good.length < 2) {
+      split.push(corner);
+      return;
+    }
+    // Small pieces join the previous good piece (or the next, before the first).
+    const merged = [];
+    let pending = [];
+    parts.forEach((part) => {
+      if (Math.abs(part.turn) > SPLIT_PIECE_TURN) {
+        part.samples = pending.concat(part.samples);
+        pending = [];
+        merged.push(part);
+      } else if (merged.length) merged[merged.length - 1].samples.push(...part.samples);
+      else pending.push(...part.samples);
+    });
+    split.push(...merged);
+  });
+  // A slalom - three or more short pieces of alternating hand, none turning more than
+  // SLALOM_MAX_TURN, less than 30 m apart - is the spline weaving, not a sequence of corners.
+  const gapMetres = (a, b) => (((b.samples[0] - a.samples[a.samples.length - 1] + n) % n) * s0[n]) / n;
+  for (let q = 0; q < split.length;) {
+    let r = q;
+    while (r + 1 < split.length && split[r + 1].sign !== split[r].sign && gapMetres(split[r], split[r + 1]) <= 30) r += 1;
+    const run = split.slice(q, r + 1);
+    if (run.length >= 3 && run.every((corner) => Math.abs(corner.turn) <= SLALOM_MAX_TURN)) run.forEach((corner) => { corner.weave = true; });
+    q = r + 1;
+  }
+  // Numbered: turns more than NUMBERED_TURN, or a fast sweeping kink (more than KINK_TURN with a
+  // radius of 130-170 m); tighter small pieces are the spline's jogs. A corner turning more than
+  // DOUBLE_TURN (a snail such as Shanghai's 1-2) carries one number per DOUBLE_TURN of turn, split
+  // into equal pieces of turn.
+  const kept = [];
+  split.forEach((corner) => {
+    const turn = Math.abs(corner.turn);
+    const numbered = !corner.weave && (turn > NUMBERED_TURN || (turn > KINK_TURN && corner.minRadius >= KINK_RADIUS[0] && corner.minRadius < KINK_RADIUS[1]));
+    const count = numbered ? Math.max(1, Math.ceil(turn / DOUBLE_TURN - 1e-9)) : 1;
+    if (count === 1) {
+      kept.push({ ...corner, numbered });
+      return;
+    }
+    const pieces = [];
+    let acc = 0;
+    corner.samples.forEach((i) => {
+      const t = detect[i] * segment(i);
+      const slot = Math.min(count - 1, Math.floor(Math.abs(acc) / (turn / count)));
+      if (pieces.length - 1 < slot) pieces.push({ sign: corner.sign, turn: 0, minRadius: corner.minRadius, samples: [], numbered: true });
+      const piece = pieces[pieces.length - 1];
+      piece.samples.push(i);
+      piece.turn += t;
+      acc += t;
+    });
+    kept.push(...pieces);
+  });
   kept.forEach((corner, k) => corner.samples.forEach((i) => { id[i] = k; }));
   const samples = raw.map((p, i) => ({
     x: p.x,
@@ -333,8 +454,8 @@ export const buildCircuitFromPath = (path, year = 2020) => {
   const ys = points.map((p) => p.y);
   const box = { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
   const layout = { id: path.id, km: path.km, names: path.names || {}, drs: path.drs };
-  const cornerTurns = kept.map((corner) => ({ turn: corner.turn }));
-  const built = finishCircuit({ layout, points, s, total, speed, time, lapTime, heading, samples, corners: cornerTurns, clockwise, box, lineAt: 0, env, year });
+  const cornerTurns = kept.map((corner) => ({ turn: corner.turn, numbered: corner.numbered }));
+  const built = finishCircuit({ layout, points, s, total, speed, time, lapTime, heading, samples, corners: cornerTurns, clockwise, box, lineAt: 0, env, year, realPit: path.pit });
   return { ...built, calibrated: true };
 };
 
@@ -343,7 +464,7 @@ export const buildCircuitFromPath = (path, year = 2020) => {
  * numbered corners, braking zones, full-throttle straights, DRS zones, three
  * sectors split by time and a pit lane alongside the main straight.
  */
-const finishCircuit = ({ layout, points, s, total, speed, time, lapTime, heading, samples, corners, clockwise, box, lineAt, year }) => {
+const finishCircuit = ({ layout, points, s, total, speed, time, lapTime, heading, samples, corners, clockwise, box, lineAt, year, realPit }) => {
   const n = points.length;
   // Index of the sample nearest the line; rotate arrays so index 0 is the line.
   let lineIndex = 0;
@@ -374,9 +495,41 @@ const finishCircuit = ({ layout, points, s, total, speed, time, lapTime, heading
       }
     } else current = null;
   });
+  // A corner that runs across the line shows up at both ends of the lap: it is one corner.
+  // It keeps its place by its apex (the last corner if the apex is before the line, the
+  // first if after) and its span runs past 1 (or below 0) so that from < apex < to still holds.
+  if (cornerList.length > 1) {
+    const first = cornerList[0];
+    const last = cornerList[cornerList.length - 1];
+    if (first.id === last.id && first.from === 0 && last.to === n - 1) {
+      // Each piece's slowest sample is its `apex` (or its first sample when that is the slowest).
+      const apexAtEnd = last.minSpeed <= first.minSpeed;
+      const merged = { ...last, minSpeed: Math.min(first.minSpeed, last.minSpeed) };
+      if (apexAtEnd) {
+        merged.to = first.to + n;
+        merged.apex = last.apex ?? last.from;
+        cornerList.splice(0, 1);
+        cornerList[cornerList.length - 1] = merged;
+      } else {
+        merged.from = last.from - n;
+        merged.to = first.to;
+        merged.apex = first.apex ?? first.from;
+        cornerList.pop();
+        cornerList[0] = merged;
+      }
+    }
+  }
+  // Distance share of a sample index that may run past either end of the lap.
+  const shareOf = (index) => {
+    const lap = Math.floor(index / n);
+    return dist[index - lap * n] / dist[n] + lap;
+  };
   const numbered = cornerList
     .filter((corner) => {
-      const turn = Math.abs(corners[corner.id]?.turn ?? 0);
+      const known = corners[corner.id];
+      // Calibrated circuits say which corners carry a number; sketches keep the old rule.
+      if (known && known.numbered !== undefined) return known.numbered;
+      const turn = Math.abs(known?.turn ?? 0);
       return turn > 0.35 || corner.minSpeed < 0.8 * envelopeFor(year).vmax;
     })
     .map((corner, index) => {
@@ -384,10 +537,10 @@ const finishCircuit = ({ layout, points, s, total, speed, time, lapTime, heading
       const kmh = corner.minSpeed * 3.6;
       return {
         number: index + 1,
-        from: dist[corner.from] / dist[n],
-        to: dist[corner.to] / dist[n],
-        apex: dist[apex] / dist[n],
-        apexIndex: apex,
+        from: shareOf(corner.from),
+        to: shareOf(corner.to),
+        apex: shareOf(apex),
+        apexIndex: ((apex % n) + n) % n,
         sign: corner.sign,
         kmh: Math.round(kmh),
         kind: kmh < 110 ? "slow" : kmh < 190 ? "medium" : "fast",
@@ -444,9 +597,10 @@ const finishCircuit = ({ layout, points, s, total, speed, time, lapTime, heading
   };
   const sectors = [0, sectorAt(1 / 3), sectorAt(2 / 3)];
 
-  // Pit lane: offset to the inside of the loop along the last and first straights.
+  // Pit lane: the real one from the mesh when there is one that crosses the line; otherwise
+  // offset to the inside of the loop along the last and first straights.
   const inside = clockwise ? 1 : -1;
-  const pit = buildPitLane({ P, H, dist, length, n, inside });
+  const pit = (realPit && meshPitLane(realPit, { P, H, dist, length, n })) || buildPitLane({ P, H, dist, length, n, inside });
 
   // Normalised time -> distance table so a car can be placed by lap fraction.
   const timeShare = T.map((t) => t / lap);
@@ -500,7 +654,84 @@ const buildPitLane = ({ P, H, dist, length, n, inside }) => {
   // Shares of the pit path: where it passes the line, and where the boxes are -
   // just before the line, so a stop lap ends as the car leaves its box.
   const lineAt = before / Math.max(1, path.length - 1);
-  return { entry: entryShare, exit: exitShare, path, lineAt, boxAt: lineAt * 0.8 };
+  return { entry: entryShare, exit: exitShare, path, lineAt, boxAt: lineAt * 0.8, side: inside, source: "procedural" };
+};
+
+/**
+ * The real pit lane, from the circuit's mesh (`path.pit`, see buildCircuitFromPath). Same shape
+ * as the procedural one - `{ entry, exit, path, lineAt, boxAt }`, path shares 0 = entry and
+ * 1 = exit - plus `boxFrom` / `boxTo` (where the garages are, as shares of the path), `side`
+ * (+1 or -1: the lateral direction, in the sense `x - sin(h) * m, y + cos(h) * m`, that goes
+ * from the track to the pit lane) and `source: "mesh"`.
+ *
+ * Entry and exit are re-measured on this circuit (the nearest point of the lap to each end of
+ * the lane), and the lane's ends are moved onto the line so a car leaves and rejoins without a
+ * jump. Returns null (and the caller falls back to the procedural lane) when the data cannot
+ * honour the contract the race clock relies on: entry before the line, exit after it, and the
+ * line crossed on the way.
+ */
+const meshPitLane = (pit, { P, H, dist, length, n }) => {
+  const raw = pit.points || [];
+  const lane = [];
+  for (let i = 0; i + 1 < raw.length; i += 2) lane.push({ x: raw[i] / 10, y: raw[i + 1] / 10 });
+  if (lane.length < 4) return null;
+  // Nearest point of the lap: index, the projection onto the segment after it, and its share.
+  const project = (p, near = null, window = 0) => {
+    let best = null;
+    const test = (i) => {
+      const a = P[i];
+      const b = P[(i + 1) % n];
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy || 1)));
+      const x = a.x + dx * t;
+      const y = a.y + dy * t;
+      const d = Math.hypot(p.x - x, p.y - y);
+      if (!best || d < best.d) best = { i, t, x, y, d };
+    };
+    if (near === null) for (let i = 0; i < n; i += 1) test(i);
+    else for (let k = -window; k <= window; k += 1) test((((near + k) % n) + n) % n);
+    const share = (dist[best.i] + (dist[best.i + 1] - dist[best.i]) * best.t) / length;
+    return { ...best, share: share % 1 };
+  };
+  const first = project(lane[0]);
+  const last = project(lane[lane.length - 1]);
+  // The ends of the lane must be on the track (the extractor puts them there).
+  if (first.d > 12 || last.d > 12) return null;
+  const entry = first.share;
+  const exit = last.share;
+  // Entry late in the lap, exit early in the next: the lane crosses the line.
+  if (!(entry > 0.5 && exit < 0.5)) return null;
+  const path = lane.map((p) => ({ ...p }));
+  path[0] = { x: first.x, y: first.y };
+  path[path.length - 1] = { x: last.x, y: last.y };
+  const along = [0];
+  for (let k = 1; k < path.length; k += 1) along.push(along[k - 1] + Math.hypot(path[k].x - path[k - 1].x, path[k].y - path[k - 1].y));
+  const total = along[along.length - 1];
+  // Where the lane passes the line: the share of the nearest lap point wraps from ~1 to ~0.
+  let lineAt = null;
+  let prev = first;
+  for (let k = 1; k < path.length && lineAt === null; k += 1) {
+    const here = project(path[k], prev.i, 40);
+    if (here.share - prev.share < -0.5) {
+      const before = 1 - prev.share;
+      const span = before + here.share || 1;
+      lineAt = (along[k - 1] + (along[k] - along[k - 1]) * (before / span)) / total;
+    }
+    prev = here;
+  }
+  if (lineAt === null || lineAt <= 0.02 || lineAt >= 0.98) return null;
+  // Garages: from the data, or the middle of the part before the line. The race clock stops
+  // cars before the line (boxAt < lineAt), so the box it uses is kept inside that part.
+  const boxFrom = Number.isFinite(pit.boxFrom) ? pit.boxFrom : lineAt * 0.25;
+  const boxTo = Number.isFinite(pit.boxTo) ? pit.boxTo : lineAt * 0.85;
+  const boxAt = Math.max(lineAt * 0.1, Math.min(lineAt * 0.9, (boxFrom + Math.min(boxTo, lineAt)) / 2));
+  // Which side of the track the lane runs on, where it passes the line.
+  const middle = path[Math.round(lineAt * (path.length - 1))];
+  const at = project(middle);
+  const h = H[at.i];
+  const side = (middle.x - at.x) * -Math.sin(h) + (middle.y - at.y) * Math.cos(h) >= 0 ? 1 : -1;
+  return { entry, exit, path, lineAt, boxAt, boxFrom, boxTo, side, source: "mesh" };
 };
 
 /**

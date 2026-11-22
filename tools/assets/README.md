@@ -77,23 +77,34 @@ vuelta) o si tiene `approved: true`. El manifiesto guarda `meetsCriterion` y `re
 
 ## Estado (2026-11-22)
 
-- Coches: 66, de las temporadas 2005, 2007, 2008, 2010, 2012, 2013 y 2014. El LOD0 más pesado ocupa 6,7 MB tras
-  comprimir. BMW Sauber y McLaren de 2008 llevan ruedas fijas.
-- Circuitos en el motor y en 3D (8):
-  - cumplen el criterio 7.2: Silverstone 1999 (máx. 0,88 m) y Montreal (0,66 m);
-  - aprobados por revisión (desviación no medible en buena parte de la vuelta): Monza, Spa, Shanghái, Hungaroring,
-    Interlagos y Bahrain.
-  - Ninguno está reflejado: lo confirma un ICP recortado contra el trazado real.
+- Coches: 66, de las temporadas 2005, 2007, 2008, 2010, 2012, 2013 y 2014. Todos tienen ruedas giratorias: para mallas
+  troceadas en miles de piezas (BMW Sauber y McLaren de 2008), `normalize_car.py` ajusta el cilindro de cada neumático
+  y recorta sus caras.
+- Circuitos (11): Monza, Spa, Silverstone 1999, Shanghái, Hungaroring, Interlagos, Montreal, Bahrain, Mónaco, Suzuka y
+  Nürburgring GP.
+  - Cumplen el criterio 7.2 por medición: Silverstone, Shanghái, Interlagos, Montreal, Bahrain, Mónaco, Suzuka y
+    Nürburgring.
+  - Monza, Spa y Hungaroring entran con revisión aprobada.
+  - El ocho de Suzuka y los túneles y puentes (Mónaco, Nürburgring) se separan por capas de altura.
+  - Los tejados y gradas quedan fuera de la máscara de asfalto.
+  - Las alturas siguen la superficie de la carretera por continuidad.
+  - Ninguno está reflejado (ICP recortado contra el trazado real).
+- Calle de boxes: `blender/extract_pitlane.py` la saca de la malla (garajes y carril paralelo) y el motor la usa en 9
+  circuitos. Silverstone 1999 no tiene garajes en el modelo; Spa y Shanghái vuelven a la calle procedural.
+
+## Procedencia y licencias (`provenance.json`)
+
+Se revisaron las páginas de Sketchfab de cada asset (API pública) y los nombres internos de los GLB.
+
+- Todo lo que usamos lo subió una sola cuenta (Tyler_Dave, que firma "Dave Love"/"Dave Bored").
+  - En su perfil dice que reutiliza modelos ajenos y etiqueta los circuitos como `Ripped`.
+  - Los materiales delatan mods de rFactor/Assetto Corsa, nombres de Codemasters y exportaciones de Roblox.
+- Resultado: `riskRipped: true` en 66 assets (55 coches y los 11 circuitos) y `null` en los 11 coches del pack de 2014. Las builds públicas
+  (`REACT_APP_PUBLIC_BUILD=true`) no muestran ningún modelo real, solo los procedurales.
+- **Para publicar con modelos reales hace falta sustituirlos por modelos de autoría propia o con licencia verificable.**
 
 ## Pendiente
 
-- Suzuka: el trazado en ocho cruza el puente y no es un ciclo simple del esqueleto 2D. Hay que separar por altura.
-- Mónaco: el túnel y el puente se superponen en la vista cenital y la línea ondula. No está aprobado.
-- Nürburgring GP: el trazado real ajusta a 28 m de media y ningún ciclo se acerca a la longitud real.
-- Calle de boxes: el motor la sigue colocando por su cuenta, desplazada 22 m hacia dentro, y en un GLB cae sobre
-  edificios. Hay que sacarla de la malla, que ya se detecta en Hungaroring y Shanghái.
-- Cámaras TV: las posiciones de borde de pista salen del trazado procedural y no siguen el relieve del GLB.
-- Numeración de curvas: la curvatura de una spline calibrada da más curvas que la numeración oficial (Shanghái
-  llega a 23). Una curva que cruza la meta se numera dos veces.
-- `riskRipped` está sin verificar (`null`) en todos los assets: las builds públicas los excluyen.
+- Calle de boxes en Silverstone, Spa y Shanghái (sin garajes detectables o con la calle fuera de la meta).
+- Sustituir los assets extraídos de juegos antes de cualquier publicación (SRS 7.3).
 - Mercedes 2010: al modelo del pack le falta la carrocería (`status: review`).

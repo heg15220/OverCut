@@ -123,6 +123,17 @@ const bucketYear = (year) => {
 const cache = new Map();
 
 /**
+ * Corner names on a calibrated circuit come from the sketch of the same layout, by number -
+ * but only when both count the same corners: otherwise a number would name the wrong corner.
+ */
+export const namedLike = (corners, sketch, year) => {
+  if (!sketch?.names || !Object.keys(sketch.names).length) return corners;
+  const sketched = buildCircuit(sketch, year).corners.length;
+  if (sketched !== corners.length) return corners;
+  return corners.map((corner) => ({ ...corner, name: sketch.names[corner.number] || corner.name || null }));
+};
+
+/**
  * The calibrated spline of a race, if the asset pipeline produced one for its
  * layout (RF-3D-03): matched by the pack's f1db layout id when the race has
  * one, otherwise by the sketch reference and the years that layout was used.
@@ -148,8 +159,8 @@ export const circuitFor = (race = {}, year = 2020, splines = undefined) => {
     const key = `spline:${spline.id}@${bucketYear(year)}`;
     if (!cache.has(key)) {
       const sketch = layoutFor(ref, year);
-      const built = buildCircuitFromPath({ id: `spline:${spline.id}`, km: spline.km, points: spline.points, drs: sketch?.drs }, bucketYear(year));
-      cache.set(key, { ref, splineId: spline.id, ...built });
+      const built = buildCircuitFromPath({ id: `spline:${spline.id}`, km: spline.km, points: spline.points, drs: sketch?.drs, pit: spline.pit }, bucketYear(year));
+      cache.set(key, { ref, splineId: spline.id, ...built, corners: namedLike(built.corners, sketch, bucketYear(year)) });
     }
     return cache.get(key);
   }

@@ -212,6 +212,7 @@ def build_circuit(item, force):
         log("spline", sid)
         geo = ["--geo", GEO, "--geo-id", item["geoId"]] if item.get("geoId") and GEO.exists() else []
         method = ["--method", item["method"]] if item.get("method") else []
+        method += ["--group", item["group"]] if item.get("group") else []
         blender("extract_spline.py", source, raw, "--km", item["km"], *geo, *method, logfile=work / f"{sid}.log")
     review = item.get("review", {})
     aligned = work / f"{sid}.json"
@@ -245,6 +246,12 @@ def build_circuit(item, force):
     if force or not newer(dst, prepared):
         log("comprime", sid)
         compress(prepared, dst, 2048, keep_nodes=False)
+    # Calle de boxes real, sacada de la malla (garajes y carril paralelo a la recta de meta).
+    pitlane = work / f"{sid}.pitlane.json"
+    if force or not newer(pitlane, prepared, aligned):
+        log("boxes", sid)
+        blender("extract_pitlane.py", prepared, aligned, pitlane, "--preview", CACHE / "preview" / f"{sid}.pit.png",
+                logfile=work / f"{sid}.pitlane.log")
     return sid
 
 
@@ -295,8 +302,46 @@ def copy_transcoder():
             shutil.copy2(source / name, target / name)
 
 
+def load_provenance():
+    """riskRipped verificado por asset (tools/assets/provenance.json, SRS 3.3 y 7.3). Sin fichero: null."""
+    path = HERE / "provenance.json"
+    cars, circuits = {}, {}
+    if path.exists():
+        for row in json.loads(path.read_text(encoding="utf-8")).get("assets", []):
+            info = {"riskRipped": row.get("riskRipped"), "provenanceConfidence": row.get("confidence"),
+                    "provenanceEvidence": (row.get("evidence") or [])[:3]}
+            if row.get("kind") == "car" and row.get("season") is not None:
+                cars[(int(row["season"]), row.get("teamRef"))] = info
+            elif row.get("kind") == "circuit":
+                circuits[row.get("splineId") or row.get("release")] = info
+    return cars, circuits
+
+
+def compact_pit(pitlane_path, step=6.0):
+    """Calle de boxes para el motor (engine/trackGeometry.js buildCircuitFromPath path.pit), o None."""
+    if not pitlane_path.exists():
+        return None
+    pit = json.loads(pitlane_path.read_text(encoding="utf-8"))
+    if not pit.get("found") or pit.get("lineShare") is None:
+        return None
+    pts = pit["points"]
+    stride = max(1, int(round(step / pit.get("stepM", 2.0))))
+    picked = pts[::stride]
+    if picked[-1] is not pts[-1]:
+        picked.append(pts[-1])
+    flat = []
+    for x, _, z in picked:
+        flat += [int(round(x * 10)), int(round(z * 10))]
+    return {
+        "points": flat, "entryShare": pit["entry"]["share"], "exitShare": pit["exit"]["share"],
+        "lineShare": pit["lineShare"], "boxFrom": pit["box"]["fromShare"], "boxTo": pit["box"]["toShare"],
+        "side": pit["side"], "confidence": pit["quality"]["confidence"], "source": pit.get("generator"),
+    }
+
+
 def stage_manifest():
     copy_transcoder()
+    car_risk, circuit_risk = load_provenance()
     chassis = chassis_names()
     curated = json.loads(CURATED.read_text(encoding="utf-8"))
     cars, circuits, engine = [], [], {}
@@ -320,8 +365,9 @@ def stage_manifest():
             "thumb": f"thumbs/{job['id']}.png" if (PUBLIC / "thumbs" / f"{job['id']}.png").exists() else None,
             "metrics": {k: info[k] for k in ("lengthM", "widthM", "heightM", "wheelbaseM", "trackFrontM", "trackRearM", "wheelRadiusM", "wheelHubs", "noseZ", "tailZ", "scaleApplied", "wheels") if k in info},
             **prov, "allowRecolor": allow and "ND" not in (prov["license"] or ""),
-            # Sin verificar: el autor publica con licencia abierta, pero el README del repo avisa de modelos extraídos de juegos.
+            # Sin verificación en provenance.json queda null y las builds públicas lo excluyen.
             "riskRipped": None,
+            **car_risk.get((job["season"], job["teamRef"]), {}),
         })
     for item in CONFIG["circuits"]:
         sid = item["splineId"]
@@ -354,7 +400,8 @@ def stage_manifest():
             "edgeReference": data.get("edgeReference"), "geoFit": data.get("geoFit"),
             "start": data.get("start"), "geoCheck": data.get("geoCheck"),
             **prov, "allowRecolor": False,
-            "riskRipped": item.get("riskRipped"),
+            "riskRipped": None,
+            **(circuit_risk.get(sid) or circuit_risk.get(item["release"]) or {}),
         })
         engine[sid] = {
             "circuitRef": item["circuitId"], "layoutRef": item["layoutRef"], "layoutId": item["layoutId"],
@@ -363,6 +410,9 @@ def stage_manifest():
             "startConfidence": (data.get("start") or {}).get("confidence"),
             "points": compact_spline(data),
         }
+        pit = compact_pit(CACHE / "splines" / f"{sid}.pitlane.json")
+        if pit:
+            engine[sid]["pit"] = pit
     digest = hashlib.sha256(json.dumps([cars, circuits], sort_keys=True).encode()).hexdigest()[:16]
     manifest = {
         "$comment": "GENERADO por tools/assets/build_assets.py: no editar a mano (SRS 4.3, RF-3D-01). Las rutas son relativas a /manager-assets/.",

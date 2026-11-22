@@ -19,13 +19,13 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
 import { buildTrack } from "./trackScene";
-import { buildRig, frame } from "./cameras";
+import { buildRig, fitRig, frame } from "./cameras";
 import { onRacingLine } from "./racingLine";
 import { poseAt } from "../engine/trackGeometry";
 import { createRenderer, environmentFor } from "./studio";
 import { carAssetFor, circuitAssetFor } from "./assets/manifest";
 import { createAssetCar } from "./assets/assetCar";
-import { loadCircuitAsset } from "./assets/assetCircuit";
+import { buildHeightField, loadCircuitAsset } from "./assets/assetCircuit";
 import { pruneOldCaches } from "./assets/loader";
 
 
@@ -122,6 +122,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     pruneOldCaches();
     const state = {
       heightAt: null,
+      field: null,
       renderer, scene, camera, sun, hemi, sky, rain, drops, seeds, overlay,
       track: null, carObjects: new Map(), tags: new Map(), crews: new Map(), safetyCar: null, rig: [], camState: {},
       cam: { pos: new THREE.Vector3(0, 50, 0), look: new THREE.Vector3(), heading: 0 }, last: performance.now(),
@@ -194,12 +195,19 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     const asset = circuit.splineId ? circuitAssetFor({ splineId: circuit.splineId }) : null;
     if (asset) {
       loadCircuitAsset(asset, state.renderer)
-        .then(({ scene, heightAt }) => {
-          if (disposed) return;
+        .then(({ scene, heightAt, spline }) => {
+          if (disposed) return null;
           assetScene = scene;
           state.scene.add(scene);
           track.group.visible = false;
           state.heightAt = heightAt;
+          // Once per circuit: what stands around the road, then the rig fitted to it (RF-3D-04).
+          return buildHeightField(scene, spline.points).then((field) => {
+            if (disposed || !field) return;
+            state.field = field;
+            state.rig = fitRig(buildRig(circuit), circuit, field, heightAt);
+            state.camState = {};
+          });
         })
         .catch(() => {});
     }
@@ -207,6 +215,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
       disposed = true;
       if (assetScene) state.scene.remove(assetScene);
       state.heightAt = null;
+      state.field = null;
       state.scene.remove(track.group);
       track.group.traverse((node) => {
         if (node.geometry) node.geometry.dispose();
@@ -350,7 +359,8 @@ function step(state, props, dt) {
       // Old cars on soft springs lean far more than modern ones.
       const soft = (spec?.era === "front" || spec?.era === "cigar" || spec?.era === "highwing") ? 2.6 : spec?.era === "wedge" ? 1.6 : 1;
       object.rotation.x = THREE.MathUtils.clamp(-entry.latAcc * 0.0028 * soft, -0.075, 0.075);
-      object.rotation.z = THREE.MathUtils.clamp(entry.lonAcc * 0.0016 * soft, -0.045, 0.03);
+      entry.pitch = THREE.MathUtils.clamp(entry.lonAcc * 0.0016 * soft, -0.045, 0.03);
+      object.rotation.z = entry.pitch;
       entry.spin += travelled;
       const curvature = speed > 1 ? yawRate / speed : 0;
       const steer = THREE.MathUtils.clamp(Math.atan(wheelbase * curvature) * 1.15, -0.5, 0.5);
@@ -363,10 +373,17 @@ function step(state, props, dt) {
       entry.turn = yawRate;
     } else if (!entry.last) entry.yaw = pose.heading;
     entry.last = { x, z };
-    const ground = state.heightAt && Number.isFinite(pose.progress) ? state.heightAt(pose.progress) : 0;
+    let ground = state.heightAt && Number.isFinite(pose.progress) ? state.heightAt(pose.progress) : 0;
+    // In the pit lane, off the racing line the heights were sampled on, the grid says where the road is.
+    if (pose.inPit && state.field) ground = state.field.floorNear(x, z, ground) ?? ground;
     object.position.set(x, ground, z);
     object.rotation.order = "YXZ";
     object.rotation.y = -entry.yaw;
+    // Up and down the hills of a real circuit the car pitches with the road.
+    if (state.heightAt && Number.isFinite(pose.progress) && !pose.inPit) {
+      const slope = (state.heightAt(pose.progress + 3 / length) - state.heightAt(pose.progress - 3 / length)) / 6;
+      object.rotation.z = (entry.pitch || 0) + Math.atan(slope);
+    }
     if (entry.compound !== car.compound) {
       object.userData.setCompound(car.compound);
       entry.compound = car.compound;
@@ -400,7 +417,8 @@ function step(state, props, dt) {
       state.scene.add(state.safetyCar);
     }
     state.safetyCar.visible = true;
-    state.safetyCar.position.set(sc.x, 0, sc.y);
+    const scShare = Number.isFinite(sc.progress) ? sc.progress : ordered[0] ? ordered[0].pose.progress + 90 / circuit.length : null;
+    state.safetyCar.position.set(sc.x, state.heightAt && scShare !== null ? state.heightAt(scShare) : 0, sc.y);
     state.safetyCar.rotation.y = -sc.heading;
   } else if (state.safetyCar) state.safetyCar.visible = false;
 
@@ -425,9 +443,9 @@ function step(state, props, dt) {
           const car = new THREE.Vector3(focus.x, 0, focus.z);
           return { pos: car.clone().add(dir.clone().multiplyScalar(9)).setY(2.4), look: car.clone().setY(0.6), fov: 45, snap: true };
         })()
-      : frame(mode, focus, circuit, state.rig, state.camState, dt);
-    // On a real circuit the road climbs and falls: the shot follows the car's height.
-    if (focus.y) {
+      : frame(mode, focus, circuit, state.rig, state.camState, dt, state.heightAt ? { heightAt: state.heightAt, field: state.field } : null);
+    // On a real circuit the road climbs and falls: a shot framed on the flat plane follows the car's height.
+    if (focus.y && !shot.abs) {
       shot.pos = shot.pos.clone();
       shot.look = shot.look.clone();
       shot.pos.y += focus.y;
@@ -437,8 +455,11 @@ function step(state, props, dt) {
       cam.pos.copy(shot.pos);
       cam.look.copy(shot.look);
     } else {
-      cam.pos.lerp(shot.pos, Math.min(1, dt * (shot.lag ?? 30)));
-      cam.look.lerp(shot.look, Math.min(1, dt * (shot.lookLag ?? 10)));
+      // The camera eases in race time: at 10x the cars cover ten times the road per frame, and a lens
+      // easing in wall-clock time would trail tens of metres behind its car (out of a long-lens TV shot).
+      const ease = Math.max(dt, Math.min(simDt, 0.5));
+      cam.pos.lerp(shot.pos, Math.min(1, ease * (shot.lag ?? 30)));
+      cam.look.lerp(shot.look, Math.min(1, ease * (shot.lookLag ?? 10)));
     }
     camera.fov += (shot.fov - camera.fov) * Math.min(1, shot.snap ? 1 : dt * 3);
     camera.near = mode === "visor" || mode === "tcam" || mode === "nose" || mode === "tcamRear" ? 0.05 : 0.3;
@@ -450,15 +471,16 @@ function step(state, props, dt) {
       camera.position.y += (Math.random() - 0.5) * shake;
     }
     camera.lookAt(cam.look);
-    state.sun.position.set(focus.x + 60, 120, focus.z + 40);
-    state.sun.target.position.set(focus.x, 0, focus.z);
+    const base = focus.y || 0;
+    state.sun.position.set(focus.x + 60, base + 120, focus.z + 40);
+    state.sun.target.position.set(focus.x, base, focus.z);
     if (state.rain.visible) {
       const positions = state.drops;
       state.seeds.forEach((seed, i) => {
         seed[1] -= dt * 28;
         if (seed[1] < 0) seed[1] += 40;
         const px = cam.pos.x + seed[0];
-        const py = seed[1];
+        const py = base + seed[1];
         const pz = cam.pos.z + seed[2];
         positions.set([px, py, pz, px + 0.15, py + 0.9, pz], i * 6);
       });
@@ -475,7 +497,8 @@ function step(state, props, dt) {
     const tag = state.tags.get(item.car.id);
     const entry = state.carObjects.get(item.car.id);
     if (!tag || !entry) return;
-    v.copy(entry.object.position).setY(1.6);
+    v.copy(entry.object.position);
+    v.y += 1.6;
     const distance = v.distanceTo(camera.position);
     v.project(camera);
     const visible = !item.pose.gone && v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1 && distance < (mode === "heli" ? 500 : 260) && !(onboard && item.car.id === focusId);

@@ -46,7 +46,8 @@ export const carAt = (car, tau, circuit, lapRef = 90) => {
   // Each team has its own box along the pit lane; sessions start and end in it.
   const pitBox = car.boxSlot !== undefined ? circuit.pit.lineAt * (0.22 + 0.7 * car.boxSlot) : circuit.pit.boxAt;
   // In the garage: off the pit lane, nose out towards it.
-  const inside = circuit.clockwise ? 1 : -1;
+  // Garages on the side the pit lane really runs (from the mesh on calibrated circuits), else inside the loop.
+  const inside = circuit.pit?.side ?? (circuit.clockwise ? 1 : -1);
   const inGarage = () => {
     const pose = lateral(pitPoseAt(circuit, pitBox), inside * 11.5);
     return { ...pose, heading: pose.heading - inside * (Math.PI / 2), progress: 0, laps: 0, inPit: true, stopped: true, stopLeft: 0, garage: true };

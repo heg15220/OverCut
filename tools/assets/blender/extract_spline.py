@@ -2,6 +2,23 @@
 
 Uso:
   blender -b --python extract_spline.py -- <circuito.glb> <salida.json> --km <longitud real> [--res 1.0]
+      [--geo <f1-circuits.geojson> --geo-id <id>] [--method auto|cycle|cycle-geo|cycle-geo-2pass]
+      [--group object|material] [--road <malla,...>] [--geo-scale] [--guide-reach <m>]
+
+  --method auto (por defecto): con trazado real, se ajusta y se ciñe al esqueleto; si no, ciclos.
+           cycle: ciclos del grafo, el de longitud más cercana a la real.
+           cycle-geo: ciclos del grafo, pero solo con las aristas que siguen al trazado real ajustado
+             (a menos de --guide-reach m, 30 por defecto) y elegidos por forma.
+           cycle-geo-2pass: como cycle-geo, pero la guía se ajusta sobre el ciclo más parecido por forma
+             (redes de calles como Mónaco, donde el ajuste directo cae en un mínimo local).
+  --group material: une por material las caras de todas las mallas (modelos troceados en teselas; el material
+           del asfalto recorre toda la vuelta). Activa además: ancho <= 1,6 x mediana para medir y desplazamiento
+           interpolado a través de huecos cortos sin medir.
+  --road: fija a mano la malla (o material) del asfalto.
+
+Cruces a distinto nivel (puentes, túnel): si bajo un nodo del grafo hay asfalto en dos capas separadas más de
+4 m, el cruce se parte en dos pasos rectos; los rayos de bordes y alturas se ciñen a la capa de la línea. Las
+cintas más de 3,5 m por encima del asfalto principal (tejados de boxes, gradas) se descartan.
 
 Los GLB de f1-3d-assets no nombran sus materiales (`BUILDF_12`, `Material_41.001_7`), así que el asfalto se
 encuentra por su forma:
@@ -46,7 +63,7 @@ WIDTH_RANGE = (6.0, 30.0)
 def parse():
     args = script_args()
     source, target = args[0], args[1]
-    options = {"km": None, "res": 1.0, "min_share": 0.6, "geo": None, "geo_id": None, "method": "auto"}
+    options = {"km": None, "res": 1.0, "min_share": 0.6, "geo": None, "geo_id": None, "method": "auto", "group": "object", "geo_scale": False, "road": None, "guide_reach": 30.0}
     i = 2
     while i < len(args):
         if args[i] == "--km":
@@ -57,6 +74,17 @@ def parse():
             options["geo_id"] = args[i + 1]; i += 2
         elif args[i] == "--method":
             options["method"] = args[i + 1]; i += 2
+        elif args[i] == "--group":
+            # object (por defecto): cada malla es una pieza; material: se unen por material todas las mallas
+            # (modelos troceados en teselas, donde ninguna malla sola tiene la vuelta entera).
+            options["group"] = args[i + 1]; i += 2
+        elif args[i] == "--road":
+            options["road"] = args[i + 1].split(","); i += 2
+        elif args[i] == "--guide-reach":
+            # cycle-geo: distancia (m) a la guía para que una arista cuente; 0 = sin guía, solo forma.
+            options["guide_reach"] = float(args[i + 1]); i += 2
+        elif args[i] == "--geo-scale":
+            options["geo_scale"] = True; i += 1
         elif args[i] == "--res":
             options["res"] = float(args[i + 1]); i += 2
         else:
@@ -68,8 +96,49 @@ def parse():
 
 # --------------------------------------------------------------- rasterising
 
+class MaterialPart:
+    """Todas las caras de un material, de todas las mallas (`--group material`). Hace de objeto para el resto
+    del script: nombre, triángulos de mundo y caja."""
+
+    def __init__(self, name, tri):
+        self.name = name
+        self.tri = tri
+        self.zmax = float(tri[:, :, 2].max())
+
+
+def material_parts(meshes):
+    groups = {}
+    for ob in meshes:
+        mesh = ob.data
+        mesh.calc_loop_triangles()
+        count = len(mesh.loop_triangles)
+        if not count:
+            continue
+        verts = np.empty(len(mesh.vertices) * 3, dtype=np.float64)
+        mesh.vertices.foreach_get("co", verts)
+        verts = verts.reshape(-1, 3)
+        m = np.array(ob.matrix_world)
+        verts = verts @ m[:3, :3].T + m[:3, 3]
+        idx = np.empty(count * 3, dtype=np.int64)
+        mesh.loop_triangles.foreach_get("vertices", idx)
+        mat = np.empty(count, dtype=np.int64)
+        mesh.loop_triangles.foreach_get("material_index", mat)
+        tri = verts[idx.reshape(-1, 3)]
+        slots = [s.material.name if s.material else "-" for s in ob.material_slots] or ["-"]
+        for k in np.unique(mat):
+            groups.setdefault(slots[min(int(k), len(slots) - 1)], []).append(tri[mat == k])
+    return [MaterialPart(name, np.concatenate(chunks)) for name, chunks in groups.items()]
+
+
+def top_of(objects):
+    return max(ob.zmax if isinstance(ob, MaterialPart) else max((ob.matrix_world @ Vector(c)).z for c in ob.bound_box) for ob in objects)
+
+
 def triangles_of(ob):
     """Triángulos en coordenadas de mundo (n, 3, 3) y sus normales."""
+    if isinstance(ob, MaterialPart):
+        tri = ob.tri
+        return tri, np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
     mesh = ob.data
     mesh.calc_loop_triangles()
     count = len(mesh.loop_triangles)
@@ -107,6 +176,56 @@ def components(tri):
         if np.array_equal(new, label):
             return label[vid[:, 0]]
         label = new
+
+
+ELEVATED = 3.5  # m: una cinta cuya mediana está más alta que esto sobre el asfalto es un tejado o una grada
+
+
+def height_grid(tri, area, cell=8.0, fill=3):
+    """Altura media de unas caras por celda de `cell` m, extendida `fill` celdas a las vacías vecinas."""
+    pts = sample_points_z(tri, area, cell, np.random.default_rng(5))
+    origin = pts[:, :2].min(axis=0) - (fill + 2) * cell
+    ij = np.floor((pts[:, :2] - origin) / cell).astype(np.int64)
+    shape = tuple(ij.max(axis=0) + fill + 3)
+    total = np.zeros(shape)
+    count = np.zeros(shape)
+    np.add.at(total, (ij[:, 0], ij[:, 1]), pts[:, 2])
+    np.add.at(count, (ij[:, 0], ij[:, 1]), 1)
+    for _ in range(fill):
+        empty = count == 0
+        t2, c2 = total.copy(), count.copy()
+        for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            t2 += np.where(empty, shift(total, di, dj), 0)
+            c2 += np.where(empty, shift(count, di, dj), 0)
+        total, count = t2, c2
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return total / count, origin, cell
+
+
+def elevation_over(tri, area, grid):
+    """Mediana de la altura de unas caras sobre la rejilla `grid` (NaN si no se solapan)."""
+    z, origin, cell = grid
+    pts = sample_points_z(tri, area, cell, np.random.default_rng(6))
+    ij = np.floor((pts[:, :2] - origin) / cell).astype(np.int64)
+    ok = (ij[:, 0] >= 0) & (ij[:, 1] >= 0) & (ij[:, 0] < z.shape[0]) & (ij[:, 1] < z.shape[1])
+    d = pts[ok, 2] - z[ij[ok, 0], ij[ok, 1]]
+    d = d[~np.isnan(d)]
+    return float(np.median(d)) if len(d) else float("nan")
+
+
+def sample_points_z(tri, area, step, rng, cap=4_000_000):
+    """Puntos (x, y, z) sobre los triángulos, unos dos por celda de `step` m, más los vértices."""
+    per = np.maximum(1, np.ceil(area / (step * step * 0.5))).astype(np.int64)
+    if per.sum() > cap:
+        per = np.maximum(1, (per * cap / per.sum()).astype(np.int64))
+    which = np.repeat(np.arange(len(tri)), per)
+    u = rng.random(len(which))
+    v = rng.random(len(which))
+    flip = u + v > 1
+    u[flip] = 1 - u[flip]
+    v[flip] = 1 - v[flip]
+    a, b, c = tri[which, 0], tri[which, 1], tri[which, 2]
+    return np.concatenate([a + (b - a) * u[:, None] + (c - a) * v[:, None], tri.reshape(-1, 3)])
 
 
 def ribbon_parts(tri, area, res, rng, max_half_width):
@@ -209,6 +328,25 @@ def thin(a, max_iter=None):
                 changed = True
         if not changed:
             return img
+
+
+def largest_component(skel):
+    """Píxeles de la mayor pieza conexa (vecindad 8) de un esqueleto."""
+    from collections import deque
+    pix = set(map(tuple, np.argwhere(skel)))
+    best = 0
+    while pix:
+        queue, size = deque([pix.pop()]), 0
+        while queue:
+            i, j = queue.popleft()
+            size += 1
+            for di, dj in NEIGH:
+                q = (i + di, j + dj)
+                if q in pix:
+                    pix.discard(q)
+                    queue.append(q)
+        best = max(best, size)
+    return best
 
 
 def fill_holes(mask, max_area):
@@ -422,6 +560,72 @@ def simple_cycles(edges, limit=300000):
     return cycles
 
 
+def split_bridges(nodes, edges, res, lo, bvh, top, reach=40.0, gap=4.0):
+    """Cruces a distinto nivel (puente de Suzuka): en planta las dos calzadas se funden en un cruce del grafo
+    y la vuelta, que pasa dos veces por él, no es un ciclo simple. Si bajo un nodo hay asfalto en dos capas
+    separadas más de `gap` m, el grupo de nodos del cruce (unidos por aristas de menos de `reach` m) se parte
+    en dos nodos de paso, emparejando las cuatro aristas que salen por continuidad de rumbo. Un cruce a nivel
+    (sin dos capas) no se toca. Devuelve (aristas, número de puentes partidos)."""
+    used = sorted({e["a"] for e in edges} | {e["b"] for e in edges})
+    centre = {n: lo + (np.mean(np.asarray(nodes[n], dtype=np.float64), axis=0) + 0.5) * res for n in used}
+
+    def layered(n):
+        x, y = centre[n]
+        return any(len(h) > 1 and h[0] - h[-1] > gap for h in
+                   (all_hits(bvh, x + dx, y + dy, top) for dx, dy in ((0, 0), (4, 0), (-4, 0), (0, 4), (0, -4))))
+
+    bridges = [n for n in used if layered(n)]
+    done, count = set(), 0
+    next_id = len(nodes)
+    for seed in bridges:
+        if seed in done:
+            continue
+        cluster, stack = {seed}, [seed]
+        while stack:
+            n = stack.pop()
+            for e in edges:
+                if n in (e["a"], e["b"]) and path_length(e["path"], res) < reach:
+                    other = e["b"] if e["a"] == n else e["a"]
+                    if other not in cluster:
+                        cluster.add(other)
+                        stack.append(other)
+        done |= cluster
+        external = [k for k, e in enumerate(edges) if (e["a"] in cluster) != (e["b"] in cluster)]
+        internal = [k for k, e in enumerate(edges) if e["a"] in cluster and e["b"] in cluster]
+        if len(external) != 4:
+            log(f"cruce a dos niveles con {len(external)} salidas: no se parte")
+            continue
+        mid = np.mean([centre[n] for n in cluster], axis=0)
+        heads = []
+        for k in external:
+            e = edges[k]
+            path = e["path"] if e["a"] in cluster else list(reversed(e["path"]))
+            pts = lo + (np.asarray(path, dtype=np.float64) + 0.5) * res
+            far = np.flatnonzero(np.linalg.norm(pts - mid, axis=1) >= 30.0)
+            tip = pts[far[0]] if len(far) else pts[-1]
+            d = tip - mid
+            heads.append(d / max(np.linalg.norm(d), 1e-9))
+        pairings = [((0, 1), (2, 3)), ((0, 2), (1, 3)), ((0, 3), (1, 2))]
+        score = [sum(-float(heads[a] @ heads[b]) for a, b in pr) for pr in pairings]
+        best = int(np.argmax(score))
+        if score[best] < 1.5:
+            log(f"cruce a dos niveles sin pasos rectos claros (rectitud {score[best]:.2f}): no se parte")
+            continue
+        edges = [dict(e) for e in edges]
+        for a, b in pairings[best]:
+            for k in (external[a], external[b]):
+                e = edges[k]
+                if e["a"] in cluster:
+                    e["a"] = next_id
+                else:
+                    e["b"] = next_id
+            next_id += 1
+        edges = [e for k, e in enumerate(edges) if k not in internal]
+        count += 1
+        log(f"puente partido en dos pasos ({len(cluster)} nodos, rectitud {score[best]:.2f})")
+    return edges, count
+
+
 def cycle_polyline(edges, cycle):
     """Une las aristas de un ciclo en una polilínea cerrada de píxeles."""
     pieces = [list(edges[k]["path"]) for k in cycle]
@@ -575,18 +779,22 @@ def nearest(points, cloud, chunk=2000):
     return idx, dist
 
 
-def kabsch(src, dst):
-    """Giro y traslación que llevan src sobre dst (2D, sin escala)."""
+def kabsch(src, dst, scaled=False):
+    """Giro y traslación que llevan src sobre dst (2D; con `scaled`, también escala uniforme: Umeyama)."""
     cs, cd = src.mean(axis=0), dst.mean(axis=0)
     h = (src - cs).T @ (dst - cd)
     angle = math.atan2(h[0, 1] - h[1, 0], h[0, 0] + h[1, 1])
     rot = np.array([[math.cos(angle), -math.sin(angle)], [math.sin(angle), math.cos(angle)]])
+    if scaled:
+        k = float(np.clip(np.sum((dst - cd) * ((src - cs) @ rot.T)) / max(np.sum((src - cs) ** 2), 1e-9), 0.97, 1.03))
+        rot = rot * k
     return rot, cd - cs @ rot.T
 
 
-def fit_geo(geo, skeleton_pts):
+def fit_geo(geo, skeleton_pts, scaled=False):
     """ICP rígido del trazado real sobre el esqueleto del asfalto, probando giros cada 5 grados y la
-    reflexión. Devuelve (trazado colocado, distancia media, reflejado)."""
+    reflexión. Devuelve (trazado colocado, distancia media, reflejado). Con `scaled` (`--geo-scale`) el ICP
+    también ajusta la escala: para modelos que no están a escala real."""
     g = resample_n(geo, 400)
     cloud = skeleton_pts[:: max(1, len(skeleton_pts) // 25000)]
     centre = cloud.mean(axis=0)
@@ -607,7 +815,7 @@ def fit_geo(geo, skeleton_pts):
             for _ in range(40):
                 k, d = nearest(current, cloud)
                 keep = d < np.percentile(d, 90)
-                rot, shift = kabsch(current[keep], cloud[k[keep]])
+                rot, shift = kabsch(current[keep], cloud[k[keep]], scaled)
                 moved = current @ rot.T + shift
                 if np.abs(moved - current).max() < 0.05:
                     current = moved
@@ -656,6 +864,11 @@ def resample_closed(points, step):
 def make_bvh(objects):
     verts, polys = [], []
     for ob in objects:
+        if isinstance(ob, MaterialPart):
+            base = len(verts)
+            verts.extend(Vector(v) for v in ob.tri.reshape(-1, 3).tolist())
+            polys.extend([base + 3 * k, base + 3 * k + 1, base + 3 * k + 2] for k in range(len(ob.tri)))
+            continue
         m = ob.matrix_world
         base = len(verts)
         verts.extend(m @ v.co for v in ob.data.vertices)
@@ -663,9 +876,114 @@ def make_bvh(objects):
     return BVHTree.FromPolygons(verts, polys, all_triangles=False)
 
 
+LEVEL_BAND = 3.0  # m: en un circuito con puentes, el asfalto "propio" está a menos de esto de la altura de la línea
+
+
 def road_at(bvh, x, y, top):
+    """Primer impacto vertical. Si `top` es (techo, z), solo vale asfalto a ±LEVEL_BAND de z: bajo un puente
+    se ignora el tablero y sobre él la calzada de abajo."""
+    if isinstance(top, tuple):
+        ceiling, level = top
+        start = ceiling
+        while True:
+            hit = bvh.ray_cast(Vector((x, y, start)), Vector((0, 0, -1)), 1e5)[0]
+            if hit is None or hit.z < level - LEVEL_BAND:
+                return None
+            if hit.z <= level + LEVEL_BAND:
+                return hit
+            start = hit.z - 0.01
     hit = bvh.ray_cast(Vector((x, y, top)), Vector((0, 0, -1)), 1e5)
     return hit[0]
+
+
+def all_hits(bvh, x, y, top, limit=12):
+    """Alturas de todos los impactos verticales, de arriba abajo (sin repetir capas a menos de 0,5 m)."""
+    out, start = [], top
+    for _ in range(limit):
+        hit = bvh.ray_cast(Vector((x, y, start)), Vector((0, 0, -1)), 1e5)[0]
+        if hit is None:
+            break
+        if not out or out[-1] - hit.z > 0.5:
+            out.append(hit.z)
+        start = hit.z - 0.01
+    return out
+
+
+def circular_median(values, half):
+    """Mediana móvil circular (±half muestras), ignorando NaN."""
+    n = len(values)
+    padded = np.concatenate([values[-half:], values, values[:half]])
+    windows = np.lib.stride_tricks.sliding_window_view(padded, 2 * half + 1)
+    with np.errstate(all="ignore"):
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            return np.nanmedian(windows, axis=1)[:n]
+
+
+def road_heights(bvh, line, top, jump=1.5):
+    """Altura de la calzada bajo cada punto (RF-3D-03). El primer impacto desde arriba puede ser un pórtico,
+    un puente o la calzada de arriba en un túnel: se toman todos los impactos contra el asfalto y se sigue la
+    superficie a lo largo de la vuelta, eligiendo en cada punto el impacto más cercano a la altura prevista por
+    los anteriores (altura + pendiente). Se empieza en un punto con una sola capa. Al final, los picos de menos
+    de 4 muestras que se separan más de `jump` m de la mediana de 9 se sustituyen por ella."""
+    hits = [all_hits(bvh, x, y, top) for x, y in line]
+    n = len(hits)
+    if not any(hits):
+        raise SystemExit("ningún rayo vertical toca el asfalto bajo la línea")
+    single = [k for k, h in enumerate(hits) if h and h[0] - h[-1] <= 1.0]
+    seed = single[0] if single else next(k for k, h in enumerate(hits) if h)
+    z = np.full(n, np.nan)
+    prev = hits[seed][-1] if not single else hits[seed][0]
+    slope = 0.0
+    missed = 0
+    for step in range(n):
+        k = (seed + step) % n
+        h = hits[k]
+        if h:
+            pred = prev + slope * (missed + 1)
+            value = min(h, key=lambda v: abs(v - pred))
+            # Solo otra capa (hueco en la calzada propia, p. ej. bajo un puente de otro material): se
+            # interpola, salvo que dure más de 60 m (entonces la previsión es la que está mal).
+            if abs(value - pred) > LEVEL_BAND and missed < 30:
+                missed += 1
+                continue
+            if step:
+                slope = float(np.clip(0.8 * slope + 0.2 * (value - prev) / (missed + 1), -0.5, 0.5))
+            prev = value
+            missed = 0
+            z[k] = value
+    idx = np.arange(n)
+    ok = ~np.isnan(z)
+    z = np.interp(idx, idx[ok], z[ok], period=n)
+    smooth = circular_median(z, 4)
+    return np.where(np.abs(z - smooth) > jump, smooth, z)
+
+
+def level_heights(bvh, line, top, gap=4.0):
+    """Altura del asfalto bajo cada punto, eligiendo en los cruces a distinto nivel la capa continua con los
+    vecinos (no la más alta). Devuelve (alturas, hay_varios_niveles)."""
+    hits = [all_hits(bvh, x, y, top) for x, y in line]
+    n = len(hits)
+    z = np.full(n, np.nan)
+    ambiguous = np.zeros(n, dtype=bool)
+    for k, h in enumerate(hits):
+        if not h:
+            continue
+        if h[0] - h[-1] > gap:
+            ambiguous[k] = True
+        else:
+            z[k] = h[0]
+    if not ambiguous.any():
+        return z, False
+    idx = np.arange(n)
+    good = ~np.isnan(z)
+    if good.sum() < 2:
+        return np.array([h[0] if h else np.nan for h in hits]), True
+    guess = np.interp(idx, idx[good], z[good], period=n)
+    for k in np.flatnonzero(ambiguous):
+        z[k] = min(hits[k], key=lambda v: abs(v - guess[k]))
+    return z, True
 
 
 def edge_distance(bvh, p, direction, top, limit=40.0):
@@ -693,6 +1011,34 @@ def edge_distance(bvh, p, direction, top, limit=40.0):
         else:
             lo = mid
     return (lo + hi) / 2
+
+
+def bridge_gaps(offset, valid, longest=40):
+    """Dentro de un tramo sin medir de hasta `longest` muestras, el desplazamiento se interpola entre los dos
+    extremos medidos (en vez de 0): una línea que entra desviada en un cruce o en la entrada de boxes sale
+    corregida por el otro lado. Solo con `--group material`."""
+    n = len(offset)
+    if valid.all() or not valid.any():
+        return offset
+    out = offset.copy()
+    start = int(np.flatnonzero(valid)[0])
+    k = 0
+    while k < n:
+        i = (start + k) % n
+        if valid[i]:
+            k += 1
+            continue
+        j = k
+        while j < n and not valid[(start + j) % n]:
+            j += 1
+        gap = j - k
+        if gap <= longest:
+            a = offset[(start + k - 1) % n]
+            b = offset[(start + j) % n]
+            for m in range(gap):
+                out[(start + k + m) % n] = a + (b - a) * (m + 1) / (gap + 1)
+        k = j
+    return out
 
 
 def local_median(values, half=50):
@@ -726,8 +1072,9 @@ def measure_lines(bvh, line, top):
     left = np.full(n, np.nan)
     right = np.full(n, np.nan)
     for k in range(n):
-        dl = line_distance(bvh, line[k], normal[k], top)
-        dr = line_distance(bvh, line[k], -normal[k], top)
+        at = (top[0], float(top[1][k])) if isinstance(top, tuple) else top
+        dl = line_distance(bvh, line[k], normal[k], at)
+        dr = line_distance(bvh, line[k], -normal[k], at)
         if dl is not None and dr is not None:
             left[k], right[k] = dl, dr
     return normal, left, right
@@ -741,8 +1088,9 @@ def measure(bvh, line, top):
     left = np.full(n, np.nan)
     right = np.full(n, np.nan)
     for k in range(n):
-        dl = edge_distance(bvh, line[k], normal[k], top)
-        dr = edge_distance(bvh, line[k], -normal[k], top)
+        at = (top[0], float(top[1][k])) if isinstance(top, tuple) else top
+        dl = edge_distance(bvh, line[k], normal[k], at)
+        dr = edge_distance(bvh, line[k], -normal[k], at)
         if dl is not None and dr is not None:
             left[k], right[k] = dl, dr
     return normal, left, right
@@ -759,6 +1107,9 @@ def main():
     geo = None if options["method"] == "cycle" else load_geo(options["geo"], options["geo_id"])
     meshes = import_glb(source)
     log("mallas", len(meshes))
+    if options["group"] == "material":
+        meshes = material_parts(meshes)
+        log("piezas por material", len(meshes))
 
     candidates = []
     for ob in meshes:
@@ -803,6 +1154,18 @@ def main():
         if cells * res * res > 3 * target_m * WIDTH_RANGE[1]:
             continue
         skel = thin(crop, max_iter=int(WIDTH_RANGE[1] / res / 2) + 2)
+        if skel is None and options["group"] == "material":
+            # Un material reúne pista, calle de boxes y explanadas pegadas: se recortan las zonas donde cabe
+            # un disco más ancho que una pista (apertura morfológica) y se queda la cinta.
+            r = int(WIDTH_RANGE[1] / res / 2)
+            wide = dilate(erode(crop, r), r + 2)
+            trimmed = crop & ~wide
+            skel = thin(trimmed, max_iter=r + 2)
+            if skel is not None:
+                # El ancho y la longitud se miden sin las explanadas; el grafo y los bordes usan la malla entera
+                # (recortar partiría la recta de boxes, que va pegada a la calle de boxes).
+                log(f"  {ob.name}: sin contar {int((crop & wide).sum() * res * res)} m2 de explanadas")
+                cells = int(trimmed.sum())
         if skel is None:
             log(f"  {ob.name}: demasiado ancha para ser pista")
             continue
@@ -813,7 +1176,14 @@ def main():
         if 0.4 <= width <= 2.5 and skel_len >= 1.3 * target_m:
             painted.append(ob)
         if WIDTH_RANGE[0] <= width <= WIDTH_RANGE[1]:
-            scored.append({"ob": ob, "crop": crop, "at": (r0, c0), "length": skel_len, "width": width})
+            item = {"ob": ob, "crop": crop, "at": (r0, c0), "length": skel_len, "width": width, "tri": flat, "area": area}
+            if options["group"] == "material":
+                # Un material suelto (arcenes, aceras, bordillos) suma mucho esqueleto en trozos: para elegir el
+                # asfalto cuenta solo la pieza conexa más larga.
+                # (sobre el esqueleto sin recortar: recortar las explanadas puede partir la cinta en dos).
+                item["length"] = largest_component(thin(fill_holes(erode(dilate(crop, 2), 2), int(600 / (res * res))))) * res
+                log(f"    pieza conexa más larga {item['length']:.0f} m")
+            scored.append(item)
 
     def place(item):
         full = np.zeros(shape, dtype=bool)
@@ -823,13 +1193,55 @@ def main():
         return full
 
     primary = max((s for s in scored if s["length"] >= options["min_share"] * target_m), key=lambda s: s["length"], default=None)
+    if options["road"]:
+        # Revisión manual (`--road`): el asfalto lo dice la configuración, no la forma (escapatorias de asfalto
+        # más largas que la pista, como en Nürburgring).
+        named = [s for s in scored if s["ob"].name in options["road"]]
+        if not named:
+            raise SystemExit(f"--road {options['road']}: ninguna malla con forma de cinta se llama así")
+        primary = named[0]
+        scored = named + [s for s in scored if s not in named]
+        log("asfalto fijado por --road:", [s["ob"].name for s in named])
     if primary is None:
         raise SystemExit("no hay malla con forma de asfalto (ancho 6-30 m, longitud >= 0,6 x vuelta)")
+    # Tejados de boxes, gradas y pasarelas también son cintas horizontales de 6-30 m: si su mediana queda más
+    # de ELEVATED m por encima del asfalto principal cercano, no entran ni en la máscara ni en la nube del
+    # ajuste al trazado real (la spline se iba al tejado de boxes en Spa y Bahrain).
+    prim_grid = height_grid(primary["tri"], primary["area"])
+    kept = []
+    for item in scored:
+        if item is not primary:
+            up = elevation_over(item["tri"], item["area"], prim_grid)
+            if up > ELEVATED:
+                log(f"  {item['ob'].name}: {up:.1f} m por encima del asfalto (tejado o grada): descartada")
+                continue
+        kept.append(item)
+    scored = kept
+    bvh_cache = []
+
+    def primary_bvh():
+        if not bvh_cache:
+            bvh_cache.append(make_bvh([primary["ob"]]))
+        return bvh_cache[0]
+
+    primary_top = top_of([primary["ob"]]) + 50
+
     def best_cycle(mask):
         mask = fill_holes(erode(dilate(mask, 2), 2), int(600 / (res * res)))
         skel = thin(mask)
         nodes, edges = build_graph(skel)
-        edges = contract(prune(edges), res)
+        edges = prune(edges)
+        if guide is not None:
+            def follows(e):
+                pts = lo + (np.asarray(e["path"][::3], dtype=np.float64) + 0.5) * res
+                return float(np.mean(nearest(pts, guide)[1] < options["guide_reach"])) >= 0.7
+            kept = [e for e in edges if follows(e)]
+            log(f"guía del trazado real: {len(kept)} de {len(edges)} aristas lo siguen")
+            edges = prune(kept)
+        edges = contract(edges, res)
+        edges, bridges = split_bridges(nodes, edges, res, lo, primary_bvh(), primary_top)
+        if bridges:
+            edges = contract(prune(edges), res)
         log("esqueleto", int(skel.sum()), "px;", len(nodes), "nodos;", len(edges), "aristas tras podar")
         if len(edges) > 120:
             return None
@@ -857,8 +1269,39 @@ def main():
         log(f"ciclos {len(rows)}; mejor {rows[0][1]:.0f} m (real {target_m:.0f} m)")
         return rows[0][0], rows[0][1], rows[0][2], edges, None
 
+    # method=cycle-geo: el trazado real solo guía la elección del ciclo (redes de calles como Mónaco, donde
+    # muchos ciclos miden lo mismo): se ajusta sobre el esqueleto y solo cuentan las aristas que lo siguen.
+    guide = None
+    if options["method"] == "cycle-geo" and geo is not None and options["guide_reach"] > 0:
+        if options["group"] == "material":
+            base = place(primary)
+        else:
+            base = np.zeros(shape, dtype=bool)
+            for item in scored:
+                base |= place(item)
+        base = fill_holes(erode(dilate(base, 2), 2), int(600 / (res * res)))
+        cloud = lo + (np.argwhere(thin(base)).astype(np.float64) + 0.5) * res
+        guide, mean_d, reflected = fit_geo(geo, cloud, options["geo_scale"])
+        guide, _ = resample_closed(guide, 4.0)
+        log(f"trazado real como guía: distancia media {mean_d:.1f} m{' (modelo reflejado)' if reflected else ''}")
+        if os.environ.get("OVERCUT_DEBUG_GUIDE"):
+            write_json(os.environ["OVERCUT_DEBUG_GUIDE"], {"points": [[float(x), 0.0, -float(y)] for x, y in guide]})
+
+    if options["method"] == "cycle-geo-2pass" and geo is not None:
+        # Dos pasadas (Mónaco): en una red de calles el ICP del trazado real sobre todo el esqueleto cae en un
+        # mínimo local. Primero se elige por forma el ciclo más parecido al trazado real; luego el trazado real se
+        # ajusta solo sobre ese ciclo (sin ambigüedad) y hace de guía para repetir la búsqueda.
+        first = best_cycle(place(primary))
+        if first:
+            poly = lo + (np.array(cycle_polyline(first[3], first[2]), dtype=np.float64) + 0.5) * res
+            guide, mean_d, reflected = fit_geo(geo, poly[::2], options["geo_scale"])
+            guide, _ = resample_closed(guide, 4.0)
+            log(f"guía ajustada sobre el ciclo de la primera pasada: distancia media {mean_d:.1f} m")
+            if os.environ.get("OVERCUT_DEBUG_GUIDE"):
+                write_json(os.environ["OVERCUT_DEBUG_GUIDE"], {"points": [[float(x), 0.0, -float(y)] for x, y in guide]})
+
     geo_fit = None
-    if geo is not None and scored:
+    if geo is not None and scored and options["method"] == "auto":
         # Con trazado real: se ajusta sobre el esqueleto de todo el asfalto con forma de cinta y se ciñe a él.
         union = np.zeros(shape, dtype=bool)
         for item in scored:
@@ -866,10 +1309,19 @@ def main():
         union = fill_holes(erode(dilate(union, 2), 2), int(600 / (res * res)))
         skel_all = thin(union)
         cloud = lo + (np.argwhere(skel_all).astype(np.float64) + 0.5) * res
-        placed, mean_d, reflected = fit_geo(geo, cloud)
-        log(f"trazado real ajustado: distancia media {mean_d:.1f} m{' (modelo reflejado)' if reflected else ''}")
+        placed, mean_d, reflected = fit_geo(geo, cloud, options["geo_scale"])
+        geo_scale = float(np.linalg.norm(np.diff(np.vstack([placed, placed[:1]]), axis=0), axis=1).sum()
+                          / np.linalg.norm(np.diff(np.vstack([resample_n(geo, 400), resample_n(geo, 400)[:1]]), axis=0), axis=1).sum())
+        log(f"trazado real ajustado: distancia media {mean_d:.1f} m{' (modelo reflejado)' if reflected else ''}"
+            f"{f', escala {geo_scale:.3f}' if options['geo_scale'] else ''}")
+        if options["group"] == "material" and primary is not None:
+            # Por material, las cintas vecinas son pianos, escapatorias y arcenes: se ciñe solo al asfalto.
+            own = fill_holes(erode(dilate(place(primary), 2), 2), int(600 / (res * res)))
+            cloud = lo + (np.argwhere(thin(own)).astype(np.float64) + 0.5) * res
         if mean_d <= 25:
             geo_fit = {"meanM": round(mean_d, 1), "reflected": bool(reflected)}
+            if options["geo_scale"]:
+                geo_fit["scale"] = round(geo_scale, 4)
             line, _ = resample_closed(placed, 2.0)
             # El trazado real es fiable en la forma y el esqueleto en la posición fina: se ciñe poco a poco
             # y con suavizado fuerte (50 m), para no seguir las escapatorias de asfalto.
@@ -879,7 +1331,19 @@ def main():
                 line, _ = resample_closed(line, 2.0)
             log(f"ceñido al asfalto en el {share * 100:.0f} % de la vuelta")
             # Los bordes se miden contra la malla principal del asfalto, no contra todas las cintas.
-            chosen = [primary] if primary is not None else scored
+            if options["road"]:
+                chosen = [s for s in scored if s["ob"].name in options["road"]]
+            else:
+                # Asfalto partido en varias mallas (Interlagos, Spa): cuenta cada cinta por la que pasa la
+                # línea al menos 60 m (a menos de 6 m de su esqueleto), no solo la más larga.
+                chosen = [primary]
+                for item in scored:
+                    if item is primary:
+                        continue
+                    sk = lo + (np.argwhere(thin(item["crop"])).astype(np.float64) + 0.5) * res + np.array(item["at"]) * res
+                    if len(sk) and np.count_nonzero(nearest(line, sk)[1] < 6.0) * 2.0 >= 60.0:
+                        chosen.append(item)
+                log("asfalto bajo la línea:", [s["ob"].name for s in chosen])
             raw_length = float(np.linalg.norm(np.diff(np.vstack([line, line[:1]]), axis=0), axis=1).sum())
             error = abs(raw_length - target_m) / target_m
             geo_rms = mean_d
@@ -947,7 +1411,16 @@ def main():
 
     road_objects = [s["ob"] for s in chosen]
     bvh = make_bvh(road_objects)
-    top = max((ob.matrix_world @ Vector(c)).z for ob in road_objects + painted for c in ob.bound_box) + 50
+    top = top_of(road_objects + painted) + 50
+    # Cruces a distinto nivel (puente de Suzuka, túnel de Mónaco): si bajo la línea hay asfalto en dos capas
+    # separadas más de 4 m, los rayos solo cuentan la capa de la propia línea. Sin cruces, nada cambia.
+    _, multilevel = level_heights(bvh, line, top)
+
+    def probe(line):
+        return (top, level_heights(bvh, line, top)[0]) if multilevel else top
+
+    if multilevel:
+        log("asfalto a varios niveles: rayos ceñidos a la capa de la línea")
     # Con escapatorias de asfalto (Tilke) el centro del asfalto no es el de la pista: si hay líneas pintadas
     # a ambos lados en la mayor parte de la vuelta, mandan ellas.
     edges = measure
@@ -955,29 +1428,40 @@ def main():
     reference = "asfalto"
     if painted:
         line_bvh = make_bvh(painted)
-        _, l0, r0 = measure_lines(line_bvh, line, top)
+        _, l0, r0 = measure_lines(line_bvh, line, probe(line))
         share = float(np.mean(~np.isnan(l0 + r0)))
         log(f"líneas pintadas {[ob.name for ob in painted]}: ambos bordes en el {share * 100:.0f} %")
         if share >= 0.6:
             edges, edge_bvh, reference = measure_lines, line_bvh, "líneas pintadas"
+    def narrow(width):
+        # Por material, la recta de boxes y la calle de boxes suelen ser una sola cinta de 30-40 m sin hueco:
+        # ahí el ancho local también es grande y pasaría el filtro relativo. Se exige además <= 1,6 x la
+        # mediana de toda la vuelta. Con mallas sueltas (por defecto) no cambia nada.
+        if options["group"] != "material":
+            return np.ones(len(width), dtype=bool)
+        with np.errstate(invalid="ignore"):
+            return width <= 1.6 * np.nanmedian(width)
+
     for _ in range(3):
-        normal, left, right = edges(edge_bvh, line, top)
+        normal, left, right = edges(edge_bvh, line, probe(line))
         width = left + right
         local = local_median(width)
-        valid = ~np.isnan(width) & (width <= 1.2 * local) & (width >= 0.8 * local)
+        valid = ~np.isnan(width) & (width <= 1.2 * local) & (width >= 0.8 * local) & narrow(width)
         offset = np.where(valid, (left - right) / 2, 0.0)
+        if options["group"] == "material":
+            offset = bridge_gaps(offset, valid)
         offset = smooth_closed(offset[:, None], 15 if geo_fit else 5)[:, 0]
         offset = np.clip(offset, -3.0, 3.0)
         line = line + normal * offset[:, None]
         line = smooth_closed(line, 9 if geo_fit else 3)
         line, _ = resample_closed(line, 2.0)
-    normal, left, right = edges(edge_bvh, line, top)
+    normal, left, right = edges(edge_bvh, line, probe(line))
     width = left + right
     median = float(np.nanmedian(width))
     # Donde la malla se ensancha (incorporaciones, calle de boxes, enlaces) su centro no es el de la pista:
     # ahí ni se corrige ni se mide.
     local = local_median(width)
-    valid = ~np.isnan(width) & (width <= 1.2 * local) & (width >= 0.8 * local)
+    valid = ~np.isnan(width) & (width <= 1.2 * local) & (width >= 0.8 * local) & narrow(width)
     raw = np.where(valid, (left - right) / 2, np.nan)
     # Desviación robusta: mediana de 5 muestras (8 m). Una spline suave no puede apartarse 5 m del centro en
     # 4 m de recorrido; un pico aislado es un agujero o un solape de la malla, no un error de la línea.
@@ -991,15 +1475,7 @@ def main():
     deviation = robust[valid]
     raw_max = float(np.nanmax(np.abs(raw)))
 
-    heights = []
-    for x, y in line:
-        hit = bvh.ray_cast(Vector((x, y, top)), Vector((0, 0, -1)), 1e5)
-        heights.append(hit[0].z if hit[0] is not None else float("nan"))
-    heights = np.array(heights)
-    if np.isnan(heights).any():
-        idx = np.arange(len(heights))
-        good = ~np.isnan(heights)
-        heights = np.interp(idx, idx[good], heights[good], period=len(heights))
+    heights = road_heights(bvh, line, top)
     closed = np.vstack([line, line[:1]])
     length = float(np.linalg.norm(np.diff(closed, axis=0), axis=1).sum())
 
@@ -1023,6 +1499,7 @@ def main():
         "pitLane": pit_hint,
         "medianWidthM": round(median, 2),
         "edgeReference": reference,
+        "multiLevel": bool(multilevel),
         "deviation": {
             "maxM": round(float(deviation.max()), 3),
             "p95M": round(float(np.percentile(deviation, 95)), 3),

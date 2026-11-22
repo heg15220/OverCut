@@ -320,7 +320,8 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
       const b = pitPath[Math.min(pitPath.length - 1, i + 1)];
       return Math.atan2(b.y - a.y, b.x - a.x);
     });
-    const inside = circuit.clockwise ? 1 : -1;
+    // Garages on the side the pit lane really runs (from the mesh on calibrated circuits), else inside the loop.
+  const inside = circuit.pit?.side ?? (circuit.clockwise ? 1 : -1);
     group.add(meshOf(ribbon(pitPath, pitHeadings, -5, 5, 0.008, 0.08, false), m.pitLane));
     const lineIndex = Math.round(circuit.pit.lineAt * (pitPath.length - 1));
     const first = Math.max(2, Math.round(lineIndex * 0.15));

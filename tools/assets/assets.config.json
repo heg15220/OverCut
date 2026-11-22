@@ -53,8 +53,10 @@
           -142.8,
           122.5
         ],
-        "note": "Forma correcta (Parabolica, Curva Grande, Lesmo, Ascari); meta movida a la recta de boxes (el boceto la ponía en Ascari). Sin reflejar (ICP recortado 5,4 m frente a 59,5 m reflejado)."
-      }
+        "note": "Reextraída el 22/11 por material (asfalto 'apsh-shader-norm/scuro') con ciclo guiado por el trazado real: máx 2,75 m (p95 0,10 m) medida en el 91 %; 5.843 m (+0,9 %). Sobre asfalto el 91 % (extract_pitlane). Forma correcta (Rettifilo, Curva Grande, Roggia, Lesmo, Ascari, Parabolica); meta en la recta de boxes. Sin reflejar (ICP recortado). Aprobada: el máximo es un borde de cruce."
+      },
+      "method": "cycle-geo",
+      "group": "material"
     },
     {
       "splineId": "spa-francorchamps-4",
@@ -74,8 +76,10 @@
           -293.1,
           -702.6
         ],
-        "note": "Forma correcta; meta entre la Bus Stop y La Source (±100 m). Desviación medible solo en el 44 %: asfalto partido en varias mallas."
-      }
+        "note": "Reextraída el 22/11 por material (asfalto 'asph') con ciclo guiado por el trazado real: antes la línea pasaba por el tejado de boxes (salto de 13,6 m en altura). Máx 3,2 m (p95 0,10 m) medida en el 69 %; 7.039 m (+0,5 %); sobre asfalto el 86 %. Forma correcta; meta entre la Bus Stop y La Source. Aprobada: el máximo es un borde de cruce."
+      },
+      "method": "cycle-geo",
+      "group": "material"
     },
     {
       "splineId": "silverstone-7",
@@ -112,8 +116,10 @@
           8.7,
           341.1
         ],
-        "note": "Forma correcta (caracola T1-T2, contrarrecta, horquilla T14); meta en la recta de boxes. Escapatorias de asfalto: desviación medible en el 16 %."
-      }
+        "note": "Reextraída el 22/11 por material con ciclo guiado por el trazado real: cumple el criterio 7.2 (máx 0,45 m en el 96 %); 5.450 m (0,0 %); sobre asfalto el 93 %. Forma correcta (caracola T1-T2, contrarrecta, horquilla T14); meta en la recta de boxes."
+      },
+      "method": "cycle-geo",
+      "group": "material"
     },
     {
       "splineId": "hungaroring-3",
@@ -131,7 +137,8 @@
       "review": {
         "approved": true,
         "startReviewed": true,
-        "note": "Método de ciclos. Forma correcta (recta principal en diagonal hacia la horquilla de la T1); meta por la calle de boxes. Desviación máx 2,7 m (p95 0,15 m) en el 75 %: algo por encima del criterio, aprobada a ojo."
+        "note": "Método de ciclos. Forma correcta (recta principal en diagonal hacia la horquilla de la T1); meta por la calle de boxes. Desviación máx 2,7 m (p95 0,15 m) en el 75 %: algo por encima del criterio, aprobada a ojo. Meta movida +390 m: estaba en la última curva; los garajes van de 178 a 604 m tras ella (extract_pitlane.py).",
+        "startShiftM": 390
       }
     },
     {
@@ -152,8 +159,10 @@
           -387.2,
           231.6
         ],
-        "note": "Forma correcta (S do Senna, Reta Oposta, infield); antihorario; meta en la recta de boxes antes de la S do Senna."
-      }
+        "note": "Reextraída el 22/11 por material con ciclo guiado por el trazado real: cumple el criterio 7.2 (máx 0,30 m en el 90 %); 4.327 m (+0,4 %); sobre asfalto el 93 %. Antihorario; meta en la recta de boxes antes de la S do Senna."
+      },
+      "method": "cycle-geo",
+      "group": "material"
     },
     {
       "splineId": "montreal-6",
@@ -188,8 +197,10 @@
       "review": {
         "approved": true,
         "startReviewed": true,
-        "note": "Trazado GP elegido por el trazado real (la malla tiene también los trazados interior, exterior y de resistencia); meta del boceto en la recta de boxes, correcta. Escapatorias de asfalto: desviación medible en el 18 %."
-      }
+        "note": "Reextraída el 22/11 por material con ciclo guiado por el trazado real (elige el GP entre los trazados de la malla; antes la línea pasaba por tejados de garajes y pórticos): cumple el criterio 7.2 (máx 0,73 m en el 97 %); 5.398 m (-0,3 %); sobre asfalto el 94 %. Meta a media recta de boxes (explanada de boxes), revisada."
+      },
+      "method": "cycle-geo",
+      "group": "material"
     },
     {
       "splineId": "monaco-6",
@@ -204,36 +215,62 @@
       "release": "circuitos-circuit-de-monaco",
       "file": "circuit_de_monaco.glb",
       "review": {
-        "approved": false,
-        "note": "No aprobada: la línea ondula y túnel y puente se superponen en la vista cenital; -8 % de longitud."
-      }
-    }
-  ],
-  "pending": [
+        "startNear": [
+          -345.1,
+          192.0
+        ],
+        "startReviewed": true,
+        "note": "Reextraída el 22/11 (SidewalkNZ, CC BY; ripeado de F1 2010 según provenance.json). Asfalto por material ('mon_gantry_overhang_a_030_4', toda la red de calles); vuelta como ciclo del grafo en dos pasadas: la más parecida por forma al trazado real y luego guiada por el trazado real ajustado sobre ella (rms de forma 16 m). Cumple el criterio 7.2 por poco: máx 1,45 m (p95 0,14 m) medida en el 64 %; 3.331 m (-0,2 %); sobre asfalto el 87 %. El túnel y el paso sobre él van en capas distintas (alturas seguidas por continuidad, salto máximo 0,27 m entre muestras). Sentido por el orden del trazado real (la línea se cruza en planta); meta en la recta de boxes, hacia Sainte-Dévote. Sin reflejar (ICP recortado 2,4 m frente a 52,0 m)."
+      },
+      "method": "cycle-geo-2pass",
+      "group": "material"
+    },
     {
-      "splineId": "suzuka-1",
-      "reason": "Trazado en ocho: la vuelta cruza el puente y no es un ciclo simple del esqueleto 2D; hace falta separar por altura en extract_spline.py"
+      "splineId": "suzuka-2",
+      "circuitId": "suzuka",
+      "layoutRef": "suzuka",
+      "layoutId": "suzuka-2",
+      "validFrom": 2003,
+      "validTo": 2026,
+      "km": 5.807,
+      "direction": "CLOCKWISE",
+      "geoId": "jp-1962",
+      "release": "circuitos-suzuka",
+      "file": "suzuka.glb",
+      "method": "cycle",
+      "group": "material",
+      "review": {
+        "startNear": [
+          702.6,
+          36.3
+        ],
+        "startReviewed": true,
+        "note": "Trazado 2003-2026 (SidewalkNZ, CC BY; ripeado de F1 2010 según provenance.json). Asfalto por material ('lg_pit_exit_light_a_5'); el puente se parte en dos pasos por altura (6,3 m entre niveles) y la vuelta es un ciclo del grafo. Cumple el criterio 7.2: máx 0,28 m (p95 0,03 m) en el 85 %; 5.820 m (+0,2 %). Sentido por el orden del trazado real (en ocho): tras la meta pasa bajo el puente (Degner-horquilla) y vuelve por encima (130R), comprobado con las alturas. Meta a media recta de boxes. Sin reflejar (ICP recortado 2,3 m frente a 77,1 m)."
+      }
     },
     {
       "splineId": "nurburgring-4",
-      "reason": "Falla la extracción: el trazado real ajusta a 28 m de media y ningún ciclo se acerca a 5,148 km.",
-      "entry": {
-        "splineId": "nurburgring-4",
-        "circuitId": "nurburgring",
-        "layoutRef": "nurburgring",
-        "layoutId": "nurburgring-4",
-        "validFrom": 2002,
-        "validTo": 2020,
-        "km": 5.148,
-        "direction": "CLOCKWISE",
-        "geoId": "de-1927",
-        "release": "circuitos-nurburgring-gp-2016-layout",
-        "file": "nurburgring_gp_2016_layout.glb"
-      }
-    },
-    {
-      "splineId": "monaco-6",
-      "reason": "Extracción no aprobada (ver review); el circuito sigue en la lista para reintentar."
+      "circuitId": "nurburgring",
+      "layoutRef": "nurburgring",
+      "layoutId": "nurburgring-4",
+      "validFrom": 2002,
+      "validTo": 2020,
+      "km": 5.148,
+      "direction": "CLOCKWISE",
+      "geoId": "de-1927",
+      "release": "circuitos-esda-nurburgring-grand-prix",
+      "file": "esda_nurburgring_grand_prix.glb",
+      "method": "cycle",
+      "review": {
+        "startNear": [
+          -10.7,
+          -552.3
+        ],
+        "startReviewed": true,
+        "note": "ESDA Nürburgring Grand Prix (Tyler_Dave, CC BY; ripeado según provenance.json): el GLB 'GP 2016 layout' está a escala 0,85 (vuelta de 4,4 km). Asfalto por material ('asphalt-'), ciclo del grafo con el puente de carretera partido por altura. Cumple el criterio 7.2: máx 0,25 m (p95 0,05 m) en el 86 %; 5.142 m (-0,1 %). Forma correcta con Mercedes Arena; meta a media recta de boxes. Sin reflejar (ICP recortado 2,2 m frente a 45,4 m)."
+      },
+      "group": "material"
     }
-  ]
+  ],
+  "pending": []
 }

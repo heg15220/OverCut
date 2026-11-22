@@ -1,0 +1,1663 @@
+{
+  "$comment": "Provenance and rip-risk check of every asset in manager-assets.json plus the Suzuka/Monaco/Nürburgring candidates in the f1-3d-assets repo. Method, 2026-11-22: read each Sketchfab model (title, description, tags, licence, uploader) through the public API https://api.sketchfab.com/v3/models/<uid>, the uploader profiles (/v3/users/<uid>) and a sample of each main uploader's other uploads (/v3/search?type=models&user=<username>; 403 for Tyler_Dave, 24 for SidewalkNZ), at about 1 request per second. Combined with offline GLB evidence (material, node and source-file names read from the JSON chunk of tools/assets/.cache/raw/*). riskRipped: true = rip, or a re-upload of third-party work by someone who is not the author; false = positive evidence of own work and no rip signs; null = cannot decide. All 63 checked pages are still online and still say CC Attribution 4.0, so the licence matches the manifest and ATTRIBUTION files everywhere. Cars are keyed by season+teamRef and circuits by splineId+release, as in the manifest; candidates have candidate=true, candidateFor and release (circuitos-<folder slug>).",
+  "generatedAt": "2026-11-22",
+  "authors": {
+    "Dave Love SketchFab": {
+      "profile": "https://sketchfab.com/Tyler_Dave",
+      "aliases": [
+        "Dave Bored SketchFab (same account Tyler_Dave, uid d00fd6e7881e43d4821e30a82d10dbf7; display name changed between downloads)"
+      ],
+      "summary": "Re-uploader, not an original author. Bio says he usually uses other people's models and repaints them; uploads credit third parties (Outpiston, MattDoesBlender, Tk3cuasoc (Roblox), Qwertyazzertyx, amogusstrikesback2) and every circuit is self-tagged 'Ripped' + 'asseto-corsa' + 'ripped-model'. Joined 2025-05-16, ~435 models. The CC BY 4.0 label is applied by the uploader and cannot be trusted as a grant from the rights holder.",
+      "evidence": [
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\"",
+        "37 of 403 listed uploads carry the tags 'ripped', 'ripped-model', 'asseto-corsa', 'asseto-corsa-3d-model' (API search https://api.sketchfab.com/v3/search?type=models&user=Tyler_Dave), including all 8 circuits in the manifest.",
+        "'White Airbus A320-200' description: \"Ripped model for free outpiston\" (https://sketchfab.com/3d-models/cf7c3f80fced48d18d6409af66579c62)",
+        "'Lockheed C-130 Hercules' description: \"Idk why i found this plane mod on ASSETTOCORSAMODS.IO\" (https://sketchfab.com/3d-models/5acfb2eb4f204f51ab418856c116b68e)",
+        "'Delta Airlines Airbus A350-900': \"Model: by Outpiston (yep, again, rlly sorry) Texture: by me\" (https://sketchfab.com/3d-models/b108d460122f4113960e000fc6f2ad44)",
+        "'1994 Williams FW16': \"Credit: Model by Tk3cuasoc (Roblox)\", tags vecarz, mattdoesblender (https://sketchfab.com/3d-models/40a93cc3b4d64c489a19ab1eff27bd4a)",
+        "'Mercedes SLS Safety Car': \"Credits to: @MattDoesBlender\" (https://sketchfab.com/3d-models/1c7ce092d4e4410dab3d7d02dc87a6a2)",
+        "Car descriptions are copied from Wikipedia plus Pinterest/Wikimedia photos; none of the 66 car uploads claims own modelling.",
+        "GLB internals of the cars use ISI gMotor livery material names (WCCARBODY, WCEXTRA0/1, used by EA Sports F1 2002 / F1 Challenge 99-02 and rFactor mods) and mod-team tokens such as CTDP_TECH (CTDP rFactor F1 mod team) and the 'cim_' node prefix."
+      ]
+    },
+    "SidewalkNZ": {
+      "profile": "https://sketchfab.com/SidewalkNZ",
+      "summary": "Mass game-ripper: 4782 models since joining on 2026-09-23; each upload's description is just the source game's title (FIFA Football 2003, Yu-Gi-Oh! The Duelists of the Roses, Tony Hawk's Pro Skater HD, 007: Quantum of Solace, F1 2010...). Its Monaco and Suzuka are from Codemasters' F1 2010.",
+      "evidence": [
+        "Profile: 4782 models, joined 2026-09-23 (API https://api.sketchfab.com/v3/users/4140a84988994906b61c987c76a9d2fb).",
+        "Latest 24 uploads (API search user=SidewalkNZ): descriptions 'FIFA Football 2003', 'Yu-Gi-Oh! The Duelists of the Roses', 'Tony Hawk's Pro Skater HD', 'PlayStation All-Stars Battle Royale', 'Grid Girl 2 (Korea)' = 'F1 2010'.",
+        "Circuit de Monaco and Suzuka: description \"F1 2010\", tags f1, formula1, 2010, f12010.",
+        "GLB node structure tracksplit / surface / LAND_x_y / NONLOD_x_y and materials mon_gantry_overhang_a_030, lg_pit_exit_light_a: Codemasters EGO track naming."
+      ]
+    },
+    "amogusstrikesback2": {
+      "profile": "https://sketchfab.com/amogusstrikesback2",
+      "summary": "Self-declared ripper of copyrighted game assets (2952 models). Bio: \"warning: you CANNOT use these models commercially, due to mostly being copyrighted\". Its candidates come from Real Racing 3, Asphalt, GT Racing: Motor Academy and Race Driver GRID DS.",
+      "evidence": [
+        "Bio (API https://api.sketchfab.com/v3/users/a3f53ccb4bbd4b20adb3212a3e039799): \"this is the original amogus (testingname99213) account which got banned ... warning: you CANNOT use these models commercially, due to mostly being copyrighted\"",
+        "Titles and tags name the games: 'real racing 3 monaco' (realracing3), 'asphalt injection - monaco' (asphalt8, asphalt6), 'gt racing motor academy - monaco', 'nurburgring (race driver grid ds)', 'suzuka circuit' and 'nurburgring gp circuit' (tags realracing3).",
+        "GLB internals of suzuka_circuit.glb and nurburgring_gp_circuit.glb: suzuka.fbx / nuerburgring.fbx, LOD01, MESHES, sky_01_hillsfar, arc_grandstand_main_building_suzuka_00, arc_nuerburgring_bmw_pitlane_bridge_00, DAMAGE/overlay_wall_damage (Real Racing 3 export structure)."
+      ]
+    },
+    "Unprofessional Modeler": {
+      "profile": "https://sketchfab.com/themodel_finder",
+      "summary": "Bio: \"Most the model were from fr legends\" (FR Legends, a commercial mobile game). The Nürburgring upload is titled '(FR Legends mod)'.",
+      "evidence": [
+        "Bio (API https://api.sketchfab.com/v3/users/e0946db9b414475483bba92af1253905): \"Most the model were from fr legends\"",
+        "Title: 'Nürburgring racing circuit (FR Legends mod)'; description copied from Wikipedia."
+      ]
+    },
+    "narlankaaditya": {
+      "profile": "https://sketchfab.com/narlankaaditya",
+      "summary": "Small account (12 models). Describes its Monaco as its own low-poly work.",
+      "evidence": [
+        "Description: \"This is a low poly model of the monaco F1 Circuit. Road and wall materials can be changed. I have tried to match the height gradient as precisesly as possible\" (https://sketchfab.com/3d-models/monaco-gp-racetrack-ebb9b9a0c19e4801815b19c55d14dea3)",
+        "GLB: single FBX source, two materials (road, wall), 8 nodes: hand-made low-poly, no game naming."
+      ]
+    },
+    "francobravo": {
+      "profile": "https://sketchfab.com/francobravo",
+      "summary": "3D-print designer (9 models, links to his Cults3D shop). Nürburgring is a printable STL.",
+      "evidence": [
+        "Bio: \"22 years I'm passionate about 3d design, 100% self-taught\", skills AutoCAD/Blender/SolidWorks, website cults3d.com (API https://api.sketchfab.com/v3/users/2fb0390b49174c17b67d6f22be9204d7)",
+        "Description: \"Nürburgring circuit ready to print (.STL) and totally free Measures: 420mmx400mm\"",
+        "GLB: one STL mesh, one material."
+      ]
+    },
+    "tsaqibys": {
+      "profile": "https://sketchfab.com/tsaqibys",
+      "summary": "Uploads AI output. 'circuit monaco' was generated with Meshy AI (tags AI, createdwithai, meshy). Not a game rip; just not usable as a real circuit.",
+      "evidence": [
+        "Description: \"This model was generated using Meshy(https://www.meshy.ai)'s AI toolkit\" (https://sketchfab.com/3d-models/circuit-monaco-bc3731a99f9a438ab5c8f3a592689b73)"
+      ]
+    },
+    "jugadorjpok": {
+      "profile": "https://sketchfab.com/jugadorjpok",
+      "summary": "5 models, no bio. 'Nürburgring' has no description and no tags; GLB not downloaded.",
+      "evidence": [
+        "API https://api.sketchfab.com/v3/models/28ceeeae2f874d0e8036f075af04f206: empty description and tags."
+      ]
+    }
+  },
+  "assets": [
+    {
+      "kind": "car",
+      "season": 2005,
+      "teamRef": "bar",
+      "source": "https://sketchfab.com/3d-models/2005-bar-007-271096708f244c5eba56f7a3c53fe375",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2005-bar-007-271096708f244c5eba56f7a3c53fe375: title '2005 BAR 007', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-06",
+        "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Conversion of a 2005 F1 car mod for an ISI-engine sim (rFactor / F1 Challenge 99-02; CTDP naming). The uploader is not the author, the description is Wikipedia text, and the original mod licence does not allow redistribution under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2005,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2005-ferrari-f2005-630908b3713e4dde818d5af3e43ebda4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2005-ferrari-f2005-630908b3713e4dde818d5af3e43ebda4: title '2005 Ferrari F2005', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-06",
+        "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Conversion of a 2005 F1 car mod for an ISI-engine sim (rFactor / F1 Challenge 99-02; CTDP naming). The uploader is not the author, the description is Wikipedia text, and the original mod licence does not allow redistribution under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2005,
+      "teamRef": "jordan",
+      "source": "https://sketchfab.com/3d-models/2005-jordan-ej15-42587147465547eeba3a80d0fd21d459",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2005-jordan-ej15-42587147465547eeba3a80d0fd21d459: title '2005 Jordan EJ15', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-06",
+        "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Conversion of a 2005 F1 car mod for an ISI-engine sim (rFactor / F1 Challenge 99-02; CTDP naming). The uploader is not the author, the description is Wikipedia text, and the original mod licence does not allow redistribution under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2005,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/2005-mclaren-mp4-20-95e5c4c4fc8542bcb98e6b33ecf6c2f2",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2005-mclaren-mp4-20-95e5c4c4fc8542bcb98e6b33ecf6c2f2: title '2005 McLaren MP4-20', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+        "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Conversion of a 2005 F1 car mod for an ISI-engine sim (rFactor / F1 Challenge 99-02; CTDP naming). The uploader is not the author, the description is Wikipedia text, and the original mod licence does not allow redistribution under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2005,
+      "teamRef": "minardi",
+      "source": "https://sketchfab.com/3d-models/2005-minardi-ps05-d3ff4f90affc49eb92ab0b456bf62c77",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2005-minardi-ps05-d3ff4f90affc49eb92ab0b456bf62c77: title '2005 Minardi PS05', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+        "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Conversion of a 2005 F1 car mod for an ISI-engine sim (rFactor / F1 Challenge 99-02; CTDP naming). The uploader is not the author, the description is Wikipedia text, and the original mod licence does not allow redistribution under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2005,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/2005-renault-r25-0d58fe125f5b41a2b8482576723120c4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2005-renault-r25-0d58fe125f5b41a2b8482576723120c4: title '2005 Renault R25', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+        "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Conversion of a 2005 F1 car mod for an ISI-engine sim (rFactor / F1 Challenge 99-02; CTDP naming). The uploader is not the author, the description is Wikipedia text, and the original mod licence does not allow redistribution under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2005,
+      "teamRef": "sauber",
+      "source": "https://sketchfab.com/3d-models/2005-sauber-c24-2422962ebf87496b8497ab19789a88e0",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2005-sauber-c24-2422962ebf87496b8497ab19789a88e0: title '2005 Sauber C24', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+        "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Conversion of a 2005 F1 car mod for an ISI-engine sim (rFactor / F1 Challenge 99-02; CTDP naming). The uploader is not the author, the description is Wikipedia text, and the original mod licence does not allow redistribution under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2005,
+      "teamRef": "toyota",
+      "source": "https://sketchfab.com/3d-models/2005-toyota-tf105-ec338073ad854a639636f2e6b8b75698",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2005-toyota-tf105-ec338073ad854a639636f2e6b8b75698: title '2005  Toyota TF105', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+        "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Conversion of a 2005 F1 car mod for an ISI-engine sim (rFactor / F1 Challenge 99-02; CTDP naming). The uploader is not the author, the description is Wikipedia text, and the original mod licence does not allow redistribution under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2005,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/2005-williams-fw27-4dae6d39b2854884b14b1cfcb2708fbf",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2005-williams-fw27-4dae6d39b2854884b14b1cfcb2708fbf: title '2005 Williams FW27', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+        "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Conversion of a 2005 F1 car mod for an ISI-engine sim (rFactor / F1 Challenge 99-02; CTDP naming). The uploader is not the author, the description is Wikipedia text, and the original mod licence does not allow redistribution under CC BY.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2007,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2007-e2e1ba3963f44ded852fe7cf146d7fba",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2007-e2e1ba3963f44ded852fe7cf146d7fba: title '2007', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-11",
+        "Sketchfab page titled just '2007', no description, no tags.",
+        "GLB materials WCCARBODY, WCEXTRA0/1/4, ferrari_f2007_cockpit, ferrari_248f1_gauges, F2007_SUSP; node cim_2007_ferrari (same 'cim_' mod prefix as the 2008 pack and Tyler_Dave's 'Cim_2006_tororosso' upload).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Sim-mod conversion (ISI gMotor naming, 'cim' mod set). No authorship claim.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "bmw-sauber",
+      "source": "https://sketchfab.com/3d-models/2008-bmw-sauber-f108-5bf3feb19ea24856af8deae8789c088e",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-bmw-sauber-f108-5bf3feb19ea24856af8deae8789c088e: title '2008 BMW Sauber F1.08', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2008-ferrari-f2008-0476bd73b8d84e0e99d5197140bc22d6",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-ferrari-f2008-0476bd73b8d84e0e99d5197140bc22d6: title '2008 Ferrari F2008', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "force-india",
+      "source": "https://sketchfab.com/3d-models/2008-force-india-vjm01-2827f7db24474ee9ae9a1c10286efc0a",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-force-india-vjm01-2827f7db24474ee9ae9a1c10286efc0a: title '2008 Force India VJM01', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "honda",
+      "source": "https://sketchfab.com/3d-models/2008-honda-ra108-4c33e6f7501041cc99f19c2447732403",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-honda-ra108-4c33e6f7501041cc99f19c2447732403: title '2008 Honda RA108', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/2008-mclaren-mp423-bf1096b47dab4cefaedb46006125670e",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-mclaren-mp423-bf1096b47dab4cefaedb46006125670e: title '2008 Mclaren MP4/23', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/2008-redbull-rb3-29d106867882476da70c3d9164f1bdb3",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-redbull-rb3-29d106867882476da70c3d9164f1bdb3: title '2008 Redbull RB3', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/2008-renault-r28-ce19a4094d7c4003ba7adeee79ea0900",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-renault-r28-ce19a4094d7c4003ba7adeee79ea0900: title '2008 Renault R28', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "super-aguri",
+      "source": "https://sketchfab.com/3d-models/2008-super-aguri-sa08-6a2c798d6fc44b57893c04dc74922111",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-super-aguri-sa08-6a2c798d6fc44b57893c04dc74922111: title '2008 Super Aguri SA08', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "toro-rosso",
+      "source": "https://sketchfab.com/3d-models/2008-toro-rosso-str3-35f64cdaf8cd48b78ae7e0beb41814af",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-toro-rosso-str3-35f64cdaf8cd48b78ae7e0beb41814af: title '2008 Toro Rosso STR3', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2008,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/2008-williams-fw30-cc94e533747e4edbb4a5b698a9fc25e2",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2008-williams-fw30-cc94e533747e4edbb4a5b698a9fc25e2: title '2008 Williams FW30', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+        "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "All ten 2008 cars come from one sim mod set ('cim_2008_*'). The uploader is not the author.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "force-india",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "hrt",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "lotus-racing",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "mercedes",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "renault",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "sauber",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "toro-rosso",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "virgin",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2010,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+        "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+        "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Not a commercial F1 game rip. It is a re-upload of a Roblox creator's model (Tk3cuasoc) by someone who says he is not the author, so the CC BY grant is not from the rights holder. Treat as unlicensed.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "caterham",
+      "source": "https://sketchfab.com/3d-models/2012-caterham-ct01-4eebc03336bf4316809216b1cb20a1f0",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-caterham-ct01-4eebc03336bf4316809216b1cb20a1f0: title '2012 Caterham CT01', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/2012-ferrari-f2012-a2d73741f6fc4357bd508297d084f909",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-ferrari-f2012-a2d73741f6fc4357bd508297d084f909: title '2012 Ferrari F2012', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "force-india",
+      "source": "https://sketchfab.com/3d-models/2012-force-india-vjm05-763643baf84549bfb091e55c7c538ea1",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-force-india-vjm05-763643baf84549bfb091e55c7c538ea1: title '2012 Force India VJM05', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "hrt",
+      "source": "https://sketchfab.com/3d-models/2012-hrt-f112-f4c3597a701b4812aa3f928f033ad0c8",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-hrt-f112-f4c3597a701b4812aa3f928f033ad0c8: title '2012 HRT F112', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "lotus-f1",
+      "source": "https://sketchfab.com/3d-models/2012-lotus-e20-5eb582824df349be970af27042d1d4f9",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-lotus-e20-5eb582824df349be970af27042d1d4f9: title '2012 Lotus E20', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "marussia",
+      "source": "https://sketchfab.com/3d-models/2012-marussia-mr01-a0222429b1ff4f0086a078ca00bf85ba",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-marussia-mr01-a0222429b1ff4f0086a078ca00bf85ba: title '2012 Marussia MR01', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/2012-mclaren-mp427-51d0817a4e954600934d37cd9ee7a78c",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-mclaren-mp427-51d0817a4e954600934d37cd9ee7a78c: title '2012 Mclaren MP4/27', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "mercedes",
+      "source": "https://sketchfab.com/3d-models/2012-mercedes-f1-w03-05652f9048174f0493e61d4e8dbc5703",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-mercedes-f1-w03-05652f9048174f0493e61d4e8dbc5703: title '2012 Mercedes F1 W03', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/2012-red-bull-rb8-60ee17feb97e45fbb28d37d0462c4f3d",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-red-bull-rb8-60ee17feb97e45fbb28d37d0462c4f3d: title '2012 Red Bull RB8', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "sauber",
+      "source": "https://sketchfab.com/3d-models/2012-sauber-c31-7df0190e75f2430298cb816001a67779",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-sauber-c31-7df0190e75f2430298cb816001a67779: title '2012 Sauber C31', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "toro-rosso",
+      "source": "https://sketchfab.com/3d-models/2012-toro-rosso-str7-1d3b28e636a7488dbaea1e869e58d6a6",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-toro-rosso-str7-1d3b28e636a7488dbaea1e869e58d6a6: title '2012 Toro Rosso STR7', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2012,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/2012-williams-fw34-217528e834cd4c3997ae6f88fcfa9ba8",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/2012-williams-fw34-217528e834cd4c3997ae6f88fcfa9ba8: title '2012 Williams FW34', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+        "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+        "Descriptions are Wikipedia text and Pinterest images; no authorship claim.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "One sim mod or game export (rFactor-style wccarbody plus a generic_/int_ parts library), not hand-made per team. Exact source not identified.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "caterham",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "force-india",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "lotus-f1",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "marussia",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "mercedes",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "sauber",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "toro-rosso",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2013,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
+      "riskRipped": true,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+        "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+        "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "Likely a re-upload of a Roblox creator's models. Not original work by the uploader; the CC BY grant is not from the rights holder.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "caterham",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "ferrari",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "force-india",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "lotus-f1",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "marussia",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "mclaren",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "mercedes",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "red-bull",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "sauber",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "toro-rosso",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "car",
+      "season": 2014,
+      "teamRef": "williams",
+      "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+        "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+        "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "No direct game-rip evidence, but the uploader re-uploads other people's models (bio, tags), so the licence chain is unverified. Keep it out of public builds until the original author is identified (the vecarz / mattdoesblender tags point to candidates).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "circuit",
+      "splineId": "bahrain-1",
+      "release": "circuitos-bahrain-international-circuit",
+      "source": "https://sketchfab.com/3d-models/bahrain-international-circuit-e93b0a1892c44efebbe0a92bf1ff479d",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/bahrain-international-circuit-e93b0a1892c44efebbe0a92bf1ff479d: title 'Bahrain International Circuit', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-21; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+        "GLB materials Bahrainv3001791Mtl_97, Material_41.001_n; nodes bahrain_v3.001127 plus an embedded second Sketchfab_model root: a merged re-export of someone else's 'bahrain_v3' model.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "The uploader tags it 'Ripped' / 'ripped-model' / 'asseto-corsa': a ripped Assetto Corsa track (commercial sim or third-party mod, often itself converted from an F1 game). Exclude from public builds.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "circuit",
+      "splineId": "hungaroring-3",
+      "release": "circuitos-hungaroring-2020-layout",
+      "source": "https://sketchfab.com/3d-models/hungaroring-2020-layout-33392c9fe6884df6b696ab84053fd0c7",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/hungaroring-2020-layout-33392c9fe6884df6b696ab84053fd0c7: title 'Hungaroring 2020 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-24; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+        "GLB materials drs_floor_a_01 ...: lowercase object_variant_index naming like Codemasters' EGO tracks (cf. mon_gantry_overhang_a_030 in F1 2010 Monaco), as found in Assetto Corsa conversions of F1-game tracks.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "The uploader tags it 'Ripped' / 'ripped-model' / 'asseto-corsa': a ripped Assetto Corsa track (commercial sim or third-party mod, often itself converted from an F1 game). Exclude from public builds.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "circuit",
+      "splineId": "interlagos-2",
+      "release": "circuitos-interlagos-circuit-2023-layout",
+      "source": "https://sketchfab.com/3d-models/failed-import-interlagos-circuit-2023-layout-4e5f0ebb2f2b48d289d5f6231c22512b",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/failed-import-interlagos-circuit-2023-layout-4e5f0ebb2f2b48d289d5f6231c22512b: title '(failed import) Interlagos Circuit 2023 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-16; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+        "Title starts '(failed import)'. GLB node interlagos_dcgp, materials rmbla.004_n: a converted mod track.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "The uploader tags it 'Ripped' / 'ripped-model' / 'asseto-corsa': a ripped Assetto Corsa track (commercial sim or third-party mod, often itself converted from an F1 game). Exclude from public builds.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "circuit",
+      "splineId": "montreal-6",
+      "release": "circuitos-circuit-gilles-villeneuve-montreal-2019-layout",
+      "source": "https://sketchfab.com/3d-models/circuit-gilles-villeneuve-montreal-2019-layout-5875d33d5ddb44f4a6c1188ed6776fa8",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/circuit-gilles-villeneuve-montreal-2019-layout-5875d33d5ddb44f4a6c1188ed6776fa8: title 'Circuit Gilles Villeneuve Montreal 2019 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-13; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+        "GLB materials GitterMat, ZinkMat, KerbMat, GuardrailMat, GravelMat, groove_01, grass_straws_01: a sim-track material set (German names), not a scratch model by the uploader.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "The uploader tags it 'Ripped' / 'ripped-model' / 'asseto-corsa': a ripped Assetto Corsa track (commercial sim or third-party mod, often itself converted from an F1 game). Exclude from public builds.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "circuit",
+      "splineId": "monza-7",
+      "release": "circuitos-autodromo-nazionale-monza-circuit-2020-layout",
+      "source": "https://sketchfab.com/3d-models/autodromo-nazionale-monza-circuit-2020-layout-25ed955115094de382935aa6d1a1e9c6",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/autodromo-nazionale-monza-circuit-2020-layout-25ed955115094de382935aa6d1a1e9c6: title 'Autodromo Nazionale Monza Circuit 2020 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-15; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+        "Description ends: \"heres yours, i fixed it @mucdinhh\"",
+        "GLB materials apsh-shader-norm, apsh-shader-scuro, curb-shader, serraglio, adv_add, physics, Vehicles: Italian/AC-style shader names from an Assetto Corsa track (physics mesh included).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "The uploader tags it 'Ripped' / 'ripped-model' / 'asseto-corsa': a ripped Assetto Corsa track (commercial sim or third-party mod, often itself converted from an F1 game). Exclude from public builds.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "circuit",
+      "splineId": "shanghai-1",
+      "release": "circuitos-shanghai-international-circuit-2018-layout",
+      "source": "https://sketchfab.com/3d-models/shanghai-international-circuit-2018-layout-4d3365f4de6442a5ae56e8807c518c4f",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/shanghai-international-circuit-2018-layout-4d3365f4de6442a5ae56e8807c518c4f: title 'Shanghai International Circuit 2018 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-21; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+        "GLB node frd_shanghai, materials advert_side_a_n: a converted game/mod track.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "The uploader tags it 'Ripped' / 'ripped-model' / 'asseto-corsa': a ripped Assetto Corsa track (commercial sim or third-party mod, often itself converted from an F1 game). Exclude from public builds.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "circuit",
+      "splineId": "silverstone-7",
+      "release": "circuitos-silverstone-circuit-1999-layout",
+      "source": "https://sketchfab.com/3d-models/silverstone-circuit-1999-layout-cad872e65ded4292a2061a7cc3b48d78",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/silverstone-circuit-1999-layout-cad872e65ded4292a2061a7cc3b48d78: title 'Silverstone Circuit 1999 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-07; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+        "GLB materials BUILDF, BUILDF_n; node silverstone_1999: a 1999 layout, as in the ISI F1 Challenge 99-02 / rFactor track mods.",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "The uploader tags it 'Ripped' / 'ripped-model' / 'asseto-corsa': a ripped Assetto Corsa track (commercial sim or third-party mod, often itself converted from an F1 game). Exclude from public builds.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "circuit",
+      "splineId": "spa-francorchamps-4",
+      "release": "circuitos-circuit-de-spa-francorchamps-2009-layout",
+      "source": "https://sketchfab.com/3d-models/circuit-de-spa-francorchamps-2009-layout-6f29b8a493ff4f5683836688c4c7bd71",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/circuit-de-spa-francorchamps-2009-layout-6f29b8a493ff4f5683836688c4c7bd71: title 'Circuit de Spa-Francorchamps 2009 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-14; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+        "GLB node fn_spa, materials sbancamento_D, kerb_new, jersey, box1-ppix, texts_new, new_AO (Italian naming, AC-style track shaders).",
+        "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+      ],
+      "note": "The uploader tags it 'Ripped' / 'ripped-model' / 'asseto-corsa': a ripped Assetto Corsa track (commercial sim or third-party mod, often itself converted from an F1 game). Exclude from public builds.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesManifest": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "monaco-6",
+      "release": "circuitos-asphalt-injection-monaco",
+      "repoFolder": "asphalt injection - monaco",
+      "source": "https://sketchfab.com/3d-models/asphalt-injection-monaco-553d8c5105b444ecbf08e3edc166769d",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/asphalt-injection-monaco-553d8c5105b444ecbf08e3edc166769d: title 'asphalt injection - monaco', licence 'CC Attribution', uploader amogusstrikesback2 (amogusstrikesback2), published 2026-10-24",
+        "Description: \"somehow, this track looks significantly better than in airborne, with more details and retaining the original start line from 6 note: i had to kitbash the tunnel roads because two of the three weren't present for some re...\""
+      ],
+      "note": "Asphalt Injection / Asphalt 6 (Gameloft) rip per title and tags; uploader says the assets are copyrighted.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "monaco-6",
+      "release": "circuitos-circuit-de-monaco",
+      "repoFolder": "Circuit de Monaco",
+      "source": "https://sketchfab.com/3d-models/circuit-de-monaco-41a832044dc041ef8638fa51f844f92c",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/circuit-de-monaco-41a832044dc041ef8638fa51f844f92c: title 'Circuit de Monaco', licence 'CC Attribution', uploader SidewalkNZ (SidewalkNZ), published 2026-10-30",
+        "Description: \"F1 2010\""
+      ],
+      "note": "F1 2010 (Codemasters) rip. GLB: tracksplit / LAND_x_y / NONLOD_x_y, materials mon_gantry_overhang_a_030 (EGO naming). This is the release assets.config.json uses for monaco-6.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "monaco-6",
+      "release": "circuitos-circuit-de-monaco-display",
+      "repoFolder": "Circuit de Monaco (display)",
+      "source": "https://sketchfab.com/3d-models/read-description-whatever-is-this-c9a664222cd24c42a3bf95c6fd35f690",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/read-description-whatever-is-this-c9a664222cd24c42a3bf95c6fd35f690: title '(READ DESCRIPTION) whatever is this', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-01; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description: \"THIS IS A CIRCUIT DE MONACO MODEL. I dont wanna say this but.. so (yep, again), my model get corrupt again, and THIS IS JUST A DISPLAY MODEL. Please get the model here: https://mega.nz/file/9E9RUZKC#XsiGQGn8RuofrDsT1-Oyo...\""
+      ],
+      "note": "Tagged Ripped + asseto-corsa. GLB node monaco_2019, materials mon_building_tunnel_a_010 (Codemasters 'mon_' naming, as in the F1 2010 Monaco). The description says the full model is on MEGA; the Sketchfab file is only a 'display' copy.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "monaco-6",
+      "release": "circuitos-circuit-monaco",
+      "repoFolder": "circuit monaco",
+      "source": "https://sketchfab.com/3d-models/circuit-monaco-bc3731a99f9a438ab5c8f3a592689b73",
+      "riskRipped": false,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/circuit-monaco-bc3731a99f9a438ab5c8f3a592689b73: title 'circuit monaco', licence 'CC Attribution', uploader tsaqibys (tsaqibys), published 2025-11-02",
+        "Description: \"This model was generated using Meshy(https://www.meshy.ai)'s AI toolkit. It provides tools that effortlessly turn human imagination into stunning 3D models. If you're interested in this model, visit the model page on Mes...\""
+      ],
+      "note": "Meshy AI generated (stated in the description). Not a rip, but not a usable circuit either.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-esda-nurburgring-grand-prix",
+      "repoFolder": "ESDA Nurburgring Grand Prix",
+      "source": "https://sketchfab.com/3d-models/esda-nurburgring-grand-prix-04fabfa7b44741dbb48701d158b64daa",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/esda-nurburgring-grand-prix-04fabfa7b44741dbb48701d158b64daa: title 'ESDA Nürburgring Grand Prix', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-11; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description: \"24H LAYOUT (with Nordschleife and GP) : https://mega.nz/file/NRdQUR6C#Dxsps2rd85hdFqAkZtU1ZMJilLvRENdP_cHxoMwkMaw The Nürburgring Grand Prix (GP) circuit is a modern, FIA Grade 1 motorsports facility located in Nürburg, ...\""
+      ],
+      "note": "Tagged Ripped + asseto-corsa. 'ESDA' is the name of an Assetto Corsa track modder; GLB materials ESDA_logos, ADVAN_T_LOGO, BANNERS_EXT, pitlane-multimap2_colliderwall.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "monaco-6",
+      "release": "circuitos-gt-racing-motor-academy-monaco",
+      "repoFolder": "gt racing motor academy - monaco",
+      "source": "https://sketchfab.com/3d-models/gt-racing-motor-academy-monaco-be2b0fc454a74464975ce4504d5bbf43",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/gt-racing-motor-academy-monaco-be2b0fc454a74464975ce4504d5bbf43: title 'gt racing motor academy - monaco', licence 'CC Attribution', uploader amogusstrikesback2 (amogusstrikesback2), published 2026-11-01",
+        "Description: \"first maps in this game, for some reason it only works on the hyundai edition\""
+      ],
+      "note": "GT Racing: Motor Academy (Gameloft) rip per title.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "monaco-6",
+      "release": "circuitos-monaco-gp-racetrack",
+      "repoFolder": "Monaco GP racetrack",
+      "source": "https://sketchfab.com/3d-models/monaco-gp-racetrack-ebb9b9a0c19e4801815b19c55d14dea3",
+      "riskRipped": false,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/monaco-gp-racetrack-ebb9b9a0c19e4801815b19c55d14dea3: title 'Monaco GP racetrack', licence 'CC Attribution', uploader narlankaaditya (narlankaaditya), published 2021-02-02",
+        "Description: \"***This is a low poly model of the monaco F1 Circuit. Road and wall materials can be changed. I have tried to match the height gradient as precisesly as possible . Hope u find this model helpful.* **\""
+      ],
+      "note": "The author describes it as their own low-poly model ('I have tried to match the height gradient'); two materials (road, wall), FBX source, no game naming. Clean CC BY. Only a road ribbon plus walls.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-nurburgring",
+      "repoFolder": "Nurburgring",
+      "source": "https://sketchfab.com/3d-models/nurburgring-28ceeeae2f874d0e8036f075af04f206",
+      "riskRipped": null,
+      "confidence": "low",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/nurburgring-28ceeeae2f874d0e8036f075af04f206: title 'Nürburgring', licence 'CC Attribution', uploader jugadorjpok (jugadorjpok), published 2023-10-26"
+      ],
+      "note": "No description, no tags, GLB not downloaded: cannot decide.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-nurburgring-race-driver-grid-ds",
+      "repoFolder": "nurburgring (race driver grid ds)",
+      "source": "https://sketchfab.com/3d-models/nurburgring-race-driver-grid-ds-fc6393b88aa64fc98e63ee65846d3fc3",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/nurburgring-race-driver-grid-ds-fc6393b88aa64fc98e63ee65846d3fc3: title 'nurburgring (race driver grid ds)', licence 'CC Attribution', uploader amogusstrikesback2 (amogusstrikesback2), published 2026-03-14",
+        "Description: \"both the sprint circuit and the gp circuit\""
+      ],
+      "note": "Race Driver: GRID DS (Codemasters/Firebrand) rip per title.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-nurburgring-circuit",
+      "repoFolder": "Nurburgring Circuit",
+      "source": "https://sketchfab.com/3d-models/nurburgring-circuit-02d04e005e274e0da846dd62b9e98125",
+      "riskRipped": false,
+      "confidence": "medium",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/nurburgring-circuit-02d04e005e274e0da846dd62b9e98125: title 'Nürburgring Circuit', licence 'CC Attribution', uploader francobravo (francobravo), published 2021-04-18",
+        "Description: \"**Nürburgring** circuit ready to print (.STL) and totally free Measures: 420mmx400mm\""
+      ],
+      "note": "Self-made 3D-print STL by a self-taught designer with a Cults3D shop; one mesh, one material. Clean CC BY. It is a printable relief, not a drivable track.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-nurburgring-gesamtstrecke-1967-layout",
+      "repoFolder": "Nurburgring Gesamtstrecke 1967 layout",
+      "source": "https://sketchfab.com/3d-models/nurburgring-gesamtstrecke-1967-layout-1e7f84b822bb447ea189023853c8ad35",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/nurburgring-gesamtstrecke-1967-layout-1e7f84b822bb447ea189023853c8ad35: title 'Nürburgring Gesamtstrecke 1967 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-25; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description: \"The Nürburgring is a 150,000-person capacity motorsports complex located in the town of Nürburg, Rhineland-Palatinate, Germany. It features a Grand Prix race track built in 1984, and a long Nordschleife configuration, bu...\""
+      ],
+      "note": "Tagged Ripped + asseto-corsa; made on request ('@Qwertyazzertyx heres your Nurburgring!').",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-nurburgring-gp-1995-layout-display",
+      "repoFolder": "Nurburgring GP 1995 layout (display)",
+      "source": "https://sketchfab.com/3d-models/read-description-nurburgring-gp-1995-layout-b86a0096abd141abbc6e22984af2d26a",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/read-description-nurburgring-gp-1995-layout-b86a0096abd141abbc6e22984af2d26a: title '(READ DESCRIPTION) Nürburgring GP 1995 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-01; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description: \"so (yep, again), my model corrupted, and THIS IS JUST A DISPLAY VER. Please get the model here: https://mega.nz/file/NY0knaIK#fgZxcANFt7mmjwp6b6JlYef_p74EHJdNiPrpEvVbuTE Thank you! and also, please ignore the some weird ...\""
+      ],
+      "note": "Tagged Ripped + asseto-corsa; display copy, real file on MEGA.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-nurburgring-gp-2016-layout",
+      "repoFolder": "Nurburgring GP 2016 layout",
+      "source": "https://sketchfab.com/3d-models/nurburgring-gp-2016-layout-5993aa0140764b4ea23bb285d23aa57e",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/nurburgring-gp-2016-layout-5993aa0140764b4ea23bb285d23aa57e: title 'Nürburgring GP 2016 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-18; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description: \"24H LAYOUT (with Nordschleife and GP) : https://mega.nz/folder/hZ9UCAqD#3p-XxbcKDG-ZXAhlrBrl8A The Nürburgring Grand Prix (GP) circuit is a modern, FIA Grade 1 motorsports facility located in Nürburg, Germany. Constructe...\""
+      ],
+      "note": "Tagged Ripped + asseto-corsa. GLB materials Union1Mtl, Part13Mtl, Tube0041Mtl, Object521Mtl and node hoscheife: Roblox Studio export naming. Third-party work either way. This is the release assets.config.json uses for nurburgring-4.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-nurburgring-gp-2022-layout",
+      "repoFolder": "Nurburgring GP 2022 layout",
+      "source": "https://sketchfab.com/3d-models/nurburgring-gp-2022-layout-35159cb72d3947e18c5b420a39412a01",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/nurburgring-gp-2022-layout-35159cb72d3947e18c5b420a39412a01: title 'Nürburgring GP 2022 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-25; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description: \"The Nürburgring Grand Prix (GP) circuit is a modern, FIA Grade 1 motorsports facility located in Nürburg, Germany. Constructed in 1984 and redesigned by Hermann Tilke in 2002, the 5.148 km (3.199 miles) circuit features ...\""
+      ],
+      "note": "Tagged Ripped + asseto-corsa. GLB materials schumacher_s, wall_ringwerk, spons_we_make, timetower (AC track mod set).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-nurburgring-gp-circuit",
+      "repoFolder": "nurburgring gp circuit",
+      "source": "https://sketchfab.com/3d-models/nurburgring-gp-circuit-d3807ff70d674b7e8a30709930c47363",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/nurburgring-gp-circuit-d3807ff70d674b7e8a30709930c47363: title 'nurburgring gp circuit', licence 'CC Attribution', uploader amogusstrikesback2 (amogusstrikesback2), published 2026-10-28",
+        "Description: \"they cut norschedlife\""
+      ],
+      "note": "Real Racing 3 (EA/Firemonkeys) rip per tags; GLB nuerburgring.fbx with LOD01/MESHES/sky_01_hillsfar/arc_* naming.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "nurburgring-4",
+      "release": "circuitos-nurburgring-racing-circuit-fr-legends-mod",
+      "repoFolder": "Nurburgring racing circuit (FR Legends mod)",
+      "source": "https://sketchfab.com/3d-models/nurburgring-racing-circuit-fr-legends-mod-ec8e8c9938874058945d421d3f433a36",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/nurburgring-racing-circuit-fr-legends-mod-ec8e8c9938874058945d421d3f433a36: title 'Nürburgring racing circuit (FR Legends mod)', licence 'CC Attribution', uploader Unprofessional Modeler (themodel_finder), published 2026-01-11",
+        "Description: \"The Nürburgring (German pronunciation: [ˈnyːɐ̯bʊʁkˌʁɪŋ] ⓘ) is a 150,000-person capacity motorsports complex located in the town of Nürburg, Rhineland-Palatinate, Germany. It features a Grand Prix race track built in 1984...\""
+      ],
+      "note": "Title says FR Legends mod; author bio: 'Most the model were from fr legends'.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "monaco-6",
+      "release": "circuitos-real-racing-3-monaco",
+      "repoFolder": "real racing 3 monaco",
+      "source": "https://sketchfab.com/3d-models/real-racing-3-monaco-53cb4b6e735145529677e7ab70ee2714",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/real-racing-3-monaco-53cb4b6e735145529677e7ab70ee2714: title 'real racing 3 monaco', licence 'CC Attribution', uploader amogusstrikesback2 (amogusstrikesback2), published 2026-10-23",
+        "Description: \"iconic formula track for it's narrow length and hairpin corners there's too many missing textures in preview\""
+      ],
+      "note": "Real Racing 3 rip per title and tags.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "suzuka-1",
+      "release": "circuitos-suzuka",
+      "repoFolder": "Suzuka",
+      "source": "https://sketchfab.com/3d-models/suzuka-3fb86f8c589748a9af81341db4ae8822",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/suzuka-3fb86f8c589748a9af81341db4ae8822: title 'Suzuka', licence 'CC Attribution', uploader SidewalkNZ (SidewalkNZ), published 2026-10-30",
+        "Description: \"F1 2010\""
+      ],
+      "note": "F1 2010 (Codemasters) rip. GLB: tracksplit / LAND / NONLOD, materials lg_pit_exit_light_a (EGO naming).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "suzuka-1",
+      "release": "circuitos-suzuka-circuit",
+      "repoFolder": "suzuka circuit",
+      "source": "https://sketchfab.com/3d-models/suzuka-circuit-1fd9788a3690435dbee84bc0fcbf132f",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/suzuka-circuit-1fd9788a3690435dbee84bc0fcbf132f: title 'suzuka circuit', licence 'CC Attribution', uploader amogusstrikesback2 (amogusstrikesback2), published 2026-10-23",
+        "Description: \"the most iconic race track in japan\""
+      ],
+      "note": "Real Racing 3 rip per tags; GLB suzuka.fbx with LOD01/MESHES/arc_grandstand_main_building_suzuka_00.",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    },
+    {
+      "kind": "circuit",
+      "candidate": true,
+      "candidateFor": "suzuka-1",
+      "release": "circuitos-suzuka-circuit-2001-layout",
+      "repoFolder": "Suzuka Circuit 2001 layout",
+      "source": "https://sketchfab.com/3d-models/suzuka-circuit-2001-layout-0b1085d93dfa4e81aab2c83c26bf185b",
+      "riskRipped": true,
+      "confidence": "high",
+      "evidence": [
+        "Sketchfab https://sketchfab.com/3d-models/suzuka-circuit-2001-layout-0b1085d93dfa4e81aab2c83c26bf185b: title 'Suzuka Circuit 2001 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-18; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+        "Description: \"The Suzuka International Racing Course, a.k.a. the Suzuka Circuit (鈴鹿サーキット, Suzuka Sākitto), is a 5.807 km (3.608 mi) long motorsport race track located in Ino, Suzuka City, Mie Prefecture, Japan, and operated by Honda M...\""
+      ],
+      "note": "Tagged Ripped + asseto-corsa. GLB materials 282_n (merged).",
+      "licenseOnSketchfab": "CC Attribution",
+      "licenseMatchesAttribution": true
+    }
+  ]
+}

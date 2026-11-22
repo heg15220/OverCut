@@ -106,15 +106,40 @@ export const geoCheck = (xy, lonlat) => {
   const B0 = centre(resampleLoop(top).points).pts;
   const A = centre(resampleLoop(geo).points).pts;
   const best = { false: Infinity, true: Infinity };
+  // Sentido de recorrido de la spline respecto al orden de puntos del trazado real (1 = el mismo).
+  const order = { false: 1, true: 1 };
   for (const direction of [1, -1]) {
     for (const reflect of [false, true]) {
       for (let s = 0; s < N; s += 2) {
         const B = A.map((_, i) => B0[(((s + direction * i) % N) + N) % N]);
-        best[reflect] = Math.min(best[reflect], procrustes(A, B, reflect).rms);
+        const { rms } = procrustes(A, B, reflect);
+        if (rms < best[reflect]) {
+          best[reflect] = rms;
+          order[reflect] = direction;
+        }
       }
     }
   }
-  return { rmsAsIs: Math.round(best.false), rmsMirrored: Math.round(best.true), mirrored: best.true < 0.6 * best.false };
+  const mirrored = best.true < 0.6 * best.false;
+  return { rmsAsIs: Math.round(best.false), rmsMirrored: Math.round(best.true), mirrored, orderAsGeo: order[mirrored] === 1 };
+};
+
+/** ¿Se cruza la línea consigo misma en planta? (trazados en ocho como Suzuka). */
+export const selfCrossing = (xy) => {
+  const p = resampleLoop(xy, 360).points;
+  const n = p.length;
+  const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+  for (let i = 0; i < n; i += 1) {
+    const a = p[i];
+    const b = p[(i + 1) % n];
+    for (let j = i + 2; j < n; j += 1) {
+      if ((j + 1) % n === i) continue;
+      const c = p[j];
+      const d = p[(j + 1) % n];
+      if (cross(a, b, c) * cross(a, b, d) < 0 && cross(c, d, a) * cross(c, d, b) < 0) return true;
+    }
+  }
+  return false;
 };
 
 /** Signo del área en el plano (x, -z) de glTF visto desde arriba: < 0 es sentido horario. */
@@ -130,6 +155,7 @@ export const signedArea = (xy) => {
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   // Uso: node align_spline.mjs <raw.json> <salida.json> <layoutRef> <año> <CLOCKWISE|ANTI_CLOCKWISE>
   //   [--geo <f1-circuits.geojson> --geo-id <id>] [--start-shift <metros>] [--force-mirror true|false]
+  //   [--direction-by geo|area]  (por defecto: area; geo si la spline se cruza en planta y hay trazado real)
   const argv = process.argv.slice(2);
   const [source, target, ref, yearText, direction] = argv;
   const flag = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : null);
@@ -151,8 +177,13 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   const xy = raw.points.map(([x, , z]) => [x, z]);
   const layout = layoutFor(ref, Number(yearText));
   // Sentido: el de f1db. No depende de cómo esté girado el modelo, solo de que no esté reflejado.
+  // En un trazado en ocho el área con signo no dice nada (los dos lóbulos giran al revés): manda el orden
+  // del trazado real (bacinger/f1-circuits va en el sentido de la carrera), o --direction-by geo|area.
+  const figureEight = selfCrossing(xy);
+  const directionBy = flag("--direction-by") || (figureEight && geo ? "geo" : "area");
+  if (directionBy === "geo" && !geo) throw new Error("--direction-by geo necesita --geo y --geo-id");
   const clockwise = signedArea(xy) < 0;
-  const reverse = direction ? (direction === "CLOCKWISE") !== clockwise : false;
+  const reverse = directionBy === "geo" ? !geo.orderAsGeo : direction ? (direction === "CLOCKWISE") !== clockwise : false;
   // Meta: mitad de la recta de boxes si la malla la delata; si no, la del boceto ajustado.
   let startIndex;
   let startSource;
@@ -191,6 +222,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
     offsets: pick(raw.offsets),
     layoutRef: ref,
     direction: direction || null,
+    directionBy,
+    figureEight,
     mirroredFromSource: mirrored,
     geoCheck: geo,
     start: {
@@ -210,5 +243,5 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   };
   writeFileSync(target, `${JSON.stringify(result)}
 `);
-  console.log(`[align] ${ref}: ${mirrored ? "REFLEJADO, " : ""}geo ${geo ? `${geo.rmsAsIs}/${geo.rmsMirrored} m` : "-"}, ${reverse ? "invertida" : "sentido original"} (${direction || "?"}), meta por ${startSource}, boceto rms ${sketchFit ? Math.round(sketchFit.rms) : "-"} m`);
+  console.log(`[align] ${ref}: ${mirrored ? "REFLEJADO, " : ""}geo ${geo ? `${geo.rmsAsIs}/${geo.rmsMirrored} m` : "-"}, ${reverse ? "invertida" : "sentido original"} (${direction || "?"}${directionBy === "geo" ? ", por el orden del trazado real" : ""}${figureEight ? ", en ocho" : ""}), meta por ${startSource}, boceto rms ${sketchFit ? Math.round(sketchFit.rms) : "-"} m`);
 }

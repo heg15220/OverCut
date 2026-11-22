@@ -1,7 +1,7 @@
 {
  "$comment": "GENERADO por tools/assets/build_assets.py: no editar a mano (SRS 4.3, RF-3D-01). Las rutas son relativas a /manager-assets/.",
  "version": 1,
- "hash": "9e9d97a0beb0c7f4",
+ "hash": "8103bae232455564",
  "baseUrl": "/manager-assets/",
  "cars": [
   {
@@ -87,7 +87,13 @@
    "source": "https://sketchfab.com/3d-models/2005-bar-007-271096708f244c5eba56f7a3c53fe375",
    "title": "2005 BAR 007",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2005-bar-007-271096708f244c5eba56f7a3c53fe375: title '2005 BAR 007', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-06",
+    "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2005,
@@ -172,7 +178,13 @@
    "source": "https://sketchfab.com/3d-models/2005-ferrari-f2005-630908b3713e4dde818d5af3e43ebda4",
    "title": "2005 Ferrari F2005",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2005-ferrari-f2005-630908b3713e4dde818d5af3e43ebda4: title '2005 Ferrari F2005', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-06",
+    "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2005,
@@ -257,7 +269,13 @@
    "source": "https://sketchfab.com/3d-models/2005-jordan-ej15-42587147465547eeba3a80d0fd21d459",
    "title": "2005 Jordan EJ15",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2005-jordan-ej15-42587147465547eeba3a80d0fd21d459: title '2005 Jordan EJ15', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-06",
+    "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2005,
@@ -342,7 +360,13 @@
    "source": "https://sketchfab.com/3d-models/2005-mclaren-mp4-20-95e5c4c4fc8542bcb98e6b33ecf6c2f2",
    "title": "2005 McLaren MP4-20",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2005-mclaren-mp4-20-95e5c4c4fc8542bcb98e6b33ecf6c2f2: title '2005 McLaren MP4-20', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+    "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2005,
@@ -427,7 +451,13 @@
    "source": "https://sketchfab.com/3d-models/2005-minardi-ps05-d3ff4f90affc49eb92ab0b456bf62c77",
    "title": "2005 Minardi PS05",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2005-minardi-ps05-d3ff4f90affc49eb92ab0b456bf62c77: title '2005 Minardi PS05', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+    "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2005,
@@ -512,7 +542,13 @@
    "source": "https://sketchfab.com/3d-models/2005-renault-r25-0d58fe125f5b41a2b8482576723120c4",
    "title": "2005 Renault R25",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2005-renault-r25-0d58fe125f5b41a2b8482576723120c4: title '2005 Renault R25', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+    "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2005,
@@ -597,7 +633,13 @@
    "source": "https://sketchfab.com/3d-models/2005-sauber-c24-2422962ebf87496b8497ab19789a88e0",
    "title": "2005 Sauber C24",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2005-sauber-c24-2422962ebf87496b8497ab19789a88e0: title '2005 Sauber C24', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+    "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2005,
@@ -682,7 +724,13 @@
    "source": "https://sketchfab.com/3d-models/2005-toyota-tf105-ec338073ad854a639636f2e6b8b75698",
    "title": "2005  Toyota TF105",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2005-toyota-tf105-ec338073ad854a639636f2e6b8b75698: title '2005  Toyota TF105', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+    "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2005,
@@ -767,7 +815,13 @@
    "source": "https://sketchfab.com/3d-models/2005-williams-fw27-4dae6d39b2854884b14b1cfcb2708fbf",
    "title": "2005 Williams FW27",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2005-williams-fw27-4dae6d39b2854884b14b1cfcb2708fbf: title '2005 Williams FW27', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-05",
+    "GLB materials WCCARBODY, WCEXTRA0, WCEXTRA1, CARBFBD, GEARSBK, SPEEDBK, PLACEBK, LAPSBK (ISI gMotor / rFactor car template) and CTDP_TECH (CTDP, the rFactor F1 mod team); nodes f1_2005_<team>. The 2005 McLaren and Minardi reuse c_mclaren_08_steeringwheel from a 2008 mod.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2007,
@@ -853,7 +907,13 @@
    "source": "https://sketchfab.com/3d-models/2007-e2e1ba3963f44ded852fe7cf146d7fba",
    "title": "2007",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2007-e2e1ba3963f44ded852fe7cf146d7fba: title '2007', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-10-11",
+    "Sketchfab page titled just '2007', no description, no tags.",
+    "GLB materials WCCARBODY, WCEXTRA0/1/4, ferrari_f2007_cockpit, ferrari_248f1_gauges, F2007_SUSP; node cim_2007_ferrari (same 'cim_' mod prefix as the 2008 pack and Tyler_Dave's 'Cim_2006_tororosso' upload)."
+   ]
   },
   {
    "season": 2008,
@@ -866,25 +926,30 @@
    "scale": 1.0,
    "forwardAxis": "-Z",
    "origin": "rear-axle-ground",
-   "wheelNodes": [],
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
    "lods": [
     {
      "file": "cars/2008/2008-bmw-sauber.lod0.glb",
-     "bytes": 6267656,
-     "sha256": "ae097c9a6cff9bb7",
+     "bytes": 6545684,
+     "sha256": "6b26b45498176baa",
      "triangles": 172812
     },
     {
      "file": "cars/2008/2008-bmw-sauber.lod1.glb",
-     "bytes": 2547012,
-     "sha256": "51d3c1e34769f773",
-     "triangles": 69124
+     "bytes": 2663640,
+     "sha256": "0c4aaa2ab8c105cb",
+     "triangles": 69123
     },
     {
      "file": "cars/2008/2008-bmw-sauber.lod2.glb",
-     "bytes": 850732,
-     "sha256": "c136c10455a793a5",
-     "triangles": 20737
+     "bytes": 885800,
+     "sha256": "eb7085400742e813",
+     "triangles": 20735
     }
    ],
    "thumb": "thumbs/2008-bmw-sauber.png",
@@ -892,15 +957,41 @@
     "lengthM": 4.592,
     "widthM": 1.821,
     "heightM": 1.071,
-    "wheelbaseM": 2.847,
-    "trackFrontM": null,
-    "trackRearM": null,
-    "wheelRadiusM": {},
-    "wheelHubs": {},
-    "noseZ": -3.903,
-    "tailZ": 0.689,
+    "wheelbaseM": 3.104,
+    "trackFrontM": 1.452,
+    "trackRearM": 1.42,
+    "wheelRadiusM": {
+     "wheel_fl": 0.329,
+     "wheel_fr": 0.329,
+     "wheel_rl": 0.33,
+     "wheel_rr": 0.33
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7264,
+      0.331,
+      -3.1037
+     ],
+     "wheel_fr": [
+      0.7255,
+      0.3311,
+      -3.1037
+     ],
+     "wheel_rl": [
+      -0.7105,
+      0.3304,
+      -0.0004
+     ],
+     "wheel_rr": [
+      0.7098,
+      0.3303,
+      0.0004
+     ]
+    },
+    "noseZ": -4.049,
+    "tailZ": 0.543,
     "scaleApplied": 1.0,
-    "wheels": "static"
+    "wheels": "nodes"
    },
    "author": "Dave Love SketchFab",
    "license": "CC-BY-4.0",
@@ -908,7 +999,13 @@
    "source": "https://sketchfab.com/3d-models/2008-bmw-sauber-f108-5bf3feb19ea24856af8deae8789c088e",
    "title": "2008 BMW Sauber F1.08",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-bmw-sauber-f108-5bf3feb19ea24856af8deae8789c088e: title '2008 BMW Sauber F1.08', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2008,
@@ -993,7 +1090,13 @@
    "source": "https://sketchfab.com/3d-models/2008-ferrari-f2008-0476bd73b8d84e0e99d5197140bc22d6",
    "title": "2008 Ferrari F2008",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-ferrari-f2008-0476bd73b8d84e0e99d5197140bc22d6: title '2008 Ferrari F2008', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2008,
@@ -1078,7 +1181,13 @@
    "source": "https://sketchfab.com/3d-models/2008-force-india-vjm01-2827f7db24474ee9ae9a1c10286efc0a",
    "title": "2008 Force India VJM01",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-force-india-vjm01-2827f7db24474ee9ae9a1c10286efc0a: title '2008 Force India VJM01', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2008,
@@ -1163,7 +1272,13 @@
    "source": "https://sketchfab.com/3d-models/2008-honda-ra108-4c33e6f7501041cc99f19c2447732403",
    "title": "2008 Honda RA108",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-honda-ra108-4c33e6f7501041cc99f19c2447732403: title '2008 Honda RA108', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2008,
@@ -1176,25 +1291,30 @@
    "scale": 1.0,
    "forwardAxis": "-Z",
    "origin": "rear-axle-ground",
-   "wheelNodes": [],
+   "wheelNodes": [
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
    "lods": [
     {
      "file": "cars/2008/2008-mclaren.lod0.glb",
-     "bytes": 5009752,
-     "sha256": "6eb78896c052714b",
+     "bytes": 5174752,
+     "sha256": "aaf235b5f7537686",
      "triangles": 125327
     },
     {
      "file": "cars/2008/2008-mclaren.lod1.glb",
-     "bytes": 2459920,
-     "sha256": "d0856ef83f8d671d",
+     "bytes": 2566944,
+     "sha256": "f731387f08afb2ba",
      "triangles": 50130
     },
     {
      "file": "cars/2008/2008-mclaren.lod2.glb",
-     "bytes": 927664,
-     "sha256": "5186ff64ee35e4ed",
-     "triangles": 15039
+     "bytes": 987184,
+     "sha256": "d1085e89b7922dc5",
+     "triangles": 15036
     }
    ],
    "thumb": "thumbs/2008-mclaren.png",
@@ -1202,15 +1322,41 @@
     "lengthM": 4.7,
     "widthM": 1.79,
     "heightM": 1.107,
-    "wheelbaseM": 2.914,
-    "trackFrontM": null,
-    "trackRearM": null,
-    "wheelRadiusM": {},
-    "wheelHubs": {},
-    "noseZ": -3.995,
-    "tailZ": 0.705,
+    "wheelbaseM": 3.065,
+    "trackFrontM": 1.429,
+    "trackRearM": 1.4,
+    "wheelRadiusM": {
+     "wheel_fl": 0.324,
+     "wheel_fr": 0.324,
+     "wheel_rl": 0.324,
+     "wheel_rr": 0.324
+    },
+    "wheelHubs": {
+     "wheel_fl": [
+      -0.7144,
+      0.3242,
+      -3.0648
+     ],
+     "wheel_fr": [
+      0.7149,
+      0.3242,
+      -3.0648
+     ],
+     "wheel_rl": [
+      -0.6999,
+      0.3242,
+      0.0
+     ],
+     "wheel_rr": [
+      0.6999,
+      0.3242,
+      -0.0
+     ]
+    },
+    "noseZ": -4.078,
+    "tailZ": 0.622,
     "scaleApplied": 98.50455,
-    "wheels": "static"
+    "wheels": "nodes"
    },
    "author": "Dave Love SketchFab",
    "license": "CC-BY-4.0",
@@ -1218,7 +1364,13 @@
    "source": "https://sketchfab.com/3d-models/2008-mclaren-mp423-bf1096b47dab4cefaedb46006125670e",
    "title": "2008 Mclaren MP4/23",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-mclaren-mp423-bf1096b47dab4cefaedb46006125670e: title '2008 Mclaren MP4/23', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2008,
@@ -1303,7 +1455,13 @@
    "source": "https://sketchfab.com/3d-models/2008-redbull-rb3-29d106867882476da70c3d9164f1bdb3",
    "title": "2008 Redbull RB3",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-redbull-rb3-29d106867882476da70c3d9164f1bdb3: title '2008 Redbull RB3', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2008,
@@ -1389,7 +1547,13 @@
    "source": "https://sketchfab.com/3d-models/2008-renault-r28-ce19a4094d7c4003ba7adeee79ea0900",
    "title": "2008 Renault R28",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-renault-r28-ce19a4094d7c4003ba7adeee79ea0900: title '2008 Renault R28', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2008,
@@ -1475,7 +1639,13 @@
    "source": "https://sketchfab.com/3d-models/2008-super-aguri-sa08-6a2c798d6fc44b57893c04dc74922111",
    "title": "2008 Super Aguri SA08",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-super-aguri-sa08-6a2c798d6fc44b57893c04dc74922111: title '2008 Super Aguri SA08', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2008,
@@ -1561,7 +1731,13 @@
    "source": "https://sketchfab.com/3d-models/2008-toro-rosso-str3-35f64cdaf8cd48b78ae7e0beb41814af",
    "title": "2008 Toro Rosso STR3",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-toro-rosso-str3-35f64cdaf8cd48b78ae7e0beb41814af: title '2008 Toro Rosso STR3', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2008,
@@ -1647,7 +1823,13 @@
    "source": "https://sketchfab.com/3d-models/2008-williams-fw30-cc94e533747e4edbb4a5b698a9fc25e2",
    "title": "2008 Williams FW30",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2008-williams-fw30-cc94e533747e4edbb4a5b698a9fc25e2: title '2008 Williams FW30', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-15",
+    "GLB nodes cim_2008_<team> (e.g. cim_2008_bmw_sauber, from 'BMW_2008.fbx'), parts MP423_BODY / MCL22_SWHEEL; materials Suspcar, susbody, tcam (T-camera), wood (plank), brakefluid, RIM_BLUR, side/tread: rFactor-style F1 mod car naming.",
+    "Profile bio (API https://api.sketchfab.com/v3/users/d00fd6e7881e43d4821e30a82d10dbf7): \"i often upload a model that the whole Sketchfab doesnt have it, i usually use others models and repaint\""
+   ]
   },
   {
    "season": 2010,
@@ -1733,7 +1915,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -1819,7 +2007,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -1905,7 +2099,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -1991,7 +2191,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -2077,7 +2283,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -2163,7 +2375,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -2249,7 +2467,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -2335,7 +2559,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -2421,7 +2651,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -2507,7 +2743,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -2593,7 +2835,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2010,
@@ -2679,7 +2927,13 @@
    "source": "https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603",
    "title": "[FREE!] F1 2010 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-f1-2010-pack-6f8e799915ce4a4b8617c7ee67411603: title '[FREE!] F1 2010 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-25",
+    "Pack description ends: \"Credits: Model by Tk3cuasoc (Roblox) i hope ts useful\"; tags mattdoesblender, mattsactuallyusefulmodels.",
+    "GLB materials Meshpart1Mtl, Body21Mtl, Chassis1Mtl, Floor1Mtl: the naming Roblox Studio's OBJ export produces."
+   ]
   },
   {
    "season": 2012,
@@ -2765,7 +3019,13 @@
    "source": "https://sketchfab.com/3d-models/2012-caterham-ct01-4eebc03336bf4316809216b1cb20a1f0",
    "title": "2012 Caterham CT01",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-caterham-ct01-4eebc03336bf4316809216b1cb20a1f0: title '2012 Caterham CT01', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -2851,7 +3111,13 @@
    "source": "https://sketchfab.com/3d-models/2012-ferrari-f2012-a2d73741f6fc4357bd508297d084f909",
    "title": "2012 Ferrari F2012",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-ferrari-f2012-a2d73741f6fc4357bd508297d084f909: title '2012 Ferrari F2012', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -2937,7 +3203,13 @@
    "source": "https://sketchfab.com/3d-models/2012-force-india-vjm05-763643baf84549bfb091e55c7c538ea1",
    "title": "2012 Force India VJM05",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-force-india-vjm05-763643baf84549bfb091e55c7c538ea1: title '2012 Force India VJM05', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -3023,7 +3295,13 @@
    "source": "https://sketchfab.com/3d-models/2012-hrt-f112-f4c3597a701b4812aa3f928f033ad0c8",
    "title": "2012 HRT F112",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-hrt-f112-f4c3597a701b4812aa3f928f033ad0c8: title '2012 HRT F112', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -3109,7 +3387,13 @@
    "source": "https://sketchfab.com/3d-models/2012-lotus-e20-5eb582824df349be970af27042d1d4f9",
    "title": "2012 Lotus E20",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-lotus-e20-5eb582824df349be970af27042d1d4f9: title '2012 Lotus E20', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -3195,7 +3479,13 @@
    "source": "https://sketchfab.com/3d-models/2012-marussia-mr01-a0222429b1ff4f0086a078ca00bf85ba",
    "title": "2012 Marussia MR01",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-marussia-mr01-a0222429b1ff4f0086a078ca00bf85ba: title '2012 Marussia MR01', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -3281,7 +3571,13 @@
    "source": "https://sketchfab.com/3d-models/2012-mclaren-mp427-51d0817a4e954600934d37cd9ee7a78c",
    "title": "2012 Mclaren MP4/27",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-mclaren-mp427-51d0817a4e954600934d37cd9ee7a78c: title '2012 Mclaren MP4/27', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -3367,7 +3663,13 @@
    "source": "https://sketchfab.com/3d-models/2012-mercedes-f1-w03-05652f9048174f0493e61d4e8dbc5703",
    "title": "2012 Mercedes F1 W03",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-mercedes-f1-w03-05652f9048174f0493e61d4e8dbc5703: title '2012 Mercedes F1 W03', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -3453,7 +3755,13 @@
    "source": "https://sketchfab.com/3d-models/2012-red-bull-rb8-60ee17feb97e45fbb28d37d0462c4f3d",
    "title": "2012 Red Bull RB8",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-red-bull-rb8-60ee17feb97e45fbb28d37d0462c4f3d: title '2012 Red Bull RB8', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-02",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -3539,7 +3847,13 @@
    "source": "https://sketchfab.com/3d-models/2012-sauber-c31-7df0190e75f2430298cb816001a67779",
    "title": "2012 Sauber C31",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-sauber-c31-7df0190e75f2430298cb816001a67779: title '2012 Sauber C31', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -3625,7 +3939,13 @@
    "source": "https://sketchfab.com/3d-models/2012-toro-rosso-str7-1d3b28e636a7488dbaea1e869e58d6a6",
    "title": "2012 Toro Rosso STR7",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-toro-rosso-str7-1d3b28e636a7488dbaea1e869e58d6a6: title '2012 Toro Rosso STR7', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2012,
@@ -3711,7 +4031,13 @@
    "source": "https://sketchfab.com/3d-models/2012-williams-fw34-217528e834cd4c3997ae6f88fcfa9ba8",
    "title": "2012 Williams FW34",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/2012-williams-fw34-217528e834cd4c3997ae6f88fcfa9ba8: title '2012 Williams FW34', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-08-12",
+    "GLB materials wccarbody, wccarbody_in (ISI gMotor livery slots), generic_main, generic_tyre_sof, generic_tread_slick, int_infopod, int_digi_inds, digi_speed, FER_BLGLOWA and per-team 2-letter prefixes (fe2_, mc2_, rb2_, lr2_, ca2_, hr2_, sa2_, tr2_, wi2_, me2_, ma2_, fc2_ steering_wheel/wheel); nodes f1_2012_<team>. The same set is shared by every team: one source mod/game.",
+    "Descriptions are Wikipedia text and Pinterest images; no authorship claim."
+   ]
   },
   {
    "season": 2013,
@@ -3797,7 +4123,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -3883,7 +4215,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -3969,7 +4307,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -4055,7 +4399,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -4141,7 +4491,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -4227,7 +4583,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -4313,7 +4675,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -4399,7 +4767,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -4485,7 +4859,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -4571,7 +4951,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2013,
@@ -4657,7 +5043,13 @@
    "source": "https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4",
    "title": "[FREE!] 2013 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "medium",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2013-f1-pack-ff47341a98b648f9ac3915b00eb7a3a4: title '[FREE!] 2013 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2025-10-26",
+    "Pack tags vecarz, mattdoesblender, f12010, 2010f1 (credits to other creators); description is Wikipedia text.",
+    "GLB materials Meshpart1Mtl ... Meshpart78Mtl, Wheel1Mtl: Roblox Studio OBJ export naming, like the 2010 pack credited to Tk3cuasoc (Roblox)."
+   ]
   },
   {
    "season": 2014,
@@ -4743,7 +5135,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -4829,7 +5227,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -4915,7 +5319,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -5001,7 +5411,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -5087,7 +5503,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -5173,7 +5595,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -5259,7 +5687,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -5345,7 +5779,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -5431,7 +5871,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -5517,7 +5963,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   },
   {
    "season": 2014,
@@ -5603,7 +6055,13 @@
    "source": "https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4",
    "title": "[FREE!] 2014 F1 Pack",
    "allowRecolor": true,
-   "riskRipped": null
+   "riskRipped": null,
+   "provenanceConfidence": "low",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/free-2014-f1-pack-681349bcc1c54b9b91adcae067d8a1c4: title '[FREE!] 2014 F1 Pack', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-16",
+    "Pack tags vecarz, mattdoesblender, 2013f1, f12013 (credits to other creators); description is Wikipedia text.",
+    "GLB materials were merged by Sketchfab (Merged_materials, MIRRORS_n), so the original names are lost; nodes are <team>_2014 and caterham_late_2014."
+   ]
   }
  ],
  "circuits": [
@@ -5620,35 +6078,33 @@
    "sha256": "4fcb67b5eb6028c1",
    "splineId": "bahrain-1",
    "spline": "splines/bahrain-1.json",
-   "lengthM": 5334.5,
+   "lengthM": 5397.6,
    "realKm": 5.412,
-   "lengthError": -0.0143,
+   "lengthError": -0.0027,
    "deviation": {
-    "maxM": 13.625,
-    "p95M": 9.254,
-    "meanM": 2.284,
-    "measuredShare": 0.182,
-    "rawMaxM": 14.906,
-    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+    "maxM": 0.725,
+    "p95M": 0.05,
+    "meanM": 0.014,
+    "measuredShare": 0.97,
+    "rawMaxM": 0.85,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (líneas pintadas), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
    },
    "mirroredFromSource": false,
-   "meetsCriterion": false,
+   "meetsCriterion": true,
    "reviewApproved": true,
-   "edgeReference": "asfalto",
-   "geoFit": {
-    "meanM": 10.3,
-    "reflected": false
-   },
+   "edgeReference": "líneas pintadas",
+   "geoFit": null,
    "start": {
-    "source": "sketch",
+    "source": "pit-complex",
     "shiftM": 0,
     "confidence": "reviewed"
    },
    "geoCheck": {
     "id": "bh-2002",
-    "rmsAsIs": 15,
-    "rmsMirrored": 170,
-    "mirrored": false
+    "rmsAsIs": 10,
+    "rmsMirrored": 172,
+    "mirrored": false,
+    "orderAsGeo": false
    },
    "author": "Dave Love SketchFab",
    "license": "CC-BY-4.0",
@@ -5656,7 +6112,13 @@
    "source": "https://sketchfab.com/3d-models/bahrain-international-circuit-e93b0a1892c44efebbe0a92bf1ff479d",
    "title": "Bahrain International Circuit",
    "allowRecolor": false,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/bahrain-international-circuit-e93b0a1892c44efebbe0a92bf1ff479d: title 'Bahrain International Circuit', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-21; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+    "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+    "GLB materials Bahrainv3001791Mtl_97, Material_41.001_n; nodes bahrain_v3.001127 plus an embedded second Sketchfab_model root: a merged re-export of someone else's 'bahrain_v3' model."
+   ]
   },
   {
    "circuitRef": "hungaroring",
@@ -5688,15 +6150,16 @@
    "edgeReference": "líneas pintadas",
    "geoFit": null,
    "start": {
-    "source": "pit-lane",
-    "shiftM": 0,
+    "source": "pit-lane+manual",
+    "shiftM": 390,
     "confidence": "reviewed"
    },
    "geoCheck": {
     "id": "hu-1986",
     "rmsAsIs": 15,
     "rmsMirrored": 163,
-    "mirrored": false
+    "mirrored": false,
+    "orderAsGeo": true
    },
    "author": "Dave Love SketchFab",
    "license": "CC-BY-4.0",
@@ -5704,7 +6167,13 @@
    "source": "https://sketchfab.com/3d-models/hungaroring-2020-layout-33392c9fe6884df6b696ab84053fd0c7",
    "title": "Hungaroring 2020 layout",
    "allowRecolor": false,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/hungaroring-2020-layout-33392c9fe6884df6b696ab84053fd0c7: title 'Hungaroring 2020 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-24; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+    "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+    "GLB materials drs_floor_a_01 ...: lowercase object_variant_index naming like Codemasters' EGO tracks (cf. mon_gantry_overhang_a_030 in F1 2010 Monaco), as found in Assetto Corsa conversions of F1-game tracks."
+   ]
   },
   {
    "circuitRef": "interlagos",
@@ -5719,25 +6188,22 @@
    "sha256": "eacfe43ee0533296",
    "splineId": "interlagos-2",
    "spline": "splines/interlagos-2.json",
-   "lengthM": 4280.1,
+   "lengthM": 4327.4,
    "realKm": 4.309,
-   "lengthError": -0.0067,
+   "lengthError": 0.0043,
    "deviation": {
-    "maxM": 7.016,
-    "p95M": 6.5,
-    "meanM": 3.637,
-    "measuredShare": 0.056,
-    "rawMaxM": 15.141,
-    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+    "maxM": 0.3,
+    "p95M": 0.05,
+    "meanM": 0.011,
+    "measuredShare": 0.899,
+    "rawMaxM": 1.1,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (líneas pintadas), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
    },
    "mirroredFromSource": false,
-   "meetsCriterion": false,
+   "meetsCriterion": true,
    "reviewApproved": true,
-   "edgeReference": "asfalto",
-   "geoFit": {
-    "meanM": 14.7,
-    "reflected": false
-   },
+   "edgeReference": "líneas pintadas",
+   "geoFit": null,
    "start": {
     "source": "manual",
     "shiftM": 0,
@@ -5745,9 +6211,10 @@
    },
    "geoCheck": {
     "id": "br-1940",
-    "rmsAsIs": 17,
-    "rmsMirrored": 228,
-    "mirrored": false
+    "rmsAsIs": 8,
+    "rmsMirrored": 231,
+    "mirrored": false,
+    "orderAsGeo": false
    },
    "author": "Dave Love SketchFab",
    "license": "CC-BY-4.0",
@@ -5755,7 +6222,67 @@
    "source": "https://sketchfab.com/3d-models/failed-import-interlagos-circuit-2023-layout-4e5f0ebb2f2b48d289d5f6231c22512b",
    "title": "(failed import) Interlagos Circuit 2023 layout",
    "allowRecolor": false,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/failed-import-interlagos-circuit-2023-layout-4e5f0ebb2f2b48d289d5f6231c22512b: title '(failed import) Interlagos Circuit 2023 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-16; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+    "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+    "Title starts '(failed import)'. GLB node interlagos_dcgp, materials rmbla.004_n: a converted mod track."
+   ]
+  },
+  {
+   "circuitRef": "monaco",
+   "layoutId": "monaco-6",
+   "layoutRef": "monaco",
+   "validFrom": 2003,
+   "validTo": 2026,
+   "release": "circuitos-circuit-de-monaco",
+   "sourceFile": "circuit_de_monaco.glb",
+   "file": "circuits/monaco-6.glb",
+   "bytes": 18364112,
+   "sha256": "426d348366c538f2",
+   "splineId": "monaco-6",
+   "spline": "splines/monaco-6.json",
+   "lengthM": 3330.9,
+   "realKm": 3.337,
+   "lengthError": -0.0018,
+   "deviation": {
+    "maxM": 1.453,
+    "p95M": 0.141,
+    "meanM": 0.035,
+    "measuredShare": 0.636,
+    "rawMaxM": 4.156,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": true,
+   "reviewApproved": false,
+   "edgeReference": "asfalto",
+   "geoFit": null,
+   "start": {
+    "source": "manual",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "mc-1929",
+    "rmsAsIs": 17,
+    "rmsMirrored": 159,
+    "mirrored": false,
+    "orderAsGeo": false
+   },
+   "author": "SidewalkNZ",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/circuit-de-monaco-41a832044dc041ef8638fa51f844f92c",
+   "title": "Circuit de Monaco",
+   "allowRecolor": false,
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/circuit-de-monaco-41a832044dc041ef8638fa51f844f92c: title 'Circuit de Monaco', licence 'CC Attribution', uploader SidewalkNZ (SidewalkNZ), published 2026-10-30",
+    "Description: \"F1 2010\""
+   ]
   },
   {
    "circuitRef": "montreal",
@@ -5795,7 +6322,8 @@
     "id": "ca-1978",
     "rmsAsIs": 15,
     "rmsMirrored": 70,
-    "mirrored": false
+    "mirrored": false,
+    "orderAsGeo": false
    },
    "author": "Dave Love SketchFab",
    "license": "CC-BY-4.0",
@@ -5803,7 +6331,13 @@
    "source": "https://sketchfab.com/3d-models/circuit-gilles-villeneuve-montreal-2019-layout-5875d33d5ddb44f4a6c1188ed6776fa8",
    "title": "Circuit Gilles Villeneuve Montreal 2019 layout",
    "allowRecolor": false,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/circuit-gilles-villeneuve-montreal-2019-layout-5875d33d5ddb44f4a6c1188ed6776fa8: title 'Circuit Gilles Villeneuve Montreal 2019 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-13; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+    "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+    "GLB materials GitterMat, ZinkMat, KerbMat, GuardrailMat, GravelMat, groove_01, grass_straws_01: a sim-track material set (German names), not a scratch model by the uploader."
+   ]
   },
   {
    "circuitRef": "monza",
@@ -5818,25 +6352,22 @@
    "sha256": "ca238124c187e819",
    "splineId": "monza-7",
    "spline": "splines/monza-7.json",
-   "lengthM": 5840.1,
+   "lengthM": 5843.5,
    "realKm": 5.793,
-   "lengthError": 0.0081,
+   "lengthError": 0.0087,
    "deviation": {
-    "maxM": 4.35,
-    "p95M": 2.1,
-    "meanM": 0.286,
-    "measuredShare": 0.676,
-    "rawMaxM": 4.9,
+    "maxM": 2.75,
+    "p95M": 0.1,
+    "meanM": 0.029,
+    "measuredShare": 0.912,
+    "rawMaxM": 3,
     "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (líneas pintadas), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
    },
    "mirroredFromSource": false,
    "meetsCriterion": false,
    "reviewApproved": true,
    "edgeReference": "líneas pintadas",
-   "geoFit": {
-    "meanM": 5.7,
-    "reflected": false
-   },
+   "geoFit": null,
    "start": {
     "source": "manual",
     "shiftM": 0,
@@ -5844,9 +6375,10 @@
    },
    "geoCheck": {
     "id": "it-1922",
-    "rmsAsIs": 12,
-    "rmsMirrored": 155,
-    "mirrored": false
+    "rmsAsIs": 17,
+    "rmsMirrored": 152,
+    "mirrored": false,
+    "orderAsGeo": false
    },
    "author": "Dave Love SketchFab",
    "license": "CC-BY-4.0",
@@ -5854,7 +6386,67 @@
    "source": "https://sketchfab.com/3d-models/autodromo-nazionale-monza-circuit-2020-layout-25ed955115094de382935aa6d1a1e9c6",
    "title": "Autodromo Nazionale Monza Circuit 2020 layout",
    "allowRecolor": false,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/autodromo-nazionale-monza-circuit-2020-layout-25ed955115094de382935aa6d1a1e9c6: title 'Autodromo Nazionale Monza Circuit 2020 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-15; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+    "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+    "Description ends: \"heres yours, i fixed it @mucdinhh\""
+   ]
+  },
+  {
+   "circuitRef": "nurburgring",
+   "layoutId": "nurburgring-4",
+   "layoutRef": "nurburgring",
+   "validFrom": 2002,
+   "validTo": 2020,
+   "release": "circuitos-esda-nurburgring-grand-prix",
+   "sourceFile": "esda_nurburgring_grand_prix.glb",
+   "file": "circuits/nurburgring-4.glb",
+   "bytes": 15016008,
+   "sha256": "d4bae5f508db4512",
+   "splineId": "nurburgring-4",
+   "spline": "splines/nurburgring-4.json",
+   "lengthM": 5142.3,
+   "realKm": 5.148,
+   "lengthError": -0.0011,
+   "deviation": {
+    "maxM": 0.25,
+    "p95M": 0.047,
+    "meanM": 0.013,
+    "measuredShare": 0.856,
+    "rawMaxM": 0.531,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": true,
+   "reviewApproved": false,
+   "edgeReference": "asfalto",
+   "geoFit": null,
+   "start": {
+    "source": "manual",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "de-1927",
+    "rmsAsIs": 5,
+    "rmsMirrored": 146,
+    "mirrored": false,
+    "orderAsGeo": true
+   },
+   "author": "Dave Love SketchFab",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/esda-nurburgring-grand-prix-04fabfa7b44741dbb48701d158b64daa",
+   "title": "ESDA Nürburgring Grand Prix",
+   "allowRecolor": false,
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/esda-nurburgring-grand-prix-04fabfa7b44741dbb48701d158b64daa: title 'ESDA Nürburgring Grand Prix', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-11; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+    "Description: \"24H LAYOUT (with Nordschleife and GP) : https://mega.nz/file/NRdQUR6C#Dxsps2rd85hdFqAkZtU1ZMJilLvRENdP_cHxoMwkMaw The Nürburgring Grand Prix (GP) circuit is a modern, FIA Grade 1 motorsports facility located in Nürburg, ...\""
+   ]
   },
   {
    "circuitRef": "shanghai",
@@ -5869,25 +6461,22 @@
    "sha256": "bb1bb6c04925267f",
    "splineId": "shanghai-1",
    "spline": "splines/shanghai-1.json",
-   "lengthM": 5348.5,
+   "lengthM": 5449.7,
    "realKm": 5.451,
-   "lengthError": -0.0188,
+   "lengthError": -0.0002,
    "deviation": {
-    "maxM": 15.609,
-    "p95M": 8.862,
-    "meanM": 1.708,
-    "measuredShare": 0.162,
-    "rawMaxM": 19.203,
-    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+    "maxM": 0.45,
+    "p95M": 0.05,
+    "meanM": 0.013,
+    "measuredShare": 0.959,
+    "rawMaxM": 1.7,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (líneas pintadas), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
    },
    "mirroredFromSource": false,
-   "meetsCriterion": false,
+   "meetsCriterion": true,
    "reviewApproved": true,
-   "edgeReference": "asfalto",
-   "geoFit": {
-    "meanM": 13,
-    "reflected": false
-   },
+   "edgeReference": "líneas pintadas",
+   "geoFit": null,
    "start": {
     "source": "manual",
     "shiftM": 0,
@@ -5895,9 +6484,10 @@
    },
    "geoCheck": {
     "id": "cn-2004",
-    "rmsAsIs": 19,
-    "rmsMirrored": 261,
-    "mirrored": false
+    "rmsAsIs": 4,
+    "rmsMirrored": 266,
+    "mirrored": false,
+    "orderAsGeo": true
    },
    "author": "Dave Love SketchFab",
    "license": "CC-BY-4.0",
@@ -5905,7 +6495,13 @@
    "source": "https://sketchfab.com/3d-models/shanghai-international-circuit-2018-layout-4d3365f4de6442a5ae56e8807c518c4f",
    "title": "Shanghai International Circuit 2018 layout",
    "allowRecolor": false,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/shanghai-international-circuit-2018-layout-4d3365f4de6442a5ae56e8807c518c4f: title 'Shanghai International Circuit 2018 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-06-21; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+    "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+    "GLB node frd_shanghai, materials advert_side_a_n: a converted game/mod track."
+   ]
   },
   {
    "circuitRef": "silverstone",
@@ -5948,7 +6544,13 @@
    "source": "https://sketchfab.com/3d-models/silverstone-circuit-1999-layout-cad872e65ded4292a2061a7cc3b48d78",
    "title": "Silverstone Circuit 1999 layout",
    "allowRecolor": false,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/silverstone-circuit-1999-layout-cad872e65ded4292a2061a7cc3b48d78: title 'Silverstone Circuit 1999 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-07; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+    "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+    "GLB materials BUILDF, BUILDF_n; node silverstone_1999: a 1999 layout, as in the ISI F1 Challenge 99-02 / rFactor track mods."
+   ]
   },
   {
    "circuitRef": "spa-francorchamps",
@@ -5963,25 +6565,22 @@
    "sha256": "8229f010c3949e39",
    "splineId": "spa-francorchamps-4",
    "spline": "splines/spa-francorchamps-4.json",
-   "lengthM": 6969.6,
+   "lengthM": 7038.8,
    "realKm": 7.004,
-   "lengthError": -0.0049,
+   "lengthError": 0.005,
    "deviation": {
-    "maxM": 10,
-    "p95M": 1.25,
-    "meanM": 0.344,
-    "measuredShare": 0.441,
-    "rawMaxM": 13.219,
-    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+    "maxM": 3.2,
+    "p95M": 0.1,
+    "meanM": 0.038,
+    "measuredShare": 0.687,
+    "rawMaxM": 4.4,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (líneas pintadas), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
    },
    "mirroredFromSource": false,
    "meetsCriterion": false,
    "reviewApproved": true,
-   "edgeReference": "asfalto",
-   "geoFit": {
-    "meanM": 15.2,
-    "reflected": false
-   },
+   "edgeReference": "líneas pintadas",
+   "geoFit": null,
    "start": {
     "source": "manual",
     "shiftM": 0,
@@ -5990,8 +6589,9 @@
    "geoCheck": {
     "id": "be-1925",
     "rmsAsIs": 20,
-    "rmsMirrored": 257,
-    "mirrored": false
+    "rmsMirrored": 260,
+    "mirrored": false,
+    "orderAsGeo": true
    },
    "author": "Dave Love SketchFab",
    "license": "CC-BY-4.0",
@@ -5999,7 +6599,67 @@
    "source": "https://sketchfab.com/3d-models/circuit-de-spa-francorchamps-2009-layout-6f29b8a493ff4f5683836688c4c7bd71",
    "title": "Circuit de Spa-Francorchamps 2009 layout",
    "allowRecolor": false,
-   "riskRipped": null
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/circuit-de-spa-francorchamps-2009-layout-6f29b8a493ff4f5683836688c4c7bd71: title 'Circuit de Spa-Francorchamps 2009 layout', licence 'CC Attribution', uploader Dave Love SketchFab (Tyler_Dave), published 2026-07-14; self-applied tags: Ripped, asseto-corsa, asseto-corsa-3d-model, ripped-model",
+    "Description is Wikipedia text about the circuit; no authorship or origin claim.",
+    "GLB node fn_spa, materials sbancamento_D, kerb_new, jersey, box1-ppix, texts_new, new_AO (Italian naming, AC-style track shaders)."
+   ]
+  },
+  {
+   "circuitRef": "suzuka",
+   "layoutId": "suzuka-2",
+   "layoutRef": "suzuka",
+   "validFrom": 2003,
+   "validTo": 2026,
+   "release": "circuitos-suzuka",
+   "sourceFile": "suzuka.glb",
+   "file": "circuits/suzuka-2.glb",
+   "bytes": 24862380,
+   "sha256": "9aeff0ae500937e0",
+   "splineId": "suzuka-2",
+   "spline": "splines/suzuka-2.json",
+   "lengthM": 5820.5,
+   "realKm": 5.807,
+   "lengthError": 0.0023,
+   "deviation": {
+    "maxM": 0.281,
+    "p95M": 0.031,
+    "meanM": 0.01,
+    "measuredShare": 0.847,
+    "rawMaxM": 1.047,
+    "method": "mediana de 5 muestras de |d_izq - d_der| / 2 respecto a los bordes (asfalto), donde el ancho está entre 0,8 y 1,2 veces su mediana local"
+   },
+   "mirroredFromSource": false,
+   "meetsCriterion": true,
+   "reviewApproved": false,
+   "edgeReference": "asfalto",
+   "geoFit": null,
+   "start": {
+    "source": "manual",
+    "shiftM": 0,
+    "confidence": "reviewed"
+   },
+   "geoCheck": {
+    "id": "jp-1962",
+    "rmsAsIs": 9,
+    "rmsMirrored": 217,
+    "mirrored": false,
+    "orderAsGeo": true
+   },
+   "author": "SidewalkNZ",
+   "license": "CC-BY-4.0",
+   "licenseText": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "source": "https://sketchfab.com/3d-models/suzuka-3fb86f8c589748a9af81341db4ae8822",
+   "title": "Suzuka",
+   "allowRecolor": false,
+   "riskRipped": true,
+   "provenanceConfidence": "high",
+   "provenanceEvidence": [
+    "Sketchfab https://sketchfab.com/3d-models/suzuka-3fb86f8c589748a9af81341db4ae8822: title 'Suzuka', licence 'CC Attribution', uploader SidewalkNZ (SidewalkNZ), published 2026-10-30",
+    "Description: \"F1 2010\""
+   ]
   }
  ]
 }
