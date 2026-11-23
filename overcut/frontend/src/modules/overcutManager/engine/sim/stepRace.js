@@ -591,6 +591,11 @@ const advance = (state, i) => {
       }
     }
   }
+  // WP11: forming the grid behind a red flag - nobody drives past its slot.
+  if (sim.red && sim.red.slot && Number.isFinite(sim.red.slot[i]) && P1 > sim.red.slot[i]) {
+    P1 = Math.max(sim.P0[i], sim.red.slot[i]);
+    tau1 = Math.max(tau0, tauAtD(tables, P1 - laps));
+  }
   sim.v[i] = ((P1 - sim.P0[i]) * tables.length) / dt;
   sim.P[i] = P1;
   sim.tau[i] = tau1;
@@ -960,14 +965,15 @@ const startRed = (state) => {
   for (let i = 0; i < sim.n; i += 1) if (sim.duelOther[i] >= 0) endDuel(sim, i);
 };
 
-/** The leader is at the line behind the red flag: tyres by the rules, the grid formation, the restart. */
-const finishRed = (state) => {
+/**
+ * The leader is at the line behind the red flag (WP11, race-sim.json redFlag): the grid forms by
+ * driving. Every car on the leader's lap gets its slot behind the line in race order (lapped cars
+ * stay lapped); a car already past the line waits where it is (`slot` = its place now).
+ */
+const formGrid = (state) => {
   const sim = state._sim;
   const { tables, balance } = sim;
   const lap = sim.red.lineUpLap;
-  const running = runningCars(state);
-  redFlagTyres(state, running, wetnessAt(state, lap), lap);
-  // Line up behind the line in race order: cars on the leader's lap only (lapped cars stay lapped).
   const ordered = [];
   for (let k = 0; k < sim.n; k += 1) {
     const i = sim.order[k];
@@ -975,13 +981,44 @@ const finishRed = (state) => {
   }
   ordered.sort((x, y) => sim.P[y] - sim.P[x]);
   const front = ordered.length ? sim.P[ordered[0]] : 0;
+  sim.red.slot = new Float64Array(sim.n).fill(NaN);
+  sim.red.formingSince = sim.clock;
   ordered.forEach((i, k) => {
-    if (k === 0 || sim.laps[i] >= lap || front - sim.P[i] >= 1) return;
+    if (k === 0 || sim.laps[i] >= lap) {
+      sim.red.slot[i] = sim.P[i];
+      return;
+    }
+    if (front - sim.P[i] >= 1) return;
     const slot = lap - (balance.grid.poleBackMetres + k * balance.grid.gapMetres) / tables.length;
-    if (slot <= sim.laps[i]) return;
+    if (slot > sim.laps[i]) sim.red.slot[i] = slot;
+  });
+};
+
+/** Is everyone with a slot in it (or has the wait run out)? */
+const gridFormed = (state) => {
+  const sim = state._sim;
+  if (sim.clock - sim.red.formingSince > sim.balance.redFlag.lineUpTimeoutLaps * state.race.baseLap) return true;
+  for (let i = 0; i < sim.n; i += 1) {
+    const slot = sim.red.slot[i];
+    if (Number.isFinite(slot) && sim.active[i] && state.cars[i].status === "running" && sim.P[i] < slot - 1e-9) return false;
+  }
+  return true;
+};
+
+/** The grid is formed behind the red flag: tyres by the rules and the restart. */
+const finishRed = (state) => {
+  const sim = state._sim;
+  const { tables } = sim;
+  const lap = sim.red.lineUpLap;
+  const running = runningCars(state);
+  redFlagTyres(state, running, wetnessAt(state, lap), lap);
+  // Anyone the wait ran out on takes its slot now (lineUpTimeoutLaps).
+  for (let i = 0; i < sim.n; i += 1) {
+    const slot = sim.red.slot[i];
+    if (!Number.isFinite(slot) || sim.P[i] >= slot || !sim.active[i]) continue;
     sim.P[i] = slot;
     sim.tau[i] = Math.min(0.9999, tauAtD(tables, slot - sim.laps[i]));
-  });
+  }
   sim.red = null;
   state.safetyCar = null;
   redFlagRestart(state, lap);
@@ -993,7 +1030,10 @@ const raceControl = (state) => {
   const sim = state._sim;
   if (state.yellow) syncYellows(state);
   if (state.pendingRed && !sim.red) startRed(state);
-  if (sim.red && sim.red.lineUpLap !== null) finishRed(state);
+  if (sim.red && sim.red.lineUpLap !== null) {
+    if (!sim.red.slot) formGrid(state);
+    else if (gridFormed(state)) finishRed(state);
+  }
   if (sim.yellows.length) {
     let kept = 0;
     for (let k = 0; k < sim.yellows.length; k += 1) if (sim.yellows[k].until > sim.clock) sim.yellows[kept++] = sim.yellows[k];

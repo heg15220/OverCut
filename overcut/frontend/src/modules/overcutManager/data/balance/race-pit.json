@@ -93,7 +93,7 @@
         "jackUp": { "mean": 0.45, "sd": 0.06, "errorChance": 0.002, "delay": [1, 3] },
         "wheel": { "mean": 3.4, "sd": 0.3, "errorChance": 0.005, "delay": [1, 6] },
         "wing": { "adjust": 1.5, "change": 8 },
-        "refuel": { "engage": 1.3, "flowLps": 12.1, "flowSource": "NV: ~12 l/s (memoria, SIM-FISICA §4.5)", "sd": 0.25, "errorChance": 0.006, "delay": [2, 6] },
+        "refuel": { "engage": 1.3, "flowLps": 12.5, "flowSource": "NV: ~12 l/s (memoria, SIM-FISICA §4.5); 12,5 recalibrado el 23/11 contra la mediana de la era (8,2 s) cuando las paradas por GP pasaron a salir de las reales de f1db (WP11: menos paradas, más litros por parada)", "sd": 0.25, "errorChance": 0.006, "delay": [2, 6] },
         "jackDown": { "mean": 0.3, "sd": 0.05 },
         "release": { "mean": 0.6, "sd": 0.1, "errorChance": 0.003, "delay": [0.5, 2] }
       },

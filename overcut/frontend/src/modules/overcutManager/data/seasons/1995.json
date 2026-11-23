@@ -217,6 +217,10 @@
     "pole": 80.081,
     "fastestRaceLap": 80.921,
     "winnerAvg": 83.298
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 10
    }
   },
   {
@@ -245,6 +249,10 @@
     "pole": 113.241,
     "fastestRaceLap": 90.522,
     "winnerAvg": 94.368
+   },
+   "pitStops": {
+    "median": 3,
+    "cars": 9
    }
   },
   {
@@ -273,6 +281,10 @@
     "pole": 87.274,
     "fastestRaceLap": 89.568,
     "winnerAvg": 96.866
+   },
+   "pitStops": {
+    "median": 3,
+    "cars": 14
    }
   },
   {
@@ -301,6 +313,10 @@
     "pole": 81.452,
     "fastestRaceLap": 84.531,
     "winnerAvg": 87.085
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 15
    }
   },
   {
@@ -329,6 +345,10 @@
     "pole": 81.952,
     "fastestRaceLap": 84.621,
     "winnerAvg": 87.067
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 10
    }
   },
   {
@@ -357,6 +377,10 @@
     "pole": 87.661,
     "fastestRaceLap": 89.174,
     "winnerAvg": 92.561
+   },
+   "pitStops": {
+    "median": 1,
+    "cars": 9
    }
   },
   {
@@ -385,6 +409,10 @@
     "pole": 77.225,
     "fastestRaceLap": 80.218,
     "winnerAvg": 82.062
+   },
+   "pitStops": {
+    "median": 0,
+    "cars": 16
    }
   },
   {
@@ -413,6 +441,10 @@
     "pole": 88.124,
     "fastestRaceLap": 89.752,
     "winnerAvg": 93.034
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 12
    }
   },
   {
@@ -441,6 +473,10 @@
     "pole": 104.385,
     "fastestRaceLap": 108.824,
     "winnerAvg": 110.579
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 9
    }
   },
   {
@@ -469,6 +505,10 @@
     "pole": 76.982,
     "fastestRaceLap": 80.247,
     "winnerAvg": 82.931
+   },
+   "pitStops": {
+    "median": 3,
+    "cars": 13
    }
   },
   {
@@ -497,6 +537,10 @@
     "pole": 114.392,
     "fastestRaceLap": 113.412,
     "winnerAvg": 131.997
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 14
    }
   },
   {
@@ -525,6 +569,10 @@
     "pole": 84.462,
     "fastestRaceLap": 86.419,
     "winnerAvg": 88.829
+   },
+   "pitStops": {
+    "median": 1,
+    "cars": 9
    }
   },
   {
@@ -553,6 +601,10 @@
     "pole": 80.537,
     "fastestRaceLap": 83.22,
     "winnerAvg": 86.087
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 17
    }
   },
   {
@@ -581,6 +633,10 @@
     "pole": 78.738,
     "fastestRaceLap": 81.18,
     "winnerAvg": 89.538
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 14
    }
   },
   {
@@ -609,6 +665,10 @@
     "pole": 74.013,
     "fastestRaceLap": 76.374,
     "winnerAvg": 78.674
+   },
+   "pitStops": {
+    "median": 3,
+    "cars": 17
    }
   },
   {
@@ -637,6 +697,10 @@
     "pole": 98.023,
     "fastestRaceLap": 102.976,
     "winnerAvg": 109.678
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 12
    }
   },
   {
@@ -665,6 +729,10 @@
     "pole": 75.505,
     "fastestRaceLap": 77.943,
     "winnerAvg": 80.938
+   },
+   "pitStops": {
+    "median": 2,
+    "cars": 8
    }
   }
  ],

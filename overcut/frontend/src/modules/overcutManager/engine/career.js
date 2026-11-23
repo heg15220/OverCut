@@ -28,7 +28,7 @@ import { maybeEvent, settlePromises } from "./events";
 import { constructorStandings, driverStandings, emptySeason, recordRace, scoreRace } from "./standings";
 import { driversOf, fillEmptySeats, prepareReference, signForTeam, teamsByPace } from "./world";
 import { eraWithRegulations, roundLineup, worldForSeason } from "./packs/packWorld";
-import { classificationOf, createRace, evaluatePlan, runQualifying, runToFinish, suggestPlan, weatherTimeline } from "./race";
+import { classificationOf, createRace, evaluatePlan, runQualifying, runToFinish, strategyContextOf, suggestPlan, weatherTimeline } from "./race";
 import { createStepRace, runStepToFinish } from "./sim";
 import { createSession, sessionFormat, sprintLaps } from "./sessionSim";
 import { circuitFor } from "./venue";
@@ -741,7 +741,9 @@ export const completeSprint = (career, state) => {
 
 export const defaultPlan = (career) => {
   const race = currentRace(career);
-  const plan = suggestPlan({ year: career.year, era: eraOf(career), laps: race.laps, baseLap: race.baseLap, profile: race.profile, crew: career.staff.operations?.rating ?? 60 });
+  // WP11: the circuit's real pit-lane loss and tyre wear (race.js strategyContextOf), as createRace plans.
+  const context = strategyContextOf({ race, era: eraOf(career), year: career.year });
+  const plan = suggestPlan({ year: career.year, era: eraOf(career), laps: race.laps, baseLap: race.baseLap, profile: race.profile, crew: career.staff.operations?.rating ?? 60, ...context });
   return { stops: plan.stops, compounds: plan.compounds };
 };
 
@@ -842,7 +844,7 @@ export const planDelta = (career, plan) => {
   const race = currentRace(career);
   if (!race) return 0;
   const crew = career.staff.operations?.rating ?? 60;
-  const args = { year: career.year, era: eraOf(career), laps: race.laps, baseLap: race.baseLap, profile: race.profile, crew };
+  const args = { year: career.year, era: eraOf(career), laps: race.laps, baseLap: race.baseLap, profile: race.profile, crew, ...strategyContextOf({ race, era: eraOf(career), year: career.year }) };
   const best = suggestPlan(args);
   return Math.max(0, evaluatePlan({ ...args, plan }) - best.cost);
 };

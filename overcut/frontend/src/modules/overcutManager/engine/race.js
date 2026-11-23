@@ -195,7 +195,7 @@ export const fuelTime = ({ fuel, refuel, fuelStart }) => (refuel ? fuel * FUEL_P
  * Total tyre-and-fuel cost of a plan, in seconds, against a perfect car - the
  * number the strategist compares candidate plans on.
  */
-const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60, laneLoss = null }) => {
+const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60, laneLoss = null, stopScale = 1 }) => {
   const rules = rulesFor(era ?? year);
   const stints = stintLengths(plan, laps);
   const refuelling = rules.refuelling;
@@ -205,9 +205,11 @@ const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60, laneL
     const spec = tyreSpec(compound, era ?? year);
     cost += spec.offset * length;
     cost += spec.wear * wearFactor * (length * (length - 1)) / 2;
-    if (length > spec.life) {
-      const over = length - spec.life;
-      cost += BALANCE.tyres.cliffPerLap * wearFactor * (over * (over + 1)) / 2;
+    // The cliff as the race charges it (tyreTime on car.tyreWear): wear accrues at `wearFactor` a
+    // lap, so a gentle circuit stretches the tyre's life in laps and a harsh one shortens it (WP11).
+    for (let lap = 0; lap < length; lap += 1) {
+      const age = lap * wearFactor;
+      if (age > spec.life) cost += (age - spec.life) * BALANCE.tyres.cliffPerLap;
     }
   };
   const fuelCost = (length) => (cost += FUEL_PER_LAP * (length * (length + 1)) / 2);
@@ -227,7 +229,7 @@ const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60, laneL
   if (mandatory >= 2 && new Set(plan.compounds).size < mandatory) cost += rules.strategy.twoCompoundPenalty;
   if (refuelling && stops === 0) cost += rules.strategy.refuelNoStopCost;
   const refuel = refuelling ? laps / Math.max(1, stops + 1) : 0;
-  cost += stops * ((laneLoss ?? pitLaneLoss(baseLap)) + stationaryTime({ era: era ?? year, refuel, crew, fuelOnly: refuelling && !tyreChanges }));
+  cost += stops * stopScale * ((laneLoss ?? pitLaneLoss(baseLap)) + stationaryTime({ era: era ?? year, refuel, crew, fuelOnly: refuelling && !tyreChanges }));
   return cost;
 };
 
@@ -284,18 +286,81 @@ const candidatePlans = (eraOrYear, laps, firstCompound = null) => {
 export const wearFactorFor = (profile) => clamp(0.75 + (profile.aero ?? 0.6) * 0.35 + ((profile.attrition ?? 1) - 1) * 0.4, 0.6, 1.35);
 
 /** The best plan for a dry race, plus its cost so alternatives can be compared. */
-export const suggestPlan = ({ year, era, laps, baseLap, profile, crew = 60, firstCompound = null, laneLoss = null }) => {
-  const wearFactor = wearFactorFor(profile);
+export const suggestPlan = ({ year, era, laps, baseLap, profile, crew = 60, firstCompound = null, laneLoss = null, wearScale = 1, stopScale = 1 }) => {
+  const wearFactor = wearFactorFor(profile) * wearScale;
   const ranked = candidatePlans(era ?? year, laps, firstCompound)
-    .map((plan) => ({ plan, cost: planCost({ plan, laps, year, era, baseLap, wearFactor, crew, laneLoss }) }))
+    .map((plan) => ({ plan, cost: planCost({ plan, laps, year, era, baseLap, wearFactor, crew, laneLoss, stopScale }) }))
     .sort((a, b) => a.cost - b.cost);
-  if (!ranked[0] && firstCompound) return suggestPlan({ year, era, laps, baseLap, profile, crew, laneLoss });
+  if (!ranked[0] && firstCompound) return suggestPlan({ year, era, laps, baseLap, profile, crew, laneLoss, wearScale, stopScale });
   return ranked[0] ? { ...ranked[0].plan, cost: ranked[0].cost } : { stops: [], compounds: [compoundsFor(era ?? year)[0]], cost: 0 };
 };
 
 /** The cost of any plan the player builds, for the "+4.2 s against the best" read-out. */
-export const evaluatePlan = ({ plan, year, era, laps, baseLap, profile, crew, laneLoss = null }) =>
-  planCost({ plan, laps, year, era, baseLap, wearFactor: wearFactorFor(profile), crew, laneLoss });
+export const evaluatePlan = ({ plan, year, era, laps, baseLap, profile, crew, laneLoss = null, wearScale = 1, stopScale = 1 }) =>
+  planCost({ plan, laps, year, era, baseLap, wearFactor: wearFactorFor(profile) * wearScale, crew, laneLoss, stopScale });
+
+/**
+ * WP11 (SIM-FISICA §5; RF-SIM-13, SRS 6.1 guided anchor): the real stops of this Grand Prix
+ * (race.pitStops, f1db median via the pack) decide how its strategists plan, through one scale
+ * found so that the best dry plan of an average car has that many stops
+ * (race-eras.json strategy.realStops):
+ *   wearScale  without refuelling, where tyres are changed: how hard the circuit was on tyres
+ *              that year. It scales the wear the race charges too (car.wearFactor).
+ *   stopScale  in refuelling eras, where fuel and track position decide: what a stop is worth
+ *              to the strategist (planning only; the race charges the physical loss).
+ * Both 1 without real stops, where tyres are not changed and fuel is not taken (2005 is fuel
+ * only: it calibrates stopScale), or when the real race was wet (refLaps). With a half-stop
+ * median (1.5) the scale sits where the plan changes from one count to the other.
+ */
+const scaleCache = new Map();
+
+/**
+ * What a strategist plans with before the race is built (career.js defaultPlan, planDelta): this
+ * circuit's pit-lane loss (pitLaneOf) and the scales of strategyScales, the same createRace uses.
+ */
+export const strategyContextOf = ({ race, era, year }) => {
+  const rules = rulesOf(era, year);
+  const laps = Math.max(5, race.laps || 60);
+  const pitLane = pitLaneOf({ circuit: circuitFor(race, year), race, rules });
+  return { laneLoss: pitLane.stop, ...strategyScales({ race, rules, laps, laneLoss: pitLane.stop }) };
+};
+export const strategyScales = ({ race, rules, laps, baseLap = race.baseLap, laneLoss = null }) => {
+  const neutral = { wearScale: 1, stopScale: 1 };
+  const real = race.pitStops;
+  const cfg = BALANCE.strategy.realStops;
+  if (!real || !(real.median >= 0)) return neutral;
+  const kind = rules.refuelling ? "stopScale" : rules.tyres.changesInRace ? "wearScale" : null;
+  if (!kind) return neutral;
+  const ref = race.refLaps;
+  if (ref && ref.pole > 0 && ref.fastestRaceLap > ref.pole * cfg.wetRaceRatio) return neutral;
+  const key = `${kind}|${rules.year}|${race.round}|${race.name}|${laps}|${baseLap}|${laneLoss}|${real.median}`;
+  if (scaleCache.has(key)) return scaleCache.get(key);
+  const stopsWith = (scale) => suggestPlan({ era: rules, laps, baseLap, profile: race.profile, laneLoss, [kind]: scale }).stops.length;
+  const ratio = (cfg.scaleMax / cfg.scaleMin) ** (1 / (cfg.steps - 1));
+  const grid = Array.from({ length: cfg.steps }, (_, k) => cfg.scaleMin * ratio ** k);
+  // More wear means more stops; a dearer stop means fewer: read the grid so the count rises.
+  const counts = grid.map(stopsWith);
+  if (kind === "stopScale") {
+    grid.reverse();
+    counts.reverse();
+  }
+  const lo = Math.floor(real.median);
+  const hi = Math.ceil(real.median);
+  let scale;
+  if (lo === hi) {
+    // The geometric middle of the scales that give exactly the real count (or the nearest count).
+    const best = Math.min(...counts.map((count) => Math.abs(count - lo)));
+    const hits = grid.filter((_, k) => Math.abs(counts[k] - lo) === best);
+    scale = Math.sqrt(hits[0] * hits[hits.length - 1]);
+  } else {
+    // Between two counts: the step where the plan goes from `lo` stops to `hi`.
+    const k = counts.findIndex((count) => count >= hi);
+    scale = k > 0 ? Math.sqrt(grid[k - 1] * grid[k]) : k === 0 ? grid[0] : grid[grid.length - 1];
+  }
+  const out = { ...neutral, [kind]: scale };
+  scaleCache.set(key, out);
+  return out;
+};
 
 // ------------------------------------------------------------- weather
 
@@ -568,6 +633,8 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
   const rules = rulesOf(era, year);
   // RF-SIM-12: the physical pit lane's loss on this circuit, era and date (WP6).
   const pitLane = pitLaneOf({ circuit, race, rules });
+  // WP11 (RF-SIM-13): the circuit's tyre wear (or, refuelling, what a stop is worth) that year, from the real stops.
+  const { wearScale, stopScale } = strategyScales({ race, rules, laps, laneLoss: pitLane.stop });
   const refuel = rules.refuelling;
   const energy = rules.energy.system === "none" ? null : rules.energy.system;
   // Track temperature: dry venues bake, wet days are cool.
@@ -598,7 +665,7 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
       const ownTyre = qualifyingTyre && startTyres?.[id] && rules.tyres.compounds.includes(startTyres[id]) ? startTyres[id] : qualifyingTyre;
       const startsOnQualifyingTyre = ownTyre && index < 10;
       const suggested = () =>
-        suggestPlan({ year, era: rules, laps, baseLap: race.baseLap, profile: race.profile, crew: crews[entrant.teamId], firstCompound: startsOnQualifyingTyre ? ownTyre : null, laneLoss: pitLane.stop });
+        suggestPlan({ year, era: rules, laps, baseLap: race.baseLap, profile: race.profile, crew: crews[entrant.teamId], firstCompound: startsOnQualifyingTyre ? ownTyre : null, laneLoss: pitLane.stop, wearScale, stopScale });
       let plan = normalisePlan(plans[id] || suggested(), laps, rules);
       if (startsOnQualifyingTyre && plan.compounds[0] !== ownTyre) {
         // The player's plan keeps its stops; a rival re-plans around the tyre it must start on.
@@ -649,7 +716,7 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
         setup: practice[id]?.setup ?? 0,
         wing: practice[id]?.wing ?? 0,
         // A car that will not put its power down cleanly spins its rear tyres up.
-        wearFactor: wearFactorFor(race.profile) * (practice[id]?.wear ?? 1) * (1 + (practice[id]?.traction ?? 0) * 0.35),
+        wearFactor: wearFactorFor(race.profile) * wearScale * (practice[id]?.wear ?? 1) * (1 + (practice[id]?.traction ?? 0) * 0.35),
         crew: crews[entrant.teamId] ?? 60,
         strategist: strategists[entrant.teamId] ?? 55,
         lapsDown: 0,
@@ -668,6 +735,8 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
   return {
     race: { name: race.name, round: race.round, country: race.country, laps, baseLap: race.baseLap, profile: race.profile, circuit: race.circuit || null },
     pitLane,
+    wearScale,
+    stopScale,
     year,
     era,
     laps,
@@ -878,7 +947,7 @@ export const rivalCalls = (state, car, lap = state.lap) => {
   // How far the tyres must still go: to the next stop, or the flag.
   const nextStop = car.plan.stops.find((stop) => stop >= lap);
   const stintLeft = (nextStop ?? state.laps) - lap + 1;
-  const spare = 1 - life - stintLeft / Math.max(1, tyreSpec(car.compound, rules).life);
+  const spare = 1 - life - (stintLeft * (car.wearFactor ?? 1)) / Math.max(1, tyreSpec(car.compound, rules).life);
   if (car.tyreTemp > 0.74 || life > 0.92) car.mode = "save";
   else if (car.outLap) car.mode = "push";
   else if ((attacking || defending) && life < 0.8 && remaining > 1) car.mode = spare > -0.05 ? "push" : "normal";
@@ -1608,6 +1677,19 @@ export const retire = (state, car, reason, { lap = state.lap, raceLap = lap, str
  * player's call (`pitRequest`) beats all of it. The step simulator asks at pit entry,
  * with the car's own `lap` and its running `order` (by distance covered).
  */
+/**
+ * WP11 (RF-SIM-13): an unplanned dry stop (tyres off the cliff, a problem looked at) takes the
+ * place of the next planned stop when that one was due within race-eras.json
+ * strategy.realStops.consumeWithinLaps: it is the same stop made early, not one more (Monaco 2012
+ * had cars stopping on laps 18 and 20). A later planned stop stays.
+ */
+const unplannedStop = (car, lap, compound) => {
+  const next = car.plan.stops.find((stop) => stop >= lap);
+  if (next === undefined || next - lap > BALANCE.strategy.realStops.consumeWithinLaps) return { compound, planned: false };
+  car.plan = { ...car.plan, stops: car.plan.stops.filter((stop) => stop !== next) };
+  return { compound, planned: true };
+};
+
 export const pitDecision = (state, car, wetness, stream, { lap = state.lap, order } = {}) => {
   const remaining = state.laps - lap;
   if (remaining <= 0) return null;
@@ -1647,28 +1729,30 @@ export const pitDecision = (state, car, wetness, stream, { lap = state.lap, orde
       }
     }
     if (!wanted && isWetTyre(car.compound) && wetness < 0.16 + gamble * 0.08 && reactsNow) {
-      return { compound: dryCompoundFor(remaining, rules), planned: false, fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0 };
+      return { compound: dryCompoundFor(remaining, rules, car.wearFactor), planned: false, fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0 };
     }
     if (isWetTyre(car.compound)) return null;
     // A car with a problem comes in to have it looked at.
     if (car.issue > 1.4 && remaining > 6 && stream.chance(0.35)) {
-      return { compound: nextPlannedCompound(car, rules), planned: false, fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0, repair: true };
+      return { ...unplannedStop(car, lap, nextPlannedCompound(car, rules)), fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0, repair: true };
     }
   } else if (isWetTyre(car.compound) || (wanted && !isWetTyre(car.compound))) {
     // A player on the wrong tyre stays out until they call it.
     if (!car.plan.stops.includes(lap)) return null;
   }
 
-  const plannedStop = car.plan.stops.find((stop) => stop === lap);
   if (!car.isUser && !isWetTyre(car.compound)) {
     const call = strategyCall(state, car, stream, { lap, order });
     if (call) return call;
   }
+  // Read after the strategist: an overcut call moves this lap's stop two laps on (WP11: it used to
+  // stop now and again two laps later).
+  const plannedStop = car.plan.stops.find((stop) => stop === lap);
   if (plannedStop && !isWetTyre(car.compound)) {
     const lastStint = !car.plan.stops.some((stop) => stop > lap);
     // The last set must reach the flag: a softer planned tyre gives way to one that lasts.
     const planned = nextPlannedCompound(car, rules);
-    const compound = tyreChanges && !car.isUser && lastStint && tyreSpec(planned, rules).life < remaining * 0.85 ? dryCompoundFor(remaining, rules) : planned;
+    const compound = tyreChanges && !car.isUser && lastStint && tyreSpec(planned, rules).life < remaining * 0.85 * (car.wearFactor ?? 1) ? dryCompoundFor(remaining, rules, car.wearFactor) : planned;
     return { compound, planned: true, fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0 };
   }
 
@@ -1683,7 +1767,7 @@ export const pitDecision = (state, car, wetness, stream, { lap = state.lap, orde
 
   // Tyres off the cliff with a long way to go: an unplanned stop (only where tyres may be changed).
   if (tyreChanges && !car.isUser && !isWetTyre(car.compound) && tyreLifeUsed(car, rules) > 1.15 && remaining > 8) {
-    return { compound: dryCompoundFor(remaining, rules), planned: false, fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0 };
+    return { ...unplannedStop(car, lap, dryCompoundFor(remaining, rules, car.wearFactor)), fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0 };
   }
 
   return null;
@@ -1757,11 +1841,11 @@ export const nextPlannedCompound = (car, eraOrRules) => {
   return compounds.find((compound) => compound !== car.compound) || next || compounds[0];
 };
 
-/** The dry tyre that gets you to the flag from here: the softest one that lasts. */
-export const dryCompoundFor = (remaining, eraOrRules) => {
+/** The dry tyre that gets you to the flag from here: the softest one that lasts (its life in laps at `wearFactor`). */
+export const dryCompoundFor = (remaining, eraOrRules, wearFactor = 1) => {
   const rules = rulesFor(eraOrRules);
   const options = rules.tyres.compounds;
-  const fits = options.filter((compound) => tyreSpec(compound, rules).life >= remaining * 0.9);
+  const fits = options.filter((compound) => tyreSpec(compound, rules).life >= remaining * 0.9 * wearFactor);
   return fits[0] || options[options.length - 1];
 };
 
@@ -1798,7 +1882,13 @@ const resolveTraffic = (state, running, beforeIndex, stream, wetness) => {
       const ahead = ordered[index - 1];
       const car = ordered[index];
       const gap = car.time - ahead.time;
-      if (gap < baseLap * 0.6) car.time = ahead.time + clamp(gap * 0.35, 0.45, 1.1);
+      if (gap < baseLap * 0.6) {
+        // WP11 (RF-SIM-10): a car closes on the queue at racing speed at most - its lap can be no
+        // quicker than its clean lap (car.expected) - so a long gap takes more than one lap to close.
+        const lapStart = car.time - car.lapTime;
+        const floor = lapStart + (car.expected ?? baseLap);
+        car.time = Math.max(floor, ahead.time + clamp(gap * 0.35, 0.45, 1.1));
+      }
     }
     return;
   }

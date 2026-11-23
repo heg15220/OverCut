@@ -111,6 +111,8 @@ export const packCalendar = ({ pack, reference }) => {
       baseLap: real ? real.baseLap : avgLap ? Math.round(avgLap * 0.985 * 100) / 100 : fallbackLap,
       qualifyingRef: real ? real.qualifyingRef : null,
       refLaps: event.refLaps || null,
+      // WP11 (RF-SIM-13): the real stops of this Grand Prix, for the circuit's tyre wear (race.js tyreWearScale).
+      pitStops: event.pitStops || null,
       laps: event.laps,
       circuit: facts.circuit || null,
       location: event.place || facts.location || null,

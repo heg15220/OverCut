@@ -280,6 +280,18 @@
               "fastestRaceLap": {"$ref": "#/definitions/nullableNumber"},
               "winnerAvg": {"$ref": "#/definitions/nullableNumber"}
             }
+          },
+          "pitStops": {
+            "$comment": "SIM-FISICA §5 WP11 (RF-SIM-13): paradas reales del GP, de f1db (race_result.pit_stops, desde 1994): mediana de los coches que hicieron al menos el 90 % de las vueltas del ganador y cuántos eran. null sin datos. Si la carrera fue en mojado incluye los cambios por lluvia: el motor solo la usa en carreras secas según refLaps.",
+            "oneOf": [
+              {"type": "null"},
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["median", "cars"],
+                "properties": {"median": {"type": "number", "minimum": 0}, "cars": {"type": "integer", "minimum": 1}}
+              }
+            ]
           }
         }
       }

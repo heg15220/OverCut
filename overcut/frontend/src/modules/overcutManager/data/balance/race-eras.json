@@ -70,7 +70,15 @@
     ],
     "twoCompoundPenalty": 30,
     "refuelNoStopCost": 200,
-    "fastestLapStopWindow": 3
+    "fastestLapStopWindow": 3,
+    "realStops": {
+      "$comment": "WP11 de SIM-FISICA.md (RF-SIM-13): cuánto castiga cada circuito a los neumáticos sale de las paradas reales de ese GP (pack calendar[].pitStops, mediana de f1db). En las eras sin repostaje y con cambio de ruedas, createRace busca la escala del desgaste del circuito (entre scaleMin y scaleMax, en `steps` pasos geométricos) con la que el mejor plan de un coche medio tiene esa mediana de paradas. Solo en carrera seca: si la vuelta rápida real es más de wetRaceRatio veces la pole, la carrera fue en mojado y no se usa. Antes de esto el desgaste salía del perfil del circuito con la tasa de accidentes (Mónaco 2012: 3 paradas planeadas y 70-102 en carrera, frente a 26 reales).",
+      "wetRaceRatio": 1.1,
+      "scaleMin": 0.25,
+      "scaleMax": 4,
+      "steps": 40,
+      "consumeWithinLaps": 10
+    }
   },
   "energy": {
     "$comment": "RF-SIM-05. kers: presupuesto de despliegue por vuelta (400 kJ a 60 kW ≈ 6,67 s), se repone en cada vuelta; 'use' es la parte del presupuesto gastada y gainPerSecond los s de vuelta ganados por s de despliegue. ers: batería (MGU-K + MGU-H) con carga entre vueltas. ers2026: reparto ~50 % eléctrico, oscilaciones mayores y modo de adelantamiento manual a menos de overtakeGap s del coche de delante (sustituye al DRS).",

@@ -561,7 +561,8 @@ Pruebas transversales: determinismo byte a byte (RNF-05), rendimiento ≤ 900 ms
 | WP6 | Hecho | Pérdida en boxes frente a la real: Monza 25,7/25,1 s, Baréin 23,2/23,0, Hungaroring 20,5/20,5, Suzuka 23,3/23,5. Parada real con `v = 0` en su box |
 | WP7 | Hecho | Etapas, roles y error por etapa; mediana por era ±0,2 s |
 | WP10 | Hecho | `refLaps` en los packs; pole simulada a ±1,5 % |
-| WP8, WP9, WP11 | Pendientes | — |
+| WP11 | Hecho (23/11) | Paradas: el pack trae las reales de cada GP (`calendar[].pitStops`, mediana de f1db desde 1994) y `race.js strategyScales` ajusta con ellas el desgaste del circuito (sin repostaje) o lo que vale parar (con repostaje), solo en carreras secas. El plan paga el *cliff* como la carrera (vida en unidades de desgaste). Una parada no planeada ocupa el lugar de la planeada si tocaba en ≤ 10 vueltas, y la orden de *overcut* ya no para dos veces. Paradas por coche frente a las reales: Mónaco 2012 1,0/1; Baréin 2012 3,0–3,4/3; Mónaco 1998 1,0–1,1/1; Monza 2008 2,0/2 (`defects.test.js`, ±50 %). Vueltas imposibles: el SC agrupa a ritmo de carrera como máximo (modo rápido) y tras la bandera roja la parrilla se forma conduciendo (`race-sim.json` `redFlag`); 0 vueltas por debajo de 0,9 × baseLap en 40 carreras de prueba (antes 98 en el modo rápido y 2 en el de pasos). Caudal de repostaje recalibrado a 12,5 l/s (mediana de la era 8,2 s) |
+| WP8, WP9 | Pendientes | — |
 
 Equivalencia con el modo rápido (SRS 4.2), 32 semillas: media 0,9998, dispersión 1,017. El test compara solo los coches que
 paran en las mismas vueltas en los dos modos (un SC en un modo y no en el otro adelanta las paradas diez vueltas).

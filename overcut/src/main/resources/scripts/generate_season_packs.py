@@ -213,6 +213,24 @@ def ref_laps(con, race_id, qualifying_format):
     }
 
 
+def pit_stops(con, race_id):
+    """Real stops of one Grand Prix (SIM-FISICA §5 WP11; RF-SIM-13): the median number of stops of the cars that
+    ran at least 90 % of the winner's laps (f1db race_result.pit_stops, from 1994), and how many such cars there
+    were. None before f1db records stops. A wet race carries the weather's stops too: the engine only uses it
+    when refLaps says the race was dry (engine/race.js tyreWearScale)."""
+    winner = con.execute("select max(laps) from race_result where race_id = ?", (race_id,)).fetchone()[0]
+    if not winner:
+        return None
+    stops = sorted(row[0] for row in con.execute(
+        "select pit_stops from race_result where race_id = ? and laps >= ? and pit_stops is not null",
+        (race_id, 0.9 * winner)))
+    if not stops:
+        return None
+    mid = len(stops) // 2
+    median = stops[mid] if len(stops) % 2 else (stops[mid - 1] + stops[mid]) / 2
+    return {"median": int(median) if float(median).is_integer() else median, "cars": len(stops)}
+
+
 def build_pack(con, year, regs_cur, events_cur, assets_cur):
     if str(year) not in regs_cur:
         fail(f"{year}: no curated regulations in curated/regulations.json")
@@ -417,6 +435,7 @@ def build_pack(con, year, regs_cur, events_cur, assets_cur):
         "pointsFactor": factors.get(r["round"], 1),
         "resultsAvailable": r["round"] in rounds_with_results,
         "refLaps": ref_laps(con, r["id"], r["qualifying_format"]),
+        "pitStops": pit_stops(con, r["id"]),
     } for r in races]
 
     # ---------------------------------------------------------------- standings

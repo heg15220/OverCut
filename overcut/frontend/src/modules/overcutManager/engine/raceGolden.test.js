@@ -8,6 +8,10 @@
  * `WRITE_GOLDEN=1`; every later race.js must reproduce it exactly: classification,
  * events, radio, fastest lap and every car's line crossings, for several eras and seeds,
  * with player orders mid-race and with race control turned up (red flags, penalties).
+ *
+ * Regenerated on purpose (WRITE_GOLDEN=1) when the quick mode's model changes, never to make a
+ * refactor pass. 2026-11-23: physical pit lane loss, stops by stages, pole from refLaps (SIM-FISICA
+ * WP6/WP7/WP10), and the WP11 strategy (stops from the real ones, SC closing at racing pace).
  */
 
 import crypto from "crypto";

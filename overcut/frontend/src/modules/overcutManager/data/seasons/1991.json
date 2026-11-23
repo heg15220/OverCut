@@ -219,7 +219,8 @@
     "pole": 81.434,
     "fastestRaceLap": 86.758,
     "winnerAvg": 89.479
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 2,
@@ -247,7 +248,8 @@
     "pole": 76.392,
     "fastestRaceLap": 80.436,
     "winnerAvg": 83.213
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 3,
@@ -275,7 +277,8 @@
     "pole": 81.877,
     "fastestRaceLap": 86.531,
     "winnerAvg": 93.684
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 4,
@@ -303,7 +306,8 @@
     "pole": 80.344,
     "fastestRaceLap": 84.368,
     "winnerAvg": 86.953
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 5,
@@ -331,7 +335,8 @@
     "pole": 79.837,
     "fastestRaceLap": 82.385,
     "winnerAvg": 85.964
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 6,
@@ -359,7 +364,8 @@
     "pole": 76.696,
     "fastestRaceLap": 76.788,
     "winnerAvg": 80.481
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 7,
@@ -387,7 +393,8 @@
     "pole": 74.559,
     "fastestRaceLap": 79.168,
     "winnerAvg": 81.667
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 8,
@@ -415,7 +422,8 @@
     "pole": 80.939,
     "fastestRaceLap": 86.379,
     "winnerAvg": 89.076
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 9,
@@ -443,7 +451,8 @@
     "pole": 97.087,
     "fastestRaceLap": 103.569,
     "winnerAvg": 105.992
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 10,
@@ -471,7 +480,8 @@
     "pole": 76.147,
     "fastestRaceLap": 81.547,
     "winnerAvg": 85.101
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 11,
@@ -499,7 +509,8 @@
     "pole": 107.811,
     "fastestRaceLap": 115.161,
     "winnerAvg": 119.038
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 12,
@@ -527,7 +538,8 @@
     "pole": 81.114,
     "fastestRaceLap": 86.061,
     "winnerAvg": 88.195
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 13,
@@ -555,7 +567,8 @@
     "pole": 73.001,
     "fastestRaceLap": 78.179,
     "winnerAvg": 80.878
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 14,
@@ -583,7 +596,8 @@
     "pole": 78.751,
     "fastestRaceLap": 82.837,
     "winnerAvg": 91.101
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 15,
@@ -611,7 +625,8 @@
     "pole": 94.7,
     "fastestRaceLap": 101.532,
     "winnerAvg": 104.353
-   }
+   },
+   "pitStops": null
   },
   {
    "round": 16,
@@ -639,7 +654,8 @@
     "pole": 74.041,
     "fastestRaceLap": 101.141,
     "winnerAvg": 105.35
-   }
+   },
+   "pitStops": null
   }
  ],
  "teams": [
