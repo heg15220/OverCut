@@ -1,0 +1,272 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/audio.json (sonido de la vista en vivo, RF-3D-04, RNF-02). Lo comprueba three/audio/audio.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "sources", "eras", "voicing", "mixer", "ambience"],
+  "definitions": {
+    "positive": {"type": "number", "exclusiveMinimum": 0},
+    "nonNegative": {"type": "number", "minimum": 0},
+    "share": {"type": "number", "minimum": 0, "maximum": 1},
+    "rpm": {"type": "integer", "minimum": 1000, "maximum": 25000},
+    "text": {"type": "string", "minLength": 1},
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match", "source"],
+      "properties": {
+        "match": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cylinders": {"type": "integer", "minimum": 2, "maximum": 16},
+            "layout": {"enum": ["V", "F", "W", "L"]},
+            "aspiration": {"enum": ["na", "turbo", "hybrid"]},
+            "engineId": {"$ref": "#/definitions/text"}
+          }
+        },
+        "revLimit": {"$ref": "#/definitions/rpm"},
+        "shiftRpm": {"$ref": "#/definitions/rpm"},
+        "revLimitByYear": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^(19|20)[0-9]{2}$"},
+          "additionalProperties": {"$ref": "#/definitions/rpm"}
+        },
+        "shiftShare": {"type": "number", "minimum": 0.5, "maximum": 1},
+        "source": {"$ref": "#/definitions/text"}
+      },
+      "dependencies": {"revLimit": ["shiftRpm"], "shiftRpm": ["revLimit"], "revLimitByYear": ["shiftShare"], "shiftShare": ["revLimitByYear"]}
+    },
+    "era": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "gears", "gearShares", "gearingPerTrack", "refTopKmh", "shiftCutMs", "idleRpm", "launchRpm", "engines", "turbo", "electric", "crackle", "notes"],
+      "properties": {
+        "id": {"$ref": "#/definitions/text"},
+        "from": {"type": "integer", "minimum": 1950, "maximum": 2100},
+        "to": {"type": "integer", "minimum": 1950, "maximum": 2100},
+        "gears": {"type": "integer", "minimum": 4, "maximum": 8},
+        "gearShares": {"type": "array", "minItems": 4, "maxItems": 8, "items": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}},
+        "gearingPerTrack": {"type": "boolean"},
+        "refTopKmh": {"$ref": "#/definitions/positive"},
+        "shiftCutMs": {"$ref": "#/definitions/nonNegative"},
+        "idleRpm": {"$ref": "#/definitions/rpm"},
+        "launchRpm": {"$ref": "#/definitions/rpm"},
+        "engines": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/engine"}},
+        "turbo": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["maxShaftRpm", "lagSec", "gain", "source"],
+              "properties": {"maxShaftRpm": {"type": "integer", "minimum": 10000, "maximum": 300000}, "lagSec": {"$ref": "#/definitions/positive"}, "gain": {"$ref": "#/definitions/share"}, "source": {"$ref": "#/definitions/text"}}
+            }
+          ]
+        },
+        "electric": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "crankRatio", "gain", "source"],
+              "properties": {"kind": {"enum": ["kers", "mguk", "mguk350"]}, "crankRatio": {"$ref": "#/definitions/positive"}, "gain": {"$ref": "#/definitions/share"}, "mguh": {"$ref": "#/definitions/share"}, "source": {"$ref": "#/definitions/text"}}
+            }
+          ]
+        },
+        "crackle": {"$ref": "#/definitions/share"},
+        "notes": {"$ref": "#/definitions/text"}
+      }
+    },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overtones", "halfOrder", "roughness", "brightness"],
+      "properties": {
+        "overtones": {"type": "array", "minItems": 1, "maxItems": 8, "items": {"$ref": "#/definitions/share"}},
+        "halfOrder": {"$ref": "#/definitions/share"},
+        "roughness": {"$ref": "#/definitions/share"},
+        "brightness": {"$ref": "#/definitions/share"}
+      }
+    },
+    "cameraMix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["listener", "up", "focus", "field", "interior", "crowd", "wind", "lowpassHz"],
+      "properties": {
+        "listener": {"enum": ["car", "post", "above"]},
+        "back": {"type": "number"},
+        "side": {"type": "number"},
+        "up": {"type": "number"},
+        "ahead": {"$ref": "#/definitions/positive"},
+        "passBehind": {"$ref": "#/definitions/positive"},
+        "focus": {"$ref": "#/definitions/share"},
+        "field": {"$ref": "#/definitions/share"},
+        "interior": {"$ref": "#/definitions/share"},
+        "crowd": {"$ref": "#/definitions/share"},
+        "wind": {"$ref": "#/definitions/share"},
+        "lowpassHz": {"$ref": "#/definitions/positive"}
+      }
+    }
+  },
+  "properties": {
+    "$comment": {"type": "string"},
+    "version": {"const": 1},
+    "sources": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}},
+    "eras": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/era"}},
+    "voicing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxHarmonics", "byCylinders", "layoutHalfOrder", "turboMuffle", "noise", "filter", "load", "downshiftShare", "launchShare", "limiterHz", "limiterDepth", "pitLimiterGear", "crackleRatePerSec", "crackleGain", "smoothingSec"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "maxHarmonics": {"type": "integer", "minimum": 8, "maximum": 256},
+        "byCylinders": {"type": "object", "propertyNames": {"pattern": "^[0-9]+$"}, "additionalProperties": {"$ref": "#/definitions/voice"}},
+        "layoutHalfOrder": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["V", "F", "W", "L"],
+          "properties": {"$comment": {"type": "string"}, "V": {"$ref": "#/definitions/positive"}, "F": {"$ref": "#/definitions/positive"}, "W": {"$ref": "#/definitions/positive"}, "L": {"$ref": "#/definitions/positive"}}
+        },
+        "turboMuffle": {"$ref": "#/definitions/share"},
+        "noise": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["intakeGain", "exhaustGain", "bandQ", "exhaustOrder", "intakeOrder"],
+          "properties": {"intakeGain": {"$ref": "#/definitions/share"}, "exhaustGain": {"$ref": "#/definitions/share"}, "bandQ": {"$ref": "#/definitions/positive"}, "exhaustOrder": {"$ref": "#/definitions/positive"}, "intakeOrder": {"$ref": "#/definitions/positive"}}
+        },
+        "filter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minHz", "maxHz", "q"],
+          "properties": {"minHz": {"$ref": "#/definitions/positive"}, "maxHz": {"$ref": "#/definitions/positive"}, "q": {"$ref": "#/definitions/positive"}}
+        },
+        "load": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["offAccel", "onAccel", "overrunGain"],
+          "properties": {"$comment": {"type": "string"}, "offAccel": {"type": "number", "maximum": 0}, "onAccel": {"type": "number"}, "overrunGain": {"$ref": "#/definitions/share"}}
+        },
+        "downshiftShare": {"$ref": "#/definitions/share"},
+        "launchShare": {"$ref": "#/definitions/share"},
+        "limiterHz": {"$ref": "#/definitions/positive"},
+        "limiterDepth": {"$ref": "#/definitions/share"},
+        "pitLimiterGear": {"type": "integer", "minimum": 1, "maximum": 4},
+        "crackleRatePerSec": {"$ref": "#/definitions/positive"},
+        "crackleGain": {"$ref": "#/definitions/share"},
+        "smoothingSec": {"$ref": "#/definitions/positive"}
+      }
+    },
+    "mixer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storageKey", "defaults", "volumeCurve", "maxVoices", "panningModel", "distance", "doppler", "masterLimiter", "cameras"],
+      "properties": {
+        "storageKey": {"$ref": "#/definitions/text"},
+        "defaults": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["master", "engine", "ambience", "muted"],
+          "properties": {"master": {"$ref": "#/definitions/share"}, "engine": {"$ref": "#/definitions/share"}, "ambience": {"$ref": "#/definitions/share"}, "muted": {"type": "boolean"}}
+        },
+        "volumeCurve": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minDb"],
+          "properties": {"$comment": {"type": "string"}, "minDb": {"type": "number", "maximum": -6}}
+        },
+        "maxVoices": {"type": "integer", "minimum": 1, "maximum": 22},
+        "panningModel": {"enum": ["equalpower", "HRTF"]},
+        "distance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["model", "refDistance", "rolloff", "maxDistance", "audibleGain"],
+          "properties": {"$comment": {"type": "string"}, "model": {"const": "inverse"}, "refDistance": {"$ref": "#/definitions/positive"}, "rolloff": {"$ref": "#/definitions/positive"}, "maxDistance": {"$ref": "#/definitions/positive"}, "audibleGain": {"$ref": "#/definitions/share"}}
+        },
+        "doppler": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["speedOfSound", "minFactor", "maxFactor", "source"],
+          "properties": {"speedOfSound": {"$ref": "#/definitions/positive"}, "minFactor": {"$ref": "#/definitions/positive"}, "maxFactor": {"$ref": "#/definitions/positive"}, "source": {"$ref": "#/definitions/text"}}
+        },
+        "masterLimiter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["threshold", "knee", "ratio"],
+          "properties": {"threshold": {"type": "number", "maximum": 0}, "knee": {"$ref": "#/definitions/nonNegative"}, "ratio": {"type": "number", "minimum": 1}}
+        },
+        "cameras": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["groups", "mix"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "groups": {"type": "object", "additionalProperties": {"type": "array", "items": {"$ref": "#/definitions/text"}}},
+            "mix": {"type": "object", "additionalProperties": {"$ref": "#/definitions/cameraMix"}}
+          }
+        }
+      }
+    },
+    "ambience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["crowd", "wind", "rain", "pit", "squeal", "impact"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "crowd": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["base", "lfoHz", "lfoDepth", "bandHz", "q", "swell", "attackSec", "decaySec", "nearbyMetres"],
+          "properties": {
+            "base": {"$ref": "#/definitions/share"},
+            "lfoHz": {"$ref": "#/definitions/positive"},
+            "lfoDepth": {"$ref": "#/definitions/share"},
+            "bandHz": {"$ref": "#/definitions/positive"},
+            "q": {"$ref": "#/definitions/positive"},
+            "swell": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["pass", "lead", "start", "finish", "contact"],
+              "properties": {"pass": {"$ref": "#/definitions/share"}, "lead": {"$ref": "#/definitions/share"}, "start": {"$ref": "#/definitions/share"}, "finish": {"$ref": "#/definitions/share"}, "contact": {"$ref": "#/definitions/share"}}
+            },
+            "attackSec": {"$ref": "#/definitions/positive"},
+            "decaySec": {"$ref": "#/definitions/positive"},
+            "nearbyMetres": {"$ref": "#/definitions/positive"}
+          }
+        },
+        "wind": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gain", "fullKmh", "lowHz", "highHz"],
+          "properties": {"gain": {"$ref": "#/definitions/share"}, "fullKmh": {"$ref": "#/definitions/positive"}, "lowHz": {"$ref": "#/definitions/positive"}, "highHz": {"$ref": "#/definitions/positive"}}
+        },
+        "rain": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gain", "threshold", "hz", "q"],
+          "properties": {"gain": {"$ref": "#/definitions/share"}, "threshold": {"$ref": "#/definitions/share"}, "hz": {"$ref": "#/definitions/positive"}, "q": {"$ref": "#/definitions/positive"}}
+        },
+        "pit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["airGunHz", "airGunGain", "airGunBandHz", "stages", "audibleMetres"],
+          "properties": {"airGunHz": {"$ref": "#/definitions/positive"}, "airGunGain": {"$ref": "#/definitions/share"}, "airGunBandHz": {"$ref": "#/definitions/positive"}, "stages": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/text"}}, "audibleMetres": {"$ref": "#/definitions/positive"}}
+        },
+        "squeal": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gain", "hz", "vibratoHz", "durationSec", "kinds"],
+          "properties": {"gain": {"$ref": "#/definitions/share"}, "hz": {"$ref": "#/definitions/positive"}, "vibratoHz": {"$ref": "#/definitions/positive"}, "durationSec": {"$ref": "#/definitions/positive"}, "kinds": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/text"}}}
+        },
+        "impact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gain", "durationSec", "lowHz", "audibleMetres"],
+          "properties": {"gain": {"$ref": "#/definitions/share"}, "durationSec": {"$ref": "#/definitions/positive"}, "lowHz": {"$ref": "#/definitions/positive"}, "audibleMetres": {"$ref": "#/definitions/positive"}}
+        }
+      }
+    }
+  }
+}

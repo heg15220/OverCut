@@ -34,6 +34,8 @@ import "./styles/weekend.css";
 import { COMPOUND, DEFENCE, ERS, MIX, MODE, RISK, STATUS, commentary, duelEvent, lapTime, radioText, t } from "./texts";
 import RaceStage, { MiniMap } from "./RaceStage";
 import { canRender3D } from "../three/support";
+import { useRaceAudio } from "../three/audio";
+import SoundControl from "../three/audio/SoundControl";
 
 import { battlesIn, carAt, computedUntil, eventTime, leaderLap, liveCarAt, liveSafetyCarWindows, liveYellowsAt, raceEndTime, safetyCarWindows, standingsAt } from "./raceClock";
 
@@ -304,6 +306,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const zoom = 1;
   const [focusId, setFocusId] = useState(userCars[0]?.id ?? current.cars[0]?.id);
   const [towerMode, setTowerMode] = useState("interval");
+  // RF-3D-04 sound: engines per car and era, spatial mix per camera, ambience (three/audio).
+  const audio = useRaceAudio({ seed: current.seed ?? `${current.year}`, year: current.year });
 
   const tau = useRef(0);
   const intro = useRef(0);
@@ -451,6 +455,21 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   }
 
   const stageCars = rows.map((row) => ({ car: row.car, code: code(row.car.name), pose: row.pose, row: row.out ? null : row }));
+
+  // One audio frame per repaint (a no-op until the viewer turns the sound on).
+  const audioFrame = {
+    tau: tau.current,
+    playing: playing && !done,
+    mode: cameraMode,
+    focusId: cameraMode === "tv" ? director.current.id || focusId : focusId,
+    cars: rows.map((row) => ({ id: row.car.id, teamId: row.car.teamId, pose: row.pose })),
+    wetness,
+    events: visibleEvents,
+    started: introDone.current,
+  };
+  useEffect(() => {
+    if (audio.enabled) audio.frame(audioFrame);
+  });
 
   // ---- player calls: through the engine (the worker for a step race), RF-CMD-01/02
   const command = (name, ...callArgs) => {
@@ -697,6 +716,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
           <IconFastForward size={16} />
           {t("Al final", "To the flag")}
         </button>
+        <SoundControl audio={audio} />
       </PlaybackBar>
     </div>
   );
