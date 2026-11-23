@@ -328,11 +328,15 @@ export const liveCarAt = (mirror, car, tau, circuit, lapRef = 90) => {
   const lat = a.l[index] + (b.l[index] - a.l[index]) * f;
   const d = frac(progress);
   const inPit = (f < 0.5 ? a.pit[index] : b.pit[index]) === 1;
+  // WP9: the engine's own speed (m/s), pit-lane phase and stop stage, error being paid (older trails lack them).
+  const v = a.v && b.v ? a.v[index] + (b.v[index] - a.v[index]) * f : undefined;
+  const near = f < 0.5 ? a : b;
+  const sim = { v, pitPhase: near.ph ? near.ph[index] : null, pitStage: near.st ? near.st[index] : null, incident: near.inc ? near.inc[index] : null };
   if (inPit) {
     const lane = laneAt(circuit, d);
-    if (lane) return { ...lane, progress, laps: done, inPit: true, lateral: 0 };
+    if (lane) return { ...lane, progress, laps: done, inPit: true, lateral: 0, ...sim };
   }
-  return { ...lateral(poseAt(circuit, d), lat), progress, laps: done, lateral: lat, duel: b.duel[index] };
+  return { ...lateral(poseAt(circuit, d), lat), progress, laps: done, lateral: lat, duel: b.duel[index], ...sim };
 };
 
 /** Safety-car spells of a live step race, as race-clock windows (`red` for a red-flag neutralisation). */

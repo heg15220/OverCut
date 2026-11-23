@@ -312,7 +312,9 @@ function step(state, props, dt) {
   ordered.forEach((item, index) => {
     const ahead = ordered[index - 1];
     let target = 0;
-    if (ahead && !item.pose.inPit && !ahead.pose.inPit && ahead.metres - item.metres < 9) {
+    // The step race places cars sideways itself (pose.lateral, SIM-FISICA §3.1): the view only
+    // pulls a car out of a wake on the quick replay, which has no lateral of its own.
+    if (item.pose.lateral === undefined && ahead && !item.pose.inPit && !ahead.pose.inPit && ahead.metres - item.metres < 9) {
       // Pull to whichever side has more road.
       const room = ahead.pose.lineOffset ?? 0;
       target = room > 0 ? -2.3 : 2.3;
@@ -345,7 +347,8 @@ function step(state, props, dt) {
 
     if (entry.last && simDt > 0) {
       const travelled = Math.hypot(x - entry.last.x, z - entry.last.z);
-      const speed = travelled / simDt;
+      // SIM-FISICA §3.7 (WP9): the step race's own speed; the quick replay's from how far it moved.
+      const speed = Number.isFinite(pose.v) ? pose.v : travelled / simDt;
       const yawWanted = pose.garage || pose.stopped ? pose.heading : Math.atan2(z - entry.last.z, x - entry.last.x);
       // Yaw follows the direction of travel, eased so sample joints never show.
       const target = travelled > 0.05 ? unwrap(entry.yaw, yawWanted) : entry.yaw;

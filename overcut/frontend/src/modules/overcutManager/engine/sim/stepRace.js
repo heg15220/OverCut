@@ -1102,6 +1102,18 @@ const settleDuels = (state) => {
   }
 };
 
+/** The direction of the next braking zone's corner after time share `tau` (+1 right-hander, -1 left). */
+const nextTurnSign = (sim, tau) => {
+  const t = tau - Math.floor(tau);
+  let best = null;
+  for (let z = 0; z < sim.tables.attacks.length; z += 1) {
+    const attack = sim.tables.attacks[z];
+    const ahead = attack.tau >= t ? attack.tau - t : attack.tau + 1 - t;
+    if (best === null || ahead < best.ahead) best = { ahead, sign: attack.sign || 1 };
+  }
+  return best ? best.sign : 1;
+};
+
 /** Sideways: the attacker on the inside, nobody on top of anybody (presentation only). */
 const lateral = (sim) => {
   const { lateral: L } = sim.balance;
@@ -1110,7 +1122,9 @@ const lateral = (sim) => {
     const i = sim.ring[k];
     // WP8: a car running wide heads for the outside edge until it has paid its error.
     const wide = sim.incident[i] && sim.wideSign[i] ? sim.wideSign[i] * L.halfWidth * physicsData.mistake.edgeShare : null;
-    const target = wide !== null ? wide : sim.duelRole[i] === ROLE.NONE ? 0 : sim.latTarget[i];
+    // WP4 (SIM-FISICA §3.1): a car being lapped moves over to the outside of the next corner.
+    const yielding = wide === null && sim.blueDelay[i] > 0 ? -nextTurnSign(sim, sim.tau[i]) * L.halfWidth * sim.balance.blueFlags.yieldShare : null;
+    const target = wide !== null ? wide : yielding !== null ? yielding : sim.duelRole[i] === ROLE.NONE ? 0 : sim.latTarget[i];
     const diff = target - sim.lat[i];
     sim.lat[i] += Math.abs(diff) <= stepMove ? diff : Math.sign(diff) * stepMove;
   }

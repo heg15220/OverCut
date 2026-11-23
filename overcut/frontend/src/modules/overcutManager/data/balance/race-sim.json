@@ -147,9 +147,9 @@
     "swapGapSec": 2.5
   },
   "blueFlags": {
-    "$comment": "Un coche que va a ser doblado se aparta cuando el que le dobla llega a windowMetres: pierde lappedDelay segundos y el otro lapperDelay (los del modo rápido), una vez por pareja cada cooldownSec, a slowFactor de su velocidad hasta pagarlos.",
+    "$comment": "Un coche que va a ser doblado se aparta cuando el que le dobla llega a windowMetres: pierde lappedDelay segundos y el otro lapperDelay (los del modo rápido), una vez por pareja cada cooldownSec, a slowFactor de su velocidad hasta pagarlos. Mientras tanto el doblado se aparta hacia el exterior de la curva siguiente, a yieldShare de la media anchura (SIM-FISICA §3.1, WP4).",
     "windowMetres": 60,
-    "lappedDelay": 0.35,
+    "lappedDelay": 0.35, "yieldShare": 0.7,
     "lapperDelay": 0.12,
     "slowFactor": 0.8,
     "cooldownSec": 8

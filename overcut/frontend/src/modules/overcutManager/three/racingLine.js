@@ -1,71 +1,30 @@
 /**
- * The racing line: where on the road a car actually drives.
+ * The racing line: where on the road a car actually drives (RF-3D-03; SIM-FISICA §3.1, WP9).
  *
- * Racing drivers use the full width: they arrive at a corner on the outside,
- * clip the apex on the inside and let the car run out to the outside again on
- * exit - the widest, fastest arc. For every corner of a circuit this builds
- * that out-in-out shape as a lateral offset from the centreline, blends
- * neighbouring corners (a chicane becomes a straighter line through), smooths
- * it and keeps it inside the white lines. The view adds the offset to each
- * car's position and turns the car by the line's own angle, so cars visibly
- * swing across the track instead of running down the middle.
+ * The line is the engine's (engine/trackData.js trackDataFor): on a calibrated circuit the
+ * minimum-curvature line inside the measured asphalt of splines.json; on a sketch, the same
+ * solver inside the procedural width. The view no longer draws its own out-in-out arcs with a
+ * fixed half road: what the cars drive on screen is what the speed trace was computed on. The
+ * view adds the offset to each car's position and turns the car by the line's own angle.
  */
 
-const HALF_ROAD = 6.5;
-const MARGIN = 1.6;
+import { trackDataFor } from "../engine/trackData";
 
 const cache = new WeakMap();
 
-/** Lateral offset (metres, positive to the right of travel) for every centreline sample. */
+/** Lateral offset (metres, positive to the right of travel) for every centreline sample, its angle, and the road's half widths. */
 export const racingLine = (circuit) => {
   if (cache.has(circuit)) return cache.get(circuit);
   const n = circuit.points.length;
-  const L = circuit.length;
-  const width = HALF_ROAD - MARGIN;
-  const sum = new Float32Array(n);
-  const weight = new Float32Array(n);
-  circuit.corners.forEach((corner) => {
-    const sign = corner.sign || 1;
-    // Turn-in starts further back for fast corners; the exit runs out longer than the entry.
-    const entryMetres = corner.kind === "fast" ? 140 : corner.kind === "medium" ? 105 : 80;
-    const exitMetres = corner.kind === "fast" ? 170 : corner.kind === "medium" ? 130 : 110;
-    const entry = corner.from - entryMetres / L;
-    const exit = corner.to + exitMetres / L;
-    const apex = corner.apex;
-    const span = (from, to) => (to - from + 1) % 1;
-    const total = span(entry, exit);
-    const toApex = span(entry, apex) || total / 2;
-    const start = Math.floor(entry * n);
-    const end = Math.ceil((entry + total) * n);
-    for (let k = start; k <= end; k += 1) {
-      const i = ((k % n) + n) % n;
-      const u = span(entry, k / n);
-      if (u > total) continue;
-      let offset;
-      if (u <= toApex) offset = -sign * width * Math.cos((Math.PI * u) / toApex);
-      else offset = sign * width * Math.cos((Math.PI * (u - toApex)) / Math.max(1e-6, total - toApex));
-      // Weight peaks mid-corner so neighbours blend rather than fight.
-      const w = Math.sin((Math.PI * u) / total) + 0.05;
-      sum[i] += offset * w;
-      weight[i] += w;
-    }
-  });
-  let offsets = new Float32Array(n);
-  for (let i = 0; i < n; i += 1) offsets[i] = weight[i] > 0 ? sum[i] / weight[i] : 0;
-  // Smooth: a car cannot jink sideways.
-  for (let pass = 0; pass < 8; pass += 1) {
-    const next = new Float32Array(n);
-    for (let i = 0; i < n; i += 1) next[i] = (offsets[(i - 2 + n) % n] + offsets[(i - 1 + n) % n] * 2 + offsets[i] * 3 + offsets[(i + 1) % n] * 2 + offsets[(i + 2) % n]) / 9;
-    offsets = next;
-  }
-  for (let i = 0; i < n; i += 1) offsets[i] = Math.max(-width, Math.min(width, offsets[i]));
+  const data = trackDataFor(circuit);
+  const offsets = Float32Array.from(data.line);
   // The angle the line makes with the centreline at every sample.
   const angles = new Float32Array(n);
   for (let i = 0; i < n; i += 1) {
-    const step = Math.max(1, circuit.dist[i + 1] - circuit.dist[i]);
+    const step = Math.max(1, (circuit.dist[i + 1] ?? circuit.length) - circuit.dist[i]);
     angles[i] = Math.atan((offsets[(i + 1) % n] - offsets[(i - 1 + n) % n]) / (2 * step));
   }
-  const line = { offsets, angles };
+  const line = { offsets, angles, wl: data.wl, wr: data.wr, marginM: data.marginM };
   cache.set(circuit, line);
   return line;
 };
@@ -87,8 +46,18 @@ export const onRacingLine = (circuit, pose) => {
   const h = (q0, q1, q2, q3) => 0.5 * (2 * q1 + (q2 - q0) * k + (2 * q0 - 5 * q1 + 4 * q2 - q3) * k * k + (3 * q1 - q0 - 3 * q2 + q3) * k * k * k);
   const before = (i - 1 + n) % n;
   const after = (j + 1) % n;
-  const offset = h(offsets[before], offsets[i], offsets[j], offsets[after]);
+  let offset = h(offsets[before], offsets[i], offsets[j], offsets[after]);
   const angle = h(angles[before], angles[i], angles[j], angles[after]);
+  // The engine's sideways move (pose.lateral, already in x/y) plus the line stay on the asphalt:
+  // within the measured half widths less the car's half width and clearance (WP9).
+  const { wl, wr, marginM } = racingLine(circuit);
+  const lat = pose.lateral ?? 0;
+  if (wl && wr) {
+    const left = -(wl[i] + (wl[j] - wl[i]) * k - marginM);
+    const right = wr[i] + (wr[j] - wr[i]) * k - marginM;
+    const total = Math.max(Math.min(left, right), Math.min(Math.max(left, right), offset + lat));
+    offset = total - lat;
+  }
   return {
     ...pose,
     x: pose.x - Math.sin(pose.heading) * offset,

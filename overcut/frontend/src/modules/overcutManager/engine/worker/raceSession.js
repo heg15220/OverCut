@@ -65,6 +65,11 @@ export const createRaceSession = () => {
       l: cars.map((car) => car.lateral),
       pit: cars.map((car) => (car.inPit ? 1 : 0)),
       duel: cars.map((car) => car.duel),
+      // WP9 (SIM-FISICA §3.7-3.9): speed on the road (m/s), the pit-lane phase and stop stage, an error being paid.
+      v: cars.map((car) => Math.round((car.v ?? 0) * 100) / 100),
+      ph: cars.map((car) => (car.pit ? car.pit.phase : null)),
+      st: cars.map((car) => (car.pit && car.pit.stage ? car.pit.stage : null)),
+      inc: cars.map((car) => car.incident || null),
     };
   };
 
