@@ -1,0 +1,38 @@
+/* The sound button and its mix panel (SoundControl.js), on the playback bar. */
+.snd {
+  position: relative;
+  display: inline-flex;
+}
+
+.snd-panel {
+  position: absolute;
+  bottom: calc(100% + var(--mn-s-2));
+  right: 0;
+  z-index: 5;
+  display: grid;
+  gap: var(--mn-s-2);
+  min-width: 220px;
+  padding: var(--mn-s-3);
+  background: var(--mn-surface-2);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  color: var(--mn-text);
+  font-size: var(--mn-fs-12);
+}
+
+.snd-row {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  align-items: center;
+  gap: var(--mn-s-2);
+  color: var(--mn-text-2);
+}
+
+.snd-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--mn-accent);
+}
+
+.snd-row--check {
+  grid-template-columns: auto 1fr;
+}
