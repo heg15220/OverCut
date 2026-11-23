@@ -13,6 +13,13 @@
  *   another team's race driver       next season only; if their contract runs
  *                                    past this year, their team wants a fee
  *   your own drivers                 a renewal, any time
+ *   a protected driver (top of grid) never bought out of his contract
+ *   a rival's pre-contract           nobody: he has signed elsewhere
+ *
+ * Whether a driver talks to you, and what he asks, depends on your team's
+ * desirability (marketAI.js: car, standing, budget, factory) and on the money
+ * you put on the table (RF-STF-04). Every number is in data/balance/market.json
+ * (RNF-07).
  */
 
 import { clamp, substream } from "../../overcutTrayectoria/engine/rng";
@@ -21,6 +28,7 @@ import { driverSalary, moneyScale, roundMoney, staffSalary } from "./economy";
 import { legacyLedger } from "./finance/ledger";
 import { inventPerson } from "./names";
 import { driversOf, releaseDriver, signForTeam, teamsByPace } from "./world";
+import { MARKET, careerDesirability, isProtected } from "./marketAI";
 
 export const ROLES = ["first", "equal", "second"];
 
@@ -35,6 +43,8 @@ export const userTeam = (career) => career.world.teams[career.teamId];
 /** Where a driver is in the market, from the player's side of the table. */
 export const marketStatusOf = (career, driver) => {
   if (driver.contract?.teamId === career.teamId) return "own";
+  // RF-STF-04: a rival has already signed him for next season (marketAI.js openAiMarket).
+  if (career.market.precontracts?.[driver.id]) return "precontract";
   if (driver.status === "grid") return driver.contract && driver.contract.until > career.year ? "contracted" : "expiring";
   if (driver.status === "reserve") return "reserve";
   if (driver.status === "retired") return "retired";
@@ -45,39 +55,55 @@ export const marketStatusOf = (career, driver) => {
 export const buyoutFee = (career, driver) => {
   if (!driver.contract || driver.contract.teamId === career.teamId) return 0;
   const yearsLeft = Math.max(0, driver.contract.until - career.year);
-  return roundMoney(driver.contract.salary * yearsLeft * 0.65);
+  return roundMoney(driver.contract.salary * yearsLeft * MARKET.offer.buyoutShare);
 };
 
+/** The desirability of the player's team, 0..1 (marketAI.js; SRS 6.5, RF-STF-04). */
+export const userDesirability = (career) => careerDesirability(career)[career.teamId] ?? 0.5;
+
 /**
- * What a driver wants from you, and whether they will talk at all.
+ * What a driver wants from you, and whether they will talk at all (RF-STF-04).
+ * `reason` says why not: "protected" (his team will not sell a top driver under
+ * contract, or your team is not worth his time), "precontract" (signed elsewhere)
+ * or "interest".
  */
 export const askingTerms = (career, driver) => {
+  const A = MARKET.asking;
   const team = userTeam(career);
-  const rank = carRankScore(career, team.id);
+  const desirability = userDesirability(career);
   const own = driver.contract?.teamId === team.id;
-  const elite = driver.rating >= 84;
+  const elite = driver.rating >= A.eliteRating;
   const status = marketStatusOf(career, driver);
+  const top = !own && isProtected(career.world, driver.id);
 
-  let interest = 0.32 + 0.36 * rank + 0.24 * team.prestige;
-  if (status === "free" || status === "junior" || status === "reserve") interest += 0.22;
-  if (elite) interest -= 0.2 * (1 - rank);
-  if (own) interest += ((driver.morale ?? 70) - 55) / 180;
-  if (driver.age >= 36) interest += 0.08;
+  let interest = A.base + A.desirabilityWeight * desirability;
+  if (status === "free" || status === "junior" || status === "reserve") interest += A.availableBonus;
+  if (elite) interest -= A.elitePenalty * (1 - desirability);
+  if (own) interest += ((driver.morale ?? 70) - A.moraleNeutral) / A.moraleDivisor;
+  if (driver.age >= A.veteranAge) interest += A.veteranBonus;
   interest = clamp(interest, 0, 1);
 
   const mates = driversOf(career.world, team.id).filter((mate) => mate.id !== driver.id);
   const bestMate = Math.max(0, ...mates.map((mate) => mate.rating));
-  const role = elite || driver.rating >= bestMate + 3 ? "first" : driver.rating <= bestMate - 6 ? "second" : "equal";
+  // A protected driver only comes as the no. 1 (RF-STF-04).
+  const role = elite || top || driver.rating >= bestMate + A.firstGap ? "first" : driver.rating <= bestMate - A.secondGap ? "second" : "equal";
 
   const base = driverSalary(driver.rating, team.prestige, career.year);
-  const salary = roundMoney(base * (1.2 - 0.35 * interest) * (status === "junior" ? 0.55 : 1));
-  const years = driver.age < 25 ? 3 : driver.age < 32 ? 2 : 1;
-  const patience = 2 + Math.round(interest * 2);
+  const salary = roundMoney(base * (A.salaryHigh - A.salarySlope * interest) * (status === "junior" ? A.juniorShare : 1));
+  const years = contractYearsForAge(driver.age);
+  const patience = A.patienceBase + Math.round(interest * A.patienceSpan);
 
-  return { salary, role, years, interest, patience, willing: interest >= 0.22 || own };
+  let reason = null;
+  if (status === "precontract") reason = "precontract";
+  else if (top && (status === "contracted" || desirability < MARKET.protected.minDesirability)) reason = "protected";
+  else if (!own && interest < A.minInterest) reason = "interest";
+  return { salary, role, years, interest, desirability, patience, willing: own || !reason, reason, protected: top };
 };
 
-const ROLE_SCORE = { first: { first: 1, equal: 0.62, second: 0.3 }, equal: { first: 1, equal: 1, second: 0.55 }, second: { first: 1, equal: 1, second: 1 } };
+const contractYearsForAge = (age) => (MARKET.signing.contractYears.find((row) => age <= row.maxAge) || { years: 1 }).years;
+
+// How well an offered role meets the asked one (market.json offer.roleScore).
+const ROLE_SCORE = MARKET.offer.roleScore;
 
 /**
  * One round of a negotiation. `offer` is { salary, years, role, start } where
@@ -93,27 +119,28 @@ export const makeOffer = (career, driverId, offer) => {
   if (talks.walked) return { status: "walked", ask };
   if (!ask.willing) {
     talks.walked = true;
-    return { status: "not-interested", ask };
+    return { status: ask.reason === "protected" ? "protected" : ask.reason === "precontract" ? "precontract" : "not-interested", ask };
   }
 
-  const money = clamp(offer.salary / Math.max(1, ask.salary), 0, 1.35);
+  const O = MARKET.offer;
+  const money = clamp(offer.salary / Math.max(1, ask.salary), 0, O.moneyCap);
   const role = ROLE_SCORE[ask.role][offer.role] ?? 0.5;
-  const years = clamp(1 - 0.12 * Math.abs((offer.years || 1) - ask.years), 0.5, 1);
-  const score = money * 0.55 + role * 0.2 + years * 0.1 + ask.interest * 0.25 - 0.08;
+  const years = clamp(1 - O.yearPenalty * Math.abs((offer.years || 1) - ask.years), 0.5, 1);
+  const score = money * O.moneyWeight + role * O.roleWeight + years * O.yearsWeight + ask.interest * O.interestWeight - O.offset;
   talks.rounds += 1;
   talks.last = { ...offer, score };
 
-  if (score >= 0.8) {
+  if (score >= O.accept) {
     talks.agreed = { ...offer };
     return { status: "accepted", ask, score };
   }
-  if (talks.rounds >= ask.patience || score < 0.42) {
+  if (talks.rounds >= ask.patience || score < O.reject) {
     talks.walked = talks.rounds >= ask.patience;
     return { status: talks.walked ? "walked" : "rejected", ask, score };
   }
   // Meet in the middle, a little on their side.
   const counter = {
-    salary: roundMoney(Math.max(offer.salary, ask.salary * (0.96 + (0.8 - score) * 0.25))),
+    salary: roundMoney(Math.max(offer.salary, ask.salary * (MARKET.offer.counterBase + (MARKET.offer.accept - score) * MARKET.offer.counterSlope))),
     role: ROLE_SCORE[ask.role][offer.role] >= 1 ? offer.role : ask.role,
     years: ask.years,
   };
@@ -144,6 +171,7 @@ export const signDriver = (career, driverId, { start = "next", seat = "race", re
   const team = userTeam(career);
   const status = marketStatusOf(career, driver);
   const fee = status === "contracted" ? buyoutFee(career, driver) : 0;
+  if (status === "precontract") return { error: "precontract" };
 
   if (status === "own") {
     // A renewal runs from next season: `years` more seasons after this one.

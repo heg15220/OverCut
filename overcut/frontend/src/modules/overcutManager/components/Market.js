@@ -5,9 +5,11 @@
  * negotiate button at the side; the negotiation itself opens a wide Sheet.
  */
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ATTRIBUTE_KEYS } from "../../overcutTrayectoria/engine/attributes";
 import { buyoutFee, marketStatusOf, seatsFor } from "../engine/market";
+import { isProtected, marketOpen } from "../engine/marketAI";
+import { openSeasonMarket } from "../engine/offseason";
 import { useManager } from "./context";
 import { Badge, Bar, DataTable, EmptyState, Flag, IconButton, Meter, PageHeader, Panel, Rating, Segmented, Tabs, TeamStripe } from "./atoms";
 import { Facts, revealOnPhone } from "./dataScreen";
@@ -23,13 +25,14 @@ const STATUS_LABEL = {
   expiring: () => t("Acaba contrato", "Out of contract"),
   contracted: () => t("Con contrato", "Under contract"),
   own: () => t("Tu piloto", "Your driver"),
+  precontract: () => t("Precontrato", "Pre-contract"),
 };
-const STATUS_TONE = { free: "pos", junior: "info", reserve: "neutral", expiring: "warn", contracted: "neutral", own: "accent" };
+const STATUS_TONE = { free: "pos", junior: "info", reserve: "neutral", expiring: "warn", contracted: "neutral", own: "accent", precontract: "neg" };
 
 const FILTERS = [
   { value: "available", label: () => t("Disponibles", "Available"), test: (status) => ["free", "junior", "reserve"].includes(status) },
   { value: "expiring", label: () => t("Acaban contrato", "Out of contract"), test: (status) => status === "expiring" },
-  { value: "contracted", label: () => t("Con contrato", "Contracted"), test: (status) => status === "contracted" },
+  { value: "contracted", label: () => t("Con contrato", "Contracted"), test: (status) => status === "contracted" || status === "precontract" },
   { value: "shortlist", label: () => t("Seguimiento", "Shortlist"), test: null },
 ];
 
@@ -37,7 +40,12 @@ const StarOn = (props) => <IconStar filled {...props} />;
 const StarOff = (props) => <IconStar {...props} />;
 
 export default function Market() {
-  const { career, act, version } = useManager();
+  const { career, act, version, engine } = useManager();
+  // RF-STF-04, SRS 6.5: once the market opens, the rivals renew and announce their pre-contracts.
+  const open = marketOpen(career);
+  useEffect(() => {
+    if (engine && open && !career.spectator && career.market.ai?.year !== career.year + 1) act((c) => openSeasonMarket(engine, c));
+  }, [engine, open, career, act]);
   const [filter, setFilter] = useState("available");
   const [sort, setSort] = useState("rating");
   const [talking, setTalking] = useState(null);
@@ -226,6 +234,9 @@ function DriverCard({ career, driver, best, onTalk, onStar }) {
   const talks = career.market.talks[driver.id];
   const fee = status === "contracted" ? buyoutFee(career, driver) : 0;
   const on = career.market.shortlist.includes(driver.id);
+  const deal = career.market.precontracts?.[driver.id];
+  const dealTeam = deal ? career.world.teams[deal.teamId] : null;
+  const top = status !== "own" && isProtected(career.world, driver.id);
   return (
     <Panel title={t("Ficha", "Profile")} action={<Badge tone={STATUS_TONE[status] || "neutral"} dot>{STATUS_LABEL[status] ? STATUS_LABEL[status]() : status}</Badge>}>
       <div className="mn-mk-card">
@@ -251,14 +262,16 @@ function DriverCard({ career, driver, best, onTalk, onStar }) {
           items={[
             [t("Contrato", "Contract"), driver.contract && status !== "free" ? t(`hasta ${driver.contract.until}`, `until ${driver.contract.until}`) : t("ninguno", "none")],
             driver.contract?.salary ? [t("Salario actual", "Current salary"), <span className="mn-ds-mono">{money(driver.contract.salary)}</span>] : null,
-            fee > 0 ? [t("Cláusula de salida", "Release fee"), <span className="mn-ds-mono">{money(fee)}</span>] : null,
+            fee > 0 && !top ? [t("Cláusula de salida", "Release fee"), <span className="mn-ds-mono">{money(fee)}</span>] : null,
+            top ? [t("Protegido", "Protected"), t("Entre los mejores de la parrilla: su equipo no vende el contrato", "Among the best on the grid: his team will not sell the contract")] : null,
+            dealTeam ? [t("Precontrato", "Pre-contract"), t(`${dealTeam.name}, hasta ${deal.until}`, `${dealTeam.name}, until ${deal.until}`)] : null,
             [t("Techo", "Ceiling"), driver.scouted ? Math.round(driver.talent) : t("sin ojear", "not scouted")],
             talks?.agreed ? [t("Negociación", "Talks"), <Badge tone="pos">{t("Acuerdo", "Agreed")}</Badge>] : null,
             talks?.walked ? [t("Negociación", "Talks"), <Badge tone="neg">{t("Rompió", "Walked")}</Badge>] : null,
           ]}
         />
         <div className="mn-mk-card__actions">
-          <button type="button" className="mn-btn mn-btn--primary" onClick={() => onTalk(driver.id)} disabled={talks?.walked}>
+          <button type="button" className="mn-btn mn-btn--primary" onClick={() => onTalk(driver.id)} disabled={talks?.walked || status === "precontract"}>
             {t("Negociar", "Negotiate")}
           </button>
           <button type="button" className="mn-btn mn-btn--ghost" onClick={() => onStar(driver.id)} aria-pressed={on}>
