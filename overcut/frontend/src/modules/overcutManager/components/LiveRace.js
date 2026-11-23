@@ -729,7 +729,8 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
   const energyModes = commands.energy.filter((key) => ERS[key]);
   const hasBattery = car.battery !== null && car.battery !== undefined && energyModes.length > 0;
   // RF-CMD-02: the next stop of the plan (delay it a lap or drop it) and, with refuelling, the load.
-  const nextStop = car.plan.stops.find((lap) => lap >= state.lap);
+  // A stop the car has already made (car.lastPitLap) is not "next", even before the leader's lap moves on.
+  const nextStop = car.plan.stops.find((lap) => lap >= state.lap && !(car.lastPitLap >= lap));
   const nextCompound = car.plan.compounds[Math.min(car.plan.compounds.length - 1, (car.stint ?? 0) + 1)];
   // A stop called now replaces the next planned one: fuel to the stop after it, or to the flag.
   const after = car.plan.stops.find((lap) => lap > (nextStop ?? state.lap));

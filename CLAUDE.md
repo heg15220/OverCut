@@ -41,8 +41,16 @@ Reglas:
   `seasonPacks.js` `ensureSeasonPack`), 238 eventos históricos con fuente y anclas fijas en `engine/history/`
   (Indianápolis 2005, McLaren 2007, ausencias), modo estricto/libre (`career.mode`, guardado v4) con anclas por carrera
   (`data/balance/historical-anchors.json`) y banco de validación 7.2 (`overcut/frontend/scripts/validateSeasons.js`,
-  informe en `docs/manager/validation/`): 36/38 temporadas con el campeón real como más probable, Spearman 0,93.
+  informe en `docs/manager/validation/`): 35/38 temporadas con el campeón real como más probable, Spearman 0,93 (repetido el 2026-11-23 tras la física).
 - Fin de semana jugable (2026-11-22): sesiones interactivas de libres/clasificación/shootout en `engine/sessionSim/` (pasos de 0,5 s, órdenes del jugador, formatos por era, balance en `data/balance/sessions.json`, pendiente de verificar contra la FIA); órdenes de carrera de 5 ritmos y parada con combustible/retrasar/saltar. Assets: nivel `hero` (texturas 2048) solo para primeros planos; carga diferida por LOD, caché `three/assets/cacheStore.js` y shaders en segundo plano (`compileGate.js`).
+- Física de simulación (2026-11-23, `docs/manager/SIM-FISICA.md`, estado en su §7): traza física por era y circuito
+  (`engine/sim/physics.js`, `data/balance/race-physics.json` con esquema), presupuesto del modo rápido repartido por
+  bandas (punta y mínimas reales), aire sucio por banda, pit lane físico con límite por era y parada por etapas
+  (`engine/sim/pitLane.js`, `pitStop.js`, `data/balance/race-pit.json`), errores con tipo, paradas por GP calibradas con
+  las reales de f1db (pack `calendar[].pitStops`, `race.js strategyScales`) y vista que lee del motor velocidad, lateral
+  y fase de boxes. Equivalencia SRS 4.2 en `engine/sim/equivalence.test.js` (32 semillas). Tramos de spline mal
+  extraídos se enderezan a mano en `tools/assets/assets.config.json` `review.track.straighten` (Monza);
+  `tools/assets/engine_loader.mjs` deja cargar el motor desde Node.
 - Tests del Manager: `CI=true npx react-scripts test --watchAll=false --testPathPattern overcutManager`.
   `npm install` necesita `--legacy-peer-deps` (conflicto previo de react-vis con React 18).
 - Ningún valor de balance en código (RNF-07): va a los packs de temporada con esquema JSON.
