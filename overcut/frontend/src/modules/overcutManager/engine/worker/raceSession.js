@@ -70,6 +70,15 @@ export const createRaceSession = () => {
       ph: cars.map((car) => (car.pit ? car.pit.phase : null)),
       st: cars.map((car) => (car.pit && car.pit.stage ? car.pit.stage : null)),
       inc: cars.map((car) => car.incident || null),
+      // RF-SIM-01 / RF-SIM-02 (engine/sim/powertrain.js): gear, rpm, throttle and brake (0..100), g ×100, pitch and roll (deg ×100).
+      g: cars.map((car) => car.gear ?? 0),
+      rpm: cars.map((car) => car.rpm ?? 0),
+      th: cars.map((car) => Math.round((car.throttle ?? 0) * 100)),
+      br: cars.map((car) => Math.round((car.brake ?? 0) * 100)),
+      lon: cars.map((car) => Math.round((car.lonG ?? 0) * 100)),
+      lat: cars.map((car) => Math.round((car.latG ?? 0) * 100)),
+      pi: cars.map((car) => Math.round((car.pitch ?? 0) * 100)),
+      ro: cars.map((car) => Math.round((car.roll ?? 0) * 100)),
     };
   };
 

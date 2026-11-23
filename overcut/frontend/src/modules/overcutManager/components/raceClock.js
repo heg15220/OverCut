@@ -300,6 +300,25 @@ const laneAt = (circuit, d) => {
 };
 
 /**
+ * RF-SIM-01 / RF-SIM-02: the power unit's state between two snapshots (engine/sim/powertrain.js via the
+ * worker trail): gear from the nearer one, rpm, pedals, g, pitch and roll interpolated. Empty for older trails.
+ */
+const driveAt = (a, b, f, index, near) => {
+  if (!a.g || !b.g) return {};
+  const mix = (key, scale = 1) => ((a[key][index] + (b[key][index] - a[key][index]) * f) / scale);
+  return {
+    gear: near.g[index],
+    rpm: Math.round(mix("rpm")),
+    throttle: mix("th", 100),
+    brake: mix("br", 100),
+    lonG: mix("lon", 100),
+    latG: mix("lat", 100),
+    pitch: mix("pi", 100),
+    roll: mix("ro", 100),
+  };
+};
+
+/**
  * Where a car of a live step race is at race time `tau`: between the two worker
  * snapshots around it (progress and lateral offset eased linearly), on the pit lane
  * while it is in it, parked where it stopped, rolling on after the flag. `mirror` is
@@ -331,7 +350,7 @@ export const liveCarAt = (mirror, car, tau, circuit, lapRef = 90) => {
   // WP9: the engine's own speed (m/s), pit-lane phase and stop stage, error being paid (older trails lack them).
   const v = a.v && b.v ? a.v[index] + (b.v[index] - a.v[index]) * f : undefined;
   const near = f < 0.5 ? a : b;
-  const sim = { v, pitPhase: near.ph ? near.ph[index] : null, pitStage: near.st ? near.st[index] : null, incident: near.inc ? near.inc[index] : null };
+  const sim = { v, pitPhase: near.ph ? near.ph[index] : null, pitStage: near.st ? near.st[index] : null, incident: near.inc ? near.inc[index] : null, ...driveAt(a, b, f, index, near) };
   if (inPit) {
     const lane = laneAt(circuit, d);
     if (lane) return { ...lane, progress, laps: done, inPit: true, lateral: 0, ...sim };

@@ -33,6 +33,11 @@
  *                 car's `history` exactly as the quick mode writes it, so raceClock,
  *                 LiveRace and career.completeRace read a step race unchanged.
  *
+ *   8. drive      the power unit and gearbox (powertrain.js; RF-SIM-01, RF-SIM-02, RF-DEV-01): gear,
+ *                 rpm, pedals, g and body motion from the speed each car does; the launch from
+ *                 the grid limited by traction and lift and coast on the lean mix shape the
+ *                 trace, and the time they cost is given back inside the same lap (SRS 4.2).
+ *
  * Determinism (RF-SIM-15, RNF-05): four seeded streams (laps, duels, pits, incidents),
  * a fixed step and a fixed processing order; the same seed and the same commands at the
  * same race time give byte-identical output. Hot loops run on typed arrays with no
@@ -56,6 +61,7 @@ import { buildTrackTables, dAt, dirtyAt, inCorner, sensAt, tauAtD } from "./trac
 import { PHASE, PHASE_NAMES, PIT_LANE_BALANCE, boxPosition, buildProfile, createLaneState, laneGeometry, limitSpeed, sampleProfile, timeAtS } from "./pitLane";
 import { stageAt } from "./pitStop";
 import { WEATHER_BALANCE, gripRatio, sprayLossOf, weatherSnapshot } from "../weather";
+import { POWERTRAIN, coastDecel, coastPlan, createDrive, curvatureBins, driveSnapshot, launchAccel, powertrainFor, updateDrive } from "./powertrain";
 
 export const SIM_BALANCE = balanceData;
 
@@ -183,6 +189,8 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     scOpen: null,
     // RF-SIM-09: the era's scale of duel touches against f1db (race-reliability.json calibration.stepCollision).
     collisionScale: calibrationFor(rules.year ?? state.year).stepCollision,
+    // RF-SIM-01 / RF-SIM-02 / RF-DEV-01: the era's power unit and gearbox, fitted to this circuit, and each car's drive state.
+    ...driveSetup(rules.year ?? state.year, track, tables, n, rules),
   };
   for (let i = 0; i < n; i += 1) sim.order[i] = i;
   state._sim = sim;
@@ -205,6 +213,29 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
   return state;
 };
 
+/**
+ * RF-SIM-01 / RF-SIM-02 / RF-DEV-01 (powertrain.js): the power unit and gearbox of the era with the
+ * ratios fitted to this circuit's reference top speed (or the season's, since 2014), the curvature
+ * per distance bin for lateral g, the lift-and-coast plan of the lean mix (no refuelling only: its
+ * time is the quick mode's lean-mix time) and the straights' band weight for each car's power share.
+ */
+const driveSetup = (year, track, tables, n, rules) => {
+  let top = 0;
+  for (let j = 0; j < tables.M; j += 1) if (tables.vRef[j] > top) top = tables.vRef[j];
+  const pt = powertrainFor({ year, layoutRef: track.ref || null, circuitTop: top > 0 ? top : null });
+  let straightSens = Infinity;
+  for (let j = 0; j < tables.M; j += 1) if (tables.sens[j] < straightSens) straightSens = tables.sens[j];
+  return {
+    pt,
+    drive: createDrive(n),
+    kappaBin: curvatureBins(track, tables.M),
+    // Where the reference trace is on the power (1), per time-share bin: full throttle there.
+    fullBin: Uint8Array.from(tables.vRef, (v, j) => (tables.vRef[(j + 1) % tables.M] > v * 1.0005 ? 1 : 0)),
+    coast: rules.refuelling ? null : coastPlan(tables, pt, mixEffect("lean").time),
+    straightSens: Number.isFinite(straightSens) ? straightSens : 1,
+  };
+};
+
 /** A step race from the same arguments as race.js createRace (RF-SIM-01). */
 export const createStepRace = (args) => fromQuickRace(createRace(args), { race: args.race });
 
@@ -221,6 +252,10 @@ const start = (state) => {
     sim.laps[i] = 0;
     sim.active[i] = car.status === "running" ? 1 : 0;
     sim.lat[i] = (car.grid % 2 ? -1 : 1) * 2.6;
+    // RF-SIM-01: a standing start in first gear, limited by traction until the car reaches the trace.
+    sim.drive.launching[i] = sim.active[i];
+    sim.drive.vLaunch[i] = 0;
+    sim.drive.gear[i] = 1;
     beginLap(state, i, 1, 0);
   });
   // RF-SIM-10: race control watches the lights (the quick mode's check and stream).
@@ -268,8 +303,19 @@ const beginLap = (state, i, lap, t) => {
   sim.t1Tau[i] = -1;
   // RF-SIM-09: a first-corner touch happens at that corner's apex on lap 1.
   if (t1 && t1.outcomes[car.id]) sim.t1Tau[i] = apexTauOf(sim, t1.corner, sim.streams.incidents);
+  // Lift and coast (powertrain.js coastPlan): on the lean mix the car coasts before the braking
+  // zones instead of losing the mix's time evenly; the budget gives that time to the coasting.
+  const drive = sim.drive;
+  drive.debt[i] -= drive.allowance[i];
+  drive.allowance[i] = 0;
+  drive.coastZone[i] = 0;
+  drive.coasting[i] = sim.coast && car.fuelMode === "lean" ? 1 : 0;
+  if (drive.coasting[i]) budget -= sim.coast.loss;
   sim.budget[i] = Math.max(1, budget);
   sim.dev[i] = devOf(sim.tables, sim.budget[i]);
+  // The car's share of the era's peak power: its straight-line speed against the reference trace, cubed (drag).
+  const straight = sim.tables.traceLap ? sim.tables.traceLap / (sim.budget[i] * (1 - sim.dev[i] + sim.dev[i] * sim.straightSens)) : 1;
+  drive.powerShare[i] = straight >= 1 ? 1 : straight * straight * straight;
   wetLap(state, i, lap);
   sim.mistakeTau[i] = -1;
   if (car.pendingMistake) {
@@ -655,8 +701,9 @@ const advance = (state, i) => {
     const away = Math.abs(sim.lat[i]) - off.lineHalfWidthM;
     if (away > 0) mult /= 1 + sim.offPen[i] * Math.min(1, away / (off.fullAtM - off.lineHalfWidthM));
   }
+  mult = shapeDrive(state, i, cell, rate, Math.max(0, mult), sc);
   const tau0 = sim.tau[i];
-  let tau1 = tau0 + rate * Math.max(0, mult) * dt;
+  let tau1 = tau0 + rate * mult * dt;
   const laps = sim.laps[i];
   let P1 = laps + dAt(tables, tau1);
 
@@ -692,6 +739,74 @@ const advance = (state, i) => {
     const going = endLap(state, i, laps + 1, tc);
     if (going) checkpoints(state, i, 0, sim.tau[i]);
   }
+};
+
+/**
+ * RF-SIM-01 / SRS 4.2 (powertrain.js): the two shapes of the trace the power unit makes, as a cap
+ * on this step's speed, with the time they cost given back within the lap.
+ *
+ *   launch   from the grid the car is held to its own traction-limited launch speed until it
+ *            reaches the trace (lap 1's budget already holds the quick mode's standing start);
+ *   coast    on the lean mix, in a lift zone of the circuit's coast plan, it coasts on drag,
+ *            engine braking and harvesting until the braking curve takes over; the zone's
+ *            reference loss is the time the lap's budget gave up for it.
+ *
+ * `debt` is the time behind the budget the caps made (scaled by the step's multiplier, so the
+ * traffic's own losses stay as they were), `allowance` the coasting the budget already paid for;
+ * out of a cap the difference is repaid by at most launch.repayMaxShare of speed over the rest
+ * of the lap. Under a safety car or a red flag everything is dropped (the train sets the pace).
+ */
+const shapeDrive = (state, i, cell, rate, mult, sc) => {
+  const sim = state._sim;
+  const drive = sim.drive;
+  drive.lifted[i] = 0;
+  if (sc || sim.inPit[i] !== 0 || sim.red) {
+    drive.launching[i] = 0;
+    drive.coastZone[i] = 0;
+    drive.debt[i] = 0;
+    drive.allowance[i] = 0;
+    return mult;
+  }
+  const { tables, dt, pt } = sim;
+  const vFree = (tables.dOfTau[cell + 1] - tables.dOfTau[cell]) * tables.M * tables.length * rate * mult;
+  let capped = false;
+  let out = mult;
+  if (drive.launching[i]) {
+    const vl = drive.vLaunch[i] + launchAccel(pt, drive.vLaunch[i]) * dt;
+    drive.vLaunch[i] = vl;
+    if (vFree > vl && vFree > 0) {
+      const c = vl / vFree;
+      drive.debt[i] += dt * mult * (1 - c);
+      out = mult * c;
+      capped = true;
+    } else drive.launching[i] = 0;
+  }
+  const zone = drive.coasting[i] && sim.coast ? sim.coast.zoneOf[cell] : 0;
+  if (zone > 0 && !capped) {
+    if (drive.coastZone[i] !== zone) {
+      drive.coastZone[i] = zone;
+      drive.vCoast[i] = sim.v[i] > 0 ? sim.v[i] : vFree;
+      drive.allowance[i] += sim.coast.zones[zone - 1].loss;
+    }
+    const vc = drive.vCoast[i] - coastDecel(pt, drive.vCoast[i], drive.rpm[i]) * dt;
+    drive.vCoast[i] = vc > 1 ? vc : 1;
+    if (vFree > drive.vCoast[i]) {
+      const c = drive.vCoast[i] / vFree;
+      drive.debt[i] += dt * mult * (1 - c);
+      out = mult * c;
+      capped = true;
+      drive.lifted[i] = 1;
+    }
+  } else if (zone === 0) drive.coastZone[i] = 0;
+  const owed = drive.debt[i] - drive.allowance[i];
+  if (!capped && (owed > 1e-4 || owed < -1e-4)) {
+    const rest = sim.budget[i] * Math.max(0.05, 1 - sim.tau[i]);
+    const most = POWERTRAIN.launch.repayMaxShare;
+    const g = clamp(owed / rest, -most, most);
+    drive.debt[i] -= dt * mult * g;
+    out = mult * (1 + g);
+  }
+  return out;
 };
 
 /** Where on its lap a car with a broken suspension stops (the quick mode's share of that lap). */
@@ -1241,6 +1356,22 @@ const lateral = (sim) => {
   }
 };
 
+/** RF-SIM-01 / RF-SIM-02: every running car's gear, rpm, pedals and g from the speed it did this step. */
+const driveStep = (sim) => {
+  const { pt, drive, tables, dt } = sim;
+  const lane = sim.lane.cars;
+  for (let i = 0; i < sim.n; i += 1) {
+    if (!sim.active[i]) continue;
+    const inLane = sim.inPit[i] !== 0 && lane.prof[i];
+    const v = inLane ? lane.v[i] : sim.v[i];
+    const bin = Math.min(tables.M - 1, (frac(sim.P[i]) * tables.M) | 0);
+    const stopped = Boolean(inLane) && v === 0 && (lane.phase[i] === PHASE.STATIONARY || lane.phase[i] === PHASE.QUEUE);
+    const cell = Math.min(tables.M - 1, (frac(sim.tau[i]) * tables.M) | 0);
+    const full = !inLane && sim.fullBin[cell] === 1 && sim.delay[i] <= 0;
+    updateDrive(pt, drive, i, v, inLane ? 0 : sim.kappaBin[bin], dt, { coast: drive.lifted[i] === 1, stopped, full });
+  }
+};
+
 /** One fixed step of `dt` seconds for the whole field. */
 export const stepOnce = (state) => {
   const sim = state._sim;
@@ -1272,6 +1403,7 @@ export const stepOnce = (state) => {
   settleDuels(state);
   raceControl(state);
   lateral(sim);
+  driveStep(sim);
   sortOrder(state);
   state.clock = sim.clock;
   // Safety-car spells in race time, for the view and the timing.
@@ -1344,6 +1476,8 @@ export const snapshot = (state) => {
     duel: sim.duelRole[i],
     // WP8: an error being paid ("lockup" | "wide" | "spin"), for the view.
     incident: sim.incident[i],
+    // RF-SIM-01 / RF-SIM-02 (powertrain.js): gear, rpm, throttle, brake, g, pitch, roll, front load share.
+    ...driveSnapshot(sim.pt, sim.drive, i),
   }));
 };
 

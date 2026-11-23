@@ -363,6 +363,10 @@ function step(state, props, dt) {
       const soft = (spec?.era === "front" || spec?.era === "cigar" || spec?.era === "highwing") ? 2.6 : spec?.era === "wedge" ? 1.6 : 1;
       object.rotation.x = THREE.MathUtils.clamp(-entry.latAcc * 0.0028 * soft, -0.075, 0.075);
       entry.pitch = THREE.MathUtils.clamp(entry.lonAcc * 0.0016 * soft, -0.045, 0.03);
+      // RF-SIM-01 / RF-SIM-02: the step race gives the body motion itself (engine/sim/powertrain.js: weight
+      // transfer by era, degrees; + nose down, roll to the outside), the side from the view's own turn.
+      if (Number.isFinite(pose.pitch)) entry.pitch = THREE.MathUtils.clamp((-pose.pitch * Math.PI) / 180, -0.06, 0.04);
+      if (Number.isFinite(pose.roll)) object.rotation.x = -Math.sign(entry.latAcc) * Math.min(0.09, (Math.abs(pose.roll) * Math.PI) / 180);
       object.rotation.z = entry.pitch;
       entry.spin += travelled;
       const curvature = speed > 1 ? yawRate / speed : 0;
