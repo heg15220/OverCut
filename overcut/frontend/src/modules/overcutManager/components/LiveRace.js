@@ -18,7 +18,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  cancelPit, commandsFor, delayStop, drsOpen, energyEra, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder, skipStop,
+  cancelPit, commandsFor, delayStop, drsOpen, energyEra, mixEffect, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder, skipStop,
   stepLap, tyreLifeUsed,
 } from "../engine/race";
 import { DEFENCE_KEYS, RISK_KEYS } from "../engine/sim";
@@ -722,8 +722,12 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
   const life = Math.max(0, 1 - tyreLifeUsed(car, rules));
   const temp = TEMP_LABEL(car.tyreTemp ?? 0.5);
   const remaining = Math.max(0, state.laps - state.lap);
-  const burn = { lean: 0.93, standard: 1, rich: 1.07 }[car.fuelMode] ?? 1;
+  const burn = mixEffect(car.fuelMode).burn;
   const fuelMargin = refuel ? null : car.fuel / burn - remaining;
+  // RF-SIM-04: kg on board - live from the step sim, or the ledger (laps of fuel x kg a lap).
+  const fuelKg = car.fuelLive ? car.fuelLive.kg : state.fuelSpec ? car.fuel * state.fuelSpec.kgPerLap : null;
+  // RF-SIM-05: the store in MJ and whether the deployment is clipping now (step race only).
+  const store = car.energyLive;
   const position = row && !row.out ? row.position : car.position;
   const drs = running && drsOpen(rules, { lap: state.lap, wetness: state.weather.wetness[Math.min(state.lap, state.laps)] ?? 0, zones: state.track?.drs ?? 0, restartLap: state.restartLap || 0, gapAhead: car.gapAhead });
   const paceKeys = commands.pace.filter((key) => MODE[key]);
@@ -775,6 +779,7 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
                 </b>
               )}
               <Meter value={Math.round(Math.min(1, car.fuel / Math.max(1, refuel ? 30 : state.fuelStart)) * 100)} tone="accent" label={t("Combustible", "Fuel")} />
+              {fuelKg !== null && <small>{fuelKg.toFixed(1)} kg</small>}
               {refuel && <small>{t("Repostaje en cada parada", "Refuel at every stop")}</small>}
             </div>
           </div>
@@ -788,7 +793,8 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
             <div className="lv-ctl">
               <span>{energy === "kers" ? "KERS" : "ERS"}</span>
               <div className="lv-ctl__value">
-                <b>{Math.round(car.battery)}%</b>
+                <b>{Math.round(store ? store.share * 100 : car.battery)}%</b>
+                {store && <small>{store.soc.toFixed(2)} MJ{store.clipping ? ` · ${t("recorte", "clipping")}` : store.harvestKw > 0 ? ` · ${t("recarga", "harvest")}` : store.deployKw > 0 ? ` · ${t("despliegue", "deploy")}` : ""}</small>}
                 <Dots label={energy === "kers" ? "KERS" : "ERS"} value={car.ersMode} onChange={(mode) => command("setErs", car.id, mode)} options={energyModes.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
               </div>
             </div>

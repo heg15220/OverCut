@@ -30,9 +30,7 @@
     "attack": { "time": -0.52, "wear": 1.75, "risk": 1.5, "mistake": 2.2, "burn": 1.04 }
   },
   "fuel": {
-    "$comment": "RF-SIM-04: s por vuelta de combustible a bordo; margen en vueltas fuera de las eras de repostaje; mezcla (fuera del repostaje).",
-    "perLap": 0.032,
-    "margin": 1.2,
+    "$comment": "RF-SIM-04: mezcla (fuera del repostaje): tiempo por vuelta y consumo relativo. El peso del combustible (s/kg), el consumo por vuelta, el margen y los límites por era están en race-energy.json (engine/energy.js).",
     "mixes": {
       "lean": { "time": 0.24, "burn": 0.93 },
       "standard": { "time": 0, "burn": 1 },
@@ -150,7 +148,9 @@
       "rainChance": 0.2,
       "maxPerRace": 1,
       "rollingScLaps": [2, 3],
-      "standingSpacing": 0.32
+      "standingSpacing": 0.32,
+      "minLapShare": 0.92,
+      "minLapShareNote": "WP11 (RF-SIM-10): al formar la parrilla tras la bandera roja ningún coche recorta su vuelta por debajo de esta fracción de baseLap (antes 0,5 fijo en race.js, que daba vueltas de 50 s en Silverstone 2005; el modo por pasos forma la parrilla conduciendo). NV"
     }
   },
   "penalties": {

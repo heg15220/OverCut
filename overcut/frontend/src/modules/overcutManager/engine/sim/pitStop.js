@@ -27,9 +27,16 @@
  */
 
 import pitBalance from "../../data/balance/race-pit.json";
+import energyData from "../../data/balance/race-energy.json";
 import { byYear } from "../rules";
 
 const STOP = pitBalance.pitStop;
+
+/**
+ * RF-SIM-04 / RF-SIM-12: litres in a lap of fuel - the race's kg a lap (engine/energy.js, the
+ * circuit's measured flow) over the fuel's density, or race-pit.json litresPerFuelLap without one.
+ */
+const litresPerLapOf = (kgPerLap) => (kgPerLap > 0 ? kgPerLap / energyData.fuel.densityKgL : STOP.litresPerFuelLap);
 
 export const STAGES = ["marks", "jackUp", "wheels", "wing", "refuel", "jackDown", "release"];
 
@@ -67,7 +74,7 @@ const timeOf = (stream, spec, factor) => {
  * (null | "adjust" | "change"). Returns { stationary, stages: [{ stage, role, start, duration }],
  * mistake: { stage, role, delay } | null, slow } - `slow` is the mistake's delay (0 without one).
  */
-export const planStop = ({ rules, crew = 60, tyres = true, refuelLaps = 0, wing = null, stream }) => {
+export const planStop = ({ rules, crew = 60, tyres = true, refuelLaps = 0, wing = null, stream, kgPerLap = null }) => {
   const era = stopEraFor(rules);
   const factor = crewFactor(crew);
   const errorFactor = crewErrorFactor(crew);
@@ -82,7 +89,7 @@ export const planStop = ({ rules, crew = 60, tyres = true, refuelLaps = 0, wing 
   const wingStage = wingTime > 0 ? Math.max(0, wingTime * (1 + 0.08 * wingZ) * factor) : 0;
   const refuelSpec = rules.refuelling ? era.refuel : null;
   const refuelZ = z4(stream);
-  const litres = refuelLaps > 0 ? refuelLaps * STOP.litresPerFuelLap : 0;
+  const litres = refuelLaps > 0 ? refuelLaps * litresPerLapOf(kgPerLap) : 0;
   const refuel = refuelSpec && litres > 0 ? Math.max(0, (refuelSpec.engage + litres / refuelSpec.flowLps + refuelSpec.sd * refuelZ) * factor) : 0;
   const jackDown = timeOf(stream, era.jackDown, factor);
   const release = timeOf(stream, era.release, factor);
@@ -144,10 +151,10 @@ export const planStop = ({ rules, crew = 60, tyres = true, refuelLaps = 0, wing 
  * The expected stationary time (no draws, no errors) - what a strategist plans with
  * (race.js stationaryTime). Same formula as planStop at z = 0, plus the mean error cost.
  */
-export const expectedStationary = ({ rules, crew = 60, tyres = true, refuelLaps = 0 }) => {
+export const expectedStationary = ({ rules, crew = 60, tyres = true, refuelLaps = 0, kgPerLap = null }) => {
   const era = stopEraFor(rules);
   const factor = crewFactor(crew);
-  const litres = refuelLaps > 0 ? refuelLaps * STOP.litresPerFuelLap : 0;
+  const litres = refuelLaps > 0 ? refuelLaps * litresPerLapOf(kgPerLap) : 0;
   const refuel = rules.refuelling && era.refuel && litres > 0 ? (era.refuel.engage + litres / era.refuel.flowLps) * factor : 0;
   const mean = (spec) => (spec ? spec.mean * factor : 0);
   // The slowest of four wheels sits ~1.03 sd above the mean.

@@ -1,0 +1,141 @@
+{
+  "$comment": "RNF-07: energía y combustible por era (RF-SIM-04, RF-SIM-05, RF-CMD-01; docs/manager/SIM-FISICA.md §7, bloque 'Energía y combustible'). Lo lee engine/energy.js (los dos modos) y lo comprueba engine/energy.test.js con el esquema engine/packs/schema/race-energy.schema.json. Qué sistema de energía tiene cada temporada lo dice el reglamento del pack (rules.js energy.system); aquí están sus límites. Los modos de ERS/KERS y las mezclas (tiempo por vuelta y carga neta) siguen en race-eras.json. V = verificado en la fuente citada, S = fuente secundaria, NV = inferido.",
+  "version": 1,
+  "fuel": {
+    "$comment": "Combustible. secPerKg: lo que cuesta cada kg a bordo en una vuelta de refLapSec segundos (escala con la vuelta del circuito, NV): 'an extra 10kg is estimated to cost 0.3-0.4s in lap time depending on the track configuration' (S, https://www.the-race.com/formula-1/how-much-is-red-bulls-f1-weight-disadvantage-costing-it/), punto medio 0,035 s/kg. lhvMJkg: poder calorífico inferior de la gasolina, 43 MJ/kg (S, valor típico de gasolina sin oxigenados; en 2026 el reglamento admite 38,0-41,0, ver la era 2026). densityKgL: para pasar los depósitos en litros a kg (NV). margin: vueltas de combustible por encima de la distancia con que sale un coche sin repostaje (antes race-eras.json fuel.margin, NV), recortado por el máximo del reglamento. idleKgH: caudal al ralentí o sin gas (NV). fallbackFullShare: fracción de la vuelta a fondo cuando el circuito no tiene traza (NV). raceLoadShare: lo que quema una vuelta de carrera (tráfico, neumático gastado, el ritmo del coche) frente a la vuelta limpia a ritmo de carrera que integra engine/energy.js; medido con la carrera por pasos (scripts/measureEnergy.js --step, vueltas en verde, 10 temporadas 1988-2026): 0,92-1,01, media 0,96; 0,97 deja también 1988 (1,01) dentro de ±5 % (NV).",
+    "secPerKg": 0.035,
+    "refLapSec": 90,
+    "lhvMJkg": 43,
+    "densityKgL": 0.75,
+    "margin": 1.2,
+    "idleKgH": 2,
+    "fallbackFullShare": 0.62,
+    "raceLoadShare": 0.97,
+    "eras": [
+      {
+        "from": 1950,
+        "to": 1983,
+        "maxRaceKg": null,
+        "flow": null,
+        "efficiency": 0.27,
+        "source": "NV: sin límite de combustible de carrera ni de caudal; rendimiento térmico de un atmosférico de carburación/inyección mecánica del orden de 0,25-0,3. El repostaje 1982-83 lo da rules.js."
+      },
+      {
+        "from": 1984,
+        "to": 1985,
+        "maxRaceL": 220,
+        "flow": null,
+        "efficiency": 0.27,
+        "source": "S: depósito de 220 l para los turbo en 1984-85 (https://en.wikipedia.org/wiki/Formula_One_engines); rendimiento NV"
+      },
+      {
+        "from": 1986,
+        "to": 1987,
+        "maxRaceL": 195,
+        "flow": null,
+        "efficiency": 0.28,
+        "source": "S: 195 l en 1986-87 (https://en.wikipedia.org/wiki/Formula_One_engines); rendimiento NV"
+      },
+      {
+        "from": 1988,
+        "to": 1988,
+        "maxRaceL": 150,
+        "flow": null,
+        "efficiency": 0.355,
+        "source": "S: 'Fuel tank sizes were further reduced in size to 150 litres for turbocharged cars' (https://en.wikipedia.org/wiki/Formula_One_engines); los atmosféricos sin límite (NV: el pack no distingue motor; se aplica a todos). Rendimiento efectivo NV ajustado para que la carrera del circuito mediano de 1988 quepa en el depósito (134 kg con 0,30 frente a 113 kg): en carrera el turbo corría con menos presión que en clasificación, cosa que la potencia de la era (la de clasificación) no ve"
+      },
+      {
+        "from": 1989,
+        "to": 2009,
+        "maxRaceKg": null,
+        "flow": null,
+        "efficiency": 0.265,
+        "source": "NV: sin límite de combustible; repostaje 1994-2009 (rules.js). Rendimiento ajustado para que la carrera de 2009-13 dé el consumo publicado (ver la era siguiente); V10 y V8 sin cifra propia"
+      },
+      {
+        "from": 2010,
+        "to": 2013,
+        "maxRaceKg": null,
+        "flow": null,
+        "efficiency": 0.265,
+        "source": "S: sin repostaje y sin límite, cargas de 'around 160kg' (https://f1technical.net/articles/12497); 'race fuel consumption rate was normally around 75 L/100 km' en 2012 (https://en.wikipedia.org/wiki/Formula_One_car). Rendimiento NV ajustado a la primera: con 0,29 el circuito mediano de 2012 pedía 146 kg; con 0,265, 160 kg (scripts/measureEnergy.js)"
+      },
+      {
+        "from": 2014,
+        "to": 2016,
+        "maxRaceKg": 100,
+        "flow": { "maxKgH": 100, "kneeRpm": 10500, "slope": 0.009, "offset": 5.5, "unit": "kg/h" },
+        "efficiency": 0.44,
+        "source": "V: caudal máximo 100 kg/h y por debajo de 10 500 rpm Q = 0,009·N + 5 (2014 F1 Technical Regulations art. 5.1.4-5.1.5, edición del 14-07-2011, https://argent.fia.com/web/fia-public.nsf/A0425C3A0A7D69C0C12578D3002EBECA/$FILE/2014_F1_TECHNICAL_REGULATIONS_-_Published_on_20.07.pdf); la versión final usa + 5,5 (S, https://en.wikipedia.org/wiki/Formula_One_engines). 100 kg de carrera 2014-2016 (S, https://www.autosport.com/f1/feature/8696/the-contradictory-2019-rule-change-that-fooled-the-fia). Rendimiento ~44 % en 2014 (S, https://www.autosport.com/f1/news/how-much-fuel-does-a-formula-1-car-use-f1-nascar-more-compared-4980266/4980266/)"
+      },
+      {
+        "from": 2017,
+        "to": 2018,
+        "maxRaceKg": 105,
+        "flow": { "maxKgH": 100, "kneeRpm": 10500, "slope": 0.009, "offset": 5.5, "unit": "kg/h" },
+        "efficiency": 0.47,
+        "source": "S: 105 kg desde 2017 (https://f1technical.net/articles/12497); caudal como 2014. Rendimiento NV entre 44 % (2014) y > 50 % (2020)"
+      },
+      {
+        "from": 2019,
+        "to": 2025,
+        "maxRaceKg": 110,
+        "flow": { "maxKgH": 100, "kneeRpm": 10500, "slope": 0.009, "offset": 5.5, "unit": "kg/h" },
+        "efficiency": 0.5,
+        "source": "S: 110 kg desde 2019 para correr a plena potencia (https://www.motorsport.com/f1/news/f1-rule-change-news-1027456/3057661/; 'a maximum of 110 kilograms of fuel per race', https://www.autosport.com/f1/news/how-much-fuel-does-a-formula-1-car-use-f1-nascar-more-compared-4980266/4980266/); motor Mercedes 2020 'over 50% thermal efficient' (misma fuente)"
+      },
+      {
+        "from": 2026,
+        "to": 2100,
+        "maxRaceKg": null,
+        "flow": { "maxMJh": 3000, "kneeRpm": 10500, "slope": 0.27, "offset": 165, "unit": "MJ/h", "lhvMJkg": 39.5 },
+        "efficiency": 0.5,
+        "source": "V: caudal de energía 3000 MJ/h y EF = 0,27·N + 165 por debajo de 10 500 rpm (2026 F1 Regulations Section C, art. C5.2.3-C5.2.4, Issue 18, 07-05-2026, https://www.fia.com/system/files/documents/fia_2026_f1_regulations_-_section_c_technical_-_iss_18_-_2026-05-07.pdf); LHV entre 38,0 y 41,0 MJ/kg (art. C16.2, misma fuente; 39,5 punto medio NV). Sin máximo de masa en el reglamento técnico (NV)"
+      }
+    ]
+  },
+  "ers": {
+    "$comment": "Sistemas de energía. powerCurve: potencia máxima del MGU-K/KERS para propulsar [km/h, kW], lineal entre puntos; harvestKw: la de frenar con él. deployPerLapMJ: energía máxima entregada por vuelta desde el acumulador; harvestPerLapMJ: la máxima recargada por vuelta (null = sin límite); storeMJ: ventana de carga del acumulador (diferencia máxima entre carga máxima y mínima). mguhDirectKw: la parte de la potencia del MGU-K que en 2014-2025 da el MGU-H directamente a plena carga, sin pasar por el acumulador (el reglamento no la limita; valor NV). harvestShare: parte de la potencia de frenada que el MGU-K puede recoger (NV). startMinKmh: velocidad mínima para usar el MGU-K en la salida.",
+    "kers": {
+      "powerCurve": [[0, 60], [400, 60]],
+      "harvestKw": 60,
+      "deployPerLapMJ": 0.4,
+      "harvestPerLapMJ": null,
+      "storeMJ": 0.4,
+      "mguhDirectKw": 0,
+      "harvestShare": 1,
+      "startMinKmh": 0,
+      "source": "V: 'The maximum power, in or out, of any KERS must not exceed 60kW. Energy released from the KERS may not exceed 400kJ in any one lap' (2009 F1 Technical Regulations art. 5.2.3, https://argent.fia.com/web/fia-public.nsf/90D889BE20961303C1257483004B8AC0/$FILE/1-2009%20F1%20TECHNICAL%20REGULATIONS%2011-07-2008.pdf); 2011-13 los mismos límites (S, https://en.wikipedia.org/wiki/Kinetic_energy_recovery_system: '60 kilowatts' hasta 2014). storeMJ NV: el reglamento no limita la capacidad; el modelo lleva el presupuesto de la vuelta"
+    },
+    "ers": {
+      "powerCurve": [[0, 120], [400, 120]],
+      "harvestKw": 120,
+      "deployPerLapMJ": 4,
+      "harvestPerLapMJ": 2,
+      "storeMJ": 4,
+      "mguhDirectKw": 40,
+      "harvestShare": 1,
+      "startMinKmh": 0,
+      "source": "V: MGU-K 120 kW para propulsar o frenar (art. 5.2.2); 'Energy input from the MGUK to the ES may not exceed 2MJ in any one lap and energy released from the ES to the MGUK may not exceed 4MJ in any one lap. The difference between the maximum and minimum state of charge of the ES may not exceed 4MJ' (art. 5.2.3), MGU-H sin límite de energía (art. 5.2, ninguno), 2014 F1 Technical Regulations, https://argent.fia.com/web/fia-public.nsf/A0425C3A0A7D69C0C12578D3002EBECA/$FILE/2014_F1_TECHNICAL_REGULATIONS_-_Published_on_20.07.pdf. mguhDirectKw NV"
+    },
+    "ers2026": {
+      "powerCurve": [[0, 350], [290, 350], [340, 100], [345, 0], [400, 0]],
+      "overtakeCurve": [[0, 350], [337.5, 350], [355, 0], [400, 0]],
+      "harvestKw": 350,
+      "deployPerLapMJ": null,
+      "harvestPerLapMJ": 8.5,
+      "overtakeExtraHarvestMJ": 0.5,
+      "storeMJ": 4,
+      "mguhDirectKw": 0,
+      "harvestShare": 1,
+      "startMinKmh": 50,
+      "source": "V: ERS-K 350 kW (C5.2.7); sin adelantamiento P = 1800 − 5·v por debajo de 340 km/h, 6900 − 20·v entre 340 y 345, 0 desde 345 (C5.2.8 i); con adelantamiento P = 7100 − 20·v por debajo de 355 y 0 desde 355 (C5.2.8 ii); ventana de carga 4 MJ (C5.2.9); recarga máxima 8,5 MJ por vuelta, más 0,5 MJ con las condiciones del B7.2 (C5.2.10); MGU-K en la salida solo desde 50 km/h (C5.2.12); sin MGU-H. 2026 F1 Regulations Section C Issue 18, https://www.fia.com/system/files/documents/fia_2026_f1_regulations_-_section_c_technical_-_iss_18_-_2026-05-07.pdf. Sin límite de despliegue por vuelta aparte de la ventana (no hay artículo que lo fije)"
+    }
+  },
+  "step": {
+    "$comment": "Solo el modo por pasos (SRS 4.2: la vuelta dura lo que dice el modo rápido). deployOrder: el despliegue del acumulador va primero a las celdas a fondo más lentas de la traza (más tiempo ganado por julio) y se acaba al final de las rectas largas: eso es el clipping. minDeployShare: lo menos que ocupa (en fracción de vuelta) el tramo donde se gana o pierde el tiempo del modo de energía (NV). mixFlow: caudal relativo de la mezcla en el mapa del motor, aparte de lo que ahorran levantar y dejar correr (pobre) o el ritmo (NV; el libro usa race-eras.json fuel.mixes.*.burn: pobre 0,93, rico 1,07). brakeHarvestMinG: deceleración desde la que el MGU-K frena con toda su potencia (NV).",
+    "minDeployShare": 0.03,
+    "mixFlow": { "lean": 0.95, "standard": 1, "rich": 1.07 },
+    "brakeHarvestMinG": 0.5
+  }
+}

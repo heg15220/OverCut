@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/race-energy.json (energía y combustible por era; RF-SIM-04, RF-SIM-05, RF-CMD-01). Lo comprueba engine/energy.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "fuel", "ers", "step"],
+  "definitions": {
+    "positive": {"type": "number", "exclusiveMinimum": 0},
+    "nonNegative": {"type": "number", "minimum": 0},
+    "share": {"type": "number", "minimum": 0, "maximum": 1},
+    "text": {"type": "string", "minLength": 1},
+    "year": {"type": "integer", "minimum": 1950, "maximum": 2100},
+    "curve": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "minimum": 0}}
+    },
+    "flow": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maxKgH", "kneeRpm", "slope", "offset", "unit"],
+          "properties": {
+            "maxKgH": {"$ref": "#/definitions/positive"},
+            "kneeRpm": {"$ref": "#/definitions/positive"},
+            "slope": {"$ref": "#/definitions/positive"},
+            "offset": {"$ref": "#/definitions/nonNegative"},
+            "unit": {"const": "kg/h"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maxMJh", "kneeRpm", "slope", "offset", "unit", "lhvMJkg"],
+          "properties": {
+            "maxMJh": {"$ref": "#/definitions/positive"},
+            "kneeRpm": {"$ref": "#/definitions/positive"},
+            "slope": {"$ref": "#/definitions/positive"},
+            "offset": {"$ref": "#/definitions/nonNegative"},
+            "unit": {"const": "MJ/h"},
+            "lhvMJkg": {"type": "number", "minimum": 30, "maximum": 50}
+          }
+        }
+      ]
+    },
+    "system": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["powerCurve", "harvestKw", "deployPerLapMJ", "harvestPerLapMJ", "storeMJ", "mguhDirectKw", "harvestShare", "startMinKmh", "source"],
+      "properties": {
+        "powerCurve": {"$ref": "#/definitions/curve"},
+        "overtakeCurve": {"$ref": "#/definitions/curve"},
+        "harvestKw": {"$ref": "#/definitions/positive"},
+        "deployPerLapMJ": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/positive"}]},
+        "harvestPerLapMJ": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/positive"}]},
+        "overtakeExtraHarvestMJ": {"$ref": "#/definitions/nonNegative"},
+        "storeMJ": {"$ref": "#/definitions/positive"},
+        "mguhDirectKw": {"$ref": "#/definitions/nonNegative"},
+        "harvestShare": {"$ref": "#/definitions/share"},
+        "startMinKmh": {"$ref": "#/definitions/nonNegative"},
+        "source": {"$ref": "#/definitions/text"}
+      }
+    }
+  },
+  "properties": {
+    "$comment": {"type": "string"},
+    "version": {"const": 1},
+    "fuel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["secPerKg", "refLapSec", "lhvMJkg", "densityKgL", "margin", "idleKgH", "fallbackFullShare", "raceLoadShare", "eras"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "secPerKg": {"type": "number", "minimum": 0.01, "maximum": 0.1},
+        "refLapSec": {"$ref": "#/definitions/positive"},
+        "lhvMJkg": {"type": "number", "minimum": 30, "maximum": 50},
+        "densityKgL": {"type": "number", "minimum": 0.6, "maximum": 0.9},
+        "margin": {"$ref": "#/definitions/nonNegative"},
+        "idleKgH": {"$ref": "#/definitions/nonNegative"},
+        "fallbackFullShare": {"$ref": "#/definitions/share"},
+        "raceLoadShare": {"type": "number", "minimum": 0.8, "maximum": 1.2},
+        "eras": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to", "flow", "efficiency", "source"],
+            "properties": {
+              "from": {"$ref": "#/definitions/year"},
+              "to": {"$ref": "#/definitions/year"},
+              "maxRaceKg": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/positive"}]},
+              "maxRaceL": {"$ref": "#/definitions/positive"},
+              "flow": {"$ref": "#/definitions/flow"},
+              "efficiency": {"type": "number", "minimum": 0.15, "maximum": 0.6},
+              "source": {"$ref": "#/definitions/text"}
+            }
+          }
+        }
+      }
+    },
+    "ers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kers", "ers", "ers2026"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "kers": {"$ref": "#/definitions/system"},
+        "ers": {"$ref": "#/definitions/system"},
+        "ers2026": {"$ref": "#/definitions/system"}
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minDeployShare", "mixFlow", "brakeHarvestMinG"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "minDeployShare": {"$ref": "#/definitions/share"},
+        "mixFlow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lean", "standard", "rich"],
+          "properties": {"lean": {"$ref": "#/definitions/positive"}, "standard": {"const": 1}, "rich": {"$ref": "#/definitions/positive"}}
+        },
+        "brakeHarvestMinG": {"$ref": "#/definitions/nonNegative"}
+      }
+    }
+  }
+}

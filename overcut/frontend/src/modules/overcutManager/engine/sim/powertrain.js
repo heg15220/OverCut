@@ -344,6 +344,9 @@ export const createDrive = (n) => ({
   coasting: new Uint8Array(n),
   // 1 while the car is actually off the throttle in a lift zone this step (pedals for the view).
   lifted: new Uint8Array(n),
+  // RF-SIM-04: the engine's load (0..1), the power the speed asks for over what the engine gives
+  // (pedalsOf) - the fuel flow follows it, not the pedal the view shows (engine/energy.js).
+  load: new Float64Array(n),
   // Time owed against the lap's budget (s): + behind (launch, coast), repaid within the lap.
   debt: new Float64Array(n),
   allowance: new Float64Array(n),
@@ -365,6 +368,7 @@ export const updateDrive = (pt, drive, i, v, kappa, dt, { coast = false, stopped
     drive.rpm[i] = pt.idleRpm;
     drive.throttle[i] = 0;
     drive.brake[i] = stopped ? 1 : 0;
+    drive.load[i] = 0;
     return;
   }
   const a = drive.lonA[i];
@@ -375,9 +379,11 @@ export const updateDrive = (pt, drive, i, v, kappa, dt, { coast = false, stopped
   if (coast) {
     drive.throttle[i] = 0;
     drive.brake[i] = 0;
+    drive.load[i] = 0;
     return;
   }
   const pedals = pedalsOf(pt, v, a, drive.rpm[i], drive.powerShare[i]);
+  drive.load[i] = pedals.throttle;
   // Where the reference trace accelerates the car is on full power (the trace's own definition).
   drive.throttle[i] = full && a > 0 ? 1 : pedals.throttle;
   drive.brake[i] = pedals.brake;

@@ -27,8 +27,8 @@
  */
 
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
-import { fieldMomentsOf, qualifyingAnchorOf, qualifyingPaceOf, tyreTime } from "../race";
-import { raceBalance, rulesFor } from "../rules";
+import { fieldMomentsOf, qualifyingAnchorOf, qualifyingPaceOf, raceFuelOf, tyreTime } from "../race";
+import { rulesFor } from "../rules";
 import { SESSION_BALANCE as B, sessionFormat, tyreAllocation } from "./formats";
 
 const EPS = 1e-9;
@@ -73,6 +73,8 @@ export const createSession = ({
     year: rules.year,
     era,
     baseLap: race.baseLap,
+    // RF-SIM-04: what a lap of fuel aboard costs a lap, the race's own number (race.js raceFuelOf, engine/energy.js).
+    fuelPerLap: raceFuelOf({ race, rules, laps: Math.max(5, race.laps || 60) }).secPerLap,
     wetness,
     volatility: era.paceVolatility ?? 1,
     sectorShares,
@@ -95,8 +97,6 @@ const carOf = (state, id) => state.cars.find((car) => car.id === id) || null;
 const currentSegment = (state) => state.segments[state.segment];
 const dryCompounds = (rules) => rules.tyres.compounds;
 
-/** Seconds a lap of fuel costs (race-eras.json fuel.perLap, the race's own number). */
-const FUEL_PER_LAP = raceBalance.fuel.perLap;
 
 const startSegment = (state, index) => {
   state.segment = index;
@@ -231,7 +231,7 @@ const lapTimeOf = (state, car, kind) => {
   const plan = car.run.plan;
   const set = car.run.set;
   const style = B.pace.styles[plan.style] || B.pace.styles.normal;
-  const fuelCost = car.fuel * FUEL_PER_LAP;
+  const fuelCost = car.fuel * state.fuelPerLap;
   if (kind === "out" || kind === "cool" || kind === "in") {
     const factor = kind === "out" ? B.laps.outLap : kind === "cool" ? B.laps.coolLap : B.laps.inLap;
     const jitter = car.stream.normal(0, 0.6);

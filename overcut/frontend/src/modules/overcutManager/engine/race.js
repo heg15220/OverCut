@@ -67,6 +67,7 @@ import { circuitFor } from "./venue";
 import { commandsFor, drsOpen, penaltyFor, pitLaneSpeedFor, raceBalance as BALANCE, rulesFor } from "./rules";
 import { circuitIdOf, pitLaneFor } from "./sim/pitLane";
 import { expectedStationary, planStop } from "./sim/pitStop";
+import { fuelSpecOf } from "./energy";
 import { RELIABILITY as REL, calibrationFor, contactOutcome, leavesDebris, pickGroup, raceHazards, turnOnePlan, wetRiskOf } from "./incidents";
 import simBalance from "../data/balance/race-sim.json";
 
@@ -167,8 +168,8 @@ export const pitLaneLoss = (stateOrBaseLap, sc = null, { through = false } = {})
  * fuel in the refuelling years running alongside the wheels, scaled by the crew. `fuelOnly` is
  * a stop that changes no tyres (2005). Takes `year` or `era`.
  */
-export const stationaryTime = ({ year, era, refuel = 0, crew = 60, fuelOnly = false }) =>
-  expectedStationary({ rules: rulesFor(era ?? year), crew, tyres: !fuelOnly, refuelLaps: refuel });
+export const stationaryTime = ({ year, era, refuel = 0, crew = 60, fuelOnly = false, kgPerLap = null }) =>
+  expectedStationary({ rules: rulesFor(era ?? year), crew, tyres: !fuelOnly, refuelLaps: refuel, kgPerLap });
 
 /** The crew's own stream (RF-SIM-12, RNF-05): same seed, its own draws, so a stop never reshuffles the race. */
 export const crewStream = (state) => {
@@ -179,15 +180,27 @@ export const crewStream = (state) => {
 /** RF-SIM-04: does this era refuel in the race? Takes a year or an era. */
 export const refuellingEra = (eraOrYear) => rulesFor(eraOrYear).refuelling;
 
-/** Fuel weight in seconds per lap of fuel on board. */
-const FUEL_PER_LAP = BALANCE.fuel.perLap;
+/**
+ * RF-SIM-04 (engine/energy.js fuelSpecOf): this race's fuel - kg a lap on the standard mix (the
+ * era's flow along the circuit's trace), what a lap of fuel on board costs a lap (kg x s/kg), the
+ * era's limit and, without refuelling, the laps of fuel a car starts with. The fuel ledger
+ * (`car.fuel`) is kept in laps of fuel; kg = laps x kgPerLap.
+ */
+export const raceFuelOf = ({ race, rules, laps = Math.max(5, race.laps || 60), year = rules.year }) =>
+  fuelSpecOf({ rules, circuit: circuitFor(race, year), laps, baseLap: race.baseLap, lengthKm: race.lengthKm ?? null });
+
+/** A race state's fuel spec (computed again for an old save or a postMessage copy without it). */
+const fuelOfState = (state) => {
+  if (!state.fuelSpec) state.fuelSpec = raceFuelOf({ race: state.race, rules: stateRules(state), laps: state.laps, year: state.year });
+  return state.fuelSpec;
+};
 
 /**
- * Pure (RF-SIM-04): seconds the fuel on board costs a lap. In the refuelling
- * years the stint's load; otherwise the race's load against the half-tank the
- * reference lap was run on.
+ * Pure (RF-SIM-04): seconds the fuel on board costs a lap, `perLap` the seconds a lap of fuel
+ * costs (raceFuelOf secPerLap). In the refuelling years the stint's load; otherwise the race's
+ * load against the half-tank the reference lap was run on.
  */
-export const fuelTime = ({ fuel, refuel, fuelStart }) => (refuel ? fuel * FUEL_PER_LAP : (fuel - fuelStart / 2) * FUEL_PER_LAP);
+export const fuelTime = ({ fuel, refuel, fuelStart, perLap }) => (refuel ? fuel * perLap : (fuel - fuelStart / 2) * perLap);
 
 // ------------------------------------------------------------- strategy
 
@@ -195,8 +208,11 @@ export const fuelTime = ({ fuel, refuel, fuelStart }) => (refuel ? fuel * FUEL_P
  * Total tyre-and-fuel cost of a plan, in seconds, against a perfect car - the
  * number the strategist compares candidate plans on.
  */
-const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60, laneLoss = null, stopScale = 1 }) => {
+const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60, laneLoss = null, stopScale = 1, fuel = null }) => {
   const rules = rulesFor(era ?? year);
+  // RF-SIM-04: the race's fuel (raceFuelOf: a lap of fuel in seconds a lap, kg a lap); without a circuit, the era's fallback.
+  const fuelSpec = fuel ?? fuelSpecOf({ rules, circuit: null, laps, baseLap });
+  const FUEL_PER_LAP = fuelSpec.secPerLap;
   const stints = stintLengths(plan, laps);
   const refuelling = rules.refuelling;
   const tyreChanges = rules.tyres.changesInRace;
@@ -229,7 +245,7 @@ const planCost = ({ plan, laps, year, era, baseLap, wearFactor, crew = 60, laneL
   if (mandatory >= 2 && new Set(plan.compounds).size < mandatory) cost += rules.strategy.twoCompoundPenalty;
   if (refuelling && stops === 0) cost += rules.strategy.refuelNoStopCost;
   const refuel = refuelling ? laps / Math.max(1, stops + 1) : 0;
-  cost += stops * stopScale * ((laneLoss ?? pitLaneLoss(baseLap)) + stationaryTime({ era: era ?? year, refuel, crew, fuelOnly: refuelling && !tyreChanges }));
+  cost += stops * stopScale * ((laneLoss ?? pitLaneLoss(baseLap)) + stationaryTime({ era: era ?? year, refuel, crew, fuelOnly: refuelling && !tyreChanges, kgPerLap: fuelSpec.kgPerLap }));
   return cost;
 };
 
@@ -286,18 +302,18 @@ const candidatePlans = (eraOrYear, laps, firstCompound = null) => {
 export const wearFactorFor = (profile) => clamp(0.75 + (profile.aero ?? 0.6) * 0.35 + ((profile.attrition ?? 1) - 1) * 0.4, 0.6, 1.35);
 
 /** The best plan for a dry race, plus its cost so alternatives can be compared. */
-export const suggestPlan = ({ year, era, laps, baseLap, profile, crew = 60, firstCompound = null, laneLoss = null, wearScale = 1, stopScale = 1 }) => {
+export const suggestPlan = ({ year, era, laps, baseLap, profile, crew = 60, firstCompound = null, laneLoss = null, wearScale = 1, stopScale = 1, fuel = null }) => {
   const wearFactor = wearFactorFor(profile) * wearScale;
   const ranked = candidatePlans(era ?? year, laps, firstCompound)
-    .map((plan) => ({ plan, cost: planCost({ plan, laps, year, era, baseLap, wearFactor, crew, laneLoss, stopScale }) }))
+    .map((plan) => ({ plan, cost: planCost({ plan, laps, year, era, baseLap, wearFactor, crew, laneLoss, stopScale, fuel }) }))
     .sort((a, b) => a.cost - b.cost);
-  if (!ranked[0] && firstCompound) return suggestPlan({ year, era, laps, baseLap, profile, crew, laneLoss, wearScale, stopScale });
+  if (!ranked[0] && firstCompound) return suggestPlan({ year, era, laps, baseLap, profile, crew, laneLoss, wearScale, stopScale, fuel });
   return ranked[0] ? { ...ranked[0].plan, cost: ranked[0].cost } : { stops: [], compounds: [compoundsFor(era ?? year)[0]], cost: 0 };
 };
 
 /** The cost of any plan the player builds, for the "+4.2 s against the best" read-out. */
-export const evaluatePlan = ({ plan, year, era, laps, baseLap, profile, crew, laneLoss = null, wearScale = 1, stopScale = 1 }) =>
-  planCost({ plan, laps, year, era, baseLap, wearFactor: wearFactorFor(profile) * wearScale, crew, laneLoss, stopScale });
+export const evaluatePlan = ({ plan, year, era, laps, baseLap, profile, crew, laneLoss = null, wearScale = 1, stopScale = 1, fuel = null }) =>
+  planCost({ plan, laps, year, era, baseLap, wearFactor: wearFactorFor(profile) * wearScale, crew, laneLoss, stopScale, fuel });
 
 /**
  * WP11 (SIM-FISICA §5; RF-SIM-13, SRS 6.1 guided anchor): the real stops of this Grand Prix
@@ -322,9 +338,10 @@ export const strategyContextOf = ({ race, era, year }) => {
   const rules = rulesOf(era, year);
   const laps = Math.max(5, race.laps || 60);
   const pitLane = pitLaneOf({ circuit: circuitFor(race, year), race, rules });
-  return { laneLoss: pitLane.stop, ...strategyScales({ race, rules, laps, laneLoss: pitLane.stop }) };
+  const fuel = raceFuelOf({ race, rules, laps, year: rules.year ?? year });
+  return { laneLoss: pitLane.stop, fuel, ...strategyScales({ race, rules, laps, laneLoss: pitLane.stop, fuel }) };
 };
-export const strategyScales = ({ race, rules, laps, baseLap = race.baseLap, laneLoss = null }) => {
+export const strategyScales = ({ race, rules, laps, baseLap = race.baseLap, laneLoss = null, fuel = null }) => {
   const neutral = { wearScale: 1, stopScale: 1 };
   const real = race.pitStops;
   const cfg = BALANCE.strategy.realStops;
@@ -333,9 +350,9 @@ export const strategyScales = ({ race, rules, laps, baseLap = race.baseLap, lane
   if (!kind) return neutral;
   const ref = race.refLaps;
   if (ref && ref.pole > 0 && ref.fastestRaceLap > ref.pole * cfg.wetRaceRatio) return neutral;
-  const key = `${kind}|${rules.year}|${race.round}|${race.name}|${laps}|${baseLap}|${laneLoss}|${real.median}`;
+  const key = `${kind}|${rules.year}|${race.round}|${race.name}|${laps}|${baseLap}|${laneLoss}|${real.median}|${fuel ? fuel.secPerLap : null}`;
   if (scaleCache.has(key)) return scaleCache.get(key);
-  const stopsWith = (scale) => suggestPlan({ era: rules, laps, baseLap, profile: race.profile, laneLoss, [kind]: scale }).stops.length;
+  const stopsWith = (scale) => suggestPlan({ era: rules, laps, baseLap, profile: race.profile, laneLoss, fuel, [kind]: scale }).stops.length;
   const ratio = (cfg.scaleMax / cfg.scaleMin) ** (1 / (cfg.steps - 1));
   const grid = Array.from({ length: cfg.steps }, (_, k) => cfg.scaleMin * ratio ** k);
   // More wear means more stops; a dearer stop means fewer: read the grid so the count rises.
@@ -483,8 +500,6 @@ export const MIX_KEYS = Object.keys(MIXES);
 /** Pure: the effect of a fuel mixture, for the step simulator. */
 export const mixEffect = (mix) => MIXES[mix] || MIXES.standard;
 
-/** Laps of fuel over the race distance a car starts with, outside the refuelling years. */
-const FUEL_MARGIN = BALANCE.fuel.margin;
 
 /**
  * RF-SIM-05: the era's energy system, or null - "kers" (2009, 2011-13), "ers"
@@ -596,12 +611,15 @@ export const createRace = ({
   // RF-SIM-12: the physical pit lane's loss on this circuit, era and date (WP6).
   const pitLane = pitLaneOf({ circuit, race, rules });
   // WP11 (RF-SIM-13): the circuit's tyre wear (or, refuelling, what a stop is worth) that year, from the real stops.
-  const { wearScale, stopScale } = strategyScales({ race, rules, laps, laneLoss: pitLane.stop });
+  // RF-SIM-04: kg a lap, a lap of fuel in seconds, the era's limit (engine/energy.js).
+  const fuelSpec = raceFuelOf({ race, rules, laps, year });
+  const { wearScale, stopScale } = strategyScales({ race, rules, laps, laneLoss: pitLane.stop, fuel: fuelSpec });
   const refuel = rules.refuelling;
   const energy = rules.energy.system === "none" ? null : rules.energy.system;
   // Track temperature: the circuit's air at the start hour (ERA5) plus the sun or the rain (OpenF1, race-weather.json temperature).
   const trackTemp = Math.round(trackTargetOf(timeline, 0) * 10) / 10;
-  const fuelStart = laps + FUEL_MARGIN;
+  // Outside refuelling: the race plus a margin, never more than the era's maximum (a car that must save).
+  const fuelStart = refuel ? laps : fuelSpec.startLaps;
 
   const paceFor = (entrant) => ({
     dry: paceOf({ entrant, race, era, seasonProgress: 0.5, weather: WEATHER.DRY, moments }),
@@ -627,7 +645,7 @@ export const createRace = ({
       const ownTyre = qualifyingTyre && startTyres?.[id] && rules.tyres.compounds.includes(startTyres[id]) ? startTyres[id] : qualifyingTyre;
       const startsOnQualifyingTyre = ownTyre && index < 10;
       const suggested = () =>
-        suggestPlan({ year, era: rules, laps, baseLap: race.baseLap, profile: race.profile, crew: crews[entrant.teamId], firstCompound: startsOnQualifyingTyre ? ownTyre : null, laneLoss: pitLane.stop, wearScale, stopScale });
+        suggestPlan({ year, era: rules, laps, baseLap: race.baseLap, profile: race.profile, crew: crews[entrant.teamId], firstCompound: startsOnQualifyingTyre ? ownTyre : null, laneLoss: pitLane.stop, wearScale, stopScale, fuel: fuelSpec });
       let plan = normalisePlan(plans[id] || suggested(), laps, rules);
       if (startsOnQualifyingTyre && plan.compounds[0] !== ownTyre) {
         // The player's plan keeps its stops; a rival re-plans around the tyre it must start on.
@@ -722,6 +740,7 @@ export const createRace = ({
     trackTemps: [trackTemp],
     energy,
     fuelStart,
+    fuelSpec,
     // The rubber on the track at the start: a wet Saturday washed some off (race-weather.json rubber).
     evolution: rubber,
     track: {
@@ -932,6 +951,9 @@ export const rivalCalls = (state, car, lap = state.lap) => {
   if (!rules.refuelling) {
     const need = remaining + 0.6;
     car.fuelMode = car.fuel < need ? "lean" : remaining < 15 && car.fuel > need * 1.07 + 0.3 ? "rich" : "standard";
+    // RF-SIM-04: started short of the race (the era's limit, engine/energy.js) by more than the lean
+    // mix saves - the conserve pace on top (its burn, race-eras.json modes), as the fuel-saving laps.
+    if (car.fuel < need * MIXES.lean.burn && MODES.conserve?.burn) car.mode = "conserve";
   }
   if (car.battery !== null && car.battery !== undefined) {
     const fight = (car.gapAhead !== null && car.gapAhead < 1) || (car.gapBehind !== null && car.gapBehind < 0.8);
@@ -1070,7 +1092,8 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
   const baseLap = state.race.baseLap;
   const spp = baseLap * 0.0012;
   const trackTemp = state.trackTemp ?? 30;
-  const fuelStart = state.fuelStart ?? state.laps + FUEL_MARGIN;
+  const fuelSpec = fuelOfState(state);
+  const fuelStart = state.fuelStart ?? fuelSpec.startLaps ?? state.laps;
   const evolution = -0.55 * (state.evolution || 0);
   const refuel = rules.refuelling;
   const mode = modeEffect(car.mode);
@@ -1090,7 +1113,7 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
 
   // Fuel weight: in the refuelling years the stint's load, otherwise the race's
   // load measured against the half-tank the reference lap was run on.
-  const fuel = fuelTime({ fuel: car.fuel, refuel, fuelStart });
+  const fuel = fuelTime({ fuel: car.fuel, refuel, fuelStart, perLap: fuelSpec.secPerLap });
 
   // The battery (RF-SIM-05).
   let energyTime = 0;
@@ -1200,14 +1223,14 @@ export const ensureHazards = (state) => {
  * changed. The draws come from the crew's own stream (`crew`; the quick mode passes
  * crewStream(state), the step mode its `crew` stream), never from the race's.
  */
-export const pitStopTime = (car, decision, { rules, stream, crew = stream }) => {
+export const pitStopTime = (car, decision, { rules, stream, crew = stream, kgPerLap = null }) => {
   const refuelLoad = rules.refuelling ? decision.fuel : 0;
   // 2005: no tyre changes in the race - a planned stop is fuel only, unless the
   // weather changed (wet <-> dry) or the car is damaged.
   const weatherSwitch = isWetTyre(decision.compound) !== isWetTyre(car.compound) || (isWetTyre(decision.compound) && decision.compound !== car.compound);
   const tyresChanged = rules.tyres.changesInRace || weatherSwitch || (decision.repair && (car.damage > 0 || Boolean(car.puncture)));
   const wing = decision.repair && car.damage > 0 ? "change" : null;
-  const plan = planStop({ rules, crew: car.crew, tyres: tyresChanged, refuelLaps: refuelLoad, wing, stream: crew });
+  const plan = planStop({ rules, crew: car.crew, tyres: tyresChanged, refuelLaps: refuelLoad, wing, stream: crew, kgPerLap });
   return { stationary: plan.stationary, slow: plan.slow, tyresChanged, refuelLoad, stages: plan.stages, mistake: plan.mistake };
 };
 
@@ -1353,7 +1376,7 @@ export const stepLap = (state) => {
     const decision = pitDecision(state, car, wetness, stream);
     if (!decision) return;
     const laneLoss = pitLaneLoss(state, sc);
-    const stop = pitStopTime(car, decision, { rules, stream, crew: crewStream(state) });
+    const stop = pitStopTime(car, decision, { rules, stream, crew: crewStream(state), kgPerLap: fuelOfState(state).kgPerLap });
     const { stationary } = stop;
     // Double stack: the second car of a team waits for the first to leave the box.
     const queue = stationaryByTeam[car.teamId] !== undefined ? stationaryByTeam[car.teamId] + DOUBLE_STACK_WAIT : 0;
@@ -1581,7 +1604,7 @@ export const redFlag = (state, running, reason, wetness = 0, lapStart = {}) => {
       const ahead = ordered[index - 1];
       const car = ordered[index];
       const gap = car.time - ahead.time;
-      if (gap < baseLap * 0.6) car.time = Math.max(ahead.time + cfg.standingSpacing, (lapStart[car.id] ?? -Infinity) + baseLap * 0.5);
+      if (gap < baseLap * 0.6) car.time = Math.max(ahead.time + cfg.standingSpacing, (lapStart[car.id] ?? -Infinity) + baseLap * cfg.minLapShare);
     }
   }
   redFlagRestart(state);

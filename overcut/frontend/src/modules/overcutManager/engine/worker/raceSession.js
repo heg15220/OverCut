@@ -90,11 +90,13 @@ export const createRaceSession = () => {
     sent.duels = (state.duels || []).length;
     sent.events = state.events.length;
     sent.radio = state.radio.length;
+    const now = snapshot(state);
     const cars = state.cars.map((car, index) => {
       const patch = carPatch(car);
       const history = car.history.slice(sent.history[index]);
       sent.history[index] = car.history.length;
-      return { ...patch, newHistory: history };
+      // RF-SIM-04 / RF-SIM-05: the fuel on board and the energy store right now, for the pit wall.
+      return { ...patch, fuelLive: now[index].fuel || null, energyLive: now[index].energy || null, newHistory: history };
     });
     return plain({
       type: "tick",
@@ -107,7 +109,7 @@ export const createRaceSession = () => {
       fastestLap: state.fastestLap || null,
       teamOrders: state.teamOrders || {},
       restartLap: state.restartLap || 0,
-      snapshot: snapshot(state),
+      snapshot: now,
       // RF-SIM-11: the weather now for the rain visuals and the sound agent's rain ambience.
       weather: weatherNow(state),
       trail: trail.length && trail[trail.length - 1].clock === state.clock ? trail : [...trail, shot()],

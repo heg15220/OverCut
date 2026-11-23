@@ -36,8 +36,10 @@ const stopsPerFinisher = (state) => {
 const dry = (state) => state.weather.wetness.every((value) => value < 0.2);
 
 describe("WP11 · no lap quicker than 0.9 x baseLap after a red flag or a safety car (RF-SIM-10)", () => {
-  // Silverstone 2005 with these seeds has a red flag (the case of SIM-FISICA §2.6); Monza 2012 safety cars.
-  const cases = [...["r6", "r1", "r2"].map((seed) => [2005, "silverstone", seed]), ...["r8", "r3"].map((seed) => [2012, "monza", seed])];
+  // Silverstone 2005 with these seeds has a red flag (the case of SIM-FISICA §2.6; "r10" in both modes and
+  // "r2" in the quick one since the fuel's real weight, RF-SIM-04, changed the plans - "r6" had it before);
+  // Monza 2012 safety cars.
+  const cases = [...["r10", "r1", "r2"].map((seed) => [2005, "silverstone", seed]), ...["r8", "r3"].map((seed) => [2012, "monza", seed])];
   let runs = [];
   beforeAll(() => {
     runs = cases.map(([year, circuit, seed]) => both(year, circuit, seed));

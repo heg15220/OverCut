@@ -37,6 +37,14 @@
  *                 rpm, pedals, g and body motion from the speed each car does; the launch from
  *                 the grid limited by traction and lift and coast on the lean mix shape the
  *                 trace, and the time they cost is given back inside the same lap (SRS 4.2).
+ *   9. energy     the store and the fuel step by step (engine/energy.js; RF-SIM-04, RF-SIM-05,
+ *                 RF-CMD-01): the lap's energy time (the quick mode's energyStep) is spent where the
+ *                 mode's deployment differs from the reference one - the slowest full-power cells
+ *                 first, so deploying more reaches further down the straights and harvesting more
+ *                 clips earlier - and the lap still lasts its budget. The store harvests under
+ *                 braking and lifting and deploys on full power within the era's per-lap and power
+ *                 limits (2026: the speed taper); the fuel flow is measured from the engine's load
+ *                 and rpm. The ledgers (battery %, laps of fuel) stay the quick mode's.
  *
  * Determinism (RF-SIM-15, RNF-05): four seeded streams (laps, duels, pits, incidents),
  * a fixed step and a fixed processing order; the same seed and the same commands at the
@@ -62,6 +70,7 @@ import { PHASE, PHASE_NAMES, PIT_LANE_BALANCE, boxPosition, buildProfile, create
 import { stageAt } from "./pitStop";
 import { WEATHER_BALANCE, gripRatio, sprayLossOf, weatherSnapshot } from "../weather";
 import { POWERTRAIN, coastDecel, coastPlan, createDrive, curvatureBins, driveSnapshot, launchAccel, powertrainFor, updateDrive } from "./powertrain";
+import { ENERGY, cellsFor, energyPlanOf, ersSpecOf, fuelEraOf, fuelFlowOf, lapDeployOf, referenceDeployOf, storeKwAt, traceDriveOf } from "../energy";
 
 export const SIM_BALANCE = balanceData;
 
@@ -119,6 +128,7 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
         }
       : null,
     overtakeOn: new Uint8Array(n),
+    lapOut: { energyTime: 0 },
     // RF-SIM-10: local yellows ({ corner, from, to, until }) and the red flag in progress.
     cornerRange,
     yellows: [],
@@ -192,6 +202,8 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     // RF-SIM-01 / RF-SIM-02 / RF-DEV-01: the era's power unit and gearbox, fitted to this circuit, and each car's drive state.
     ...driveSetup(rules.year ?? state.year, track, tables, n, rules),
   };
+  // RF-SIM-04 / RF-SIM-05 (engine/energy.js): the era's energy store and fuel flow on this circuit.
+  Object.assign(sim, energySetup(state, rules, tables, sim.pt, n));
   for (let i = 0; i < n; i += 1) sim.order[i] = i;
   state._sim = sim;
   state.mode = "step";
@@ -234,6 +246,81 @@ const driveSetup = (year, track, tables, n, rules) => {
     coast: rules.refuelling ? null : coastPlan(tables, pt, mixEffect("lean").time),
     straightSens: Number.isFinite(straightSens) ? straightSens : 1,
   };
+};
+
+/**
+ * RF-SIM-04 / RF-SIM-05 (engine/energy.js): the circuit's energy plan for the era's store (deploy
+ * order, the trace's harvest, the reference deployment the quick mode's energy times are measured
+ * against), the fuel era, and per-car typed arrays: state of charge (MJ), the lap's deployment and
+ * harvest, the energy time and where it is spent (ranks [kLo, kHi) of the plan), power now,
+ * clipping, and the fuel the lap has burnt against the ledger's.
+ */
+const energySetup = (state, rules, tables, pt, n) => {
+  const spec = ersSpecOf(rules);
+  const drive = spec ? traceDriveOf(tables, pt) : null;
+  const plan = spec && drive ? energyPlanOf(tables, drive, spec) : null;
+  const fuelSpec = state.fuelSpec || { kgPerLap: 1 };
+  return {
+    ers: plan && plan.K > 0 ? { spec, plan, kers: Boolean(rules.energy.kers), refDeploy: referenceDeployOf({ rules, spec, plan }) } : null,
+    fuelEra: fuelEraOf(rules.year ?? state.year),
+    kgPerLap: fuelSpec.kgPerLap,
+    // The race's real lap over the circuit the engine drives (engine/energy.js geometryScaleOf).
+    fuelGeo: fuelSpec.geometryScale ?? 1,
+    en: {
+      soc: new Float64Array(n),
+      planned: new Float64Array(n),
+      lapDep: new Float64Array(n),
+      lapHarv: new Float64Array(n),
+      kCar: new Int32Array(n),
+      kLo: new Int32Array(n),
+      kHi: new Int32Array(n),
+      eTime: new Float64Array(n),
+      eRate: new Float64Array(n),
+      deployKw: new Float64Array(n),
+      harvestKw: new Float64Array(n),
+      clip: new Uint8Array(n),
+      lapFuel: new Float64Array(n),
+      ledgerKg: new Float64Array(n),
+      flow: new Float64Array(n),
+    },
+  };
+};
+
+/**
+ * RF-SIM-05 / RF-CMD-01: car `i`'s energy this lap - what its mode deploys from a store that held
+ * `battery` % at the line (engine/energy.js lapDeployOf), and where the lap's energy time
+ * `energyTime` (s, the quick mode's) goes: the ranks between the reference deployment and the car's,
+ * at least `minDeployShare` of the lap wide. Out of those cells the budget is spent as before.
+ */
+const planEnergy = (state, i, battery, energyTime) => {
+  const sim = state._sim;
+  const { en, ers } = sim;
+  const car = state.cars[i];
+  en.eTime[i] = 0;
+  en.eRate[i] = 0;
+  en.kLo[i] = 0;
+  en.kHi[i] = 0;
+  en.kCar[i] = 0;
+  en.planned[i] = 0;
+  if (!ers || car.battery === null || car.battery === undefined) return;
+  const deploy = lapDeployOf({ rules: sim.rules, spec: ers.spec, plan: ers.plan, mode: car.ersMode, battery });
+  const kCar = cellsFor(ers.plan, deploy);
+  en.kCar[i] = kCar;
+  en.planned[i] = deploy;
+  if (!energyTime) return;
+  const kRef = cellsFor(ers.plan, ers.refDeploy);
+  let lo = Math.min(kCar, kRef);
+  let hi = Math.max(kCar, kRef);
+  const least = Math.min(ers.plan.K, Math.ceil(ENERGY.step.minDeployShare * ers.plan.M));
+  if (hi - lo < least) {
+    hi = Math.min(ers.plan.K, lo + least);
+    lo = Math.max(0, hi - least);
+  }
+  if (hi <= lo) return;
+  en.kLo[i] = lo;
+  en.kHi[i] = hi;
+  en.eTime[i] = energyTime;
+  en.eRate[i] = (energyTime * ers.plan.M) / (hi - lo);
 };
 
 /** A step race from the same arguments as race.js createRace (RF-SIM-01). */
@@ -293,7 +380,21 @@ const beginLap = (state, i, lap, t) => {
   sim.lapStart[i] = t;
   sim.lapFlags[i] = state.safetyCar ? 1 : 0;
   rivalCalls(state, car, lap);
-  let budget = planLap(state, car, lap, stream, { gridIndex: i, scrumShare: sim.balance.lapOne.scrumShare });
+  // RF-SIM-04 / RF-SIM-05: the ledgers at the line, before the lap model moves them.
+  const batteryBefore = car.battery;
+  const fuelBefore = car.fuel;
+  const lapOut = sim.lapOut;
+  lapOut.energyTime = 0;
+  let budget = planLap(state, car, lap, stream, { gridIndex: i, scrumShare: sim.balance.lapOne.scrumShare }, lapOut);
+  const en = sim.en;
+  en.lapFuel[i] = 0;
+  en.lapDep[i] = 0;
+  en.lapHarv[i] = 0;
+  // The fuel this lap burns by the quick mode's model (laps of fuel x kg a lap).
+  en.ledgerKg[i] = Math.max(0, (fuelBefore - car.fuel) * sim.kgPerLap);
+  // KERS: the 400 kJ come back at the line; ERS: the store holds what the ledger says.
+  if (sim.ers && batteryBefore !== null && batteryBefore !== undefined) en.soc[i] = sim.ers.kers ? sim.ers.spec.storeMJ : (batteryBefore / 100) * sim.ers.spec.storeMJ;
+  planEnergy(state, i, batteryBefore, lapOut.energyTime);
   const t1 = lap === 1 && state.turnOne ? state.turnOne : null;
   if (lap === 1) {
     // The quick mode staggers the start by START_SPACING a slot; here the slot is physical.
@@ -401,6 +502,12 @@ const endLap = (state, i, lap, tc) => {
   const pit = sim.inPit[i] === 1 ? car.pit || null : null;
   if (sim.inPit[i] === 1) sim.inPit[i] = 2;
   const entry = { lap, start: sim.lapStart[i], end: tc, pit, compound: car.compound };
+  // RF-SIM-04 / RF-SIM-05: the lap's fuel as measured and as the ledger burnt it (kg), and the store's lap (MJ).
+  const en = sim.en;
+  entry.fuel = { kg: Math.round(en.lapFuel[i] * 1000) / 1000, model: Math.round(en.ledgerKg[i] * 1000) / 1000 };
+  if (sim.ers && car.battery !== null && car.battery !== undefined) {
+    entry.ers = { deploy: Math.round(en.lapDep[i] * 1000) / 1000, harvest: Math.round(en.lapHarv[i] * 1000) / 1000, soc: Math.round(en.soc[i] * 1000) / 1000 };
+  }
   // A lap spent in someone's air, held up or in a fight (not visible at the line).
   if (sim.lapFlags[i] & 24) entry.held = true;
   // A lap through a local yellow (RF-SIM-10).
@@ -616,7 +723,16 @@ const advance = (state, i) => {
   const d0 = frac(sim.P[i]);
   const dev = sim.dev[i];
   const cell = Math.min(tables.M - 1, (frac(sim.tau[i]) * tables.M) | 0);
-  let rate = 1 / (sim.budget[i] * (1 - dev + dev * tables.sens[cell]) * sim.sectorF[i * 3 + tables.sectorOf[cell]]);
+  // RF-SIM-05: the lap's energy time is spent where the deployment differs (planEnergy), the rest as before.
+  const en = sim.en;
+  const base = (1 - dev + dev * tables.sens[cell]) * sim.sectorF[i * 3 + tables.sectorOf[cell]];
+  let span = (sim.budget[i] - en.eTime[i]) * base;
+  if (en.eRate[i] !== 0) {
+    const r = sim.ers.plan.rank[cell];
+    if (r >= en.kLo[i] && r < en.kHi[i]) span += en.eRate[i];
+  }
+  const floor = 0.5 * sim.budget[i] * base;
+  let rate = 1 / (span > floor ? span : floor);
   let mult = 1;
 
   if (sc && sim.inPit[i] === 0) {
@@ -942,7 +1058,7 @@ const enterPit = (state, i, lap) => {
   const free = sim.boxFree[car.teamId] ?? -Infinity;
   const queue = free > arrival ? free - arrival + raceBalance.pit.doubleStackWait : 0;
   // The quick mode's servicePit, with the stop by stages on the crew stream (RF-SIM-12, WP7).
-  const stop = pitStopTime(car, decision, { rules: sim.rules, stream, crew: sim.streams.crew });
+  const stop = pitStopTime(car, decision, { rules: sim.rules, stream, crew: sim.streams.crew, kgPerLap: sim.kgPerLap });
   const served = applyPitStop(state, car, decision, stop, { lap, queue, rules: sim.rules });
   const own = stop.stationary + served;
   sim.boxFree[car.teamId] = arrival + queue + own;
@@ -1357,7 +1473,8 @@ const lateral = (sim) => {
 };
 
 /** RF-SIM-01 / RF-SIM-02: every running car's gear, rpm, pedals and g from the speed it did this step. */
-const driveStep = (sim) => {
+const driveStep = (state) => {
+  const sim = state._sim;
   const { pt, drive, tables, dt } = sim;
   const lane = sim.lane.cars;
   for (let i = 0; i < sim.n; i += 1) {
@@ -1369,7 +1486,63 @@ const driveStep = (sim) => {
     const cell = Math.min(tables.M - 1, (frac(sim.tau[i]) * tables.M) | 0);
     const full = !inLane && sim.fullBin[cell] === 1 && sim.delay[i] <= 0;
     updateDrive(pt, drive, i, v, inLane ? 0 : sim.kappaBin[bin], dt, { coast: drive.lifted[i] === 1, stopped, full });
+    energyStepOf(state, i, v, cell, Boolean(inLane));
   }
+};
+
+/**
+ * RF-SIM-04 / RF-SIM-05 (engine/energy.js): car `i`'s fuel and energy for this step.
+ *   fuel     the era's flow at the engine's load and rpm (and the mix's map), every step;
+ *   deploy   on full power in a cell its plan deploys in, the store's power at this speed (2026's
+ *            taper, the overtake curve when that mode is live), cut by the era's per-lap limit and
+ *            what the store holds - a cut, or full power past the plan's cells, is clipping
+ *            (hybrid eras; the MGU-K can no longer push at the end of the straight);
+ *   harvest  off the throttle (braking or lifting), the braking power up to the MGU-K's, within
+ *            the era's per-lap harvest and the store's window.
+ */
+const energyStepOf = (state, i, v, cell, inLane) => {
+  const sim = state._sim;
+  const { en, ers, drive, dt, pt } = sim;
+  const car = state.cars[i];
+  const mix = sim.rules.refuelling ? 1 : ENERGY.step.mixFlow[car.fuelMode] ?? 1;
+  const flow = fuelFlowOf(sim.fuelEra, pt, drive.load[i], drive.rpm[i], drive.powerShare[i]) * mix * sim.fuelGeo;
+  en.flow[i] = flow;
+  en.lapFuel[i] += flow * dt;
+  en.deployKw[i] = 0;
+  en.harvestKw[i] = 0;
+  en.clip[i] = 0;
+  if (!ers || car.battery === null || car.battery === undefined || inLane) return;
+  const { spec } = ers;
+  const kmh = v * 3.6;
+  const neutral = Boolean(state.safetyCar) || Boolean(sim.red);
+  let dep = 0;
+  if (!neutral && drive.throttle[i] >= 0.999 && sim.fullBin[cell] === 1 && !(drive.launching[i] && kmh < spec.startMinKmh)) {
+    const r = ers.plan.rank[cell];
+    if (r >= 0 && r < en.kCar[i]) {
+      dep = (storeKwAt(spec, kmh, car.overtakeActive) * dt) / 1000;
+      const limit = spec.deployPerLapMJ === null ? Infinity : spec.deployPerLapMJ - en.lapDep[i];
+      const room = en.soc[i] < limit ? en.soc[i] : limit;
+      if (dep > room) {
+        dep = room > 0 ? room : 0;
+        if (!ers.kers) en.clip[i] = 1;
+      }
+    } else if (!ers.kers) en.clip[i] = 1;
+  }
+  let harv = 0;
+  if (drive.throttle[i] === 0 && v > 5 && drive.lonA[i] < 0) {
+    const braking = (pt.mass * -drive.lonA[i] * v) / 1000;
+    const most = spec.harvestKw * spec.harvestShare;
+    harv = ((braking < most ? braking : most) * dt) / 1000;
+    const cap = spec.harvestPerLapMJ === null ? Infinity : spec.harvestPerLapMJ + (car.overtakeActive ? spec.overtakeExtraHarvestMJ || 0 : 0) - en.lapHarv[i];
+    const window = spec.storeMJ - en.soc[i];
+    const room = cap < window ? cap : window;
+    if (harv > room) harv = room > 0 ? room : 0;
+  }
+  en.soc[i] += harv - dep;
+  en.lapDep[i] += dep;
+  en.lapHarv[i] += harv;
+  en.deployKw[i] = (dep * 1000) / dt + (drive.throttle[i] >= 0.999 && !neutral ? spec.mguhDirectKw : 0);
+  en.harvestKw[i] = (harv * 1000) / dt;
 };
 
 /** One fixed step of `dt` seconds for the whole field. */
@@ -1403,7 +1576,7 @@ export const stepOnce = (state) => {
   settleDuels(state);
   raceControl(state);
   lateral(sim);
-  driveStep(sim);
+  driveStep(state);
   sortOrder(state);
   state.clock = sim.clock;
   // Safety-car spells in race time, for the view and the timing.
@@ -1457,6 +1630,29 @@ export const runStepToFinish = (state) => {
   return state;
 };
 
+/** Fuel on board (kg: the ledger after this lap plus what the lap has not burnt yet), flow (kg/h), this lap's kg. */
+const fuelSnapshot = (sim, car, i) => {
+  const { en } = sim;
+  const left = en.ledgerKg[i] - en.lapFuel[i];
+  return { kg: Math.max(0, car.fuel * sim.kgPerLap + (left > 0 ? left : 0)), flowKgH: en.flow[i] * 3600, lapKg: en.lapFuel[i] };
+};
+
+/** The store now (MJ and share of its window), deploy and harvest power (kW), clipping; null without a system. */
+const energySnapshot = (sim, car, i) => {
+  if (!sim.ers || car.battery === null || car.battery === undefined) return null;
+  const { en, ers } = sim;
+  return {
+    soc: en.soc[i],
+    share: en.soc[i] / ers.spec.storeMJ,
+    deployKw: en.deployKw[i],
+    harvestKw: en.harvestKw[i],
+    clipping: en.clip[i] === 1,
+    lapDeploy: en.lapDep[i],
+    lapHarvest: en.lapHarv[i],
+    planned: en.planned[i],
+  };
+};
+
 /** Where every car is right now, for a live view that reads the step sim directly. */
 export const snapshot = (state) => {
   const sim = state._sim;
@@ -1478,6 +1674,9 @@ export const snapshot = (state) => {
     incident: sim.incident[i],
     // RF-SIM-01 / RF-SIM-02 (powertrain.js): gear, rpm, throttle, brake, g, pitch, roll, front load share.
     ...driveSnapshot(sim.pt, sim.drive, i),
+    // RF-SIM-04 / RF-SIM-05: the fuel on board (kg) and its flow, and the energy store (MJ, kW, clipping).
+    fuel: fuelSnapshot(sim, car, i),
+    energy: energySnapshot(sim, car, i),
   }));
 };
 
@@ -1522,9 +1721,20 @@ const retimed = (state, carId, apply, termOf) => {
 export const setMode = (state, carId, mode) => retimed(state, carId, () => quickSetMode(state, carId, mode), (car) => modeEffect(car.mode).time);
 export const setMix = (state, carId, mix) => retimed(state, carId, () => quickSetMix(state, carId, mix), (car) => mixEffect(car.fuelMode).time);
 /** RF-CMD-01 energy mode (race.js setErs, era-checked): the lap time it is worth on a charged battery (race.js energyStep); 2026's overtake mode is run by distance. */
-export const setErs = (state, carId, mode) =>
-  retimed(state, carId, () => quickSetErs(state, carId, mode), (car) =>
-    car.battery === null || car.battery === undefined ? 0 : energyStep({ rules: stateRules(state), mode: car.ersMode, battery: 100, gapAhead: null }).time);
+export const setErs = (state, carId, mode) => {
+  const termOf = (car) => (car.battery === null || car.battery === undefined ? 0 : energyStep({ rules: stateRules(state), mode: car.ersMode, battery: 100, gapAhead: null }).time);
+  const i = indexOf(state, carId);
+  const before = i >= 0 ? termOf(state.cars[i]) : 0;
+  retimed(state, carId, () => quickSetErs(state, carId, mode), termOf);
+  // The rest of the lap deploys by the new mode, from what the store holds now (RF-SIM-05).
+  const sim = state._sim;
+  if (i >= 0 && sim && sim.started && sim.ers && state.cars[i].status === "running") {
+    const car = state.cars[i];
+    const held = (sim.en.soc[i] / sim.ers.spec.storeMJ) * 100;
+    planEnergy(state, i, sim.ers.kers ? car.battery : held, sim.en.eTime[i] + termOf(car) - before);
+  }
+  return state;
+};
 export const requestPit = (state, carId, compound, options) => quickRequestPit(state, carId, compound, options);
 /** RF-CMD-02: the next planned stop a lap later, or not at all (read at pit entry, so it holds until the car gets there). */
 export const delayStop = (state, carId) => quickDelayStop(state, carId);

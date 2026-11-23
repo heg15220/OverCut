@@ -107,7 +107,9 @@ describe("RF-CMD-01/02: every order changes the race", () => {
 
 describe("RF-CMD-02 in a refuelling era (2008)", () => {
   it("the player sets the fuel of a requested stop, and it is what goes in", () => {
-    const { args, user } = sunday(2008, "refuel");
+    // Seed "refuel-c": on "refuel" the long-fill car is taken out by a collision before its next stop
+    // since the fuel's real weight (RF-SIM-04) changed the plans, leaving nothing to compare.
+    const { args, user } = sunday(2008, "refuel-c");
     const short = play(args, [[200, "requestPit", user[0], null, { fuel: 6 }]]);
     const long = play(args, [[200, "requestPit", user[0], null, { fuel: 30 }]]);
     const stopOf = (state) => state.events.find((event) => event.type === "pit" && event.carId === user[0]);

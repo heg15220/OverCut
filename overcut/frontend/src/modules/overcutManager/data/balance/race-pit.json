@@ -62,7 +62,7 @@
     "$comment": "engine/sim/pitStop.js. Parada por etapas ordenadas con rol (idea de Staff_Enum_PitStopStage/EPitStopRole de F1M24, sin ningún valor suyo): marcas (piloto) → gatos arriba → ruedas ×4 en paralelo (pistola + quitar + poner + pistola; manda la más lenta) en paralelo con alerón y repostaje → gatos abajo → suelta. Tiempo de cada etapa = media + sd × z (z ≈ normal con 4 uniformes, solo + y ×, RNF-05), por el factor del equipo crew.base − crew/crew.divisor (RF-STF-07). Cada etapa tira un error con su probabilidad × (crew.errorBase − crew/crew.errorDivisor) y su retraso [min, max]. Todo en el flujo propio `crew` de la semilla. `target` es la mediana real de la parada por era (test ±0,2 s) con su procedencia.",
     "crew": { "base": 1.3, "divisor": 200, "errorBase": 1.4, "errorDivisor": 100 },
     "litresPerFuelLap": 3.6,
-    "litresPerFuelLapSource": "NV: ~2,7 kg/vuelta de un V10/V8 (densidad 0,75 kg/l)",
+    "litresPerFuelLapSource": "NV: ~2,7 kg/vuelta de un V10/V8 (densidad 0,75 kg/l); solo sin circuito: la carrera usa los kg por vuelta medidos de engine/energy.js",
     "eras": [
       {
         "from": 1950, "to": 1981,
@@ -93,7 +93,7 @@
         "jackUp": { "mean": 0.45, "sd": 0.06, "errorChance": 0.002, "delay": [1, 3] },
         "wheel": { "mean": 3.4, "sd": 0.3, "errorChance": 0.005, "delay": [1, 6] },
         "wing": { "adjust": 1.5, "change": 8 },
-        "refuel": { "engage": 1.3, "flowLps": 12.5, "flowSource": "NV: ~12 l/s (memoria, SIM-FISICA §4.5); 12,5 recalibrado el 23/11 contra la mediana de la era (8,2 s) cuando las paradas por GP pasaron a salir de las reales de f1db (WP11: menos paradas, más litros por parada)", "sd": 0.25, "errorChance": 0.006, "delay": [2, 6] },
+        "refuel": { "engage": 1.3, "flowLps": 13.6, "flowSource": "NV: ~12 l/s (memoria, SIM-FISICA §4.5); 12,5 recalibrado el 23/11 contra la mediana de la era (8,2 s) cuando las paradas por GP pasaron a salir de las reales de f1db (WP11: menos paradas, más litros por parada); 13,6 recalibrado el 23/11 cuando los litros por vuelta pasaron a salir del consumo medido del circuito (race-energy.json, ~4 l/vuelta en lugar de 3,6) y el peso del combustible a 0,035 s/kg", "sd": 0.25, "errorChance": 0.006, "delay": [2, 6] },
         "jackDown": { "mean": 0.3, "sd": 0.05 },
         "release": { "mean": 0.6, "sd": 0.1, "errorChance": 0.003, "delay": [0.5, 2] }
       },

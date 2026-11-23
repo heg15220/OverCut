@@ -31,7 +31,9 @@ const SAMPLES = {
   "2013-2018": [2014, 2016, 2018],
   "2019-2026": [2019, 2022, 2024],
 };
-const SEEDS = ["stops-a", "stops-b", "stops-c"];
+// Six weekends a year: with three, the error share (~60 errors in ~1200 stops) moved by its own noise
+// across the 5 % line when the stop count changed (5.2 % on three seeds, 3.2 % on six; tolerance unchanged).
+const SEEDS = ["stops-a", "stops-b", "stops-c", "stops-d", "stops-e", "stops-f"];
 
 let context = null;
 let packs = {};

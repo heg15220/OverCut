@@ -44,13 +44,16 @@ export const rivalCalls = (state, car, lap) => {
  * fuel, battery and heat exactly as the quick mode does and returns the budget in seconds.
  *
  * `gridIndex` is the car's place in the order at the start (lap 1 only), `scrumShare`
- * the share of the quick mode's first-lap traffic term kept (race-sim.json).
+ * the share of the quick mode's first-lap traffic term kept (race-sim.json); `out`, if given,
+ * receives the lap's `energyTime`.
  */
-export const planLap = (state, car, lap, stream, { gridIndex = 0, scrumShare = 1 } = {}) => {
+export const planLap = (state, car, lap, stream, { gridIndex = 0, scrumShare = 1 } = {}, out = null) => {
   const rules = stateRules(state);
   const wetness = wetnessAt(state, lap);
   const sc = state.safetyCar;
   const plan = lapBudget(state, car, { lap, wetness, sc, rules, energyGap: rules.energy.overtakeMode ? null : undefined });
+  // RF-SIM-05: the lap's energy time (race.js energyStep), which the step sim spends where the store deploys.
+  if (out) out.energyTime = plan.energyTime;
   let time = plan.expected + stream.normal(0, plan.volatility);
   if (lap === 1) time += startTerm(car, gridIndex, stream, scrumShare);
   car.mistakeKind = rollMistake(car, plan, stream);
@@ -91,7 +94,7 @@ export const pitDecision = (state, car, lap, order, stream) => quickPitDecision(
 export const servicePit = (state, car, lap, decision, stream, queue = 0) => {
   const rules = stateRules(state);
   const lane = pitLaneLoss(state.race.baseLap, state.safetyCar);
-  const stop = pitStopTime(car, decision, { rules, stream });
+  const stop = pitStopTime(car, decision, { rules, stream, kgPerLap: state.fuelSpec?.kgPerLap ?? null });
   const served = applyPitStop(state, car, decision, stop, { lap, queue, rules });
   return { lane, stationary: stop.stationary + queue + served, ownStationary: stop.stationary + served };
 };
