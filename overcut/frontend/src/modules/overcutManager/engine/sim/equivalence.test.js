@@ -12,7 +12,8 @@
  *            laps against late ones, so the spread moves with the selection, not the
  *            model). The fair comparison takes, per car and seed, only the laps that
  *            were clean in BOTH modes - the same lap numbers, so the same fuel load and
- *            stint phase - and leaves out the cars whose race carried a lasting incident
+ *            stint phase - and leaves out the cars that stopped on different laps in the two
+ *            modes (a safety car in one mode only) and those whose race carried a lasting incident
  *            (damage from a contact, a misfire): a handful of discrete draws per race on
  *            different streams would otherwise decide the spread. Per-car means and
  *            deviations are then averaged over the field.
@@ -27,7 +28,7 @@ import { createStepRace, fromQuickRace, runStepToFinish } from "./index";
 import { carsWithIncidents, cleanLaps, cleanLapsByLap, meanOf, stdOf, weekend } from "./simTestKit";
 
 const SEEDS = ["eq1", "eq2", "eq3", "eq4"];
-const FIELD_SEEDS = Array.from({ length: 16 }, (_, k) => `eq${k + 1}`);
+const FIELD_SEEDS = Array.from({ length: 32 }, (_, k) => `eq${k + 1}`);
 
 /** Pool clean laps per car over seeds: `{ carId: { quick: [...], step: [...] } }`. */
 const pool = (runs) => {
@@ -51,8 +52,11 @@ const poolMatched = (runs) => {
     const q = cleanLapsByLap(quick);
     const s = cleanLapsByLap(step);
     const hurt = new Set([...carsWithIncidents(quick), ...carsWithIncidents(step)]);
+    // Same lap number is only the same stint phase if the car stopped on the same laps: a
+    // safety car one mode has and the other not moves the stops by ten laps (a free stop).
+    const stops = (state, id) => state.cars.find((car) => car.id === id).history.filter((entry) => entry.pit).map((entry) => entry.lap).join(",");
     Object.keys(q).forEach((id) => {
-      if (hurt.has(id) || !s[id]) return;
+      if (hurt.has(id) || !s[id] || stops(quick, id) !== stops(step, id)) return;
       out[id] = out[id] || { quick: [], step: [] };
       Object.keys(q[id]).forEach((lap) => {
         if (s[id][lap] === undefined) return;

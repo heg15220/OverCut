@@ -74,6 +74,7 @@
     "max": 0.9,
     "thirdCarFactor": 0.5,
     "passBoost": 0.08,
+    "straight": { "$comment": "SIM-FISICA §3.3/§3.7 (WP4): en recta el atacante no gana punta de más (la punta real del duelo es la del rebufo y el DRS): su ventaja se limita a attackerBoost y el defensor solo pierde defenderLoss; el resto del pase se hace en la frenada y la curva, donde se gana de verdad (frenar más tarde, mejor línea).", "attackerBoost": 0.02, "defenderLoss": 0.005 },
     "passDefenderLoss": 0.04,
     "passMaxSeconds": 6,
     "incident": {

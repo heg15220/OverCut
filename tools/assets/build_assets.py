@@ -547,6 +547,11 @@ def engine_spline(item, data):
             raise RuntimeError(f"{sid}: {sid}.track.json tiene {track['count']} puntos y la spline {len(entry['points']) // 2}")
         entry.update({"trackMarginM": track["trackMarginM"], "wl": track["wl"], "wr": track["wr"],
                       "line": track["line"], "kappa": track["kappa"]})
+        # Tramos enderezados a mano (assets.config.json review.track.straighten): sus puntos mandan.
+        if track.get("points"):
+            if len(track["points"]) != len(entry["points"]):
+                raise RuntimeError(f"{sid}: los puntos enderezados de {sid}.track.json no son de esta spline")
+            entry["points"] = track["points"]
         marks = track.get("pit")
         if pit and marks:
             pit.update({k: marks[k] for k in ("entryLine", "limitFrom", "limitTo", "exitBlend", "marksSource")})

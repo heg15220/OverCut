@@ -47,9 +47,9 @@
       "vegas": "las-vegas"
     },
     "extraLoss": {
-      "$comment": "Corrección por circuito (s) cuando la geometría no basta (SIM-FISICA §3.8: se corrige la geometría o esto, nunca el código). Provisional (2026-11-22): residuos de la calibración contra `calibration` con las marcas limitFrom/limitTo/exitBlend de WP1 (`marksSource: geometry`, aún sin revisión manual) y la traza de velocidad de WP2 de ese día. Monza +4,8: la malla del pit lane acaba antes de la incorporación real tras la primera chicana (el tramo de pista equivalente sale corto); Baréin −3,3: la malla pone garajes después de la línea y la zona limitada (683 de 801 m) sale larga; Hungaroring −1,8: zona limitada de 503 m de 640. Suzuka cuadra sin corrección (−0,35 s). Si cambian las marcas o la traza hay que recalibrar: engine/sim/pitLane.test.js lo detecta.",
+      "$comment": "Corrección por circuito (s) cuando la geometría no basta (SIM-FISICA §3.8: se corrige la geometría o esto, nunca el código). Provisional (2026-11-22): residuos de la calibración contra `calibration` con las marcas limitFrom/limitTo/exitBlend de WP1 (`marksSource: geometry`, aún sin revisión manual) y la traza de velocidad de WP2 de ese día. Monza: sin corrección desde el 23/11 (antes +4,8 s, que compensaba la «curva» falsa de la recta de meta; la spline se enderezó a mano, assets.config.json review.track.straighten); Baréin −3,3: la malla pone garajes después de la línea y la zona limitada (683 de 801 m) sale larga; Hungaroring −1,8: zona limitada de 503 m de 640. Suzuka cuadra sin corrección (−0,35 s). Si cambian las marcas o la traza hay que recalibrar: engine/sim/pitLane.test.js lo detecta.",
       "default": 0,
-      "circuits": { "monza": 4.8, "bahrain": -3.3, "hungaroring": -1.8 }
+      "circuits": { "bahrain": -3.3, "hungaroring": -1.8 }
     },
     "calibration": [
       { "circuit": "monza", "layoutId": "monza-7", "year": 2025, "winnerAvgLap": 83.100, "winnerAvgLapSource": "f1db v2026.20.0 (tiempo del ganador / vueltas)", "realLoss": 25.1, "method": "A: vuelta de entrada + salida − 2 × mediana (FastF1), parada incluida", "source": "https://www.formuladream.app/blog/f1-pit-stop-cost-measured", "ver": "V" },

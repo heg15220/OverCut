@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/race-physics.json (física de traza, WP2 de docs/manager/SIM-FISICA.md; RF-SIM-01, RF-SIM-02). Lo comprueba engine/sim/physics.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "constants", "bands", "trace", "eras", "downforce", "carStats", "calibration"],
+  "required": ["version", "constants", "bands", "trace", "eras", "downforce", "carStats", "calibration", "budget", "wake"],
   "definitions": {
     "positive": {"type": "number", "exclusiveMinimum": 0},
     "share": {"type": "number", "minimum": 0, "maximum": 1},
@@ -119,6 +119,35 @@
         "$comment": {"type": "string"},
         "wetPoleRatio": {"type": "number", "minimum": 1, "maximum": 1.5},
         "disruptedRaceRatio": {"type": "number", "minimum": 0.5, "maximum": 1}
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sensitivity", "share"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "sensitivity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["slow", "medium", "fast", "straight"],
+          "properties": {"slow": {"$ref": "#/definitions/positive"}, "medium": {"$ref": "#/definitions/positive"}, "fast": {"$ref": "#/definitions/positive"}, "straight": {"$ref": "#/definitions/positive"}}
+        },
+        "share": {"type": "array", "items": {"type": "number", "minimum": -0.5, "maximum": 1}, "minItems": 2, "maxItems": 2}
+      }
+    },
+    "wake": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dirtyBand"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "dirtyBand": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["slow", "medium", "fast"],
+          "properties": {"slow": {"$ref": "#/definitions/positive"}, "medium": {"$ref": "#/definitions/positive"}, "fast": {"$ref": "#/definitions/positive"}}
+        }
       }
     }
   }

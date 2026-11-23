@@ -24,6 +24,7 @@
 // 6. Vistas de revisión (.cache/preview): <id>.track.png (vuelta entera), <id>.track-zoom.png (las cuatro
 //    curvas más cerradas y los dos tramos más anchos) y <id>.track-pit.png (calle de boxes y marcas), sobre la vista cenital de la malla.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import "./engine_loader.mjs";
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { deflateSync, inflateSync } from "node:zlib";
@@ -421,6 +422,33 @@ export const buildTrackData = (id, spline, widths, pitlane) => {
   // Puntos del motor (los de splines.json, en dm) y su circuito.
   const compact = [];
   for (let i = 0; i < n2; i += stride) compact.push(Math.round(spline.points[i][0] * 10), Math.round(spline.points[i][2] * 10));
+  // Tramos revisados a mano (review.track.straighten, metros desde la meta): la línea central de la malla se
+  // desvía porque el asfalto se une con otro (pit lane, escapatoria) y la anchura medida allí es la de un pasillo
+  // torcido. Los puntos del tramo se sustituyen por una Hermite cúbica entre sus extremos (posición y tangente de
+  // los vecinos), que es la carretera real, y la media anchura pasa a `halfWidthM`. Los puntos nuevos salen en
+  // <id>.track.json `points` y build_assets.py los lleva a splines.json. Revisar en <id>.track-pit.png.
+  const straightened = new Uint8Array(compact.length / 2);
+  (rules.straighten || []).forEach(({ fromM, toM }) => {
+    const m = compact.length / 2;
+    const a = Math.floor(fromM / rules.engineStepM);
+    const b = Math.min(m - 1, Math.ceil(toM / rules.engineStepM));
+    const at = (i) => [compact[2 * (((i % m) + m) % m)], compact[2 * (((i % m) + m) % m) + 1]];
+    const [p0, p1] = [at(a), at(b)];
+    const span = b - a;
+    // Tangentes por diferencia central de 3 puntos, escaladas a la longitud del tramo (en pasos).
+    const tangent = (i) => [(at(i + 3)[0] - at(i - 3)[0]) / 6, (at(i + 3)[1] - at(i - 3)[1]) / 6];
+    const [t0, t1] = [tangent(a), tangent(b)];
+    for (let i = a + 1; i < b; i += 1) {
+      const u = (i - a) / span;
+      const h00 = 2 * u ** 3 - 3 * u ** 2 + 1;
+      const h10 = u ** 3 - 2 * u ** 2 + u;
+      const h01 = -2 * u ** 3 + 3 * u ** 2;
+      const h11 = u ** 3 - u ** 2;
+      compact[2 * i] = Math.round(h00 * p0[0] + h10 * span * t0[0] + h01 * p1[0] + h11 * span * t1[0]);
+      compact[2 * i + 1] = Math.round(h00 * p0[1] + h10 * span * t0[1] + h01 * p1[1] + h11 * span * t1[1]);
+      straightened[i] = 1;
+    }
+  });
   const P = enginePoints(compact);
   const circuit = { points: P };
   const n = P.length;
@@ -438,6 +466,11 @@ export const buildTrackData = (id, spline, widths, pitlane) => {
     const delta = (P[i].x - rx) * nx[i] + (P[i].y - rz) * ny[i];
     wl[i] = Math.max(0, left.values[k] + delta);
     wr[i] = Math.max(0, right.values[k] - delta);
+    if (straightened[i]) {
+      const span = (rules.straighten || []).find(({ fromM, toM }) => i * rules.engineStepM >= fromM - rules.engineStepM && i * rules.engineStepM <= toM + rules.engineStepM);
+      wl[i] = span.halfWidthM;
+      wr[i] = span.halfWidthM;
+    }
     lo[i] = -(wl[i] - margin);
     hi[i] = wr[i] - margin;
     if (lo[i] > hi[i]) lo[i] = hi[i] = (lo[i] + hi[i]) / 2;
@@ -475,7 +508,7 @@ export const buildTrackData = (id, spline, widths, pitlane) => {
     curvatureReduction: round(1 - sumSq(kappa) / sumSq(centreKappa), 3),
     minRadiusM: { centre: round(radius(centreKappa), 1), line: round(radius(kappa), 1) },
   };
-  return { item, rules, circuit, compact, stride, wl, wr, line, kappa, margin, pit, stats, left, right };
+  return { item, rules, circuit, compact, stride, wl, wr, line, kappa, margin, pit, stats, left, right, straightened: straightened.some(Boolean) };
 };
 
 const preview = (id, data, spline, widths, dir) => {
@@ -570,6 +603,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
     kappa: Array.from(data.kappa, (v) => Math.round(v * 1e4)),
     pit,
     stats: data.stats,
+    // Solo si hay tramos enderezados a mano (review.track.straighten): los puntos del motor (dm) que sustituyen a los de la spline.
+    ...(data.straightened ? { points: data.compact } : {}),
   };
   writeFileSync(args.out, `${JSON.stringify(out)}\n`);
   if (args.preview) {

@@ -1,6 +1,6 @@
 # Simulación física por pasos — investigación y diseño
 
-- Fecha: 2026-11-22 · Estado: propuesta (sin implementar) · Rama: `feature/overcut-manager`
+- Fecha: 2026-11-22 · Estado: en implementación (ver §7) · Rama: `feature/overcut-manager`
 - Requisitos afectados: RF-SIM-01, 02, 06, 07, 08, 09, 10, 12, 15; RF-CMD-01, 02, 04; RF-3D-03, 04; RF-STF-02, 07;
   RNF-01, 02, 05, 07, 09, 11; SRS §2.3, §4.2 (equivalencia ±2 %), §6.2, criterio 7.2 (spline).
 - Alcance: colocación del coche (desplazamiento lateral y trazada), perfil de velocidad (curvas, frenadas, rectas),
@@ -545,3 +545,24 @@ Pruebas transversales: determinismo byte a byte (RNF-05), rendimiento ≤ 900 ms
    construyen con aritmética determinista (`detMath`) o vienen precalculadas».
 8. **§2.3 punto 3**: corregir «Se reclama la curva (`CornerClaim`, hasta 3 coches)»: en el guardado el reclamo
    lleva una sola tirada de incidente con tipos de entrada, salida y apretón (`ERacingIncident`), no solo el éxito.
+
+
+---
+
+## 7. Estado de la implementación
+
+| WP | Estado | Resultado medido |
+|---|---|---|
+| WP1 | Hecho (22/11); Monza enderezada a mano el 23/11 | `assets.config.json` `review.track.straighten`: dos tramos de la recta de meta (0,04–0,29 km y 5,13–5,68 km) donde la línea central de la malla se desviaba 11–26 m al unirse con el pit lane. Radio mínimo en la recta: de 33 m a 227 m (salida de la Parabólica) |
+| WP2 | Hecho | Pole física: 14 de 18 poles con poco combustible a ±3 %; Monza 2005/2012 +1,9 %/+1,7 % (antes +10–13 %); 2024 +5,2 % (excepción documentada en `physics.test.js`) |
+| WP3 | Hecho (23/11) | `race-physics.json` `budget`: lo que el coche va más lento que la traza se carga en curva (lenta 1,5; media 1,35; rápida 1,15) y poco en recta (0,35). Punta de carrera: Monza 2012 dentro de ±5 % de 346 km/h; Baréin 2024 dentro de ±5 % de 332 km/h (`speeds.test.js`). `snapshot` lleva `v` (m/s). El hueco en segundos usa la densidad local |
+| WP4 | Parcial | En recta el atacante gana como mucho un 2 % (`race-sim.json` `duel.straight`); el resto del pase, en la frenada y la curva. Antes llegaba a 368–380 km/h en Monza |
+| WP5 | Parcial | Pérdida por vuelta igual a la del modo rápido (±10 % a 0,3/0,6/0,9 s), repartida por banda (`race-physics.json` `wake.dirtyBand`: lenta 0,35, media 1, rápida 1,5); DRS +8–14 km/h al final de la zona. La ventana sigue en segundos, no en metros |
+| WP6 | Hecho | Pérdida en boxes frente a la real: Monza 25,7/25,1 s, Baréin 23,2/23,0, Hungaroring 20,5/20,5, Suzuka 23,3/23,5. Parada real con `v = 0` en su box |
+| WP7 | Hecho | Etapas, roles y error por etapa; mediana por era ±0,2 s |
+| WP10 | Hecho | `refLaps` en los packs; pole simulada a ±1,5 % |
+| WP8, WP9, WP11 | Pendientes | — |
+
+Equivalencia con el modo rápido (SRS 4.2), 32 semillas: media 0,9998, dispersión 1,017. El test compara solo los coches que
+paran en las mismas vueltas en los dos modos (un SC en un modo y no en el otro adelanta las paradas diez vueltas).
+Medido el 23/11 sobre el código anterior al WIP: el modo por pasos ya era un 3–4 % más disperso en los residuos agrupados.

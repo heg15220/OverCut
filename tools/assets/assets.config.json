@@ -255,7 +255,13 @@
           -142.8,
           122.5
         ],
-        "note": "Reextraída el 22/11 por material (asfalto 'apsh-shader-norm/scuro') con ciclo guiado por el trazado real: máx 2,75 m (p95 0,10 m) medida en el 91 %; 5.843 m (+0,9 %). Sobre asfalto el 91 % (extract_pitlane). Forma correcta (Rettifilo, Curva Grande, Roggia, Lesmo, Ascari, Parabolica); meta en la recta de boxes. Sin reflejar (ICP recortado). Aprobada: el máximo es un borde de cruce."
+        "note": "Reextraída el 22/11 por material (asfalto 'apsh-shader-norm/scuro') con ciclo guiado por el trazado real: máx 2,75 m (p95 0,10 m) medida en el 91 %; 5.843 m (+0,9 %). Sobre asfalto el 91 % (extract_pitlane). Forma correcta (Rettifilo, Curva Grande, Roggia, Lesmo, Ascari, Parabolica); meta en la recta de boxes. Sin reflejar (ICP recortado). Aprobada: el máximo es un borde de cruce.",
+        "track": {
+          "straighten": [
+            { "fromM": 40, "toM": 290, "halfWidthM": 6.5, "note": "Revisado el 23/11: segundo quiebro de la línea central tras la meta (radio 66 m a 200 m), donde termina el carril de boxes; la recta hasta el Rettifilo es recta." },
+            { "fromM": 5130, "toM": 5680, "halfWidthM": 6.5, "note": "Revisado el 23/11 en monza-7.track-pit.png: la línea central serpentea 11-26 m entre la salida del pit lane y la meta (el asfalto se une con el carril de boxes); la recta real es recta (media anchura 6,5 m: 13 m de recta de meta, NV). Sin esto la trazada hace una «curva» de 33 m de radio a 80 km/h en la recta de meta (SIM-FISICA §2, physics.test.js SPLINE_DEFECTS)." }
+          ]
+        }
       },
       "method": "cycle-geo",
       "group": "material"

@@ -50,7 +50,8 @@ import { byYear, raceBalance } from "../rules";
 import { circuitFor } from "../venue";
 import { ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
-import { buildTrackTables, dAt, inCorner, tauAtD } from "./trackTables";
+import physicsData from "../../data/balance/race-physics.json";
+import { buildTrackTables, dAt, dirtyAt, inCorner, sensAt, tauAtD } from "./trackTables";
 import { PHASE, PHASE_NAMES, PIT_LANE_BALANCE, boxPosition, buildProfile, createLaneState, laneGeometry, limitSpeed, sampleProfile, timeAtS } from "./pitLane";
 import { stageAt } from "./pitStop";
 
@@ -120,10 +121,13 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     P0: new Float64Array(n),
     tau0: new Float64Array(n),
     budget: new Float64Array(n),
+    // WP3: share of the budget over the physical trace, spent by band (race-physics.json `budget`).
+    dev: new Float64Array(n),
+    // Speed on the road this step (m/s), for the view and the tests (SIM-FISICA §3.7).
+    v: new Float64Array(n),
     lapStart: new Float64Array(n),
     active: new Uint8Array(n),
     inPit: new Uint8Array(n),
-    pitRate: new Float64Array(n),
     delay: new Float64Array(n),
     failTau: new Float64Array(n).fill(-1),
     failReason: new Array(n).fill(null),
@@ -211,6 +215,19 @@ const apexTauOf = (sim, corner, stream) => {
   return known !== undefined && known !== false ? known : stream.range(0.08, 0.95);
 };
 
+/**
+ * WP3 (SIM-FISICA §3.0): how much slower than the physical trace this lap's budget is, as a
+ * share of the budget, within race-physics.json `budget.share`. The car spends
+ * budget × (1 − dev + dev × sens(tau)) per unit of time share, so the extra time goes to the
+ * corners (tyres, fuel, grip) and little to the straights (power), and the lap still lasts
+ * exactly its budget (sens has mean 1). 0 without a trace (uniform scaling, as before).
+ */
+const devOf = (tables, budget) => {
+  if (!tables.traceLap) return 0;
+  const [lo, hi] = physicsData.budget.share;
+  return clamp((budget - tables.traceLap) / budget, lo, hi);
+};
+
 /** Plan car `i`'s lap `lap`, starting at race time `t`. */
 const beginLap = (state, i, lap, t) => {
   const sim = state._sim;
@@ -225,6 +242,7 @@ const beginLap = (state, i, lap, t) => {
     budget = (budget + i * START_SPACING) / (1 - sim.tau[i]);
   }
   sim.budget[i] = Math.max(1, budget);
+  sim.dev[i] = devOf(sim.tables, sim.budget[i]);
   sim.mistakeTau[i] = -1;
   if (car.pendingMistake) {
     const corner = mistakeCorner(state, stream);
@@ -447,7 +465,9 @@ const measureGaps = (sim) => {
     sim.behind[a] = i;
     const gapD = frac(P[a] - P[i]);
     sim.gapM[i] = gapD * tables.length;
-    sim.gapS[i] = frac(tauAtD(tables, frac(P[a])) - frac(tau[i])) * budget[i];
+    // Seconds at this car's pace over that stretch: its time share times its local density (WP3).
+    const dev = sim.dev[i];
+    sim.gapS[i] = frac(tauAtD(tables, frac(P[a])) - frac(tau[i])) * budget[i] * (1 - dev + dev * sensAt(tables, tau[i]));
     sim.lapDiff[i] = Math.round(P[a] - P[i] - gapD);
     if (sim.gapM[i] > bestGap) {
       bestGap = sim.gapM[i];
@@ -462,10 +482,12 @@ const measureGaps = (sim) => {
  * corner (dirty air: the era's loss per lap, spent in the corners) or on a straight (the
  * tow: the era's gain per lap, spent on the straights). Zero outside the windows.
  */
-export const airEffect = (sim, budget, gapSec, corner) => {
+export const airEffect = (sim, budget, gapSec, corner, dev = 0) => {
   const { dirtyAir, slipstream } = sim.balance;
-  if (corner) return gapSec < dirtyAir.windowSec ? -(sim.dirtyLoss * (1 - gapSec / dirtyAir.windowSec)) / budget / sim.tables.cornerTime : 0;
-  return gapSec < slipstream.windowSec ? (sim.slipGain * (1 - gapSec / slipstream.windowSec)) / budget / sim.tables.straightTime : 0;
+  // The share of this car's lap time spent in corners, with its budget spent by band (WP3).
+  const cornerShare = (1 - dev) * sim.tables.cornerTime + dev * (sim.tables.cornerSens ?? sim.tables.cornerTime);
+  if (corner) return gapSec < dirtyAir.windowSec ? -(sim.dirtyLoss * (1 - gapSec / dirtyAir.windowSec)) / budget / cornerShare : 0;
+  return gapSec < slipstream.windowSec ? (sim.slipGain * (1 - gapSec / slipstream.windowSec)) / budget / (1 - cornerShare) : 0;
 };
 
 /** Advance car `i` one step. */
@@ -483,7 +505,8 @@ const advance = (state, i) => {
   const gapS = sim.gapS[i];
   const gapM = sim.gapM[i];
   const d0 = frac(sim.P[i]);
-  let rate = 1 / sim.budget[i];
+  const dev = sim.dev[i];
+  let rate = 1 / (sim.budget[i] * (1 - dev + dev * sensAt(tables, sim.tau[i])));
   let mult = 1;
 
   if (sc && sim.inPit[i] === 0) {
@@ -493,7 +516,9 @@ const advance = (state, i) => {
     else rate = Math.min(rate, scRate);
     sim.lapFlags[i] |= 1;
   } else if (a >= 0 && sim.inPit[i] === 0) {
-    mult += airEffect(sim, sim.budget[i], gapS, inCorner(tables, d0));
+    const inTurn = inCorner(tables, d0);
+    // WP5: in a corner, the era's loss spread by speed band (fast corners lose most).
+    mult += airEffect(sim, sim.budget[i], gapS, inTurn, sim.dev[i]) * (inTurn ? dirtyAt(tables, sim.tau[i]) : 1);
     if (gapS < balance.traffic.followWindowSec) sim.lapFlags[i] |= 8;
     if (sim.drsOpen[i] > 0) mult += balance.drs.speedGain;
     // Blue flags: a car about to be lapped moves over, once per car lapping it; both
@@ -506,10 +531,13 @@ const advance = (state, i) => {
     }
   }
   if (sim.duelUntil[i] > sim.clock) {
-    mult += sim.duelMult[i];
+    // WP4 (SIM-FISICA §3.3): on a straight the fight is tow and DRS, not extra top speed; the
+    // move is made under braking and through the corner (race-sim.json duel.straight).
+    const edge = sim.duelMult[i];
+    const straight = balance.duel.straight;
+    mult += inCorner(tables, d0) ? edge : edge > 0 ? Math.min(edge, straight.attackerBoost) : Math.max(edge, -straight.defenderLoss);
     sim.lapFlags[i] |= 16;
   }
-  if (sim.inPit[i] === 1) mult *= sim.pitRate[i];
   if (sim.delay[i] > 0) {
     const slow = balance.mistake.slowFactor;
     mult *= slow;
@@ -563,6 +591,7 @@ const advance = (state, i) => {
       }
     }
   }
+  sim.v[i] = ((P1 - sim.P0[i]) * tables.length) / dt;
   sim.P[i] = P1;
   sim.tau[i] = tau1;
   checkpoints(state, i, tau0, Math.min(tau1, 1));
@@ -1120,6 +1149,8 @@ export const snapshot = (state) => {
     progress: sim.P[i],
     share: frac(sim.P[i]),
     lateral: sim.lat[i],
+    // SIM-FISICA §3.7: speed on the road (m/s), from the sim - the view no longer infers it.
+    v: sim.inPit[i] !== 0 && sim.lane.cars.prof[i] ? sim.lane.cars.v[i] : sim.v[i],
     inPit: sim.inPit[i] !== 0,
     // RF-SIM-12 (WP6/WP7): where in the pit lane, how fast, and the stage of the stop.
     pit: sim.inPit[i] !== 0 && sim.lane.cars.prof[i] ? { phase: PHASE_NAMES[sim.lane.cars.phase[i]], v: sim.lane.cars.v[i], stage: sim.lane.cars.stage[i] } : null,

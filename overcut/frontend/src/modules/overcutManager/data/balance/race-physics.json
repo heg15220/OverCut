@@ -509,5 +509,26 @@
     "$comment": "Qué poles de f1db cuentan para calibrar y testear (engine/sim/physics.test.js): una pole más lenta que la vuelta rápida de carrera en más de wetPoleRatio es una clasificación en mojado o interrumpida; una vuelta rápida de carrera por debajo de disruptedRaceRatio × pole (Spa 2021) es una carrera sin vueltas de verdad.",
     "wetPoleRatio": 1.035,
     "disruptedRaceRatio": 0.9
+  },
+  "budget": {
+    "$comment": "WP3 de SIM-FISICA.md §3.0 (RF-SIM-01, SRS 4.2): el presupuesto de vuelta del modo rápido (lapModel.planLap) se gasta a lo largo de la vuelta según la traza física del mejor coche (circuit.simulatedLap). Lo que el coche va más lento que esa traza (neumático, combustible, coche, piloto, ritmo) no se reparte por igual: cada banda pesa `sensitivity` por segundo de traza (curva lenta/media/rápida por bandas; recta = fuera de curva). Así la punta y las mínimas salen reales y la vuelta sigue durando exactamente el presupuesto. `share` acota la desviación relativa (presupuesto − traza)/presupuesto a la que se aplica el reparto; fuera de ese rango el resto se reparte por igual. Inferido (sin fuente pública): calibrado contra la punta de carrera de Monza 2012 y Baréin 2024 (SIM-FISICA §4.2), test engine/sim/stepRace.test.js.",
+    "sensitivity": {
+      "slow": 1.5,
+      "medium": 1.35,
+      "fast": 1.15,
+      "straight": 0.35
+    },
+    "share": [
+      -0.08,
+      0.3
+    ]
+  },
+  "wake": {
+    "$comment": "WP5 de SIM-FISICA.md §3.4 (RF-SIM-06, RF-SIM-08): la pérdida por vuelta en aire sucio es la del modo rápido (rulesFor(era).dirtyAir, race-eras.json; equivalencia SRS 4.2), pero no se reparte igual por todas las curvas: el aire sucio quita carga aerodinámica, que pesa poco en curva lenta y mucho en curva rápida (F1, «10 things you need to know about the all-new 2022 F1 car»: 35-47 % de carga perdida a 10-20 m en 2017-21; SIM-FISICA §4.6). `dirtyBand` es el peso relativo por banda de la curva (bands), normalizado en la pista para que la vuelta pierda lo mismo. Pesos inferidos (proporcionales a la parte aerodinámica del agarre en cada banda con los coches de race-physics.json eras), NV.",
+    "dirtyBand": {
+      "slow": 0.35,
+      "medium": 1.0,
+      "fast": 1.5
+    }
   }
 }

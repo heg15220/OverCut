@@ -6,6 +6,7 @@
 import { fallbackBootstrap } from "../../../overcutTrayectoria/data/fallbackBootstrap";
 import { reference } from "../../data/reference";
 import { createCareer, createContext, createWeekendRace, currentRace, runPractice, runQualifyingSession } from "../career";
+import { loadSeasonPack, seasonPackYears } from "../packs/seasonPacks";
 
 let context = null;
 const contextOf = () => {
@@ -13,9 +14,21 @@ const contextOf = () => {
   return context;
 };
 
+/** A context with every season pack loaded (real grids, calendars and refLaps), for `weekend({ context })`. */
+export const packContext = async () => {
+  const loaded = await Promise.all(seasonPackYears().map((year) => loadSeasonPack(year)));
+  return createContext(fallbackBootstrap, reference, Object.fromEntries(loaded.map(({ pack }) => [pack.year, pack])));
+};
+
 /** A career at its first Sunday: `make()` returns a fresh quick-mode race of that weekend. */
-export const weekend = ({ year = 2024, teamId = "ferrari", seed = "sim" } = {}) => {
-  const career = createCareer(contextOf(), { year, teamId, seed });
+export const weekend = ({ year = 2024, teamId = "ferrari", seed = "sim", circuit = null, context: given = null } = {}) => {
+  const career = createCareer(given || contextOf(), { year, teamId, seed });
+  // Another weekend of the season than the first: the round whose circuit ref is `circuit`.
+  if (circuit) {
+    const round = career.world.races.findIndex((race) => race.circuit === circuit);
+    if (round < 0) throw new Error(`${year} has no race at ${circuit}`);
+    career.round = round;
+  }
   runPractice(career, {});
   runQualifyingSession(career, {});
   return { career, race: currentRace(career), make: () => createWeekendRace(career) };

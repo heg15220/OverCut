@@ -13,6 +13,15 @@ import { poseAt } from "../engine/trackGeometry";
 
 const circuit = circuitFor({ name: "Italian Grand Prix", circuit: "monza" }, 2005);
 const now = () => Promise.resolve();
+// A share of the lap seen by at least `count` cameras of the rig that do not wrap past the
+// line, so the tests do not depend on where the physical speed trace puts each braking zone.
+const coveredShare = (rig, count = 1) => {
+  const spans = rig.filter((cam) => cam.type !== "cable" && cam.from >= 0 && cam.to <= 1 && cam.from < cam.to);
+  for (let share = 0.05; share < 0.95; share += 0.0025) {
+    if (spans.filter((cam) => cam.from <= share && cam.to >= share).length >= count) return share;
+  }
+  throw new Error(`no share seen by ${count} cameras`);
+};
 
 const focusAt = (share, y = 0) => {
   const pose = poseAt(circuit, share);
@@ -46,13 +55,14 @@ describe("height field from the circuit mesh", () => {
 
 describe("cameras on a procedural circuit (no world)", () => {
   it("keep the flat-plane heights they always had", () => {
-    const focus = focusAt(0.3);
+    const rig = buildRig(circuit);
+    const at = coveredShare(rig);
+    const focus = focusAt(at);
     expect(frame("chase", focus, circuit, [], {}, 0.016).pos.y).toBeCloseTo(2.5, 6);
     expect(frame("heli", focus, circuit, [], {}, 0.016).pos.y).toBeCloseTo(130, 6);
     expect(frame("nose", focus, circuit, [], {}, 0.016).pos.y).toBeCloseTo(0.42, 6);
-    const rig = buildRig(circuit);
     const shot = frame("tv", focus, circuit, rig, {}, 0.016);
-    const cam = rig.filter((item) => item.from <= 0.3 && item.to >= 0.3).sort((a, b) => b.priority - a.priority)[0];
+    const cam = rig.filter((item) => item.from <= at && item.to >= at).sort((a, b) => b.priority - a.priority)[0];
     expect(shot.abs).toBeFalsy();
     expect(shot.pos.y).toBe(cam.y);
   });
@@ -111,7 +121,7 @@ describe("cameras on a real circuit (RF-3D-03, RF-3D-04)", () => {
     let open = true;
     const live = { topNear: () => 98, floorNear: () => null, sight: () => open };
     const rig = fitRig(buildRig(circuit), circuit, live, heightAt);
-    const share = 0.3;
+    const share = coveredShare(rig, 2);
     const focus = focusAt(share, heightAt(share));
     const state = {};
     const first = frame("tv", focus, circuit, rig, state, 0.016, { heightAt, field: live });

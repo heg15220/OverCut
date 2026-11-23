@@ -63,8 +63,11 @@ describe("RF-CMD-01/02: every order changes the race", () => {
   });
 
   it("pace: attack is quicker per lap than conserve on the same car", () => {
-    const fast = play(args, [[200, "setMode", user[0], "attack"]]);
-    const slow = play(args, [[200, "setMode", user[0], "conserve"]]);
+    // In clean air, from pole: from the back the car sits in a train and traffic, not the
+    // order, decides its lap times (the physical speed trace moved the braking zones, WP2).
+    const front = { ...given, grid: [user[0], ...given.grid.filter((id) => id !== user[0])] };
+    const fast = play(front, [[200, "setMode", user[0], "attack"]]);
+    const slow = play(front, [[200, "setMode", user[0], "conserve"]]);
     const sum = (state) => lapTimes(state, user[0]).slice(4, 12).reduce((a, b) => a + b, 0);
     expect(sum(fast)).toBeLessThan(sum(slow));
   });

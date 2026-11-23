@@ -10,6 +10,8 @@
 // spline que corresponde a la meta. El RMS del ajuste se guarda: el boceto es de memoria, así que unas
 // decenas de metros son normales; más de ~150 m indicaría que el ciclo elegido no es el del GP.
 import { readFileSync, writeFileSync } from "node:fs";
+// El motor importa sin extensión y lee JSON como el bundler de CRA: engine_loader.mjs lo resuelve.
+import "./engine_loader.mjs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 

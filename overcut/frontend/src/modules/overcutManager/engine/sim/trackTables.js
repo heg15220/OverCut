@@ -13,6 +13,7 @@
  * Everything here is plain numbers and typed arrays; built once per circuit and cached.
  */
 
+import physicsData from "../../data/balance/race-physics.json";
 import { distanceAtTimeShare, timeShareAtDistance } from "../trackGeometry";
 
 const cache = new WeakMap();
@@ -50,6 +51,47 @@ export const buildTrackTables = (circuit, { size = 2048, approachMetres = 160 } 
   let cornerTime = 0;
   for (let i = 0; i < M; i += 1) if (corner[i]) cornerTime += tauOfD[i + 1] - tauOfD[i];
   cornerTime = Math.min(0.95, Math.max(0.05, cornerTime));
+
+  // WP3 (SIM-FISICA §3.0, RF-SIM-01): where a car slower than the physical trace spends the
+  // extra time. Per time-share bin: the trace's speed there (m/s, `vRef`) and the weight of its
+  // band (race-physics.json `budget.sensitivity`: corners by speed band, straights), normalised so
+  // its mean over the lap is 1 (`sens`) - a lap still lasts exactly its budget.
+  const traceLap = circuit.simulatedLap > 0 ? circuit.simulatedLap : null;
+  const vRef = new Float64Array(M);
+  const sens = new Float64Array(M);
+  const { slowMaxKmh, fastMinKmh } = physicsData.bands;
+  const weight = physicsData.budget.sensitivity;
+  let sensSum = 0;
+  for (let j = 0; j < M; j += 1) {
+    const dd = (dOfTau[j + 1] - dOfTau[j]) * M;
+    vRef[j] = traceLap ? (dd * circuit.length) / traceLap : 0;
+    const bin = Math.min(M - 1, Math.floor(((dOfTau[j] + dOfTau[j + 1]) / 2) * M));
+    const kmh = vRef[j] * 3.6;
+    const w = !corner[bin] ? weight.straight : kmh < slowMaxKmh ? weight.slow : kmh > fastMinKmh ? weight.fast : weight.medium;
+    sens[j] = w;
+    sensSum += w;
+  }
+  for (let j = 0; j < M; j += 1) sens[j] = traceLap ? (sens[j] * M) / sensSum : 1;
+  // WP5 (SIM-FISICA §3.4, RF-SIM-06): dirty air takes downforce, so it bites in fast corners and
+  // hardly in slow ones. Weight per bin (race-physics.json wake.dirtyBand by the trace's speed band;
+  // 0 on straights), normalised so its mean over the corners' time is 1: the lap loses the same.
+  const dirtyW = new Float64Array(M);
+  const band = physicsData.wake.dirtyBand;
+  let dirtySum = 0;
+  let cornerBins = 0;
+  for (let j = 0; j < M; j += 1) {
+    const bin = Math.min(M - 1, Math.floor(((dOfTau[j] + dOfTau[j + 1]) / 2) * M));
+    if (!corner[bin]) continue;
+    const kmh = vRef[j] * 3.6;
+    dirtyW[j] = !traceLap ? 1 : kmh < slowMaxKmh ? band.slow : kmh > fastMinKmh ? band.fast : band.medium;
+    dirtySum += dirtyW[j];
+    cornerBins += 1;
+  }
+  for (let j = 0; j < M; j += 1) dirtyW[j] = dirtySum > 0 ? (dirtyW[j] * cornerBins) / dirtySum : 1;
+  // The corners' share of the weighted time (∫ sens over corner time shares): with a share `dev`
+  // spent by band, a car spends (1 − dev)·cornerTime + dev·cornerSens of its lap in corners.
+  let cornerSens = 0;
+  for (let j = 0; j < M; j += 1) if (corner[Math.min(M - 1, Math.floor(((dOfTau[j] + dOfTau[j + 1]) / 2) * M))]) cornerSens += sens[j] / M;
 
   // Attack points: approachMetres before each braking zone, with the corner that follows
   // it, how much the zone is worth (its straight against the longest) and whether a DRS
@@ -97,6 +139,11 @@ export const buildTrackTables = (circuit, { size = 2048, approachMetres = 160 } 
     corner,
     cornerTime,
     straightTime: 1 - cornerTime,
+    traceLap,
+    vRef,
+    sens,
+    cornerSens,
+    dirtyW,
     attacks,
     drsZones,
     apexTau,
@@ -125,6 +172,12 @@ export const tauAtD = (tables, d) => {
   const t = tables.tauOfD;
   return lap + t[i] + (t[i + 1] - t[i]) * (x - i);
 };
+
+/** WP3: the band weight at time share `tau` (mean 1 over the lap). */
+export const sensAt = (tables, tau) => tables.sens[Math.min(tables.M - 1, (frac(tau) * tables.M) | 0)];
+
+/** WP5: the dirty-air weight at time share `tau` (mean 1 over the corners' time; 0 elsewhere). */
+export const dirtyAt = (tables, tau) => tables.dirtyW[Math.min(tables.M - 1, (frac(tau) * tables.M) | 0)];
 
 /** Is distance share `d` inside a corner? */
 export const inCorner = (tables, d) => tables.corner[Math.min(tables.M - 1, (frac(d) * tables.M) | 0)] === 1;
