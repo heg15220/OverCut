@@ -58,7 +58,11 @@
 
 import { clamp, createStream } from "../../overcutTrayectoria/engine/rng";
 import { fieldMomentsOf, paceOf } from "../../overcutTrayectoria/engine/race";
-import { WEATHER, drawWeather } from "../../overcutTrayectoria/engine/weather";
+import { WEATHER } from "../../overcutTrayectoria/engine/weather";
+import {
+  WEATHER_BALANCE as WB, aquaplaningOf, depthOfWetness, gripRatio, sprayLossOf, sprayRiskOf, tyreForWetness as tyreForWater, trackTargetOf, updateLapWater, wetTyreAgeTime,
+  weatherTimeline as weatherOf,
+} from "./weather";
 import { circuitFor } from "./venue";
 import { commandsFor, drsOpen, penaltyFor, pitLaneSpeedFor, raceBalance as BALANCE, rulesFor } from "./rules";
 import { circuitIdOf, pitLaneFor } from "./sim/pitLane";
@@ -94,29 +98,25 @@ export const tyreSpec = (compound, eraOrYear) => {
 export const isWetTyre = (compound) => compound === "inter" || compound === "wet";
 
 /**
- * Seconds a tyre costs on a track that is `wetness` wet (0 dry, 1 flooded).
- * Each compound has a window; outside it the price climbs steeply - that is what
- * makes calling the switch at the right lap the decision of a wet race.
+ * Seconds a tyre costs on a track that is `wetness` wet (0 dry, 1 = the full wet's water
+ * capacity), over the dry race pace `baseLap` (RF-SIM-03, RF-SIM-11): the compound's grip
+ * against the water on the line (engine/weather gripRatio: slick, inter and wet cross where
+ * they did in real wet races, OpenF1) plus, on slicks, the compound offset, wear and cliff, and
+ * on the wet-weather tyres their wear and overheating on a dry track. Outside its window the
+ * price climbs steeply - calling the switch at the right lap is the decision of a wet race.
  */
-export const tyreTime = ({ compound, age, wetness, year, era, wearFactor = 1 }) => {
-  if (compound === "inter") {
-    const window = Math.abs(wetness - 0.42) * 6.5;
-    const overheating = wetness < 0.15 ? 1.3 + age * 0.09 : 0;
-    return 0.9 + window + overheating + age * 0.02;
-  }
-  if (compound === "wet") {
-    const tooDry = wetness < 0.55 ? (0.55 - wetness) * 13 + (wetness < 0.25 ? age * 0.12 : 0) : 0;
-    return 1.6 + tooDry + age * 0.015;
-  }
+export const tyreTime = ({ compound, age, wetness, year, era, wearFactor = 1, baseLap = WB.grip.fallbackBaseLap }) => {
+  const h = depthOfWetness(wetness);
+  const water = baseLap * (gripRatio(compound, h) - 1);
+  if (compound === "inter" || compound === "wet") return water + wetTyreAgeTime(compound, age, h);
   const spec = tyreSpec(compound, era ?? year);
   const wear = spec.wear * wearFactor * age;
   const cliff = age > spec.life ? (age - spec.life) * BALANCE.tyres.cliffPerLap * wearFactor : 0;
-  const onWet = wetness > 0.18 ? (wetness - 0.18) * 32 : 0;
-  return spec.offset + wear + cliff + onWet;
+  return spec.offset + wear + cliff + water;
 };
 
-/** Which tyre a sensible team wants for this much water. */
-export const tyreForWetness = (wetness) => (wetness >= 0.62 ? "wet" : wetness >= 0.24 ? "inter" : null);
+/** Which tyre a sensible team wants for this much water: the crossovers (engine/weather). */
+export const tyreForWetness = tyreForWater;
 
 // ------------------------------------------------------------- the weekend
 
@@ -365,54 +365,12 @@ export const strategyScales = ({ race, rules, laps, baseLap = race.baseLap, lane
 // ------------------------------------------------------------- weather
 
 /**
- * The whole afternoon's weather, decided before the start.
- *
- * Trayectoria draws one condition per race. A pit wall needs a timeline: a dry
- * start with a shower at two thirds distance is the race where strategy is
- * made, so mixed races get a wet spell placed somewhere inside the race, and
- * wet races dry out sometimes.
+ * The whole afternoon's weather, decided before the start (RF-SIM-11): engine/weather's seven
+ * states on the circuit's own chain (ERA5 climatology by month), the water on the line, off it
+ * and per sector, and Friday's forecast with the weather centre's accuracy (RF-HQ-02). Its own
+ * streams (`seed::weather`, `seed::forecast`), so the forecast never moves the race.
  */
-export const weatherTimeline = ({ profile, era, laps, stream }) => {
-  const kind = drawWeather({ profile, era, stream });
-  const wetness = new Array(laps + 1).fill(0);
-  if (kind === WEATHER.DRY) return { kind, wetness, forecast: forecastFor(profile, kind, stream) };
-
-  if (kind === WEATHER.WET) {
-    const start = stream.range(0.6, 0.9);
-    const dries = stream.chance(0.35);
-    const dryFrom = dries ? Math.round(laps * stream.range(0.5, 0.85)) : laps + 1;
-    for (let lap = 0; lap <= laps; lap += 1) {
-      const drying = lap > dryFrom ? (lap - dryFrom) * 0.045 : 0;
-      wetness[lap] = clamp(start - drying + stream.normal(0, 0.02), 0, 1);
-    }
-    return { kind, wetness, forecast: forecastFor(profile, kind, stream) };
-  }
-
-  // Mixed: a shower that arrives, peaks and leaves.
-  const startsWet = stream.chance(0.35);
-  const arrive = startsWet ? 0 : Math.round(laps * stream.range(0.2, 0.7));
-  const length = Math.round(laps * stream.range(0.15, 0.4));
-  const peak = stream.range(0.35, 0.8);
-  for (let lap = 0; lap <= laps; lap += 1) {
-    const into = lap - arrive;
-    let value = 0;
-    if (into >= 0 && into <= length) {
-      const shape = Math.sin((Math.PI * (into + 1)) / (length + 2));
-      value = peak * clamp(shape * 1.4, 0, 1);
-    } else if (into > length) {
-      value = Math.max(0, peak * 0.4 - (into - length) * 0.06);
-    }
-    wetness[lap] = clamp(value + stream.normal(0, 0.015), 0, 1);
-  }
-  return { kind, wetness, forecast: forecastFor(profile, kind, stream) };
-};
-
-/** What the weather service says on Friday: right more often than not. */
-const forecastFor = (profile, kind, stream) => {
-  const base = (profile.rain ?? 0.15) * 100;
-  const truth = kind === WEATHER.DRY ? 0 : kind === WEATHER.MIXED ? 55 : 85;
-  return Math.round(clamp(truth * 0.7 + base * 0.3 + stream.normal(0, 9), 0, 98));
-};
+export const weatherTimeline = ({ race, laps, seed, cars = 20, accuracy, startState = null }) => weatherOf({ race, laps, seed, cars, accuracy, startState });
 
 // ------------------------------------------------------------- qualifying
 
@@ -624,10 +582,14 @@ export const energyPush = (rules, car) => {
  * `entrants` are the cars in grid order; `plans` maps an entrant id to its
  * strategy; `practice` carries the Friday work (setup, long-run tyre feel).
  */
-export const createRace = ({ race, era, year, entrants, grid, plans = {}, practice = {}, seed, crews = {}, strategists = {}, gridPenalties = {}, startTyres = null, sprint = false }) => {
+export const createRace = ({
+  race, era, year, entrants, grid, plans = {}, practice = {}, seed, crews = {}, strategists = {}, gridPenalties = {}, startTyres = null, sprint = false,
+  forecastAccuracy, rubber = 0, weatherStart = null,
+}) => {
   const stream = createStream(`${seed}::race`);
   const laps = Math.max(5, race.laps || 60);
-  const timeline = weatherTimeline({ profile: race.profile, era, laps, stream });
+  // RF-SIM-11 / RF-HQ-02: the weather on its own streams; the forecast with the player's weather centre.
+  const timeline = weatherTimeline({ race, laps, seed, cars: entrants.length, accuracy: forecastAccuracy, startState: weatherStart });
   const moments = fieldMomentsOf(entrants);
   const circuit = circuitFor(race, year);
   const rules = rulesOf(era, year);
@@ -637,8 +599,8 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
   const { wearScale, stopScale } = strategyScales({ race, rules, laps, laneLoss: pitLane.stop });
   const refuel = rules.refuelling;
   const energy = rules.energy.system === "none" ? null : rules.energy.system;
-  // Track temperature: dry venues bake, wet days are cool.
-  const trackTemp = Math.round(clamp(22 + (1 - (race.profile.rain ?? 0.15)) * 18 + stream.normal(0, 6) - timeline.wetness[0] * 12, 12, 55));
+  // Track temperature: the circuit's air at the start hour (ERA5) plus the sun or the rain (OpenF1, race-weather.json temperature).
+  const trackTemp = Math.round(trackTargetOf(timeline, 0) * 10) / 10;
   const fuelStart = laps + FUEL_MARGIN;
 
   const paceFor = (entrant) => ({
@@ -744,7 +706,7 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
   const turnOne = turnOnePlan({ cars, circuit, year: rules.year ?? year, wetness: startWet, grid: simBalance.grid, stream: createStream(`${seed}::start`) });
 
   return {
-    race: { name: race.name, round: race.round, country: race.country, laps, baseLap: race.baseLap, profile: race.profile, circuit: race.circuit || null },
+    race: { name: race.name, round: race.round, country: race.country, laps, baseLap: race.baseLap, profile: race.profile, circuit: race.circuit || null, lengthKm: race.lengthKm || circuit.km || null },
     pitLane,
     turnOne,
     wearScale,
@@ -760,7 +722,8 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
     trackTemps: [trackTemp],
     energy,
     fuelStart,
-    evolution: 0,
+    // The rubber on the track at the start: a wet Saturday washed some off (race-weather.json rubber).
+    evolution: rubber,
     track: {
       ref: circuit.ref,
       km: circuit.km,
@@ -990,9 +953,16 @@ export const rivalCalls = (state, car, lap = state.lap) => {
  * trip wide, a spin - from consistency, pace mode, the wrong tyre for the water,
  * the wing and a cold tyre. For the step simulator, spread it over the lap.
  */
-export const mistakeChanceOf = ({ consistency, mode = "normal", compound, wetness, wing = 0, cold = 0 }) => {
-  const mismatch = !isWetTyre(compound) && wetness > 0.3 ? 2.5 : compound === "wet" && wetness < 0.3 ? 0.6 : 0;
-  const chance = 0.006 * (1 + (55 - consistency) * 0.03) * modeEffect(mode).mistake * (1 + mismatch + wetness * (1 - wing * 2) + cold * 2);
+export const mistakeChanceOf = ({ consistency, mode = "normal", compound, wetness, wing = 0, cold = 0, rubber = 0 }) => {
+  // RF-SIM-09 / RF-SIM-11: a tyre past its water capacity floats (aquaplaning), a wet on a dry
+  // track slides, rubber on a wet line is slippery (race-weather.json mistakes).
+  const m = WB.mistakes;
+  const h = depthOfWetness(wetness);
+  const floating = m.aquaplane * aquaplaningOf(compound, h);
+  const wetOnDry = compound === "wet" && wetness < 0.3 ? m.wetOnDry : 0;
+  const slip = wetness > WB.wetness.atSlickInter ? m.rubberSlip * Math.max(0, rubber) : 0;
+  const mismatch = floating + wetOnDry + slip;
+  const chance = 0.006 * (1 + (55 - consistency) * 0.03) * modeEffect(mode).mistake * (1 + mismatch + m.wetFactor * wetness * (1 - wing * 2) + cold * 2);
   return clamp(chance, 0.001, 0.2);
 };
 
@@ -1003,14 +973,15 @@ export const mistakeChanceOf = ({ consistency, mode = "normal", compound, wetnes
  * against the field, unit wear and part damage, the driver's consistency, the circuit), the
  * pace mode, the safety car, a problem already on the car, the water and the wrong tyre.
  */
-export const incidentChanceOf = ({ hazard, wetness = 0, mode = "normal", sc = false, issue = 0, compound = "hard" }) => {
+export const incidentChanceOf = ({ hazard, wetness = 0, mode = "normal", sc = false, issue = 0, compound = "hard", gapAhead = null }) => {
   const mech = REL.mechanical;
   const acc = REL.accident;
   const risk = modeEffect(mode).risk;
   const mismatch = !isWetTyre(compound) && wetness > 0.3 ? acc.mismatch : 1;
   return {
     mechanical: hazard.mech * risk * (sc ? mech.scFactor : 1) * (issue ? mech.issueFactor : 1),
-    accident: hazard.accident * risk * wetRiskOf(wetness) * mismatch * (sc ? acc.scFactor : 1),
+    // RF-SIM-11: following in the spray raises the risk (race-weather.json spray).
+    accident: hazard.accident * risk * wetRiskOf(wetness) * mismatch * (sc ? acc.scFactor : 1) * (sc ? 1 : sprayRiskOf(depthOfWetness(wetness), gapAhead)),
     issue: hazard.issue,
     mismatch,
   };
@@ -1048,19 +1019,31 @@ export const wetnessOn = (state, lap) => state.weather.wetness[Math.min(Math.max
  * calls it as the field starts a lap, the step simulator as the leader does.
  */
 export const beginLapWorld = (state, lap) => {
-  const wetness = state.weather.wetness[Math.min(lap, state.laps)] ?? 0;
-  const previousWetness = state.weather.wetness[Math.max(0, lap - 1)] ?? 0;
+  const weather = state.weather;
+  // RF-SIM-11: this lap's water for real - the previous lap's with the cars running now, the
+  // safety car and the track temperature (engine/weather updateLapWater; lap 0 is the start).
+  if (weather.sectors && lap >= 1 && lap <= state.laps) {
+    const cars = state.cars.reduce((count, car) => count + (car.status === "running" ? 1 : 0), 0);
+    updateLapWater(weather, lap, { cars, sc: Boolean(state.safetyCar), trackC: state.trackTemp ?? 30, baseLap: state.race.baseLap });
+  }
+  const wetness = weather.wetness[Math.min(lap, state.laps)] ?? 0;
+  const previousWetness = weather.wetness[Math.max(0, lap - 1)] ?? 0;
   const climate = weatherClass(wetness);
-  // The track: the sun works on it through the afternoon, cloud and rain cool it.
+  // The track: the start's temperature (air and sun, engine/weather) and the afternoon's drift; rain
+  // pulls it towards the air plus the rain's offset (race-weather.json temperature, OpenF1). A cloud
+  // passing in the dry does not move it lap by lap.
   if (state.trackTempBase !== undefined) {
     const drift = Math.sin((lap / state.laps) * Math.PI) * 3 - (lap / state.laps) * 2;
-    const target = state.trackTempBase + drift - wetness * 16;
-    state.trackTemp = Math.round((state.trackTemp + (target - state.trackTemp) * (wetness > previousWetness ? 0.35 : 0.12)) * 10) / 10;
+    const raining = weather.states && weather.states[Math.min(lap, state.laps)] >= WB.states.rainFrom;
+    const target = (raining ? Math.min(state.trackTempBase, trackTargetOf(weather, lap)) : weather.states ? state.trackTempBase : state.trackTempBase - wetness * 16) + drift;
+    state.trackTemp = Math.round((state.trackTemp + (target - state.trackTemp) * WB.temperature.relaxPerLap) * 10) / 10;
     state.trackTemps.push(state.trackTemp);
   }
 
-  // Rubber goes down through a dry race and the track quickens; rain washes it off.
-  state.evolution = wetness > 0.3 ? 0 : Math.min(1, (state.evolution || 0) + 1 / Math.max(10, state.laps * 0.55));
+  // Rubber goes down through a dry race and the track quickens; water washes it off (race-weather.json rubber).
+  const h = weather.water ? weather.water[Math.min(lap, state.laps)] ?? 0 : depthOfWetness(wetness);
+  state.evolution =
+    h > WB.grip.dryBelowMm ? Math.max(Math.min(0, state.evolution || 0), (state.evolution || 0) - WB.rubber.washPerMm * h) : Math.min(1, (state.evolution || 0) + 1 / Math.max(10, state.laps * 0.55));
 
   if (weatherClass(previousWetness) !== climate && lap > 1) {
     pushEvent(state, { type: wetness > previousWetness ? "rain" : "drying", wetness }, lap);
@@ -1102,8 +1085,8 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
   const wearRate = car.wearFactor * mode.wear * (1 + overheat * 2.2 + dirty * 0.18 + Math.max(0, -wing) * 0.6) * (1 + (trackTemp - 30) * 0.008);
   car.tyreWear += wearRate * (sc ? 0.35 : 1);
   const tyre = isWetTyre(car.compound)
-    ? tyreTime({ compound: car.compound, age: car.tyreAge, wetness, era: rules })
-    : tyreTime({ compound: car.compound, age: car.tyreWear, wetness, era: rules, wearFactor: 1 });
+    ? tyreTime({ compound: car.compound, age: car.tyreAge, wetness, era: rules, baseLap })
+    : tyreTime({ compound: car.compound, age: car.tyreWear, wetness, era: rules, wearFactor: 1, baseLap });
 
   // Fuel weight: in the refuelling years the stint's load, otherwise the race's
   // load measured against the half-tank the reference lap was run on.
@@ -1120,14 +1103,16 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
   }
 
   const thermal = cold * 3.2 + overheat * 2.5;
-  const wake = dirty * rules.dirtyAir;
+  // Dirty air, and in the wet the spray of the car ahead (race-weather.json spray; the step sim applies it by distance).
+  const spray = sc || lap <= 1 ? 0 : sprayLossOf(depthOfWetness(wetness), car.gapAhead);
+  const wake = dirty * rules.dirtyAir + spray;
   const volatility = baseLap * 0.0036 * (1 + (55 - car.consistency) * 0.01) * (1 + wetness * 0.6);
   // What the car would do with no scatter: the speed a following driver can actually use to pass.
   const expected =
-    baseLap * (1 + 0.11 * wetness) - pace * spp + tyre + fuel + mode.time + mix.time + energyTime + thermal + evolution + car.setup + car.damage + car.issue -
+    baseLap - pace * spp + tyre + fuel + mode.time + mix.time + energyTime + thermal + evolution + car.setup + car.damage + car.issue -
     wing * wetness * baseLap * 0.012;
   car.expected = expected;
-  return { expected, wake, volatility, dirty, cold, wing, wetness, mix, energyTime };
+  return { expected, wake, volatility, dirty, cold, wing, wetness, mix, energyTime, spray, rubber: state.evolution || 0 };
 };
 
 /**
@@ -1143,8 +1128,8 @@ export const startTerm = (car, gridIndex, stream, scrumShare = 1) =>
  * `car.pendingMistake` (seconds) and returns its kind, or null. Where it happens is the
  * caller's (a corner of the circuit); a lock-up flat-spots the tyre (+0.8 laps of wear).
  */
-export const rollMistake = (car, { wetness, wing, cold }, stream) => {
-  const mistakeChance = mistakeChanceOf({ consistency: car.consistency, mode: car.mode, compound: car.compound, wetness, wing, cold });
+export const rollMistake = (car, { wetness, wing, cold, rubber = 0 }, stream) => {
+  const mistakeChance = mistakeChanceOf({ consistency: car.consistency, mode: car.mode, compound: car.compound, wetness, wing, cold, rubber });
   car.pendingMistake = stream.chance(mistakeChance) ? stream.range(1.2, 5) : 0;
   if (!car.pendingMistake) return null;
   const kind = car.pendingMistake > 3.4 ? "spin" : car.pendingMistake > 2.2 ? "wide" : "lockup";
@@ -1180,7 +1165,7 @@ export const jumpStartChecks = (state, cars, lap = state.lap) => {
  */
 export const failureOf = (state, car, { lap = state.lap, wetness, sc = state.safetyCar, rules = stateRules(state), stream } = {}) => {
   if (!car.hazard) ensureHazards(state);
-  const risk = incidentChanceOf({ hazard: car.hazard, wetness, mode: car.mode, sc: Boolean(sc), issue: car.issue, compound: car.compound });
+  const risk = incidentChanceOf({ hazard: car.hazard, wetness, mode: car.mode, sc: Boolean(sc), issue: car.issue, compound: car.compound, gapAhead: lap > 1 ? car.gapAhead : null });
   const roll = stream.next();
   if (roll < risk.mechanical) {
     // RF-SIM-14: which component broke, by the era's real split (and the car's worn units).

@@ -1,0 +1,167 @@
+{
+  "$comment": "RNF-07 / RF-SIM-11, RF-SIM-03, RF-SIM-09, RF-WKD, RF-HQ-02 (SRS 2.3 punto 6): tiempo dinámico y física en mojado del motor de carrera (engine/weather/, usado por el modo rápido race.js, el de pasos engine/sim y las sesiones). Siete estados de soleado a lluvia fuerte con una cadena de Markov por circuito y mes (data/weather/climate.json, ERA5), agua en pista en mm con trazada seca y sectores, goma, temperatura de pista, agarre por compuesto frente al agua con los cruces reales (OpenF1), aquaplaning, spray y pronóstico según el centro meteorológico. Cada bloque dice de dónde sale: measured (dato real citado) o NV (inferido). Lo comprueba engine/weather/weather.test.js con engine/packs/schema/race-weather.schema.json; el resultado medido está en docs/manager/SIM-FISICA.md §7.",
+  "version": 1,
+  "states": {
+    "$comment": "Los 7 estados (SRS 2.3 punto 6). rainMmPerHour: intensidad real del estado, centro de las clases de la American Meteorological Society (Glossary of Meteorology, 'rain': ligera < 2,5 mm/h, moderada 2,5-7,6, fuerte > 7,6; llovizna ligera hasta 0,3 mm/h). sunShare: parte del exceso de pista sobre aire que da el sol (temperature.trackOverAirDry); NV, de octas (WMO-No. 8): despejado ≤ 3/8, nuboso ≤ 7/8, cubierto 8/8. La clasificación de horas de ERA5 en estados está en climate.json thresholdsMmPerHour.",
+    "status": "measured",
+    "list": [
+      { "id": "sunny", "es": "Soleado", "en": "Sunny", "rainMmPerHour": 0, "sunShare": 1.35 },
+      { "id": "cloudy", "es": "Nuboso", "en": "Cloudy", "rainMmPerHour": 0, "sunShare": 1 },
+      { "id": "overcast", "es": "Cubierto", "en": "Overcast", "rainMmPerHour": 0, "sunShare": 0.6 },
+      { "id": "drizzle", "es": "Llovizna", "en": "Drizzle", "rainMmPerHour": 0.15, "sunShare": 0 },
+      { "id": "light", "es": "Lluvia ligera", "en": "Light rain", "rainMmPerHour": 1.5, "sunShare": 0 },
+      { "id": "moderate", "es": "Lluvia moderada", "en": "Moderate rain", "rainMmPerHour": 5, "sunShare": 0 },
+      { "id": "heavy", "es": "Lluvia fuerte", "en": "Heavy rain", "rainMmPerHour": 12, "sunShare": 0 }
+    ],
+    "rainFrom": 3
+  },
+  "chain": {
+    "$comment": "Cadena por circuito y mes (climate.json matrix, horaria). Por vuelta: P_vuelta = I + (P_hora − I) × minutos de vuelta / 60 (generador de primer orden; vale porque la vuelta dura mucho menos que una hora). Minutos de vuelta = baseLap × (1 + lapSlowdown × humedad) / 60 (en mojado la vuelta dura más: 1,09-1,27 × en OpenF1). preMinutes: la cadena y el agua corren desde 2 h antes de la salida para que la pista llegue mojada o secándose; preCarsShare: parte de la parrilla que mantiene una trazada antes de la salida (carreras de apoyo, vueltas de reconocimiento y de formación). NV.",
+    "status": "NV",
+    "preMinutes": 120,
+    "lapSlowdown": 0.25,
+    "preCarsShare": 1,
+    "stepMinutesMax": 10
+  },
+  "sectors": {
+    "$comment": "Lluvia por sector en circuitos largos: cada sector recibe la lluvia × (1 + spread × z), z normal fija por chaparrón, con la media de los tres a 1. spread = perKm × km hasta max (un chubasco convectivo cubre unos pocos km; Spa 7 km llueve en un sector y no en otro). NV.",
+    "status": "NV",
+    "count": 3,
+    "spreadPerKm": 0.04,
+    "spreadMax": 0.3
+  },
+  "water": {
+    "$comment": "Agua en pista h (mm, lámina equivalente). dh/dt = inflow × I^exponent − evaporación − k × h, con I la lluvia real (mm/h) y el tiempo en minutos. exponent 0,59 de la fórmula de lámina de agua de Gallaway et al. (1979, FHWA-RD-79-31: la lámina crece con I^0,59). k y la evaporación están AJUSTADOS a los secados reales de OpenF1 (measured.openf1.drying): Montreal 2024 vueltas 12-24 (inter de 1,186 a 1,132 × ritmo seco, h de 0,475 a 0,21 mm en 17 min) y vueltas 45-51 (slick de 1,106 a 1,035, h de 0,105 a 0,044 mm en 9,5 min) dan k = 0,0358/min y evaporación 0,0038 mm/min a 25,8 °C de pista; con esos valores Silverstone 2025 (de 0,63 mm en la vuelta 22 al cruce a slicks) tarda 34,9 min y en la realidad 35 min (vueltas 22-42). inflow AJUSTADO a que la lluvia ligera (1,5 mm/h) deje la trazada con 20 coches en 0,25 mm, inter a 1,14 × ritmo seco (real 1,12-1,16: Melbourne 2025, Silverstone 2024 y 2025); con el mismo valor la fuerte (12 mm/h) da 1,11 mm: inter 1,34 y de lluvia 1,278 (real Montreal 2024 v2 con lluvia fuerte: 1,331 y 1,277), la moderada 0,62 mm (inter 1,21) y la llovizna (0,15 mm/h) no moja la trazada (la evaporación gana). k = runoff + coches: runoffShare de k actúa en toda la pista; carShare solo en la trazada y escala con los coches en pista / refCars (scFactor bajo SC: van despacio y en fila). La evaporación escala con la presión de vapor de saturación de la pista (fórmula de Tetens, 1930) frente a la de refTrackC. Reparto runoff/coches, scFactor y maxMm: NV.",
+    "status": "measured",
+    "inflowPerMin": 0.01004,
+    "inflowExponent": 0.59,
+    "kPerMin": 0.0358,
+    "runoffShare": 0.7,
+    "carShare": 0.3,
+    "refCars": 20,
+    "scFactor": 0.5,
+    "evaporationMmPerMin": 0.0038,
+    "refTrackC": 25.8,
+    "maxMm": 4
+  },
+  "temperature": {
+    "$comment": "Temperatura de pista = aire (climate.json airC a la hora de salida, ERA5) + exceso. Exceso medido en OpenF1 (70 carreras 2023-2025, una fila por minuto): mediana pista − aire 11,2 °C en seco (10.579 filas) y 4,9 °C con lluvia (490 filas); desviación entre carreras 6,7 °C. En seco se reparte por estado con states.list[].sunShare (NV). De noche (salida desde nightFromHour, climate.json startHour) no hay sol: el exceso es el de lluvia, 4,9 °C, el que tienen las carreras nocturnas de OpenF1 (Baréin 2023-2025: pista 23,5-31,6 °C con aire 18,2-27,1 °C, +3,4 a +5,3). En carrera la pista sale de la temperatura de la salida con la deriva de la tarde de antes (sol hasta media carrera, luego baja; NV) y, mientras llueve, va hacia aire + 4,9 °C a relaxPerLap por vuelta; una nube que pasa en seco no la mueve vuelta a vuelta (movía la dispersión de los dos modos de forma distinta, SRS 4.2).",
+    "status": "measured",
+    "trackOverAirDry": 11.2,
+    "trackOverAirRain": 4.9,
+    "raceSd": 6.7,
+    "nightFromHour": 18,
+    "dayFromHour": 7,
+    "airSdDefault": 3.5,
+    "relaxPerLap": 0.15,
+    "fallbackAirC": 20,
+    "minC": 8,
+    "maxC": 58
+  },
+  "grip": {
+    "$comment": "Tiempo de vuelta por compuesto frente al agua h, como razón sobre el ritmo seco de carrera (baseLap = pole × 1,067, pack-world.json raceFromPole). Todo de vueltas reales de OpenF1 (measured.openf1): el inter en pista casi seca va a 1,09 (Montreal 2024 v43-45 1,09-1,10; Silverstone 2025 v42-43 1,09); slick e inter se cruzan a 1,11 (Zandvoort 2023 v8 1,127; Montreal 2024 v44 1,10; Silverstone 2025 v42 1,10; Melbourne 2025 ~1,12) y el inter y el de lluvia a 1,27 (Montreal 2024 v6 1,256; Mónaco 2023 v65 1,28). La profundidad del cruce inter/mojado es la capacidad del inter a fondo: 25 l/s por rueda a velocidad punta (Pirelli, https://www.pirelli.com/global/en-ww/road/driving-safety-and-aquaplaning-the-help-comes-from-car-races; 316 km/h de Bottas en China 2014 con inters) sobre 0,30 m de banda de rodadura (NV) = 0,95 mm. El inter sube en línea de 1,09 a 1,27 entre 0 y 0,95 mm, así el cruce slick/inter cae en 0,105 mm. El slick: 1 + 0,11 × (h / 0,105)^slickExponent (exponente NV, ajustado a que el slick pase de 1,106 a 1,035 al secarse la trazada en 6 vueltas en Montreal 2024 y Silverstone 2025), con techo slickMax. El de lluvia: 1,22 en seco (NV: Montreal 2024 con lluvia fuerte 1,235) + 0,05 por cada 0,95 mm. Por encima de su capacidad un neumático flota: + aquaplane × (h/capacidad − 1)^1,5 (NV, ajustado a Montreal 2024 v2-5: inter 1,33 cuando el de lluvia iba a 1,277). Capacidad del de lluvia: 65 l/s por rueda (Pirelli, misma fuente) = 2,47 mm. dryOverheat: el inter y el de lluvia sin agua se recalientan y degradan (s por vuelta de edad bajo dryBelowMm; NV, los valores del modelo anterior).",
+    "status": "measured",
+    "slickInterRatio": 1.11,
+    "interWetRatio": 1.27,
+    "interDryRatio": 1.09,
+    "wetDryRatio": 1.22,
+    "wetSlopePerInterCap": 0.05,
+    "slickExponent": 1.5,
+    "slickMax": 1.8,
+    "aquaplane": 0.6,
+    "aquaplaneExponent": 1.5,
+    "tyreWidthM": 0.3,
+    "topSpeedKmh": 316,
+    "evacuationLitresPerSec": { "inter": 25, "wet": 65 },
+    "dryBelowMm": 0.05,
+    "dryOverheat": { "inter": { "base": 1.3, "perLap": 0.09 }, "wet": { "base": 1.5, "perLap": 0.12 } },
+    "ageWear": { "inter": 0.02, "wet": 0.015 },
+    "fallbackBaseLap": 90
+  },
+  "wetness": {
+    "$comment": "Índice de humedad 0..1 que leen los demás sistemas (clima del ritmo, DRS, errores, incidentes, bandera roja): lineal a trozos en h con 0,24 en el cruce slick/inter, 0,62 en el cruce inter/mojado y 1 en la capacidad del de lluvia (2,47 mm); son los umbrales que ya usaba el motor para pedir inters (0,24) y de lluvia (0,62), ahora puestos en los cruces medidos. NV la forma lineal.",
+    "status": "NV",
+    "atSlickInter": 0.24,
+    "atInterWet": 0.62
+  },
+  "mistakes": {
+    "$comment": "RF-SIM-09: los errores suben con el agua. Factor del modelo anterior (1 + humedad × (1 − 2 × ala)) y, en lugar del salto fijo del slick en mojado (×3,5 desde humedad 0,3), aquaplaning: + aquaplane × max(0, h / capacidad − 1), con capacidad = el cruce slick/inter para el slick, 0,95 mm el inter y 2,47 mm el de lluvia; aquaplane 1,9 deja el slick a humedad 0,3 donde estaba (NV). wetOnDry: el de lluvia en seco (el modelo anterior, 0,6). rubberSlip: la goma de la trazada resbala con agua (× 1 + rubberSlip × goma mientras h pase del cruce slick/inter; NV).",
+    "status": "NV",
+    "wetFactor": 1,
+    "aquaplane": 1.9,
+    "wetOnDry": 0.6,
+    "rubberSlip": 0.3
+  },
+  "spray": {
+    "$comment": "Spray: con agua, el que sigue a otro a menos de windowSec ve menos. Pierde lossSec por vuelta a hueco 0 (lineal hasta windowSec) × nivel, nivel = min(1, h / 0,95 mm), en curva y en recta (levanta), y su riesgo de accidente sube × (1 + incident × nivel × cercanía). Sin dato publicado por era: NV.",
+    "status": "NV",
+    "windowSec": 1.5,
+    "lossSec": 0.6,
+    "incident": 1
+  },
+  "offLine": {
+    "$comment": "Modo por pasos: fuera de la trazada (lateral del motor) la pista está más mojada (waterOffLine, sin coches que la sequen). El coche que va a la anchura lineWidthM o más paga la diferencia de razón de tiempo de su compuesto entre fuera y dentro de la trazada en esa parte del recorrido. NV.",
+    "status": "NV",
+    "lineHalfWidthM": 1,
+    "fullAtM": 3
+  },
+  "rubber": {
+    "$comment": "Goma: el motor ya la acumula en carrera (race.js beginLapWorld, -0,55 s a tope). La lluvia la lava: pierde washPerMm × h por vuelta. El fin de semana: si la clasificación fue en mojado la pista sale con washedStart (goma por debajo de la de un domingo normal). NV.",
+    "status": "NV",
+    "washPerMm": 1.5,
+    "washedStart": -0.3,
+    "practiceWashedStart": -0.1
+  },
+  "forecast": {
+    "$comment": "RF-HQ-02: pronóstico del viernes. % de lluvia = verdad × precisión + clima × (1 − precisión) + N(0, noise × (1 − precisión)); verdad 100 si la carrera tiene algún estado de lluvia, clima = la probabilidad de lluvia del circuito ese mes (cadena de climate.json). La vista en vivo lee `outlook`: el índice de cada vuelta desplazado por un error de hora N(0, timingSdMin × (1 − precisión)) minutos. precisión = efecto forecastAccuracy del centro meteorológico (hq.json, 0,55-0,9 por nivel; neutral 0,5). NV.",
+    "status": "NV",
+    "noise": 30,
+    "max": 98,
+    "timingSdMin": 25,
+    "defaultAccuracy": 0.5
+  },
+  "sessions": {
+    "$comment": "Libres y clasificación: misma cadena y misma agua, la climatología de la hora de salida del circuito, durante la duración de la sesión (minutos; NV). Se devuelve el índice de humedad medio de la sesión.",
+    "status": "NV",
+    "practice": { "minutes": 60 },
+    "qualifying": { "minutes": 60 },
+    "cars": 20
+  },
+  "kinds": {
+    "$comment": "Tipo de carrera para el ritmo de Trayectoria y los resúmenes: dry si ninguna vuelta llega a mixedFrom, wet si al menos wetShare de las vueltas pasa de wetFrom, mixed si no. Umbrales del índice de humedad que ya usaba el motor (weatherClass).",
+    "status": "NV",
+    "mixedFrom": 0.2,
+    "wetFrom": 0.55,
+    "wetShare": 0.6
+  },
+  "measured": {
+    "$comment": "Datos reales. openf1: medianas por vuelta y compuesto (vueltas en verde, sin vueltas de salida ni entrada a boxes) frente a pole × 1,067, de overcut/src/main/resources/scripts/wet_tyres_from_openf1.py --per-lap (OpenF1, https://openf1.org: weather, stints, laps, race_control). usage: carreras de 2023-2025 en las que algún coche montó intermedios o de lluvia (stints de OpenF1).",
+    "openf1": {
+      "slickInterCrossovers": [
+        { "race": "2023 Netherlands", "lap": 8, "inter": 1.127, "slick": 1.112 },
+        { "race": "2024 Canada", "lap": 44, "inter": 1.101, "slick": 1.11 },
+        { "race": "2025 Great Britain", "lap": 42, "inter": 1.091, "slick": 1.104 },
+        { "race": "2025 Australia", "lap": 29, "inter": 1.123, "slick": 1.139 },
+        { "race": "2024 Great Britain", "lap": 26, "inter": 1.154, "slick": 1.128 }
+      ],
+      "interWetCrossovers": [
+        { "race": "2024 Canada", "lap": 6, "inter": 1.259, "wet": 1.256 },
+        { "race": "2023 Monaco", "lap": 65, "inter": 1.282, "wet": 1.283 }
+      ],
+      "interNearDry": [1.09, 1.1, 1.093, 1.091],
+      "interLightRain": [1.157, 1.149, 1.12, 1.143],
+      "wetHeavyRain": [1.277, 1.259, 1.235, 1.245],
+      "drying": [
+        { "race": "2024 Canada", "laps": "12-24", "compound": "inter", "from": 1.186, "to": 1.132, "minutes": 17 },
+        { "race": "2024 Canada", "laps": "45-51", "compound": "slick", "from": 1.106, "to": 1.035, "minutes": 9.5 },
+        { "race": "2025 Great Britain", "laps": "22-42", "compound": "inter", "from": 1.22, "to": 1.091, "toCrossover": true, "minutes": 35 }
+      ]
+    },
+    "usage": {
+      "years": [2023, 2025],
+      "races": 70,
+      "wetTyreRaces": 8,
+      "list": ["2023 Monaco", "2023 Netherlands", "2024 Canada", "2024 Great Britain", "2024 São Paulo", "2025 Australia", "2025 Great Britain", "2025 Belgium"]
+    }
+  }
+}

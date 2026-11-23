@@ -32,7 +32,7 @@
 
 import {
   cancelPit, createStepRace, delayStop, requestPit, skipStop, runStepToFinish, setDefence, setErs, setMix, setMode, setOvertakeRisk, setTeamOrder, snapshot, stepFor, stepOnce,
-  stepToNextEvent, toRaceState,
+  stepToNextEvent, toRaceState, weatherNow,
 } from "../sim";
 import { commandsFor, rulesOf } from "../race";
 
@@ -99,6 +99,8 @@ export const createRaceSession = () => {
       teamOrders: state.teamOrders || {},
       restartLap: state.restartLap || 0,
       snapshot: snapshot(state),
+      // RF-SIM-11: the weather now for the rain visuals and the sound agent's rain ambience.
+      weather: weatherNow(state),
       trail: trail.length && trail[trail.length - 1].clock === state.clock ? trail : [...trail, shot()],
       cars,
       events,

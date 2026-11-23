@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/weather/climate.json (climatología por circuito y mes para la cadena de 7 estados, RF-SIM-11), generada por overcut/src/main/resources/scripts/weather_climate_from_era5.py desde ERA5. Lo comprueba engine/weather/weather.test.js.",
+  "type": "object",
+  "required": ["$comment", "source", "era5Bias", "thresholdsMmPerHour", "global", "checks", "circuits"],
+  "definitions": {
+    "row": { "type": "array", "minItems": 7, "maxItems": 7, "items": { "type": "number", "minimum": 0, "maximum": 1 } },
+    "matrix": { "type": "array", "minItems": 7, "maxItems": 7, "items": { "$ref": "#/definitions/row" } },
+    "climate": {
+      "type": "object",
+      "required": ["start", "matrix", "startHour", "airC"],
+      "properties": {
+        "start": { "$ref": "#/definitions/row" },
+        "matrix": { "$ref": "#/definitions/matrix" },
+        "startHour": { "type": "integer", "minimum": 0, "maximum": 23 },
+        "airC": { "type": "object", "required": ["dry"], "properties": { "dry": { "type": ["number", "null"] }, "drySd": { "type": ["number", "null"] }, "wet": { "type": ["number", "null"] } } },
+        "samples": { "type": "integer", "minimum": 0 },
+        "years": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "properties": {
+    "$comment": { "type": "string" },
+    "source": { "type": "string" },
+    "era5Bias": { "type": "number", "exclusiveMinimum": 0 },
+    "thresholdsMmPerHour": { "type": "object", "required": ["drizzle", "light", "moderate", "heavy"] },
+    "global": { "$ref": "#/definitions/climate" },
+    "checks": { "type": "object" },
+    "circuits": {
+      "type": "object",
+      "minProperties": 30,
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 1,
+        "propertyNames": { "pattern": "^(1[0-2]|[1-9])d?$" },
+        "additionalProperties": { "$ref": "#/definitions/climate" }
+      }
+    }
+  }
+}

@@ -13,6 +13,7 @@ import { carRankOf, seatsFor } from "../engine/market";
 import { carRatingOf } from "../engine/car";
 import { driversOf } from "../engine/world";
 import { circuitFor } from "../engine/venue";
+import { raceRainChance } from "../engine/weather";
 import { pathOf, poseAt } from "../engine/trackGeometry";
 import { useManager } from "./context";
 import { Badge, Bar, DataTable, EmptyState, Flag, Livery, Meter, PageHeader, Panel, Rating, StatTile, Tabs, TeamBadge, TeamStripe } from "./atoms";
@@ -126,7 +127,7 @@ function NextRace() {
           <Bar label={t("Motor", "Power")} value={pct(profile.power)} caption={pct(profile.power)} tone="steel" />
           <Bar label={t("Carga aerodinámica", "Downforce")} value={pct(profile.aero)} caption={pct(profile.aero)} tone="steel" />
           <Bar label={t("Facilidad para adelantar", "Overtaking")} value={pct(profile.overtaking)} caption={pct(profile.overtaking)} tone="steel" />
-          <Bar label={t("Riesgo de lluvia", "Rain risk")} value={pct(profile.rain) * 2} caption={`${pct(profile.rain)}%`} tone="blue" />
+          <Bar label={t("Riesgo de lluvia", "Rain risk")} value={pct(raceRainChance(race))} caption={`${pct(raceRainChance(race))}%`} tone="blue" />
         </div>
       </div>
 

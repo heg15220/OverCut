@@ -12,7 +12,9 @@ import { weekend } from "./simTestKit";
 import physicsData from "../../data/balance/race-physics.json";
 import balance from "../../data/balance/race-sim.json";
 
-const SEEDS = ["mk1", "mk2", "mk3", "mk4", "mk5", "mk6"];
+// Twelve races: errors are rare (~5 a race), and with six the ratio of two Poisson counts of
+// ~30 had a standard error (~25 %) close to the band (RF-SIM-11 moved the draws; 12 seeds: 76/62).
+const SEEDS = Array.from({ length: 12 }, (_, k) => `mk${k + 1}`);
 
 /** A step race watched step by step: what each car did while it paid an error. */
 const watch = (seed) => {

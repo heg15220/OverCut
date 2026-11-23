@@ -129,8 +129,26 @@ export const buildTrackTables = (circuit, { size = 2048, approachMetres = 160 } 
   const apexTau = new Map();
   (circuit.corners || []).forEach((c) => apexTau.set(c.number, tauAt(c.apex)));
 
+  // RF-SIM-11: the circuit's three sectors (distance shares where each starts) per time-share bin,
+  // with each sector's time share and ∫ sens, so a wet sector can take more of the lap's budget
+  // and the lap still lasts exactly its budget (stepRace beginLap).
+  const sectorStarts = Array.isArray(circuit.sectors) && circuit.sectors.length === 3 ? circuit.sectors : [0, 1 / 3, 2 / 3];
+  const sectorOf = new Uint8Array(M);
+  const sectorTime = [0, 0, 0];
+  const sectorSens = [0, 0, 0];
+  for (let j = 0; j < M; j += 1) {
+    const d = (dOfTau[j] + dOfTau[j + 1]) / 2;
+    const k = d >= sectorStarts[2] ? 2 : d >= sectorStarts[1] ? 1 : 0;
+    sectorOf[j] = k;
+    sectorTime[k] += 1 / M;
+    sectorSens[k] += sens[j] / M;
+  }
+
   const pit = circuit.pit || { entry: 0.96, exit: 0.04 };
   const tables = {
+    sectorOf,
+    sectorTime,
+    sectorSens,
     key,
     M,
     length,

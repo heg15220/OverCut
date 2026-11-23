@@ -28,7 +28,12 @@ import { createStepRace, fromQuickRace, runStepToFinish } from "./index";
 import { carsWithIncidents, cleanLaps, cleanLapsByLap, meanOf, stdOf, weekend } from "./simTestKit";
 
 const SEEDS = ["eq1", "eq2", "eq3", "eq4"];
-const FIELD_SEEDS = Array.from({ length: 32 }, (_, k) => `eq${k + 1}`);
+// RF-SIM-11: wet laps scatter five times more than dry ones (the line drying): eight weekends.
+const WET_SEEDS = Array.from({ length: 8 }, (_, k) => `eq${k + 1}`);
+// 64 races: the field's spread ratio is the ratio of two estimates from different random draws,
+// whose standard error with 32 races (~2 %) equalled the ±2 % tolerance (SIM-FISICA §7: 0.97,
+// 1.00 and 1.03 on three sets of 32 seeds). The tolerance is unchanged; the sample is larger.
+const FIELD_SEEDS = Array.from({ length: 64 }, (_, k) => `eq${k + 1}`);
 
 /** Pool clean laps per car over seeds: `{ carId: { quick: [...], step: [...] } }`. */
 const pool = (runs) => {
@@ -99,6 +104,33 @@ describe("SRS 4.2 statistical equivalence of the step sim (RF-SIM-01) with the q
     });
     const result = compare(pool(runs), 30);
     report("alone", result);
+    expect(Math.abs(result.meanRatio - 1)).toBeLessThan(0.02);
+    expect(result.worstMean).toBeLessThan(0.02);
+    expect(Math.abs(result.stdRatio - 1)).toBeLessThan(0.02);
+  });
+
+  it("RF-SIM-11: one car alone in the rain (light rain at the start, Silverstone): wet laps keep the mean and spread within 2 %", () => {
+    const runs = [];
+    WET_SEEDS.forEach((seed) => {
+      const { career, race } = weekend({ seed, circuit: "silverstone" });
+      const era = eraOf(career);
+      entrantsFor(career).forEach((entrant) => {
+        const args = { race, era, year: career.year, entrants: [entrant], grid: [entrant.id], seed: `${seed}::wet::${entrant.id}`, weatherStart: 4 };
+        runs.push({ quick: runToFinish(createRace(args)), step: runStepToFinish(createStepRace(args)) });
+      });
+    });
+    // Every race starts on a wet line in both modes: the comparison is of wet laps (and the drying
+    // that follows; each lap's water is recomputed with the cars really running, so a retirement in
+    // one mode only changes it from there).
+    runs.forEach(({ quick, step }) => {
+      expect(quick.weather.wetness[0]).toBeGreaterThan(0.24);
+      expect(step.weather.wetness[0]).toBe(quick.weather.wetness[0]);
+    });
+    // The fair pool of the field test: laps clean in both modes on the same lap numbers, cars that
+    // stopped on the same laps (when to go to slicks on a drying line is a stream draw per mode).
+    const result = compare(poolMatched(runs), 20);
+    report("alone, wet (matched laps)", result);
+    expect(result.cars).toBeGreaterThan(12);
     expect(Math.abs(result.meanRatio - 1)).toBeLessThan(0.02);
     expect(result.worstMean).toBeLessThan(0.02);
     expect(Math.abs(result.stdRatio - 1)).toBeLessThan(0.02);

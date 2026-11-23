@@ -11,7 +11,8 @@
  *
  * Regenerated on purpose (WRITE_GOLDEN=1) when the quick mode's model changes, never to make a
  * refactor pass. 2026-11-23: physical pit lane loss, stops by stages, pole from refLaps (SIM-FISICA
- * WP6/WP7/WP10), and the WP11 strategy (stops from the real ones, SC closing at racing pace).
+ * WP6/WP7/WP10), and the WP11 strategy (stops from the real ones, SC closing at racing pace). 2026-11-23 again:
+ * dynamic weather and wet physics (RF-SIM-11: engine/weather, its own streams, water, grip by compound).
  */
 
 import crypto from "crypto";

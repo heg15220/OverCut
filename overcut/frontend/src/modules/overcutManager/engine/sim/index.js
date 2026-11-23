@@ -6,6 +6,6 @@
 
 export {
   DEFENCE_KEYS, RISK_KEYS, airEffect, SIM_BALANCE, cancelPit, createStepRace, delayStop, skipStop, fromQuickRace, requestPit, runStepToFinish, setDefence, setErs, setMix, setMode,
-  setOvertakeRisk, setTeamOrder, snapshot, stepFor, stepOnce, stepToNextEvent, toRaceState, restartProcedure, yellowAt,
+  setOvertakeRisk, setTeamOrder, snapshot, stepFor, stepOnce, stepToNextEvent, toRaceState, restartProcedure, weatherNow, yellowAt,
 } from "./stepRace";
 export { ROLE, duelChance } from "./duel";

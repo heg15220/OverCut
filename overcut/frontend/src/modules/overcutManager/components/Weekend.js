@@ -15,6 +15,7 @@ import { FEELINGS, SLIDERS } from "../engine/setup";
 import CircuitCard from "./CircuitCard";
 import SessionLive from "./SessionLive";
 import { circuitFor } from "../engine/venue";
+import { raceRainChance } from "../engine/weather";
 import LapChart from "./LapChart";
 import { rulesFor, runToFinish, spacedStops, stintLengths } from "../engine/race";
 import { constructorStandings, driverStandings } from "../engine/standings";
@@ -64,7 +65,8 @@ const useSessionSetup = (career, kind) => {
       entrants: sessionEntrants(career),
       circuit: circuitFor(race, career.year),
       baseLap: race.baseLap,
-      rainChance: Math.round((race.profile.rain ?? 0.15) * 100),
+      // RF-SIM-11: the circuit's own climate that month (ERA5), not a fixed profile value.
+      rainChance: Math.round(raceRainChance(race) * 100),
     };
   }
   return ref.current;

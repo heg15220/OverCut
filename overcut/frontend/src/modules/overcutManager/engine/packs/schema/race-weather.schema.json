@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/race-weather.json (tiempo dinámico y física en mojado; RF-SIM-11, RF-SIM-03, RF-SIM-09, RF-HQ-02). Lo comprueba engine/weather/weather.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$comment", "version", "states", "chain", "sectors", "water", "temperature", "grip", "wetness", "mistakes", "spray", "offLine", "rubber", "forecast", "sessions", "kinds", "measured"],
+  "definitions": {
+    "share": { "type": "number", "minimum": 0, "maximum": 1 },
+    "positive": { "type": "number", "exclusiveMinimum": 0 },
+    "nonNegative": { "type": "number", "minimum": 0 },
+    "ratio": { "type": "number", "minimum": 1, "maximum": 2.5 },
+    "status": { "enum": ["NV", "measured"] },
+    "block": { "type": "object", "required": ["$comment", "status"] }
+  },
+  "properties": {
+    "$comment": { "type": "string" },
+    "version": { "const": 1 },
+    "states": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "properties": {
+        "list": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "es", "en", "rainMmPerHour", "sunShare"],
+            "properties": {
+              "id": { "enum": ["sunny", "cloudy", "overcast", "drizzle", "light", "moderate", "heavy"] },
+              "es": { "type": "string" },
+              "en": { "type": "string" },
+              "rainMmPerHour": { "$ref": "#/definitions/nonNegative" },
+              "sunShare": { "$ref": "#/definitions/nonNegative" }
+            }
+          }
+        },
+        "rainFrom": { "type": "integer", "minimum": 1, "maximum": 6 }
+      },
+      "required": ["list", "rainFrom"]
+    },
+    "chain": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "required": ["preMinutes", "lapSlowdown", "stepMinutesMax"],
+      "properties": { "preMinutes": { "$ref": "#/definitions/nonNegative" }, "lapSlowdown": { "$ref": "#/definitions/nonNegative" }, "stepMinutesMax": { "$ref": "#/definitions/positive" } }
+    },
+    "sectors": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "required": ["count", "spreadPerKm", "spreadMax"],
+      "properties": { "count": { "const": 3 }, "spreadPerKm": { "$ref": "#/definitions/nonNegative" }, "spreadMax": { "$ref": "#/definitions/share" } }
+    },
+    "water": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "required": ["inflowPerMin", "inflowExponent", "kPerMin", "runoffShare", "carShare", "refCars", "scFactor", "evaporationMmPerMin", "refTrackC", "maxMm"],
+      "properties": {
+        "inflowPerMin": { "$ref": "#/definitions/positive" },
+        "inflowExponent": { "$ref": "#/definitions/positive" },
+        "kPerMin": { "$ref": "#/definitions/positive" },
+        "runoffShare": { "$ref": "#/definitions/share" },
+        "carShare": { "$ref": "#/definitions/share" },
+        "refCars": { "$ref": "#/definitions/positive" },
+        "scFactor": { "$ref": "#/definitions/share" },
+        "evaporationMmPerMin": { "$ref": "#/definitions/nonNegative" },
+        "refTrackC": { "type": "number" },
+        "maxMm": { "$ref": "#/definitions/positive" }
+      }
+    },
+    "temperature": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "required": ["trackOverAirDry", "trackOverAirRain", "raceSd", "airSdDefault", "relaxPerLap", "fallbackAirC", "minC", "maxC"],
+      "properties": { "relaxPerLap": { "$ref": "#/definitions/share" } }
+    },
+    "grip": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "required": ["slickInterRatio", "interWetRatio", "interDryRatio", "wetDryRatio", "wetSlopePerInterCap", "slickExponent", "slickMax", "aquaplane", "aquaplaneExponent", "tyreWidthM", "topSpeedKmh", "evacuationLitresPerSec", "dryBelowMm", "dryOverheat", "ageWear", "fallbackBaseLap"],
+      "properties": {
+        "slickInterRatio": { "$ref": "#/definitions/ratio" },
+        "interWetRatio": { "$ref": "#/definitions/ratio" },
+        "interDryRatio": { "$ref": "#/definitions/ratio" },
+        "wetDryRatio": { "$ref": "#/definitions/ratio" },
+        "slickMax": { "$ref": "#/definitions/ratio" },
+        "evacuationLitresPerSec": { "type": "object", "required": ["inter", "wet"], "additionalProperties": false, "properties": { "inter": { "$ref": "#/definitions/positive" }, "wet": { "$ref": "#/definitions/positive" } } }
+      }
+    },
+    "wetness": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "required": ["atSlickInter", "atInterWet"],
+      "properties": { "atSlickInter": { "$ref": "#/definitions/share" }, "atInterWet": { "$ref": "#/definitions/share" } }
+    },
+    "mistakes": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["wetFactor", "aquaplane", "wetOnDry", "rubberSlip"] },
+    "spray": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["windowSec", "lossSec", "incident"] },
+    "offLine": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["lineHalfWidthM", "fullAtM"] },
+    "rubber": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["washPerMm", "washedStart", "practiceWashedStart"] },
+    "forecast": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "required": ["noise", "max", "timingSdMin", "defaultAccuracy"],
+      "properties": { "defaultAccuracy": { "$ref": "#/definitions/share" } }
+    },
+    "sessions": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["practice", "qualifying", "cars"] },
+    "kinds": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["mixedFrom", "wetFrom", "wetShare"] },
+    "measured": { "type": "object", "required": ["$comment", "openf1", "usage"] }
+  }
+}

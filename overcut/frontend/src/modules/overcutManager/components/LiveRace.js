@@ -481,10 +481,12 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   // ---- the conditions panel
   const weatherClassOf = (w) => (w >= 0.55 ? 2 : w >= 0.2 ? 1 : 0);
   let change = t("Condiciones estables", "Settled conditions");
+  // RF-HQ-02: the pit wall sees the forecast outlook (its timing error shrinks with the weather centre), not the future.
+  const outlook = current.weather.outlook || current.weather.wetness;
   for (let lap = displayLap + 1; lap <= current.laps; lap += 1) {
-    if (weatherClassOf(current.weather.wetness[lap] ?? 0) !== weatherClassOf(wetness)) {
+    if (weatherClassOf(outlook[lap] ?? 0) !== weatherClassOf(wetness)) {
       const minutes = Math.max(1, Math.round(((lap - displayLap) * lapRef) / 60));
-      change = (current.weather.wetness[lap] ?? 0) > wetness ? t(`Lluvia en ${minutes} min`, `Rain in ${minutes} min`) : t(`Seca en ${minutes} min`, `Drying in ${minutes} min`);
+      change = (outlook[lap] ?? 0) > wetness ? t(`Lluvia en ${minutes} min`, `Rain in ${minutes} min`) : t(`Seca en ${minutes} min`, `Drying in ${minutes} min`);
       break;
     }
   }

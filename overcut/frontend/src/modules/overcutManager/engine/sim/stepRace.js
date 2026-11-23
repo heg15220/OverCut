@@ -55,6 +55,7 @@ import physicsData from "../../data/balance/race-physics.json";
 import { buildTrackTables, dAt, dirtyAt, inCorner, sensAt, tauAtD } from "./trackTables";
 import { PHASE, PHASE_NAMES, PIT_LANE_BALANCE, boxPosition, buildProfile, createLaneState, laneGeometry, limitSpeed, sampleProfile, timeAtS } from "./pitLane";
 import { stageAt } from "./pitStop";
+import { WEATHER_BALANCE, gripRatio, sprayLossOf, weatherSnapshot } from "../weather";
 
 export const SIM_BALANCE = balanceData;
 
@@ -124,6 +125,11 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     budget: new Float64Array(n),
     // WP3: share of the budget over the physical trace, spent by band (race-physics.json `budget`).
     dev: new Float64Array(n),
+    // RF-SIM-11: this lap's share of the budget per sector (wetter sectors take more, mean-preserving),
+    // the extra cost off the drier racing line and the water the spray comes from (engine/weather).
+    sectorF: new Float64Array(n * 3).fill(1),
+    offPen: new Float64Array(n),
+    sprayH: new Float64Array(n),
     // Speed on the road this step (m/s), for the view and the tests (SIM-FISICA §3.7).
     v: new Float64Array(n),
     lapStart: new Float64Array(n),
@@ -264,6 +270,7 @@ const beginLap = (state, i, lap, t) => {
   if (t1 && t1.outcomes[car.id]) sim.t1Tau[i] = apexTauOf(sim, t1.corner, sim.streams.incidents);
   sim.budget[i] = Math.max(1, budget);
   sim.dev[i] = devOf(sim.tables, sim.budget[i]);
+  wetLap(state, i, lap);
   sim.mistakeTau[i] = -1;
   if (car.pendingMistake) {
     const corner = mistakeCorner(state, stream);
@@ -289,6 +296,40 @@ const beginLap = (state, i, lap, t) => {
     sim.failReason[i] = failure.reason;
     sim.failCorner[i] = corner ?? 0;
   }
+};
+
+/**
+ * RF-SIM-11 (step mode): the wet lap of car `i`. The quick mode's budget (lapBudget, from the
+ * line's mean water) is shared out over the three sectors by the compound's grip ratio on each
+ * sector's water, normalised so the lap still lasts exactly its budget (SRS 4.2):
+ * f_k = r_k / Σ_j G_j r_j, with G_j the sector's weighted time share. Off the racing line the
+ * track is wetter: the cost of the compound there against on the line (`offPen`), paid only by
+ * a car away from the line (advance). The spray comes from the line's water (lap 2 on).
+ */
+const wetLap = (state, i, lap) => {
+  const sim = state._sim;
+  const weather = state.weather;
+  const base = i * 3;
+  const k = Math.min(Math.max(0, lap), state.laps);
+  const h = weather.water ? weather.water[k] ?? 0 : 0;
+  if (!(h > 0) && !(weather.offLine && weather.offLine[k] > 0)) {
+    sim.sectorF[base] = 1;
+    sim.sectorF[base + 1] = 1;
+    sim.sectorF[base + 2] = 1;
+    sim.offPen[i] = 0;
+    sim.sprayH[i] = 0;
+    return;
+  }
+  const { sectorTime, sectorSens } = sim.tables;
+  const compound = state.cars[i].compound;
+  const dev = sim.dev[i];
+  const sectors = weather.sectors[k];
+  let norm = 0;
+  for (let j = 0; j < 3; j += 1) norm += ((1 - dev) * sectorTime[j] + dev * sectorSens[j]) * gripRatio(compound, sectors[j]);
+  for (let j = 0; j < 3; j += 1) sim.sectorF[base + j] = gripRatio(compound, sectors[j]) / norm;
+  const onLine = gripRatio(compound, h);
+  sim.offPen[i] = Math.max(0, (gripRatio(compound, weather.offLine[k]) - onLine) / onLine);
+  sim.sprayH[i] = lap > 1 ? h : 0;
 };
 
 /** Order of the running cars by distance covered (the timing tower's order). */
@@ -528,7 +569,8 @@ const advance = (state, i) => {
   const gapM = sim.gapM[i];
   const d0 = frac(sim.P[i]);
   const dev = sim.dev[i];
-  let rate = 1 / (sim.budget[i] * (1 - dev + dev * sensAt(tables, sim.tau[i])));
+  const cell = Math.min(tables.M - 1, (frac(sim.tau[i]) * tables.M) | 0);
+  let rate = 1 / (sim.budget[i] * (1 - dev + dev * tables.sens[cell]) * sim.sectorF[i * 3 + tables.sectorOf[cell]]);
   let mult = 1;
 
   if (sc && sim.inPit[i] === 0) {
@@ -542,6 +584,8 @@ const advance = (state, i) => {
     // WP5: in a corner, the era's loss spread by speed band (fast corners lose most).
     mult += airEffect(sim, sim.budget[i], gapS, inTurn, sim.dev[i]) * (inTurn ? dirtyAt(tables, sim.tau[i]) : 1);
     if (gapS < balance.traffic.followWindowSec) sim.lapFlags[i] |= 8;
+    // RF-SIM-11: the spray of the car ahead, all round the lap (the quick mode adds it to the wake).
+    if (sim.sprayH[i] > 0) mult -= sprayLossOf(sim.sprayH[i], gapS) / sim.budget[i];
     if (sim.drsOpen[i] > 0) mult += balance.drs.speedGain;
     // Blue flags: a car about to be lapped moves over, once per car lapping it; both
     // lose the quick mode's time for it (race.js blueFlags).
@@ -604,6 +648,12 @@ const advance = (state, i) => {
         break;
       }
     }
+  }
+  // RF-SIM-11: away from the racing line the track is wetter (race-weather.json offLine).
+  if (sim.offPen[i] > 0) {
+    const off = WEATHER_BALANCE.offLine;
+    const away = Math.abs(sim.lat[i]) - off.lineHalfWidthM;
+    if (away > 0) mult /= 1 + sim.offPen[i] * Math.min(1, away / (off.fullAtM - off.lineHalfWidthM));
   }
   const tau0 = sim.tau[i];
   let tau1 = tau0 + rate * Math.max(0, mult) * dt;
@@ -1296,6 +1346,13 @@ export const snapshot = (state) => {
     incident: sim.incident[i],
   }));
 };
+
+/**
+ * RF-SIM-11: the weather now, on the leader's lap, for the view (rain visuals) and the sound
+ * agent (rain ambience): state, rain, water on and off the line per sector, spray, track
+ * temperature, rubber (engine/weather weatherSnapshot).
+ */
+export const weatherNow = (state) => weatherSnapshot(state, state._sim ? state._sim.leaderLap : state.lap);
 
 /**
  * The state as the UI and career read it (classificationOf, completeRace, raceClock): the

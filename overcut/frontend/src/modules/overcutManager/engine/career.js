@@ -12,7 +12,7 @@
  * career needs history again is when a new season starts.
  */
 
-import { clamp, createStream, substream } from "../../overcutTrayectoria/engine/rng";
+import { clamp, substream } from "../../overcutTrayectoria/engine/rng";
 import { eraProfileFor } from "../../overcutTrayectoria/engine/eras";
 import { prepareBootstrap } from "../../overcutTrayectoria/engine/world";
 import {
@@ -35,7 +35,8 @@ import { circuitFor } from "./venue";
 import { timeShareAtDistance } from "./trackGeometry";
 import { rulesFor } from "./rules";
 import { createFinance, financeAfterRace, financeSeasonEnd } from "./finance";
-import { hqAdvance } from "./hq";
+import { forecastAccuracy, hqAdvance } from "./hq";
+import { WEATHER_BALANCE, sessionWetness } from "./weather";
 import { deliverHistoryEvents, lineupWithAbsences, raceStarters } from "./history";
 import {
   applyAreaGain, developmentAfterRace, developmentCapLeft as developmentCapLeftOf, gridPenaltiesFor, initDevelopment, raceIncidents,
@@ -520,18 +521,35 @@ export const runQualifyingSession = (career, risk = {}) => {
   return weekend.qualifying;
 };
 
-/** Saturday's weather: the same seeded draw for the quick and the played qualifying. */
-const qualifyingWetness = (career) => {
-  const race = currentRace(career);
-  const forecast = substream(weekendSeed(career), "quali-weather");
-  return forecast.chance((race.profile.rain ?? 0.15) * 0.8) ? forecast.range(0.2, 0.8) : 0;
-};
+/**
+ * Saturday's weather (RF-SIM-11, RF-WKD-02): the circuit's own weather chain and water over the
+ * session (engine/weather sessionWetness, ERA5 climatology), the same seeded draw for the quick
+ * and the played qualifying.
+ */
+const qualifyingWetness = (career) => sessionWetness({ race: currentRace(career), kind: "qualifying", stream: substream(weekendSeed(career), "quali-weather") });
 
 /** Friday's weather for the played practice (its own draw: the quick practice has none). */
-const practiceWetness = (career) => {
-  const race = currentRace(career);
-  const forecast = substream(weekendSeed(career), "practice-weather");
-  return forecast.chance((race.profile.rain ?? 0.15) * 0.6) ? forecast.range(0.2, 0.7) : 0;
+const practiceWetness = (career) => sessionWetness({ race: currentRace(career), kind: "practice", stream: substream(weekendSeed(career), "practice-weather") });
+
+/**
+ * The rubber on Sunday morning (race-weather.json rubber): a wet qualifying (or practice) washed
+ * the track, so the race starts below a dry weekend's grip.
+ */
+const sundayRubber = (career) => {
+  const weekend = startWeekend(career);
+  const r = WEATHER_BALANCE.rubber;
+  const wet = WEATHER_BALANCE.kinds.mixedFrom;
+  if ((weekend?.qualifying?.wetness ?? qualifyingWetness(career)) >= wet) return r.washedStart;
+  return practiceWetness(career) >= wet ? r.practiceWashedStart : 0;
+};
+
+/** RF-HQ-02: the player's weather centre sets how good the race forecast is. */
+const forecastAccuracyOf = (career) => {
+  try {
+    return forecastAccuracy(career, career.teamId);
+  } catch (error) {
+    return WEATHER_BALANCE.forecast.defaultAccuracy;
+  }
 };
 
 /** RF-WKD-01: is this a sprint weekend in an era that has them (2021-)? */
@@ -807,6 +825,9 @@ export const weekendRaceArgs = (career) => {
     seed: weekendSeed(career),
     crews,
     strategists,
+    // RF-SIM-11 / RF-HQ-02: the forecast's accuracy (weather centre) and Sunday's rubber.
+    forecastAccuracy: forecastAccuracyOf(career),
+    rubber: sundayRubber(career),
     // RF-SIM-14: places lost for units over the era's allocation, set after the previous race.
     gridPenalties: gridPenaltiesFor(career, entrants),
     // A played qualifying: the tyre each of the top ten set its time on (2010-2021).
@@ -842,8 +863,8 @@ export const createLiveWeekendRace = (career) => {
 export const weekendForecast = (career) => {
   const race = currentRace(career);
   if (!race) return null;
-  const stream = createStream(`${weekendSeed(career)}::race`);
-  return weatherTimeline({ profile: race.profile, era: eraOf(career), laps: Math.max(5, race.laps || 60), stream }).forecast;
+  const entrants = entrantsFor(career);
+  return weatherTimeline({ race, laps: Math.max(5, race.laps || 60), seed: weekendSeed(career), cars: entrants.length, accuracy: forecastAccuracyOf(career) }).forecast;
 };
 
 /** Seconds a plan gives away to the strategist's best one (0 = it is the best). */
