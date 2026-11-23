@@ -530,5 +530,27 @@
       "medium": 1.0,
       "fast": 1.5
     }
+  },
+  "mistake": {
+    "$comment": "WP8 de SIM-FISICA.md §3.6 (RF-SIM-09): el error se tira por vuelta como en el modo rápido (race.js rollMistake: tipo y segundos perdidos, equivalencia SRS 4.2) y se coloca en una curva (spotOn). Aquí, cómo se pierde ese tiempo en pista según el tipo: `slowFactor` es la fracción de velocidad mientras se paga; `stopShare` la parte de la pérdida con el coche parado (trompo: se queda cruzado y vuelve a arrancar); `wide` lleva el coche hacia el borde exterior (`edgeShare` de la media anchura) hasta que vuelve a la trazada. Durante `recoverySec` tras pagar, el coche no entra en duelos. Inferido, NV: sin datos públicos de cómo se reparte la pérdida de un error. El ritmo de pago (0,35) es el que tenía race-sim.json mistake.slowFactor; pagar más despacio (0,45-0,5) o parar más de un 30 % de la pérdida en el trompo sacaba la dispersión de vueltas limpias del ±2 % del modo rápido (equivalence.test.js, medido el 23/11).",
+    "kinds": {
+      "lockup": {
+        "slowFactor": 0.35,
+        "stopShare": 0,
+        "wide": false
+      },
+      "wide": {
+        "slowFactor": 0.35,
+        "stopShare": 0,
+        "wide": true
+      },
+      "spin": {
+        "slowFactor": 0.35,
+        "stopShare": 0.3,
+        "wide": true
+      }
+    },
+    "edgeShare": 0.95,
+    "recoverySec": 4
   }
 }

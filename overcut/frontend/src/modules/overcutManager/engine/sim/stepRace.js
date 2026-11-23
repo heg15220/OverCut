@@ -134,6 +134,12 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     failCorner: new Int32Array(n),
     mistakeTau: new Float64Array(n).fill(-1),
     mistakeCorner: new Int32Array(n),
+    // WP8 (SIM-FISICA §3.6): how the error being paid is driven (race-physics.json mistake).
+    mistakeSlow: new Float64Array(n).fill(1),
+    spinLeft: new Float64Array(n),
+    wideSign: new Int8Array(n),
+    recoverUntil: new Float64Array(n),
+    incident: new Array(n).fill(null),
     lapFlags: new Uint8Array(n),
     lat: new Float64Array(n),
     latTarget: new Float64Array(n),
@@ -539,9 +545,22 @@ const advance = (state, i) => {
     sim.lapFlags[i] |= 16;
   }
   if (sim.delay[i] > 0) {
-    const slow = balance.mistake.slowFactor;
-    mult *= slow;
-    sim.delay[i] = Math.max(0, sim.delay[i] - dt * (1 - slow));
+    // WP8: a spin stops the car first (v = 0), then it pays the rest at its kind's pace; a
+    // contact's delay (duel.js) is paid at the old pace.
+    if (sim.spinLeft[i] > 0) {
+      mult = 0;
+      const paid = Math.min(dt, sim.spinLeft[i], sim.delay[i]);
+      sim.spinLeft[i] -= paid;
+      sim.delay[i] = Math.max(0, sim.delay[i] - paid);
+    } else {
+      const slow = sim.incident[i] ? sim.mistakeSlow[i] : balance.mistake.slowFactor;
+      mult *= slow;
+      sim.delay[i] = Math.max(0, sim.delay[i] - dt * (1 - slow));
+    }
+    if (sim.delay[i] <= 0 && sim.incident[i]) {
+      sim.recoverUntil[i] = sim.clock + physicsData.mistake.recoverySec;
+      sim.incident[i] = null;
+    }
     sim.lapFlags[i] |= 16;
   } else if (sim.blueDelay[i] > 0) {
     const slow = balance.blueFlags.slowFactor;
@@ -626,6 +645,15 @@ const checkpoints = (state, i, from, to) => {
   if (sim.mistakeTau[i] >= 0 && (sim.mistakeTau[i] > from && sim.mistakeTau[i] <= to)) {
     sim.mistakeTau[i] = -1;
     sim.delay[i] += car.pendingMistake;
+    // WP8: the kind decides how the time goes (race-physics.json mistake.kinds).
+    const how = physicsData.mistake.kinds[car.mistakeKind] || physicsData.mistake.kinds.lockup;
+    sim.incident[i] = car.mistakeKind || "lockup";
+    sim.mistakeSlow[i] = how.slowFactor;
+    sim.spinLeft[i] = car.pendingMistake * how.stopShare;
+    const turn = sim.tables.attacks.find((attack) => attack.corner === sim.mistakeCorner[i]);
+    // Wide on the exit: to the outside of the corner (sign + = right-hander, outside = left).
+    sim.wideSign[i] = how.wide ? -(turn?.sign ?? 1) : 0;
+    if (sim.duelOther[i] >= 0) endDuel(sim, i);
     sim.lapFlags[i] |= 2;
     const corner = sim.mistakeCorner[i] || null;
     pushEvent(state, lap, { type: "mistake", carId: car.id, kind: car.mistakeKind, corner, loss: Math.round(car.pendingMistake * 10) / 10 });
@@ -650,7 +678,9 @@ const checkpoints = (state, i, from, to) => {
     for (let z = 0; z < tables.attacks.length; z += 1) {
       if (!(tables.attacks[z].tau > from && tables.attacks[z].tau <= to)) continue;
       const a = sim.ahead[i];
-      if (a >= 0 && sim.lapDiff[i] === 0) {
+      // WP8: no attack while paying an error or getting back on the line.
+      const recovering = sim.incident[i] !== null || sim.recoverUntil[i] > sim.clock;
+      if (a >= 0 && sim.lapDiff[i] === 0 && !recovering) {
         const b = sim.behind[i];
         const behindGap = b >= 0 && sim.lapDiff[b] === 0 ? sim.gapS[b] : Infinity;
         openDuel(state, i, z, a, sim.gapS[i], b, behindGap);
@@ -1078,7 +1108,9 @@ const lateral = (sim) => {
   const stepMove = L.rate * sim.dt;
   for (let k = 0; k < sim.ringSize; k += 1) {
     const i = sim.ring[k];
-    const target = sim.duelRole[i] === ROLE.NONE ? 0 : sim.latTarget[i];
+    // WP8: a car running wide heads for the outside edge until it has paid its error.
+    const wide = sim.incident[i] && sim.wideSign[i] ? sim.wideSign[i] * L.halfWidth * physicsData.mistake.edgeShare : null;
+    const target = wide !== null ? wide : sim.duelRole[i] === ROLE.NONE ? 0 : sim.latTarget[i];
     const diff = target - sim.lat[i];
     sim.lat[i] += Math.abs(diff) <= stepMove ? diff : Math.sign(diff) * stepMove;
   }
@@ -1197,6 +1229,8 @@ export const snapshot = (state) => {
     status: car.status,
     position: car.position,
     duel: sim.duelRole[i],
+    // WP8: an error being paid ("lockup" | "wide" | "spin"), for the view.
+    incident: sim.incident[i],
   }));
 };
 
