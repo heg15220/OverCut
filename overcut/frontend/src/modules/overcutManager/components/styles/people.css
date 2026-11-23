@@ -485,3 +485,6 @@
   .mn-nego__pair { grid-template-columns: 1fr; }
   .mn-nego__actions small { margin-left: 0; flex-basis: 100%; }
 }
+
+/* RF-STF-02: the twelve race attributes under the six legacy ones. */
+.mn-pp-skills { margin-top: var(--mn-s-3); padding-top: var(--mn-s-3); border-top: 1px solid var(--mn-hairline); }

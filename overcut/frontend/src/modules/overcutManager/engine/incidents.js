@@ -11,7 +11,7 @@
  *               component (engine/development/units.js) × the damage state of the body part
  *               (RF-DEV-08). Spread over the laps.
  *   accident    a solo crash: the era's real rate after the opening laps × the driver's
- *               consistency × the circuit's attrition, by lap × pace mode, water, the wrong
+ *               control (RF-STF-02) × the circuit's attrition, by lap × pace mode, water, the wrong
  *               tyre.
  *   contact     what a touch between two cars does to each of them: retirement on the spot,
  *               suspension broken (retires at the line), puncture (limps to the pits),
@@ -19,7 +19,7 @@
  *               the VSC or the safety car by era.
  *   turn one    how bunched the field reaches the first braking zone: the run from each
  *               grid slot to it on the real circuit, the launch (reaction, the era's start
- *               procedure, racecraft and car) and, pair by pair, the overlap in time; the
+ *               procedure, the starts attribute and car) and, pair by pair, the overlap in time; the
  *               closer the pair and the less consistent its drivers, the likelier the touch.
  *
  * Every number is in data/balance/race-reliability.json (RNF-07); every draw is on a stream
@@ -29,6 +29,7 @@
 import { clamp } from "../../overcutTrayectoria/engine/rng";
 import REL from "../data/balance/race-reliability.json";
 import { byYear } from "./rules";
+import { controlRiskOf, skillZ } from "./drivers/skills";
 
 export const RELIABILITY = REL;
 
@@ -122,7 +123,8 @@ export const raceHazards = ({ cars, year, laps, attrition = REL.accident.attriti
       running += p / Math.max(total, 1e-12);
       return [group, running];
     });
-    const control = clamp(1 + (55 - (car.consistency ?? 55)) * acc.perConsistency, acc.control[0], acc.control[1]);
+    // RF-STF-02: the driver's control (engine/drivers/skills.js), z on the era's drivers.
+    const control = controlRiskOf(car, acc);
     const accident = measured.incidentsPerCarRace.accident.later * control * attritionFactor * cal.accident;
     out[car.id] = { mech: perLapOf(total, laps), groups, accident: perLapOf(accident, laps), issue: perLapOf(total, laps) * spec.issueShare, crashScale: cal.accident };
   });
@@ -190,7 +192,7 @@ export const firstBrakeOf = (circuit) => {
 /**
  * Pure (RF-SIM-09, RF-SIM-10): the start and the first corner, decided before the lights go
  * out on its own stream so both modes play the same start (SRS 4.2). `cars` are in grid
- * order with `id`, `consistency`, `racecraft` and `pace.dry`; `grid` is race-sim.json's
+ * order with `id`, `skills` (control, starts; RF-STF-02) and `pace.dry`; `grid` is race-sim.json's
  * physical grid ({ poleBackMetres, gapMetres }).
  *
  * Returns `{ corner, metres, share, launch: { id: s }, outcomes: { id: outcome },
@@ -209,13 +211,14 @@ export const turnOnePlan = ({ cars, circuit, year, wetness = 0, grid, stream }) 
   const launches = cars.map((car, k) => {
     const reaction = Math.max(0.1, spec.reaction.mean + stream.normal(0, spec.reaction.sigma));
     const spin = Math.abs(stream.normal(0, era.sigma));
-    return reaction + spin - (((car.racecraft ?? 50) - 50) / 10) * spec.racecraftSigma - ((paces[k] - paceMean) / paceSd) * spec.carSigma;
+    // RF-STF-02: the starts attribute (z) shortens the launch.
+    return reaction + spin - skillZ(car, "starts") * spec.startsSigma - ((paces[k] - paceMean) / paceSd) * spec.carSigma;
   });
   const sorted = [...launches].sort((a, b) => a - b);
   const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
   const arrivals = cars.map((car, k) => ({ k, t: timeToCover(brake.metres + grid.poleBackMetres + k * grid.gapMetres, era.accel, era.vmax) + launches[k] }));
   arrivals.sort((a, b) => a.t - b.t || a.k - b.k);
-  const risk = (car) => clamp(1 + (55 - (car.consistency ?? 55)) * REL.accident.perConsistency, REL.accident.control[0], REL.accident.control[1]);
+  const risk = (car) => controlRiskOf(car, REL.accident);
   const wet = wetness >= 0.2 ? spec.wet : 1;
   const overlap = arrivals.map((row, j) => (j === 0 ? 0 : Math.exp(-(row.t - arrivals[j - 1].t) / spec.tau)));
   const involved = new Set();

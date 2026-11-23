@@ -1,7 +1,7 @@
 {
  "schemaVersion": 2,
  "year": 2008,
- "packVersion": "2.0.0",
+ "packVersion": "2.1.0",
  "sources": [
   {
    "name": "f1db",
@@ -9153,6 +9153,7 @@
  "standingsAdjustments": [],
  "ratings": {
   "method": "v1-qualifying-gap",
+  "skillsMethod": "v1-f1db-attributes",
   "teams": [
    {
     "teamId": "bmw-sauber",
@@ -9289,7 +9290,21 @@
      "lost": 10
     },
     "medianGapToTeammatePct": 0.114,
-    "teammateIndex": 72.7
+    "teammateIndex": 72.7,
+    "skills": {
+     "cornering": 63.2,
+     "braking": 61.5,
+     "control": 44.9,
+     "smoothness": 59.5,
+     "adaptability": 63.5,
+     "overtaking": 60.9,
+     "defending": 60.0,
+     "starts": 58.1,
+     "accuracy": 55.7,
+     "aggression": 62.4,
+     "potential": 72.9,
+     "commercialValue": 49.4
+    }
    },
    {
     "driverId": "anthony-davidson",
@@ -9303,7 +9318,21 @@
      "lost": 2
     },
     "medianGapToTeammatePct": 0.099,
-    "teammateIndex": 73.0
+    "teammateIndex": 73.0,
+    "skills": {
+     "cornering": 62.8,
+     "braking": 63.4,
+     "control": 62.3,
+     "smoothness": 61.9,
+     "adaptability": 60.6,
+     "overtaking": 59.0,
+     "defending": 55.3,
+     "starts": 55.2,
+     "accuracy": 55.1,
+     "aggression": 63.4,
+     "potential": 64.3,
+     "commercialValue": 48.3
+    }
    },
    {
     "driverId": "david-coulthard",
@@ -9317,7 +9346,21 @@
      "lost": 15
     },
     "medianGapToTeammatePct": 0.488,
-    "teammateIndex": 65.2
+    "teammateIndex": 65.2,
+    "skills": {
+     "cornering": 54.9,
+     "braking": 54.1,
+     "control": 55.3,
+     "smoothness": 69.9,
+     "adaptability": 58.9,
+     "overtaking": 61.7,
+     "defending": 59.9,
+     "starts": 50.3,
+     "accuracy": 61.8,
+     "aggression": 65.7,
+     "potential": 53.0,
+     "commercialValue": 74.2
+    }
    },
    {
     "driverId": "felipe-massa",
@@ -9331,7 +9374,21 @@
      "lost": 3
     },
     "medianGapToTeammatePct": -0.221,
-    "teammateIndex": 79.4
+    "teammateIndex": 79.4,
+    "skills": {
+     "cornering": 61.0,
+     "braking": 62.2,
+     "control": 60.5,
+     "smoothness": 56.7,
+     "adaptability": 57.8,
+     "overtaking": 57.5,
+     "defending": 60.0,
+     "starts": 63.0,
+     "accuracy": 70.8,
+     "aggression": 56.2,
+     "potential": 71.2,
+     "commercialValue": 70.6
+    }
    },
    {
     "driverId": "fernando-alonso",
@@ -9345,7 +9402,21 @@
      "lost": 0
     },
     "medianGapToTeammatePct": -0.468,
-    "teammateIndex": 84.4
+    "teammateIndex": 84.4,
+    "skills": {
+     "cornering": 69.0,
+     "braking": 66.7,
+     "control": 58.7,
+     "smoothness": 58.3,
+     "adaptability": 59.3,
+     "overtaking": 57.9,
+     "defending": 66.2,
+     "starts": 60.4,
+     "accuracy": 66.6,
+     "aggression": 57.4,
+     "potential": 75.6,
+     "commercialValue": 76.5
+    }
    },
    {
     "driverId": "giancarlo-fisichella",
@@ -9359,7 +9430,21 @@
      "lost": 7
     },
     "medianGapToTeammatePct": -0.114,
-    "teammateIndex": 77.3
+    "teammateIndex": 77.3,
+    "skills": {
+     "cornering": 62.5,
+     "braking": 64.2,
+     "control": 52.7,
+     "smoothness": 57.7,
+     "adaptability": 67.6,
+     "overtaking": 59.3,
+     "defending": 62.3,
+     "starts": 57.0,
+     "accuracy": 55.7,
+     "aggression": 61.1,
+     "potential": 64.0,
+     "commercialValue": 66.2
+    }
    },
    {
     "driverId": "heikki-kovalainen",
@@ -9373,7 +9458,21 @@
      "lost": 10
     },
     "medianGapToTeammatePct": 0.094,
-    "teammateIndex": 73.1
+    "teammateIndex": 73.1,
+    "skills": {
+     "cornering": 58.8,
+     "braking": 56.9,
+     "control": 61.8,
+     "smoothness": 60.6,
+     "adaptability": 59.9,
+     "overtaking": 54.4,
+     "defending": 60.2,
+     "starts": 63.5,
+     "accuracy": 69.0,
+     "aggression": 54.2,
+     "potential": 68.0,
+     "commercialValue": 56.6
+    }
    },
    {
     "driverId": "jarno-trulli",
@@ -9387,7 +9486,21 @@
      "lost": 7
     },
     "medianGapToTeammatePct": -0.121,
-    "teammateIndex": 77.4
+    "teammateIndex": 77.4,
+    "skills": {
+     "cornering": 62.6,
+     "braking": 65.0,
+     "control": 62.2,
+     "smoothness": 59.9,
+     "adaptability": 60.4,
+     "overtaking": 55.4,
+     "defending": 59.4,
+     "starts": 61.3,
+     "accuracy": 65.2,
+     "aggression": 57.9,
+     "potential": 66.5,
+     "commercialValue": 62.6
+    }
    },
    {
     "driverId": "jenson-button",
@@ -9401,7 +9514,21 @@
      "lost": 10
     },
     "medianGapToTeammatePct": 0.072,
-    "teammateIndex": 73.6
+    "teammateIndex": 73.6,
+    "skills": {
+     "cornering": 60.7,
+     "braking": 61.5,
+     "control": 58.7,
+     "smoothness": 67.4,
+     "adaptability": 74.5,
+     "overtaking": 61.7,
+     "defending": 59.7,
+     "starts": 58.7,
+     "accuracy": 66.2,
+     "aggression": 64.6,
+     "potential": 61.2,
+     "commercialValue": 63.7
+    }
    },
    {
     "driverId": "kazuki-nakajima",
@@ -9415,7 +9542,21 @@
      "lost": 13
     },
     "medianGapToTeammatePct": 0.421,
-    "teammateIndex": 66.6
+    "teammateIndex": 66.6,
+    "skills": {
+     "cornering": 53.2,
+     "braking": 54.6,
+     "control": 58.6,
+     "smoothness": 65.3,
+     "adaptability": 59.8,
+     "overtaking": 52.8,
+     "defending": 58.4,
+     "starts": 58.7,
+     "accuracy": 61.8,
+     "aggression": 56.8,
+     "potential": 51.8,
+     "commercialValue": 47.8
+    }
    },
    {
     "driverId": "kimi-raikkonen",
@@ -9429,7 +9570,21 @@
      "lost": 15
     },
     "medianGapToTeammatePct": 0.221,
-    "teammateIndex": 70.6
+    "teammateIndex": 70.6,
+    "skills": {
+     "cornering": 59.0,
+     "braking": 58.5,
+     "control": 63.1,
+     "smoothness": 65.1,
+     "adaptability": 60.4,
+     "overtaking": 62.5,
+     "defending": 61.5,
+     "starts": 61.3,
+     "accuracy": 70.8,
+     "aggression": 60.7,
+     "potential": 67.1,
+     "commercialValue": 75.4
+    }
    },
    {
     "driverId": "lewis-hamilton",
@@ -9443,7 +9598,21 @@
      "lost": 8
     },
     "medianGapToTeammatePct": -0.094,
-    "teammateIndex": 76.9
+    "teammateIndex": 76.9,
+    "skills": {
+     "cornering": 60.3,
+     "braking": 62.0,
+     "control": 61.8,
+     "smoothness": 60.3,
+     "adaptability": 59.9,
+     "overtaking": 64.9,
+     "defending": 60.0,
+     "starts": 63.5,
+     "accuracy": 69.0,
+     "aggression": 60.6,
+     "potential": 69.4,
+     "commercialValue": 70.7
+    }
    },
    {
     "driverId": "mark-webber",
@@ -9457,7 +9626,21 @@
      "lost": 3
     },
     "medianGapToTeammatePct": -0.488,
-    "teammateIndex": 84.8
+    "teammateIndex": 84.8,
+    "skills": {
+     "cornering": 66.0,
+     "braking": 67.8,
+     "control": 62.2,
+     "smoothness": 51.2,
+     "adaptability": 62.6,
+     "overtaking": 59.7,
+     "defending": 59.3,
+     "starts": 57.0,
+     "accuracy": 61.8,
+     "aggression": 60.7,
+     "potential": 68.5,
+     "commercialValue": 56.2
+    }
    },
    {
     "driverId": "nelson-piquet-jr",
@@ -9471,7 +9654,21 @@
      "lost": 18
     },
     "medianGapToTeammatePct": 0.468,
-    "teammateIndex": 65.6
+    "teammateIndex": 65.6,
+    "skills": {
+     "cornering": 48.4,
+     "braking": 51.0,
+     "control": 40.9,
+     "smoothness": 65.7,
+     "adaptability": 60.7,
+     "overtaking": 67.0,
+     "defending": 60.0,
+     "starts": 58.6,
+     "accuracy": 66.6,
+     "aggression": 65.3,
+     "potential": 46.1,
+     "commercialValue": 49.4
+    }
    },
    {
     "driverId": "nick-heidfeld",
@@ -9485,7 +9682,21 @@
      "lost": 13
     },
     "medianGapToTeammatePct": 0.172,
-    "teammateIndex": 71.6
+    "teammateIndex": 71.6,
+    "skills": {
+     "cornering": 57.8,
+     "braking": 58.1,
+     "control": 63.9,
+     "smoothness": 61.1,
+     "adaptability": 63.8,
+     "overtaking": 61.2,
+     "defending": 60.2,
+     "starts": 63.0,
+     "accuracy": 62.3,
+     "aggression": 57.1,
+     "potential": 57.3,
+     "commercialValue": 61.4
+    }
    },
    {
     "driverId": "nico-rosberg",
@@ -9499,7 +9710,21 @@
      "lost": 5
     },
     "medianGapToTeammatePct": -0.421,
-    "teammateIndex": 83.4
+    "teammateIndex": 83.4,
+    "skills": {
+     "cornering": 68.0,
+     "braking": 67.4,
+     "control": 56.1,
+     "smoothness": 51.5,
+     "adaptability": 55.2,
+     "overtaking": 62.3,
+     "defending": 62.1,
+     "starts": 60.4,
+     "accuracy": 61.8,
+     "aggression": 58.1,
+     "potential": 70.7,
+     "commercialValue": 53.1
+    }
    },
    {
     "driverId": "robert-kubica",
@@ -9513,7 +9738,21 @@
      "lost": 6
     },
     "medianGapToTeammatePct": -0.172,
-    "teammateIndex": 78.4
+    "teammateIndex": 78.4,
+    "skills": {
+     "cornering": 63.2,
+     "braking": 63.3,
+     "control": 58.2,
+     "smoothness": 59.2,
+     "adaptability": 57.1,
+     "overtaking": 59.5,
+     "defending": 63.3,
+     "starts": 63.6,
+     "accuracy": 62.3,
+     "aggression": 58.4,
+     "potential": 74.2,
+     "commercialValue": 58.8
+    }
    },
    {
     "driverId": "rubens-barrichello",
@@ -9527,7 +9766,21 @@
      "lost": 8
     },
     "medianGapToTeammatePct": -0.072,
-    "teammateIndex": 76.4
+    "teammateIndex": 76.4,
+    "skills": {
+     "cornering": 59.9,
+     "braking": 58.9,
+     "control": 63.9,
+     "smoothness": 52.8,
+     "adaptability": 46.2,
+     "overtaking": 58.7,
+     "defending": 60.8,
+     "starts": 62.1,
+     "accuracy": 66.2,
+     "aggression": 60.8,
+     "potential": 62.5,
+     "commercialValue": 73.6
+    }
    },
    {
     "driverId": "sebastian-vettel",
@@ -9541,7 +9794,21 @@
      "lost": 4
     },
     "medianGapToTeammatePct": -0.321,
-    "teammateIndex": 81.4
+    "teammateIndex": 81.4,
+    "skills": {
+     "cornering": 64.6,
+     "braking": 65.8,
+     "control": 63.3,
+     "smoothness": 56.7,
+     "adaptability": 61.7,
+     "overtaking": 68.9,
+     "defending": 65.9,
+     "starts": 47.6,
+     "accuracy": 65.8,
+     "aggression": 71.3,
+     "potential": 68.9,
+     "commercialValue": 54.0
+    }
    },
    {
     "driverId": "sebastien-bourdais",
@@ -9555,7 +9822,21 @@
      "lost": 13
     },
     "medianGapToTeammatePct": 0.321,
-    "teammateIndex": 68.6
+    "teammateIndex": 68.6,
+    "skills": {
+     "cornering": 55.1,
+     "braking": 53.7,
+     "control": 58.5,
+     "smoothness": 64.1,
+     "adaptability": 60.7,
+     "overtaking": 50.6,
+     "defending": 56.9,
+     "starts": 58.6,
+     "accuracy": 65.8,
+     "aggression": 58.7,
+     "potential": 52.4,
+     "commercialValue": 47.7
+    }
    },
    {
     "driverId": "takuma-sato",
@@ -9569,7 +9850,21 @@
      "lost": 2
     },
     "medianGapToTeammatePct": -0.099,
-    "teammateIndex": 77.0
+    "teammateIndex": 77.0,
+    "skills": {
+     "cornering": 62.8,
+     "braking": 62.9,
+     "control": 59.4,
+     "smoothness": 58.2,
+     "adaptability": 65.0,
+     "overtaking": 62.3,
+     "defending": 61.5,
+     "starts": 62.6,
+     "accuracy": 55.1,
+     "aggression": 58.8,
+     "potential": 63.7,
+     "commercialValue": 54.1
+    }
    },
    {
     "driverId": "timo-glock",
@@ -9583,7 +9878,21 @@
      "lost": 11
     },
     "medianGapToTeammatePct": 0.121,
-    "teammateIndex": 72.6
+    "teammateIndex": 72.6,
+    "skills": {
+     "cornering": 59.8,
+     "braking": 58.3,
+     "control": 58.5,
+     "smoothness": 60.6,
+     "adaptability": 60.2,
+     "overtaking": 64.3,
+     "defending": 63.2,
+     "starts": 58.6,
+     "accuracy": 65.2,
+     "aggression": 64.1,
+     "potential": 72.1,
+     "commercialValue": 49.8
+    }
    }
   ]
  },

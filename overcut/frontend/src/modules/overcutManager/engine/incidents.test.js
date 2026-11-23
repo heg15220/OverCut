@@ -56,7 +56,9 @@ describe("RNF-07 · race-reliability.json", () => {
   });
 });
 
-const field = (n, overrides = {}) => Array.from({ length: n }, (_, k) => ({ id: `c${k}`, reliability: 0.9, consistency: 55, racecraft: 50, pace: { dry: 0 }, ...overrides }));
+// RF-STF-02: drivers carry the twelve attributes (control and starts here); 60 is the era's mean driver.
+const skilled = (control = 60, starts = 60) => ({ skills: { control, starts } });
+const field = (n, overrides = {}) => Array.from({ length: n }, (_, k) => ({ id: `c${k}`, reliability: 0.9, ...skilled(), pace: { dry: 0 }, ...overrides }));
 
 describe("RF-SIM-14 · hazards from f1db, the car, its units and its parts", () => {
   const perRace = (perLap, laps) => 1 - Math.pow(1 - perLap, laps);
@@ -89,8 +91,8 @@ describe("RF-SIM-14 · hazards from f1db, the car, its units and its parts", () 
     expect(share(damaged.c0, "suspension")).toBeGreaterThan(share(base.c0, "suspension"));
   });
 
-  it("a less consistent driver crashes more on his own", () => {
-    const hazards = raceHazards({ cars: [field(1, { consistency: 35 })[0], { ...field(1, { consistency: 75 })[0], id: "c1" }], year: 2010, laps: 60 });
+  it("a driver with less control (RF-STF-02) crashes more on his own", () => {
+    const hazards = raceHazards({ cars: [field(1, skilled(45))[0], { ...field(1, skilled(75))[0], id: "c1" }], year: 2010, laps: 60 });
     expect(hazards.c0.accident).toBeGreaterThan(hazards.c1.accident);
   });
 });
@@ -110,13 +112,21 @@ describe("RF-SIM-09 · the start and the first corner", () => {
     expect(bunching(700)).toBeGreaterThan(bunching(120));
   });
 
-  it("less consistent drivers touch more often; the same seed gives the same start", () => {
-    const touches = (consistency) => {
+  it("drivers with less control touch more often; better starters launch quicker; the same seed gives the same start", () => {
+    const touches = (control) => {
       let count = 0;
-      for (let s = 0; s < 300; s += 1) count += plan(field(20, { consistency }), circuitAt(500), `t${s}`).contacts.length;
+      for (let s = 0; s < 300; s += 1) count += plan(field(20, skilled(control)), circuitAt(500), `t${s}`).contacts.length;
       return count;
     };
-    expect(touches(30)).toBeGreaterThan(touches(80));
+    expect(touches(40)).toBeGreaterThan(touches(80));
+    // RF-STF-02: the starts attribute shortens the launch (race-reliability.json turnOne.startsSigma).
+    let better = 0;
+    for (let s = 0; s < 100; s += 1) {
+      const cars = field(2).map((car, k) => ({ ...car, skills: { control: 60, starts: k === 0 ? 80 : 40 } }));
+      const start = plan(cars, circuitAt(500), `l${s}`);
+      if (start.launch.c0 < start.launch.c1) better += 1;
+    }
+    expect(better).toBeGreaterThan(55);
     expect(plan(field(20), circuitAt(500), "same")).toEqual(plan(field(20), circuitAt(500), "same"));
   });
 

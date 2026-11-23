@@ -70,6 +70,9 @@ import { expectedStationary, planStop } from "./sim/pitStop";
 import { fuelSpecOf } from "./energy";
 import { RELIABILITY as REL, calibrationFor, contactOutcome, leavesDebris, pickGroup, raceHazards, turnOnePlan, wetRiskOf } from "./incidents";
 import simBalance from "../data/balance/race-sim.json";
+import {
+  DRIVER_BALANCE, aiDefenceStyleOf, contactFactorOf, mistakeFactorOf, passSkillTerm, raceFormOf, skillZ, startSkillTime, volatilityFactorOf, wearSkillOf,
+} from "./drivers/skills";
 
 export { commandsFor, drsOpen, rulesFor };
 
@@ -671,6 +674,8 @@ export const createRace = ({
         // A driver happy with the car drives it more cleanly: setup confidence feeds consistency.
         consistency: (entrant.consistency ?? 50) + ((practice[id]?.confidence ?? 0.6) - 0.6) * 15,
         racecraft: entrant.racecraft ?? 50,
+        // RF-STF-02: the driver's race attributes (engine/drivers/skills.js); setup confidence feeds control.
+        skills: confidentSkills(entrant.skills, practice[id]?.confidence),
         reliability: entrant.reliability,
         plan,
         stint: 0,
@@ -696,7 +701,8 @@ export const createRace = ({
         setup: practice[id]?.setup ?? 0,
         wing: practice[id]?.wing ?? 0,
         // A car that will not put its power down cleanly spins its rear tyres up.
-        wearFactor: wearFactorFor(race.profile) * wearScale * (practice[id]?.wear ?? 1) * (1 + (practice[id]?.traction ?? 0) * 0.35),
+        // RF-STF-02 / RF-SIM-03: a smooth driver wears his tyres less.
+        wearFactor: wearFactorFor(race.profile) * wearScale * (practice[id]?.wear ?? 1) * (1 + (practice[id]?.traction ?? 0) * 0.35) * wearSkillOf({ skills: entrant.skills }),
         crew: crews[entrant.teamId] ?? 60,
         strategist: strategists[entrant.teamId] ?? 55,
         lapsDown: 0,
@@ -715,6 +721,15 @@ export const createRace = ({
       };
     });
 
+  // RF-STF-02 / RF-SIM-13: the defence style each AI driver picks (the player's is the default
+  // until ordered otherwise, RF-CMD-01), the attack risk, and the race-day form (its own stream, so
+  // both modes run the same one, SRS 4.2).
+  const formStream = createStream(`${seed}::form`);
+  cars.forEach((car) => {
+    car.defence = car.isUser ? simBalance.defence.default : aiDefenceStyleOf(car);
+    car.overtakeRisk = simBalance.risk.default;
+    car.form = raceFormOf(car, rules.year ?? year, formStream, race.circuitType);
+  });
   // RF-SIM-14 / RF-SIM-09: each car's failure and crash hazards for this race (engine/incidents.js, f1db by era).
   const hazards = raceHazards({ cars, year: rules.year ?? year, laps, attrition: race.profile?.attrition });
   cars.forEach((car) => {
@@ -930,6 +945,47 @@ export const setTeamOrder = (state, teamId, order) => {
  * battery by who is in front. `lap` is the lap about to be run (the step simulator
  * calls it at each car's own line crossing).
  */
+/** The running car one place ahead of `car` on the road (by position), or null. */
+const carAheadOf = (state, car) => state.cars.find((other) => other.status === "running" && other.position === car.position - 1) || null;
+
+/**
+ * RF-SIM-13: the rival pit walls' team orders, at the start of each race lap (both modes, SRS
+ * 4.2), only where the rules allow them (rules.teamOrdersBanned; driver-attributes.json
+ * effects.teamOrders). Two cars of one team running together swap when the one behind is
+ * clearly quicker; with a rival right behind the second car they hold station instead of
+ * fighting. The player's team is never touched: its orders are the player's (RF-CMD-01).
+ */
+export const aiTeamOrders = (state, lap) => {
+  const rules = stateRules(state);
+  const spec = DRIVER_BALANCE.effects.teamOrders;
+  if (rules.teamOrdersBanned || state.safetyCar || lap < state.laps * spec.fromRaceShare || lap >= state.laps) return;
+  state.aiOrders = state.aiOrders || {};
+  const byTeam = {};
+  state.cars.forEach((car) => {
+    if (car.status === "running" && !car.isUser) (byTeam[car.teamId] = byTeam[car.teamId] || []).push(car);
+  });
+  Object.entries(byTeam).forEach(([teamId, pair]) => {
+    if (pair.length !== 2) return;
+    const [front, back] = pair[0].position < pair[1].position ? pair : [pair[1], pair[0]];
+    const memory = (state.aiOrders[teamId] = state.aiOrders[teamId] || { lastSwap: -Infinity, set: null });
+    const together = back.position === front.position + 1 && back.gapAhead !== null && back.gapAhead < spec.windowSec;
+    let order = "free";
+    if (together) {
+      const edge = (front.expected ?? 0) - (back.expected ?? 0);
+      const threat = state.cars.find((car) => car.status === "running" && car.teamId !== teamId && car.position === back.position + 1);
+      if (edge > spec.swapPaceSec && lap - memory.lastSwap >= spec.cooldownLaps) {
+        order = "swap";
+        memory.lastSwap = lap;
+      } else if (threat && threat.gapAhead !== null && threat.gapAhead < spec.holdThreatSec) order = "hold";
+    }
+    // Only undo what the AI itself set: a swap is cleared by the move once made.
+    if (order !== "free" || memory.set === "hold") {
+      if (state.teamOrders[teamId] !== "swap" || order === "swap") state.teamOrders[teamId] = order;
+      memory.set = order;
+    }
+  });
+};
+
 export const rivalCalls = (state, car, lap = state.lap) => {
   const rules = stateRules(state);
   // Called at the start of a lap: the lap about to be run still counts.
@@ -938,13 +994,27 @@ export const rivalCalls = (state, car, lap = state.lap) => {
   const attacking = car.gapAhead !== null && car.gapAhead < 1.2;
   const defending = car.gapBehind !== null && car.gapBehind < 1;
   const lonely = (car.gapAhead === null || car.gapAhead > 3) && (car.gapBehind === null || car.gapBehind > 4);
+  // RF-SIM-13 / RF-STF-02 (driver-attributes.json effects.ai): stuck behind a car it has not the
+  // pace to pass, an AI driver drops back into clean air to look after its tyres (sooner if it is
+  // not aggressive); in a DRS train (both cars with DRS) it does not push; defending on old
+  // tyres it keeps them and defends in the braking zones.
+  const ai = DRIVER_BALANCE.effects.ai;
+  const following = car.gapAhead !== null && car.gapAhead < ai.followGapSec;
+  car.followLaps = following ? (car.followLaps || 0) + 1 : 0;
+  const ahead = following ? carAheadOf(state, car) : null;
+  const edge = ahead && Number.isFinite(ahead.expected) && Number.isFinite(car.expected) ? ahead.expected - car.expected : 0;
+  const stuck = following && car.followLaps >= ai.stuckLaps + skillZ(car, "aggression") * ai.stuckAggression && edge < ai.paceEdge;
+  const gapDrs = rules.drs?.detectionGap ?? 1;
+  const train = Boolean(rules.drs?.enabled && ahead && car.gapAhead < gapDrs && ahead.gapAhead !== null && ahead.gapAhead < gapDrs);
   // How far the tyres must still go: to the next stop, or the flag.
   const nextStop = car.plan.stops.find((stop) => stop >= lap);
   const stintLeft = (nextStop ?? state.laps) - lap + 1;
   const spare = 1 - life - (stintLeft * (car.wearFactor ?? 1)) / Math.max(1, tyreSpec(car.compound, rules).life);
   if (car.tyreTemp > 0.74 || life > 0.92) car.mode = "save";
   else if (car.outLap) car.mode = "push";
-  else if ((attacking || defending) && life < 0.8 && remaining > 1) car.mode = spare > -0.05 ? "push" : "normal";
+  else if (stuck && remaining > 3) car.mode = ai.cleanAirMode;
+  else if (defending && !attacking && life > ai.defendTyreLife && remaining > 3) car.mode = "normal";
+  else if (((attacking && !train) || defending) && life < 0.8 && remaining > 1) car.mode = spare > -0.05 ? "push" : "normal";
   else if (lonely && remaining > 4 && spare < 0.1) car.mode = "save";
   else car.mode = "normal";
   car.outLap = false;
@@ -972,10 +1042,10 @@ export const rivalCalls = (state, car, lap = state.lap) => {
 
 /**
  * Pure (RF-SIM-09): the chance of a driver's mistake on one lap - a lock-up, a
- * trip wide, a spin - from consistency, pace mode, the wrong tyre for the water,
+ * trip wide, a spin - from the driver's control (RF-STF-02), pace mode, the wrong tyre for the water,
  * the wing and a cold tyre. For the step simulator, spread it over the lap.
  */
-export const mistakeChanceOf = ({ consistency, mode = "normal", compound, wetness, wing = 0, cold = 0, rubber = 0 }) => {
+export const mistakeChanceOf = ({ driver = 1, mode = "normal", compound, wetness, wing = 0, cold = 0, rubber = 0 }) => {
   // RF-SIM-09 / RF-SIM-11: a tyre past its water capacity floats (aquaplaning), a wet on a dry
   // track slides, rubber on a wet line is slippery (race-weather.json mistakes).
   const m = WB.mistakes;
@@ -984,7 +1054,8 @@ export const mistakeChanceOf = ({ consistency, mode = "normal", compound, wetnes
   const wetOnDry = compound === "wet" && wetness < 0.3 ? m.wetOnDry : 0;
   const slip = wetness > WB.wetness.atSlickInter ? m.rubberSlip * Math.max(0, rubber) : 0;
   const mismatch = floating + wetOnDry + slip;
-  const chance = 0.006 * (1 + (55 - consistency) * 0.03) * modeEffect(mode).mistake * (1 + mismatch + m.wetFactor * wetness * (1 - wing * 2) + cold * 2);
+  // RF-STF-02: `driver` is the driver's factor (control, and adaptability in the wet: drivers/skills.js mistakeFactorOf).
+  const chance = 0.006 * driver * modeEffect(mode).mistake * (1 + mismatch + m.wetFactor * wetness * (1 - wing * 2) + cold * 2);
   return clamp(chance, 0.001, 0.2);
 };
 
@@ -1014,9 +1085,11 @@ export const incidentChanceOf = ({ hazard, wetness = 0, mode = "normal", sc = fa
  * gets past this lap. `delta` is the difference in underlying pace (s/lap),
  * `drs` the DRS bonus (0 when closed), `energy` the attack and defence bonuses.
  */
-export const passChanceOf = ({ overtaking = 0.55, delta, drs = 0, racecraft = 50, aheadRacecraft = 50, wetness = 0, attack = 0, defend = 0, aheadColdTyre = false, yellow = false }) => {
+export const passChanceOf = ({ overtaking = 0.55, delta, drs = 0, skill = 0, style = 0, wetness = 0, attack = 0, defend = 0, aheadColdTyre = false, yellow = false }) => {
+  // RF-STF-02: `skill` is the drivers' share (drivers/skills.js passSkillTerm: overtaking, defending,
+  // braking, aggression), `style` the defender's style and the attacker's risk order (RF-CMD-01).
   const chance = clamp(
-    0.01 + overtaking * 0.2 + (delta - 0.25) * 0.36 + drs + (racecraft - aheadRacecraft) * 0.004 + (wetness > 0.3 ? 0.06 : 0) + attack - defend + (aheadColdTyre ? 0.12 : 0),
+    0.01 + overtaking * 0.2 + (delta - 0.25) * 0.36 + drs + skill + style + (wetness > 0.3 ? 0.06 : 0) + attack - defend + (aheadColdTyre ? 0.12 : 0),
     0.02,
     0.9,
   );
@@ -1042,6 +1115,8 @@ export const wetnessOn = (state, lap) => state.weather.wetness[Math.min(Math.max
  */
 export const beginLapWorld = (state, lap) => {
   const weather = state.weather;
+  // RF-SIM-13: the rival pit walls' team orders for this lap.
+  aiTeamOrders(state, lap);
   // RF-SIM-11: this lap's water for real - the previous lap's with the cars running now, the
   // safety car and the track temperature (engine/weather updateLapWater; lap 0 is the start).
   if (weather.sectors && lap >= 1 && lap <= state.laps) {
@@ -1129,10 +1204,11 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
   // Dirty air, and in the wet the spray of the car ahead (race-weather.json spray; the step sim applies it by distance).
   const spray = sc || lap <= 1 ? 0 : sprayLossOf(depthOfWetness(wetness), car.gapAhead);
   const wake = dirty * rules.dirtyAir + spray;
-  const volatility = baseLap * 0.0036 * (1 + (55 - car.consistency) * 0.01) * (1 + wetness * 0.6);
+  // RF-STF-02: accuracy sets the lap-to-lap scatter.
+  const volatility = baseLap * 0.0036 * volatilityFactorOf(car) * (1 + wetness * 0.6);
   // What the car would do with no scatter: the speed a following driver can actually use to pass.
   const expected =
-    baseLap - pace * spp + tyre + fuel + mode.time + mix.time + energyTime + thermal + evolution + car.setup + car.damage + car.issue -
+    baseLap - pace * spp + tyre + fuel + mode.time + mix.time + energyTime + thermal + evolution + car.setup + car.damage + car.issue + (car.form || 0) * baseLap -
     wing * wetness * baseLap * 0.012;
   car.expected = expected;
   return { expected, wake, volatility, dirty, cold, wing, wetness, mix, energyTime, spray, rubber: state.evolution || 0 };
@@ -1144,7 +1220,7 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
  * simulator keeps only `scrumShare` of the scrum, because its traffic is real.
  */
 export const startTerm = (car, gridIndex, stream, scrumShare = 1) =>
-  stream.normal(0, 0.55) - ((car.racecraft - 50) / 20) * 0.25 + 1.5 + gridIndex * 0.22 * scrumShare;
+  stream.normal(0, 0.55) - startSkillTime(car) + 1.5 + gridIndex * 0.22 * scrumShare;
 
 /**
  * A mistake this lap (RF-SIM-09): a lock-up, a trip wide, a spin. Sets
@@ -1152,7 +1228,7 @@ export const startTerm = (car, gridIndex, stream, scrumShare = 1) =>
  * caller's (a corner of the circuit); a lock-up flat-spots the tyre (+0.8 laps of wear).
  */
 export const rollMistake = (car, { wetness, wing, cold, rubber = 0 }, stream) => {
-  const mistakeChance = mistakeChanceOf({ consistency: car.consistency, mode: car.mode, compound: car.compound, wetness, wing, cold, rubber });
+  const mistakeChance = mistakeChanceOf({ driver: mistakeFactorOf(car, wetness), mode: car.mode, compound: car.compound, wetness, wing, cold, rubber });
   car.pendingMistake = stream.chance(mistakeChance) ? stream.range(1.2, 5) : 0;
   if (!car.pendingMistake) return null;
   const kind = car.pendingMistake > 3.4 ? "spin" : car.pendingMistake > 2.2 ? "wide" : "lockup";
@@ -1452,7 +1528,8 @@ export const stepLap = (state) => {
   state.cars.forEach((car) => {
     if (lapStart[car.id] === undefined) return;
     if (car.status === "running") {
-      car.history.push({ lap, start: lapStart[car.id], end: car.time, pit: car.pit || null, compound: car.compound });
+      // RF-CMD-01 / RF-SIM-13: the pace mode and fuel mix the lap was driven on (the pit wall's call).
+      car.history.push({ lap, start: lapStart[car.id], end: car.time, pit: car.pit || null, compound: car.compound, mode: car.mode, mix: car.fuelMode });
     } else if (car.retiredLap === lap) {
       const share = car.retireShare ?? 0.5;
       car.history.push({ lap, start: lapStart[car.id], end: lapStart[car.id] + (car.lapTime || baseLap) * share, retired: true, share });
@@ -1671,6 +1748,24 @@ export const redFlagRestart = (state, lap = state.lap) => {
 };
 
 /** RF-SIM-09: the quick mode's chance that a pass ends in a touch (race-reliability.json contact.passContact × the era's calibration). */
+/**
+ * RF-SIM-07 / RF-CMD-01: the defender's style and the attacker's risk order, as the step mode's
+ * duel reads them (race-sim.json defence, risk), so both modes pass alike (SRS 4.2).
+ */
+export const duelStyleTerm = (attacker, defender) =>
+  (simBalance.risk.levels[attacker.overtakeRisk] || simBalance.risk.levels[simBalance.risk.default]).chance +
+  (simBalance.defence.styles[defender.defence] || simBalance.defence.styles[simBalance.defence.default]).chance;
+
+/** RF-SIM-09: the same for the touch: risk, style and the drivers' squeeze (drivers/skills.js contactFactorOf). */
+export const duelContactFactor = (attacker, defender) =>
+  (simBalance.risk.levels[attacker.overtakeRisk] || simBalance.risk.levels[simBalance.risk.default]).incident *
+  (simBalance.defence.styles[defender.defence] || simBalance.defence.styles[simBalance.defence.default]).incident *
+  contactFactorOf(attacker, defender);
+
+/** RF-STF-02: the entrant's race skills with the practice confidence on control (driver-attributes.json effects.confidence). */
+const confidentSkills = (skills, confidence = 0.6) =>
+  skills ? { ...skills, control: (skills.control ?? DRIVER_BALANCE.derivation.scale.centre) + ((confidence ?? 0.6) - 0.6) * DRIVER_BALANCE.effects.confidence.controlPerShare } : undefined;
+
 export const passContactChance = (state, wetness) => REL.contact.passContact * calibrationFor(stateRules(state).year ?? state.year).collision * (1 + wetness);
 
 /**
@@ -2046,13 +2141,13 @@ const resolveTraffic = (state, running, beforeIndex, stream, wetness) => {
     const attack = energyPush(rules, car).attack;
     const defend = energyPush(rules, ahead).defend;
     const passChance = passChanceOf({
-      overtaking: profile.overtaking ?? 0.55, delta, drs: drs ? drsBonus : 0, racecraft: car.racecraft, aheadRacecraft: ahead.racecraft, wetness, attack, defend,
+      overtaking: profile.overtaking ?? 0.55, delta, drs: drs ? drsBonus : 0, skill: passSkillTerm(car, ahead), style: duelStyleTerm(car, ahead), wetness, attack, defend,
       aheadColdTyre: ahead.tyreTemp < 0.38, yellow,
     });
     if (stream.chance(passChance)) {
       const corner = spotOn(state, stream, "pass");
       // Clean pass: positions swap. A small chance it ends in contact (RF-SIM-09, race-reliability.json contact).
-      if (stream.chance(passContactChance(state, wetness))) {
+      if (stream.chance(passContactChance(state, wetness) * duelContactFactor(car, ahead))) {
         const victim = stream.chance(0.5) ? ahead : car;
         const outcome = contactOutcome(stream);
         if (outcome.kind === "retire") retire(state, victim, "collision", { corner });

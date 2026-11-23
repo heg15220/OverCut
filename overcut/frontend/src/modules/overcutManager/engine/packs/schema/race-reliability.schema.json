@@ -72,11 +72,12 @@
     "accident": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "perConsistency", "control", "attritionReference", "wet", "mismatch", "mistakeCrash", "scFactor"],
+      "required": ["$comment", "status", "controlBase", "perControlZ", "control", "attritionReference", "wet", "mismatch", "mistakeCrash", "scFactor"],
       "properties": {
         "$comment": {"type": "string"},
         "status": {"$ref": "#/definitions/status"},
-        "perConsistency": {"$ref": "#/definitions/nonNegative"},
+        "controlBase": {"$ref": "#/definitions/nonNegative"},
+        "perControlZ": {"$ref": "#/definitions/nonNegative"},
         "control": {"$ref": "#/definitions/range"},
         "attritionReference": {"$ref": "#/definitions/positive"},
         "wet": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["from", "factor"], "properties": {"from": {"$ref": "#/definitions/share"}, "factor": {"$ref": "#/definitions/positive"}}}},
@@ -114,7 +115,7 @@
     "turnOne": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "brakeBelowKmh", "metres", "tau", "chain", "launchToTime", "reaction", "racecraftSigma", "carSigma", "wet", "launch"],
+      "required": ["$comment", "status", "brakeBelowKmh", "metres", "tau", "chain", "launchToTime", "reaction", "startsSigma", "carSigma", "wet", "launch"],
       "properties": {
         "$comment": {"type": "string"},
         "status": {"$ref": "#/definitions/status"},
@@ -124,7 +125,7 @@
         "chain": {"$ref": "#/definitions/share"},
         "launchToTime": {"$ref": "#/definitions/nonNegative"},
         "reaction": {"type": "object", "additionalProperties": false, "required": ["status", "mean", "sigma"], "properties": {"$comment": {"type": "string"}, "status": {"$ref": "#/definitions/status"}, "mean": {"$ref": "#/definitions/positive"}, "sigma": {"$ref": "#/definitions/nonNegative"}}},
-        "racecraftSigma": {"$ref": "#/definitions/nonNegative"},
+        "startsSigma": {"$ref": "#/definitions/nonNegative"},
         "carSigma": {"$ref": "#/definitions/nonNegative"},
         "wet": {"$ref": "#/definitions/positive"},
         "launch": {

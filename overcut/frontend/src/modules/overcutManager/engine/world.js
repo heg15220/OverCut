@@ -28,6 +28,7 @@ import { carFromRating, carRatingOf } from "./car";
 import { driverSalary } from "./economy";
 import { shortCode, teamIdentity } from "./identity";
 import { inventPerson } from "./names";
+import { DRIVER_BALANCE, normaliseSkills } from "./drivers/skills";
 
 const EXCLUDED_RACES = new Set(["Indianapolis 500"]);
 const MAX_POOL = 14;
@@ -124,11 +125,14 @@ const realTenure = (bootstrap, teamName, driverName, year) => {
   return until;
 };
 
-export const makeDriver = ({ name, rating, careerRating, age, nat = null, real = true, status = "free", year, teamId = null, until = null, salary = 0, seed, id }) => {
+export const makeDriver = ({ name, rating, careerRating, age, nat = null, real = true, status = "free", year, teamId = null, until = null, salary = 0, seed, id, skills = null }) => {
   const attributes = deriveAttributes({ name, rating, age });
   const stream = substream(seed || "drivers", "talent", name);
-  // The ceiling a driver can still grow towards. Real careers say where it was.
-  const talent = clamp(Math.max((careerRating ?? rating) + 2, rating + 1) + stream.normal(0, 1.2), 45, 98);
+  // The ceiling a driver can still grow towards. Real careers say where it was; RF-STF-02: the
+  // pack's potential (the real career's peak, driver_attributes.py) moves it.
+  const potentialShift = skills && Number.isFinite(skills.potential) ? (skills.potential - DRIVER_BALANCE.derivation.scale.centre) * DRIVER_BALANCE.effects.potential.talentPerPoint : 0;
+  const talent = clamp(Math.max((careerRating ?? rating) + 2, rating + 1) + stream.normal(0, 1.2) + potentialShift, 45, 98);
+  const overall = Math.round(overallOf(attributes) * 10) / 10;
   return {
     id: id || slug(name),
     name,
@@ -136,8 +140,10 @@ export const makeDriver = ({ name, rating, careerRating, age, nat = null, real =
     age,
     real,
     attributes,
+    // RF-STF-02 / RF-STF-03: the twelve, from the pack (f1db) or, for a driver it does not know, from the six.
+    skills: normaliseSkills(skills, { attributes, talent, rating: overall }),
     talent: Math.round(talent * 10) / 10,
-    rating: Math.round(overallOf(attributes) * 10) / 10,
+    rating: overall,
     careerRating: careerRating ?? rating,
     morale: 70,
     status,

@@ -119,6 +119,8 @@ export const packCalendar = ({ pack, reference }) => {
       packCircuitId: event.circuitId,
       layoutId: event.layoutId,
       lengthKm: event.lengthKm,
+      // f1db's circuit type (RACE, ROAD, STREET): the real pass targets are kept by it (driver-attributes.json measured).
+      circuitType: event.circuitType || null,
       sprint: Boolean(event.sprint),
       qualifyingFormat: event.qualifyingFormat,
       // Fixed anchor: who entered this Grand Prix, team by team.
@@ -317,6 +319,7 @@ export const buildPackWorld = ({ pack, bootstrap, reference: rawReference, seed 
   const teamRatings = Object.fromEntries(pack.ratings.teams.map((rating) => [rating.teamId, rating]));
   const driverRatings = Object.fromEntries(pack.ratings.drivers.map((rating) => [`${rating.teamId}::${rating.driverId}`, rating]));
   const packDrivers = Object.fromEntries(pack.drivers.map((driver) => [driver.id, driver]));
+  const skillsOf = Object.fromEntries(pack.ratings.drivers.filter((rating) => rating.skills).map((rating) => [rating.driverId, rating.skills]));
   const position = Object.fromEntries((pack.standings.constructors || []).map((row) => [row.teamId, row.position]));
 
   // Rounds each driver started for each team, and each team's rounds.
@@ -354,6 +357,8 @@ export const buildPackWorld = ({ pack, bootstrap, reference: rawReference, seed 
       until,
       salary: team ? Math.round(driverSalary(rating, prestige, year) * salaryShare) : 0,
       seed,
+      // RF-STF-02 / RF-STF-03: the attributes the pack derived from f1db (driver_attributes.py).
+      skills: skillsOf[driverId] || null,
     });
     drivers[made.id] = made;
     return made;

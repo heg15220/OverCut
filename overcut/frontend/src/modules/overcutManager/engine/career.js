@@ -45,13 +45,14 @@ import {
 import { bodyDamageOf, unitWearOf } from "./incidents";
 import { FEELINGS, SLIDERS, feelingsOf, idealSetup, neutralSetup, practiceRun, satisfactionOf, setupLapTime } from "./setup";
 import anchorBalance from "../data/balance/historical-anchors.json";
+import { raceSkillsOf } from "./drivers/skills";
 
 export const MANAGER_GAME = "overcut-manager";
 /**
  * Save schema version (RNF-06). v2: parts, designs, expertise and units (RF-DEV-01..08, RF-SIM-14);
  * v3: books, sponsors, HQ (RF-FIN, RF-HQ); v4: historical mode (RF-CAR-05). save.js migrates older saves.
  */
-export const MANAGER_VERSION = 4;
+export const MANAGER_VERSION = 5;
 
 /**
  * RF-CAR-05: Histórico estricto or Libre. Strict (the default, data/balance/historical-anchors.json):
@@ -343,6 +344,8 @@ export const entrantsFor = (career) => {
         consistency: driver.attributes.consistency,
         wet: driver.attributes.wet,
         technical: driver.attributes.technical,
+        // RF-STF-02: the twelve attributes' race part (engine/drivers/skills.js).
+        skills: raceSkillsOf(driver),
         ...(unitWear ? { unitWear } : {}),
         ...(bodyDamage ? { bodyDamage } : {}),
         isUser,

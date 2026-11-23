@@ -62,7 +62,8 @@ import {
 import { byYear, raceBalance } from "../rules";
 import { calibrationFor } from "../incidents";
 import { circuitFor } from "../venue";
-import { ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
+import { LANE, LANE_NAMES, ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
+import { cornerNoiseSigmaOf, profileFactorsOf } from "../drivers/skills";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
 import physicsData from "../../data/balance/race-physics.json";
 import { buildTrackTables, dAt, dirtyAt, inCorner, sensAt, tauAtD } from "./trackTables";
@@ -113,6 +114,8 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
       incidents: createStream(`${seed}::step::incidents`),
       // RF-SIM-12 / RNF-05: the crew's own stream (stop stages, release, the limiter).
       crew: createStream(`${seed}::step::crew`),
+      // RF-STF-02 / RNF-05: the per-corner noise of the drivers' accuracy, its own stream.
+      corners: createStream(`${seed}::step::corners`),
     },
     rules,
     // RF-SIM-06: the era's dirty air is the quick mode's (rules.js), the tow is step-only data.
@@ -168,6 +171,14 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     lapFlags: new Uint8Array(n),
     lat: new Float64Array(n),
     latTarget: new Float64Array(n),
+    // WP4: what each car is doing sideways (duel.js LANE), for the view.
+    latState: new Uint8Array(n),
+    // RF-STF-02 (WP8): the driver's time density in braking zones and corners, this lap's noise per
+    // corner (accuracy) and the factor that keeps the lap at its budget (driverLap).
+    drvBrake: new Float64Array(n).fill(1),
+    drvCorner: new Float64Array(n).fill(1),
+    drvNorm: new Float64Array(n).fill(1),
+    cornerNoise: new Float64Array(n * Math.max(1, tables.nCorners)),
     cooldownUntil: new Float64Array(n),
     duelOther: new Int32Array(n).fill(-1),
     duelRole: new Uint8Array(n),
@@ -218,9 +229,12 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     syncYellows(state);
   };
   sim.raceControl = () => raceControl(state);
-  state.cars.forEach((car) => {
+  state.cars.forEach((car, i) => {
     car.defence = car.defence || balance.defence.default;
     car.overtakeRisk = car.overtakeRisk || balance.risk.default;
+    const profile = profileFactorsOf(car);
+    sim.drvBrake[i] = profile.brake;
+    sim.drvCorner[i] = profile.corner;
   });
   return state;
 };
@@ -372,6 +386,49 @@ const devOf = (tables, budget) => {
   return clamp((budget - tables.traceLap) / budget, lo, hi);
 };
 
+/**
+ * RF-STF-02 (WP8, SIM-FISICA §3.3/§3.6): the driver's share of the lap. A good braker spends
+ * less of the lap in the braking zones, a good corner driver less in the corners (drvBrake,
+ * drvCorner), and every corner gets this lap's noise of the driver's accuracy, zero mean over
+ * the corners' time; `drvNorm` rescales so the lap still lasts exactly its budget (SRS 4.2).
+ */
+const driverLap = (state, i) => {
+  const sim = state._sim;
+  const { tables } = sim;
+  const K = tables.nCorners;
+  const base = i * Math.max(1, K);
+  if (K > 0) {
+    const sigma = cornerNoiseSigmaOf(state.cars[i]);
+    let mean = 0;
+    let weight = 0;
+    for (let k = 0; k < K; k += 1) {
+      const e = sim.streams.corners.normal(0, sigma);
+      sim.cornerNoise[base + k] = e;
+      mean += e * tables.cornerTimeK[k];
+      weight += tables.cornerTimeK[k];
+    }
+    mean = weight > 0 ? mean / weight : 0;
+    for (let k = 0; k < K; k += 1) sim.cornerNoise[base + k] = Math.max(-0.5, sim.cornerNoise[base + k] - mean);
+  }
+  const dev = sim.dev[i];
+  let plain = 0;
+  let shaped = 0;
+  for (let j = 0; j < tables.M; j += 1) {
+    const b = (1 - dev + dev * tables.sens[j]) * sim.sectorF[i * 3 + tables.sectorOf[j]];
+    plain += b;
+    shaped += b * driverShape(sim, i, j, base);
+  }
+  sim.drvNorm[i] = shaped > 0 ? plain / shaped : 1;
+};
+
+/** The driver's time-density factor in bin `j` before normalising (driverLap). */
+const driverShape = (sim, i, j, base) => {
+  const { tables } = sim;
+  const c = tables.cls[j];
+  const k = tables.cornerIx[j];
+  return (c === 1 ? sim.drvBrake[i] : c === 2 ? sim.drvCorner[i] : 1) * (k >= 0 ? 1 + sim.cornerNoise[base + k] : 1);
+};
+
 /** Plan car `i`'s lap `lap`, starting at race time `t`. */
 const beginLap = (state, i, lap, t) => {
   const sim = state._sim;
@@ -418,6 +475,7 @@ const beginLap = (state, i, lap, t) => {
   const straight = sim.tables.traceLap ? sim.tables.traceLap / (sim.budget[i] * (1 - sim.dev[i] + sim.dev[i] * sim.straightSens)) : 1;
   drive.powerShare[i] = straight >= 1 ? 1 : straight * straight * straight;
   wetLap(state, i, lap);
+  driverLap(state, i);
   sim.mistakeTau[i] = -1;
   if (car.pendingMistake) {
     const corner = mistakeCorner(state, stream);
@@ -501,7 +559,8 @@ const endLap = (state, i, lap, tc) => {
   car.lastLapRaced = lap;
   const pit = sim.inPit[i] === 1 ? car.pit || null : null;
   if (sim.inPit[i] === 1) sim.inPit[i] = 2;
-  const entry = { lap, start: sim.lapStart[i], end: tc, pit, compound: car.compound };
+  // RF-CMD-01 / RF-SIM-13: the pace mode and fuel mix the lap was driven on, as in the quick mode.
+  const entry = { lap, start: sim.lapStart[i], end: tc, pit, compound: car.compound, mode: car.mode, mix: car.fuelMode };
   // RF-SIM-04 / RF-SIM-05: the lap's fuel as measured and as the ledger burnt it (kg), and the store's lap (MJ).
   const en = sim.en;
   entry.fuel = { kg: Math.round(en.lapFuel[i] * 1000) / 1000, model: Math.round(en.ledgerKg[i] * 1000) / 1000 };
@@ -548,6 +607,11 @@ const endLap = (state, i, lap, tc) => {
     const ahead = state.cars[sim.lastCrossCar[lap]];
     if (ahead) ahead.gapBehind = gap;
   }
+  // RF-SIM-13 / SRS 4.2: the pit wall decides this car's next lap now (rivalCalls), before the car
+  // behind reaches the line; the interval to it is its time gap on the road (measureGaps), as the
+  // quick mode reads the gap at the end of the same lap - not last lap's crossing (one lap stale).
+  const behind = sim.behind[i];
+  car.gapBehind = behind >= 0 && sim.lapDiff[behind] === 0 && sim.active[behind] && sim.gapS[behind] < baseLap * 0.5 ? sim.gapS[behind] : null;
   sim.lastCross[lap] = tc;
   sim.lastCrossCar[lap] = i;
   car.gap = tc - sim.firstCross[lap];
@@ -725,7 +789,7 @@ const advance = (state, i) => {
   const cell = Math.min(tables.M - 1, (frac(sim.tau[i]) * tables.M) | 0);
   // RF-SIM-05: the lap's energy time is spent where the deployment differs (planEnergy), the rest as before.
   const en = sim.en;
-  const base = (1 - dev + dev * tables.sens[cell]) * sim.sectorF[i * 3 + tables.sectorOf[cell]];
+  const base = (1 - dev + dev * tables.sens[cell]) * sim.sectorF[i * 3 + tables.sectorOf[cell]] * driverShape(sim, i, cell, i * Math.max(1, tables.nCorners)) * sim.drvNorm[i];
   let span = (sim.budget[i] - en.eTime[i]) * base;
   if (en.eRate[i] !== 0) {
     const r = sim.ers.plan.rank[cell];
@@ -1455,6 +1519,9 @@ const lateral = (sim) => {
     // WP4 (SIM-FISICA §3.1): a car being lapped moves over to the outside of the next corner.
     const yielding = wide === null && sim.blueDelay[i] > 0 ? -nextTurnSign(sim, sim.tau[i]) * L.halfWidth * sim.balance.blueFlags.yieldShare : null;
     const target = wide !== null ? wide : yielding !== null ? yielding : sim.duelRole[i] === ROLE.NONE ? 0 : sim.latTarget[i];
+    if (wide !== null) sim.latState[i] = LANE.WIDE;
+    else if (yielding !== null) sim.latState[i] = LANE.YIELD;
+    else if (sim.duelRole[i] === ROLE.NONE) sim.latState[i] = LANE.RACING;
     const diff = target - sim.lat[i];
     sim.lat[i] += Math.abs(diff) <= stepMove ? diff : Math.sign(diff) * stepMove;
   }
@@ -1670,6 +1737,8 @@ export const snapshot = (state) => {
     status: car.status,
     position: car.position,
     duel: sim.duelRole[i],
+    // WP4: the lateral state ("racing", "attack-inside", "attack-outside", "defend", "alongside", "yield", "wide").
+    lane: LANE_NAMES[sim.latState[i]],
     // WP8: an error being paid ("lockup" | "wide" | "spin"), for the view.
     incident: sim.incident[i],
     // RF-SIM-01 / RF-SIM-02 (powertrain.js): gear, rpm, throttle, brake, g, pitch, roll, front load share.

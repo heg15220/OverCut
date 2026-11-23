@@ -7,6 +7,7 @@
 import React, { useMemo, useState } from "react";
 import { ATTRIBUTE_KEYS } from "../../overcutTrayectoria/engine/attributes";
 import { PHASES } from "../engine/career";
+import { SKILL_KEYS } from "../engine/drivers/skills";
 import { ROLES, releaseCompensation, releaseOwnDriver, setRole, swapWithReserve, userTeam } from "../engine/market";
 import { driversOf } from "../engine/world";
 import { useManager } from "./context";
@@ -14,6 +15,22 @@ import { Badge, Bar, EmptyState, Flag, Meter, PageHeader, Panel, Rating, Segment
 import { ROLE, money, t } from "./texts";
 import Negotiation from "./Negotiation";
 import "./styles/people.css";
+
+/** RF-STF-02: the twelve attributes derived from f1db (engine/drivers/skills.js), on the era's scale. */
+export const SKILL_LABEL = {
+  cornering: () => t("Paso por curva", "Cornering"),
+  braking: () => t("Frenada", "Braking"),
+  control: () => t("Control", "Control"),
+  smoothness: () => t("Suavidad", "Smoothness"),
+  adaptability: () => t("Adaptabilidad", "Adaptability"),
+  overtaking: () => t("Adelantamiento", "Overtaking"),
+  defending: () => t("Defensa", "Defending"),
+  starts: () => t("Salida", "Starts"),
+  accuracy: () => t("Precisión", "Accuracy"),
+  aggression: () => t("Agresividad", "Aggression"),
+  potential: () => t("Potencial", "Potential"),
+  commercialValue: () => t("Valor comercial", "Commercial value"),
+};
 
 export const ATTRIBUTE_LABEL = {
   pace: () => t("Ritmo", "Pace"),
@@ -72,6 +89,15 @@ export function DriverCard({ driver, stats, children, compact = false, best }) {
           );
         })}
       </div>
+      {driver.skills && !compact && (
+        <div className="mn-pp-attrs mn-pp-skills" aria-label={t("Atributos de carrera", "Race attributes")}>
+          {SKILL_KEYS.map((key) => (
+            <div key={key} className="mn-pp-attr">
+              <Bar label={SKILL_LABEL[key]()} value={driver.skills[key]} min={30} max={99} caption={Math.round(driver.skills[key])} tone="steel" />
+            </div>
+          ))}
+        </div>
+      )}
       <div className="mn-pp-morale">
         <span>{t("Moral", "Morale")}</span>
         <Meter value={morale} label={t("Moral", "Morale")} />

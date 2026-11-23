@@ -14,6 +14,7 @@
  */
 
 import physicsData from "../../data/balance/race-physics.json";
+import driverBalance from "../../data/balance/driver-attributes.json";
 import { distanceAtTimeShare, timeShareAtDistance } from "../trackGeometry";
 
 const cache = new WeakMap();
@@ -144,6 +145,35 @@ export const buildTrackTables = (circuit, { size = 2048, approachMetres = 160 } 
     sectorSens[k] += sens[j] / M;
   }
 
+  // RF-STF-02 (WP8, SIM-FISICA §3.3/§3.6): per time-share bin, what the driver is doing - braking
+  // (the trace slowing by more than driver-attributes.json effects.step.brakeDropShare a bin), in a
+  // corner, or on a straight (`cls` 1, 2, 0) - and which corner it is (`cornerIx`, -1 on a
+  // straight), with each corner's time share, for the drivers' braking/cornering profile and the
+  // per-corner noise of accuracy.
+  const drop = driverBalance.effects.step.brakeDropShare;
+  const cornerList = circuit.corners || [];
+  const cls = new Uint8Array(M);
+  const cornerIx = new Int16Array(M).fill(-1);
+  const cornerTimeK = new Float64Array(Math.max(1, cornerList.length));
+  for (let j = 0; j < M; j += 1) {
+    const d = (dOfTau[j] + dOfTau[j + 1]) / 2;
+    const bin = Math.min(M - 1, Math.floor(d * M));
+    const next = vRef[(j + 1) % M];
+    if (traceLap && next < vRef[j] * (1 - drop)) cls[j] = 1;
+    else if (corner[bin]) cls[j] = 2;
+    if (corner[bin]) {
+      const k = cornerList.findIndex((c) => {
+        const f = frac(c.from);
+        const t = frac(c.to);
+        return f <= t ? d >= f && d <= t : d >= f || d <= t;
+      });
+      if (k >= 0) {
+        cornerIx[j] = k;
+        cornerTimeK[k] += 1 / M;
+      }
+    }
+  }
+
   const pit = circuit.pit || { entry: 0.96, exit: 0.04 };
   const tables = {
     sectorOf,
@@ -165,6 +195,10 @@ export const buildTrackTables = (circuit, { size = 2048, approachMetres = 160 } 
     attacks,
     drsZones,
     apexTau,
+    cls,
+    cornerIx,
+    cornerTimeK,
+    nCorners: cornerList.length,
     pitEntryTau: tauAt(pit.entry),
     pitExitTau: tauAt(pit.exit),
     tauAt,

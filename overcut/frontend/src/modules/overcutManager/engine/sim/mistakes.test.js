@@ -12,9 +12,11 @@ import { weekend } from "./simTestKit";
 import physicsData from "../../data/balance/race-physics.json";
 import balance from "../../data/balance/race-sim.json";
 
-// Twelve races: errors are rare (~5 a race), and with six the ratio of two Poisson counts of
-// ~30 had a standard error (~25 %) close to the band (RF-SIM-11 moved the draws; 12 seeds: 76/62).
-const SEEDS = Array.from({ length: 12 }, (_, k) => `mk${k + 1}`);
+// Twenty-four races: errors are rare (~4 a race), and the ratio of two Poisson counts of ~50 has a
+// standard error (~20 %) close to the band (RF-SIM-11 moved the draws; 12 seeds: 76/62). With the
+// driver attributes (RF-STF-02) the first twelve gave 54/39 (0.72) and seeds 13-36 91/105 (1.15):
+// noise, not the model. 24 seeds: 102/84. The band is unchanged.
+const SEEDS = Array.from({ length: 24 }, (_, k) => `mk${k + 1}`);
 
 /** A step race watched step by step: what each car did while it paid an error. */
 const watch = (seed) => {

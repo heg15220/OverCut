@@ -13,10 +13,14 @@
  *            model). The fair comparison takes, per car and seed, only the laps that
  *            were clean in BOTH modes - the same lap numbers, so the same fuel load and
  *            stint phase - and leaves out the cars that stopped on different laps in the two
- *            modes (a safety car in one mode only) and those whose race carried a lasting incident
+ *            modes (a safety car in one mode only), the laps the rival pit wall drove on a different
+ *            pace mode or fuel mix in each mode (RF-SIM-13: its calls read the gaps, which traffic
+ *            makes differ), and those whose race carried a lasting incident
  *            (damage from a contact, a misfire): a handful of discrete draws per race on
  *            different streams would otherwise decide the spread. Per-car means and
- *            deviations are then averaged over the field.
+ *            deviations are then averaged over the field. Only dry laps count here (a rain
+ *            weekend's drying line, 6-8 s of spread per car, decided the field's average); the
+ *            wet laps are compared on their own below.
  *
  * Also: the step sim's own clean laps, its passes (switchbacks apart) and its contacts
  * against the quick mode's, so traffic stays plausible.
@@ -34,6 +38,8 @@ const WET_SEEDS = Array.from({ length: 8 }, (_, k) => `eq${k + 1}`);
 // whose standard error with 32 races (~2 %) equalled the ±2 % tolerance (SIM-FISICA §7: 0.97,
 // 1.00 and 1.03 on three sets of 32 seeds). The tolerance is unchanged; the sample is larger.
 const FIELD_SEEDS = Array.from({ length: 64 }, (_, k) => `eq${k + 1}`);
+// The field test's laps are dry ones (water on the line below this, engine/weather wetness 0-1).
+const DRY_BELOW = 0.05;
 
 /** Pool clean laps per car over seeds: `{ carId: { quick: [...], step: [...] } }`. */
 const pool = (runs) => {
@@ -50,8 +56,13 @@ const pool = (runs) => {
   return out;
 };
 
-/** The fair pool: per car and seed, the laps clean in both modes, cars without lasting incidents. */
-const poolMatched = (runs) => {
+/**
+ * The fair pool: per car and seed, the laps clean in both modes, cars without lasting incidents.
+ * `dryBelow`: only laps run (and begun) on a line with less water than that - the field test's,
+ * because one rain weekend among 64 (per-car spread 6-8 s on a drying line against ~0.7 s dry)
+ * decided the whole field's average spread; the wet laps have their own test (alone, wet).
+ */
+const poolMatched = (runs, { dryBelow = null } = {}) => {
   const out = {};
   runs.forEach(({ quick, step }) => {
     const q = cleanLapsByLap(quick);
@@ -60,11 +71,18 @@ const poolMatched = (runs) => {
     // Same lap number is only the same stint phase if the car stopped on the same laps: a
     // safety car one mode has and the other not moves the stops by ten laps (a free stop).
     const stops = (state, id) => state.cars.find((car) => car.id === id).history.filter((entry) => entry.pit).map((entry) => entry.lap).join(",");
+    // RF-SIM-13: the rival pit wall picks each lap's pace mode and fuel mix from the gaps around the
+    // car, which traffic makes differ between the modes by design; a lap driven on another mode in
+    // each (save against normal: ~0.5 s) is not the same lap. Only laps on the same call count.
+    const calls = (state, id) => Object.fromEntries(state.cars.find((car) => car.id === id).history.map((entry) => [entry.lap, `${entry.mode}|${entry.mix}`]));
     Object.keys(q).forEach((id) => {
       if (hurt.has(id) || !s[id] || stops(quick, id) !== stops(step, id)) return;
       out[id] = out[id] || { quick: [], step: [] };
+      const callQ = calls(quick, id);
+      const callS = calls(step, id);
       Object.keys(q[id]).forEach((lap) => {
-        if (s[id][lap] === undefined) return;
+        if (s[id][lap] === undefined || callQ[lap] !== callS[lap]) return;
+        if (dryBelow !== null && ((quick.weather.wetness[Number(lap)] ?? 0) >= dryBelow || (quick.weather.wetness[Number(lap) - 1] ?? 0) >= dryBelow)) return;
         out[id].quick.push(q[id][lap]);
         out[id].step.push(s[id][lap]);
       });
@@ -143,7 +161,7 @@ describe("SRS 4.2 statistical equivalence of the step sim (RF-SIM-01) with the q
     });
 
     it("laps clean in both modes keep the quick mode's mean and spread within 2 %", () => {
-      const result = compare(poolMatched(runs), 20);
+      const result = compare(poolMatched(runs, { dryBelow: DRY_BELOW }), 20);
       report("field (matched laps)", result);
       expect(result.cars).toBeGreaterThan(12);
       expect(Math.abs(result.meanRatio - 1)).toBeLessThan(0.02);

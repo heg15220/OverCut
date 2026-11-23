@@ -73,7 +73,26 @@ describe("RF-CMD-01/02: every order changes the race", () => {
     const front = { ...given, grid: [user[0], ...given.grid.filter((id) => id !== user[0])] };
     const fast = play(front, [[200, "setMode", user[0], "attack"]]);
     const slow = play(front, [[200, "setMode", user[0], "conserve"]]);
-    const sum = (state) => lapTimes(state, user[0]).slice(4, 12).reduce((a, b) => a + b, 0);
+    // Eight laps from lap 5 that neither race ran behind (or just after) a safety car or VSC: the
+    // order moves every car's draws, so a crash elsewhere can bring one out in one race only
+    // (135 s laps against 95 s).
+    const neutralised = (state) => {
+      const laps = new Set();
+      let open = null;
+      state.events.forEach((event) => {
+        if ((event.type === "sc" || event.type === "vsc") && open === null) open = event.lap;
+        if (event.type === "sc-in" && open !== null) {
+          for (let lap = open; lap <= event.lap + 1; lap += 1) laps.add(lap);
+          open = null;
+        }
+      });
+      if (open !== null) for (let lap = open; lap <= state.laps; lap += 1) laps.add(lap);
+      return laps;
+    };
+    const skip = new Set([...neutralised(fast), ...neutralised(slow)]);
+    const laps = Array.from({ length: 20 }, (_, k) => k + 5).filter((lap) => !skip.has(lap)).slice(0, 8);
+    expect(laps.length).toBe(8);
+    const sum = (state) => laps.reduce((total, lap) => total + lapTimes(state, user[0])[lap - 1], 0);
     expect(sum(fast)).toBeLessThan(sum(slow));
   });
 

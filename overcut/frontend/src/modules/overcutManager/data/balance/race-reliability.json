@@ -59,9 +59,10 @@
     }
   },
   "accident": {
-    "$comment": "RF-SIM-09. Accidente en solitario (trompo, salida a la barrera) por coche y carrera = measured.incidentsPerCarRace.accident.later × control del piloto × desgaste del circuito × calibration.accident, por vuelta como las averías y × modo de ritmo, agua (wet), neumático equivocado (mismatch) y scFactor. control = 1 + (55 − consistencia) × perConsistency, acotado. attrition = race.profile.attrition / attritionReference. Los errores graves del piloto (race.js rollMistake) también acaban en accidente (mistakeCrash, antes en código): cuentan dentro de calibration.accident. status NV para las formas; el total lo fija measured.",
+    "$comment": "RF-SIM-09. Accidente en solitario (trompo, salida a la barrera) por coche y carrera = measured.incidentsPerCarRace.accident.later × control del piloto × desgaste del circuito × calibration.accident, por vuelta como las averías y × modo de ritmo, agua (wet), neumático equivocado (mismatch) y scFactor. control = controlBase − z(control del piloto) × perControlZ, acotado (RF-STF-02, driver-attributes.json; antes 1 + (55 − consistencia) × 0,013 por punto, y controlBase es la media de ese factor en las parrillas de los 38 packs, así las tasas calibradas contra f1db no se mueven). attrition = race.profile.attrition / attritionReference. Los errores graves del piloto (race.js rollMistake) también acaban en accidente (mistakeCrash, antes en código): cuentan dentro de calibration.accident. status NV para las formas; el total lo fija measured.",
     "status": "NV",
-    "perConsistency": 0.013,
+    "controlBase": 0.813,
+    "perControlZ": 0.13,
     "control": [
       0.5,
       1.8
@@ -117,7 +118,7 @@
     }
   },
   "turnOne": {
-    "$comment": "RF-SIM-09 / RF-SIM-10: la primera curva. Cada coche recorre desde su casilla (race-sim.json grid: poleBackMetres + puesto × gapMetres) hasta la primera frenada del circuito (la primera curva de la traza por debajo de brakeBelowKmh, acotada en metres) acelerando desde parado (launch.accel hasta launch.vmax de la era) y sale con su reacción a los semáforos y su arrancada (sigma de la era; menos retraso con mejor racecraft, racecraftSigma por cada 10 puntos, y mejor coche, carSigma por desviación típica de ritmo). Llegan a la frenada separados en tiempo; cada pareja consecutiva solapa exp(−hueco/tau). P(toque) = calibration.turnOne × solape × riesgo de los dos pilotos (accident.perConsistency) × wet si llueve. Un toque puede arrastrar al de detrás (calibration.eras[].chain de la era × su solape; chain aquí es el valor si la era no trae el suyo). Más recorrido = más velocidad al llegar = coches más juntos en tiempo = más toques: la compresión de la primera curva (idea de Pitwall, reescrita sobre la geometría real). El margen de la arrancada sobre la mediana se suma a la primera vuelta (launchToTime). status NV salvo las fechas de cada procedimiento.",
+    "$comment": "RF-SIM-09 / RF-SIM-10: la primera curva. Cada coche recorre desde su casilla (race-sim.json grid: poleBackMetres + puesto × gapMetres) hasta la primera frenada del circuito (la primera curva de la traza por debajo de brakeBelowKmh, acotada en metres) acelerando desde parado (launch.accel hasta launch.vmax de la era) y sale con su reacción a los semáforos y su arrancada (sigma de la era; menos retraso con mejor salida del piloto, startsSigma por z del atributo salida (RF-STF-02), y mejor coche, carSigma por desviación típica de ritmo). Llegan a la frenada separados en tiempo; cada pareja consecutiva solapa exp(−hueco/tau). P(toque) = calibration.turnOne × solape × riesgo de los dos pilotos (control, accident.perControlZ) × wet si llueve. Un toque puede arrastrar al de detrás (calibration.eras[].chain de la era × su solape; chain aquí es el valor si la era no trae el suyo). Más recorrido = más velocidad al llegar = coches más juntos en tiempo = más toques: la compresión de la primera curva (idea de Pitwall, reescrita sobre la geometría real). El margen de la arrancada sobre la mediana se suma a la primera vuelta (launchToTime). status NV salvo las fechas de cada procedimiento.",
     "status": "NV",
     "brakeBelowKmh": 230,
     "metres": [
@@ -133,7 +134,7 @@
       "mean": 0.2,
       "sigma": 0.04
     },
-    "racecraftSigma": 0.012,
+    "startsSigma": 0.012,
     "carSigma": 0.04,
     "wet": 1.6,
     "launch": [
@@ -185,16 +186,16 @@
     ]
   },
   "calibration": {
-    "$comment": "Escalas por era ajustadas con overcut/frontend/scripts/measureIncidents.js para que la simulación reproduzca measured: mechanical (averías por coche y carrera), accident (accidentes en solitario después de la apertura), collision (toque por adelantamiento logrado en el modo rápido, × contact.passContact), stepCollision (escala de duel.incident del modo de pasos, race-sim.json), turnOne (P de toque de una pareja que solapa del todo en la primera curva) y chain (P de arrastrar al siguiente, ajustada a los abandonos por carrera con abandono en la apertura: measured.openingIncidentRetirementsPerRace / racesWithOpeningIncidentRetirement).",
+    "$comment": "Escalas por era ajustadas con overcut/frontend/scripts/measureIncidents.js para que la simulación reproduzca measured: mechanical (averías por coche y carrera), accident (accidentes en solitario después de la apertura), collision (toque por adelantamiento logrado en el modo rápido, × contact.passContact), stepCollision (escala de duel.incident del modo de pasos, race-sim.json), turnOne (P de toque de una pareja que solapa del todo en la primera curva) y chain (P de arrastrar al siguiente, ajustada a los abandonos por carrera con abandono en la apertura: measured.openingIncidentRetirementsPerRace / racesWithOpeningIncidentRetirement). Reajuste del 23/11 (bloque de pilotos e IA, RF-STF-02): con la forma del domingo y los atributos hay más adelantamientos en las eras antiguas, así que turnOne y collision se dividieron por el cociente sim/real medido (measureIncidents.js, 3 temporadas por pack).",
     "eras": [
       {
         "from": 1950,
         "to": 1979,
         "mechanical": 0.9814,
         "accident": 1.49,
-        "collision": 1.619,
+        "collision": 1.4455,
         "stepCollision": 1.8265,
-        "turnOne": 0.0613,
+        "turnOne": 0.0494,
         "chain": 0.465
       },
       {
@@ -202,9 +203,9 @@
         "to": 1988,
         "mechanical": 1.0835,
         "accident": 1.3509,
-        "collision": 2.3263,
+        "collision": 2.0771,
         "stepCollision": 5.5273,
-        "turnOne": 0.0348,
+        "turnOne": 0.0292,
         "chain": 0.482
       },
       {
@@ -212,9 +213,9 @@
         "to": 1993,
         "mechanical": 1.1027,
         "accident": 1.4595,
-        "collision": 3.6032,
+        "collision": 3.4316,
         "stepCollision": 6.858,
-        "turnOne": 0.0309,
+        "turnOne": 0.0253,
         "chain": 0.377
       },
       {
@@ -222,9 +223,9 @@
         "to": 1999,
         "mechanical": 1.1766,
         "accident": 1.4131,
-        "collision": 4.9355,
+        "collision": 4.7457,
         "stepCollision": 7.8385,
-        "turnOne": 0.0681,
+        "turnOne": 0.0592,
         "chain": 0.453
       },
       {
@@ -232,9 +233,9 @@
         "to": 2005,
         "mechanical": 1.1013,
         "accident": 1.1353,
-        "collision": 3.207,
+        "collision": 2.9694,
         "stepCollision": 3.5718,
-        "turnOne": 0.037,
+        "turnOne": 0.0333,
         "chain": 0.663
       },
       {
@@ -242,9 +243,9 @@
         "to": 2013,
         "mechanical": 1.2161,
         "accident": 0.9881,
-        "collision": 2.5718,
+        "collision": 2.3594,
         "stepCollision": 3.0954,
-        "turnOne": 0.0503,
+        "turnOne": 0.0484,
         "chain": 0.38
       },
       {
@@ -252,9 +253,9 @@
         "to": 2021,
         "mechanical": 1.051,
         "accident": 0.6018,
-        "collision": 1.4687,
+        "collision": 1.6319,
         "stepCollision": 1.7947,
-        "turnOne": 0.0444,
+        "turnOne": 0.0483,
         "chain": 0.373
       },
       {
@@ -262,9 +263,9 @@
         "to": 2100,
         "mechanical": 1.0565,
         "accident": 0.6323,
-        "collision": 1.3115,
+        "collision": 1.3952,
         "stepCollision": 2.0562,
-        "turnOne": 0.0308,
+        "turnOne": 0.0305,
         "chain": 0.314
       }
     ]

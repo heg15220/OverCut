@@ -1,0 +1,528 @@
+{
+  "$comment": "RNF-07 / RF-STF-02 / RF-STF-03: los doce atributos de piloto (paso por curva, frenada, control, suavidad, adaptabilidad, adelantamiento, defensa, salida, precisión, más agresividad, potencial y valor comercial) y lo que hacen en carrera (RF-SIM-07, RF-SIM-09, RF-SIM-13, RF-CMD-01). `derivation` lo lee overcut/src/main/resources/scripts/driver_attributes.py, que los saca de f1db para cada pack (ratings.drivers[].skills); `measured` lo escribe ese script (--write-measured); `effects` lo lee el motor (engine/drivers/skills.js, race.js, incidents.js, sim/duel.js, sim/stepRace.js). V = verificado contra fuente, S = fuente secundaria, NV = inferido (forma del modelo sin cifra publicada). Esquema: engine/packs/schema/driver-attributes.schema.json.",
+  "version": 1,
+  "keys": [
+    "cornering",
+    "braking",
+    "control",
+    "smoothness",
+    "adaptability",
+    "overtaking",
+    "defending",
+    "starts",
+    "accuracy",
+    "aggression",
+    "potential",
+    "commercialValue"
+  ],
+  "derivation": {
+    "$comment": "Cada atributo es un estadístico de f1db relativo a los pilotos de su era (z sobre las temporadas a ±poolYears), encogido hacia la media por su muestra (z·n/(n+k)) y llevado a la escala centre + perSd·z. La elección de cada estadístico y todos estos números de forma son NV: f1db da los resultados, no cómo se reparten entre atributos.",
+    "status": "NV",
+    "seasonWeights": [
+      1,
+      0.5,
+      0.25
+    ],
+    "poolYears": 4,
+    "gapClipPct": 2.5,
+    "newTeamRaces": 4,
+    "defendGridMargin": 3,
+    "scale": {
+      "centre": 60,
+      "perSd": 10,
+      "min": 30,
+      "max": 99
+    },
+    "minSample": {
+      "cornering": 4,
+      "braking": 4,
+      "control": 8,
+      "smoothness": 3,
+      "adaptability": 3,
+      "overtaking": 4,
+      "defending": 3,
+      "starts": 8,
+      "accuracy": 6,
+      "aggression": 8,
+      "potential": 8
+    },
+    "shrink": {
+      "cornering": 6,
+      "braking": 6,
+      "control": 30,
+      "smoothness": 8,
+      "adaptability": 6,
+      "overtaking": 10,
+      "defending": 8,
+      "starts": 40,
+      "accuracy": 8,
+      "aggression": 30,
+      "potential": 6
+    },
+    "aggression": {
+      "collision": 0.6,
+      "overtaking": 0.4
+    },
+    "commercial": {
+      "titles": 6,
+      "wins": 1,
+      "podiums": 0.35,
+      "poles": 0.25,
+      "starts": 0.02
+    },
+    "passEras": [
+      [
+        1976,
+        1979
+      ],
+      [
+        1980,
+        1988
+      ],
+      [
+        1989,
+        1993
+      ],
+      [
+        1994,
+        1999
+      ],
+      [
+        2000,
+        2005
+      ],
+      [
+        2006,
+        2010
+      ],
+      [
+        2011,
+        2016
+      ],
+      [
+        2017,
+        2021
+      ],
+      [
+        2022,
+        2026
+      ]
+    ]
+  },
+  "measured": {
+    "$comment": "Lo escribe driver_attributes.py --write-measured: por era y tipo de circuito de f1db (RACE, ROAD, STREET), parejas de coches clasificados cuyo orden en la bandera es el inverso del de la parrilla (cambios netos de posición) por carrera, y clasificados por carrera. Es la cifra contra la que se calibran los pases (scripts/measurePasses.js), la misma medida en la simulación. f1db no tiene adelantamientos en pista; FastF1 3.9 pide cuenta de F1 para los datos de vuelta.",
+    "source": "f1db v2026.20.0 race_result (grid_position_number, position_number), race.circuit_type",
+    "passes": [
+      {
+        "era": "1976-1979",
+        "circuitType": "RACE",
+        "races": 53,
+        "inversionsPerRace": 19.87,
+        "classifiedPerRace": 13.3,
+        "inversionShare": 0.2282
+      },
+      {
+        "era": "1976-1979",
+        "circuitType": "ROAD",
+        "races": 1,
+        "inversionsPerRace": 23.0,
+        "classifiedPerRace": 15.0,
+        "inversionShare": 0.219
+      },
+      {
+        "era": "1976-1979",
+        "circuitType": "STREET",
+        "races": 10,
+        "inversionsPerRace": 13.1,
+        "classifiedPerRace": 10.9,
+        "inversionShare": 0.2369
+      },
+      {
+        "era": "1980-1988",
+        "circuitType": "RACE",
+        "races": 105,
+        "inversionsPerRace": 16.48,
+        "classifiedPerRace": 12.4,
+        "inversionShare": 0.2202
+      },
+      {
+        "era": "1980-1988",
+        "circuitType": "STREET",
+        "races": 35,
+        "inversionsPerRace": 12.71,
+        "classifiedPerRace": 10.54,
+        "inversionShare": 0.2404
+      },
+      {
+        "era": "1989-1993",
+        "circuitType": "RACE",
+        "races": 62,
+        "inversionsPerRace": 17.87,
+        "classifiedPerRace": 13.53,
+        "inversionShare": 0.203
+      },
+      {
+        "era": "1989-1993",
+        "circuitType": "STREET",
+        "races": 18,
+        "inversionsPerRace": 16.44,
+        "classifiedPerRace": 12.61,
+        "inversionShare": 0.209
+      },
+      {
+        "era": "1994-1999",
+        "circuitType": "RACE",
+        "races": 80,
+        "inversionsPerRace": 12.55,
+        "classifiedPerRace": 12.7,
+        "inversionShare": 0.1612
+      },
+      {
+        "era": "1994-1999",
+        "circuitType": "STREET",
+        "races": 18,
+        "inversionsPerRace": 10.0,
+        "classifiedPerRace": 10.06,
+        "inversionShare": 0.2118
+      },
+      {
+        "era": "2000-2005",
+        "circuitType": "RACE",
+        "races": 86,
+        "inversionsPerRace": 17.51,
+        "classifiedPerRace": 13.74,
+        "inversionShare": 0.1931
+      },
+      {
+        "era": "2000-2005",
+        "circuitType": "STREET",
+        "races": 18,
+        "inversionsPerRace": 14.56,
+        "classifiedPerRace": 11.78,
+        "inversionShare": 0.2189
+      },
+      {
+        "era": "2006-2010",
+        "circuitType": "RACE",
+        "races": 69,
+        "inversionsPerRace": 23.62,
+        "classifiedPerRace": 16.64,
+        "inversionShare": 0.1775
+      },
+      {
+        "era": "2006-2010",
+        "circuitType": "STREET",
+        "races": 20,
+        "inversionsPerRace": 23.45,
+        "classifiedPerRace": 14.8,
+        "inversionShare": 0.2202
+      },
+      {
+        "era": "2011-2016",
+        "circuitType": "RACE",
+        "races": 87,
+        "inversionsPerRace": 29.07,
+        "classifiedPerRace": 18.66,
+        "inversionShare": 0.1734
+      },
+      {
+        "era": "2011-2016",
+        "circuitType": "ROAD",
+        "races": 3,
+        "inversionsPerRace": 34.0,
+        "classifiedPerRace": 17.33,
+        "inversionShare": 0.2378
+      },
+      {
+        "era": "2011-2016",
+        "circuitType": "STREET",
+        "races": 27,
+        "inversionsPerRace": 24.7,
+        "classifiedPerRace": 16.93,
+        "inversionShare": 0.1779
+      },
+      {
+        "era": "2017-2021",
+        "circuitType": "RACE",
+        "races": 78,
+        "inversionsPerRace": 25.17,
+        "classifiedPerRace": 16.69,
+        "inversionShare": 0.1897
+      },
+      {
+        "era": "2017-2021",
+        "circuitType": "ROAD",
+        "races": 5,
+        "inversionsPerRace": 29.8,
+        "classifiedPerRace": 17.0,
+        "inversionShare": 0.2166
+      },
+      {
+        "era": "2017-2021",
+        "circuitType": "STREET",
+        "races": 18,
+        "inversionsPerRace": 21.0,
+        "classifiedPerRace": 16.0,
+        "inversionShare": 0.1718
+      },
+      {
+        "era": "2022-2026",
+        "circuitType": "RACE",
+        "races": 74,
+        "inversionsPerRace": 28.2,
+        "classifiedPerRace": 17.28,
+        "inversionShare": 0.1984
+      },
+      {
+        "era": "2022-2026",
+        "circuitType": "STREET",
+        "races": 38,
+        "inversionsPerRace": 24.84,
+        "classifiedPerRace": 16.58,
+        "inversionShare": 0.1899
+      }
+    ]
+  },
+  "effects": {
+    "$comment": "Qué hace cada atributo en carrera (engine/drivers/skills.js). z(a) = (a − derivation.scale.centre) / derivation.scale.perSd: 0 es el piloto medio de su era, ±1 una desviación típica. Todas son formas del modelo sin cifra publicada (NV); las tasas que resultan se comparan con f1db (form, scripts/measurePasses.js) y con el modo rápido (equivalence.test.js).",
+    "status": "NV",
+    "legacy": {
+      "$comment": "RF-STF-03, respaldo: un piloto sin atributos en el pack (inventado, mercado sin pack, guardado anterior) los saca de sus seis atributos antiguos, cada uno contra la media de los seis (su perfil, no su nivel), × gain. potential: centre + (talento − rating) × potentialPerPoint; commercialValue: centre + (rating − commercialReference) × commercialPerPoint.",
+      "gain": 1.2,
+      "from": {
+        "cornering": {
+          "pace": 0.6,
+          "qualifying": 0.4
+        },
+        "braking": {
+          "pace": 0.7,
+          "racecraft": 0.3
+        },
+        "control": {
+          "consistency": 1
+        },
+        "smoothness": {
+          "consistency": 0.5,
+          "technical": 0.5
+        },
+        "adaptability": {
+          "wet": 0.6,
+          "technical": 0.4
+        },
+        "overtaking": {
+          "racecraft": 1
+        },
+        "defending": {
+          "racecraft": 0.7,
+          "consistency": 0.3
+        },
+        "starts": {
+          "racecraft": 0.8
+        },
+        "accuracy": {
+          "consistency": 0.7,
+          "qualifying": 0.3
+        },
+        "aggression": {
+          "racecraft": 0.6,
+          "consistency": -0.6
+        }
+      },
+      "potentialPerPoint": 2,
+      "commercialReference": 70,
+      "commercialPerPoint": 1
+    },
+    "pass": {
+      "$comment": "RF-SIM-07: suma a la probabilidad de pase (modo rápido race.js passChanceOf y duelo del modo por pasos, la misma). Sustituye a la diferencia de racecraft × 0,004 por punto (≈ 0,04 por z).",
+      "overtaking": 0.03,
+      "defending": 0.03,
+      "braking": 0.01,
+      "aggression": 0.01
+    },
+    "switchback": {
+      "$comment": "Contraataque a la salida (sim/duel.js): sustituye a racecraft × 0,004 por punto.",
+      "overtaking": 0.03,
+      "defending": 0.03
+    },
+    "contact": {
+      "$comment": "RF-SIM-09, el apretón: factor sobre el toque de un pase = 1 + max(0, z agresividad atacante) × aggression + max(0, z agresividad defensor) × defenderAggression − z defensa del defensor × defending, acotado.",
+      "aggression": 0.25,
+      "defenderAggression": 0.15,
+      "defending": 0.05,
+      "range": [
+        0.5,
+        2.2
+      ]
+    },
+    "mistake": {
+      "$comment": "RF-SIM-09: factor sobre la probabilidad de error por vuelta = (base − z control × control) × (con agua > wetFrom: 1 − z adaptabilidad × adaptabilityWet), acotado. Sustituye a 1 + (55 − consistencia) × 0,03 por punto; base = la media de ese factor en las parrillas de los 38 packs (0,573, consistencia media 69,4), así la tasa media de errores no cambia y lo calibrado contra f1db sigue valiendo.",
+      "base": 0.573,
+      "control": 0.3,
+      "adaptabilityWet": 0.2,
+      "wetFrom": 0.3,
+      "range": [
+        0.15,
+        1.6
+      ]
+    },
+    "volatility": {
+      "$comment": "Dispersión vuelta a vuelta × (base − z precisión × accuracy). Sustituye a 1 + (55 − consistencia) × 0,01; base = su media en las parrillas de los packs (0,856).",
+      "base": 0.856,
+      "accuracy": 0.1,
+      "range": [
+        0.55,
+        1.3
+      ]
+    },
+    "wear": {
+      "$comment": "RF-SIM-03: desgaste de neumático × (1 − z suavidad × smoothness).",
+      "smoothness": 0.04,
+      "range": [
+        0.85,
+        1.15
+      ]
+    },
+    "lapOne": {
+      "$comment": "Primera vuelta del modo rápido y presupuesto de la vuelta 1 del de pasos (race.js startTerm): base + z de salida × starts segundos ganados. Sustituye a (racecraft − 50)/20 × 0,25; base = su media en las parrillas (racecraft medio 69,8: 0,25 s).",
+      "base": 0.25,
+      "starts": 0.125
+    },
+    "form": {
+      "$comment": "Forma del domingo: desfase de ritmo por coche y carrera (fracción de la vuelta base, normal de media 0 en su propio flujo, igual en los dos modos), × (1 − z adaptabilidad × adaptability). sigma por era ajustada para que la parte de parejas de clasificados que cambian de orden entre la parrilla y la bandera iguale la de f1db (measured.passes; scripts/measurePasses.js). El valor es ajuste (NV), el objetivo es medido. byCircuitType: factor por tipo de circuito de f1db (en la calle, donde casi no se adelanta, el orden cambia en la realidad tanto como en un circuito: incidentes, coches de seguridad y estrategia que el modelo no reparte por circuito).",
+      "adaptability": 0.15,
+      "range": [
+        0.5,
+        1.5
+      ],
+      "byEra": [
+        {
+          "from": 1950,
+          "to": 1979,
+          "sigma": 0.0085
+        },
+        {
+          "from": 1980,
+          "to": 1988,
+          "sigma": 0.0077
+        },
+        {
+          "from": 1989,
+          "to": 1993,
+          "sigma": 0.0069
+        },
+        {
+          "from": 1994,
+          "to": 1999,
+          "sigma": 0.0034
+        },
+        {
+          "from": 2000,
+          "to": 2005,
+          "sigma": 0.004
+        },
+        {
+          "from": 2006,
+          "to": 2010,
+          "sigma": 0.0036
+        },
+        {
+          "from": 2011,
+          "to": 2016,
+          "sigma": 0.0025
+        },
+        {
+          "from": 2017,
+          "to": 2021,
+          "sigma": 0.0021
+        },
+        {
+          "from": 2022,
+          "to": 2030,
+          "sigma": 0.002
+        }
+      ],
+      "byCircuitType": {
+        "RACE": 1,
+        "ROAD": 1,
+        "STREET": 1.3
+      }
+    },
+    "step": {
+      "$comment": "Solo modo por pasos (WP4, WP8 de SIM-FISICA). trigger: el hueco desde el que ataca × (1 + z agresividad × aggression). cover: probabilidad de que el defensor cierre el interior antes de la frenada (block siempre, holdRacingLine casi nunca; si no base + z defensa × defending + z agresividad × aggression); si lo cierra, el atacante va por fuera, y la probabilidad del intento se reparte entre los dos casos con coveredFactor de forma que su media es la del modo rápido (la geometría decide cuál de los intentos acaba en pase, no cuántos). lateBrake: metros que el atacante frena más tarde (base + Δz frenada × braking + z agresividad × aggression + riesgo alto × risk); con solape ≥ claimOverlap de coche en el giro, la curva se pelea rueda con rueda. cornerNoise: ruido del tiempo de cada curva por vuelta, sigma × (1 − z precisión × accuracy), media cero sobre la vuelta. profile: densidad de tiempo en frenadas × (1 − z frenada × braking) y en curvas × (1 − z curva × cornering), normalizada para que la vuelta dure su presupuesto.",
+      "trigger": {
+        "aggression": 0.15,
+        "range": [
+          0.7,
+          1.4
+        ]
+      },
+      "cover": {
+        "block": 0.75,
+        "holdRacingLine": 0.15,
+        "base": 0.4,
+        "defending": 0.12,
+        "aggression": 0.08,
+        "range": [
+          0.1,
+          0.7
+        ],
+        "coveredFactor": 0.7
+      },
+      "lateBrake": {
+        "base": 2,
+        "braking": 1.5,
+        "aggression": 1,
+        "risk": 2,
+        "claimOverlap": 0.3
+      },
+      "cornerNoise": {
+        "sigma": 0.01,
+        "accuracy": 0.3,
+        "range": [
+          0.3,
+          1.7
+        ]
+      },
+      "profile": {
+        "braking": 0.03,
+        "cornering": 0.015
+      },
+      "brakeDropShare": 0.002
+    },
+    "ai": {
+      "$comment": "RF-SIM-13 / RF-CMD-01, gestión del ritmo de la IA (race.js rivalCalls, los dos modos): tras stuckLaps vueltas (+ z agresividad × stuckAggression) a menos de followGapSec del de delante sin paceEdge s/vuelta de ritmo de más, busca aire limpio con el ritmo cleanAirMode; en un tren de DRS (los dos con DRS) no empuja; defendiendo con más de defendTyreLife de vida gastada cuida las ruedas y defiende en las frenadas. defenceStyle: estilo por defecto según z defensa y agresividad.",
+      "followGapSec": 1.0,
+      "stuckLaps": 3,
+      "stuckAggression": 1,
+      "paceEdge": 0.25,
+      "cleanAirMode": "save",
+      "defendTyreLife": 0.6,
+      "defenceStyle": {
+        "block": {
+          "defending": 1,
+          "aggression": 1,
+          "above": 1.6
+        },
+        "holdRacingLine": {
+          "aggressionBelow": -1.0
+        }
+      }
+    },
+    "teamOrders": {
+      "$comment": "RF-SIM-13, órdenes de equipo de la IA (race.js beginLapWorld, los dos modos), solo donde el reglamento las permite (rules.teamOrdersBanned): pasada fromRaceShare de la carrera, si los dos coches van juntos (menos de windowSec) y el de detrás tiene swapPaceSec s/vuelta de ritmo de más, se cambian (una vez cada cooldownLaps); si un rival de otro equipo va a menos de holdThreatSec del segundo, se mantienen las posiciones (hold) para no perder tiempo peleando.",
+      "windowSec": 1.5,
+      "swapPaceSec": 0.3,
+      "fromRaceShare": 0.3,
+      "holdThreatSec": 1.0,
+      "cooldownLaps": 10
+    },
+    "confidence": {
+      "$comment": "La confianza con el reglaje de los libres (0-1, 0,6 neutra) suma (confianza − 0,6) × controlPerShare puntos al control del domingo (antes a la consistencia, con el mismo número).",
+      "controlPerShare": 15
+    },
+    "potential": {
+      "$comment": "RF-STF-02: el potencial real (derivado del techo de la carrera en f1db) mueve el techo de crecimiento (talent) en (potencial − centre) × talentPerPoint puntos; solo pilotos con atributos del pack.",
+      "talentPerPoint": 0.2
+    }
+  }
+}

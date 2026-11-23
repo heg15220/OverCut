@@ -95,14 +95,14 @@ describe("RF-CAR-05 · historical modes", () => {
     expect(Math.abs(total)).toBeLessThan(1e-6);
   });
 
-  it("RNF-06: a v3 save migrates to v4 with the default mode", () => {
+  it("RNF-06: a v3 save migrates (v4, then v5 with the driver attributes) with the default mode", () => {
     const career = createCareer(context, { year: 2008, teamId: "williams", seed: "v3" });
     const saved = JSON.parse(JSON.stringify(career));
     saved.v = 3;
     delete saved.mode;
     const loaded = validateCareer(saved);
-    expect(MANAGER_VERSION).toBe(4);
-    expect(loaded.v).toBe(4);
+    expect(MANAGER_VERSION).toBe(5);
+    expect(loaded.v).toBe(5);
     expect(loaded.mode).toBe(DEFAULT_MODE);
     // A saved world without anchors is simply not guided.
     delete loaded.world.anchors;

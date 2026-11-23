@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/driver-attributes.json (los doce atributos de piloto: derivación desde f1db, objetivos medidos y efectos en carrera; RF-STF-02, RF-STF-03, RF-SIM-07, RF-SIM-09, RF-SIM-13, RF-CMD-01). Lo comprueba engine/drivers/skills.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$comment", "version", "keys", "derivation", "measured", "effects"],
+  "definitions": {
+    "number": {"type": "number"},
+    "nonNegative": {"type": "number", "minimum": 0},
+    "share": {"type": "number", "minimum": 0, "maximum": 1},
+    "text": {"type": "string", "minLength": 1},
+    "status": {"enum": ["V", "S", "NV"]},
+    "range": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+    "weights": {"type": "object", "additionalProperties": {"type": "number"}}
+  },
+  "properties": {
+    "$comment": {"$ref": "#/definitions/text"},
+    "version": {"type": "integer", "minimum": 1},
+    "keys": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {"enum": ["cornering", "braking", "control", "smoothness", "adaptability", "overtaking", "defending", "starts", "accuracy", "aggression", "potential", "commercialValue"]},
+      "uniqueItems": true
+    },
+    "derivation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "seasonWeights", "poolYears", "gapClipPct", "newTeamRaces", "defendGridMargin", "scale", "minSample", "shrink", "aggression", "commercial", "passEras"],
+      "properties": {
+        "$comment": {"$ref": "#/definitions/text"},
+        "status": {"$ref": "#/definitions/status"},
+        "seasonWeights": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/share"}},
+        "poolYears": {"type": "integer", "minimum": 0},
+        "gapClipPct": {"$ref": "#/definitions/nonNegative"},
+        "newTeamRaces": {"type": "integer", "minimum": 1},
+        "defendGridMargin": {"type": "integer", "minimum": 0},
+        "scale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["centre", "perSd", "min", "max"],
+          "properties": {"centre": {"type": "number"}, "perSd": {"type": "number", "exclusiveMinimum": 0}, "min": {"type": "number"}, "max": {"type": "number"}}
+        },
+        "minSample": {"$ref": "#/definitions/weights"},
+        "shrink": {"$ref": "#/definitions/weights"},
+        "aggression": {"$ref": "#/definitions/weights"},
+        "commercial": {"$ref": "#/definitions/weights"},
+        "passEras": {"type": "array", "minItems": 1, "items": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer", "minimum": 1950, "maximum": 2100}}}
+      }
+    },
+    "measured": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "source", "passes"],
+      "properties": {
+        "$comment": {"$ref": "#/definitions/text"},
+        "source": {"$ref": "#/definitions/text"},
+        "passes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["era", "circuitType", "races", "inversionsPerRace", "classifiedPerRace", "inversionShare"],
+            "properties": {
+              "era": {"type": "string", "pattern": "^\\d{4}-\\d{4}$"},
+              "circuitType": {"enum": ["RACE", "ROAD", "STREET"]},
+              "races": {"type": "integer", "minimum": 1},
+              "inversionsPerRace": {"$ref": "#/definitions/nonNegative"},
+              "classifiedPerRace": {"$ref": "#/definitions/nonNegative"},
+              "inversionShare": {"$ref": "#/definitions/share"}
+            }
+          }
+        }
+      }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "legacy", "pass", "switchback", "contact", "mistake", "volatility", "wear", "lapOne", "form", "step", "ai", "teamOrders", "confidence", "potential"],
+      "properties": {
+        "$comment": {"$ref": "#/definitions/text"},
+        "status": {"$ref": "#/definitions/status"},
+        "legacy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "gain", "from", "potentialPerPoint", "commercialReference", "commercialPerPoint"],
+          "properties": {
+            "$comment": {"$ref": "#/definitions/text"},
+            "gain": {"$ref": "#/definitions/nonNegative"},
+            "from": {"type": "object", "additionalProperties": {"$ref": "#/definitions/weights"}},
+            "potentialPerPoint": {"type": "number"},
+            "commercialReference": {"type": "number"},
+            "commercialPerPoint": {"type": "number"}
+          }
+        },
+        "pass": {"type": "object", "required": ["overtaking", "defending", "braking", "aggression"]},
+        "switchback": {"type": "object", "required": ["overtaking", "defending"]},
+        "contact": {"type": "object", "required": ["aggression", "defenderAggression", "defending", "range"], "properties": {"range": {"$ref": "#/definitions/range"}}},
+        "mistake": {"type": "object", "required": ["base", "control", "adaptabilityWet", "wetFrom", "range"], "properties": {"range": {"$ref": "#/definitions/range"}}},
+        "volatility": {"type": "object", "required": ["base", "accuracy", "range"], "properties": {"range": {"$ref": "#/definitions/range"}}},
+        "wear": {"type": "object", "required": ["smoothness", "range"], "properties": {"range": {"$ref": "#/definitions/range"}}},
+        "lapOne": {"type": "object", "required": ["base", "starts"]},
+        "form": {
+          "type": "object",
+          "required": ["$comment", "adaptability", "range", "byEra", "byCircuitType"],
+          "properties": {
+            "range": {"$ref": "#/definitions/range"},
+            "byEra": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "object", "additionalProperties": false, "required": ["from", "to", "sigma"], "properties": {"from": {"type": "integer"}, "to": {"type": "integer"}, "sigma": {"type": "number", "minimum": 0, "maximum": 0.05}}}
+            },
+            "byCircuitType": {"type": "object", "additionalProperties": {"$ref": "#/definitions/nonNegative"}}
+          }
+        },
+        "step": {"type": "object", "required": ["$comment", "trigger", "cover", "lateBrake", "cornerNoise", "profile", "brakeDropShare"]},
+        "ai": {"type": "object", "required": ["$comment", "followGapSec", "stuckLaps", "stuckAggression", "paceEdge", "cleanAirMode", "defendTyreLife", "defenceStyle"]},
+        "teamOrders": {"type": "object", "required": ["$comment", "windowSec", "swapPaceSec", "fromRaceShare", "holdThreatSec", "cooldownLaps"]},
+        "confidence": {"type": "object", "required": ["controlPerShare"]},
+        "potential": {"type": "object", "required": ["talentPerPoint"]}
+      }
+    }
+  }
+}

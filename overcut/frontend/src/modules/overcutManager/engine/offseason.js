@@ -30,6 +30,7 @@ import { financeNewSeason } from "./finance";
 import { deliverHistoryEvents } from "./history";
 import { addInventedJuniors, buildManagerWorld, fillEmptySeats, prestigeFor, refreshRating, signForTeam, teamsByPace } from "./world";
 import { PHASES, seasonMixOf } from "./career";
+import { pullSkills } from "./drivers/skills";
 
 const realWorldFor = (context, year, seed) => {
   const { bootstrap } = context;
@@ -256,7 +257,11 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
         const driver = drivers[realId];
         if (!driver || userNext.has(realId) || driver.status === "retired" || team.drivers.length >= 2) return;
         const realDriver = real.drivers[realId];
-        if (realDriver && driver !== realDriver) pullTowards(driver, realDriver.rating, HISTORY_PULL);
+        if (realDriver && driver !== realDriver) {
+          pullTowards(driver, realDriver.rating, HISTORY_PULL);
+          // RF-STF-02, SRS 6.5: the twelve attributes drift towards next season's real ones too.
+          pullSkills(driver, realDriver, HISTORY_PULL);
+        }
         seat(driver, team, year, realDriver?.contract?.until ?? year, realDriver?.contract?.role ?? "equal");
       });
     } else {

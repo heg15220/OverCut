@@ -18,6 +18,7 @@ import { DEFAULT_MODE, MANAGER_GAME, MANAGER_VERSION, MODES } from "./career";
 import { ensureDevelopment } from "./development";
 import { ensureFinance } from "./finance";
 import { ensureHq } from "./hq";
+import { ensureSkills } from "./drivers/skills";
 
 const LOCAL_KEY = "overcutManagerSave.v1";
 const CLOUD_KEY = "overcutManagerCloudCode";
@@ -49,6 +50,14 @@ export const MIGRATIONS = {
   // guided anchors is simply not guided until the next season brings them.
   3: (career) => {
     if (career.mode !== MODES.STRICT && career.mode !== MODES.FREE) career.mode = DEFAULT_MODE;
+    return career;
+  },
+  // v4 -> v5 (RF-STF-02 / RF-STF-03, RNF-06): the twelve driver attributes. A save made before them
+  // gives every driver the ones his six legacy attributes describe (engine/drivers/skills.js
+  // skillsFromLegacy); the six stay as they were, so his pace rating does not move. Rivals take
+  // their real (f1db) attributes from the next season's pack.
+  4: (career) => {
+    Object.values(career.world?.drivers || {}).forEach((driver) => ensureSkills(driver));
     return career;
   },
 };

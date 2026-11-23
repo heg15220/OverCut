@@ -26,8 +26,20 @@
  * local yellow (RF-SIM-10), and a contact is looked at by the stewards exactly as in the
  * quick mode (race.js collisionInvestigation, race-control stream).
  *
- * Every number comes from data/balance/race-sim.json (RNF-07); every roll from the duel
- * stream (RF-SIM-15).
+ * The drivers (RF-STF-02, engine/drivers/skills.js, data/balance/driver-attributes.json): the
+ * attacker's overtaking, late braking and aggression against the defender's defending and
+ * braking enter the chance exactly as in the quick mode (passSkillTerm); aggression also
+ * widens the gap the attacker goes from and raises the squeeze (contact) risk. Geometry
+ * (WP4, SIM-FISICA §3.5): before the braking zone the defender may cover the inside, its one
+ * move (a block always, otherwise by defending and aggression); covered, the attacker goes
+ * round the outside, and the chance of the attempt is shared between the two cases so its mean
+ * stays the quick mode's (the geometry decides which attempts end in a pass, not how many).
+ * The attacker brakes later than the defender by its braking and aggression; overlapping by
+ * `claimOverlap` of a car at the turn-in, the two go through the corner side by side
+ * (`alongside`), whoever wins it. The lateral state of each car (`LANE`) is for the view.
+ *
+ * Every number comes from data/balance/race-sim.json and driver-attributes.json (RNF-07);
+ * every roll from the duel stream (RF-SIM-15).
  */
 
 import { clamp } from "../../../overcutTrayectoria/engine/rng";
@@ -35,8 +47,13 @@ import { applyContact, collisionInvestigation, energyPush } from "../race";
 import { contactOutcome } from "../incidents";
 import { drsOpen } from "../rules";
 import { pushEvent, wetnessAt } from "./lapModel";
+import { DRIVER_BALANCE, contactFactorOf, coverChanceOf, lateBrakeMetresOf, passSkillTerm, switchbackSkillTerm, triggerFactorOf } from "../drivers/skills";
 
 export const ROLE = { NONE: 0, PASSING: 1, YIELDING: 2, LOST: 3, HELD: 4 };
+
+/** WP4 (SIM-FISICA §3.1): what each car is doing sideways, for the view (snapshot.lane). */
+export const LANE = { RACING: 0, ATTACK_IN: 1, ATTACK_OUT: 2, DEFEND: 3, ALONGSIDE: 4, YIELD: 5, WIDE: 6 };
+export const LANE_NAMES = ["racing", "attack-inside", "attack-outside", "defend", "alongside", "yield", "wide"];
 
 export const styleOf = (balance, car) => balance.defence.styles[car.defence] || balance.defence.styles[balance.defence.default];
 export const riskOf = (balance, car) => balance.risk.levels[car.overtakeRisk] || balance.risk.levels[balance.risk.default];
@@ -65,7 +82,8 @@ export const duelChance = (state, attacker, defender, zone, { drs = false, lap }
     (state.race.profile.overtaking ?? 0.55) * d.overtaking +
     (delta - d.paceThreshold) * d.pace +
     (drs ? balance.drs.duelBonus : 0) +
-    (attacker.racecraft - defender.racecraft) * d.racecraft +
+    // RF-STF-02: the drivers, as in the quick mode (race.js passChanceOf).
+    passSkillTerm(attacker, defender) +
     (wet ? d.wet : 0) +
     attack -
     defend +
@@ -95,6 +113,8 @@ export const startPass = (state, a, b, sign, extra = {}) => {
   sim.latTarget[a] = sign * lateral.attackMetres;
   sim.latTarget[b] = -sign * lateral.attackMetres * 0.4;
   sim.switchTarget[a] = -1;
+  sim.latState[a] = extra.alongside ? LANE.ALONGSIDE : sign === (extra.inside ?? sign) ? LANE.ATTACK_IN : LANE.ATTACK_OUT;
+  sim.latState[b] = extra.alongside ? LANE.ALONGSIDE : LANE.DEFEND;
   if (extra.event !== false) {
     pushEvent(state, sim.laps[a] + 1, {
       type: extra.type || "pass", carId: state.cars[a].id, otherId: state.cars[b].id, corner: extra.corner ?? null, drs: Boolean(extra.drs),
@@ -112,7 +132,9 @@ export const endDuel = (sim, i) => {
   sim.duelUntil[i] = 0;
   sim.duelOther[i] = -1;
   sim.latTarget[i] = 0;
+  sim.latState[i] = LANE.RACING;
   if (other >= 0 && sim.duelOther[other] === i) {
+    sim.latState[other] = LANE.RACING;
     sim.duelRole[other] = ROLE.NONE;
     sim.duelMult[other] = 0;
     sim.duelUntil[other] = 0;
@@ -156,7 +178,8 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
   const sim = state._sim;
   const { balance } = sim;
   const d = balance.duel;
-  if (ahead < 0 || gapSec > d.triggerSec) return;
+  // RF-STF-02: an aggressive driver goes for it from further back.
+  if (ahead < 0 || gapSec > d.triggerSec * triggerFactorOf(state.cars[i])) return;
   if (sim.cooldownUntil[i] > sim.clock || sim.duelRole[i] !== ROLE.NONE || sim.duelRole[ahead] === ROLE.PASSING || sim.duelRole[ahead] === ROLE.YIELDING) return;
   const zone = sim.tables.attacks[z];
   // RF-SIM-10: no passing under a local yellow at this corner.
@@ -182,9 +205,27 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
   const third = d.maxClaim >= 3 && behind >= 0 && behindGap <= d.triggerSec && sim.duelRole[behind] === ROLE.NONE && sim.cooldownUntil[behind] <= sim.clock ? behind : -1;
   const style = styleOf(balance, defender);
   // RF-SIM-09: the era's calibration of duel touches against f1db (race-reliability.json calibration.stepCollision).
-  const incidentChance = d.incident.base * sim.collisionScale * (1 + wetnessAt(state, lap) * d.incident.wet) * riskOf(balance, attacker).incident * style.incident * (third >= 0 ? d.incident.threeWide : 1);
-  const success = stream.next() < chance;
-  const entry = { t: round(sim.clock), lap, corner: zone.corner, attacker: attacker.id, defender: defender.id, chance: round(chance), drs, claim: third >= 0 ? 3 : 2 };
+  // RF-STF-02: the squeeze - aggressive drivers touch more (drivers/skills.js contactFactorOf, as the quick mode).
+  const incidentChance =
+    d.incident.base * sim.collisionScale * (1 + wetnessAt(state, lap) * d.incident.wet) * riskOf(balance, attacker).incident * style.incident * contactFactorOf(attacker, defender) * (third >= 0 ? d.incident.threeWide : 1);
+  // WP4: the defender's one move - cover the inside or not - and the attacker's line.
+  const geo = DRIVER_BALANCE.effects.step;
+  const cover = coverChanceOf(defender, defender.defence);
+  const covered = stream.next() < cover;
+  const open = cover < 1 ? (1 - cover * geo.cover.coveredFactor) / (1 - cover) : 1;
+  // SRS 4.2: `stepScale` calibrates the step mode's passes per race on the quick mode's (equivalence.test.js).
+  const lineChance = clamp(chance * d.stepScale * (covered ? geo.cover.coveredFactor : open), 0, d.max);
+  const side = covered ? -zone.sign : zone.sign;
+  // §3.3: how much later the attacker brakes; side by side if it reaches the turn-in alongside.
+  const L = balance.lateral.carLength;
+  const late = lateBrakeMetresOf(attacker, defender, attacker.overtakeRisk === "high" ? 1 : 0);
+  const overlap = (late - Math.max(0, sim.gapM[i] - L)) / L;
+  const alongside = overlap >= geo.lateBrake.claimOverlap;
+  const success = stream.next() < lineChance;
+  const entry = {
+    t: round(sim.clock), lap, corner: zone.corner, attacker: attacker.id, defender: defender.id, chance: round(lineChance), drs, claim: third >= 0 ? 3 : 2,
+    line: side === zone.sign ? "inside" : "outside", covered, overlap: round(overlap), alongside,
+  };
 
   if (stream.chance(incidentChance * (success ? 1 : d.incident.onDefended))) {
     contact(state, i, ahead, zone.corner, stream, lap);
@@ -192,7 +233,7 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
     return;
   }
   if (success) {
-    startPass(state, i, ahead, zone.sign, { corner: zone.corner, drs });
+    startPass(state, i, ahead, side, { corner: zone.corner, drs, alongside, inside: zone.sign });
     logDuel(state, { ...entry, outcome: "pass" });
     // The one who lost the corner may come back at its exit.
     sim.switchTarget[ahead] = i;
@@ -207,8 +248,11 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
     sim.duelMult[ahead] = -style.defenderLoss;
     sim.duelUntil[i] = sim.clock + d.passMaxSeconds * 0.5;
     sim.duelUntil[ahead] = sim.clock + d.passMaxSeconds * 0.5;
-    sim.latTarget[i] = zone.sign * balance.lateral.attackMetres;
-    sim.latTarget[ahead] = defender.defence === "block" ? zone.sign * balance.lateral.blockMetres : 0;
+    sim.latTarget[i] = side * balance.lateral.attackMetres;
+    // The defender's single move: to the inside if it covered, else it holds its line (FIA ISC App. L ch. IV 2b).
+    sim.latTarget[ahead] = covered ? zone.sign * balance.lateral.blockMetres : alongside ? -side * balance.lateral.carWidth * 0.5 : 0;
+    sim.latState[i] = alongside ? LANE.ALONGSIDE : side === zone.sign ? LANE.ATTACK_IN : LANE.ATTACK_OUT;
+    sim.latState[ahead] = alongside ? LANE.ALONGSIDE : LANE.DEFEND;
     sim.cooldownUntil[i] = sim.clock + d.cooldownSec;
     sim.switchTarget[i] = ahead;
     sim.switchTau[i] = zone.exitTau;
@@ -246,7 +290,8 @@ export const trySwitchback = (state, i, target, gapMetres) => {
   const me = state.cars[i];
   const them = state.cars[target];
   const delta = (them.expected ?? 0) - (me.expected ?? 0);
-  const chance = clamp(sb.base + delta * sb.pace + (me.racecraft - them.racecraft) * sb.racecraft + riskOf(sim.balance, me).chance, 0, sb.max);
+  // RF-STF-02: overtaking against defending (drivers/skills.js switchbackSkillTerm).
+  const chance = clamp(sb.base + delta * sb.pace + switchbackSkillTerm(me, them) + riskOf(sim.balance, me).chance, 0, sb.max);
   const made = sim.streams.duel.next() < chance;
   logDuel(state, { t: round(sim.clock), lap: sim.laps[i] + 1, corner, attacker: me.id, defender: them.id, chance: round(chance), drs: false, claim: 2, outcome: made ? "switchback" : "switchback-failed" });
   if (made) {

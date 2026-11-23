@@ -42,15 +42,20 @@ import sqlite3
 import statistics
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import driver_attributes  # noqa: E402  RF-STF-02 / RF-STF-03
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", "..", ".."))
 SEASONS_DIR = os.path.join(REPO, "overcut", "frontend", "src", "modules", "overcutManager", "data", "seasons")
 CURATED_DIR = os.path.join(SEASONS_DIR, "curated")
 
 SCHEMA_VERSION = 2
-PACK_VERSION = "2.0.0"
+PACK_VERSION = "2.1.0"
 F1DB_VERSION = "v2026.20.0"
 RATINGS_METHOD = "v1-qualifying-gap"
+# RF-STF-02 / RF-STF-03: the twelve driver attributes (driver_attributes.py, data/balance/driver-attributes.json).
+SKILLS_METHOD = "v1-f1db-attributes"
 
 # reason_retired values (f1db spelling) grouped for reliability.
 ACCIDENT_REASONS = {
@@ -231,7 +236,7 @@ def pit_stops(con, race_id):
     return {"median": int(median) if float(median).is_integer() else median, "cars": len(stops)}
 
 
-def build_pack(con, year, regs_cur, events_cur, assets_cur):
+def build_pack(con, year, regs_cur, events_cur, assets_cur, skills=None):
     if str(year) not in regs_cur:
         fail(f"{year}: no curated regulations in curated/regulations.json")
     cur = regs_cur[str(year)]
@@ -533,6 +538,8 @@ def build_pack(con, year, regs_cur, events_cur, assets_cur):
             "teammateQualifying": {"won": wins, "lost": losses},
             "medianGapToTeammatePct": gap,
             "teammateIndex": round(max(40.0, min(99.0, 75 - 20 * gap)), 1) if gap is not None else None,
+            # RF-STF-02 / RF-STF-03: derived from f1db by driver_attributes.py (null: never started a race).
+            "skills": ((skills or {}).get(year, {}).get(d["id"]) or {}).get("skills"),
         })
 
     # ---------------------------------------------------------------- regulations
@@ -625,7 +632,7 @@ def build_pack(con, year, regs_cur, events_cur, assets_cur):
         "sprintResults": sprint_results,
         "standings": standings,
         "standingsAdjustments": adjustments,
-        "ratings": {"method": RATINGS_METHOD, "teams": team_ratings, "drivers": driver_ratings},
+        "ratings": {"method": RATINGS_METHOD, "skillsMethod": SKILLS_METHOD, "teams": team_ratings, "drivers": driver_ratings},
         "events": events,
     }
 
@@ -645,8 +652,9 @@ def main():
     years = sorted(int(k) for k in regs_cur if k.isdigit()) if args.all else args.years
     if not years:
         parser.error("give --years or --all")
+    skills = driver_attributes.derive(con, years)
     for year in years:
-        pack = build_pack(con, year, regs_cur, events_cur, assets_cur)
+        pack = build_pack(con, year, regs_cur, events_cur, assets_cur, skills)
         path = os.path.join(args.out, f"{year}.json")
         with open(path, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(pack, fh, ensure_ascii=False, indent=1)

@@ -60,9 +60,10 @@
     "lineUpTimeoutLaps": 1.5
   },
   "duel": {
-    "$comment": "RF-SIM-07. Se abre un duelo cuando el atacante llega al punto de ataque (approachMetres antes de una frenada) a menos de triggerSec del de delante. Probabilidad = clamp(base + overtaking×perfil + pace×(Δritmo − paceThreshold) + … , min, max) × peso de la frenada (metros de su recta / metros de todas las rectas con frenada, para que la probabilidad por vuelta sea la del modo rápido). Δritmo en s/vuelta sin ruido, como en el modo rápido. La energía (KERS/ERS/modo de adelantamiento 2026) entra con race.js energyPush, igual que en el modo rápido (race-eras.json energy.*.passBonus/defendBonus). incident.onDefended: un duelo defendido casi nunca acaba en toque (hay unos 20 duelos defendidos por adelantamiento); con 0,005 los toques y abandonos por choque por carrera igualan los del modo rápido (≈1,2 % por adelantamiento, SRS 4.2).",
+    "$comment": "RF-SIM-07. Se abre un duelo cuando el atacante llega al punto de ataque (approachMetres antes de una frenada) a menos de triggerSec del de delante. Probabilidad = clamp(base + overtaking×perfil + pace×(Δritmo − paceThreshold) + … , min, max) × peso de la frenada (metros de su recta / metros de todas las rectas con frenada, para que la probabilidad por vuelta sea la del modo rápido). Δritmo en s/vuelta sin ruido, como en el modo rápido. La energía (KERS/ERS/modo de adelantamiento 2026) entra con race.js energyPush, igual que en el modo rápido (race-eras.json energy.*.passBonus/defendBonus). incident.onDefended: un duelo defendido casi nunca acaba en toque (hay unos 20 duelos defendidos por adelantamiento); con 0,005 los toques y abandonos por choque por carrera igualan los del modo rápido (≈1,2 % por adelantamiento, SRS 4.2). stepScale (RF-STF-02, bloque de pilotos e IA): factor sobre la probabilidad del intento en el modo por pasos, ajustado para que los adelantamientos por carrera queden en el rango del modo rápido (equivalence.test.js; 1,2 da 0,89 en 64 carreras de 2024). Lo pide el seguimiento físico: el ruido por curva de la precisión y la gestión del ritmo de la IA (aire limpio, defensa) dejan al atacante menos veces a tiro en el punto de ataque que en el modo rápido, que no tiene geometría.",
     "approachMetres": 160,
     "triggerSec": 0.5,
+  "stepScale": 1.2,
     "cooldownSec": 5,
     "maxClaim": 3,
     "base": 0.01,

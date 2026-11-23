@@ -319,9 +319,10 @@ describe("task 9: rivals develop through their parts with the old season-long pr
 
 describe("RNF-06 save migration v1 -> v2", () => {
   it("loads a v1 career, gives it parts, expertise and units, and keeps its race pace", () => {
-    expect(MANAGER_VERSION).toBe(4);
+    // v5 (RF-STF-02): the chain runs on through the driver attributes.
+    expect(MANAGER_VERSION).toBe(5);
     const career = validateCareer(JSON.parse(JSON.stringify(fixture.career)));
-    expect(career.v).toBe(4);
+    expect(career.v).toBe(5);
     expect(own(career).parts.items.length).toBeGreaterThan(0);
     expect(own(career).parts.expertise.floor).toBeTruthy();
     expect(career.units.components.map((comp) => comp.id)).toEqual(["engine", "gearbox"]);
