@@ -1,0 +1,196 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/market.json (mercado de pilotos e IA de fichajes; RF-STF-04, RF-STF-06, RF-CAR-03, SRS 6.5). Lo comprueba engine/marketAI.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "real", "openShare", "desirability", "value", "protected", "retention", "signing", "reserves", "roles", "retirement", "asking", "offer"],
+  "definitions": {
+    "share": { "type": "number", "minimum": 0, "maximum": 1 },
+    "nonNegative": { "type": "number", "minimum": 0 },
+    "comment": { "type": "string", "minLength": 1 },
+    "roleRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["first", "equal", "second"],
+      "properties": { "first": { "$ref": "#/definitions/share" }, "equal": { "$ref": "#/definitions/share" }, "second": { "$ref": "#/definitions/share" } }
+    }
+  },
+  "properties": {
+    "$comment": { "$ref": "#/definitions/comment" },
+    "version": { "const": 1 },
+    "real": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "source", "stayRate", "stayByTier", "top3Stay", "beatMateStay", "lostMateStay", "rookieSeatShare", "leftF1Rate", "moversToBetterTeam", "tolerance"],
+      "properties": {
+        "$comment": { "$ref": "#/definitions/comment" },
+        "source": { "type": "string", "minLength": 1 },
+        "stayRate": { "$ref": "#/definitions/share" },
+        "stayByTier": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["top", "mid", "low"],
+          "properties": { "top": { "$ref": "#/definitions/share" }, "mid": { "$ref": "#/definitions/share" }, "low": { "$ref": "#/definitions/share" } }
+        },
+        "top3Stay": { "$ref": "#/definitions/share" },
+        "beatMateStay": { "$ref": "#/definitions/share" },
+        "lostMateStay": { "$ref": "#/definitions/share" },
+        "rookieSeatShare": { "$ref": "#/definitions/share" },
+        "leftF1Rate": { "$ref": "#/definitions/share" },
+        "moversToBetterTeam": { "$ref": "#/definitions/share" },
+        "tolerance": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.2 }
+      }
+    },
+    "openShare": { "$ref": "#/definitions/share" },
+    "desirability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "car", "standing", "budget", "hq"],
+      "properties": {
+        "$comment": { "$ref": "#/definitions/comment" },
+        "car": { "$ref": "#/definitions/share" },
+        "standing": { "$ref": "#/definitions/share" },
+        "budget": { "$ref": "#/definitions/share" },
+        "hq": { "$ref": "#/definitions/share" }
+      }
+    },
+    "value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "incumbentBonus", "potentialWeight", "youthAge", "primeAge", "pickNoise"],
+      "properties": {
+        "$comment": { "$ref": "#/definitions/comment" },
+        "incumbentBonus": { "$ref": "#/definitions/nonNegative" },
+        "potentialWeight": { "$ref": "#/definitions/nonNegative" },
+        "youthAge": { "type": "integer", "minimum": 16, "maximum": 30 },
+        "primeAge": { "type": "integer", "minimum": 17, "maximum": 35 },
+        "pickNoise": { "$ref": "#/definitions/nonNegative" }
+      }
+    },
+    "protected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "topCount", "minDesirability"],
+      "properties": {
+        "$comment": { "$ref": "#/definitions/comment" },
+        "topCount": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "minDesirability": { "$ref": "#/definitions/share" }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "base", "tierSlope", "mateEdge", "min", "max"],
+      "properties": {
+        "$comment": { "$ref": "#/definitions/comment" },
+        "base": { "$ref": "#/definitions/share" },
+        "tierSlope": { "$ref": "#/definitions/nonNegative" },
+        "mateEdge": { "$ref": "#/definitions/share" },
+        "min": { "$ref": "#/definitions/share" },
+        "max": { "$ref": "#/definitions/share" }
+      }
+    },
+    "signing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "inventedPastDataOnly", "acceptSlope", "acceptOffset", "minAge", "strictRealBonus", "contractYears"],
+      "properties": {
+        "$comment": { "$ref": "#/definitions/comment" },
+        "inventedPastDataOnly": { "type": "boolean" },
+        "acceptSlope": { "$ref": "#/definitions/nonNegative" },
+        "acceptOffset": { "type": "number" },
+        "minAge": { "type": "integer", "minimum": 16, "maximum": 21 },
+        "strictRealBonus": { "$ref": "#/definitions/nonNegative" },
+        "contractYears": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["maxAge", "years"],
+            "properties": { "maxAge": { "type": "integer", "minimum": 16 }, "years": { "type": "integer", "minimum": 1, "maximum": 5 } }
+          }
+        }
+      }
+    },
+    "reserves": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "maxAge"],
+      "properties": { "$comment": { "$ref": "#/definitions/comment" }, "maxAge": { "type": "integer", "minimum": 18, "maximum": 45 } }
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "gap"],
+      "properties": { "$comment": { "$ref": "#/definitions/comment" }, "gap": { "$ref": "#/definitions/nonNegative" } }
+    },
+    "retirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "alwaysAge", "fromAge", "chance", "juniorUntil"],
+      "properties": {
+        "$comment": { "$ref": "#/definitions/comment" },
+        "alwaysAge": { "type": "integer", "minimum": 30, "maximum": 60 },
+        "fromAge": { "type": "integer", "minimum": 30, "maximum": 60 },
+        "chance": { "$ref": "#/definitions/share" },
+        "juniorUntil": { "type": "integer", "minimum": 18, "maximum": 30 }
+      }
+    },
+    "asking": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "base", "desirabilityWeight", "availableBonus", "eliteRating", "elitePenalty", "moraleNeutral", "moraleDivisor", "veteranAge", "veteranBonus", "minInterest", "salaryHigh", "salarySlope", "juniorShare", "firstGap", "secondGap", "patienceBase", "patienceSpan"],
+      "properties": {
+        "$comment": { "$ref": "#/definitions/comment" },
+        "base": { "$ref": "#/definitions/share" },
+        "desirabilityWeight": { "$ref": "#/definitions/share" },
+        "availableBonus": { "$ref": "#/definitions/share" },
+        "eliteRating": { "type": "number", "minimum": 50, "maximum": 100 },
+        "elitePenalty": { "$ref": "#/definitions/share" },
+        "moraleNeutral": { "type": "number", "minimum": 0, "maximum": 100 },
+        "moraleDivisor": { "type": "number", "exclusiveMinimum": 0 },
+        "veteranAge": { "type": "integer", "minimum": 30, "maximum": 50 },
+        "veteranBonus": { "$ref": "#/definitions/share" },
+        "minInterest": { "$ref": "#/definitions/share" },
+        "salaryHigh": { "type": "number", "exclusiveMinimum": 0 },
+        "salarySlope": { "$ref": "#/definitions/nonNegative" },
+        "juniorShare": { "$ref": "#/definitions/share" },
+        "firstGap": { "$ref": "#/definitions/nonNegative" },
+        "secondGap": { "$ref": "#/definitions/nonNegative" },
+        "patienceBase": { "type": "integer", "minimum": 1 },
+        "patienceSpan": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "offer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "roleScore", "counterBase", "counterSlope", "moneyCap", "moneyWeight", "roleWeight", "yearsWeight", "interestWeight", "offset", "yearPenalty", "accept", "reject", "buyoutShare"],
+      "properties": {
+        "$comment": { "$ref": "#/definitions/comment" },
+        "roleScore": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["first", "equal", "second"],
+          "properties": {
+            "first": { "$ref": "#/definitions/roleRow" },
+            "equal": { "$ref": "#/definitions/roleRow" },
+            "second": { "$ref": "#/definitions/roleRow" }
+          }
+        },
+        "counterBase": { "type": "number", "exclusiveMinimum": 0 },
+        "counterSlope": { "$ref": "#/definitions/nonNegative" },
+        "moneyCap": { "type": "number", "minimum": 1 },
+        "moneyWeight": { "$ref": "#/definitions/share" },
+        "roleWeight": { "$ref": "#/definitions/share" },
+        "yearsWeight": { "$ref": "#/definitions/share" },
+        "interestWeight": { "$ref": "#/definitions/share" },
+        "offset": { "type": "number" },
+        "yearPenalty": { "$ref": "#/definitions/share" },
+        "accept": { "$ref": "#/definitions/share" },
+        "reject": { "$ref": "#/definitions/share" },
+        "buyoutShare": { "$ref": "#/definitions/nonNegative" }
+      }
+    }
+  }
+}

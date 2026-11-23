@@ -13,7 +13,10 @@
  *                  2009. Past the last real season, the world runs on its own.
  *
  * A real driver who really retired, retires - unless he is under contract to
- * you, in which case he races on in your car.
+ * you, in which case he races on in your car (strict mode, RF-STF-06). The
+ * rivals' seats are filled by the market AI (marketAI.js, SRS 6.5): history's
+ * line-ups in strict mode, an open market of retention and a desirability draft
+ * in free mode; pre-contracts announced during the season are honoured.
  */
 
 import { clamp, substream } from "../../overcutTrayectoria/engine/rng";
@@ -28,7 +31,8 @@ import { developmentNewSeason, pendingNextGains, regulationCutCar } from "./deve
 import { worldForSeason } from "./packs/packWorld";
 import { financeNewSeason } from "./finance";
 import { deliverHistoryEvents } from "./history";
-import { addInventedJuniors, buildManagerWorld, fillEmptySeats, prestigeFor, refreshRating, signForTeam, teamsByPace } from "./world";
+import { addInventedJuniors, buildManagerWorld, fillEmptySeats, prestigeFor, refreshRating, teamsByPace } from "./world";
+import { MARKET, beatsMateOf, desirabilityOf, fillRivalSeats, marketOpen, openAiMarket, protectedDrivers } from "./marketAI";
 import { PHASES, seasonMixOf } from "./career";
 
 const realWorldFor = (context, year, seed) => {
@@ -37,6 +41,20 @@ const realWorldFor = (context, year, seed) => {
   if (context.packs?.[year]) return worldForSeason({ bootstrap, reference: context.reference, year, seed, packs: context.packs });
   if (year > bootstrap.lastDataYear || !(bootstrap.lineupsByYear[String(year)] || []).length) return null;
   return buildManagerWorld({ bootstrap, reference: context.reference, year, seed });
+};
+
+/**
+ * RF-STF-04, SRS 6.5: once the market is open (market.json openShare of the season),
+ * the rivals draw up next year's line-ups and announce renewals and pre-contracts
+ * (marketAI.js openAiMarket). Strict mode follows next year's real world when the
+ * game has it (its pack is loaded with the current one). Idempotent; returns the
+ * plan, or null before the market opens or for a spectator.
+ */
+export const openSeasonMarket = (context, career, { force = false } = {}) => {
+  if (career.spectator || (!force && !marketOpen(career))) return null;
+  if (career.market.ai?.year === career.year + 1) return career.market.ai;
+  const nextReal = realWorldFor(context, career.year + 1, career.seed);
+  return openAiMarket(career, { nextReal, profiles: context.bootstrap.driverProfiles || {} });
 };
 
 /** A season score for growth: how a driver did against the car and the team-mate. */
@@ -98,6 +116,15 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
   // historical mode (RF-CAR-05; data/balance/historical-anchors.json seasonMix: 0.6 strict, 0.2 free).
   const HISTORY_PULL = seasonMixOf(career);
   const scores = seasonScores(career);
+  const strict = career.mode !== "free";
+  // SRS 6.5: what the market AI needs from the season that ends, before anyone ages or moves.
+  const beats = beatsMateOf(career);
+  const protectedIds = protectedDrivers(previous);
+  const before = {
+    teams: previous.teams,
+    drivers: Object.fromEntries(Object.values(previous.drivers).map((driver) => [driver.id, { teamId: driver.teamId, status: driver.status, contract: driver.contract ? { ...driver.contract } : null }])),
+  };
+  const precontracts = career.market.precontracts || {};
   ageAndGrow(career, scores);
   // RF-DEV-03/04/06: what the parts layer needs from the year that ends.
   const previousTeamId = career.teamId;
@@ -238,59 +265,59 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
     }
   });
 
-  // Real retirements: history said they stopped - unless history also gives them a seat.
+  // Real retirements (strict mode, RF-STF-06): history said they stopped - unless history also gives them a seat.
   const realSeated = new Set(real ? Object.values(real.teams).flatMap((team) => team.drivers) : []);
   Object.values(drivers).forEach((driver) => {
-    if (userNext.has(driver.id) || !driver.real || realSeated.has(driver.id)) return;
+    if (!strict || userNext.has(driver.id) || !driver.real || realSeated.has(driver.id)) return;
     const profile = context.bootstrap.driverProfiles[driver.name];
     if (profile && profile.lastYear < year && profile.firstYear < year && (real || driver.age >= 38)) driver.status = "retired";
   });
 
-  // Rivals: history's line-up where there is one, otherwise their own market.
-  const poached = career.market.poached || {};
-  Object.values(teams).forEach((team) => {
-    if (team.id === userId) return;
-    const realTeam = real?.teams[team.id];
-    if (realTeam && !team.custom) {
-      realTeam.drivers.forEach((realId) => {
-        const driver = drivers[realId];
-        if (!driver || userNext.has(realId) || driver.status === "retired" || team.drivers.length >= 2) return;
-        const realDriver = real.drivers[realId];
-        if (realDriver && driver !== realDriver) pullTowards(driver, realDriver.rating, HISTORY_PULL);
-        seat(driver, team, year, realDriver?.contract?.until ?? year, realDriver?.contract?.role ?? "equal");
-      });
-    } else {
-      const previousTeam = previous.teams[team.id];
-      (previousTeam?.drivers || []).forEach((id) => {
-        const driver = drivers[id];
-        if (!driver || userNext.has(id) || driver.status === "retired" || team.drivers.length >= 2) return;
-        const stays = driver.age < 37 && (stream.chance(0.72) || driver.rating >= 80);
-        if (stays) seat(driver, team, year, year + stream.int(0, 1), "equal");
-      });
-    }
-  });
-  Object.entries(poached).forEach(([driverId, teamId]) => {
-    const driver = drivers[driverId];
-    const team = teams[teamId];
-    if (!driver || !team || userNext.has(driverId) || driver.status === "grid") return;
-    if (team.drivers.length >= 2) {
-      const weakest = team.drivers.map((id) => drivers[id]).sort((a, b) => a.rating - b.rating)[0];
-      weakest.status = "free";
-      weakest.teamId = null;
-      weakest.contract = null;
-      team.drivers = team.drivers.filter((id) => id !== weakest.id);
-    }
-    seat(driver, team, year, year + 1, "equal");
-  });
-
-  // Ageing out of the sport.
-  Object.values(drivers).forEach((driver) => {
-    if (driver.status !== "free") return;
-    if (driver.age >= 41 || (driver.age >= 36 && stream.chance(0.45))) driver.status = "retired";
-  });
   // Juniors who are old enough join the free market.
   Object.values(drivers).forEach((driver) => {
-    if (driver.status === "junior" && driver.age >= 24) driver.status = "free";
+    if (driver.status === "junior" && driver.age >= MARKET.retirement.juniorUntil) driver.status = "free";
+  });
+
+  // Rivals (SRS 6.5, RF-STF-04/06): pre-contracts and sales first, then history's line-up (strict) or
+  // retention and the desirability draft (free); a seat is never left empty.
+  const fixed = {};
+  Object.entries(precontracts).forEach(([driverId, deal]) => {
+    fixed[driverId] = { teamId: deal.teamId, until: deal.until };
+  });
+  Object.entries(career.market.poached || {}).forEach(([driverId, teamId]) => {
+    fixed[driverId] = { teamId, until: year + 1 };
+  });
+  const positions = (career.season?.results || []).length ? Object.fromEntries(lastStandings.map((row) => [row.teamId, row.position])) : null;
+  const seated = fillRivalSeats({
+    world: { year, teams, drivers },
+    previous: before,
+    userId,
+    locked: userNext,
+    fixed,
+    real,
+    strict,
+    desirability: desirabilityOf({ teams }, { positions, year }),
+    beats,
+    protectedIds,
+    profiles: context.bootstrap.driverProfiles || {},
+    stream: substream(career.seed, "market-ai", year),
+  });
+  // Strict mode: a rival's real driver is pulled towards the rating history gives him (SRS 6.5's k).
+  if (real && strict) {
+    Object.values(teams).forEach((team) => {
+      if (team.id === userId || team.custom || !real.teams[team.id]) return;
+      team.drivers.forEach((id) => {
+        const realDriver = real.drivers[id];
+        if (realDriver && drivers[id] !== realDriver && real.teams[team.id].drivers.includes(id)) pullTowards(drivers[id], realDriver.rating, HISTORY_PULL);
+      });
+    });
+  }
+
+  // Ageing out of the sport (market.json retirement).
+  const retire = MARKET.retirement;
+  Object.values(drivers).forEach((driver) => {
+    if (driver.status !== "free") return;
+    if (driver.age >= retire.alwaysAge || (driver.age >= retire.fromAge && stream.chance(retire.chance))) driver.status = "retired";
   });
 
   // ------------------------------------------------------- calendar
@@ -323,7 +350,7 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
   career.weekend = null;
   career.phase = PHASES.PRESEASON;
   career.review = null;
-  career.market = { talks: {}, signed: {}, leaving: [], shortlist: career.market.shortlist.filter((id) => world.drivers[id]), poached: {}, staffRefresh: 0 };
+  career.market = { talks: {}, signed: {}, leaving: [], shortlist: career.market.shortlist.filter((id) => world.drivers[id]), poached: {}, precontracts: {}, ai: null, lastMoves: seated.moves, staffRefresh: 0 };
   career.rd = {
     projects: career.rd.projects.filter((project) => project.target === "now").map((project) => ({ ...project, roundsLeft: Math.max(1, project.roundsLeft) })),
     done: career.rd.done,
@@ -370,10 +397,6 @@ export const startNextSeason = (context, career, { teamId = career.teamId } = {}
   // RF-FIN-01..05, RF-HQ-01: new books, finished deals dropped, new offers, HQ into the new season.
   financeNewSeason(career);
   return career;
-};
-
-const seat = (driver, team, year, until, role) => {
-  signForTeam({ teams: { [team.id]: team } }, driver, team, { year, until: Math.max(year, until), salary: driverSalary(driver.rating, team.prestige, year), role });
 };
 
 /** What a rival's winter is worth: money buys a better next car, mostly. */

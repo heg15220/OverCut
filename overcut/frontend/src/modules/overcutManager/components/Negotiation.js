@@ -63,8 +63,10 @@ export default function Negotiation({ driverId, onClose }) {
     rejected: t("Muy lejos de lo que pide.", "Far from what he wants."),
     walked: t("Se ha cansado de negociar contigo.", "He has had enough of talking to you."),
     "not-interested": t("No le interesa tu equipo.", "He is not interested in your team."),
+    protected: t("Es de los mejores de la parrilla: su equipo no lo vende y tu proyecto no le basta.", "One of the best on the grid: his team will not sell and your project is not enough for him."),
+    precontract: t("Ya ha firmado con otro equipo para el año que viene.", "He has already signed elsewhere for next year."),
   };
-  const tone = { accepted: "pos", counter: "warn", rejected: "neg", walked: "neg", "not-interested": "neg" };
+  const tone = { accepted: "pos", counter: "warn", rejected: "neg", walked: "neg", "not-interested": "neg", protected: "neg", precontract: "neg" };
   const where = driver.teamId && !own ? career.world.teams[driver.teamId]?.name : status === "junior" ? t("Promesa", "Prospect") : own ? userTeam(career).name : t("Libre", "Free agent");
 
   return (

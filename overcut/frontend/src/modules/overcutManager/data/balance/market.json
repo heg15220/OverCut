@@ -1,0 +1,110 @@
+{
+  "$comment": "RNF-07: balance del mercado de pilotos y de la IA de fichajes (RF-STF-01, RF-STF-04, RF-STF-05, RF-STF-06, RF-CAR-03, SRS 6.5). Lo usan engine/market.js (lo que pide un piloto al jugador) y engine/marketAI.js (renovaciones, precontratos y asientos de los rivales). Esquema: engine/packs/schema/market.schema.json (comprobado en engine/marketAI.test.js). Las cifras de 'real' se midieron en f1db v2026.20.0 (tools/assets/.cache/f1db/f1db.db) con los dos pilotos con más salidas de cada constructor y temporada, 1976-2025 (1.180 pilotos-temporada); el resto se calibra contra ellas en marketAI.test.js. 'NV' = no verificado contra una fuente: valor inferido o heredado del código anterior.",
+  "version": 1,
+  "real": {
+    "$comment": "Lo que de verdad pasó entre una temporada y la siguiente, 1976-2025 (f1db: race_result, season_constructor_standing, constructor_chronology para los cambios de nombre). stayRate = sigue en el mismo constructor (o su sucesor); byTier = según el tercio de la clasificación de constructores del año; top3Stay = los tres primeros del Mundial de pilotos; beatMate/lostMate = quedó por delante / por detrás de su compañero en el Mundial; rookieSeatShare = asientos titulares del año siguiente ocupados por debutantes; leftF1Rate = sin ninguna salida el año siguiente; moversToBetterTeam = de los que cambian de equipo, cuántos van a uno mejor clasificado ese año.",
+    "source": "f1db v2026.20.0, 1976-2025",
+    "stayRate": 0.511,
+    "stayByTier": { "top": 0.707, "mid": 0.516, "low": 0.417 },
+    "top3Stay": 0.803,
+    "beatMateStay": 0.626,
+    "lostMateStay": 0.507,
+    "rookieSeatShare": 0.127,
+    "leftF1Rate": 0.203,
+    "moversToBetterTeam": 0.589,
+    "tolerance": 0.05
+  },
+  "openShare": 0.55,
+  "desirability": {
+    "$comment": "Lo atractivo que es un equipo para un piloto, 0..1: media ponderada de su coche (puesto por rating entre los equipos), su clasificación de constructores (la simulada si ya hay resultados; si no, el puesto del coche), su presupuesto (patrocinio + premios, economy.js, frente al más rico) y su fábrica (team.facility 1..5). Pesos NV: la suma es 1 y el coche pesa más porque el reparto real de quién se queda por tercio de la clasificación (real.stayByTier) es lo que reproduce la retención.",
+    "car": 0.4,
+    "standing": 0.25,
+    "budget": 0.2,
+    "hq": 0.15
+  },
+  "value": {
+    "$comment": "Valor de un piloto para un equipo = rating + potentialWeight × (techo − rating) × juventud, con juventud = 1 hasta youthAge y 0 a partir de primeAge. potentialWeight se calibra para que la cuota de debutantes del modelo libre quede cerca de real.rookieSeatShare. pickNoise: desviación (puntos de rating) del ojeo de cada equipo al elegir, sembrada (RF-SIM-15). incumbentBonus: puntos extra en el draft para quien fue titular esta temporada (experiencia), calibrado para que la cuota de pilotos que se quedan sin asiento quede cerca de real.leftF1Rate.",
+    "incumbentBonus": 5,
+    "potentialWeight": 1.5,
+    "youthAge": 22,
+    "primeAge": 27,
+    "pickNoise": 2.5
+  },
+  "protected": {
+    "$comment": "Pilotos protegidos (RF-STF-04): los topCount mejores por rating de la parrilla. Su equipo siempre les ofrece renovar y no vende su contrato al jugador; se quedan con probabilidad real.top3Stay (0,803) si el contrato acaba; solo negocian con equipos de deseabilidad >= minDesirability (NV) y exigen ser n.º 1.",
+    "topCount": 3,
+    "minDesirability": 0.45
+  },
+  "retention": {
+    "$comment": "Modo libre, piloto rival al que se le acaba el contrato: se queda con probabilidad base + tierSlope × (deseabilidad − 0,5) + mateEdge si batió a su compañero (− mateEdge si no), recortada a [min, max]. Con contrato en vigor siempre se queda (los contratos se respetan). base, tierSlope y mateEdge se calibran en marketAI.test.js contra real.stayByTier, real.beatMateStay y real.lostMateStay (contando también a los que tienen contrato).",
+    "base": 0.54,
+    "tierSlope": 0.3,
+    "mateEdge": 0.07,
+    "min": 0.05,
+    "max": 0.95
+  },
+  "signing": {
+    "$comment": "Un asiento libre: los equipos eligen por turnos, del más deseable al menos (un asiento por turno). Cada piloto acepta un equipo si su deseabilidad >= acceptSlope × (cuantil del piloto entre los candidatos) − acceptOffset (NV). Sin candidato que acepte, el equipo ficha al mejor disponible; sin nadie disponible, se inventa un piloto (nunca queda un asiento vacío). minAge: edad mínima de un titular (el más joven de f1db debutó con 17 años). En modo estricto, quien estuvo de verdad en la parrilla del año siguiente pasa delante con strictRealBonus puntos (SRS 6.5: 'el siguiente candidato real del mercado'). contractYears: duración de un contrato nuevo por edad (NV, como pedía askingTerms). inventedPastDataOnly: mientras haya temporada real siguiente, un piloto inventado solo entra si no queda ningún piloto real disponible (coherencia SRS 6.2; sin esto, el 61 % de los debutantes del modo libre eran inventados).",
+    "inventedPastDataOnly": true,
+    "acceptSlope": 0.7,
+    "acceptOffset": 0.15,
+    "minAge": 18,
+    "strictRealBonus": 25,
+    "contractYears": [{ "maxAge": 24, "years": 3 }, { "maxAge": 31, "years": 2 }, { "maxAge": 99, "years": 1 }]
+  },
+  "reserves": {
+    "$comment": "Cada rival elige un reserva entre los que quedan libres después de cubrir los titulares, con edad <= maxAge (NV). En modo estricto, el reserva real del año.",
+    "maxAge": 30
+  },
+  "roles": {
+    "$comment": "Papel en el equipo (RF-STF-04): n.º 1 / n.º 2 si los ratings se separan al menos gap puntos (el mismo criterio que packWorld.js usa para la temporada inicial); si no, iguales.",
+    "gap": 4
+  },
+  "retirement": {
+    "$comment": "Modo libre (en estricto se retiran en su año real, RF-STF-06): un piloto sin asiento se retira siempre a partir de alwaysAge y con probabilidad chance desde fromAge (NV, heredado de offseason.js). Las promesas pasan a libres a juniorUntil años.",
+    "alwaysAge": 41,
+    "fromAge": 36,
+    "chance": 0.45,
+    "juniorUntil": 24
+  },
+  "asking": {
+    "$comment": "Lo que pide un piloto al jugador (RF-STF-04, engine/market.js askingTerms). interés = base + desirabilityWeight × deseabilidad del equipo del jugador + availableBonus (libre, promesa o reserva) − elitePenalty × (1 − deseabilidad) si su rating >= eliteRating + (moral − moraleNeutral)/moraleDivisor si ya es tuyo + veteranBonus desde veteranAge, en [0, 1]; habla si interés >= minInterest. Salario = driverSalary × (salaryHigh − salarySlope × interés), × juniorShare si es promesa. Paciencia = patienceBase + round(interés × patienceSpan) rondas. Valores NV heredados de market.js (desirabilityWeight sustituye a 0,36 × coche + 0,24 × prestigio).",
+    "base": 0.32,
+    "desirabilityWeight": 0.6,
+    "availableBonus": 0.22,
+    "eliteRating": 84,
+    "elitePenalty": 0.2,
+    "moraleNeutral": 55,
+    "moraleDivisor": 180,
+    "veteranAge": 36,
+    "veteranBonus": 0.08,
+    "minInterest": 0.22,
+    "salaryHigh": 1.2,
+    "salarySlope": 0.35,
+    "juniorShare": 0.55,
+    "firstGap": 3,
+    "secondGap": 6,
+    "patienceBase": 2,
+    "patienceSpan": 2
+  },
+  "offer": {
+    "$comment": "Una ronda de negociación (makeOffer): nota = money × moneyWeight + papel × roleWeight + años × yearsWeight + interés × interestWeight − offset; acepta desde accept, rompe por debajo de reject o al agotar la paciencia. money = oferta / lo que pide, como mucho moneyCap. roleScore[pedido][ofrecido]: cuánto cumple el papel ofrecido. Contraoferta: salario = lo que pide × (counterBase + (accept − nota) × counterSlope). buyoutShare: cláusula = salario × años que le quedan × buyoutShare. Valores NV heredados de market.js.",
+    "roleScore": {
+      "first": { "first": 1, "equal": 0.62, "second": 0.3 },
+      "equal": { "first": 1, "equal": 1, "second": 0.55 },
+      "second": { "first": 1, "equal": 1, "second": 1 }
+    },
+    "counterBase": 0.96,
+    "counterSlope": 0.25,
+    "moneyCap": 1.35,
+    "moneyWeight": 0.55,
+    "roleWeight": 0.2,
+    "yearsWeight": 0.1,
+    "interestWeight": 0.25,
+    "offset": 0.08,
+    "yearPenalty": 0.12,
+    "accept": 0.8,
+    "reject": 0.42,
+    "buyoutShare": 0.65
+  }
+}
