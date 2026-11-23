@@ -42,11 +42,12 @@
 import balanceData from "../../data/balance/race-sim.json";
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
 import {
-  applyPitStop, cancelPit as quickCancelPit, createRace, decideInvestigations, investigate, pitStopTime, delayStop as quickDelayStop, skipStop as quickSkipStop, duePitPenalty, energyStep, jumpStartChecks, markPenaltyServed, mixEffect, modeEffect, pitLaneLoss,
+  applyContact, applyPitStop, cancelPit as quickCancelPit, createRace, decideInvestigations, investigate, pitStopTime, delayStop as quickDelayStop, skipStop as quickSkipStop, duePitPenalty, energyStep, jumpStartChecks, markPenaltyServed, mixEffect, modeEffect, pitLaneLoss,
   rainRedFlagCheck, redFlagRestart, redFlagTyres, requestPit as quickRequestPit, restartProcedureOf, setErs as quickSetErs, setMix as quickSetMix,
   setMode as quickSetMode, setTeamOrder as quickSetTeamOrder, showRedFlag, spotOn, stateRules, waveYellow,
 } from "../race";
 import { byYear, raceBalance } from "../rules";
+import { calibrationFor } from "../incidents";
 import { circuitFor } from "../venue";
 import { ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
@@ -133,6 +134,8 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     failReason: new Array(n).fill(null),
     failCorner: new Int32Array(n),
     mistakeTau: new Float64Array(n).fill(-1),
+    // RF-SIM-09: where on lap 1 a car meets its first-corner touch (state.turnOne), -1 if none.
+    t1Tau: new Float64Array(n).fill(-1),
     mistakeCorner: new Int32Array(n),
     // WP8 (SIM-FISICA §3.6): how the error being paid is driven (race-physics.json mistake).
     mistakeSlow: new Float64Array(n).fill(1),
@@ -172,6 +175,8 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     lane: laneSetup(state, track, n),
     retireAt: null,
     scOpen: null,
+    // RF-SIM-09: the era's scale of duel touches against f1db (race-reliability.json calibration.stepCollision).
+    collisionScale: calibrationFor(rules.year ?? state.year).stepCollision,
   };
   for (let i = 0; i < n; i += 1) sim.order[i] = i;
   state._sim = sim;
@@ -181,6 +186,11 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
   state.safetyCarSpells = [];
   if (!state.investigations) state.investigations = [];
   sim.retireAt = (i, reason, corner) => retireCar(state, i, reason, corner);
+  // RF-SIM-10: after a touch's debris race control may have called the SC/VSC or a yellow.
+  sim.afterIncident = () => {
+    if (state.safetyCar && state.safetyCar.since === undefined) state.safetyCar.since = scSince(state);
+    syncYellows(state);
+  };
   sim.raceControl = () => raceControl(state);
   state.cars.forEach((car) => {
     car.defence = car.defence || balance.defence.default;
@@ -243,10 +253,15 @@ const beginLap = (state, i, lap, t) => {
   sim.lapFlags[i] = state.safetyCar ? 1 : 0;
   rivalCalls(state, car, lap);
   let budget = planLap(state, car, lap, stream, { gridIndex: i, scrumShare: sim.balance.lapOne.scrumShare });
+  const t1 = lap === 1 && state.turnOne ? state.turnOne : null;
   if (lap === 1) {
     // The quick mode staggers the start by START_SPACING a slot; here the slot is physical.
-    budget = (budget + i * START_SPACING) / (1 - sim.tau[i]);
+    // RF-SIM-09: the launch against the median (state.turnOne), as the quick mode adds it to lap 1.
+    budget = (budget + i * START_SPACING + (t1?.launch[car.id] || 0)) / (1 - sim.tau[i]);
   }
+  sim.t1Tau[i] = -1;
+  // RF-SIM-09: a first-corner touch happens at that corner's apex on lap 1.
+  if (t1 && t1.outcomes[car.id]) sim.t1Tau[i] = apexTauOf(sim, t1.corner, sim.streams.incidents);
   sim.budget[i] = Math.max(1, budget);
   sim.dev[i] = devOf(sim.tables, sim.budget[i]);
   sim.mistakeTau[i] = -1;
@@ -256,7 +271,8 @@ const beginLap = (state, i, lap, t) => {
     sim.mistakeTau[i] = apexTauOf(sim, corner, stream);
   }
   sim.failTau[i] = -1;
-  const failure = rollFailure(state, car, lap, sim.streams.incidents);
+  // A car whose race ends in the first corner does not roll a failure on that lap (as in the quick mode).
+  const failure = t1 && t1.outcomes[car.id]?.kind === "retire" ? null : rollFailure(state, car, lap, sim.streams.incidents);
   if (failure) {
     const inc = sim.streams.incidents;
     let at;
@@ -628,6 +644,30 @@ const advance = (state, i) => {
   }
 };
 
+/** Where on its lap a car with a broken suspension stops (the quick mode's share of that lap). */
+const RETIRE_AT_LINE_TAU = 0.97;
+
+/**
+ * RF-SIM-09: car `i` reaches the first corner's touch of state.turnOne (the quick mode's
+ * outcome, on the road): retirement there, or its delay, damage or puncture. True if it is out.
+ */
+const firstCorner = (state, i, lap) => {
+  const sim = state._sim;
+  const plan = state.turnOne;
+  const car = state.cars[i];
+  const outcome = plan.outcomes[car.id];
+  const contact = plan.contacts.find((row) => row.ids.includes(car.id));
+  const otherId = contact ? contact.ids.find((id) => id !== car.id) : null;
+  if (outcome.kind === "retire") {
+    pushEvent(state, lap, { type: "contact", carId: car.id, otherId, corner: plan.corner, outcome: "retire", turnOne: true });
+    retireCar(state, i, "collision", plan.corner);
+    return true;
+  }
+  sim.delay[i] += applyContact(state, car, outcome, { otherId, corner: plan.corner, stream: sim.streams.incidents, lap, raceLap: sim.leaderLap, turnOne: true });
+  sim.afterIncident();
+  return false;
+};
+
 /** Everything that happens between time shares `from` and `to` of car `i`'s lap. */
 const checkpoints = (state, i, from, to) => {
   const sim = state._sim;
@@ -636,6 +676,15 @@ const checkpoints = (state, i, from, to) => {
   const lap = sim.laps[i] + 1;
   if (to <= from) return;
 
+  if (sim.t1Tau[i] >= 0 && (sim.t1Tau[i] > from && sim.t1Tau[i] <= to)) {
+    sim.t1Tau[i] = -1;
+    if (firstCorner(state, i, lap)) return;
+  }
+  // RF-SIM-09: a suspension broken in a touch - the car limps to the line and stops there.
+  if (car.retireAtLine && lap >= car.retireAtLine && to >= RETIRE_AT_LINE_TAU) {
+    retireCar(state, i, "collision", car.retireCorner ?? null);
+    return;
+  }
   if (sim.failTau[i] >= 0 && (sim.failTau[i] > from && sim.failTau[i] <= to)) {
     const corner = sim.failCorner[i] || null;
     sim.failTau[i] = -1;

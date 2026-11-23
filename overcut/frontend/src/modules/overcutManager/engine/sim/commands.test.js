@@ -28,7 +28,12 @@ const play = (args, orders = []) => {
   return done.state;
 };
 
-const pitLaps = (state, carId) => state.cars.find((car) => car.id === carId).history.filter((entry) => entry.pit).map((entry) => entry.lap);
+// The stops the plan and the orders decide: a forced stop for a puncture or a broken wing (RF-SIM-09) is not one of them.
+const repairLaps = (state, carId) => new Set(state.events.filter((event) => event.type === "pit" && event.carId === carId && event.repair).map((event) => event.lap));
+const pitLaps = (state, carId) => {
+  const repairs = repairLaps(state, carId);
+  return state.cars.find((car) => car.id === carId).history.filter((entry) => entry.pit && !repairs.has(entry.lap)).map((entry) => entry.lap);
+};
 
 const sunday = (year, seed) => {
   const w = weekend({ year, seed });

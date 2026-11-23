@@ -31,7 +31,8 @@
  */
 
 import { clamp } from "../../../overcutTrayectoria/engine/rng";
-import { collisionInvestigation, energyPush } from "../race";
+import { applyContact, collisionInvestigation, energyPush } from "../race";
+import { contactOutcome } from "../incidents";
 import { drsOpen } from "../rules";
 import { pushEvent, wetnessAt } from "./lapModel";
 
@@ -120,21 +121,25 @@ export const endDuel = (sim, i) => {
   }
 };
 
+/**
+ * RF-SIM-09: a touch in a duel. The victim takes the same outcome as in the quick mode
+ * (engine/incidents.js contactOutcome via race.js applyContact: retirement, broken suspension,
+ * puncture, front wing or time), paid on the road as a delay; debris may bring race control.
+ */
 const contact = (state, a, b, corner, stream, lap) => {
   const sim = state._sim;
-  const inc = sim.balance.duel.incident;
   const victim = stream.chance(0.5) ? b : a;
   const other = victim === a ? b : a;
   logDuel(state, { t: round(sim.clock), lap, corner, attacker: state.cars[a].id, defender: state.cars[b].id, outcome: "incident", victim: state.cars[victim].id });
-  if (stream.chance(inc.retireShare)) {
+  const outcome = contactOutcome(stream);
+  if (outcome.kind === "retire") {
     sim.retireAt(victim, "collision", corner);
     stewards(state, a, b);
     return;
   }
   const car = state.cars[victim];
-  car.damage += stream.range(inc.damageMin, inc.damageMax);
-  sim.delay[victim] += stream.range(inc.delayMin, inc.delayMax);
-  pushEvent(state, sim.laps[victim] + 1, { type: "contact", carId: car.id, otherId: state.cars[other].id, corner });
+  sim.delay[victim] += applyContact(state, car, outcome, { otherId: state.cars[other].id, corner, stream, lap: sim.laps[victim] + 1, raceLap: sim.leaderLap });
+  sim.afterIncident();
   stewards(state, a, b);
 };
 
@@ -176,7 +181,8 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
   const chance = duelChance(state, attacker, defender, zone, { drs, lap });
   const third = d.maxClaim >= 3 && behind >= 0 && behindGap <= d.triggerSec && sim.duelRole[behind] === ROLE.NONE && sim.cooldownUntil[behind] <= sim.clock ? behind : -1;
   const style = styleOf(balance, defender);
-  const incidentChance = d.incident.base * (1 + wetnessAt(state, lap) * d.incident.wet) * riskOf(balance, attacker).incident * style.incident * (third >= 0 ? d.incident.threeWide : 1);
+  // RF-SIM-09: the era's calibration of duel touches against f1db (race-reliability.json calibration.stepCollision).
+  const incidentChance = d.incident.base * sim.collisionScale * (1 + wetnessAt(state, lap) * d.incident.wet) * riskOf(balance, attacker).incident * style.incident * (third >= 0 ? d.incident.threeWide : 1);
   const success = stream.next() < chance;
   const entry = { t: round(sim.clock), lap, corner: zone.corner, attacker: attacker.id, defender: defender.id, chance: round(chance), drs, claim: third >= 0 ? 3 : 2 };
 

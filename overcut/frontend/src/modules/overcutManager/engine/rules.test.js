@@ -296,7 +296,7 @@ describe("RF-SIM-04 / RF-SIM-12 · stops by era", () => {
     const pits = state.events.filter((event) => event.type === "pit");
     expect(pits.length).toBeGreaterThan(0);
     pits.forEach((event) => expect(event.refuel).toBeGreaterThan(0));
-    if (dry) pits.forEach((event) => expect(event.tyres).toBe(false));
+    if (dry) pits.filter((event) => !event.repair).forEach((event) => expect(event.tyres).toBe(false));
     state.cars.forEach((car) => expect(new Set(car.plan.compounds).size).toBe(1));
   });
 
@@ -332,7 +332,8 @@ const illegalEvents = (state) => {
     if (event.type === "pass" && event.drs && !rules.drs.enabled) flag(event, "DRS");
     if (event.type === "pass" && event.overtakeMode && !rules.energy.overtakeMode) flag(event, "overtake mode");
     if (event.type === "pit" && event.refuel !== undefined && !rules.refuelling) flag(event, "refuelling");
-    if (event.type === "pit" && rules.tyres.changesInRace === false && event.tyres !== false && state.weather.wetness.every((value) => value < 0.2)) flag(event, "tyre change");
+    // 2005 (no tyre changes): a punctured or damaged tyre could still be replaced (RF-SIM-09 repair stops).
+    if (event.type === "pit" && rules.tyres.changesInRace === false && event.tyres !== false && !event.repair && state.weather.wetness.every((value) => value < 0.2)) flag(event, "tyre change");
     if (event.type === "penalty" && !rules.raceControl.penaltyTypes.includes(event.penalty)) flag(event, "penalty type");
     if (event.type === "restart" && event.procedure !== rules.raceControl.redFlag.restart && !(event.procedure === "standing" && !rules.raceControl.safetyCar)) flag(event, "restart");
     if (event.type === "grid-penalty" && !rules.unitPenalties) flag(event, "grid penalty");

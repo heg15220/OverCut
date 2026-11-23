@@ -148,7 +148,7 @@
   },
 
   "units": {
-    "$comment": "RF-SIM-14: unidades por piloto y temporada. Componentes por era: engine si unitLimits limita motores, gearbox si limita cajas, y desde 2014 los elementos de la unidad de potencia (elements). Límite por temporada: vida = carreras × lifeMargin / límite; límite por fines de semana (engineRaceWeekends, gearboxRaces): la unidad debe durar esas carreras seguidas y cambiarla antes penaliza (salvo tras abandono si freeChangeAfterDnf). practiceFailure = probabilidad por fin de semana de romper la unidad antes de la carrera, × (1 + desgaste) × fiabilidad. mechanical = a qué componente se atribuye un abandono por avería. backOfGridOver: más de tantos puestos = salir el último.",
+    "$comment": "RF-SIM-14: unidades por piloto y temporada. Componentes por era: engine si unitLimits limita motores, gearbox si limita cajas, y desde 2014 los elementos de la unidad de potencia (elements). Límite por temporada: vida = carreras × lifeMargin / límite; límite por fines de semana (engineRaceWeekends, gearboxRaces): la unidad debe durar esas carreras seguidas y cambiarla antes penaliza (salvo tras abandono si freeChangeAfterDnf). practiceFailure = probabilidad por fin de semana de romper la unidad antes de la carrera, × (1 + desgaste) × fiabilidad. mechanical = a qué componente se atribuye un abandono por avería cuando la fila de la carrera no trae su grupo (guardados antiguos); desde el bloque de fiabilidad la carrera da el grupo real de f1db (race-reliability.json, mechanical.unitGroups). backOfGridOver: más de tantos puestos = salir el último.",
     "lifeMargin": 1.08,
     "dnfWear": 0.6,
     "freeChangeAfterDnf": true,

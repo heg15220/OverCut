@@ -119,6 +119,24 @@ export const seatOf = (team, driverId, index = 0) => {
 /** The car one entrant races: that seat's loadout, or the team's car (RF-DEV-01). */
 export const seatCar = (team, driverId, index = 0) => carOfSeat(team, seatOf(team, driverId, index));
 
+/**
+ * RF-SIM-14 / RF-DEV-08: what a seat brings to the race's failure hazards - the wear of its
+ * counted units (career.units, every team) and the condition of its fitted body parts (only
+ * teams with tracked parts, the player's). For engine/incidents.js unitWearOf / bodyDamageOf.
+ */
+export const seatConditionOf = (career, team, driverId, index = 0) => {
+  const units = career.units?.drivers?.[driverId] || null;
+  const parts = team.parts;
+  if (!parts?.loadout || !parts.list) return { units, body: null };
+  const seat = seatOf(team, driverId, index);
+  const body = {};
+  parts.list.filter(isBodyPart).forEach((part) => {
+    const hit = fitted(parts, seat, part);
+    if (hit && hit.condition !== "perfect") body[part] = hit.condition;
+  });
+  return { units, body: Object.keys(body).length ? body : null };
+};
+
 export const gridPenaltiesFor = (career, entrants) => penaltiesForRound(career.units, career.round, entrants.map((entrant) => entrant.id));
 
 // ------------------------------------------------------------------- money

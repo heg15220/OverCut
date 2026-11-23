@@ -39,8 +39,9 @@ import { hqAdvance } from "./hq";
 import { deliverHistoryEvents, lineupWithAbsences, raceStarters } from "./history";
 import {
   applyAreaGain, developmentAfterRace, developmentCapLeft as developmentCapLeftOf, gridPenaltiesFor, initDevelopment, raceIncidents,
-  rivalDevelopmentStep, seatCar,
+  rivalDevelopmentStep, seatCar, seatConditionOf,
 } from "./development";
+import { bodyDamageOf, unitWearOf } from "./incidents";
 import { FEELINGS, SLIDERS, feelingsOf, idealSetup, neutralSetup, practiceRun, satisfactionOf, setupLapTime } from "./setup";
 import anchorBalance from "../data/balance/historical-anchors.json";
 
@@ -316,6 +317,10 @@ export const entrantsFor = (career) => {
       const own = reliabilityOf(car, era) + (operations - 60) * 0.0009;
       const reliability = clamp(guide?.reliability ? own + guide.reliability * (guide.target - own) : own, 0.25, 0.99);
       const morale = ((driver.morale ?? 70) - 65) * (isUser ? 0.05 : 0.01);
+      // RF-SIM-14 / RF-DEV-08: worn units and damaged parts raise that group's failure hazard.
+      const condition = seatConditionOf(career, team, driver.id, index);
+      const unitWear = unitWearOf(condition.units);
+      const bodyDamage = bodyDamageOf(condition.body);
       entrants.push({
         id: driver.id,
         driverId: driver.id,
@@ -337,6 +342,8 @@ export const entrantsFor = (career) => {
         consistency: driver.attributes.consistency,
         wet: driver.attributes.wet,
         technical: driver.attributes.technical,
+        ...(unitWear ? { unitWear } : {}),
+        ...(bodyDamage ? { bodyDamage } : {}),
         isUser,
       });
     });
@@ -883,6 +890,8 @@ export const completeRace = (career, state) => {
     position: row.position,
     grid: row.grid,
     status: row.status,
+    // RF-SIM-14: the failure group of a mechanical retirement, for the units it broke.
+    ...(row.component ? { component: row.component } : {}),
     gap: row.gap === null ? null : Math.round(row.gap * 10) / 10,
     lapsDown: row.lapsDown,
     stops: row.stops,

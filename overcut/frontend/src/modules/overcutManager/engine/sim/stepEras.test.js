@@ -62,7 +62,8 @@ const illegalEvents = (state) => {
     if (event.type === "pass" && event.overtakeMode && !rules.energy.overtakeMode) flag(event, "overtake mode");
     if (event.type === "pit" && event.refuel !== undefined && !rules.refuelling) flag(event, "refuelling");
     if (event.type === "pit" && rules.refuelling && !(event.refuel > 0)) flag(event, "no fuel in a refuelling stop");
-    if (event.type === "pit" && rules.tyres.changesInRace === false && event.tyres !== false && dry) flag(event, "tyre change");
+    // 2005 (no tyre changes): a punctured or damaged tyre could still be replaced (RF-SIM-09 repair stops).
+    if (event.type === "pit" && rules.tyres.changesInRace === false && event.tyres !== false && !event.repair && dry) flag(event, "tyre change");
     if (event.type === "penalty" && !rules.raceControl.penaltyTypes.includes(event.penalty)) flag(event, "penalty type");
     if (event.type === "restart" && event.procedure !== rules.raceControl.redFlag.restart && !(event.procedure === "standing" && !rules.raceControl.safetyCar)) flag(event, "restart");
     if (event.type === "grid-penalty" && !rules.unitPenalties) flag(event, "grid penalty");

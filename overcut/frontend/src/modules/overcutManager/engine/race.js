@@ -63,6 +63,8 @@ import { circuitFor } from "./venue";
 import { commandsFor, drsOpen, penaltyFor, pitLaneSpeedFor, raceBalance as BALANCE, rulesFor } from "./rules";
 import { circuitIdOf, pitLaneFor } from "./sim/pitLane";
 import { expectedStationary, planStop } from "./sim/pitStop";
+import { RELIABILITY as REL, calibrationFor, contactOutcome, leavesDebris, pickGroup, raceHazards, turnOnePlan, wetRiskOf } from "./incidents";
+import simBalance from "../data/balance/race-sim.json";
 
 export { commandsFor, drsOpen, rulesFor };
 
@@ -128,8 +130,6 @@ export const MODE_KEYS = Object.keys(MODES);
 
 /** Pure: the effect of a pace mode, for the step simulator. */
 export const modeEffect = (mode) => MODES[mode] || MODES.normal;
-
-const REFERENCE_ATTRITION = 1.15;
 
 const PIT = BALANCE.pit;
 
@@ -723,6 +723,9 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
         lastLapRaced: 0,
         damage: 0,
         issue: 0,
+        // RF-SIM-14 / RF-DEV-08: unit wear by failure group and damaged body parts (career.entrantsFor).
+        ...(entrant.unitWear ? { unitWear: entrant.unitWear } : {}),
+        ...(entrant.bodyDamage ? { bodyDamage: entrant.bodyDamage } : {}),
         gapAhead: null,
         gapBehind: null,
         lastPitLap: 0,
@@ -732,9 +735,18 @@ export const createRace = ({ race, era, year, entrants, grid, plans = {}, practi
       };
     });
 
+  // RF-SIM-14 / RF-SIM-09: each car's failure and crash hazards for this race (engine/incidents.js, f1db by era).
+  const hazards = raceHazards({ cars, year: rules.year ?? year, laps, attrition: race.profile?.attrition });
+  cars.forEach((car) => {
+    car.hazard = hazards[car.id];
+  });
+  // RF-SIM-09 / RF-SIM-10: the start and the first corner, on its own stream so both modes play the same one (SRS 4.2).
+  const turnOne = turnOnePlan({ cars, circuit, year: rules.year ?? year, wetness: startWet, grid: simBalance.grid, stream: createStream(`${seed}::start`) });
+
   return {
     race: { name: race.name, round: race.round, country: race.country, laps, baseLap: race.baseLap, profile: race.profile, circuit: race.circuit || null },
     pitLane,
+    turnOne,
     wearScale,
     stopScale,
     year,
@@ -985,19 +997,21 @@ export const mistakeChanceOf = ({ consistency, mode = "normal", compound, wetnes
 };
 
 /**
- * Pure (RF-SIM-09, RF-SIM-14): the chance that a car stops for good on one lap -
- * a failure or an accident - from its reliability, the circuit's attrition, the
- * water and the pace mode; `incidentShare` is how much of that is an accident.
+ * Pure (RF-SIM-09, RF-SIM-14): the chances that a car stops for good on one lap - a failure
+ * (`mechanical`) or a solo crash (`accident`) - from its hazards for the race
+ * (engine/incidents.js raceHazards: the era's real rates from f1db, the car's reliability
+ * against the field, unit wear and part damage, the driver's consistency, the circuit), the
+ * pace mode, the safety car, a problem already on the car, the water and the wrong tyre.
  */
-export const incidentChanceOf = ({ reliability, attrition = 1, wetness = 0, laps, mode = "normal", sc = false, issue = 0, consistency = 55, compound = "hard" }) => {
-  const wetRisk = wetness >= 0.55 ? 1.28 : wetness >= 0.2 ? 1.12 : 1;
-  const raceRisk = clamp((1 - reliability) * attrition * wetRisk, 0.01, 0.86);
-  const perLap = 1 - Math.pow(1 - raceRisk, 1 / laps);
-  const mismatch = !isWetTyre(compound) && wetness > 0.3 ? 4 : 1;
+export const incidentChanceOf = ({ hazard, wetness = 0, mode = "normal", sc = false, issue = 0, compound = "hard" }) => {
+  const mech = REL.mechanical;
+  const acc = REL.accident;
+  const risk = modeEffect(mode).risk;
+  const mismatch = !isWetTyre(compound) && wetness > 0.3 ? acc.mismatch : 1;
   return {
-    perLap,
-    retire: perLap * modeEffect(mode).risk * (sc ? 0.4 : 1) * (issue ? 1.35 : 1),
-    incidentShare: clamp(0.24 * wetRisk * (1 + (55 - consistency) * 0.013) * mismatch, 0.06, 0.8),
+    mechanical: hazard.mech * risk * (sc ? mech.scFactor : 1) * (issue ? mech.issueFactor : 1),
+    accident: hazard.accident * risk * wetRiskOf(wetness) * mismatch * (sc ? acc.scFactor : 1),
+    issue: hazard.issue,
     mismatch,
   };
 };
@@ -1165,23 +1179,32 @@ export const jumpStartChecks = (state, cars, lap = state.lap) => {
  * problem that only slows the car (a misfire, a stuck gear) is booked here with its event.
  */
 export const failureOf = (state, car, { lap = state.lap, wetness, sc = state.safetyCar, rules = stateRules(state), stream } = {}) => {
-  const attrition = (state.race.profile.attrition ?? 1) / REFERENCE_ATTRITION;
-  const risk = incidentChanceOf({
-    reliability: car.reliability, attrition, wetness, laps: state.laps, mode: car.mode, sc: Boolean(sc), issue: car.issue, consistency: car.consistency, compound: car.compound,
-  });
-  if (stream.chance(risk.retire)) {
-    const accident = stream.chance(risk.incidentShare);
-    const reason = accident ? (lap === 1 && stream.chance(0.5) ? "collision" : "accident") : "mechanical";
-    return { reason, fromMistake: false };
+  if (!car.hazard) ensureHazards(state);
+  const risk = incidentChanceOf({ hazard: car.hazard, wetness, mode: car.mode, sc: Boolean(sc), issue: car.issue, compound: car.compound });
+  const roll = stream.next();
+  if (roll < risk.mechanical) {
+    // RF-SIM-14: which component broke, by the era's real split (and the car's worn units).
+    car.failedComponent = pickGroup(car.hazard.groups, stream.next());
+    return { reason: "mechanical", component: car.failedComponent, fromMistake: false };
   }
-  if (car.pendingMistake > 3.8 && stream.chance(0.18 * risk.mismatch)) return { reason: "accident", fromMistake: true };
+  if (roll < risk.mechanical + risk.accident) return { reason: "accident", fromMistake: false };
+  const crash = REL.accident.mistakeCrash;
+  if (car.pendingMistake > crash.minLoss && stream.chance(crash.chance * risk.mismatch * car.hazard.crashScale)) return { reason: "accident", fromMistake: true };
   // A problem that does not stop the car but slows it: a misfire, a gearbox stuck in a gear.
-  if (!car.issue && stream.chance(risk.perLap * 0.22)) {
+  if (!car.issue && stream.chance(risk.issue)) {
     car.issue = Math.round(stream.range(0.5, 2.2) * 10) / 10;
     pushEvent(state, { type: "issue", carId: car.id, loss: car.issue }, lap);
   }
   if (!rules.refuelling && car.fuel < 0) return { reason: "fuel", fromMistake: false };
   return null;
+};
+
+/** Hazards for a race state that lost them (an old save, a postMessage copy): computed again from its cars. */
+export const ensureHazards = (state) => {
+  const hazards = raceHazards({ cars: state.cars, year: stateRules(state).year ?? state.year, laps: state.laps, attrition: state.race.profile?.attrition });
+  state.cars.forEach((car) => {
+    car.hazard = hazards[car.id];
+  });
 };
 
 /**
@@ -1197,7 +1220,7 @@ export const pitStopTime = (car, decision, { rules, stream, crew = stream }) => 
   // 2005: no tyre changes in the race - a planned stop is fuel only, unless the
   // weather changed (wet <-> dry) or the car is damaged.
   const weatherSwitch = isWetTyre(decision.compound) !== isWetTyre(car.compound) || (isWetTyre(decision.compound) && decision.compound !== car.compound);
-  const tyresChanged = rules.tyres.changesInRace || weatherSwitch || (decision.repair && car.damage > 0);
+  const tyresChanged = rules.tyres.changesInRace || weatherSwitch || (decision.repair && (car.damage > 0 || Boolean(car.puncture)));
   const wing = decision.repair && car.damage > 0 ? "change" : null;
   const plan = planStop({ rules, crew: car.crew, tyres: tyresChanged, refuelLaps: refuelLoad, wing, stream: crew });
   return { stationary: plan.stationary, slow: plan.slow, tyresChanged, refuelLoad, stages: plan.stages, mistake: plan.mistake };
@@ -1228,8 +1251,11 @@ export const applyPitStop = (state, car, decision, stop, { lap = state.lap, queu
   car.outLap = true;
   car.stint += decision.planned ? 1 : 0;
   if (decision.call) pushEvent(state, { type: "call", carId: car.id, call: decision.call }, lap);
+  // RF-SIM-09: what was repaired - a puncture, or a front wing (damage) - shown on the pit event.
+  const repaired = decision.repair ? (car.puncture ? "puncture" : car.damage > 0 ? "wing" : null) : null;
   if (decision.repair) {
     car.damage = 0;
+    car.puncture = false;
     car.issue = car.issue > 1.2 ? car.issue * 0.5 : 0;
   }
   if (refuel) car.fuel = decision.fuel;
@@ -1238,6 +1264,7 @@ export const applyPitStop = (state, car, decision, stop, { lap = state.lap, queu
     type: "pit", carId: car.id, compound: car.compound, stationary: Math.round((stationary + queue) * 10) / 10, slow: slow > 0, stacked: queue > 0,
     ...(refuel ? { refuel: refuelLoad } : {}),
     ...(tyresChanged ? {} : { tyres: false }),
+    ...(repaired ? { repair: repaired } : {}),
     ...(served ? { penalty: served } : {}),
   }, lap);
   if (served) {
@@ -1316,10 +1343,18 @@ export const stepLap = (state) => {
   // ---- jump starts: race control watches the lights (RF-SIM-10)
   if (lap === 1) jumpStartChecks(state, before);
 
+  // ---- the first corner (RF-SIM-09): the launch and the touches of state.turnOne
+  if (lap === 1) applyTurnOne(state, before, stream);
+
   // ---- failures, accidents, problems and empty tanks
   before.forEach((car) => {
+    if (car.status !== "running") return;
     const failure = failureOf(state, car, { lap, wetness, sc, rules, stream });
     if (failure) retire(state, car, failure.reason);
+  });
+  // ---- a suspension broken in a touch this lap: the car reaches the line and stops (RF-SIM-09)
+  before.forEach((car) => {
+    if (car.status === "running" && car.retireAtLine && lap >= car.retireAtLine) retire(state, car, "collision", { share: 0.97, corner: car.retireCorner ?? null });
   });
 
   const running = before.filter((car) => car.status === "running");
@@ -1627,6 +1662,80 @@ export const redFlagRestart = (state, lap = state.lap) => {
   return procedure;
 };
 
+/** RF-SIM-09: the quick mode's chance that a pass ends in a touch (race-reliability.json contact.passContact × the era's calibration). */
+export const passContactChance = (state, wetness) => REL.contact.passContact * calibrationFor(stateRules(state).year ?? state.year).collision * (1 + wetness);
+
+/**
+ * RF-SIM-09 / RF-DEV-08: a touch that did not end the car's race on the spot
+ * (incidents.js contactOutcome): a broken suspension retires it at the line, a puncture
+ * makes it limp to the pits (it must stop: pitDecision), a broken front wing costs time
+ * every lap until it is changed; debris may bring yellows, the VSC or the safety car
+ * (debrisResponse). Returns the seconds lost now; the caller adds them where its clock is.
+ * `lap` is the car's lap, `raceLap` the race's (the step sim passes both).
+ */
+export const applyContact = (state, car, outcome, { otherId = null, corner = null, stream, lap = state.lap, raceLap = lap, turnOne = false } = {}) => {
+  pushEvent(state, { type: "contact", carId: car.id, otherId, corner, outcome: outcome.kind, ...(turnOne ? { turnOne: true } : {}) }, lap);
+  let lost = outcome.loss || 0;
+  if (outcome.kind === "suspension") {
+    car.retireAtLine = lap;
+    car.retireCorner = corner;
+  } else if (outcome.kind === "puncture") {
+    car.puncture = true;
+    lost += outcome.limp * (state.race.baseLap || 90);
+  } else if (outcome.kind === "wing") {
+    car.damage += outcome.wing;
+  }
+  if (leavesDebris(outcome) && stream.chance(REL.contact.debris.chance)) debrisResponse(state, corner, car.id, { lap, raceLap, stream });
+  return lost;
+};
+
+/**
+ * RF-SIM-10: debris on the track after a touch - the safety car (from 1993) or the VSC
+ * (from 2015) by the era's rules and race-reliability.json contact.debris, otherwise
+ * yellows at the corner. Nothing new while a safety car is already out.
+ */
+export const debrisResponse = (state, corner, carId, { lap = state.lap, raceLap = lap, stream } = {}) => {
+  if (state.safetyCar) return;
+  const rules = stateRules(state);
+  const control = BALANCE.raceControl;
+  const debris = REL.contact.debris;
+  if (raceLap < state.laps - 1 && rules.raceControl.safetyCar && stream.chance(debris.sc)) {
+    state.safetyCar = { laps: stream.int(control.scLaps[0], control.scLaps[1]), virtual: false };
+    pushEvent(state, { type: "sc", debris: true }, raceLap);
+    return;
+  }
+  if (raceLap < state.laps - 1 && rules.raceControl.vsc && stream.chance(debris.vsc)) {
+    state.safetyCar = { laps: stream.int(control.vscLaps[0], control.vscLaps[1]), virtual: true };
+    pushEvent(state, { type: "vsc", debris: true }, raceLap);
+    return;
+  }
+  waveYellow(state, corner, carId, lap);
+};
+
+/**
+ * RF-SIM-09 (quick mode, lap 1): the start and the first corner decided in createRace
+ * (state.turnOne, incidents.js turnOnePlan) - each car's launch against the median goes on
+ * its first lap, and every car caught in a first-corner touch takes its outcome there.
+ */
+const applyTurnOne = (state, cars, stream) => {
+  const plan = state.turnOne;
+  if (!plan) return;
+  cars.forEach((car) => {
+    if (car.status !== "running") return;
+    car.lapTime += plan.launch[car.id] || 0;
+    const outcome = plan.outcomes[car.id];
+    if (!outcome) return;
+    const contact = plan.contacts.find((row) => row.ids.includes(car.id));
+    const otherId = contact ? contact.ids.find((id) => id !== car.id) : null;
+    if (outcome.kind === "retire") {
+      pushEvent(state, { type: "contact", carId: car.id, otherId, corner: plan.corner, outcome: "retire", turnOne: true });
+      retire(state, car, "collision", { corner: plan.corner, share: plan.share });
+    } else {
+      car.lapTime += applyContact(state, car, outcome, { otherId, corner: plan.corner, stream, turnOne: true });
+    }
+  });
+};
+
 /**
  * A car's race is over (RF-SIM-09), and race control answers (RF-SIM-10): a heavy
  * crash may stop the race (red flag, on the race-control stream), an accident brings
@@ -1644,7 +1753,7 @@ export const retire = (state, car, reason, { lap = state.lap, raceLap = lap, str
   // Where on the lap it ended: first-lap contact happens early, a failure anywhere.
   car.retireShare = share !== undefined ? share : reason === "collision" && lap === 1 ? stream.range(0.02, 0.18) : stream.range(0.08, 0.95);
   const corner = reason === "mechanical" || reason === "fuel" ? null : at !== undefined ? at : spotOn(state, stream, "mistake");
-  pushEvent(state, { type: "dnf", carId: car.id, reason, corner }, lap);
+  pushEvent(state, { type: "dnf", carId: car.id, reason, corner, ...(reason === "mechanical" && car.failedComponent ? { component: car.failedComponent } : {}) }, lap);
   const crash = reason !== "mechanical" && reason !== "fuel";
   // A heavy crash that leaves the barriers to repair stops the race (RF-SIM-10). RF-HIS-00: never a fatal one.
   if (crash && !state.pendingRed && (state.redFlags || 0) < control.redFlag.maxPerRace && raceLap < state.laps - 1 && controlStream(state).chance(control.redFlag.crashChance)) {
@@ -1711,6 +1820,11 @@ export const pitDecision = (state, car, wetness, stream, { lap = state.lap, orde
     return { compound, planned, fuel, repair: car.pitRequest.frontWing !== false };
   }
 
+  // RF-SIM-09: a puncture is not a strategy question either - the car comes in on this lap.
+  if (car.puncture) {
+    return { ...unplannedStop(car, lap, isWetTyre(car.compound) ? car.compound : nextPlannedCompound(car, rules)), fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0, repair: true };
+  }
+
   // Out of fuel is not a strategy question.
   if (refuel && car.fuel <= 0) {
     return { compound: isWetTyre(car.compound) ? car.compound : nextPlannedCompound(car, rules), planned: true, fuel: fuelToNextStop(car, lap, state.laps) };
@@ -1732,6 +1846,10 @@ export const pitDecision = (state, car, wetness, stream, { lap = state.lap, orde
       return { compound: dryCompoundFor(remaining, rules, car.wearFactor), planned: false, fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0 };
     }
     if (isWetTyre(car.compound)) return null;
+    // RF-SIM-09: a broken front wing costing more than contact.repairAbove s a lap is changed.
+    if (car.damage >= REL.contact.repairAbove && remaining > 5) {
+      return { ...unplannedStop(car, lap, nextPlannedCompound(car, rules)), fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0, repair: true };
+    }
     // A car with a problem comes in to have it looked at.
     if (car.issue > 1.4 && remaining > 6 && stream.chance(0.35)) {
       return { ...unplannedStop(car, lap, nextPlannedCompound(car, rules)), fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0, repair: true };
@@ -1925,15 +2043,12 @@ const resolveTraffic = (state, running, beforeIndex, stream, wetness) => {
     });
     if (stream.chance(passChance)) {
       const corner = spotOn(state, stream, "pass");
-      // Clean pass: positions swap. A small chance it ends in contact.
-      if (stream.chance(0.012 * (1 + wetness))) {
+      // Clean pass: positions swap. A small chance it ends in contact (RF-SIM-09, race-reliability.json contact).
+      if (stream.chance(passContactChance(state, wetness))) {
         const victim = stream.chance(0.5) ? ahead : car;
-        if (stream.chance(0.4)) retire(state, victim, "collision");
-        else {
-          victim.damage += stream.range(0.3, 1.2);
-          victim.time += stream.range(3, 9);
-          pushEvent(state, { type: "contact", carId: victim.id, otherId: victim === car ? ahead.id : car.id, corner });
-        }
+        const outcome = contactOutcome(stream);
+        if (outcome.kind === "retire") retire(state, victim, "collision", { corner });
+        else victim.time += applyContact(state, victim, outcome, { otherId: victim === car ? ahead.id : car.id, corner, stream });
         // The stewards look at the move: the attacker is the one under investigation (RF-SIM-10).
         collisionInvestigation(state, car, ahead.id);
       } else {
@@ -2095,6 +2210,8 @@ export const classificationOf = (state) =>
     stops: car.stops,
     bestLap: car.bestLap,
     retiredLap: car.retiredLap,
+    // RF-SIM-14: the failure group of a mechanical retirement (engine, gearbox, hydraulics, ...).
+    ...(car.retireReason === "mechanical" && car.failedComponent ? { component: car.failedComponent } : {}),
     penalty: car.penalty || 0,
     penalties: (car.penalties || []).map((penalty) => ({ type: penalty.type, offence: penalty.offence, lap: penalty.lap, seconds: penalty.seconds })),
     isUser: car.isUser,

@@ -30,6 +30,7 @@
 
 import { clamp, substream } from "../../../overcutTrayectoria/engine/rng";
 import DEV from "../../data/balance/development.json";
+import REL from "../../data/balance/race-reliability.json";
 import { gridPenaltyFor, inRange, rulesFor } from "../rules";
 
 const U = DEV.units;
@@ -105,8 +106,23 @@ const pickWeighted = (stream, weights) => {
   return entries[entries.length - 1]?.[0] || null;
 };
 
-/** Which counted component a mechanical retirement broke. */
-const brokenComponent = (units, stream) => {
+/**
+ * Which counted component a mechanical retirement broke. RF-SIM-14: the race says which
+ * failure group it was (classification row `component`, engine/incidents.js, from f1db);
+ * the counted unit of that group takes it (race-reliability.json mechanical.unitGroups). A
+ * group with no counted unit (hydraulics, brakes, ...) breaks none. Rows without a group
+ * (older saves) fall back to development.json units.mechanical.
+ */
+const brokenComponent = (units, stream, group = null) => {
+  if (group) {
+    const comps = REL.mechanical.unitGroups[group] || [];
+    const ids = units.components.map((comp) => comp.id);
+    return comps.find((id) => ids.includes(id)) || null;
+  }
+  return legacyBrokenComponent(units, stream);
+};
+
+const legacyBrokenComponent = (units, stream) => {
   const group = pickWeighted(stream, U.mechanical);
   const ids = units.components.map((comp) => comp.id);
   if (group === "engine") return ids.find((id) => id === "engine" || id === "ice") || null;
@@ -164,7 +180,7 @@ export const unitsAfterRace = ({ units, era, rows, seed, year, round, hasNextRac
     });
     let raceFailure = null;
     if (row.status === "mechanical") {
-      raceFailure = brokenComponent(units, stream);
+      raceFailure = brokenComponent(units, stream, row.component || null);
       if (raceFailure) {
         record[raceFailure].failed = true;
         record[raceFailure].wear = 1;

@@ -1,0 +1,613 @@
+{
+  "$comment": "RNF-07 / RF-SIM-09, RF-SIM-14, RF-SIM-10, RF-DEV-08: modelo de averías, incidentes, salida y primera curva del motor de carrera (engine/incidents.js, usado por el modo rápido race.js y el de pasos engine/sim). El bloque `measured` lo escribe overcut/src/main/resources/scripts/reliability_from_f1db.py desde f1db y es el objetivo; lo demás son parámetros del modelo. Cada valor que no sale de un dato real lleva status NV (inferido) en su bloque. Las escalas `calibration` se ajustaron con overcut/frontend/scripts/measureIncidents.js hasta reproducir `measured` (±15 %) en ambos modos; el resultado medido está en docs/manager/SIM-FISICA.md §7. Las eras son las ventanas de `measured.eras[].years`.",
+  "version": 1,
+  "mechanical": {
+    "$comment": "RF-SIM-14. Probabilidad por coche y carrera de abandonar por avería en el grupo g = measured.mechanicalByGroup[g] × fiabilidad relativa × desgaste de la unidad × daño de la pieza × calibration.mechanical. Fiabilidad relativa = (1 − fiabilidad del coche) / media de la parrilla de esa carrera (la fiabilidad del pack sale de f1db por equipo), acotada en relative. Se reparte por vuelta como 1 − (1 − p)^(1/vueltas) y se multiplica por el modo de ritmo (race-eras.json modes.risk), por scFactor bajo SC y por issueFactor si el coche ya arrastra un problema. issueShare: un problema que solo frena (fallo de encendido, marcha atascada) por cada avería, por vuelta (antes 0,22 en código).",
+    "relative": [
+      0.25,
+      3.5
+    ],
+    "scFactor": 0.4,
+    "issueFactor": 1.35,
+    "issueShare": 0.22,
+    "unitGroups": {
+      "$comment": "Qué grupo de avería rompe qué componente contado de engine/development/units.js.",
+      "engine": [
+        "engine",
+        "ice",
+        "tc",
+        "mguh"
+      ],
+      "electrics": [
+        "mguk",
+        "es",
+        "ce"
+      ],
+      "gearbox": [
+        "gearbox"
+      ]
+    },
+    "wear": {
+      "$comment": "RF-SIM-14 (idea del desgaste de chasis de Pitwall, reescrita sobre nuestras unidades): multiplicador 1 + slope × (desgaste − pivot) del grupo cuyo componente lleva ese desgaste (0 nuevo, 1 al final de su vida). pivot = 0,5 (la vida media de una unidad), así la media de la temporada no se mueve. status NV: la forma (más averías al final de la vida de la unidad) es la del reglamento de unidades limitadas, la pendiente es inferida.",
+      "status": "NV",
+      "pivot": 0.5,
+      "slope": 0.9,
+      "min": 0.55,
+      "max": 1.6
+    },
+    "damage": {
+      "$comment": "RF-DEV-08: una pieza de carrocería dañada (estado leve/grave tras la carrera anterior; solo el equipo del jugador lleva piezas) multiplica el grupo de avería que la contiene. status NV.",
+      "status": "NV",
+      "groups": {
+        "suspension": [
+          "suspension",
+          "chassis",
+          "floor"
+        ],
+        "aero": [
+          "frontWing",
+          "rearWing",
+          "sidepods"
+        ]
+      },
+      "factor": {
+        "perfect": 1,
+        "light": 1.3,
+        "heavy": 2.2,
+        "destroyed": 2.2
+      }
+    }
+  },
+  "accident": {
+    "$comment": "RF-SIM-09. Accidente en solitario (trompo, salida a la barrera) por coche y carrera = measured.incidentsPerCarRace.accident.later × control del piloto × desgaste del circuito × calibration.accident, por vuelta como las averías y × modo de ritmo, agua (wet), neumático equivocado (mismatch) y scFactor. control = 1 + (55 − consistencia) × perConsistency, acotado. attrition = race.profile.attrition / attritionReference. Los errores graves del piloto (race.js rollMistake) también acaban en accidente (mistakeCrash, antes en código): cuentan dentro de calibration.accident. status NV para las formas; el total lo fija measured.",
+    "status": "NV",
+    "perConsistency": 0.013,
+    "control": [
+      0.5,
+      1.8
+    ],
+    "attritionReference": 1.15,
+    "wet": [
+      {
+        "from": 0.55,
+        "factor": 1.28
+      },
+      {
+        "from": 0.2,
+        "factor": 1.12
+      }
+    ],
+    "mismatch": 4,
+    "mistakeCrash": {
+      "minLoss": 3.8,
+      "chance": 0.18
+    },
+    "scFactor": 0.4
+  },
+  "contact": {
+    "$comment": "RF-SIM-09 / RF-SIM-07: un toque entre dos coches (primera curva, adelantamiento o duelo). Cada coche implicado tira una consecuencia: retire (abandono en el sitio, f1db Collision), suspension (llega a la línea de esa vuelta y abandona, f1db Collision damage), puncture (vuelve a boxes con un pinchazo: pierde limpLoss × vuelta y para), wing (alerón: wingLoss s por vuelta hasta cambiarlo; los rivales paran si pasa de repairAbove), loss (solo tiempo, lossSeconds). Las probabilidades de cada consecuencia son NV; el total de abandonos lo fija calibration contra measured.",
+    "status": "NV",
+    "outcomes": {
+      "retire": 0.36,
+      "suspension": 0.1,
+      "puncture": 0.12,
+      "wing": 0.2,
+      "loss": 0.22
+    },
+    "lossSeconds": [
+      1.5,
+      6
+    ],
+    "limpLoss": [
+      0.25,
+      0.6
+    ],
+    "wingLoss": [
+      0.6,
+      2.2
+    ],
+    "repairAbove": 0.9,
+    "passContact": 0.012,
+    "debris": {
+      "$comment": "RF-SIM-10: un toque sin abandono que deja restos (alerón o pinchazo) con probabilidad chance pone amarillas en la curva; con SC en la era sale el SC con sc y, con VSC (desde 2015), el VSC con vsc. status NV: no hay cifras públicas por era de coches de seguridad por restos.",
+      "status": "NV",
+      "chance": 0.5,
+      "sc": 0.12,
+      "vsc": 0.25
+    }
+  },
+  "turnOne": {
+    "$comment": "RF-SIM-09 / RF-SIM-10: la primera curva. Cada coche recorre desde su casilla (race-sim.json grid: poleBackMetres + puesto × gapMetres) hasta la primera frenada del circuito (la primera curva de la traza por debajo de brakeBelowKmh, acotada en metres) acelerando desde parado (launch.accel hasta launch.vmax de la era) y sale con su reacción a los semáforos y su arrancada (sigma de la era; menos retraso con mejor racecraft, racecraftSigma por cada 10 puntos, y mejor coche, carSigma por desviación típica de ritmo). Llegan a la frenada separados en tiempo; cada pareja consecutiva solapa exp(−hueco/tau). P(toque) = calibration.turnOne × solape × riesgo de los dos pilotos (accident.perConsistency) × wet si llueve. Un toque puede arrastrar al de detrás (calibration.eras[].chain de la era × su solape; chain aquí es el valor si la era no trae el suyo). Más recorrido = más velocidad al llegar = coches más juntos en tiempo = más toques: la compresión de la primera curva (idea de Pitwall, reescrita sobre la geometría real). El margen de la arrancada sobre la mediana se suma a la primera vuelta (launchToTime). status NV salvo las fechas de cada procedimiento.",
+    "status": "NV",
+    "brakeBelowKmh": 230,
+    "metres": [
+      80,
+      1000
+    ],
+    "tau": 0.35,
+    "chain": 0.35,
+    "launchToTime": 1,
+    "reaction": {
+      "$comment": "Reacción a los semáforos, ~0,2 s de media en un piloto (orden de magnitud publicado; la dispersión es NV).",
+      "status": "NV",
+      "mean": 0.2,
+      "sigma": 0.04
+    },
+    "racecraftSigma": 0.012,
+    "carSigma": 0.04,
+    "wet": 1.6,
+    "launch": [
+      {
+        "from": 1950,
+        "to": 2000,
+        "sigma": 0.3,
+        "accel": 9,
+        "vmax": 80,
+        "status": "NV",
+        "note": "Embrague manual y sin ayudas en la salida: la arrancada es del piloto."
+      },
+      {
+        "from": 2001,
+        "to": 2003,
+        "sigma": 0.1,
+        "accel": 11,
+        "vmax": 85,
+        "status": "NV",
+        "note": "Control de salida permitido desde el GP de España 2001 y prohibido desde 2004 (https://en.wikipedia.org/wiki/Launch_control_(automobile))."
+      },
+      {
+        "from": 2004,
+        "to": 2007,
+        "sigma": 0.2,
+        "accel": 11,
+        "vmax": 85,
+        "status": "NV",
+        "note": "Sin control de salida; control de tracción hasta 2007."
+      },
+      {
+        "from": 2008,
+        "to": 2015,
+        "sigma": 0.25,
+        "accel": 11,
+        "vmax": 85,
+        "status": "NV",
+        "note": "ECU estándar desde 2008: sin control de tracción (https://en.wikipedia.org/wiki/Traction_control_system)."
+      },
+      {
+        "from": 2016,
+        "to": 2100,
+        "sigma": 0.3,
+        "accel": 11,
+        "vmax": 85,
+        "status": "NV",
+        "note": "Desde 2016 el piloto arranca sin ayuda del muro y con una sola leva de embrague (reglamento deportivo FIA 2016)."
+      }
+    ]
+  },
+  "calibration": {
+    "$comment": "Escalas por era ajustadas con overcut/frontend/scripts/measureIncidents.js para que la simulación reproduzca measured: mechanical (averías por coche y carrera), accident (accidentes en solitario después de la apertura), collision (toque por adelantamiento logrado en el modo rápido, × contact.passContact), stepCollision (escala de duel.incident del modo de pasos, race-sim.json), turnOne (P de toque de una pareja que solapa del todo en la primera curva) y chain (P de arrastrar al siguiente, ajustada a los abandonos por carrera con abandono en la apertura: measured.openingIncidentRetirementsPerRace / racesWithOpeningIncidentRetirement).",
+    "eras": [
+      {
+        "from": 1950,
+        "to": 1979,
+        "mechanical": 0.9814,
+        "accident": 1.49,
+        "collision": 1.619,
+        "stepCollision": 1.8265,
+        "turnOne": 0.0613,
+        "chain": 0.465
+      },
+      {
+        "from": 1980,
+        "to": 1988,
+        "mechanical": 1.0835,
+        "accident": 1.3509,
+        "collision": 2.3263,
+        "stepCollision": 5.5273,
+        "turnOne": 0.0348,
+        "chain": 0.482
+      },
+      {
+        "from": 1989,
+        "to": 1993,
+        "mechanical": 1.1027,
+        "accident": 1.4595,
+        "collision": 3.6032,
+        "stepCollision": 6.858,
+        "turnOne": 0.0309,
+        "chain": 0.377
+      },
+      {
+        "from": 1994,
+        "to": 1999,
+        "mechanical": 1.1766,
+        "accident": 1.4131,
+        "collision": 4.9355,
+        "stepCollision": 7.8385,
+        "turnOne": 0.0681,
+        "chain": 0.453
+      },
+      {
+        "from": 2000,
+        "to": 2005,
+        "mechanical": 1.1013,
+        "accident": 1.1353,
+        "collision": 3.207,
+        "stepCollision": 3.5718,
+        "turnOne": 0.037,
+        "chain": 0.663
+      },
+      {
+        "from": 2006,
+        "to": 2013,
+        "mechanical": 1.2161,
+        "accident": 0.9881,
+        "collision": 2.5718,
+        "stepCollision": 3.0954,
+        "turnOne": 0.0503,
+        "chain": 0.38
+      },
+      {
+        "from": 2014,
+        "to": 2021,
+        "mechanical": 1.051,
+        "accident": 0.6018,
+        "collision": 1.4687,
+        "stepCollision": 1.7947,
+        "turnOne": 0.0444,
+        "chain": 0.373
+      },
+      {
+        "from": 2022,
+        "to": 2100,
+        "mechanical": 1.0565,
+        "accident": 0.6323,
+        "collision": 1.3115,
+        "stepCollision": 2.0562,
+        "turnOne": 0.0308,
+        "chain": 0.314
+      }
+    ]
+  },
+  "measured": {
+    "$comment": "Contado de f1db v2026.20.0 por overcut/src/main/resources/scripts/reliability_from_f1db.py (no se edita a mano). Por era: salidas (race_result sin DNQ/DNPQ/DNS/DNP), abandonos mecánicos por coche y carrera y por grupo de componente (reason_retired), accidentes/choques/pinchazos en las vueltas de apertura (laps = 0 o 1) y en el resto, carreras con algún abandono por incidente en la apertura y esos abandonos por carrera. Fuente: https://github.com/f1db/f1db (CC BY 4.0).",
+    "eras": [
+      {
+        "years": [
+          1976,
+          1979
+        ],
+        "races": 64,
+        "starts": 1540,
+        "startersPerRace": 24.0625,
+        "meanLaps": 65.2031,
+        "mechanicalPerCarRace": 0.289,
+        "mechanicalByGroup": {
+          "engine": 0.139,
+          "fuel": 0.0227,
+          "gearbox": 0.0623,
+          "hydraulics": 0.0,
+          "electrics": 0.0123,
+          "suspension": 0.0364,
+          "brakes": 0.0117,
+          "wheel": 0.0045,
+          "aero": 0.0,
+          "other": 0.0
+        },
+        "mechanicalOpeningPerCarRace": 0.013,
+        "incidentsPerCarRace": {
+          "accident": {
+            "opening": 0.0227,
+            "later": 0.1019
+          },
+          "collision": {
+            "opening": 0.013,
+            "later": 0.0039
+          },
+          "puncture": {
+            "opening": 0.0,
+            "later": 0.0058
+          }
+        },
+        "openingIncidentRetirementsPerRace": 0.8594,
+        "racesWithOpeningIncidentRetirement": 0.4375,
+        "lap1IncidentRetirementsPerRace": 0.6562,
+        "racesWithLap1IncidentRetirement": 0.3594
+      },
+      {
+        "years": [
+          1980,
+          1988
+        ],
+        "races": 140,
+        "starts": 3503,
+        "startersPerRace": 25.0214,
+        "meanLaps": 64.1357,
+        "mechanicalPerCarRace": 0.3648,
+        "mechanicalByGroup": {
+          "engine": 0.1913,
+          "fuel": 0.0126,
+          "gearbox": 0.0754,
+          "hydraulics": 0.0003,
+          "electrics": 0.032,
+          "suspension": 0.0337,
+          "brakes": 0.0123,
+          "wheel": 0.006,
+          "aero": 0.0009,
+          "other": 0.0006
+        },
+        "mechanicalOpeningPerCarRace": 0.0166,
+        "incidentsPerCarRace": {
+          "accident": {
+            "opening": 0.0091,
+            "later": 0.0637
+          },
+          "collision": {
+            "opening": 0.02,
+            "later": 0.0217
+          },
+          "puncture": {
+            "opening": 0.0,
+            "later": 0.0077
+          }
+        },
+        "openingIncidentRetirementsPerRace": 0.7286,
+        "racesWithOpeningIncidentRetirement": 0.3714,
+        "lap1IncidentRetirementsPerRace": 0.5857,
+        "racesWithLap1IncidentRetirement": 0.3143
+      },
+      {
+        "years": [
+          1989,
+          1993
+        ],
+        "races": 80,
+        "starts": 2069,
+        "startersPerRace": 25.8625,
+        "meanLaps": 64.4,
+        "mechanicalPerCarRace": 0.3175,
+        "mechanicalByGroup": {
+          "engine": 0.1324,
+          "fuel": 0.0097,
+          "gearbox": 0.102,
+          "hydraulics": 0.001,
+          "electrics": 0.03,
+          "suspension": 0.0251,
+          "brakes": 0.0087,
+          "wheel": 0.0072,
+          "aero": 0.001,
+          "other": 0.0005
+        },
+        "mechanicalOpeningPerCarRace": 0.0203,
+        "incidentsPerCarRace": {
+          "accident": {
+            "opening": 0.0121,
+            "later": 0.0797
+          },
+          "collision": {
+            "opening": 0.0198,
+            "later": 0.0343
+          },
+          "puncture": {
+            "opening": 0.0,
+            "later": 0.0029
+          }
+        },
+        "openingIncidentRetirementsPerRace": 0.825,
+        "racesWithOpeningIncidentRetirement": 0.4375,
+        "lap1IncidentRetirementsPerRace": 0.6625,
+        "racesWithLap1IncidentRetirement": 0.3625
+      },
+      {
+        "years": [
+          1994,
+          1999
+        ],
+        "races": 98,
+        "starts": 2207,
+        "startersPerRace": 22.5204,
+        "meanLaps": 63.8061,
+        "mechanicalPerCarRace": 0.2646,
+        "mechanicalByGroup": {
+          "engine": 0.106,
+          "fuel": 0.0041,
+          "gearbox": 0.0906,
+          "hydraulics": 0.0082,
+          "electrics": 0.0231,
+          "suspension": 0.0168,
+          "brakes": 0.0063,
+          "wheel": 0.0072,
+          "aero": 0.0018,
+          "other": 0.0005
+        },
+        "mechanicalOpeningPerCarRace": 0.014,
+        "incidentsPerCarRace": {
+          "accident": {
+            "opening": 0.0109,
+            "later": 0.0879
+          },
+          "collision": {
+            "opening": 0.0381,
+            "later": 0.0362
+          },
+          "puncture": {
+            "opening": 0.0,
+            "later": 0.0027
+          }
+        },
+        "openingIncidentRetirementsPerRace": 1.102,
+        "racesWithOpeningIncidentRetirement": 0.4694,
+        "lap1IncidentRetirementsPerRace": 0.8571,
+        "racesWithLap1IncidentRetirement": 0.398
+      },
+      {
+        "years": [
+          2000,
+          2005
+        ],
+        "races": 104,
+        "starts": 2134,
+        "startersPerRace": 20.5192,
+        "meanLaps": 62.9712,
+        "mechanicalPerCarRace": 0.2109,
+        "mechanicalByGroup": {
+          "engine": 0.0811,
+          "fuel": 0.0084,
+          "gearbox": 0.0501,
+          "hydraulics": 0.0225,
+          "electrics": 0.0159,
+          "suspension": 0.0169,
+          "brakes": 0.0117,
+          "wheel": 0.0005,
+          "aero": 0.0019,
+          "other": 0.0019
+        },
+        "mechanicalOpeningPerCarRace": 0.0094,
+        "incidentsPerCarRace": {
+          "accident": {
+            "opening": 0.0028,
+            "later": 0.0464
+          },
+          "collision": {
+            "opening": 0.0286,
+            "later": 0.0248
+          },
+          "puncture": {
+            "opening": 0.0,
+            "later": 0.0056
+          }
+        },
+        "openingIncidentRetirementsPerRace": 0.6442,
+        "racesWithOpeningIncidentRetirement": 0.25,
+        "lap1IncidentRetirementsPerRace": 0.5673,
+        "racesWithLap1IncidentRetirement": 0.25
+      },
+      {
+        "years": [
+          2006,
+          2013
+        ],
+        "races": 147,
+        "starts": 3272,
+        "startersPerRace": 22.2585,
+        "meanLaps": 60.4898,
+        "mechanicalPerCarRace": 0.1018,
+        "mechanicalByGroup": {
+          "engine": 0.0241,
+          "fuel": 0.0024,
+          "gearbox": 0.0226,
+          "hydraulics": 0.018,
+          "electrics": 0.0067,
+          "suspension": 0.0107,
+          "brakes": 0.0079,
+          "wheel": 0.0067,
+          "aero": 0.0009,
+          "other": 0.0015
+        },
+        "mechanicalOpeningPerCarRace": 0.0037,
+        "incidentsPerCarRace": {
+          "accident": {
+            "opening": 0.0046,
+            "later": 0.0248
+          },
+          "collision": {
+            "opening": 0.0309,
+            "later": 0.0318
+          },
+          "puncture": {
+            "opening": 0.0003,
+            "later": 0.0024
+          }
+        },
+        "openingIncidentRetirementsPerRace": 0.7959,
+        "racesWithOpeningIncidentRetirement": 0.415,
+        "lap1IncidentRetirementsPerRace": 0.6531,
+        "racesWithLap1IncidentRetirement": 0.3469
+      },
+      {
+        "years": [
+          2014,
+          2021
+        ],
+        "races": 160,
+        "starts": 3243,
+        "startersPerRace": 20.2688,
+        "meanLaps": 60.0438,
+        "mechanicalPerCarRace": 0.0907,
+        "mechanicalByGroup": {
+          "engine": 0.0382,
+          "fuel": 0.0022,
+          "gearbox": 0.0114,
+          "hydraulics": 0.0034,
+          "electrics": 0.008,
+          "suspension": 0.008,
+          "brakes": 0.0117,
+          "wheel": 0.0046,
+          "aero": 0.0015,
+          "other": 0.0015
+        },
+        "mechanicalOpeningPerCarRace": 0.0034,
+        "incidentsPerCarRace": {
+          "accident": {
+            "opening": 0.0028,
+            "later": 0.0136
+          },
+          "collision": {
+            "opening": 0.025,
+            "later": 0.0228
+          },
+          "puncture": {
+            "opening": 0.0003,
+            "later": 0.0022
+          }
+        },
+        "openingIncidentRetirementsPerRace": 0.5687,
+        "racesWithOpeningIncidentRetirement": 0.3438,
+        "lap1IncidentRetirementsPerRace": 0.475,
+        "racesWithLap1IncidentRetirement": 0.2875
+      },
+      {
+        "years": [
+          2022,
+          2026
+        ],
+        "races": 115,
+        "starts": 2258,
+        "startersPerRace": 19.6348,
+        "meanLaps": 59.9391,
+        "mechanicalPerCarRace": 0.062,
+        "mechanicalByGroup": {
+          "engine": 0.0266,
+          "fuel": 0.0018,
+          "gearbox": 0.0084,
+          "hydraulics": 0.0044,
+          "electrics": 0.0035,
+          "suspension": 0.008,
+          "brakes": 0.0058,
+          "wheel": 0.0,
+          "aero": 0.0004,
+          "other": 0.0031
+        },
+        "mechanicalOpeningPerCarRace": 0.0013,
+        "incidentsPerCarRace": {
+          "accident": {
+            "opening": 0.0044,
+            "later": 0.0137
+          },
+          "collision": {
+            "opening": 0.0159,
+            "later": 0.0208
+          },
+          "puncture": {
+            "opening": 0.0,
+            "later": 0.0
+          }
+        },
+        "openingIncidentRetirementsPerRace": 0.4,
+        "racesWithOpeningIncidentRetirement": 0.2696,
+        "lap1IncidentRetirementsPerRace": 0.3304,
+        "racesWithLap1IncidentRetirement": 0.2174
+      }
+    ]
+  }
+}

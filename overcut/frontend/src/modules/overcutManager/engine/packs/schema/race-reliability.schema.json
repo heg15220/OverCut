@@ -1,0 +1,202 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/race-reliability.json (averías, incidentes, salida y primera curva; RF-SIM-09, RF-SIM-14, RF-SIM-10, RF-DEV-08). El bloque measured lo escribe overcut/src/main/resources/scripts/reliability_from_f1db.py. Lo comprueba engine/incidents.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$comment", "version", "mechanical", "accident", "contact", "turnOne", "calibration", "measured"],
+  "definitions": {
+    "share": {"type": "number", "minimum": 0, "maximum": 1},
+    "positive": {"type": "number", "exclusiveMinimum": 0},
+    "nonNegative": {"type": "number", "minimum": 0},
+    "range": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+    "status": {"enum": ["NV", "measured"]},
+    "groups": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "fuel", "gearbox", "hydraulics", "electrics", "suspension", "brakes", "wheel", "aero", "other"],
+      "properties": {
+        "engine": {"$ref": "#/definitions/share"}, "fuel": {"$ref": "#/definitions/share"}, "gearbox": {"$ref": "#/definitions/share"},
+        "hydraulics": {"$ref": "#/definitions/share"}, "electrics": {"$ref": "#/definitions/share"}, "suspension": {"$ref": "#/definitions/share"},
+        "brakes": {"$ref": "#/definitions/share"}, "wheel": {"$ref": "#/definitions/share"}, "aero": {"$ref": "#/definitions/share"}, "other": {"$ref": "#/definitions/share"}
+      }
+    },
+    "split": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["opening", "later"],
+      "properties": {"opening": {"$ref": "#/definitions/share"}, "later": {"$ref": "#/definitions/share"}}
+    }
+  },
+  "properties": {
+    "$comment": {"type": "string", "minLength": 1},
+    "version": {"const": 1},
+    "mechanical": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "relative", "scFactor", "issueFactor", "issueShare", "unitGroups", "wear", "damage"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "relative": {"$ref": "#/definitions/range"},
+        "scFactor": {"$ref": "#/definitions/share"},
+        "issueFactor": {"$ref": "#/definitions/positive"},
+        "issueShare": {"$ref": "#/definitions/share"},
+        "unitGroups": {
+          "type": "object",
+          "propertyNames": {"pattern": "^(\\$comment|engine|fuel|gearbox|hydraulics|electrics|suspension|brakes|wheel|aero|other)$"},
+          "additionalProperties": {"anyOf": [{"type": "string"}, {"type": "array", "items": {"enum": ["engine", "ice", "tc", "mguh", "mguk", "es", "ce", "gearbox"]}}]}
+        },
+        "wear": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "pivot", "slope", "min", "max"],
+          "properties": {"$comment": {"type": "string"}, "status": {"$ref": "#/definitions/status"}, "pivot": {"$ref": "#/definitions/share"}, "slope": {"$ref": "#/definitions/nonNegative"}, "min": {"$ref": "#/definitions/positive"}, "max": {"$ref": "#/definitions/positive"}}
+        },
+        "damage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "groups", "factor"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "status": {"$ref": "#/definitions/status"},
+            "groups": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}},
+            "factor": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["perfect", "light", "heavy", "destroyed"],
+              "properties": {"perfect": {"const": 1}, "light": {"type": "number", "minimum": 1}, "heavy": {"type": "number", "minimum": 1}, "destroyed": {"type": "number", "minimum": 1}}
+            }
+          }
+        }
+      }
+    },
+    "accident": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "perConsistency", "control", "attritionReference", "wet", "mismatch", "mistakeCrash", "scFactor"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "status": {"$ref": "#/definitions/status"},
+        "perConsistency": {"$ref": "#/definitions/nonNegative"},
+        "control": {"$ref": "#/definitions/range"},
+        "attritionReference": {"$ref": "#/definitions/positive"},
+        "wet": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["from", "factor"], "properties": {"from": {"$ref": "#/definitions/share"}, "factor": {"$ref": "#/definitions/positive"}}}},
+        "mismatch": {"$ref": "#/definitions/positive"},
+        "mistakeCrash": {"type": "object", "additionalProperties": false, "required": ["minLoss", "chance"], "properties": {"minLoss": {"$ref": "#/definitions/positive"}, "chance": {"$ref": "#/definitions/share"}}},
+        "scFactor": {"$ref": "#/definitions/share"}
+      }
+    },
+    "contact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "outcomes", "lossSeconds", "limpLoss", "wingLoss", "repairAbove", "passContact", "debris"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "status": {"$ref": "#/definitions/status"},
+        "outcomes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["retire", "suspension", "puncture", "wing", "loss"],
+          "properties": {"retire": {"$ref": "#/definitions/share"}, "suspension": {"$ref": "#/definitions/share"}, "puncture": {"$ref": "#/definitions/share"}, "wing": {"$ref": "#/definitions/share"}, "loss": {"$ref": "#/definitions/share"}}
+        },
+        "lossSeconds": {"$ref": "#/definitions/range"},
+        "limpLoss": {"$ref": "#/definitions/range"},
+        "wingLoss": {"$ref": "#/definitions/range"},
+        "repairAbove": {"$ref": "#/definitions/positive"},
+        "passContact": {"$ref": "#/definitions/share"},
+        "debris": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "chance", "sc", "vsc"],
+          "properties": {"$comment": {"type": "string"}, "status": {"$ref": "#/definitions/status"}, "chance": {"$ref": "#/definitions/share"}, "sc": {"$ref": "#/definitions/share"}, "vsc": {"$ref": "#/definitions/share"}}
+        }
+      }
+    },
+    "turnOne": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "brakeBelowKmh", "metres", "tau", "chain", "launchToTime", "reaction", "racecraftSigma", "carSigma", "wet", "launch"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "status": {"$ref": "#/definitions/status"},
+        "brakeBelowKmh": {"$ref": "#/definitions/positive"},
+        "metres": {"$ref": "#/definitions/range"},
+        "tau": {"$ref": "#/definitions/positive"},
+        "chain": {"$ref": "#/definitions/share"},
+        "launchToTime": {"$ref": "#/definitions/nonNegative"},
+        "reaction": {"type": "object", "additionalProperties": false, "required": ["status", "mean", "sigma"], "properties": {"$comment": {"type": "string"}, "status": {"$ref": "#/definitions/status"}, "mean": {"$ref": "#/definitions/positive"}, "sigma": {"$ref": "#/definitions/nonNegative"}}},
+        "racecraftSigma": {"$ref": "#/definitions/nonNegative"},
+        "carSigma": {"$ref": "#/definitions/nonNegative"},
+        "wet": {"$ref": "#/definitions/positive"},
+        "launch": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to", "sigma", "accel", "vmax", "status", "note"],
+            "properties": {"from": {"type": "integer"}, "to": {"type": "integer"}, "sigma": {"$ref": "#/definitions/nonNegative"}, "accel": {"$ref": "#/definitions/positive"}, "vmax": {"$ref": "#/definitions/positive"}, "status": {"$ref": "#/definitions/status"}, "note": {"type": "string", "minLength": 1}}
+          }
+        }
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "eras"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "eras": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to", "mechanical", "accident", "collision", "stepCollision", "turnOne", "chain"],
+            "properties": {
+              "from": {"type": "integer"}, "to": {"type": "integer"},
+              "mechanical": {"$ref": "#/definitions/positive"}, "accident": {"$ref": "#/definitions/positive"}, "collision": {"$ref": "#/definitions/positive"},
+              "stepCollision": {"$ref": "#/definitions/positive"}, "turnOne": {"$ref": "#/definitions/share"}, "chain": {"$ref": "#/definitions/share"}
+            }
+          }
+        }
+      }
+    },
+    "measured": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "eras"],
+      "properties": {
+        "$comment": {"type": "string", "minLength": 1},
+        "eras": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["years", "races", "starts", "startersPerRace", "meanLaps", "mechanicalPerCarRace", "mechanicalByGroup", "mechanicalOpeningPerCarRace", "incidentsPerCarRace", "openingIncidentRetirementsPerRace", "racesWithOpeningIncidentRetirement", "lap1IncidentRetirementsPerRace", "racesWithLap1IncidentRetirement"],
+            "properties": {
+              "years": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
+              "races": {"type": "integer", "minimum": 1},
+              "starts": {"type": "integer", "minimum": 1},
+              "startersPerRace": {"$ref": "#/definitions/positive"},
+              "meanLaps": {"$ref": "#/definitions/positive"},
+              "mechanicalPerCarRace": {"$ref": "#/definitions/share"},
+              "mechanicalByGroup": {"$ref": "#/definitions/groups"},
+              "mechanicalOpeningPerCarRace": {"$ref": "#/definitions/share"},
+              "incidentsPerCarRace": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["accident", "collision", "puncture"],
+                "properties": {"accident": {"$ref": "#/definitions/split"}, "collision": {"$ref": "#/definitions/split"}, "puncture": {"$ref": "#/definitions/split"}}
+              },
+              "openingIncidentRetirementsPerRace": {"$ref": "#/definitions/nonNegative"},
+              "racesWithOpeningIncidentRetirement": {"$ref": "#/definitions/share"},
+              "lap1IncidentRetirementsPerRace": {"$ref": "#/definitions/nonNegative"},
+              "racesWithLap1IncidentRetirement": {"$ref": "#/definitions/share"}
+            }
+          }
+        }
+      }
+    }
+  }
+}
