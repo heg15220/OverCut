@@ -51,6 +51,11 @@ Reglas:
   y fase de boxes. Equivalencia SRS 4.2 en `engine/sim/equivalence.test.js` (32 semillas). Tramos de spline mal
   extraídos se enderezan a mano en `tools/assets/assets.config.json` `review.track.straighten` (Monza);
   `tools/assets/engine_loader.mjs` deja cargar el motor desde Node.
+- Bloques de realismo (2026-11-23, filas en SIM-FISICA §7), todos construidos desde cero y calibrados con f1db,
+  ERA5/OpenF1 y reglamento FIA: sonido sintetizado (`three/audio/`), IA de mercado (`engine/marketAI.js`), incidentes
+  y fiabilidad (`engine/incidents.js`), clima y mojado (`engine/weather/`), motor y marchas (`engine/sim/powertrain.js`),
+  energía y combustible (`engine/energy.js`), doce atributos de piloto desde f1db (`driver_attributes.py`, packs 2.1.0,
+  guardado v5) e IA de carrera (`engine/drivers/skills.js`). Del repo Pitwall (sin licencia) solo ideas, nunca código.
 - Tests del Manager: `CI=true npx react-scripts test --watchAll=false --testPathPattern overcutManager`.
   `npm install` necesita `--legacy-peer-deps` (conflicto previo de react-vis con React 18).
 - Ningún valor de balance en código (RNF-07): va a los packs de temporada con esquema JSON.
