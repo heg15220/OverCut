@@ -1,0 +1,696 @@
+{
+ "$comment": "GENERADO por tools/assets/blender/extract_kerbs.py desde la malla GLB (pintura saturada junto al borde pintado). No editar a mano: volver a generar.",
+ "generator": "extract_kerbs.py v1",
+ "splineId": "hungaroring-3",
+ "source": "hungaroring-3.glb",
+ "frame": "spline: metros desde la meta en el sentido de carrera; side left/right del sentido de carrera",
+ "lengthM": 4428.8,
+ "kerbs": [
+  {
+   "fromM": 240.0,
+   "toM": 249.0,
+   "side": "left",
+   "edgeM": 7.4
+  },
+  {
+   "fromM": 269.0,
+   "toM": 274.0,
+   "side": "right",
+   "edgeM": 6.8
+  },
+  {
+   "fromM": 275.0,
+   "toM": 280.0,
+   "side": "left",
+   "edgeM": 6.7
+  },
+  {
+   "fromM": 291.0,
+   "toM": 296.0,
+   "side": "right",
+   "edgeM": 6.8
+  },
+  {
+   "fromM": 334.0,
+   "toM": 339.0,
+   "side": "right",
+   "edgeM": 6.8
+  },
+  {
+   "fromM": 437.0,
+   "toM": 443.0,
+   "side": "left",
+   "edgeM": 6.97
+  },
+  {
+   "fromM": 457.0,
+   "toM": 468.0,
+   "side": "right",
+   "edgeM": 11.4
+  },
+  {
+   "fromM": 483.0,
+   "toM": 489.0,
+   "side": "left",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 493.0,
+   "toM": 507.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 540.0,
+   "toM": 557.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 561.0,
+   "toM": 578.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 592.0,
+   "toM": 599.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 603.0,
+   "toM": 621.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 659.0,
+   "toM": 664.0,
+   "side": "left",
+   "edgeM": 5.9
+  },
+  {
+   "fromM": 675.0,
+   "toM": 682.0,
+   "side": "left",
+   "edgeM": 5.9
+  },
+  {
+   "fromM": 687.0,
+   "toM": 692.0,
+   "side": "left",
+   "edgeM": 6.0
+  },
+  {
+   "fromM": 730.0,
+   "toM": 735.0,
+   "side": "left",
+   "edgeM": 6.2
+  },
+  {
+   "fromM": 772.0,
+   "toM": 781.0,
+   "side": "left",
+   "edgeM": 5.9
+  },
+  {
+   "fromM": 826.0,
+   "toM": 831.0,
+   "side": "right",
+   "edgeM": 5.6
+  },
+  {
+   "fromM": 859.0,
+   "toM": 867.0,
+   "side": "right",
+   "edgeM": 5.5
+  },
+  {
+   "fromM": 936.0,
+   "toM": 945.0,
+   "side": "left",
+   "edgeM": 5.4
+  },
+  {
+   "fromM": 955.0,
+   "toM": 966.0,
+   "side": "right",
+   "edgeM": 5.5
+  },
+  {
+   "fromM": 959.0,
+   "toM": 975.0,
+   "side": "left",
+   "edgeM": 5.5
+  },
+  {
+   "fromM": 1098.0,
+   "toM": 1150.0,
+   "side": "right",
+   "edgeM": 5.6
+  },
+  {
+   "fromM": 1160.0,
+   "toM": 1165.0,
+   "side": "left",
+   "edgeM": 5.6
+  },
+  {
+   "fromM": 1201.0,
+   "toM": 1207.0,
+   "side": "left",
+   "edgeM": 5.9
+  },
+  {
+   "fromM": 1203.0,
+   "toM": 1225.0,
+   "side": "right",
+   "edgeM": 6.28
+  },
+  {
+   "fromM": 1299.0,
+   "toM": 1304.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 1480.0,
+   "toM": 1485.0,
+   "side": "left",
+   "edgeM": 5.4
+  },
+  {
+   "fromM": 1705.0,
+   "toM": 1719.0,
+   "side": "left",
+   "edgeM": 5.5
+  },
+  {
+   "fromM": 1735.0,
+   "toM": 1743.0,
+   "side": "left",
+   "edgeM": 5.4
+  },
+  {
+   "fromM": 1735.0,
+   "toM": 1752.0,
+   "side": "right",
+   "edgeM": 5.4
+  },
+  {
+   "fromM": 1752.0,
+   "toM": 1757.0,
+   "side": "left",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 1760.0,
+   "toM": 1797.0,
+   "side": "right",
+   "edgeM": 5.2
+  },
+  {
+   "fromM": 1783.0,
+   "toM": 1789.0,
+   "side": "left",
+   "edgeM": 5.1
+  },
+  {
+   "fromM": 1801.0,
+   "toM": 1811.0,
+   "side": "right",
+   "edgeM": 5.0
+  },
+  {
+   "fromM": 1857.0,
+   "toM": 1873.0,
+   "side": "left",
+   "edgeM": 4.6
+  },
+  {
+   "fromM": 1892.0,
+   "toM": 1900.0,
+   "side": "left",
+   "edgeM": 4.6
+  },
+  {
+   "fromM": 1914.0,
+   "toM": 1954.0,
+   "side": "right",
+   "edgeM": 4.5
+  },
+  {
+   "fromM": 1996.0,
+   "toM": 2001.0,
+   "side": "right",
+   "edgeM": 4.3
+  },
+  {
+   "fromM": 2012.0,
+   "toM": 2022.0,
+   "side": "left",
+   "edgeM": 4.35
+  },
+  {
+   "fromM": 2035.0,
+   "toM": 2092.0,
+   "side": "left",
+   "edgeM": 4.5
+  },
+  {
+   "fromM": 2046.0,
+   "toM": 2053.0,
+   "side": "right",
+   "edgeM": 4.5
+  },
+  {
+   "fromM": 2150.0,
+   "toM": 2155.0,
+   "side": "right",
+   "edgeM": 4.4
+  },
+  {
+   "fromM": 2175.0,
+   "toM": 2186.0,
+   "side": "left",
+   "edgeM": 4.4
+  },
+  {
+   "fromM": 2194.0,
+   "toM": 2207.0,
+   "side": "right",
+   "edgeM": 4.4
+  },
+  {
+   "fromM": 2227.0,
+   "toM": 2239.0,
+   "side": "right",
+   "edgeM": 4.38
+  },
+  {
+   "fromM": 2244.0,
+   "toM": 2253.0,
+   "side": "right",
+   "edgeM": 4.3
+  },
+  {
+   "fromM": 2263.0,
+   "toM": 2288.0,
+   "side": "right",
+   "edgeM": 4.7
+  },
+  {
+   "fromM": 2266.0,
+   "toM": 2272.0,
+   "side": "left",
+   "edgeM": 4.78
+  },
+  {
+   "fromM": 2309.0,
+   "toM": 2317.0,
+   "side": "left",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 2347.0,
+   "toM": 2383.0,
+   "side": "right",
+   "edgeM": 4.5
+  },
+  {
+   "fromM": 2357.0,
+   "toM": 2362.0,
+   "side": "left",
+   "edgeM": 4.5
+  },
+  {
+   "fromM": 2382.0,
+   "toM": 2394.0,
+   "side": "left",
+   "edgeM": 4.5
+  },
+  {
+   "fromM": 2389.0,
+   "toM": 2395.0,
+   "side": "right",
+   "edgeM": 4.5
+  },
+  {
+   "fromM": 2454.0,
+   "toM": 2477.0,
+   "side": "left",
+   "edgeM": 4.6
+  },
+  {
+   "fromM": 2525.0,
+   "toM": 2549.0,
+   "side": "left",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 2569.0,
+   "toM": 2610.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 2570.0,
+   "toM": 2580.0,
+   "side": "left",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 2604.0,
+   "toM": 2610.0,
+   "side": "left",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 2616.0,
+   "toM": 2657.0,
+   "side": "left",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 2616.0,
+   "toM": 2625.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 2634.0,
+   "toM": 2643.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 2647.0,
+   "toM": 2653.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 2668.0,
+   "toM": 2681.0,
+   "side": "right",
+   "edgeM": 4.65
+  },
+  {
+   "fromM": 2679.0,
+   "toM": 2690.0,
+   "side": "left",
+   "edgeM": 4.7
+  },
+  {
+   "fromM": 2713.0,
+   "toM": 2719.0,
+   "side": "left",
+   "edgeM": 4.6
+  },
+  {
+   "fromM": 2751.0,
+   "toM": 2762.0,
+   "side": "right",
+   "edgeM": 4.7
+  },
+  {
+   "fromM": 2771.0,
+   "toM": 2783.0,
+   "side": "right",
+   "edgeM": 4.7
+  },
+  {
+   "fromM": 2794.0,
+   "toM": 2802.0,
+   "side": "right",
+   "edgeM": 4.7
+  },
+  {
+   "fromM": 2805.0,
+   "toM": 2838.0,
+   "side": "left",
+   "edgeM": 4.7
+  },
+  {
+   "fromM": 2835.0,
+   "toM": 2859.0,
+   "side": "right",
+   "edgeM": 4.4
+  },
+  {
+   "fromM": 2842.0,
+   "toM": 2850.0,
+   "side": "left",
+   "edgeM": 4.4
+  },
+  {
+   "fromM": 2863.0,
+   "toM": 2877.0,
+   "side": "right",
+   "edgeM": 4.3
+  },
+  {
+   "fromM": 2874.0,
+   "toM": 2884.0,
+   "side": "left",
+   "edgeM": 4.3
+  },
+  {
+   "fromM": 2895.0,
+   "toM": 2900.0,
+   "side": "right",
+   "edgeM": 4.3
+  },
+  {
+   "fromM": 2917.0,
+   "toM": 2922.0,
+   "side": "right",
+   "edgeM": 4.3
+  },
+  {
+   "fromM": 2950.0,
+   "toM": 2959.0,
+   "side": "right",
+   "edgeM": 4.4
+  },
+  {
+   "fromM": 2977.0,
+   "toM": 3000.0,
+   "side": "right",
+   "edgeM": 4.6
+  },
+  {
+   "fromM": 3014.0,
+   "toM": 3074.0,
+   "side": "left",
+   "edgeM": 4.8
+  },
+  {
+   "fromM": 3072.0,
+   "toM": 3077.0,
+   "side": "right",
+   "edgeM": 10.5
+  },
+  {
+   "fromM": 3106.0,
+   "toM": 3111.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 3169.0,
+   "toM": 3175.0,
+   "side": "right",
+   "edgeM": 4.6
+  },
+  {
+   "fromM": 3218.0,
+   "toM": 3225.0,
+   "side": "left",
+   "edgeM": 4.5
+  },
+  {
+   "fromM": 3294.0,
+   "toM": 3303.0,
+   "side": "left",
+   "edgeM": 4.7
+  },
+  {
+   "fromM": 3324.0,
+   "toM": 3329.0,
+   "side": "right",
+   "edgeM": 4.9
+  },
+  {
+   "fromM": 3378.0,
+   "toM": 3398.0,
+   "side": "right",
+   "edgeM": 5.4
+  },
+  {
+   "fromM": 3518.0,
+   "toM": 3562.0,
+   "side": "left",
+   "edgeM": 4.95
+  },
+  {
+   "fromM": 3526.0,
+   "toM": 3531.0,
+   "side": "right",
+   "edgeM": 4.8
+  },
+  {
+   "fromM": 3554.0,
+   "toM": 3562.0,
+   "side": "right",
+   "edgeM": 5.07
+  },
+  {
+   "fromM": 3566.0,
+   "toM": 3579.0,
+   "side": "right",
+   "edgeM": 5.1
+  },
+  {
+   "fromM": 3583.0,
+   "toM": 3624.0,
+   "side": "right",
+   "edgeM": 4.9
+  },
+  {
+   "fromM": 3779.0,
+   "toM": 3798.0,
+   "side": "right",
+   "edgeM": 4.9
+  },
+  {
+   "fromM": 3788.0,
+   "toM": 3796.0,
+   "side": "left",
+   "edgeM": 5.1
+  },
+  {
+   "fromM": 3803.0,
+   "toM": 3816.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 3808.0,
+   "toM": 3813.0,
+   "side": "left",
+   "edgeM": 5.2
+  },
+  {
+   "fromM": 3828.0,
+   "toM": 3840.0,
+   "side": "left",
+   "edgeM": 5.7
+  },
+  {
+   "fromM": 3859.0,
+   "toM": 3869.0,
+   "side": "left",
+   "edgeM": 5.5
+  },
+  {
+   "fromM": 3936.0,
+   "toM": 3947.0,
+   "side": "right",
+   "edgeM": 5.15
+  },
+  {
+   "fromM": 3963.0,
+   "toM": 3968.0,
+   "side": "right",
+   "edgeM": 2.7
+  },
+  {
+   "fromM": 3977.0,
+   "toM": 3988.0,
+   "side": "right",
+   "edgeM": 2.25
+  },
+  {
+   "fromM": 3980.0,
+   "toM": 4005.0,
+   "side": "left",
+   "edgeM": 2.4
+  },
+  {
+   "fromM": 3992.0,
+   "toM": 3997.0,
+   "side": "right",
+   "edgeM": 2.3
+  },
+  {
+   "fromM": 4009.0,
+   "toM": 4049.0,
+   "side": "left",
+   "edgeM": 2.32
+  },
+  {
+   "fromM": 4016.0,
+   "toM": 4031.0,
+   "side": "right",
+   "edgeM": 2.3
+  },
+  {
+   "fromM": 4040.0,
+   "toM": 4047.0,
+   "side": "right",
+   "edgeM": 2.2
+  },
+  {
+   "fromM": 4053.0,
+   "toM": 4063.0,
+   "side": "left",
+   "edgeM": 2.3
+  },
+  {
+   "fromM": 4067.0,
+   "toM": 4122.0,
+   "side": "left",
+   "edgeM": 2.3
+  },
+  {
+   "fromM": 4094.0,
+   "toM": 4101.0,
+   "side": "right",
+   "edgeM": 2.3
+  },
+  {
+   "fromM": 4126.0,
+   "toM": 4142.0,
+   "side": "left",
+   "edgeM": 2.4
+  },
+  {
+   "fromM": 4315.0,
+   "toM": 4322.0,
+   "side": "left",
+   "edgeM": 6.6
+  },
+  {
+   "fromM": 4326.0,
+   "toM": 4337.0,
+   "side": "left",
+   "edgeM": 6.6
+  },
+  {
+   "fromM": 4361.0,
+   "toM": 4366.0,
+   "side": "left",
+   "edgeM": 6.7
+  }
+ ],
+ "quality": {
+  "rows": 4430,
+  "kerbRows": {
+   "left": 619,
+   "right": 621
+  },
+  "kerbMetres": 1574.0
+ }
+}

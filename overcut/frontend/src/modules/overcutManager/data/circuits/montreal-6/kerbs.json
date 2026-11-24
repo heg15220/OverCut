@@ -1,0 +1,132 @@
+{
+ "$comment": "GENERADO por tools/assets/blender/extract_kerbs.py desde la malla GLB (pintura saturada junto al borde pintado). No editar a mano: volver a generar.",
+ "generator": "extract_kerbs.py v1",
+ "splineId": "montreal-6",
+ "source": "montreal-6.glb",
+ "frame": "spline: metros desde la meta en el sentido de carrera; side left/right del sentido de carrera",
+ "lengthM": 4375.2,
+ "kerbs": [
+  {
+   "fromM": 231.0,
+   "toM": 266.0,
+   "side": "left",
+   "edgeM": 4.98
+  },
+  {
+   "fromM": 277.0,
+   "toM": 286.0,
+   "side": "left",
+   "edgeM": 4.92
+  },
+  {
+   "fromM": 536.0,
+   "toM": 542.0,
+   "side": "right",
+   "edgeM": 5.49
+  },
+  {
+   "fromM": 546.0,
+   "toM": 555.0,
+   "side": "right",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 593.0,
+   "toM": 607.0,
+   "side": "right",
+   "edgeM": 2.76
+  },
+  {
+   "fromM": 611.0,
+   "toM": 631.0,
+   "side": "right",
+   "edgeM": 4.7
+  },
+  {
+   "fromM": 667.0,
+   "toM": 681.0,
+   "side": "right",
+   "edgeM": 4.92
+  },
+  {
+   "fromM": 742.0,
+   "toM": 755.0,
+   "side": "left",
+   "edgeM": 5.3
+  },
+  {
+   "fromM": 1106.0,
+   "toM": 1111.0,
+   "side": "left",
+   "edgeM": 6.58
+  },
+  {
+   "fromM": 1119.0,
+   "toM": 1126.0,
+   "side": "right",
+   "edgeM": 5.58
+  },
+  {
+   "fromM": 1226.0,
+   "toM": 1271.0,
+   "side": "left",
+   "edgeM": 5.61
+  },
+  {
+   "fromM": 1852.0,
+   "toM": 1860.0,
+   "side": "right",
+   "edgeM": 5.07
+  },
+  {
+   "fromM": 1918.0,
+   "toM": 1929.0,
+   "side": "left",
+   "edgeM": 5.27
+  },
+  {
+   "fromM": 1941.0,
+   "toM": 1948.0,
+   "side": "right",
+   "edgeM": 5.14
+  },
+  {
+   "fromM": 1953.0,
+   "toM": 1960.0,
+   "side": "right",
+   "edgeM": 5.11
+  },
+  {
+   "fromM": 1965.0,
+   "toM": 1972.0,
+   "side": "right",
+   "edgeM": 5.1
+  },
+  {
+   "fromM": 2627.0,
+   "toM": 2646.0,
+   "side": "left",
+   "edgeM": 7.08
+  },
+  {
+   "fromM": 3919.0,
+   "toM": 4215.0,
+   "side": "left",
+   "edgeM": 5.54
+  },
+  {
+   "fromM": 4313.0,
+   "toM": 4353.0,
+   "side": "right",
+   "edgeM": 4.73
+  }
+ ],
+ "quality": {
+  "rows": 4376,
+  "kerbRows": {
+   "left": 376,
+   "right": 115
+  },
+  "kerbMetres": 572.0
+ }
+}

@@ -1,0 +1,246 @@
+{
+ "$comment": "GENERADO por tools/assets/blender/extract_kerbs.py desde la malla GLB (pintura saturada junto al borde pintado). No editar a mano: volver a generar.",
+ "generator": "extract_kerbs.py v1",
+ "splineId": "silverstone-7",
+ "source": "silverstone-7.glb",
+ "frame": "spline: metros desde la meta en el sentido de carrera; side left/right del sentido de carrera",
+ "lengthM": 5063.2,
+ "kerbs": [
+  {
+   "fromM": 447.0,
+   "toM": 468.0,
+   "side": "right",
+   "edgeM": 8.73
+  },
+  {
+   "fromM": 488.0,
+   "toM": 559.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 529.0,
+   "toM": 538.0,
+   "side": "right",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 648.0,
+   "toM": 656.0,
+   "side": "right",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 665.0,
+   "toM": 750.0,
+   "side": "right",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 888.0,
+   "toM": 965.0,
+   "side": "left",
+   "edgeM": 8.55
+  },
+  {
+   "fromM": 977.0,
+   "toM": 1009.0,
+   "side": "right",
+   "edgeM": 8.61
+  },
+  {
+   "fromM": 1070.0,
+   "toM": 1099.0,
+   "side": "right",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 1099.0,
+   "toM": 1106.0,
+   "side": "left",
+   "edgeM": 8.92
+  },
+  {
+   "fromM": 1111.0,
+   "toM": 1195.0,
+   "side": "left",
+   "edgeM": 8.55
+  },
+  {
+   "fromM": 1219.0,
+   "toM": 1228.0,
+   "side": "right",
+   "edgeM": 8.66
+  },
+  {
+   "fromM": 1236.0,
+   "toM": 1243.0,
+   "side": "right",
+   "edgeM": 8.59
+  },
+  {
+   "fromM": 1288.0,
+   "toM": 1490.0,
+   "side": "right",
+   "edgeM": 8.55
+  },
+  {
+   "fromM": 1450.0,
+   "toM": 1519.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 2361.0,
+   "toM": 2371.0,
+   "side": "left",
+   "edgeM": 9.42
+  },
+  {
+   "fromM": 2721.0,
+   "toM": 2805.0,
+   "side": "left",
+   "edgeM": 8.57
+  },
+  {
+   "fromM": 2847.0,
+   "toM": 2932.0,
+   "side": "right",
+   "edgeM": 8.57
+  },
+  {
+   "fromM": 3014.0,
+   "toM": 3031.0,
+   "side": "left",
+   "edgeM": 8.83
+  },
+  {
+   "fromM": 3148.0,
+   "toM": 3220.0,
+   "side": "right",
+   "edgeM": 8.55
+  },
+  {
+   "fromM": 3315.0,
+   "toM": 3389.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4204.0,
+   "toM": 4277.0,
+   "side": "right",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4369.0,
+   "toM": 4380.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4384.0,
+   "toM": 4397.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4401.0,
+   "toM": 4412.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4416.0,
+   "toM": 4442.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4446.0,
+   "toM": 4470.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4474.0,
+   "toM": 4485.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4560.0,
+   "toM": 4609.0,
+   "side": "left",
+   "edgeM": 9.14
+  },
+  {
+   "fromM": 4626.0,
+   "toM": 4690.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4696.0,
+   "toM": 4730.0,
+   "side": "left",
+   "edgeM": 9.9
+  },
+  {
+   "fromM": 4708.0,
+   "toM": 4785.0,
+   "side": "right",
+   "edgeM": 9.17
+  },
+  {
+   "fromM": 4851.0,
+   "toM": 4865.0,
+   "side": "right",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4869.0,
+   "toM": 4888.0,
+   "side": "right",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4894.0,
+   "toM": 4934.0,
+   "side": "right",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4945.0,
+   "toM": 4964.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4946.0,
+   "toM": 4959.0,
+   "side": "right",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4970.0,
+   "toM": 4987.0,
+   "side": "left",
+   "edgeM": 8.58
+  },
+  {
+   "fromM": 4991.0,
+   "toM": 4996.0,
+   "side": "left",
+   "edgeM": 8.58
+  }
+ ],
+ "quality": {
+  "rows": 5064,
+  "kerbRows": {
+   "left": 533,
+   "right": 659
+  },
+  "kerbMetres": 1572.0
+ }
+}
