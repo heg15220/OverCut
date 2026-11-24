@@ -13,7 +13,7 @@ import schema from "../../engine/packs/schema/audio.schema.json";
 import audioData from "../../data/balance/audio.json";
 import {
   cycleFrequency, driveStep, engineSpecFor, eraFor, firingFrequency, gearSpeeds, harmonicWeights, hybridTones, loadFromAccel, nextGear, parseFormula, rpmByYear,
-  shiftCutGain,
+  shiftCutGain, shiftEnvelope, shiftProfileFor, pitLimiterFor, pitHoldKmh, limiterDepthOf, rpmInGear, createEngineVoice,
 } from "./engineSynth";
 import { assignVoices, busGains, cameraMix, distanceGain, dopplerFactor, listenerFor, loadSettings, saveSettings, selectVoices, sliderToGain } from "./mixer";
 import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals } from "./ambience";
@@ -170,10 +170,11 @@ describe("engine maths", () => {
     s = driveStep(spec, s, { x: 8, y: 0 }, 0.1, 0.1);
     expect(s.v).toBeCloseTo(80, 6);
     expect(s.gear).toBeGreaterThan(4);
-    // Pit limiter: low gear, limiter on.
+    // Pit limiter: a fixed gear, the pit limiter on (not the rev limiter).
     const pit = driveStep(spec, null, { x: 0, y: 0, v: 80 / 3.6, pitPhase: "LIMITER" }, 0.1, 0.1);
-    expect(pit.gear).toBe(audioData.voicing.pitLimiterGear);
-    expect(pit.limiter).toBe(true);
+    expect(pit.gear).toBeGreaterThanOrEqual(1);
+    expect(pit.pitLimiter).toBe(true);
+    expect(pit.limiter).toBe(false);
     // Stationary in the box: idle.
     expect(driveStep(spec, null, { x: 0, y: 0, v: 0, pitPhase: "STATIONARY" }, 0.1, 0.1).rpm).toBe(spec.idleRpm);
   });
@@ -395,5 +396,229 @@ describe("race audio controller (mocked Web Audio)", () => {
     const audio = createRaceAudio({ year: 2005 });
     expect(audio.start()).toBe(false);
     expect(() => audio.frame({ tau: 1, cars: [] })).not.toThrow();
+  });
+});
+
+// ------------------------------------------------------------------ AUD-1: shift shape, blips, pit limiter
+
+describe("shift shape per era and maker (shift-shape-per-pu, RF-3D-04, RNF-07, SRS 6.2)", () => {
+  test("every season of every audio era has a catch-all profile; makers before their era", () => {
+    const first = audioData.eras[0].from;
+    const last = audioData.eras[audioData.eras.length - 1].to;
+    for (let year = first; year <= last; year += 1) {
+      const rows = audioData.shiftProfiles.filter((row) => year >= row.from && year <= row.to);
+      const catchAll = rows.findIndex((row) => Object.keys(row.match).length === 0);
+      expect(catchAll).toBeGreaterThanOrEqual(0);
+      const order = audioData.shiftProfiles.indexOf(rows[catchAll]);
+      audioData.shiftProfiles.forEach((row, index) => {
+        if (index > order && year >= row.from && year <= row.to) expect(Object.keys(row.match).length).toBe(0);
+      });
+    }
+    audioData.shiftProfiles.forEach((row) => expect(/NV|f312t|mp44|f640|openf1/.test(row.source)).toBe(true));
+  });
+
+  test("H-pattern before 1989, semi-automatic after, seamless last; the era's cut length by default", () => {
+    const h = engineSpecFor(1976, { formula: "3.0 F12" });
+    const semi = engineSpecFor(1995, { formula: "3.0 V10" });
+    const seamless = engineSpecFor(2024, { formula: "1.6 V6 turbo hybrid" });
+    expect(h.shift.id).toBe("h-pattern");
+    expect(semi.shift.id).toBe("semi-auto");
+    expect(seamless.shift.id).toBe("seamless");
+    expect(h.shift.glideMs).toBeGreaterThan(semi.shift.glideMs);
+    expect(semi.shift.glideMs).toBeGreaterThan(seamless.shift.glideMs);
+    expect(h.shift.transient.ms).toBe(eraFor(1976).shiftCutMs);
+    expect(seamless.shift.transient.ms).toBe(eraFor(2024).shiftCutMs);
+  });
+
+  test("a maker's row wins over the era's, matched on the pack's f1db manufacturer or engine id", () => {
+    const rows = [
+      { id: "maker", from: 2024, to: 2024, match: { manufacturer: "ferrari" }, glideMs: 50, transient: { kind: "pop", db: 2, ms: 30 }, source: "test" },
+      { id: "unit", from: 2024, to: 2024, match: { engineId: "honda-rbpt-h001" }, glideMs: 45, transient: { kind: "cut", db: -6 }, source: "test" },
+      { id: "era", from: 2022, to: 2025, match: {}, glideMs: 40, transient: { kind: "cut", db: -7 }, source: "test" },
+    ];
+    expect(shiftProfileFor(2024, { manufacturer: "ferrari" }, 15, rows).id).toBe("maker");
+    expect(shiftProfileFor(2024, { engineId: "honda-rbpt-h001", manufacturer: "honda-rbpt" }, 15, rows)).toEqual({ id: "unit", glideMs: 45, transient: { kind: "cut", db: -6, ms: 15 } });
+    expect(shiftProfileFor(2024, { manufacturer: "mercedes" }, 15, rows).id).toBe("era");
+    expect(shiftProfileFor(2023, { manufacturer: "ferrari" }, 15, rows).id).toBe("era");
+    expect(shiftProfileFor(2030, {}, 15, rows)).toBeNull();
+    // The pack carries the f1db manufacturer through teamEnginesOf.
+    const engines = Object.values(teamEnginesOf(packOf(2024)));
+    expect(engines.every((engine) => typeof engine.manufacturer === "string")).toBe(true);
+  });
+
+  test("the pitch ramps linearly over glideMs; a cut dips and recovers, a pop jumps and settles", () => {
+    const spec = engineSpecFor(2024, { formula: "1.6 V6 turbo hybrid" });
+    const at = 10;
+    const env = shiftEnvelope(spec, { fromHz: 100, toHz: 88 }, at);
+    expect(env.frequency).toEqual([[at, 100], [at + spec.shift.glideMs / 1000, 88]]);
+    expect(env.gain[0][1]).toBeCloseTo(10 ** (spec.shift.transient.db / 20), 9);
+    expect(env.gain[env.gain.length - 1]).toEqual([at + spec.shift.transient.ms / 1000, 1]);
+    expect(env.until).toBeCloseTo(at + Math.max(spec.shift.glideMs, spec.shift.transient.ms) / 1000, 9);
+    // No previous pitch (a voice just re-pointed): it starts at the target, no swoop from another car.
+    expect(shiftEnvelope(spec, { fromHz: null, toHz: 88 }, at).frequency[0]).toEqual([at, 88]);
+    const pop = { ...spec, shift: { id: "p", glideMs: 40, transient: { kind: "pop", db: 3, ms: 30 } } };
+    expect(shiftCutGain(pop, 0)).toBeGreaterThan(1);
+    expect(shiftCutGain(pop, 0.015)).toBeLessThan(shiftCutGain(pop, 0));
+    expect(shiftCutGain(pop, 0.03)).toBe(1);
+  });
+});
+
+describe("downshift blips (downshift-blips, RF-3D-04, RNF-07)", () => {
+  const { blipPct, blipMs, minSpacingSec } = audioData.voicing.downshift;
+
+  test("a downshift overshoots the new pitch by blipPct at half blipMs and comes back", () => {
+    const spec = engineSpecFor(2024, { formula: "1.6 V6 turbo hybrid" });
+    const env = shiftEnvelope(spec, { fromHz: 80, toHz: 92, blip: true }, 5);
+    expect(env.frequency[1][0]).toBeCloseTo(5 + blipMs / 2000, 9);
+    expect(env.frequency[1][1]).toBeCloseTo(92 * (1 + blipPct), 9);
+    expect(env.frequency[2][1]).toBe(92);
+    expect(env.gain[1][1]).toBeGreaterThan(1);
+    expect(env.gain[env.gain.length - 1][1]).toBe(1);
+  });
+
+  test("driveStep: direction from the gear between two poses, blips only down and not closer than real downshifts", () => {
+    const spec = engineSpecFor(2024, { formula: "1.6 V6 turbo hybrid" });
+    const pose = (gear) => ({ x: 0, y: 0, v: 50, gear, rpm: 10000 });
+    let s = driveStep(spec, null, pose(7), 0.1, 0.1);
+    s = driveStep(spec, s, pose(8), 0.1, 0.1);
+    expect(s.shiftDir).toBe(1);
+    expect(s.blip).toBe(false);
+    s = driveStep(spec, s, pose(7), 0.1, 0.1);
+    expect(s.shiftDir).toBe(-1);
+    expect(s.blip).toBe(true);
+    // Another downshift sooner than minSpacingSec: no second blip.
+    const soon = minSpacingSec / 2;
+    s = driveStep(spec, s, pose(6), soon, soon);
+    expect(s.shiftDir).toBe(-1);
+    expect(s.blip).toBe(false);
+    s = driveStep(spec, s, pose(5), minSpacingSec, minSpacingSec);
+    expect(s.blip).toBe(true);
+  });
+
+  test("the same poses give the same blips (RF-SIM-15, RNF-05)", () => {
+    const spec = engineSpecFor(2012, { formula: "2.4 V8" });
+    const run = () => {
+      let s = null;
+      const out = [];
+      for (let i = 0; i < 300; i += 1) {
+        const v = (320 - Math.abs(150 - i) * 1.8) / 3.6;
+        s = driveStep(spec, s, { x: 0, y: 0, v }, 0.1, 0.1);
+        out.push(`${s.gear}${s.blip ? "*" : ""}`);
+      }
+      return out.join(",");
+    };
+    expect(run()).toBe(run());
+    // Braking from the top back to a hairpin goes down the box, with blips.
+    expect(run()).toMatch(/\*/);
+    expect(run().split(",").pop()).toMatch(/^[1-3]/);
+  });
+});
+
+describe("pit limiter tone (pit-limiter-tone, RF-3D-04, RF-SIM-12, RNF-07, SRS 6.2)", () => {
+  const spec2024 = engineSpecFor(2024, { formula: "1.6 V6 turbo hybrid" });
+
+  test("the limit comes from the rules (era-defaults/pack): 80 km/h in 2024, 60 at Monaco, none before 1994", () => {
+    expect(spec2024.pitLimiter.kmh).toBe(80);
+    expect(engineSpecFor(2024, { formula: "1.6 V6 turbo hybrid" }, { circuitId: "monaco" }).pitLimiter.kmh).toBe(60);
+    expect(pitLimiterFor(1990).kmh).toBeNull();
+    expect(pitLimiterFor(2005).kmh).toBe(100);
+  });
+
+  test("the fixed pit gear comes from race-powertrain.json eras[].pitLimiter when it exists (PT-1 contract)", () => {
+    expect(pitLimiterFor(2024, {}, { eras: [{ from: 2022, to: 2025, pitLimiter: { gear: 2, rpm: 7000 } }] }).gear).toBe(2);
+    expect(pitLimiterFor(2024, {}, { eras: [{ from: 2022, to: 2025 }] }).gear).toBeNull();
+    const fixed = { ...spec2024, pitLimiter: { kmh: 80, gear: 2 } };
+    const s = driveStep(fixed, null, { x: 0, y: 0, v: 80 / 3.6, pitPhase: "LIMITER" }, 0.1, 0.1);
+    expect(s.gear).toBe(2);
+    expect(s.rpm).toBeCloseTo(rpmInGear(fixed, 2, 80, fixed.refTopKmh), 6);
+    // pose.gear (the engine's own powertrain) wins over everything.
+    const own = driveStep(fixed, null, { x: 0, y: 0, v: 80 / 3.6, pitPhase: "LIMITER", gear: 3 }, 0.1, 0.1);
+    expect(own.gear).toBe(3);
+  });
+
+  test("flat tone: the same rpm all along the lane, whatever the speed jitter and the gear the car came in", () => {
+    const along = (startGear) => {
+      let s = { gear: startGear, rpm: 9000, v: 80 / 3.6, load: 0, turbo: 0, topKmh: spec2024.refTopKmh, x: null, y: null, shiftAt: -1 };
+      const rpms = [];
+      for (let i = 0; i < 40; i += 1) {
+        const kmh = 80 * (1 + 0.03 * Math.sin(i));
+        s = driveStep(spec2024, s, { x: 0, y: 0, v: kmh / 3.6, pitPhase: "LIMITER" }, 0.1, 0.1);
+        rpms.push(s.rpm);
+      }
+      return rpms;
+    };
+    const entry = along(8);
+    const exit = along(1);
+    expect(Math.max(...entry) - Math.min(...entry)).toBe(0);
+    expect(entry[entry.length - 1]).toBe(exit[exit.length - 1]);
+  });
+
+  test("no audible modulation: flutter depth ≈ 0 and far below the rev limiter's bounce", () => {
+    const { flutterDepth } = audioData.voicing.pitLimiter;
+    expect(flutterDepth).toBeLessThanOrEqual(0.02);
+    expect(limiterDepthOf({ pitLimiter: true, limiter: false })).toBe(flutterDepth);
+    expect(limiterDepthOf({ pitLimiter: false, limiter: true })).toBe(audioData.voicing.limiterDepth);
+    expect(limiterDepthOf({ pitLimiter: false, limiter: false })).toBe(0);
+    expect(20 * Math.log10(1 - flutterDepth)).toBeGreaterThan(-0.2);
+  });
+
+  test("a circuit exception the view was not told about: hold the speed the car entered at", () => {
+    expect(pitHoldKmh(80, 79)).toBe(80);
+    expect(pitHoldKmh(80, 60)).toBe(60);
+    expect(pitHoldKmh(80, NaN)).toBe(80);
+  });
+
+  test("before pit-lane limits (SRS 6.2) there is no limiter tone; leaving the limiter hands back to the gearbox", () => {
+    const spec = engineSpecFor(1990, { formula: "3.5 V10" });
+    const s = driveStep(spec, null, { x: 0, y: 0, v: 120 / 3.6, pitPhase: "LIMITER" }, 0.1, 0.1);
+    expect(s.pitLimiter).toBe(false);
+    expect(limiterDepthOf(s)).toBe(0);
+    const inLane = driveStep(spec2024, null, { x: 0, y: 0, v: 80 / 3.6, pitPhase: "LIMITER" }, 0.1, 0.1);
+    const out = driveStep(spec2024, inLane, { x: 0, y: 0, v: 90 / 3.6, pitPhase: "EXIT_ROAD" }, 0.1, 0.1);
+    expect(out.pitLimiter).toBe(false);
+    expect(out.pitKmh).toBeNull();
+  });
+
+  test("the synth no longer holds a pit gear of its own (§1.5)", () => {
+    expect(audioData.voicing.pitLimiterGear).toBeUndefined();
+    expect(fs.readFileSync(path.join(__dirname, "engineSynth.js"), "utf8")).not.toMatch(/pitLimiterGear/);
+  });
+});
+
+describe("engine voice automation (mocked Web Audio)", () => {
+  class RecordingContext extends FakeContext {
+    constructor() {
+      super();
+      this.oscs = [];
+    }
+
+    createOscillator() {
+      const osc = super.createOscillator();
+      this.oscs.push(osc);
+      return osc;
+    }
+  }
+
+  test("a gear change schedules the glide ramp; the pit limiter runs the flat flutter, not the bounce", () => {
+    const ctx = new RecordingContext();
+    const voice = createEngineVoice(ctx, ctx.createBuffer(1, 8), null);
+    const spec = engineSpecFor(2024, { formula: "1.6 V6 turbo hybrid" });
+    voice.assign(spec);
+    const [osc] = ctx.oscs;
+    const lfo = ctx.oscs[ctx.oscs.length - 1];
+    const mix = (time) => ({ gain: 1, doppler: 1, interior: 0, lowpassHz: 12000, time, crackle: 0 });
+    voice.update({ gear: 7, rpm: 11800, load: 1, shifted: false }, mix(1));
+    voice.update({ gear: 8, rpm: 10600, load: 1, shifted: true, blip: false }, mix(1.1));
+    expect(osc.frequency.setValueAtTime).toHaveBeenCalledWith(cycleFrequency(11800), 1.1);
+    expect(osc.frequency.linearRampToValueAtTime).toHaveBeenCalledWith(cycleFrequency(10600), 1.1 + spec.shift.glideMs / 1000);
+    // During the glide the smoothing does not overwrite the ramp.
+    osc.frequency.setTargetAtTime.mockClear();
+    voice.update({ gear: 8, rpm: 10650, load: 1, shifted: false }, mix(1.1 + spec.shift.glideMs / 2000));
+    expect(osc.frequency.setTargetAtTime).not.toHaveBeenCalled();
+    voice.update({ gear: 2, rpm: 7000, load: 0.4, shifted: false, pitLimiter: true }, mix(3));
+    expect(lfo.frequency.setTargetAtTime).toHaveBeenLastCalledWith(audioData.voicing.pitLimiter.flutterHz, 3, audioData.voicing.smoothingSec);
+    voice.update({ gear: 8, rpm: 15000, load: 1, shifted: false, limiter: true }, mix(4));
+    expect(lfo.frequency.setTargetAtTime).toHaveBeenLastCalledWith(audioData.voicing.limiterHz, 4, audioData.voicing.smoothingSec);
+    voice.stop();
   });
 });

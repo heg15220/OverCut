@@ -15,6 +15,13 @@
  *   cycle frequency   rpm / 120, the base of the wave: harmonic `cylinders` is the firing note
  *   gear and rpm      from speed through the era's gearbox when the snapshot has no
  *                     rpm/gear yet (`pose.rpm` / `pose.gear` win when present)
+ *   shift shape       per era and maker (audio.json shiftProfiles[]): the pitch glides to the
+ *                     new gear over `glideMs` with a cut or a pop on the gain stage; every
+ *                     downshift adds a throttle blip (voicing.downshift), spaced no closer than
+ *                     real downshifts (OpenF1 car_data)
+ *   pit limiter       a flat tone: the fixed pit gear (pose.gear, or race-powertrain.json
+ *                     eras[].pitLimiter once the engine publishes it) at the era's pit-lane
+ *                     speed limit (rules.js pitLaneSpeedFor); no limiter tone before a limit existed
  *
  * The voice (Web Audio, only in the browser after a click):
  *   oscillator(PeriodicWave per cylinder count) ─┐
@@ -24,6 +31,8 @@
  */
 
 import audioData from "../../data/balance/audio.json";
+import powertrainData from "../../data/balance/race-powertrain.json";
+import { pitLaneSpeedFor } from "../../engine/rules";
 
 const VOICING = audioData.voicing;
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
@@ -58,6 +67,8 @@ const ERA_DEFAULT_FORMULA = (era) => {
   return "3.0 V8";
 };
 
+// `match` keys: cylinders, layout, aspiration, engineId (f1db engine id) and manufacturer (f1db
+// engine manufacturer id, as the season pack carries it).
 const matches = (rule, engine) =>
   Object.entries(rule.match || {}).every(([key, value]) => {
     if (key === "aspiration") return value === "turbo" ? engine.aspiration !== "na" : engine.aspiration === value;
@@ -81,13 +92,43 @@ export const rpmByYear = (anchors, year) => {
 };
 
 /**
- * Everything the synth needs for one car: era, engine (from the pack's f1db formula and
- * id), rev limit and shift point for that year, gearbox, voicing, hybrid parts.
+ * The shift shape for a season and engine (audio.json shiftProfiles[]): the first row whose
+ * years hold `year` and whose `match` fits the engine, so maker- or engine-specific rows go
+ * before the era's catch-all. The transient length defaults to the era's `shiftCutMs`.
+ * Null when no row holds the year (the data test forbids that).
  */
-export const engineSpecFor = (year, engine = null) => {
+export const shiftProfileFor = (year, facts = {}, eraShiftCutMs = 0, profiles = audioData.shiftProfiles) => {
+  const hit = profiles.find((row) => year >= row.from && year <= row.to && matches(row, facts));
+  if (!hit) return null;
+  return { id: hit.id, glideMs: hit.glideMs, transient: { kind: hit.transient.kind, db: hit.transient.db, ms: hit.transient.ms ?? eraShiftCutMs } };
+};
+
+/**
+ * The pit limiter of a season: the limit in km/h (rules.js: pack or era-defaults; null before
+ * pit lanes had one, SRS 6.2) and the fixed gear the powertrain holds there
+ * (race-powertrain.json eras[].pitLimiter, §1.7 contract of PT-1; null while absent).
+ */
+export const pitLimiterFor = (year, { circuitId = null, date = null } = {}, powertrain = powertrainData) => {
+  let kmh = null;
+  try {
+    kmh = pitLaneSpeedFor(year, { circuitId, date });
+  } catch (error) {
+    kmh = null;
+  }
+  const fixed = powertrain?.eras?.length ? eraFor(year, powertrain.eras).pitLimiter : null;
+  const gear = Number.isInteger(fixed?.gear) ? fixed.gear : null;
+  return { kmh: Number.isFinite(kmh) && kmh > 0 ? kmh : null, gear };
+};
+
+/**
+ * Everything the synth needs for one car: era, engine (from the pack's f1db formula, id and
+ * manufacturer), rev limit and shift point for that year, gearbox, shift shape, pit limiter,
+ * voicing, hybrid parts. `where` { circuitId, date } picks the pit-lane limit of that race.
+ */
+export const engineSpecFor = (year, engine = null, where = {}) => {
   const era = eraFor(year);
   const parsed = parseFormula(engine?.formula) || parseFormula(ERA_DEFAULT_FORMULA(era));
-  const facts = { ...parsed, engineId: engine?.id || null };
+  const facts = { ...parsed, engineId: engine?.id || null, manufacturer: engine?.manufacturer || null };
   const rule = era.engines.find((candidate) => matches(candidate, facts)) || era.engines[era.engines.length - 1];
   const revLimit = rule.revLimitByYear ? rpmByYear(rule.revLimitByYear, year) : rule.revLimit;
   const shiftRpm = rule.revLimitByYear ? Math.round(revLimit * rule.shiftShare) : rule.shiftRpm;
@@ -106,6 +147,8 @@ export const engineSpecFor = (year, engine = null) => {
     gearingPerTrack: era.gearingPerTrack,
     refTopKmh: era.refTopKmh,
     shiftCutMs: era.shiftCutMs,
+    shift: shiftProfileFor(year, facts, era.shiftCutMs),
+    pitLimiter: pitLimiterFor(year, where),
     // A turbo only on a charged engine (1988 had atmospheric DFZs beside the turbos).
     turbo: charged ? era.turbo : null,
     electric: era.electric,
@@ -201,27 +244,45 @@ export const driveStep = (spec, state, pose, dtau, dt) => {
   s.y = pose.y;
   const kmh = v * KMH;
   // Before 2014 the ratios were chosen per circuit: the top gear meets the shift point at the track's top speed.
-  if (spec.gearingPerTrack && kmh > s.topKmh * 0.92) s.topKmh = Math.max(s.topKmh * 0.7, kmh / 0.97);
+  // Only upwards: lowering it as the car slowed past 92 % kept it in top gear down to a hairpin.
+  if (spec.gearingPerTrack && kmh > s.topKmh * 0.92) s.topKmh = Math.max(s.topKmh, kmh / 0.97);
   const load = s.v === 0 && v === 0 ? 0 : loadFromAccel(accel);
   let drive;
   if (Number.isFinite(pose.rpm) && Number.isFinite(pose.gear)) {
-    drive = { gear: pose.gear, rpm: Math.min(pose.rpm, spec.revLimit), limiter: pose.rpm >= spec.revLimit, shifted: pose.gear !== s.gear };
-  } else if (pose.pitPhase === "LIMITER" || pose.pitPhase === "ENTRY_ROAD" || pose.pitPhase === "EXIT_ROAD") {
-    // The pit limiter holds the car in a low gear and bounces the engine at that rpm.
-    const gear = Math.min(VOICING.pitLimiterGear, spec.gears);
-    const rpm = clamp(rpmInGear(spec, gear, kmh, s.topKmh), spec.idleRpm, spec.revLimit);
-    drive = { gear, rpm, limiter: pose.pitPhase === "LIMITER", shifted: gear !== s.gear };
+    const pit = pose.pitPhase === "LIMITER" && Boolean(spec.pitLimiter?.kmh);
+    drive = { gear: pose.gear, rpm: Math.min(pose.rpm, spec.revLimit), limiter: !pit && pose.rpm >= spec.revLimit, pitLimiter: pit, shifted: pose.gear !== s.gear };
+  } else if (pose.pitPhase === "LIMITER" && spec.pitLimiter?.kmh) {
+    // The pit limiter holds the car at the limit in one gear: a flat tone, the same on the way
+    // in and out (no bounce, voicing.pitLimiter). The gear is the powertrain's fixed pit gear
+    // (pose, then race-powertrain.json eras[].pitLimiter); without either, the lowest gear
+    // that holds the limit. The speed is the limit, or the speed the car entered at when it
+    // runs a circuit exception the view was not told about.
+    if (!Number.isFinite(s.pitKmh)) s.pitKmh = pitHoldKmh(spec.pitLimiter.kmh, kmh);
+    const fixed = Number.isInteger(pose.gear) ? pose.gear : spec.pitLimiter.gear;
+    const gear = clamp(fixed ?? nextGear(spec, 1, s.pitKmh, s.topKmh).gear, 1, spec.gears);
+    const rpm = clamp(rpmInGear(spec, gear, s.pitKmh, s.topKmh), spec.idleRpm, spec.revLimit);
+    drive = { gear, rpm, limiter: false, pitLimiter: true, shifted: gear !== s.gear };
   } else if (v < 0.3 && (pose.pitPhase === "STATIONARY" || pose.pitPhase === "QUEUE" || pose.parked)) {
     drive = { gear: 1, rpm: spec.idleRpm, limiter: false, shifted: false };
   } else {
     drive = nextGear(spec, s.gear, kmh, s.topKmh, accel >= 0);
   }
+  if (pose.pitPhase !== "LIMITER") s.pitKmh = null;
   if (drive.shifted) s.shiftAt = 0;
   else if (s.shiftAt >= 0) s.shiftAt += dt;
+  // Direction of the change from the gear between two poses; a throttle blip on each downshift
+  // unless the last one was closer than real downshifts come (voicing.downshift.minSpacingSec).
+  const shiftDir = drive.shifted ? Math.sign(drive.gear - s.gear) : 0;
+  s.sinceBlip = (Number.isFinite(s.sinceBlip) ? s.sinceBlip : Infinity) + dt;
+  const blip = shiftDir < 0 && !drive.pitLimiter && s.sinceBlip >= VOICING.downshift.minSpacingSec;
+  if (blip) s.sinceBlip = 0;
   s.gear = drive.gear;
   s.rpm = drive.rpm;
   s.limiter = drive.limiter;
+  s.pitLimiter = Boolean(drive.pitLimiter);
   s.shifted = drive.shifted;
+  s.shiftDir = shiftDir;
+  s.blip = blip;
   s.v = v;
   s.load = load;
   if (spec.turbo) {
@@ -231,12 +292,66 @@ export const driveStep = (spec, state, pose, dtau, dt) => {
   return s;
 };
 
-/** Gain of the shift cut 0..1, `since` seconds after the shift (a short dip, era length). */
+/**
+ * Speed the pit limiter holds (km/h): the limit when the car runs near it, else the speed it
+ * entered the limiter at (voicing.pitLimiter.holdTolerance).
+ */
+export const pitHoldKmh = (limitKmh, kmh) => {
+  if (!Number.isFinite(kmh) || kmh <= 0) return limitKmh;
+  return Math.abs(kmh - limitKmh) <= limitKmh * VOICING.pitLimiter.holdTolerance ? limitKmh : kmh;
+};
+
+const dbToGain = (db) => 10 ** (db / 20);
+// Without a profile (none holds the year: the data test forbids it) the change has no transient.
+const transientOf = (spec) => spec.shift?.transient || { kind: "cut", db: 0, ms: 0 };
+
+/**
+ * Gain of the shift transient, `since` seconds after the shift: a "cut" dips to its dB and
+ * recovers, a "pop" jumps to its dB and settles, `ms` long (shiftProfiles[].transient).
+ */
 export const shiftCutGain = (spec, since) => {
   if (since < 0) return 1;
-  const cut = spec.shiftCutMs / 1000;
-  if (since >= cut) return 1;
-  return 0.15 + 0.85 * (since / cut) ** 2;
+  const transient = transientOf(spec);
+  const length = transient.ms / 1000;
+  if (length <= 0 || since >= length) return 1;
+  const start = dbToGain(transient.db);
+  const share = since / length;
+  if (transient.kind === "pop") return start + (1 - start) * share;
+  return start + (1 - start) * share ** 2;
+};
+
+/**
+ * The automation of one gear change, pure so it is tested without Web Audio: pitch points for
+ * the oscillator and gain points for the cut stage, [time, value] pairs from `at`. The pitch
+ * ramps linearly from `fromHz` to `toHz` over the profile's `glideMs` (no jump in one frame);
+ * a downshift `blip` overshoots the new pitch by `blipPct` and the gain by `blipGainDb`,
+ * peaking at half of `blipMs` (an "^"). `until` is when the change is over.
+ */
+export const shiftEnvelope = (spec, { fromHz, toHz, blip = false }, at) => {
+  const glide = Math.max(0.001, (spec.shift?.glideMs ?? spec.shiftCutMs) / 1000);
+  const cutLength = Math.max(0.005, transientOf(spec).ms / 1000);
+  const start = Number.isFinite(fromHz) && fromHz > 0 ? fromHz : toHz;
+  const frequency = [[at, start]];
+  const gain = [[at, shiftCutGain(spec, 0)]];
+  let until = at + Math.max(glide, cutLength);
+  if (blip) {
+    const { blipPct, blipMs, blipGainDb } = VOICING.downshift;
+    const length = blipMs / 1000;
+    const peak = at + length / 2;
+    frequency.push([peak, toHz * (1 + blipPct)], [at + Math.max(glide, length), toHz]);
+    gain.push([peak, dbToGain(blipGainDb)], [at + Math.max(cutLength, length), 1]);
+    until = at + Math.max(glide, cutLength, length);
+  } else {
+    frequency.push([at + glide, toHz]);
+    gain.push([at + cutLength, 1]);
+  }
+  return { frequency, gain, until };
+};
+
+/** Depth (0..1) of the limiter modulation for a drive state: pit limiter, rev limiter or none. */
+export const limiterDepthOf = (drive) => {
+  if (drive.pitLimiter) return VOICING.pitLimiter.flutterDepth;
+  return drive.limiter ? VOICING.limiterDepth : 0;
 };
 
 // ------------------------------------------------------------------ Web Audio voice
@@ -311,6 +426,13 @@ export const createEngineVoice = (ctx, noiseBuffer, random) => {
   const sources = [osc, exhaust.src, intake.src, whine, electric, limiterLfo];
   sources.forEach((node) => node.start());
   let cutUntil = 0;
+  let pitchUntil = 0;
+  let lastBase = null;
+  const schedule = (param, points) => {
+    param.cancelScheduledValues(points[0][0]);
+    param.setValueAtTime(points[0][1], points[0][0]);
+    points.slice(1).forEach(([time, value]) => param.linearRampToValueAtTime(value, time));
+  };
 
   let spec = null;
   const smooth = VOICING.smoothingSec;
@@ -322,7 +444,9 @@ export const createEngineVoice = (ctx, noiseBuffer, random) => {
       return spec;
     },
     assign(next) {
-      if (spec && spec.engine.cylinders === next.engine.cylinders && spec.engine.layout === next.engine.layout) {
+      // Another car on this voice: its first change does not glide from the last car's pitch.
+      if (spec !== next) lastBase = null;
+      if (spec &&spec.engine.cylinders === next.engine.cylinders && spec.engine.layout === next.engine.layout) {
         spec = next;
         return;
       }
@@ -338,7 +462,14 @@ export const createEngineVoice = (ctx, noiseBuffer, random) => {
       const at = mix.time;
       const doppler = mix.doppler || 1;
       const base = cycleFrequency(drive.rpm) * doppler;
-      set(osc.frequency, base, at);
+      // A gear change glides the pitch and shapes the gain (shiftEnvelope); between changes
+      // the pitch follows the rpm with the usual smoothing.
+      const change = drive.shifted ? shiftEnvelope(spec, { fromHz: lastBase, toHz: base, blip: Boolean(drive.blip) }, at) : null;
+      if (change) {
+        schedule(osc.frequency, change.frequency);
+        pitchUntil = change.until;
+      } else if (at >= pitchUntil) set(osc.frequency, base, at);
+      lastBase = base;
       const firing = firingFrequency(drive.rpm, spec.engine.cylinders) * doppler;
       set(exhaust.filter.frequency, firing * VOICING.noise.exhaustOrder, at);
       set(intake.filter.frequency, firing * VOICING.noise.intakeOrder, at);
@@ -351,18 +482,19 @@ export const createEngineVoice = (ctx, noiseBuffer, random) => {
       const { minHz, maxHz } = VOICING.filter;
       const open = minHz + (maxHz - minHz) * spec.voice.brightness * (0.35 + 0.65 * load) * (drive.rpm / spec.revLimit);
       set(tone.frequency, Math.min(open, mix.lowpassHz), at);
-      // Shift cut (scheduled on the change, the era's length) and rev limiter (a square
-      // LFO on the same gain stage, so it bounces at limiterHz whatever the update rate).
-      if (drive.shifted) {
-        const length = spec.shiftCutMs / 1000;
-        cut.gain.cancelScheduledValues(at);
-        cut.gain.setValueAtTime(shiftCutGain(spec, 0), at);
-        cut.gain.linearRampToValueAtTime(1, at + Math.max(0.005, length));
-        cutUntil = at + length;
+      // Shift transient (scheduled on the change, the profile's shape) and the limiters: a
+      // square LFO on the same gain stage, so it runs at its rate whatever the update rate.
+      // The rev limiter bounces (limiterHz, limiterDepth); the pit limiter is a flat tone
+      // (voicing.pitLimiter, flutterDepth ≈ 0).
+      const depth = limiterDepthOf(drive);
+      set(limiterLfo.frequency, drive.pitLimiter ? VOICING.pitLimiter.flutterHz : VOICING.limiterHz, at);
+      if (change) {
+        schedule(cut.gain, change.gain);
+        cutUntil = change.until;
       } else if (at >= cutUntil) {
-        set(cut.gain, drive.limiter ? 1 - VOICING.limiterDepth / 2 : 1, at);
+        set(cut.gain, 1 - depth / 2, at);
       }
-      set(limiterDepth.gain, drive.limiter ? VOICING.limiterDepth / 2 : 0, at);
+      set(limiterDepth.gain, depth / 2, at);
       const tones = hybridTones(spec, drive.rpm, drive.turbo || 0);
       if (spec.turbo) {
         set(whine.frequency, Math.max(20, tones.turboHz * doppler), at);
