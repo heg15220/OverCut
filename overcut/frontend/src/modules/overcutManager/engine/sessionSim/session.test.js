@@ -8,6 +8,11 @@
  * the weekend's local clock (pack schedule from f1db, era template, the unplayed breaks between
  * knockout segments), the track evolution by era against f1db's Q1->Q3 improvement (±0.15 s),
  * the 2006-2007 fuel burn, and the garage work between runs.
+ *
+ * SES-2 (F1M24-GAMEPLAY §2.2 salida-boxes-sesion; RF-WKD-02, RF-SIM-12, RF-3D-04, RNF-07): the
+ * garage exit on the physical lane against OpenF1's Bahrain 2024 practice range, the run phases of
+ * the §1.7 contract, the queue at the pit-exit light, the in-lap that ends in the garage and
+ * boxRequest.distanceM.
  */
 
 import Ajv from "ajv";
@@ -22,8 +27,9 @@ import { hourlyConditions } from "../weather";
 import { loadSeasonPack } from "../packs/seasonPacks";
 import { rulesFor } from "../rules";
 import {
-  advanceTo, carStatus, command, createSession, nextSegment, rankOf, replaySession, runSegmentToEnd, runSessionToEnd, sessionFormat, sessionResult, stepOnce,
+  RUN_PHASES, advanceTo, carStatus, command, createSession, nextSegment, rankOf, replaySession, runSegmentToEnd, runSessionToEnd, sessionFormat, sessionResult, stepOnce,
 } from ".";
+import { PIT_LANE_BALANCE, buildProfile, garageExitProfile, laneGeometry } from "../sim/pitLane";
 import { evolutionImprovement, evolutionOf, garageWorkOf, localClockOf, sessionConditions, sessionScheduleOf } from "./session";
 
 let context = null;
@@ -384,5 +390,146 @@ describe("SES-1: local clock, track evolution and garage work (F1M24-GAMEPLAY §
     expect(setupDistance(from, { ...from, frontWing: 55, toe: 45 })).toBe(10);
     expect(setupDistance(from, from)).toBe(0);
     expect(setupDistance(null, from)).toBe(0);
+  });
+});
+
+describe("SES-2: the physical garage - out of the box, down the lane, back into the garage (F1M24-GAMEPLAY §2.2)", () => {
+  const bahrain2024 = (kind = "practice") => {
+    const career = createCareer(contextOf(), { year: 2024, teamId: "ferrari", seed: "ses2" });
+    career.round = packs[2024].calendar.findIndex((event) => event.circuitId === "bahrain");
+    runPractice(career, {});
+    const options = { ...sessionOptions(career, kind), wetness: 0 };
+    const user = options.entrants.filter((entry) => entry.isUser).map((entry) => entry.id);
+    return { career, options, user };
+  };
+  const statusUntil = (state, id, test, limit = 20000) => {
+    for (let guard = 0; guard < limit; guard += 1) {
+      const status = carStatus(state, id);
+      if (test(status)) return status;
+      stepOnce(state);
+    }
+    return null;
+  };
+
+  it("sessions.json has no fixed pit-lane seconds any more; the garage exit is measured in OpenF1 (RNF-07)", () => {
+    expect(balance.laps.pitLaneSec).toBeUndefined();
+    expect(balance.laps.boxStopSec).toBeUndefined();
+    expect(balance.garage.exit).toMatchObject({ status: "measured", measured: { circuitId: "bahrain", year: 2024 } });
+    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    expect(validate({ ...balance, laps: { ...balance.laps, pitLaneSec: 14 } })).toBe(false);
+  });
+
+  it("garage -> track in Bahrain 2024 is inside the range OpenF1 measured in practice, from every team's box (RF-WKD-02, RF-SIM-12)", () => {
+    const { options } = bahrain2024();
+    const state = createSession(options);
+    const { measured, rollOutSec } = balance.garage.exit;
+    expect(state.lane.kmh).toBe(80);
+    const times = state.cars.map((car) => rollOutSec + car.lane.toLimitEnd);
+    expect(times.filter((seconds) => seconds < measured.p10 || seconds > measured.p90)).toEqual([]);
+    // The middle box is the measured median (rollOutSec is what the lane leaves of it).
+    const middle = rollOutSec + garageExitProfile(state.circuit, state.era, 0.5, { kmh: 80, baseLap: state.baseLap }).toLimitEnd;
+    expect(Math.abs(middle - measured.median)).toBeLessThanOrEqual(1);
+    // A box nearer the exit is out sooner.
+    const sorted = state.cars.slice().sort((a, b) => a.box - b.box);
+    expect(sorted[0].lane.exitSec).toBeGreaterThan(sorted[sorted.length - 1].lane.exitSec);
+  });
+
+  it("a run goes GARAGE -> GARAGE_EXIT -> OUT_LAP -> PUSH_PREP -> PUSH -> IN_LAP -> GARAGE, within the limit in the lane", () => {
+    const { options, user } = bahrain2024();
+    const state = createSession(options);
+    const id = user[0];
+    const car = state.cars.find((entry) => entry.id === id);
+    expect(carStatus(state, id).runPhase).toBe("GARAGE");
+    run(state, 30);
+    command(state, "sendOut", id, { programme: "setup", laps: 1, fuel: 5, compound: "hard" });
+    const geo = laneGeometry(state.circuit);
+    const seen = ["GARAGE"];
+    let fastest = 0;
+    let exitRoad = 0;
+    for (let guard = 0; guard < 4000 && !(seen.length > 1 && seen[seen.length - 1] === "GARAGE"); guard += 1) {
+      stepOnce(state);
+      const status = carStatus(state, id);
+      if (seen[seen.length - 1] !== status.runPhase) seen.push(status.runPhase);
+      if (status.garageExit && !status.garageExit.rolling) {
+        if (status.garageExit.s <= geo.limitToS) fastest = Math.max(fastest, status.garageExit.v);
+        else exitRoad = Math.max(exitRoad, status.garageExit.v);
+      }
+    }
+    expect(seen).toEqual(["GARAGE", "GARAGE_EXIT", "OUT_LAP", "PUSH_PREP", "PUSH", "IN_LAP", "GARAGE"]);
+    expect(seen.filter((phase) => !RUN_PHASES.includes(phase))).toEqual([]);
+    // Never above the limit in the limited zone (80 km/h, era-defaults.json); free on the exit road after it.
+    expect(fastest).toBeGreaterThan(0);
+    expect(fastest).toBeLessThanOrEqual(state.lane.vLimit + 1e-9);
+    expect(exitRoad).toBeGreaterThan(state.lane.vLimit);
+    const [out, , inLap] = car.history;
+    expect(out.garageExit.trackAt - out.start).toBeCloseTo(balance.garage.exit.rollOutSec + car.lane.exitSec + out.garageExit.queueSec, 9);
+    // The in-lap ends in the garage, on the lane's own profile from pit entry down to the box.
+    const toBox = buildProfile(state.circuit, { vLimit: state.lane.vLimit, baseLap: state.baseLap, stopAt: geo.slotFrom + (geo.slotTo - geo.slotFrom) * car.box }).tStop;
+    expect(inLap.in).toBe(true);
+    expect(toBox).toBeGreaterThan(0);
+    expect(inLap.end - inLap.pit.entryAt).toBeCloseTo(toBox, 9);
+    expect(car.returnedAt).toBe(inLap.end);
+  });
+
+  it("cars released together queue at the light and join the track one behind the other (cola en el semáforo)", () => {
+    const { options, user } = bahrain2024("qualifying");
+    const state = createSession(options);
+    // Both cars of the team share a box: out at the same instant.
+    user.forEach((id) => command(state, "sendOut", id, { push: 1, compound: "soft" }));
+    run(state, 1);
+    const [a, b] = user.map((id) => state.cars.find((car) => car.id === id).history[0].garageExit);
+    const gap = Math.sqrt((2 * PIT_LANE_BALANCE.queueOffsetMetres) / PIT_LANE_BALANCE.accel.max);
+    expect(a.queueSec).toBe(0);
+    expect(b.queueSec).toBeCloseTo(gap, 9);
+    expect(b.trackAt - a.trackAt).toBeGreaterThanOrEqual(gap - 1e-9);
+    const waiting = statusUntil(state, user[1], (status) => Boolean(status.garageExit?.queued));
+    expect(waiting).toMatchObject({ runPhase: "GARAGE_EXIT", garageExit: { v: 0, queued: true } });
+    expect(waiting.garageExit.toTrack).toBeGreaterThan(0);
+  });
+
+  it("boxRequest.distanceM: the metres to pit entry once the car is called in, falling as it drives there", () => {
+    const { options, user } = bahrain2024();
+    const state = createSession(options);
+    const id = user[0];
+    command(state, "sendOut", id, { programme: "setup", laps: 3, compound: "hard" });
+    statusUntil(state, id, (status) => status.runPhase === "OUT_LAP");
+    run(state, 10);
+    expect(carStatus(state, id).boxRequest).toBeNull();
+    expect(command(state, "boxNow", id)).toBe(true);
+    const first = carStatus(state, id);
+    expect(first.runPhase).toBe("IN_LAP");
+    expect(first.boxRequest.distanceM).toBeGreaterThan(0);
+    expect(first.boxRequest.distanceM).toBeLessThan(state.circuit.length);
+    expect(first.car.boxRequest.distanceM).toBe(first.boxRequest.distanceM);
+    run(state, 20);
+    expect(carStatus(state, id).boxRequest.distanceM).toBeLessThan(first.boxRequest.distanceM);
+    // On a timed lap the call is for the end of it: round to the line and on to the next entry.
+    statusUntil(state, id, (status) => status.runPhase === "GARAGE");
+    command(state, "sendOut", id, { programme: "setup", laps: 3, compound: "hard" });
+    expect(statusUntil(state, id, (status) => status.runPhase === "PUSH")).not.toBeNull();
+    run(state, 5);
+    command(state, "boxNow", id);
+    const deferred = carStatus(state, id);
+    expect(deferred.runPhase).toBe("PUSH");
+    expect(deferred.boxRequest.distanceM).toBeGreaterThan(state.circuit.length * (1 - deferred.elapsed / deferred.record.flying));
+  });
+
+  it("era by era: no pit-lane limit before 1994, so the lane is driven at the geometry's speed (SRS §6)", () => {
+    const old = createSession(setUp({ year: 1990 }).options);
+    expect(old.lane.kmh).toBeNull();
+    expect(old.cars.filter((car) => !(car.lane.exitSec > 0 && car.lane.inSec > 0))).toEqual([]);
+    const modern = createSession(bahrain2024().options);
+    const free = garageExitProfile(modern.circuit, 1990, 0.5, { kmh: null, baseLap: modern.baseLap });
+    const limited = garageExitProfile(modern.circuit, 2024, 0.5, { kmh: 80, baseLap: modern.baseLap });
+    expect(free.T).toBeLessThan(limited.T);
+  });
+
+  it("the lane draws nothing: the garage exit is the same for every seed, the session stays deterministic (RF-SIM-15, RNF-05)", () => {
+    const { options } = bahrain2024("qualifying");
+    const a = createSession(options);
+    const b = createSession({ ...options, seed: "another" });
+    expect(a.cars.map((car) => car.lane)).toEqual(b.cars.map((car) => car.lane));
+    const once = JSON.stringify(sessionResult(runSessionToEnd(createSession(options))));
+    expect(JSON.stringify(sessionResult(runSessionToEnd(createSession(options))))).toBe(once);
   });
 });

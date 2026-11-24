@@ -37,12 +37,30 @@
  *                for is done: the base turnaround, another tyre set, the fuel added and a setup
  *                change, scaled by the pit crew (sessions.json garage.work; garageWorkOf shows
  *                it before the order is confirmed).
+ *
+ * The physical garage (SES-2, F1M24-GAMEPLAY §2.2 salida-boxes-sesion; RF-WKD-02, RF-SIM-12):
+ *   garage exit  a run starts in the team's garage: the car is rolled out into the fast lane
+ *                (sessions.json garage.exit.rollOutSec, from OpenF1), drives the pit lane on the
+ *                race's own physical profile from its box to the end of the white exit line
+ *                (engine/sim/pitLane.js garageExitProfile, the era's limit from era-defaults.json
+ *                pitLaneSpeed) and joins the track when the exit is clear: cars that reach it
+ *                together queue at the light, one behind the other (race-pit.json queueOffsetMetres).
+ *   in-lap       ends in the garage: the track to pit entry at in-lap pace, then the lane on the same
+ *                profile down to the team's box (v = 0 there). No fixed pit-lane seconds any more.
+ *   phases       carStatus(...).runPhase is the §1.7 contract: GARAGE, GARAGE_EXIT, OUT_LAP,
+ *                PUSH_PREP (past the last corner before the line that starts a push lap), PUSH,
+ *                IN_LAP; with `garageExit` {s, v, queued, toTrack} while leaving and `boxRequest`
+ *                {distanceM} (metres to pit entry) once the car has been called in.
+ * Nothing in the lane draws from a stream: the lane is geometry, the same for every seed.
  */
 
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
 import { fieldMomentsOf, qualifyingAnchorOf, qualifyingPaceOf, raceFuelOf, tyreTime } from "../race";
-import { byYear, rulesFor } from "../rules";
+import { byYear, pitLaneSpeedFor, rulesFor } from "../rules";
 import { setupDistance } from "../setup";
+import { buildProfile, circuitIdOf, garageExitAt, garageExitProfile, laneGeometry, limitSpeed, PIT_LANE_BALANCE } from "../sim/pitLane";
+import { distanceAtTimeShare, timeShareAtDistance } from "../trackGeometry";
+import { circuitFor } from "../venue";
 import { climateFor, hourlyConditions } from "../weather";
 import { SESSION_BALANCE as B, sessionFormat, tyreAllocation } from "./formats";
 
@@ -131,6 +149,95 @@ export const sessionConditions = (state, tau = state.clock) => {
   return { localClock: clock, ...hourlyConditions({ race: state.climateRace, hour: clock.seconds / 3600, diurnal: B.clock.diurnal }) };
 };
 
+// ------------------------------------------------------------------ the garage and the lane (SES-2)
+
+/** The built circuit of a session (not serialised with the state). */
+const circuitOfState = (state) => state.circuit || null;
+
+const exitCache = new WeakMap();
+
+/** The garage-exit profile of box share `box` (pitLane.garageExitProfile), cached per circuit. Null without a lane. */
+const exitProfileOf = (state, box) => {
+  const circuit = circuitOfState(state);
+  if (!circuit?.pit?.path) return null;
+  if (!exitCache.has(circuit)) exitCache.set(circuit, new Map());
+  const memo = exitCache.get(circuit);
+  const key = `${state.lane.kmh}|${state.baseLap}|${box}|${state.year}`;
+  if (!memo.has(key)) memo.set(key, garageExitProfile(circuit, state.era, box, { kmh: state.lane.kmh, baseLap: state.baseLap }));
+  return memo.get(key);
+};
+
+/**
+ * The lane of a session: the limit (km/h, null before there was one), the pit entry and exit as
+ * time shares of the lap, the last corner's apex (where PUSH_PREP starts) and, per box share, the
+ * seconds from the release to the track and from pit entry to the box. All geometry, no stream.
+ */
+const laneOf = ({ circuit, race, era, baseLap, pitEntryShare }) => {
+  const rules = rulesFor(era);
+  const circuitId = circuitIdOf(race || {}, circuit?.ref);
+  const kmh = pitLaneSpeedFor(rules, { circuitId, date: race?.date ?? null });
+  const hasLane = Boolean(circuit?.pit?.path);
+  const corners = (circuit?.corners || []).map((corner) => corner.apex).filter((apex) => Number.isFinite(apex) && apex > 0 && apex < 1);
+  return {
+    kmh,
+    hasLane,
+    entryShare: Number.isFinite(pitEntryShare) ? pitEntryShare : hasLane ? timeShareAtDistance(circuit, circuit.pit.entry) : 1,
+    exitShare: hasLane ? timeShareAtDistance(circuit, circuit.pit.exit) : 0,
+    entryDistance: hasLane ? circuit.pit.entry : 1,
+    prepFrom: corners.length ? Math.max(...corners) : null,
+    length: circuit?.length || null,
+    vLimit: hasLane ? limitSpeed(circuit, kmh, baseLap) : null,
+  };
+};
+
+/** Seconds from pit entry to a stop at box share `box` on the session's lane (0 without a lane). */
+const inLaneSecOf = (state, box) => {
+  const circuit = circuitOfState(state);
+  if (!state.lane.hasLane || !circuit) return 0;
+  const geo = laneGeometry(circuit);
+  const stopAt = geo.slotFrom + (geo.slotTo - geo.slotFrom) * clamp(box, 0, 1);
+  return buildProfile(circuit, { vLimit: state.lane.vLimit, baseLap: state.baseLap, stopAt }).tStop;
+};
+
+/**
+ * The gap two cars keep at the pit-exit light: the time to cover race-pit.json queueOffsetMetres
+ * from rest at the lane's top acceleration (pitLane.accel.max). Derived, no number of its own.
+ */
+const queueGapSec = () => Math.sqrt((2 * PIT_LANE_BALANCE.queueOffsetMetres) / PIT_LANE_BALANCE.accel.max);
+
+/** The earliest time from `arrival` at which the exit is clear of every car already joining this segment. */
+const clearExitAt = (state, arrival) => {
+  const gap = queueGapSec();
+  const taken = state.exitQueue.slice().sort((a, b) => a - b);
+  let at = arrival;
+  for (let pass = 0; pass <= taken.length; pass += 1) {
+    const clash = taken.find((other) => Math.abs(other - at) < gap - EPS);
+    if (clash === undefined) break;
+    at = clash + gap;
+  }
+  return at;
+};
+
+/** Where a lap record has the car on the track at `tau`: the time share of the lap (null before it is on track). */
+const trackShareOf = (record, tau) => {
+  const track = record.track || { at: record.start, from: 0, pace: record.end - record.start };
+  if (tau < track.at) return null;
+  if (record.warp) return clamp(record.warp.share + ((tau - record.warp.at) / Math.max(EPS, record.end - record.warp.at)) * (1 - record.warp.share), 0, 1);
+  return clamp(track.from + (tau - track.at) / Math.max(EPS, track.pace), 0, 1);
+};
+
+/**
+ * Metres to pit entry from time share `share` of the lap: on this lap (`thisLap`) or, for a car
+ * that finishes the lap first, round to the line and on to the next lap's entry. Null without a lane.
+ */
+const metresToEntry = (state, share, thisLap) => {
+  const circuit = circuitOfState(state);
+  if (!circuit || !state.lane.hasLane || !state.lane.length) return null;
+  const d = share >= 1 ? 1 : distanceAtTimeShare(circuit, share);
+  const ahead = thisLap ? Math.max(0, state.lane.entryDistance - d) : 1 - d + state.lane.entryDistance;
+  return Math.round(ahead * state.lane.length);
+};
+
 // ------------------------------------------------------------------ set up
 
 /**
@@ -138,13 +245,19 @@ export const sessionConditions = (state, tau = state.clock) => {
  * practice preparation (race.js qualifyingPaceOf); `raceFuel` each car's race fuel in
  * laps for a race-fuel segment (rivals' first stint); `runOrder` the single-lap order;
  * `sectorShares` the time shares of the two sector lines (trackGeometry), `pitEntryShare`
- * the time share of pit entry; `tyres` the sets each car still has (RF-WKD-05).
+ * the time share of pit entry (default: the circuit's own); `tyres` the sets each car still has
+ * (RF-WKD-05); `circuit` the built circuit (default venue.circuitFor(race, year)) whose pit lane the
+ * garage exit and the in-lap drive (SES-2). Each team has its box along the lane in entry order.
  */
 export const createSession = ({
-  kind, entrants, race, era, seed, wetness = 0, practice = {}, raceFuel = {}, runOrder = null, sectorShares = [1 / 3, 2 / 3], pitEntryShare = 0.93, tyres = null,
-  sessionName = null, setups = null, crews = null,
+  kind, entrants, race, era, seed, wetness = 0, practice = {}, raceFuel = {}, runOrder = null, sectorShares = [1 / 3, 2 / 3], pitEntryShare = null, tyres = null,
+  sessionName = null, setups = null, crews = null, circuit = null,
 }) => {
   const rules = rulesFor(era);
+  const built = circuit || circuitFor(race, rules.year);
+  // Boxes in entry order of the teams, as the view lays the garages out (share 0..1 along the slots).
+  const teamOrder = [...new Set(entrants.map((entrant) => entrant.teamId))];
+  const boxOf = (teamId) => (teamOrder.length > 1 ? teamOrder.indexOf(teamId) / (teamOrder.length - 1) : 0.5);
   const format = sessionFormat({ kind, era, race, field: entrants.length });
   const moments = fieldMomentsOf(entrants);
   // WP10 (RF-WKD-02): the same anchor to the real pole as the quick qualifying.
@@ -164,7 +277,9 @@ export const createSession = ({
     // trabajo-garaje: the setup on the car (sliders) and its crew rating, when the weekend gives them.
     setup: setups?.[entrant.id] ? { ...setups[entrant.id] } : null,
     crew: Number.isFinite(crews?.[entrant.teamId]) ? crews[entrant.teamId] : null,
+    box: boxOf(entrant.teamId),
   }));
+  const lane = laneOf({ circuit: built, race, era, baseLap: race.baseLap, pitEntryShare });
   const state = {
     kind,
     format: format.format,
@@ -179,7 +294,8 @@ export const createSession = ({
     wetness,
     volatility: era.paceVolatility ?? 1,
     sectorShares,
-    pitEntryShare,
+    pitEntryShare: lane.entryShare,
+    lane,
     runOrder: runOrder || entrants.map((entrant) => entrant.id),
     dt: B.step.dt,
     segment: -1,
@@ -193,6 +309,12 @@ export const createSession = ({
     schedule: sessionScheduleOf({ kind, race, era, sessionName }),
     climateRace: { date: race.date || null, packCircuitId: race.packCircuitId || null, circuitId: race.circuitId || null, circuit: race.circuit || null },
   };
+  // The built circuit stays out of the serialised state (it is geometry, rebuilt from the race).
+  Object.defineProperty(state, "circuit", { value: built, enumerable: false, writable: true });
+  state.cars.forEach((car) => {
+    const exit = exitProfileOf(state, car.box);
+    car.lane = { exitSec: exit ? exit.T : 0, toLimitEnd: exit ? exit.toLimitEnd : 0, metres: exit ? exit.metres : 0, inSec: inLaneSecOf(state, car.box) };
+  });
   startSegment(state, 0);
   return state;
 };
@@ -208,12 +330,16 @@ const startSegment = (state, index) => {
   state.flag = false;
   state.over = false;
   state.fieldLaps = 0;
+  // SES-2: the times at which cars join the track from the pit exit this segment (the light's queue).
+  state.exitQueue = [];
   const segment = currentSegment(state);
-  // Single-lap qualifying: one car at a time, in run order, a slot each.
+  // Single-lap qualifying: one car at a time, in run order, a slot each - the last one with time to
+  // drive out of the garage, its out-lap and its lap.
   if (segment.singleLap) {
     const order = state.runOrder.filter((id) => !carOf(state, id)?.eliminated);
     segment.slots = Object.fromEntries(order.map((id, slot) => [id, slot * segment.spacing]));
-    segment.duration = order.length * segment.spacing + state.baseLap * (B.laps.outLap + 1);
+    const garage = Math.max(0, ...state.cars.map((car) => B.garage.exit.rollOutSec + (car.lane?.exitSec ?? 0)));
+    segment.duration = order.length * segment.spacing + garage + state.baseLap * (B.laps.outLap + 1);
   }
   state.cars.forEach((car) => {
     car.history = [];
@@ -374,23 +500,42 @@ const lapTimeOf = (state, car, kind) => {
   return { time, sectors, mistake: mistake > 0 };
 };
 
-/** Start a lap of `kind` at session time `at`. */
-const beginLap = (state, car, kind, at) => {
+/**
+ * SES-2: make `record` the in-lap that ends in the garage. The car is on the track from `trackAt` at
+ * time share `from` of the lap at `pace` seconds a lap; it reaches pit entry, then drives the lane on
+ * the physical profile down to its box (v = 0 there). `pit.entryAt` is when it turns in.
+ */
+const toInLap = (state, car, record, trackAt, from, pace) => {
+  const entryAt = trackAt + Math.max(0, state.pitEntryShare - from) * pace;
+  record.in = true;
+  record.box = true;
+  record.track = { at: trackAt, from, pace };
+  record.pit = { lane: car.lane.inSec, stationary: 0, entryAt };
+  record.end = entryAt + car.lane.inSec;
+  return record;
+};
+
+/** Start a lap of `kind` at session time `at` (an out-lap with its garage exit, see leave). */
+const beginLap = (state, car, kind, at, garageExit = null) => {
   const { time, sectors, mistake } = lapTimeOf(state, car, kind);
   car.laps += 1;
   const record = { lap: car.history.length + 1, start: at, end: at + time, kind, compound: car.run.set.compound };
-  if (kind === "out") record.out = true;
+  if (kind === "out") {
+    record.out = true;
+    if (garageExit) {
+      // On the track from the pit exit to the line only: the share of the lap after the exit.
+      const from = state.lane.exitShare;
+      record.garageExit = garageExit;
+      record.track = { at: garageExit.trackAt, from, pace: time };
+      record.end = garageExit.trackAt + (1 - from) * time;
+    }
+  }
   if (kind === "push" || kind === "timed") {
     record.flying = time;
     record.sectors = sectors;
     if (mistake) record.mistake = true;
   }
-  if (kind === "in") {
-    record.in = true;
-    record.box = true;
-    record.pit = { lane: B.laps.pitLaneSec, stationary: B.laps.boxStopSec };
-    record.end += B.laps.pitLaneSec + B.laps.boxStopSec;
-  }
+  if (kind === "in") toInLap(state, car, record, at, 0, time);
   car.history.push(record);
   car.record = record;
   car.state = kind === "push" || kind === "timed" ? "flying" : kind;
@@ -477,8 +622,14 @@ const leave = (state, car, plan, at) => {
   if (plan.setup) car.setup = { ...plan.setup };
   car.run = { plan, set, pushes: 0, timed: 0, burned: 0, times: [], from: round3(at) };
   car.boxRequest = false;
-  beginLap(state, car, "out", at);
-  state.events.push({ t: round3(at), type: "out", carId: car.id, compound: set.compound, fuel: plan.fuel });
+  // SES-2: rolled out, down the lane from the box, then onto the track when the exit is clear.
+  const rollOutSec = B.garage.exit.rollOutSec;
+  const arrival = at + rollOutSec + car.lane.exitSec;
+  const trackAt = clearExitAt(state, arrival);
+  state.exitQueue.push(trackAt);
+  const garageExit = { rollOutSec, laneSec: car.lane.exitSec, queueSec: trackAt - arrival, trackAt, box: car.box, metres: car.lane.metres };
+  beginLap(state, car, "out", at, garageExit);
+  state.events.push({ t: round3(at), type: "out", carId: car.id, compound: set.compound, fuel: plan.fuel, trackAt: round3(trackAt), queueSec: round3(trackAt - arrival) });
   return true;
 };
 
@@ -706,18 +857,18 @@ const ORDERS = {
     const record = car.record;
     if (!record) return ORDERS.hold(state, car);
     if (record.in) return false;
-    const share = (state.clock - record.start) / (record.end - record.start);
+    // Still leaving the garage: the car is in the lane and turns in at the end of its out-lap.
+    const track = record.track || { at: record.start, from: 0, pace: record.end - record.start };
+    const share = trackShareOf(record, state.clock) ?? track.from;
     if (!record.flying && !record.warp && share < state.pitEntryShare) {
       record.kind = "in";
-      record.in = true;
-      record.box = true;
       delete record.out;
-      record.pit = { lane: B.laps.pitLaneSec, stationary: B.laps.boxStopSec };
-      record.end += B.laps.pitLaneSec + B.laps.boxStopSec;
+      toInLap(state, car, record, track.at, track.from, track.pace);
       car.state = "in";
+      car.boxRequest = { at: state.clock, distanceM: metresToEntry(state, share, true) };
       return true;
     }
-    car.boxRequest = true;
+    car.boxRequest = { at: state.clock, distanceM: metresToEntry(state, share, false) };
     return true;
   },
   /** Push style for the coming laps: safe, normal or push. */
@@ -772,6 +923,37 @@ export const replaySession = (options, log) => {
 
 // ------------------------------------------------------------------ reading it
 
+/**
+ * SES-2, §1.7 contract `phase[i]`: GARAGE, GARAGE_EXIT, OUT_LAP (also cool-down and fuel-burn laps),
+ * PUSH_PREP (past the last corner's apex on a lap whose next one is timed), PUSH (a timed lap not
+ * aborted) or IN_LAP, with `garageExit` and `boxRequest` details. Read-only.
+ */
+export const RUN_PHASES = ["GARAGE", "GARAGE_EXIT", "OUT_LAP", "PUSH_PREP", "PUSH", "IN_LAP"];
+
+const runPhaseOf = (state, car, live, tau) => {
+  if (!live) return { runPhase: "GARAGE", garageExit: null, boxRequest: null };
+  const share = trackShareOf(live, tau);
+  if (live.in) {
+    const onTrack = tau < live.pit.entryAt;
+    return { runPhase: "IN_LAP", garageExit: null, boxRequest: onTrack ? { distanceM: metresToEntry(state, share ?? live.track.from, true) } : { distanceM: 0 } };
+  }
+  const boxRequest = car.boxRequest && car.record === live ? { distanceM: metresToEntry(state, share ?? live.track?.from ?? 0, false) } : null;
+  if ((live.kind === "push" || live.kind === "timed") && !live.aborted) return { runPhase: "PUSH", garageExit: null, boxRequest };
+  const exit = live.garageExit;
+  if (exit && tau < exit.trackAt) {
+    const elapsed = tau - live.start;
+    const profile = exitProfileOf(state, exit.box);
+    let at = { s: profile ? profile.s0 : 0, v: 0 };
+    if (elapsed >= exit.rollOutSec && profile) at = garageExitAt(profile, elapsed - exit.rollOutSec);
+    const queued = elapsed >= exit.rollOutSec + exit.laneSec;
+    return { runPhase: "GARAGE_EXIT", garageExit: { elapsed, s: at.s, v: queued ? 0 : at.v, rolling: elapsed < exit.rollOutSec, queued, toTrack: exit.trackAt - tau }, boxRequest };
+  }
+  const prepFrom = state.lane.prepFrom;
+  const next = car.record === live && car.run ? nextLapKind(state, car, live) : null;
+  const prep = prepFrom !== null && share !== null && (next === "push" || next === "timed") && distanceAtTimeShare(circuitOfState(state), Math.min(share, 1 - EPS)) >= prepFrom;
+  return { runPhase: prep ? "PUSH_PREP" : "OUT_LAP", garageExit: null, boxRequest };
+};
+
 /** Where a car is at session time `tau`, for the view: state, current lap clock, sector times so far. */
 export const carStatus = (state, carId, tau = state.clock) => {
   const car = carOf(state, carId);
@@ -780,11 +962,10 @@ export const carStatus = (state, carId, tau = state.clock) => {
   const live = record && tau < record.end ? record : null;
   let phase = "garage";
   if (live) {
-    if (live.in) {
-      const racing = live.end - live.start - live.pit.lane - live.pit.stationary;
-      phase = tau - live.start > racing ? "pitlane" : "in";
-    } else phase = live.kind === "push" || live.kind === "timed" ? (live.aborted ? "cool" : "flying") : live.kind === "burn" ? "cool" : live.kind;
+    if (live.in) phase = tau >= live.pit.entryAt ? "pitlane" : "in";
+    else phase = live.kind === "push" || live.kind === "timed" ? (live.aborted ? "cool" : "flying") : live.kind === "burn" ? "cool" : live.kind;
   } else if (car.pending && !car.pending.slot) phase = "queued";
+  const { runPhase, garageExit, boxRequest } = runPhaseOf(state, car, live, tau);
   const elapsed = live ? tau - live.start : null;
   // Sector lines passed on a timed lap.
   const sectors = [];
@@ -798,7 +979,10 @@ export const carStatus = (state, carId, tau = state.clock) => {
   const done = car.history.filter((entry) => entry.end <= tau);
   const timed = done.filter((entry) => entry.flying);
   const bestSoFar = timed.length ? Math.min(...timed.map((entry) => entry.flying)) : null;
-  return { car, phase, record: live, elapsed, sectors, laps: done.length, timedLaps: timed.length, best: bestSoFar, lastLap: timed.length ? timed[timed.length - 1].flying : null };
+  return {
+    car, phase, runPhase, garageExit, boxRequest, localClock: localClockOf(state, tau),
+    record: live, elapsed, sectors, laps: done.length, timedLaps: timed.length, best: bestSoFar, lastLap: timed.length ? timed[timed.length - 1].flying : null,
+  };
 };
 
 /** Session-best sectors among laps finished by `tau` (purple), for the live deltas. */
