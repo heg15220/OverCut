@@ -1,0 +1,755 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07 (rnf07-race, SIM-1 de docs/manager/F1M24-GAMEPLAY.md): esquema de data/balance/race-sim.json, el balance del simulador por pasos (engine/sim/stepRace.js, duel.js) y los términos del adelantamiento que comparte el modo rápido (race.js passChanceOf lee duel). Cerrado: una clave nueva se añade aquí a la vez que en el JSON. Lo comprueba engine/sim/simBalance.test.js.",
+  "definitions": {
+    "nonNegative": {
+      "type": "number",
+      "minimum": 0
+    },
+    "positive": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "share": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "eraRange": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "type": "integer",
+          "minimum": 1900
+        },
+        "to": {
+          "type": "integer",
+          "maximum": 2100
+        }
+      },
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "step",
+    "grid",
+    "lapOne",
+    "traffic",
+    "dirtyAir",
+    "slipstream",
+    "drs",
+    "redFlag",
+    "duel",
+    "defence",
+    "risk",
+    "teamOrders",
+    "blueFlags",
+    "safetyCar",
+    "raceControl",
+    "mistake",
+    "lateral",
+    "pitRelease"
+  ],
+  "properties": {
+    "$comment": {
+      "type": "string"
+    },
+    "version": {
+      "const": 1
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dt",
+        "tableSize"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "dt": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "tableSize": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "grid": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gapMetres",
+        "poleBackMetres"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "gapMetres": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "poleBackMetres": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "lapOne": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scrumShare"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "scrumShare": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "traffic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minGapMetres",
+        "followWindowSec"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "minGapMetres": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "followWindowSec": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "dirtyAir": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "windowSec"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "windowSec": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "slipstream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "windowSec",
+        "byEra"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "windowSec": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "byEra": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/eraRange"
+          }
+        }
+      }
+    },
+    "drs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "speedGain",
+        "duelBonus"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "speedGain": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "duelBonus": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "redFlag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lineUpTimeoutLaps"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "lineUpTimeoutLaps": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "duel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approachMetres",
+        "triggerSec",
+        "stepScale",
+        "cooldownSec",
+        "maxClaim",
+        "base",
+        "overtaking",
+        "pace",
+        "paceThreshold",
+        "racecraft",
+        "wet",
+        "wetFrom",
+        "coldTyre",
+        "coldTyreTemp",
+        "min",
+        "max",
+        "thirdCarFactor",
+        "passBoost",
+        "straight",
+        "passDefenderLoss",
+        "passMaxSeconds",
+        "incident",
+        "switchback"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "approachMetres": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "triggerSec": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "stepScale": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "cooldownSec": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "maxClaim": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "base": {
+          "$ref": "#/definitions/share"
+        },
+        "overtaking": {
+          "$ref": "#/definitions/share"
+        },
+        "pace": {
+          "$ref": "#/definitions/share"
+        },
+        "paceThreshold": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "racecraft": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "wet": {
+          "$ref": "#/definitions/share"
+        },
+        "wetFrom": {
+          "$ref": "#/definitions/share"
+        },
+        "coldTyre": {
+          "$ref": "#/definitions/share"
+        },
+        "coldTyreTemp": {
+          "$ref": "#/definitions/share"
+        },
+        "min": {
+          "$ref": "#/definitions/share"
+        },
+        "max": {
+          "$ref": "#/definitions/share"
+        },
+        "thirdCarFactor": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "passBoost": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "straight": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "attackerBoost",
+            "defenderLoss"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "attackerBoost": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "defenderLoss": {
+              "$ref": "#/definitions/nonNegative"
+            }
+          }
+        },
+        "passDefenderLoss": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "passMaxSeconds": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "incident": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "base",
+            "wet",
+            "threeWide",
+            "onDefended",
+            "retireShare",
+            "damageMin",
+            "damageMax",
+            "delayMin",
+            "delayMax"
+          ],
+          "properties": {
+            "base": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "wet": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "threeWide": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "onDefended": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "retireShare": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "damageMin": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "damageMax": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "delayMin": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "delayMax": {
+              "$ref": "#/definitions/nonNegative"
+            }
+          }
+        },
+        "switchback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gapMetres",
+            "base",
+            "pace",
+            "racecraft",
+            "max"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "gapMetres": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "base": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "pace": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "racecraft": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "max": {
+              "$ref": "#/definitions/nonNegative"
+            }
+          }
+        }
+      }
+    },
+    "defence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default",
+        "styles"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "default": {
+          "type": "string"
+        },
+        "styles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "holdCarBehind",
+            "block",
+            "holdRacingLine"
+          ],
+          "properties": {
+            "holdCarBehind": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "chance",
+                "attackerLoss",
+                "defenderLoss",
+                "incident"
+              ],
+              "properties": {
+                "chance": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "attackerLoss": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "defenderLoss": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "incident": {
+                  "$ref": "#/definitions/nonNegative"
+                }
+              }
+            },
+            "block": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "chance",
+                "attackerLoss",
+                "defenderLoss",
+                "incident"
+              ],
+              "properties": {
+                "chance": {
+                  "type": "number"
+                },
+                "attackerLoss": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "defenderLoss": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "incident": {
+                  "$ref": "#/definitions/nonNegative"
+                }
+              }
+            },
+            "holdRacingLine": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "chance",
+                "attackerLoss",
+                "defenderLoss",
+                "incident"
+              ],
+              "properties": {
+                "chance": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "attackerLoss": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "defenderLoss": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "incident": {
+                  "$ref": "#/definitions/nonNegative"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default",
+        "levels"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "default": {
+          "type": "string"
+        },
+        "levels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "low",
+            "normal",
+            "high"
+          ],
+          "properties": {
+            "low": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "chance",
+                "incident"
+              ],
+              "properties": {
+                "chance": {
+                  "type": "number"
+                },
+                "incident": {
+                  "$ref": "#/definitions/nonNegative"
+                }
+              }
+            },
+            "normal": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "chance",
+                "incident"
+              ],
+              "properties": {
+                "chance": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "incident": {
+                  "$ref": "#/definitions/nonNegative"
+                }
+              }
+            },
+            "high": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "chance",
+                "incident"
+              ],
+              "properties": {
+                "chance": {
+                  "$ref": "#/definitions/nonNegative"
+                },
+                "incident": {
+                  "$ref": "#/definitions/nonNegative"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "teamOrders": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "swapGapSec"
+      ],
+      "properties": {
+        "swapGapSec": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "blueFlags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "windowMetres",
+        "lappedDelay",
+        "yieldShare",
+        "lapperDelay",
+        "slowFactor",
+        "cooldownSec"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "windowMetres": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "lappedDelay": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "yieldShare": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "lapperDelay": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "slowFactor": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "cooldownSec": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "safetyCar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lapFactor",
+        "virtualLapFactor",
+        "trainGapMetres",
+        "catchUp"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "lapFactor": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "virtualLapFactor": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "trainGapMetres": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "catchUp": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "raceControl": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "yellow"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "yellow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "approachMetres",
+            "afterMetres",
+            "durationSec",
+            "slowFactor"
+          ],
+          "properties": {
+            "approachMetres": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "afterMetres": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "durationSec": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "slowFactor": {
+              "$ref": "#/definitions/nonNegative"
+            }
+          }
+        }
+      }
+    },
+    "mistake": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slowFactor"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "slowFactor": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "lateral": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attackMetres",
+        "blockMetres",
+        "carWidth",
+        "carLength",
+        "halfWidth",
+        "rate"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "attackMetres": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "blockMetres": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "carWidth": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "carLength": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "halfWidth": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "rate": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "pitRelease": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "crewCeiling",
+        "crewScale"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "crewCeiling": {
+          "$ref": "#/definitions/positive"
+        },
+        "crewScale": {
+          "$ref": "#/definitions/positive"
+        }
+      }
+    }
+  }
+}

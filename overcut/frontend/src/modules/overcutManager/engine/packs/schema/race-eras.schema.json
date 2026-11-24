@@ -1,0 +1,299 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07 (rnf07-race, SIM-1 de docs/manager/F1M24-GAMEPLAY.md): esquema de data/balance/race-eras.json (balance por era del modo rápido, engine/rules.js y engine/race.js). Cerrado en los bloques que leen los términos de race.js (start, tyres.thermal, fuel.modeBurn/scBurn, mistake, noise); el resto de bloques solo se exige como objeto hasta que su paquete lo cierre. Lo comprueba engine/sim/simBalance.test.js.",
+  "definitions": {
+    "nonNegative": {
+      "type": "number",
+      "minimum": 0
+    },
+    "positive": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "share": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "start",
+    "tyres",
+    "modes",
+    "fuel",
+    "mistake",
+    "noise",
+    "dirtyAir",
+    "pit",
+    "strategy",
+    "energy",
+    "drs",
+    "raceControl",
+    "penalties"
+  ],
+  "properties": {
+    "$comment": {
+      "type": "string"
+    },
+    "version": {
+      "const": 1
+    },
+    "start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gridSpacing",
+        "launchSd",
+        "scrumSec",
+        "scrumPerSlotSec"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "gridSpacing": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "launchSd": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "scrumSec": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "scrumPerSlotSec": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "tyres": {
+      "type": "object",
+      "required": [
+        "thermal",
+        "tempTarget",
+        "outLapTemp"
+      ],
+      "properties": {
+        "thermal": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "overheatAbove",
+            "coldBelow",
+            "overheatWear",
+            "dirtyWear",
+            "negativeWingWear",
+            "trackRefC",
+            "trackWearPerC",
+            "scWear",
+            "coldSecPerUnit",
+            "overheatSecPerUnit",
+            "scTarget",
+            "driftDirtyGain",
+            "driftTrackDivisor",
+            "driftWetCool",
+            "driftRelax",
+            "min",
+            "max"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "overheatAbove": {
+              "$ref": "#/definitions/share"
+            },
+            "coldBelow": {
+              "$ref": "#/definitions/share"
+            },
+            "overheatWear": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "dirtyWear": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "negativeWingWear": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "trackRefC": {
+              "type": "number"
+            },
+            "trackWearPerC": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "scWear": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "coldSecPerUnit": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "overheatSecPerUnit": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "scTarget": {
+              "$ref": "#/definitions/share"
+            },
+            "driftDirtyGain": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "driftTrackDivisor": {
+              "$ref": "#/definitions/positive"
+            },
+            "driftWetCool": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "driftRelax": {
+              "$ref": "#/definitions/share"
+            },
+            "min": {
+              "$ref": "#/definitions/share"
+            },
+            "max": {
+              "$ref": "#/definitions/share"
+            }
+          }
+        },
+        "tempTarget": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/share"
+          }
+        },
+        "outLapTemp": {
+          "type": "array"
+        }
+      }
+    },
+    "modes": {
+      "type": "object"
+    },
+    "fuel": {
+      "type": "object",
+      "required": [
+        "mixes",
+        "modeBurn",
+        "scBurn"
+      ],
+      "properties": {
+        "mixes": {
+          "type": "object"
+        },
+        "modeBurn": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "save",
+            "push"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "save": {
+              "$ref": "#/definitions/positive"
+            },
+            "push": {
+              "$ref": "#/definitions/positive"
+            }
+          }
+        },
+        "scBurn": {
+          "$ref": "#/definitions/positive"
+        },
+        "scBurnNote": {
+          "type": "string"
+        }
+      }
+    },
+    "mistake": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chancePerLap",
+        "coldGain",
+        "min",
+        "max",
+        "costSec",
+        "spinAboveSec",
+        "wideAboveSec",
+        "lockupWearLaps"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "chancePerLap": {
+          "$ref": "#/definitions/share"
+        },
+        "coldGain": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "min": {
+          "$ref": "#/definitions/share"
+        },
+        "max": {
+          "$ref": "#/definitions/share"
+        },
+        "costSec": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/definitions/nonNegative"
+          }
+        },
+        "spinAboveSec": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "wideAboveSec": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "lockupWearLaps": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "noise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lapShare",
+        "wetGain"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "lapShare": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "wetGain": {
+          "$ref": "#/definitions/nonNegative"
+        }
+      }
+    },
+    "dirtyAir": {
+      "type": "object"
+    },
+    "pit": {
+      "type": "object"
+    },
+    "strategy": {
+      "type": "object"
+    },
+    "energy": {
+      "type": "object"
+    },
+    "drs": {
+      "type": "object"
+    },
+    "raceControl": {
+      "type": "object"
+    },
+    "penalties": {
+      "type": "object"
+    }
+  }
+}
