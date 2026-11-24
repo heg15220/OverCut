@@ -10,7 +10,7 @@ import { runToFinish } from "../race";
 import { ROLE, fromQuickRace, snapshot, stepOnce } from "./index";
 import { weekend } from "./simTestKit";
 import physicsData from "../../data/balance/race-physics.json";
-import balance from "../../data/balance/race-sim.json";
+import { roomAt } from "./lateral";
 
 // Twenty-four races: errors are rare (~4 a race), and the ratio of two Poisson counts of ~50 has a
 // standard error (~20 %) close to the band (RF-SIM-11 moved the draws; 12 seeds: 76/62). With the
@@ -35,7 +35,9 @@ const watch = (seed) => {
       }
       if (car.incident === "wide" || car.incident === "spin") {
         seen.wides.add(car.id);
-        seen.wideMax = Math.max(seen.wideMax, Math.abs(car.lateral));
+        // SIM-2: the outside edge is the measured asphalt's (lateral.js roomAt), as a share of the room there.
+        const room = sim.wideSign[i] ? Math.abs(roomAt(sim.side, sim.P[i], sim.wideSign[i])) : 0;
+        if (room > 0.5) seen.wideMax = Math.max(seen.wideMax, Math.abs(car.lateral) / room);
       }
       // An attack opened by a car that was paying or recovering from an error.
       if (recovering[i] && before[i] === ROLE.NONE && (sim.duelRole[i] === ROLE.PASSING || sim.duelRole[i] === ROLE.LOST) && sim.duelOther[i] >= 0 && sim.duelRole[sim.duelOther[i]] !== ROLE.NONE) {
@@ -66,7 +68,7 @@ describe("WP8 · errors placed at a corner, by kind (SIM-FISICA §3.6)", () => {
     const wideMax = Math.max(...runs.map((run) => run.seen.wideMax));
     expect(spins).toBeGreaterThan(0);
     expect(stopped).toBeGreaterThan(0);
-    expect(wideMax).toBeGreaterThan(balance.lateral.halfWidth * physicsData.mistake.edgeShare * 0.8);
+    expect(wideMax).toBeGreaterThan(physicsData.mistake.edgeShare * 0.8);
   });
 
   it("nobody attacks while paying an error or recovering from it", () => {

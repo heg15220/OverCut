@@ -552,5 +552,120 @@
     },
     "edgeShare": 0.95,
     "recoverySec": 4
+  },
+  "lateral": {
+    "$comment": "SIM-2 (no-solape, docs/manager/F1M24-GAMEPLAY.md §2.9; SIM-FISICA §3.1 y §3.10; RF-SIM-07, RF-SIM-01, RF-3D-03). Detección mutua y no solapamiento en el modo por pasos (engine/sim/lateral.js). Cada coche es una caja eras[].carWidth × eras[].carLength centrada en su sitio: P a lo largo del circuito y lat respecto a la trazada (+ a la derecha). Un coche solo se acerca a menos de un largo de otro si ya están a un ancho de distancia lateral; si no, levanta (nunca salta). En paralelo los centros guardan carWidth + clearanceMetres, con velocidad lateral limitada por maxRate y maxAccel, dentro del asfalto medido (splines.json wl/wr menos medio coche y edgeClearanceMetres; nunca menos que trackMarginM, el recorte de la vista). solverPasses: pasadas de la separación por paso. attackMetres/blockMetres: desplazamiento del atacante y de la defensa por el interior en un duelo (engine/sim/duel.js). pitExit.holdMetres: el coche que sale del pit va por el lado del pit lane esa distancia (estado PIT_EXIT) y espera al final de la calle si ese sitio está ocupado. Este bloque sustituye a race-sim.json lateral (migrado, SIM-FISICA §3.10); la pasada de seguridad de la vista (Race3D, CAM-3) lee clearanceMetres y eras[] de aquí (F1M24-GAMEPLAY §1.5).",
+    "clearanceMetres": 0.4,
+    "edgeClearanceMetres": 0.3,
+    "maxRate": 2.0,
+    "maxAccel": 4.0,
+    "solverPasses": 4,
+    "attackMetres": 2.6,
+    "blockMetres": 1.8,
+    "pitExit": {
+      "holdMetres": 250
+    },
+    "source": {
+      "clearanceMetres": "pending: referencia de comportamiento (en paralelo se ven 0,3–0,7 m de hueco lateral, F1M24-GAMEPLAY §2.7 y §2.9, confianza A/M); el reglamento no fija un hueco. Pendiente de medir con OpenF1 location (x, y a ~3,7 Hz) en duelos 2023–24: a esa frecuencia y con coches a 50–80 m/s la medida del hueco lateral no es fiable sin interpolar la trazada.",
+      "edgeClearanceMetres": "SIM-FISICA §3.1: margen de la trazada = media anchura del coche + 0,3 m (el mismo con que se resuelve la trazada en tools/assets/racing_line.mjs).",
+      "maxRate": "Valor que tenía race-sim.json lateral.rate (2,0 m/s). Referencia de comportamiento: el seguidor se abre ~2 m en ~1,5 s para atacar (F1M24-GAMEPLAY §2.6). NV.",
+      "maxAccel": "pending: 2 m en 1,5 s con perfil de aceleración y frenada da 4·2/1,5² ≈ 3,6 m/s²; se redondea a 4. Sin medida real (OpenF1 location no tiene resolución lateral suficiente). NV.",
+      "solverPasses": "Numérico: con 4 pasadas la holgura se cumple en tres en paralelo (stepRace.test.js / lateral.test.js).",
+      "attackMetres": "Valor que tenía race-sim.json lateral.attackMetres. NV.",
+      "blockMetres": "Valor que tenía race-sim.json lateral.blockMetres. NV.",
+      "pitExit": "pending: hasta dónde llega la línea blanca de salida depende del circuito (FIA Sporting Regulations, líneas del pit). La dará PIT-2 (exitLineTo en race-pit.json/splines.json); mientras, una distancia común. NV."
+    },
+    "eras": [
+      {
+        "from": 1950,
+        "to": 1981,
+        "carWidth": 2.15,
+        "carLength": 4.3,
+        "source": {
+          "carWidth": "pending: 215 cm es el máximo del reglamento técnico FIA de 1982 (art. 3.1, historicdb.fia.com formula_one_techical_regulations_1982.pdf); antes de 1982 no se ha leído el reglamento de cada año.",
+          "carLength": "pending: el reglamento no limita la longitud; orden de magnitud de las fichas de chasis de la época (~4,1–4,4 m). NV."
+        }
+      },
+      {
+        "from": 1982,
+        "to": 1992,
+        "carWidth": 2.15,
+        "carLength": 4.4,
+        "source": {
+          "carWidth": "Reglamento técnico FIA 1982, 1989 y 1992, art. 3.1: anchura total con las ruedas ≤ 215 cm (historicdb.fia.com).",
+          "carLength": "pending: sin límite de longitud en el reglamento; orden de magnitud de fichas de chasis (~4,3–4,5 m). NV."
+        }
+      },
+      {
+        "from": 1993,
+        "to": 1997,
+        "carWidth": 2.0,
+        "carLength": 4.4,
+        "source": {
+          "carWidth": "Reglamento técnico FIA 1993 art. 3.1 y 1997 art. 3.3: anchura total ≤ 200 cm (historicdb.fia.com).",
+          "carLength": "pending: sin límite de longitud; orden de magnitud (~4,3–4,5 m). NV."
+        }
+      },
+      {
+        "from": 1998,
+        "to": 2008,
+        "carWidth": 1.8,
+        "carLength": 4.6,
+        "source": {
+          "carWidth": "Reglamento técnico FIA 1998 art. 3.3: anchura total ≤ 180 cm (historicdb.fia.com); sigue hasta 2016 (formula1.com, «Re-writing the F1 rulebook part 3: narrow cars»; 2017 vuelve a 2 m).",
+          "carLength": "pending: sin límite de longitud; orden de magnitud (~4,5–4,7 m). NV."
+        }
+      },
+      {
+        "from": 2009,
+        "to": 2013,
+        "carWidth": 1.8,
+        "carLength": 4.9,
+        "source": {
+          "carWidth": "Como 1998–2008: 180 cm hasta 2016.",
+          "carLength": "pending: sin límite de longitud; orden de magnitud (~4,8–5,0 m). NV."
+        }
+      },
+      {
+        "from": 2014,
+        "to": 2016,
+        "carWidth": 1.8,
+        "carLength": 5.0,
+        "source": {
+          "carWidth": "Como 1998–2008: 180 cm hasta 2016.",
+          "carLength": "pending: sin límite de longitud; orden de magnitud (~4,9–5,1 m). NV."
+        }
+      },
+      {
+        "from": 2017,
+        "to": 2021,
+        "carWidth": 2.0,
+        "carLength": 5.5,
+        "source": {
+          "carWidth": "Reglamento técnico FIA 2017: anchura máxima de nuevo 200 cm (racefans.net y formula1.com, serie «Re-writing the F1 rulebook»).",
+          "carLength": "pending: sin límite de longitud; orden de magnitud (~5,4–5,7 m). NV."
+        }
+      },
+      {
+        "from": 2022,
+        "to": 2025,
+        "carWidth": 2.0,
+        "carLength": 5.6,
+        "source": {
+          "carWidth": "Reglamento técnico FIA 2022: anchura máxima 2000 mm (la de 2026 baja de 2000 a 1900 mm, nota de prensa FIA de junio de 2024).",
+          "carLength": "pending: batalla máxima 3600 mm; longitud total ~5,6 m (el valor que usaba race-sim.json lateral.carLength). NV."
+        }
+      },
+      {
+        "from": 2026,
+        "to": 2100,
+        "carWidth": 1.9,
+        "carLength": 5.4,
+        "source": {
+          "carWidth": "FIA, «A New Era of Competition» (junio de 2024, fia.com): anchura máxima de 2000 a 1900 mm desde 2026.",
+          "carLength": "pending: la batalla máxima baja de 3600 a 3400 mm (misma nota FIA); la longitud total se estima con esos 200 mm menos. NV."
+        }
+      }
+    ]
   }
 }

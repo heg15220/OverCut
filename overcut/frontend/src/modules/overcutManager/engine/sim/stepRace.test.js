@@ -157,10 +157,10 @@ describe("RF-SIM-07 duels for a corner", () => {
     expect(classificationOf(state)).toHaveLength(state.cars.length);
   });
 
-  it("keeps side-by-side cars from overlapping (lateral offset)", () => {
+  it("keeps side-by-side cars from overlapping (lateral offset; SIM-2: the era's box, race-physics.json lateral)", () => {
     const { state } = stepRaceOf({ seed: "lateral" });
     const sim = state._sim;
-    const { carLength, carWidth } = balance.lateral;
+    const { carLength, carWidth } = sim.side.spec;
     let sideBySide = 0;
     let offLine = 0;
     let overlaps = 0;

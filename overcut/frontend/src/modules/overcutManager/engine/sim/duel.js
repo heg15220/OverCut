@@ -38,7 +38,12 @@
  * `claimOverlap` of a car at the turn-in, the two go through the corner side by side
  * (`alongside`), whoever wins it. The lateral state of each car (`LANE`) is for the view.
  *
- * Every number comes from data/balance/race-sim.json and driver-attributes.json (RNF-07);
+ * A pass is completed on the road by speed (SIM-2): nobody is moved forward by hand, and the
+ * boxes never overlap (lateral.js); a pass that cannot be finished within `passSettleSeconds`
+ * after the corner is logged as "unfinished".
+ *
+ * Every number comes from data/balance/race-sim.json, race-physics.json `lateral` and
+ * driver-attributes.json (RNF-07);
  * every roll from the duel stream (RF-SIM-15).
  */
 
@@ -47,13 +52,14 @@ import { applyContact, collisionInvestigation, energyPush } from "../race";
 import { contactOutcome } from "../incidents";
 import { drsOpen } from "../rules";
 import { pushEvent, wetnessAt } from "./lapModel";
+import { LANE, LANE_NAMES, LATERAL } from "./lateral";
 import { DRIVER_BALANCE, contactFactorOf, coverChanceOf, lateBrakeMetresOf, passSkillTerm, switchbackSkillTerm, triggerFactorOf } from "../drivers/skills";
 
 export const ROLE = { NONE: 0, PASSING: 1, YIELDING: 2, LOST: 3, HELD: 4 };
 
 /** WP4 (SIM-FISICA §3.1): what each car is doing sideways, for the view (snapshot.lane). */
-export const LANE = { RACING: 0, ATTACK_IN: 1, ATTACK_OUT: 2, DEFEND: 3, ALONGSIDE: 4, YIELD: 5, WIDE: 6 };
-export const LANE_NAMES = ["racing", "attack-inside", "attack-outside", "defend", "alongside", "yield", "wide"];
+/** WP4 / SIM-2: what each car is doing sideways (lateral.js), for the view (snapshot.lane). */
+export { LANE, LANE_NAMES };
 
 export const styleOf = (balance, car) => balance.defence.styles[car.defence] || balance.defence.styles[balance.defence.default];
 export const riskOf = (balance, car) => balance.risk.levels[car.overtakeRisk] || balance.risk.levels[balance.risk.default];
@@ -100,7 +106,8 @@ const logDuel = (state, entry) => {
 /** Let `a` through `b` on the road. */
 export const startPass = (state, a, b, sign, extra = {}) => {
   const sim = state._sim;
-  const { duel, lateral } = sim.balance;
+  const { duel } = sim.balance;
+  const lateral = LATERAL;
   const style = styleOf(sim.balance, state.cars[b]);
   sim.duelOther[a] = b;
   sim.duelOther[b] = a;
@@ -217,7 +224,8 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
   const lineChance = clamp(chance * d.stepScale * (covered ? geo.cover.coveredFactor : open), 0, d.max);
   const side = covered ? -zone.sign : zone.sign;
   // §3.3: how much later the attacker brakes; side by side if it reaches the turn-in alongside.
-  const L = balance.lateral.carLength;
+  // SIM-2: the era's car (race-physics.json lateral.eras, FIA technical regulations).
+  const L = sim.side.spec.carLength;
   const late = lateBrakeMetresOf(attacker, defender, attacker.overtakeRisk === "high" ? 1 : 0);
   const overlap = (late - Math.max(0, sim.gapM[i] - L)) / L;
   const alongside = overlap >= geo.lateBrake.claimOverlap;
@@ -248,9 +256,9 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
     sim.duelMult[ahead] = -style.defenderLoss;
     sim.duelUntil[i] = sim.clock + d.passMaxSeconds * 0.5;
     sim.duelUntil[ahead] = sim.clock + d.passMaxSeconds * 0.5;
-    sim.latTarget[i] = side * balance.lateral.attackMetres;
+    sim.latTarget[i] = side * LATERAL.attackMetres;
     // The defender's single move: to the inside if it covered, else it holds its line (FIA ISC App. L ch. IV 2b).
-    sim.latTarget[ahead] = covered ? zone.sign * balance.lateral.blockMetres : alongside ? -side * balance.lateral.carWidth * 0.5 : 0;
+    sim.latTarget[ahead] = covered ? zone.sign * LATERAL.blockMetres : alongside ? -side * sim.side.spec.carWidth * 0.5 : 0;
     sim.latState[i] = alongside ? LANE.ALONGSIDE : side === zone.sign ? LANE.ATTACK_IN : LANE.ATTACK_OUT;
     sim.latState[ahead] = alongside ? LANE.ALONGSIDE : LANE.DEFEND;
     sim.cooldownUntil[i] = sim.clock + d.cooldownSec;

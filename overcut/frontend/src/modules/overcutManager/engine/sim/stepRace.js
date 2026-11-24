@@ -13,6 +13,10 @@
  *                 car ahead and by era (RF-SIM-06); DRS opens on its zones (RF-SIM-08).
  *   3. traffic    nobody drives through the car in front: a follower is held a car's
  *                 length back unless it wins a duel for a corner (duel.js, RF-SIM-07).
+ *                 SIM-2 (lateral.js): every car is a box of its era; closer than a car's
+ *                 length only a car's width apart sideways, inside the measured asphalt,
+ *                 with a limited lateral speed; a pass is completed by speed, never by
+ *                 moving P; out of the pit lane a car rejoins on the lane's side (PIT_EXIT).
  *   4. the lap    wear, fuel, battery and reliability move per lap at the line, as in the
  *                 quick mode; failures and mistakes are rolled there but happen at a real
  *                 point of the lap (a corner apex for accidents and mistakes).
@@ -62,7 +66,8 @@ import {
 import { byYear, raceBalance } from "../rules";
 import { calibrationFor } from "../incidents";
 import { circuitFor } from "../venue";
-import { LANE, LANE_NAMES, ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
+import { LANE_NAMES, ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
+import { exitBlocked, gateBoxes, lateralSetup, rejoin, stepLateral } from "./lateral";
 import { cornerNoiseSigmaOf, profileFactorsOf } from "../drivers/skills";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
 import physicsData from "../../data/balance/race-physics.json";
@@ -171,8 +176,11 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     lapFlags: new Uint8Array(n),
     lat: new Float64Array(n),
     latTarget: new Float64Array(n),
-    // WP4: what each car is doing sideways (duel.js LANE), for the view.
+    // WP4: what each car is doing sideways (lateral.js LANE), for the view.
     latState: new Uint8Array(n),
+    // SIM-2 (RF-SIM-07): the era's car box, the room across this circuit's measured asphalt and
+    // each car's lateral speed (lateral.js, race-physics.json lateral).
+    side: lateralSetup(track, rules.year ?? state.year, n),
     // RF-STF-02 (WP8): the driver's time density in braking zones and corners, this lap's noise per
     // corner (accuracy) and the factor that keeps the lap at its budget (driverLap).
     drvBrake: new Float64Array(n).fill(1),
@@ -352,7 +360,7 @@ const start = (state) => {
     sim.tau[i] = tauAtD(tables, 1 - back) - 1;
     sim.laps[i] = 0;
     sim.active[i] = car.status === "running" ? 1 : 0;
-    sim.lat[i] = (car.grid % 2 ? -1 : 1) * 2.6;
+    sim.lat[i] = (car.grid % 2 ? -1 : 1) * balance.grid.staggerMetres;
     // RF-SIM-01: a standing start in first gear, limited by traction until the car reaches the trace.
     sim.drive.launching[i] = sim.active[i];
     sim.drive.vLaunch[i] = 0;
@@ -822,7 +830,8 @@ const advance = (state, i) => {
       sim.blueDelay[i] += balance.blueFlags.lapperDelay;
     }
   }
-  if (sim.duelUntil[i] > sim.clock) {
+  // SIM-2: a pass keeps its edge until it is made (settleDuels), not only through the corner.
+  if (sim.duelUntil[i] > sim.clock || sim.duelRole[i] === ROLE.PASSING || sim.duelRole[i] === ROLE.YIELDING) {
     // WP4 (SIM-FISICA §3.3): on a straight the fight is tow and DRS, not extra top speed; the
     // move is made under braking and through the corner (race-sim.json duel.straight).
     const edge = sim.duelMult[i];
@@ -885,7 +894,10 @@ const advance = (state, i) => {
   const tau0 = sim.tau[i];
   let tau1 = tau0 + rate * mult * dt;
   const laps = sim.laps[i];
+  // SIM-2: never backwards - the time-share table inverts distance to a hair, and a gated car sits
+  // where the gate put it (lateral.js gateBoxes), not where its time share maps back.
   let P1 = laps + dAt(tables, tau1);
+  if (P1 < sim.P0[i]) P1 = sim.P0[i];
 
   // Nobody drives through the car in front (unless passing it or lapping it).
   if (a >= 0 && sim.inPit[i] === 0) {
@@ -907,6 +919,16 @@ const advance = (state, i) => {
   if (sim.red && sim.red.slot && Number.isFinite(sim.red.slot[i]) && P1 > sim.red.slot[i]) {
     P1 = Math.max(sim.P0[i], sim.red.slot[i]);
     tau1 = Math.max(tau0, tauAtD(tables, P1 - laps));
+  }
+  // SIM-2 (RF-SIM-07): no box runs into another - closer than a car's length only a car's width
+  // apart sideways; otherwise the car lifts to stay nose to tail (lateral.js gateBoxes).
+  if (sim.inPit[i] === 0 && a >= 0) {
+    const gated = gateBoxes(sim, i, P1);
+    if (gated < P1) {
+      P1 = gated;
+      tau1 = Math.max(tau0, tauAtD(tables, P1 - laps));
+      sim.lapFlags[i] |= 8;
+    }
   }
   sim.v[i] = ((P1 - sim.P0[i]) * tables.length) / dt;
   sim.P[i] = P1;
@@ -1058,7 +1080,10 @@ const checkpoints = (state, i, from, to) => {
     }
   }
   if (sim.inPit[i] === 0 && (tables.pitEntryTau > from && tables.pitEntryTau <= to)) enterPit(state, i, lap);
-  if (sim.inPit[i] === 2 && (tables.pitExitTau > from && tables.pitExitTau <= to)) sim.inPit[i] = 0;
+  if (sim.inPit[i] === 2 && (tables.pitExitTau > from && tables.pitExitTau <= to)) {
+    sim.inPit[i] = 0;
+    rejoin(sim, i);
+  }
   if (sim.inPit[i] !== 0) return;
 
   // DRS: detection at the start of each zone, closed at its end.
@@ -1303,11 +1328,27 @@ const advanceInLane = (state, i) => {
   const fromTau = sim.tau[i];
   if (s1 >= L.geo.total - 1e-9) {
     // Out of the lane: back on the track at the exit, with the rest of the step at race pace.
-    const tEnd = cars.enteredAt[i] + prof.T + (tStop >= 0 ? cars.stopFor[i] : 0);
+    const side = sim.side;
+    const tEnd = cars.enteredAt[i] + prof.T + (tStop >= 0 ? cars.stopFor[i] : 0) + side.exitWait[i];
     const tau = sim.tables.pitExitTau + Math.max(0, t1 - tEnd) / sim.budget[i];
+    const P = sim.laps[i] + dAt(sim.tables, tau);
+    // SIM-2: the car coming out gives way - it waits at the end of the lane while its spot on the
+    // pit side of the road is taken by a car on the track (lateral.js exitBlocked).
+    if (exitBlocked(sim, i, P)) {
+      const end = L.geo.total - 1e-6;
+      cars.s[i] = end;
+      cars.v[i] = 0;
+      side.exitWait[i] += sim.dt;
+      const held = laneTau(sim, end);
+      sim.tau[i] = held;
+      sim.P[i] = sim.laps[i] + dAt(sim.tables, held);
+      if (held > fromTau) checkpoints(state, i, fromTau, held);
+      return;
+    }
     sim.tau[i] = tau;
-    sim.P[i] = sim.laps[i] + dAt(sim.tables, tau);
+    sim.P[i] = P;
     checkpoints(state, i, fromTau, tau);
+    rejoin(sim, i);
     if (cars.over[i] && L.judgesSpeeding) investigateWithCause(state, car, "pitSpeeding", { kmh: Math.round(cars.maxInZone[i] * 3.6 * 10) / 10, limit: L.kmh });
     sim.inPit[i] = 0;
     cars.prof[i] = null;
@@ -1471,7 +1512,12 @@ const raceControl = (state) => {
 /** The restart procedure the era uses after a red flag (race.js restartProcedureOf), for the view. */
 export const restartProcedure = (state) => restartProcedureOf(state._sim.rules);
 
-/** Passes in progress: done once clear by a car's length, or when time runs out. */
+/**
+ * Passes in progress: done once clear by the follow gap (traffic.minGapMetres). SIM-2: the pass is
+ * completed by speed - after the corner's `passMaxSeconds` the attacker keeps its edge for up to
+ * `passSettleSeconds` more; nobody is put ahead by hand. A pass still not made then is logged as
+ * "unfinished" and both go back to their own pace.
+ */
 const settleDuels = (state) => {
   const sim = state._sim;
   const minGap = sim.balance.traffic.minGapMetres / sim.tables.length;
@@ -1484,58 +1530,13 @@ const settleDuels = (state) => {
         endDuel(sim, i);
         continue;
       }
-      if (sim.clock >= sim.duelUntil[i]) {
-        // Out of road: the move is made by the end of the corner, so put it there.
-        if (lead > -0.01) sim.P[i] = sim.P[other] + minGap * 1.05;
-        sim.tau[i] = Math.min(0.9999, tauAtD(sim.tables, sim.P[i] - sim.laps[i]));
+      if (sim.clock >= sim.duelUntil[i] + sim.balance.duel.passSettleSeconds) {
+        state.duels.push({ t: Math.round(sim.clock * 100) / 100, lap: sim.laps[i] + 1, attacker: state.cars[i].id, defender: state.cars[other].id, outcome: "unfinished", lead: Math.round(lead * sim.tables.length * 10) / 10 });
         endDuel(sim, i);
       }
     } else if (sim.duelRole[i] !== ROLE.YIELDING && sim.clock >= sim.duelUntil[i]) {
       endDuel(sim, i);
     }
-  }
-};
-
-/** The direction of the next braking zone's corner after time share `tau` (+1 right-hander, -1 left). */
-const nextTurnSign = (sim, tau) => {
-  const t = tau - Math.floor(tau);
-  let best = null;
-  for (let z = 0; z < sim.tables.attacks.length; z += 1) {
-    const attack = sim.tables.attacks[z];
-    const ahead = attack.tau >= t ? attack.tau - t : attack.tau + 1 - t;
-    if (best === null || ahead < best.ahead) best = { ahead, sign: attack.sign || 1 };
-  }
-  return best ? best.sign : 1;
-};
-
-/** Sideways: the attacker on the inside, nobody on top of anybody (presentation only). */
-const lateral = (sim) => {
-  const { lateral: L } = sim.balance;
-  const stepMove = L.rate * sim.dt;
-  for (let k = 0; k < sim.ringSize; k += 1) {
-    const i = sim.ring[k];
-    // WP8: a car running wide heads for the outside edge until it has paid its error.
-    const wide = sim.incident[i] && sim.wideSign[i] ? sim.wideSign[i] * L.halfWidth * physicsData.mistake.edgeShare : null;
-    // WP4 (SIM-FISICA §3.1): a car being lapped moves over to the outside of the next corner.
-    const yielding = wide === null && sim.blueDelay[i] > 0 ? -nextTurnSign(sim, sim.tau[i]) * L.halfWidth * sim.balance.blueFlags.yieldShare : null;
-    const target = wide !== null ? wide : yielding !== null ? yielding : sim.duelRole[i] === ROLE.NONE ? 0 : sim.latTarget[i];
-    if (wide !== null) sim.latState[i] = LANE.WIDE;
-    else if (yielding !== null) sim.latState[i] = LANE.YIELD;
-    else if (sim.duelRole[i] === ROLE.NONE) sim.latState[i] = LANE.RACING;
-    const diff = target - sim.lat[i];
-    sim.lat[i] += Math.abs(diff) <= stepMove ? diff : Math.sign(diff) * stepMove;
-  }
-  for (let k = 0; k < sim.ringSize; k += 1) {
-    const i = sim.ring[k];
-    const a = sim.ahead[i];
-    if (a < 0) continue;
-    const gap = frac(sim.P[a] - sim.P[i]) * sim.tables.length;
-    if (gap > L.carLength && gap < sim.tables.length - L.carLength) continue;
-    const apart = sim.lat[i] - sim.lat[a];
-    if (Math.abs(apart) >= L.carWidth) continue;
-    const side = apart !== 0 ? Math.sign(apart) : sim.latTarget[i] !== 0 ? Math.sign(sim.latTarget[i]) : 1;
-    sim.lat[i] = clamp(sim.lat[a] + side * L.carWidth, -L.halfWidth, L.halfWidth);
-    if (Math.abs(sim.lat[i] - sim.lat[a]) < L.carWidth) sim.lat[a] = clamp(sim.lat[i] - side * L.carWidth, -L.halfWidth, L.halfWidth);
   }
 };
 
@@ -1642,7 +1643,8 @@ export const stepOnce = (state) => {
   }
   settleDuels(state);
   raceControl(state);
-  lateral(sim);
+  // SIM-2 (RF-SIM-07): sideways, inside the measured asphalt, nobody on top of anybody (lateral.js).
+  stepLateral(sim, ROLE.NONE, physicsData.mistake, sim.balance.blueFlags.yieldShare);
   driveStep(state);
   sortOrder(state);
   state.clock = sim.clock;
@@ -1737,8 +1739,9 @@ export const snapshot = (state) => {
     status: car.status,
     position: car.position,
     duel: sim.duelRole[i],
-    // WP4: the lateral state ("racing", "attack-inside", "attack-outside", "defend", "alongside", "yield", "wide").
-    lane: LANE_NAMES[sim.latState[i]],
+    // WP4: the lateral state ("racing", "attack-inside", "attack-outside", "defend", "alongside", "yield", "wide"; SIM-2:
+    // "pit" in the lane, "pit-exit" back on the pit side of the road after it - F1M24-GAMEPLAY §1.7 lane[i]).
+    lane: sim.inPit[i] !== 0 ? "pit" : LANE_NAMES[sim.latState[i]],
     // WP8: an error being paid ("lockup" | "wide" | "spin"), for the view.
     incident: sim.incident[i],
     // RF-SIM-01 / RF-SIM-02 (powertrain.js): gear, rpm, throttle, brake, g, pitch, roll, front load share.

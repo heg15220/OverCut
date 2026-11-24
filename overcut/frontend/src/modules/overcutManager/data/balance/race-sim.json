@@ -7,9 +7,10 @@
     "tableSize": 2048
   },
   "grid": {
-    "$comment": "Igual que components/raceClock.js para que la parrilla física y la dibujada coincidan.",
+    "$comment": "Igual que components/raceClock.js para que la parrilla física y la dibujada coincidan. staggerMetres: desplazamiento lateral de cada columna respecto a la trazada (impares a un lado, pares al otro); antes era un literal de stepRace.js (SIM-2, RNF-07). NV.",
     "gapMetres": 8,
-    "poleBackMetres": 6
+    "poleBackMetres": 6,
+    "staggerMetres": 2.6
   },
   "lapOne": {
     "$comment": "El modo rápido suma 0,22 s por puesto de salida para representar el tráfico de la primera vuelta; aquí el tráfico es real, así que solo se conserva esta fracción.",
@@ -82,6 +83,7 @@
     "straight": { "$comment": "SIM-FISICA §3.3/§3.7 (WP4): en recta el atacante no gana punta de más (la punta real del duelo es la del rebufo y el DRS): su ventaja se limita a attackerBoost y el defensor solo pierde defenderLoss; el resto del pase se hace en la frenada y la curva, donde se gana de verdad (frenar más tarde, mejor línea).", "attackerBoost": 0.02, "defenderLoss": 0.005 },
     "passDefenderLoss": 0.04,
     "passMaxSeconds": 6,
+    "passSettleSeconds": 12,
     "incident": {
       "base": 0.012,
       "wet": 1,
@@ -174,15 +176,6 @@
   "mistake": {
     "$comment": "Un error cuesta su tiempo en la curva donde ocurre: el coche va a slowFactor de su velocidad hasta pagarlo.",
     "slowFactor": 0.35
-  },
-  "lateral": {
-    "$comment": "Desplazamiento lateral respecto a la trazada (solo presentación): el atacante va al interior, Block cierra el interior, nadie se solapa.",
-    "attackMetres": 2.6,
-    "blockMetres": 1.8,
-    "carWidth": 2.0,
-    "carLength": 5.6,
-    "halfWidth": 5.5,
-    "rate": 2.0
   },
   "pitRelease": {
     "$comment": "RF-SIM-12 / RF-STF-07 (rnf07-race, SIM-1): la probabilidad de que el equipo no vea un coche que viene por el carril rápido (stepRace.js advanceInLane) = race-pit.json unsafeRelease.crewMissChance × max(0, crewCeiling − crew / crewScale). Con crew 100 queda 0,4 de la base; con crew ≥ 140, nunca. Comportamiento propio; mismos valores que tenía el código.",
