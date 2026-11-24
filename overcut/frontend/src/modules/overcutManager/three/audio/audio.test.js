@@ -16,7 +16,7 @@ import {
   shiftCutGain, shiftEnvelope, shiftProfileFor, pitLimiterFor, pitHoldKmh, limiterDepthOf, rpmInGear, createEngineVoice,
 } from "./engineSynth";
 import { assignVoices, blendMix, busGains, cameraListener, cameraMix, cameraUsable, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, sliderToGain, viewMix } from "./mixer";
-import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals, fieldBedOf, kerbRumble } from "./ambience";
+import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals, fieldBedOf, kerbRumble, startLightsStep, gridRevsOf, gridRevsFor } from "./ambience";
 import { createRaceAudio, teamEnginesOf } from "./index";
 import { mixLevels } from "./levels";
 import { KERB_FILES, kerbZonesFor, onKerb } from "./kerbs";
@@ -842,5 +842,137 @@ describe("AUD-2 controller (mocked Web Audio)", () => {
     post.frame({ tau: 0, mode: "tv", focusId: "c0", cars });
     expect(made.listener.positionX.setTargetAtTime).toHaveBeenLastCalledWith(audioData.mixer.cameras.mix.tv.ahead, expect.any(Number), expect.any(Number));
     post.dispose();
+  });
+});
+
+// ------------------------------------------------------------------ AUD-3: start lights and grid revs
+
+describe("start lights (start-lights-sound-and-timing, RF-SIM-10, RF-SIM-15, RNF-05, RNF-07)", () => {
+  const LIGHTS = audioData.ambience.startLights;
+  const GRID = audioData.ambience.gridRevs;
+
+  test("one hit per light that comes on; none without snapshot.start, on first sight, on a skip or at lights out", () => {
+    expect(startLightsStep(null, null)).toEqual({ seen: null, hits: [] });
+    expect(startLightsStep(3, undefined)).toEqual({ seen: null, hits: [] });
+    let step = startLightsStep(null, { phase: "grid", lights: 0, t: 0 });
+    expect(step).toEqual({ seen: 0, hits: [] });
+    const heard = [];
+    for (let n = 1; n <= 5; n += 1) {
+      step = startLightsStep(step.seen, { phase: "lights", lights: n, t: n });
+      heard.push(...step.hits);
+      // The same light on the next frame does not sound again.
+      step = startLightsStep(step.seen, { phase: "lights", lights: n, t: n + 0.1 });
+      expect(step.hits).toEqual([]);
+    }
+    expect(heard).toEqual([1, 2, 3, 4, 5]);
+    expect(startLightsStep(5, { phase: "out", lights: 0, t: 7 }).hits).toEqual([]);
+    // Sound turned on mid-sequence: the lights already lit are not replayed.
+    expect(startLightsStep(null, { phase: "lights", lights: 3, t: 3 })).toEqual({ seen: 3, hits: [] });
+    expect(startLightsStep(1, { phase: "lights", lights: 4, t: 4 }, { reset: true }).hits).toEqual([]);
+    // At high speed several lights in one frame: each still sounds.
+    expect(startLightsStep(2, { phase: "lights", lights: 5, t: 5 }).hits).toEqual([3, 4, 5]);
+    expect(startLightsStep(4, { phase: "lights", lights: 9, t: 5 }).hits).toEqual([5]);
+    expect(LIGHTS.maxLights).toBe(5);
+  });
+
+  test("grid revs: idle on the grid, rise from the first light to a hold inside the OpenF1 2023-2024 range", () => {
+    const spec = engineSpecFor(2024, { formula: "1.6 V6 turbo hybrid" });
+    const entry = gridRevsFor(2024);
+    expect(entry.status).toBe("sourced");
+    expect(audioData.sources[entry.source]).toMatch(/api\.openf1\.org/);
+    expect(gridRevsOf(spec, null, 0)).toBeNull();
+    expect(gridRevsOf(spec, { phase: "out", lights: 0 }, 1)).toBeNull();
+    expect(gridRevsOf(spec, { phase: "formation", lights: 0 }, 1)).toBeNull();
+    [0, 0.5, 1].forEach((share) => {
+      const pick = { idle: share, hold: share };
+      const idle = gridRevsOf(spec, { phase: "grid", lights: 0 }, -1, pick);
+      expect(idle.rpm).toBeGreaterThanOrEqual(entry.idleRpm[0]);
+      expect(idle.rpm).toBeLessThanOrEqual(entry.idleRpm[1]);
+      expect(idle.load).toBe(0);
+      const before = gridRevsOf(spec, { phase: "lights", lights: GRID.fromLight - 1 }, -1, pick);
+      expect(before.rpm).toBeCloseTo(idle.rpm, 6);
+      const mid = gridRevsOf(spec, { phase: "lights", lights: GRID.fromLight }, entry.riseSec / 2, pick);
+      const held = gridRevsOf(spec, { phase: "lights", lights: 5 }, entry.riseSec * 3, pick);
+      expect(mid.rpm).toBeGreaterThan(idle.rpm);
+      expect(mid.rpm).toBeLessThan(held.rpm);
+      expect(held.rpm).toBeGreaterThanOrEqual(entry.holdRpm[0]);
+      expect(held.rpm).toBeLessThanOrEqual(Math.min(entry.holdRpm[1], spec.revLimit));
+      expect(held.load).toBeCloseTo(entry.holdLoad, 6);
+    });
+  });
+
+  test("era coherence (SRS §6): only measured years use the measured ranges; the others keep their era's own rpm", () => {
+    GRID.byEra.forEach((entry) => {
+      expect(entry.from).toBeGreaterThanOrEqual(2023); // OpenF1 car_data starts in 2023
+      expect(entry.idleRpm[0]).toBeLessThan(entry.idleRpm[1]);
+      expect(entry.holdRpm[0]).toBeLessThan(entry.holdRpm[1]);
+      expect(entry.holdRpm[1]).toBeLessThanOrEqual(engineSpecFor(entry.from, { formula: "1.6 V6 turbo hybrid" }).revLimit);
+    });
+    expect(GRID.fallback.status).toBe("pending");
+    [1976, 1988, 2005, 2012, 2018, 2026].forEach((year) => {
+      expect(gridRevsFor(year)).toBeNull();
+      const spec = engineSpecFor(year);
+      expect(gridRevsOf(spec, { phase: "grid", lights: 0 }, -1).rpm).toBe(spec.idleRpm);
+      expect(gridRevsOf(spec, { phase: "lights", lights: 5 }, 10).rpm).toBeCloseTo(spec.launchRpm, 6);
+    });
+  });
+
+  class LightsContext extends FakeContext {
+    constructor() {
+      super();
+      this.oscs = [];
+      LightsContext.last = this;
+    }
+
+    createOscillator() {
+      const osc = super.createOscillator();
+      this.oscs.push(osc);
+      return osc;
+    }
+  }
+  const thumps = (ctx) => ctx.oscs.filter((osc) => osc.frequency.setValueAtTime.mock.calls.some(([hz]) => hz === LIGHTS.thump.hz)).length;
+  const grid = (year) => {
+    const teams = Object.keys(teamEnginesOf(packOf(year)));
+    return Array.from({ length: 20 }, (_, i) => ({ id: `c${i}`, teamId: teams[i % teams.length], pose: { x: -8 * i, y: i % 2 ? 4 : -4, heading: 0, v: 0 } }));
+  };
+  // Grid, then lights 1..5 a second apart, then out after a hold: 0.1 s frames.
+  const startAt = (tau) => (tau < 2 ? { phase: "grid", lights: 0, t: tau } : tau < 7 ? { phase: "lights", lights: Math.floor(tau - 2) + 1, t: tau } : tau < 8.4 ? { phase: "lights", lights: 5, t: tau } : { phase: "out", lights: 0, t: tau });
+  const run = (year, { withStart = true, playing = true, omit = false } = {}) => {
+    window.AudioContext = LightsContext;
+    const audio = createRaceAudio({ seed: "aud3", year, engines: teamEnginesOf(packOf(year)) });
+    audio.start();
+    const ctx = LightsContext.last;
+    const cars = grid(year);
+    for (let f = 0; f < 90; f += 1) {
+      const tau = f / 10;
+      ctx.currentTime = tau;
+      const frame = { tau, playing, mode: "tv", focusId: "c0", cars, started: false };
+      if (!omit) frame.start = withStart ? startAt(tau) : null;
+      audio.frame(frame);
+    }
+    audio.dispose();
+    return ctx;
+  };
+  afterEach(() => {
+    delete window.AudioContext;
+  });
+
+  test("five lights sound five thumps and tones; lights out is silent; nothing at all without snapshot.start", () => {
+    const ctx = run(2024);
+    expect(thumps(ctx)).toBe(5);
+    const tones = ctx.oscs.filter((osc) => osc.frequency.setValueAtTime.mock.calls.some(([hz]) => hz === LIGHTS.tone.hz));
+    expect(tones.length).toBe(5);
+    expect(thumps(run(2024, { withStart: false }))).toBe(0);
+    expect(thumps(run(2024, { omit: true }))).toBe(0);
+    // Paused: the lights do not sound (the clock is stopped, nothing is live).
+    expect(thumps(run(2024, { playing: false }))).toBe(0);
+  });
+
+  test("absent snapshot.start keeps today's sound; the same seed gives the same grid (RF-SIM-15, RNF-05)", () => {
+    const calls = (ctx) => JSON.stringify(ctx.oscs.map((osc) => osc.frequency.setTargetAtTime.mock.calls));
+    expect(calls(run(2024, { withStart: false }))).toBe(calls(run(2024, { omit: true })));
+    const a = calls(run(2024));
+    expect(calls(run(2024))).toBe(a);
+    expect(a).not.toBe(calls(run(2024, { withStart: false })));
   });
 });

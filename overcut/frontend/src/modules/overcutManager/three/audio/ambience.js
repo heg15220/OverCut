@@ -3,7 +3,8 @@
  * the start and the flag; wind with the focus car's speed; rain with the track's wetness;
  * the pit lane (air guns while the wheels are changed); tyre squeal on a lock-up or a
  * spin (engine `incident`); a thump on contact; the field bed of the cars without a voice
- * and the kerb rumble under the focus car (AUD-2), both on the engine bus. Synthesised from one shared noise
+ * and the kerb rumble under the focus car (AUD-2), both on the engine bus; a thump and a tone
+ * per start light and the revs on the grid, read from the engine's `snapshot.start` (AUD-3). Synthesised from one shared noise
  * buffer, no recordings. Numbers in data/balance/audio.json `ambience` (RNF-07); the
  * envelopes and curves are pure and tested (audio.test.js).
  */
@@ -81,6 +82,48 @@ export const fieldBedOf = (cars, listener, voiced = [], bed = AMB.fieldBed) => {
 export const kerbRumble = (kmh, onKerb, kerb = AMB.kerb) => {
   if (!onKerb || !(kmh >= kerb.minKmh)) return { gain: 0, hz: kerb.minHz };
   return { gain: kerb.gain, hz: clamp(kmh / 3.6 / kerb.stripeM, kerb.minHz, kerb.maxHz) };
+};
+
+/**
+ * The start lights (start-lights-sound-and-timing, F1M24-GAMEPLAY §2.13): which lights to
+ * sound this frame from the engine's `snapshot.start` ({ phase, lights, t }, §1.7, SIM-3).
+ * `seen` is the light count already heard (null: nothing known yet). On the grid or the
+ * formation lap the count is 0, so the first light sounds; the first sight of a sequence
+ * already lit, a skip (`reset`) or the lights going out only set the count, silently.
+ * Without a `start` nothing sounds and the count is forgotten. Returns { seen, hits }.
+ */
+export const startLightsStep = (seen, start, { reset = false } = {}, lights = AMB.startLights) => {
+  if (!start || typeof start !== "object") return { seen: null, hits: [] };
+  if (start.phase === "formation" || start.phase === "grid") return { seen: 0, hits: [] };
+  const lit = clamp(Math.floor(Number(start.lights) || 0), 0, lights.maxLights);
+  if (start.phase !== "lights" || reset || !Number.isFinite(seen)) return { seen: lit, hits: [] };
+  const hits = [];
+  for (let n = seen + 1; n <= lit; n += 1) hits.push(n);
+  return { seen: lit, hits };
+};
+
+/** The grid-revs entry measured for `year` (ambience.gridRevs.byEra), or null. */
+export const gridRevsFor = (year, revs = AMB.gridRevs) => revs.byEra.find((entry) => year >= entry.from && year <= entry.to) || null;
+
+/**
+ * rpm and load of a car standing on the grid (gridRevs): idle while `start.phase` is
+ * "grid", then from light `fromLight` up to its hold rpm over `riseSec` (`sinceRise`, race
+ * seconds since that light) and held until the lights go out. `pick` { idle, hold } in 0..1
+ * places the car inside the measured ranges (seeded per car); an era without a measurement
+ * uses its own idle and launch rpm (`spec`). Null outside the grid and lights phases.
+ */
+export const gridRevsOf = (spec, start, sinceRise, pick = { idle: 0.5, hold: 0.5 }, revs = AMB.gridRevs) => {
+  if (!start || (start.phase !== "grid" && start.phase !== "lights")) return null;
+  const entry = gridRevsFor(spec.year, revs);
+  const shape = entry || revs.fallback;
+  const within = ([lo, hi], share) => lo + (hi - lo) * clamp(share, 0, 1);
+  const idle = entry ? within(entry.idleRpm, pick.idle) : spec.idleRpm;
+  const hold = Math.min(spec.revLimit, entry ? within(entry.holdRpm, pick.hold) : spec.launchRpm);
+  const lit = Number(start.lights) || 0;
+  if (start.phase === "grid" || lit < revs.fromLight || !(sinceRise >= 0)) return { rpm: idle, load: 0 };
+  const x = clamp(sinceRise / shape.riseSec, 0, 1);
+  const eased = x * x * (3 - 2 * x);
+  return { rpm: idle + (hold - idle) * eased, load: shape.holdLoad * eased };
 };
 
 /** Is a stop stage one where the air guns run? */
@@ -233,6 +276,30 @@ export const createAmbience = (ctx, bus, noise, engineBus = bus) => {
     thump.stop(end + 0.05);
   };
 
+  // One start light: a low thump falling in pitch and a short tone (startLights, own design).
+  const LIGHTS = AMB.startLights;
+  const startLight = (at, gain = 1) => {
+    const voices = [];
+    const shot = (hz, endHz, attackSec, durationSec, peak) => {
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(hz, at);
+      if (endHz !== hz) osc.frequency.exponentialRampToValueAtTime(endHz, at + durationSec);
+      const env = ctx.createGain();
+      env.gain.setValueAtTime(0, at);
+      env.gain.linearRampToValueAtTime(peak, at + attackSec);
+      env.gain.exponentialRampToValueAtTime(0.0001, at + durationSec);
+      osc.connect(env).connect(bus);
+      osc.start(at);
+      osc.stop(at + durationSec + 0.05);
+      voices.push(osc);
+    };
+    const { thump, tone } = LIGHTS;
+    shot(thump.hz, thump.endHz, thump.attackSec, thump.durationSec, thump.gain * gain);
+    tone.partials.forEach((partial) => shot(tone.hz * partial.ratio, tone.hz * partial.ratio, tone.attackSec, tone.durationSec, tone.gain * partial.gain * gain));
+    return voices.length;
+  };
+
   return {
     /**
      * `frame`: { time, crowd (0..1), crowdShare, wind {gain, hz}, rain, guns (0..1) } and,
@@ -258,6 +325,7 @@ export const createAmbience = (ctx, bus, noise, engineBus = bus) => {
     },
     squeal,
     impact,
+    startLight,
     stop() {
       [crowd.src, wind.src, rain.src, guns.src, lfo, rattle, bedSrc, kerbOsc].forEach((node) => {
         try {

@@ -18,6 +18,11 @@
  * voice of their own sound as the field bed, and the focus car's kerbs (data/circuits/
  * <splineId>/kerbs.json, with `circuit`) rumble under it. Everything optional: a frame
  * without them sounds as before.
+ *
+ * The start (AUD-3, F1M24-GAMEPLAY §2.13): with the engine's `snapshot.start` in the frame
+ * (`start`, §1.7, SIM-3) each light that comes on sounds a thump and a tone, the lights going
+ * out does not, and the cars standing on the grid idle and then hold their launch revs
+ * (ambience.startLights, ambience.gridRevs). Without `start` none of that happens.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -26,11 +31,12 @@ import { loadSeasonPack } from "../../engine/packs/seasonPacks";
 import audioData from "../../data/balance/audio.json";
 import { createEngineVoice, driveStep, engineSpecFor } from "./engineSynth";
 import { assignVoices, blendMix, cameraListener, cameraUsable, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, viewMix } from "./mixer";
-import { airGunsOn, createAmbience, crowdLevel, fieldBedOf, kerbRumble, makeNoiseBuffer, rainOf, squeals, swellFor, windOf } from "./ambience";
+import { airGunsOn, createAmbience, crowdLevel, fieldBedOf, gridRevsOf, kerbRumble, makeNoiseBuffer, rainOf, squeals, startLightsStep, swellFor, windOf } from "./ambience";
 import { firingFrequency } from "./engineSynth";
 import { kerbZonesFor, onKerb } from "./kerbs";
 
 export { engineSpecFor, eraFor, firingFrequency, nextGear, parseFormula } from "./engineSynth";
+export { gridRevsOf, startLightsStep } from "./ambience";
 export { blendMix, cameraMix, distanceGain, dopplerFactor, loadSettings, resolveView, saveSettings, sliderToGain, viewMix } from "./mixer";
 export { mixLevels } from "./levels";
 
@@ -83,7 +89,21 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
   let kerbCircuit = circuit;
   let kerbZones = kerbZonesFor(circuit);
   const VIEWS = audioData.mixer.views;
+  const LIGHTS = audioData.ambience.startLights;
+  const GRID = audioData.ambience.gridRevs;
+  let lightsSeen = null;
+  let riseAt = null;
+  const gridPicks = new Map();
   const random = createStream(`${seed}::audio`).next;
+  // Where each car sits inside the measured grid ranges: its own seeded stream (RF-SIM-15), so
+  // it never moves the shared audio stream and is the same whichever frame first sees the car.
+  const gridPickOf = (id) => {
+    if (!gridPicks.has(id)) {
+      const stream = createStream(`${seed}::audio::grid::${id}`);
+      gridPicks.set(id, { idle: stream.next(), hold: stream.next() });
+    }
+    return gridPicks.get(id);
+  };
 
   const specOf = (teamId) => {
     if (!specs.has(teamId)) specs.set(teamId, engineSpecFor(year, teamEngines[teamId] || null, { circuitId, date }));
@@ -139,9 +159,9 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
     },
     /**
      * One view frame: { tau, playing, mode, focusId, cars: [{ id, teamId, pose }],
-     * wetness, events, started }.
+     * wetness, events, started } and, optional, start (the engine's snapshot.start).
      */
-    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: lightsOut = false, view = null, camera, circuit: frameCircuit }) {
+    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null }) {
       if (!ctx || ctx.state === "closed") return;
       const now = ctx.currentTime;
       const dt = lastTime === null ? 0 : Math.max(0, now - lastTime);
@@ -149,10 +169,19 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       let dtau = lastTau === null ? 0 : tau - lastTau;
       lastTau = tau;
       // A skip (next event, a lap, to the flag) is not driving: start every car afresh.
-      if (dtau < 0 || dtau > 3) {
+      const skipped = dtau < 0 || dtau > 3;
+      if (skipped) {
         drive.clear();
         dtau = 0;
       }
+      // The start: only what the engine's snapshot says (§1.7); nothing without it.
+      const start = frameStart && typeof frameStart === "object" ? frameStart : null;
+      const lightsOut = Boolean(startedFlag) || start?.phase === "out";
+      const lights = startLightsStep(lightsSeen, start, { reset: skipped });
+      lightsSeen = lights.seen;
+      const rising = Boolean(start) && start.phase === "lights" && (Number(start.lights) || 0) >= GRID.fromLight;
+      if (!rising) riseAt = null;
+      else if (riseAt === null || skipped) riseAt = tau;
       if (frameCircuit !== undefined && frameCircuit !== kerbCircuit) {
         kerbCircuit = frameCircuit;
         kerbZones = kerbZonesFor(frameCircuit);
@@ -178,6 +207,15 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         const spec = specOf(teamId);
         const state = driveStep(spec, drive.get(id), pose, dtau, dt);
         drive.set(id, state);
+        // Standing on the grid: idle, then the launch revs from the light (unless the engine gives rpm).
+        if (start && !Number.isFinite(pose.rpm) && state.v * KMH < GRID.stationaryKmh) {
+          const revs = gridRevsOf(spec, start, riseAt === null ? -1 : tau - riseAt, gridPickOf(id));
+          if (revs) {
+            state.rpm = revs.rpm;
+            state.load = revs.load;
+            state.limiter = false;
+          }
+        }
         const heading = pose.heading || 0;
         placed.push({ id, spec, state, pose, x: pose.x, y: pose.y, vx: Math.cos(heading) * state.v, vy: Math.sin(heading) * state.v, gone: Boolean(pose.gone || (pose.finished && state.v < 1)) });
       });
@@ -233,6 +271,8 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         if (event.type === "contact" && car && metres < audioData.ambience.impact.audibleMetres) ambience.impact(now, distanceGain(metres));
       });
       seen = Math.max(seen, events.length);
+      // One thump and tone per light that came on (several in one frame at high speed are spaced).
+      if (playing) lights.hits.forEach((_, k) => ambience.startLight(now + LIGHTS.delaySec + k * LIGHTS.burstSpacingSec));
       if (lightsOut && !started) swells.push({ at: now, amount: audioData.ambience.crowd.swell.start });
       started = Boolean(lightsOut);
       swells = swells.filter((swell) => now - swell.at < audioData.ambience.crowd.decaySec * 6);
