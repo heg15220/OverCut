@@ -33,8 +33,62 @@
 import * as THREE from "three";
 import { merge, rod, tyre } from "./geometry";
 import { bodyGeometry, carSpec, eraOf, markings } from "./carBody";
+import cameraData from "../data/balance/cameras.json";
 
 export { carSpec, eraOf };
+
+// ---------------------------------------------------------------- steering-wheel display
+
+const WHEEL_DISPLAY = cameraData.wheelDisplay;
+
+/** Does a car of `year` show its gear on the steering wheel (data/balance/cameras.json wheelDisplay, SRS 6.2)? */
+export const hasWheelDisplay = (year) => year >= WHEEL_DISPLAY.from && year <= WHEEL_DISPLAY.to;
+
+/** What the display reads for a gear from the power unit: N in neutral, R in reverse. */
+export const gearText = (gear) => (!Number.isFinite(gear) ? "" : gear === 0 ? "N" : gear < 0 ? "R" : String(Math.round(gear)));
+
+/**
+ * The gear on the steering wheel (F1M24-GAMEPLAY §2.5 onboard-mounts): a small screen in the
+ * middle of the wheel facing the driver, drawn on a canvas only when the gear changes, and
+ * only once an onboard first asks for it (cheap for the twenty cars nobody rides in).
+ */
+const attachWheelDisplay = (car, spec) => {
+  let shown = null;
+  let display = null;
+  car.userData.setGear = (gear) => {
+    const text = gearText(gear);
+    if (text === shown) return;
+    if (!display) {
+      if (typeof document === "undefined") return;
+      const canvas = document.createElement("canvas");
+      canvas.width = 64;
+      canvas.height = 48;
+      const g = canvas.getContext && canvas.getContext("2d");
+      if (!g) return;
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      const geometry = new THREE.PlaneGeometry(WHEEL_DISPLAY.size[0], WHEEL_DISPLAY.size[1]);
+      // Facing the driver (-x), tilted with the wheel rim.
+      geometry.rotateY(-Math.PI / 2);
+      geometry.rotateZ(WHEEL_DISPLAY.tiltRad);
+      geometry.translate(spec.head[0] + WHEEL_DISPLAY.offset.ahead, spec.head[1] + WHEEL_DISPLAY.offset.up, 0);
+      const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }));
+      mesh.name = "wheel-display";
+      car.add(mesh);
+      display = { g, texture, mesh };
+    }
+    shown = text;
+    const { g, texture } = display;
+    g.fillStyle = WHEEL_DISPLAY.colors.bg;
+    g.fillRect(0, 0, 64, 48);
+    g.fillStyle = WHEEL_DISPLAY.colors.fg;
+    g.font = "900 38px Arial, sans-serif";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(text, 32, 26);
+    texture.needsUpdate = true;
+  };
+};
 
 // ---------------------------------------------------------------- livery
 
@@ -501,6 +555,7 @@ export const buildCar = ({ year = 2024, color = "#c8102e", color2, name = "", nu
   });
   car.userData.wheels = wheels;
   car.userData.spec = spec;
+  if (hasWheelDisplay(year)) attachWheelDisplay(car, spec);
   car.userData.setCompound = (next) => {
     bands.forEach((band) => {
       band.material = bandMaterial(next, year);

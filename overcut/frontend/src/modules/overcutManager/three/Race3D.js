@@ -10,7 +10,11 @@
  *            shot and zooms to keep it framed.
  *
  * The race clock (see raceClock.js) already knows where every car is; this view
- * only places, turns and draws them. Props arrive every frame from the live
+ * only places, turns and draws them. Onboards come from data/balance/cameras.json
+ * by era (an onboard the season lacks is filmed by the chase camera); their
+ * vibration is seeded noise on the race clock (RNF-05), and the camera on air is
+ * published every frame on `cameraBus` ({ current: { id, kind, mode, subjectId,
+ * position, target, fov } }, F1M24-GAMEPLAY §1.7) for the TV listener of the sound. Props arrive every frame from the live
  * view and are read by the render loop through a ref, so React does no work
  * per frame here beyond handing them over.
  */
@@ -19,7 +23,7 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
 import { buildTrack } from "./trackScene";
-import { buildRig, fitRig, frame } from "./cameras";
+import { buildRig, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, seedOf, shakeOffset } from "./cameras";
 import { onRacingLine } from "./racingLine";
 import { poseAt } from "../engine/trackGeometry";
 import { createRenderer, environmentFor } from "./studio";
@@ -77,10 +81,10 @@ const buildCrew = (color) => {
   return group;
 };
 
-export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, teams, onPick, labels, clock, sample }) {
+export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, teams, onPick, labels, clock, sample, cameraBus }) {
   const mount = useRef(null);
   const props = useRef({});
-  props.current = { cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, onPick, clock, sample };
+  props.current = { cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, onPick, clock, sample, year, cameraBus };
   const world = useRef(null);
 
   // Renderer, sky, sun and camera: once.
@@ -292,7 +296,10 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
  * from the radius it is turning on and wheels that roll at its speed.
  */
 function step(state, props, dt) {
-  const { cars = [], focusId, mode = "chase", wet, lights, safetyCar, clock, sample, safetyCarOn } = props;
+  const { cars = [], focusId, wet, lights, safetyCar, clock, sample, safetyCarOn, year, cameraBus } = props;
+  // SRS 6.2: an onboard the cars of this season did not carry is filmed by the chase camera.
+  const mode = modeForYear(props.mode || "chase", year);
+  const onboard = isOnboard(mode);
   const { camera, circuit } = state;
   if (!circuit) return;
   const tau = clock ? clock.current : null;
@@ -395,7 +402,11 @@ function step(state, props, dt) {
       object.userData.setCompound(car.compound);
       entry.compound = car.compound;
     }
-    if (car.id === focusId) focus = { x, z, y: ground, heading: entry.yaw, speed: entry.speed || 0, share: pose.progress, turn: entry.turn, spec, item: { ...item, pose } };
+    if (car.id === focusId) {
+      focus = { x, z, y: ground, heading: entry.yaw, speed: entry.speed || 0, share: pose.progress, turn: entry.turn, spec, item: { ...item, pose } };
+      // The gear on the steering wheel (pose.gear from the power unit), read only from the cockpit.
+      if (onboard && Number.isFinite(pose.gear)) object.userData.setGear?.(pose.gear);
+    }
 
     // The pit crew around a car stopped in its box during the race.
     let crew = state.crews.get(car.id);
@@ -445,11 +456,7 @@ function step(state, props, dt) {
     const cam = state.cam;
     const inGarage = focus.item?.pose?.garage && mode !== "heli";
     const shot = inGarage
-      ? (() => {
-          const dir = new THREE.Vector3(Math.cos(focus.heading), 0, Math.sin(focus.heading));
-          const car = new THREE.Vector3(focus.x, 0, focus.z);
-          return { pos: car.clone().add(dir.clone().multiplyScalar(9)).setY(2.4), look: car.clone().setY(0.6), fov: 45, snap: true };
-        })()
+      ? garageShot(focus)
       : frame(mode, focus, circuit, state.rig, state.camState, dt, state.heightAt ? { heightAt: state.heightAt, field: state.field } : null);
     // On a real circuit the road climbs and falls: a shot framed on the flat plane follows the car's height.
     if (focus.y && !shot.abs) {
@@ -469,15 +476,30 @@ function step(state, props, dt) {
       cam.look.lerp(shot.look, Math.min(1, ease * (shot.lookLag ?? 10)));
     }
     camera.fov += (shot.fov - camera.fov) * Math.min(1, shot.snap ? 1 : dt * 3);
-    camera.near = mode === "visor" || mode === "tcam" || mode === "nose" || mode === "tcamRear" ? 0.05 : 0.3;
+    camera.near = shot.near ?? 0.3;
     camera.updateProjectionMatrix();
     camera.position.copy(cam.pos);
-    // A little vibration on the onboard cameras, as the real ones have.
-    if ((mode === "tcam" || mode === "visor" || mode === "nose") && (focus.speed || 0) > 5) {
-      const shake = Math.min(0.012, (focus.speed || 0) * 0.00012);
-      camera.position.y += (Math.random() - 0.5) * shake;
-    }
+    // A little vibration on the onboard cameras, as the real ones have: seeded noise on the race
+    // clock (the view's own time when there is none), never Math.random (RNF-05).
+    state.viewTime = (state.viewTime || 0) + dt;
+    const mount = !inGarage && onboard ? onboardFor(mode) : null;
+    if (mount?.shake) camera.position.y += shakeOffset(mount.shake, focus.speed || 0, tau ?? state.viewTime, seedOf(`${focus.item?.car?.id ?? ""}|${mode}`));
     camera.lookAt(cam.look);
+    // The camera on air, for whoever listens (the TV sound, AUD-2).
+    if (cameraBus) {
+      // A TV shot no tower can take is flown by the helicopter (cameras.js frame).
+      const fallback = mode === "tv" && !inGarage && state.camState.fallback;
+      const tv = mode === "tv" && !inGarage && !fallback ? state.camState.tvCam : null;
+      cameraBus.current = {
+        id: inGarage ? "garage" : fallback ? "heli" : tv?.id ?? mode,
+        kind: inGarage ? "garage" : fallback ? "heli" : tv ? tv.type : onboard ? "onboard" : mode,
+        mode,
+        subjectId: focus.item?.car?.id ?? null,
+        position: { x: camera.position.x, y: camera.position.y, z: camera.position.z },
+        target: { x: cam.look.x, y: cam.look.y, z: cam.look.z },
+        fov: camera.fov,
+      };
+    }
     const base = focus.y || 0;
     state.sun.position.set(focus.x + 60, base + 120, focus.z + 40);
     state.sun.target.position.set(focus.x, base, focus.z);
@@ -499,7 +521,6 @@ function step(state, props, dt) {
   const width = state.renderer.domElement.clientWidth;
   const height = state.renderer.domElement.clientHeight;
   const v = new THREE.Vector3();
-  const onboard = mode === "tcam" || mode === "visor" || mode === "nose" || mode === "tcamRear";
   items.forEach((item) => {
     const tag = state.tags.get(item.car.id);
     const entry = state.carObjects.get(item.car.id);

@@ -1,0 +1,97 @@
+{
+  "$comment": "RNF-07: realización de TV de la vista en vivo (RF-3D-04, RNF-09): a quién sigue el realizador, plantilla del rig de pista, encuadre, secuencias, repeticiones, insertos, ciclado de cámaras y vista por defecto. Lo leen components/director/directorState.js (CAM-1) y, en olas posteriores, three/cameras.js (CAM-2..5), components/replay/* (CAM-3) y LiveRace/SessionLive/Broadcast (HUD). Lo comprueba components/director/directorState.test.js contra engine/packs/schema/broadcast.schema.json. CAM-1 crea el esquema completo (docs/manager/F1M24-GAMEPLAY.md §3.2): los bloques que cablean paquetes posteriores van con 'status: pending' y una nota de quién los cablea. De F1 Manager 24 solo la estructura (qué hace un realizador; f1m24-analysis/cameras.md §5-§9); sus duraciones medidas son referencia, nunca valores fijados como hechos. 'status: current' = comportamiento que OverCut ya tenía antes de CAM-1.",
+  "version": 1,
+  "sources": {
+    "reference": "docs/manager/f1m24-analysis/cameras.md §2, §5-§9 (duraciones y densidad de planos medidas en vídeo; solo referencia)",
+    "previous": "components/LiveRace.js y components/raceClock.js battlesIn antes de CAM-1 (valores trasladados sin cambios)",
+    "rig": "three/cameras.js buildRig antes de CAM-1 (CAM-2 lo pasa a esta plantilla)",
+    "unification": "docs/manager/F1M24-GAMEPLAY.md §1.5 (buffer de repeticiones en la vista: 22 coches × 25 s × 10 Hz)"
+  },
+  "director": {
+    "battleGapSec": 1.0,
+    "battleStates": ["ATTACKING", "DEFENDING"],
+    "followAction": {
+      "enabled": false,
+      "holdSec": 7,
+      "preferUser": true,
+      "status": "current",
+      "note": "«Seguir la acción»: el realizador elige la pelea (la del jugador primero) o el líder y la mantiene holdSec de reloj real; era el comportamiento por defecto de LiveRace.js hasta CAM-1. Apagado por defecto: la TV sigue al coche que enfoca el usuario (cameras.md §6)."
+    },
+    "status": "current",
+    "source": "previous (battleGapSec = el 1 s de raceClock.battlesIn)"
+  },
+  "views": ["map", "tv", "camera"],
+  "cycleOrder": {
+    "cameras": ["tv", "chase", "drone", "heli", "halo", "tcam", "tcamRear", "visor", "cockpitSide", "sidepod", "nose"],
+    "status": "pending",
+    "note": "Orden del selector de cámara (HUD-1); cada cámara onboard se filtra por era con cameras.json. Orden propio: TV y cámaras exteriores primero, luego las del coche de delante hacia atrás."
+  },
+  "defaultView": {
+    "race": "tv",
+    "sprint": "tv",
+    "qualifying": "tv",
+    "practice": "map",
+    "status": "pending",
+    "note": "HUD-1 lo lee; en libres el mapa por defecto (F1M24-GAMEPLAY §2.5 user-camera-lock)."
+  },
+  "rigTemplate": {
+    "status": "pending",
+    "note": "CAM-2 (camera-zones) cablea buildRig a esta plantilla. Los tipos existentes llevan los valores que buildRig tenía en código; los nuevos van sin calibrar.",
+    "types": [
+      { "type": "braking", "dist": 22, "height": 5, "width": 26, "priority": 3, "weight": 1, "status": "current" },
+      { "type": "corner", "dist": 52, "height": 7, "width": 30, "priority": 2, "weight": 1, "status": "current", "note": "38/52/68 m y 9/7 m de alto según curva lenta/media/rápida en buildRig" },
+      { "type": "straight", "dist": 30, "height": 4, "width": 40, "priority": 1, "weight": 1, "status": "current", "note": "una cada 260 m de recta sin cubrir" },
+      { "type": "grandstand", "dist": 46, "height": 20, "width": 46, "priority": 4, "weight": 1, "status": "current" },
+      { "type": "cable", "dist": 0, "height": 24, "width": 40, "priority": 5, "weight": 1, "status": "current" },
+      { "type": "headOn", "dist": 30, "height": 5, "width": 30, "priority": 3, "weight": 1, "status": "pending" },
+      { "type": "passPan", "dist": 25, "height": 4, "width": 30, "priority": 2, "weight": 1, "status": "pending" },
+      { "type": "lateralTrack", "dist": 20, "height": 2, "width": 25, "priority": 2, "weight": 1, "status": "pending" },
+      { "type": "highWide", "dist": 80, "height": 25, "width": 90, "priority": 2, "weight": 1, "status": "pending" }
+    ]
+  },
+  "framing": {
+    "status": "pending",
+    "note": "CAM-2 (tv-lens-behaviour): fracción del ancho del cuadro que ocupa el coche y amortiguamiento crítico por tipo. Hoy cameras.js usa el ancho de rig.width y lookLag fijo.",
+    "byType": {}
+  },
+  "zonesPolicy": {
+    "avoidRepeat": true,
+    "seedSalt": "camera-zones",
+    "status": "pending",
+    "note": "CAM-2: elección por peso con la semilla de la carrera sin repetir la variante de la vuelta anterior."
+  },
+  "sequences": {
+    "pitStop": { "status": "pending", "note": "CAM-3: [{trigger: 'pitPhase:X', cam, minSec, maxSec}] con prioridad sobre zonas", "crewLeadSec": null, "shots": [] },
+    "garageExit": { "status": "pending", "note": "CAM-3 (sesiones, SES-2)", "shots": [] },
+    "preRace": { "status": "pending", "note": "CAM-4; saltable; SC aparcado en la parrilla solo desde 1993", "shots": [] },
+    "start": { "status": "pending", "note": "CAM-4; lee snapshot.start (SIM-3)", "shots": [] },
+    "finish": { "status": "pending", "note": "CAM-4; finisherShots por coche que cruza (referencia 1,3-7 s)", "finisherShots": null, "shots": [] },
+    "scDeploy": { "status": "pending", "note": "CAM-5; lee snapshot.sc (SIM-5)", "shots": [] }
+  },
+  "replay": {
+    "bufferSec": 25,
+    "sampleHz": 10,
+    "stingSec": null,
+    "maxSec": null,
+    "pauseSim": true,
+    "triggers": { "pass": true, "mistake": true, "dnf": true, "pitOther": true, "finish": true },
+    "status": "pending",
+    "note": "CAM-3. bufferSec y sampleHz por la decisión de unificación; cortinilla y duración máxima de diseño propio, sin fijar."
+  },
+  "inserts": {
+    "onboard": {
+      "enabled": false,
+      "perLap": null,
+      "minSec": null,
+      "maxSec": null,
+      "zoneKinds": ["straight"],
+      "status": "pending",
+      "note": "CAM-4 (onboard-inserts): vista del piloto dentro de la realización; referencia 1-2 por vuelta de 3-16 s, sin fijar."
+    }
+  },
+  "scLights": {
+    "flashHz": null,
+    "status": "pending",
+    "note": "CAM-5: parpadeo de la barra de luces del coche de seguridad; pending fuente (reglamento deportivo FIA)."
+  }
+}
