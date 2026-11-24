@@ -12,10 +12,33 @@
     "skipOut": true
   },
   "tower": {
-    "$comment": "Modos de la torre de tiempos, en el orden del selector. Hoy intervalo, al líder y neumáticos (antes TOWER_MODES en LiveRace.js). HUD-2 (tower-modes) añade lastLap, sectors, stops y tyres% con orden por era en byEra [{from, to, modes}].",
-    "status": "pending",
-    "modes": ["interval", "gap", "tyres"],
-    "byEra": []
+    "$comment": "HUD-2 (tower-modes, flag-header-sectors; F1M24-GAMEPLAY §2.12.1): modos de la torre en el orden del selector. Carrera: intervalo, al líder, neumático (compuesto y vueltas), neumático con % de vida, última vuelta, sectores, paradas. Un modo solo se ofrece si el motor da el dato (sectores en carrera solo cuando el historial de vueltas los traiga). byEra [{from, to, modes}] sustituye la lista de un rango de años; vacío porque no hay fuente de qué datos daba la torre real en cada época (pending: comprobar en las retransmisiones FOM por era antes de restringir nada). De F1 Manager 24 solo la idea de los modos; ningún valor.",
+    "status": "behaviour",
+    "modes": ["interval", "gap", "tyres", "tyresPct", "lastLap", "sectors", "stops"],
+    "byEra": [],
+    "session": {
+      "$comment": "Libres, clasificación y shootout: mejor vuelta (diferencia con el primero), última vuelta lanzada, sectores de la última vuelta lanzada (morado mejor de la sesión, verde mejor propio, amarillo más lento; con texto, nunca solo color) y neumático.",
+      "status": "behaviour",
+      "modes": ["best", "lastLap", "sectors", "tyres"]
+    },
+    "flags": {
+      "$comment": "Etiquetas de fila (con texto o icono con nombre, RNF-09): incidente (rombo) mientras el coche está bajo investigación sin decisión o durante holdSec segundos de carrera tras un evento de events en el que está, o mientras paga un error (pose.incident); vuelta de salida tras una parada o al salir del garaje; vuelta de entrada con la parada pedida o en la vuelta de entrada de una sesión; cuadros al terminar. holdSec es decisión de diseño de OverCut.",
+      "status": "behaviour",
+      "incident": {
+        "events": ["contact", "mistake"],
+        "investigation": true,
+        "holdSec": 12
+      },
+      "outLap": true,
+      "inLap": true,
+      "finished": true
+    },
+    "header": {
+      "$comment": "Cabecera de la torre teñida por la bandera, siempre con su texto (DESIGN §6.5, RNF-09). kinds: qué estados la tiñen (la verde no). sectorLabel: la amarilla dice su sector (de yellow.sector del motor, §1.7, o de la curva y circuit.sectors) además de la curva.",
+      "status": "behaviour",
+      "kinds": ["yellow", "sc", "vsc", "red", "chequered"],
+      "sectorLabel": true
+    }
   },
   "banners": {
     "$comment": "HUD-3 (event-banners): tipos de banner, duración y avisos de vueltas para el final. Propuesta de §2.12.1: lapsToGoCallouts [15, 10, 3, 1]; la fija HUD-3. Vacío = sin banners nuevos (comportamiento de hoy).",

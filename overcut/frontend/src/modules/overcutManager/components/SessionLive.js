@@ -19,13 +19,21 @@
  * your car leaves the garage, starts a flying lap or comes in and at the flag, "next event",
  * and the view (practice opens on the map) apart from the camera. The engine runs in fixed
  * steps whatever the speed, so none of it changes the session (RNF-05).
+ *
+ * Tower and run card (HUD-2 of F1M24-GAMEPLAY): the tower's modes from data/balance/hud.json
+ * (best, last flying lap, its sectors in purple / green / yellow with words, tyre), out-lap
+ * and in-lap tags, and a header tinted by the flag with its words (a yellow, when the
+ * session engine waves one - SES-3 - says its sector). Each run card names the car's phase in
+ * the §1.7 terms (garage, leaving the garage, out lap, preparing, flying, in lap) and, when the
+ * engine gives it (SES-2 boxRequest.distanceM), how far the pit entry is.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SESSION_BALANCE, advanceTo, carStatus, command, createSession, defaultCompound, nextSegment, runSegmentToEnd, sessionBestSectors, sessionResult } from "../engine/sessionSim";
 import { Segmented, Tyre, readableOn } from "./atoms";
-import { Feed, PlaybackBar, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
-import { cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, reasonText, runToNextSessionEvent, sessionTriggers, speedsOf, stepCar, viewName, viewsOf } from "./playback";
+import { Feed, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
+import { boxDistanceOf, distanceText, isInPhase, isOutPhase, lapSectorsOf, runPhaseOf, runPhaseText, sessionYellowsAt, towerModeName, towerModesFor, yellowFlag } from "./tower";
+import { HUD, cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, reasonText, runToNextSessionEvent, sessionTriggers, speedsOf, stepCar, viewName, viewsOf } from "./playback";
 import useAutoSpeed from "./useAutoSpeed";
 import { IconExit, IconFlag, IconLock, IconNextEvent, IconPlay } from "./icons";
 import { carAt } from "./raceClock";
@@ -77,6 +85,9 @@ const SHORT_PHASE = {
   in: () => t("Entra", "In"),
   pitlane: () => t("Box", "Box"),
 };
+
+/** A phase's words, long or short, for today's phases and the §1.7 ones (SES-2). */
+const phaseWord = (status, short = false) => (short ? SHORT_PHASE : PHASE)[status?.phase]?.() ?? runPhaseText(runPhaseOf(status));
 
 /** The plan a driver's card starts with, before the player touches it. */
 const startPlan = (engine, kind) => {
@@ -182,6 +193,9 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   const in3DRef = useRef(false);
   const users = entrants.filter((entry) => entry.isUser);
   const [focusId, setFocusId] = useState(users[0]?.id ?? entrants[0]?.id);
+  // tower-modes (HUD-2): the session's modes from hud.json tower.session.
+  const towerModes = useMemo(() => towerModesFor({ session: kind, year }), [kind, year]);
+  const [towerMode, setTowerMode] = useState(towerModes[0]);
   const [plans, setPlans] = useState(() => Object.fromEntries(users.map((user) => [user.id, startPlan(engine, kind)])));
   const [, setFrame] = useState(0);
   const tau = useRef(0);
@@ -304,17 +318,37 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   const bestSectors = sessionBestSectors(engine, now);
   const positionOf = Object.fromEntries(ordered.map((car, index) => [car.id, index + 1]));
 
+  const towerValue = (car, st, index) => {
+    if (towerMode === "lastLap") return st.lastLap !== null && st.lastLap !== undefined ? lapTime(st.lastLap) : phaseWord(st, true);
+    if (towerMode === "sectors") {
+      const sectors = lapSectorsOf(car, now);
+      return sectors ? <SectorBars sectors={sectors} best={bestSectors} own={car.bestSectors || []} /> : phaseWord(st, true);
+    }
+    if (towerMode === "tyres") {
+      const compound = st.record?.compound || car.run?.set?.compound;
+      return compound ? <Tyre compound={compound} age={car.run?.set?.laps} size={18} /> : phaseWord(st, true);
+    }
+    return st.best === null ? phaseWord(st, true) : index === 0 ? lapTime(st.best) : `+${(st.best - pole).toFixed(3)}`;
+  };
   const rows = [
     ...ordered.map((car, index) => {
       const st = statuses[car.id];
-      const value = st.best === null ? SHORT_PHASE[st.phase]() : index === 0 ? lapTime(st.best) : `+${(st.best - pole).toFixed(3)}`;
+      const runPhase = runPhaseOf(st);
       return {
         id: car.id,
         position: index + 1,
         code: code(byId[car.id]?.name),
         color: byId[car.id]?.color,
-        value,
-        flags: { user: byId[car.id]?.isUser, pit: st.phase === "garage" && st.best !== null, danger: index >= cut && !over, eliminated: index >= cut && over, focus: car.id === focusId },
+        value: towerValue(car, st, index),
+        flags: {
+          user: byId[car.id]?.isUser,
+          pit: runPhase === "GARAGE" && st.best !== null,
+          danger: index >= cut && !over,
+          eliminated: index >= cut && over,
+          focus: car.id === focusId,
+          outLap: HUD.tower.flags.outLap && isOutPhase(runPhase),
+          inLap: HUD.tower.flags.inLap && isInPhase(runPhase),
+        },
       };
     }),
     ...out.map((car, index) => ({
@@ -337,7 +371,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
         code: code(car.name),
         pose: carAt(car, now, circuit, baseLap),
         row: { position: positionOf[car.id] },
-        tag: st.phase === "flying" ? lapTime(st.elapsed) : st.best !== null ? lapTime(st.best) : PHASE[st.phase](),
+        tag: runPhaseOf(st) === "PUSH" ? lapTime(st.elapsed) : st.best !== null ? lapTime(st.best) : phaseWord(st),
       };
     });
 
@@ -392,7 +426,13 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   const focusPose = stageCars.find((item) => item.car.id === focusId)?.pose || stageCars[0]?.pose || { x: 0, y: 0, heading: 0 };
   const sessionTitle = kind === "practice" ? t("Libres", "Practice") : segmentName === "Q" ? t("Clasificación", "Qualifying") : segmentName;
   const remaining = segment.singleLap ? t(`${alive.filter((car) => car.history.length === 0).length} por salir`, `${alive.filter((car) => car.history.length === 0).length} to go`) : flag ? t("Bandera", "Flag") : mmss(segment.duration - now);
-  const flagState = flag ? { kind: "chequered", label: t(`${sessionTitle} · bandera a cuadros`, `${sessionTitle} · chequered flag`) } : { kind: "green", label: t(`${sessionTitle} · pista abierta`, `${sessionTitle} · track open`) };
+  // flag-header-sectors (HUD-2): a yellow only when the session engine waves one (SES-3).
+  const yellow = flag ? null : yellowFlag(circuit, sessionYellowsAt(engine, now));
+  const flagState = flag
+    ? { kind: "chequered", label: t(`${sessionTitle} · bandera a cuadros`, `${sessionTitle} · chequered flag`) }
+    : yellow
+      ? { ...yellow, label: `${sessionTitle} · ${yellow.label}` }
+      : { kind: "green", label: t(`${sessionTitle} · pista abierta`, `${sessionTitle} · track open`) };
   const dropped = over && segment.drop ? ordered.slice(cut).map((car) => byId[car.id]?.name) : [];
   const nextName = engine.segments[engine.segment + 1]?.name;
   const formatNote = segment.singleLap
@@ -483,7 +523,15 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
         </div>
       </div>
 
-      <TimingTower label={t("Torre de tiempos", "Timing tower")} title={sessionTitle} subtitle={<b>{remaining}</b>} modes={null} rows={rows} onPick={setFocusId} />
+      <TimingTower
+        label={t("Torre de tiempos", "Timing tower")}
+        title={sessionTitle}
+        subtitle={<b>{remaining}</b>}
+        modes={towerModes.length > 1 ? { value: towerMode, onChange: setTowerMode, options: towerModes.map((value) => ({ value, label: towerModeName(value) })) } : null}
+        rows={rows}
+        onPick={setFocusId}
+        flag={flagState}
+      />
 
       <section className="lv-cards" aria-label={t("Tus pilotos", "Your drivers")}>
           {users.map((user) => (
@@ -555,7 +603,11 @@ function RunCard({ kind, engine, user, status, position, danger, flag, over, pla
   const car = status.car;
   const segment = engine.segments[engine.segment];
   const phase = status.phase;
-  const onTrack = phase !== "garage" && phase !== "queued";
+  // garage-exit-presentation (HUD-2): the §1.7 phase (SES-2) or today's in its terms.
+  const runPhase = runPhaseOf(status);
+  const onTrack = runPhase !== "GARAGE" && runPhase !== "GARAGE_EXIT";
+  const flying = runPhase === "PUSH";
+  const boxDistance = boxDistanceOf(car);
   const qualifying = kind !== "practice";
   const raceFuelLocked = segment.raceFuel && car.declaredFuel !== null;
   const lapsLeft = segment.lapLimit ? Math.max(0, segment.lapLimit - car.laps) : null;
@@ -571,9 +623,9 @@ function RunCard({ kind, engine, user, status, position, danger, flag, over, pla
     ? t(`Eliminado en ${engine.segments[car.out]?.name ?? ""}`, `Out in ${engine.segments[car.out]?.name ?? ""}`)
     : danger && qualifying && !over
       ? t("Zona de corte", "Drop zone")
-      : PHASE[phase]();
+      : phaseWord(status);
   return (
-    <section className={`lv-card${focused ? " is-focus" : ""}${car.eliminated ? " is-out" : ""}`} aria-label={user.name} data-phase={phase}>
+    <section className={`lv-card${focused ? " is-focus" : ""}${car.eliminated ? " is-out" : ""}`} aria-label={user.name} data-phase={phase} data-run-phase={runPhase}>
       <button type="button" className="lv-card__head" onClick={onFocus}>
         <span className="lv-card__pos">{position ?? "—"}</span>
         <i className="lv-card__stripe" style={{ "--stripe": readableOn(user.color) }} aria-hidden="true" />
@@ -582,19 +634,26 @@ function RunCard({ kind, engine, user, status, position, danger, flag, over, pla
         <span className="lv-card__lap">{status.best !== null ? lapTime(status.best) : ""}</span>
       </button>
 
+      {!car.eliminated && !over && runPhase !== "GARAGE" && (
+        <p className="lv-card__run" role="status">
+          <b>{runPhaseText(runPhase) || phaseWord(status)}</b>
+          {boxDistance !== null && <span>{t(`Entrada a boxes a ${distanceText(boxDistance)}`, `Pit entry in ${distanceText(boxDistance)}`)}</span>}
+        </p>
+      )}
+
       {onTrack && (
         <>
           <div className="lv-ctl">
             <span>{t("Vuelta", "Lap")}</span>
             <div className="lv-ctl__value">
-              <b className={phase === "flying" ? "is-warn" : "is-text"}>{status.elapsed !== null ? lapTime(status.elapsed) : PHASE[phase]()}</b>
+              <b className={flying ? "is-warn" : "is-text"}>{status.elapsed !== null ? lapTime(status.elapsed) : phaseWord(status)}</b>
               {delta !== null && <small className={delta <= 0 ? "is-good" : "is-bad"}>{signed(delta)}</small>}
               <small>
                 <Tyre compound={status.record?.compound || plan.compound} age={car.run?.set?.laps} size={18} />
               </small>
             </div>
           </div>
-          {phase === "flying" && <Sectors status={status} car={car} best={bestSectors} />}
+          {flying && <Sectors status={status} car={car} best={bestSectors} />}
           <div className="lv-ctl">
             <span>{qualifying ? t("Intentos", "Attempts") : t("Vueltas", "Laps")}</span>
             <div className="lv-ctl__value">
@@ -613,22 +672,22 @@ function RunCard({ kind, engine, user, status, position, danger, flag, over, pla
             </div>
           )}
           <div className="lv-box">
-            {phase === "flying" && (
+            {flying && (
               <button type="button" className="mn-btn mn-btn--sm mn-btn--danger" onClick={() => order("abortLap", car.id)}>
                 {t("Abortar vuelta", "Abort lap")}
               </button>
             )}
-            {phase !== "in" && phase !== "pitlane" && (
-              <button type="button" className={`mn-btn mn-btn--sm${car.boxRequest ? " lv-box__called" : ""}`} onClick={() => order("boxNow", car.id)} disabled={car.boxRequest}>
+            {!isInPhase(runPhase) && (
+              <button type="button" className={`mn-btn mn-btn--sm${car.boxRequest ? " lv-box__called" : ""}`} onClick={() => order("boxNow", car.id)} disabled={Boolean(car.boxRequest)}>
                 <IconExit size={16} />
-                {car.boxRequest ? t("Entra al acabar la vuelta", "Boxing at the end of the lap") : phase === "flying" ? t("Volver a boxes tras la vuelta", "Box after this lap") : t("Volver a boxes", "Box now")}
+                {car.boxRequest ? t("Entra al acabar la vuelta", "Boxing at the end of the lap") : flying ? t("Volver a boxes tras la vuelta", "Box after this lap") : t("Volver a boxes", "Box now")}
               </button>
             )}
           </div>
         </>
       )}
 
-      {phase === "queued" && (
+      {runPhase === "GARAGE_EXIT" && (
         <div className="lv-box">
           <span>{t("Saliendo del garaje", "Leaving the garage")}</span>
           <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={() => order("hold", car.id)}>
@@ -637,7 +696,7 @@ function RunCard({ kind, engine, user, status, position, danger, flag, over, pla
         </div>
       )}
 
-      {phase === "garage" && !car.eliminated && !over && (
+      {runPhase === "GARAGE" && !car.eliminated && !over && (
         <>
           {!qualifying && (
             <div className="lv-ctl lv-ctl--stack">

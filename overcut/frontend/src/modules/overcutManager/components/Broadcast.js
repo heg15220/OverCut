@@ -7,6 +7,10 @@
  *                 the pits, the fastest lap in purple, the knockout cut, and an
  *                 arrow for three seconds when a car gains or loses a place
  *                 (§5.5). On phones it folds to the five rows around your car.
+ *                 HUD-2 (tower-modes, flag-header-sectors): the header tinted by
+ *                 the flag with its words (the yellow says its sector), and row
+ *                 tags with words - incident, out lap, in lap, finished.
+ *   SectorBars    three sector times, purple / green / yellow with their words.
  *   StatusStrip   over the picture: the flag state (colour and words, never
  *                 colour alone) and the conditions - clock, air, track, rain,
  *                 rubber and grip.
@@ -21,11 +25,13 @@
 
 import React, { useRef, useState } from "react";
 import { Flag, Segmented, Tabs, readableOn } from "./atoms";
-import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPlay, IconRadio } from "./icons";
+import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconFlag, IconPlay, IconRadio } from "./icons";
 import { IconCamera, IconCloud, IconDroplet, IconPause, IconRain, IconSun, IconThermometer, IconTimer } from "./icons";
 import { t } from "./texts";
+import { headerFlagOf, sectorTone } from "./tower";
 import "./styles/weekend.css";
 import "./styles/playback.css";
+import "./styles/tower.css";
 
 const MOVE_MS = 3000;
 
@@ -48,22 +54,80 @@ const useMoves = (rows) => {
   return moves;
 };
 
+/** Row tags (HUD-2): each with its words, never a colour alone (RNF-09). */
+const RowTags = ({ flags }) => (
+  <>
+    {flags.incident && (
+      <span className="lv-row__tag" data-tag="incident" title={t("Incidente", "Incident")}>
+        <span aria-hidden="true">◆</span>
+        <span className="lv-sr">{t("Incidente", "Incident")}</span>
+      </span>
+    )}
+    {flags.outLap && (
+      <span className="lv-row__tag" data-tag="out" title={t("Vuelta de salida", "Out lap")}>
+        {t("SAL", "OUT")}
+      </span>
+    )}
+    {flags.inLap && (
+      <span className="lv-row__tag" data-tag="in" title={t("Vuelta de entrada", "In lap")}>
+        {t("ENT", "IN")}
+      </span>
+    )}
+    {flags.finished && (
+      <span className="lv-row__tag" data-tag="finished" title={t("Terminado", "Finished")}>
+        <IconFlag size={12} />
+        <span className="lv-sr">{t("Terminado", "Finished")}</span>
+      </span>
+    )}
+  </>
+);
+
+/**
+ * Three sector times (HUD-2 tower-modes): `sectors` the times, `best` the session's best
+ * sectors (purple), `own` the car's (green); slower ones in yellow. The tone is in the
+ * words too (title and screen-reader text).
+ */
+export const SectorBars = ({ sectors, best = [], own = [] }) => (
+  <span className="lv-bars" role="group" aria-label={t("Sectores", "Sectors")}>
+    {[0, 1, 2].map((index) => {
+      const value = sectors?.[index];
+      const tone = sectorTone(value, best[index], own[index]);
+      const words = Number.isFinite(value) ? `S${index + 1} ${value.toFixed(3)}${tone.text ? ` · ${tone.text}` : ""}` : `S${index + 1}`;
+      return (
+        <span key={index} className={`lv-bars__chip${tone.tone ? ` is-${tone.tone}` : ""}`} title={words} data-tone={tone.tone || undefined}>
+          <span aria-hidden="true">{Number.isFinite(value) ? value.toFixed(1) : `S${index + 1}`}</span>
+          <span className="lv-sr">{words}</span>
+        </span>
+      );
+    })}
+  </span>
+);
+
 /**
  * The tower. `rows` are { id, position, code, color, value, flags: { user, out, pit, eliminated,
- * fastest, focus, battle, danger } }; `modes` is { options, value, onChange } or null.
+ * fastest, focus, battle, danger, incident, outLap, inLap, finished } }; `modes` is
+ * { options, value, onChange } or null; `flag` the flag state { kind, label } (HUD-2: the
+ * header is tinted, with the words, for the kinds of hud.json tower.header).
  */
-export const TimingTower = ({ title, subtitle, modes, rows, onPick, label }) => {
+export const TimingTower = ({ title, subtitle, modes, rows, onPick, label, flag = null }) => {
   const [collapsed, setCollapsed] = useState(true);
+  const header = headerFlagOf(flag);
   const moves = useMoves(rows);
   const userIndex = rows.findIndex((row) => row.flags?.user);
   const anchor = userIndex < 0 ? 0 : userIndex;
   const firstCut = rows.findIndex((row) => row.flags?.danger || row.flags?.eliminated);
   return (
-    <section className={`lv-tower${collapsed ? " is-collapsed" : ""}`} aria-label={label}>
+    <section className={`lv-tower${collapsed ? " is-collapsed" : ""}`} aria-label={label} data-flag={header?.kind}>
       <header className="lv-tower__head">
         <strong>{title}</strong>
         {subtitle && <span className="lv-tower__sub">{subtitle}</span>}
       </header>
+      {header && (
+        <p className="lv-tower__flag" data-flag={header.kind} role="status" aria-label={t("Bandera en pista", "Track flag")}>
+          <i aria-hidden="true" />
+          {header.label}
+        </p>
+      )}
       {modes && (
         <div className="lv-tower__modes">
           <Segmented label={t("Dato de la torre", "Tower data")} value={modes.value} onChange={modes.onChange} options={modes.options} />
@@ -110,6 +174,7 @@ export const TimingTower = ({ title, subtitle, modes, rows, onPick, label }) => 
                     {move > 0 ? <IconArrowUp size={12} /> : <IconArrowDown size={12} />}
                   </span>
                 ) : null}
+                <RowTags flags={f} />
               </span>
               <span className={`lv-row__value${typeof row.value === "string" && /^\p{L}/u.test(row.value) ? " is-text" : ""}`}>{row.value}</span>
               <span className="lv-row__mark">{f.fastest ? <IconTimer size={14} title={t("Vuelta rápida", "Fastest lap")} /> : null}</span>

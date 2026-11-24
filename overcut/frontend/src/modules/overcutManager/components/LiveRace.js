@@ -21,6 +21,12 @@
  * an open dialog pauses the clock. The view (map, TV, camera) is picked apart from the
  * camera; in the camera view the director never cuts, and the car arrows step through the
  * tower by position. None of it touches the engine (RNF-05).
+ *
+ * Tower and director (HUD-2): the tower's modes from data/balance/hud.json (interval,
+ * leader, tyres, tyre %, last lap, sectors when the engine times them, stops), row tags for
+ * incidents, out and in laps and the flag, and a header tinted by the flag with its words -
+ * a yellow says its sector. The TV follows the car you pick in the tower or on the map
+ * (components/director/directorState, CAM-1); "follow the action" is broadcast.json's.
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -34,7 +40,9 @@ import { circuitFor } from "../engine/venue";
 import { poseAt } from "../engine/trackGeometry";
 import { useManager } from "./context";
 import { Meter, Segmented, Tyre, readableOn } from "./atoms";
-import { Dots, Feed, PlaybackBar, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
+import { Dots, Feed, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
+import { tvShotOf } from "./tvDirector";
+import { hasSectorTimes, incidentOf, lapSectorsOf, lastLapOf, raceInLap, raceOutLap, stopsOf, towerModeName, towerModesFor, yellowFlag } from "./tower";
 import { HUD, LIVE_VIEW, cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, engineChunk, raceTriggers, reasonText, speedsOf, stepCar, viewName, viewsOf } from "./playback";
 import useAutoSpeed from "./useAutoSpeed";
 import { IconFastForward, IconFlag } from "./icons";
@@ -297,7 +305,11 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   in3DRef.current = in3D;
   const zoom = 1;
   const [focusId, setFocusId] = useState(userCars[0]?.id ?? current.cars[0]?.id);
-  const [towerMode, setTowerMode] = useState(HUD.tower.modes[0]);
+  // tower-modes (HUD-2): hud.json's order for the year; sectors only when the engine times them.
+  const sectorTimes = hasSectorTimes(current.cars);
+  const towerModes = towerModesFor({ session: "race", year: current.year, available: HUD.tower.modes.filter((mode) => mode !== "sectors" || sectorTimes) });
+  const [towerModePick, setTowerMode] = useState(towerModes[0]);
+  const towerMode = towerModes.includes(towerModePick) ? towerModePick : towerModes[0];
   // RF-3D-04 sound: engines per car and era, spatial mix per camera, ambience (three/audio).
   const audio = useRaceAudio({ seed: current.seed ?? `${current.year}`, year: current.year });
 
@@ -305,7 +317,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const intro = useRef(0);
   const introDone = useRef(false);
   const camera = useRef(null);
-  const director = useRef({ id: null, until: 0 });
+  // The director's last shot (directorState keeps its camera and its follow-the-action hold).
+  const director = useRef(null);
   const finishedRef = useRef(false);
   // The loop reads the auto-speed machine itself (a drop lands on the very next frame).
   const playRef = useRef({ playing, auto });
@@ -411,20 +424,17 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const focusRow = rowOf[focusId] && !rowOf[focusId].pose.gone ? rowOf[focusId] : leader;
   let target = focusRow?.pose;
   let directorLabel = "";
+  // director-follow-focus (HUD-2 on CAM-1's directorState): the TV films the car picked in
+  // the tower or on the map, framing its rival when they race; it never swaps the subject
+  // unless broadcast.json followAction is on. SIM-4's battle state when the engine sends it.
+  let tvSubjectId = focusId;
   if (cameraMode === "tv") {
-    const realNow = now() / 1000;
-    if (realNow > director.current.until || !battles.some((battle) => battle.attacker.car.id === director.current.id)) {
-      const pick = battles.find((battle) => battle.attacker.car.isUser || battle.defender.car.isUser) || battles[0];
-      director.current = { id: pick?.attacker.car.id || leader?.car.id, until: realNow + 7 };
-    }
-    const battle = battles.find((entry) => entry.attacker.car.id === director.current.id);
-    const subject = rowOf[director.current.id] || leader;
-    if (battle) {
-      target = { x: (battle.attacker.pose.x + battle.defender.pose.x) / 2, y: (battle.attacker.pose.y + battle.defender.pose.y) / 2, heading: battle.defender.pose.heading };
-      directorLabel = t(`Lucha por P${battle.position}`, `Battle for P${battle.position}`);
-    } else if (subject) {
-      target = subject.pose;
-      directorLabel = subject.car.name;
+    const tv = tvShotOf({ focusId, rows, events: visibleEvents, battle: current.battle, cars: current.cars, prev: director.current, now: now() / 1000 });
+    director.current = tv.shot;
+    if (tv.subjectId !== null) {
+      tvSubjectId = tv.subjectId;
+      target = tv.target;
+      directorLabel = tv.label;
     }
   }
   if (target) {
@@ -471,7 +481,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     tau: tau.current,
     playing: playing && !done,
     mode: cameraMode,
-    focusId: cameraMode === "tv" ? director.current.id || focusId : focusId,
+    focusId: tvSubjectId,
     cars: rows.map((row) => ({ id: row.car.id, teamId: row.car.teamId, pose: row.pose })),
     wetness,
     events: visibleEvents,
@@ -531,6 +541,20 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const cameraLabel = view === "tv" ? `TV · ${directorLabel}` : cameraName(cameraPick);
   const towerOrder = rows.map((row) => ({ id: row.car.id, out: Boolean(row.out || row.pose.gone) }));
 
+  // tower-modes (HUD-2): what each mode shows, read from the lap history up to the clock.
+  const towerRules = rulesOf(current.era, current.year);
+  const timedEvents = visibleEvents.map((event) => ({ type: event.type, carId: event.carId, otherId: event.otherId, at: event.at ?? source.eventTime(event, leader?.car.id) }));
+  const ownBestSectors = (car) => {
+    const best = [Infinity, Infinity, Infinity];
+    (car.history || []).forEach((entry) => {
+      if (entry.end > tau.current || !Array.isArray(entry.sectors)) return;
+      entry.sectors.forEach((value, index) => {
+        if (value < best[index]) best[index] = value;
+      });
+    });
+    return best;
+  };
+  const raceBestSectors = towerMode === "sectors" ? current.cars.map(ownBestSectors).reduce((best, own) => best.map((value, index) => Math.min(value, own[index])), [Infinity, Infinity, Infinity]) : null;
   const towerRows = rows.map((row, index) => {
     const { car, pose } = row;
     const out = row.out;
@@ -538,7 +562,23 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     if (out) value = STATUS[car.retireReason] ? STATUS[car.retireReason]() : t("Ab", "Out");
     else if (pose.inPit) value = t("En boxes", "In pit");
     else if (towerMode === "tyres") value = <Tyre compound={car.compound} age={car.tyreAge} size={18} />;
-    else if (index === 0) value = pose.finished ? t("Meta", "Finish") : towerMode === "gap" ? t("Líder", "Leader") : row.completed > 0 ? `${t("V", "L")}${row.completed + 1}` : t("Líder", "Leader");
+    else if (towerMode === "tyresPct") {
+      const life = Math.round(Math.max(0, 1 - tyreLifeUsed(car, towerRules)) * 100);
+      value = (
+        <span className="lv-row__tyre">
+          <Tyre compound={car.compound} size={16} /> {life}%
+        </span>
+      );
+    } else if (towerMode === "lastLap") {
+      const last = lastLapOf(car, tau.current);
+      value = last !== null ? lapTime(last) : "—";
+    } else if (towerMode === "sectors") {
+      const sectors = lapSectorsOf(car, tau.current);
+      value = sectors ? <SectorBars sectors={sectors} best={raceBestSectors} own={ownBestSectors(car)} /> : "—";
+    } else if (towerMode === "stops") {
+      const stops = stopsOf(car, tau.current);
+      value = stops === 1 ? t("1 parada", "1 stop") : t(`${stops} paradas`, `${stops} stops`);
+    } else if (index === 0) value = pose.finished ? t("Meta", "Finish") : towerMode === "gap" ? t("Líder", "Leader") : row.completed > 0 ? `${t("V", "L")}${row.completed + 1}` : t("Líder", "Leader");
     else if (row.lapsDown > 0) value = `+${row.lapsDown} ${t("V", "L")}`;
     else {
       const gap = towerMode === "gap" ? row.gap : row.interval;
@@ -557,6 +597,10 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         focus: car.id === focusId,
         battle: (pose.duel ?? 0) > 0 || battles.some((entry) => entry.attacker === row || entry.defender === row),
         fastest: fastest?.carId === car.id,
+        incident: !out && incidentOf(car.id, timedEvents, tau.current, pose),
+        outLap: !out && raceOutLap(car, tau.current, pose),
+        inLap: !out && raceInLap(car, pose),
+        finished: HUD.tower.flags.finished && Boolean(pose.finished),
       },
     };
   });
@@ -592,7 +636,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
       : leaderFinished
         ? { kind: "chequered", label: t("Bandera a cuadros", "Chequered flag") }
         : yellows.length > 0
-          ? { kind: "yellow", label: `${t("Amarilla", "Yellow")} · ${yellows.map((zone) => `${t("C", "T")}${zone.corner}`).join(" ")}` }
+          ? yellowFlag(circuit, yellows)
           : !introDone.current
             ? { kind: "session", label: t("Salida", "Start") }
             : { kind: "green", label: t("Bandera verde", "Green flag") };
@@ -612,7 +656,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               circuit={circuit}
               year={current.year}
               cars={stageCars}
-              focusId={cameraMode === "tv" ? director.current.id : focusId}
+              focusId={tvSubjectId}
               mode={cameraMode}
               wet={wetness > 0.2}
               lights={lightsOn}
@@ -633,7 +677,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
             wet={wetness > 0.2}
             teams={teams}
             safetyCar={safetyCar}
-            focusId={cameraMode === "tv" ? director.current.id : focusId}
+            focusId={tvSubjectId}
             onPick={setFocusId}
             labels={{ map: t("Mapa del circuito", "Circuit map"), near: t("Cámara cenital", "Overhead camera"), box: "Box", sc: t("Coche de seguridad", "Safety car") }}
           />
@@ -672,9 +716,10 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
             {t("Vuelta", "Lap")} <b>{displayLap}</b>/{current.laps}
           </>
         }
-        modes={{ value: towerMode, onChange: setTowerMode, options: HUD.tower.modes.filter((value) => ["interval", "gap", "tyres"].includes(value)).map((value) => ({ value, label: { interval: t("Intervalo", "Interval"), gap: t("Líder", "Leader"), tyres: t("Neumáticos", "Tyres") }[value] })) }}
+        modes={{ value: towerMode, onChange: setTowerMode, options: towerModes.map((value) => ({ value, label: towerModeName(value) })) }}
         rows={towerRows}
         onPick={setFocusId}
+        flag={flag}
       />
 
       <section className="lv-cards" aria-label={t("Órdenes", "Orders")}>
@@ -707,7 +752,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
       </section>
 
       <aside className="lv-side" aria-label={t("Pista", "Track")}>
-        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={cameraMode === "tv" ? director.current.id : focusId} label={t("Minimapa", "Mini map")} />}
+        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={tvSubjectId} label={t("Minimapa", "Mini map")} />}
         <Feed entries={feedEntries} />
       </aside>
 

@@ -5,8 +5,20 @@
   "additionalProperties": false,
   "required": ["$comment", "version", "speedCallout", "carStep", "tower", "banners", "start", "transitionSec"],
   "definitions": {
-    "status": { "enum": ["behaviour", "pending", "measured", "NV"] },
-    "towerModes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["interval", "gap", "tyres", "tyresPct", "lastLap", "sectors", "stops", "status"] } }
+    "status": {
+      "enum": ["behaviour", "pending", "measured", "NV"]
+    },
+    "towerModes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["interval", "gap", "tyres", "tyresPct", "lastLap", "sectors", "stops", "status", "best"]
+      }
+    },
+    "flagKind": {
+      "enum": ["green", "yellow", "sc", "vsc", "red", "chequered", "session"]
+    }
   },
   "properties": {
     "$comment": { "type": "string" },
@@ -19,7 +31,11 @@
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
-        "showMs": { "type": "integer", "minimum": 0, "maximum": 10000 }
+        "showMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        }
       }
     },
     "carStep": {
@@ -35,7 +51,7 @@
     "tower": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "modes", "byEra"],
+      "required": ["$comment", "status", "modes", "byEra", "session", "flags", "header"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -47,10 +63,76 @@
             "additionalProperties": false,
             "required": ["from", "to", "modes"],
             "properties": {
-              "from": { "type": "integer", "minimum": 1950, "maximum": 2100 },
-              "to": { "type": "integer", "minimum": 1950, "maximum": 2100 },
+              "from": {
+                "type": "integer",
+                "minimum": 1950,
+                "maximum": 2100
+              },
+              "to": {
+                "type": "integer",
+                "minimum": 1950,
+                "maximum": 2100
+              },
               "modes": { "$ref": "#/definitions/towerModes" }
             }
+          }
+        },
+        "session": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "modes"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "modes": { "$ref": "#/definitions/towerModes" }
+          }
+        },
+        "flags": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "incident", "outLap", "inLap", "finished"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "incident": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["events", "investigation", "holdSec"],
+              "properties": {
+                "events": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "investigation": { "type": "boolean" },
+                "holdSec": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 120
+                }
+              }
+            },
+            "outLap": { "type": "boolean" },
+            "inLap": { "type": "boolean" },
+            "finished": { "type": "boolean" }
+          }
+        },
+        "header": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "kinds", "sectorLabel"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "kinds": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "$ref": "#/definitions/flagKind" }
+            },
+            "sectorLabel": { "type": "boolean" }
           }
         }
       }
@@ -62,9 +144,28 @@
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
-        "kinds": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-        "durationSec": { "type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 30 },
-        "lapsToGoCallouts": { "type": "array", "uniqueItems": true, "items": { "type": "integer", "minimum": 1, "maximum": 100 } }
+        "kinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "durationSec": {
+          "type": ["number", "null"],
+          "exclusiveMinimum": 0,
+          "maximum": 30
+        },
+        "lapsToGoCallouts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
       }
     },
     "start": {
@@ -74,9 +175,17 @@
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
-        "hudDelaySec": { "type": ["number", "null"], "minimum": 0, "maximum": 30 }
+        "hudDelaySec": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 30
+        }
       }
     },
-    "transitionSec": { "type": ["number", "null"], "minimum": 0, "maximum": 15 }
+    "transitionSec": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 15
+    }
   }
 }
