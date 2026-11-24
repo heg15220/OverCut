@@ -358,24 +358,24 @@ const gearsOver = (pt, speeds, opts = {}, dt = 0.25, start = 1) => {
 
 describe("per power unit, the pit limiter and the safety car (F1M24-GAMEPLAY §2.4 tren-por-pu; RF-SIM-01, RF-DEV-05, RNF-07)", () => {
   it("manufacturer overrides only where OpenF1 measured them (SRS 6: nothing outside its era), on the pack's engine ids", () => {
-    data.eras.forEach((era) => {
-      const table = era.manufacturers;
-      if (era.to < 2022 || era.from > 2025) {
-        expect(table).toBeUndefined();
-        return;
-      }
-      Object.keys(table)
-        .filter((key) => key !== "$comment")
-        .forEach((key) => {
-          const entry = table[key];
-          if (entry.sameAs) {
-            expect(table[entry.sameAs].shiftRpm).toBeGreaterThan(0);
-            return;
-          }
-          expect(entry.gearShares).toHaveLength(era.gearbox.gears);
-          expect(entry.shiftRpm).toBeLessThanOrEqual(era.engine.limitRpm);
-        });
-    });
+    const outside = data.eras.filter((era) => era.to < 2022 || era.from > 2025);
+    outside.forEach((era) => expect(era.manufacturers).toBeUndefined());
+    const entries = data.eras
+      .filter((era) => !outside.includes(era))
+      .flatMap((era) =>
+        Object.keys(era.manufacturers)
+          .filter((key) => key !== "$comment")
+          .map((key) => ({ era, table: era.manufacturers, entry: era.manufacturers[key] })),
+      );
+    entries
+      .filter(({ entry }) => entry.sameAs)
+      .forEach(({ table, entry }) => expect(table[entry.sameAs].shiftRpm).toBeGreaterThan(0));
+    entries
+      .filter(({ entry }) => !entry.sameAs)
+      .forEach(({ era, entry }) => {
+        expect(entry.gearShares).toHaveLength(era.gearbox.gears);
+        expect(entry.shiftRpm).toBeLessThanOrEqual(era.engine.limitRpm);
+      });
     // The 2022-2025 packs' engine manufacturers all resolve (2022 names Red Bull's unit "rbpt").
     ["ferrari", "mercedes", "renault", "honda-rbpt", "rbpt", "Honda RBPT"].forEach((name) => expect(manufacturerOf(eraOf(2024), name)).not.toBeNull());
     expect(manufacturerOf(eraOf(2024), "rbpt")).toBe(eraOf(2024).manufacturers["honda-rbpt"]);

@@ -410,9 +410,10 @@ describe("shift shape per era and maker (shift-shape-per-pu, RF-3D-04, RNF-07, S
       const catchAll = rows.findIndex((row) => Object.keys(row.match).length === 0);
       expect(catchAll).toBeGreaterThanOrEqual(0);
       const order = audioData.shiftProfiles.indexOf(rows[catchAll]);
-      audioData.shiftProfiles.forEach((row, index) => {
-        if (index > order && year >= row.from && year <= row.to) expect(Object.keys(row.match).length).toBe(0);
-      });
+      const shadowed = audioData.shiftProfiles.filter(
+        (row, index) => index > order && year >= row.from && year <= row.to && Object.keys(row.match).length !== 0,
+      );
+      expect(shadowed).toEqual([]);
     }
     audioData.shiftProfiles.forEach((row) => expect(/NV|f312t|mp44|f640|openf1/.test(row.source)).toBe(true));
   });

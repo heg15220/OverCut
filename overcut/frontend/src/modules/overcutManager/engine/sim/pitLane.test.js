@@ -390,11 +390,15 @@ describe("PIT-1 · garageExitProfile: from the box out of the lane (RF-WKD-02, R
     expect(exit.marks).toBe("laneEnd");
     expect(exit.v[0]).toBe(0);
     expect(exit.toS).toBeCloseTo(geo.total, 0);
+    const overLimit = [];
+    const notIncreasing = [];
     for (let k = 0; k <= exit.N; k += 1) {
       const s = exit.s0 + k * exit.step;
-      if (s >= geo.limitFromS && s <= geo.limitToS) expect(exit.v[k]).toBeLessThanOrEqual(exit.vLimit + 1e-9);
-      if (k > 0) expect(exit.t[k]).toBeGreaterThan(exit.t[k - 1]);
+      if (s >= geo.limitFromS && s <= geo.limitToS && exit.v[k] > exit.vLimit + 1e-9) overLimit.push(k);
+      if (k > 0 && !(exit.t[k] > exit.t[k - 1])) notIncreasing.push(k);
     }
+    expect(overLimit).toEqual([]);
+    expect(notIncreasing).toEqual([]);
     expect(exit.toLimitEnd).toBeGreaterThan(0);
     expect(exit.toLimitEnd).toBeLessThan(exit.T);
     // Sampling it walks the lane from the box to the end.
