@@ -502,6 +502,7 @@ export const runPractice = (career, programs = {}) => {
   weekend.practice = practice;
   weekend.feedback = feedback;
   weekend.stage = "qualifying";
+  reviewSession(weekend, "practice");
   return feedback;
 };
 
@@ -517,6 +518,7 @@ export const runQualifyingSession = (career, risk = {}) => {
   const result = runQualifying({ entrants, race, era: eraOf(career), year: career.year, wetness, practice: weekend.practice, risk, stream });
   weekend.qualifying = { ...result, wetness, teams: Object.fromEntries(entrants.map((entrant) => [entrant.id, entrant.teamId])) };
   weekend.stage = afterQualifyingStage(career);
+  reviewSession(weekend, "qualifying");
   // The strategist's plan for both cars, which the player may change.
   driversOf(career.world, career.teamId).forEach((driver) => {
     weekend.plans[driver.id] = defaultPlan(career);
@@ -565,6 +567,123 @@ export const isSprintWeekend = (career) => {
 export const sprintHasShootout = (career) => isSprintWeekend(career) && career.year >= 2023;
 
 const afterQualifyingStage = (career) => (isSprintWeekend(career) ? "sprint" : "strategy");
+
+// ------------------------------------------------ session gate, live, results (WKD-1)
+
+/**
+ * session-options-transition / session-results-unified (RF-WKD-01, RF-WKD-02, RF-WKD-07): each
+ * session of the weekend is one fixed loop - the gate (manage it, simulate it, or simulate up to
+ * the race), the session itself, then its results - kept as `weekend.step` ("gate" | "live" |
+ * "results") under `weekend.stage`, with `weekend.review` naming the session the results screen
+ * shows. Saves without a step open at the gate. None of this draws a number: the seeded streams
+ * (RF-SIM-15) are the same whichever way the player reaches a session.
+ */
+export const WEEKEND_STEPS = ["gate", "live", "results"];
+
+/** The stages that open with a gate; Sunday's strategy screen is the race's own gate. */
+export const GATED_STAGES = ["practice", "qualifying", "sprint"];
+
+function reviewSession(weekend, kind) {
+  weekend.step = "results";
+  weekend.review = kind;
+}
+
+/** Where the player stands in the current session's loop (null without a weekend). */
+export const weekendStepOf = (career) => {
+  const weekend = career?.weekend;
+  if (!weekend) return null;
+  return WEEKEND_STEPS.includes(weekend.step) ? weekend.step : "gate";
+};
+
+/** The session the current stage opens with: the shootout before the sprint where the era has one (2023-). */
+export const gateSessionOf = (career) => {
+  const stage = career?.weekend?.stage;
+  if (stage === "sprint") return sprintHasShootout(career) && !career.weekend.shootout ? "shootout" : "sprint";
+  return GATED_STAGES.includes(stage) ? stage : null;
+};
+
+/** How many sessions are still to run before the race (the gate offers "up to the race" when it is more than one). */
+export const sessionsBeforeRace = (career) => {
+  const weekend = career?.weekend;
+  if (!weekend) return 0;
+  const sprint = isSprintWeekend(career);
+  return [!weekend.practice, !weekend.qualifying, sprint && sprintHasShootout(career) && !weekend.shootout, sprint && !weekend.sprint].filter(Boolean).length;
+};
+
+/** Gate -> the session, run by the player. */
+export const openWeekendSession = (career) => {
+  const weekend = startWeekend(career);
+  if (!weekend || !GATED_STAGES.includes(weekend.stage)) return null;
+  weekend.step = "live";
+  weekend.review = null;
+  return weekend;
+};
+
+/** Results -> the next gate. */
+export const closeSessionReview = (career) => {
+  const weekend = startWeekend(career);
+  if (!weekend) return null;
+  weekend.step = "gate";
+  weekend.review = null;
+  return weekend;
+};
+
+/**
+ * Gate -> simulate the session at the gate, the way the quick buttons already do (the
+ * engineers' setup in practice, normal risk in qualifying, the quick shootout and sprint).
+ * Leaves the weekend on that session's results.
+ */
+export const simulateGateSession = (career) => {
+  const weekend = startWeekend(career);
+  const kind = gateSessionOf(career);
+  if (!weekend || !kind) return null;
+  if (kind === "practice") return runPractice(career, {});
+  if (kind === "qualifying") return runQualifyingSession(career, {});
+  if (kind === "shootout") return runShootout(career);
+  const state = createSprintRace(career);
+  return state ? completeSprint(career, state) : null;
+};
+
+/**
+ * Gate -> simulate every session left before the race (RF-WKD-02), each on its own seeded
+ * stream, so the grid is the one the same sessions simulated one by one give. Leaves the
+ * weekend at Sunday's strategy screen.
+ */
+export const simulateToRace = (career) => {
+  const weekend = startWeekend(career);
+  if (!weekend || !GATED_STAGES.includes(weekend.stage)) return null;
+  for (let guard = 0; guard < GATED_STAGES.length + 1 && GATED_STAGES.includes(weekend.stage); guard += 1) simulateGateSession(career);
+  weekend.step = "gate";
+  weekend.review = null;
+  return weekend;
+};
+
+/**
+ * The timing a played practice leaves (session-results-unified): each car's best lap over its
+ * runs, the compound it was set on and the laps it ran. The quick practice has no timing.
+ */
+export const practiceTimesOf = (runs = {}) => {
+  const best = {};
+  Object.entries(runs || {}).forEach(([id, list]) => {
+    const entry = { time: null, compound: null, laps: 0 };
+    (list || []).forEach((run) => {
+      entry.laps += Math.max(0, run.laps || 0);
+      if (Number.isFinite(run.best) && (entry.time === null || run.best < entry.time)) {
+        entry.time = run.best;
+        entry.compound = run.compound || null;
+      }
+    });
+    best[id] = entry;
+  });
+  const order = Object.keys(best).sort((a, b) => {
+    const ta = best[a].time;
+    const tb = best[b].time;
+    if (ta !== null && tb !== null) return ta - tb;
+    if (ta !== null) return -1;
+    return tb !== null ? 1 : 0;
+  });
+  return { order, best };
+};
 
 /**
  * The arguments of a playable session (engine/sessionSim createSession, RF-WKD-02/03):
@@ -631,6 +750,7 @@ export const commitPracticeSession = (career, result, programmes = {}) => {
   if (!weekend || weekend.practice) return weekend?.feedback || null;
   weekend.tyres = result.tyres;
   weekend.practiceRuns = Object.fromEntries(entrantsFor(career).filter((entrant) => entrant.isUser).map((entrant) => [entrant.id, result.runs[entrant.id] || []]));
+  weekend.practiceTimes = practiceTimesOf(result.runs);
   return runPractice(career, programmes);
 };
 
@@ -648,6 +768,7 @@ export const commitQualifyingSession = (career, result) => {
   weekend.tyres = tyres;
   weekend.qualifying = { ...kept, wetness: qualifyingWetness(career), teams: Object.fromEntries(entrants.map((entrant) => [entrant.id, entrant.teamId])) };
   weekend.stage = afterQualifyingStage(career);
+  reviewSession(weekend, "qualifying");
   driversOf(career.world, career.teamId).forEach((driver) => {
     weekend.plans[driver.id] = lockedPlan(career, driver.id, defaultPlan(career));
   });
@@ -687,6 +808,7 @@ export const commitShootout = (career, result) => {
   const { tyres, runs, ...kept } = result;
   if (tyres) weekend.tyres = tyres;
   weekend.shootout = kept;
+  reviewSession(weekend, "shootout");
   return weekend.shootout;
 };
 
@@ -764,6 +886,7 @@ export const completeSprint = (career, state) => {
   const others = rows.filter((row) => row.status !== "finished").map((row) => row.driverId);
   weekend.sprint = { laps: state.laps, rows, driverPoints, teamPoints, order: [...finished, ...others], setsGrid: !sprintHasShootout(career) };
   weekend.stage = "strategy";
+  reviewSession(weekend, "sprint");
   return weekend.sprint;
 };
 
@@ -942,6 +1065,7 @@ export const completeRace = (career, state) => {
   // RF-DEV-08: the race's incidents, for the damage closeWeekend applies.
   weekend.result = { ...summary, chart: lapChartOf(state), incidents: raceIncidents(state) };
   weekend.stage = "result";
+  reviewSession(weekend, "race");
   afterRaceMorale(career, summary, state);
 
   const winner = rows[0];

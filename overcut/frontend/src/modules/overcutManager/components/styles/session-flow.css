@@ -1,0 +1,149 @@
+/* WKD-1: session gate, transition and unified results (F1M24-GAMEPLAY §2.12.2; RF-WKD-02, RF-WKD-07, RNF-09). */
+
+.wk-gate__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--mn-s-3);
+  margin: 0 0 var(--mn-s-4);
+}
+
+.wk-gate__facts div {
+  padding: var(--mn-s-2) var(--mn-s-3);
+  border: 1px solid var(--mn-hairline);
+  border-radius: var(--mn-r-1);
+  background: var(--mn-surface-1);
+}
+
+.wk-gate__facts dt {
+  color: var(--mn-text-3);
+  font-size: var(--mn-fs-12);
+}
+
+.wk-gate__facts dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
+.wk-gate__choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--mn-s-3);
+}
+
+.wk-gate__choice {
+  display: flex;
+  gap: var(--mn-s-3);
+  align-items: flex-start;
+  padding: var(--mn-s-3) var(--mn-s-4);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-1);
+  background: var(--mn-surface-1);
+  color: var(--mn-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wk-gate__choice span {
+  display: grid;
+  gap: 2px;
+}
+
+.wk-gate__choice small {
+  color: var(--mn-text-2);
+}
+
+.wk-gate__choice.is-active {
+  border-color: var(--team-line, var(--mn-accent));
+  background: var(--mn-surface-2);
+}
+
+.wk-gate__choice:focus-visible {
+  outline: 2px solid var(--mn-accent);
+  outline-offset: 2px;
+}
+
+/* The wipe: the OverCut logo over the team line. */
+.wk-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: var(--mn-bg);
+  border-top: 4px solid var(--team-line, var(--mn-accent));
+  cursor: pointer;
+  animation: wk-tr-in var(--wk-tr-in, 300ms) ease-out both;
+}
+
+.wk-transition.is-out {
+  animation: wk-tr-out var(--wk-tr-out, 300ms) ease-in both;
+}
+
+.wk-transition__card {
+  display: grid;
+  justify-items: center;
+  gap: var(--mn-s-2);
+  color: var(--mn-text);
+}
+
+.wk-transition__card img {
+  width: 96px;
+  height: auto;
+}
+
+.wk-transition__card strong {
+  font-size: var(--mn-fs-20);
+}
+
+.wk-transition__card small {
+  color: var(--mn-text-2);
+}
+
+.wk-transition__skip {
+  position: absolute;
+  right: var(--mn-s-4);
+  bottom: var(--mn-s-4);
+}
+
+@keyframes wk-tr-in {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes wk-tr-out {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(0 0 0 100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-transition,
+  .wk-transition.is-out {
+    animation: none;
+  }
+}
+
+/* Results. */
+.wk-res__best {
+  color: var(--mn-purple);
+  font-weight: 700;
+}
+
+.wk-res__out {
+  margin-left: var(--mn-s-2);
+  padding: 0 6px;
+  border-radius: var(--mn-r-1);
+  background: var(--mn-neg-soft);
+  color: var(--mn-neg);
+  font-size: var(--mn-fs-12);
+  white-space: nowrap;
+}
+
+.wk-res__pager {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--mn-s-2);
+  padding: var(--mn-s-2) var(--mn-s-3);
+  border-top: 1px solid var(--mn-hairline);
+  font-variant-numeric: tabular-nums;
+}

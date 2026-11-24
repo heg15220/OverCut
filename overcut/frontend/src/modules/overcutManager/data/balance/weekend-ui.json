@@ -1,0 +1,22 @@
+{
+  "$comment": "WKD-1 (docs/manager/F1M24-GAMEPLAY.md §2.12.2, §3.3): presentación de la puerta de sesión, la transición y los resultados del fin de semana. RF-WKD-01, RF-WKD-02, RF-WKD-07, RNF-07, RNF-09. Esquema: engine/packs/schema/weekend-ui.schema.json (lo comprueba components/sessionFlow.test.js). Son valores de presentación de diseño propio de OverCut, no de simulación: no cambian ninguna tirada (RNF-05). De F1 Manager 24 solo la idea del bucle puerta -> sesión -> resultados; ningún valor suyo. La §2.12.2 pone la duración en hud.json transitionSec (carril HUD, HUD-1 en paralelo): mientras no exista, vive aquí; cuando HUD-1 la publique hay que dejar una sola fuente (§1.5).",
+  "version": 1,
+  "transition": {
+    "$comment": "Cortinilla con el logotipo de OverCut entre la puerta y la sesión y entre la sesión y sus resultados. Fases: entra (inSec), se mantiene (holdSec) y sale (outSec); saltable con clic, Intro, Espacio o Escape. Con prefers-reduced-motion (o sin matchMedia) no se anima y se pasa directamente.",
+    "inSec": 0.35,
+    "holdSec": 0.9,
+    "outSec": 0.35,
+    "skippable": true,
+    "status": "design",
+    "note": "Duración de diseño propio, elegida corta para no frenar el bucle; sin fuente externa porque no es un dato del deporte."
+  },
+  "results": {
+    "$comment": "Tabla común de resultados (SessionResults): filas por página; las filas propias se resaltan y el mejor tiempo va en morado (convención de cronometraje de la F1).",
+    "pageSize": 10
+  },
+  "gate": {
+    "$comment": "Puerta de sesión: la opción marcada al abrirla y si el botón final pide confirmar (la §2.12.2 pide confirmación al gestionar).",
+    "defaultChoice": "manage",
+    "confirm": true
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/weekend-ui.json (puerta de sesión, transición y resultados del fin de semana; RF-WKD-01, RF-WKD-02, RF-WKD-07). Lo comprueba components/sessionFlow.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "transition", "results", "gate"],
+  "properties": {
+    "$comment": {"type": "string"},
+    "version": {"type": "integer", "minimum": 1},
+    "transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inSec", "holdSec", "outSec", "skippable", "status"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "inSec": {"type": "number", "minimum": 0, "maximum": 3},
+        "holdSec": {"type": "number", "minimum": 0, "maximum": 5},
+        "outSec": {"type": "number", "minimum": 0, "maximum": 3},
+        "skippable": {"type": "boolean"},
+        "status": {"enum": ["design", "pending", "source"]},
+        "note": {"type": "string"}
+      }
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pageSize"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "pageSize": {"type": "integer", "minimum": 5, "maximum": 30}
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["defaultChoice", "confirm"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "defaultChoice": {"enum": ["manage", "simulate", "toRace"]},
+        "confirm": {"type": "boolean"}
+      }
+    }
+  }
+}

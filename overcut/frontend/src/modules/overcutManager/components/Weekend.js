@@ -5,12 +5,17 @@
  * post-race screens (classification, lap chart, pit stops, standings moves).
  */
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  PRACTICE_PROGRAMS, PRACTICE_RUNS, QUALI_STYLES, commitPracticeSession, commitQualifyingSession, commitShootout, completeRace, completeSprint, createSprintRace,
-  createWeekendRace, currentRace, defaultPlan, entrantsFor, eraOf, isSprintWeekend, parcFermeOf, planDelta, runPractice, runQualifyingSession, runSetupLap, runShootout,
-  sessionOptions, setPlan, setSetup, setupStateOf, sprintHasShootout, sprintRaceArgs, weekendForecast, weekendRaceArgs, weekendSessionFormat,
+  GATED_STAGES, PRACTICE_PROGRAMS, PRACTICE_RUNS, QUALI_STYLES, closeSessionReview, commitPracticeSession, commitQualifyingSession, commitShootout, completeRace, completeSprint, createSprintRace,
+  createWeekendRace, currentRace, defaultPlan, entrantsFor, eraOf, gateSessionOf, isSprintWeekend, openWeekendSession, parcFermeOf, planDelta, runPractice, runQualifyingSession, runSetupLap, runShootout,
+  sessionOptions, sessionsBeforeRace, setPlan, setSetup, setupStateOf, simulateGateSession, simulateToRace, sprintHasShootout, sprintRaceArgs, weekendForecast, weekendRaceArgs, weekendSessionFormat, weekendStepOf,
 } from "../engine/career";
+import { sessionScheduleOf } from "../engine/sessionSim/session";
+import { sprintLaps } from "../engine/sessionSim";
+import SessionGate, { clockText } from "./SessionGate";
+import SessionResults, { Move, SessionTable, sessionResultTable } from "./SessionResults";
+import Transition from "./Transition";
 import { FEELINGS, SLIDERS } from "../engine/setup";
 import CircuitCard from "./CircuitCard";
 import SessionLive from "./SessionLive";
@@ -22,8 +27,8 @@ import { constructorStandings, driverStandings } from "../engine/standings";
 import { driversOf } from "../engine/world";
 import { useManager } from "./context";
 import { Badge, DataTable, Flag, Meter, Panel, Segmented, StatTile, Tabs, TeamBadge, TeamStripe, Tyre, readableOn } from "./atoms";
-import { IconArrowDown, IconArrowUp, IconCheck, IconClose, IconFastForward, IconFlag, IconLock, IconPlay, IconRadio } from "./icons";
-import { COMPOUND, PROGRAM, PROGRAM_HINT, QUALI_STYLE, gapText, lapTime, ordinal, raceName, shortDate, t } from "./texts";
+import { IconCheck, IconClose, IconFastForward, IconFlag, IconLock, IconPlay, IconRadio } from "./icons";
+import { COMPOUND, PROGRAM, PROGRAM_HINT, QUALI_STYLE, lapTime, ordinal, raceName, shortDate, t } from "./texts";
 import LiveRace from "./LiveRace";
 import { canRender3D } from "../three/support";
 import "./styles/weekend.css";
@@ -78,6 +83,17 @@ export default function Weekend() {
   const race = currentRace(career);
   const [live, setLive] = useState(null);
   const [liveSession, setLiveSession] = useState(null);
+  // session-options-transition: a wipe each time the loop moves (gate -> session -> results), whoever moved it.
+  const [transition, setTransition] = useState(null);
+  const step = weekendStepOf(career);
+  const loopKey = weekend ? `${weekend.round}:${weekend.stage}:${step}:${weekend.review || ""}` : "";
+  const lastLoop = useRef(loopKey);
+  useEffect(() => {
+    if (lastLoop.current && loopKey && lastLoop.current !== loopKey) setTransition(transitionLabel(career));
+    lastLoop.current = loopKey;
+    // The label is read from the career at the moment the loop moved.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loopKey]);
   if (!weekend || !race) return null;
   const stage = live ? live.stage : weekend.stage;
   const rules = rulesFor(eraOf(career));
@@ -85,6 +101,15 @@ export default function Weekend() {
   const team = career.world.teams[career.teamId];
   const isLive = Boolean(live) || Boolean(liveSession);
   const stages = isSprintWeekend(career) ? SPRINT_STAGES : STAGES;
+  // RF-WKD-07: a finished session's results come before the next gate (the race keeps its own screen).
+  const reviewing = !isLive && step === "results" && Boolean(weekend.review) && weekend.review !== "race" && weekend.stage !== "result";
+  const gated = !isLive && !reviewing && step === "gate" && GATED_STAGES.includes(weekend.stage);
+  const playing = !reviewing && !gated;
+  const choose = (choice) => {
+    if (choice === "manage") act((c) => openWeekendSession(c));
+    else if (choice === "simulate") act((c) => simulateGateSession(c));
+    else if (choice === "toRace") act((c) => simulateToRace(c));
+  };
 
   // RF-WKD-02: live, the step race runs in the race worker from the weekend's arguments
   // (SRS 4); instant, the quick mode runs to the flag here and now (RNF-01).
@@ -160,17 +185,86 @@ export default function Weekend() {
           )
         )}
       </header>
-      <div className={`wk-body${isLive ? " is-live" : ""}`} key={`${stage}-${isLive}`}>
+      <div className={`wk-body${isLive ? " is-live" : ""}`} key={`${stage}-${isLive}-${reviewing ? "results" : gated ? "gate" : "live"}`}>
+        {reviewing && <WeekendResults kind={weekend.review} onContinue={() => act((c) => closeSessionReview(c))} />}
+        {gated && <WeekendGate onChoose={choose} />}
         {liveSession && <WeekendSessionLive kind={liveSession} onDone={() => setLiveSession(null)} />}
-        {!liveSession && stage === "practice" && <Practice rules={rules} />}
-        {!liveSession && stage === "qualifying" && <Qualifying rules={rules} onLive={() => setLiveSession("qualifying")} />}
-        {!liveSession && stage === "sprint" && !live && <Sprint onShootout={() => setLiveSession("shootout")} onStart={startSprint} />}
-        {!liveSession && stage === "strategy" && <Strategy rules={rules} onStart={startRace} />}
+        {playing && !liveSession && stage === "practice" && <Practice rules={rules} />}
+        {playing && !liveSession && stage === "qualifying" && <Qualifying rules={rules} onLive={() => setLiveSession("qualifying")} />}
+        {playing && !liveSession && stage === "sprint" && !live && <Sprint onShootout={() => setLiveSession("shootout")} onStart={startSprint} />}
+        {playing && !liveSession && stage === "strategy" && <Strategy rules={rules} onStart={startRace} />}
         {live && <LiveRace args={live.args} onFinished={onFinished} title={live.sprint ? t("Sprint", "Sprint") : undefined} />}
-        {!liveSession && stage === "result" && <Result onContinue={finishWeekend} />}
+        {playing && !liveSession && stage === "result" && <Result onContinue={finishWeekend} />}
       </div>
+      {transition && <Transition label={transition[0]} sublabel={transition[1]} onDone={() => setTransition(null)} />}
     </div>
   );
+}
+
+/** A session of the weekend, by name (gate, transition and results share it). */
+const SESSION_NAME = {
+  practice: () => t("Libres", "Practice"),
+  qualifying: () => t("Clasificación", "Qualifying"),
+  shootout: () => t("Shootout", "Shootout"),
+  sprint: () => t("Sprint", "Sprint"),
+  race: () => t("Carrera", "Race"),
+};
+
+/** What the wipe says when the loop moves: the session about to open, or the results about to show. */
+const transitionLabel = (career) => {
+  const weekend = career.weekend;
+  const race = currentRace(career);
+  const where = race ? raceName(race.name) : "";
+  if (!weekend) return [where, ""];
+  const step = weekendStepOf(career);
+  if (step === "results" && weekend.review) return [SESSION_NAME[weekend.review]?.() || "", t("Resultados", "Results")];
+  if (weekend.stage === "strategy") return [t("Estrategia", "Strategy"), where];
+  const kind = gateSessionOf(career);
+  return [kind ? SESSION_NAME[kind]() : where, where];
+};
+
+/** The session's local start (RF-WKD-01: the pack's calendar, else the era's clock), "Sat 15:00"-style. */
+const scheduleText = (career, kind) => {
+  try {
+    const schedule = sessionScheduleOf({ kind, race: currentRace(career), era: eraOf(career) });
+    const clock = clockText(schedule?.startSec);
+    if (!clock) return null;
+    const day = schedule.day === 0 ? t("domingo", "Sunday") : schedule.day === -1 ? t("sábado", "Saturday") : schedule.day === -2 ? t("viernes", "Friday") : null;
+    return day ? `${day} ${clock}` : clock;
+  } catch (error) {
+    return null;
+  }
+};
+
+/** What the gate says about the session: when, how long or how it works. */
+const gateDetails = (career, kind) => {
+  const details = [];
+  const start = scheduleText(career, kind);
+  if (start) details.push([t("Hora local", "Local time"), start]);
+  if (kind === "qualifying") details.push([t("Formato", "Format"), qualifyingFormat(career)]);
+  if (kind === "practice" || kind === "shootout") {
+    const format = weekendSessionFormat(career, kind);
+    const minutes = format.segments.map((segment) => Math.round(segment.duration / 60));
+    details.push([t("Duración", "Length"), `${format.segments.length > 1 ? format.segments.map((segment, index) => `${segment.name} ${minutes[index]}`).join(" · ") : minutes[0]} min`]);
+  }
+  if (kind === "sprint") details.push([t("Vueltas", "Laps"), sprintLaps(currentRace(career))]);
+  return details;
+};
+
+/** session-options-transition: the gate of the session the weekend has reached. */
+function WeekendGate({ onChoose }) {
+  const { career } = useManager();
+  const kind = gateSessionOf(career);
+  if (!kind) return null;
+  return <SessionGate key={kind} title={SESSION_NAME[kind]()} subtitle={raceName(currentRace(career).name)} details={gateDetails(career, kind)} toRace={sessionsBeforeRace(career) > 1} onChoose={onChoose} />;
+}
+
+/** session-results-unified: the results of the session just finished, then on to the next gate. */
+function WeekendResults({ kind, onContinue }) {
+  const { career } = useManager();
+  const segments = kind === "qualifying" || kind === "shootout" ? weekendSessionFormat(career, kind).segments.map((segment) => segment.name) : [];
+  const table = sessionResultTable({ kind, weekend: career.weekend, entrants: entrantsFor(career), teamId: career.teamId, segmentNames: segments });
+  return <SessionResults table={table} teams={career.world.teams} meta={raceName(currentRace(career).name)} onContinue={onContinue} />;
 }
 
 const SLIDER_TEXT = {
@@ -757,13 +851,6 @@ const withMoves = (rows, gained, idOf, firstRound) => {
   return rows.map((row) => ({ ...row, gained: gained(row) || 0, move: firstRound ? 0 : previous[idOf(row)] - row.position }));
 };
 
-const Move = ({ value }) => (
-  <span className={`wk-delta${value > 0 ? " is-up" : value < 0 ? " is-down" : ""}`} aria-label={value > 0 ? t(`sube ${value}`, `up ${value}`) : value < 0 ? t(`baja ${-value}`, `down ${-value}`) : t("igual", "same")}>
-    {value > 0 ? <IconArrowUp size={12} /> : value < 0 ? <IconArrowDown size={12} /> : null}
-    {value ? Math.abs(value) : "–"}
-  </span>
-);
-
 /** Top ten, plus the player's rows when they sit lower (DESIGN.md §5.6). */
 const topWithOwn = (rows, own, size = 10) => [...rows.slice(0, size), ...rows.slice(size).filter(own)];
 
@@ -893,34 +980,7 @@ function Result({ onContinue }) {
       </div>
       <div className="wk-c7">
         <Panel flush title={t("Clasificación", "Classification")} meta={t(`${summary.laps} vueltas${summary.safetyCars ? ` · ${summary.safetyCars} coche de seguridad` : ""}`, `${summary.laps} laps${summary.safetyCars ? ` · ${summary.safetyCars} safety car` : ""}`)}>
-          <DataTable
-            dense
-            caption={t("Clasificación", "Classification")}
-            rows={summary.rows}
-            rowKey={(row) => row.driverId}
-            highlight={(row) => row.teamId === career.teamId}
-            columns={[
-              { key: "pos", label: t("Pos", "Pos"), width: 44, mono: true, render: (row) => (row.status === "finished" ? row.position : "—") },
-              {
-                key: "driver",
-                label: t("Piloto", "Driver"),
-                render: (row) => (
-                  <span className="wk-driver">
-                    <TeamStripe color={teams[row.teamId]?.color} />
-                    <span>{row.name}</span>
-                    {row.driverId === summary.fastestLap && <span className="wk-best" title={t("Vuelta rápida", "Fastest lap")}>{t("VR", "FL")}</span>}
-                  </span>
-                ),
-              },
-              { key: "team", label: t("Equipo", "Team"), className: "wk-hide-sm", render: (row) => <span className="mn-muted">{teams[row.teamId]?.name}</span> },
-              { key: "grid", label: t("Sal.", "Grid"), align: "right", mono: true, width: 52, className: "wk-hide-sm", render: (row) => row.grid },
-              { key: "gain", label: "±", align: "right", width: 48, render: (row) => (row.status === "finished" ? <Move value={row.grid - row.position} /> : "") },
-              { key: "stops", label: t("Par.", "Stops"), align: "right", mono: true, width: 52, className: "wk-hide-sm", render: (row) => row.stops },
-              { key: "gap", label: t("Diferencia", "Gap"), align: "right", mono: true, render: (row) => `${row.position === 1 && row.status === "finished" ? t("Ganador", "Winner") : gapText(row)}${row.penalty ? ` (+${row.penalty} s)` : ""}` },
-              summary.sprint && { key: "spr", label: t("Sprint", "Sprint"), align: "right", width: 56, mono: true, className: "wk-hide-sm", render: (row) => (row.sprintPoints ? `+${row.sprintPoints}` : "") },
-              { key: "pts", label: t("Pts", "Pts"), align: "right", width: 48, render: (row) => (row.points ? <b>{row.points}</b> : "") },
-            ].filter(Boolean)}
-          />
+          <SessionTable table={sessionResultTable({ kind: "race", weekend: career.weekend, entrants: entrantsFor(career), teamId: career.teamId })} teams={teams} caption={t("Clasificación", "Classification")} />
         </Panel>
       </div>
       <div className="wk-c5">
