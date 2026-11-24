@@ -181,5 +181,40 @@
     "$comment": "RF-SIM-12 / RF-STF-07 (rnf07-race, SIM-1): la probabilidad de que el equipo no vea un coche que viene por el carril rápido (stepRace.js advanceInLane) = race-pit.json unsafeRelease.crewMissChance × max(0, crewCeiling − crew / crewScale). Con crew 100 queda 0,4 de la base; con crew ≥ 140, nunca. Comportamiento propio; mismos valores que tenía el código.",
     "crewCeiling": 1.4,
     "crewScale": 100
+  },
+  "start": {
+    "$comment": "SIM-3 salida-carrera (RF-SIM-10, RF-SIM-15, RNF-05, RNF-07; F1M24-GAMEPLAY §2.13): la fase PRE_START del modo por pasos (stepRace.js), opcional (createStepRace args.preStart). Vuelta de formación → parrilla → luces → apagado, con la espera de las luces tirada con semilla en su propio flujo (`seed::step::start`), así que con o sin PRE_START la carrera es la misma. El procedimiento de cada año (cinco rojas o rojo-verde, vuelta de formación) sale de era-defaults.json startProcedure. Del juego F1 Manager 24 no se toma ningún valor: su espera de 1,60 s tras la quinta luz es una muestra de un juego.",
+    "procedures": {
+      "fiveRed": {
+        "$comment": "FIA 2024 Formula 1 Sporting Regulations, art. 44.10 b): 'Once all the cars have come to a halt the five (5) second light will appear followed by the four, three, two and one second lights. At any time after the one-second light appears, the race will be started by extinguishing all red lights.' Cinco luces, una por segundo (verificado). La espera tras la quinta luz es libre para el director de salida: el rango 0,2-3 s que citan los informes no está en el texto (pending).",
+        "lights": 5,
+        "lightIntervalSec": 1,
+        "holdSec": { "min": 0.2, "max": 3 }
+      },
+      "redGreen": {
+        "$comment": "Antes de las cinco rojas: una luz roja y, tras una espera, la verde da la salida (de memoria; por leer en el reglamento de cada año).",
+        "lights": 1,
+        "lightIntervalSec": 1,
+        "holdSec": { "min": 4, "max": 7 }
+      }
+    },
+    "gridSettleSec": 2.3,
+    "formation": {
+      "$comment": "Vuelta de formación medida en OpenF1 car_data (velocidad integrada), Baréin 2024 (session_key 9472): el poleman (1) arranca 15:00:00.9 y para en su casilla 15:02:41.7 (160,7 s); P17, P18, P19 y P20 (24, 2, 31, 10) salen 15,5-19,0 s después y paran 15:03:28.7-15:03:34.5 (192,3-194,5 s). lapFactor = 160,7 / 96,57 s (vuelta media de carrera de 1, 5504,742 s / 57); departStaggerSec = 19,0 s / 19 casillas; arriveStaggerSec = 52,8 s / 19 casillas. Apagado 15:03:42.34 (race_control 'SESSION STARTED' = date_start de la vuelta 1): 7,9 s tras parar el último, de los que 4 son las luces; gridSettleSec = 7,9 − 4 − 1,6 (media del rango provisional de la espera). Una sola carrera: otras eras y circuitos, pending.",
+      "lapFactor": 1.66,
+      "departStaggerSec": 1,
+      "arriveStaggerSec": 2.78,
+      "abortChance": null,
+      "pitStart": null
+    },
+    "pending": ["procedures.fiveRed.holdSec", "procedures.redGreen", "gridSettleSec", "formation.abortChance", "formation.pitStart"],
+    "pendingNote": "abortChance (salida abortada y vuelta de formación extra, art. 45, la carrera se acorta una vuelta) y pitStart (salida desde el pit lane, art. 44.2) no se simulan hasta tener frecuencia por era (f1db no la guarda): null = no ocurre. La vuelta de formación no cambia la temperatura del neumático: el modo rápido ya sale con la goma de después de la formación (race.js tyreTemp); se enganchará a engine/tyres/thermal.js (SIM-6) cuando exista."
+  },
+  "cooldown": {
+    "$comment": "SIM-3 vuelta-enfriamiento (RF-WKD-07, RF-3D-04, RNF-07; FIA 2024 art. 59.3: tras la bandera los coches van por el circuito directamente al parc fermé). El coche que termina sigue una vuelta como fantasma (fuera del anillo: sin duelos, sin tráfico, sin pit lane, sin tiradas) a lapFactor × la vuelta base y se aparta hacia el lado del pit lane; luego se para. No cambia ningún resultado. lapFactor de OpenF1 car_data, Baréin 2024: la última vuelta de 5412 m antes de parar dura 176,7 s (1, con celebración), 158,8 s (11) y 158,2 s (55); mediana 158,8 / 96,57 s = 1,64. slowDownSec (constante de tiempo de la frenada desde el ritmo de carrera y del desplazamiento lateral) y lateralMetres son comportamiento sin medir: pending.",
+    "lapFactor": 1.64,
+    "slowDownSec": 8,
+    "lateralMetres": 3,
+    "pending": ["slowDownSec", "lateralMetres"]
   }
 }

@@ -56,7 +56,9 @@
     "safetyCar",
     "raceControl",
     "mistake",
-    "pitRelease"
+    "pitRelease",
+    "start",
+    "cooldown"
   ],
   "properties": {
     "$comment": {
@@ -721,6 +723,65 @@
         "crewScale": {
           "$ref": "#/definitions/positive"
         }
+      }
+    },
+    "start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["procedures", "gridSettleSec", "formation", "pending"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "procedures": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["lights", "lightIntervalSec", "holdSec"],
+            "properties": {
+              "$comment": { "type": "string" },
+              "lights": { "type": "integer", "minimum": 1, "maximum": 5 },
+              "lightIntervalSec": { "$ref": "#/definitions/positive" },
+              "holdSec": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["min", "max"],
+                "properties": {
+                  "min": { "$ref": "#/definitions/nonNegative" },
+                  "max": { "$ref": "#/definitions/nonNegative" }
+                }
+              }
+            }
+          }
+        },
+        "gridSettleSec": { "$ref": "#/definitions/nonNegative" },
+        "formation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lapFactor", "departStaggerSec", "arriveStaggerSec", "abortChance", "pitStart"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "lapFactor": { "type": "number", "minimum": 1 },
+            "departStaggerSec": { "$ref": "#/definitions/nonNegative" },
+            "arriveStaggerSec": { "$ref": "#/definitions/nonNegative" },
+            "abortChance": { "oneOf": [{ "type": "null" }, { "$ref": "#/definitions/share" }] },
+            "pitStart": { "oneOf": [{ "type": "null" }, { "$ref": "#/definitions/share" }] }
+          }
+        },
+        "pending": { "type": "array", "items": { "type": "string" } },
+        "pendingNote": { "type": "string" }
+      }
+    },
+    "cooldown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lapFactor", "slowDownSec", "lateralMetres", "pending"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "lapFactor": { "type": "number", "minimum": 1 },
+        "slowDownSec": { "$ref": "#/definitions/positive" },
+        "lateralMetres": { "$ref": "#/definitions/nonNegative" },
+        "pending": { "type": "array", "items": { "type": "string" } }
       }
     }
   }

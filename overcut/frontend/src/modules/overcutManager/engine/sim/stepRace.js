@@ -49,6 +49,12 @@
  *                 braking and lifting and deploys on full power within the era's per-lap and power
  *                 limits (2026: the speed taper); the fuel flow is measured from the engine's load
  *                 and rpm. The ledgers (battery %, laps of fuel) stay the quick mode's.
+ *  10. start/end  SIM-3 (F1M24-GAMEPLAY §2.13, RF-SIM-10, RF-WKD-07): an optional PRE_START phase
+ *                 (`preStart: { formation: "drive" | "skip" }`) - the formation lap, the grid and the
+ *                 era's lights (era-defaults.json startProcedure, race-sim.json start) with the wait
+ *                 drawn on its own `start` stream - and, after the flag, a `finished` event per car and
+ *                 its cooldown lap as a ghost (race-sim.json cooldown). Neither touches a race stream
+ *                 or the state the race reads: with or without them the race is the same (RNF-05).
  *
  * Determinism (RF-SIM-15, RNF-05): four seeded streams (laps, duels, pits, incidents),
  * a fixed step and a fixed processing order; the same seed and the same commands at the
@@ -67,7 +73,7 @@ import { byYear, raceBalance } from "../rules";
 import { calibrationFor } from "../incidents";
 import { circuitFor } from "../venue";
 import { LANE_NAMES, ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
-import { exitBlocked, gateBoxes, lateralSetup, rejoin, stepLateral } from "./lateral";
+import { exitBlocked, gateBoxes, lateralSetup, rejoin, roomAt, stepLateral } from "./lateral";
 import { cornerNoiseSigmaOf, profileFactorsOf } from "../drivers/skills";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
 import physicsData from "../../data/balance/race-physics.json";
@@ -91,7 +97,7 @@ const START_SPACING = raceBalance.start.gridSpacing;
  * Wrap a fresh quick-mode race (createRace output, lap 0) as a step race. `race` is the
  * calendar entry createRace was given (for the circuit); `circuit` may be passed directly.
  */
-export const fromQuickRace = (state, { race, circuit, balance = balanceData } = {}) => {
+export const fromQuickRace = (state, { race, circuit, balance = balanceData, preStart = null } = {}) => {
   if (state.lap !== 0 || state.finished) throw new Error("fromQuickRace needs a race that has not started");
   const track = circuit || circuitFor(race || state.race, state.year);
   const tables = buildTrackTables(track, { size: balance.step.tableSize, approachMetres: balance.duel.approachMetres });
@@ -220,6 +226,17 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     collisionScale: calibrationFor(rules.year ?? state.year).stepCollision,
     // RF-SIM-01 / RF-SIM-02 / RF-DEV-01: the era's power unit and gearbox, fitted to this circuit, and each car's drive state.
     ...driveSetup(rules.year ?? state.year, track, tables, n, rules),
+    // SIM-3 (RF-SIM-10, RF-SIM-15): the era's start procedure with its seeded wait, the PRE_START phase if asked for,
+    // and the cooldown lap after the flag (race-sim.json start / cooldown, era-defaults.json startProcedure).
+    startPlan: startPlanOf(rules, balance, seed),
+    pre: null,
+    cool: new Uint8Array(n),
+    coolEnd: new Float64Array(n),
+    coolP: new Float64Array(n),
+    coolLat: new Float64Array(n),
+    coolV: new Float64Array(n),
+    cooling: 0,
+    finishedCount: 0,
   };
   // RF-SIM-04 / RF-SIM-05 (engine/energy.js): the era's energy store and fuel flow on this circuit.
   Object.assign(sim, energySetup(state, rules, tables, sim.pt, n));
@@ -244,7 +261,148 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData } = 
     sim.drvBrake[i] = profile.brake;
     sim.drvCorner[i] = profile.corner;
   });
+  if (preStart) sim.pre = preStartOf(state, preStart);
   return state;
+};
+
+// ------------------------------------------------------------- the start
+
+/**
+ * SIM-3 (RF-SIM-10, RF-SIM-15, RNF-05): the season's start procedure (era-defaults.json or the pack's
+ * `startProcedure`: "fiveRed" or "redGreen", with or without a formation lap) and its timing
+ * (race-sim.json start.procedures). The wait after the last light is drawn here, once, on the race's
+ * own `seed::step::start` stream: the other streams are untouched, so a race is the same with or
+ * without its PRE_START and the same seed always gives the same lights.
+ */
+const startPlanOf = (rules, balance, seed) => {
+  const cfg = balance.start;
+  const era = (rules.regulations && rules.regulations.startProcedure) || null;
+  const name = era && cfg && cfg.procedures[era.lights] ? era.lights : null;
+  if (!name) return { procedure: null, formationLap: false, spec: null, holdSec: 0 };
+  const spec = cfg.procedures[name];
+  const hold = createStream(`${seed}::step::start`).range(spec.holdSec.min, spec.holdSec.max);
+  return { procedure: name, formationLap: Boolean(era.formationLap), spec, holdSec: hold };
+};
+
+/** The grid slot of car index `i`, as a share of the lap behind the line (the quick mode's grid, race-sim.json grid). */
+const gridBackOf = (sim, i) => (sim.balance.grid.poleBackMetres + i * sim.balance.grid.gapMetres) / sim.tables.length;
+
+/**
+ * SIM-3: the PRE_START phase, when the caller asks for it (`preStart: { formation: "drive" | "skip" }`;
+ * without it the lights go out at the first step, as before). Times are seconds from the start of the
+ * procedure: the formation lap (if the era has one and it is driven) - the pole car leaves at 0 and is
+ * back in its slot after `formation.lapFactor` race laps, car k leaves k·departStaggerSec later and
+ * stops k·arriveStaggerSec later (OpenF1, Baréin 2024) -, the grid settles for gridSettleSec once the
+ * last car stops, the lights come on one every lightIntervalSec and go out after the seeded wait. The
+ * step grid is shifted so the lights go out exactly on a step boundary: race time 0.
+ */
+const preStartOf = (state, options) => {
+  const sim = state._sim;
+  const plan = sim.startPlan;
+  if (!plan.spec) return null;
+  const cfg = sim.balance.start;
+  const formation = plan.formationLap && options.formation !== "skip";
+  const f = cfg.formation;
+  const lapSec = state.race.baseLap * f.lapFactor;
+  let tGrid = 0;
+  if (formation) {
+    for (let i = 0; i < sim.n; i += 1) if (state.cars[i].status === "running") tGrid = Math.max(tGrid, lapSec + i * f.arriveStaggerSec);
+  }
+  const lightTimes = [];
+  for (let k = 0; k < plan.spec.lights; k += 1) lightTimes.push(tGrid + cfg.gridSettleSec + k * plan.spec.lightIntervalSec);
+  const tOut = lightTimes[lightTimes.length - 1] + plan.holdSec;
+  const kOut = Math.max(1, Math.ceil(tOut / sim.dt - 1e-9));
+  const timeline = [];
+  if (formation) timeline.push({ t: 0, type: "formation" });
+  timeline.push({ t: tGrid, type: "grid" });
+  lightTimes.forEach((t, k) => timeline.push({ t, type: "light", n: k + 1 }));
+  const pre = { formation, skipped: false, lapSec, tGrid, lightTimes, tOut, k: 0, kOut, t0: tOut - kOut * sim.dt, t: 0, next: 0, timeline, phase: formation ? "formation" : "grid" };
+  pre.t = pre.t0;
+  pre.lit = 0;
+  // The field on the grid (a lap before it, with a formation lap to drive), engines running and still.
+  state.cars.forEach((car, i) => {
+    if (car.status !== "running") return;
+    sim.P[i] = -gridBackOf(sim, i) - (formation ? 1 : 0);
+    sim.lat[i] = (car.grid % 2 ? -1 : 1) * sim.balance.grid.staggerMetres;
+    sim.v[i] = 0;
+  });
+  return pre;
+};
+
+/** SIM-3: car `i`'s share of its formation lap at procedure time `t` (smooth away and smooth into its slot). */
+const formationShare = (sim, pre, i, t) => {
+  if (!pre.formation || pre.skipped) return 1;
+  const f = sim.balance.start.formation;
+  const from = i * f.departStaggerSec;
+  const to = pre.lapSec + i * f.arriveStaggerSec;
+  if (t <= from) return 0;
+  if (t >= to) return 1;
+  const u = (t - from) / (to - from);
+  return u * u * (3 - 2 * u);
+};
+
+/** SIM-3: one step of the PRE_START phase - the formation lap driven, the grid, the lights (events on lap 0). */
+const preStep = (state) => {
+  const sim = state._sim;
+  const pre = sim.pre;
+  const { dt, tables } = sim;
+  pre.k += 1;
+  pre.t = pre.k >= pre.kOut ? pre.tOut : pre.t0 + pre.k * dt;
+  const t = pre.t;
+  while (pre.next < pre.timeline.length && pre.timeline[pre.next].t <= t + 1e-9) {
+    const entry = pre.timeline[pre.next];
+    pushEvent(state, 0, { type: entry.type, ...(entry.n ? { n: entry.n } : {}), t: Math.round(Math.max(0, entry.t) * 1000) / 1000 });
+    pre.next += 1;
+  }
+  for (let i = 0; i < sim.n; i += 1) {
+    if (state.cars[i].status !== "running") continue;
+    const P = -gridBackOf(sim, i) - 1 + formationShare(sim, pre, i, t);
+    sim.v[i] = Math.max(0, ((P - sim.P[i]) * tables.length) / dt);
+    sim.P[i] = P;
+    const bin = Math.min(tables.M - 1, (frac(P) * tables.M) | 0);
+    updateDrive(sim.pt, sim.drive, i, sim.v[i], sim.kappaBin[bin], dt, { coast: false, stopped: sim.v[i] === 0, full: false });
+  }
+  let lit = 0;
+  for (let k = 0; k < pre.lightTimes.length; k += 1) if (t + 1e-9 >= pre.lightTimes[k]) lit = k + 1;
+  pre.lit = lit;
+  pre.phase = lit > 0 ? "lights" : pre.formation && !pre.skipped && t < pre.tGrid - 1e-9 ? "formation" : "grid";
+};
+
+/**
+ * SIM-3: the formation lap is skippable ("1x o saltable"): the field is put back in its slots and the
+ * procedure goes on from the grid. Nothing the race reads changes (no stream, no car state but the pose).
+ */
+export const skipFormation = (state) => {
+  const sim = state._sim;
+  const pre = sim && sim.pre;
+  if (!pre || sim.started || !pre.formation || pre.skipped || pre.t >= pre.tGrid) return state;
+  pre.skipped = true;
+  const left = pre.tOut - pre.tGrid;
+  pre.kOut = pre.k + Math.max(1, Math.ceil(left / sim.dt - 1e-9));
+  pre.t0 = pre.tOut - pre.kOut * sim.dt;
+  pre.t = pre.t0 + pre.k * sim.dt;
+  pre.phase = "grid";
+  state.cars.forEach((car, i) => {
+    if (car.status !== "running") return;
+    sim.P[i] = -gridBackOf(sim, i);
+    sim.v[i] = 0;
+  });
+  return state;
+};
+
+/**
+ * SIM-3 / F1M24-GAMEPLAY §1.7 `snapshot.start`: `{ phase: "formation"|"grid"|"lights"|"out", lights: 0..5, t }`,
+ * with `t` the seconds since the procedure began (the time of lights out, when they are out) and the era's
+ * `procedure` ("fiveRed" | "redGreen": with "redGreen", "out" is the green light). Without a PRE_START the
+ * field is on the grid until the first step and the lights go out at race time 0.
+ */
+export const startOf = (state) => {
+  const sim = state._sim;
+  const pre = sim.pre;
+  const procedure = sim.startPlan.procedure;
+  if (sim.started) return { phase: "out", lights: 0, t: pre ? Math.round(pre.tOut * 1000) / 1000 : 0, procedure };
+  if (!pre) return { phase: "grid", lights: 0, t: 0, procedure };
+  return { phase: pre.phase, lights: pre.lit, t: Math.max(0, pre.t), procedure, formation: pre.formation && !pre.skipped };
 };
 
 /**
@@ -346,20 +504,25 @@ const planEnergy = (state, i, battery, energyTime) => {
 };
 
 /** A step race from the same arguments as race.js createRace (RF-SIM-01). */
-export const createStepRace = (args) => fromQuickRace(createRace(args), { race: args.race });
+export const createStepRace = (args) => fromQuickRace(createRace(args), { race: args.race, preStart: args.preStart || null });
 
 /** The lights go out: grid slots behind the line and every car's first lap planned. */
 const start = (state) => {
   const sim = state._sim;
   const { tables, balance } = sim;
   sim.started = true;
+  // SIM-3 (RNF-05): what the PRE_START did to the drive state is dropped, so the race is the one without it.
+  if (sim.pre) sim.drive = createDrive(sim.n);
   beginLeaderLap(state, 1);
+  // SIM-3 / F1M24-GAMEPLAY §1.7: the lights go out (race time 0; `t` on the procedure's clock).
+  pushEvent(state, 1, { type: "lightsOut", t: sim.pre ? Math.round(sim.pre.tOut * 1000) / 1000 : 0 });
   state.cars.forEach((car, i) => {
-    const back = (balance.grid.poleBackMetres + i * balance.grid.gapMetres) / tables.length;
+    const back = gridBackOf(sim, i);
     sim.P[i] = -back;
     sim.tau[i] = tauAtD(tables, 1 - back) - 1;
     sim.laps[i] = 0;
     sim.active[i] = car.status === "running" ? 1 : 0;
+    sim.v[i] = 0;
     sim.lat[i] = (car.grid % 2 ? -1 : 1) * balance.grid.staggerMetres;
     // RF-SIM-01: a standing start in first gear, limited by traction until the car reaches the trace.
     sim.drive.launching[i] = sim.active[i];
@@ -635,6 +798,15 @@ const endLap = (state, i, lap, tc) => {
   if (lap >= state.laps) {
     car.status = "finished";
     sim.active[i] = 0;
+    // SIM-3 / F1M24-GAMEPLAY §1.7: the flag for this car (`pos` = its place on the road at the line), then its cooldown lap.
+    sim.finishedCount += 1;
+    pushEvent(state, lap, { type: "finished", carId: car.id, t: Math.round(tc * 1000) / 1000, pos: sim.finishedCount });
+    sim.cool[i] = 1;
+    sim.coolEnd[i] = lap + 1;
+    sim.coolP[i] = sim.P[i];
+    sim.coolLat[i] = sim.lat[i];
+    sim.coolV[i] = sim.v[i];
+    sim.cooling += 1;
     return false;
   }
   beginLap(state, i, lap + 1, tc);
@@ -1540,6 +1712,41 @@ const settleDuels = (state) => {
   }
 };
 
+/**
+ * SIM-3 vuelta-enfriamiento (RF-WKD-07, RF-3D-04; FIA art. 59.3): every car past the flag drives one more lap
+ * as a ghost - out of the ring (no duels, no traffic, no pit lane), no stream drawn - easing from its speed at
+ * the line to cooldown.lapFactor of the base lap and over towards the pit side, then stops. Its pose lives in
+ * its own arrays (coolP, coolLat, coolV; sim.P stays at the line, where race control still reads the
+ * leader), so nothing the race or its classification reads moves (RNF-05).
+ */
+const coolStep = (state) => {
+  const sim = state._sim;
+  const { dt, tables } = sim;
+  const cfg = sim.balance.cooldown;
+  const vTarget = tables.length / (state.race.baseLap * cfg.lapFactor);
+  const ease = Math.min(1, dt / cfg.slowDownSec);
+  const G = sim.side;
+  for (let i = 0; i < sim.n; i += 1) {
+    if (sim.cool[i] !== 1) continue;
+    let v = sim.coolV[i] + (vTarget - sim.coolV[i]) * ease;
+    let P = sim.coolP[i] + (v * dt) / tables.length;
+    if (P >= sim.coolEnd[i]) {
+      P = sim.coolEnd[i];
+      v = 0;
+      sim.cool[i] = 2;
+      sim.cooling -= 1;
+    }
+    sim.coolV[i] = v;
+    sim.coolP[i] = P;
+    const lo = roomAt(G, P, -1);
+    const hi = roomAt(G, P, 1);
+    const want = clamp(G.pitSide * cfg.lateralMetres, lo, hi);
+    sim.coolLat[i] += (want - sim.coolLat[i]) * ease;
+    const bin = Math.min(tables.M - 1, (frac(P) * tables.M) | 0);
+    updateDrive(sim.pt, sim.drive, i, v, sim.kappaBin[bin], dt, { coast: true, stopped: v === 0, full: false });
+  }
+};
+
 /** RF-SIM-01 / RF-SIM-02: every running car's gear, rpm, pedals and g from the speed it did this step. */
 const driveStep = (state) => {
   const sim = state._sim;
@@ -1617,7 +1824,15 @@ const energyStepOf = (state, i, v, cell, inLane) => {
 export const stepOnce = (state) => {
   const sim = state._sim;
   if (state.finished) return;
-  if (!sim.started) start(state);
+  if (!sim.started) {
+    // SIM-3: the PRE_START phase runs on its own clock; the race clock starts at lights out.
+    if (sim.pre && sim.pre.k < sim.pre.kOut) {
+      preStep(state);
+      sim.steps += 1;
+      return;
+    }
+    start(state);
+  }
   sim.clock += sim.dt;
   sim.steps += 1;
   if (state.safetyCar && state.safetyCar.since === undefined) state.safetyCar.since = scSince(state);
@@ -1646,6 +1861,7 @@ export const stepOnce = (state) => {
   // SIM-2 (RF-SIM-07): sideways, inside the measured asphalt, nobody on top of anybody (lateral.js).
   stepLateral(sim, ROLE.NONE, physicsData.mistake, sim.balance.blueFlags.yieldShare);
   driveStep(state);
+  if (sim.cooling > 0) coolStep(state);
   sortOrder(state);
   state.clock = sim.clock;
   // Safety-car spells in race time, for the view and the timing.
@@ -1676,6 +1892,13 @@ export const stepFor = (state, seconds) => {
   sim.requested += seconds;
   const target = Math.floor(sim.requested / sim.dt + 1e-9);
   while (sim.steps < target && !state.finished) stepOnce(state);
+  // SIM-3: after the flag the view may keep watching the cooldown laps (no result moves).
+  while (sim.steps < target && state.finished && sim.cooling > 0) {
+    sim.clock += sim.dt;
+    sim.steps += 1;
+    coolStep(state);
+    state.clock = sim.clock;
+  }
   return state;
 };
 
@@ -1725,14 +1948,15 @@ const energySnapshot = (sim, car, i) => {
 /** Where every car is right now, for a live view that reads the step sim directly. */
 export const snapshot = (state) => {
   const sim = state._sim;
-  return state.cars.map((car, i) => ({
+  const cars = state.cars.map((car, i) => ({
     id: car.id,
     lap: sim.laps[i] + 1,
-    progress: sim.P[i],
-    share: frac(sim.P[i]),
-    lateral: sim.lat[i],
+    // SIM-3: past the flag, the cooldown lap's pose (its own arrays).
+    progress: sim.cool[i] ? sim.coolP[i] : sim.P[i],
+    share: frac(sim.cool[i] ? sim.coolP[i] : sim.P[i]),
+    lateral: sim.cool[i] ? sim.coolLat[i] : sim.lat[i],
     // SIM-FISICA §3.7: speed on the road (m/s), from the sim - the view no longer infers it.
-    v: sim.inPit[i] !== 0 && sim.lane.cars.prof[i] ? sim.lane.cars.v[i] : sim.v[i],
+    v: sim.cool[i] ? sim.coolV[i] : sim.inPit[i] !== 0 && sim.lane.cars.prof[i] ? sim.lane.cars.v[i] : sim.v[i],
     inPit: sim.inPit[i] !== 0,
     // RF-SIM-12 (WP6/WP7): where in the pit lane, how fast, and the stage of the stop.
     pit: sim.inPit[i] !== 0 && sim.lane.cars.prof[i] ? { phase: PHASE_NAMES[sim.lane.cars.phase[i]], v: sim.lane.cars.v[i], stage: sim.lane.cars.stage[i] } : null,
@@ -1749,7 +1973,12 @@ export const snapshot = (state) => {
     // RF-SIM-04 / RF-SIM-05: the fuel on board (kg) and its flow, and the energy store (MJ, kW, clipping).
     fuel: fuelSnapshot(sim, car, i),
     energy: energySnapshot(sim, car, i),
+    // SIM-3: on its cooldown lap after the flag (a ghost: no duels, no pit lane).
+    cooldown: sim.cool[i] === 1,
   }));
+  // SIM-3 / F1M24-GAMEPLAY §1.7 `snapshot.start` (on the array, so `snapshot(state)[i]` stays per car).
+  cars.start = startOf(state);
+  return cars;
 };
 
 /**

@@ -157,6 +157,12 @@
       { "from": 2005, "to": 2005, "value": { "restart": "rolling", "aggregate": false, "tyreChanges": false }, "status": "pending", "note": "Reanudación tras el coche de seguridad; 2005 prohibía cambiar neumáticos." },
       { "from": 2006, "to": 2017, "value": { "restart": "rolling", "aggregate": false, "tyreChanges": true }, "status": "pending" },
       { "from": 2018, "to": 2026, "value": { "restart": "standing", "aggregate": false, "tyreChanges": true }, "status": "pending", "note": "Salida parada tras bandera roja (año exacto del cambio por verificar)." }
+    ],
+    "startProcedure": [
+      { "from": 1950, "to": 1995, "value": { "lights": "redGreen", "formationLap": true }, "status": "pending", "note": "SIM-3 (RF-SIM-10, F1M24-GAMEPLAY §2.13): de memoria, una luz roja y luego la verde, y vuelta de calentamiento antes de la salida parada; año de cada cambio por leer en el reglamento FIA. Las claves remiten a race-sim.json start.procedures." },
+      { "from": 1996, "to": 2023, "value": { "lights": "fiveRed", "formationLap": true }, "status": "pending", "note": "De memoria: las cinco rojas que se apagan desde 1996; verificado solo el texto de 2024." },
+      { "from": 2024, "to": 2024, "value": { "lights": "fiveRed", "formationLap": true }, "status": "source", "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_1_-_2023-09-26.pdf", "quote": "Art. 44.7 'When the green lights are illuminated, all cars on the grid should begin the formation lap'; art. 44.10 b) five-second to one-second lights, 'the race will be started by extinguishing all red lights'." },
+      { "from": 2025, "to": 2026, "value": { "lights": "fiveRed", "formationLap": true }, "status": "pending", "note": "Reglamentos 2025 y 2026 (sección B) sin leer." }
     ]
   }
 }
