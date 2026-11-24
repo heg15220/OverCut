@@ -28,6 +28,13 @@ data/balance/race-powertrain.json (`eras[].manufacturers`, `eras[].pitLimiter`, 
     CAR IN THIS LAP (`race_control`, desde 30 s después del despliegue) frente a los de bandera verde.
 
     python overcut/src/main/resources/scripts/powertrain_from_openf1.py --shifts [--cache DIR]
+
+Con --corners (F1M24-GAMEPLAY §2.3 `curvas-lentas`, paquete PT-2) solo rehace la clave `corners` con la vuelta de
+la pole de un circuito lento (Hungaroring 2024), con el mismo formato que `sessions[].lap`, para el banco de curvas
+de engine/sim/speeds.test.js (mínima por curva numerada y marcha en el vértice). Monza y Baréin ya están en
+`sessions`. Los vértices reales los saca el test de las muestras; aquí no se elabora nada.
+
+    python overcut/src/main/resources/scripts/powertrain_from_openf1.py --corners [--cache DIR]
 """
 
 import collections
@@ -128,6 +135,13 @@ def race_start(year, circuit, driver):
     return {"sessionKey": session["session_key"], "driver": driver, "samples": samples}
 
 
+def load_fixture():
+    if not os.path.exists(OUT):
+        return {}
+    with open(OUT, encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def main():
     out = {
         "$comment": "Telemetría real de OpenF1 (https://openf1.org, car_data ~3,7 Hz) para engine/sim/powertrain.test.js. "
@@ -140,6 +154,11 @@ def main():
         print(f"{year} {circuit}…", file=sys.stderr)
         out["sessions"].append({"year": year, "circuit": ref, "openf1": circuit,
                                 "lap": pole_lap(year, circuit, pole), "start": race_start(year, circuit, starter)})
+    # Las claves de --shifts y --corners se conservan: este modo solo rehace `sessions`.
+    previous = load_fixture()
+    for key in ("shifts", "corners"):
+        if key in previous:
+            out[key] = previous[key]
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as handle:
         json.dump(out, handle, separators=(",", ":"))
@@ -302,11 +321,41 @@ def shifts_main():
     print(OUT)
 
 
+# --corners: circuitos lentos para el banco de curvas (año, circuit_short_name de OpenF1, circuito del Manager,
+# poleman). Hungaroring 2024: pole de Norris (4), 1:15.227. Su trazado calibrado (hungaroring-3) numera 14 curvas,
+# las mismas que la cuenta oficial de f1db, así que el número de curva del Manager es el oficial. Mónaco 2024
+# (Leclerc, 16) se puede añadir aquí con el mismo formato.
+CORNER_SESSIONS = [
+    (2024, "Hungaroring", "hungaroring", 4),
+]
+
+
+def corners_main():
+    fixture = load_fixture()
+    sessions = []
+    for year, circuit, ref, pole in CORNER_SESSIONS:
+        print(f"{year} {circuit} (clasificación)…", file=sys.stderr)
+        sessions.append({"year": year, "circuit": ref, "openf1": circuit, "lap": pole_lap(year, circuit, pole)})
+    fixture["corners"] = {
+        "$comment": "Generado por powertrain_from_openf1.py --corners (F1M24-GAMEPLAY §2.3 curvas-lentas, PT-2): "
+                    "vuelta de la pole en circuitos lentos, mismo formato que sessions[].lap. La lee "
+                    "engine/sim/speeds.test.js junto con sessions[] (Monza y Baréin).",
+        "sessions": sessions,
+    }
+    with open(OUT, "w", encoding="utf-8") as handle:
+        json.dump(fixture, handle, separators=(",", ":"))
+    for session in sessions:
+        print(session["year"], session["openf1"], session["lap"]["lapTime"], len(session["lap"]["samples"]))
+    print(OUT)
+
+
 if __name__ == "__main__":
     if "--cache" in sys.argv:
         CACHE = sys.argv[sys.argv.index("--cache") + 1]
         os.makedirs(CACHE, exist_ok=True)
     if "--shifts" in sys.argv:
         shifts_main()
+    elif "--corners" in sys.argv:
+        corners_main()
     else:
         main()
