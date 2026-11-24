@@ -1,0 +1,122 @@
+/*
+ * HUD-2 (F1M24-GAMEPLAY tower-modes, flag-header-sectors; RNF-09): the tower's flag header,
+ * row tags and sector bars. Every state has its words; the colour only backs them up.
+ * Tokens from weekend.css (--mn-flag-*, --mn-best, --mn-pos), so light and dark follow it.
+ */
+
+.lv-tower__flag {
+  display: flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  margin: 0 var(--mn-s-3) var(--mn-s-3);
+  padding: var(--mn-s-1) var(--mn-s-2);
+  border-left: 3px solid var(--flag, var(--mn-text));
+  border-radius: var(--mn-r-1);
+  background: var(--mn-surface-2);
+  font-size: var(--mn-fs-12);
+  font-weight: 600;
+  color: var(--mn-text);
+}
+
+.lv-tower__flag i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--flag, var(--mn-text));
+}
+
+.lv-tower__flag[data-flag="yellow"] { --flag: var(--mn-flag-yellow); }
+.lv-tower__flag[data-flag="sc"],
+.lv-tower__flag[data-flag="vsc"] { --flag: var(--mn-flag-sc); }
+.lv-tower__flag[data-flag="red"] { --flag: var(--mn-flag-red); }
+.lv-tower__flag[data-flag="chequered"] { --flag: var(--mn-text); }
+
+.lv-tower[data-flag="yellow"] .lv-tower__head { box-shadow: inset 0 3px 0 var(--mn-flag-yellow); }
+.lv-tower[data-flag="sc"] .lv-tower__head,
+.lv-tower[data-flag="vsc"] .lv-tower__head { box-shadow: inset 0 3px 0 var(--mn-flag-sc); }
+.lv-tower[data-flag="red"] .lv-tower__head { box-shadow: inset 0 3px 0 var(--mn-flag-red); }
+.lv-tower[data-flag="chequered"] .lv-tower__head { box-shadow: inset 0 3px 0 var(--mn-text); }
+
+.lv-tower__modes .mn-seg {
+  flex-wrap: wrap;
+}
+
+.lv-row__tag {
+  margin-left: var(--mn-s-1);
+  padding: 0 3px;
+  border-radius: 2px;
+  background: var(--mn-surface-3);
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+  font-weight: 600;
+  color: var(--mn-text-2);
+  vertical-align: middle;
+}
+
+.lv-row__tag[data-tag="incident"] {
+  background: none;
+  color: var(--mn-flag-yellow);
+}
+
+.lv-row__tag[data-tag="finished"] {
+  display: inline-flex;
+  background: none;
+  color: var(--mn-text);
+}
+
+.lv-bars {
+  display: inline-grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 2px;
+}
+
+.lv-bars__chip {
+  min-width: 30px;
+  padding: 0 3px;
+  border-radius: 2px;
+  background: var(--mn-surface-3);
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-11);
+  color: var(--mn-text-3);
+  text-align: center;
+}
+
+.lv-bars__chip.is-best {
+  background: rgba(176, 124, 242, 0.22);
+  color: var(--mn-best);
+}
+
+.lv-bars__chip.is-pb {
+  background: var(--mn-pos-soft);
+  color: var(--mn-pos);
+}
+
+.lv-bars__chip.is-slow {
+  background: rgba(242, 183, 5, 0.14);
+  color: var(--mn-accent);
+}
+
+.lv-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.lv-card__run {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mn-s-2);
+  align-items: baseline;
+  padding: 0 var(--mn-s-3) var(--mn-s-2);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-2);
+}
+
+.lv-card__run b {
+  color: var(--mn-text);
+  font-weight: 600;
+}
