@@ -9,16 +9,145 @@
  *   sprint     position, gap and points;
  *   race       grid, places gained, stops, gap and penalty, sprint points and points.
  * `sessionResultTable` is pure: it reads the weekend the engine left and draws nothing.
+ * After practice, `summary` (practiceSummaryOf) adds "what the session left" (WKD-2).
  */
 
 import React, { useState } from "react";
 import balance from "../data/balance/weekend-ui.json";
-import { Badge, DataTable, Panel, TeamBadge, TeamStripe } from "./atoms";
+import driverBalance from "../data/balance/driver-attributes.json";
+import { Badge, DataTable, Meter, Panel, TeamBadge, TeamStripe } from "./atoms";
 import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight } from "./icons";
-import { COMPOUND, gapText, lapTime, t } from "./texts";
+import { COMPOUND, PROGRAM, gapText, lapTime, t } from "./texts";
 import "./styles/session-flow.css";
 
 export const RESULT_KINDS = ["practice", "qualifying", "shootout", "sprint", "race"];
+
+/**
+ * practice-goals-summary (WKD-2, F1M24-GAMEPLAY §2.12.2; RF-WKD-03, RF-WKD-07): the six confidence
+ * levels of data/balance/weekend-ui.json practiceSummary.confidence, lowest first, and the one a
+ * confidence (0..1) falls in. Presentation only: the engine keeps the continuous value.
+ */
+export const confidenceLevelOf = (confidence, levels = balance.practiceSummary?.confidence?.levels || []) => {
+  if (!Number.isFinite(confidence) || !levels.length) return null;
+  let index = 0;
+  levels.forEach((level, at) => {
+    if (confidence >= level.from) index = at;
+  });
+  return { id: levels[index].id, index, count: levels.length };
+};
+
+const CONFIDENCE_LEVEL = {
+  lost: () => t("Perdido", "Lost"),
+  low: () => t("Baja", "Low"),
+  unsure: () => t("Dudosa", "Unsure"),
+  settled: () => t("Asentada", "Settled"),
+  high: () => t("Alta", "High"),
+  peak: () => t("Plena", "Peak"),
+};
+
+/**
+ * What practice left each of the player's drivers, read from the weekend the engine wrote
+ * (career.weekend: practice[id].confidence and .setup from runPractice, feedback[id], runs[id]
+ * from the setup bench). Pure: reads, never writes, so no roll moves (RNF-05). Per driver:
+ *   confidence       0..1 and its level (one of six); confidenceDelta against the neutral the
+ *                    race assumes without practice; controlDelta, the points it adds to Sunday's
+ *                    control (driver-attributes.json effects.confidence.controlPerShare);
+ *   setup            satisfaction % of the setup run, and its change since the first bench run
+ *                    (null when the engineers' setup ran untouched); runs and knowledge % of the
+ *                    ideal window; lapSec, seconds a lap the setup is worth (negative is quicker).
+ * Missing data (a weekend without practice, an older save) gives an empty list.
+ */
+export const practiceSummaryOf = ({ weekend, drivers = [], settings = balance.practiceSummary, controlPerShare = driverBalance.effects?.confidence?.controlPerShare }) => {
+  const practice = weekend?.practice;
+  if (!practice || !settings?.confidence) return [];
+  const { neutral, levels } = settings.confidence;
+  return drivers
+    .filter((driver) => practice[driver.id])
+    .map((driver) => {
+      const entry = practice[driver.id];
+      const feedback = weekend.feedback?.[driver.id] || null;
+      const runs = weekend.runs?.[driver.id] || null;
+      const confidence = finite(entry.confidence);
+      const delta = confidence === null ? null : confidence - neutral;
+      const history = Array.isArray(runs?.history) ? runs.history.filter(Number.isFinite) : [];
+      const satisfaction = Number.isFinite(feedback?.score) ? feedback.score : confidence === null ? null : Math.round(confidence * 100);
+      return {
+        id: driver.id,
+        name: driver.name || driver.driverName || driver.id,
+        program: entry.program || feedback?.program || null,
+        confidence,
+        level: confidenceLevelOf(confidence, levels),
+        confidenceDelta: delta,
+        controlDelta: delta === null || !Number.isFinite(controlPerShare) ? null : delta * controlPerShare,
+        satisfaction,
+        satisfactionDelta: history.length && satisfaction !== null ? satisfaction - history[0] : null,
+        runs: runs?.count || 0,
+        knowledge: Number.isFinite(runs?.knowledge) ? Math.round(runs.knowledge * 100) : null,
+        lapSec: finite(entry.setup),
+        balance: feedback?.balance || null,
+      };
+    });
+};
+
+const signed = (value, digits = 0) => `${value > 0 ? "+" : value < 0 ? "−" : "±"}${Math.abs(value).toFixed(digits)}`;
+
+/** The panel "what the session left" for the practice results (practice-goals-summary). */
+export function PracticeSummary({ summary = [] }) {
+  if (!summary.length) return null;
+  return (
+    <Panel title={t("Lo que dejó la sesión", "What the session left")} className="wk-res__summary">
+      {summary.map((row) => (
+        <section key={row.id} className="wk-sum" aria-label={row.name}>
+          <header className="wk-sum__head">
+            <strong>{row.name}</strong>
+            {row.program && PROGRAM[row.program] && <span className="mn-muted">{PROGRAM[row.program]()}</span>}
+          </header>
+          <dl className="wk-sum__facts">
+            {row.level && (
+              <div>
+                <dt>{t("Confianza", "Confidence")}</dt>
+                <dd>
+                  <b>{CONFIDENCE_LEVEL[row.level.id] ? CONFIDENCE_LEVEL[row.level.id]() : row.level.id}</b>
+                  <span className="mn-muted"> {t(`nivel ${row.level.index + 1} de ${row.level.count}`, `level ${row.level.index + 1} of ${row.level.count}`)}</span>
+                  <Meter value={Math.round(row.confidence * 100)} width={72} label={t("Confianza", "Confidence")} />
+                  {row.confidenceDelta !== null && (
+                    <small>
+                      {t(`${signed(row.confidenceDelta * 100)} pts frente a sin libres`, `${signed(row.confidenceDelta * 100)} pts against no practice`)}
+                      {row.controlDelta !== null && ` · ${t(`${signed(row.controlDelta, 1)} de control el domingo`, `${signed(row.controlDelta, 1)} control on Sunday`)}`}
+                    </small>
+                  )}
+                </dd>
+              </div>
+            )}
+            {row.satisfaction !== null && (
+              <div>
+                <dt>{t("Reglaje", "Setup")}</dt>
+                <dd>
+                  <b>{row.satisfaction}%</b>
+                  {row.satisfactionDelta !== null ? (
+                    <small>{t(`${signed(row.satisfactionDelta)} pts desde la primera tanda`, `${signed(row.satisfactionDelta)} pts since the first run`)}</small>
+                  ) : (
+                    <small>{t("El de los ingenieros, sin tandas de reglaje", "The engineers' own, no setup runs")}</small>
+                  )}
+                  {row.lapSec !== null && <small>{t(`${signed(row.lapSec, 2)} s por vuelta`, `${signed(row.lapSec, 2)} s a lap`)}</small>}
+                </dd>
+              </div>
+            )}
+            {row.knowledge !== null && (
+              <div>
+                <dt>{t("Ventana del ideal", "Ideal window")}</dt>
+                <dd>
+                  <b>{row.knowledge}%</b>
+                  <small>{t(`conocida tras ${row.runs} tandas`, `known after ${row.runs} runs`)}</small>
+                </dd>
+              </div>
+            )}
+          </dl>
+        </section>
+      ))}
+    </Panel>
+  );
+}
 
 const finite = (value) => (Number.isFinite(value) ? value : null);
 
@@ -194,7 +323,7 @@ export function SessionTable({ table, teams, caption, pageSize = balance.results
  * The results screen of one session: the leader, the table, the player's own notes (`children`,
  * e.g. what the drivers reported after practice) and the way on.
  */
-export default function SessionResults({ table, teams = {}, meta, onContinue, continueLabel, children }) {
+export default function SessionResults({ table, teams = {}, meta, onContinue, continueLabel, summary, children }) {
   const leader = table.leader;
   const title = SESSION_TITLE[table.kind] ? SESSION_TITLE[table.kind]() : t("Resultados", "Results");
   return (
@@ -222,6 +351,7 @@ export default function SessionResults({ table, teams = {}, meta, onContinue, co
             </div>
           </Panel>
         )}
+        {table.kind === "practice" && <PracticeSummary summary={summary} />}
         {children}
         {onContinue && (
           <div className="wk-actions">

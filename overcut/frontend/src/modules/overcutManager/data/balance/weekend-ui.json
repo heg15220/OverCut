@@ -18,5 +18,40 @@
     "$comment": "Puerta de sesión: la opción marcada al abrirla y si el botón final pide confirmar (la §2.12.2 pide confirmación al gestionar).",
     "defaultChoice": "manage",
     "confirm": true
+  },
+  "practiceSummary": {
+    "$comment": "WKD-2 practice-goals-summary (docs/manager/F1M24-GAMEPLAY.md §2.12.2, §3.3; RF-WKD-03, RF-WKD-07): panel «Lo que dejó la sesión» en los resultados de los libres. Solo lee lo que el motor dejó en career.weekend (practice[id].confidence y .setup, feedback, runs): no cambia ninguna tirada (RNF-05). De F1 Manager 24 solo la idea de un resumen al acabar los libres; ni sus nombres de nivel ni sus porcentajes.",
+    "confidence": {
+      "$comment": "Confianza del piloto con el reglaje (0-1). neutral es la que el motor supone sin libres (engine/race.js, practice[id].confidence ?? 0,6; driver-attributes.json effects.confidence): los deltas se miden contra ella y el efecto en el control del domingo es (confianza − neutral) × effects.confidence.controlPerShare. levels son los 6 niveles de RF-WKD-03, de menor a mayor: cada uno empieza en from (incluido). Los cortes son de presentación (no cambian la simulación) y de diseño propio.",
+      "neutral": 0.6,
+      "levels": [
+        {
+          "id": "lost",
+          "from": 0
+        },
+        {
+          "id": "low",
+          "from": 0.35
+        },
+        {
+          "id": "unsure",
+          "from": 0.5
+        },
+        {
+          "id": "settled",
+          "from": 0.6
+        },
+        {
+          "id": "high",
+          "from": 0.72
+        },
+        {
+          "id": "peak",
+          "from": 0.85
+        }
+      ],
+      "status": "design",
+      "note": "Cortes elegidos para que la neutra (0,6) abra el cuarto nivel y el reglaje de partida de los ingenieros (satisfacción ~0,62, engine/setup.js setupLapTime) caiga en él; sin fuente externa porque la confianza no es un dato público del deporte."
+    }
   }
 }
