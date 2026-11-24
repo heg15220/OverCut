@@ -2,8 +2,39 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$comment": "RNF-07: esquema de data/balance/sessions.json (sesiones jugables: RF-WKD-01/02/03/05, RF-SIM-11, RF-SIM-15). Lo comprueba engine/sessionSim/session.test.js. Las tablas por año llevan status: source (con cita del reglamento), measured (calibrado contra datos) o pending (de memoria o NV).",
   "type": "object",
-  "required": ["$comment", "version", "step", "laps", "garage", "evolution", "pace", "programmes", "limits", "durations", "allocation", "ai", "sprint", "clock"],
+  "required": ["$comment", "version", "step", "laps", "garage", "evolution", "pace", "programmes", "limits", "durations", "allocation", "ai", "sprint", "clock", "yellow"],
   "definitions": {
+    "shareByKind": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["practice", "qualifying", "shootout"],
+      "properties": {
+        "practice": { "type": "number", "minimum": 0, "maximum": 1 },
+        "qualifying": { "type": "number", "minimum": 0, "maximum": 1 },
+        "shootout": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "spread": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p10", "median", "p90"],
+      "properties": {
+        "n": { "type": "integer", "minimum": 1 },
+        "p10": { "type": "number", "exclusiveMinimum": 0 },
+        "median": { "type": "number", "exclusiveMinimum": 0 },
+        "p90": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "episodes": {
+      "type": "object",
+      "required": ["sessions", "episodes", "perSession", "doubleShare"],
+      "properties": {
+        "sessions": { "type": "integer", "minimum": 1 },
+        "episodes": { "type": "integer", "minimum": 0 },
+        "perSession": { "type": "number", "minimum": 0 },
+        "doubleShare": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
     "year": { "type": "integer", "minimum": 1950, "maximum": 2030 },
     "nonNegative": { "type": "number", "minimum": 0 },
     "positive": { "type": "number", "exclusiveMinimum": 0 },
@@ -216,6 +247,44 @@
             "peakHour": { "type": "number", "minimum": 0, "maximum": 24 },
             "halfRangeC": { "type": "number", "minimum": 0, "maximum": 15 },
             "status": { "$ref": "#/definitions/status" }
+          }
+        }
+      }
+    },
+    "yellow": {
+      "$comment": "SES-3: amarillas locales de la sesión jugable (RF-SIM-10, RF-WKD-02), calibradas con OpenF1 race_control.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "chance", "doubleShare", "durationSec", "eras", "regulation", "measured"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "chance": { "$ref": "#/definitions/shareByKind" },
+        "doubleShare": { "$ref": "#/definitions/shareByKind" },
+        "durationSec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["single", "double"],
+          "properties": { "single": { "$ref": "#/definitions/spread" }, "double": { "$ref": "#/definitions/spread" } }
+        },
+        "eras": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/yearRow" } },
+        "regulation": {
+          "type": "object",
+          "required": ["status", "note"],
+          "properties": { "status": { "$ref": "#/definitions/status" }, "note": { "type": "string" }, "source": { "$ref": "#/definitions/source" } },
+          "if": { "properties": { "status": { "const": "source" } } },
+          "then": { "required": ["source"] }
+        },
+        "measured": {
+          "type": "object",
+          "required": ["source", "years", "practice", "qualifying", "single", "double"],
+          "properties": {
+            "source": { "type": "string" },
+            "years": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/year" } },
+            "practice": { "$ref": "#/definitions/episodes" },
+            "qualifying": { "$ref": "#/definitions/episodes" },
+            "single": { "$ref": "#/definitions/spread" },
+            "double": { "$ref": "#/definitions/spread" }
           }
         }
       }

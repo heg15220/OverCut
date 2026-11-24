@@ -13,6 +13,11 @@
  * garage exit on the physical lane against OpenF1's Bahrain 2024 practice range, the run phases of
  * the §1.7 contract, the queue at the pit-exit light, the in-lap that ends in the garage and
  * boxRequest.distanceM.
+ *
+ * SES-3 (F1M24-GAMEPLAY §1.5, §1.7 `yellow`, §2.12.1 flag-header-sectors; RF-SIM-10, RF-WKD-02, RNF-05,
+ * RNF-07, RNF-09): the session waves local yellows from mistakes, at OpenF1 2023-2024's rate per session
+ * and double share, with the sector from circuit.sectors, from a stream of their own (the laps do not
+ * change), at their own instant, and the tower says it in words.
  */
 
 import Ajv from "ajv";
@@ -30,7 +35,8 @@ import {
   RUN_PHASES, advanceTo, carStatus, command, createSession, nextSegment, rankOf, replaySession, runSegmentToEnd, runSessionToEnd, sessionFormat, sessionResult, stepOnce,
 } from ".";
 import { PIT_LANE_BALANCE, buildProfile, garageExitProfile, laneGeometry } from "../sim/pitLane";
-import { evolutionImprovement, evolutionOf, garageWorkOf, localClockOf, sessionConditions, sessionScheduleOf } from "./session";
+import { evolutionImprovement, evolutionOf, garageWorkOf, localClockOf, sessionConditions, sessionScheduleOf, sessionYellows, yellowEraOf } from "./session";
+import { sectorOfShare, sessionYellowsAt, yellowFlag } from "../../components/tower";
 
 let context = null;
 let packs = null;
@@ -531,5 +537,172 @@ describe("SES-2: the physical garage - out of the box, down the lane, back into 
     expect(a.cars.map((car) => car.lane)).toEqual(b.cars.map((car) => car.lane));
     const once = JSON.stringify(sessionResult(runSessionToEnd(createSession(options))));
     expect(JSON.stringify(sessionResult(runSessionToEnd(createSession(options))))).toBe(once);
+  });
+});
+
+describe("SES-3: local yellows in the session (F1M24-GAMEPLAY §1.5, §1.7 yellow, §2.12.1 flag-header-sectors)", () => {
+  const Y = balance.yellow;
+  const optionsFor = (year, kind, round, seed) => {
+    const career = createCareer(contextOf(), { year, teamId: "ferrari", seed });
+    career.round = round % packs[year].calendar.length;
+    runPractice(career, {});
+    return { ...sessionOptions(career, kind), wetness: 0 };
+  };
+  const yellowsOf = (state) => state.events.filter((event) => event.type === "yellow");
+  const lapsOf = (state) => JSON.stringify(state.cars.map((car) => car.history.map(({ yellow, ...lap }) => lap)));
+  /** Every segment to the end, keeping each segment's laps (startSegment clears the history). */
+  const playAll = (options) => {
+    const state = createSession(options);
+    const segments = [];
+    for (let guard = 0; guard < 10; guard += 1) {
+      runSegmentToEnd(state);
+      segments.push({ laps: lapsOf(state), records: state.cars.map((car) => ({ id: car.id, history: car.history.slice() })) });
+      if (state.done) break;
+      nextSegment(state);
+    }
+    return { state, segments };
+  };
+
+  it("sessions.json yellow matches its schema, is measured in OpenF1 and dates every year 1976-2026 (RNF-07, SRS §6)", () => {
+    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    expect(validate(balance)).toBe(true);
+    expect(Y.measured.source).toMatch(/OpenF1 race_control/);
+    expect(Y.measured.years).toEqual([2023, 2024]);
+    for (let year = 1976; year <= 2026; year += 1) expect(yellowEraOf(year)).not.toBeNull();
+    expect(yellowEraOf(2024).status).toBe("measured");
+    expect(yellowEraOf(1990).status).toBe("pending");
+    // The duration spread is the measured one of its type.
+    expect(Y.durationSec.single).toMatchObject({ p10: Y.measured.single.p10, median: Y.measured.single.median, p90: Y.measured.single.p90 });
+    expect(Y.durationSec.double).toMatchObject({ p10: Y.measured.double.p10, median: Y.measured.double.median, p90: Y.measured.double.p90 });
+    expect(validate({ ...balance, yellow: { ...Y, chance: { ...Y.chance, practice: 2 } } })).toBe(false);
+  });
+
+  it("yellows per session and the double share in 2024 dry sessions are near OpenF1 2023-2024 (RF-SIM-10)", () => {
+    ["practice", "qualifying"].forEach((kind) => {
+      let count = 0;
+      let doubles = 0;
+      const runs = 16;
+      for (let index = 0; index < runs; index += 1) {
+        const yellows = yellowsOf(playAll(optionsFor(2024, kind, index, `ses3-${index}`)).state);
+        count += yellows.length;
+        doubles += yellows.filter((event) => event.double).length;
+      }
+      const perSession = count / runs;
+      expect(Math.abs(perSession - Y.measured[kind].perSession)).toBeLessThanOrEqual(Y.measured[kind].perSession * 0.35);
+      expect(Math.abs(doubles / count - Y.measured[kind].doubleShare)).toBeLessThanOrEqual(0.2);
+    });
+  });
+
+  it("the event: §1.7 shape, the sector from circuit.sectors, on the lap with the mistake, inside the measured durations (every era)", () => {
+    [[2024, "qualifying"], [2012, "practice"], [1990, "qualifying"]].forEach(([year, kind]) => {
+      let seen = 0;
+      for (let index = 0; index < 4; index += 1) {
+        const { state, segments } = playAll(optionsFor(year, kind, index, `ses3-shape-${index}`));
+        const circuit = state.circuit;
+        const numbers = new Set((circuit.corners || []).map((corner) => corner.number));
+        yellowsOf(state).forEach((event) => {
+          seen += 1;
+          expect(Object.keys(event).sort()).toEqual(["carId", "corner", "double", "marshalPost", "s", "sector", "segment", "t", "type", "until"]);
+          expect(event.sector).toBeGreaterThanOrEqual(1);
+          expect(event.sector).toBeLessThanOrEqual(circuit.sectors.length);
+          // circuit.sectors' own sector of the place (what the view's sectorOfShare reads too).
+          expect(event.sector).toBe(sectorOfShare(circuit, event.s));
+          if (event.corner !== null) expect(numbers.has(event.corner)).toBe(true);
+          expect(event.marshalPost).toBe(event.corner);
+          const spread = event.double ? Y.durationSec.double : Y.durationSec.single;
+          expect(event.until - event.t).toBeGreaterThanOrEqual(spread.p10 - 0.002);
+          expect(event.until - event.t).toBeLessThanOrEqual(spread.p90 + 0.002);
+          const lap = segments[event.segment].records
+            .find((row) => row.id === event.carId)
+            .history.find((record) => record.yellow && Math.abs(record.yellow.at - event.t) < 0.001);
+          expect(lap).toBeDefined();
+          expect(lap.mistake).toBe(true);
+          expect(event.t).toBeGreaterThanOrEqual(lap.start);
+          expect(event.t).toBeLessThanOrEqual(lap.end);
+        });
+      }
+      expect(seen).toBeGreaterThan(0);
+    });
+  });
+
+  it("the yellows draw from their own stream: every lap is the same without them, and the same seed gives the same yellows (RF-SIM-15, RNF-05)", () => {
+    const options = optionsFor(2024, "qualifying", 0, "ses3-det");
+    const a = playAll(options);
+    const b = playAll(options);
+    expect(JSON.stringify(yellowsOf(b.state))).toBe(JSON.stringify(yellowsOf(a.state)));
+    expect(yellowsOf(a.state).length).toBeGreaterThan(0);
+    const saved = { ...Y.chance };
+    try {
+      Object.keys(Y.chance).forEach((key) => {
+        Y.chance[key] = 0;
+      });
+      const calm = playAll(options);
+      expect(yellowsOf(calm.state)).toEqual([]);
+      expect(calm.segments.map((segment) => segment.laps)).toEqual(a.segments.map((segment) => segment.laps));
+      expect(JSON.stringify(sessionResult(calm.state))).toBe(JSON.stringify(sessionResult(a.state)));
+    } finally {
+      Object.assign(Y.chance, saved);
+    }
+  });
+
+  /** A 2024 practice whose first segment has a yellow (the first of rounds 0-9 that does), engineers driving every car. */
+  const practiceWithYellow = () => {
+    for (let index = 0; index < 10; index += 1) {
+      const options = optionsFor(2024, "practice", index, `ses3-time-${index}`);
+      const first = yellowsOf(playAll(options).state)[0];
+      if (first) return { options, first };
+    }
+    return { options: null, first: null };
+  };
+  const engineersDrive = (state) => {
+    state.cars.filter((car) => car.isUser).forEach((car) => command(state, "autopilot", car.id));
+    return state;
+  };
+
+  it("a yellow is pushed at its own instant, however the view slices time, and is waved until `until`", () => {
+    const { options, first } = practiceWithYellow();
+    expect(first).not.toBeNull();
+    const state = engineersDrive(createSession(options));
+    let before = null;
+    for (let guard = 0; guard < 20000 && !yellowsOf(state).length; guard += 1) {
+      before = state.clock;
+      stepOnce(state);
+    }
+    const event = yellowsOf(state)[0];
+    expect(event).toEqual(first);
+    expect(event.t).toBeGreaterThan(before - 1e-6);
+    expect(event.t).toBeLessThanOrEqual(state.clock + 1e-6);
+    expect(sessionYellows(state, event.t)).toContainEqual(event);
+    expect(sessionYellows(state, event.until)).not.toContainEqual(event);
+    // Coarse slices of the view's clock give the same event.
+    const coarse = engineersDrive(createSession(options));
+    for (let tau = 0; !yellowsOf(coarse).length && tau < 4000; tau += 37) advanceTo(coarse, tau);
+    expect(yellowsOf(coarse)[0]).toEqual(first);
+  });
+
+  it("the view paints it with words: the tower header says yellow and its sector (RNF-09)", () => {
+    const state = engineersDrive(createSession(practiceWithYellow().options));
+    for (let guard = 0; guard < 20000 && !yellowsOf(state).length; guard += 1) stepOnce(state);
+    const event = yellowsOf(state)[0];
+    const flag = yellowFlag(state.circuit, sessionYellowsAt(state, event.t));
+    expect(flag.kind).toBe("yellow");
+    expect(flag.sectors).toEqual([event.sector]);
+    expect(flag.label).toMatch(new RegExp(`(sector|sectores) ${event.sector}`));
+    expect(flag.double).toBe(event.double);
+  });
+
+  it("a lap aborted before the place of the mistake brings no yellow", () => {
+    const state = createSession(optionsFor(2024, "qualifying", 2, "ses3-abort"));
+    let target = null;
+    for (let guard = 0; guard < 40000 && !target && !state.done; guard += 1) {
+      if (state.over) nextSegment(state);
+      stepOnce(state);
+      target = state.cars.find((car) => car.record?.yellow && !car.record.yellow.waved && car.record.yellow.at > state.clock + 1) || null;
+    }
+    expect(target).not.toBeNull();
+    const at = target.record.yellow.at;
+    expect(command(state, "abortLap", target.id)).toBe(true);
+    advanceTo(state, at + 60);
+    expect(yellowsOf(state).filter((event) => event.carId === target.id && Math.abs(event.t - at) < 0.001)).toEqual([]);
   });
 });
