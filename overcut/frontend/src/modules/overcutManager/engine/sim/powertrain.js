@@ -12,7 +12,13 @@
  *     real pedal trace; longitudinal and lateral g, weight transfer, pitch and roll;
  *   - two shapes of the trace that give the time back inside the same lap (SRS 4.2: the quick
  *     mode's lap time is unchanged): the traction-limited launch from the grid, and lift and coast
- *     before the braking zones on the lean fuel mix (its time is the quick mode's lean mix time).
+ *     before the braking zones on the lean fuel mix (its time is the quick mode's lean mix time);
+ *   - per power unit (docs/manager/F1M24-GAMEPLAY.md §2.4 `tren-por-pu`, package PT-1): the era's
+ *     `manufacturers{}` overrides of the shift point and the gear shape, measured per team in
+ *     OpenF1 car_data 2023-25 (a car gets them through `assignPowerUnits`); the pit limiter's fixed
+ *     gear (`eras[].pitLimiter`, the `pitLane` option of updateDrive) and the earlier upshift under
+ *     the safety car (`shift.underSc`, the `underSc` option). Where a value is "pending" or the
+ *     caller passes nothing, the car shifts as before.
  *
  * Determinism (RF-SIM-15, RNF-05): no random draws at all, and only + − × ÷ and Math.sqrt (no pow,
  * exp or trig), so every number is the same bit for bit in every JS engine.
@@ -26,6 +32,8 @@ export const POWERTRAIN = data;
 const KMH = 3.6;
 const G = physicsData.constants.g;
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
+// A sourced number, not "pending" (F1M24-GAMEPLAY §1.4: unmeasured values stay out of the sim).
+const measured = (x) => typeof x === "number" && Number.isFinite(x);
 
 // ------------------------------------------------------------------ era and gearbox
 
@@ -65,12 +73,57 @@ const lowestDownforceRef = () => {
 };
 
 /**
+ * The key of a power unit in `eras[].manufacturers`: the pack's engine manufacturer id
+ * ("honda-rbpt") or its name ("Honda RBPT", as packWorld.js keeps it on team.engines), lower case
+ * with dashes. Null for nothing.
+ */
+export const manufacturerKey = (name) => {
+  if (name === null || name === undefined) return null;
+  const key = String(name)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return key || null;
+};
+
+/**
+ * The era's override for a power unit (`sameAs` followed once), or null when the era has none for
+ * it (every era before 2022, and a manufacturer nobody measured): the car keeps the era's values.
+ */
+export const manufacturerOf = (era, name) => {
+  const table = era && era.manufacturers;
+  const key = manufacturerKey(name);
+  if (!table || !key || key === "$comment") return null;
+  let entry = table[key] || null;
+  if (entry && entry.sameAs) entry = table[entry.sameAs] || null;
+  return entry && measured(entry.shiftRpm) ? entry : null;
+};
+
+/** The share of the shift rpm the cars upshift at under the safety car in `year` (1: none measured). */
+export const scShiftShareOf = (year) => {
+  const spans = (data.shift.underSc && data.shift.underSc.spans) || [];
+  const span = spans.find((entry) => year >= entry.from && year <= entry.to);
+  return span && measured(span.shiftRpmShare) ? span.shiftRpmShare : 1;
+};
+
+/** The era's pit limiter: { gear, rpm } when both are measured, else null (the box shifts as on track). */
+export const pitLimiterOf = (era) => {
+  const limiter = era && era.pitLimiter;
+  if (!limiter || !Number.isInteger(limiter.gear) || !measured(limiter.rpm)) return null;
+  if (limiter.gear < 1 || limiter.gear > era.gearbox.gears) return null;
+  return { gear: limiter.gear, rpm: limiter.rpm };
+};
+
+/**
  * The power unit and gearbox of a car of `year` at a circuit (`layoutRef` for its downforce level),
  * with the ratios fitted to `circuitTop` (m/s, the circuit's reference top speed) until 2013 and to
  * the season's fastest circuit since 2014 (gearbox.ratios "perSeason"). `fuelKg` the fuel on board
- * for the mass (default: the era's race start load, `raceFuelKg`).
+ * for the mass (default: the era's race start load, `raceFuelKg`). `manufacturer` the car's engine
+ * manufacturer (id or name): its measured shift point and gear shape where the era has them
+ * (F1M24-GAMEPLAY §2.4 `tren-por-pu`); the top gear's ratio stays the era's fit.
  */
-export const powertrainFor = ({ year = 2020, layoutRef = null, circuitTop = null, fuelKg = null } = {}) => {
+export const powertrainFor = ({ year = 2020, layoutRef = null, circuitTop = null, fuelKg = null, manufacturer = null } = {}) => {
   const era = eraOf(year);
   const car = carFor({ year, layoutRef, fuelKg: fuelKg === null ? era.raceFuelKg : fuelKg });
   const { engine, gearbox, chassis } = era;
@@ -80,15 +133,27 @@ export const powertrainFor = ({ year = 2020, layoutRef = null, circuitTop = null
     ? topSpeedOf(carFor({ year, layoutRef: lowestDownforceRef() })) * fit.seasonTopShare
     : circuitTop * (1 + fit.towMargin);
   const topPerRpm = vFit / gearbox.topGearRpm;
-  const shares = gearShares(gearbox.gears);
+  const pu = manufacturerOf(era, manufacturer);
+  const base = gearShares(gearbox.gears);
+  const own = pu && Array.isArray(pu.gearShares) && pu.gearShares.length === gearbox.gears ? pu.gearShares : null;
+  const shares = own ? Float64Array.from(base, (share, g) => (measured(own[g]) ? own[g] : share)) : base;
   const speedPerRpm = Float64Array.from(shares, (share) => share * topPerRpm);
+  const limiter = pitLimiterOf(era);
   return {
     year,
+    // How it was built, so assignPowerUnits can build the same car with another power unit.
+    args: { year, layoutRef, circuitTop, fuelKg },
+    manufacturer: pu ? manufacturerKey(manufacturer) : null,
     gears: gearbox.gears,
     ratios: gearbox.ratios,
     speedPerRpm,
     limitRpm: engine.limitRpm,
-    shiftRpm: engine.shiftRpm,
+    shiftRpm: pu ? pu.shiftRpm : engine.shiftRpm,
+    // F1M24-GAMEPLAY §2.4: upshift share under the safety car, the pit limiter's gear (0: none) and rpm.
+    scShiftShare: scShiftShareOf(year),
+    pitGear: limiter ? limiter.gear : 0,
+    pitRpm: limiter ? limiter.rpm : 0,
+    pitHoldShare: data.shift.pitLaneHoldShare,
     downRpm: engine.downRpm,
     floorRpm: engine.floorRpm,
     idleRpm: engine.idleRpm,
@@ -145,14 +210,15 @@ export const coastDecel = (pt, v, rpm = pt.shiftRpm) => {
 /**
  * Next gear from `gear` at speed v with longitudinal acceleration `a` (m/s², smoothed): up at the
  * era's shift rpm on the power, down under braking (or coasting) while the gear below stays under
- * the era's downshift rpm, and never lugging below the floor on the power.
+ * the era's downshift rpm, and never lugging below the floor on the power. `up`: the upshift rpm
+ * (default the car's own; lower under the safety car and in the pit lane, see updateDrive).
  */
-export const shiftGear = (pt, gear, v, a) => {
+export const shiftGear = (pt, gear, v, a, up = pt.shiftRpm) => {
   let g = gear < 1 ? 1 : gear > pt.gears ? pt.gears : gear;
   const per = pt.speedPerRpm;
   if (a >= 0) {
-    while (g < pt.gears && v / per[g - 1] >= pt.shiftRpm) g += 1;
-    while (g > 1 && v / per[g - 1] < pt.floorRpm && v / per[g - 2] < pt.shiftRpm) g -= 1;
+    while (g < pt.gears && v / per[g - 1] >= up) g += 1;
+    while (g > 1 && v / per[g - 1] < pt.floorRpm && v / per[g - 2] < up) g -= 1;
   } else {
     while (g < pt.gears && v / per[g - 1] > pt.limitRpm) g += 1;
     if (-a >= pt.brakingG * G) while (g > 1 && v / per[g - 2] <= pt.downRpm) g -= 1;
@@ -353,11 +419,35 @@ export const createDrive = (n) => ({
 });
 
 /**
+ * F1M24-GAMEPLAY §2.4 `tren-por-pu`: each car's own power unit. `manufacturers[i]` is car i's
+ * engine manufacturer (pack id or name, or null); a car whose manufacturer the era measured gets
+ * a powertrain with its shift point and gear shape (one per manufacturer, shared), the others the
+ * field's `pt` itself. Stored on `drive.pts`, which updateDrive reads; without it every car uses `pt`.
+ */
+export const assignPowerUnits = (pt, drive, manufacturers = []) => {
+  const era = eraOf(pt.year);
+  const built = {};
+  drive.pts = manufacturers.map((name) => {
+    const key = manufacturerKey(name);
+    if (!manufacturerOf(era, key)) return pt;
+    if (!built[key]) built[key] = powertrainFor({ ...(pt.args || { year: pt.year }), manufacturer: key });
+    return built[key];
+  });
+  return drive.pts;
+};
+
+/**
  * After a car moved one step: its gear, rpm and pedals from its speed `v` (m/s) and the
  * curvature `kappa` (1/m) where it is. `coast`: lifted in a lift-and-coast zone (no pedals);
  * `stopped`: in its box; `full`: where the reference trace accelerates (full throttle).
+ * F1M24-GAMEPLAY §2.4 / §1.7 (PT-1), both optional (absent: shifts as on a green track):
+ * `pitLane`: moving in the pit lane with the limiter on - at the limiter's speed the car holds the
+ * era's limiter gear (eras[].pitLimiter), and pulling away from its box it upshifts at the limiter
+ * rpm up to that gear; `underSc`: behind the safety car - upshifts at shift.underSc of the shift rpm.
+ * A car given its own power unit (assignPowerUnits) shifts with it instead of `pt`.
  */
-export const updateDrive = (pt, drive, i, v, kappa, dt, { coast = false, stopped = false, full = false } = {}) => {
+export const updateDrive = (pt0, drive, i, v, kappa, dt, { coast = false, stopped = false, full = false, pitLane = false, underSc = false } = {}) => {
+  const pt = drive.pts && drive.pts[i] ? drive.pts[i] : pt0;
   const raw = (v - drive.vPrev[i]) / dt;
   drive.vPrev[i] = v;
   const k = dt / (pt.accelSec + dt);
@@ -372,7 +462,14 @@ export const updateDrive = (pt, drive, i, v, kappa, dt, { coast = false, stopped
     return;
   }
   const a = drive.lonA[i];
-  const gear = shiftGear(pt, drive.gear[i] > 0 ? drive.gear[i] : 1, v, a);
+  const from = drive.gear[i] > 0 ? drive.gear[i] : 1;
+  let gear;
+  if (pitLane && pt.pitGear > 0 && v <= pt.pitRpm * pt.speedPerRpm[pt.pitGear - 1] * pt.pitHoldShare) {
+    const pick = shiftGear(pt, from, v, a, pt.pitRpm);
+    gear = pick > pt.pitGear ? pt.pitGear : pick;
+  } else {
+    gear = shiftGear(pt, from, v, a, underSc ? pt.shiftRpm * pt.scShiftShare : pt.shiftRpm);
+  }
   drive.gear[i] = gear;
   const rpm = rpmOf(pt, gear, v);
   drive.rpm[i] = drive.launching[i] && gear === 1 && rpm < pt.launchRpm ? pt.launchRpm : rpm;

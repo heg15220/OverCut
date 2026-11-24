@@ -19,7 +19,22 @@ import path from "path";
 import schema from "../packs/schema/race-powertrain.schema.json";
 import data from "../../data/balance/race-powertrain.json";
 import telemetry from "./__fixtures__/openf1-powertrain.json";
-import { coastDecel, eraOf, gearShares, launchAccel, powertrainFor, rpmOf, shiftGear } from "./powertrain";
+import {
+  assignPowerUnits,
+  coastDecel,
+  createDrive,
+  eraOf,
+  gearShares,
+  launchAccel,
+  manufacturerKey,
+  manufacturerOf,
+  pitLimiterOf,
+  powertrainFor,
+  rpmOf,
+  scShiftShareOf,
+  shiftGear,
+  updateDrive,
+} from "./powertrain";
 import { fromQuickRace, setMix, snapshot, stepOnce } from "./index";
 import { packContext, weekend } from "./simTestKit";
 
@@ -306,5 +321,231 @@ describe("in a step race (RF-SIM-01, SRS 4.2)", () => {
       expect(car.rpm).toBeLessThanOrEqual(eraOf(2012).engine.limitRpm);
       expect(Math.abs(car.latG)).toBeLessThan(7);
     });
+  });
+});
+
+// ------------------------------------------------------------------ F1M24-GAMEPLAY §2.4 tren-por-pu (PT-1)
+
+const shiftSessions = telemetry.shifts.sessions;
+const median = (values) => {
+  const sorted = values.slice().sort((x, y) => x - y);
+  const mid = sorted.length >> 1;
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+};
+
+/** The rpm each upshift 3rd..7th happens at, flat out on a speed ramp (the gearbox's own logic). */
+const upshiftRpms = (pt, up) => {
+  const out = {};
+  let gear = 3;
+  for (let v = 10; v < 100; v += 0.01) {
+    const next = shiftGear(pt, gear, v, 5, up);
+    if (next > gear && gear >= 3 && gear <= 7) out[gear] = rpmOf(pt, gear, v);
+    gear = next;
+  }
+  return out;
+};
+
+/** Car 0 through `speeds` (m/s per step of `dt`) with updateDrive and `opts`: its gear after each step. */
+const gearsOver = (pt, speeds, opts = {}, dt = 0.25, start = 1) => {
+  const drive = createDrive(1);
+  drive.gear[0] = start;
+  drive.vPrev[0] = speeds[0];
+  return speeds.map((v) => {
+    updateDrive(pt, drive, 0, v, 0, dt, opts);
+    return drive.gear[0];
+  });
+};
+
+describe("per power unit, the pit limiter and the safety car (F1M24-GAMEPLAY §2.4 tren-por-pu; RF-SIM-01, RF-DEV-05, RNF-07)", () => {
+  it("manufacturer overrides only where OpenF1 measured them (SRS 6: nothing outside its era), on the pack's engine ids", () => {
+    data.eras.forEach((era) => {
+      const table = era.manufacturers;
+      if (era.to < 2022 || era.from > 2025) {
+        expect(table).toBeUndefined();
+        return;
+      }
+      Object.keys(table)
+        .filter((key) => key !== "$comment")
+        .forEach((key) => {
+          const entry = table[key];
+          if (entry.sameAs) {
+            expect(table[entry.sameAs].shiftRpm).toBeGreaterThan(0);
+            return;
+          }
+          expect(entry.gearShares).toHaveLength(era.gearbox.gears);
+          expect(entry.shiftRpm).toBeLessThanOrEqual(era.engine.limitRpm);
+        });
+    });
+    // The 2022-2025 packs' engine manufacturers all resolve (2022 names Red Bull's unit "rbpt").
+    ["ferrari", "mercedes", "renault", "honda-rbpt", "rbpt", "Honda RBPT"].forEach((name) => expect(manufacturerOf(eraOf(2024), name)).not.toBeNull());
+    expect(manufacturerOf(eraOf(2024), "rbpt")).toBe(eraOf(2024).manufacturers["honda-rbpt"]);
+    expect(manufacturerOf(eraOf(2012), "ferrari")).toBeNull();
+    expect(manufacturerOf(eraOf(2026), "audi")).toBeNull();
+    expect(manufacturerKey("Honda RBPT")).toBe("honda-rbpt");
+    expect(manufacturerKey(null)).toBeNull();
+  });
+
+  it("the balance file holds what the script measured (fixture shifts.pooled)", () => {
+    const table = eraOf(2024).manufacturers;
+    Object.entries(telemetry.shifts.pooled).forEach(([name, pooled]) => {
+      expect(table[name].shiftRpm).toBe(pooled.shiftRpm);
+      expect(table[name].gearShares).toEqual(pooled.gearShares);
+    });
+  });
+
+  it("shift rpm per team within ±3 % of OpenF1 car_data 2024 (every team, Bahrain, Jeddah and Lusail)", () => {
+    const rows = shiftSessions.filter((session) => session.year === 2024).flatMap((session) => session.teams);
+    expect(rows.length).toBeGreaterThanOrEqual(30);
+    const worst = rows.reduce((max, team) => {
+      const pt = powertrainFor({ year: 2024, layoutRef: "bahrain", manufacturer: team.manufacturer });
+      expect(pt.manufacturer).toBe(team.manufacturer);
+      Object.values(upshiftRpms(pt)).forEach((rpm) => {
+        // The ramp's step overshoots the shift point by a few rpm at most.
+        expect(Math.abs(rpm - pt.shiftRpm)).toBeLessThan(40);
+        expect(Math.abs(rpm / team.shiftRpm - 1)).toBeLessThanOrEqual(0.03);
+      });
+      return Math.max(max, Math.abs(pt.shiftRpm / team.shiftRpm - 1));
+    }, 0);
+    // Measured 24/11: the real spread between teams is about ±1.5 %.
+    expect(worst).toBeLessThanOrEqual(0.03);
+    // 2023 and 2025 (same era block) stay within the same band.
+    shiftSessions
+      .filter((session) => session.year !== 2024)
+      .flatMap((session) => session.teams.map((team) => ({ team, year: session.year })))
+      .forEach(({ team, year }) => {
+        const pt = powertrainFor({ year, manufacturer: team.manufacturer });
+        expect(Math.abs(pt.shiftRpm / team.shiftRpm - 1)).toBeLessThanOrEqual(0.03);
+      });
+  });
+
+  it("each power unit's gearbox gives its teams' real speed per rpm in 3rd to 8th (±4 %, OpenF1 2024)", () => {
+    shiftSessions
+      .filter((session) => session.year === 2024)
+      .forEach((session) =>
+        session.teams.forEach((team) => {
+          const pt = powertrainFor({ year: 2024, manufacturer: team.manufacturer });
+          for (let g = 3; g <= 8; g += 1) {
+            const real = team.kmhPerKrpm[g - 1];
+            if (real === null) continue;
+            expect(Math.abs((pt.speedPerRpm[g - 1] * KMH * 1000) / real - 1)).toBeLessThanOrEqual(0.04);
+          }
+        })
+      );
+    // Gears 1-2 (rarely flat out in a race) keep the measured field shape; the top gear the era's fit.
+    const field = powertrainFor({ year: 2024 });
+    const ferrari = powertrainFor({ year: 2024, manufacturer: "ferrari" });
+    expect(ferrari.speedPerRpm[0]).toBe(field.speedPerRpm[0]);
+    expect(ferrari.speedPerRpm[7]).toBe(field.speedPerRpm[7]);
+    for (let g = 1; g < 8; g += 1) expect(ferrari.speedPerRpm[g]).toBeGreaterThan(ferrari.speedPerRpm[g - 1]);
+  });
+
+  it("no manufacturer (or one the era does not list) is the era's car, unchanged", () => {
+    const field = powertrainFor({ year: 2024, layoutRef: "bahrain" });
+    expect(powertrainFor({ year: 2024, layoutRef: "bahrain", manufacturer: "audi" }).shiftRpm).toBe(field.shiftRpm);
+    expect(field.shiftRpm).toBe(eraOf(2024).engine.shiftRpm);
+    expect(Array.from(powertrainFor({ year: 2012, manufacturer: "ferrari" }).speedPerRpm)).toEqual(Array.from(powertrainFor({ year: 2012 }).speedPerRpm));
+  });
+
+  it("assignPowerUnits gives each car its unit, shared per manufacturer; the others keep the field's", () => {
+    const pt = powertrainFor({ year: 2024, layoutRef: "monza" });
+    const drive = createDrive(4);
+    const pts = assignPowerUnits(pt, drive, ["Ferrari", "ferrari", null, "audi"]);
+    expect(pts[0]).toBe(pts[1]);
+    expect(pts[0].shiftRpm).toBe(eraOf(2024).manufacturers.ferrari.shiftRpm);
+    expect(pts[0].args).toEqual(pt.args);
+    expect(pts[2]).toBe(pt);
+    expect(pts[3]).toBe(pt);
+    // updateDrive reads drive.pts: at 11 920 rpm in 5th the Ferrari (shift 11 950) holds, the field's car (11 900) upshifts.
+    [0, 2].forEach((i) => {
+      const v = 11920 * pts[i].speedPerRpm[4];
+      drive.gear[i] = 5;
+      drive.vPrev[i] = v - 0.5;
+      drive.lonA[i] = 2;
+      updateDrive(pt, drive, i, v, 0, 0.25);
+    });
+    expect(drive.gear[0]).toBe(5);
+    expect(drive.gear[2]).toBe(6);
+    // 2012: no manufacturer measured, every car is the field's.
+    const old = powertrainFor({ year: 2012 });
+    expect(assignPowerUnits(old, createDrive(2), ["ferrari", "renault"]).every((entry) => entry === old)).toBe(true);
+  });
+
+  it("the pit limiter: 2nd gear at the limiter as in OpenF1 2024, rpm within ±5 % of the real", () => {
+    const limiter = pitLimiterOf(eraOf(2024));
+    expect(limiter).toEqual({ gear: 2, rpm: 6920 });
+    shiftSessions
+      .filter((session) => session.pitLimiter.gear !== null)
+      .forEach((session) => {
+        expect(session.pitLimiter.gear).toBe(limiter.gear);
+        expect(Math.abs(session.pitLimiter.rpm / limiter.rpm - 1)).toBeLessThan(0.01);
+      });
+    const pt = powertrainFor({ year: 2024, layoutRef: "bahrain" });
+    const limit = 80 / KMH;
+    // Away from the box: 0 -> 80 km/h at ~3 m/s², then held; never above the limiter's gear.
+    const away = [];
+    for (let v = 0.6; v < limit; v += 0.75) away.push(v);
+    for (let k = 0; k < 40; k += 1) away.push(limit);
+    const gears = gearsOver(pt, away, { pitLane: true });
+    expect(Math.max(...gears)).toBe(2);
+    expect(gears[gears.length - 1]).toBe(2);
+    expect(Math.abs(rpmOf(pt, 2, limit) / limiter.rpm - 1)).toBeLessThanOrEqual(0.05);
+    // Coming in from the track (8th, braking to the limit): down to the limiter's gear and held there.
+    const entry = [];
+    for (let v = 60; v > limit; v -= 2.5) entry.push(v);
+    for (let k = 0; k < 40; k += 1) entry.push(limit);
+    const lane = gearsOver(pt, entry, { pitLane: true }, 0.25, 8);
+    expect(lane.slice(-30).every((gear) => gear === 2)).toBe(true);
+    // Without the option (as before this package) the box keeps the track's rules: a higher gear.
+    const track = gearsOver(pt, entry, {}, 0.25, 8);
+    expect(track[track.length - 1]).toBeGreaterThan(2);
+  });
+
+  it("pit limiter pending (eras before 2022, 2026) or not in the lane: the car shifts as before", () => {
+    [1990, 2005, 2012, 2018, 2026].forEach((year) => expect(pitLimiterOf(eraOf(year))).toBeNull());
+    const pt = powertrainFor({ year: 2012, layoutRef: "monza", circuitTop: 95 });
+    const ramp = [];
+    for (let v = 0.6; v < 40; v += 0.75) ramp.push(v);
+    expect(gearsOver(pt, ramp, { pitLane: true })).toEqual(gearsOver(pt, ramp));
+    const now = powertrainFor({ year: 2024 });
+    expect(gearsOver(now, ramp, { pitLane: false, underSc: false })).toEqual(gearsOver(now, ramp));
+  });
+
+  it("under the safety car the upshift comes at the measured share of the shift rpm (OpenF1 2024-25), not before 2022", () => {
+    const shares = shiftSessions.map((session) => session.underSc.share).filter((share) => share !== null);
+    expect(shares.length).toBeGreaterThanOrEqual(3);
+    expect(Math.abs(scShiftShareOf(2024) - median(shares))).toBeLessThanOrEqual(0.01);
+    [1995, 2012, 2020, 2026].forEach((year) => expect(scShiftShareOf(year)).toBe(1));
+    const pt = powertrainFor({ year: 2024 });
+    const under = upshiftRpms(pt, pt.shiftRpm * pt.scShiftShare);
+    Object.values(under).forEach((rpm) => expect(Math.abs(rpm / (pt.shiftRpm * 0.96) - 1)).toBeLessThan(0.005));
+    // Through updateDrive: a car at 0.98 of the shift rpm, accelerating, upshifts only under the SC.
+    const v = pt.shiftRpm * 0.98 * pt.speedPerRpm[3];
+    const step = (opts) => {
+      const drive = createDrive(1);
+      drive.gear[0] = 4;
+      drive.vPrev[0] = v - 0.5;
+      drive.lonA[0] = 2;
+      updateDrive(pt, drive, 0, v, 0, 0.25, opts);
+      return drive.gear[0];
+    };
+    expect(step({})).toBe(4);
+    expect(step({ underSc: true })).toBe(5);
+  });
+
+  it("all of it without randomness: the same inputs give the same gears (RF-SIM-15, RNF-05)", () => {
+    const pt = powertrainFor({ year: 2024, layoutRef: "bahrain" });
+    const speeds = [];
+    for (let v = 0.6; v < 85; v += 0.9) speeds.push(v);
+    const run = () => {
+      const drive = createDrive(3);
+      assignPowerUnits(pt, drive, ["mercedes", "ferrari", "renault"]);
+      const out = [];
+      speeds.forEach((v, k) => {
+        for (let i = 0; i < 3; i += 1) updateDrive(pt, drive, i, v, 0, 0.25, { underSc: k % 2 === 0, pitLane: i === 2 });
+        out.push(Array.from(drive.gear).join(","), Array.from(drive.rpm).join(","));
+      });
+      return out.join("|");
+    };
+    expect(run()).toBe(run());
   });
 });

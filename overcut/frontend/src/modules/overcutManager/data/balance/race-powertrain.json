@@ -13,7 +13,17 @@
   },
   "shift": {
     "$comment": "Cambio: sube al llegar a shiftRpm de la era acelerando; reduce frenando o dejando correr cuando la marcha de abajo quedaría por debajo de downRpm (la de la era); nunca por debajo de floorRpm acelerando. brakingG: deceleración (g) a partir de la cual el coche se considera frenando para reducir. Ajustado en rejilla contra la telemetría real de las dos vueltas de pole de 2024 (OpenF1): shiftRpm 11 900, downRpm 9 750, floorRpm 4 500, brakingG 1,5 dan la marcha exacta en el 75 % (Monza) y 73 % (Baréin) de las muestras y a ±1 marcha en el 93 % y 99 % (el resto: el piloto aguanta la marcha frenando y la reduce de golpe, y Verstappen usa 3.ª donde Norris usa 2.ª). Las eras anteriores a 2014 son NV.",
-    "brakingG": 1.5
+    "brakingG": 1.5,
+    "pitLaneHoldShare": 1.05,
+    "pitLaneHoldSource": "pitLaneHoldShare (F1M24-GAMEPLAY §2.4, PT-1): en el pit lane, por debajo de la velocidad a la que la marcha del limitador (eras[].pitLimiter.gear) da sus rpm (pitLimiter.rpm) por este factor, la caja sube como mucho hasta esa marcha y lo hace a pitLimiter.rpm; por encima (frenando desde la pista antes de la línea) cambia como en pista. NV: margen para que la marcha quede fija a la velocidad del limitador con la velocidad del carril del paso.",
+    "underSc": {
+      "$comment": "Cambio bajo coche de seguridad (F1M24-GAMEPLAY §2.4 `shift.underSc`, PT-1): los cambios ascendentes van a shiftRpm por shiftRpmShare mientras el coche de seguridad está en pista. Por años; 'pending' = sin medida, se cambia como con bandera verde. Medido con powertrain_from_openf1.py --shifts: mediana de todos los cambios ascendentes desde 30 s después de SAFETY CAR DEPLOYED hasta SAFETY CAR IN THIS LAP entre la de bandera verde de la misma carrera (fixture `shifts.sessions[].underSc`): Yeda 2024 0,957, Lusail 2024 0,979, Baréin 2025 0,956. El cambio de las marchas cortas cae más (0,94 de 1.ª a 2.ª) que el de las largas (0,99).",
+      "spans": [
+        { "from": 1993, "to": 2021, "shiftRpmShare": "pending", "source": "Pendiente: OpenF1 car_data solo desde 2023 (SC oficial desde 1993, SRS 6.2)" },
+        { "from": 2022, "to": 2025, "shiftRpmShare": 0.96, "source": "V (medido): OpenF1 car_data y race_control, sesiones 9480, 9655, 10014 (carreras de Yeda y Lusail 2024 y Baréin 2025); 2022 NV" },
+        { "from": 2026, "to": 2030, "shiftRpmShare": "pending", "source": "Pendiente: OpenF1 no da car_data de 2026 (respuesta vacía, 24/11/2026)" }
+      ]
+    }
   },
   "smoothing": {
     "$comment": "Constante de tiempo (s) del filtro de primer orden de la aceleración longitudinal y lateral que ve la caja y la vista: la velocidad del paso es lineal a trozos en la tabla de la pista. NV.",
@@ -64,6 +74,7 @@
       "engine": { "spec": "3,5 l atmosférico V8/V10/V12", "limitRpm": 14500, "shiftRpm": 14000, "downRpm": 10500, "floorRpm": 7500, "idleRpm": 4500, "launchRpm": 9500, "curve": [[0.4, 0.3], [0.6, 0.6], [0.8, 0.88], [0.95, 1], [1, 0.98]], "frictionKw": 55, "harvestKw": 0 },
       "gearbox": { "gears": 6, "ratios": "perCircuit", "topGearRpm": 14000 },
       "chassis": { "wheelbaseM": 2.9, "cgHeightM": 0.3, "frontShare": 0.41, "pitchDegPerG": 0.45, "rollDegPerG": 0.7 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: límite de velocidad en el pit lane desde 1994 (tras Imola; S, reglamento deportivo FIA 1994 sin leer); antes de 1994 no hay limitador y la caja cambia como en pista. Marcha y rpm sin telemetría" },
       "launchMu": 1.3, "raceFuelKg": 170,
       "source": { "engine": "V: Honda RA109E '685 hp @ 13,500 rpm', Ferrari Tipo 043 V12 '@ 15,800 rpm' (https://en.wikipedia.org/wiki/Formula_One_engines); 14 500 rpm es el punto medio (NV)", "gearbox": "NV: cajas semiautomáticas de 6 marchas habituales (Ferrari 7)", "chassis": "NV" }
     },
@@ -73,6 +84,7 @@
       "engine": { "spec": "3,0 l atmosférico V10/V12", "limitRpm": 16500, "shiftRpm": 16000, "downRpm": 12000, "floorRpm": 8500, "idleRpm": 5000, "launchRpm": 11000, "curve": [[0.4, 0.3], [0.6, 0.6], [0.8, 0.88], [0.95, 1], [1, 0.98]], "frictionKw": 60, "harvestKw": 0 },
       "gearbox": { "gears": 6, "ratios": "perCircuit", "topGearRpm": 16000 },
       "chassis": { "wheelbaseM": 2.95, "cgHeightM": 0.29, "frontShare": 0.42, "pitchDegPerG": 0.4, "rollDegPerG": 0.6 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: limitador obligatorio (1994+), marcha y rpm sin telemetría (OpenF1 car_data solo desde 2023)" },
       "launchMu": 1.35, "raceFuelKg": 70,
       "source": { "engine": "S: 1995-2005 'between 13,000 rpm and 20,000 rpm' (https://en.wikipedia.org/wiki/Formula_One_engines); 16 500 NV para la época", "gearbox": "NV: 6 marchas (algunos equipos 7)", "chassis": "NV" }
     },
@@ -82,6 +94,7 @@
       "engine": { "spec": "3,0 l V10", "limitRpm": 17500, "shiftRpm": 17000, "downRpm": 12800, "floorRpm": 9000, "idleRpm": 5000, "launchRpm": 12000, "curve": [[0.4, 0.3], [0.6, 0.6], [0.8, 0.88], [0.95, 1], [1, 0.98]], "frictionKw": 65, "harvestKw": 0 },
       "gearbox": { "gears": 7, "ratios": "perCircuit", "topGearRpm": 17000 },
       "chassis": { "wheelbaseM": 3.0, "cgHeightM": 0.28, "frontShare": 0.43, "pitchDegPerG": 0.35, "rollDegPerG": 0.5 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: limitador obligatorio (1994+), marcha y rpm sin telemetría (OpenF1 car_data solo desde 2023)" },
       "launchMu": 1.35, "raceFuelKg": 70,
       "source": { "engine": "S: rango 13 000-20 000 rpm de 1995-2005 (https://en.wikipedia.org/wiki/Formula_One_engines); 17 500 NV", "gearbox": "NV: 7 marchas generalizadas a finales de los noventa", "chassis": "NV" }
     },
@@ -91,6 +104,7 @@
       "engine": { "spec": "3,0 l V10", "limitRpm": 19000, "shiftRpm": 18600, "downRpm": 14000, "floorRpm": 10000, "idleRpm": 5500, "launchRpm": 13000, "curve": [[0.4, 0.3], [0.6, 0.6], [0.8, 0.88], [0.97, 1], [1, 0.99]], "frictionKw": 70, "harvestKw": 0 },
       "gearbox": { "gears": 7, "ratios": "perCircuit", "topGearRpm": 18600 },
       "chassis": { "wheelbaseM": 3.05, "cgHeightM": 0.28, "frontShare": 0.44, "pitchDegPerG": 0.3, "rollDegPerG": 0.45 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: limitador obligatorio (1994+), marcha y rpm sin telemetría (OpenF1 car_data solo desde 2023)" },
       "launchMu": 1.45, "raceFuelKg": 70,
       "source": { "engine": "V: 2005 'around 900 bhp to 940 bhp @ 19,000 rpm'; BMW P82 'a peak speed of 19,050 rpm' (https://en.wikipedia.org/wiki/Formula_One_engines)", "gearbox": "S: 7 marchas", "chassis": "NV", "launchMu": "Control de salida legal 2001-2003 (SRS 6.2, era-defaults.json); se mantiene la misma tracción en 2004-05 por la era (NV)" }
     },
@@ -100,6 +114,7 @@
       "engine": { "spec": "2,4 l V8 sin límite de giro", "limitRpm": 20000, "shiftRpm": 19600, "downRpm": 15000, "floorRpm": 10500, "idleRpm": 5500, "launchRpm": 13500, "curve": [[0.4, 0.3], [0.6, 0.6], [0.8, 0.88], [0.97, 1], [1, 0.99]], "frictionKw": 65, "harvestKw": 0 },
       "gearbox": { "gears": 7, "ratios": "perCircuit", "topGearRpm": 19600 },
       "chassis": { "wheelbaseM": 3.1, "cgHeightM": 0.28, "frontShare": 0.45, "pitchDegPerG": 0.3, "rollDegPerG": 0.45 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: limitador obligatorio (1994+), marcha y rpm sin telemetría (OpenF1 car_data solo desde 2023)" },
       "launchMu": 1.4, "raceFuelKg": 70,
       "source": { "engine": "V: 2006 'well over 20,000 rpm', Cosworth 'just over 20,000 rpm' (https://en.wikipedia.org/wiki/Formula_One_engines)", "gearbox": "S: 7 marchas", "chassis": "NV" }
     },
@@ -109,6 +124,7 @@
       "engine": { "spec": "2,4 l V8, límite 19 000 rpm", "limitRpm": 19000, "shiftRpm": 18700, "downRpm": 14200, "floorRpm": 10000, "idleRpm": 5500, "launchRpm": 13000, "curve": [[0.4, 0.3], [0.6, 0.6], [0.8, 0.9], [0.98, 1], [1, 1]], "frictionKw": 60, "harvestKw": 0 },
       "gearbox": { "gears": 7, "ratios": "perCircuit", "topGearRpm": 18700 },
       "chassis": { "wheelbaseM": 3.1, "cgHeightM": 0.28, "frontShare": 0.45, "pitchDegPerG": 0.3, "rollDegPerG": 0.45 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: limitador obligatorio (1994+), marcha y rpm sin telemetría (OpenF1 car_data solo desde 2023)" },
       "launchMu": 1.4, "raceFuelKg": 70,
       "source": { "engine": "V: 'a 19,000 rpm mandatory rev limiter was implemented for all competitors in 2007' (https://en.wikipedia.org/wiki/Formula_One_engines)", "gearbox": "S: 7 marchas", "chassis": "NV" }
     },
@@ -118,6 +134,7 @@
       "engine": { "spec": "2,4 l V8, límite 18 000 rpm; KERS opcional", "limitRpm": 18000, "shiftRpm": 17700, "downRpm": 13400, "floorRpm": 9500, "idleRpm": 5500, "launchRpm": 12500, "curve": [[0.4, 0.3], [0.6, 0.6], [0.8, 0.9], [0.98, 1], [1, 1]], "frictionKw": 55, "harvestKw": 60 },
       "gearbox": { "gears": 7, "ratios": "perCircuit", "topGearRpm": 17700 },
       "chassis": { "wheelbaseM": 3.15, "cgHeightM": 0.28, "frontShare": 0.46, "pitchDegPerG": 0.3, "rollDegPerG": 0.45 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: limitador obligatorio (1994+), marcha y rpm sin telemetría (OpenF1 car_data solo desde 2023)" },
       "launchMu": 1.45, "raceFuelKg": 70,
       "source": { "engine": "V: 'The maximum rpm was further limited to 18,000 in 2009' (https://en.wikipedia.org/wiki/Formula_One_engines); KERS de 60 kW (https://en.wikipedia.org/wiki/Kinetic_energy_recovery_system, S), solo quien lo montaba (NV: se aplica a todos al recuperar)", "gearbox": "S: 7 marchas", "chassis": "NV" }
     },
@@ -127,6 +144,7 @@
       "engine": { "spec": "2,4 l V8, límite 18 000 rpm; sin KERS", "limitRpm": 18000, "shiftRpm": 17700, "downRpm": 13400, "floorRpm": 9500, "idleRpm": 5500, "launchRpm": 12500, "curve": [[0.4, 0.3], [0.6, 0.6], [0.8, 0.9], [0.98, 1], [1, 1]], "frictionKw": 55, "harvestKw": 0 },
       "gearbox": { "gears": 7, "ratios": "perCircuit", "topGearRpm": 17700 },
       "chassis": { "wheelbaseM": 3.2, "cgHeightM": 0.28, "frontShare": 0.46, "pitchDegPerG": 0.3, "rollDegPerG": 0.45 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: limitador obligatorio (1994+), marcha y rpm sin telemetría (OpenF1 car_data solo desde 2023)" },
       "launchMu": 1.45, "raceFuelKg": 160,
       "source": { "engine": "V: límite 18 000 rpm desde 2009 (https://en.wikipedia.org/wiki/Formula_One_engines); sin KERS en 2010 (SRS 6.2)", "gearbox": "S: 7 marchas", "chassis": "NV" }
     },
@@ -136,6 +154,7 @@
       "engine": { "spec": "2,4 l V8, límite 18 000 rpm; KERS 60 kW", "limitRpm": 18000, "shiftRpm": 17700, "downRpm": 13400, "floorRpm": 9500, "idleRpm": 5500, "launchRpm": 12500, "curve": [[0.4, 0.3], [0.6, 0.6], [0.8, 0.9], [0.98, 1], [1, 1]], "frictionKw": 55, "harvestKw": 60 },
       "gearbox": { "gears": 7, "ratios": "perCircuit", "topGearRpm": 17700 },
       "chassis": { "wheelbaseM": 3.25, "cgHeightM": 0.28, "frontShare": 0.46, "pitchDegPerG": 0.3, "rollDegPerG": 0.45 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: limitador obligatorio (1994+), marcha y rpm sin telemetría (OpenF1 car_data solo desde 2023)" },
       "launchMu": 1.45, "raceFuelKg": 155,
       "source": { "engine": "V: límite 18 000 rpm (https://en.wikipedia.org/wiki/Formula_One_engines); KERS 60 kW (S, Wikipedia KERS)", "gearbox": "S: 'the seven gears used in 2013' (https://www.autosport.com/f1/news/f1-2014-tech-gearboxes-under-pressure-5103000/5103000/); antes de 2014 una lista de unas 30 relaciones por temporada", "chassis": "NV" }
     },
@@ -145,6 +164,7 @@
       "engine": { "spec": "1,6 l V6 turbo híbrido, límite 15 000 rpm, caudal de 100 kg/h desde 10 500 rpm", "limitRpm": 15000, "shiftRpm": 11900, "downRpm": 9750, "floorRpm": 4500, "idleRpm": 4000, "launchRpm": 9000, "curve": [[0.3, 0.35], [0.5, 0.62], [0.7, 1], [1, 1]], "frictionKw": 40, "harvestKw": 120 },
       "gearbox": { "gears": 8, "ratios": "perSeason", "topGearRpm": 12250 },
       "chassis": { "wheelbaseM": 3.55, "cgHeightM": 0.27, "frontShare": 0.455, "pitchDegPerG": 0.25, "rollDegPerG": 0.35 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: OpenF1 car_data solo desde 2023; la caja de 8 marchas es la misma familia que la medida en 2023-25, pero los desarrollos de cada año no se conocen" },
       "launchMu": 1.5, "raceFuelKg": 100,
       "source": { "engine": "V: límite 15 000 rpm 2014-2021 (https://en.wikipedia.org/wiki/Formula_One_engines); MGU-K 120 kW (FIA 2014 Technical Regulations art. 5.2, S vía Wikipedia); curva plana desde 10 500 rpm por el caudal máximo (NV la forma); cambio y rpm en la punta medidos en 2024 (OpenF1) y aplicados a 2014-21 (NV)", "gearbox": "V: 'the number of forward gear ratios must be 8', declarados antes de la primera carrera y fijos toda la temporada; en 2014 un cambio (https://www.formula1.com/en/latest/article/a-racing-revolution-understanding-2014s-technical-regulations.1bTbN3OAEksY00PVE62KvC)", "chassis": "NV: batalla ~3,5-3,7 m" }
     },
@@ -154,6 +174,15 @@
       "engine": { "spec": "1,6 l V6 turbo híbrido; límite de giro levantado (sin sentido con el caudal limitado)", "limitRpm": 15000, "shiftRpm": 11900, "downRpm": 9750, "floorRpm": 4500, "idleRpm": 4000, "launchRpm": 9000, "curve": [[0.3, 0.35], [0.5, 0.62], [0.7, 1], [1, 1]], "frictionKw": 40, "harvestKw": 120 },
       "gearbox": { "gears": 8, "ratios": "perSeason", "topGearRpm": 12250 },
       "chassis": { "wheelbaseM": 3.6, "cgHeightM": 0.27, "frontShare": 0.45, "pitchDegPerG": 0.12, "rollDegPerG": 0.2 },
+      "pitLimiter": { "gear": 2, "rpm": 6920, "source": "V (medido): OpenF1 car_data dentro del pit lane (pit.date = salida, lane_duration) a 76-81 km/h, carreras de Baréin 2024, Yeda 2024, Lusail 2024 y Baréin 2025: 2.ª en el 89 % de las muestras (Stroll lleva 1.ª), mediana 6 906-6 941 rpm; 80 km/h de límite (era-defaults.json pitLaneSpeed). 2022 y 2023 (Baréin 2023 sin datos de pit en OpenF1) NV" },
+      "manufacturers": {
+        "$comment": "Sobreescrituras por fabricante del motor (F1M24-GAMEPLAY §2.4 `tren-por-pu`, PT-1; clave = teams[].engines[].manufacturer del pack, o su nombre en minúsculas con guiones): shiftRpm (punto de cambio a fondo) y gearShares (velocidad por rpm de cada marcha entre la de la 8.ª; null = la forma medida de gearShape). La caja la pone el fabricante del motor a sus clientes, así que la forma se agrupa por él. Medido con powertrain_from_openf1.py --shifts en las carreras de Baréin 2023, 2024 y 2025, Yeda 2024 y Lusail 2024 (fixture `shifts.pooled`): mediana de los equipos de cada fabricante. El reparto real entre equipos es pequeño (11 730-12 120 rpm, ±1,5 %); 2022 NV.",
+        "ferrari": { "shiftRpm": 11950, "gearShares": [null, null, 0.475, 0.557, 0.663, 0.774, 0.887, 1], "source": "V (medido): Ferrari, Haas, Alfa Romeo / Kick Sauber" },
+        "honda-rbpt": { "shiftRpm": 11870, "gearShares": [null, null, 0.484, 0.58, 0.688, 0.791, 0.896, 1], "source": "V (medido): Red Bull Racing, AlphaTauri / RB / Racing Bulls" },
+        "rbpt": { "sameAs": "honda-rbpt", "source": "NV: en 2022 el pack nombra al motor de Red Bull RBPT (construido por Honda); se usa la medida de 2023-25" },
+        "mercedes": { "shiftRpm": 11790, "gearShares": [null, null, 0.491, 0.566, 0.656, 0.753, 0.869, 1], "source": "V (medido): Mercedes, McLaren, Aston Martin, Williams (McLaren lleva desarrollos propios algo más largos)" },
+        "renault": { "shiftRpm": 11820, "gearShares": [null, null, 0.489, 0.577, 0.68, 0.795, 0.907, 1], "source": "V (medido): Alpine" }
+      },
       "launchMu": 1.55, "raceFuelKg": 110,
       "source": { "engine": "V (medido): OpenF1 2024, máximas 12 259 rpm (Monza) y 11 999 (Baréin), cambios entre 10 150 y 11 850 rpm muestreados a 3,7 Hz, salida soltando el embrague a 8 300-9 750 rpm; 'the rev limit became meaningless, so it was lifted in 2022' (https://en.wikipedia.org/wiki/Formula_One_engines): 15 000 queda como techo (NV)", "gearbox": "V: 8 relaciones fijas por temporada (ver 2014); topGearRpm medido en la 8.ª de Monza 2024", "chassis": "S: batalla máxima de 3 600 mm del reglamento de 2022; coches de efecto suelo muy rígidos (cabeceo y balanceo NV)" }
     },
@@ -163,6 +192,7 @@
       "engine": { "spec": "1,6 l V6 turbo, 50 % eléctrico (MGU-K 350 kW), combustible sostenible", "limitRpm": 15000, "shiftRpm": 11900, "downRpm": 9750, "floorRpm": 4500, "idleRpm": 4000, "launchRpm": 9000, "curve": [[0.3, 0.45], [0.5, 0.72], [0.7, 1], [1, 1]], "frictionKw": 40, "harvestKw": 350 },
       "gearbox": { "gears": 8, "ratios": "perSeason", "topGearRpm": 12250 },
       "chassis": { "wheelbaseM": 3.4, "cgHeightM": 0.27, "frontShare": 0.45, "pitchDegPerG": 0.15, "rollDegPerG": 0.22 },
+      "pitLimiter": { "gear": "pending", "rpm": "pending", "source": "Pendiente: OpenF1 no da car_data de 2026 (respuesta vacía, 24/11/2026)" },
       "launchMu": 1.5, "raceFuelKg": 70,
       "source": { "engine": "S: MGU-K de 350 kW (reglamento FIA 2026, sección C, art. C5: https://www.fia.com/system/files/documents/fia_2026_f1_regulations_-_section_c_technical_-_iss_14_-_2025-10-16.pdf); rpm y cambio NV (los de 2025)", "gearbox": "S: 8 marchas hacia delante (https://f1chronicle.com/f1-gearbox-rules-2026); desarrollos fijos por temporada NV", "chassis": "S: batalla máxima de 3 400 mm del reglamento 2026 (NV hasta comprobarlo en el artículo); resto NV" }
     }
